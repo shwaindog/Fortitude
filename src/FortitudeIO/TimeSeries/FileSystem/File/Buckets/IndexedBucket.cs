@@ -34,7 +34,7 @@ public interface IMutableIndexedDataBucket : IIndexedDataBucket, IMutableBucket
 }
 
 public abstract unsafe class IndexedBucket<TEntry, TBucket> : BucketBase<TEntry, TBucket>, IMutableIndexedDataBucket
-    where TEntry : ITimeSeriesEntry<TEntry>
+    where TEntry : ITimeSeriesEntry
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
     protected IBucketIndexDictionary?          BucketIndexDictionary;
@@ -43,7 +43,8 @@ public abstract unsafe class IndexedBucket<TEntry, TBucket> : BucketBase<TEntry,
     private   long                             indexBucketHeaderExtensionRealignmentDelta;
     private   IndexedContainerHeaderExtension* mappedIndexedContainerHeader;
 
-    protected IndexedBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable
+    protected IndexedBucket
+    (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable
       , ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
         BucketFlags |= BucketFlags.HasBucketIndex;

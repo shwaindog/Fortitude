@@ -12,8 +12,7 @@ using FortitudeMarketsApi.Pricing.Summaries;
 
 namespace FortitudeMarketsApi.Pricing.Quotes;
 
-public interface ILevel1Quote : ITickInstant, IBidAskInstant, ICloneable<ILevel1Quote>, ITimeSeriesEntry<ILevel1Quote>
-  , IDoublyLinkedListNode<ILevel1Quote>
+public interface ILevel1Quote : ITickInstant, IBidAskInstant, ICloneable<ILevel1Quote>, IDoublyLinkedListNode<ILevel1Quote>
 {
     DateTime AdapterReceivedTime { get; }
     DateTime AdapterSentTime     { get; }
@@ -59,7 +58,7 @@ public interface IMutableLevel1Quote : ILevel1Quote, IMutableTickInstant
 }
 
 // last level of QuoteStructs as Level2+ has variable length data.
-public struct Level1QuoteStruct : ITimeSeriesEntry<Level1QuoteStruct>
+public struct Level1QuoteStruct : ITimeSeriesEntry
 {
     public Level1QuoteStruct
     (DateTime sourceTime, decimal singleTickValue, DateTime clientReceivedTime,
@@ -92,7 +91,7 @@ public struct Level1QuoteStruct : ITimeSeriesEntry<Level1QuoteStruct>
     public decimal  BidPriceTop;
     public decimal  AskPriceTop;
     public bool     Executable;
-    public DateTime StorageTime(IStorageTimeResolver<Level1QuoteStruct>? resolver = null) => SourceTime;
+    public DateTime StorageTime(IStorageTimeResolver? resolver = null) => SourceTime;
 
     public override string ToString() =>
         $"{nameof(Level1QuoteStruct)}({nameof(SourceTime)}: {SourceTime}, {nameof(SingleTickValue)}: {SingleTickValue}, " +

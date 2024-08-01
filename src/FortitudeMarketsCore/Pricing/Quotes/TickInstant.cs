@@ -18,8 +18,7 @@ using FortitudeMarketsApi.Pricing.TimeSeries;
 
 namespace FortitudeMarketsCore.Pricing.Quotes;
 
-public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, ITimeSeriesEntry<TickInstant>
-  , ICloneable<TickInstant>, IDoublyLinkedListNode<TickInstant>
+public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, ICloneable<TickInstant>, IDoublyLinkedListNode<TickInstant>
 {
     protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TickInstant));
 
@@ -83,7 +82,12 @@ public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, IT
 
     public DateTime ClientReceivedTime { get; set; }
 
-    DateTime ITimeSeriesEntry<ITickInstant>.StorageTime(IStorageTimeResolver<ITickInstant>? resolver) => StorageTime(resolver);
+
+    public DateTime StorageTime(IStorageTimeResolver? resolver)
+    {
+        if (resolver is IStorageTimeResolver<ITickInstant> quoteStorageResolver) return quoteStorageResolver.ResolveStorageTime(this);
+        return QuoteStorageTimeResolver.Instance.ResolveStorageTime(this);
+    }
 
     public override ITickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -127,12 +131,6 @@ public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, IT
         var allEquivalent = srcTickersAreEquivalent && sourceTimesSame && replayIsSame && staleIsSame && singlePriceSame && clientReceivedTimeSame;
         if (!allEquivalent) Debugger.Break();
         return allEquivalent;
-    }
-
-    public DateTime StorageTime(IStorageTimeResolver<TickInstant>? resolver = null)
-    {
-        resolver ??= QuoteStorageTimeResolver.Instance;
-        return resolver.ResolveStorageTime(this);
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ITickInstant, true);

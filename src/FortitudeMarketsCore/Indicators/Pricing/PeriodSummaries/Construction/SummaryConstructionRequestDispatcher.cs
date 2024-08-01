@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Quotes;
 
@@ -30,9 +31,9 @@ public abstract class SummaryConstructionRequestDispatcher : ISummaryConstructio
 
 public class SubSummaryConstructionRequestDispatcher : SummaryConstructionRequestDispatcher
 {
-    private readonly TimeSeriesPeriod subSummaryPeriod;
+    private readonly TimeBoundaryPeriod subSummaryPeriod;
 
-    public SubSummaryConstructionRequestDispatcher(IHistoricalPricePeriodSummaryResolverRule constructingRule, TimeSeriesPeriod subSummaryPeriod)
+    public SubSummaryConstructionRequestDispatcher(IHistoricalPricePeriodSummaryResolverRule constructingRule, TimeBoundaryPeriod subSummaryPeriod)
         : base(constructingRule) =>
         this.subSummaryPeriod = subSummaryPeriod;
 
@@ -44,7 +45,7 @@ public class SubSummaryConstructionRequestDispatcher : SummaryConstructionReques
 }
 
 public class QuoteToSummaryConstructionRequestDispatcher<TQuote> : SummaryConstructionRequestDispatcher
-    where TQuote : class, ITimeSeriesEntry<TQuote>, ILevel1Quote, new()
+    where TQuote : class, ITimeSeriesEntry, ILevel1Quote, new()
 {
     public QuoteToSummaryConstructionRequestDispatcher(IHistoricalPricePeriodSummaryResolverRule constructingRule) : base(constructingRule) { }
 

@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections;
 using FortitudeCommon.DataStructures.Collections;
@@ -9,9 +12,12 @@ using FortitudeCommon.Types;
 
 namespace FortitudeCommon.DataStructures.Lists;
 
-public interface IReusableList<T> : IReusableObject<IReusableList<T>>, IList<T>
+public interface IReusableList<T> : IReusableObject<IReusableList<T>>, IList<T>, IReadOnlyCollection<T>
 {
+    new int Count { get; }
+
     IReusableList<T> AddRange(IEnumerable<T> addAll);
+
     void Sort();
     void Sort(Comparison<T> comparison);
     void ShiftToEnd(int indexToBeAtEnd);
@@ -68,8 +74,9 @@ public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T
 
     public bool Remove(T item) => backingList.Remove(item);
 
-    public int Count => backingList.Count;
+    public int  Count      => backingList.Count;
     public bool IsReadOnly => false;
+
     public int IndexOf(T item) => backingList.IndexOf(item);
 
     public void Insert(int index, T item)
@@ -101,8 +108,9 @@ public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T
         set => backingList[index] = value;
     }
 
-    public override IReusableList<T> CopyFrom(IReusableList<T> source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IReusableList<T> CopyFrom
+    (IReusableList<T> source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         backingList.Clear();
         backingList.AddRange(source);

@@ -19,7 +19,7 @@ public interface IPriceBucket
 }
 
 public interface IPriceQuoteBucket<TEntry> : IPriceBucket, IMutableBucket<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, ITickInstant { }
+    where TEntry : ITimeSeriesEntry, ITickInstant { }
 
 public interface IPricePeriodSummaryBucket<TEntry> : IPriceBucket, IMutableBucket<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary { }
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary { }

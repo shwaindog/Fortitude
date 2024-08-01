@@ -4,6 +4,7 @@
 #region
 
 using System.Collections.Concurrent;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using static FortitudeIO.TimeSeries.FileSystem.DirectoryStructure.RepositoryPathName;
@@ -19,10 +20,10 @@ public interface IPathFile : IPathPart
     InstrumentEntryRangeMatch InstrumentEntryRangeFileMatch { get; set; }
 
     IWriterSession<TEntry> GetOrCreateTimeSeriesFileWriter<TEntry>(IInstrument instrument, DateTime fileTimePeriod)
-        where TEntry : ITimeSeriesEntry<TEntry>;
+        where TEntry : ITimeSeriesEntry;
 
     IReaderSession<TEntry> GetRepoFilesReaderSession<TEntry>(IEnumerable<InstrumentRepoFile> instrumentFiles)
-        where TEntry : ITimeSeriesEntry<TEntry>;
+        where TEntry : ITimeSeriesEntry;
 }
 
 public class PathFile : PathPart, IPathFile
@@ -32,7 +33,7 @@ public class PathFile : PathPart, IPathFile
 
     public PathFile(string fileExtension, InstrumentEntryRangeMatch instrumentEntryRangeFileMatch)
         : base(new PathName(RepositoryPathName.InstrumentType),
-               new PathName(EntryPeriod),
+               new PathName(CoveringPeriod),
                new PathName(MarketProductType),
                new PathName(InstrumentSource),
                new PathName(InstrumentName),
@@ -59,7 +60,7 @@ public class PathFile : PathPart, IPathFile
         = new ConcurrentDictionary<Type, ITimeSeriesRepositoryFileFactory>();
 
     public IWriterSession<TEntry> GetOrCreateTimeSeriesFileWriter<TEntry>(IInstrument instrument, DateTime fileTimePeriod)
-        where TEntry : ITimeSeriesEntry<TEntry>
+        where TEntry : ITimeSeriesEntry
     {
         var entryType = typeof(TEntry);
 
@@ -67,7 +68,7 @@ public class PathFile : PathPart, IPathFile
 
         if (timeSeriesFileFactory == null) throw new Exception($"No Time Series file factory has been registered for type {entryType}");
 
-        var folderPeriod = ParentDirectory!.PathTimeSeriesPeriod;
+        var folderPeriod = ParentDirectory!.PathTimeBoundaryPeriod;
         var fileInfo     = new FileInfo(FullPath(instrument, fileTimePeriod, folderPeriod));
         var fileExists   = fileInfo.Exists;
         if (!(fileInfo.Directory?.Exists ?? false)) Directory.CreateDirectory(ParentDirectory.FullPath(instrument, fileTimePeriod, folderPeriod));
@@ -76,12 +77,12 @@ public class PathFile : PathPart, IPathFile
         if (!fileExists)
             RepositoryRootDirectory.OnFileInstrumentUpdated
                 (new RepositoryInstrumentFileUpdateEvent
-                    (instrument, this, fileInfo, timeSeriesFile.TimeSeriesPeriodRange, timeSeriesFile, PathUpdateType.Available));
+                    (instrument, this, fileInfo, timeSeriesFile.TimeBoundaryPeriodRange, timeSeriesFile, PathUpdateType.Available));
         return timeSeriesFile.GetWriterSession()!;
     }
 
     public IReaderSession<TEntry> GetRepoFilesReaderSession<TEntry>(IEnumerable<InstrumentRepoFile> instrumentFiles)
-        where TEntry : ITimeSeriesEntry<TEntry>
+        where TEntry : ITimeSeriesEntry
     {
         var entryType = typeof(TEntry);
 
@@ -122,6 +123,6 @@ public class PathFile : PathPart, IPathFile
         return currentMatch;
     }
 
-    public override string PathName(IInstrument instrument, DateTime timeInPeriod, TimeSeriesPeriod forPeriod) =>
+    public override string PathName(IInstrument instrument, DateTime timeInPeriod, TimeBoundaryPeriod forPeriod) =>
         string.Join(NamePartSeparator, NameParts.Select(tsfpf => tsfpf.GetString(instrument, timeInPeriod, forPeriod))) + fileExtension;
 }

@@ -33,10 +33,13 @@ public interface ITimerCallBackRunInfo : IReusableObject<ITimerCallBackRunInfo>,
     bool RunCallbackOnThisThread();
 }
 
-public interface ITimerUpdateCallBackRunInfo : ITimerCallBackRunInfo
+public interface ICaptureTimesState
 {
     ITimerUpdate? TimerUpdate { get; set; }
+    void          CaptureTriggerAndScheduleTime();
 }
+
+public interface ITimerUpdateCallBackRunInfo : ITimerCallBackRunInfo, ICaptureTimesState { }
 
 public abstract class TimerCallBackRunInfo : ReusableObject<ITimerCallBackRunInfo>, ITimerCallBackRunInfo
 {

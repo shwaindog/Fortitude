@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
@@ -16,8 +17,6 @@ namespace FortitudeMarketsApi.Indicators.Pricing;
 public interface IPricingIndicator : IIndicator, IPricingInstrumentId
 {
     long IndicatorSourceTickerId { get; }
-
-    TimePeriod CoveringPeriod { get; }
 }
 
 public class PricingIndicator : PricingInstrument, IPricingIndicator
@@ -30,10 +29,10 @@ public class PricingIndicator : PricingInstrument, IPricingIndicator
     }
 
     public PricingIndicator
-    (ushort indicatorId, ushort sourceId, ushort tickerId, string indicatorName, string source, string ticker, TimeSeriesPeriod entryPeriod
-      , IndicatorType indicatorType, TimePeriod coveringPeriod, MarketClassification marketClassification
+    (ushort indicatorId, ushort sourceId, ushort tickerId, string indicatorName, string source, string ticker, DiscreetTimePeriod coveringPeriod
+      , IndicatorType indicatorType, MarketClassification marketClassification
       , string instrumentDescription = "No Description Given")
-        : base(sourceId, tickerId, source, ticker, entryPeriod, InstrumentType.Indicator, marketClassification)
+        : base(sourceId, tickerId, source, ticker, coveringPeriod, InstrumentType.Indicator, marketClassification)
     {
         IndicatorId    = indicatorId;
         IndicatorName  = indicatorName;
@@ -65,19 +64,16 @@ public class PricingIndicator : PricingInstrument, IPricingIndicator
 
     public long IndicatorSourceTickerId => ((long)SourceTickerId << 32) | ((long)IndicatorId << 8);
 
-    public ushort IndicatorId   { get; }
-    public string IndicatorName { get; }
-
+    public ushort IndicatorId          { get; }
+    public string IndicatorName        { get; }
     public string IndicatorDescription { get; set; }
-
-    public TimePeriod CoveringPeriod { get; }
 
     public IndicatorType IndicatorType { get; }
 }
 
-public readonly struct PeriodIndicatorTypePair(IndicatorType indicatorType, TimePeriod coveringPeriod)
+public readonly struct PeriodIndicatorTypePair(IndicatorType indicatorType, DiscreetTimePeriod coveringPeriod)
 {
-    public TimePeriod CoveringPeriod { get; } = coveringPeriod;
+    public DiscreetTimePeriod CoveringPeriod { get; } = coveringPeriod;
 
     public IndicatorType IndicatorType { get; } = indicatorType;
 }
@@ -86,10 +82,9 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
 {
     public PricingIndicatorId(IPricingIndicator pricingIndicator)
     {
-        SourceId    = pricingIndicator.SourceId;
-        TickerId    = pricingIndicator.TickerId;
-        EntryPeriod = pricingIndicator.EntryPeriod;
-        Category    = pricingIndicator.Category;
+        SourceId = pricingIndicator.SourceId;
+        TickerId = pricingIndicator.TickerId;
+        Category = pricingIndicator.Category;
 
         MarketClassification = pricingIndicator.MarketClassification;
 
@@ -99,13 +94,12 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
     }
 
     public PricingIndicatorId
-    (ushort indicatorId, ushort sourceId, ushort tickerId, TimeSeriesPeriod entryPeriod, IndicatorType indicatorType
-      , TimePeriod coveringPeriod, MarketClassification marketClassification = default, string? category = null)
+    (ushort indicatorId, ushort sourceId, ushort tickerId, IndicatorType indicatorType
+      , DiscreetTimePeriod coveringPeriod, MarketClassification marketClassification = default, string? category = null)
     {
-        SourceId    = sourceId;
-        TickerId    = tickerId;
-        EntryPeriod = entryPeriod;
-        Category    = category;
+        SourceId = sourceId;
+        TickerId = tickerId;
+        Category = category;
 
         MarketClassification = marketClassification;
 
@@ -115,13 +109,12 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
     }
 
     public PricingIndicatorId
-    (ushort indicatorId, SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod entryPeriod, IndicatorType indicatorType
-      , TimePeriod coveringPeriod, MarketClassification marketClassification = default, string? category = null)
+    (ushort indicatorId, SourceTickerIdentifier sourceTickerIdentifier, IndicatorType indicatorType
+      , DiscreetTimePeriod coveringPeriod, MarketClassification marketClassification = default, string? category = null)
     {
-        SourceId    = sourceTickerIdentifier.SourceId;
-        TickerId    = sourceTickerIdentifier.TickerId;
-        EntryPeriod = entryPeriod;
-        Category    = category;
+        SourceId = sourceTickerIdentifier.SourceId;
+        TickerId = sourceTickerIdentifier.TickerId;
+        Category = category;
 
         MarketClassification = marketClassification;
 
@@ -131,13 +124,12 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
     }
 
     public PricingIndicatorId
-    (ushort indicatorId, ushort sourceId, ushort tickerId, TimeSeriesPeriod entryPeriod, PeriodIndicatorTypePair periodIndicatorTypePair
+    (ushort indicatorId, ushort sourceId, ushort tickerId, PeriodIndicatorTypePair periodIndicatorTypePair
       , MarketClassification marketClassification = default, string? category = null)
     {
-        SourceId    = sourceId;
-        TickerId    = tickerId;
-        EntryPeriod = entryPeriod;
-        Category    = category;
+        SourceId = sourceId;
+        TickerId = tickerId;
+        Category = category;
 
         MarketClassification = marketClassification;
 
@@ -147,13 +139,12 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
     }
 
     public PricingIndicatorId
-    (ushort indicatorId, ISourceTickerId sourceTickerId, TimeSeriesPeriod entryPeriod, PeriodIndicatorTypePair periodIndicatorTypePair
+    (ushort indicatorId, ISourceTickerId sourceTickerId, PeriodIndicatorTypePair periodIndicatorTypePair
       , MarketClassification marketClassification = default, string? category = null)
     {
-        SourceId    = sourceTickerId.SourceId;
-        TickerId    = sourceTickerId.TickerId;
-        EntryPeriod = entryPeriod;
-        Category    = category;
+        SourceId = sourceTickerId.SourceId;
+        TickerId = sourceTickerId.TickerId;
+        Category = category;
 
         MarketClassification = marketClassification;
 
@@ -163,13 +154,13 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
     }
 
     public PricingIndicatorId
-    (ushort indicatorId, SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod entryPeriod, PeriodIndicatorTypePair periodIndicatorTypePair
+    (ushort indicatorId, SourceTickerIdentifier sourceTickerIdentifier
+      , PeriodIndicatorTypePair periodIndicatorTypePair
       , MarketClassification marketClassification = default, string? category = null)
     {
-        SourceId    = sourceTickerIdentifier.SourceId;
-        TickerId    = sourceTickerIdentifier.TickerId;
-        EntryPeriod = entryPeriod;
-        Category    = category;
+        SourceId = sourceTickerIdentifier.SourceId;
+        TickerId = sourceTickerIdentifier.TickerId;
+        Category = category;
 
         MarketClassification = marketClassification;
 
@@ -181,10 +172,9 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
     public PricingIndicatorId
         (ushort indicatorId, IPricingInstrumentId pricingInstrumentId, PeriodIndicatorTypePair periodIndicatorTypePair)
     {
-        SourceId    = pricingInstrumentId.SourceId;
-        TickerId    = pricingInstrumentId.TickerId;
-        EntryPeriod = pricingInstrumentId.EntryPeriod;
-        Category    = pricingInstrumentId.Category;
+        SourceId = pricingInstrumentId.SourceId;
+        TickerId = pricingInstrumentId.TickerId;
+        Category = pricingInstrumentId.Category;
 
         MarketClassification = pricingInstrumentId.MarketClassification;
 
@@ -196,10 +186,9 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
     public PricingIndicatorId
         (ushort indicatorId, PricingInstrumentId pricingInstrumentId, PeriodIndicatorTypePair periodIndicatorTypePair)
     {
-        SourceId    = pricingInstrumentId.SourceId;
-        TickerId    = pricingInstrumentId.TickerId;
-        EntryPeriod = pricingInstrumentId.EntryPeriod;
-        Category    = pricingInstrumentId.Category;
+        SourceId = pricingInstrumentId.SourceId;
+        TickerId = pricingInstrumentId.TickerId;
+        Category = pricingInstrumentId.Category;
 
         MarketClassification = pricingInstrumentId.MarketClassification;
 
@@ -210,12 +199,11 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
 
     public PricingIndicatorId
     (ushort indicatorId, IPricingInstrumentId pricingInstrumentId, IndicatorType indicatorType
-      , TimePeriod coveringPeriod)
+      , DiscreetTimePeriod coveringPeriod)
     {
-        SourceId    = pricingInstrumentId.SourceId;
-        TickerId    = pricingInstrumentId.TickerId;
-        EntryPeriod = pricingInstrumentId.EntryPeriod;
-        Category    = pricingInstrumentId.Category;
+        SourceId = pricingInstrumentId.SourceId;
+        TickerId = pricingInstrumentId.TickerId;
+        Category = pricingInstrumentId.Category;
 
         MarketClassification = pricingInstrumentId.MarketClassification;
 
@@ -226,12 +214,11 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
 
     public PricingIndicatorId
     (ushort indicatorId, PricingInstrumentId pricingInstrumentId, IndicatorType indicatorType
-      , TimePeriod coveringPeriod)
+      , DiscreetTimePeriod coveringPeriod)
     {
-        SourceId    = pricingInstrumentId.SourceId;
-        TickerId    = pricingInstrumentId.TickerId;
-        EntryPeriod = pricingInstrumentId.EntryPeriod;
-        Category    = pricingInstrumentId.Category;
+        SourceId = pricingInstrumentId.SourceId;
+        TickerId = pricingInstrumentId.TickerId;
+        Category = pricingInstrumentId.Category;
 
         MarketClassification = pricingInstrumentId.MarketClassification;
 
@@ -241,13 +228,12 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
     }
 
     public PricingIndicatorId
-    (long indicatorSourceTickerId, TimeSeriesPeriod entryPeriod, PeriodIndicatorTypePair periodIndicatorTypePair
+    (long indicatorSourceTickerId, PeriodIndicatorTypePair periodIndicatorTypePair
       , MarketClassification marketClassification = default, string? category = null)
     {
-        SourceId    = (ushort)(indicatorSourceTickerId >> 48);
-        TickerId    = (ushort)((indicatorSourceTickerId >> 32) & 0xFFFF);
-        EntryPeriod = entryPeriod;
-        Category    = category;
+        SourceId = (ushort)(indicatorSourceTickerId >> 48);
+        TickerId = (ushort)((indicatorSourceTickerId >> 32) & 0xFFFF);
+        Category = category;
 
         MarketClassification = marketClassification;
 
@@ -259,15 +245,14 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
     public long IndicatorSourceTickerId => ((long)SourceTickerId << 32) | ((long)IndicatorId << 8);
     public uint SourceTickerId          => (uint)((SourceId << 16) | TickerId);
 
-    public ushort        IndicatorId    { get; }
-    public TimePeriod    CoveringPeriod { get; }
-    public IndicatorType IndicatorType  { get; }
+    public ushort             IndicatorId    { get; }
+    public DiscreetTimePeriod CoveringPeriod { get; }
+    public IndicatorType      IndicatorType  { get; }
 
     public ushort SourceId { get; }
     public ushort TickerId { get; }
 
-    public TimeSeriesPeriod EntryPeriod    { get; }
-    public InstrumentType   InstrumentType => InstrumentType.Indicator;
+    public InstrumentType InstrumentType => InstrumentType.Indicator;
 
     public MarketClassification MarketClassification { get; }
 
@@ -285,10 +270,10 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
         new(pricingIndicatorId.SourceId, pricingIndicatorId.TickerId);
 
     public static implicit operator PeriodInstrumentTypePair(PricingIndicatorId pricingIndicatorId) =>
-        new(pricingIndicatorId.InstrumentType, pricingIndicatorId.EntryPeriod);
+        new(pricingIndicatorId.InstrumentType, pricingIndicatorId.CoveringPeriod);
 
     public static implicit operator PricingInstrumentId(PricingIndicatorId pricingIndicatorId) =>
-        new(pricingIndicatorId, pricingIndicatorId.EntryPeriod, pricingIndicatorId.InstrumentType, pricingIndicatorId.MarketClassification);
+        new(pricingIndicatorId, pricingIndicatorId.CoveringPeriod, pricingIndicatorId.InstrumentType, pricingIndicatorId.MarketClassification);
 }
 
 public static class PricingIndicatorExtensions

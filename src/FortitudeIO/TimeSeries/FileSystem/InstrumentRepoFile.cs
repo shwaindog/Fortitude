@@ -15,17 +15,17 @@ namespace FortitudeIO.TimeSeries.FileSystem;
 
 public class InstrumentRepoFile : IComparable<InstrumentRepoFile>, IEquatable<InstrumentRepoFile>, IInterfacesComparable<InstrumentRepoFile>
 {
-    public InstrumentRepoFile(IInstrument instrument, TimeSeriesRepoFile timeSeriesRepoFile, TimeSeriesPeriodRange filePeriodRange)
+    public InstrumentRepoFile(IInstrument instrument, TimeSeriesRepoFile timeSeriesRepoFile, TimeBoundaryPeriodRange filePeriodRange)
     {
         Instrument         = instrument;
         TimeSeriesRepoFile = timeSeriesRepoFile;
         FilePeriodRange    = filePeriodRange;
     }
 
-    public IInstrument           Instrument         { get; }
-    public TimeSeriesRepoFile    TimeSeriesRepoFile { get; }
-    public TimeSeriesPeriodRange FilePeriodRange    { get; }
-    public RepositoryProximity   Proximity          => TimeSeriesRepoFile.Proximity;
+    public IInstrument             Instrument         { get; }
+    public TimeSeriesRepoFile      TimeSeriesRepoFile { get; }
+    public TimeBoundaryPeriodRange FilePeriodRange    { get; }
+    public RepositoryProximity     Proximity          => TimeSeriesRepoFile.Proximity;
 
     public ITimeSeriesFile TimeSeriesFile => TimeSeriesRepoFile.GetOrOpenTimeSeriesFile(Instrument);
 
@@ -44,7 +44,7 @@ public class InstrumentRepoFile : IComparable<InstrumentRepoFile>, IEquatable<In
         return allSame;
     }
 
-    public ITimeSeriesEntryFile<TEntry> TimeSeriesEntryFile<TEntry>() where TEntry : ITimeSeriesEntry<TEntry> =>
+    public ITimeSeriesEntryFile<TEntry> TimeSeriesEntryFile<TEntry>() where TEntry : ITimeSeriesEntry =>
         TimeSeriesRepoFile.GetOrOpenTimeSeriesFile<TEntry>();
 
     public bool FileIntersects(UnboundedTimeRange? timePeriod = null) => FilePeriodRange.Intersects(timePeriod);

@@ -12,33 +12,33 @@ namespace FortitudeMarketsCore.Indicators.Pricing.MovingAverage;
 
 public struct MovingAverageOffset
 {
-    public MovingAverageOffset(TimePeriod averagePeriod, TimePeriod? latestOffsetPeriod = null)
+    public MovingAverageOffset(DiscreetTimePeriod averagePeriod, DiscreetTimePeriod? latestOffsetPeriod = null)
     {
         AveragePeriod      = averagePeriod;
-        LatestOffsetPeriod = latestOffsetPeriod ?? new TimePeriod(TimeSpan.Zero);
+        LatestOffsetPeriod = latestOffsetPeriod ?? new DiscreetTimePeriod(TimeSpan.Zero);
     }
 
-    public MovingAverageOffset(TimeSpan averagePeriod, TimePeriod? latestOffsetPeriod = null)
+    public MovingAverageOffset(TimeSpan averagePeriod, DiscreetTimePeriod? latestOffsetPeriod = null)
     {
-        AveragePeriod      = new TimePeriod(averagePeriod);
-        LatestOffsetPeriod = latestOffsetPeriod ?? new TimePeriod(TimeSpan.Zero);
+        AveragePeriod      = new DiscreetTimePeriod(averagePeriod);
+        LatestOffsetPeriod = latestOffsetPeriod ?? new DiscreetTimePeriod(TimeSpan.Zero);
     }
 
-    public MovingAverageOffset(TimePeriod averagePeriod, TimeSpan latestOffsetPeriod)
+    public MovingAverageOffset(DiscreetTimePeriod averagePeriod, TimeSpan latestOffsetPeriod)
     {
         AveragePeriod      = averagePeriod;
-        LatestOffsetPeriod = new TimePeriod(latestOffsetPeriod);
+        LatestOffsetPeriod = new DiscreetTimePeriod(latestOffsetPeriod);
     }
 
-    public MovingAverageOffset(TimePeriod averagePeriod, TimePeriod latestPeriodOffset, int latestOffsetNumberOfPeriods = 1)
+    public MovingAverageOffset(DiscreetTimePeriod averagePeriod, DiscreetTimePeriod latestPeriodOffset, int latestOffsetNumberOfPeriods = 1)
     {
         AveragePeriod               = averagePeriod;
         LatestOffsetPeriod          = latestPeriodOffset;
         LatestOffsetNumberOfPeriods = latestOffsetNumberOfPeriods;
     }
 
-    public TimePeriod AveragePeriod      { get; }
-    public TimePeriod LatestOffsetPeriod { get; }
+    public DiscreetTimePeriod AveragePeriod      { get; }
+    public DiscreetTimePeriod LatestOffsetPeriod { get; }
 
     public int LatestOffsetNumberOfPeriods { get; }
 }
@@ -60,16 +60,16 @@ public static class MovingAverageParamsExtensions
     {
         var calcStartTime = asOfTime;
         var calcEndTime   = asOfTime;
-        if (movingAvg.LatestOffsetPeriod.IsTimeSeriesPeriod())
+        if (movingAvg.LatestOffsetPeriod.IsTimeBoundaryPeriod())
         {
             calcStartTime
-                = movingAvg.LatestOffsetPeriod.TimeSeriesPeriod.ContainingPeriodBoundaryStart(asOfTime -
-                                                                                              movingAvg.AveragePeriod.AveragePeriodTimeSpan());
+                = movingAvg.LatestOffsetPeriod.Period.ContainingPeriodBoundaryStart(asOfTime -
+                                                                                    movingAvg.AveragePeriod.AveragePeriodTimeSpan());
             for (var i = 0; i < movingAvg.LatestOffsetNumberOfPeriods; i++)
-                calcStartTime = movingAvg.LatestOffsetPeriod.TimeSeriesPeriod.PreviousPeriodStart(calcStartTime);
-            calcEndTime = movingAvg.LatestOffsetPeriod.TimeSeriesPeriod.PeriodEnd(calcStartTime);
+                calcStartTime = movingAvg.LatestOffsetPeriod.Period.PreviousPeriodStart(calcStartTime);
+            calcEndTime = movingAvg.LatestOffsetPeriod.Period.PeriodEnd(calcStartTime);
         }
-        else if (movingAvg.AveragePeriod.IsTimeSpan())
+        else if (movingAvg.AveragePeriod.IsUncommonTimeSpan())
         {
             calcStartTime = asOfTime.Subtract(movingAvg.AveragePeriod.AveragePeriodTimeSpan());
             for (var i = 0; i < movingAvg.LatestOffsetNumberOfPeriods; i++)

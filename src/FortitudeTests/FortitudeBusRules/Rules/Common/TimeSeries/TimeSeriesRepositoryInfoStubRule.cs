@@ -11,6 +11,7 @@ using FortitudeBusRules.BusMessaging.Routing.Response;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeBusRules.Rules.Common.TimeSeries;
+using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using static FortitudeBusRules.Rules.Common.TimeSeries.TimeSeriesRepositoryConstants;
@@ -23,8 +24,8 @@ public class TimeSeriesRepositoryInfoStubRule : Rule
 {
     private List<IInstrument> allInstrumentsResult;
 
-    private Func<string, InstrumentType?, TimeSeriesPeriod?, List<InstrumentFileEntryInfo>> fileEntryInfosCallback;
-    private Func<string, InstrumentType?, TimeSeriesPeriod?, List<InstrumentFileInfo>>      fileInfosCallback;
+    private Func<string, InstrumentType?, DiscreetTimePeriod?, List<InstrumentFileEntryInfo>> fileEntryInfosCallback;
+    private Func<string, InstrumentType?, DiscreetTimePeriod?, List<InstrumentFileInfo>>      fileInfosCallback;
 
     private ISubscription? instrumentFileEntriesInfoRequestListenSubscription;
     private ISubscription? instrumentsFileInfoRequestListenSubscription;
@@ -32,8 +33,8 @@ public class TimeSeriesRepositoryInfoStubRule : Rule
     private ISubscription? instrumentsListRequestListenSubscription;
 
     public TimeSeriesRepositoryInfoStubRule
-    (Func<string, InstrumentType?, TimeSeriesPeriod?, List<InstrumentFileInfo>> fileInfosCallback
-      , Func<string, InstrumentType?, TimeSeriesPeriod?, List<InstrumentFileEntryInfo>>? fileEntryInfosCallback = null,
+    (Func<string, InstrumentType?, DiscreetTimePeriod?, List<InstrumentFileInfo>> fileInfosCallback
+      , Func<string, InstrumentType?, DiscreetTimePeriod?, List<InstrumentFileEntryInfo>>? fileEntryInfosCallback = null,
         List<IInstrument>? allInstrumentsResult = null)
         : base(nameof(TimeSeriesRepositoryInfoStubRule))
     {
@@ -42,13 +43,13 @@ public class TimeSeriesRepositoryInfoStubRule : Rule
         this.allInstrumentsResult   = allInstrumentsResult ?? new List<IInstrument>();
     }
 
-    public Func<string, InstrumentType?, TimeSeriesPeriod?, List<InstrumentFileInfo>> FileInfosCallback
+    public Func<string, InstrumentType?, DiscreetTimePeriod?, List<InstrumentFileInfo>> FileInfosCallback
     {
         get => fileInfosCallback;
         set => fileInfosCallback = value ?? throw new ArgumentNullException(nameof(value));
     }
 
-    public Func<string, InstrumentType?, TimeSeriesPeriod?, List<InstrumentFileEntryInfo>> FileEntryInfosCallback
+    public Func<string, InstrumentType?, DiscreetTimePeriod?, List<InstrumentFileEntryInfo>> FileEntryInfosCallback
     {
         get => fileEntryInfosCallback;
         set => fileEntryInfosCallback = value ?? throw new ArgumentNullException(nameof(value));
@@ -92,7 +93,7 @@ public class TimeSeriesRepositoryInfoStubRule : Rule
     }
 
     private List<InstrumentFileEntryInfo> GetFileEntryInfo(TimeSeriesRepositoryInstrumentFileEntryInfoRequest req) =>
-        fileEntryInfosCallback(req.InstrumentName, req.InstrumentType, req.EntryPeriod);
+        fileEntryInfosCallback(req.InstrumentName, req.InstrumentType, req.CoveringPeriod);
 
 
     private async ValueTask<List<InstrumentFileInfo>> HandleInstrumentFileInfo
@@ -111,7 +112,7 @@ public class TimeSeriesRepositoryInfoStubRule : Rule
     }
 
     private List<InstrumentFileInfo> GetFileInfo(TimeSeriesRepositoryInstrumentFileInfoRequest req) =>
-        fileInfosCallback(req.InstrumentName, req.InstrumentType, req.EntryPeriod);
+        fileInfosCallback(req.InstrumentName, req.InstrumentType, req.CoveringPeriod);
 
     private void HandleRequestListAllAvailableInstruments(IBusMessage<ResponsePublishParams> publishParamsMsg)
     {

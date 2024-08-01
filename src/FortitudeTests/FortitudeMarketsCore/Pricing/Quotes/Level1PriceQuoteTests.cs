@@ -363,7 +363,7 @@ public static class Level1PriceQuoteTestExtensions
         var ask1 = mid + halfSpread;
         return new Level1PriceQuote
             (tickerId, sourceTime, false, FeedSyncStatus.Good, 0m, sourceTime, sourceTime, sourceTime
-           , sourceTime, sourceTime, sourceTime.AddSeconds(2), bid1, false, sourceTime
+           , sourceTime, sourceTime, sourceTime.AddSeconds(10), bid1, false, sourceTime
            , ask1, false, true);
     }
 }

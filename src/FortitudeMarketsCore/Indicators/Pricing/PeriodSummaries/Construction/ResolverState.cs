@@ -5,7 +5,6 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
-using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsCore.Pricing.Summaries;
@@ -31,5 +30,5 @@ public class ResolverState(PricingInstrumentId pricingInstrumentId)
     public string Ticker => PricingInstrumentId.Ticker;
     public string Source => PricingInstrumentId.Source;
 
-    public TimeSeriesPeriod Period => PricingInstrumentId.EntryPeriod;
+    public TimeBoundaryPeriod Period => PricingInstrumentId.CoveringPeriod.Period;
 }

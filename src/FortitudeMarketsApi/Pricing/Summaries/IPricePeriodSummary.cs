@@ -13,8 +13,8 @@ using FortitudeIO.TimeSeries;
 
 namespace FortitudeMarketsApi.Pricing.Summaries;
 
-public interface IPricePeriodSummary : IReusableObject<IPricePeriodSummary>, IInterfacesComparable<IPricePeriodSummary>, ITimeSeriesPeriodRange
-  , ITimeSeriesEntry<IPricePeriodSummary>, IDoublyLinkedListNode<IPricePeriodSummary>
+public interface IPricePeriodSummary : IReusableObject<IPricePeriodSummary>, IInterfacesComparable<IPricePeriodSummary>, ITimeBoundaryPeriodRange
+  , ITimeSeriesEntry, IDoublyLinkedListNode<IPricePeriodSummary>
 {
     PricePeriodSummaryFlags PeriodSummaryFlags { get; }
 
@@ -29,14 +29,14 @@ public interface IPricePeriodSummary : IReusableObject<IPricePeriodSummary>, IIn
     BidAskPair AverageBidAsk { get; }
 
     double ContributingCompletePercentage(BoundedTimeRange timeRange, IRecycler recycler);
-    bool   IsWhollyBoundedBy(ITimeSeriesPeriodRange parentRange);
+    bool   IsWhollyBoundedBy(ITimeBoundaryPeriodRange parentRange);
 
     new IPricePeriodSummary Clone();
 }
 
 public interface IMutablePricePeriodSummary : IPricePeriodSummary
 {
-    new TimeSeriesPeriod TimeSeriesPeriod { get; set; }
+    new TimeBoundaryPeriod TimeBoundaryPeriod { get; set; }
 
     new PricePeriodSummaryFlags PeriodSummaryFlags { get; set; }
 

@@ -5,13 +5,14 @@
 
 using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.BusMessaging.Routing.Channel;
+using FortitudeBusRules.BusMessaging.Routing.Response;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
-using FortitudeBusRules.Rules.Common.TimeSeries;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Extensions;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeMarketsApi.Indicators.Pricing;
@@ -26,38 +27,49 @@ using FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 
 namespace FortitudeMarketsCore.Indicators.Pricing.MovingAverage.TimeWeighted;
 
-public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorRule<PQLevel1Quote>
+public interface ITimeWeightedMovingAveragePublisherRule : IListeningRule
+{
+    bool RemovePublishRequest(MovingAverageTimeWeightedPublishRequestState toRemove);
+}
+
+public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorRule<PQLevel1Quote>, ITimeWeightedMovingAveragePublisherRule
 {
     private readonly CalculateMovingAverageOptions defaultCalculateMovingAverageOptions;
 
     private readonly TimeSpan hardLimitTimeSpan;
 
-    private readonly IndicatorSourceTickerIdentifier            indicatorSourceTickerId;
+    private readonly IndicatorSourceTickerIdentifier indicatorSourceTickerId;
+
     private readonly LiveShortPeriodMovingAveragePublishParams  movingAverageParams;
     private readonly IDoublyLinkedList<IValidRangeBidAskPeriod> periodTopOfBookChain = new DoublyLinkedList<IValidRangeBidAskPeriod>();
-    private readonly List<MovingAveragePublishRequestState>     publishRequests;
+
+    private readonly List<MovingAverageTimeWeightedPublishRequestState> publishRequests;
 
     private readonly RequestExceedTimeRangeOptions requestExceedsTimeRangeOptions;
 
-    private readonly IDoublyLinkedList<IValidRangeBidAskPeriod> startupCachePrices = new DoublyLinkedList<IValidRangeBidAskPeriod>();
-
     private readonly TickGapOptions tickGapOptions;
 
-    private TimePeriod broadcastPublishInterval;
+    private DiscreetTimePeriod broadcastPublishInterval;
+
+    private ITimerUpdate? calculateAveragesIntervalTimer;
+
+    private TimeSpan currentTicksValidTimeSpan = TimeSpan.Zero;
 
     private IChannelLimitedEventFactory<PQLevel1Quote>? historicalQuotesChannel;
 
-    private ITimerUpdate? intervalTimer;
-
     private TimeSpan liveTicksTimeSpan;
 
-    private int queueTargetSpecificTimeCountDown;
-
     private InstrumentFileEntryInfo? quotesRepoInfo;
+
+    private TaskCompletionSource<int> quotesRetrieved = null!;
 
     private ISubscription? recentPeriodRequestSubscription;
 
     private bool retrievingHistoricalPrices = true;
+
+    private IDoublyLinkedList<IValidRangeBidAskPeriod>? startupCachePrices = new DoublyLinkedList<IValidRangeBidAskPeriod>();
+
+    private ITimerUpdate? trimExpiredTicksIntervalTimer;
 
     public LiveShortPeriodMovingAveragePublisherRule(LiveShortPeriodMovingAveragePublishParams movingAverageParams)
         : base(movingAverageParams.IndicatorSourceTickerIdentifier
@@ -78,7 +90,7 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
             if (!AcceptRequestedTicksPeriod(movingAverageParams.InitialPeriodsToPublish.Value.PeriodsToPublish))
                 throw new ArgumentException("Requested period exceeds default or hard limit limit or TimeRangeExtensionOptions " +
                                             "is not set to GrowToHardLimitTimeRange or GrowUnlimited");
-        publishRequests = new List<MovingAveragePublishRequestState>();
+        publishRequests = new List<MovingAverageTimeWeightedPublishRequestState>();
     }
 
     public override async ValueTask StartAsync()
@@ -86,41 +98,54 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
         // subscribe to live prices and cache ticks
         await base.StartAsync();
 
-        // request historical data to latest
-        await GetRepositoryQuoteInfo();
+        startupCachePrices = Context.PooledRecycler.Borrow<DoublyLinkedList<IValidRangeBidAskPeriod>>();
+
+        // request historical data from latest to valid period of liveTicksTimeSpan
         if (movingAverageParams.InitialPeriodsToPublish != null)
         {
+            var initialPeriodsToPublish = movingAverageParams.InitialPeriodsToPublish!.Value;
+            var pubParams               = initialPeriodsToPublish.PublishParams;
+            if (pubParams.ResponsePublishMethod == ResponsePublishMethod.ListenerDefaultBroadcastAddress)
+            {
+                pubParams = new ResponsePublishParams(((SourceTickerIdentifier)indicatorSourceTickerId)
+                                                      .MovingAverageTimeWeightedLiveShortPeriodPublishTemplate());
+                initialPeriodsToPublish = new MovingAveragePublisherParams
+                    (initialPeriodsToPublish.PublishFrequency, pubParams, initialPeriodsToPublish.CalculateMovingAverageOptions
+                   , initialPeriodsToPublish.PeriodsToPublish);
+            }
             publishRequests.Add
-                (new MovingAveragePublishRequestState
-                    (this, indicatorSourceTickerId.IndicatorSourceTickerId, movingAverageParams.InitialPeriodsToPublish!.Value
-                   , movingAverageParams.InitialPeriodsToPublish.Value.CalculateMovingAverageOptions ?? defaultCalculateMovingAverageOptions));
-            retrievingHistoricalPrices = await CheckRequestHistoricalTicksToCoverRequestPeriods();
+                (new MovingAverageTimeWeightedPublishRequestState
+                    (this, indicatorSourceTickerId, initialPeriodsToPublish
+                   , initialPeriodsToPublish.CalculateMovingAverageOptions ?? defaultCalculateMovingAverageOptions));
+            await CheckRequestHistoricalTicksToCoverRequestPeriods();
         }
-        else
-        {
-            retrievingHistoricalPrices = false;
-        }
+        retrievingHistoricalPrices = false;
 
         recentPeriodRequestSubscription = await this.RegisterRequestListenerAsync<MovingAveragePublisherParams, bool>
-            (MovingAverageConstants.TimeWeightedMovingAverageLiveShortPeriodRequest(indicatorSourceTickerId), ReceivePublishRequestHandler);
+            (MovingAverageConstants.MovingAverageTimeWeightedLiveShortPeriodRequest(indicatorSourceTickerId), ReceivePublishRequestHandler);
         if (movingAverageParams.InitialPeriodsToPublish != null)
         {
             broadcastPublishInterval = movingAverageParams.InitialPeriodsToPublish!.Value.PublishFrequency.PublishInterval;
-            if (broadcastPublishInterval.IsTimeSpan())
-                intervalTimer = Timer.RunEvery(broadcastPublishInterval.TimeSpan, CalculateAndPublishMovingAverages);
-            if (broadcastPublishInterval.IsTimeSeriesPeriod())
-                intervalTimer = Timer.RunAt
-                    (broadcastPublishInterval.TimeSeriesPeriod.PeriodEnd(TimeContext.UtcNow), StartTimeSeriesPeriodInterval);
+            if (broadcastPublishInterval.IsUncommonTimeSpan())
+                calculateAveragesIntervalTimer = Timer.RunEvery(broadcastPublishInterval.TimeSpan, CalculateAndPublishMovingAverages);
+            if (broadcastPublishInterval.IsTimeBoundaryPeriod())
+                calculateAveragesIntervalTimer = Timer.RunAt
+                    (broadcastPublishInterval.Period.PeriodEnd(TimeContext.UtcNow), StartTimeSeriesPeriodInterval);
         }
+
+        trimExpiredTicksIntervalTimer = Timer.RunEvery(broadcastPublishInterval.AveragePeriodTimeSpan(), TrimExpiredTicks);
     }
 
     public override async ValueTask StopAsync()
     {
-        intervalTimer?.Cancel();
+        calculateAveragesIntervalTimer?.Cancel();
+        trimExpiredTicksIntervalTimer?.Cancel();
         await recentPeriodRequestSubscription.NullSafeUnsubscribe();
 
         await base.StopAsync();
     }
+
+    public bool RemovePublishRequest(MovingAverageTimeWeightedPublishRequestState toRemove) => publishRequests.Remove(toRemove);
 
     private async ValueTask<bool> ReceivePublishRequestHandler(IBusMessage<MovingAveragePublisherParams> publishRequestMsg)
     {
@@ -128,29 +153,15 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
         var acceptRequest   = AcceptRequestedTicksPeriod(movingAvgPubReq.PeriodsToPublish);
         {
             publishRequests.Add
-                (new MovingAveragePublishRequestState
-                    (this, indicatorSourceTickerId.IndicatorSourceTickerId, movingAvgPubReq
+                (new MovingAverageTimeWeightedPublishRequestState
+                    (this, indicatorSourceTickerId, movingAvgPubReq
                    , movingAvgPubReq.CalculateMovingAverageOptions ?? defaultCalculateMovingAverageOptions));
             await CheckRequestHistoricalTicksToCoverRequestPeriods();
         }
         return acceptRequest;
     }
 
-    private async ValueTask GetRepositoryQuoteInfo()
-    {
-        var now       = TimeContext.UtcNow;
-        var weekStart = TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(now);
-        var quotesRangeRequest = new TimeSeriesRepositoryInstrumentFileEntryInfoRequest
-            (indicatorSourceTickerId.Ticker, indicatorSourceTickerId.Source, InstrumentType.Price, TimeSeriesPeriod.Tick
-           , new UnboundedTimeRange(weekStart, null));
-        var candidateInstrumentFileInfo = await this.RequestAsync<TimeSeriesRepositoryInstrumentFileEntryInfoRequest, List<InstrumentFileEntryInfo>>
-            (TimeSeriesRepositoryConstants.TimeSeriesInstrumentEntryFileInfoRequestResponse, quotesRangeRequest);
-        if (candidateInstrumentFileInfo.Count > 1)
-            throw new Exception($"Received More than one instrument for {indicatorSourceTickerId.Ticker} type from the repository for quotes");
-        if (candidateInstrumentFileInfo.Count == 1) quotesRepoInfo = candidateInstrumentFileInfo[0];
-    }
-
-    public async ValueTask<bool> CheckRequestHistoricalTicksToCoverRequestPeriods()
+    public async ValueTask CheckRequestHistoricalTicksToCoverRequestPeriods()
     {
         var now = TimeContext.UtcNow;
 
@@ -161,13 +172,13 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
         {
             historicalQuotesChannel = this.CreateChannelFactory<PQLevel1Quote>
                 (ReceiveHistoricalQuote, new LimitedBlockingRecycler(200, Context.PooledRecycler));
-            var channelRequest = historicalQuotesChannel.ToChannelPublishRequest(-1, 50);
+            var channelRequest = historicalQuotesChannel.ToChannelPublishRequest(-1, 200);
             var request = channelRequest.ToHistoricalQuotesRequest
-                (indicatorSourceTickerId, new UnboundedTimeRange(movingAverageRequiredTicksTime, earliestTick));
-
-            return await this.RequestAsync<HistoricalQuotesRequest<PQLevel1Quote>, bool>(request.RequestAddress, request);
+                (indicatorSourceTickerId, null, true);
+            quotesRetrieved = new TaskCompletionSource<int>();
+            var shouldWait = await this.RequestAsync<HistoricalQuotesRequest<PQLevel1Quote>, bool>(request.RequestAddress, request);
+            if (shouldWait) await quotesRetrieved.Task;
         }
-        return false;
     }
 
     private bool AcceptRequestedTicksPeriod(MovingAverageOffset[] movingAveragePeriods)
@@ -175,7 +186,7 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
         foreach (var averageOffset in movingAveragePeriods)
         {
             var requiredSpan = TimeSpanFromCurrent(averageOffset);
-            if (requiredSpan < liveTicksTimeSpan)
+            if (liveTicksTimeSpan < requiredSpan)
                 switch (requestExceedsTimeRangeOptions)
                 {
                     case RequestExceedTimeRangeOptions.GrowUnlimited:
@@ -201,28 +212,52 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
         return now - earliestTime;
     }
 
-    public void StartTimeSeriesPeriodInterval()
+    public async ValueTask StartTimeSeriesPeriodInterval()
     {
-        intervalTimer = Timer.RunEvery
-            (broadcastPublishInterval.TimeSeriesPeriod.AveragePeriodTimeSpan(), CalculateAndPublishMovingAverages);
-        CalculateAndPublishMovingAverages();
+        calculateAveragesIntervalTimer = Timer.RunEvery
+            (broadcastPublishInterval.Period.AveragePeriodTimeSpan(), CalculateAndPublishMovingAverages);
+        await CalculateAndPublishMovingAverages();
     }
 
-    public void CalculateAndPublishMovingAverages()
+    public void TrimExpiredTicks(IScheduleActualTime? scheduleActualTime)
+    {
+        if (!retrievingHistoricalPrices)
+        {
+            var now         = scheduleActualTime?.ScheduleTime ?? TimeContext.UtcNow;
+            var currentTick = periodTopOfBookChain.Tail; // go backwards from current time
+            if (currentTick == null) return;
+            var remainingValidTime = liveTicksTimeSpan;
+            var toDeduct           = currentTick.ValidTo.Min(now) - currentTick.ValidFrom.Min(now);
+            while (currentTick != null)
+            {
+                var prevTick = currentTick.Previous;
+                if (remainingValidTime > TimeSpan.Zero)
+                {
+                    remainingValidTime -= toDeduct;
+                    if (prevTick != null) toDeduct = prevTick.ValidTo - prevTick.ValidFrom;
+                }
+                else
+                {
+                    periodTopOfBookChain.Remove(currentTick);
+                    currentTick.DecrementRefCount();
+                }
+                currentTick = prevTick;
+            }
+        }
+    }
+
+    public async ValueTask CalculateAndPublishMovingAverages(IScheduleActualTime? scheduleActualTime = null)
     {
         if (!retrievingHistoricalPrices)
             foreach (var request in publishRequests)
             {
-                var nextPublishTime = request.NextPublishDateTime ?? TimeContext.UtcNow;
-                if (TimeContext.UtcNow > nextPublishTime)
+                var now             = scheduleActualTime?.ScheduleTime ?? TimeContext.UtcNow;
+                var nextPublishTime = request.NextPublishDateTime ?? now;
+                if ((scheduleActualTime?.ScheduleTime ?? now) < nextPublishTime) continue;
+                while (now >= nextPublishTime)
                 {
-                    request.CalculateMovingAverageAndPublish(periodTopOfBookChain, nextPublishTime);
-                    queueTargetSpecificTimeCountDown = 1;
-                }
-                else if (queueTargetSpecificTimeCountDown-- <= 0)
-                {
-                    queueTargetSpecificTimeCountDown = ushort.MaxValue;
-                    Timer.RunAt(nextPublishTime, CalculateAndPublishMovingAverages);
+                    await request.CalculateMovingAverageAndPublish(periodTopOfBookChain, nextPublishTime);
+                    nextPublishTime = request.NextPublishDateTime ?? TimeContext.UtcNow;
                 }
             }
     }
@@ -232,48 +267,51 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
         if (channelEvent.IsLastEvent)
         {
             MergeCachedLivePricesWithHistorical();
+            quotesRetrieved.SetResult(0);
             return false;
         }
         var bidAsk = channelEvent.Event.ToValidRangeBidAskPeriod(Context.PooledRecycler);
-        periodTopOfBookChain.AddLast(bidAsk);
-        CheckGapsAndTickQuality(bidAsk);
-        return true;
+        periodTopOfBookChain.AddFirst(bidAsk); // results are in reverse chronological order
+        CheckGapsWithNextAndMarkTickQuality(bidAsk);
+        return currentTicksValidTimeSpan < liveTicksTimeSpan;
     }
 
     private void MergeCachedLivePricesWithHistorical()
     {
         var latestQuote   = periodTopOfBookChain.Tail;
-        var currentCached = startupCachePrices.Head;
+        var currentCached = startupCachePrices?.Head;
         while (currentCached != null)
         {
+            var next = currentCached.Next;
             if (latestQuote == null || latestQuote.AtTime < currentCached.AtTime)
             {
+                startupCachePrices!.Remove(currentCached);
                 periodTopOfBookChain.AddLast(currentCached);
                 latestQuote = currentCached;
             }
-            currentCached = currentCached.Next;
+            currentCached = next;
         }
+        startupCachePrices?.DecrementRefCount();
         retrievingHistoricalPrices = false;
     }
 
-    protected override ValueTask ReceiveQuoteHandler(IBusMessage<PQLevel1Quote> priceQuoteMessage)
+    protected override async ValueTask ReceiveQuoteHandler(IBusMessage<PQLevel1Quote> priceQuoteMessage)
     {
         var l1Quote = priceQuoteMessage.Payload.Body();
         var bidAsk  = l1Quote.ToValidRangeBidAskPeriod(Context.PooledRecycler);
         if (retrievingHistoricalPrices)
-            startupCachePrices.AddLast(bidAsk);
+            startupCachePrices?.AddLast(bidAsk);
         else
             periodTopOfBookChain.AddLast(bidAsk);
-        CheckGapsAndTickQuality(bidAsk);
+        CheckGapsWithPreviousAndMarkTickQuality(bidAsk);
         foreach (var request in publishRequests)
             if (!retrievingHistoricalPrices && request.PublishInterval.IsTickPeriod())
-                request.CalculateMovingAverageAndPublish(periodTopOfBookChain, TimeContext.UtcNow);
-        return ValueTask.CompletedTask;
+                await request.CalculateMovingAverageAndPublish(periodTopOfBookChain, TimeContext.UtcNow);
     }
 
-    private void CheckGapsAndTickQuality(ValidRangeBidAskPeriod bidAsk)
+    private void CheckGapsWithPreviousAndMarkTickQuality(ValidRangeBidAskPeriod bidAsk)
     {
-        if (bidAsk.Previous != null && bidAsk.Previous.HasValidPeriod())
+        if (bidAsk.Previous != null)
         {
             var timeBetween = bidAsk.AtTime - bidAsk.Previous.AtTime;
             if (timeBetween > tickGapOptions.DataGapTimeSpan && timeBetween < tickGapOptions.MarketDayCloseTimeSpan)
@@ -300,13 +338,56 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
                 bidAsk.Previous.SweepEndOfMarketWeek = true;
                 bidAsk.Previous.SweepEndOfMarketDay  = true;
             }
+            else if (bidAsk.Previous.HasValidPeriod())
+            {
+                currentTicksValidTimeSpan += bidAsk.Previous.ValidTo.Min(bidAsk.AtTime) - bidAsk.Previous.ValidFrom.Max(bidAsk.Previous.AtTime);
+            }
         }
-        if (bidAsk.BidPrice == 0 || bidAsk.AskPrice == 0)
+        if (bidAsk.BidPrice != 0 && bidAsk.AskPrice != 0) return;
+        if (bidAsk.Previous != null && bidAsk.Previous.BidPrice != 0 && bidAsk.Previous.AskPrice != 0)
+            bidAsk.UsePreviousValues = true;
+        else
+            bidAsk.UseNextValues = true;
+    }
+
+    private void CheckGapsWithNextAndMarkTickQuality(ValidRangeBidAskPeriod bidAsk)
+    {
+        if (bidAsk.Next != null)
         {
-            if (bidAsk.Previous != null && bidAsk.Previous.BidPrice != 0 && bidAsk.Previous.AskPrice != 0)
-                bidAsk.UsePreviousValues = true;
-            else
-                bidAsk.UseNextValues = true;
+            var timeBetween = bidAsk.Next.AtTime - bidAsk.AtTime;
+            if (timeBetween > tickGapOptions.DataGapTimeSpan && timeBetween < tickGapOptions.MarketDayCloseTimeSpan)
+            {
+                bidAsk.SweepEndOfDataGap   = false;
+                bidAsk.SweepStartOfDataGap = true;
+
+                bidAsk.Next.SweepEndOfDataGap = true;
+            }
+            else if (timeBetween >= tickGapOptions.MarketDayCloseTimeSpan && timeBetween < tickGapOptions.MarketWeekCloseTimeSpan)
+            {
+                bidAsk.SweepStartOfMarketDay = false;
+                bidAsk.SweepEndOfMarketDay   = true;
+
+                bidAsk.Next.SweepStartOfMarketDay = true;
+            }
+            else if (timeBetween >= tickGapOptions.MarketWeekCloseTimeSpan)
+            {
+                bidAsk.SweepStartOfMarketDay  = false;
+                bidAsk.SweepStartOfMarketWeek = false;
+                bidAsk.SweepEndOfMarketDay    = true;
+                bidAsk.SweepEndOfMarketWeek   = true;
+
+                bidAsk.Next.SweepStartOfMarketDay  = true;
+                bidAsk.Next.SweepStartOfMarketWeek = true;
+            }
+            else if (bidAsk.HasValidPeriod())
+            {
+                currentTicksValidTimeSpan += bidAsk.ValidTo.Min(bidAsk.Next.AtTime) - bidAsk.ValidFrom.Max(bidAsk.AtTime);
+            }
         }
+        if (bidAsk.BidPrice != 0 && bidAsk.AskPrice != 0) return;
+        if (bidAsk.Next != null && bidAsk.Next.BidPrice != 0 && bidAsk.Next.AskPrice != 0)
+            bidAsk.UseNextValues = true;
+        else
+            bidAsk.UsePreviousValues = true;
     }
 }

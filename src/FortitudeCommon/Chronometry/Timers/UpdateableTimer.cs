@@ -483,8 +483,7 @@ public class UpdateableTimer : IUpdateableTimer
 
     public ITimerUpdate RunEvery(int intervalMs, Action<IScheduleActualTime?> callback) => RunEvery(TimeSpan.FromMilliseconds(intervalMs), callback);
 
-    public ITimerUpdate RunEvery<T>
-        (int intervalMs, T state, Action<IScheduleActualTime<T>?> callback) where T : class =>
+    public ITimerUpdate RunEvery<T>(int intervalMs, T state, Action<IScheduleActualTime<T>?> callback) where T : class =>
         RunEvery(TimeSpan.FromMilliseconds(intervalMs), state, callback);
 
     public ITimerUpdate RunEvery(TimeSpan periodTimeSpan, object? state, WaitCallback callback)

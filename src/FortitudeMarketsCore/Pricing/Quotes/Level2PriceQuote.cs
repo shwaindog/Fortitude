@@ -5,20 +5,17 @@
 
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsApi.Pricing.Summaries;
-using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.Quotes;
 
-public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ITimeSeriesEntry<Level2PriceQuote>, ICloneable<Level2PriceQuote>
-  , IDoublyLinkedListNode<Level2PriceQuote>
+public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneable<Level2PriceQuote>, IDoublyLinkedListNode<Level2PriceQuote>
 {
     public Level2PriceQuote()
     {
@@ -154,9 +151,6 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ITimeSeri
         }
     }
 
-
-    DateTime ITimeSeriesEntry<ILevel2Quote>.StorageTime(IStorageTimeResolver<ILevel2Quote>? resolver) => StorageTime(resolver);
-
     public override ITickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
@@ -199,12 +193,6 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ITimeSeri
 
         var allAreSame = baseIsSame && bidBooksSame && bidBookChangedSame && askBooksSame && askBookChangedSame;
         return allAreSame;
-    }
-
-    public DateTime StorageTime(IStorageTimeResolver<Level2PriceQuote>? resolver = null)
-    {
-        resolver ??= QuoteStorageTimeResolver.Instance;
-        return resolver.ResolveStorageTime(this);
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ILevel2Quote, true);

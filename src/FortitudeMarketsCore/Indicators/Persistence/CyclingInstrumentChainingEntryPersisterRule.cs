@@ -7,6 +7,7 @@ using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeBusRules.Rules.Common.TimeSeries;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
@@ -42,7 +43,7 @@ public struct CyclingInstrumentChainingEntryPersisterParams
 }
 
 public readonly struct ChainableInstrumentPayload<TEntry>(PricingInstrumentId instrumentId, TEntry entry)
-    where TEntry : class, ITimeSeriesEntry<TEntry>, IDoublyLinkedListNode<TEntry>, new()
+    where TEntry : class, ITimeSeriesEntry, IDoublyLinkedListNode<TEntry>, new()
 {
     public PricingInstrumentId PricingInstrumentId { get; } = instrumentId;
 
@@ -50,7 +51,7 @@ public readonly struct ChainableInstrumentPayload<TEntry>(PricingInstrumentId in
 }
 
 public class InstrumentPersistenceState<TEntry>(InstrumentFileInfo instrumentFileInfo, PricingInstrumentId pricingInstrumentId)
-    where TEntry : class, ITimeSeriesEntry<TEntry>, IDoublyLinkedListNode<TEntry>, new()
+    where TEntry : class, ITimeSeriesEntry, IDoublyLinkedListNode<TEntry>, new()
 {
     public double   AverageBatchSize;
     public DateTime BackOffNextAttempt  = DateTime.MinValue;
@@ -77,7 +78,7 @@ public class InstrumentPersistenceState<TEntry>(InstrumentFileInfo instrumentFil
 }
 
 public class CyclingInstrumentChainingEntryPersisterRule<TEntry> : TimeSeriesRepositoryAccessRule
-    where TEntry : class, ITimeSeriesEntry<TEntry>, IDoublyLinkedListNode<TEntry>, new()
+    where TEntry : class, ITimeSeriesEntry, IDoublyLinkedListNode<TEntry>, new()
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(CyclingInstrumentChainingEntryPersisterRule<>));
 
@@ -165,7 +166,7 @@ public class CyclingInstrumentChainingEntryPersisterRule<TEntry> : TimeSeriesRep
         if (!persistBacklog.TryGetValue(pricingId, out var state))
         {
             var existingInstruments =
-                InstrumentFileInfos(pricingId.Ticker, pricingId.Source, pricingId.InstrumentType, pricingId.EntryPeriod)
+                InstrumentFileInfos(pricingId.Ticker, pricingId.Source, pricingId.InstrumentType, pricingId.CoveringPeriod)
                     .ToList();
             InstrumentFileInfo instrumentFileInfo = default;
             if (existingInstruments.Any())
@@ -174,18 +175,18 @@ public class CyclingInstrumentChainingEntryPersisterRule<TEntry> : TimeSeriesRep
                     instrumentFileInfo = existingInstruments[0];
                 else
                     throw new Exception
-                        ($"More than one instrument exists for {pricingId.Ticker}, {pricingId.Source}, {pricingId.InstrumentType}, {pricingId.EntryPeriod}");
+                        ($"More than one instrument exists for {pricingId.Ticker}, {pricingId.Source}, {pricingId.InstrumentType}, {pricingId.CoveringPeriod.ShortName()}");
             }
             else
             {
                 var instrument = new PricingInstrument(pricingId);
                 var fileInfo   = TimeSeriesRepository.GetInstrumentFileInfo(instrument);
 
-                if (fileInfo.FilePeriod > TimeSeriesPeriod.None) instrumentFileInfo = new InstrumentFileInfo(instrument, fileInfo.FilePeriod);
+                if (fileInfo.FilePeriod > TimeBoundaryPeriod.None) instrumentFileInfo = new InstrumentFileInfo(instrument, fileInfo.FilePeriod);
             }
             if (Equals(instrumentFileInfo, default(InstrumentFileInfo)))
                 throw new
-                    Exception($"Could not locate a repository structure for {pricingId.Ticker}, {pricingId.Source}, {pricingId.InstrumentType}, {pricingId.EntryPeriod}");
+                    Exception($"Could not locate a repository structure for {pricingId.Ticker}, {pricingId.Source}, {pricingId.InstrumentType}, {pricingId.CoveringPeriod.ShortName()}");
             state = new InstrumentPersistenceState<TEntry>(instrumentFileInfo, pricingId);
             persistBacklog.Add(pricingId, state);
         }

@@ -66,9 +66,9 @@ public class TimeSeriesFileTests
         };
         testTimeSeriesFileParameters =
             new TimeSeriesFileParameters
-                (timeSeriesFile, new Instrument("TestInstrumentName", "TestSourceName", Price, TimeSeriesPeriod.Tick
+                (timeSeriesFile, new Instrument("TestInstrumentName", "TestSourceName", Price, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick)
                                               , instrumentFields, optionalInstrumentFields),
-                 TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, 7, fileFlags, 6);
+                 TimeBoundaryPeriod.OneWeek, DateTime.UtcNow.Date, 7, fileFlags, 6);
         oneWeekFile   = new TestWeeklyLevel1StructsTimeSeriesFile(testTimeSeriesFileParameters);
         writerSession = oneWeekFile.GetWriterSession()!;
     }
@@ -257,8 +257,8 @@ public class TimeSeriesFileTests
         Assert.AreEqual(truncated, header.Category);
         header.InstrumentName = largeString;
         Assert.AreEqual(truncated, header.InstrumentName);
-        Assert.AreEqual(TimeSeriesPeriod.OneWeek, header.FilePeriod);
-        Assert.AreEqual(TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.OneWeek, header.FilePeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
         Assert.AreEqual(Price, header.InstrumentType);
         Assert.AreEqual(typeof(TestLevel1DailyQuoteStructBucket), header.BucketType);
         Assert.AreEqual(typeof(Level1QuoteStruct), header.EntryType);
@@ -272,8 +272,8 @@ public class TimeSeriesFileTests
         Assert.AreEqual(truncated, header.SourceName);
         Assert.AreEqual(truncated, header.Category);
         Assert.AreEqual(truncated, header.InstrumentName);
-        Assert.AreEqual(TimeSeriesPeriod.OneWeek, header.FilePeriod);
-        Assert.AreEqual(TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.OneWeek, header.FilePeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
         Assert.AreEqual(Price, header.InstrumentType);
         Assert.AreEqual(typeof(TestLevel1DailyQuoteStructBucket), header.BucketType);
         Assert.AreEqual(typeof(Level1QuoteStruct), header.EntryType);

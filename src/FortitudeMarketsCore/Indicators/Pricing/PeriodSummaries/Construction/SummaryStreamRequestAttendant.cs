@@ -61,7 +61,7 @@ public abstract class StreamRequestAttendant : SummaryAttendantBase, ISummaryStr
         ReadCacheFromTime = requestRange.ToTime;
 
         var expectResults = await ConstructingRule.RequestAsync<HistoricalPricePeriodSummaryStreamRequest, bool>
-            (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoStreamRequest, retrieveUncachedRequest);
+            (HistoricalQuoteTimeSeriesRepositoryConstants.PricePeriodSummaryRepoStreamRequest, retrieveUncachedRequest);
 
         if (!expectResults)
         {
@@ -223,10 +223,11 @@ public class SubSummaryStreamRequestAttendant : StreamRequestAttendant, ISummary
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(SubSummaryStreamRequestAttendant));
 
-    private readonly TimeSeriesPeriod subSummaryPeriod;
+    private readonly TimeBoundaryPeriod subSummaryPeriod;
 
     public SubSummaryStreamRequestAttendant
-        (IHistoricalPricePeriodSummaryResolverRule constructingRule, HistoricalPeriodStreamRequest streamRequest, TimeSeriesPeriod subSummaryPeriod)
+    (IHistoricalPricePeriodSummaryResolverRule constructingRule, HistoricalPeriodStreamRequest streamRequest
+      , TimeBoundaryPeriod subSummaryPeriod)
         : base(constructingRule, streamRequest) =>
         this.subSummaryPeriod = subSummaryPeriod;
 
@@ -259,7 +260,7 @@ public class SubSummaryStreamRequestAttendant : StreamRequestAttendant, ISummary
 }
 
 public class QuoteToSummaryStreamRequestAttendant<TQuote> : StreamRequestAttendant, ISummaryStreamRequestAttendant
-    where TQuote : class, ITimeSeriesEntry<TQuote>, ILevel1Quote, new()
+    where TQuote : class, ITimeSeriesEntry, ILevel1Quote, new()
 {
     public QuoteToSummaryStreamRequestAttendant
         (IHistoricalPricePeriodSummaryResolverRule constructingRule, HistoricalPeriodStreamRequest streamRequest)

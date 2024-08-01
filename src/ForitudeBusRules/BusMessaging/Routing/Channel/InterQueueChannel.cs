@@ -17,7 +17,8 @@ namespace FortitudeBusRules.BusMessaging.Routing.Channel;
 
 public class InterQueueChannel<TEvent> : ReusableObject<IChannel>, IChannel<TEvent>
 {
-    private const string ChannelPublishBase                     = "BusRule.Channel.Receive";
+    private const string ChannelPublishBase = "BusRule.Channel.Receive";
+
     private const string SingleEventPublishReceiveAddressFormat = $"{ChannelPublishBase}.SingleEvent.{{0}}.{{1}}";
     private const string BatchEventPublishReceiveAddressFormat  = $"{ChannelPublishBase}.BatchEvent.{{0}}.{{1}}";
 
@@ -114,6 +115,7 @@ public class InterQueueChannel<TEvent> : ReusableObject<IChannel>, IChannel<TEve
                 sendMore = await CallReceiver(new ChannelEvent<TEvent>(Id, batchItemEvent, NexMsgNum));
                 if (!sendMore) break;
             }
+            if (batchToPublish is IRecyclableObject recyclableObj) recyclableObj.DecrementRefCount();
         }
         else
         {
@@ -134,7 +136,8 @@ public class InterQueueChannel<TEvent> : ReusableObject<IChannel>, IChannel<TEve
         var expectFalse = true;
         if (ReceiverIsSameQueueAs(sender))
         {
-            expectFalse                        = await CallReceiver(new ChannelEvent<TEvent>(Id, NexMsgNum));
+            expectFalse = await CallReceiver(new ChannelEvent<TEvent>(Id, NexMsgNum));
+
             receiverHasLastChannelMessageEvent = true;
         }
         else
@@ -145,7 +148,7 @@ public class InterQueueChannel<TEvent> : ReusableObject<IChannel>, IChannel<TEve
                    , new DispatchOptions(RoutingFlags.TargetSpecific, targetRule: receiverRule));
             else if (batchEventChannelResponseAddress != null)
                 expectFalse = await sender.RequestAsync<ChannelBatchedEvents<TEvent>, bool>
-                    (singleEventChannelResponseAddress!, new ChannelBatchedEvents<TEvent>()
+                    (batchEventChannelResponseAddress!, new ChannelBatchedEvents<TEvent>()
                    , new DispatchOptions(RoutingFlags.TargetSpecific, targetRule: receiverRule));
         }
         return !expectFalse;
@@ -168,7 +171,7 @@ public class InterQueueChannel<TEvent> : ReusableObject<IChannel>, IChannel<TEve
                    , new DispatchOptions(RoutingFlags.TargetSpecific, targetRule: receiverRule));
             else if (batchEventChannelResponseAddress != null)
                 await caller.RequestAsync<ChannelBatchedEvents<TEvent>, bool>
-                    (singleEventChannelResponseAddress!, new ChannelBatchedEvents<TEvent>()
+                    (batchEventChannelResponseAddress!, new ChannelBatchedEvents<TEvent>()
                    , new DispatchOptions(RoutingFlags.TargetSpecific, targetRule: receiverRule));
         }
         IsOpen = false;
@@ -236,9 +239,8 @@ public class InterQueueChannel<TEvent> : ReusableObject<IChannel>, IChannel<TEve
             (receiverRule, batchEventChannelResponseAddress, CallReceiverBatchEventCallback);
     }
 
-    private async ValueTask<bool> CallReceiverSingleEventCallback(IBusRespondingMessage<ChannelEvent<TEvent>, bool> respondingMessage)
+    private async ValueTask<bool> CallReceiverSingleEventCallback(ChannelEvent<TEvent> channelEvent)
     {
-        var channelEvent = respondingMessage.Payload.Body();
         if (channelEvent.IsLastEvent)
         {
             await CallReceiver(channelEvent);
@@ -248,21 +250,22 @@ public class InterQueueChannel<TEvent> : ReusableObject<IChannel>, IChannel<TEve
         return await CallReceiver(channelEvent);
     }
 
-    private async ValueTask<bool> CallReceiverBatchEventCallback(IBusRespondingMessage<ChannelBatchedEvents<TEvent>, bool> respondingMessage)
+    private async ValueTask<bool> CallReceiverBatchEventCallback(ChannelBatchedEvents<TEvent> channelEvent)
     {
-        var channelEvent = respondingMessage.Payload.Body();
         if (channelEvent.IsLastBatchEvent)
         {
             await CallReceiver(new ChannelEvent<TEvent>(Id, NexMsgNum));
             receiverHasLastChannelMessageEvent = true;
             return false;
         }
-        var sendMore = true;
-        foreach (var batchItemEvent in channelEvent.Events)
+        var sendMore           = true;
+        var channelEventEvents = channelEvent.Events;
+        foreach (var batchItemEvent in channelEventEvents)
         {
             sendMore = await CallReceiver(new ChannelEvent<TEvent>(Id, batchItemEvent, NexMsgNum));
             if (!sendMore) break;
         }
+        if (channelEventEvents is IRecyclableObject recyclableObj) recyclableObj.DecrementRefCount();
         return sendMore;
     }
 }

@@ -10,7 +10,6 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 using FortitudeMarketsCore.Pricing.Summaries;
@@ -26,14 +25,14 @@ public class HistoricalPricePeriodSummaryRetrievalStubRule : Rule
     private ISubscription? requestResponseSubscription;
     private ISubscription? requestStreamSubscription;
 
-    private Func<SourceTickerIdentifier, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> summariesCallback;
+    private Func<SourceTickerIdentifier, TimeBoundaryPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> summariesCallback;
 
     public HistoricalPricePeriodSummaryRetrievalStubRule
-        (Func<SourceTickerIdentifier, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> stubRetrieveSummariesCallback)
+        (Func<SourceTickerIdentifier, TimeBoundaryPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> stubRetrieveSummariesCallback)
         : base(nameof(HistoricalPricePeriodSummaryRetrievalStubRule)) =>
         summariesCallback = stubRetrieveSummariesCallback;
 
-    public Func<SourceTickerIdentifier, TimeSeriesPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> SummariesCallback
+    public Func<SourceTickerIdentifier, TimeBoundaryPeriod, UnboundedTimeRange?, IEnumerable<PricePeriodSummary>> SummariesCallback
     {
         get => summariesCallback;
         set => summariesCallback = value ?? throw new ArgumentNullException(nameof(value));
@@ -43,9 +42,9 @@ public class HistoricalPricePeriodSummaryRetrievalStubRule : Rule
     {
         await base.StartAsync();
         requestStreamSubscription = await this.RegisterRequestListenerAsync<HistoricalPricePeriodSummaryStreamRequest, bool>
-            (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoStreamRequest, HandleHistoricalPriceStreamRequest);
+            (HistoricalQuoteTimeSeriesRepositoryConstants.PricePeriodSummaryRepoStreamRequest, HandleHistoricalPriceStreamRequest);
         requestResponseSubscription = await this.RegisterRequestListenerAsync<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>>
-            (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoRequestResponse, HandleHistoricalPricePublishRequestResponse);
+            (HistoricalQuoteTimeSeriesRepositoryConstants.PricePeriodSummaryRepoRequestResponse, HandleHistoricalPricePublishRequestResponse);
     }
 
     protected virtual bool HandleHistoricalPriceStreamRequest
@@ -59,12 +58,12 @@ public class HistoricalPricePeriodSummaryRetrievalStubRule : Rule
         (IBusRespondingMessage<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>> requestResponseMessage)
     {
         var summaryRequest = requestResponseMessage.Payload.Body();
-        return summariesCallback(summaryRequest.SourceTickerIdentifier, summaryRequest.EntryPeriod, summaryRequest.TimeRange).ToList();
+        return summariesCallback(summaryRequest.SourceTickerIdentifier, summaryRequest.SummaryPeriod, summaryRequest.TimeRange).ToList();
     }
 
     private bool MakeTimeSeriesRepoCallReturnExpectResults(HistoricalPricePeriodSummaryStreamRequest streamRequest)
     {
-        var results = summariesCallback(streamRequest.SourceTickerIdentifier, streamRequest.EntryPeriod, streamRequest.TimeRange);
+        var results = summariesCallback(streamRequest.SourceTickerIdentifier, streamRequest.SummaryPeriod, streamRequest.TimeRange);
 
         if (!results.Any()) return false;
 

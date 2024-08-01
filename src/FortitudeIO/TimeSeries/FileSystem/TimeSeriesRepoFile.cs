@@ -38,7 +38,7 @@ public class TimeSeriesRepoFile
         return TimeSeriesFile!;
     }
 
-    public ITimeSeriesEntryFile<TEntry> GetOrOpenTimeSeriesFile<TEntry>() where TEntry : ITimeSeriesEntry<TEntry>
+    public ITimeSeriesEntryFile<TEntry> GetOrOpenTimeSeriesFile<TEntry>() where TEntry : ITimeSeriesEntry
     {
         var openTimeSeriesFileAsEntry = TimeSeriesFile as ITimeSeriesEntryFile<TEntry>;
         openTimeSeriesFileAsEntry ??= FileFactory<TEntry>().OpenExistingEntryFile(File);
@@ -49,7 +49,7 @@ public class TimeSeriesRepoFile
     private ITimeSeriesRepositoryFileFactory FileFactory(IInstrument instrument) =>
         PathFile.FileEntryFactoryRegistry.Values.First(ff => ff.IsBestFactoryFor(instrument));
 
-    private ITimeSeriesRepositoryFileFactory<TEntry> FileFactory<TEntry>() where TEntry : ITimeSeriesEntry<TEntry> =>
+    private ITimeSeriesRepositoryFileFactory<TEntry> FileFactory<TEntry>() where TEntry : ITimeSeriesEntry =>
         (ITimeSeriesRepositoryFileFactory<TEntry>)PathFile.FileEntryFactoryRegistry[typeof(TEntry)];
 
     protected bool Equals(TimeSeriesRepoFile other) => File.Equals(other.File);

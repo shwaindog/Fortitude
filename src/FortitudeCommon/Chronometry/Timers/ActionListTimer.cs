@@ -96,9 +96,10 @@ public interface IScheduledActualTimerCallbackPayload : ITimerCallbackPayload
 }
 
 public class ScheduledActualTimerStateCallbackPayload<T> : ReusableObject<ScheduledActualTimerStateCallbackPayload<T>>
-  , IScheduledActualTimerCallbackPayload
+  , IScheduledActualTimerCallbackPayload, ICaptureTimesState
     where T : class
 {
+    private int callCount;
     public ScheduledActualTimerStateCallbackPayload() { }
 
     private ScheduledActualTimerStateCallbackPayload(ScheduledActualTimerStateCallbackPayload<T> toClone)
@@ -117,6 +118,16 @@ public class ScheduledActualTimerStateCallbackPayload<T> : ReusableObject<Schedu
 
     public IScheduleActualTime<T>? State { get; set; }
 
+    public ITimerUpdate? TimerUpdate { get; set; }
+
+    public void CaptureTriggerAndScheduleTime()
+    {
+        var scheduleActualState = Recycler?.Borrow<ScheduleActualTime<T>>() ?? new ScheduleActualTime<T>();
+        scheduleActualState.Configure(TimerUpdate!, TimerUpdate!.NextScheduleDateTime, TimeContext.UtcNow, callCount++);
+        if (SendState != null) scheduleActualState.State = SendState;
+        State = scheduleActualState;
+    }
+
     public IScheduleActualTime ScheduleActualTime => State!;
 
     public bool IsAsyncInvoke() => ValueTaskAction != null || ValueTaskActionState != null;
@@ -163,6 +174,7 @@ public class ScheduledActualTimerStateCallbackPayload<T> : ReusableObject<Schedu
         ValueTaskAction      = null;
         ValueTaskActionState = null;
 
+        callCount   = 0;
         Action      = null;
         ActionState = null;
         State       = null;
@@ -176,6 +188,7 @@ public class ScheduledActualTimerStateCallbackPayload<T> : ReusableObject<Schedu
         ValueTaskAction      = source.ValueTaskAction;
         ValueTaskActionState = source.ValueTaskActionState;
 
+        callCount   = source.callCount;
         Action      = source.Action;
         ActionState = source.ActionState;
         State       = source.State;
@@ -187,7 +200,9 @@ public class ScheduledActualTimerStateCallbackPayload<T> : ReusableObject<Schedu
 }
 
 public class ScheduledActualTimerStateCallbackPayload : ReusableObject<ScheduledActualTimerStateCallbackPayload>, IScheduledActualTimerCallbackPayload
+  , ICaptureTimesState
 {
+    private int callCount;
     public ScheduledActualTimerStateCallbackPayload() { }
 
     private ScheduledActualTimerStateCallbackPayload(ScheduledActualTimerStateCallbackPayload toClone)
@@ -204,6 +219,15 @@ public class ScheduledActualTimerStateCallbackPayload : ReusableObject<Scheduled
 
     public IScheduleActualTime? State { get; set; }
 
+    public ITimerUpdate? TimerUpdate { get; set; }
+
+    public void CaptureTriggerAndScheduleTime()
+    {
+        var scheduleActualState = Recycler?.Borrow<ScheduleActualTime>() ?? new ScheduleActualTime();
+        scheduleActualState.Configure(TimerUpdate!, TimerUpdate!.NextScheduleDateTime, TimeContext.UtcNow, callCount++);
+        State = scheduleActualState;
+    }
+
     public IScheduleActualTime ScheduleActualTime => State!;
 
     public bool IsAsyncInvoke() => ValueTaskAction != null || ValueTaskActionState != null;
@@ -236,6 +260,7 @@ public class ScheduledActualTimerStateCallbackPayload : ReusableObject<Scheduled
         ValueTaskAction      = null;
         ValueTaskActionState = null;
 
+        callCount   = 0;
         Action      = null;
         ActionState = null;
         State       = null;
@@ -249,6 +274,7 @@ public class ScheduledActualTimerStateCallbackPayload : ReusableObject<Scheduled
         ValueTaskAction      = source.ValueTaskAction;
         ValueTaskActionState = source.ValueTaskActionState;
 
+        callCount   = source.callCount;
         Action      = source.Action;
         ActionState = source.ActionState;
         State       = source.State;

@@ -96,9 +96,7 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
 
     public event Func<IRule, IMessageListenerRegistration, string, ValueTask>? Unsubscribed;
 
-    public void SetHandlerFromSpecificMessageHandler
-    (
-        Func<IBusRespondingMessage<TPayload, TResponse>, ValueTask<TResponse>> wrapHandler)
+    public void SetHandlerFromSpecificMessageHandler(Func<IBusRespondingMessage<TPayload, TResponse>, ValueTask<TResponse>> wrapHandler)
     {
         async ValueTask HandlerWrapper(BusMessage message)
         {
@@ -163,9 +161,7 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
         Handler = HandlerWrapper;
     }
 
-    public void SetHandlerFromSpecificMessageHandler
-    (
-        Func<IBusMessage<TPayload>, ValueTask> wrapHandler)
+    public void SetHandlerFromSpecificMessageHandler(Func<IBusMessage<TPayload>, ValueTask> wrapHandler)
     {
         async ValueTask HandlerWrapper(BusMessage message)
         {
@@ -198,9 +194,7 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
         Handler = HandlerWrapper;
     }
 
-    public void SetHandlerFromSpecificMessageHandler
-    (
-        Func<IBusRespondingMessage<TPayload, TResponse>, Task<TResponse>> wrapHandler)
+    public void SetHandlerFromSpecificMessageHandler(Func<IBusRespondingMessage<TPayload, TResponse>, Task<TResponse>> wrapHandler)
     {
         async ValueTask HandlerWrapper(BusMessage message)
         {
@@ -264,9 +258,7 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
         Handler = HandlerWrapper;
     }
 
-    public void SetHandlerFromSpecificMessageHandler
-    (
-        Func<IBusRespondingMessage<TPayload, TResponse>, TResponse> wrapHandler)
+    public void SetHandlerFromSpecificMessageHandler(Func<IBusRespondingMessage<TPayload, TResponse>, TResponse> wrapHandler)
     {
         ValueTask HandlerWrapper(BusMessage message)
         {
@@ -327,9 +319,7 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
         Handler = HandlerWrapper;
     }
 
-    public void SetHandlerFromSpecificMessageHandler
-    (
-        Action<IBusMessage<TPayload>> wrapHandler)
+    public void SetHandlerFromSpecificMessageHandler(Action<IBusMessage<TPayload>> wrapHandler)
     {
         ValueTask HandlerWrapper(BusMessage message)
         {

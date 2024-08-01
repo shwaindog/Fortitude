@@ -21,21 +21,22 @@ using FortitudeMarketsCore.Pricing.PQ.Converters;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 using FortitudeMarketsCore.Pricing.Summaries;
 using static FortitudeIO.TimeSeries.InstrumentType;
-using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
+using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 
 #endregion
 
 namespace FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries.Construction;
 
-public struct HistoricalPeriodParams(SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod period, TimeLength cacheLength)
+public struct HistoricalPeriodParams(SourceTickerIdentifier sourceTickerIdentifier, TimeBoundaryPeriod period, TimeLength cacheLength)
 {
     public HistoricalPeriodParams
         (PricingInstrumentId pricingInstrumentId, TimeLength cacheLength) :
-        this(pricingInstrumentId, pricingInstrumentId.EntryPeriod, cacheLength) { }
+        this(pricingInstrumentId, pricingInstrumentId.CoveringPeriod.Period, cacheLength) { }
 
     public SourceTickerIdentifier SourceTickerIdentifier { get; set; } = sourceTickerIdentifier;
-    public TimeSeriesPeriod       Period                 { get; set; } = period;
-    public PricingInstrumentId    PricingInstrumentId    => new(SourceTickerIdentifier, new PeriodInstrumentTypePair(PriceSummaryPeriod, Period));
+    public TimeBoundaryPeriod     Period                 { get; set; } = period;
+    public PricingInstrumentId PricingInstrumentId =>
+        new(SourceTickerIdentifier, new PeriodInstrumentTypePair(PriceSummaryPeriod, new DiscreetTimePeriod(Period)));
 
     public TimeLength CacheLength { get; set; } = cacheLength;
 }
@@ -58,13 +59,13 @@ public interface IHistoricalPricePeriodSummaryResolverRule : IListeningRule
 }
 
 public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPricePeriodSummaryResolverRule
-    where TQuote : class, ITimeSeriesEntry<TQuote>, ILevel1Quote, new()
+    where TQuote : class, ITimeSeriesEntry, ILevel1Quote, new()
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(HistoricalPeriodSummariesResolverRule<TQuote>));
 
     private readonly ISummaryConstructionRequestDispatcher attendantDispatcher;
 
-    private readonly TimeSeriesPeriod    buildPeriod;
+    private readonly TimeBoundaryPeriod  buildPeriod;
     private readonly PricingInstrumentId priceInstrumentId;
 
     private ISubscription? historicalPriceResponseRequestSubscription;
@@ -85,9 +86,10 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
     {
         State = new ResolverState(historicalPeriod.PricingInstrumentId);
 
-        if (State.PricingInstrumentId.EntryPeriod is (None or > OneYear)) throw new Exception("Period to generate is greater than expected bounds");
+        if (State.PricingInstrumentId.CoveringPeriod.Period is (None or > OneYear))
+            throw new Exception("Period to generate is greater than expected bounds");
 
-        var subPeriod = State.PricingInstrumentId.EntryPeriod.GranularDivisiblePeriod();
+        var subPeriod = State.PricingInstrumentId.CoveringPeriod.Period.GranularDivisiblePeriod();
         buildPeriod = subPeriod.RoundNonPersistPeriodsToTick();
 
         if (buildPeriod > Tick)
@@ -95,8 +97,8 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
         else
             attendantDispatcher = new QuoteToSummaryConstructionRequestDispatcher<TQuote>(this);
 
-        State.CacheTimeSpan = State.PricingInstrumentId.EntryPeriod >= PricePeriodSummaryConstants.PersistPeriodsFrom
-            ? historicalPeriod.CacheLength.LargerPeriodOf(State.PricingInstrumentId.EntryPeriod, 32)
+        State.CacheTimeSpan = State.PricingInstrumentId.CoveringPeriod.Period >= PricePeriodSummaryConstants.PersistPeriodsFrom
+            ? historicalPeriod.CacheLength.LargerPeriodOf(State.PricingInstrumentId.CoveringPeriod.Period, 32)
             : historicalPeriod.CacheLength.ToTimeSpan().Max(TimeSpan.FromHours(4));
 
         priceInstrumentId = historicalPeriod.PricingInstrumentId;
@@ -175,7 +177,8 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
     {
         if (subPeriodResolverStarted) return;
         var tickerSubPeriodService = new TickerPeriodServiceRequest
-            (RequestType.StartOrStatus, ServiceType.HistoricalPricePeriodSummaryResolver, State.PricingInstrumentId, buildPeriod
+            (RequestType.StartOrStatus, ServiceType.HistoricalPricePeriodSummaryResolver, State.PricingInstrumentId
+           , new DiscreetTimePeriod(buildPeriod)
            , PQQuoteConverterExtensions.GetQuoteLevel<TQuote>());
 
         var response = await this.RequestAsync<TickerPeriodServiceRequest, ServiceRunStateResponse>
@@ -193,7 +196,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
     private async ValueTask GetRepositoryExistingSummariesInfo(DateTime maxPreviousTimeRange)
     {
         var existingRangeRequest = new TimeSeriesRepositoryInstrumentFileInfoRequest
-            (State.PricingInstrumentId.Ticker, State.PricingInstrumentId.Source, PriceSummaryPeriod, State.Period);
+            (State.PricingInstrumentId.Ticker, State.PricingInstrumentId.Source, PriceSummaryPeriod, new DiscreetTimePeriod(State.Period));
         var candidateInstrumentFileInfo = await this.RequestAsync<TimeSeriesRepositoryInstrumentFileInfoRequest, List<InstrumentFileInfo>>
             (TimeSeriesRepositoryConstants.TimeSeriesInstrumentFileInfoRequestResponse, existingRangeRequest);
         if (candidateInstrumentFileInfo.Count > 1)
@@ -213,7 +216,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
     private async ValueTask GetRepositoryQuoteInfo(DateTime now)
     {
         var quotesRangeRequest = new TimeSeriesRepositoryInstrumentFileInfoRequest
-            (State.PricingInstrumentId.Ticker, State.PricingInstrumentId.Source, Price, Tick);
+            (State.PricingInstrumentId.Ticker, State.PricingInstrumentId.Source, Price, new DiscreetTimePeriod(Tick));
         var candidateInstrumentFileInfo = await this.RequestAsync<TimeSeriesRepositoryInstrumentFileInfoRequest, List<InstrumentFileInfo>>
             (TimeSeriesRepositoryConstants.TimeSeriesInstrumentFileInfoRequestResponse, quotesRangeRequest);
         if (candidateInstrumentFileInfo.Count > 1)
@@ -247,7 +250,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
     {
         var existingPeriodsRangeRequest
             = new TimeSeriesRepositoryInstrumentFileInfoRequest
-                (State.PricingInstrumentId.Ticker, State.PricingInstrumentId.Source, PriceSummaryPeriod, buildPeriod);
+                (State.PricingInstrumentId.Ticker, State.PricingInstrumentId.Source, PriceSummaryPeriod, new DiscreetTimePeriod(buildPeriod));
         var candidateInstrumentFileInfo = await this.RequestAsync<TimeSeriesRepositoryInstrumentFileInfoRequest, List<InstrumentFileInfo>>
             (TimeSeriesRepositoryConstants.TimeSeriesInstrumentFileInfoRequestResponse, existingPeriodsRangeRequest);
         if (candidateInstrumentFileInfo.Count > 1)
@@ -289,7 +292,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
             {
                 var maxHistoricalTimeRange = State.Period.ContainingPeriodBoundaryStart(now);
                 var existingRangeRequest = new TimeSeriesRepositoryInstrumentFileInfoRequest
-                    (State.PricingInstrumentId.Ticker, State.PricingInstrumentId.Source, PriceSummaryPeriod, State.Period);
+                    (State.PricingInstrumentId.Ticker, State.PricingInstrumentId.Source, PriceSummaryPeriod, new DiscreetTimePeriod(State.Period));
                 var candidateInstrumentFileInfo = await this.RequestAsync<TimeSeriesRepositoryInstrumentFileInfoRequest, List<InstrumentFileInfo>>
                     (TimeSeriesRepositoryConstants.TimeSeriesInstrumentFileInfoRequestResponse, existingRangeRequest);
 
@@ -352,7 +355,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
             var retrieveUncachedRequest = new HistoricalPricePeriodSummaryRequestResponse(State.PricingInstrumentId, unmatchedRange);
 
             var remainingPeriods = await this.RequestAsync<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>>
-                (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoRequestResponse, retrieveUncachedRequest);
+                (HistoricalQuoteTimeSeriesRepositoryConstants.PricePeriodSummaryRepoRequestResponse, retrieveUncachedRequest);
             remainingPeriods.AddRange(cacheResults);
             return remainingPeriods;
         }
@@ -413,7 +416,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
             {
                 var request = new HistoricalPricePeriodSummaryRequestResponse(State.PricingInstrumentId, timeRange);
                 var repoHistoricalSummaries = await this.RequestAsync<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>>
-                    (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoRequestResponse, request);
+                    (HistoricalQuoteTimeSeriesRepositoryConstants.PricePeriodSummaryRepoRequestResponse, request);
                 foreach (var repoHistoricalSummary in repoHistoricalSummaries) State.Cache.AddReplace(repoHistoricalSummary);
             }
         }
@@ -424,7 +427,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
             {
                 var request = new HistoricalPricePeriodSummaryRequestResponse(State.PricingInstrumentId, timeRange);
                 var repoHistoricalSummaries = await this.RequestAsync<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>>
-                    (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoRequestResponse, request);
+                    (HistoricalQuoteTimeSeriesRepositoryConstants.PricePeriodSummaryRepoRequestResponse, request);
                 foreach (var repoHistoricalSummary in repoHistoricalSummaries) State.Cache.AddReplace(repoHistoricalSummary);
             }
         }
@@ -436,7 +439,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
                 {
                     var request = new HistoricalPricePeriodSummaryRequestResponse(State.PricingInstrumentId, timeRange);
                     var repoHistoricalSummaries = await this.RequestAsync<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>>
-                        (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoRequestResponse, request);
+                        (HistoricalQuoteTimeSeriesRepositoryConstants.PricePeriodSummaryRepoRequestResponse, request);
                     foreach (var repoHistoricalSummary in repoHistoricalSummaries) State.Cache.AddReplace(repoHistoricalSummary);
                 }
         }

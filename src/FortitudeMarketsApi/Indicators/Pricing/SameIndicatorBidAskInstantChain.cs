@@ -3,9 +3,9 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing;
 
 #endregion
@@ -14,8 +14,8 @@ namespace FortitudeMarketsApi.Indicators.Pricing;
 
 public interface ISameIndicatorBidAskInstantChain : IDoublyLinkedList<IBidAskInstant>, IRecyclableObject
 {
-    long       IndicatorSourceTickerId { get; }
-    TimePeriod CoveringPeriod          { get; }
+    long               IndicatorSourceTickerId { get; }
+    DiscreetTimePeriod CoveringPeriod          { get; }
 
     IBidAskInstant RefIncAddFirst(IBidAskInstant node);
     IBidAskInstant RefIncAddLast(IBidAskInstant node);
@@ -26,7 +26,7 @@ public class SameIndicatorBidAskInstantChain : DoublyLinkedList<IBidAskInstant>,
 {
     public long IndicatorSourceTickerId { get; set; }
 
-    public TimePeriod CoveringPeriod { get; set; }
+    public DiscreetTimePeriod CoveringPeriod { get; set; }
 
     public IBidAskInstant RefIncAddFirst(IBidAskInstant node)
     {
@@ -47,7 +47,7 @@ public class SameIndicatorBidAskInstantChain : DoublyLinkedList<IBidAskInstant>,
         return node;
     }
 
-    public void Configure(long indicatorSourceTickerId, TimePeriod coveringPeriod)
+    public void Configure(long indicatorSourceTickerId, DiscreetTimePeriod coveringPeriod)
     {
         IndicatorSourceTickerId = indicatorSourceTickerId;
 

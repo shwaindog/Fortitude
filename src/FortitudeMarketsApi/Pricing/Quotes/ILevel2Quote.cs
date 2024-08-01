@@ -5,14 +5,13 @@
 
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 
 #endregion
 
 namespace FortitudeMarketsApi.Pricing.Quotes;
 
-public interface ILevel2Quote : ILevel1Quote, ICloneable<ILevel2Quote>, ITimeSeriesEntry<ILevel2Quote>, IDoublyLinkedListNode<ILevel2Quote>
+public interface ILevel2Quote : ILevel1Quote, ICloneable<ILevel2Quote>, IDoublyLinkedListNode<ILevel2Quote>
 {
     IOrderBook BidBook          { get; }
     bool       IsBidBookChanged { get; }

@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using static FortitudeIO.TimeSeries.FileSystem.DirectoryStructure.RepositoryPathName;
 
@@ -40,8 +41,8 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
                 {
                     new PathDirectory(new PathName(InstrumentName))
                     {
-                        repoPathBuilder.PriceSummaryFile(TimeSeriesPeriod.OneYear, TimeSeriesPeriod.OneYear)
-                      , repoPathBuilder.IndicatorFile(TimeSeriesPeriod.OneYear, TimeSeriesPeriod.OneYear)
+                        repoPathBuilder.PriceSummaryFile(new DiscreetTimePeriod(TimeBoundaryPeriod.OneYear), new DiscreetTimePeriod(TimeBoundaryPeriod.OneYear))
+                      , repoPathBuilder.IndicatorFile(new DiscreetTimePeriod(TimeBoundaryPeriod.OneYear), new DiscreetTimePeriod(TimeBoundaryPeriod.OneYear))
                     }
                 }
             }
@@ -54,8 +55,8 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
                     {
                         new PathDirectory(new PathName(InstrumentName))
                         {
-                            repoPathBuilder.PriceSummaryFile(TimeSeriesPeriod.OneWeek, TimeSeriesPeriod.OneMonth)
-                          , repoPathBuilder.IndicatorFile(TimeSeriesPeriod.OneWeek, TimeSeriesPeriod.OneMonth)
+                            repoPathBuilder.PriceSummaryFile(new DiscreetTimePeriod(TimeBoundaryPeriod.OneWeek), new DiscreetTimePeriod(TimeBoundaryPeriod.OneMonth))
+                          , repoPathBuilder.IndicatorFile(new DiscreetTimePeriod(TimeBoundaryPeriod.OneWeek), new DiscreetTimePeriod(TimeBoundaryPeriod.OneMonth))
                         }
                     }
                 }
@@ -68,8 +69,8 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
                         {
                             new PathDirectory(new PathName(InstrumentName))
                             {
-                                repoPathBuilder.PriceSummaryFile(TimeSeriesPeriod.FourHours, TimeSeriesPeriod.FourHours)
-                              , repoPathBuilder.IndicatorFile(TimeSeriesPeriod.FourHours, TimeSeriesPeriod.FourHours)
+                                repoPathBuilder.PriceSummaryFile(new DiscreetTimePeriod(TimeBoundaryPeriod.FourHours), new DiscreetTimePeriod(TimeBoundaryPeriod.FourHours))
+                              , repoPathBuilder.IndicatorFile(new DiscreetTimePeriod(TimeBoundaryPeriod.FourHours), new DiscreetTimePeriod(TimeBoundaryPeriod.FourHours))
                             }
                         }
                     }
@@ -82,8 +83,8 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
                             {
                                 new PathDirectory(new PathName(InstrumentName))
                                 {
-                                    repoPathBuilder.PriceSummaryFile(TimeSeriesPeriod.TenMinutes, TimeSeriesPeriod.OneHour)
-                                  , repoPathBuilder.IndicatorFile(TimeSeriesPeriod.TenMinutes, TimeSeriesPeriod.OneHour)
+                                    repoPathBuilder.PriceSummaryFile(new DiscreetTimePeriod(TimeBoundaryPeriod.TenMinutes), new DiscreetTimePeriod(TimeBoundaryPeriod.OneHour))
+                                  , repoPathBuilder.IndicatorFile(new DiscreetTimePeriod(TimeBoundaryPeriod.TenMinutes), new DiscreetTimePeriod(TimeBoundaryPeriod.OneHour))
                                 }
                             }
                         }
@@ -98,11 +99,11 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
                             {
                                 new PathDirectory(new PathName(InstrumentName))
                                 {
-                                    repoPathBuilder.PriceFile(TimeSeriesPeriod.Tick)
-                                  , repoPathBuilder.PriceSummaryFile(TimeSeriesPeriod.FifteenSeconds
-                                                                   , TimeSeriesPeriod.FiveMinutes)
-                                  , repoPathBuilder.IndicatorFile(TimeSeriesPeriod.FifteenSeconds,
-                                                                  TimeSeriesPeriod.FiveMinutes)
+                                    repoPathBuilder.PriceFile(new DiscreetTimePeriod(TimeBoundaryPeriod.Tick))
+                                  , repoPathBuilder.PriceSummaryFile(new DiscreetTimePeriod(TimeBoundaryPeriod.FifteenSeconds)
+                                                                   , new DiscreetTimePeriod(TimeBoundaryPeriod.FiveMinutes))
+                                  , repoPathBuilder.IndicatorFile(new DiscreetTimePeriod(TimeBoundaryPeriod.FifteenSeconds),
+                                                                  new DiscreetTimePeriod(TimeBoundaryPeriod.FiveMinutes))
                                 }
                             }
                           , new PathDirectory(new PathName(Constant, "AlgoSignals"))

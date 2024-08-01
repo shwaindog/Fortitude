@@ -4,6 +4,7 @@
 #region
 
 using FortitudeBusRules.Rules.Common.TimeSeries;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
@@ -14,7 +15,7 @@ using FortitudeMarketsCore.Indicators.Persistence;
 using FortitudeMarketsCore.Pricing.Summaries;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
 using FortitudeTests.FortitudeMarketsCore.Indicators.Config;
-using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
+using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeTests.FortitudeCommon.Extensions.DirectoryInfoExtensionsTests;
 using static FortitudeTests.FortitudeMarketsCore.Pricing.Summaries.PricePeriodSummaryTests;
@@ -39,7 +40,7 @@ public class PriceSummarizingFilePersisterRuleTests : OneOfEachMessageQueueTypeT
     private decimal mid1;
     private decimal mid2;
 
-    private TimeSeriesPeriod period;
+    private TimeBoundaryPeriod period;
 
     private SummarizingPricePersisterParams persisterParams;
 
@@ -85,11 +86,11 @@ public class PriceSummarizingFilePersisterRuleTests : OneOfEachMessageQueueTypeT
         var serviceConfig = IndicatorServicesConfigTests.UnitTestConfig(repoRootDir);
 
         timeSeriesRepository      = serviceConfig.TimeSeriesFileRepositoryConfig!.BuildRepository();
-        tickerInfo.EntryPeriod    = FiveMinutes;
+        tickerInfo.CoveringPeriod = new DiscreetTimePeriod(FiveMinutes);
         tickerInfo.InstrumentType = InstrumentType.PriceSummaryPeriod;
         persisterParams = new SummarizingPricePersisterParams
             (new TimeSeriesRepositoryParams(timeSeriesRepository), tickerInfo, InstrumentType.PriceSummaryPeriod
-           , period, TestEntriesToPersistAddress, TimeSpan.FromSeconds(5));
+           , new DiscreetTimePeriod(period), TestEntriesToPersistAddress, TimeSpan.FromSeconds(5));
     }
 
     [TestCleanup]

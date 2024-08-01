@@ -9,7 +9,7 @@ using FortitudeMarketsApi.Pricing;
 
 namespace FortitudeMarketsApi.Indicators.Pricing;
 
-public struct IndicatorSourceTickerIdentifier
+public readonly struct IndicatorSourceTickerIdentifier
 {
     public readonly long IndicatorSourceTickerId;
 
@@ -28,4 +28,9 @@ public struct IndicatorSourceTickerIdentifier
 
     public static implicit operator SourceTickerIdentifier(IndicatorSourceTickerIdentifier identifier) =>
         new(identifier.SourceId, identifier.TickerId);
+}
+
+public static class IndicatorSourceTickerIdentifierExtensions
+{
+    // public static bool Register
 }

@@ -4,7 +4,6 @@
 #region
 
 using FortitudeCommon.Chronometry;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Indicators.Pricing;
 using FortitudeMarketsCore.Indicators.Pricing.MovingAverage;
 
@@ -22,15 +21,18 @@ public enum RequestExceedTimeRangeOptions
 public struct LiveShortPeriodMovingAveragePublishParams
 {
     public LiveShortPeriodMovingAveragePublishParams
-    (IndicatorSourceTickerIdentifier indicatorSourceTickerIdentifier, UnboundedTimeSpanRange? initialTickTimeRange = null
+    (IndicatorSourceTickerIdentifier indicatorSourceTickerIdentifier
       , MovingAveragePublisherParams? initialPeriodsToPublish = null
-      , RequestExceedTimeRangeOptions requestExceedTimeRangeOptions = RequestExceedTimeRangeOptions.RejectRequest
       , CalculateMovingAverageOptions? calculateMovingAverageOptions = null
-      , TickGapOptions? markTipGapOptions = null)
+      , RequestExceedTimeRangeOptions requestExceedTimeRangeOptions = RequestExceedTimeRangeOptions.RejectRequest
+      , UnboundedTimeSpanRange? initialTickTimeRange = null
+      , TickGapOptions? markTipGapOptions = null
+      , TimeSpan? trimExpiredTicksInterval = null)
     {
         IndicatorSourceTickerIdentifier      = indicatorSourceTickerIdentifier;
         DefaultCalculateMovingAverageOptions = calculateMovingAverageOptions ?? new CalculateMovingAverageOptions();
 
+        TrimExpiredTicksInterval  = trimExpiredTicksInterval ?? TimeSpan.FromSeconds(23);
         TimeRangeExtensionOptions = requestExceedTimeRangeOptions;
         MarkTipGapOptions         = markTipGapOptions ?? new TickGapOptions();
 
@@ -39,15 +41,15 @@ public struct LiveShortPeriodMovingAveragePublishParams
         if (initialPeriodsToPublish == null && LimitMaxTicksInitialToHardTimeSpanRange.LowerLimit != null)
         {
             var defaultPublishPeriods = new List<MovingAverageOffset>();
-            foreach (var timeSeriesPeriod in LimitMaxTicksInitialToHardTimeSpanRange.LowerLimit.Value.TimeSeriesPeriodsSmallerThan())
+            foreach (var timeSeriesPeriod in LimitMaxTicksInitialToHardTimeSpanRange.LowerLimit.Value.NonTickTimeSeriesPeriodsSmallerThan())
             {
-                var periodMovingAverage = new MovingAverageOffset(new TimePeriod(timeSeriesPeriod));
+                var periodMovingAverage = new MovingAverageOffset(new DiscreetTimePeriod(timeSeriesPeriod));
                 defaultPublishPeriods.Add(periodMovingAverage);
             }
             if (defaultPublishPeriods.Any())
             {
                 var periodsToPublishParams = new MovingAveragePublisherParams
-                    (new IndicatorPublishInterval(TimeSeriesPeriod.OneSecond), null, calculateMovingAverageOptions
+                    (new IndicatorPublishInterval(TimeBoundaryPeriod.OneSecond), null, calculateMovingAverageOptions
                    , defaultPublishPeriods.ToArray());
                 InitialPeriodsToPublish = periodsToPublishParams;
             }
@@ -67,6 +69,8 @@ public struct LiveShortPeriodMovingAveragePublishParams
     public UnboundedTimeSpanRange LimitMaxTicksInitialToHardTimeSpanRange { get; }
 
     public TickGapOptions MarkTipGapOptions { get; }
+
+    public TimeSpan TrimExpiredTicksInterval { get; }
 
     public RequestExceedTimeRangeOptions TimeRangeExtensionOptions { get; }
 }

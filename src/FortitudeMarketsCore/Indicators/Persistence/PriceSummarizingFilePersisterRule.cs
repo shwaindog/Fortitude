@@ -7,6 +7,7 @@ using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeBusRules.Rules.Common.TimeSeries;
+using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.Session;
@@ -20,20 +21,20 @@ namespace FortitudeMarketsCore.Indicators.Persistence;
 public struct SummarizingPricePersisterParams
 {
     public SummarizingPricePersisterParams
-    (TimeSeriesRepositoryParams repositoryParams, ISourceTickerInfo tickerId, InstrumentType instrumentType, TimeSeriesPeriod entryPeriod
+    (TimeSeriesRepositoryParams repositoryParams, ISourceTickerInfo tickerId, InstrumentType instrumentType, DiscreetTimePeriod coveringPeriod
       , string appendListenAddress, TimeSpan? autoCloseAfterTimeSpan = null)
     {
         RepositoryParams       = repositoryParams;
         TickerId               = tickerId;
         InstrumentType         = instrumentType;
-        EntryPeriod            = entryPeriod;
+        CoveringPeriod         = coveringPeriod;
         AppendListenAddress    = appendListenAddress;
         AutoCloseAfterTimeSpan = autoCloseAfterTimeSpan ?? TimeSpan.FromSeconds(5);
     }
 
-    public ISourceTickerInfo TickerId       { get; }
-    public TimeSeriesPeriod  EntryPeriod    { get; }
-    public InstrumentType    InstrumentType { get; }
+    public ISourceTickerInfo  TickerId       { get; }
+    public DiscreetTimePeriod CoveringPeriod { get; }
+    public InstrumentType     InstrumentType { get; }
 
     public TimeSeriesRepositoryParams RepositoryParams { get; }
 
@@ -42,11 +43,11 @@ public struct SummarizingPricePersisterParams
     public TimeSpan AutoCloseAfterTimeSpan { get; }
 }
 
-public class PriceSummarizingFilePersisterRule<TEntry> : TimeSeriesRepositoryAccessRule where TEntry : ITimeSeriesEntry<TEntry>
+public class PriceSummarizingFilePersisterRule<TEntry> : TimeSeriesRepositoryAccessRule where TEntry : ITimeSeriesEntry
 {
-    private readonly TimeSpan         autoCloseTimeSpan;
-    private readonly TimeSeriesPeriod entryPeriod;
-    private readonly InstrumentType   instrumentType;
+    private readonly TimeSpan           autoCloseTimeSpan;
+    private readonly DiscreetTimePeriod coveringPeriod;
+    private readonly InstrumentType     instrumentType;
 
     private readonly SummarizingPricePersisterParams persisterParams;
 
@@ -64,11 +65,11 @@ public class PriceSummarizingFilePersisterRule<TEntry> : TimeSeriesRepositoryAcc
 
     public PriceSummarizingFilePersisterRule(SummarizingPricePersisterParams persisterParams)
         : base(persisterParams.RepositoryParams
-             , $"{nameof(PriceSummarizingFilePersisterRule<TEntry>)}_{persisterParams.TickerId.SourceTickerShortName()}_{persisterParams.EntryPeriod}")
+             , $"{nameof(PriceSummarizingFilePersisterRule<TEntry>)}_{persisterParams.TickerId.SourceTickerShortName()}_{persisterParams.CoveringPeriod.ShortName()}")
     {
         this.persisterParams = persisterParams;
         tickerInfo           = persisterParams.TickerId;
-        entryPeriod          = persisterParams.EntryPeriod;
+        coveringPeriod       = persisterParams.CoveringPeriod;
         instrumentType       = persisterParams.InstrumentType;
         autoCloseTimeSpan    = persisterParams.AutoCloseAfterTimeSpan;
     }
@@ -78,29 +79,30 @@ public class PriceSummarizingFilePersisterRule<TEntry> : TimeSeriesRepositoryAcc
         await base.StartAsync();
 
         var existingInstruments = InstrumentFileInfos
-            (tickerInfo.Ticker, tickerInfo.Source, instrumentType, entryPeriod).ToList();
+            (tickerInfo.Ticker, tickerInfo.Source, instrumentType, coveringPeriod).ToList();
         if (existingInstruments.Any())
         {
             if (existingInstruments.Count == 1)
                 instrumentFileInfo = existingInstruments[0];
             else
-                throw new Exception($"More than one instrument exists for {tickerInfo.Ticker}, {tickerInfo.Source}, {instrumentType}, {entryPeriod}");
+                throw new
+                    Exception($"More than one instrument exists for {tickerInfo.Ticker}, {tickerInfo.Source}, {instrumentType}, {coveringPeriod}");
         }
         else
         {
             var priceSummaryTickerInstrument = new SourceTickerInfo(tickerInfo)
             {
-                EntryPeriod    = entryPeriod
+                CoveringPeriod = coveringPeriod
               , InstrumentType = instrumentType
             };
             var fileInfo = TimeSeriesRepository.GetInstrumentFileInfo(priceSummaryTickerInstrument);
 
-            if (fileInfo.FilePeriod > TimeSeriesPeriod.None)
+            if (fileInfo.FilePeriod > TimeBoundaryPeriod.None)
                 instrumentFileInfo = new InstrumentFileInfo(priceSummaryTickerInstrument, fileInfo.FilePeriod);
         }
         if (Equals(instrumentFileInfo, default(InstrumentFileInfo)))
             throw new
-                Exception($"Could not locate a repository structure for {tickerInfo.Ticker}, {tickerInfo.Source}, {instrumentType}, {entryPeriod}");
+                Exception($"Could not locate a repository structure for {tickerInfo.Ticker}, {tickerInfo.Source}, {instrumentType}, {coveringPeriod}");
 
 
         appendEntrySubscription = await this.RegisterListenerAsync<TEntry>(persisterParams.AppendListenAddress, ReceiveEntryToPersist);

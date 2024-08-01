@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 
@@ -19,24 +20,24 @@ public interface ITimeSeriesRepositoryFileFactory
 }
 
 public interface ITimeSeriesRepositoryFileFactory<TEntry> : ITimeSeriesRepositoryFileFactory
-    where TEntry : ITimeSeriesEntry<TEntry>
+    where TEntry : ITimeSeriesEntry
 {
     ITimeSeriesEntryFile<TEntry>? OpenExistingEntryFile(FileInfo fileInfo);
 
     ITimeSeriesEntryFile<TEntry> OpenOrCreate
-    (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod
+    (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod
       , DateTime filePeriodTime);
 }
 
 public abstract class TimeSeriesRepositoryFileFactory<TEntry> : ITimeSeriesRepositoryFileFactory<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>
+    where TEntry : ITimeSeriesEntry
 {
     public Type EntryType => typeof(TEntry);
 
     public abstract ITimeSeriesEntryFile<TEntry>? OpenExistingEntryFile(FileInfo fileInfo);
 
     public abstract ITimeSeriesEntryFile<TEntry> OpenOrCreate
-    (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod
+    (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod
       , DateTime filePeriodTime);
 
     public abstract ITimeSeriesFile? OpenExisting(FileInfo fileInfo);
@@ -44,7 +45,7 @@ public abstract class TimeSeriesRepositoryFileFactory<TEntry> : ITimeSeriesRepos
 
     protected virtual TimeSeriesFileParameters CreateTimeSeriesFileParameters
     (FileInfo fileInfo, IInstrument instrument,
-        TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
         var fileStart = filePeriod.ContainingPeriodBoundaryStart(filePeriodTime);
         return new TimeSeriesFileParameters(fileInfo, instrument, filePeriod, fileStart, initialFileFlags: FileFlags.WriterOpened);
@@ -55,7 +56,7 @@ public class TimeSeriesRepositoryFileFactory<TFile, TBucket, TEntry> : TimeSerie
   , ITimeSeriesRepositoryFileFactory<TEntry>
     where TFile : TimeSeriesFile<TFile, TBucket, TEntry>
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>
+    where TEntry : ITimeSeriesEntry
 {
     public override ITimeSeriesEntryFile<TEntry>? OpenExistingEntryFile(FileInfo fileInfo) =>
         TimeSeriesFile<TFile, TBucket, TEntry>.OpenExistingTimeSeriesFile(fileInfo.FullName);
@@ -63,7 +64,7 @@ public class TimeSeriesRepositoryFileFactory<TFile, TBucket, TEntry> : TimeSerie
     public override bool IsBestFactoryFor(IInstrument instrument) => true;
 
     public override ITimeSeriesEntryFile<TEntry> OpenOrCreate
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
         var openOrCreateParams = CreateTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);
         return new TimeSeriesFile<TFile, TBucket, TEntry>(openOrCreateParams);

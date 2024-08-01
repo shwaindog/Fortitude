@@ -6,7 +6,6 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
@@ -629,14 +628,14 @@ public class PQPricePeriodSummaryTests
     [TestMethod]
     public void EmptySummary_DifferingSummaryPeriod_IsSavedAndReturned()
     {
-        Assert.AreEqual(TimeSeriesPeriod.None, emptySummary.TimeSeriesPeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.None, emptySummary.TimeBoundaryPeriod);
         var wellKnownStartTime = new DateTime(2017, 11, 19, 19, 00, 00);
         emptySummary.PeriodStartTime = wellKnownStartTime;
-        Assert.AreEqual(TimeSeriesPeriod.None, emptySummary.TimeSeriesPeriod);
-        emptySummary.TimeSeriesPeriod = TimeSeriesPeriod.Tick;
-        Assert.AreEqual(TimeSeriesPeriod.Tick, emptySummary.TimeSeriesPeriod);
-        emptySummary.TimeSeriesPeriod = TimeSeriesPeriod.OneDecade;
-        Assert.AreEqual(TimeSeriesPeriod.OneDecade, emptySummary.TimeSeriesPeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.None, emptySummary.TimeBoundaryPeriod);
+        emptySummary.TimeBoundaryPeriod = TimeBoundaryPeriod.Tick;
+        Assert.AreEqual(TimeBoundaryPeriod.Tick, emptySummary.TimeBoundaryPeriod);
+        emptySummary.TimeBoundaryPeriod = TimeBoundaryPeriod.OneDecade;
+        Assert.AreEqual(TimeBoundaryPeriod.OneDecade, emptySummary.TimeBoundaryPeriod);
     }
 
     [TestMethod]

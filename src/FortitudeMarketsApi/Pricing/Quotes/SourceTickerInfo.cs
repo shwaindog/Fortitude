@@ -4,6 +4,7 @@
 #region
 
 using System.Globalization;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
@@ -162,7 +163,7 @@ public class SourceTickerInfo : PricingInstrument, ISourceTickerInfo, ICloneable
       , decimal pip = 0.0001m, decimal minSubmitSize = 0.01m, decimal maxSubmitSize = 1_000_000m, decimal incrementSize = 0.01m
       , ushort minimumQuoteLife = 100, uint defaultMaxValidMs = 10_000, bool subscribeToPrices = true, bool tradingEnabled = false
       , LayerFlags layerFlags = LayerFlags.Price | LayerFlags.Volume, LastTradedFlags lastTradedFlags = LastTradedFlags.None)
-        : base(sourceId, tickerId, source, ticker, TimeSeriesPeriod.Tick, InstrumentType.Price, marketClassification)
+        : base(sourceId, tickerId, source, ticker, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick), InstrumentType.Price, marketClassification)
     {
         PublishedTickerDetailLevel = publishedTickerDetailLevel;
 
@@ -350,7 +351,7 @@ public class SourceTickerInfo : PricingInstrument, ISourceTickerInfo, ICloneable
 
 
     public static implicit operator PricingInstrumentId(SourceTickerInfo sourceTickerId) =>
-        new(sourceTickerId, sourceTickerId.EntryPeriod, sourceTickerId.InstrumentType);
+        new(sourceTickerId, sourceTickerId.CoveringPeriod, sourceTickerId.InstrumentType);
 
     public static implicit operator SourceTickerIdentifier(SourceTickerInfo sourceTickerId) => new(sourceTickerId);
 }

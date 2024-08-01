@@ -58,9 +58,7 @@ public interface IPQTickInstant : IDoublyLinkedListNode<IPQTickInstant>, IMutabl
     new IPQTickInstant Clone();
 }
 
-public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, ITimeSeriesEntry<PQTickInstant>
-  , ICloneable<PQTickInstant>
-  , IDoublyLinkedListNode<PQTickInstant>
+public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, ICloneable<PQTickInstant>, IDoublyLinkedListNode<PQTickInstant>
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQTickInstant));
 
@@ -625,8 +623,6 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, ITime
         PQSourceTickerInfo != null && PQSourceTickerInfo.UpdateFieldString(stringUpdate);
 
 
-    DateTime ITimeSeriesEntry<ITickInstant>.StorageTime(IStorageTimeResolver<ITickInstant>? resolver) => StorageTime(resolver);
-
     public override ITickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is IPQTickInstant ipq0)
@@ -798,10 +794,10 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, ITime
         return allAreSame;
     }
 
-    public DateTime StorageTime(IStorageTimeResolver<PQTickInstant>? resolver = null)
+    public DateTime StorageTime(IStorageTimeResolver? resolver)
     {
-        resolver ??= QuoteStorageTimeResolver.Instance;
-        return resolver.ResolveStorageTime(this);
+        if (resolver is IStorageTimeResolver<ITickInstant> quoteStorageResolver) return quoteStorageResolver.ResolveStorageTime(this);
+        return QuoteStorageTimeResolver.Instance.ResolveStorageTime(this);
     }
 
     public virtual PQTickInstant SetSourceTickerInfo(ISourceTickerInfo toSet)

@@ -48,31 +48,61 @@ public interface IMessageBus
         (IListeningRule rule, string publishAddress, Action<IBusMessage<TPayload>> handler);
 
     ISubscription RegisterListener<TPayload>
+        (IListeningRule rule, string publishAddress, Action<TPayload> handler);
+
+    ISubscription RegisterListener<TPayload>
         (IListeningRule rule, string publishAddress, Func<IBusMessage<TPayload>, ValueTask> handler);
+
+    ISubscription RegisterListener<TPayload>
+        (IListeningRule rule, string publishAddress, Func<TPayload, ValueTask> handler);
 
     ISubscription RegisterRequestListener<TPayload, TResponse>
         (IListeningRule rule, string publishAddress, Func<IBusRespondingMessage<TPayload, TResponse>, ValueTask<TResponse>> handler);
 
     ISubscription RegisterRequestListener<TPayload, TResponse>
+        (IListeningRule rule, string publishAddress, Func<TPayload, ValueTask<TResponse>> handler);
+
+    ISubscription RegisterRequestListener<TPayload, TResponse>
         (IListeningRule rule, string publishAddress, Func<IBusRespondingMessage<TPayload, TResponse>, TResponse> handler);
 
     ISubscription RegisterRequestListener<TPayload, TResponse>
+        (IListeningRule rule, string publishAddress, Func<TPayload, TResponse> handler);
+
+    ISubscription RegisterRequestListener<TPayload, TResponse>
         (IListeningRule rule, string publishAddress, Func<IBusRespondingMessage<TPayload, TResponse>, Task<TResponse>> handler);
+
+    ISubscription RegisterRequestListener<TPayload, TResponse>
+        (IListeningRule rule, string publishAddress, Func<TPayload, Task<TResponse>> handler);
 
     ValueTask<ISubscription> RegisterListenerAsync<TPayload>
         (IListeningRule rule, string publishAddress, Action<IBusMessage<TPayload>> handler);
 
     ValueTask<ISubscription> RegisterListenerAsync<TPayload>
+        (IListeningRule rule, string publishAddress, Action<TPayload> handler);
+
+    ValueTask<ISubscription> RegisterListenerAsync<TPayload>
         (IListeningRule rule, string publishAddress, Func<IBusMessage<TPayload>, ValueTask> handler);
+
+    ValueTask<ISubscription> RegisterListenerAsync<TPayload>
+        (IListeningRule rule, string publishAddress, Func<TPayload, ValueTask> handler);
 
     ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>
         (IListeningRule rule, string publishAddress, Func<IBusRespondingMessage<TPayload, TResponse>, ValueTask<TResponse>> handler);
 
     ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>
+        (IListeningRule rule, string publishAddress, Func<TPayload, ValueTask<TResponse>> handler);
+
+    ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>
         (IListeningRule rule, string publishAddress, Func<IBusRespondingMessage<TPayload, TResponse>, TResponse> handler);
 
     ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>
+        (IListeningRule rule, string publishAddress, Func<TPayload, TResponse> handler);
+
+    ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>
         (IListeningRule rule, string publishAddress, Func<IBusRespondingMessage<TPayload, TResponse>, Task<TResponse>> handler);
+
+    ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>
+        (IListeningRule rule, string publishAddress, Func<TPayload, Task<TResponse>> handler);
 
 
     ValueTask<ISubscription> AddListenSubscribeInterceptor(IRule sender, IListenSubscribeInterceptor interceptor, MessageQueueType onQueueTypes);
@@ -199,6 +229,13 @@ public class MessageBus : IConfigureMessageBus
     }
 
     public ISubscription RegisterListener<TPayload>
+        (IListeningRule rule, string publishAddress, Action<TPayload> handler)
+    {
+        void UnwrapPayload(IBusMessage<TPayload> messageWithPayLoad) => handler(messageWithPayLoad.Payload.Body());
+        return RegisterListener(rule, publishAddress, (Action<IBusMessage<TPayload>>)UnwrapPayload);
+    }
+
+    public ISubscription RegisterListener<TPayload>
         (IListeningRule rule, string publishAddress, Func<IBusMessage<TPayload>, ValueTask> handler)
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
@@ -208,6 +245,13 @@ public class MessageBus : IConfigureMessageBus
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, MessageType.ListenerSubscribe, publishAddress);
         return new MessageListenerSubscription(rule, publishAddress, subscriberId);
+    }
+
+    public ISubscription RegisterListener<TPayload>
+        (IListeningRule rule, string publishAddress, Func<TPayload, ValueTask> handler)
+    {
+        ValueTask UnwrapPayload(IBusMessage<TPayload> messageWithPayLoad) => handler(messageWithPayLoad.Payload.Body());
+        return RegisterListener(rule, publishAddress, (Func<IBusMessage<TPayload>, ValueTask>)UnwrapPayload);
     }
 
     public ISubscription RegisterRequestListener<TPayload, TResponse>
@@ -223,6 +267,16 @@ public class MessageBus : IConfigureMessageBus
     }
 
     public ISubscription RegisterRequestListener<TPayload, TResponse>
+        (IListeningRule rule, string publishAddress, Func<TPayload, ValueTask<TResponse>> handler)
+    {
+        ValueTask<TResponse> UnwrapPayload
+            (IBusRespondingMessage<TPayload, TResponse> messageWithPayLoad) =>
+            handler(messageWithPayLoad.Payload.Body());
+
+        return RegisterRequestListener(rule, publishAddress, (Func<IBusRespondingMessage<TPayload, TResponse>, ValueTask<TResponse>>)UnwrapPayload);
+    }
+
+    public ISubscription RegisterRequestListener<TPayload, TResponse>
         (IListeningRule rule, string publishAddress, Func<IBusRespondingMessage<TPayload, TResponse>, TResponse> handler)
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
@@ -235,6 +289,13 @@ public class MessageBus : IConfigureMessageBus
     }
 
     public ISubscription RegisterRequestListener<TPayload, TResponse>
+        (IListeningRule rule, string publishAddress, Func<TPayload, TResponse> handler)
+    {
+        TResponse UnwrapPayload(IBusRespondingMessage<TPayload, TResponse> messageWithPayLoad) => handler(messageWithPayLoad.Payload.Body());
+        return RegisterRequestListener(rule, publishAddress, (Func<IBusRespondingMessage<TPayload, TResponse>, TResponse>)UnwrapPayload);
+    }
+
+    public ISubscription RegisterRequestListener<TPayload, TResponse>
         (IListeningRule rule, string publishAddress, Func<IBusRespondingMessage<TPayload, TResponse>, Task<TResponse>> handler)
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
@@ -244,6 +305,13 @@ public class MessageBus : IConfigureMessageBus
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         rule.Context.RegisteredOn.EnqueuePayloadBody(msgListener, rule, MessageType.ListenerSubscribe, publishAddress);
         return new MessageListenerSubscription(rule, publishAddress, subscriberId);
+    }
+
+    public ISubscription RegisterRequestListener<TPayload, TResponse>
+        (IListeningRule rule, string publishAddress, Func<TPayload, Task<TResponse>> handler)
+    {
+        Task<TResponse> UnwrapPayload(IBusRespondingMessage<TPayload, TResponse> messageWithPayLoad) => handler(messageWithPayLoad.Payload.Body());
+        return RegisterRequestListener(rule, publishAddress, (Func<IBusRespondingMessage<TPayload, TResponse>, Task<TResponse>>)UnwrapPayload);
     }
 
     public async ValueTask<ISubscription> RegisterListenerAsync<TPayload>
@@ -266,6 +334,13 @@ public class MessageBus : IConfigureMessageBus
     }
 
     public async ValueTask<ISubscription> RegisterListenerAsync<TPayload>
+        (IListeningRule rule, string publishAddress, Action<TPayload> handler)
+    {
+        void UnwrapPayload(IBusMessage<TPayload> messageWithPayLoad) => handler(messageWithPayLoad.Payload.Body());
+        return await RegisterListenerAsync(rule, publishAddress, (Action<IBusMessage<TPayload>>)UnwrapPayload);
+    }
+
+    public async ValueTask<ISubscription> RegisterListenerAsync<TPayload>
         (IListeningRule rule, string publishAddress, Func<IBusMessage<TPayload>, ValueTask> handler)
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
@@ -282,6 +357,13 @@ public class MessageBus : IConfigureMessageBus
             = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync
                 (msgListener, rule, MessageType.ListenerSubscribe, publishAddress, processorRegistry);
         return new MessageListenerSubscription(rule, publishAddress, subscriberId, dispatchResult);
+    }
+
+    public async ValueTask<ISubscription> RegisterListenerAsync<TPayload>
+        (IListeningRule rule, string publishAddress, Func<TPayload, ValueTask> handler)
+    {
+        ValueTask UnwrapPayload(IBusMessage<TPayload> messageWithPayLoad) => handler(messageWithPayLoad.Payload.Body());
+        return await RegisterListenerAsync(rule, publishAddress, (Func<IBusMessage<TPayload>, ValueTask>)UnwrapPayload);
     }
 
     public async ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>
@@ -304,6 +386,17 @@ public class MessageBus : IConfigureMessageBus
     }
 
     public async ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>
+        (IListeningRule rule, string publishAddress, Func<TPayload, ValueTask<TResponse>> handler)
+    {
+        ValueTask<TResponse> UnwrapResponsePayload
+            (IBusRespondingMessage<TPayload, TResponse> messageWithPayLoad) =>
+            handler(messageWithPayLoad.Payload.Body());
+
+        return await RegisterRequestListenerAsync(rule, publishAddress
+                                                , (Func<IBusRespondingMessage<TPayload, TResponse>, ValueTask<TResponse>>)UnwrapResponsePayload);
+    }
+
+    public async ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>
         (IListeningRule rule, string publishAddress, Func<IBusRespondingMessage<TPayload, TResponse>, TResponse> handler)
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
@@ -323,6 +416,13 @@ public class MessageBus : IConfigureMessageBus
     }
 
     public async ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>
+        (IListeningRule rule, string publishAddress, Func<TPayload, TResponse> handler)
+    {
+        TResponse UnwrapPayload(IBusRespondingMessage<TPayload, TResponse> messageWithPayLoad) => handler(messageWithPayLoad.Payload.Body());
+        return await RegisterRequestListenerAsync(rule, publishAddress, (Func<IBusRespondingMessage<TPayload, TResponse>, TResponse>)UnwrapPayload);
+    }
+
+    public async ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>
         (IListeningRule rule, string publishAddress, Func<IBusRespondingMessage<TPayload, TResponse>, Task<TResponse>> handler)
     {
         var subscriberId = $"{rule.FriendlyName}_{publishAddress}_{rule.Id}";
@@ -339,6 +439,17 @@ public class MessageBus : IConfigureMessageBus
             = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync
                 (msgListener, rule, MessageType.ListenerSubscribe, publishAddress, processorRegistry);
         return new MessageListenerSubscription(rule, publishAddress, subscriberId, dispatchResult);
+    }
+
+    public async ValueTask<ISubscription> RegisterRequestListenerAsync<TPayload, TResponse>
+        (IListeningRule rule, string publishAddress, Func<TPayload, Task<TResponse>> handler)
+    {
+        Task<TResponse> UnwrapPayload
+            (IBusRespondingMessage<TPayload, TResponse> messageWithPayLoad) =>
+            handler(messageWithPayLoad.Payload.Body());
+
+        return await RegisterRequestListenerAsync(rule, publishAddress
+                                                , (Func<IBusRespondingMessage<TPayload, TResponse>, Task<TResponse>>)UnwrapPayload);
     }
 
     public async ValueTask<ISubscription> AddListenSubscribeInterceptor

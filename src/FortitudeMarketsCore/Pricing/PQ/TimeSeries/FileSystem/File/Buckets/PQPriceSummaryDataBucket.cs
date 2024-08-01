@@ -25,7 +25,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
 public abstract class PQPriceSummaryDataBucket<TBucket, TEntry> : DataBucket<TEntry, TBucket>, IPricePeriodSummaryBucket<TEntry>
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPricePeriodSummaryBucket<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     private IMessageBufferContext? bufferContext;
 

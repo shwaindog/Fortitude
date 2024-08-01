@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeIO.TimeSeries;
+using FortitudeCommon.Chronometry;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.Generators.Quotes;
@@ -54,7 +54,7 @@ public static class TestWeeklyDataGeneratorFixture
     }
 
     public static IEnumerable<IPricePeriodSummary> GeneratePriceSummaryForEachDayAndHourOfCurrentWeek
-    (int start, int amount, TimeSeriesPeriod summaryPeriod, IPricePeriodSummaryGenerator<IMutablePricePeriodSummary> quoteGenerator
+    (int start, int amount, TimeBoundaryPeriod summaryPeriod, IPricePeriodSummaryGenerator<IMutablePricePeriodSummary> quoteGenerator
       , DateTime? forWeekWithDate = null)
     {
         var dateToGenerate   = forWeekWithDate?.Date ?? DateTime.UtcNow.Date;
@@ -73,7 +73,7 @@ public static class TestWeeklyDataGeneratorFixture
     }
 
     public static IEnumerable<IPricePeriodSummary> GenerateRepeatablePriceSummaries
-    (int start, int amount, int hour, DayOfWeek forDayOfWeek, TimeSeriesPeriod summaryPeriod
+    (int start, int amount, int hour, DayOfWeek forDayOfWeek, TimeBoundaryPeriod summaryPeriod
       , IPricePeriodSummaryGenerator<IMutablePricePeriodSummary> quoteGenerator
       , DateTime? forWeekWithDate = null)
     {
@@ -87,7 +87,7 @@ public static class TestWeeklyDataGeneratorFixture
         for (var i = start; i < start + amount; i++)
         {
             var startTime = generateDateHour + TimeSpan.FromSeconds(i);
-            yield return quoteGenerator.PriceSummaries(startTime, TimeSeriesPeriod.OneSecond, 1).First();
+            yield return quoteGenerator.PriceSummaries(startTime, TimeBoundaryPeriod.OneSecond, 1).First();
         }
     }
 

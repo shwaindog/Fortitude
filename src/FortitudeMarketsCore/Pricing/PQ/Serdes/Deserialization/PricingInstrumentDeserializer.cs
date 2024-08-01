@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
@@ -56,7 +57,7 @@ internal class PricingInstrumentDeserializer : IDeserializer<IPricingInstrumentI
 
         pricingInstrument.MarketClassification = new MarketClassification(StreamByteOps.ToUInt(ref ptr));
         pricingInstrument.InstrumentType       = (InstrumentType)(*ptr++);
-        pricingInstrument.EntryPeriod          = (TimeSeriesPeriod)StreamByteOps.ToUInt(ref ptr);
+        pricingInstrument.CoveringPeriod       = new DiscreetTimePeriod((TimeBoundaryPeriod)StreamByteOps.ToUInt(ref ptr));
         var numberOfAttributes = *ptr++;
         for (var i = 0; i < numberOfAttributes; i++)
         {

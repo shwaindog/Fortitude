@@ -7,7 +7,6 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.Summaries;
@@ -16,7 +15,7 @@ using FortitudeMarketsCore.Pricing.Summaries;
 
 namespace FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries;
 
-public class PeriodSummaryState : ITimeSeriesPeriodRange
+public class PeriodSummaryState : ITimeBoundaryPeriodRange
 {
     public BidAskPair? NextPeriodBidAskStart;
 
@@ -24,10 +23,10 @@ public class PeriodSummaryState : ITimeSeriesPeriodRange
 
     public IDoublyLinkedList<IPricePeriodSummary> SubSummaryPeriods = new DoublyLinkedList<IPricePeriodSummary>();
 
-    public PeriodSummaryState(DateTime periodStartTime, TimeSeriesPeriod timeSeriesPeriod)
+    public PeriodSummaryState(DateTime periodStartTime, TimeBoundaryPeriod timeBoundaryPeriod)
     {
-        PeriodStartTime  = periodStartTime;
-        TimeSeriesPeriod = timeSeriesPeriod;
+        PeriodStartTime    = periodStartTime;
+        TimeBoundaryPeriod = timeBoundaryPeriod;
     }
 
     public bool HasPublishedComplete { get; set; }
@@ -36,24 +35,24 @@ public class PeriodSummaryState : ITimeSeriesPeriodRange
 
     public DateTime PeriodStartTime { get; set; }
 
-    public TimeSeriesPeriod TimeSeriesPeriod { get; set; }
+    public TimeBoundaryPeriod TimeBoundaryPeriod { get; set; }
 
     public BoundedTimeRange ToBoundedTimeRange
         (DateTime? maxDateTime = null) =>
-        new(PeriodStartTime, TimeSeriesPeriod.PeriodEnd(PeriodStartTime).Min(maxDateTime));
+        new(PeriodStartTime, TimeBoundaryPeriod.PeriodEnd(PeriodStartTime).Min(maxDateTime));
 
-    public void Configure(DateTime periodStartTime, TimeSeriesPeriod timeSeriesPeriod)
+    public void Configure(DateTime periodStartTime, TimeBoundaryPeriod timeBoundaryPeriod)
     {
-        PeriodStartTime  = periodStartTime;
-        TimeSeriesPeriod = timeSeriesPeriod;
+        PeriodStartTime    = periodStartTime;
+        TimeBoundaryPeriod = timeBoundaryPeriod;
     }
 
     public PricePeriodSummary BuildPeriodSummary(IRecycler recycler, DateTime? atTime = null)
     {
         var toPopulate = recycler.Borrow<PricePeriodSummary>();
-        toPopulate.TimeSeriesPeriod = TimeSeriesPeriod;
-        toPopulate.PeriodStartTime  = PeriodStartTime;
-        toPopulate.PeriodEndTime    = this.PeriodEnd();
+        toPopulate.TimeBoundaryPeriod = TimeBoundaryPeriod;
+        toPopulate.PeriodStartTime    = PeriodStartTime;
+        toPopulate.PeriodEndTime      = this.PeriodEnd();
         toPopulate.OpeningState(PreviousPeriodBidAskEnd);
 
         var periodLengthAt = (atTime ?? TimeContext.UtcNow).Min(toPopulate.PeriodEndTime);
@@ -117,7 +116,7 @@ public class PeriodSummaryState : ITimeSeriesPeriodRange
     {
         var now = currentTime ?? DateTime.UtcNow;
 
-        var nowPeriodStart = TimeSeriesPeriod.ContainingPeriodBoundaryStart(now);
+        var nowPeriodStart = TimeBoundaryPeriod.ContainingPeriodBoundaryStart(now);
         var currentFlags   = nowPeriodStart == PeriodStartTime ? PricePeriodSummaryFlags.PeriodLatest : PricePeriodSummaryFlags.None;
         currentFlags |= PreviousPeriodBidAskEnd != null ? PricePeriodSummaryFlags.CreatedFromPreviousEnd : PricePeriodSummaryFlags.None;
 

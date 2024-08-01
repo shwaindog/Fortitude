@@ -3,8 +3,8 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Extensions;
-using FortitudeIO.TimeSeries;
 
 #endregion
 
@@ -12,14 +12,14 @@ namespace FortitudeMarketsCore.Indicators;
 
 public struct TimeSeriesSpan
 {
-    public TimeSeriesSpan(TimeSeriesPeriod period, int numberOfPeriods = 10)
+    public TimeSeriesSpan(TimeBoundaryPeriod period, int numberOfPeriods = 10)
     {
         NumberOfPeriods = numberOfPeriods;
         Period          = period;
     }
 
-    public int              NumberOfPeriods { get; set; }
-    public TimeSeriesPeriod Period          { get; set; }
+    public int                NumberOfPeriods { get; set; }
+    public TimeBoundaryPeriod Period          { get; set; }
 }
 
 public enum TimeLengthType
@@ -50,7 +50,7 @@ public struct TimeLength
 
 public static class TimeLengthExtensions
 {
-    public static TimeSpan LargerPeriodOf(this TimeLength timeLength, TimeSeriesPeriod period, int numberOfPeriods)
+    public static TimeSpan LargerPeriodOf(this TimeLength timeLength, TimeBoundaryPeriod period, int numberOfPeriods)
     {
         var averagePeriod = period.AveragePeriodTimeSpan() * numberOfPeriods;
         return timeLength.ToTimeSpan().Max(averagePeriod);

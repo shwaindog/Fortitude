@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
@@ -16,20 +17,20 @@ using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem;
 
 public class PQOneWeekQuoteRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, ITickInstant
+    where TEntry : ITimeSeriesEntry, ITickInstant
 
 {
     protected override TimeSeriesFileParameters CreateTimeSeriesFileParameters
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
         var fileStart = filePeriod.ContainingPeriodBoundaryStart(filePeriodTime);
         return new TimeSeriesFileParameters(fileInfo, instrument, filePeriod, fileStart, 7, FileFlags.WriterOpened);
     }
 
     protected virtual PriceTimeSeriesFileParameters CreatePriceQuoteTimeSeriesFileParameters
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
-        if (filePeriod != TimeSeriesPeriod.OneWeek) throw new Exception("Expected file period to be one week");
+        if (filePeriod != TimeBoundaryPeriod.OneWeek) throw new Exception("Expected file period to be one week");
         var sourceTickerInfo = instrument as ISourceTickerInfo;
         if (sourceTickerInfo == null) throw new Exception("Expected instrument to be of ISourceTickerInfo");
 
@@ -72,7 +73,7 @@ public class PQOneWeekQuoteRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFac
     }
 
     public override ITimeSeriesEntryFile<TEntry> OpenOrCreate
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
         var priceQuoteFileParams = CreatePriceQuoteTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);
         return EntryType switch

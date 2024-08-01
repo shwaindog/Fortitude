@@ -17,7 +17,7 @@ public enum RepositoryPathName
   , InstrumentName
   , InstrumentSource
   , InstrumentType
-  , EntryPeriod
+  , CoveringPeriod
   , MarketType
   , MarketProductType
   , MarketRegion

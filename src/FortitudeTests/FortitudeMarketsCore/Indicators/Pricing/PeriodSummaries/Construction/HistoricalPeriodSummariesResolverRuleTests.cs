@@ -27,7 +27,7 @@ using FortitudeTests.FortitudeCommon.Chronometry;
 using FortitudeTests.FortitudeMarketsCore.Indicators.Config;
 using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
-using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
+using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeTests.FortitudeMarketsCore.Pricing.Summaries.PricePeriodSummaryTests;
 using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
@@ -129,11 +129,9 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         undeploy.Add(preqDeploy);
         indicatorRegistryStubRule.RegisterGlobalServiceStatus(ServiceType.PricePeriodSummaryFilePersister, ServiceRunStatus.ServiceStarted);
         indicatorRegistryStubRule.RegisterTickerPeriodServiceStatus
-            (tickerId15SPeriod, FifteenSeconds, ServiceType.LivePricePeriodSummary, ServiceRunStatus.ServiceStarted);
+            (tickerId30SPeriod, new DiscreetTimePeriod(FifteenSeconds), ServiceType.LivePricePeriodSummary, ServiceRunStatus.ServiceStarted);
         indicatorRegistryStubRule.RegisterTickerPeriodServiceStatus
-            (tickerId30SPeriod, FifteenSeconds, ServiceType.LivePricePeriodSummary, ServiceRunStatus.ServiceStarted);
-        indicatorRegistryStubRule.RegisterTickerPeriodServiceStatus
-            (tickerId30SPeriod, ThirtySeconds, ServiceType.LivePricePeriodSummary, ServiceRunStatus.ServiceStarted);
+            (tickerId30SPeriod, new DiscreetTimePeriod(ThirtySeconds), ServiceType.LivePricePeriodSummary, ServiceRunStatus.ServiceStarted);
         await indicatorRegistryStubRule.RegisterAndDeployGlobalService(ServiceType.TimeSeriesFileRepositoryInfo, repoInfoStubRule);
         await indicatorRegistryStubRule.RegisterAndDeployGlobalService(ServiceType.HistoricalQuotesRetriever, quotesRetrievalStubRule);
         await indicatorRegistryStubRule.RegisterAndDeployGlobalService
@@ -177,10 +175,10 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     }
 
     private List<InstrumentFileInfo> GetStubRepoFileInfo
-        (string instrumentName, InstrumentType? instrumentType = null, TimeSeriesPeriod? period = null)
+        (string instrumentName, InstrumentType? instrumentType = null, DiscreetTimePeriod? period = null)
     {
         lastFileInfoRetrieved.Clear();
-        if (period == FiveSeconds)
+        if (period?.Period == FiveSeconds)
         {
             var lastHistoricalPeriodSummaryStartTime = FiveSeconds.ContainingPeriodBoundaryStart(historical15SSummariesLatestTime);
             var lastHistoricalEntryTime = instrumentType == InstrumentType.PriceSummaryPeriod
@@ -195,7 +193,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
                                           , new List<DateTime> { fileStartDate }));
             return lastFileInfoRetrieved;
         }
-        if (period == FifteenSeconds)
+        if (period?.Period == FifteenSeconds)
         {
             var lastHistoricalPeriodSummaryStartTime = FifteenSeconds.ContainingPeriodBoundaryStart(historical15SSummariesLatestTime);
             var lastHistoricalEntryTime = instrumentType == InstrumentType.PriceSummaryPeriod
@@ -224,7 +222,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     }
 
     private List<InstrumentFileEntryInfo> GetStubRepoFileEntryInfo
-        (string instrumentName, InstrumentType? instrumentType = null, TimeSeriesPeriod? period = null)
+        (string instrumentName, InstrumentType? instrumentType = null, DiscreetTimePeriod? period = null)
     {
         lastFileInfoRetrieved.Clear();
         if (instrumentName == tickerId15SPeriod.Ticker)
@@ -248,7 +246,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     }
 
     private IEnumerable<PricePeriodSummary> GetStubSummaries
-        (SourceTickerIdentifier srcTickerIdentifier, TimeSeriesPeriod requestPeriod, UnboundedTimeRange? requestTimeRange)
+        (SourceTickerIdentifier srcTickerIdentifier, TimeBoundaryPeriod requestPeriod, UnboundedTimeRange? requestTimeRange)
     {
         if (srcTickerIdentifier.TickerId == tickerId5SPeriod.TickerId) return Enumerable.Empty<PricePeriodSummary>();
         if (srcTickerIdentifier.TickerId == tickerId30SPeriod.TickerId && requestPeriod == FifteenSeconds)
@@ -322,7 +320,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         var histResolver15SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySeconds15SPeriodHistoricalPeriodParams);
 
         await indicatorRegistryStubRule.RegisterAndDeployTickerPeriodService
-            (thirtySecondsHistoricalPeriodParams.SourceTickerIdentifier, FifteenSeconds
+            (thirtySecondsHistoricalPeriodParams.SourceTickerIdentifier, new DiscreetTimePeriod(FifteenSeconds)
            , ServiceType.HistoricalPricePeriodSummaryResolver, histResolver15SRule);
 
         historical30SSummariesLatestTime = ThirtySeconds.PreviousPeriodStart(testEpochTime);
@@ -439,7 +437,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
             (thirtySecondsHistoricalPeriodParams.SourceTickerIdentifier, FifteenSeconds, new TimeLength(TimeSpan.FromMinutes(30)));
         var histResolver15SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySeconds15SPeriodHistoricalPeriodParams);
         await indicatorRegistryStubRule.RegisterAndDeployTickerPeriodService
-            (thirtySecondsHistoricalPeriodParams.SourceTickerIdentifier, FifteenSeconds
+            (thirtySecondsHistoricalPeriodParams.SourceTickerIdentifier, new DiscreetTimePeriod(FifteenSeconds)
            , ServiceType.HistoricalPricePeriodSummaryResolver, histResolver15SRule);
 
         var histResolver30SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySecondsHistoricalPeriodParams);
@@ -484,7 +482,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
             (thirtySecondsHistoricalPeriodParams.SourceTickerIdentifier, FifteenSeconds, new TimeLength(TimeSpan.FromMinutes(30)));
         var histResolver15SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySeconds15SPeriodHistoricalPeriodParams);
         await indicatorRegistryStubRule.RegisterAndDeployTickerPeriodService
-            (thirtySecondsHistoricalPeriodParams.SourceTickerIdentifier, FifteenSeconds
+            (thirtySecondsHistoricalPeriodParams.SourceTickerIdentifier, new DiscreetTimePeriod(FifteenSeconds)
            , ServiceType.HistoricalPricePeriodSummaryResolver, histResolver15SRule);
 
         var histResolver30SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySecondsHistoricalPeriodParams);
@@ -536,7 +534,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         Assert.AreEqual(720, hasResult.Count);
     }
 
-    private class TestHistoricalPeriodClient(TimeSeriesPeriod period, SourceTickerIdentifier sourceTickerIdentifier) : Rule
+    private class TestHistoricalPeriodClient(TimeBoundaryPeriod period, SourceTickerIdentifier sourceTickerIdentifier) : Rule
     {
         private const string HistoricalPeriodTestClientInvokeResponseRequestAddress
             = "TestClient.HistoricalPricePeriodSummary.Invoke.RequestResponse";

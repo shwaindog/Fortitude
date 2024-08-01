@@ -3,15 +3,15 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.Summaries;
 using FortitudeMarketsCore.Pricing.Summaries;
-using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
+using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 
 #endregion
 
@@ -108,7 +108,7 @@ public class PQPriceStoragePeriodSummaryDeserializerTests
 
     private IPricePeriodSummary CreatePeriodSummary
     (
-        DateTime startTime, TimeSeriesPeriod period, decimal startMid,
+        DateTime startTime, TimeBoundaryPeriod period, decimal startMid,
         decimal bidAskSpread, decimal endMid, decimal highLowSpread, uint tickCount, long volume)
     {
         var halfBidAskSpread   = bidAskSpread / 2;

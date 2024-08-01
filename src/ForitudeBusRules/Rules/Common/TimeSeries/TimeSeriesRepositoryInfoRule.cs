@@ -22,20 +22,20 @@ namespace FortitudeBusRules.Rules.Common.TimeSeries;
 public struct TimeSeriesRepositoryInstrumentFileInfoRequest
 {
     public TimeSeriesRepositoryInstrumentFileInfoRequest
-    (string instrumentName, string instrumentSource, InstrumentType? instrumentType = null, TimeSeriesPeriod? entryPeriod = null
+    (string instrumentName, string instrumentSource, InstrumentType? instrumentType = null, DiscreetTimePeriod? coveringPeriod = null
       , Dictionary<string, string>? matchFields = null)
     {
         InstrumentName   = instrumentName;
         InstrumentSource = instrumentSource;
-        EntryPeriod      = entryPeriod;
+        CoveringPeriod   = coveringPeriod;
         InstrumentType   = instrumentType;
         MatchFields      = matchFields;
     }
 
-    public string            InstrumentName   { get; }
-    public string            InstrumentSource { get; }
-    public TimeSeriesPeriod? EntryPeriod      { get; }
-    public InstrumentType?   InstrumentType   { get; }
+    public string              InstrumentName   { get; }
+    public string              InstrumentSource { get; }
+    public DiscreetTimePeriod? CoveringPeriod   { get; }
+    public InstrumentType?     InstrumentType   { get; }
 
     public Dictionary<string, string>? MatchFields { get; }
 }
@@ -43,12 +43,12 @@ public struct TimeSeriesRepositoryInstrumentFileInfoRequest
 public struct TimeSeriesRepositoryInstrumentFileEntryInfoRequest
 {
     public TimeSeriesRepositoryInstrumentFileEntryInfoRequest
-    (string instrumentName, string instrumentSource, InstrumentType? instrumentType = null, TimeSeriesPeriod? entryPeriod = null
+    (string instrumentName, string instrumentSource, InstrumentType? instrumentType = null, DiscreetTimePeriod? coveringPeriod = null
       , UnboundedTimeRange? limitEntryRangeResults = null, Dictionary<string, string>? matchFields = null)
     {
         InstrumentName    = instrumentName;
         InstrumentSource  = instrumentSource;
-        EntryPeriod       = entryPeriod;
+        CoveringPeriod    = coveringPeriod;
         InstrumentType    = instrumentType;
         LimitResultPeriod = limitEntryRangeResults;
         MatchFields       = matchFields;
@@ -56,7 +56,7 @@ public struct TimeSeriesRepositoryInstrumentFileEntryInfoRequest
 
     public string              InstrumentName    { get; }
     public string              InstrumentSource  { get; }
-    public TimeSeriesPeriod?   EntryPeriod       { get; }
+    public DiscreetTimePeriod? CoveringPeriod    { get; }
     public InstrumentType?     InstrumentType    { get; }
     public UnboundedTimeRange? LimitResultPeriod { get; }
 
@@ -116,7 +116,7 @@ public class TimeSeriesRepositoryInfoRule : TimeSeriesRepositoryAccessRule
 
     private List<InstrumentFileEntryInfo> GetFileEntryInfo
         (TimeSeriesRepositoryInstrumentFileEntryInfoRequest req) =>
-        InstrumentFileEntryInfos(req.InstrumentName, req.InstrumentSource, req.InstrumentType, req.EntryPeriod);
+        InstrumentFileEntryInfos(req.InstrumentName, req.InstrumentSource, req.InstrumentType, req.CoveringPeriod);
 
 
     private async ValueTask<List<InstrumentFileInfo>> HandleInstrumentFileInfo
@@ -136,7 +136,7 @@ public class TimeSeriesRepositoryInfoRule : TimeSeriesRepositoryAccessRule
 
     private List<InstrumentFileInfo> GetFileInfo
         (TimeSeriesRepositoryInstrumentFileInfoRequest req) =>
-        InstrumentFileInfos(req.InstrumentName, req.InstrumentSource, req.InstrumentType, req.EntryPeriod);
+        InstrumentFileInfos(req.InstrumentName, req.InstrumentSource, req.InstrumentType, req.CoveringPeriod);
 
     private void HandleRequestListAllAvailableInstruments(IBusMessage<ResponsePublishParams> publishParamsMsg)
     {

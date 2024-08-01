@@ -16,7 +16,7 @@ using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 namespace FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 
 public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBucket>, IMutableBucket<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry> where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
+    where TEntry : ITimeSeriesEntry where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(DataBucket<,>));
 
@@ -57,7 +57,7 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
                && BucketHeaderFileView!.StartAddress == RequiredHeaderViewLocation
                && BucketHeaderFileView!.LowerViewFileCursorOffset == RequiredHeaderViewFileCursorOffset;
 
-    public TimeSeriesPeriodRange TimeSeriesPeriodRange => new(PeriodStartTime, TimeSeriesPeriod);
+    public TimeBoundaryPeriodRange TimeBoundaryPeriodRange => new(PeriodStartTime, TimeBoundaryPeriod);
 
     public IBucketFactory<TBucket> BucketFactory
     {
@@ -67,7 +67,7 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
 
     public virtual TBucket? CloseAndCreateNextBucket()
     {
-        var nextStartPeriod  = TimeSeriesPeriod.PeriodEnd(PeriodStartTime);
+        var nextStartPeriod  = TimeBoundaryPeriod.PeriodEnd(PeriodStartTime);
         var nextPeriodResult = CheckTimeSupported(nextStartPeriod);
         if (nextPeriodResult == StorageAttemptResult.NextBucketPeriod)
         {
@@ -121,7 +121,7 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
         }
     }
 
-    public abstract TimeSeriesPeriod TimeSeriesPeriod { get; }
+    public abstract TimeBoundaryPeriod TimeBoundaryPeriod { get; }
 
     public DateTime PeriodStartTime
     {
@@ -281,7 +281,7 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
 
     public bool Intersects(DateTime? fromTime = null, DateTime? toTime = null) =>
         (PeriodStartTime < toTime || (toTime == null && fromTime != null))
-     && (TimeSeriesPeriod.PeriodEnd(PeriodStartTime) > fromTime || (fromTime == null && toTime != null));
+     && (TimeBoundaryPeriod.PeriodEnd(PeriodStartTime) > fromTime || (fromTime == null && toTime != null));
 
     public virtual uint CreateBucketId(uint previousHighestBucketId) => previousHighestBucketId + 1;
 
@@ -289,20 +289,19 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
     {
         // if (!IsOpen) OpenBucket(asWritable: Writable);
         if (storageDateTime == default || storageDateTime == DateTimeConstants.UnixEpoch) return StorageAttemptResult.StorageTimeNotSupported;
-        var bucketPeriod  = TimeSeriesPeriod;
+        var bucketPeriod  = TimeBoundaryPeriod;
         var bucketEndTime = bucketPeriod.PeriodEnd(PeriodStartTime); // None is unlimited
-        if ((storageDateTime >= PeriodStartTime && storageDateTime < bucketEndTime) || bucketPeriod == TimeSeriesPeriod.None)
+        if ((storageDateTime >= PeriodStartTime && storageDateTime < bucketEndTime) || bucketPeriod == TimeBoundaryPeriod.None)
             return BucketFlags.HasBucketCurrentAppendingFlag() ? StorageAttemptResult.PeriodRangeMatched : StorageAttemptResult.BucketClosedForAppend;
 
-        if (storageDateTime >= bucketEndTime && storageDateTime < bucketPeriod.PeriodEnd(bucketEndTime))
-            return StorageAttemptResult.NextBucketPeriod;
+        if (storageDateTime >= bucketEndTime && storageDateTime < bucketPeriod.PeriodEnd(bucketEndTime)) return StorageAttemptResult.NextBucketPeriod;
         if (storageDateTime >= bucketPeriod.PreviousPeriodStart(PeriodStartTime) && storageDateTime < PeriodStartTime)
             return StorageAttemptResult.BucketClosedForAppend;
-        var fileRange     = BucketContainer.ContainingSession.TimeSeriesPeriodRange;
-        var filePeriod    = fileRange.TimeSeriesPeriod;
+        var fileRange     = BucketContainer.ContainingSession.TimeBoundaryPeriodRange;
+        var filePeriod    = fileRange.TimeBoundaryPeriod;
         var fileStartTime = fileRange.PeriodStartTime;
         var fileEndTime   = fileRange.PeriodEnd();
-        if (storageDateTime >= fileStartTime && (storageDateTime < fileEndTime || filePeriod == TimeSeriesPeriod.None))
+        if (storageDateTime >= fileStartTime && (storageDateTime < fileEndTime || filePeriod == TimeBoundaryPeriod.None))
             return StorageAttemptResult.BucketSearchRange;
         return StorageAttemptResult.NextFilePeriod;
     }
@@ -322,7 +321,7 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
 
     public virtual void InitializeNewBucket(DateTime containingTime)
     {
-        var bucketStartTime = TimeSeriesPeriod.ContainingPeriodBoundaryStart(containingTime);
+        var bucketStartTime = TimeBoundaryPeriod.ContainingPeriodBoundaryStart(containingTime);
         PeriodStartTime = bucketStartTime;
         var bucketId = BucketContainer.CreateBucketId();
 
@@ -341,8 +340,8 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
         MappedFileBucketInfo->TotalFileDataSizeBytes = 0;
         cacheBucketHeader.TotalFileDataSizeBytes     = 0;
 
-        var thisEndBucketTime = TimeSeriesPeriodRange.PeriodEnd();
-        var fileEndTime       = BucketContainer.TimeSeriesPeriodRange.PeriodEnd();
+        var thisEndBucketTime = TimeBoundaryPeriodRange.PeriodEnd();
+        var fileEndTime       = BucketContainer.TimeBoundaryPeriodRange.PeriodEnd();
 
         if (fileEndTime == thisEndBucketTime) BucketFlags |= BucketFlags.IsLastPossibleSibling;
         BucketContainer.AddNewBucket(this);
@@ -380,7 +379,7 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
 
     public abstract AppendResult AppendEntry(IAppendContext<TEntry> entry);
 
-    public bool BucketIntersects(UnboundedTimeRange? period = null) => TimeSeriesPeriodRange.Intersects(period);
+    public bool BucketIntersects(UnboundedTimeRange? period = null) => TimeBoundaryPeriodRange.Intersects(period);
 
     public void EnsureHeaderViewCoversAllHeaders()
     {

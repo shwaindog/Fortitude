@@ -155,8 +155,9 @@ public class ListenerRegistry
         return ValueTask.CompletedTask;
     }
 
-    public IEnumerable<IMessageListenerRegistration> MatchingSubscriptions(string address)
+    public IEnumerable<IMessageListenerRegistration> MatchingSubscriptions(string? address)
     {
+        if(address == null) return Enumerable.Empty<IMessageListenerRegistration>();
         foundMatchingSubscriptions.Clear();
         foreach (var matcherListener in matcherListenerSubscriptions)
         {

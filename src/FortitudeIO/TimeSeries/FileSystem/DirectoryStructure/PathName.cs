@@ -4,6 +4,7 @@
 #region
 
 using System.Globalization;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Extensions;
 using static FortitudeIO.TimeSeries.FileSystem.DirectoryStructure.RepositoryPathName;
 
@@ -31,7 +32,7 @@ public class PathName
                              , Hour               => "{0:HH}"
                              , InstrumentName or InstrumentSource
                                               or Category
-                                              or EntryPeriod
+                                              or CoveringPeriod
                                               or FilePeriod
                                               or RepositoryPathName.InstrumentType
                                               or MarketRegion
@@ -43,12 +44,13 @@ public class PathName
             FormatString = formatString;
     }
 
-    public RepositoryPathName PathPart       { get; }
-    public string             PathPartString => pathPartString ??= PathPart.ToString();
+    public RepositoryPathName PathPart { get; }
+
+    public string PathPartString => pathPartString ??= PathPart.ToString();
 
     public string FormatString { get; }
 
-    public string? GetString(IInstrument instrument, DateTime timeInPeriod, TimeSeriesPeriod forTimeSeriesPeriod)
+    public string? GetString(IInstrument instrument, DateTime timeInPeriod, TimeBoundaryPeriod forTimeBoundaryPeriod)
     {
         switch (PathPart)
         {
@@ -95,9 +97,9 @@ public class PathName
             case MarketRegion: return string.Format(FormatString, instrument[nameof(MarketRegion)]);
             case MarketType: return string.Format(FormatString, instrument[nameof(MarketType)]);
             case Category: return instrument[nameof(Category)] != null ? string.Format(FormatString, instrument[nameof(Category)]) : null;
-            case EntryPeriod: return string.Format(FormatString, instrument.EntryPeriod.ShortName());
+            case CoveringPeriod: return string.Format(FormatString, instrument.CoveringPeriod.ShortName());
             case Constant: return FormatString;
-            case FilePeriod: return string.Format(FormatString, forTimeSeriesPeriod.ShortName());
+            case FilePeriod: return string.Format(FormatString, forTimeBoundaryPeriod.ShortName());
             default: throw new Exception($"TimeSeriesFilePathType {PathPart} can not be converted to a TimeSeriesFilePathFormat");
         }
     }
@@ -137,8 +139,8 @@ public class PathName
                 return true;
             case RepositoryPathName.InstrumentType: return Enum.TryParse<InstrumentType>(check, true, out var ignored);
             case FilePeriod:
-            case EntryPeriod:
-                return check.FromShortName() != TimeSeriesPeriod.None;
+            case CoveringPeriod:
+                return check.ShortNameToDiscreetTimePeriod() != new DiscreetTimePeriod();
             default: throw new Exception($"TimeSeriesFilePathType {PathPart} interpreted as a valid type");
         }
     }
@@ -189,14 +191,21 @@ public class PathName
         }
     }
 
-    public TimeSeriesPeriod ExtractTimeSeriesPeriod(string namePart)
+    public TimeBoundaryPeriod ExtractTimeBoundaryPeriod(string namePart)
     {
         switch (PathPart)
         {
-            case FilePeriod:
-            case EntryPeriod:
-                return namePart.FromShortName();
-            default: return TimeSeriesPeriod.None;
+            case FilePeriod: return namePart.ShortNameToTimeBoundaryPeriod();
+            default:         return TimeBoundaryPeriod.None;
+        }
+    }
+
+    public DiscreetTimePeriod ExtractDiscreetTimePeriod(string namePart)
+    {
+        switch (PathPart)
+        {
+            case CoveringPeriod: return namePart.ShortNameToDiscreetTimePeriod();
+            default:             return new DiscreetTimePeriod();
         }
     }
 }

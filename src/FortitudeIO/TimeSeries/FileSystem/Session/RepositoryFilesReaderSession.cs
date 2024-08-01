@@ -13,8 +13,7 @@ using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 
 namespace FortitudeIO.TimeSeries.FileSystem.Session;
 
-public struct InstrumentRepoFileReaderSession<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>
+public struct InstrumentRepoFileReaderSession<TEntry> where TEntry : ITimeSeriesEntry
 {
     public InstrumentRepoFileReaderSession(InstrumentRepoFile instrumentRepoFile) => InstrumentRepoFile = instrumentRepoFile;
 
@@ -28,8 +27,7 @@ public struct InstrumentRepoFileReaderSession<TEntry>
     public IFileReaderSession<TEntry>? ReaderSession;
 }
 
-public class RepositoryFilesReaderSession<TEntry> : IReaderSession<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>
+public class RepositoryFilesReaderSession<TEntry> : IReaderSession<TEntry> where TEntry : ITimeSeriesEntry
 {
     private readonly List<InstrumentRepoFileReaderSession<TEntry>> sortedInstrumentReaderSessions;
 
@@ -130,7 +128,7 @@ public class RepositoryFilesReaderSession<TEntry> : IReaderSession<TEntry>
     public IReaderContext<TEntry> AllChronologicalEntriesReader<TConcreteEntry>
     (IRecycler resultsRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         ReaderOptions readerOptions = ReaderOptions.ConsumerControlled)
-        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry, new()
     {
         var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
         readerContext.Configure<TConcreteEntry>(this, resultsRecycler, entryResultSourcing, readerOptions);
@@ -141,7 +139,7 @@ public class RepositoryFilesReaderSession<TEntry> : IReaderSession<TEntry>
     (IRecycler resultsRecycler, UnboundedTimeRange? periodRange,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
         ReaderOptions readerOptions = ReaderOptions.ConsumerControlled)
-        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry, new()
     {
         var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
         readerContext.Configure<TConcreteEntry>(this, resultsRecycler, entryResultSourcing, readerOptions);
@@ -171,7 +169,7 @@ public class RepositoryFilesReaderSession<TEntry> : IReaderSession<TEntry>
 
     public IReaderContext<TEntry> AllReverseChronologicalEntriesReader<TConcreteEntry>
         (IRecycler resultsRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject)
-        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry, new()
     {
         var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
         readerContext.Configure<TConcreteEntry>(this, resultsRecycler, entryResultSourcing, ReaderOptions.ReverseChronologicalOrder);
@@ -181,7 +179,7 @@ public class RepositoryFilesReaderSession<TEntry> : IReaderSession<TEntry>
     public IReaderContext<TEntry> ReverseChronologicalEntriesBetweenTimeRangeReader<TConcreteEntry>
     (IRecycler resultsRecycler, UnboundedTimeRange? periodRange,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject)
-        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry, new()
     {
         var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
         readerContext.Configure<TConcreteEntry>(this, resultsRecycler, entryResultSourcing, ReaderOptions.ReverseChronologicalOrder);

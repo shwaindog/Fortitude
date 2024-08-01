@@ -10,7 +10,7 @@ using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 
 namespace FortitudeIO.TimeSeries.FileSystem.Session;
 
-public class InstrumentRepoWriterSession<TEntry> : IWriterSession<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
+public class InstrumentRepoWriterSession<TEntry> : IWriterSession<TEntry> where TEntry : ITimeSeriesEntry
 {
     private readonly IInstrument instrument;
     private readonly IPathFile   pathFile;

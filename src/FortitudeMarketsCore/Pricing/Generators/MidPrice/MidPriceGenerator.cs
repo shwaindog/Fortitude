@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeIO.TimeSeries;
+using FortitudeCommon.Chronometry;
 
 #endregion
 
@@ -47,13 +47,13 @@ public interface IMidPriceGenerator
 
     IEnumerable<MidPriceTime> Prices(DateTime startFromTime, TimeSpan incrementTime, int numToGenerate, int startSequenceNumber = 0);
 
-    IEnumerable<MidPriceTime> Prices(DateTime startFromTime, TimeSeriesPeriod incrementTime, int numToGenerate, int startSequenceNumber = 0);
+    IEnumerable<MidPriceTime> Prices(DateTime startFromTime, TimeBoundaryPeriod incrementTime, int numToGenerate, int startSequenceNumber = 0);
 
     IEnumerable<PreviousCurrentMidPriceTime> PreviousCurrentPrices
         (DateTime startFromTime, TimeSpan incrementTime, int numToGenerate, int startSequenceNumber = 0);
 
     IEnumerable<PreviousCurrentMidPriceTime> PreviousCurrentPrices
-        (DateTime startFromTime, TimeSeriesPeriod incrementTime, int numToGenerate, int startSequenceNumber = 0);
+        (DateTime startFromTime, TimeBoundaryPeriod incrementTime, int numToGenerate, int startSequenceNumber = 0);
 }
 
 public abstract class MidPriceGenerator : IMidPriceGenerator
@@ -74,7 +74,7 @@ public abstract class MidPriceGenerator : IMidPriceGenerator
             yield return PriceAt(currentTime, sequenceNumber++);
     }
 
-    public IEnumerable<MidPriceTime> Prices(DateTime startFromTime, TimeSeriesPeriod incrementTime, int numToGenerate, int startSequenceNumber = 0)
+    public IEnumerable<MidPriceTime> Prices(DateTime startFromTime, TimeBoundaryPeriod incrementTime, int numToGenerate, int startSequenceNumber = 0)
     {
         var endTime = startFromTime;
 
@@ -96,7 +96,7 @@ public abstract class MidPriceGenerator : IMidPriceGenerator
     }
 
     public IEnumerable<PreviousCurrentMidPriceTime> PreviousCurrentPrices
-        (DateTime startFromTime, TimeSeriesPeriod incrementTime, int numToGenerate, int startSequenceNumber = 0)
+        (DateTime startFromTime, TimeBoundaryPeriod incrementTime, int numToGenerate, int startSequenceNumber = 0)
     {
         var previousStream = Prices(startFromTime, incrementTime, numToGenerate + 1, startSequenceNumber);
         var currentStream  = Prices(incrementTime.PeriodEnd(startFromTime), incrementTime, numToGenerate, startSequenceNumber + 1);

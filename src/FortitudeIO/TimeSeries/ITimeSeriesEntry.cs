@@ -1,13 +1,16 @@
-﻿namespace FortitudeIO.TimeSeries;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
 
-public interface IStorageTimeResolver<in TEntry>
+namespace FortitudeIO.TimeSeries;
+
+public interface IStorageTimeResolver { }
+
+public interface IStorageTimeResolver<in TEntry> : IStorageTimeResolver
 {
     DateTime ResolveStorageTime(TEntry entryTimeToResolve);
 }
 
-public interface ITimeSeriesEntry { }
-
-public interface ITimeSeriesEntry<out TEntry> : ITimeSeriesEntry
+public interface ITimeSeriesEntry
 {
-    DateTime StorageTime(IStorageTimeResolver<TEntry>? resolver = null);
+    DateTime StorageTime(IStorageTimeResolver? resolver = null);
 }

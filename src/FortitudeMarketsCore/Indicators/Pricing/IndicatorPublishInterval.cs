@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeIO.TimeSeries;
+using FortitudeCommon.Chronometry;
 
 #endregion
 
@@ -13,34 +13,34 @@ public struct IndicatorPublishInterval
 {
     public IndicatorPublishInterval(TimeSpan publishTimeSpan, TimeSpan? latestOffset = null)
     {
-        PublishInterval = new TimePeriod(publishTimeSpan);
-        LatestOffset    = latestOffset != null ? new TimePeriod(latestOffset) : new TimePeriod();
+        PublishInterval = new DiscreetTimePeriod(publishTimeSpan);
+        LatestOffset    = latestOffset != null ? new DiscreetTimePeriod(latestOffset!.Value) : new DiscreetTimePeriod();
     }
 
-    public IndicatorPublishInterval(TimeSeriesPeriod publishPeriod) => PublishInterval = new TimePeriod(publishPeriod);
+    public IndicatorPublishInterval(TimeBoundaryPeriod publishPeriod) => PublishInterval = new DiscreetTimePeriod(publishPeriod);
 
-    public TimePeriod LatestOffset    { get; }
-    public TimePeriod PublishInterval { get; }
+    public DiscreetTimePeriod LatestOffset    { get; }
+    public DiscreetTimePeriod PublishInterval { get; }
 }
 
 public struct BatchIndicatorPublishInterval
 {
     public BatchIndicatorPublishInterval
-    (int batchCount, TimePeriod publishInterval, TimePeriod coveringPeriod
-      , TimePeriod? batchEntryOffsetPeriod = null, TimePeriod? latestOffset = null)
+    (int batchCount, DiscreetTimePeriod publishInterval, DiscreetTimePeriod coveringPeriod
+      , DiscreetTimePeriod? batchEntryOffsetPeriod = null, DiscreetTimePeriod? latestOffset = null)
     {
         BatchCount             = batchCount;
         CoveringPeriod         = coveringPeriod;
         PublishInterval        = publishInterval;
         BatchEntryOffsetPeriod = batchEntryOffsetPeriod ?? coveringPeriod;
-        LatestOffset           = latestOffset ?? new TimePeriod();
+        LatestOffset           = latestOffset ?? new DiscreetTimePeriod();
     }
 
-    public TimePeriod LatestOffset           { get; }
-    public TimePeriod BatchEntryOffsetPeriod { get; }
-    public TimePeriod CoveringPeriod         { get; }
+    public DiscreetTimePeriod LatestOffset           { get; }
+    public DiscreetTimePeriod BatchEntryOffsetPeriod { get; }
+    public DiscreetTimePeriod CoveringPeriod         { get; }
 
     public int BatchCount { get; }
 
-    public TimePeriod PublishInterval { get; }
+    public DiscreetTimePeriod PublishInterval { get; }
 }

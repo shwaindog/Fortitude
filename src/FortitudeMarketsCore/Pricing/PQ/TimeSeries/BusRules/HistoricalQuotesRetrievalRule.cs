@@ -20,18 +20,20 @@ using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.Quotes;
-using static FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules.TimeSeriesBusRulesConstants;
+using static FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules.HistoricalQuoteTimeSeriesRepositoryConstants;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 
-public struct HistoricalQuotesRequest<TEntry> where TEntry : class, ITimeSeriesEntry<TEntry>, ITickInstant
+public struct HistoricalQuotesRequest<TEntry> where TEntry : class, ITimeSeriesEntry, ITickInstant
 {
     public HistoricalQuotesRequest
-        (SourceTickerIdentifier sourceTickerIdentifier, ChannelPublishRequest<TEntry> channelRequest, UnboundedTimeRange? timeRange = null)
+    (SourceTickerIdentifier sourceTickerIdentifier, ChannelPublishRequest<TEntry> channelRequest, UnboundedTimeRange? timeRange = null
+      , bool inReverseChronologicalOrder = false)
     {
-        SourceTickerIdentifier = sourceTickerIdentifier;
+        SourceTickerIdentifier      = sourceTickerIdentifier;
+        InReverseChronologicalOrder = inReverseChronologicalOrder;
 
         TimeRange      = timeRange;
         ChannelRequest = channelRequest;
@@ -42,6 +44,8 @@ public struct HistoricalQuotesRequest<TEntry> where TEntry : class, ITimeSeriesE
     public UnboundedTimeRange? TimeRange { get; }
 
     public ChannelPublishRequest<TEntry> ChannelRequest { get; }
+
+    public bool InReverseChronologicalOrder { get; }
 
     public string RequestAddress { get; } = CalculateRequestAddress();
 
@@ -70,8 +74,8 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
     private ISubscription? pql1RequestSubscription;
     private ISubscription? pql2RequestSubscription;
     private ISubscription? pql3RequestSubscription;
-    private ISubscription? pqTickInstantRequestSubscription;
 
+    private ISubscription? pqTickInstantRequestSubscription;
     private ISubscription? tickInstantRequestSubscription;
 
     public HistoricalQuotesRetrievalRule
@@ -178,15 +182,17 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
     }
 
     private bool MakeTimeSeriesRepoCallReturnExpectResults<TEntry>
-        (HistoricalQuotesRequest<TEntry> request) where TEntry : class, ITimeSeriesEntry<TEntry>, ITickInstant, new()
+        (HistoricalQuotesRequest<TEntry> request) where TEntry : class, ITimeSeriesEntry, ITickInstant, new()
     {
         var instrument = FindInstrumentFor(request.SourceTickerIdentifier);
         if (instrument == null) return false;
         var readerSession = TimeSeriesRepository!.GetReaderSession<TEntry>(instrument, request.TimeRange);
         if (readerSession == null) return false;
-        var readerContext = readerSession.ChronologicalEntriesBetweenTimeRangeReader
-            (Context.PooledRecycler, request.TimeRange, EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ConsumerControlled
-           , request.ChannelRequest.PublishChannel.GetChannelEventOrNew<TEntry>());
+
+        var readerContext = !request.InReverseChronologicalOrder
+            ? readerSession.ChronologicalEntriesBetweenTimeRangeReader<TEntry>
+                (Context.PooledRecycler, request.TimeRange, EntryResultSourcing.FromRecycler, ReaderOptions.ReadFastAsPossible)
+            : readerSession.ReverseChronologicalEntriesBetweenTimeRangeReader<TEntry>(Context.PooledRecycler, request.TimeRange);
 
         if (request.ChannelRequest.BatchSize > 1) readerContext.BatchLimit   = request.ChannelRequest.BatchSize;
         if (request.ChannelRequest.ResultLimit > 0) readerContext.MaxResults = request.ChannelRequest.ResultLimit;
@@ -199,7 +205,7 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
     }
 
     private void ProcessResults<TEntry>(IReaderContext<TEntry> readerContext, HistoricalQuotesRequest<TEntry> request)
-        where TEntry : class, ITimeSeriesEntry<TEntry>, ITickInstant, new()
+        where TEntry : class, ITimeSeriesEntry, ITickInstant, new()
     {
         var channel = request.ChannelRequest.PublishChannel;
         try

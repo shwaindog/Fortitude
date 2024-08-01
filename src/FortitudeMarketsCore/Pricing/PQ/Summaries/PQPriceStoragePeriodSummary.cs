@@ -85,8 +85,7 @@ public interface IPQPriceStoragePeriodSummary : IMutablePricePeriodSummary, ITra
     new IPQPriceStoragePeriodSummary Clone();
 }
 
-public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPriceStoragePeriodSummary
-  , ITimeSeriesEntry<PQPriceStoragePeriodSummary>, ICloneable<PQPriceStoragePeriodSummary>
+public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPriceStoragePeriodSummary, ICloneable<PQPriceStoragePeriodSummary>
 {
     private decimal averageAskPrice;
     private decimal averageBidPrice;
@@ -124,7 +123,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
     public PQPriceStoragePeriodSummary(IPQPriceStoragePeriodSummary toClone)
     {
         PrecisionSettings  = toClone.PrecisionSettings;
-        TimeSeriesPeriod   = toClone.TimeSeriesPeriod;
+        TimeBoundaryPeriod = toClone.TimeBoundaryPeriod;
         PeriodStartTime    = toClone.PeriodStartTime;
         PeriodEndTime      = toClone.PeriodEndTime;
         StartBidPrice      = toClone.StartBidPrice;
@@ -183,7 +182,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
     public BoundedTimeRange ToBoundedTimeRange(DateTime? maxDateTime = null) => new(PeriodStartTime, PeriodEndTime.Min(maxDateTime));
 
     public bool IsWhollyBoundedBy
-        (ITimeSeriesPeriodRange parentRange) =>
+        (ITimeBoundaryPeriodRange parentRange) =>
         parentRange.PeriodStartTime <= PeriodStartTime && parentRange.PeriodEnd() >= PeriodEndTime;
 
     public BidAskPair StartBidAsk   => new(StartBidPrice, StartAskPrice);
@@ -227,7 +226,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
     public uint DeltaSummaryFlagsUpperBytes { get; set; }
     public uint DeltaSummaryFlagsLowerBytes { get; set; }
 
-    public TimeSeriesPeriod TimeSeriesPeriod { get; set; }
+    public TimeBoundaryPeriod TimeBoundaryPeriod { get; set; }
 
     public bool IsEmpty
     {
@@ -239,7 +238,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
                 EndBidPrice == decimal.Zero && EndAskPrice == decimal.Zero &&
                 AverageBidPrice == decimal.Zero && AverageAskPrice == decimal.Zero;
             var tickCountAndVolumeZero    = TickCount == 0 && PeriodVolume == 0;
-            var summaryPeriodNone         = TimeSeriesPeriod == TimeSeriesPeriod.None;
+            var summaryPeriodNone         = TimeBoundaryPeriod == TimeBoundaryPeriod.None;
             var summaryFlagsNoneOrStorage = PeriodSummaryFlags is PricePeriodSummaryFlags.FromStorage or PricePeriodSummaryFlags.None;
             var startEndTimeUnixEpoch = PeriodStartTime == DateTimeConstants.UnixEpoch
                                      && PeriodEndTime == DateTimeConstants.UnixEpoch;
@@ -257,7 +256,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
 
             TickCount           = 0;
             PeriodVolume        = 0;
-            TimeSeriesPeriod    = TimeSeriesPeriod.None;
+            TimeBoundaryPeriod  = TimeBoundaryPeriod.None;
             PeriodSummaryFlags  = PricePeriodSummaryFlags.FromStorage;
             PeriodStartTime     = PeriodEndTime = DateTimeConstants.UnixEpoch;
             SummaryStorageFlags = None;
@@ -276,20 +275,25 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
                 uint countPeriod        = 1;
                 while (!haveFoundStartTime)
                 {
-                    currentStartTime = TimeSeriesPeriod.PeriodEnd(currentStartTime);
+                    currentStartTime = TimeBoundaryPeriod.PeriodEnd(currentStartTime);
                     countPeriod++;
                     haveFoundStartTime = currentStartTime >= value;
                 }
                 DeltaPeriodsFromPrevious = countPeriod;
             }
             startTime     = value;
-            PeriodEndTime = TimeSeriesPeriod.PeriodEnd(startTime);
+            PeriodEndTime = TimeBoundaryPeriod.PeriodEnd(startTime);
         }
     }
 
     public DateTime PeriodEndTime { get; set; } = DateTimeConstants.UnixEpoch;
 
-    DateTime ITimeSeriesEntry<IPricePeriodSummary>.StorageTime(IStorageTimeResolver<IPricePeriodSummary>? resolver) => PeriodEndTime;
+
+    public DateTime StorageTime(IStorageTimeResolver? resolver)
+    {
+        if (resolver is IStorageTimeResolver<IPricePeriodSummary> priceSummaryResolver) return priceSummaryResolver.ResolveStorageTime(this);
+        return PeriodEndTime;
+    }
 
     public decimal AverageBidPrice
     {
@@ -443,7 +447,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
     public override IPricePeriodSummary CopyFrom(IPricePeriodSummary ps, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (copyMergeFlags.HasFullReplace()) IsEmpty = true;
-        TimeSeriesPeriod   = ps.TimeSeriesPeriod;
+        TimeBoundaryPeriod = ps.TimeBoundaryPeriod;
         PeriodStartTime    = ps.PeriodStartTime;
         StartBidPrice      = ps.StartBidAsk.BidPrice;
         StartAskPrice      = ps.StartBidAsk.AskPrice;
@@ -511,7 +515,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
-        var timeFrameSame          = TimeSeriesPeriod == other.TimeSeriesPeriod;
+        var timeFrameSame          = TimeBoundaryPeriod == other.TimeBoundaryPeriod;
         var startTimeSame          = PeriodStartTime.Equals(other.PeriodStartTime);
         var endTimeSame            = PeriodEndTime.Equals(other.PeriodEndTime);
         var startBidPriceSame      = StartBidPrice == other.StartBidAsk.BidPrice;
@@ -577,8 +581,6 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
             = GetPriceDecimalDeltaAndFlags(averageAskPrice, previousAverageAskPrice, NegateDeltaAverageAskPrice, DeltaAverageAskPrice);
         DeltaPeriodVolume = GetVolumeLongDeltaAndFlags(periodVolume, previousPeriodVolume, NegateDeltaPeriodVolume, DeltaPeriodVolume);
     }
-
-    public DateTime StorageTime(IStorageTimeResolver<PQPriceStoragePeriodSummary>? resolver = null) => PeriodEndTime;
 
     private uint GetPriceDecimalDeltaAndFlags(decimal newValue, decimal oldValue, PQPriceStorageSummaryFlags negateFlag, uint previousDelta)
     {
@@ -652,7 +654,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
     {
         unchecked
         {
-            var hashCode = TimeSeriesPeriod.GetHashCode();
+            var hashCode = TimeBoundaryPeriod.GetHashCode();
             hashCode = (hashCode * 397) ^ startTime.GetHashCode();
             hashCode = (hashCode * 397) ^ PeriodEndTime.GetHashCode();
             hashCode = (hashCode * 397) ^ StartBidPrice.GetHashCode();
@@ -673,7 +675,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
     }
 
     public override string ToString() =>
-        $"PQPriceStoragePeriodSummary {{ {nameof(TimeSeriesPeriod)}: {TimeSeriesPeriod}, {nameof(PeriodStartTime)}: {PeriodStartTime}, " +
+        $"PQPriceStoragePeriodSummary {{ {nameof(TimeBoundaryPeriod)}: {TimeBoundaryPeriod}, {nameof(PeriodStartTime)}: {PeriodStartTime}, " +
         $"{nameof(PeriodEndTime)}: {PeriodEndTime}, {nameof(StartBidPrice)}: {StartBidPrice}, {nameof(StartAskPrice)}:" +
         $" {StartAskPrice}, {nameof(HighestBidPrice)}: {HighestBidPrice}, {nameof(HighestAskPrice)}: " +
         $"{HighestAskPrice}, {nameof(LowestBidPrice)}: {LowestBidPrice}, {nameof(LowestAskPrice)}: " +

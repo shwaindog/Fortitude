@@ -15,7 +15,8 @@ namespace FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 [StructLayout(LayoutKind.Sequential, Pack = 8)]
 public struct BucketIndexInfo
 {
-    public BucketIndexInfo(uint bucketId, DateTime bucketPeriodStart, BucketFlags bucketFlags, TimeSeriesPeriod bucketPeriod, long parentOrFileOffset)
+    public BucketIndexInfo
+        (uint bucketId, DateTime bucketPeriodStart, BucketFlags bucketFlags, TimeBoundaryPeriod bucketPeriod, long parentOrFileOffset)
     {
         if (bucketPeriodStart.Ticks % LowestBucketGranularityTickDivisor > 0)
             throw new ArgumentException(
@@ -32,8 +33,8 @@ public struct BucketIndexInfo
     public  uint NumEntries;
     private uint BucketPeriodStart;
 
-    public TimeSeriesPeriod BucketPeriod;
-    public BucketFlags      BucketFlags;
+    public TimeBoundaryPeriod BucketPeriod;
+    public BucketFlags        BucketFlags;
 
     public long ParentOrFileOffset;
 
@@ -43,7 +44,7 @@ public struct BucketIndexInfo
         set => BucketPeriodStart = (uint)(value.Ticks / LowestBucketGranularityTickDivisor);
     }
 
-    public TimeSeriesPeriodRange TimeSeriesPeriodRange => new(BucketStartTime, BucketPeriod);
+    public TimeBoundaryPeriodRange TimeBoundaryPeriodRange => new(BucketStartTime, BucketPeriod);
 
     public override string ToString() =>
         $"{nameof(BucketIndexInfo)}({nameof(BucketId)}: {BucketId}, {nameof(NumEntries)}: {NumEntries}, " +

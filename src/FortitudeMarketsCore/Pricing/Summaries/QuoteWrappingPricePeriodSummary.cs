@@ -34,7 +34,7 @@ public class QuoteWrappingPricePeriodSummary : ReusableObject<IPricePeriodSummar
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
-        var timeFrameSame          = TimeSeriesPeriod == other.TimeSeriesPeriod;
+        var timeFrameSame          = TimeBoundaryPeriod == other.TimeBoundaryPeriod;
         var startTimeSame          = PeriodStartTime.Equals(other.PeriodStartTime);
         var endTimeSame            = PeriodEndTime.Equals(other.PeriodEndTime);
         var startBidAskSame        = Equals(StartBidAsk, other.StartBidAsk);
@@ -52,11 +52,15 @@ public class QuoteWrappingPricePeriodSummary : ReusableObject<IPricePeriodSummar
         return allAreSame;
     }
 
-    public DateTime         PeriodStartTime  => level1Quote?.SourceTime ?? DateTimeConstants.UnixEpoch;
-    public TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.Tick;
-    public DateTime         PeriodEndTime    => Next?.PeriodStartTime ?? (level1Quote?.SourceTime ?? DateTimeConstants.UnixEpoch);
+    public DateTime           PeriodStartTime    => level1Quote?.SourceTime ?? DateTimeConstants.UnixEpoch;
+    public TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.Tick;
+    public DateTime           PeriodEndTime      => Next?.PeriodStartTime ?? (level1Quote?.SourceTime ?? DateTimeConstants.UnixEpoch);
 
-    public DateTime StorageTime(IStorageTimeResolver<IPricePeriodSummary>? resolver = null) => PeriodEndTime;
+    public DateTime StorageTime(IStorageTimeResolver? resolver)
+    {
+        if (resolver is IStorageTimeResolver<IPricePeriodSummary> priceSummaryResolver) return priceSummaryResolver.ResolveStorageTime(this);
+        return PeriodEndTime;
+    }
 
     public PricePeriodSummaryFlags PeriodSummaryFlags { get; set; }
 
@@ -87,7 +91,7 @@ public class QuoteWrappingPricePeriodSummary : ReusableObject<IPricePeriodSummar
         new(PeriodStartTime, Next?.PeriodStartTime.Min(maxDateTime) ?? maxDateTime ?? (level1Quote?.SourceTime ?? DateTimeConstants.UnixEpoch));
 
     public bool IsWhollyBoundedBy
-        (ITimeSeriesPeriodRange parentRange) =>
+        (ITimeBoundaryPeriodRange parentRange) =>
         parentRange.PeriodStartTime <= PeriodStartTime && parentRange.PeriodEnd() >= PeriodStartTime;
 
     public double ContributingCompletePercentage(BoundedTimeRange timeRange, IRecycler recycler)

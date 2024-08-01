@@ -14,7 +14,7 @@ using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 namespace FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 
 public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : IndexedBucket<TEntry, TBucket>, IMutableBucketContainer
-    where TEntry : ITimeSeriesEntry<TEntry>
+    where TEntry : ITimeSeriesEntry
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
     where TSubBucket : class, IBucketNavigation<TSubBucket>, IMutableBucket<TEntry>
 {
@@ -103,7 +103,7 @@ public abstract class SubBucketOnlyBucket<TEntry, TBucket, TSubBucket> : Indexed
     public void AddNewBucket(IMutableBucket newChild)
     {
         var bucketIndexOffset
-            = new BucketIndexInfo(newChild.BucketId, newChild.PeriodStartTime, newChild.BucketFlags, newChild.TimeSeriesPeriod
+            = new BucketIndexInfo(newChild.BucketId, newChild.PeriodStartTime, newChild.BucketFlags, newChild.TimeBoundaryPeriod
                                 , newChild.FileCursorOffset - FileCursorOffset);
         lastAddedIndexKey = BucketIndexes.NextEmptyIndexKey;
         LastAddedBucketId = newChild.BucketId;
