@@ -216,9 +216,10 @@ public static class PQQuoteConverterExtensions
         new(rule.CreateChannelFactory(receiveQuoteHandler, limitedRecycler), resultLimit, batchSize);
 
     public static HistoricalQuotesRequest<TQuoteLevel> ToHistoricalQuotesRequest<TQuoteLevel>
-        (this ChannelPublishRequest<TQuoteLevel> channelRequest, SourceTickerIdentifier sourceTickerIdentifier, UnboundedTimeRange timeRange)
-        where TQuoteLevel : class, ITimeSeriesEntry<TQuoteLevel>, ITickInstant =>
-        new(sourceTickerIdentifier, channelRequest, timeRange);
+    (this ChannelPublishRequest<TQuoteLevel> channelRequest, SourceTickerIdentifier sourceTickerIdentifier
+      , UnboundedTimeRange? timeRange = null, bool inReverseChronologicalOrder = false)
+        where TQuoteLevel : class, ITimeSeriesEntry, ITickInstant =>
+        new(sourceTickerIdentifier, channelRequest, timeRange, inReverseChronologicalOrder);
 
 
     public static TickerDetailLevel GetQuoteLevel<TQuoteLevel>() where TQuoteLevel : ITickInstant

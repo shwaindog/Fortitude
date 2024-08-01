@@ -16,7 +16,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeTests.FortitudeCommon.Types;
-using static FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules.TimeSeriesBusRulesConstants;
+using static FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules.HistoricalQuoteTimeSeriesRepositoryConstants;
 
 #endregion
 
@@ -137,7 +137,7 @@ public class HistoricalQuotesRetrievalStubRule : Rule
     }
 
     private bool MakeTimeSeriesRepoCallReturnExpectResults<TEntry>
-        (HistoricalQuotesRequest<TEntry> request) where TEntry : class, ITimeSeriesEntry<TEntry>, ITickInstant, new()
+        (HistoricalQuotesRequest<TEntry> request) where TEntry : class, ITimeSeriesEntry, ITickInstant, new()
     {
         var results = quotesCallback(request.SourceTickerIdentifier, request.TimeRange);
 
@@ -153,7 +153,7 @@ public class HistoricalQuotesRetrievalStubRule : Rule
     }
 
     private void ProcessResults<TEntry>(IEnumerable<ITickInstant> results, HistoricalQuotesRequest<TEntry> request)
-        where TEntry : class, ITimeSeriesEntry<TEntry>, ITickInstant, new()
+        where TEntry : class, ITimeSeriesEntry, ITickInstant, new()
     {
         var channel = request.ChannelRequest.PublishChannel;
         try

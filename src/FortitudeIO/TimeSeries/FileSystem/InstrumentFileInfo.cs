@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries.FileSystem.Config;
 
 #endregion
@@ -11,7 +12,7 @@ namespace FortitudeIO.TimeSeries.FileSystem;
 
 public struct InstrumentFileInfo
 {
-    public InstrumentFileInfo(IInstrument instrument, TimeSeriesPeriod filePeriod = TimeSeriesPeriod.None)
+    public InstrumentFileInfo(IInstrument instrument, TimeBoundaryPeriod filePeriod = TimeBoundaryPeriod.None)
     {
         HasInstrument = false;
         Instrument    = instrument;
@@ -21,7 +22,7 @@ public struct InstrumentFileInfo
     }
 
     public InstrumentFileInfo
-        (IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime? earliestEntry, DateTime? latestEntry, List<DateTime> fileStartDates)
+        (IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime? earliestEntry, DateTime? latestEntry, List<DateTime> fileStartDates)
     {
         HasInstrument  = true;
         EarliestEntry  = earliestEntry;
@@ -33,12 +34,12 @@ public struct InstrumentFileInfo
         ResponseGenerationTime = DateTime.UtcNow;
     }
 
-    public IInstrument      Instrument     { get; }
-    public bool             HasInstrument  { get; }
-    public TimeSeriesPeriod FilePeriod     { get; }
-    public List<DateTime>?  FileStartDates { get; }
-    public DateTime?        EarliestEntry  { get; }
-    public DateTime?        LatestEntry    { get; }
+    public IInstrument        Instrument     { get; }
+    public bool               HasInstrument  { get; }
+    public TimeBoundaryPeriod FilePeriod     { get; }
+    public List<DateTime>?    FileStartDates { get; }
+    public DateTime?          EarliestEntry  { get; }
+    public DateTime?          LatestEntry    { get; }
 
     public DateTime ResponseGenerationTime { get; }
 }
@@ -65,14 +66,15 @@ public struct FileEntryInfo
 
 public struct InstrumentFileEntryInfo
 {
-    public InstrumentFileEntryInfo(IInstrument instrument, TimeSeriesPeriod filePeriod = TimeSeriesPeriod.None)
+    public InstrumentFileEntryInfo(IInstrument instrument, TimeBoundaryPeriod filePeriod = TimeBoundaryPeriod.None)
     {
         HasInstrument = false;
         Instrument    = instrument;
         FilePeriod    = filePeriod;
     }
 
-    public InstrumentFileEntryInfo(IInstrument instrument, TimeSeriesPeriod filePeriod, List<FileEntryInfo> fileEntryCounts, long totalEntriesCount)
+    public InstrumentFileEntryInfo
+        (IInstrument instrument, TimeBoundaryPeriod filePeriod, List<FileEntryInfo> fileEntryCounts, long totalEntriesCount)
     {
         HasInstrument     = true;
         FileEntryCounts   = fileEntryCounts;
@@ -83,7 +85,7 @@ public struct InstrumentFileEntryInfo
 
     public IInstrument          Instrument      { get; }
     public bool                 HasInstrument   { get; }
-    public TimeSeriesPeriod     FilePeriod      { get; }
+    public TimeBoundaryPeriod   FilePeriod      { get; }
     public List<FileEntryInfo>? FileEntryCounts { get; }
 
     public long TotalEntriesCount { get; }

@@ -5,18 +5,18 @@
 
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Indicators;
+using FortitudeTests.FortitudeCommon.Types;
 
 #endregion
 
 namespace FortitudeTests.FortitudeMarketsCore.Indicators;
 
-public class IndicatorServiceRegistryRuleTests { }
-
+[NoMatchingProductionClass]
 public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(IndicatorServiceRegistryStubRule));
@@ -25,12 +25,14 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
         : base(overrideParams) { }
 
     public List<TickerPeriodServiceRequest> TickerPeriodReceivedRequests { get; } = new();
-    public List<GlobalServiceRequest>       GlobalReceivedRequests       { get; } = new();
+
+    public List<GlobalServiceRequest> GlobalReceivedRequests { get; } = new();
 
     public List<ServiceRunStateResponse> Responses { get; } = new();
 
     public Dictionary<TickerPeriodServiceInfo, ServiceRuntimeState> TickerPeriodServiceRegistry => TickerPeriodServiceStateLookup;
-    public Dictionary<ServiceType, ServiceRuntimeState>             GlobalServiceRegistry       => GlobalServiceStateLookup;
+
+    public Dictionary<ServiceType, ServiceRuntimeState> GlobalServiceRegistry => GlobalServiceStateLookup;
 
     public Func<TickerPeriodServiceRequest, ServiceRunStateResponse, bool> ShouldLaunchRule { get; set; } = (_, _) => true;
 
@@ -63,9 +65,8 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
     }
 
     public async ValueTask RegisterAndDeployTickerPeriodService
-    (SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod period, ServiceType service, IRule rule
-      , TickerDetailLevel tickerDetailLevel = TickerDetailLevel.Level1Quote
-      , bool usePQQuote = false)
+    (SourceTickerIdentifier sourceTickerIdentifier, DiscreetTimePeriod period, ServiceType service, IRule rule
+      , TickerDetailLevel tickerDetailLevel = TickerDetailLevel.Level1Quote, bool usePQQuote = false)
     {
         try
         {
@@ -84,9 +85,8 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
     }
 
     public void RegisterTickerPeriodServiceStatus
-    (SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod period, ServiceType service, ServiceRunStatus setStatus
-      , TickerDetailLevel tickerDetailLevel = TickerDetailLevel.Level1Quote
-      , bool usePQQuote = false)
+    (SourceTickerIdentifier sourceTickerIdentifier, DiscreetTimePeriod period, ServiceType service, ServiceRunStatus setStatus
+      , TickerDetailLevel tickerDetailLevel = TickerDetailLevel.Level1Quote, bool usePQQuote = false)
     {
         var tickerPeriodServiceInfo = new TickerPeriodServiceInfo(service, sourceTickerIdentifier, period, tickerDetailLevel, usePQQuote);
         var serviceRunStateResponse = new ServiceRunStateResponse(setStatus);

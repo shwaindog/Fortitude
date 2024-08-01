@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeMarketsApi.Pricing;
@@ -16,7 +17,7 @@ public struct PriceTimeSeriesFileParameters
 {
     public PriceTimeSeriesFileParameters
     (IPricingInstrumentId pricingInstrumentId, FileInfo fileInfo,
-        IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime fileStartPeriod,
+        IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime fileStartPeriod,
         PQSerializationFlags serializationFlags = PQSerializationFlags.ForStorage,
         uint internalIndexSize = 0, FileFlags initialFileFlags = FileFlags.None, int initialFileSize = ushort.MaxValue * 2,
         ushort maxStringSizeBytes = byte.MaxValue, ushort maxTypeStringSizeBytes = 512)
@@ -46,7 +47,7 @@ public struct PriceTimeSeriesFileParameters
 
 public static class PriceQuoteCreateFileParametersExtensions
 {
-    public static PriceTimeSeriesFileParameters SetFilePeriod(this PriceTimeSeriesFileParameters input, TimeSeriesPeriod filePeriod)
+    public static PriceTimeSeriesFileParameters SetFilePeriod(this PriceTimeSeriesFileParameters input, TimeBoundaryPeriod filePeriod)
     {
         var updated = input;
         updated.TimeSeriesFileParameters = input.TimeSeriesFileParameters.SetFilePeriod(filePeriod);

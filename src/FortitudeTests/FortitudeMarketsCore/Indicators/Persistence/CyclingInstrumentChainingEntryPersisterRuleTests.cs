@@ -4,6 +4,7 @@
 #region
 
 using FortitudeBusRules.Rules.Common.TimeSeries;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
@@ -17,7 +18,7 @@ using FortitudeMarketsCore.Indicators.Persistence;
 using FortitudeMarketsCore.Pricing.Summaries;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
 using FortitudeTests.FortitudeMarketsCore.Indicators.Config;
-using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
+using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeTests.FortitudeCommon.Extensions.DirectoryInfoExtensionsTests;
 using static FortitudeTests.FortitudeMarketsCore.Pricing.Summaries.PricePeriodSummaryTests;
@@ -66,7 +67,7 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
     private decimal mid1;
     private decimal mid2;
 
-    private TimeSeriesPeriod[] periods = null!;
+    private TimeBoundaryPeriod[] periods = null!;
 
     private DateTime persistStartTime;
 
@@ -124,7 +125,7 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
             foreach (var pricePeriodSummary in GenerateSummaries(period, maxTickerCluster))
             {
                 var instrument = ticker.Clone();
-                instrument.EntryPeriod    = pricePeriodSummary.TimeSeriesPeriod;
+                instrument.CoveringPeriod = new DiscreetTimePeriod(pricePeriodSummary.TimeBoundaryPeriod);
                 instrument.InstrumentType = InstrumentType.PriceSummaryPeriod;
                 yield return new ChainableInstrumentPayload<PricePeriodSummary>(instrument, pricePeriodSummary);
             }
@@ -132,13 +133,13 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
         }
     }
 
-    private IEnumerable<PricePeriodSummary> GenerateSummaries(TimeSeriesPeriod timeSeriesPeriod, int numberToGenerate = 4)
+    private IEnumerable<PricePeriodSummary> GenerateSummaries(TimeBoundaryPeriod timeBoundaryPeriod, int numberToGenerate = 4)
     {
-        runningTime = timeSeriesPeriod.ContainingPeriodEnd(runningTime);
+        runningTime = timeBoundaryPeriod.ContainingPeriodEnd(runningTime);
 
         for (var i = 0; i < numberToGenerate; i++)
             yield return CreatePricePeriodSummary
-                (timeSeriesPeriod, runningTime = timeSeriesPeriod.PeriodEnd(runningTime), i % 2 == 0 ? mid1 : mid2, spread, highLowSpread);
+                (timeBoundaryPeriod, runningTime = timeBoundaryPeriod.PeriodEnd(runningTime), i % 2 == 0 ? mid1 : mid2, spread, highLowSpread);
     }
 
     [TestCleanup]

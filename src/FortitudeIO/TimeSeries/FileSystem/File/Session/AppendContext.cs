@@ -9,7 +9,7 @@ using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 
 namespace FortitudeIO.TimeSeries.FileSystem.File.Session;
 
-public interface IAppendContext<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
+public interface IAppendContext<TEntry> where TEntry : ITimeSeriesEntry
 {
     IMutableBucket<TEntry>? LastAddedLeafBucket { get; set; }
     public DateTime         StorageTime         { get; set; }
@@ -19,14 +19,14 @@ public interface IAppendContext<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
 }
 
 public interface ISessionAppendContext<TEntry, TBucket> : IAppendContext<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>
+    where TEntry : ITimeSeriesEntry
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
     TBucket? LastAddedRootBucket { get; set; }
 }
 
 public class AppendContext<TEntry, TBucket> : ISessionAppendContext<TEntry, TBucket>
-    where TEntry : ITimeSeriesEntry<TEntry>
+    where TEntry : ITimeSeriesEntry
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
     public TBucket? LastAddedRootBucket { get; set; }

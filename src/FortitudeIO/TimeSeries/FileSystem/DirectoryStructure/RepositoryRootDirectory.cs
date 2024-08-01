@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
 
@@ -63,9 +64,9 @@ public class RepositoryRootDirectory : PathDirectory, IRepositoryRootDirectory
 
     public ITimeSeriesRepository Repository { get; set; } = null!;
 
-    public override TimeSeriesPeriod PathTimeSeriesPeriod => TimeSeriesPeriod.OneDecade;
+    public override TimeBoundaryPeriod PathTimeBoundaryPeriod => TimeBoundaryPeriod.OneDecade;
 
-    public override string FullPath(IInstrument instrument, DateTime timeInPeriod, TimeSeriesPeriod forPeriod) => rootDirectoryInfo.FullName;
+    public override string FullPath(IInstrument instrument, DateTime timeInPeriod, TimeBoundaryPeriod forPeriod) => rootDirectoryInfo.FullName;
 
 
     public IEnumerable<InstrumentRepoFile> RepositoryInstrumentDetails(string extension) =>
@@ -109,7 +110,7 @@ public class RepositoryRootDirectory : PathDirectory, IRepositoryRootDirectory
         return structureMatch.TimeSeriesFile;
     }
 
-    public override string PathName(IInstrument instrument, DateTime timeInPeriod, TimeSeriesPeriod forPeriod) => "";
+    public override string PathName(IInstrument instrument, DateTime timeInPeriod, TimeBoundaryPeriod forPeriod) => "";
 
     public PathFileMatch PathMatch(FileInfo fileInRepo)
     {

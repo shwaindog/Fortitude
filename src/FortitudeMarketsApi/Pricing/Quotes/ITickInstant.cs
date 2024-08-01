@@ -13,7 +13,7 @@ using FortitudeIO.TimeSeries;
 namespace FortitudeMarketsApi.Pricing.Quotes;
 
 public interface ITickInstant : IReusableObject<ITickInstant>, IInterfacesComparable<ITickInstant>
-  , ITimeSeriesEntry<ITickInstant>, IDoublyLinkedListNode<ITickInstant>
+  , ITimeSeriesEntry, IDoublyLinkedListNode<ITickInstant>
 {
     TickerDetailLevel TickerDetailLevel { get; }
 
@@ -29,7 +29,7 @@ public interface ITickInstant : IReusableObject<ITickInstant>, IInterfacesCompar
     new ITickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 }
 
-public struct TickInstantValue : ITimeSeriesEntry<TickInstantValue>
+public struct TickInstantValue : ITimeSeriesEntry
 {
     public TickInstantValue(DateTime sourceTime, decimal singleTickValue, DateTime clientReceivedTime, bool isReplay = false)
     {
@@ -43,7 +43,7 @@ public struct TickInstantValue : ITimeSeriesEntry<TickInstantValue>
     public DateTime SourceTime;
     public DateTime ClientReceivedTime;
     public decimal  SingleTickValue;
-    public DateTime StorageTime(IStorageTimeResolver<TickInstantValue>? resolver = null) => SourceTime;
+    public DateTime StorageTime(IStorageTimeResolver? resolver = null) => SourceTime;
 }
 
 public interface IMutableTickInstant : ITickInstant

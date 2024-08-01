@@ -64,13 +64,13 @@ public interface ITimeSeriesRepository
     InstrumentFileEntryInfo GetInstrumentFileEntryInfo(IInstrument instrument, UnboundedTimeRange? limitEntryRange = null);
 
     IEnumerable<IInstrument> AvailableInstrumentsMatching
-    (string instrumentName, string instrumentSource, InstrumentType? instrumentType = null, TimeSeriesPeriod? entryType = null
+    (string instrumentName, string instrumentSource, InstrumentType? instrumentType = null, DiscreetTimePeriod? coveringPeriod = null
       , IEnumerable<KeyValuePair<string, string>>? attributes = null);
 
     IReaderSession<TEntry>? GetReaderSession<TEntry>(IInstrument instrument, UnboundedTimeRange? restrictedRange = null)
-        where TEntry : ITimeSeriesEntry<TEntry>;
+        where TEntry : ITimeSeriesEntry;
 
-    IWriterSession<TEntry>? GetWriterSession<TEntry>(IInstrument instrument) where TEntry : ITimeSeriesEntry<TEntry>;
+    IWriterSession<TEntry>? GetWriterSession<TEntry>(IInstrument instrument) where TEntry : ITimeSeriesEntry;
 }
 
 public abstract class TimeSeriesDirectoryRepositoryBase : ITimeSeriesRepository
@@ -89,9 +89,9 @@ public abstract class TimeSeriesDirectoryRepositoryBase : ITimeSeriesRepository
     public string[]? OptionalInstrumentFields => RepositoryInfo.OptionalInstrumentFields;
 
     public abstract IReaderSession<TEntry>? GetReaderSession<TEntry>(IInstrument instrument, UnboundedTimeRange? restrictedRange = null)
-        where TEntry : ITimeSeriesEntry<TEntry>;
+        where TEntry : ITimeSeriesEntry;
 
-    public abstract IWriterSession<TEntry>? GetWriterSession<TEntry>(IInstrument instrument) where TEntry : ITimeSeriesEntry<TEntry>;
+    public abstract IWriterSession<TEntry>? GetWriterSession<TEntry>(IInstrument instrument) where TEntry : ITimeSeriesEntry;
 
     public void CloseAllFilesAndSessions()
     {
@@ -105,13 +105,13 @@ public abstract class TimeSeriesDirectoryRepositoryBase : ITimeSeriesRepository
         if (!InstrumentFilesMap.TryGetValue(instrument, out var instrumentFiles))
         {
             var fileStructure       = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
-            var fileStructurePeriod = fileStructure?.PathTimeSeriesPeriod ?? TimeSeriesPeriod.None;
+            var fileStructurePeriod = fileStructure?.PathTimeBoundaryPeriod ?? TimeBoundaryPeriod.None;
             return new InstrumentFileInfo(instrument, fileStructurePeriod);
         }
         if (instrumentFiles == null || !instrumentFiles.Any())
         {
             var fileStructure       = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
-            var fileStructurePeriod = fileStructure?.PathTimeSeriesPeriod ?? TimeSeriesPeriod.None;
+            var fileStructurePeriod = fileStructure?.PathTimeBoundaryPeriod ?? TimeBoundaryPeriod.None;
             return new InstrumentFileInfo(instrument, fileStructurePeriod);
         }
         var earliestFile           = instrumentFiles.First();
@@ -121,7 +121,7 @@ public abstract class TimeSeriesDirectoryRepositoryBase : ITimeSeriesRepository
         var latestTimeSeriesFile   = latestFile.TimeSeriesFile;
         var latestEntryTime        = latestTimeSeriesFile.Header.LatestEntryTime;
         var allFileStartTimes      = instrumentFiles.Select(irf => irf.FilePeriodRange.PeriodStartTime).ToList();
-        var filePeriod             = earliestFile.FilePeriodRange.TimeSeriesPeriod;
+        var filePeriod             = earliestFile.FilePeriodRange.TimeBoundaryPeriod;
         return new InstrumentFileInfo(instrument, filePeriod, earliestEntryTime, latestEntryTime, allFileStartTimes);
     }
 
@@ -130,13 +130,13 @@ public abstract class TimeSeriesDirectoryRepositoryBase : ITimeSeriesRepository
         if (!InstrumentFilesMap.TryGetValue(instrument, out var instrumentFiles))
         {
             var fileStructure       = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
-            var fileStructurePeriod = fileStructure?.PathTimeSeriesPeriod ?? TimeSeriesPeriod.None;
+            var fileStructurePeriod = fileStructure?.PathTimeBoundaryPeriod ?? TimeBoundaryPeriod.None;
             return new InstrumentFileEntryInfo(instrument, fileStructurePeriod);
         }
         if (instrumentFiles == null || !instrumentFiles.Any())
         {
             var fileStructure       = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
-            var fileStructurePeriod = fileStructure?.PathTimeSeriesPeriod ?? TimeSeriesPeriod.None;
+            var fileStructurePeriod = fileStructure?.PathTimeBoundaryPeriod ?? TimeBoundaryPeriod.None;
             return new InstrumentFileEntryInfo(instrument, fileStructurePeriod);
         }
         var totalCount  = 0L;
@@ -149,12 +149,12 @@ public abstract class TimeSeriesDirectoryRepositoryBase : ITimeSeriesRepository
                                             , fileEntries));
             totalCount += fileEntries;
         }
-        var filePeriod = instrumentFiles[0].FilePeriodRange.TimeSeriesPeriod;
+        var filePeriod = instrumentFiles[0].FilePeriodRange.TimeBoundaryPeriod;
         return new InstrumentFileEntryInfo(instrument, filePeriod, fileDetails, totalCount);
     }
 
     public IEnumerable<IInstrument> AvailableInstrumentsMatching
-    (string instrumentName, string instrumentSource, InstrumentType? instrumentType = null, TimeSeriesPeriod? entryType = null
+    (string instrumentName, string instrumentSource, InstrumentType? instrumentType = null, DiscreetTimePeriod? coveringPeriod = null
       , IEnumerable<KeyValuePair<string, string>>? attributes = null)
     {
         foreach (var instrument in InstrumentFilesMap.Keys)
@@ -162,7 +162,7 @@ public abstract class TimeSeriesDirectoryRepositoryBase : ITimeSeriesRepository
             var isMatch = instrument.InstrumentName == instrumentName && instrument.InstrumentSource == instrumentSource;
             if (!isMatch) continue;
             if (instrumentType != null && instrumentType != instrument.InstrumentType) continue;
-            if (entryType != null && entryType != instrument.EntryPeriod) continue;
+            if (coveringPeriod != null && coveringPeriod != instrument.CoveringPeriod) continue;
             if (attributes != null && attributes.Any(kvp => instrument[kvp.Key] != kvp.Value)) continue;
             yield return instrument;
         }

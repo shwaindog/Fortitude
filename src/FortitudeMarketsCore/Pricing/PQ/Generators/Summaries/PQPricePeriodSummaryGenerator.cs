@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeIO.TimeSeries;
+using FortitudeCommon.Chronometry;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Generators.MidPrice;
 using FortitudeMarketsCore.Pricing.Generators.Summaries;
@@ -23,9 +23,9 @@ public class PQPricePeriodSummaryGenerator : PricePeriodSummaryGenerator<PQPrice
         var currMid = previousCurrentMidPriceTime.CurrentMid;
         return new PQPricePeriodSummary
         {
-            TimeSeriesPeriod = GeneratePriceSummaryInfo.SummaryPeriod
-          , PeriodEndTime    = GeneratePriceSummaryInfo.SummaryPeriod.PeriodEnd(currMid.Time)
-          , PeriodStartTime  = currMid.Time
+            TimeBoundaryPeriod = GeneratePriceSummaryInfo.SummaryPeriod
+          , PeriodEndTime      = GeneratePriceSummaryInfo.SummaryPeriod.PeriodEnd(currMid.Time)
+          , PeriodStartTime    = currMid.Time
         };
     }
 }

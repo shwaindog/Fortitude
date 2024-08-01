@@ -7,11 +7,9 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
-using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarketsCore.Pricing.PQ.Summaries;
@@ -50,7 +48,7 @@ public interface IPQLevel1Quote : IPQTickInstant, IMutableLevel1Quote, IDoublyLi
     new IPQLevel1Quote         Clone();
 }
 
-public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ITimeSeriesEntry<PQLevel1Quote>, ICloneable<PQLevel1Quote>
+public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Quote>
   , IDoublyLinkedListNode<PQLevel1Quote>
 {
     private DateTime adapterReceivedTime = DateTimeConstants.UnixEpoch;
@@ -954,14 +952,6 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ITimeSeriesEntry<PQL
                       && sourceBidTimeSame && executableSame && bidPriceTopSame && askPriceTopSame && bidPriceTopChange && askPriceTopChange
                       && periodSummarySame && isExecutableUpdatedSame;
         return allAreSame;
-    }
-
-    DateTime ITimeSeriesEntry<ILevel1Quote>.StorageTime(IStorageTimeResolver<ILevel1Quote>? resolver) => StorageTime(resolver);
-
-    public DateTime StorageTime(IStorageTimeResolver<PQLevel1Quote>? resolver = null)
-    {
-        resolver ??= QuoteStorageTimeResolver.Instance;
-        return resolver.ResolveStorageTime(this);
     }
 
     protected override bool IsBooleanFlagsChanged() =>

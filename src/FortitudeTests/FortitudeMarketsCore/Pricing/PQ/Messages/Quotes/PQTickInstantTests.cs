@@ -631,8 +631,11 @@ public class PQTickInstantTests
 
         public void ResetFields() { }
 
-        public DateTime StorageTime(IStorageTimeResolver<ITickInstant>? resolver = null) =>
-            QuoteStorageTimeResolver.Instance.ResolveStorageTime(this);
+        public DateTime StorageTime(IStorageTimeResolver? resolver)
+        {
+            if (resolver is IStorageTimeResolver<ITickInstant> quoteStorageResolver) return quoteStorageResolver.ResolveStorageTime(this);
+            return QuoteStorageTimeResolver.Instance.ResolveStorageTime(this);
+        }
 
         public void EnsureRelatedItemsAreConfigured(ITickInstant? referenceInstance) { }
 

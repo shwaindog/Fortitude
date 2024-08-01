@@ -18,7 +18,7 @@ namespace FortitudeMarketsCore.Pricing.Summaries;
 
 public struct Candle
 {
-    public TimeSeriesPeriod        SummaryPeriod;
+    public TimeBoundaryPeriod      SummaryPeriod;
     public PricePeriodSummaryFlags PeriodSummaryFlags;
 
     public DateTime SummaryStartTime;
@@ -34,8 +34,8 @@ public struct Candle
     public long PeriodVolume;
 }
 
-public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutablePricePeriodSummary, ITimeSeriesEntry<PricePeriodSummary>
-  , IDoublyLinkedListNode<PricePeriodSummary>, ICloneable<PricePeriodSummary>
+public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutablePricePeriodSummary, IDoublyLinkedListNode<PricePeriodSummary>
+  , ICloneable<PricePeriodSummary>
 {
     public PricePeriodSummary()
     {
@@ -43,21 +43,21 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
         PeriodEndTime   = DateTimeConstants.UnixEpoch;
     }
 
-    public PricePeriodSummary(TimeSeriesPeriod timeSeriesPeriod, DateTime startTime)
+    public PricePeriodSummary(TimeBoundaryPeriod timeBoundaryPeriod, DateTime startTime)
     {
-        TimeSeriesPeriod = timeSeriesPeriod;
-        PeriodStartTime  = startTime;
-        PeriodEndTime    = timeSeriesPeriod.PeriodEnd(startTime);
+        TimeBoundaryPeriod = timeBoundaryPeriod;
+        PeriodStartTime    = startTime;
+        PeriodEndTime      = timeBoundaryPeriod.PeriodEnd(startTime);
     }
 
     public PricePeriodSummary
-    (TimeSeriesPeriod timeSeriesPeriod = TimeSeriesPeriod.None, DateTime? startTime = null, DateTime? endTime = null,
+    (TimeBoundaryPeriod timeBoundaryPeriod = TimeBoundaryPeriod.None, DateTime? startTime = null, DateTime? endTime = null,
         decimal startBidPrice = 0m, decimal startAskPrice = 0m, decimal highestBidPrice = 0m, decimal highestAskPrice = 0m,
         decimal lowestBidPrice = 0m, decimal lowestAskPrice = 0m, decimal endBidPrice = 0m, decimal endAskPrice = 0m, uint tickCount = 0u,
         long periodVolume = 0L, decimal averageBidPrice = 0m, decimal averageAskPrice = 0m
       , PricePeriodSummaryFlags periodSummaryFlags = PricePeriodSummaryFlags.None)
     {
-        TimeSeriesPeriod   = timeSeriesPeriod;
+        TimeBoundaryPeriod = timeBoundaryPeriod;
         PeriodStartTime    = startTime ?? DateTimeConstants.UnixEpoch;
         PeriodEndTime      = endTime ?? DateTimeConstants.UnixEpoch;
         StartBidPrice      = startBidPrice;
@@ -77,7 +77,7 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
 
     public PricePeriodSummary(IPricePeriodSummary toClone)
     {
-        TimeSeriesPeriod   = toClone.TimeSeriesPeriod;
+        TimeBoundaryPeriod = toClone.TimeBoundaryPeriod;
         PeriodStartTime    = toClone.PeriodStartTime;
         PeriodEndTime      = toClone.PeriodEndTime;
         StartBidPrice      = toClone.StartBidAsk.BidPrice;
@@ -122,7 +122,7 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
                                    EndBidPrice == decimal.Zero && EndAskPrice == decimal.Zero &&
                                    AverageBidPrice == decimal.Zero && AverageAskPrice == decimal.Zero;
             var tickCountAndVolumeZero = TickCount == 0 && PeriodVolume == 0;
-            var summaryPeriodNone      = TimeSeriesPeriod == TimeSeriesPeriod.None;
+            var summaryPeriodNone      = TimeBoundaryPeriod == TimeBoundaryPeriod.None;
             var summaryFlagsNone       = PeriodSummaryFlags == PricePeriodSummaryFlags.None;
             var startEndTimeUnixEpoch  = PeriodStartTime == DateTimeConstants.UnixEpoch && PeriodEndTime == DateTimeConstants.UnixEpoch;
             return pricesAreAllZero && tickCountAndVolumeZero && summaryPeriodNone && startEndTimeUnixEpoch && summaryFlagsNone;
@@ -134,7 +134,7 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
             LowestBidPrice     = LowestAskPrice = EndBidPrice     = EndAskPrice     = AverageAskPrice = decimal.Zero;
             TickCount          = 0;
             PeriodVolume       = 0;
-            TimeSeriesPeriod   = TimeSeriesPeriod.None;
+            TimeBoundaryPeriod = TimeBoundaryPeriod.None;
             PeriodSummaryFlags = PricePeriodSummaryFlags.None;
             PeriodStartTime    = PeriodEndTime = DateTimeConstants.UnixEpoch;
         }
@@ -158,7 +158,7 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
     }
 
     public PricePeriodSummaryFlags PeriodSummaryFlags { get; set; }
-    public TimeSeriesPeriod        TimeSeriesPeriod   { get; set; }
+    public TimeBoundaryPeriod      TimeBoundaryPeriod { get; set; }
 
     public DateTime PeriodStartTime { get; set; }
     public DateTime PeriodEndTime   { get; set; }
@@ -185,10 +185,15 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
     public BoundedTimeRange ToBoundedTimeRange(DateTime? maxDateTime = null) => new(PeriodStartTime, PeriodEndTime.Min(maxDateTime));
 
     public bool IsWhollyBoundedBy
-        (ITimeSeriesPeriodRange parentRange) =>
+        (ITimeBoundaryPeriodRange parentRange) =>
         parentRange.PeriodStartTime <= PeriodStartTime && parentRange.PeriodEnd() >= PeriodEndTime;
 
-    DateTime ITimeSeriesEntry<IPricePeriodSummary>.StorageTime(IStorageTimeResolver<IPricePeriodSummary>? resolver) => PeriodEndTime;
+
+    public DateTime StorageTime(IStorageTimeResolver? resolver)
+    {
+        if (resolver is IStorageTimeResolver<IPricePeriodSummary> priceSummaryResolver) return priceSummaryResolver.ResolveStorageTime(this);
+        return PeriodEndTime;
+    }
 
     IPricePeriodSummary IStoreState<IPricePeriodSummary>.CopyFrom(IPricePeriodSummary source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IMutablePricePeriodSummary)source, copyMergeFlags);
@@ -207,7 +212,7 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
-        var timeFrameSame          = TimeSeriesPeriod == other.TimeSeriesPeriod;
+        var timeFrameSame          = TimeBoundaryPeriod == other.TimeBoundaryPeriod;
         var startTimeSame          = PeriodStartTime.Equals(other.PeriodStartTime);
         var endTimeSame            = PeriodEndTime.Equals(other.PeriodEndTime);
         var startBidPriceSame      = StartBidPrice == other.StartBidAsk.BidPrice;
@@ -238,16 +243,14 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
         base.StateReset();
     }
 
-    public DateTime StorageTime(IStorageTimeResolver<PricePeriodSummary>? resolver = null) => PeriodEndTime;
-
     public void Configure
-    (TimeSeriesPeriod timeSeriesPeriod = TimeSeriesPeriod.None, DateTime? startTime = null, DateTime? endTime = null,
+    (TimeBoundaryPeriod timeBoundaryPeriod = TimeBoundaryPeriod.None, DateTime? startTime = null, DateTime? endTime = null,
         decimal startBidPrice = 0m, decimal startAskPrice = 0m, decimal highestBidPrice = 0m, decimal highestAskPrice = 0m,
         decimal lowestBidPrice = 0m, decimal lowestAskPrice = 0m, decimal endBidPrice = 0m, decimal endAskPrice = 0m, uint tickCount = 0u,
         long periodVolume = 0L, decimal averageBidPrice = 0m, decimal averageAskPrice = 0m
       , PricePeriodSummaryFlags periodSummaryFlags = PricePeriodSummaryFlags.None)
     {
-        TimeSeriesPeriod   = timeSeriesPeriod;
+        TimeBoundaryPeriod = timeBoundaryPeriod;
         PeriodStartTime    = startTime ?? DateTimeConstants.UnixEpoch;
         PeriodEndTime      = endTime ?? DateTimeConstants.UnixEpoch;
         StartBidPrice      = startBidPrice;
@@ -267,7 +270,7 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
 
     public void Configure(IPricePeriodSummary toClone)
     {
-        TimeSeriesPeriod   = toClone.TimeSeriesPeriod;
+        TimeBoundaryPeriod = toClone.TimeBoundaryPeriod;
         PeriodStartTime    = toClone.PeriodStartTime;
         PeriodEndTime      = toClone.PeriodEndTime;
         StartBidPrice      = toClone.StartBidAsk.BidPrice;
@@ -287,7 +290,7 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
 
     public override IPricePeriodSummary CopyFrom(IPricePeriodSummary source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        TimeSeriesPeriod   = source.TimeSeriesPeriod;
+        TimeBoundaryPeriod = source.TimeBoundaryPeriod;
         PeriodStartTime    = source.PeriodStartTime;
         PeriodEndTime      = source.PeriodEndTime;
         StartBidPrice      = source.StartBidAsk.BidPrice;
@@ -312,7 +315,7 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
     {
         unchecked
         {
-            var hashCode = (int)TimeSeriesPeriod;
+            var hashCode = (int)TimeBoundaryPeriod;
             hashCode = (hashCode * 397) ^ PeriodStartTime.GetHashCode();
             hashCode = (hashCode * 397) ^ PeriodEndTime.GetHashCode();
             hashCode = (hashCode * 397) ^ StartBidPrice.GetHashCode();
@@ -331,7 +334,7 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
     }
 
     public override string ToString() =>
-        $"{nameof(PricePeriodSummary)} ({nameof(TimeSeriesPeriod)}: {TimeSeriesPeriod}, {nameof(PeriodStartTime)}: {PeriodStartTime:O}, " +
+        $"{nameof(PricePeriodSummary)} ({nameof(TimeBoundaryPeriod)}: {TimeBoundaryPeriod}, {nameof(PeriodStartTime)}: {PeriodStartTime:O}, " +
         $"{nameof(PeriodEndTime)}: {PeriodEndTime:O}, {nameof(StartBidPrice)}: {StartBidPrice:N5}, " +
         $"{nameof(StartAskPrice)}: {StartAskPrice:N5}, {nameof(HighestBidPrice)}: {HighestBidPrice:N5}, " +
         $"{nameof(HighestAskPrice)}: {HighestAskPrice:N5}, {nameof(LowestBidPrice)}: {LowestBidPrice:N5}, " +

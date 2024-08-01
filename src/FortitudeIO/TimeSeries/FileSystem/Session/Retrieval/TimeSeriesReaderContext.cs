@@ -5,6 +5,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes.Binary;
@@ -40,8 +41,8 @@ public enum EntryResultSourcing
 
 public interface IReaderContext<TEntry> : IDisposable
 {
-    IStorageTimeResolver<TEntry>? StorageTimeResolver     { get; set; }
-    IEnumerable<List<TEntry>>     BatchedResultEnumerable { get; }
+    IStorageTimeResolver<TEntry>?     StorageTimeResolver     { get; set; }
+    IEnumerable<ReusableList<TEntry>> BatchedResultEnumerable { get; }
 
     IMessageDeserializer?   BucketDeserializer  { get; set; }
     IMessageSerializer?     ResultWriter        { get; set; }
@@ -55,7 +56,7 @@ public interface IReaderContext<TEntry> : IDisposable
     IObserver<TEntry>?  ResultObserver     { get; set; }
     ReaderOptions       ReaderOptions      { get; set; }
     ResultFlags         ResultPublishFlags { get; set; }
-    TimeSeriesPeriod    SamplePeriod       { get; set; }
+    TimeBoundaryPeriod  SamplePeriod       { get; set; }
     Func<TEntry>?       SourceEntryFactory { get; set; }
     List<TEntry>        ResultList         { get; }
     Action<TEntry>?     CallbackAction     { get; set; }
@@ -86,11 +87,11 @@ public interface IReaderContext<TEntry> : IDisposable
 
     IEnumerable<TEntry> ReadReverse();
 
-    IFlowRateEnumerable<TEntry>       FlowRateEnumerable(FlowRate flowRate);
-    IFlowRateEnumerable<List<TEntry>> BatchedFlowRateEnumerable(BatchRate batchRate);
+    IFlowRateEnumerable<TEntry>               FlowRateEnumerable(FlowRate flowRate);
+    IFlowRateEnumerable<ReusableList<TEntry>> BatchedFlowRateEnumerable(BatchRate batchRate);
 }
 
-public class TimeSeriesReaderContext<TEntry> : RecyclableObject, IReaderContext<TEntry> where TEntry : ITimeSeriesEntry<TEntry>
+public class TimeSeriesReaderContext<TEntry> : RecyclableObject, IReaderContext<TEntry> where TEntry : ITimeSeriesEntry
 {
     private Action<TEntry>? callbackAction;
 
@@ -146,7 +147,7 @@ public class TimeSeriesReaderContext<TEntry> : RecyclableObject, IReaderContext<
         set => populateEntrySingleton = value;
     }
 
-    public TimeSeriesPeriod SamplePeriod { get; set; }
+    public TimeBoundaryPeriod SamplePeriod { get; set; }
 
     public TEntry GetNextEntryToPopulate
     {
@@ -275,7 +276,7 @@ public class TimeSeriesReaderContext<TEntry> : RecyclableObject, IReaderContext<
         {
             var entryStorageTime    = entry.StorageTime(StorageTimeResolver);
             var thisTimePeriodStart = SamplePeriod.ContainingPeriodBoundaryStart(entryStorageTime);
-            shouldIncludeThis = SamplePeriod is TimeSeriesPeriod.None
+            shouldIncludeThis = SamplePeriod is TimeBoundaryPeriod.None
                              || thisTimePeriodStart != lastSamplePeriodStart;
             lastSamplePeriodStart = thisTimePeriodStart;
         }
@@ -335,13 +336,13 @@ public class TimeSeriesReaderContext<TEntry> : RecyclableObject, IReaderContext<
         }
     }
 
-    public IFlowRateEnumerable<List<TEntry>> BatchedFlowRateEnumerable(BatchRate batchRate)
+    public IFlowRateEnumerable<ReusableList<TEntry>> BatchedFlowRateEnumerable(BatchRate batchRate)
     {
         BatchLimit = batchRate.NumberInBatch;
-        return new BatchFlowRateEnumerableWrapper<List<TEntry>, TEntry>(new FlowRate(batchRate), BatchedResultEnumerable);
+        return new BatchFlowRateEnumerableWrapper<ReusableList<TEntry>, TEntry>(new FlowRate(batchRate), BatchedResultEnumerable);
     }
 
-    public IEnumerable<List<TEntry>> BatchedResultEnumerable
+    public IEnumerable<ReusableList<TEntry>> BatchedResultEnumerable
     {
         get
         {
@@ -352,17 +353,18 @@ public class TimeSeriesReaderContext<TEntry> : RecyclableObject, IReaderContext<
             ResultPublishFlags = AsEnumerable;
             ResultPublishFlags = ResultPublishFlags.Unset(CopyToList);
 
+            var reusableList = resultsRecycler.Borrow<ReusableList<TEntry>>();
             foreach (var timeSeriesEntry in readerSession.StartReaderContext(this))
             {
-                ResultList.Add(timeSeriesEntry);
-                if (ResultList.Count >= BatchLimit)
+                reusableList.Add(timeSeriesEntry);
+                if (reusableList.Count >= BatchLimit)
                 {
-                    yield return ResultList;
-                    ResultList.Clear();
+                    yield return reusableList;
+                    reusableList = resultsRecycler.Borrow<ReusableList<TEntry>>();
                 }
             }
 
-            if (ResultList.Count > 0) yield return ResultList;
+            if (ResultList.Count > 0) yield return reusableList;
         }
     }
 
@@ -415,7 +417,7 @@ public class TimeSeriesReaderContext<TEntry> : RecyclableObject, IReaderContext<
     public void Configure<TConcreteEntry>
     (IReaderSession<TEntry> readSession, IRecycler resultRecycler,
         EntryResultSourcing defaultEntryResultSourcing = EntryResultSourcing.ReuseSingletonObject,
-        ReaderOptions readerOptions = ReaderOptions.ConsumerControlled) where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+        ReaderOptions readerOptions = ReaderOptions.ConsumerControlled) where TConcreteEntry : class, TEntry, ITimeSeriesEntry, new()
     {
         concreteType    = typeof(TConcreteEntry);
         readerSession   = readSession;

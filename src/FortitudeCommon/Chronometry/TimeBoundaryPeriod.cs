@@ -4,17 +4,19 @@
 #region
 
 using FortitudeCommon.Extensions;
-using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
+using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 
 #endregion
 
-namespace FortitudeIO.TimeSeries;
+namespace FortitudeCommon.Chronometry;
 
-public enum TimeSeriesPeriod : byte
+public enum TimeBoundaryPeriod : byte
 {
     None = 0
   , Any  = 1 
-  , Tick           
+  , Tick
+  , OneMicrosecond
+  , OneMillisecond
   , OneSecond      
   , FiveSeconds    
   , TenSeconds     
@@ -40,30 +42,15 @@ public enum TimeSeriesPeriod : byte
   , Eternity       
 }
 
-public readonly struct TimePeriod
+public static class TimeBoundaryPeriodsExtensions
 {
-    public TimePeriod() => NullableTimeSpan = TimeSpan.Zero;
-
-    public TimePeriod(TimeSpan? nullableTimeSpan) => NullableTimeSpan = nullableTimeSpan;
-
-    public TimePeriod(TimeSeriesPeriod? nullableTimeSeriesPeriod) => NullableTimeSeriesPeriod = nullableTimeSeriesPeriod;
-
-    internal readonly TimeSpan?         NullableTimeSpan;
-    internal readonly TimeSeriesPeriod? NullableTimeSeriesPeriod;
-
-    public TimeSpan         TimeSpan         => NullableTimeSpan!.Value;
-    public TimeSeriesPeriod TimeSeriesPeriod => NullableTimeSeriesPeriod!.Value;
-
-    public static implicit operator TimeSpan(TimePeriod toConvert) => toConvert.NullableTimeSpan ?? toConvert.TimeSeriesPeriod.AveragePeriodTimeSpan();
-}
-
-public static class TimeSeriesPeriodExtensions
-{
-    public static DateTime ContainingPeriodBoundaryStart(this TimeSeriesPeriod period, DateTime anyPeriodTime)
+    public static DateTime ContainingPeriodBoundaryStart(this TimeBoundaryPeriod period, DateTime anyPeriodTime)
     {
         return period switch
                {
-                   OneSecond      => anyPeriodTime.TruncToSecondBoundary()
+                   OneMicrosecond => anyPeriodTime.TruncToMicrosecondBoundary()
+                 , OneMillisecond => anyPeriodTime.TruncToMillisecondBoundary()
+                 , OneSecond      => anyPeriodTime.TruncToSecondBoundary()
                  , FiveSeconds    => anyPeriodTime.TruncTo5SecondBoundary()
                  , TenSeconds     => anyPeriodTime.TruncTo10SecondBoundary()
                  , FifteenSeconds => anyPeriodTime.TruncTo15SecondBoundary()
@@ -90,35 +77,14 @@ public static class TimeSeriesPeriodExtensions
                };
     }
 
-    public static TimePeriod ToTimePeriod(this TimeSeriesPeriod timeSeriesPeriod) => new (timeSeriesPeriod);
-
-    public static bool IsTimeSpan(this TimePeriod spanOrPeriod)
-    {
-        return spanOrPeriod.NullableTimeSpan != null;
-    }
-
-    public static bool IsTimeSeriesPeriod(this TimePeriod spanOrPeriod)
-    {
-        return spanOrPeriod.NullableTimeSeriesPeriod != null;
-    }
-
-    public static bool IsTickPeriod(this TimePeriod spanOrPeriod)
-    {
-        return spanOrPeriod.IsTimeSeriesPeriod() && spanOrPeriod.TimeSeriesPeriod == Tick;
-    }
-
-    public static TimeSpan AveragePeriodTimeSpan(this TimePeriod spanOrPeriod)
-    {
-        return spanOrPeriod.IsTimeSpan()
-            ? spanOrPeriod.TimeSpan
-            : spanOrPeriod.TimeSeriesPeriod.AveragePeriodTimeSpan();
-    }
-
-    public static TimeSpan AveragePeriodTimeSpan(this TimeSeriesPeriod period)
+    public static TimeSpan AveragePeriodTimeSpan(this TimeBoundaryPeriod period)
     {
         return period switch
                {
-                   OneSecond      => TimeSpan.FromSeconds(1)
+                   None or Tick => TimeSpan.Zero
+                 , OneMicrosecond      => TimeSpan.FromMicroseconds(1)
+                 , OneMillisecond      => TimeSpan.FromMilliseconds(1)
+                 , OneSecond      => TimeSpan.FromSeconds(1)
                  , FiveSeconds    => TimeSpan.FromSeconds(5)
                  , TenSeconds     => TimeSpan.FromSeconds(10)
                  , FifteenSeconds => TimeSpan.FromSeconds(15)
@@ -145,16 +111,18 @@ public static class TimeSeriesPeriodExtensions
                };
     }
 
-    public static DateTime ContainingPeriodEnd(this TimeSeriesPeriod period, DateTime startTime)
+    public static DateTime ContainingPeriodEnd(this TimeBoundaryPeriod period, DateTime startTime)
     {
         return period.PeriodEnd(period.ContainingPeriodBoundaryStart(startTime));
     }
 
-    public static DateTime PeriodEnd(this TimeSeriesPeriod period, DateTime startTime)
+    public static DateTime PeriodEnd(this TimeBoundaryPeriod period, DateTime startTime)
     {
         return period switch
                {
-                   OneSecond      => startTime.AddSeconds(1)
+                 OneMicrosecond      => startTime.AddMicroseconds(1)
+                 , OneMillisecond      => startTime.AddMilliseconds(1)
+                 , OneSecond      => startTime.AddSeconds(1)
                  , FiveSeconds    => startTime.AddSeconds(5)
                  , TenSeconds     => startTime.AddSeconds(10)
                  , FifteenSeconds => startTime.AddSeconds(15)
@@ -181,12 +149,14 @@ public static class TimeSeriesPeriodExtensions
                };
     }
 
-    public static DateTime PreviousPeriodStart(this TimeSeriesPeriod period, DateTime periodTime)
+    public static DateTime PreviousPeriodStart(this TimeBoundaryPeriod period, DateTime periodTime)
     {
         var startTime = period.ContainingPeriodBoundaryStart(periodTime);
         return period switch
                {
-                   OneSecond      => startTime.AddSeconds(-1)
+                   OneMicrosecond => startTime.AddMicroseconds(-1)
+                 , OneMillisecond => startTime.AddMilliseconds(-1)
+                 , OneSecond      => startTime.AddSeconds(-1)
                  , FiveSeconds    => startTime.AddSeconds(-5)
                  , TenSeconds     => startTime.AddSeconds(-10)
                  , FifteenSeconds => startTime.AddSeconds(-15)
@@ -213,11 +183,13 @@ public static class TimeSeriesPeriodExtensions
                };
     }
 
-    public static TimeSeriesPeriod NextContainingPeriod(this TimeSeriesPeriod period)
+    public static TimeBoundaryPeriod NextContainingPeriod(this TimeBoundaryPeriod period)
     {
         return period switch
                {
-                   Tick           => OneSecond
+                   Tick           => OneMicrosecond
+                 , OneMicrosecond => OneMillisecond
+                 , OneMillisecond => OneSecond
                  , OneSecond      => FiveSeconds
                  , FiveSeconds    => TenSeconds
                  , TenSeconds     => ThirtySeconds
@@ -244,12 +216,14 @@ public static class TimeSeriesPeriodExtensions
                };
     }
 
-    public static TimeSeriesPeriod GranularDivisiblePeriod(this TimeSeriesPeriod period)
+    public static TimeBoundaryPeriod GranularDivisiblePeriod(this TimeBoundaryPeriod period)
     {
         return period switch
                {
                    Tick           => None
-                 , OneSecond      => Tick
+                 , OneMicrosecond => Tick
+                 , OneMillisecond => OneMicrosecond
+                 , OneSecond      => OneMillisecond
                  , FiveSeconds    => OneSecond
                  , TenSeconds     => FiveSeconds
                  , FifteenSeconds => FiveSeconds
@@ -275,7 +249,7 @@ public static class TimeSeriesPeriodExtensions
                  , _              => None
                };
     }
-    public static TimeSeriesPeriod[] ConstructingDivisiblePeriods(this TimeSeriesPeriod period)
+    public static TimeBoundaryPeriod[] WholeSecondConstructingDivisiblePeriods(this TimeBoundaryPeriod period)
     {
         return period switch
                {
@@ -307,11 +281,11 @@ public static class TimeSeriesPeriodExtensions
                };
     }
     
-    public static List<TimeSeriesPeriodRange> ConstructingDivisiblePeriods(this TimeSeriesPeriod period, DateTime asAt)
+    public static List<TimeBoundaryPeriodRange> WholeSecondConstructingDivisiblePeriods(this TimeBoundaryPeriod period, DateTime asAt)
     {
-        var periodRanges     = new List<TimeSeriesPeriodRange>();
+        var periodRanges     = new List<TimeBoundaryPeriodRange>();
         var currentTime      = period.ContainingPeriodBoundaryStart(asAt);
-        var candidatePeriods = period.ConstructingDivisiblePeriods();
+        var candidatePeriods = period.WholeSecondConstructingDivisiblePeriods();
         var i                = 0;
         var currentPeriod    = candidatePeriods.Length > 0 ? candidatePeriods[i++] : Tick;
         while (currentPeriod != Tick)
@@ -319,7 +293,7 @@ public static class TimeSeriesPeriodExtensions
             var checkTime = currentPeriod.PeriodEnd(currentTime);
             if (checkTime <= asAt)
             {
-                periodRanges.Add(new TimeSeriesPeriodRange(currentTime, currentPeriod));
+                periodRanges.Add(new TimeBoundaryPeriodRange(currentTime, currentPeriod));
                 currentTime = currentPeriod.PeriodEnd(currentTime);
             }
             else
@@ -327,53 +301,39 @@ public static class TimeSeriesPeriodExtensions
                 currentPeriod = candidatePeriods[i++];
             }
         }
-        periodRanges.Add(new TimeSeriesPeriodRange(currentTime, Tick));
+        periodRanges.Add(new TimeBoundaryPeriodRange(currentTime, Tick));
         return periodRanges;
     }
 
-    public static IEnumerable<TimeSeriesPeriod> TimeSeriesPeriodsSmallerThan(this TimeSpan timeSpan)
+    public static IEnumerable<TimeBoundaryPeriod> NonTickTimeSeriesPeriodsSmallerThan(this TimeSpan timeSpan)
     {
-        return Enum.GetValues<TimeSeriesPeriod>().Where(tsp => tsp.AveragePeriodTimeSpan() < timeSpan);
+        return Enum.GetValues<TimeBoundaryPeriod>().Reverse()
+                   .Where(tsp => tsp > Tick)
+                   .Where(tsp => tsp.AveragePeriodTimeSpan() < timeSpan);
     }
 
-    public static IEnumerable<TimeSeriesPeriod> TimeSeriesPeriodsGreaterThan(TimeSpan timeSpan)
+    public static IEnumerable<TimeBoundaryPeriod> TimeSeriesPeriodsGreaterThan(TimeSpan timeSpan)
     {
-        return Enum.GetValues<TimeSeriesPeriod>().Where(tsp => tsp.AveragePeriodTimeSpan() > timeSpan);
+        return Enum.GetValues<TimeBoundaryPeriod>().Where(tsp => tsp.AveragePeriodTimeSpan() > timeSpan);
     }
 
-    public static IEnumerable<TimeSeriesPeriod> TimeSeriesPeriodsSmallerThanOrEqualTo(this TimeSpan timeSpan)
+    public static IEnumerable<TimeBoundaryPeriod> TimeSeriesPeriodsSmallerThanOrEqualTo(this TimeSpan timeSpan)
     {
-        return Enum.GetValues<TimeSeriesPeriod>().Where(tsp => tsp.AveragePeriodTimeSpan() <= timeSpan);
+        return Enum.GetValues<TimeBoundaryPeriod>().Where(tsp => tsp.AveragePeriodTimeSpan() <= timeSpan);
     }
 
-    public static IEnumerable<TimeSeriesPeriod> TimeSeriesPeriodsGreaterThanOrEqualTo(TimeSpan timeSpan)
+    public static IEnumerable<TimeBoundaryPeriod> TimeSeriesPeriodsGreaterThanOrEqualTo(TimeSpan timeSpan)
     {
-        return Enum.GetValues<TimeSeriesPeriod>().Where(tsp => tsp.AveragePeriodTimeSpan() >= timeSpan);
+        return Enum.GetValues<TimeBoundaryPeriod>().Where(tsp => tsp.AveragePeriodTimeSpan() >= timeSpan);
     }
 
-    public static string ShortName(this TimePeriod timePeriod)
-    {
-        if (timePeriod.IsTimeSeriesPeriod()) return timePeriod.TimeSeriesPeriod.ShortName();
-        var ts = timePeriod.TimeSpan;
-        if (ts == TimeSpan.Zero) return "0s";
-        var totalMs            = ts.TotalMilliseconds;
-        switch (totalMs)
-        {
-            case < 1000.0 :                                   return $"{(int)totalMs}ms";
-            case >= 1000.0 and < 60_000.0 :                   return $"{(int)ts.TotalSeconds}s";
-            case >= 60_000.0 and < 3_600_000.0 :              return $"{(int)ts.TotalMinutes}m";
-            case >= 3_600_000.0 and < 24*3_600_000.0 :        return $"{(int)ts.TotalHours}h";
-            case >= 24*3_600_000.0 and < 365*24*3_600_000.0 : return $"{(int)ts.TotalDays}d";
-            case >= 365*24*3_600_000.0 :                      return $"{(int)ts.TotalDays/365}y";
-        }
-        return ts.ToString();
-    }
-
-    public static string ShortName(this TimeSeriesPeriod period)
+    public static string ShortName(this TimeBoundaryPeriod period)
     {
         return period switch
                {
                    Tick           => "tick"
+                 , OneMicrosecond      => "1us"
+                 , OneMillisecond      => "1ms"
                  , OneSecond      => "1s"
                  , FiveSeconds    => "5s"
                  , TenSeconds     => "10s"
@@ -401,11 +361,13 @@ public static class TimeSeriesPeriodExtensions
                };
     }
 
-    public static TimeSeriesPeriod FromShortName(this string shortName)
+    public static TimeBoundaryPeriod ShortNameToTimeBoundaryPeriod(this string shortName)
     {
         return shortName switch
                {
                    "tick"    => Tick
+                 , "1us"      => OneMicrosecond
+                 , "1ms"      => OneMillisecond
                  , "1s"      => OneSecond
                  , "5s"      => FiveSeconds
                  , "10s"     => TenSeconds
@@ -429,7 +391,7 @@ public static class TimeSeriesPeriodExtensions
                  , "100Y"    => OneCentury
                  , "1000Y"   => OneMillennium
                  , "Eternity" => Eternity
-                 , _         => throw new Exception("Can not convert period from short name")
+                 , _         => None
                };
     }
 }

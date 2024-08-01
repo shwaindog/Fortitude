@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeIO.TimeSeries;
 
@@ -56,8 +57,8 @@ public class Indicator : Instrument, IIndicator
 {
     public Indicator
     (ushort indicatorId, string indicatorName, string instrumentSource, IndicatorType indicatorType
-      , TimeSeriesPeriod indicatorPeriod, string description = "No Description Given")
-        : base(indicatorName, instrumentSource, InstrumentType.Indicator, indicatorPeriod)
+      , DiscreetTimePeriod coveringPeriod, string description = "No Description Given")
+        : base(indicatorName, instrumentSource, InstrumentType.Indicator, coveringPeriod)
     {
         IndicatorId   = indicatorId;
         IndicatorType = indicatorType;
@@ -67,8 +68,8 @@ public class Indicator : Instrument, IIndicator
 
     public Indicator
     (ushort indicatorId, string instrumentName, string instrumentSource, IndicatorType indicatorType
-      , TimeSeriesPeriod entryPeriod, string description = "No Description Given", params KeyValuePair<string, string>[] requiredValues)
-        : base(instrumentName, instrumentSource, InstrumentType.Indicator, entryPeriod, requiredValues)
+      , DiscreetTimePeriod coveringPeriod, string description = "No Description Given", params KeyValuePair<string, string>[] requiredValues)
+        : base(instrumentName, instrumentSource, InstrumentType.Indicator, coveringPeriod, requiredValues)
     {
         IndicatorId   = indicatorId;
         IndicatorType = indicatorType;

@@ -21,7 +21,7 @@ public interface ITimeSeriesSession : IDisposable
 }
 
 public interface IReaderSession<TEntry> : ITimeSeriesSession
-    where TEntry : ITimeSeriesEntry<TEntry>
+    where TEntry : ITimeSeriesEntry
 {
     IEnumerable<TEntry> StartReaderContext(IReaderContext<TEntry> readerContext);
 
@@ -40,12 +40,12 @@ public interface IReaderSession<TEntry> : ITimeSeriesSession
 
     IReaderContext<TEntry> AllChronologicalEntriesReader<TConcreteEntry>
     (IRecycler resultRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject
-      , ReaderOptions readerOptions = ReaderOptions.ConsumerControlled) where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new();
+      , ReaderOptions readerOptions = ReaderOptions.ConsumerControlled) where TConcreteEntry : class, TEntry, ITimeSeriesEntry, new();
 
     IReaderContext<TEntry> ChronologicalEntriesBetweenTimeRangeReader<TConcreteEntry>
     (IRecycler resultRecycler, UnboundedTimeRange? periodRange,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject
-      , ReaderOptions readerOptions = ReaderOptions.ConsumerControlled) where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new();
+      , ReaderOptions readerOptions = ReaderOptions.ConsumerControlled) where TConcreteEntry : class, TEntry, ITimeSeriesEntry, new();
 
 
     public IReaderContext<TEntry> AllReverseChronologicalEntriesReader
@@ -59,12 +59,12 @@ public interface IReaderSession<TEntry> : ITimeSeriesSession
 
     public IReaderContext<TEntry> AllReverseChronologicalEntriesReader<TConcreteEntry>
         (IRecycler resultsRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.FromRecycler)
-        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new();
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry, new();
 
     public IReaderContext<TEntry> ReverseChronologicalEntriesBetweenTimeRangeReader<TConcreteEntry>
     (IRecycler resultsRecycler, UnboundedTimeRange? periodRange,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.FromRecycler)
-        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new();
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry, new();
 }
 
 public struct AppendResult
@@ -79,7 +79,7 @@ public struct AppendResult
     public DateTime StorageTime    { get; set; }
 }
 
-public interface IWriterSession<in TEntry> : ITimeSeriesSession where TEntry : ITimeSeriesEntry<TEntry>
+public interface IWriterSession<in TEntry> : ITimeSeriesSession where TEntry : ITimeSeriesEntry
 {
     AppendResult AppendEntry(TEntry entry);
 }

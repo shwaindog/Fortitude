@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Extensions;
@@ -91,9 +92,8 @@ public class WeeklyTickInstantTimeSeriesFileTests
         var createTestCreateFileParameters =
             new TimeSeriesFileParameters
                 (timeSeriesFile
-               , new Instrument("TestInstrumentName", "TestSourceName", InstrumentType.Price, TimeSeriesPeriod.Tick, instrumentFields
-                              , optionalInstrumentFields),
-                 TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, 7, fileFlags, 6);
+               , new Instrument("TestInstrumentName", "TestSourceName", InstrumentType.Price, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick)
+                              , instrumentFields, optionalInstrumentFields), TimeBoundaryPeriod.OneWeek, DateTime.UtcNow.Date, 7, fileFlags, 6);
         var createPriceQuoteFile = new PriceTimeSeriesFileParameters(tickInstantSrcTkrInfo, createTestCreateFileParameters);
         tickInstantOneWeekFile   = new WeeklyTickInstantTimeSeriesFile(createPriceQuoteFile);
         tickInstantSessionWriter = tickInstantOneWeekFile.GetWriterSession()!;
@@ -298,8 +298,8 @@ public class WeeklyTickInstantTimeSeriesFileTests
         Assert.AreEqual(truncated, header.Category);
         header.InstrumentName = largeString;
         Assert.AreEqual(truncated, header.InstrumentName);
-        Assert.AreEqual(TimeSeriesPeriod.OneWeek, header.FilePeriod);
-        Assert.AreEqual(TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.OneWeek, header.FilePeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
         Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
         Assert.AreEqual(typeof(DailyToHourlyTickInstantSubBuckets<ITickInstant>), header.BucketType);
         Assert.AreEqual(typeof(ITickInstant), header.EntryType);
@@ -314,8 +314,8 @@ public class WeeklyTickInstantTimeSeriesFileTests
         Assert.AreEqual(truncated, header.SourceName);
         Assert.AreEqual(truncated, header.Category);
         Assert.AreEqual(truncated, header.InstrumentName);
-        Assert.AreEqual(TimeSeriesPeriod.OneWeek, header.FilePeriod);
-        Assert.AreEqual(TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.OneWeek, header.FilePeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
         Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
         Assert.AreEqual(typeof(DailyToHourlyTickInstantSubBuckets<ITickInstant>), header.BucketType);
         Assert.AreEqual(typeof(ITickInstant), header.EntryType);

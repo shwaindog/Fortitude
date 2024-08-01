@@ -22,8 +22,8 @@ public class PQPriceStoragePeriodSummaryGenerator : PricePeriodSummaryGenerator<
         var currMid = previousCurrentMidPriceTime.CurrentMid;
         return new PQPriceStoragePeriodSummary
         {
-            TimeSeriesPeriod = GeneratePriceSummaryInfo.SummaryPeriod
-          , PeriodStartTime  = currMid.Time
+            TimeBoundaryPeriod = GeneratePriceSummaryInfo.SummaryPeriod
+          , PeriodStartTime    = currMid.Time
         };
     }
 }

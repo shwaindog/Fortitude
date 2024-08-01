@@ -9,16 +9,16 @@ using FortitudeCommon.Types;
 
 namespace FortitudeCommon.Chronometry.Timers;
 
-internal class WaitCallbackTimerCallBackRunInfo : TimerCallBackRunInfo
+internal class WaitCallbackTimerCallBackRunInfo : TimerCallBackRunInfo, ITimerUpdateCallBackRunInfo
 {
     private WaitCallback? cleanUpWaitCallback;
     private WaitCallback? waitCallback;
     public WaitCallbackTimerCallBackRunInfo() { }
 
-    private WaitCallbackTimerCallBackRunInfo(WaitCallbackTimerCallBackRunInfo toCLone)
+    private WaitCallbackTimerCallBackRunInfo(WaitCallbackTimerCallBackRunInfo toClone)
     {
         // ReSharper disable once VirtualMemberCallInConstructor
-        CopyFrom(toCLone);
+        CopyFrom(toClone);
     }
 
     public WaitCallback? WaitCallback
@@ -81,6 +81,7 @@ internal class WaitCallbackTimerCallBackRunInfo : TimerCallBackRunInfo
                     NextScheduleTime = DateTime.MaxValue;
 
                 LastRunTime = TimeContext.UtcNow;
+                CaptureTriggerAndScheduleTime();
                 return ThreadPool.QueueUserWorkItem(cleanUpWaitCallback!, State);
             }
             else
@@ -102,12 +103,24 @@ internal class WaitCallbackTimerCallBackRunInfo : TimerCallBackRunInfo
                 NextScheduleTime = DateTime.MaxValue;
 
             LastRunTime = TimeContext.UtcNow;
+            CaptureTriggerAndScheduleTime();
             WaitCallback!(State);
             return true;
         }
 
         return false;
     }
+
+    public void CaptureTriggerAndScheduleTime()
+    {
+        if (State is ICaptureTimesState captureTimesState)
+        {
+            captureTimesState.TimerUpdate = TimerUpdate;
+            captureTimesState.CaptureTriggerAndScheduleTime();
+        }
+    }
+
+    public ITimerUpdate? TimerUpdate { get; set; }
 
     public override void StateReset()
     {

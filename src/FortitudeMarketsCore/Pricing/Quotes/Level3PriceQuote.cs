@@ -6,21 +6,18 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
 using FortitudeMarketsApi.Pricing.Summaries;
-using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.Quotes.LastTraded;
 
 #endregion
 
 namespace FortitudeMarketsCore.Pricing.Quotes;
 
-public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ITimeSeriesEntry<Level3PriceQuote>, ICloneable<Level3PriceQuote>
-  , IDoublyLinkedListNode<Level3PriceQuote>
+public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ICloneable<Level3PriceQuote>, IDoublyLinkedListNode<Level3PriceQuote>
 {
     public Level3PriceQuote() { }
 
@@ -112,9 +109,6 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ITimeSeri
 
     public DateTime ValueDate { get; set; } = DateTimeConstants.UnixEpoch;
 
-
-    DateTime ITimeSeriesEntry<ILevel3Quote>.StorageTime(IStorageTimeResolver<ILevel3Quote>? resolver) => StorageTime(resolver);
-
     public override ITickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
@@ -160,12 +154,6 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ITimeSeri
         var valueDateSame        = ValueDate == otherL3.ValueDate;
 
         return baseIsSame && lastTradesSame && batchIdSame && sourceSequenceIdSame && valueDateSame;
-    }
-
-    public DateTime StorageTime(IStorageTimeResolver<Level3PriceQuote>? resolver = null)
-    {
-        resolver ??= QuoteStorageTimeResolver.Instance;
-        return resolver.ResolveStorageTime(this);
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((ITickInstant?)obj, true);

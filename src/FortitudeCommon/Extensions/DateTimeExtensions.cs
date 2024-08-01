@@ -19,11 +19,13 @@ public static class DateTimeExtensions
     public static readonly long MinTicks = DateTime.MinValue.Ticks;
     public static readonly long MaxTicks = DateTime.MaxValue.Ticks;
 
-    public static DateTime TruncToSecondBoundary(this DateTime allTicks)   => allTicks.AddTicks(-(allTicks.Ticks % TimeSpan.TicksPerSecond));
-    public static DateTime TruncTo5SecondBoundary(this DateTime allTicks)  => allTicks.AddTicks(-(allTicks.Ticks % FiveSecondsTicks));
-    public static DateTime TruncTo10SecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % TenSecondsTicks));
-    public static DateTime TruncTo15SecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % FifteenSecondsTicks));
-    public static DateTime TruncTo30SecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % ThirtySecondsTicks));
+    public static DateTime TruncToMicrosecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % TimeSpan.TicksPerMicrosecond));
+    public static DateTime TruncToMillisecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % TimeSpan.TicksPerMillisecond));
+    public static DateTime TruncToSecondBoundary(this DateTime allTicks)      => allTicks.AddTicks(-(allTicks.Ticks % TimeSpan.TicksPerSecond));
+    public static DateTime TruncTo5SecondBoundary(this DateTime allTicks)     => allTicks.AddTicks(-(allTicks.Ticks % FiveSecondsTicks));
+    public static DateTime TruncTo10SecondBoundary(this DateTime allTicks)    => allTicks.AddTicks(-(allTicks.Ticks % TenSecondsTicks));
+    public static DateTime TruncTo15SecondBoundary(this DateTime allTicks)    => allTicks.AddTicks(-(allTicks.Ticks % FifteenSecondsTicks));
+    public static DateTime TruncTo30SecondBoundary(this DateTime allTicks)    => allTicks.AddTicks(-(allTicks.Ticks % ThirtySecondsTicks));
 
     public static DateTime TruncToMinuteBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % TimeSpan.TicksPerMinute));
 

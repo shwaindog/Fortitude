@@ -1,6 +1,12 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
+#region
+
+using FortitudeCommon.Chronometry;
+
+#endregion
+
 namespace FortitudeIO.TimeSeries.FileSystem.File;
 
 public interface IDirectoryFileNameResolver
@@ -12,7 +18,7 @@ public struct TimeSeriesFileParameters
 {
     public TimeSeriesFileParameters
     (FileInfo timeSeriesFileInfo, IInstrument instrument,
-        TimeSeriesPeriod filePeriod, DateTime fileStartPeriod, uint internalIndexSize = 0,
+        TimeBoundaryPeriod filePeriod, DateTime fileStartPeriod, uint internalIndexSize = 0,
         FileFlags initialFileFlags = FileFlags.None, int initialFileSize = ushort.MaxValue * 2, ushort maxStringSizeBytes = byte.MaxValue
       , ushort maxTypeStringSizeBytes = 512)
     {
@@ -35,9 +41,9 @@ public struct TimeSeriesFileParameters
     public string? ExternalIndexFileRelativePath { get; set; }
     public string? AnnotationFileRelativePath    { get; set; }
 
-    public TimeSeriesPeriod FilePeriod      { get; set; }
-    public DateTime         FileStartPeriod { get; set; }
+    public TimeBoundaryPeriod FilePeriod { get; set; }
 
+    public DateTime  FileStartPeriod        { get; set; }
     public uint      InternalIndexSize      { get; set; }
     public FileFlags InitialFileFlags       { get; set; }
     public int       InitialFileSize        { get; set; }
@@ -47,7 +53,7 @@ public struct TimeSeriesFileParameters
 
 public static class CreateFileParametersExtensions
 {
-    public static TimeSeriesFileParameters SetFilePeriod(this TimeSeriesFileParameters input, TimeSeriesPeriod filePeriod)
+    public static TimeSeriesFileParameters SetFilePeriod(this TimeSeriesFileParameters input, TimeBoundaryPeriod filePeriod)
     {
         var updated = input;
         updated.FilePeriod = filePeriod;

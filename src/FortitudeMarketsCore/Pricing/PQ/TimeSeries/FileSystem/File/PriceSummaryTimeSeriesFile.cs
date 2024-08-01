@@ -20,7 +20,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 public class PriceSummaryTimeSeriesFile<TFile, TBucket, TEntry> : TimeSeriesFile<TFile, TBucket, TEntry>, IPriceQuoteTimeSeriesFile
     where TFile : TimeSeriesFile<TFile, TBucket, TEntry>
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPriceBucket
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     public PriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header)

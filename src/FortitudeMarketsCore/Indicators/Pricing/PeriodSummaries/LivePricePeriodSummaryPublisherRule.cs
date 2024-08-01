@@ -19,7 +19,7 @@ using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries.Construction;
 using FortitudeMarketsCore.Pricing.PQ.Converters;
 using FortitudeMarketsCore.Pricing.Summaries;
-using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
+using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 
 #endregion
 
@@ -31,7 +31,7 @@ public struct LivePublishPricePeriodSummaryParams
     {
         SourceTickerIdentifier = pricingInstrument;
 
-        Period = pricingInstrument.EntryPeriod;
+        Period = pricingInstrument.CoveringPeriod.Period;
 
         LivePublishInterval   = new IndicatorPublishInterval(OneSecond);
         LivePublishParams     = new ResponsePublishParams();
@@ -42,7 +42,7 @@ public struct LivePublishPricePeriodSummaryParams
     {
         SourceTickerIdentifier = pricingInstrument;
 
-        Period = pricingInstrument.EntryPeriod;
+        Period = pricingInstrument.CoveringPeriod.Period;
 
         LivePublishInterval   = livePublishInterval;
         LivePublishParams     = new ResponsePublishParams();
@@ -50,7 +50,7 @@ public struct LivePublishPricePeriodSummaryParams
     }
 
     public LivePublishPricePeriodSummaryParams
-        (SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod period, IndicatorPublishInterval livePublishInterval)
+        (SourceTickerIdentifier sourceTickerIdentifier, TimeBoundaryPeriod period, IndicatorPublishInterval livePublishInterval)
     {
         SourceTickerIdentifier = sourceTickerIdentifier;
 
@@ -66,7 +66,7 @@ public struct LivePublishPricePeriodSummaryParams
     {
         SourceTickerIdentifier = pricingInstrument;
 
-        Period = pricingInstrument.EntryPeriod;
+        Period = pricingInstrument.CoveringPeriod.Period;
 
         LivePublishInterval   = livePublishInterval;
         LivePublishParams     = livePublishParams;
@@ -74,7 +74,7 @@ public struct LivePublishPricePeriodSummaryParams
     }
 
     public LivePublishPricePeriodSummaryParams
-    (SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod period, IndicatorPublishInterval livePublishInterval
+    (SourceTickerIdentifier sourceTickerIdentifier, TimeBoundaryPeriod period, IndicatorPublishInterval livePublishInterval
       , ResponsePublishParams livePublishParams)
     {
         SourceTickerIdentifier = sourceTickerIdentifier;
@@ -87,7 +87,7 @@ public struct LivePublishPricePeriodSummaryParams
     }
 
     public SourceTickerIdentifier    SourceTickerIdentifier { get; set; }
-    public TimeSeriesPeriod          Period                 { get; set; }
+    public TimeBoundaryPeriod        Period                 { get; set; }
     public IndicatorPublishInterval? LivePublishInterval    { get; set; }
     public ResponsePublishParams     LivePublishParams      { get; set; }
 
@@ -104,11 +104,11 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
     private readonly IndicatorPublishInterval? livePricePublishInterval;
     private readonly ResponsePublishParams     liveResponsePublishParams;
 
-    private readonly Dictionary<TimeSeriesPeriod, ISubscription> liveSubPeriodCompletePublisherSubscriptions = new();
+    private readonly Dictionary<TimeBoundaryPeriod, ISubscription> liveSubPeriodCompletePublisherSubscriptions = new();
 
     private readonly int logInterval;
 
-    private readonly TimeSeriesPeriod       periodToPublish;
+    private readonly TimeBoundaryPeriod     periodToPublish;
     private readonly PricingInstrumentId    pricingInstrumentId;
     private readonly SourceTickerIdentifier sourceTickerIdentifier;
 
@@ -131,7 +131,7 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
     {
         pricingInstrumentId = new PricingInstrumentId
             (livePublishPricePeriodSummaryParams.SourceTickerIdentifier, new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod
-           , livePublishPricePeriodSummaryParams.Period));
+           , new DiscreetTimePeriod(livePublishPricePeriodSummaryParams.Period)));
         sourceTickerIdentifier    = livePublishPricePeriodSummaryParams.SourceTickerIdentifier;
         periodToPublish           = livePublishPricePeriodSummaryParams.Period;
         liveResponsePublishParams = livePublishPricePeriodSummaryParams.LivePublishParams;
@@ -173,10 +173,10 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
             = Timer.RunAt(periodToPublish.ContainingPeriodEnd(TimeContext.UtcNow) + (periodToPublish.AveragePeriodTimeSpan() / 2).Min(TimeSpan.FromSeconds(5))
                         , StartCompleteTimeSeriesPeriodInterval);
 
-        if (livePricePublishInterval?.PublishInterval.IsTimeSpan() == true)
+        if (livePricePublishInterval?.PublishInterval.IsUncommonTimeSpan() == true)
             liveIntervalTimer = Timer.RunEvery(livePricePublishInterval!.Value.PublishInterval.TimeSpan, PublishLivePeriod);
-        if (livePricePublishInterval?.PublishInterval.IsTimeSeriesPeriod() == true)
-            liveIntervalTimer = Timer.RunAt(livePricePublishInterval!.Value.PublishInterval.TimeSeriesPeriod.ContainingPeriodEnd(TimeContext.UtcNow)
+        if (livePricePublishInterval?.PublishInterval.IsTimeBoundaryPeriod() == true)
+            liveIntervalTimer = Timer.RunAt(livePricePublishInterval!.Value.PublishInterval.Period.ContainingPeriodEnd(TimeContext.UtcNow)
                                           , StartLiveTimeSeriesPeriodInterval);
         var now = TimeContext.UtcNow;
 
@@ -184,10 +184,10 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
         currentPeriodSummaryState = new PeriodSummaryState(currentLivePeriodStartTime, periodToPublish);
         // subscribe to prices and start caching
         var startHistoricalPeriods =
-            periodToPublish.ConstructingDivisiblePeriods(now)
-                           .Where(tsp => tsp.TimeSeriesPeriod >= PricePeriodSummaryConstants.PersistPeriodsFrom);
+            periodToPublish.WholeSecondConstructingDivisiblePeriods(now)
+                           .Where(tsp => tsp.TimeBoundaryPeriod >= PricePeriodSummaryConstants.PersistPeriodsFrom);
 
-        foreach (var timeSeriesPeriod in startHistoricalPeriods.Select(tspr => tspr.TimeSeriesPeriod).Distinct())
+        foreach (var timeSeriesPeriod in startHistoricalPeriods.Select(tspr => tspr.TimeBoundaryPeriod).Distinct())
         {
             var subPeriodHistoricalLastTime = timeSeriesPeriod.ContainingPeriodBoundaryStart(now);
             var boundedTime                 = new BoundedTimeRange(currentLivePeriodStartTime, subPeriodHistoricalLastTime);
@@ -213,7 +213,7 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
     {
         if (periodToPublish > FiveMinutes)
         {
-            foreach (var subPeriod in periodToPublish.ConstructingDivisiblePeriods().Where(tsp => tsp >= FiveMinutes))
+            foreach (var subPeriod in periodToPublish.WholeSecondConstructingDivisiblePeriods().Where(tsp => tsp >= FiveMinutes))
                 asyncSubPeriodExecutions?.Add(LaunchAndSubscribeToLiveSubPeriod(subPeriod));
         }
         else
@@ -224,10 +224,10 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
         }
     }
 
-    private async ValueTask LaunchAndSubscribeToLiveSubPeriod(TimeSeriesPeriod subPeriod)
+    private async ValueTask LaunchAndSubscribeToLiveSubPeriod(TimeBoundaryPeriod subPeriod)
     {
         var tickerSubPeriodService = new TickerPeriodServiceRequest
-            (RequestType.StartOrStatus, ServiceType.LivePricePeriodSummary, sourceTickerIdentifier, subPeriod
+            (RequestType.StartOrStatus, ServiceType.LivePricePeriodSummary, sourceTickerIdentifier, new DiscreetTimePeriod(subPeriod)
            , PQQuoteConverterExtensions.GetQuoteLevel<TQuote>(), PQQuoteConverterExtensions.IsPQQuoteType<TQuote>());
 
         var response = await this.RequestAsync<TickerPeriodServiceRequest, ServiceRunStateResponse>
@@ -306,10 +306,11 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
         if (asyncSubPeriodExecutions != null && !asyncSubPeriodExecutions.Any()) asyncSubPeriodExecutions = null;
     }
 
-    private async ValueTask RequestHistoricalSubPeriods(TimeSeriesPeriod liveConstructingSubPeriod, HistoricalPeriodResponseRequest requestRange)
+    private async ValueTask RequestHistoricalSubPeriods(TimeBoundaryPeriod liveConstructingSubPeriod, HistoricalPeriodResponseRequest requestRange)
     {
         var tickerSubPeriodService = new TickerPeriodServiceRequest
-            (RequestType.StartOrStatus, ServiceType.HistoricalPricePeriodSummaryResolver, sourceTickerIdentifier, liveConstructingSubPeriod
+            (RequestType.StartOrStatus, ServiceType.HistoricalPricePeriodSummaryResolver, sourceTickerIdentifier
+           , new DiscreetTimePeriod(liveConstructingSubPeriod)
            , PQQuoteConverterExtensions.GetQuoteLevel<TQuote>(), PQQuoteConverterExtensions.IsPQQuoteType<TQuote>());
 
         var response = await this.RequestAsync<TickerPeriodServiceRequest, ServiceRunStateResponse>

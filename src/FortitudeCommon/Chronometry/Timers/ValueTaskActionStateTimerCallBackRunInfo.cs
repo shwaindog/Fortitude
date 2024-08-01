@@ -124,18 +124,21 @@ internal class ScheduledActualValueTaskActionTimerCallBackRunInfo : ValueTaskAct
 
     public override bool RunCallbackOnThreadPool()
     {
-        var scheduleActualState = Recycler?.Borrow<ScheduleActualTime>() ?? new ScheduleActualTime();
-        scheduleActualState.Configure(TimerUpdate!, TimerUpdate!.NextScheduleDateTime, TimeContext.UtcNow, callCount++);
-        State = scheduleActualState;
+        CaptureTriggerAndScheduleTime();
         return base.RunCallbackOnThreadPool();
     }
 
     public override bool RunCallbackOnThisThread()
     {
+        CaptureTriggerAndScheduleTime();
+        return base.RunCallbackOnThisThread();
+    }
+
+    public void CaptureTriggerAndScheduleTime()
+    {
         var scheduleActualState = Recycler?.Borrow<ScheduleActualTime>() ?? new ScheduleActualTime();
         scheduleActualState.Configure(TimerUpdate!, TimerUpdate!.NextScheduleDateTime, TimeContext.UtcNow, callCount++);
         State = scheduleActualState;
-        return base.RunCallbackOnThisThread();
     }
 
     public override void StateReset()
@@ -156,18 +159,21 @@ internal class ScheduledActualValueTaskActionStateTimerCallBackRunInfo<T> : Valu
 
     public override bool RunCallbackOnThreadPool()
     {
-        var scheduleActualState = Recycler?.Borrow<ScheduleActualTime<T>>() ?? new ScheduleActualTime<T>();
-        scheduleActualState.Configure(TimerUpdate!, TimerUpdate!.NextScheduleDateTime, TimeContext.UtcNow, SendState, callCount++);
-        State = scheduleActualState;
+        CaptureTriggerAndScheduleTime();
         return base.RunCallbackOnThreadPool();
     }
 
     public override bool RunCallbackOnThisThread()
     {
+        CaptureTriggerAndScheduleTime();
+        return base.RunCallbackOnThisThread();
+    }
+
+    public void CaptureTriggerAndScheduleTime()
+    {
         var scheduleActualState = Recycler?.Borrow<ScheduleActualTime<T>>() ?? new ScheduleActualTime<T>();
         scheduleActualState.Configure(TimerUpdate!, TimerUpdate!.NextScheduleDateTime, TimeContext.UtcNow, SendState, callCount++);
         State = scheduleActualState;
-        return base.RunCallbackOnThisThread();
     }
 
     public override void StateReset()

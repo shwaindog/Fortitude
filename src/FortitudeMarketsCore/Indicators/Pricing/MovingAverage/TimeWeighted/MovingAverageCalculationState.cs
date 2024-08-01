@@ -37,7 +37,7 @@ public class MovingAverageCalculationState
         includeInvalidTime = calculateOptions.TimeLengthFlags.HasIncludeOpenMarketInvalidPeriodsFlag();
     }
 
-    public TimePeriod AveragePeriod => movingAverageOffset.AveragePeriod;
+    public DiscreetTimePeriod AveragePeriod => movingAverageOffset.AveragePeriod;
 
     public DateTime EarliestTime(DateTime asOfTime)
     {
@@ -68,7 +68,7 @@ public class MovingAverageCalculationState
 
         if (run.CurrentTick == null) FindLastCalculatedTick(timeOrderedPairs);
         run.PreviousTick = run.CurrentTick?.Previous;
-        while (run.PreviousTick != null && run.PreviousTick.AtTime < (run.StartDeltaFrom ?? run.CalcStartTime))
+        while (run.PreviousTick != null && run.PreviousTick.AtTime > (run.StartDeltaFrom ?? run.CalcStartTime))
         {
             run.CurrentTick  = run.PreviousTick;
             run.PreviousTick = run.PreviousTick.Previous;
@@ -107,7 +107,7 @@ public class MovingAverageCalculationState
         return new ValidRangeBidAskPeriodValue
             (run.TotalTimeWeightedBidInMs / periodTotalMs, run.TotalTimeWeightedAskInMs / periodTotalMs
            , wallClockMovingAverageTimeRange.ToTime, wallClockMovingAverageTimeRange.ToTime
-           , wallClockMovingAverageTimeRange.ToTime - run.RemainingPeriod, AveragePeriod);
+           , AveragePeriod, wallClockMovingAverageTimeRange.ToTime - run.RemainingPeriod);
     }
 
     private void SaveRunForNextDeltaRun(IValidRangeBidAskPeriod startTick, DateTime calcEndTime)

@@ -7,11 +7,9 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
-using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LastTraded;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
@@ -34,8 +32,7 @@ public interface IPQLevel3Quote : IPQLevel2Quote, IMutableLevel3Quote, IDoublyLi
     new IPQLevel3Quote Clone();
 }
 
-public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQLevel3Quote>, ICloneable<PQLevel3Quote>
-  , IDoublyLinkedListNode<PQLevel3Quote>
+public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Quote>, IDoublyLinkedListNode<PQLevel3Quote>
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQLevel3Quote));
 
@@ -362,8 +359,6 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
         if (quote is IPQLevel3Quote pqLevel3Quote) recentlyTraded?.EnsureRelatedItemsAreConfigured(pqLevel3Quote.RecentlyTraded?.NameIdLookup);
     }
 
-    DateTime ITimeSeriesEntry<ILevel3Quote>.StorageTime(IStorageTimeResolver<ILevel3Quote>? resolver) => StorageTime(resolver);
-
     ILevel3Quote ICloneable<ILevel3Quote>.Clone() => Clone();
 
     ILevel3Quote ILevel3Quote.Clone() => Clone();
@@ -383,12 +378,6 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ITimeSeriesEntry<PQL
         var valueDateSame        = ValueDate == otherL3.ValueDate;
         var allAreSame           = baseSame && recentlyTradedSame && batchIdSame && sourceSequenceIdSame && valueDateSame;
         return allAreSame;
-    }
-
-    public DateTime StorageTime(IStorageTimeResolver<PQLevel3Quote>? resolver = null)
-    {
-        resolver ??= QuoteStorageTimeResolver.Instance;
-        return resolver.ResolveStorageTime(this);
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ITickInstant, true);

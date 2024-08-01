@@ -17,7 +17,7 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 public abstract class PriceSummarySubBucket<TBucket, TSubBucket, TEntry> : SubBucketOnlyBucket<TEntry, TBucket, TSubBucket>, IPriceBucket
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPriceBucket
     where TSubBucket : class, IBucketNavigation<TSubBucket>, IMutableBucket<TEntry>, IPriceBucket
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     protected PriceSummarySubBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,

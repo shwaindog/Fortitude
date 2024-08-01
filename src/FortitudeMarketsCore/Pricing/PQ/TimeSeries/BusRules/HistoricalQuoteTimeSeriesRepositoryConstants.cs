@@ -3,7 +3,7 @@
 
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 
-public static class TimeSeriesBusRulesConstants
+public static class HistoricalQuoteTimeSeriesRepositoryConstants
 {
     public const string PricingRepoBase                         = "Markets.Pricing.Repository";
     public const string PricingRepoRetrieveTickInstantRequest   = $"{PricingRepoBase}.Retrieve.TickInstant.Request";

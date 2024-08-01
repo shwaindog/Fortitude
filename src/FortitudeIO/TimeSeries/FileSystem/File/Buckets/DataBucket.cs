@@ -4,6 +4,7 @@
 #region
 
 using System.Runtime.InteropServices;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Compression.Lzma;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
@@ -33,19 +34,19 @@ public interface IDataBucket : IBucket
 }
 
 public interface IDataBucket<TEntry> : IDataBucket
-    where TEntry : ITimeSeriesEntry<TEntry>
+    where TEntry : ITimeSeriesEntry
 {
     IEnumerable<TEntry> ReadEntries(IBuffer readBuffer, IReaderContext<TEntry> readerContext);
 }
 
-public interface IMutableDataBucket<TEntry> : IBucket<TEntry>, IMutableBucket where TEntry : ITimeSeriesEntry<TEntry>
+public interface IMutableDataBucket<TEntry> : IBucket<TEntry>, IMutableBucket where TEntry : ITimeSeriesEntry
 {
     IGrowableUnmanagedBuffer? DataWriterAtAppendLocation { get; }
     StorageAttemptResult      AppendEntry(IGrowableUnmanagedBuffer growableBuffer, TEntry entry);
 }
 
 public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TBucket>, IDataBucket<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry> where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
+    where TEntry : ITimeSeriesEntry where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(DataBucket<,>));
 
@@ -301,7 +302,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
 }
 
 public class ProxyDataBucket<TEntry, TBucket> : DataBucket<TEntry, TBucket>, IDataBucket<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry> where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
+    where TEntry : ITimeSeriesEntry where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
     private long? endOfHeaderSectionFileOffset;
 
@@ -317,7 +318,7 @@ public class ProxyDataBucket<TEntry, TBucket> : DataBucket<TEntry, TBucket>, IDa
         set => endOfHeaderSectionFileOffset = value;
     }
 
-    public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.None;
+    public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.None;
 
     public override IEnumerable<TEntry> ReadEntries(IBuffer readBuffer, IReaderContext<TEntry> readerContext) =>
         // should never be called;
@@ -331,7 +332,7 @@ public class ProxyDataBucket<TEntry, TBucket> : DataBucket<TEntry, TBucket>, IDa
 }
 
 public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : IndexedBucket<TEntry, TBucket>, IDataBucket
-    where TEntry : ITimeSeriesEntry<TEntry> where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
+    where TEntry : ITimeSeriesEntry where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
     private ProxyDataBucket<TEntry, TBucket>? dualMappedBucket;
 
@@ -410,14 +411,14 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : IndexedBucket<
 }
 
 public interface IMessageDataBucket<TEntry> : IDataBucket<TEntry>
-    where TEntry : class, ITimeSeriesEntry<TEntry>, IVersionedMessage
+    where TEntry : class, ITimeSeriesEntry, IVersionedMessage
 {
     IMessageSerializer<TEntry>   MessageSerializer   { get; }
     IMessageDeserializer<TEntry> MessageDeserializer { get; }
 }
 
 public abstract class MessageDataBucket<TEntry, TBucket> : DataBucket<TEntry, TBucket>, IMessageDataBucket<TEntry>
-    where TEntry : class, ITimeSeriesEntry<TEntry>, IVersionedMessage
+    where TEntry : class, ITimeSeriesEntry, IVersionedMessage
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
     protected MessageDataBucket
@@ -430,7 +431,7 @@ public abstract class MessageDataBucket<TEntry, TBucket> : DataBucket<TEntry, TB
 }
 
 public abstract class IndexedMessageDataBucket<TEntry, TBucket> : IndexedDataBucket<TEntry, TBucket>, IMessageDataBucket<TEntry>
-    where TEntry : class, ITimeSeriesEntry<TEntry>, IVersionedMessage
+    where TEntry : class, ITimeSeriesEntry, IVersionedMessage
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
     protected IndexedMessageDataBucket

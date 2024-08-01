@@ -21,8 +21,8 @@ public interface ITimeSeriesFile : IDisposable
 {
     ushort FileVersion { get; }
 
-    ITimeSeriesFileHeader Header                { get; }
-    TimeSeriesPeriodRange TimeSeriesPeriodRange { get; }
+    ITimeSeriesFileHeader   Header                  { get; }
+    TimeBoundaryPeriodRange TimeBoundaryPeriodRange { get; }
 
     bool AutoCloseOnZeroSessions { get; set; }
 
@@ -46,10 +46,10 @@ public interface ITimeSeriesFile : IDisposable
 }
 
 public interface ITimeSeriesFile<TBucket, TEntry> : ITimeSeriesFile
-    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry> where TEntry : ITimeSeriesEntry<TEntry> { }
+    where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry> where TEntry : ITimeSeriesEntry { }
 
 public interface ITimeSeriesEntryFile<TEntry> : ITimeSeriesFile
-    where TEntry : ITimeSeriesEntry<TEntry>
+    where TEntry : ITimeSeriesEntry
 {
     Func<TEntry>? DefaultEntryFactory { get; set; }
 
@@ -65,7 +65,7 @@ public interface ITimeSeriesEntryFile<TEntry> : ITimeSeriesFile
     IEnumerable<TEntry>? EntriesFor<TConcreteEntry>
     (IRecycler resultsRecycler, UnboundedTimeRange? periodRange = null, int? remainingLimit = null,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.ReuseSingletonObject)
-        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new();
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry, new();
 }
 
 public interface IMutableTimeSeriesFile : ITimeSeriesFile
@@ -80,7 +80,7 @@ public interface IMutableTimeSeriesFile : ITimeSeriesFile
 public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBucket, TEntry>, ITimeSeriesEntryFile<TEntry>, IMutableTimeSeriesFile
     where TFile : TimeSeriesFile<TFile, TBucket, TEntry>
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>
+    where TEntry : ITimeSeriesEntry
 
 {
     private readonly List<IFileReaderSession<TEntry>> readerSessions = new();
@@ -129,7 +129,7 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
 
     public virtual IStorageTimeResolver<TEntry>? StorageTimeResolver => null!;
 
-    private TimeSeriesPeriod TimeSeriesPeriod => Header.FilePeriod;
+    private TimeBoundaryPeriod TimeBoundaryPeriod => Header.FilePeriod;
 
     private DateTime PeriodStartTime => Header.FileStartPeriod;
 
@@ -157,7 +157,7 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
     public IEnumerable<TEntry>? EntriesFor<TConcreteEntry>
     (IRecycler resultsRecycler, UnboundedTimeRange? periodRange = null, int? remainingLimit = null,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.FromRecycler)
-        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry, new()
     {
         var wasOpen       = IsOpen;
         var readerSession = GetReaderSession();
@@ -215,7 +215,7 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
         return infoSession;
     }
 
-    public TimeSeriesPeriodRange TimeSeriesPeriodRange => new(PeriodStartTime, TimeSeriesPeriod);
+    public TimeBoundaryPeriodRange TimeBoundaryPeriodRange => new(PeriodStartTime, TimeBoundaryPeriod);
 
     public void Dispose()
     {
@@ -257,7 +257,7 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
         set => Header.Category = value;
     }
 
-    public bool Intersects(UnboundedTimeRange? periodRange = null) => TimeSeriesPeriodRange.Intersects(periodRange);
+    public bool Intersects(UnboundedTimeRange? periodRange = null) => TimeBoundaryPeriodRange.Intersects(periodRange);
 
     public string FileName { get; }
     public bool   IsOpen   => !isClosing && (Header.FileIsOpen || numberOfOpenSessions > 0);

@@ -4,6 +4,7 @@
 #region
 
 using System.Globalization;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
@@ -104,7 +105,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
       , decimal pip = 0.0001m, decimal minSubmitSize = 0.01m, decimal maxSubmitSize = 1_000_000m, decimal incrementSize = 0.01m
       , ushort minimumQuoteLife = 100, uint defaultMaxValidMs = 10_000, bool subscribeToPrices = true, bool tradingEnabled = false
       , LayerFlags layerFlags = LayerFlags.Price | LayerFlags.Volume, LastTradedFlags lastTradedFlags = LastTradedFlags.None)
-        : base(sourceId, tickerId, source, ticker, TimeSeriesPeriod.Tick, InstrumentType.Price, marketClassification)
+        : base(sourceId, tickerId, source, ticker, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick), InstrumentType.Price, marketClassification)
     {
         PublishedTickerDetailLevel = publishedTickerDetailLevel;
 

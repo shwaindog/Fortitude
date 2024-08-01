@@ -72,7 +72,7 @@ public class PQPriceStoragePeriodSummarySerializer : ISerializer<IPQPriceStorage
             serializeFlags &= ~PriceVolumeScaleMask;
             serializeFlags |= (PQPriceStorageSummaryFlags)((uint)Snapshot | shiftedScale);
             StreamByteOps.ToBytes(ref ptr, (uint)serializeFlags);
-            var serializeShort = (ushort)((ushort)pqPriceStoragePeriodSummary.TimeSeriesPeriod & 0xFFFF);
+            var serializeShort = (ushort)((ushort)pqPriceStoragePeriodSummary.TimeBoundaryPeriod & 0xFFFF);
             StreamByteOps.ToBytes(ref ptr, serializeShort);
             var summaryStartTimeTicks = pqPriceStoragePeriodSummary.PeriodStartTime.Ticks;
             StreamByteOps.ToBytes(ref ptr, summaryStartTimeTicks);

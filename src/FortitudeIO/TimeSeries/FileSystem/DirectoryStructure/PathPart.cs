@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using static FortitudeIO.TimeSeries.FileSystem.DirectoryStructure.RepositoryPathName;
 
 #endregion
@@ -13,13 +14,13 @@ public interface IPathPart
 {
     PathName[] NameParts { get; set; }
 
-    TimeSeriesPeriod PathTimeSeriesPeriod { get; }
-    IPathDirectory?  ParentDirectory      { get; set; }
+    TimeBoundaryPeriod PathTimeBoundaryPeriod { get; }
+    IPathDirectory?    ParentDirectory        { get; set; }
 
     IRepositoryRootDirectory RepositoryRootDirectory { get; }
 
     string NamePartSeparator { get; }
-    string FullPath(IInstrument instrument, DateTime timeInPeriod, TimeSeriesPeriod forPeriod);
+    string FullPath(IInstrument instrument, DateTime timeInPeriod, TimeBoundaryPeriod forPeriod);
     bool   MatchesFormat(string pathPart);
 
     PathFileMatch       PathMatch(PathFileMatch currentMatch);
@@ -51,7 +52,7 @@ public abstract class PathPart : IPathPart
     public IRepositoryRootDirectory RepositoryRootDirectory =>
         ParentDirectory != null ? ParentDirectory.RepositoryRootDirectory : (IRepositoryRootDirectory)this;
 
-    public virtual TimeSeriesPeriod PathTimeSeriesPeriod
+    public virtual TimeBoundaryPeriod PathTimeBoundaryPeriod
     {
         get
         {
@@ -63,22 +64,22 @@ public abstract class PathPart : IPathPart
                     var smallestPeriod = anyTimeParts.Select(tsfsf => tsfsf.PathPart).Max();
                     switch (smallestPeriod)
                     {
-                        case Decade: return TimeSeriesPeriod.OneDecade;
-                        case Year:   return TimeSeriesPeriod.OneYear;
-                        case Month:  return TimeSeriesPeriod.OneMonth;
+                        case Decade: return TimeBoundaryPeriod.OneDecade;
+                        case Year:   return TimeBoundaryPeriod.OneYear;
+                        case Month:  return TimeBoundaryPeriod.OneMonth;
                         case WeekOfYear:
                         case WeekOfMonth:
-                            return TimeSeriesPeriod.OneWeek;
-                        case Day:  return TimeSeriesPeriod.OneDay;
-                        case Hour: return TimeSeriesPeriod.OneHour;
+                            return TimeBoundaryPeriod.OneWeek;
+                        case Day:  return TimeBoundaryPeriod.OneDay;
+                        case Hour: return TimeBoundaryPeriod.OneHour;
                     }
                 }
             }
-            return ParentDirectory?.PathTimeSeriesPeriod ?? throw new Exception("No directory contains periods with which to store files");
+            return ParentDirectory?.PathTimeBoundaryPeriod ?? throw new Exception("No directory contains periods with which to store files");
         }
     }
 
-    public virtual string FullPath(IInstrument instrument, DateTime timeInPeriod, TimeSeriesPeriod forPeriod) =>
+    public virtual string FullPath(IInstrument instrument, DateTime timeInPeriod, TimeBoundaryPeriod forPeriod) =>
         ParentDirectory != null
             ? Path.Combine(ParentDirectory.FullPath(instrument, timeInPeriod, forPeriod), PathName(instrument, timeInPeriod, forPeriod))
             : PathName(instrument, timeInPeriod, forPeriod);
@@ -97,7 +98,7 @@ public abstract class PathPart : IPathPart
         currentMatch.InstrumentNameMatch   = ExtractInstrumentName(currentMatch.MatchedPath[^1]) ?? currentMatch.InstrumentNameMatch;
         currentMatch.InstrumentSourceMatch = ExtractInstrumentSource(currentMatch.MatchedPath[^1]) ?? currentMatch.InstrumentNameMatch;
         currentMatch.InstrumentTypeMatch   = ExtractInstrumentType(currentMatch.MatchedPath[^1]) ?? currentMatch.InstrumentTypeMatch;
-        currentMatch.EntryPeriodMatch      = ExtractEntryPeriod(currentMatch.MatchedPath[^1]) ?? currentMatch.EntryPeriodMatch;
+        currentMatch.CoveringPeriodMatch   = ExtractCoveringPeriod(currentMatch.MatchedPath[^1]) ?? currentMatch.CoveringPeriodMatch;
         currentMatch.FilePeriodMatch       = ExtractFilePeriod(currentMatch.MatchedPath[^1]) ?? currentMatch.FilePeriodMatch;
         foreach (var field in currentMatch.RequiredFields)
             currentMatch[field] = ExtractInstrumentField(field, currentMatch.MatchedPath[^1]) ?? currentMatch[field];
@@ -108,7 +109,7 @@ public abstract class PathPart : IPathPart
 
     public virtual PathInstrumentMatch InstrumentMatch(PathInstrumentMatch currentMatch) => currentMatch;
 
-    public virtual string PathName(IInstrument instrument, DateTime timeInPeriod, TimeSeriesPeriod forPeriod) =>
+    public virtual string PathName(IInstrument instrument, DateTime timeInPeriod, TimeBoundaryPeriod forPeriod) =>
         string.Join(NamePartSeparator, NameParts.Select(tsfpf => tsfpf.GetString(instrument, timeInPeriod, forPeriod)));
 
     public InstrumentType? ExtractInstrumentType(string pathPart)
@@ -120,12 +121,12 @@ public abstract class PathPart : IPathPart
         return null;
     }
 
-    public TimeSeriesPeriod? ExtractEntryPeriod(string pathPart)
+    public DiscreetTimePeriod? ExtractCoveringPeriod(string pathPart)
     {
         var fileNameSplit = pathPart.Split(NamePartSeparator);
         for (var i = 0; i < fileNameSplit.Length && i < NameParts.Length; i++)
-            if (NameParts[i].PathPart == EntryPeriod && NameParts[i].MatchesExpectedFormat(fileNameSplit[i]))
-                return NameParts[i].ExtractTimeSeriesPeriod(fileNameSplit[i]);
+            if (NameParts[i].PathPart == CoveringPeriod && NameParts[i].MatchesExpectedFormat(fileNameSplit[i]))
+                return NameParts[i].ExtractDiscreetTimePeriod(fileNameSplit[i]);
         return null;
     }
 
@@ -156,12 +157,12 @@ public abstract class PathPart : IPathPart
         return null;
     }
 
-    public TimeSeriesPeriod? ExtractFilePeriod(string pathPart)
+    public TimeBoundaryPeriod? ExtractFilePeriod(string pathPart)
     {
         var fileNameSplit = pathPart.Split(NamePartSeparator);
         for (var i = 0; i < fileNameSplit.Length && i < NameParts.Length; i++)
-            if (NameParts[i].PathPart == EntryPeriod && NameParts[i].MatchesExpectedFormat(fileNameSplit[i]))
-                return NameParts[i].ExtractTimeSeriesPeriod(fileNameSplit[i]);
+            if (NameParts[i].PathPart == CoveringPeriod && NameParts[i].MatchesExpectedFormat(fileNameSplit[i]))
+                return NameParts[i].ExtractTimeBoundaryPeriod(fileNameSplit[i]);
         return null;
     }
 }

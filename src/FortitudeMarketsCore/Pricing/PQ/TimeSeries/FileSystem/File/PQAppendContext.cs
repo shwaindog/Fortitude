@@ -17,14 +17,14 @@ using FortitudeMarketsCore.Pricing.PQ.Summaries;
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 
 public interface IPQQuoteAppendContext<TEntry, out TSerializeType> : IAppendContext<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, ITickInstant
+    where TEntry : ITimeSeriesEntry, ITickInstant
     where TSerializeType : PQTickInstant, new()
 {
     TSerializeType SerializeEntry { get; }
 }
 
 public class PQQuoteAppendContext<TEntry, TBucket, TSerializeType> : AppendContext<TEntry, TBucket>, IPQQuoteAppendContext<TEntry, TSerializeType>
-    where TEntry : ITimeSeriesEntry<TEntry>, ITickInstant
+    where TEntry : ITimeSeriesEntry, ITickInstant
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
     where TSerializeType : PQTickInstant, new()
 {
@@ -32,13 +32,13 @@ public class PQQuoteAppendContext<TEntry, TBucket, TSerializeType> : AppendConte
 }
 
 public interface IPQPricePeriodSummaryAppendContext<TEntry> : IAppendContext<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     IPQPriceStoragePeriodSummary SerializeEntry { get; }
 }
 
 public class PQPricePeriodSummaryAppendContext<TEntry, TBucket> : AppendContext<TEntry, TBucket>, IPQPricePeriodSummaryAppendContext<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
     public PQPricePeriodSummaryAppendContext

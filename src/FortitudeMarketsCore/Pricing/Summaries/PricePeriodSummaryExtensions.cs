@@ -8,7 +8,6 @@ using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Summaries;
 
 #endregion
@@ -17,35 +16,35 @@ namespace FortitudeMarketsCore.Pricing.Summaries;
 
 public static class PricePeriodSummaryExtensions
 {
-    public static TimeSeriesPeriod CalcTimeFrame(this IPricePeriodSummary pricePeriodSummary)
+    public static TimeBoundaryPeriod CalcTimeFrame(this IPricePeriodSummary pricePeriodSummary)
     {
         if (pricePeriodSummary.PeriodStartTime.Equals(DateTimeConstants.UnixEpoch)
          || pricePeriodSummary.PeriodEndTime < pricePeriodSummary.PeriodStartTime)
-            return TimeSeriesPeriod.None;
-        if (pricePeriodSummary.PeriodEndTime.Equals(DateTimeConstants.UnixEpoch)) return TimeSeriesPeriod.None;
-        if (pricePeriodSummary.PeriodStartTime.Equals(pricePeriodSummary.PeriodEndTime)) return TimeSeriesPeriod.Tick;
+            return TimeBoundaryPeriod.None;
+        if (pricePeriodSummary.PeriodEndTime.Equals(DateTimeConstants.UnixEpoch)) return TimeBoundaryPeriod.None;
+        if (pricePeriodSummary.PeriodStartTime.Equals(pricePeriodSummary.PeriodEndTime)) return TimeBoundaryPeriod.Tick;
         var diffTimeSpan = pricePeriodSummary.PeriodEndTime - pricePeriodSummary.PeriodStartTime;
         var totalSeconds = (int)diffTimeSpan.TotalSeconds;
-        if (totalSeconds == 1) return TimeSeriesPeriod.OneSecond;
-        if (totalSeconds == 60) return TimeSeriesPeriod.OneMinute;
-        if (totalSeconds == 300) return TimeSeriesPeriod.FiveMinutes;
-        if (totalSeconds == 600) return TimeSeriesPeriod.TenMinutes;
-        if (totalSeconds == 900) return TimeSeriesPeriod.FifteenMinutes;
-        if (totalSeconds == 1800) return TimeSeriesPeriod.ThirtyMinutes;
-        if (totalSeconds == 3600) return TimeSeriesPeriod.OneHour;
-        if (totalSeconds == 14400) return TimeSeriesPeriod.FourHours;
-        if (totalSeconds == 3600 * 24) return TimeSeriesPeriod.OneDay;
+        if (totalSeconds == 1) return TimeBoundaryPeriod.OneSecond;
+        if (totalSeconds == 60) return TimeBoundaryPeriod.OneMinute;
+        if (totalSeconds == 300) return TimeBoundaryPeriod.FiveMinutes;
+        if (totalSeconds == 600) return TimeBoundaryPeriod.TenMinutes;
+        if (totalSeconds == 900) return TimeBoundaryPeriod.FifteenMinutes;
+        if (totalSeconds == 1800) return TimeBoundaryPeriod.ThirtyMinutes;
+        if (totalSeconds == 3600) return TimeBoundaryPeriod.OneHour;
+        if (totalSeconds == 14400) return TimeBoundaryPeriod.FourHours;
+        if (totalSeconds == 3600 * 24) return TimeBoundaryPeriod.OneDay;
         if (totalSeconds >= 3600 * 24 * 5
          && totalSeconds <= 7 * 24 * 3600)
-            return TimeSeriesPeriod.OneWeek;
+            return TimeBoundaryPeriod.OneWeek;
         if (totalSeconds >= 28 * 24 * 3600
          && totalSeconds <= 31 * 24 * 3600)
-            return TimeSeriesPeriod.OneMonth;
+            return TimeBoundaryPeriod.OneMonth;
         if (totalSeconds >= 365 * 24 * 3600
          && totalSeconds <= 366 * 24 * 3600)
-            return TimeSeriesPeriod.OneYear;
+            return TimeBoundaryPeriod.OneYear;
 
-        return TimeSeriesPeriod.None;
+        return TimeBoundaryPeriod.None;
     }
 
     public static IChannelLimitedEventFactory<PricePeriodSummary> CreateChannelFactory

@@ -3,10 +3,10 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session;
@@ -26,7 +26,7 @@ public unsafe class TestLevel1HourlyQuoteStructBucket : DataBucket<Level1QuoteSt
         ShiftableMemoryMappedFileView? alternativeFileView = null) :
         base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
-    public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneHour;
+    public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneHour;
 
     public override IEnumerable<Level1QuoteStruct> ReadEntries(IBuffer readBuffer, IReaderContext<Level1QuoteStruct> readerContext)
     {

@@ -7,6 +7,7 @@ using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeBusRules.Rules.Common.TimeSeries;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Indicators;
@@ -23,7 +24,7 @@ using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
 using FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Summaries;
-using static FortitudeIO.TimeSeries.TimeSeriesPeriod;
+using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 
 #endregion
 
@@ -74,11 +75,11 @@ public struct TickerPeriodServiceRequest
     {
         RequestType = requestType;
         TickerPeriodServiceInfo
-            = new TickerPeriodServiceInfo(serviceType, pricingInstrumentId, pricingInstrumentId.EntryPeriod, tickerDetailLevel, usePqQuote);
+            = new TickerPeriodServiceInfo(serviceType, pricingInstrumentId, pricingInstrumentId.CoveringPeriod, tickerDetailLevel, usePqQuote);
     }
 
     public TickerPeriodServiceRequest
-    (RequestType requestType, ServiceType serviceType, SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod period = Tick
+    (RequestType requestType, ServiceType serviceType, SourceTickerIdentifier sourceTickerIdentifier, DiscreetTimePeriod? period = null
       , TickerDetailLevel tickerDetailLevel = TickerDetailLevel.Level1Quote, bool usePqQuote = false)
     {
         RequestType             = requestType;
@@ -123,13 +124,14 @@ public struct TickerPeriodServiceInfo
     }
 
     public TickerPeriodServiceInfo
-    (ServiceType serviceType, SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod period = Tick
+    (ServiceType serviceType, SourceTickerIdentifier sourceTickerIdentifier, DiscreetTimePeriod? period = null
       , TickerDetailLevel tickerDetailLevel = TickerDetailLevel.Level1Quote, bool usePqQuote = false)
     {
-        ServiceType         = serviceType;
-        PricingInstrumentId = new PricingInstrumentId(sourceTickerIdentifier, new PeriodInstrumentTypePair(InstrumentType.Custom, period));
-        TickerDetailLevel   = tickerDetailLevel;
-        UsePqQuote          = usePqQuote;
+        ServiceType = serviceType;
+        PricingInstrumentId = new PricingInstrumentId(sourceTickerIdentifier
+                                                    , new PeriodInstrumentTypePair(InstrumentType.Custom, period ?? new DiscreetTimePeriod(Tick)));
+        TickerDetailLevel = tickerDetailLevel;
+        UsePqQuote        = usePqQuote;
     }
 
     public ServiceType ServiceType { get; }
@@ -363,7 +365,8 @@ public class IndicatorServiceRegistryRule : Rule
     protected ServiceRuntimeState LivePriceSummaryFactory(TickerPeriodServiceRequest tickerPeriodServiceRequest)
     {
         var tickerServiceInfo = tickerPeriodServiceRequest.TickerPeriodServiceInfo;
-        if (tickerServiceInfo.PricingInstrumentId.EntryPeriod is Tick or > OneYear) return new ServiceRuntimeState();
+        if (tickerServiceInfo.PricingInstrumentId.CoveringPeriod < Tick || tickerServiceInfo.PricingInstrumentId.CoveringPeriod > OneYear)
+            return new ServiceRuntimeState();
         switch (tickerServiceInfo.TickerDetailLevel)
         {
             case TickerDetailLevel.Level1Quote when tickerServiceInfo.UsePqQuote:
@@ -409,7 +412,7 @@ public class IndicatorServiceRegistryRule : Rule
     protected ServiceRuntimeState HistoricalPricePeriodSummaryResolverFactory(TickerPeriodServiceRequest tickerPeriodServiceRequest)
     {
         var tickerServiceInfo = tickerPeriodServiceRequest.TickerPeriodServiceInfo;
-        if (tickerServiceInfo.PricingInstrumentId.EntryPeriod is Tick) return new ServiceRuntimeState();
+        if (tickerServiceInfo.PricingInstrumentId.CoveringPeriod == Tick) return new ServiceRuntimeState();
         switch (tickerServiceInfo.TickerDetailLevel)
         {
             case TickerDetailLevel.Level1Quote when tickerServiceInfo.UsePqQuote:
@@ -467,14 +470,14 @@ public class IndicatorServiceRegistryRule : Rule
     protected ServiceRuntimeState LiveMovingAverageFactory(TickerPeriodServiceRequest tickerPeriodServiceRequest)
     {
         var tickerServiceInfo = tickerPeriodServiceRequest.TickerPeriodServiceInfo;
-        if (tickerServiceInfo.PricingInstrumentId.EntryPeriod is >= Tick and <= FifteenMinutes)
+        if (tickerServiceInfo.PricingInstrumentId.CoveringPeriod.Period is >= Tick and <= FifteenMinutes)
         {
             // shared ticks moving Average
             var anyExisting =
                 TickerPeriodServiceStateLookup
                     .FirstOrDefault
                         (kvp => Equals(kvp.Key.PricingInstrumentId, tickerServiceInfo.PricingInstrumentId) &&
-                                kvp.Key.PricingInstrumentId.EntryPeriod is >= Tick and <= FifteenMinutes);
+                                kvp.Key.PricingInstrumentId.CoveringPeriod.Period is >= Tick and <= FifteenMinutes);
             if (!Equals(anyExisting, default(KeyValuePair<TickerPeriodServiceInfo, ServiceRuntimeState>)))
             {
                 TickerPeriodServiceStateLookup[anyExisting.Key] = anyExisting.Value;
@@ -485,11 +488,11 @@ public class IndicatorServiceRegistryRule : Rule
                 (new ServiceRunStateResponse
                     (new LiveShortPeriodMovingAveragePublisherRule
                          (new LiveShortPeriodMovingAveragePublishParams
-                             (new IndicatorSourceTickerIdentifier(IndicatorConstants.BidAskMovingAverageId
+                             (new IndicatorSourceTickerIdentifier(IndicatorConstants.MovingAverageTimeWeightedBidAskId
                                                                 , tickerServiceInfo.PricingInstrumentId)))
                    , ServiceRunStatus.NotStarted));
         }
-        if (tickerServiceInfo.PricingInstrumentId.EntryPeriod is > FifteenMinutes and <= OneYear)
+        if (tickerServiceInfo.PricingInstrumentId.CoveringPeriod.Period is > FifteenMinutes and <= OneYear)
         {
             // TODO implement period summary moving average calculator
         }

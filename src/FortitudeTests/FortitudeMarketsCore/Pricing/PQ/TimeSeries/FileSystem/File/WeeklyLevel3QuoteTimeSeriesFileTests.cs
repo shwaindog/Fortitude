@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Extensions;
@@ -95,9 +96,10 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
         var createTestCreateFileParameters =
             new TimeSeriesFileParameters
                 (timeSeriesFile
-               , new Instrument("TestInstrumentName", "TestSourceName", InstrumentType.Price, TimeSeriesPeriod.Tick, instrumentFields
+               , new Instrument("TestInstrumentName", "TestSourceName", InstrumentType.Price, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick)
+                              , instrumentFields
                               , optionalInstrumentFields),
-                 TimeSeriesPeriod.OneWeek, DateTime.UtcNow.Date, 7,
+                 TimeBoundaryPeriod.OneWeek, DateTime.UtcNow.Date, 7,
                  fileFlags, 6);
         var createPriceQuoteFile = new PriceTimeSeriesFileParameters(level3SrcTkrInfo, createTestCreateFileParameters);
         level3OneWeekFile   = new WeeklyLevel3QuoteTimeSeriesFile(createPriceQuoteFile);
@@ -374,8 +376,8 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
         Assert.AreEqual(truncated, header.Category);
         header.InstrumentName = largeString;
         Assert.AreEqual(truncated, header.InstrumentName);
-        Assert.AreEqual(TimeSeriesPeriod.OneWeek, header.FilePeriod);
-        Assert.AreEqual(TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.OneWeek, header.FilePeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
         Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
         Assert.AreEqual(typeof(DailyToHourlyLevel3QuoteSubBuckets<ILevel3Quote>), header.BucketType);
         Assert.AreEqual(typeof(ILevel3Quote), header.EntryType);
@@ -390,8 +392,8 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
         Assert.AreEqual(truncated, header.SourceName);
         Assert.AreEqual(truncated, header.Category);
         Assert.AreEqual(truncated, header.InstrumentName);
-        Assert.AreEqual(TimeSeriesPeriod.OneWeek, header.FilePeriod);
-        Assert.AreEqual(TimeSeriesPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.OneWeek, header.FilePeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
         Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
         Assert.AreEqual(typeof(DailyToHourlyLevel3QuoteSubBuckets<ILevel3Quote>), header.BucketType);
         Assert.AreEqual(typeof(ILevel3Quote), header.EntryType);

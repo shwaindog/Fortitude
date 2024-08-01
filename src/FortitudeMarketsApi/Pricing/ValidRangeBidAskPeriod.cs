@@ -8,7 +8,6 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
 
@@ -35,7 +34,7 @@ public interface IValidRangeBidAskPeriod : IReusableObject<IValidRangeBidAskPeri
     bool SweepStartOfDataGap     { get; set; }
     bool SweepEndOfDataGap       { get; set; }
 
-    TimePeriod CoveringPeriod { get; }
+    DiscreetTimePeriod CoveringPeriod { get; }
 
     DateTime ValidFrom { get; }
     DateTime ValidTo   { get; }
@@ -54,7 +53,7 @@ public interface IValidRangeBidAskPeriod : IReusableObject<IValidRangeBidAskPeri
 
     BoundedTimeRange CoveringRange(DateTime maxDateTime);
 
-    IValidRangeBidAskPeriod? ContainingPeriodEndNode(TimeSeriesPeriod forPeriod);
+    IValidRangeBidAskPeriod? ContainingPeriodEndNode(TimeBoundaryPeriod forPeriod);
 
     IDoublyLinkedList<IValidRangeBidAskPeriod> ReplaceRange(IValidRangeBidAskPeriod endNode, IDoublyLinkedList<IValidRangeBidAskPeriod> replacements);
 
@@ -74,8 +73,8 @@ public struct ValidRangeBidAskPeriodValue
         BidPrice  = toClone.BidPrice;
         AskPrice  = toClone.AskPrice;
         AtTime    = toClone.AtTime;
-        ValidTo   = toClone.ValidTo;
-        ValidFrom = toClone.ValidFrom.Max(AtTime);
+        ValidTo   = toClone.ValidTo.Max(AtTime);
+        ValidFrom = AtTime.Max(toClone.ValidFrom).Min(ValidTo);
 
         CoveringPeriod = toClone.CoveringPeriod;
     }
@@ -85,8 +84,8 @@ public struct ValidRangeBidAskPeriodValue
         BidPrice  = toClone.BidPrice;
         AskPrice  = toClone.AskPrice;
         AtTime    = toClone.AtTime;
-        ValidTo   = toClone.ValidTo;
-        ValidFrom = toClone.ValidFrom.Max(AtTime);
+        ValidTo   = toClone.ValidTo.Max(AtTime);
+        ValidFrom = AtTime.Max(toClone.ValidFrom).Min(ValidTo);
 
         CoveringPeriod = toClone.CoveringPeriod;
     }
@@ -96,22 +95,23 @@ public struct ValidRangeBidAskPeriodValue
         BidPrice  = toCapture.BidPriceTop;
         AskPrice  = toCapture.AskPriceTop;
         AtTime    = toCapture.SourceTime;
-        ValidTo   = toCapture.ValidTo;
-        ValidFrom = toCapture.ValidFrom.Max(AtTime);
+        ValidTo   = toCapture.ValidTo.Max(AtTime);
+        ValidFrom = AtTime.Max(toCapture.ValidFrom).Min(ValidTo);
 
-        CoveringPeriod = new TimePeriod(TimeSeriesPeriod.Tick);
+        CoveringPeriod = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
     }
 
     public ValidRangeBidAskPeriodValue
-        (decimal bidPrice, decimal askPrice, DateTime validTo, DateTime? atTime = null, DateTime? validFrom = null, TimePeriod? coveringPeriod = null)
+    (decimal bidPrice, decimal askPrice, DateTime validTo, DateTime? atTime = null, DiscreetTimePeriod? coveringPeriod = null
+      , DateTime? validFrom = null)
     {
         BidPrice  = bidPrice;
         AskPrice  = askPrice;
         AtTime    = atTime ?? DateTime.UtcNow;
-        ValidTo   = validTo;
-        ValidFrom = (validFrom ?? AtTime).Max(AtTime);
+        ValidTo   = validTo.Max(AtTime);
+        ValidFrom = AtTime.Max(validFrom).Min(ValidTo);
 
-        CoveringPeriod = coveringPeriod ?? new TimePeriod(TimeSeriesPeriod.Tick);
+        CoveringPeriod = coveringPeriod ?? new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
     }
 
     public decimal  BidPrice  { get; }
@@ -120,7 +120,7 @@ public struct ValidRangeBidAskPeriodValue
     public DateTime ValidFrom { get; }
     public DateTime ValidTo   { get; }
 
-    public TimePeriod CoveringPeriod { get; }
+    public DiscreetTimePeriod CoveringPeriod { get; }
 
     public static implicit operator BidAskInstantPair(ValidRangeBidAskPeriodValue toConvert) =>
         new(toConvert.BidPrice, toConvert.AskPrice, toConvert.AtTime);
@@ -137,23 +137,28 @@ public static class ValidRangeBidAskPeriodValueExtensions
 
     public static ValidRangeBidAskPeriodValue SetBidPrice
         (this ValidRangeBidAskPeriodValue pair, decimal bidPrice) =>
-        new(bidPrice, pair.AskPrice, pair.ValidTo, pair.AtTime, pair.ValidFrom);
+        new(bidPrice, pair.AskPrice, pair.ValidTo, pair.AtTime, pair.CoveringPeriod, pair.ValidFrom);
 
     public static ValidRangeBidAskPeriodValue SetAskPrice
         (this ValidRangeBidAskPeriodValue pair, decimal askPrice) =>
-        new(pair.BidPrice, askPrice, pair.ValidTo, pair.AtTime, pair.ValidFrom);
+        new(pair.BidPrice, askPrice, pair.ValidTo, pair.AtTime, pair.CoveringPeriod, pair.ValidFrom);
 
     public static ValidRangeBidAskPeriodValue SetAtTime
         (this ValidRangeBidAskPeriodValue pair, DateTime atTime) =>
-        new(pair.BidPrice, pair.AskPrice, pair.ValidTo, atTime, pair.ValidFrom);
+        new(pair.BidPrice, pair.AskPrice, atTime + (pair.ValidTo - pair.AtTime), atTime, pair.CoveringPeriod
+          , atTime + (pair.ValidFrom - pair.AtTime));
 
     public static ValidRangeBidAskPeriodValue SetValidTo
         (this ValidRangeBidAskPeriodValue pair, DateTime validTo) =>
-        new(pair.BidPrice, pair.AskPrice, validTo, pair.AtTime, pair.ValidFrom);
+        new(pair.BidPrice, pair.AskPrice, validTo, pair.AtTime, pair.CoveringPeriod, pair.ValidFrom);
+
+    public static ValidRangeBidAskPeriodValue SetCoveringPeriod
+        (this ValidRangeBidAskPeriodValue pair, DiscreetTimePeriod coveringPeriod) =>
+        new(pair.BidPrice, pair.AskPrice, pair.ValidTo, pair.AtTime, pair.CoveringPeriod, pair.ValidFrom);
 
     public static ValidRangeBidAskPeriodValue SetValidFrom
         (this ValidRangeBidAskPeriodValue pair, DateTime validFrom) =>
-        new(pair.BidPrice, pair.AskPrice, pair.ValidTo, pair.AtTime, validFrom);
+        new(pair.BidPrice, pair.AskPrice, pair.ValidTo, pair.AtTime, pair.CoveringPeriod, validFrom);
 }
 
 [Flags]
@@ -182,64 +187,9 @@ public class ValidRangeBidAskPeriod : BidAskInstant, IValidRangeBidAskPeriod, IC
   , IDoublyLinkedListNode<ValidRangeBidAskPeriod>
 {
     private ValidPeriodFlags booleanFlags;
+    private DateTime         validFrom;
 
     private DateTime validTo;
-    public ValidRangeBidAskPeriod() { }
-
-    public ValidRangeBidAskPeriod
-        (BidAskInstantPair bidAskInstantPair, DateTime validToTime, DateTime? validFrom = null, TimePeriod? coveringPeriod = null)
-        : base(bidAskInstantPair)
-    {
-        CoveringPeriod = coveringPeriod ?? new TimePeriod(TimeSeriesPeriod.Tick);
-
-        ValidTo   = validToTime;
-        ValidFrom = (validFrom ?? AtTime).Max(AtTime);
-    }
-
-    public ValidRangeBidAskPeriod
-        (BidAskInstant bidAskInstant, DateTime validToTime, DateTime? validFrom = null, TimePeriod? coveringPeriod = null)
-        : base(bidAskInstant)
-    {
-        CoveringPeriod = coveringPeriod ?? new TimePeriod(TimeSeriesPeriod.Tick);
-
-        ValidTo   = validToTime;
-        ValidFrom = (validFrom ?? AtTime).Max(AtTime);
-    }
-
-    public ValidRangeBidAskPeriod(ILevel1Quote toCapture) : base(toCapture)
-    {
-        CoveringPeriod = new TimePeriod(TimeSeriesPeriod.Tick);
-
-        ValidTo   = toCapture.FeedSyncStatus == FeedSyncStatus.Good ? toCapture.ValidTo : AtTime;
-        ValidFrom = toCapture.ValidFrom.Max(AtTime);
-    }
-
-    public ValidRangeBidAskPeriod
-    (decimal bidPrice, decimal askPrice, DateTime validToTime, DateTime? atTime = null
-      , DateTime? validFromTime = null, TimePeriod? coveringPeriod = null)
-        : base(bidPrice, askPrice, atTime)
-    {
-        CoveringPeriod = coveringPeriod ?? new TimePeriod(TimeSeriesPeriod.Tick);
-
-        ValidTo   = validToTime;
-        ValidFrom = (validFromTime ?? AtTime).Max(AtTime);
-    }
-
-    public ValidRangeBidAskPeriod(IValidRangeBidAskPeriod toClone) : base(toClone)
-    {
-        CoveringPeriod = toClone.CoveringPeriod;
-
-        ValidTo   = toClone.ValidTo;
-        ValidFrom = toClone.ValidFrom;
-    }
-
-    public ValidRangeBidAskPeriod(ValidRangeBidAskPeriodValue toClone) : base(toClone)
-    {
-        CoveringPeriod = toClone.CoveringPeriod;
-
-        ValidTo   = toClone.ValidTo;
-        ValidFrom = toClone.ValidFrom;
-    }
 
     public new ValidRangeBidAskPeriod Clone() =>
         Recycler?.Borrow<ValidRangeBidAskPeriod>().CopyFrom(this) as ValidRangeBidAskPeriod
@@ -257,7 +207,7 @@ public class ValidRangeBidAskPeriod : BidAskInstant, IValidRangeBidAskPeriod, IC
         set => base.Previous = value;
     }
 
-    public TimePeriod CoveringPeriod { get; protected set; }
+    public DiscreetTimePeriod CoveringPeriod { get; protected set; }
 
     IReusableObject<IValidRangeBidAskPeriod> IStoreState<IReusableObject<IValidRangeBidAskPeriod>>.CopyFrom
         (IReusableObject<IValidRangeBidAskPeriod> source, CopyMergeFlags copyMergeFlags) =>
@@ -510,10 +460,39 @@ public class ValidRangeBidAskPeriod : BidAskInstant, IValidRangeBidAskPeriod, IC
             if (Next == null || Next.AtTime > validTo) return validTo;
             return Next.AtTime;
         }
-        set => validTo = value;
+        set
+        {
+            validTo   = value.Max(AtTime);
+            validFrom = AtTime.Max(validFrom).Min(validTo);
+        }
     }
 
-    public DateTime ValidFrom { get; set; }
+    public DateTime ValidFrom
+    {
+        get
+        {
+            if (Next == null || Next.AtTime > validFrom) return validFrom;
+            return Next.AtTime;
+        }
+        set
+        {
+            validFrom = value.Max(AtTime);
+            validTo   = AtTime.Max(validTo).Max(validFrom);
+        }
+    }
+
+    public override DateTime AtTime
+    {
+        get => base.AtTime;
+        set
+        {
+            var validFromDelta = (validFrom - AtTime).Max(TimeSpan.Zero);
+            var validToDelta   = (validTo - AtTime).Max(TimeSpan.Zero);
+            base.AtTime = value;
+            validFrom   = AtTime + validFromDelta;
+            validTo     = AtTime + validToDelta;
+        }
+    }
 
     public BoundedTimeRange? ValidTimeRange()
     {
@@ -563,7 +542,7 @@ public class ValidRangeBidAskPeriod : BidAskInstant, IValidRangeBidAskPeriod, IC
         return currentNode;
     }
 
-    public IValidRangeBidAskPeriod? ContainingPeriodEndNode(TimeSeriesPeriod forPeriod)
+    public IValidRangeBidAskPeriod? ContainingPeriodEndNode(TimeBoundaryPeriod forPeriod)
     {
         var periodStart = forPeriod.ContainingPeriodBoundaryStart(AtTime);
         var periodEnd   = forPeriod.PeriodEnd(periodStart);
@@ -644,12 +623,12 @@ public class ValidRangeBidAskPeriod : BidAskInstant, IValidRangeBidAskPeriod, IC
 
     public void Configure
     (BidAskPair bidAskPair, DateTime atTime, DateTime validToTime, DateTime? validFromTime = null
-      , TimePeriod? coveringPeriod = null)
+      , DiscreetTimePeriod? coveringPeriod = null)
     {
         BidPrice       = bidAskPair.BidPrice;
         AskPrice       = bidAskPair.AskPrice;
         AtTime         = atTime;
-        CoveringPeriod = coveringPeriod ?? new TimePeriod(TimeSeriesPeriod.Tick);
+        CoveringPeriod = coveringPeriod ?? new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
         ValidTo        = validToTime;
         ValidFrom      = (validFromTime ?? AtTime).Max(AtTime);
         booleanFlags   = ValidPeriodFlags.None;
@@ -683,10 +662,69 @@ public class ValidRangeBidAskPeriod : BidAskInstant, IValidRangeBidAskPeriod, IC
 
         ValidTo        = source.ValidTo;
         ValidFrom      = source.ValidFrom;
-        CoveringPeriod = new TimePeriod(TimeSeriesPeriod.Tick);
+        CoveringPeriod = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
 
         return this;
     }
+
+    // ReSharper disable VirtualMemberCallInConstructor
+    public ValidRangeBidAskPeriod() { }
+
+    public ValidRangeBidAskPeriod
+        (BidAskInstantPair bidAskInstantPair, DateTime validToTime, DateTime? validFrom = null, DiscreetTimePeriod? coveringPeriod = null)
+        : base(bidAskInstantPair)
+    {
+        CoveringPeriod = coveringPeriod ?? new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
+
+        ValidTo   = validToTime.Max(AtTime);
+        ValidFrom = AtTime.Max(validFrom).Min(ValidTo);
+    }
+
+    public ValidRangeBidAskPeriod
+        (BidAskInstant bidAskInstant, DateTime validToTime, DateTime? validFrom = null, DiscreetTimePeriod? coveringPeriod = null)
+        : base(bidAskInstant)
+    {
+        CoveringPeriod = coveringPeriod ?? new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
+
+        ValidTo   = validToTime.Max(AtTime);
+        ValidFrom = AtTime.Max(validFrom).Min(ValidTo);
+    }
+
+    public ValidRangeBidAskPeriod(ILevel1Quote toCapture) : base(toCapture)
+    {
+        CoveringPeriod = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
+
+        ValidTo   = toCapture.FeedSyncStatus == FeedSyncStatus.Good ? toCapture.ValidTo : AtTime;
+        ValidFrom = AtTime.Max(toCapture.ValidFrom).Min(ValidTo);
+    }
+
+    public ValidRangeBidAskPeriod
+    (decimal bidPrice, decimal askPrice, DateTime validToTime, DateTime? atTime = null
+      , DateTime? validFromTime = null, DiscreetTimePeriod? coveringPeriod = null)
+        : base(bidPrice, askPrice, atTime)
+    {
+        CoveringPeriod = coveringPeriod ?? new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
+
+        ValidTo   = validToTime.Max(AtTime);
+        ValidFrom = AtTime.Max(validFromTime).Min(ValidTo);
+    }
+
+    public ValidRangeBidAskPeriod(IValidRangeBidAskPeriod toClone) : base(toClone)
+    {
+        CoveringPeriod = toClone.CoveringPeriod;
+
+        ValidTo   = toClone.ValidTo.Max(AtTime);
+        ValidFrom = AtTime.Max(toClone.ValidFrom).Min(ValidTo);
+    }
+
+    public ValidRangeBidAskPeriod(ValidRangeBidAskPeriodValue toClone) : base(toClone)
+    {
+        CoveringPeriod = toClone.CoveringPeriod;
+
+        ValidTo   = toClone.ValidTo.Max(AtTime);
+        ValidFrom = AtTime.Max(toClone.ValidFrom).Min(ValidTo);
+    }
+    // ReSharper restore VirtualMemberCallInConstructor
 }
 
 public static class ValidRangeBidAskInstantExtensions
@@ -827,7 +865,7 @@ public static class ValidRangeBidAskInstantExtensions
         }
 
         bidAskPeriod.Configure(pricePeriodSummary.AverageBidAsk, pricePeriodSummary.PeriodStartTime, validTo
-                             , validFrom, new TimePeriod(pricePeriodSummary.TimeSeriesPeriod));
+                             , validFrom, new DiscreetTimePeriod(pricePeriodSummary.TimeBoundaryPeriod));
         return bidAskPeriod;
     }
 }

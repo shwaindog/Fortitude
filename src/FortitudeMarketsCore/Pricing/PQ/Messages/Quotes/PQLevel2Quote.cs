@@ -6,11 +6,9 @@
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
-using FortitudeMarketsApi.Pricing.TimeSeries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
@@ -31,7 +29,7 @@ public interface IPQLevel2Quote : IPQLevel1Quote, IMutableLevel2Quote, IDoublyLi
     new IPQLevel2Quote Clone();
 }
 
-public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQLevel2Quote>, ICloneable<PQLevel2Quote>
+public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Quote>
   , IDoublyLinkedListNode<PQLevel2Quote>
 {
     // ReSharper disable once UnusedMember.Local
@@ -297,8 +295,6 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQL
         return false;
     }
 
-    DateTime ITimeSeriesEntry<ILevel2Quote>.StorageTime(IStorageTimeResolver<ILevel2Quote>? resolver) => StorageTime(resolver);
-
     ILevel2Quote ICloneable<ILevel2Quote>.Clone() => Clone();
 
     ILevel2Quote ILevel2Quote.Clone() => Clone();
@@ -359,12 +355,6 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ITimeSeriesEntry<PQL
 
         var allAreSame = baseSame && bidBooksSame && askBookSame && bidBookChangedSame && askBookChangedSame;
         return allAreSame;
-    }
-
-    public DateTime StorageTime(IStorageTimeResolver<PQLevel2Quote>? resolver = null)
-    {
-        resolver ??= QuoteStorageTimeResolver.Instance;
-        return resolver.ResolveStorageTime(this);
     }
 
     public override PQTickInstant SetSourceTickerInfo(ISourceTickerInfo toSet)

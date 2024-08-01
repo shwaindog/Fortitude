@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeIO.TimeSeries;
+using FortitudeCommon.Chronometry;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.Generators.MidPrice;
@@ -27,7 +27,7 @@ public struct GeneratePriceSummariesInfo
 
     public DateTime SinglePriceSummaryStartTime = DateTime.Now;
 
-    public TimeSeriesPeriod SummaryPeriod = TimeSeriesPeriod.OneSecond;
+    public TimeBoundaryPeriod SummaryPeriod = TimeBoundaryPeriod.OneSecond;
 
     public double ProbabilityNextStartPriceSameAsLastEndPrice = 0.95;
 
@@ -66,13 +66,13 @@ public interface IPricePeriodSummaryGenerator<out TPriceSummary> where TPriceSum
 {
     TPriceSummary Next { get; }
 
-    IEnumerable<TPriceSummary> PriceSummaries(DateTime startDateTime, TimeSeriesPeriod priceSummaryPeriod, int numToGenerate);
+    IEnumerable<TPriceSummary> PriceSummaries(DateTime startDateTime, TimeBoundaryPeriod priceSummaryPeriod, int numToGenerate);
 }
 
 public abstract class PricePeriodSummaryGenerator<TPriceSummary> : IPricePeriodSummaryGenerator<TPriceSummary>
     where TPriceSummary : IMutablePricePeriodSummary
 {
-    private readonly   TimeSeriesPeriod           defaultSummaryPeriod;
+    private readonly   TimeBoundaryPeriod         defaultSummaryPeriod;
     protected readonly GeneratePriceSummariesInfo GeneratePriceSummaryInfo;
 
     private DateTime nextSinglePriceSummaryStartTime;
@@ -106,7 +106,7 @@ public abstract class PricePeriodSummaryGenerator<TPriceSummary> : IPricePeriodS
     }
 
     public IEnumerable<TPriceSummary> PriceSummaries
-        (DateTime startingFromTime, TimeSeriesPeriod priceSummaryPeriod, int numToGenerate)
+        (DateTime startingFromTime, TimeBoundaryPeriod priceSummaryPeriod, int numToGenerate)
     {
         foreach (var prevCurrMids in GeneratePriceSummaryInfo.MidPriceGenerator
                                                              .PreviousCurrentPrices(startingFromTime, priceSummaryPeriod, numToGenerate * 2)

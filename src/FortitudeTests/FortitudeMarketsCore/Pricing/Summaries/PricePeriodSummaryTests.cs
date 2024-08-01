@@ -5,7 +5,6 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.PQ.Summaries;
 using FortitudeMarketsCore.Pricing.Summaries;
@@ -31,32 +30,32 @@ public class PricePeriodSummaryTests
     private DateTime expectedStartTime;
     private uint     expectedTickCount;
 
-    private TimeSeriesPeriod expectedTimeSeriesPeriod;
-    private long             expectedVolume;
+    private TimeBoundaryPeriod expectedTimeBoundaryPeriod;
+    private long               expectedVolume;
 
     private PricePeriodSummary fullyPopulatedPricePeriodSummary = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        expectedTimeSeriesPeriod = TimeSeriesPeriod.OneMinute;
-        expectedStartTime        = new DateTime(2018, 2, 6, 20, 51, 0);
-        expectedEndTime          = new DateTime(2018, 2, 6, 20, 52, 0);
-        expectedStartBidPrice    = 1.234567m;
-        expectedStartAskPrice    = 1.234577m;
-        expectedHighestBidPrice  = 1.235567m;
-        expectedHighestAskPrice  = 1.235577m;
-        expectedLowestBidPrice   = 1.233567m;
-        expectedLowestAskPrice   = 1.233577m;
-        expectedEndBidPrice      = 1.234467m;
-        expectedEndAskPrice      = 1.234477m;
-        expectedTickCount        = 532;
-        expectedVolume           = 428700;
+        expectedTimeBoundaryPeriod = TimeBoundaryPeriod.OneMinute;
+        expectedStartTime          = new DateTime(2018, 2, 6, 20, 51, 0);
+        expectedEndTime            = new DateTime(2018, 2, 6, 20, 52, 0);
+        expectedStartBidPrice      = 1.234567m;
+        expectedStartAskPrice      = 1.234577m;
+        expectedHighestBidPrice    = 1.235567m;
+        expectedHighestAskPrice    = 1.235577m;
+        expectedLowestBidPrice     = 1.233567m;
+        expectedLowestAskPrice     = 1.233577m;
+        expectedEndBidPrice        = 1.234467m;
+        expectedEndAskPrice        = 1.234477m;
+        expectedTickCount          = 532;
+        expectedVolume             = 428700;
 
         emptyPricePeriodSummary = new PricePeriodSummary();
         fullyPopulatedPricePeriodSummary =
             new PricePeriodSummary
-                (expectedTimeSeriesPeriod, expectedStartTime, expectedEndTime, expectedStartBidPrice, expectedStartAskPrice
+                (expectedTimeBoundaryPeriod, expectedStartTime, expectedEndTime, expectedStartBidPrice, expectedStartAskPrice
                , expectedHighestBidPrice, expectedHighestAskPrice, expectedLowestBidPrice, expectedLowestAskPrice
                , expectedEndBidPrice, expectedEndAskPrice, expectedTickCount, expectedVolume);
     }
@@ -64,7 +63,7 @@ public class PricePeriodSummaryTests
     [TestMethod]
     public void EmptyPeriodSummary_New_InitializesFieldsAsExpected()
     {
-        Assert.AreEqual(TimeSeriesPeriod.None, emptyPricePeriodSummary.TimeSeriesPeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.None, emptyPricePeriodSummary.TimeBoundaryPeriod);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyPricePeriodSummary.PeriodStartTime);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyPricePeriodSummary.PeriodEndTime);
 
@@ -83,7 +82,7 @@ public class PricePeriodSummaryTests
     [TestMethod]
     public void PopulatedPeriodSummary_New_InitializesFieldsAsExpected()
     {
-        Assert.AreEqual(expectedTimeSeriesPeriod, fullyPopulatedPricePeriodSummary.TimeSeriesPeriod);
+        Assert.AreEqual(expectedTimeBoundaryPeriod, fullyPopulatedPricePeriodSummary.TimeBoundaryPeriod);
         Assert.AreEqual(expectedStartTime, fullyPopulatedPricePeriodSummary.PeriodStartTime);
         Assert.AreEqual(expectedEndTime, fullyPopulatedPricePeriodSummary.PeriodEndTime);
         Assert.AreEqual(expectedStartBidPrice, fullyPopulatedPricePeriodSummary.StartBidPrice);
@@ -103,11 +102,11 @@ public class PricePeriodSummaryTests
     {
         fullyPopulatedPricePeriodSummary =
             new PricePeriodSummary
-                (expectedTimeSeriesPeriod, expectedStartTime, expectedEndTime, expectedStartBidPrice, expectedStartAskPrice
+                (expectedTimeBoundaryPeriod, expectedStartTime, expectedEndTime, expectedStartBidPrice, expectedStartAskPrice
                , expectedHighestBidPrice, expectedHighestAskPrice, expectedLowestBidPrice, expectedLowestAskPrice
                , expectedEndBidPrice, expectedEndAskPrice, expectedTickCount, expectedVolume);
 
-        Assert.AreEqual(expectedTimeSeriesPeriod, fullyPopulatedPricePeriodSummary.TimeSeriesPeriod);
+        Assert.AreEqual(expectedTimeBoundaryPeriod, fullyPopulatedPricePeriodSummary.TimeBoundaryPeriod);
     }
 
     [TestMethod]
@@ -123,54 +122,54 @@ public class PricePeriodSummaryTests
     {
         var t = expectedStartTime;
 
-        var calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.OneSecond, t, t.AddSeconds(1));
-        Assert.AreEqual(TimeSeriesPeriod.OneSecond, calculatePeriodSummary.TimeSeriesPeriod);
-        calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.OneMinute, t, t.AddMinutes(1));
-        Assert.AreEqual(TimeSeriesPeriod.OneMinute, calculatePeriodSummary.TimeSeriesPeriod);
-        calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.FiveMinutes, t, t.AddMinutes(5));
-        Assert.AreEqual(TimeSeriesPeriod.FiveMinutes, calculatePeriodSummary.TimeSeriesPeriod);
-        calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.TenMinutes, t, t.AddMinutes(10));
-        Assert.AreEqual(TimeSeriesPeriod.TenMinutes, calculatePeriodSummary.TimeSeriesPeriod);
-        calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.FifteenMinutes, t, t.AddMinutes(15));
-        Assert.AreEqual(TimeSeriesPeriod.FifteenMinutes, calculatePeriodSummary.TimeSeriesPeriod);
-        calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.ThirtyMinutes, t, t.AddMinutes(30));
-        Assert.AreEqual(TimeSeriesPeriod.ThirtyMinutes, calculatePeriodSummary.TimeSeriesPeriod);
-        calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.OneHour, t, t.AddHours(1));
-        Assert.AreEqual(TimeSeriesPeriod.OneHour, calculatePeriodSummary.TimeSeriesPeriod);
-        calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.FourHours, t, t.AddHours(4));
-        Assert.AreEqual(TimeSeriesPeriod.FourHours, calculatePeriodSummary.TimeSeriesPeriod);
-        calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.OneDay, t, t.AddDays(1));
-        Assert.AreEqual(TimeSeriesPeriod.OneDay, calculatePeriodSummary.TimeSeriesPeriod);
-        calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.OneWeek, t, t.AddDays(7));
-        Assert.AreEqual(TimeSeriesPeriod.OneWeek, calculatePeriodSummary.TimeSeriesPeriod);
-        calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.OneMonth, t, t.AddDays(28));
-        Assert.AreEqual(TimeSeriesPeriod.OneMonth, calculatePeriodSummary.TimeSeriesPeriod);
-        calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.OneMonth, t, t.AddDays(30));
-        Assert.AreEqual(TimeSeriesPeriod.OneMonth, calculatePeriodSummary.TimeSeriesPeriod);
-        calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.None, t, t.AddSeconds(2));
-        Assert.AreEqual(TimeSeriesPeriod.None, calculatePeriodSummary.TimeSeriesPeriod);
-        calculatePeriodSummary = new PricePeriodSummary(TimeSeriesPeriod.None, t, t.AddMilliseconds(10));
-        Assert.AreEqual(TimeSeriesPeriod.None, calculatePeriodSummary.TimeSeriesPeriod);
+        var calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.OneSecond, t, t.AddSeconds(1));
+        Assert.AreEqual(TimeBoundaryPeriod.OneSecond, calculatePeriodSummary.TimeBoundaryPeriod);
+        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.OneMinute, t, t.AddMinutes(1));
+        Assert.AreEqual(TimeBoundaryPeriod.OneMinute, calculatePeriodSummary.TimeBoundaryPeriod);
+        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.FiveMinutes, t, t.AddMinutes(5));
+        Assert.AreEqual(TimeBoundaryPeriod.FiveMinutes, calculatePeriodSummary.TimeBoundaryPeriod);
+        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.TenMinutes, t, t.AddMinutes(10));
+        Assert.AreEqual(TimeBoundaryPeriod.TenMinutes, calculatePeriodSummary.TimeBoundaryPeriod);
+        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.FifteenMinutes, t, t.AddMinutes(15));
+        Assert.AreEqual(TimeBoundaryPeriod.FifteenMinutes, calculatePeriodSummary.TimeBoundaryPeriod);
+        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.ThirtyMinutes, t, t.AddMinutes(30));
+        Assert.AreEqual(TimeBoundaryPeriod.ThirtyMinutes, calculatePeriodSummary.TimeBoundaryPeriod);
+        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.OneHour, t, t.AddHours(1));
+        Assert.AreEqual(TimeBoundaryPeriod.OneHour, calculatePeriodSummary.TimeBoundaryPeriod);
+        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.FourHours, t, t.AddHours(4));
+        Assert.AreEqual(TimeBoundaryPeriod.FourHours, calculatePeriodSummary.TimeBoundaryPeriod);
+        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.OneDay, t, t.AddDays(1));
+        Assert.AreEqual(TimeBoundaryPeriod.OneDay, calculatePeriodSummary.TimeBoundaryPeriod);
+        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.OneWeek, t, t.AddDays(7));
+        Assert.AreEqual(TimeBoundaryPeriod.OneWeek, calculatePeriodSummary.TimeBoundaryPeriod);
+        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.OneMonth, t, t.AddDays(28));
+        Assert.AreEqual(TimeBoundaryPeriod.OneMonth, calculatePeriodSummary.TimeBoundaryPeriod);
+        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.OneMonth, t, t.AddDays(30));
+        Assert.AreEqual(TimeBoundaryPeriod.OneMonth, calculatePeriodSummary.TimeBoundaryPeriod);
+        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.None, t, t.AddSeconds(2));
+        Assert.AreEqual(TimeBoundaryPeriod.None, calculatePeriodSummary.TimeBoundaryPeriod);
+        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.None, t, t.AddMilliseconds(10));
+        Assert.AreEqual(TimeBoundaryPeriod.None, calculatePeriodSummary.TimeBoundaryPeriod);
     }
 
     [TestMethod]
     public void PopulatedQuote_Mutate_UpdatesFields()
     {
-        emptyPricePeriodSummary.TimeSeriesPeriod = expectedTimeSeriesPeriod;
-        emptyPricePeriodSummary.PeriodStartTime  = expectedStartTime;
-        emptyPricePeriodSummary.PeriodEndTime    = expectedEndTime;
-        emptyPricePeriodSummary.StartBidPrice    = expectedStartBidPrice;
-        emptyPricePeriodSummary.StartAskPrice    = expectedStartAskPrice;
-        emptyPricePeriodSummary.HighestBidPrice  = expectedHighestBidPrice;
-        emptyPricePeriodSummary.HighestAskPrice  = expectedHighestAskPrice;
-        emptyPricePeriodSummary.LowestBidPrice   = expectedLowestBidPrice;
-        emptyPricePeriodSummary.LowestAskPrice   = expectedLowestAskPrice;
-        emptyPricePeriodSummary.EndBidPrice      = expectedEndBidPrice;
-        emptyPricePeriodSummary.EndAskPrice      = expectedEndAskPrice;
-        emptyPricePeriodSummary.TickCount        = expectedTickCount;
-        emptyPricePeriodSummary.PeriodVolume     = expectedVolume;
+        emptyPricePeriodSummary.TimeBoundaryPeriod = expectedTimeBoundaryPeriod;
+        emptyPricePeriodSummary.PeriodStartTime    = expectedStartTime;
+        emptyPricePeriodSummary.PeriodEndTime      = expectedEndTime;
+        emptyPricePeriodSummary.StartBidPrice      = expectedStartBidPrice;
+        emptyPricePeriodSummary.StartAskPrice      = expectedStartAskPrice;
+        emptyPricePeriodSummary.HighestBidPrice    = expectedHighestBidPrice;
+        emptyPricePeriodSummary.HighestAskPrice    = expectedHighestAskPrice;
+        emptyPricePeriodSummary.LowestBidPrice     = expectedLowestBidPrice;
+        emptyPricePeriodSummary.LowestAskPrice     = expectedLowestAskPrice;
+        emptyPricePeriodSummary.EndBidPrice        = expectedEndBidPrice;
+        emptyPricePeriodSummary.EndAskPrice        = expectedEndAskPrice;
+        emptyPricePeriodSummary.TickCount          = expectedTickCount;
+        emptyPricePeriodSummary.PeriodVolume       = expectedVolume;
 
-        Assert.AreEqual(expectedTimeSeriesPeriod, emptyPricePeriodSummary.TimeSeriesPeriod);
+        Assert.AreEqual(expectedTimeBoundaryPeriod, emptyPricePeriodSummary.TimeBoundaryPeriod);
         Assert.AreEqual(expectedStartTime, emptyPricePeriodSummary.PeriodStartTime);
         Assert.AreEqual(expectedEndTime, emptyPricePeriodSummary.PeriodEndTime);
         Assert.AreEqual(expectedStartBidPrice, emptyPricePeriodSummary.StartBidPrice);
@@ -249,7 +248,7 @@ public class PricePeriodSummaryTests
 
         Assert.IsTrue(toString.Contains(q.GetType().Name));
 
-        Assert.IsTrue(toString.Contains($"{nameof(q.TimeSeriesPeriod)}: {q.TimeSeriesPeriod}"));
+        Assert.IsTrue(toString.Contains($"{nameof(q.TimeBoundaryPeriod)}: {q.TimeBoundaryPeriod}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.PeriodStartTime)}: {q.PeriodStartTime:O}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.PeriodEndTime)}: {q.PeriodEndTime:O}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.StartBidPrice)}: {q.StartBidPrice:N5}"));
@@ -268,9 +267,9 @@ public class PricePeriodSummaryTests
     (bool exactComparison, IMutablePricePeriodSummary commonPricePeriodSummary,
         IMutablePricePeriodSummary changingPricePeriodSummary)
     {
-        changingPricePeriodSummary.TimeSeriesPeriod = TimeSeriesPeriod.FourHours;
+        changingPricePeriodSummary.TimeBoundaryPeriod = TimeBoundaryPeriod.FourHours;
         Assert.IsFalse(commonPricePeriodSummary.AreEquivalent(changingPricePeriodSummary));
-        changingPricePeriodSummary.TimeSeriesPeriod = commonPricePeriodSummary.TimeSeriesPeriod;
+        changingPricePeriodSummary.TimeBoundaryPeriod = commonPricePeriodSummary.TimeBoundaryPeriod;
         Assert.IsTrue(commonPricePeriodSummary.AreEquivalent(changingPricePeriodSummary));
 
         changingPricePeriodSummary.PeriodStartTime = DateTime.Now;
@@ -336,7 +335,7 @@ public class PricePeriodSummaryTests
 
 
     public static PricePeriodSummary CreatePricePeriodSummary
-        (TimeSeriesPeriod period, DateTime startTime, decimal mid, decimal openCloseSpread = 0.02m, decimal highLowSpread = 0.4m)
+        (TimeBoundaryPeriod period, DateTime startTime, decimal mid, decimal openCloseSpread = 0.02m, decimal highLowSpread = 0.4m)
     {
         var halfSpread        = openCloseSpread / 2;
         var halfHighLowSpread = highLowSpread / 2;

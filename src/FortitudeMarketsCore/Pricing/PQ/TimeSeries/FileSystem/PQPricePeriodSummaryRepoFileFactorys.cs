@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.File;
@@ -17,20 +18,20 @@ using FortitudeMarketsCore.Pricing.Summaries;
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem;
 
 public class PQOneWeekPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 
 {
     protected override TimeSeriesFileParameters CreateTimeSeriesFileParameters
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
         var fileStart = filePeriod.ContainingPeriodBoundaryStart(filePeriodTime);
         return new TimeSeriesFileParameters(fileInfo, instrument, filePeriod, fileStart, 7, FileFlags.WriterOpened);
     }
 
     protected virtual PriceTimeSeriesFileParameters CreatePriceQuoteTimeSeriesFileParameters
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
-        if (filePeriod != TimeSeriesPeriod.OneWeek) throw new Exception("Expected file period to be one week");
+        if (filePeriod != TimeBoundaryPeriod.OneWeek) throw new Exception("Expected file period to be one week");
         var pricingInstrumentId = instrument as IPricingInstrumentId;
         if (pricingInstrumentId == null) throw new Exception("Expected instrument to be of IPricingInstrumentId");
 
@@ -39,7 +40,7 @@ public class PQOneWeekPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepo
         return new PriceTimeSeriesFileParameters(pricingInstrumentId, timeSeriesFileParams);
     }
 
-    public override ITimeSeriesEntryFile<TEntry>? OpenExistingEntryFile(FileInfo fileInfo)
+    public override ITimeSeriesEntryFile<TEntry> OpenExistingEntryFile(FileInfo fileInfo)
     {
         return EntryType switch
                {
@@ -59,17 +60,17 @@ public class PQOneWeekPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepo
                };
     }
 
-    public override ITimeSeriesFile? OpenExisting(FileInfo fileInfo) => OpenExistingEntryFile(fileInfo);
+    public override ITimeSeriesFile OpenExisting(FileInfo fileInfo) => OpenExistingEntryFile(fileInfo);
 
     public override bool IsBestFactoryFor(IInstrument instrument)
     {
-        var entryPeriod = instrument.EntryPeriod;
+        var coveringPeriod = instrument.CoveringPeriod;
         return instrument.InstrumentType == InstrumentType.PriceSummaryPeriod &&
-               entryPeriod is >= TimeSeriesPeriod.FifteenSeconds and <= TimeSeriesPeriod.FiveMinutes;
+               coveringPeriod.Period is >= TimeBoundaryPeriod.FifteenSeconds and <= TimeBoundaryPeriod.FiveMinutes;
     }
 
     public override ITimeSeriesEntryFile<TEntry> OpenOrCreate
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
         var priceQuoteFileParams = CreatePriceQuoteTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);
         return EntryType switch
@@ -89,20 +90,20 @@ public class PQOneWeekPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepo
 }
 
 public class PQOneMonthPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 
 {
     protected override TimeSeriesFileParameters CreateTimeSeriesFileParameters
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
         var fileStart = filePeriod.ContainingPeriodBoundaryStart(filePeriodTime);
         return new TimeSeriesFileParameters(fileInfo, instrument, filePeriod, fileStart, 7, FileFlags.WriterOpened);
     }
 
     protected virtual PriceTimeSeriesFileParameters CreatePriceQuoteTimeSeriesFileParameters
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
-        if (filePeriod != TimeSeriesPeriod.OneMonth) throw new Exception("Expected file period to be one month");
+        if (filePeriod != TimeBoundaryPeriod.OneMonth) throw new Exception("Expected file period to be one month");
         var pricingInstrumentId = instrument as IPricingInstrumentId;
         if (pricingInstrumentId == null) throw new Exception("Expected instrument to be of IPricingInstrumentId");
 
@@ -111,7 +112,7 @@ public class PQOneMonthPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRep
         return new PriceTimeSeriesFileParameters(pricingInstrumentId, timeSeriesFileParams);
     }
 
-    public override ITimeSeriesEntryFile<TEntry>? OpenExistingEntryFile(FileInfo fileInfo)
+    public override ITimeSeriesEntryFile<TEntry> OpenExistingEntryFile(FileInfo fileInfo)
     {
         return EntryType switch
                {
@@ -131,17 +132,17 @@ public class PQOneMonthPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRep
                };
     }
 
-    public override ITimeSeriesFile? OpenExisting(FileInfo fileInfo) => OpenExistingEntryFile(fileInfo);
+    public override ITimeSeriesFile OpenExisting(FileInfo fileInfo) => OpenExistingEntryFile(fileInfo);
 
     public override bool IsBestFactoryFor(IInstrument instrument)
     {
-        var entryPeriod = instrument.EntryPeriod;
+        var summaryPeriod = instrument.CoveringPeriod;
         return instrument.InstrumentType == InstrumentType.PriceSummaryPeriod &&
-               entryPeriod is >= TimeSeriesPeriod.TenMinutes and <= TimeSeriesPeriod.OneHour;
+               summaryPeriod.Period is >= TimeBoundaryPeriod.TenMinutes and <= TimeBoundaryPeriod.OneHour;
     }
 
     public override ITimeSeriesEntryFile<TEntry> OpenOrCreate
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
         var priceQuoteFileParams = CreatePriceQuoteTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);
         return EntryType switch
@@ -161,20 +162,20 @@ public class PQOneMonthPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRep
 }
 
 public class PQOneYearPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 
 {
     protected override TimeSeriesFileParameters CreateTimeSeriesFileParameters
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
         var fileStart = filePeriod.ContainingPeriodBoundaryStart(filePeriodTime);
         return new TimeSeriesFileParameters(fileInfo, instrument, filePeriod, fileStart, 7, FileFlags.WriterOpened);
     }
 
     protected virtual PriceTimeSeriesFileParameters CreatePriceQuoteTimeSeriesFileParameters
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
-        if (filePeriod != TimeSeriesPeriod.OneYear) throw new Exception("Expected file period to be one year");
+        if (filePeriod != TimeBoundaryPeriod.OneYear) throw new Exception("Expected file period to be one year");
         var pricingInstrumentId = instrument as IPricingInstrumentId;
         if (pricingInstrumentId == null) throw new Exception("Expected instrument to be of IPricingInstrumentId");
 
@@ -183,7 +184,7 @@ public class PQOneYearPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepo
         return new PriceTimeSeriesFileParameters(pricingInstrumentId, timeSeriesFileParams);
     }
 
-    public override ITimeSeriesEntryFile<TEntry>? OpenExistingEntryFile(FileInfo fileInfo)
+    public override ITimeSeriesEntryFile<TEntry> OpenExistingEntryFile(FileInfo fileInfo)
     {
         return EntryType switch
                {
@@ -203,17 +204,17 @@ public class PQOneYearPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepo
                };
     }
 
-    public override ITimeSeriesFile? OpenExisting(FileInfo fileInfo) => OpenExistingEntryFile(fileInfo);
+    public override ITimeSeriesFile OpenExisting(FileInfo fileInfo) => OpenExistingEntryFile(fileInfo);
 
     public override bool IsBestFactoryFor(IInstrument instrument)
     {
-        var entryPeriod = instrument.EntryPeriod;
+        var summaryPeriod = instrument.CoveringPeriod;
         return instrument.InstrumentType == InstrumentType.PriceSummaryPeriod &&
-               entryPeriod == TimeSeriesPeriod.FourHours;
+               summaryPeriod == TimeBoundaryPeriod.FourHours;
     }
 
     public override ITimeSeriesEntryFile<TEntry> OpenOrCreate
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
         var priceQuoteFileParams = CreatePriceQuoteTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);
         return EntryType switch
@@ -233,20 +234,20 @@ public class PQOneYearPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepo
 }
 
 public class PQDecenniallyPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 
 {
     protected override TimeSeriesFileParameters CreateTimeSeriesFileParameters
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
         var fileStart = filePeriod.ContainingPeriodBoundaryStart(filePeriodTime);
         return new TimeSeriesFileParameters(fileInfo, instrument, filePeriod, fileStart, 7, FileFlags.WriterOpened);
     }
 
     protected virtual PriceTimeSeriesFileParameters CreatePriceQuoteTimeSeriesFileParameters
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
-        if (filePeriod != TimeSeriesPeriod.OneDecade) throw new Exception("Expected file period to be one decade");
+        if (filePeriod != TimeBoundaryPeriod.OneDecade) throw new Exception("Expected file period to be one decade");
         var pricingInstrumentId = instrument as IPricingInstrumentId;
         if (pricingInstrumentId == null) throw new Exception("Expected instrument to be of IPricingInstrumentId");
 
@@ -255,7 +256,7 @@ public class PQDecenniallyPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeries
         return new PriceTimeSeriesFileParameters(pricingInstrumentId, timeSeriesFileParams);
     }
 
-    public override ITimeSeriesEntryFile<TEntry>? OpenExistingEntryFile(FileInfo fileInfo)
+    public override ITimeSeriesEntryFile<TEntry> OpenExistingEntryFile(FileInfo fileInfo)
     {
         return EntryType switch
                {
@@ -278,17 +279,17 @@ public class PQDecenniallyPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeries
                };
     }
 
-    public override ITimeSeriesFile? OpenExisting(FileInfo fileInfo) => OpenExistingEntryFile(fileInfo);
+    public override ITimeSeriesFile OpenExisting(FileInfo fileInfo) => OpenExistingEntryFile(fileInfo);
 
     public override bool IsBestFactoryFor(IInstrument instrument)
     {
-        var entryPeriod = instrument.EntryPeriod;
+        var summaryPeriod = instrument.CoveringPeriod;
         return instrument.InstrumentType == InstrumentType.PriceSummaryPeriod &&
-               entryPeriod is >= TimeSeriesPeriod.OneWeek and <= TimeSeriesPeriod.OneMonth;
+               summaryPeriod.Period is >= TimeBoundaryPeriod.OneWeek and <= TimeBoundaryPeriod.OneMonth;
     }
 
     public override ITimeSeriesEntryFile<TEntry> OpenOrCreate
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
         var priceQuoteFileParams = CreatePriceQuoteTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);
         return EntryType switch
@@ -311,18 +312,18 @@ public class PQDecenniallyPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeries
 }
 
 public class PQUnlimitedPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 
 {
     protected override TimeSeriesFileParameters CreateTimeSeriesFileParameters
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
         var fileStart = filePeriod.ContainingPeriodBoundaryStart(filePeriodTime);
         return new TimeSeriesFileParameters(fileInfo, instrument, filePeriod, fileStart, 7, FileFlags.WriterOpened);
     }
 
     protected virtual PriceTimeSeriesFileParameters CreatePriceQuoteTimeSeriesFileParameters
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
         var pricingInstrumentId = instrument as IPricingInstrumentId;
         if (pricingInstrumentId == null) throw new Exception("Expected instrument to be of IPricingInstrumentId");
@@ -332,7 +333,7 @@ public class PQUnlimitedPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRe
         return new PriceTimeSeriesFileParameters(pricingInstrumentId, timeSeriesFileParams);
     }
 
-    public override ITimeSeriesEntryFile<TEntry>? OpenExistingEntryFile(FileInfo fileInfo)
+    public override ITimeSeriesEntryFile<TEntry> OpenExistingEntryFile(FileInfo fileInfo)
     {
         return EntryType switch
                {
@@ -352,17 +353,17 @@ public class PQUnlimitedPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRe
                };
     }
 
-    public override ITimeSeriesFile? OpenExisting(FileInfo fileInfo) => OpenExistingEntryFile(fileInfo);
+    public override ITimeSeriesFile OpenExisting(FileInfo fileInfo) => OpenExistingEntryFile(fileInfo);
 
     public override bool IsBestFactoryFor(IInstrument instrument)
     {
-        var entryPeriod = instrument.EntryPeriod;
+        var coveringPeriod = instrument.CoveringPeriod;
         return instrument.InstrumentType == InstrumentType.PriceSummaryPeriod &&
-               entryPeriod is >= TimeSeriesPeriod.OneWeek and <= TimeSeriesPeriod.OneMonth;
+               coveringPeriod.Period is >= TimeBoundaryPeriod.OneWeek and <= TimeBoundaryPeriod.OneMonth;
     }
 
     public override ITimeSeriesEntryFile<TEntry> OpenOrCreate
-        (FileInfo fileInfo, IInstrument instrument, TimeSeriesPeriod filePeriod, DateTime filePeriodTime)
+        (FileInfo fileInfo, IInstrument instrument, TimeBoundaryPeriod filePeriod, DateTime filePeriodTime)
     {
         var priceQuoteFileParams = CreatePriceQuoteTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);
         return EntryType switch

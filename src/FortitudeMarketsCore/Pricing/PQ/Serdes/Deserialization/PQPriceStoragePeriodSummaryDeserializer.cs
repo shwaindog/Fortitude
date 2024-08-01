@@ -8,7 +8,6 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Summaries;
 using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarketsCore.Pricing.PQ.Summaries;
@@ -90,7 +89,7 @@ public class PQPriceStoragePeriodSummaryDeserializer : IPQPriceStoragePeriodSumm
             ent.TickCount       = 0;
             ent.PeriodEndTime   = DateTimeConstants.UnixEpoch;
 
-            ent.TimeSeriesPeriod   = (TimeSeriesPeriod)StreamByteOps.ToUShort(ref ptr);
+            ent.TimeBoundaryPeriod = (TimeBoundaryPeriod)StreamByteOps.ToUShort(ref ptr);
             ent.PeriodStartTime    = StreamByteOps.ToLong(ref ptr).CappedTicksToDateTime();
             ent.PeriodSummaryFlags = (PricePeriodSummaryFlags)StreamByteOps.ToUInt(ref ptr);
         }
@@ -100,7 +99,7 @@ public class PQPriceStoragePeriodSummaryDeserializer : IPQPriceStoragePeriodSumm
             {
                 var numberOfPeriods                            = Deserialize7BitDeltaUint(ref ptr);
                 var currentStartTime                           = ent.PeriodStartTime;
-                while (numberOfPeriods-- > 0) currentStartTime = ent.TimeSeriesPeriod.PeriodEnd(currentStartTime);
+                while (numberOfPeriods-- > 0) currentStartTime = ent.TimeBoundaryPeriod.PeriodEnd(currentStartTime);
                 ent.PeriodStartTime = currentStartTime;
             }
             else

@@ -26,31 +26,35 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.BusRules;
 public struct HistoricalPricePeriodSummaryStreamRequest
 {
     public HistoricalPricePeriodSummaryStreamRequest
-    (SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod entryPeriod, ChannelPublishRequest<PricePeriodSummary> channelRequest
-      , UnboundedTimeRange? timeRange = null)
+    (SourceTickerIdentifier sourceTickerIdentifier, TimeBoundaryPeriod summaryPeriod, ChannelPublishRequest<PricePeriodSummary> channelRequest
+      , UnboundedTimeRange? timeRange = null, bool inReverseChronologicalOrder = false)
     {
-        SourceTickerIdentifier = sourceTickerIdentifier;
+        SourceTickerIdentifier      = sourceTickerIdentifier;
+        InReverseChronologicalOrder = inReverseChronologicalOrder;
 
-        EntryPeriod    = entryPeriod;
+        SummaryPeriod  = summaryPeriod;
         TimeRange      = timeRange;
         ChannelRequest = channelRequest;
     }
 
     public HistoricalPricePeriodSummaryStreamRequest
     (PricingInstrumentId pricingInstrument, ChannelPublishRequest<PricePeriodSummary> channelRequest
-      , UnboundedTimeRange? timeRange = null)
+      , UnboundedTimeRange? timeRange = null, bool inReverseChronologicalOrder = false)
     {
-        SourceTickerIdentifier = pricingInstrument;
+        SourceTickerIdentifier      = pricingInstrument;
+        InReverseChronologicalOrder = inReverseChronologicalOrder;
 
-        EntryPeriod    = pricingInstrument.EntryPeriod;
+        SummaryPeriod  = pricingInstrument.CoveringPeriod.Period;
         TimeRange      = timeRange;
         ChannelRequest = channelRequest;
     }
 
     public SourceTickerIdentifier SourceTickerIdentifier { get; }
 
-    public TimeSeriesPeriod    EntryPeriod { get; }
-    public UnboundedTimeRange? TimeRange   { get; }
+    public TimeBoundaryPeriod  SummaryPeriod { get; }
+    public UnboundedTimeRange? TimeRange     { get; }
+
+    public bool InReverseChronologicalOrder { get; }
 
     public ChannelPublishRequest<PricePeriodSummary> ChannelRequest { get; }
 }
@@ -58,27 +62,32 @@ public struct HistoricalPricePeriodSummaryStreamRequest
 public struct HistoricalPricePeriodSummaryRequestResponse
 {
     public HistoricalPricePeriodSummaryRequestResponse
-        (SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod entryPeriod, UnboundedTimeRange? timeRange = null)
+    (SourceTickerIdentifier sourceTickerIdentifier, TimeBoundaryPeriod summaryPeriod, UnboundedTimeRange? timeRange = null
+      , bool inReverseChronologicalOrder = false)
     {
-        SourceTickerIdentifier = sourceTickerIdentifier;
+        SourceTickerIdentifier      = sourceTickerIdentifier;
+        InReverseChronologicalOrder = inReverseChronologicalOrder;
 
-        EntryPeriod = entryPeriod;
-        TimeRange   = timeRange;
+        SummaryPeriod = summaryPeriod;
+        TimeRange     = timeRange;
     }
 
     public HistoricalPricePeriodSummaryRequestResponse
-        (PricingInstrumentId pricingInstrument, UnboundedTimeRange? timeRange = null)
+        (PricingInstrumentId pricingInstrument, UnboundedTimeRange? timeRange = null, bool inReverseChronologicalOrder = false)
     {
-        SourceTickerIdentifier = pricingInstrument;
+        SourceTickerIdentifier      = pricingInstrument;
+        InReverseChronologicalOrder = inReverseChronologicalOrder;
 
-        EntryPeriod = pricingInstrument.EntryPeriod;
-        TimeRange   = timeRange;
+        SummaryPeriod = pricingInstrument.CoveringPeriod.Period;
+        TimeRange     = timeRange;
     }
 
     public SourceTickerIdentifier SourceTickerIdentifier { get; }
 
-    public TimeSeriesPeriod    EntryPeriod { get; }
-    public UnboundedTimeRange? TimeRange   { get; }
+    public TimeBoundaryPeriod  SummaryPeriod { get; }
+    public UnboundedTimeRange? TimeRange     { get; }
+
+    public bool InReverseChronologicalOrder { get; }
 }
 
 public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAccessRule
@@ -101,9 +110,9 @@ public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAcc
     {
         await base.StartAsync();
         requestStreamSubscription = await this.RegisterRequestListenerAsync<HistoricalPricePeriodSummaryStreamRequest, bool>
-            (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoStreamRequest, HandleHistoricalPriceStreamRequest);
+            (HistoricalQuoteTimeSeriesRepositoryConstants.PricePeriodSummaryRepoStreamRequest, HandleHistoricalPriceStreamRequest);
         requestResponseSubscription = await this.RegisterRequestListenerAsync<HistoricalPricePeriodSummaryRequestResponse, List<PricePeriodSummary>>
-            (TimeSeriesBusRulesConstants.PricePeriodSummaryRepoRequestResponse, HandleHistoricalPricePublishRequestResponse);
+            (HistoricalQuoteTimeSeriesRepositoryConstants.PricePeriodSummaryRepoRequestResponse, HandleHistoricalPricePublishRequestResponse);
         Logger.Info("Started {0} ", nameof(HistoricalPricePeriodSummaryRetrievalRule));
     }
 
@@ -115,8 +124,7 @@ public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAcc
         await base.StopAsync();
     }
 
-    private bool HandleHistoricalPriceStreamRequest
-        (IBusRespondingMessage<HistoricalPricePeriodSummaryStreamRequest, bool> streamRequestMessage)
+    private bool HandleHistoricalPriceStreamRequest(IBusRespondingMessage<HistoricalPricePeriodSummaryStreamRequest, bool> streamRequestMessage)
     {
         var quoteRequest = streamRequestMessage.Payload.Body();
         return MakeTimeSeriesRepoCallReturnExpectResults(quoteRequest);
@@ -129,40 +137,43 @@ public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAcc
         return GetResultsImmediately(quoteRequest).ToList();
     }
 
-    private IInstrument? FindInstrumentFor(SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod entryPeriod)
+    private IInstrument? FindInstrumentFor(SourceTickerIdentifier sourceTickerIdentifier, TimeBoundaryPeriod summaryPeriod)
     {
         var matchingInstruments =
             TimeSeriesRepository
                 !.InstrumentFilesMap.Keys
                  .Where(i => i.InstrumentName == sourceTickerIdentifier.Ticker
-                          && i.InstrumentSource == sourceTickerIdentifier.Source && i.EntryPeriod == entryPeriod)
+                          && i.InstrumentSource == sourceTickerIdentifier.Source && i.CoveringPeriod == summaryPeriod)
                  .ToList();
         return matchingInstruments.Count != 1 ? null : matchingInstruments[0];
     }
 
     private IEnumerable<PricePeriodSummary> GetResultsImmediately(HistoricalPricePeriodSummaryRequestResponse responseRequest)
     {
-        var instrument = FindInstrumentFor(responseRequest.SourceTickerIdentifier, responseRequest.EntryPeriod);
+        var instrument = FindInstrumentFor(responseRequest.SourceTickerIdentifier, responseRequest.SummaryPeriod);
         if (instrument == null) return Enumerable.Empty<PricePeriodSummary>();
         var readerSession = TimeSeriesRepository!.GetReaderSession<PricePeriodSummary>(instrument, responseRequest.TimeRange);
         if (readerSession == null) return Enumerable.Empty<PricePeriodSummary>();
-        var readerContext = readerSession.ChronologicalEntriesBetweenTimeRangeReader
-            (Context.PooledRecycler, responseRequest.TimeRange, EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible
-           , () => new PricePeriodSummary());
+        var readerContext = !responseRequest.InReverseChronologicalOrder
+            ? readerSession.ChronologicalEntriesBetweenTimeRangeReader<PricePeriodSummary>
+                (Context.PooledRecycler, responseRequest.TimeRange, EntryResultSourcing.FromRecycler, ReaderOptions.ReadFastAsPossible)
+            : readerSession.ReverseChronologicalEntriesBetweenTimeRangeReader<PricePeriodSummary>
+                (Context.PooledRecycler, responseRequest.TimeRange);
 
         return readerContext.ResultEnumerable;
     }
 
     private bool MakeTimeSeriesRepoCallReturnExpectResults(HistoricalPricePeriodSummaryStreamRequest streamRequest)
     {
-        var instrument = FindInstrumentFor(streamRequest.SourceTickerIdentifier, streamRequest.EntryPeriod);
+        var instrument = FindInstrumentFor(streamRequest.SourceTickerIdentifier, streamRequest.SummaryPeriod);
         if (instrument == null) return false;
         var readerSession = TimeSeriesRepository!.GetReaderSession<PricePeriodSummary>(instrument, streamRequest.TimeRange);
         if (readerSession == null) return false;
-        var readerContext = readerSession.ChronologicalEntriesBetweenTimeRangeReader
-            (Context.PooledRecycler, streamRequest.TimeRange, EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible
-           , streamRequest.ChannelRequest.PublishChannel.GetChannelEventOrNew<PricePeriodSummary>());
 
+        var readerContext = !streamRequest.InReverseChronologicalOrder
+            ? readerSession.ChronologicalEntriesBetweenTimeRangeReader<PricePeriodSummary>
+                (Context.PooledRecycler, streamRequest.TimeRange, EntryResultSourcing.FromRecycler, ReaderOptions.ReadFastAsPossible)
+            : readerSession.ReverseChronologicalEntriesBetweenTimeRangeReader<PricePeriodSummary>(Context.PooledRecycler, streamRequest.TimeRange);
         if (streamRequest.ChannelRequest.BatchSize > 1) readerContext.BatchLimit   = streamRequest.ChannelRequest.BatchSize;
         if (streamRequest.ChannelRequest.ResultLimit > 0) readerContext.MaxResults = streamRequest.ChannelRequest.ResultLimit;
         var launchContext =

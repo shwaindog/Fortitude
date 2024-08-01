@@ -3,8 +3,8 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
-using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeMarketsApi.Pricing.Quotes;
@@ -16,10 +16,11 @@ namespace FortitudeTests.FortitudeIO.TimeSeries.FileSystem.File;
 public class TestLevel1DailyQuoteStructBucket :
     SubBucketOnlyBucket<Level1QuoteStruct, TestLevel1DailyQuoteStructBucket, TestLevel1HourlyQuoteStructBucket>
 {
-    public TestLevel1DailyQuoteStructBucket(IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
+    public TestLevel1DailyQuoteStructBucket
+    (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
         bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
         IndexCount = 24;
 
-    public override TimeSeriesPeriod TimeSeriesPeriod => TimeSeriesPeriod.OneDay;
+    public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneDay;
 }

@@ -4,6 +4,7 @@
 #region
 
 using System.Collections;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
@@ -46,10 +47,10 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
     }
 
     public PQPricingInstrument
-    (ushort sourceId, ushort tickerId, string source, string ticker, TimeSeriesPeriod period, InstrumentType instrumentType
+    (ushort sourceId, ushort tickerId, string source, string ticker, DiscreetTimePeriod period, InstrumentType instrumentType
       , MarketClassification marketClassification, string? category = null) : base(sourceId, source, tickerId, ticker)
     {
-        EntryPeriod          = period;
+        CoveringPeriod       = period;
         MarketClassification = marketClassification;
         Category             = category;
         InstrumentType       = instrumentType;
@@ -57,7 +58,7 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
 
     public PQPricingInstrument(IPricingInstrumentId toClone) : base(toClone)
     {
-        EntryPeriod          = toClone.EntryPeriod;
+        CoveringPeriod       = toClone.CoveringPeriod;
         MarketClassification = toClone.MarketClassification;
         Category             = toClone.Category;
         InstrumentType       = toClone.InstrumentType;
@@ -69,17 +70,19 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
 
     public PQPricingInstrument(SourceTickerIdentifier toClone) : base(toClone)
     {
-        EntryPeriod          = TimeSeriesPeriod.Tick;
+        CoveringPeriod       = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
         marketClassification = MarketClassificationExtensions.Unknown;
         instrumentType       = InstrumentType.Price;
     }
 
     public PQPricingInstrument(SourceTickerIdValue toClone) : base(toClone)
     {
-        EntryPeriod          = TimeSeriesPeriod.Tick;
+        CoveringPeriod       = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
         marketClassification = MarketClassificationExtensions.Unknown;
         instrumentType       = InstrumentType.Price;
     }
+
+    public DiscreetTimePeriod CoveringPeriod { get; set; } = new(TimeBoundaryPeriod.Tick);
 
     string IInstrument.InstrumentName   => Ticker;
     string IInstrument.InstrumentSource => Source;
@@ -113,8 +116,6 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
             else if (IsMarketClassificationUpdated) UpdatedFlags ^= SourceTickerInfoUpdatedFlags.MarketClassification;
         }
     }
-
-    public TimeSeriesPeriod EntryPeriod { get; set; } = TimeSeriesPeriod.Tick;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -284,7 +285,7 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
         }
         else
         {
-            EntryPeriod          = source.EntryPeriod;
+            CoveringPeriod       = source.CoveringPeriod;
             MarketClassification = source.MarketClassification;
             InstrumentType       = source.InstrumentType;
         }
@@ -312,16 +313,16 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
 
         var marketClassificationSame = Equals(MarketClassification, other.MarketClassification);
 
-        var entryPeriodSame    = true;
+        var coveringPeriodSame = true;
         var instrumentTypeSame = true;
         if (exactTypes)
         {
             var pricingInstrument = other as IPQPricingInstrumentId;
-            entryPeriodSame    = EntryPeriod == pricingInstrument?.EntryPeriod;
+            coveringPeriodSame = CoveringPeriod == pricingInstrument?.CoveringPeriod;
             instrumentTypeSame = InstrumentType == pricingInstrument?.InstrumentType;
         }
 
-        var allAreSame = baseIsSame && marketClassificationSame && entryPeriodSame && instrumentTypeSame;
+        var allAreSame = baseIsSame && marketClassificationSame && coveringPeriodSame && instrumentTypeSame;
         return allAreSame;
     }
 }

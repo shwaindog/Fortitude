@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries.FileSystem.File;
 
 #endregion
@@ -17,8 +18,9 @@ public enum PathUpdateType
 
 public class RepositoryInstrumentFileUpdateEvent : EventArgs
 {
-    public RepositoryInstrumentFileUpdateEvent(IInstrument instrument, IPathFile pathFile,
-        FileInfo file, TimeSeriesPeriodRange filePeriodRange, ITimeSeriesFile? timeSeriesFile, PathUpdateType pathUpdateType)
+    public RepositoryInstrumentFileUpdateEvent
+    (IInstrument instrument, IPathFile pathFile,
+        FileInfo file, TimeBoundaryPeriodRange filePeriodRange, ITimeSeriesFile? timeSeriesFile, PathUpdateType pathUpdateType)
     {
         Instrument      = instrument;
         PathFile        = pathFile;
@@ -32,9 +34,9 @@ public class RepositoryInstrumentFileUpdateEvent : EventArgs
     public IPathFile   PathFile   { get; }
     public FileInfo    File       { get; }
 
-    public TimeSeriesPeriodRange FilePeriodRange { get; }
-    public ITimeSeriesFile?      TimeSeriesFile  { get; }
-    public PathUpdateType        PathUpdateType  { get; }
+    public TimeBoundaryPeriodRange FilePeriodRange { get; }
+    public ITimeSeriesFile?        TimeSeriesFile  { get; }
+    public PathUpdateType          PathUpdateType  { get; }
 }
 
 public class InstrumentRepoFileUpdateEventArgs : EventArgs

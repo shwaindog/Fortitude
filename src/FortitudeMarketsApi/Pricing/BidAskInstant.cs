@@ -115,7 +115,7 @@ public class BidAskInstant : ReusableObject<IBidAskInstant>, IMutableBidAskInsta
         set => BidAskInstantPairState = BidAskInstantPairState.SetAskPrice(value);
     }
 
-    public DateTime AtTime
+    public virtual DateTime AtTime
     {
         get => BidAskInstantPairState.AtTime;
         set => BidAskInstantPairState = BidAskInstantPairState.SetAtTime(value);

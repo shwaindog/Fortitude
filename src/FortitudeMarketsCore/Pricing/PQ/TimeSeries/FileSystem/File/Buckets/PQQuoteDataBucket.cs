@@ -22,7 +22,7 @@ using FortitudeMarketsCore.Pricing.PQ.Serdes.Serialization;
 namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
 public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataBucket<TEntry, TBucket>, IPriceQuoteBucket<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, ITickInstant
+    where TEntry : ITimeSeriesEntry, ITickInstant
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPriceQuoteBucket<TEntry>
     where TSerializeType : PQTickInstant, new()
 {

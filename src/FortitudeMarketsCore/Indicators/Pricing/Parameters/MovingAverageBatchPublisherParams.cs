@@ -4,6 +4,7 @@
 #region
 
 using FortitudeBusRules.BusMessaging.Routing.Channel;
+using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Indicators.Pricing;
 using FortitudeMarketsApi.Pricing;
@@ -16,7 +17,7 @@ public struct MovingAverageBatchPublisherParams
 {
     public MovingAverageBatchPublisherParams
     (SourceTickerIdentifier sourceTickerIdentifier, IndicatorPublishInterval publishFrequency
-      , BatchIndicatorPublishInterval batchPeriodsToPublish, ChannelPublishRequest<SameIndicatorBidAskInstantChain> publishChannelRequest)
+      , BatchIndicatorPublishInterval batchPeriodsToPublish, ChannelPublishRequest<SameIndicatorValidRangeBidAskPeriodChain> publishChannelRequest)
     {
         SourceTickerIdentifier = sourceTickerIdentifier;
         PublishFrequency       = publishFrequency;
@@ -34,7 +35,7 @@ public struct MovingAverageBatchPublisherParams
 
     public IndicatorPublishInterval PublishFrequency { get; }
 
-    private ChannelPublishRequest<SameIndicatorBidAskInstantChain> PublishChannelRequest { get; }
+    public ChannelPublishRequest<SameIndicatorValidRangeBidAskPeriodChain> PublishChannelRequest { get; }
 }
 
 public static class MovingAveragePublisherParamsExtensions
@@ -45,12 +46,12 @@ public static class MovingAveragePublisherParamsExtensions
     {
         var calcStartTime = lastPublishTime;
         var calcEndTime   = lastPublishTime;
-        if (movingAvg.PublishFrequency.PublishInterval.IsTimeSeriesPeriod())
+        if (movingAvg.PublishFrequency.PublishInterval.IsTimeBoundaryPeriod())
         {
-            calcStartTime = movingAvg.PublishFrequency.PublishInterval.TimeSeriesPeriod.ContainingPeriodBoundaryStart(lastPublishTime);
-            calcEndTime   = movingAvg.PublishFrequency.PublishInterval.TimeSeriesPeriod.PeriodEnd(calcStartTime);
+            calcStartTime = movingAvg.PublishFrequency.PublishInterval.Period.ContainingPeriodBoundaryStart(lastPublishTime);
+            calcEndTime   = movingAvg.PublishFrequency.PublishInterval.Period.PeriodEnd(calcStartTime);
         }
-        else if (movingAvg.PublishFrequency.PublishInterval.IsTimeSeriesPeriod())
+        else if (movingAvg.PublishFrequency.PublishInterval.IsTimeBoundaryPeriod())
         {
             calcEndTime = lastPublishTime.Add(movingAvg.PublishFrequency.PublishInterval.AveragePeriodTimeSpan());
         }

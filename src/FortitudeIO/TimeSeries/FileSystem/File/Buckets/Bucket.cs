@@ -29,8 +29,8 @@ public struct BucketHeader
     public uint  PeriodStartTime;
     public uint  BucketId;
 
-    public BucketFlags      BucketFlags;
-    public TimeSeriesPeriod TimeSeriesPeriod;
+    public BucketFlags        BucketFlags;
+    public TimeBoundaryPeriod TimeBoundaryPeriod;
 }
 
 public enum StorageAttemptResult
@@ -54,7 +54,7 @@ public interface IBucket : IDisposable
     BucketFlags BucketFlags      { get; }
     long        FileCursorOffset { get; }
 
-    TimeSeriesPeriod TimeSeriesPeriod { get; }
+    TimeBoundaryPeriod TimeBoundaryPeriod { get; }
 
     DateTime PeriodStartTime                { get; }
     uint     BucketHeaderSizeBytes          { get; }
@@ -78,7 +78,7 @@ public interface IBucket : IDisposable
     void    VisitChildrenCacheAndClose();
 }
 
-public interface IBucket<TEntry> : IBucket where TEntry : ITimeSeriesEntry<TEntry>
+public interface IBucket<TEntry> : IBucket where TEntry : ITimeSeriesEntry
 {
     IEnumerable<TEntry> ReadEntries(IReaderContext<TEntry> readerContext);
 }
@@ -101,7 +101,7 @@ public interface IMutableBucket : IBucket
     long            CalculateBucketEndFileOffset();
 }
 
-public interface IMutableBucket<TEntry> : IBucket<TEntry>, IMutableBucket where TEntry : ITimeSeriesEntry<TEntry>
+public interface IMutableBucket<TEntry> : IBucket<TEntry>, IMutableBucket where TEntry : ITimeSeriesEntry
 {
     IStorageTimeResolver<TEntry>? StorageTimeResolver { get; set; }
 

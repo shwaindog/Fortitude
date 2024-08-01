@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries.FileSystem.Config;
 
 #endregion
@@ -23,12 +24,14 @@ public interface IRepoPathBuilder
 
     IRepositoryRootDirectory CreateRepositoryRootDirectory();
 
-    IPathFile IndicatorStateFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null);
-    IPathFile IndicatorSignalFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null);
-    IPathFile IndicatorFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null);
-    IPathFile PriceSummaryFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null);
-    IPathFile PriceFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null);
-    IPathFile CreateTimeSeriesFile(string fileExtension, InstrumentType instrumentType, TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null);
+    IPathFile IndicatorStateFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null);
+    IPathFile IndicatorSignalFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null);
+    IPathFile IndicatorFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null);
+    IPathFile PriceSummaryFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null);
+    IPathFile PriceFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null);
+
+    IPathFile CreateTimeSeriesFile
+        (string fileExtension, InstrumentType instrumentType, DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null);
 }
 
 public class RepoPathBuilder : IRepoPathBuilder
@@ -49,23 +52,23 @@ public class RepoPathBuilder : IRepoPathBuilder
 
     public virtual IRepositoryRootDirectory CreateRepositoryRootDirectory() => new RepositoryRootDirectory(RepositoryName, RepositoryRootDirectory);
 
-    public virtual IPathFile IndicatorStateFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null) =>
+    public virtual IPathFile IndicatorStateFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null) =>
         CreateTimeSeriesFile("_IndicatorState." + TimeSeriesFileExtension, InstrumentType.AlgoState, from, to);
 
-    public virtual IPathFile IndicatorSignalFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null) =>
+    public virtual IPathFile IndicatorSignalFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null) =>
         CreateTimeSeriesFile("_IndicatorSignal." + TimeSeriesFileExtension, InstrumentType.AlgoSignal, from, to);
 
-    public virtual IPathFile IndicatorFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null) =>
+    public virtual IPathFile IndicatorFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null) =>
         CreateTimeSeriesFile("_Indicator." + TimeSeriesFileExtension, InstrumentType.Indicator, from, to);
 
-    public virtual IPathFile PriceSummaryFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null) =>
+    public virtual IPathFile PriceSummaryFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null) =>
         CreateTimeSeriesFile("_Summary." + TimeSeriesFileExtension, InstrumentType.PriceSummaryPeriod, from, to);
 
-    public virtual IPathFile PriceFile(TimeSeriesPeriod? from = null, TimeSeriesPeriod? to = null) =>
+    public virtual IPathFile PriceFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null) =>
         CreateTimeSeriesFile(TimeSeriesFileExtension, InstrumentType.Price, from, to);
 
     public virtual IPathFile CreateTimeSeriesFile
-    (string fileExtension, InstrumentType instrumentType, TimeSeriesPeriod? from = null
-      , TimeSeriesPeriod? to = null) =>
+    (string fileExtension, InstrumentType instrumentType, DiscreetTimePeriod? from = null
+      , DiscreetTimePeriod? to = null) =>
         new PathFile(fileExtension, new InstrumentEntryRangeMatch(instrumentType, from, to));
 }

@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Extensions;
 
 #endregion
@@ -23,7 +24,7 @@ public class PathFileMatch
 {
     private readonly Dictionary<string, string?> instrumentPathValues = new();
 
-    private TimeSeriesPeriod? filePeriodMatch;
+    private TimeBoundaryPeriod? filePeriodMatch;
 
     public PathFileMatch
     (
@@ -48,15 +49,15 @@ public class PathFileMatch
     public string[] OptionalFields { get; set; }
 
     public bool HasInstrument =>
-        InstrumentNameMatch != null && InstrumentSourceMatch != null && HasValuesForKeys(RequiredFields) && EntryPeriodMatch != null
+        InstrumentNameMatch != null && InstrumentSourceMatch != null && HasValuesForKeys(RequiredFields) && CoveringPeriodMatch != null
      && InstrumentTypeMatch != null;
 
     public IInstrument Instrument =>
-        new Instrument(InstrumentNameMatch!, InstrumentSourceMatch!, InstrumentTypeMatch!.Value, EntryPeriodMatch!.Value
+        new Instrument(InstrumentNameMatch!, InstrumentSourceMatch!, InstrumentTypeMatch!.Value, CoveringPeriodMatch!.Value
                      , ExtractKeyValuePairs(RequiredFields), ExtractKeyValuePairs(OptionalFields));
 
-    public DateTime              PeriodStart     { get; set; }
-    public TimeSeriesPeriodRange FilePeriodRange => new(PeriodStart, FilePeriodMatch!.Value);
+    public DateTime                PeriodStart     { get; set; }
+    public TimeBoundaryPeriodRange FilePeriodRange => new(PeriodStart, FilePeriodMatch!.Value);
 
     public List<string> MatchedPath   { get; set; } = new();
     public List<string> RemainingPath { get; set; } = null!;
@@ -71,12 +72,12 @@ public class PathFileMatch
     }
 
     public InstrumentType? InstrumentTypeMatch { get; set; }
-    public TimeSeriesPeriod? FilePeriodMatch
+    public TimeBoundaryPeriod? FilePeriodMatch
     {
-        get => filePeriodMatch ?? DeepestDirectoryMatch.PathTimeSeriesPeriod;
+        get => filePeriodMatch ?? DeepestDirectoryMatch.PathTimeBoundaryPeriod;
         set => filePeriodMatch = value;
     }
-    public TimeSeriesPeriod? EntryPeriodMatch { get; set; }
+    public DiscreetTimePeriod? CoveringPeriodMatch { get; set; }
 
     public IPathDirectory DeepestDirectoryMatch { get; set; }
     public IPathFile?     TimeSeriesFile        { get; set; }

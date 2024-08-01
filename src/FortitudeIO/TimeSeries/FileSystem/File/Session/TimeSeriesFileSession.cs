@@ -24,9 +24,9 @@ public interface IMutableBucketContainer
     ulong TotalFileDataSizeBytes  { get; set; }
     uint  TotalFileIndexSizeBytes { get; set; }
 
-    TimeSeriesPeriodRange  TimeSeriesPeriodRange { get; }
-    IBucketIndexDictionary BucketIndexes         { get; }
-    IBucketTrackingSession ContainingSession     { get; }
+    TimeBoundaryPeriodRange TimeBoundaryPeriodRange { get; }
+    IBucketIndexDictionary  BucketIndexes           { get; }
+    IBucketTrackingSession  ContainingSession       { get; }
 
     void EntryWrittenAt(DateTime entryStorageTime);
 
@@ -50,13 +50,13 @@ public interface IBucketTrackingSession : IMutableBucketContainer
 }
 
 public interface IFileReaderSession<TEntry> : IReaderSession<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>
+    where TEntry : ITimeSeriesEntry
 {
     bool ReopenSession(FileFlags fileFlags = FileFlags.None);
 }
 
 public interface IFileWriterSession<in TEntry> : IWriterSession<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>
+    where TEntry : ITimeSeriesEntry
 {
     bool ReopenSession(FileFlags fileFlags = FileFlags.None);
 }
@@ -65,7 +65,7 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
   , IBucketTrackingSession
     where TFile : TimeSeriesFile<TFile, TBucket, TEntry>
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>
+    where TEntry : ITimeSeriesEntry
 {
     private readonly int activeViewAdditionalMultiple;
 
@@ -159,7 +159,7 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
         set => FileHeader.TotalFileDataSizeBytes = value;
     }
 
-    public TimeSeriesPeriodRange TimeSeriesPeriodRange => timeSeriesFile.TimeSeriesPeriodRange;
+    public TimeBoundaryPeriodRange TimeBoundaryPeriodRange => timeSeriesFile.TimeBoundaryPeriodRange;
 
     public IBucketTrackingSession ContainingSession => this;
 
@@ -207,7 +207,7 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
     public void AddNewBucket(IMutableBucket bucket)
     {
         var bucketIndexOffset
-            = new BucketIndexInfo(bucket.BucketId, bucket.PeriodStartTime, bucket.BucketFlags, bucket.TimeSeriesPeriod, bucket.FileCursorOffset);
+            = new BucketIndexInfo(bucket.BucketId, bucket.PeriodStartTime, bucket.BucketFlags, bucket.TimeBoundaryPeriod, bucket.FileCursorOffset);
         lastAddedIndexKey = BucketIndexes.NextEmptyIndexKey;
         BucketIndexes.Add(lastAddedIndexKey, bucketIndexOffset);
         cacheBuckets.Add((TBucket)bucket);
@@ -237,7 +237,7 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
 
     public IReaderContext<TEntry> AllChronologicalEntriesReader<TConcreteEntry>
     (IRecycler resultsRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.FromRecycler
-      , ReaderOptions readerOptions = ReaderOptions.ConsumerControlled) where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+      , ReaderOptions readerOptions = ReaderOptions.ConsumerControlled) where TConcreteEntry : class, TEntry, ITimeSeriesEntry, new()
     {
         var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
         readerContext.Configure<TConcreteEntry>(this, resultsRecycler, entryResultSourcing, readerOptions);
@@ -247,7 +247,7 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
     public IReaderContext<TEntry> ChronologicalEntriesBetweenTimeRangeReader<TConcreteEntry>
     (IRecycler resultsRecycler, UnboundedTimeRange? periodRange,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.FromRecycler
-      , ReaderOptions readerOptions = ReaderOptions.ConsumerControlled) where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+      , ReaderOptions readerOptions = ReaderOptions.ConsumerControlled) where TConcreteEntry : class, TEntry, ITimeSeriesEntry, new()
     {
         var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
         readerContext.Configure<TConcreteEntry>(this, resultsRecycler, entryResultSourcing, readerOptions);
@@ -277,7 +277,7 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
 
     public IReaderContext<TEntry> AllReverseChronologicalEntriesReader<TConcreteEntry>
         (IRecycler resultsRecycler, EntryResultSourcing entryResultSourcing = EntryResultSourcing.FromRecycler)
-        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry, new()
     {
         var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
         readerContext.Configure<TConcreteEntry>(this, resultsRecycler, entryResultSourcing, ReaderOptions.ReverseChronologicalOrder);
@@ -287,7 +287,7 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
     public IReaderContext<TEntry> ReverseChronologicalEntriesBetweenTimeRangeReader<TConcreteEntry>
     (IRecycler resultsRecycler, UnboundedTimeRange? periodRange,
         EntryResultSourcing entryResultSourcing = EntryResultSourcing.FromRecycler)
-        where TConcreteEntry : class, TEntry, ITimeSeriesEntry<TConcreteEntry>, new()
+        where TConcreteEntry : class, TEntry, ITimeSeriesEntry, new()
     {
         var readerContext = resultsRecycler.Borrow<TimeSeriesReaderContext<TEntry>>();
         readerContext.Configure<TConcreteEntry>(this, resultsRecycler, entryResultSourcing, ReaderOptions.ReverseChronologicalOrder);
@@ -368,7 +368,7 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
         var storageTime = entry.StorageTime(timeSeriesFile.StorageTimeResolver);
 
         // None is Unlimited
-        if (!TimeSeriesPeriodRange.ContainsTime(storageTime) && TimeSeriesPeriodRange.TimeSeriesPeriod != TimeSeriesPeriod.None)
+        if (!TimeBoundaryPeriodRange.ContainsTime(storageTime) && TimeBoundaryPeriodRange.TimeBoundaryPeriod != TimeBoundaryPeriod.None)
         {
             if (currentlyOpenBucket?.IsOpen ?? false) currentlyOpenBucket!.CloseBucketFileViews();
             return new AppendResult(StorageAttemptResult.NextFilePeriod);
@@ -447,9 +447,9 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
         }
         if (searchResult == StorageAttemptResult.NoBucketChecked)
         {
-            var fileEndTime = TimeSeriesPeriodRange.PeriodEnd();
-            if (storageDateTime < TimeSeriesPeriodRange.PeriodStartTime
-             || (TimeSeriesPeriodRange.TimeSeriesPeriod != TimeSeriesPeriod.None
+            var fileEndTime = TimeBoundaryPeriodRange.PeriodEnd();
+            if (storageDateTime < TimeBoundaryPeriodRange.PeriodStartTime
+             || (TimeBoundaryPeriodRange.TimeBoundaryPeriod != TimeBoundaryPeriod.None
               && storageDateTime > fileEndTime))
                 return null;
         }

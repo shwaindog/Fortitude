@@ -1,7 +1,7 @@
 ﻿#region
 
-using System.Diagnostics;
 using System.Runtime.InteropServices;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Monitoring.Logging;
@@ -26,11 +26,10 @@ public interface ITimeSeriesFileHeader : IDisposable
     uint InternalIndexMaxSize { get; }
     ulong FileSize { get; }
     DateTime FileStartPeriod { get; }
-    TimeSeriesPeriod FilePeriod { get; }
-    TimeSeriesPeriod BucketPeriod { get; }
-    TimeSeriesPeriod EntriesPeriod { get; }
-    TimeSeriesPeriod SubBucketPeriods { get; }
-    TimeSeriesPeriod SummariesPeriods { get; }
+    TimeBoundaryPeriod FilePeriod { get; }
+    TimeBoundaryPeriod BucketPeriod { get; }
+    DiscreetTimePeriod EntriesCoveringPeriod { get; }
+    TimeBoundaryPeriod SubBucketPeriod { get; }
     uint HighestBucketId { get; }
     uint Buckets { get; }
     uint LastWriterBucket { get; }
@@ -73,11 +72,10 @@ public unsafe interface IMutableTimeSeriesFileHeader : ITimeSeriesFileHeader
     new uint FileHeaderSize { get; set; }
     new ulong FileSize { get; set; }
     new DateTime FileStartPeriod { get; set; }
-    new TimeSeriesPeriod FilePeriod { get; set; }
-    new TimeSeriesPeriod BucketPeriod { get; set; }
-    new TimeSeriesPeriod EntriesPeriod { get; set; }
-    new TimeSeriesPeriod SubBucketPeriods { get; set; }
-    new TimeSeriesPeriod SummariesPeriods { get; set; }
+    new TimeBoundaryPeriod FilePeriod { get; set; }
+    new TimeBoundaryPeriod BucketPeriod { get; set; }
+    new DiscreetTimePeriod EntriesCoveringPeriod { get; set; }
+    new TimeBoundaryPeriod SubBucketPeriod { get; set; }
     new uint HighestBucketId { get; set; }
     new uint Buckets { get; set; }
     new uint LastWriterBucket { get; set; }
@@ -156,11 +154,11 @@ public struct TimeSeriesFileHeaderBodyV1
     public ushort ExternalIndexFileRelativePathFileStartOffset; // 5 HeaderString
     public ushort AnnotationFileRelativePathFileStartOffset;    // 6 HeaderString
     public ushort InternalIndexFileStartOffset;
-    public TimeSeriesPeriod FilePeriod;
-    public TimeSeriesPeriod BucketPeriod;
-    public TimeSeriesPeriod EntriesPeriod;
-    public TimeSeriesPeriod SubBucketPeriods;
-    public TimeSeriesPeriod SummariesPeriods;
+    public TimeBoundaryPeriod FilePeriod;
+    public TimeBoundaryPeriod BucketPeriod;
+    public DiscreetTimePeriod EntriesPeriod;
+    public TimeBoundaryPeriod SubBucketPeriod;
+    public TimeBoundaryPeriod SummariesPeriod;
     public FileFlags FileFlags;
     public FileOperation LastWriterOperation;
 }
@@ -224,20 +222,21 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         BucketType = bucketType;
         EntryType = entryType;
         
-        stringSizeHeaderSize                                               = StreamByteOps.StringAutoHeaderSize(MaxHeaderTextSizeBytes);
+        stringSizeHeaderSize = StreamByteOps.StringAutoHeaderSize(MaxHeaderTextSizeBytes);
 
-        writableV1HeaderBody->InstrumentNameTextFileStartOffset            = CalculateStringStart(0);
-        writableV1HeaderBody->SourceNameTextFileStartOffset                = CalculateStringStart(1);
-        writableV1HeaderBody->CategoryTextFileStartOffset                  = CalculateStringStart(2);
-        writableV1HeaderBody->OriginSourceTextFileStartOffset              = CalculateStringStart(3);
+        writableV1HeaderBody->InstrumentNameTextFileStartOffset = CalculateStringStart(0);
+        writableV1HeaderBody->SourceNameTextFileStartOffset     = CalculateStringStart(1);
+        writableV1HeaderBody->CategoryTextFileStartOffset       = CalculateStringStart(2);
+        writableV1HeaderBody->OriginSourceTextFileStartOffset   = CalculateStringStart(3);
 
         writableV1HeaderBody->ExternalIndexFileRelativePathFileStartOffset = CalculateStringStart(4);
         writableV1HeaderBody->AnnotationFileRelativePathFileStartOffset    = CalculateStringStart(5);
 
-        InstrumentName                = timeSeriesFileParameters.Instrument.InstrumentName;
-        SourceName                    = timeSeriesFileParameters.Instrument.InstrumentSource;
-        Category                      = timeSeriesFileParameters.Instrument[nameof(Category)];
-        OriginSourceText              = timeSeriesFileParameters.OriginSourceText;
+        InstrumentName   = timeSeriesFileParameters.Instrument.InstrumentName;
+        SourceName       = timeSeriesFileParameters.Instrument.InstrumentSource;
+        Category         = timeSeriesFileParameters.Instrument[nameof(Category)];
+        EntriesCoveringPeriod = timeSeriesFileParameters.Instrument.CoveringPeriod;
+        OriginSourceText = timeSeriesFileParameters.OriginSourceText;
 
         ExternalIndexFileRelativePath = timeSeriesFileParameters.ExternalIndexFileRelativePath;
         AnnotationFileRelativePath    = timeSeriesFileParameters.AnnotationFileRelativePath;
@@ -284,7 +283,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         TimeSeriesFileParameters timeSeriesFileParameters)
         where TFile : TimeSeriesFile<TFile, TBucket, TEntry>
         where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry> 
-        where TEntry : ITimeSeriesEntry<TEntry>
+        where TEntry : ITimeSeriesEntry
     {
         return new TimeSeriesFileHeaderFromV1(memoryMappedFileView, typeof(TFile), typeof(TBucket), typeof(TEntry), timeSeriesFileParameters);
     }
@@ -476,7 +475,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         }
     }
 
-    public TimeSeriesPeriod FilePeriod 
+    public TimeBoundaryPeriod FilePeriod 
     {
         get
         {
@@ -495,7 +494,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         }
     }
 
-    public TimeSeriesPeriod BucketPeriod 
+    public TimeBoundaryPeriod BucketPeriod 
     {
         get
         {
@@ -514,7 +513,7 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         }
     }
 
-    public TimeSeriesPeriod EntriesPeriod 
+    public DiscreetTimePeriod EntriesCoveringPeriod 
     {
         get
         {
@@ -533,40 +532,40 @@ public unsafe class TimeSeriesFileHeaderFromV1 : IMutableTimeSeriesFileHeader
         }
     }
 
-    public TimeSeriesPeriod SubBucketPeriods 
+    public TimeBoundaryPeriod SubBucketPeriod 
     {
         get
         {
-            if (headerMemoryMappedFileView == null) return cacheV1HeaderBody.SubBucketPeriods;
-            cacheV1HeaderBody.SubBucketPeriods = writableV1HeaderBody->SubBucketPeriods;
-            return cacheV1HeaderBody.SubBucketPeriods;
+            if (headerMemoryMappedFileView == null) return cacheV1HeaderBody.SubBucketPeriod;
+            cacheV1HeaderBody.SubBucketPeriod = writableV1HeaderBody->SubBucketPeriod;
+            return cacheV1HeaderBody.SubBucketPeriod;
         }
         set
         {
-            if (cacheV1HeaderBody.SubBucketPeriods == value || headerMemoryMappedFileView == null) return;
+            if (cacheV1HeaderBody.SubBucketPeriod == value || headerMemoryMappedFileView == null) return;
             if (isWritable)
             {
-                writableV1HeaderBody->SubBucketPeriods = value;
-                cacheV1HeaderBody.SubBucketPeriods = value;
+                writableV1HeaderBody->SubBucketPeriod = value;
+                cacheV1HeaderBody.SubBucketPeriod = value;
             }
         }
     }
 
-    public TimeSeriesPeriod SummariesPeriods 
+    public TimeBoundaryPeriod SummariesPeriod 
     {
         get
         {
-            if (headerMemoryMappedFileView == null) return cacheV1HeaderBody.SummariesPeriods;
-            cacheV1HeaderBody.SummariesPeriods = writableV1HeaderBody->SummariesPeriods;
-            return cacheV1HeaderBody.SummariesPeriods;
+            if (headerMemoryMappedFileView == null) return cacheV1HeaderBody.SummariesPeriod;
+            cacheV1HeaderBody.SummariesPeriod = writableV1HeaderBody->SummariesPeriod;
+            return cacheV1HeaderBody.SummariesPeriod;
         }
         set
         {
-            if (cacheV1HeaderBody.SummariesPeriods == value || headerMemoryMappedFileView == null) return;
+            if (cacheV1HeaderBody.SummariesPeriod == value || headerMemoryMappedFileView == null) return;
             if (isWritable)
             {
-                writableV1HeaderBody->SummariesPeriods = value;
-                cacheV1HeaderBody.SummariesPeriods = value;
+                writableV1HeaderBody->SummariesPeriod = value;
+                cacheV1HeaderBody.SummariesPeriod = value;
             }
         }
     }

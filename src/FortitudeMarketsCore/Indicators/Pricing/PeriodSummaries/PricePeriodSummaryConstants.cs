@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeIO.TimeSeries;
+using FortitudeCommon.Chronometry;
 using FortitudeMarketsApi.Pricing;
 
 #endregion
@@ -22,46 +22,47 @@ public static class PricePeriodSummaryConstants
     public const string PeriodSummaryHistoricalResponseRequest = $"{PeriodSummaryBase}.Historical.{{0}}.{{1}}.{{2}}.RequestResponse";
 
 
-    public const TimeSeriesPeriod PersistPeriodsFrom = TimeSeriesPeriod.FifteenSeconds;
-    public const TimeSeriesPeriod PersistPeriodsTo   = TimeSeriesPeriod.OneYear;
+    public const TimeBoundaryPeriod PersistPeriodsFrom = TimeBoundaryPeriod.FifteenSeconds;
+    public const TimeBoundaryPeriod PersistPeriodsTo   = TimeBoundaryPeriod.OneYear;
 
     public static string LivePeriodSummaryAddress(this PricingInstrumentId pricingInstrumentId) =>
-        string.Format(PeriodSummaryLiveTemplate, pricingInstrumentId.Source, pricingInstrumentId.Ticker, pricingInstrumentId.EntryPeriod.ShortName());
+        string.Format(PeriodSummaryLiveTemplate, pricingInstrumentId.Source, pricingInstrumentId.Ticker
+                    , pricingInstrumentId.CoveringPeriod.ShortName());
 
     public static string CompletePeriodSummaryAddress(this PricingInstrumentId pricingInstrumentId) =>
         string.Format(PeriodSummaryCompleteTemplate, pricingInstrumentId.Source, pricingInstrumentId.Ticker
-                    , pricingInstrumentId.EntryPeriod.ShortName());
+                    , pricingInstrumentId.CoveringPeriod.ShortName());
 
-    public static string CompletePeriodSummaryAddress(this SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod period) =>
+    public static string CompletePeriodSummaryAddress(this SourceTickerIdentifier sourceTickerIdentifier, TimeBoundaryPeriod period) =>
         string.Format(PeriodSummaryCompleteTemplate, sourceTickerIdentifier.Source, sourceTickerIdentifier.Ticker, period.ShortName());
 
     public static string PersistPreparePeriodSummaryPublish(this PricingInstrumentId pricingInstrumentId) =>
         string.Format(PeriodSummaryPersistPreparePublish, pricingInstrumentId.Source, pricingInstrumentId.Ticker
-                    , pricingInstrumentId.EntryPeriod.ShortName());
+                    , pricingInstrumentId.CoveringPeriod.ShortName());
 
     public static string PersistAppendPeriodSummaryPublish() => string.Format(PeriodSummaryPersistAppendPublish);
 
     public static string PeriodSummaryPublish(this PricingInstrumentId pricingInstrumentId) =>
         string.Format(PeriodSummaryDefaultPublishAddress, pricingInstrumentId.Source, pricingInstrumentId.Ticker
-                    , pricingInstrumentId.EntryPeriod.ShortName());
+                    , pricingInstrumentId.CoveringPeriod.ShortName());
 
     public static string HistoricalPeriodSummaryStreamRequest(this PricingInstrumentId pricingInstrumentId) =>
         string.Format(PeriodSummaryHistoricalStreamRequest, pricingInstrumentId.Source, pricingInstrumentId.Ticker
-                    , pricingInstrumentId.EntryPeriod.ShortName());
+                    , pricingInstrumentId.CoveringPeriod.ShortName());
 
-    public static string HistoricalPeriodSummaryStreamRequest(this SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod period) =>
+    public static string HistoricalPeriodSummaryStreamRequest(this SourceTickerIdentifier sourceTickerIdentifier, TimeBoundaryPeriod period) =>
         string.Format(PeriodSummaryHistoricalStreamRequest, sourceTickerIdentifier.Source, sourceTickerIdentifier.Ticker, period.ShortName());
 
     public static string HistoricalPeriodSummaryResponseRequest(this PricingInstrumentId pricingInstrumentId) =>
         string.Format(PeriodSummaryHistoricalResponseRequest, pricingInstrumentId.Source, pricingInstrumentId.Ticker
-                    , pricingInstrumentId.EntryPeriod.ShortName());
+                    , pricingInstrumentId.CoveringPeriod.ShortName());
 
-    public static string HistoricalPeriodSummaryResponseRequest(this SourceTickerIdentifier sourceTickerIdentifier, TimeSeriesPeriod period) =>
+    public static string HistoricalPeriodSummaryResponseRequest(this SourceTickerIdentifier sourceTickerIdentifier, TimeBoundaryPeriod period) =>
         string.Format(PeriodSummaryHistoricalResponseRequest, sourceTickerIdentifier.Source, sourceTickerIdentifier.Ticker, period.ShortName());
 
-    public static TimeSeriesPeriod RoundNonPersistPeriodsToTick(this TimeSeriesPeriod checkSmallPeriod)
+    public static TimeBoundaryPeriod RoundNonPersistPeriodsToTick(this TimeBoundaryPeriod checkSmallPeriod)
     {
-        if (checkSmallPeriod < PersistPeriodsFrom) return TimeSeriesPeriod.Tick;
+        if (checkSmallPeriod < PersistPeriodsFrom) return TimeBoundaryPeriod.Tick;
         return checkSmallPeriod;
     }
 }

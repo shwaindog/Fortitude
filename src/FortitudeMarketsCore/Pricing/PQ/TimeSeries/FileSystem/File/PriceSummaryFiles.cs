@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
@@ -16,13 +17,13 @@ namespace FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
 
 public class WeeklyDailyHourlyPriceSummaryTimeSeriesFile<TEntry> :
     PriceSummaryTimeSeriesFile<WeeklyDailyHourlyPriceSummaryTimeSeriesFile<TEntry>, DailyToHourlyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     public WeeklyDailyHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
     public WeeklyDailyHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneWeek)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(7)
@@ -35,13 +36,13 @@ public class WeeklyDailyHourlyPriceSummaryTimeSeriesFile<TEntry> :
 
 public class WeeklyFourHourlyPriceSummaryTimeSeriesFile<TEntry> :
     PriceSummaryTimeSeriesFile<WeeklyFourHourlyPriceSummaryTimeSeriesFile<TEntry>, FourHourlyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     public WeeklyFourHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
     public WeeklyFourHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneWeek)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneWeek)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(42)
@@ -54,13 +55,13 @@ public class WeeklyFourHourlyPriceSummaryTimeSeriesFile<TEntry> :
 
 public class MonthlyFourHourlyPriceSummaryTimeSeriesFile<TEntry> :
     PriceSummaryTimeSeriesFile<MonthlyFourHourlyPriceSummaryTimeSeriesFile<TEntry>, FourHourlyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     public MonthlyFourHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
     public MonthlyFourHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneMonth)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneMonth)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(186)
@@ -73,13 +74,13 @@ public class MonthlyFourHourlyPriceSummaryTimeSeriesFile<TEntry> :
 
 public class MonthlyDailyHourlyPriceSummaryTimeSeriesFile<TEntry> :
     PriceSummaryTimeSeriesFile<MonthlyDailyHourlyPriceSummaryTimeSeriesFile<TEntry>, DailyToHourlyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     public MonthlyDailyHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
     public MonthlyDailyHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneMonth)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneMonth)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(31)
@@ -92,13 +93,13 @@ public class MonthlyDailyHourlyPriceSummaryTimeSeriesFile<TEntry> :
 
 public class MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile<TEntry> :
     PriceSummaryTimeSeriesFile<MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile<TEntry>, WeeklyToFourHourlyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     public MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
     public MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneMonth)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneMonth)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(4)
@@ -111,13 +112,13 @@ public class MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile<TEntry> :
 
 public class MonthlyWeeklyDailyPriceSummaryTimeSeriesFile<TEntry> :
     PriceSummaryTimeSeriesFile<MonthlyWeeklyDailyPriceSummaryTimeSeriesFile<TEntry>, WeeklyToDailyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     public MonthlyWeeklyDailyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
     public MonthlyWeeklyDailyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneMonth)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneMonth)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(4)
@@ -130,13 +131,13 @@ public class MonthlyWeeklyDailyPriceSummaryTimeSeriesFile<TEntry> :
 
 public class YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile<TEntry> :
     PriceSummaryTimeSeriesFile<YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile<TEntry>, MonthlyToFourHourlyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     public YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
     public YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneYear)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneYear)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(12)
@@ -149,13 +150,13 @@ public class YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile<TEntry> :
 
 public class YearlyWeeklyDailyPriceSummaryTimeSeriesFile<TEntry> :
     PriceSummaryTimeSeriesFile<YearlyWeeklyDailyPriceSummaryTimeSeriesFile<TEntry>, WeeklyToDailyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     public YearlyWeeklyDailyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
     public YearlyWeeklyDailyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneYear)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneYear)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(53)
@@ -168,13 +169,13 @@ public class YearlyWeeklyDailyPriceSummaryTimeSeriesFile<TEntry> :
 
 public class YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile<TEntry> :
     PriceSummaryTimeSeriesFile<YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile<TEntry>, MonthlyToWeeklyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     public YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
     public YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneYear)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneYear)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(12)
@@ -186,13 +187,13 @@ public class YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile<TEntry> :
 
 public class DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile<TEntry> :
     PriceSummaryTimeSeriesFile<DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile<TEntry>, MonthlyToWeeklyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     public DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
     public DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneDecade)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneDecade)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(120)
@@ -204,13 +205,13 @@ public class DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile<TEntry> :
 
 public class DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile<TEntry> :
     PriceSummaryTimeSeriesFile<DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile<TEntry>, YearlyToMonthlyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     public DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
     public DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.OneDecade)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneDecade)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(10)
@@ -223,13 +224,13 @@ public class DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile<TEntry> :
 public class UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<TEntry> :
     PriceSummaryTimeSeriesFile<UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<TEntry>, DecenniallyToYearlyPriceSummarySubBuckets<TEntry>,
         TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     public UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
     public UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.None)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.None)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(10)
@@ -241,13 +242,13 @@ public class UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<TEntry> :
 
 public class UnlimitedDecenniallyPriceSummaryTimeSeriesFile<TEntry> :
     PriceSummaryTimeSeriesFile<UnlimitedDecenniallyPriceSummaryTimeSeriesFile<TEntry>, DecenniallyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     public UnlimitedDecenniallyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
     public UnlimitedDecenniallyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.None)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.None)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(50)
@@ -259,13 +260,13 @@ public class UnlimitedDecenniallyPriceSummaryTimeSeriesFile<TEntry> :
 
 public class UnlimitedPriceSummaryTimeSeriesFile<TEntry> :
     PriceSummaryTimeSeriesFile<UnlimitedPriceSummaryTimeSeriesFile<TEntry>, UnlimitedPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry<TEntry>, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
 {
     public UnlimitedPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
     public UnlimitedPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeSeriesPeriod.None)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.None)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(1)

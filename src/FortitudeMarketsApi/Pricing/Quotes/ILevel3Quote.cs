@@ -5,14 +5,13 @@
 
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
-using FortitudeIO.TimeSeries;
 using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
 
 #endregion
 
 namespace FortitudeMarketsApi.Pricing.Quotes;
 
-public interface ILevel3Quote : ILevel2Quote, ICloneable<ILevel3Quote>, ITimeSeriesEntry<ILevel3Quote>, IDoublyLinkedListNode<ILevel3Quote>
+public interface ILevel3Quote : ILevel2Quote, ICloneable<ILevel3Quote>, IDoublyLinkedListNode<ILevel3Quote>
 {
     IRecentlyTraded? RecentlyTraded { get; }
 
