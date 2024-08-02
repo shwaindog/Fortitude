@@ -47,7 +47,7 @@ public readonly struct IndicatorValidRangeBidAskPeriodValue // not inheriting fr
     }
 
     public IndicatorValidRangeBidAskPeriodValue
-    (IndicatorSourceTickerIdentifier indicatorSourceTickerId, BidAskInstantPair toClone, DateTime validTo
+    (PricingIndicatorId indicatorSourceTickerId, BidAskInstantPair toClone, DateTime validTo
       , DiscreetTimePeriod? coveringPeriod = null, DateTime? validFrom = null)
         : this(indicatorSourceTickerId.IndicatorSourceTickerId, toClone, validTo, coveringPeriod, validFrom) { }
 
@@ -80,7 +80,7 @@ public readonly struct IndicatorValidRangeBidAskPeriodValue // not inheriting fr
     }
 
     public IndicatorValidRangeBidAskPeriodValue
-        (IndicatorSourceTickerIdentifier indicatorSourceTickerId, ILevel1Quote toCapture)
+        (PricingIndicatorId indicatorSourceTickerId, ILevel1Quote toCapture)
         : this(indicatorSourceTickerId.IndicatorSourceTickerId, toCapture) { }
 
     public IndicatorValidRangeBidAskPeriodValue
@@ -100,7 +100,7 @@ public readonly struct IndicatorValidRangeBidAskPeriodValue // not inheriting fr
     }
 
     public IndicatorValidRangeBidAskPeriodValue
-    (IndicatorSourceTickerIdentifier indicatorSourceTickerId, decimal bidPrice, decimal askPrice, DateTime validTo
+    (PricingIndicatorId indicatorSourceTickerId, decimal bidPrice, decimal askPrice, DateTime validTo
       , DateTime? atTime = null, DiscreetTimePeriod? coveringPeriod = null
       , DateTime? validFrom = null)
         : this(indicatorSourceTickerId.IndicatorSourceTickerId, bidPrice, askPrice, validTo, atTime, coveringPeriod, validFrom) { }
@@ -123,7 +123,7 @@ public readonly struct IndicatorValidRangeBidAskPeriodValue // not inheriting fr
     }
 
     public IndicatorValidRangeBidAskPeriodValue
-    (IndicatorSourceTickerIdentifier indicatorSourceTickerId, IBidAskInstant bidAskInstantPair, DateTime validTo
+    (PricingIndicatorId indicatorSourceTickerId, IBidAskInstant bidAskInstantPair, DateTime validTo
       , DiscreetTimePeriod? coveringPeriod = null, DateTime? validFrom = null)
         : this(indicatorSourceTickerId.IndicatorSourceTickerId, bidAskInstantPair, validTo, coveringPeriod, validFrom) { }
 
@@ -143,7 +143,7 @@ public readonly struct IndicatorValidRangeBidAskPeriodValue // not inheriting fr
     }
 
     public IndicatorValidRangeBidAskPeriodValue
-        (IndicatorSourceTickerIdentifier indicatorSourceTickerId, ValidRangeBidAskPeriodValue validRangeBidAskPeriodValue)
+        (PricingIndicatorId indicatorSourceTickerId, ValidRangeBidAskPeriodValue validRangeBidAskPeriodValue)
         : this(indicatorSourceTickerId.IndicatorSourceTickerId, validRangeBidAskPeriodValue) { }
 
     public IndicatorValidRangeBidAskPeriodValue
@@ -162,7 +162,7 @@ public readonly struct IndicatorValidRangeBidAskPeriodValue // not inheriting fr
     }
 
     public IndicatorValidRangeBidAskPeriodValue
-        (IndicatorSourceTickerIdentifier indicatorSourceTickerId, IValidRangeBidAskPeriod validRangeBidAskPeriod)
+        (PricingIndicatorId indicatorSourceTickerId, IValidRangeBidAskPeriod validRangeBidAskPeriod)
         : this(indicatorSourceTickerId.IndicatorSourceTickerId, validRangeBidAskPeriod) { }
 
     public long IndicatorSourceTickerId { get; }

@@ -336,7 +336,7 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
         return AddToCurrentOrPreviousState(subSummary);
     }
 
-    protected override ValueTask ReceiveQuoteHandler(IBusMessage<TQuote> priceQuoteMessage)
+    protected override ValueTask ReceiveQuoteMessageHandler(IBusMessage<TQuote> priceQuoteMessage)
     {
         var quote = priceQuoteMessage.Payload.Body();
         if (asyncSubPeriodExecutions != null && asyncSubPeriodExecutions.Any())

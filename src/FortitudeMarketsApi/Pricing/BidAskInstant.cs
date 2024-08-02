@@ -181,8 +181,7 @@ public class BidAskInstant : ReusableObject<IBidAskInstant>, IMutableBidAskInsta
     public override int GetHashCode() => BidAskInstantPairState.GetHashCode();
 
     public override string ToString() =>
-        $"{nameof(BidAskInstant)}({nameof(BidPrice)}: {BidPrice}, {nameof(AskPrice)}: {AskPrice}, " +
-        $"{nameof(AtTime)}: {AtTime})";
+        $"{nameof(BidAskInstant)}({nameof(AtTime)}: {AtTime}, {nameof(BidPrice)}: {BidPrice}, {nameof(AskPrice)}: {AskPrice})";
 
 
     public static implicit operator BidAskInstantPair(BidAskInstant pricePoint) => pricePoint.BidAskInstantPairState;

@@ -488,8 +488,7 @@ public class IndicatorServiceRegistryRule : Rule
                 (new ServiceRunStateResponse
                     (new LiveShortPeriodMovingAveragePublisherRule
                          (new LiveShortPeriodMovingAveragePublishParams
-                             (new IndicatorSourceTickerIdentifier(IndicatorConstants.MovingAverageTimeWeightedBidAskId
-                                                                , tickerServiceInfo.PricingInstrumentId)))
+                             (new PricingIndicatorId(IndicatorConstants.MovingAverageTimeWeightedBidAskId, tickerServiceInfo.PricingInstrumentId)))
                    , ServiceRunStatus.NotStarted));
         }
         if (tickerServiceInfo.PricingInstrumentId.CoveringPeriod.Period is > FifteenMinutes and <= OneYear)
