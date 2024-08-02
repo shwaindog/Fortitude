@@ -21,7 +21,7 @@ public enum RequestExceedTimeRangeOptions
 public struct LiveShortPeriodMovingAveragePublishParams
 {
     public LiveShortPeriodMovingAveragePublishParams
-    (IndicatorSourceTickerIdentifier indicatorSourceTickerIdentifier
+    (PricingIndicatorId indicatorSourceTickerIdentifier
       , MovingAveragePublisherParams? initialPeriodsToPublish = null
       , CalculateMovingAverageOptions? calculateMovingAverageOptions = null
       , RequestExceedTimeRangeOptions requestExceedTimeRangeOptions = RequestExceedTimeRangeOptions.RejectRequest
@@ -60,7 +60,7 @@ public struct LiveShortPeriodMovingAveragePublishParams
         }
     }
 
-    public IndicatorSourceTickerIdentifier IndicatorSourceTickerIdentifier { get; }
+    public PricingIndicatorId IndicatorSourceTickerIdentifier { get; }
 
     public MovingAveragePublisherParams? InitialPeriodsToPublish { get; }
 

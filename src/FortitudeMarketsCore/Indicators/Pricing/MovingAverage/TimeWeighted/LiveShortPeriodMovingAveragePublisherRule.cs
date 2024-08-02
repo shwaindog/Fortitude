@@ -13,8 +13,6 @@ using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
-using FortitudeIO.TimeSeries;
-using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeMarketsApi.Indicators.Pricing;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsCore.Indicators.Pricing.Parameters;
@@ -38,7 +36,7 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
 
     private readonly TimeSpan hardLimitTimeSpan;
 
-    private readonly IndicatorSourceTickerIdentifier indicatorSourceTickerId;
+    private readonly PricingIndicatorId indicatorSourceTickerId;
 
     private readonly LiveShortPeriodMovingAveragePublishParams  movingAverageParams;
     private readonly IDoublyLinkedList<IValidRangeBidAskPeriod> periodTopOfBookChain = new DoublyLinkedList<IValidRangeBidAskPeriod>();
@@ -58,8 +56,6 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
     private IChannelLimitedEventFactory<PQLevel1Quote>? historicalQuotesChannel;
 
     private TimeSpan liveTicksTimeSpan;
-
-    private InstrumentFileEntryInfo? quotesRepoInfo;
 
     private TaskCompletionSource<int> quotesRetrieved = null!;
 
@@ -95,10 +91,10 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
 
     public override async ValueTask StartAsync()
     {
+        startupCachePrices = Context.PooledRecycler.Borrow<DoublyLinkedList<IValidRangeBidAskPeriod>>();
         // subscribe to live prices and cache ticks
         await base.StartAsync();
 
-        startupCachePrices = Context.PooledRecycler.Borrow<DoublyLinkedList<IValidRangeBidAskPeriod>>();
 
         // request historical data from latest to valid period of liveTicksTimeSpan
         if (movingAverageParams.InitialPeriodsToPublish != null)
@@ -295,10 +291,9 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
         retrievingHistoricalPrices = false;
     }
 
-    protected override async ValueTask ReceiveQuoteHandler(IBusMessage<PQLevel1Quote> priceQuoteMessage)
+    protected override async ValueTask ReceiveQuoteHandler(PQLevel1Quote l1Quote)
     {
-        var l1Quote = priceQuoteMessage.Payload.Body();
-        var bidAsk  = l1Quote.ToValidRangeBidAskPeriod(Context.PooledRecycler);
+        var bidAsk = l1Quote.ToValidRangeBidAskPeriod(Context.PooledRecycler);
         if (retrievingHistoricalPrices)
             startupCachePrices?.AddLast(bidAsk);
         else

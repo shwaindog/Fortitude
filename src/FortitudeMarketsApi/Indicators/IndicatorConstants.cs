@@ -1,6 +1,13 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
+#region
+
+using FortitudeCommon.Chronometry;
+using FortitudeMarketsApi.Pricing;
+
+#endregion
+
 namespace FortitudeMarketsApi.Indicators;
 
 public static class IndicatorConstants
@@ -45,11 +52,45 @@ public static class IndicatorConstants
     public const string MovingAverageTimeWeightedMidDescription    = "Contains a single mid point time weighted moving average.";
     public const string MovingAverageTimeWeightedBidAskDescription = "Contains a bid and ask point time weighted moving average.";
 
-    // public static IIndicator CreateIndicatorFor(this SourceTickerIdValue sourceTickerId, ushort indicatorId, Discr)
-    // {
-    //     switch (indicatorId)
-    //     {
-    //         case MidPriceQuotesId : return new Indicator(MidPriceQuotesId, PriceMidQuotes, PriceMidQuotesDescription, sourceTickerId.Source, )
-    //     }
-    // }
+
+    public static IndicatorType GetIndicatorType(ushort indicatorId) =>
+        indicatorId switch
+        {
+            >= MidPriceQuotesId and <= PriceLevel3QuotesId => IndicatorType.MarketPrice
+          , PricePeriodSummariesId => IndicatorType.MarketPriceSummary
+          , >= MovingAverageTimeWeightedMidId and <= MovingAverageTimeWeightedBidAskId => IndicatorType.Averaging
+          , _ => throw new ArgumentException("Indicator Id has no known Indicator Type")
+        };
+
+    public static IIndicator CreateIndicatorFor
+        (this SourceTickerIdValue sourceTickerId, ushort indicatorId, DiscreetTimePeriod? specificCoveringPeriod = null)
+    {
+        var coveringPeriod = specificCoveringPeriod ?? new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
+        switch (indicatorId)
+        {
+            case MidPriceQuotesId:
+                return new Indicator(MidPriceQuotesId, PriceMidQuotes, sourceTickerId.Source, IndicatorType.MarketPrice
+                                   , coveringPeriod, PriceMidQuotesDescription);
+            case BidAskPriceQuotesId:
+                return new Indicator(BidAskPriceQuotesId, PriceBidAskQuotes, sourceTickerId.Source, IndicatorType.MarketPrice
+                                   , coveringPeriod, PriceBidAskQuotesDescription);
+            case PriceLevel2QuotesId:
+                return new Indicator(PriceLevel2QuotesId, PriceLevel2Quotes, sourceTickerId.Source, IndicatorType.MarketPrice
+                                   , coveringPeriod, PriceLevel2QuotesDescription);
+            case PriceLevel3QuotesId:
+                return new Indicator(PriceLevel3QuotesId, PriceLevel3Quotes, sourceTickerId.Source, IndicatorType.MarketPrice
+                                   , coveringPeriod, PriceLevel3QuotesDescription);
+            case PricePeriodSummariesId:
+                return new Indicator(PricePeriodSummariesId, PricePeriodSummaries, sourceTickerId.Source, IndicatorType.MarketPrice
+                                   , coveringPeriod, PricePeriodSummariesDescription);
+            case MovingAverageTimeWeightedMidId:
+                return new Indicator(MovingAverageTimeWeightedMidId, MovingAverageTimeWeightedMid, sourceTickerId.Source, IndicatorType.MarketPrice
+                                   , coveringPeriod, MovingAverageTimeWeightedMidDescription);
+            case MovingAverageTimeWeightedBidAskId:
+                return new Indicator(MovingAverageTimeWeightedBidAskId, MovingAverageTimeWeightedBidAsk, sourceTickerId.Source
+                                   , IndicatorType.MarketPrice
+                                   , coveringPeriod, MovingAverageTimeWeightedBidAskDescription);
+        }
+        throw new ArgumentException($"Could not find indicator with indicatorId {indicatorId}");
+    }
 }

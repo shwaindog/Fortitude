@@ -24,14 +24,14 @@ public class MovingAverageTimeWeightedPublishRequestState
 
     private readonly ITimeWeightedMovingAveragePublisherRule containingRule;
 
-    private readonly IndicatorSourceTickerIdentifier indicatorSourceTickerId;
+    private readonly PricingIndicatorId indicatorSourceTickerId;
 
     private readonly bool isBatchPublisher;
 
     private readonly MovingAveragePublisherParams? singleMoveAverageParams;
 
     public MovingAverageTimeWeightedPublishRequestState
-    (ITimeWeightedMovingAveragePublisherRule containingRule, IndicatorSourceTickerIdentifier indicatorSourceTickerId
+    (ITimeWeightedMovingAveragePublisherRule containingRule, PricingIndicatorId indicatorSourceTickerId
       , MovingAveragePublisherParams singlePublisherParams
       , CalculateMovingAverageOptions calculateMovingAverageOptions)
     {
@@ -51,7 +51,7 @@ public class MovingAverageTimeWeightedPublishRequestState
 
     public MovingAverageTimeWeightedPublishRequestState
     (ITimeWeightedMovingAveragePublisherRule containingRule
-      , IndicatorSourceTickerIdentifier indicatorSourceTickerId
+      , PricingIndicatorId indicatorSourceTickerId
       , MovingAverageBatchPublisherParams batchPublisherParams
       , CalculateMovingAverageOptions calculateMovingAverageOptions)
     {
@@ -111,7 +111,8 @@ public class MovingAverageTimeWeightedPublishRequestState
         var responseType  = publishParams.ResponsePublishMethod;
         if (responseType is ResponsePublishMethod.ListenerDefaultBroadcastAddress or ResponsePublishMethod.AlternativeBroadcastAddress)
         {
-            await containingRule.PublishAsync(string.Format(publishParams.AlternativePublishAddress!, averagePeriod), validRangeBidAskPeriod);
+            await containingRule.PublishAsync
+                (string.Format(publishParams.AlternativePublishAddress!, averagePeriod.ShortName()), validRangeBidAskPeriod);
         }
         else
         {

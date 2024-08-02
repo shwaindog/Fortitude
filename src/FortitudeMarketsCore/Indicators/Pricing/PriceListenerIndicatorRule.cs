@@ -33,7 +33,7 @@ public class PriceListenerIndicatorRule<TQuoteType> : Rule
     public override async ValueTask StartAsync()
     {
         tickerListenSubscription = await Context.MessageBus.RegisterListenerAsync<TQuoteType>
-            (this, feedTickerListenAddress, ReceiveQuoteHandler);
+            (this, feedTickerListenAddress, ReceiveQuoteMessageHandler);
     }
 
     public override async ValueTask StopAsync()
@@ -41,5 +41,9 @@ public class PriceListenerIndicatorRule<TQuoteType> : Rule
         await tickerListenSubscription.NullSafeUnsubscribe();
     }
 
-    protected virtual ValueTask ReceiveQuoteHandler(IBusMessage<TQuoteType> priceQuoteMessage) => ValueTask.CompletedTask;
+    protected virtual ValueTask ReceiveQuoteMessageHandler
+        (IBusMessage<TQuoteType> priceQuoteMessage) =>
+        ReceiveQuoteHandler(priceQuoteMessage.Payload.Body());
+
+    protected virtual ValueTask ReceiveQuoteHandler(TQuoteType priceQuote) => ValueTask.CompletedTask;
 }

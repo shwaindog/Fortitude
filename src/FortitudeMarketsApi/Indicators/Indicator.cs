@@ -14,6 +14,8 @@ namespace FortitudeMarketsApi.Indicators;
 public enum IndicatorType : byte
 {
     Unknown
+  , MarketPrice
+  , MarketPriceSummary
   , Oscillator
   , Averaging
   , Momentum
@@ -87,30 +89,50 @@ public class Indicator : Instrument, IIndicator
 
 public readonly struct IndicatorIdentifier
 {
-    public IndicatorIdentifier(ushort indicatorId) => IndicatorId = indicatorId;
+    public IndicatorIdentifier(ushort indicatorId, string source, DiscreetTimePeriod? coveringPeriod = null)
+    {
+        IndicatorId      = indicatorId;
+        InstrumentSource = source;
+        CoveringPeriod   = coveringPeriod ?? new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
+    }
 
-    public IndicatorIdentifier(IIndicator toClone) => IndicatorId = toClone.IndicatorId;
+    public IndicatorIdentifier(IIndicator toClone)
+    {
+        IndicatorId      = toClone.IndicatorId;
+        InstrumentSource = toClone.InstrumentSource;
+        CoveringPeriod   = toClone.CoveringPeriod;
+    }
 
-    public ushort IndicatorId { get; }
+    public ushort IndicatorId      { get; }
+    public string InstrumentSource { get; }
+
+    public DiscreetTimePeriod CoveringPeriod { get; }
 
     public string IndicatorName => IndicatorExtensions.GetRegisteredIndicatorName(IndicatorId);
 
     public string IndicatorDescription => IndicatorExtensions.GetRegisteredIndicatorDescription(IndicatorId);
 
-    public IndicatorType IndicatorType => IndicatorExtensions.GetRegisteredIndicatorIndicatorType(IndicatorId);
+    public IndicatorType IndicatorType => IndicatorExtensions.GetRegisteredIndicatorType(IndicatorId);
+
+    public InstrumentType InstrumentType =>
+        IndicatorExtensions.GetRegisteredIndicatorIdentifierValue(IndicatorId)?.InstrumentType ?? InstrumentType.Unknown;
 
     public static implicit operator IndicatorIdentifier(Indicator indicator) => new(indicator);
 }
 
 public readonly struct IndicatorIdentifierValue
 {
-    public IndicatorIdentifierValue(ushort indicatorId, string indicatorName, string indicatorDescription, IndicatorType indicatorType)
+    public IndicatorIdentifierValue
+    (ushort indicatorId, string indicatorName, string indicatorDescription, IndicatorType indicatorType
+      , string indicatorSource, DiscreetTimePeriod coveringPeriod)
     {
         IndicatorId   = indicatorId;
         IndicatorName = indicatorName;
         IndicatorType = indicatorType;
 
         IndicatorDescription = indicatorDescription;
+        InstrumentSource     = indicatorSource;
+        CoveringPeriod       = coveringPeriod;
     }
 
     public IndicatorIdentifierValue(IIndicator toClone)
@@ -120,6 +142,8 @@ public readonly struct IndicatorIdentifierValue
         IndicatorType = toClone.IndicatorType;
 
         IndicatorDescription = toClone.IndicatorDescription;
+        InstrumentSource     = toClone.InstrumentSource;
+        CoveringPeriod       = toClone.CoveringPeriod;
     }
 
     public IndicatorIdentifierValue(IndicatorIdentifier toClone)
@@ -129,15 +153,34 @@ public readonly struct IndicatorIdentifierValue
         IndicatorType = toClone.IndicatorType;
 
         IndicatorDescription = toClone.IndicatorDescription;
+        InstrumentSource     = toClone.InstrumentSource;
+        CoveringPeriod       = toClone.CoveringPeriod;
     }
 
     public ushort IndicatorId { get; }
 
     public string IndicatorName { get; }
 
+    public string InstrumentSource { get; }
+
+    public DiscreetTimePeriod CoveringPeriod { get; }
+
     public string IndicatorDescription { get; }
 
     public IndicatorType IndicatorType { get; }
+
+    public InstrumentType InstrumentType
+    {
+        get
+        {
+            return IndicatorType switch
+                   {
+                       IndicatorType.MarketPrice        => InstrumentType.Price
+                     , IndicatorType.MarketPriceSummary => InstrumentType.PriceSummaryPeriod
+                     , _                                => InstrumentType.Indicator
+                   };
+        }
+    }
 
 
     public static implicit operator IndicatorIdentifierValue(Indicator indicator) => new((IIndicator)indicator);
@@ -146,6 +189,7 @@ public readonly struct IndicatorIdentifierValue
 public static class IndicatorExtensions
 {
     public const string NoIndicatorNameValue        = "Indicator Name Not Registered";
+    public const string NoIndicatorSourceValue      = "Indicator Instrument Source Not Registered";
     public const string NoIndicatorDescriptionValue = "Indicator Description Not Registered";
 
     private static readonly ConcurrentMap<ushort, IndicatorIdentifierValue> IdToIndicatorIdentifierValueLookup = new();
@@ -160,21 +204,36 @@ public static class IndicatorExtensions
         return false;
     }
 
-    public static string GetRegisteredIndicatorName(ushort indicatorId)
+    public static bool Register(this IndicatorIdentifierValue id)
     {
-        if (IdToIndicatorIdentifierValueLookup.ContainsKey(indicatorId)) return IdToIndicatorIdentifierValueLookup[indicatorId].IndicatorName;
-        return NoIndicatorNameValue;
+        if (!IdToIndicatorIdentifierValueLookup.ContainsKey(id.IndicatorId))
+            if (id.IndicatorName != NoIndicatorNameValue && id.IndicatorDescription != NoIndicatorDescriptionValue)
+            {
+                IdToIndicatorIdentifierValueLookup.AddOrUpdate(id.IndicatorId, id);
+                return true;
+            }
+        return false;
     }
 
-    public static string GetRegisteredIndicatorDescription(ushort indicatorId)
-    {
-        if (IdToIndicatorIdentifierValueLookup.ContainsKey(indicatorId)) return IdToIndicatorIdentifierValueLookup[indicatorId].IndicatorDescription;
-        return NoIndicatorDescriptionValue;
-    }
+    public static IndicatorIdentifierValue? GetRegisteredIndicatorIdentifierValue
+        (ushort indicatorId) =>
+        IdToIndicatorIdentifierValueLookup.ContainsKey(indicatorId) ? IdToIndicatorIdentifierValueLookup[indicatorId] : default;
 
-    public static IndicatorType GetRegisteredIndicatorIndicatorType(ushort indicatorId)
-    {
-        if (IdToIndicatorIdentifierValueLookup.ContainsKey(indicatorId)) return IdToIndicatorIdentifierValueLookup[indicatorId].IndicatorType;
-        return IndicatorType.Unknown;
-    }
+    public static string GetRegisteredIndicatorName
+        (ushort indicatorId) =>
+        IdToIndicatorIdentifierValueLookup.ContainsKey(indicatorId)
+            ? IdToIndicatorIdentifierValueLookup[indicatorId].IndicatorName
+            : NoIndicatorNameValue;
+
+    public static string GetRegisteredIndicatorDescription
+        (ushort indicatorId) =>
+        IdToIndicatorIdentifierValueLookup.ContainsKey(indicatorId)
+            ? IdToIndicatorIdentifierValueLookup[indicatorId].IndicatorDescription
+            : NoIndicatorDescriptionValue;
+
+    public static IndicatorType GetRegisteredIndicatorType
+        (ushort indicatorId) =>
+        IdToIndicatorIdentifierValueLookup.ContainsKey(indicatorId)
+            ? IdToIndicatorIdentifierValueLookup[indicatorId].IndicatorType
+            : IndicatorType.Unknown;
 }

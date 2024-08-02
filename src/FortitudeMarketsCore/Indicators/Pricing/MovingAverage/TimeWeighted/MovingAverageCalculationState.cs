@@ -6,9 +6,10 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Extensions;
-using FortitudeIO.TimeSeries;
+using FortitudeCommon.Monitoring.Logging;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsCore.Indicators.Pricing.Parameters;
+using MathNet.Numerics;
 
 #endregion
 
@@ -16,6 +17,8 @@ namespace FortitudeMarketsCore.Indicators.Pricing.MovingAverage.TimeWeighted;
 
 public class MovingAverageCalculationState
 {
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MovingAverageCalculationState));
+
     private readonly CalculateMovingAverageOptions calculateOptions;
 
     private readonly bool includeInvalidTime;
@@ -58,27 +61,28 @@ public class MovingAverageCalculationState
           , CalcStartTime    = wallClockMovingAverageTimeRange.ToTime
           , StartDeltaFrom   = previousRunCalculation?.StartDeltaFrom
           , EndDeltaFrom     = previousRunCalculation?.EndDeltaFrom
-          , CurrentTick      = previousRunCalculation?.StartFromTick ?? timeOrderedPairs.Tail
 
           , TotalTimeWeightedBidInMs = previousRunCalculation?.TotalTimeWeightedBidInMs ?? 0m
           , TotalTimeWeightedAskInMs = previousRunCalculation?.TotalTimeWeightedAskInMs ?? 0m
         };
 
         run.JustCalcDeltaPeriods = run is { StartDeltaFrom: not null, EndDeltaFrom: not null };
+        if (run.JustCalcDeltaPeriods) run.RemainingPeriod = (wallClockMovingAverageTimeRange.ToTime - run.StartDeltaFrom!.Value) * 2;
 
-        if (run.CurrentTick == null) FindLastCalculatedTick(timeOrderedPairs);
-        run.PreviousTick = run.CurrentTick?.Previous;
-        while (run.PreviousTick != null && run.PreviousTick.AtTime > (run.StartDeltaFrom ?? run.CalcStartTime))
+        StartFromLatestTick(timeOrderedPairs);
+
+        while (run.PreviousTick != null && run.PreviousTick.AtTime > run.CalcStartTime)
         {
             run.CurrentTick  = run.PreviousTick;
             run.PreviousTick = run.PreviousTick.Previous;
         }
-        run.PreviousTick = run.CurrentTick?.Previous;
-        var startFromTick = run.CurrentTick!;
+
+        Logger.Info("State Start Bid: {0}, Ask: {1} remaining {2}s.  For Start time {3}"
+                  , run.TotalTimeWeightedBidInMs, run.TotalTimeWeightedAskInMs, run.RemainingPeriod, run.CalcStartTime);
 
         AddLatestTickWeightedBidAsk(wallClockMovingAverageTimeRange);
 
-        var calcEndTime = run.CurrentTick!.AtTime - run.RemainingPeriod;
+        var calcEndTime = (run.CurrentTick!.AtTime - run.RemainingPeriod).Min(run.EndDeltaFrom + run.RemainingPeriod);
         while (run is { PreviousTick: not null, CurrentTick: not null }
             && (run.RemainingPeriod > TimeSpan.Zero ||
                 (run.JustCalcDeltaPeriods && run.CurrentTick.AtTime > calcEndTime.Min(previousRunCalculation?.EndDeltaFrom))))
@@ -95,7 +99,7 @@ public class MovingAverageCalculationState
                 continue;
             }
             if (run.JustCalcDeltaPeriods)
-                AddOrSubtractDeltaFromPreviousValue();
+                calcEndTime = AddOrSubtractDeltaFromPreviousValue();
             else
                 AddFullCalculation();
 
@@ -103,115 +107,186 @@ public class MovingAverageCalculationState
             run.PreviousTick = run.CurrentTick.Previous;
         }
         var periodTotalMs = (decimal)run.IncludedTimeSpan.TotalMilliseconds;
-        SaveRunForNextDeltaRun(startFromTick, calcEndTime);
-        return new ValidRangeBidAskPeriodValue
+        SaveRunForNextDeltaRun(calcEndTime);
+        var result = new ValidRangeBidAskPeriodValue
             (run.TotalTimeWeightedBidInMs / periodTotalMs, run.TotalTimeWeightedAskInMs / periodTotalMs
            , wallClockMovingAverageTimeRange.ToTime, wallClockMovingAverageTimeRange.ToTime
            , AveragePeriod, wallClockMovingAverageTimeRange.ToTime - run.RemainingPeriod);
+
+
+        Logger.Info("State Final average Bid: {0}, Ask: {1} for remaining {2} and inc {3}.  For end time {4}"
+                  , result.BidPrice, result.AskPrice, run.RemainingPeriod, run.IncludedTimeSpan, calcEndTime);
+        return result;
     }
 
-    private void SaveRunForNextDeltaRun(IValidRangeBidAskPeriod startTick, DateTime calcEndTime)
+    private void SaveRunForNextDeltaRun(DateTime calcEndTime)
     {
         if (run.RemainingPeriod <= TimeSpan.Zero)
-            previousRunCalculation = new PreviousRunCalculation
-                (startTick, run.CalcStartTime, calcEndTime, run.TotalTimeWeightedBidInMs, run.TotalTimeWeightedAskInMs);
+        {
+            Logger.Info("State Final weighted Bid: {0}, Ask: {1} for remaining {2} and inc {3}.  For end time {4}"
+                      , run.TotalTimeWeightedBidInMs, run.TotalTimeWeightedAskInMs, run.RemainingPeriod, run.IncludedTimeSpan, calcEndTime);
+            previousRunCalculation =
+                new PreviousRunCalculation(run.CalcStartTime, calcEndTime, run.TotalTimeWeightedBidInMs, run.TotalTimeWeightedAskInMs);
+        }
         else
+        {
+            Logger.Info("State Clear weighted Bid: {0}, Ask: {1} for remaining {2} and inc {3}.  For end time {4}"
+                      , run.TotalTimeWeightedBidInMs, run.TotalTimeWeightedAskInMs, run.RemainingPeriod, run.IncludedTimeSpan, calcEndTime);
             previousRunCalculation = null;
+        }
     }
 
     private void AddFullCalculation()
     {
-        var prevToCurrentTimeSpan = run.CurrentTick!.AtTime - run.PreviousTick!.AtTime;
-        if ((run.CurrentTick.AtTime > run.CalcStartTime && run.PreviousTick.AtTime < run.CalcStartTime)
+        if ((run.CurrentTick!.AtTime > run.CalcStartTime && run.PreviousTick!.AtTime < run.CalcStartTime)
          || run.CurrentTick.AtTime <= run.CalcStartTime)
         {
-            var sliceStart = run.CalcStartTime.Min(run.PreviousTick.AtTime);
+            var sliceStart = run.CalcStartTime.Min(run.PreviousTick!.AtTime);
             var sliceEnd   = run.CurrentTick.AtTime;
+            var validMs    = (decimal)(sliceEnd - sliceStart).TotalMilliseconds;
+            if (validMs > (decimal)run.RemainingPeriod.TotalMilliseconds)
+            {
+                sliceStart = sliceEnd - run.RemainingPeriod;
+                validMs    = (decimal)(sliceEnd - sliceStart).TotalMilliseconds;
+            }
 
             var weightedBidAsk = SliceWeightedBidAskPair(run.PreviousTick!, sliceStart, sliceEnd);
 
             run.TotalTimeWeightedBidInMs += weightedBidAsk.BidPrice;
             run.TotalTimeWeightedAskInMs += weightedBidAsk.AskPrice;
-        }
-        else
-        {
-            if (useWallClock || !run.PreviousTick.ExcludeTime) run.RemainingPeriod -= prevToCurrentTimeSpan;
+
+            Logger.Info("State Full Add Bid: {0}, Ask: {1} for {2}ms. remaining {3} and inc {4}"
+                      , run.PreviousTick.BidPrice, run.PreviousTick.AskPrice, validMs.Round(0), run.RemainingPeriod, run.IncludedTimeSpan);
         }
     }
 
-    private void AddOrSubtractDeltaFromPreviousValue()
+    private DateTime AddOrSubtractDeltaFromPreviousValue()
     {
-        var calcEndTime = run.CurrentTick!.AtTime - run.RemainingPeriod;
-
-        var prevToCurrentTimeSpan = run.CurrentTick.AtTime - run.PreviousTick!.AtTime;
+        var prevToCurrentTimeSpan       = run.CurrentTick!.AtTime - run.PreviousTick!.AtTime;
+        var fromCurrentProjectedEndTime = run.CurrentTick!.AtTime - run.RemainingPeriod;
+        var calcEndTime = prevToCurrentTimeSpan > run.RemainingPeriod
+            ? fromCurrentProjectedEndTime.Max(run.EndDeltaFrom!.Value + run.RemainingPeriod)
+            : fromCurrentProjectedEndTime.Min(run.EndDeltaFrom!.Value + run.RemainingPeriod);
         // add new weighted value that is now within range
-        if ((run.CurrentTick.AtTime > run.StartDeltaFrom && run.PreviousTick.AtTime < run.StartDeltaFrom)
-         || (run.CurrentTick.AtTime <= run.StartDeltaFrom && run.CurrentTick.AtTime >= run.CalcStartTime))
+        if ((run.CurrentTick.AtTime > run.CalcStartTime && run.PreviousTick.AtTime < run.CalcStartTime)
+         || (run.CurrentTick.AtTime <= run.CalcStartTime && run.CurrentTick.AtTime > run.StartDeltaFrom))
         {
             var sliceStart = run.PreviousTick.AtTime.Max(run.StartDeltaFrom);
-            var sliceEnd   = run.CurrentTick.AtTime;
+            var sliceEnd   = run.CurrentTick.AtTime.Min(run.CalcStartTime);
+
+            var validMs = (decimal)(sliceEnd - sliceStart).TotalMilliseconds;
+            if (validMs > (decimal)run.RemainingPeriod.TotalMilliseconds)
+            {
+                sliceStart = sliceEnd - run.RemainingPeriod;
+                validMs    = (decimal)(sliceEnd - sliceStart).TotalMilliseconds;
+            }
 
             var weightedBidAsk = SliceWeightedBidAskPair(run.PreviousTick, sliceStart, sliceEnd);
 
             run.TotalTimeWeightedBidInMs += weightedBidAsk.BidPrice;
             run.TotalTimeWeightedAskInMs += weightedBidAsk.AskPrice;
+
+            Logger.Info("State Delta Add Bid: {0}, Ask: {1} for {2}ms. remaining {3} and inc {4}"
+                      , run.PreviousTick.BidPrice, run.PreviousTick.AskPrice, validMs.Round(0), run.RemainingPeriod, run.IncludedTimeSpan);
+            if (sliceStart > run.PreviousTick.AtTime) run.IncludedTimeSpan += sliceStart - run.PreviousTick.AtTime;
         }
         // subtract old weighted values that are no longer within range
-        else if ((run.CurrentTick.AtTime > run.EndDeltaFrom && run.PreviousTick.AtTime < run.EndDeltaFrom)
-              || run.CurrentTick.AtTime <= run.EndDeltaFrom)
+        else if ((run.CurrentTick.AtTime > run.EndDeltaFrom && run.PreviousTick.AtTime < calcEndTime)
+              || (run.PreviousTick.AtTime < calcEndTime && run.CurrentTick.AtTime > run.EndDeltaFrom))
         {
-            var sliceStart = calcEndTime.Max(run.PreviousTick.AtTime);
-            var sliceEnd   = run.CurrentTick.AtTime;
+            var sliceStart = run.PreviousTick.AtTime.Max(run.EndDeltaFrom);
+            var sliceEnd   = run.CurrentTick.AtTime.Min(sliceStart + run.RemainingPeriod);
+
+            var validMs = (decimal)(sliceEnd - sliceStart).TotalMilliseconds;
+            if (validMs > (decimal)run.RemainingPeriod.TotalMilliseconds)
+            {
+                sliceStart = sliceEnd - run.RemainingPeriod;
+                validMs    = (decimal)(sliceEnd - sliceStart).TotalMilliseconds;
+            }
 
             var weightedBidAsk = SliceWeightedBidAskPair(run.PreviousTick, sliceStart, sliceEnd);
 
+            run.IncludedTimeSpan         -= sliceEnd - sliceStart; // subtract these as this is now outside the moving average and is being deducted
             run.TotalTimeWeightedBidInMs -= weightedBidAsk.BidPrice;
             run.TotalTimeWeightedAskInMs -= weightedBidAsk.AskPrice;
+
+            if (run.RemainingPeriod <= TimeSpan.Zero)
+            {
+                if (sliceEnd < run.CurrentTick.AtTime) run.IncludedTimeSpan += run.CurrentTick.AtTime - sliceEnd;
+                Logger.Info("State Finished Delta Sub Bid: {0}, Ask: {1} for {2}ms. remaining {3} and inc {4}"
+                          , run.PreviousTick.BidPrice, run.PreviousTick.AskPrice, validMs.Round(0), run.RemainingPeriod, run.IncludedTimeSpan);
+                return sliceEnd;
+            }
+            Logger.Info("State Delta Sub Bid: {0}, Ask: {1} for {2}ms. remaining {3} and inc {4}"
+                      , run.PreviousTick.BidPrice, run.PreviousTick.AskPrice, validMs.Round(0), run.RemainingPeriod, run.IncludedTimeSpan);
         }
         else
         {
-            if (useWallClock || !run.PreviousTick.ExcludeTime) run.RemainingPeriod -= prevToCurrentTimeSpan;
+            run.IncludedTimeSpan += prevToCurrentTimeSpan;
         }
+        return calcEndTime;
     }
 
     private void AddLatestTickWeightedBidAsk(BoundedTimeRange wallClockMovingAverageTimeRange)
     {
-        if (run.JustCalcDeltaPeriods && run.StartDeltaFrom > run.CurrentTick!.AtTime && run.StartDeltaFrom < wallClockMovingAverageTimeRange.ToTime)
+        if (run.JustCalcDeltaPeriods)
         {
             // subtract previous weighted value that is no longer within range
-            if ((run.CurrentTick.AtTime.Max(wallClockMovingAverageTimeRange.ToTime) > run.StartDeltaFrom &&
-                 run.CurrentTick.AtTime < run.StartDeltaFrom)
-             || (run.CurrentTick.AtTime <= run.StartDeltaFrom && run.CurrentTick.AtTime >= run.CalcStartTime))
+            if (run.StartDeltaFrom >= run.CurrentTick!.AtTime
+             && run.StartDeltaFrom < run.CalcStartTime
+             && run.CurrentTick.AtTime < run.CalcStartTime)
             {
                 var sliceStart = run.CurrentTick.AtTime.Max(run.StartDeltaFrom.Value);
-                var sliceEnd   = wallClockMovingAverageTimeRange.ToTime;
+                var sliceEnd   = run.CalcStartTime;
+
+                var validMs = (decimal)(sliceEnd - sliceStart).TotalMilliseconds;
+                if (validMs > (decimal)run.RemainingPeriod.TotalMilliseconds)
+                {
+                    sliceStart = sliceEnd - run.RemainingPeriod;
+                    validMs    = (decimal)(sliceEnd - sliceStart).TotalMilliseconds;
+                }
 
                 var weightedBidAsk = SliceWeightedBidAskPair(run.CurrentTick, sliceStart, sliceEnd);
 
-                run.TotalTimeWeightedBidInMs -= weightedBidAsk.BidPrice;
-                run.TotalTimeWeightedAskInMs -= weightedBidAsk.AskPrice;
+                run.TotalTimeWeightedBidInMs += weightedBidAsk.BidPrice;
+                run.TotalTimeWeightedAskInMs += weightedBidAsk.AskPrice;
+
+                if (sliceStart > run.CurrentTick.AtTime) run.IncludedTimeSpan += sliceStart - run.CurrentTick.AtTime;
+
+                Logger.Info("State First Tick Delta Add Bid: {0}, Ask: {1} for {2}ms. remaining {3} and inc {4}"
+                          , run.CurrentTick.BidPrice, run.CurrentTick.AskPrice, validMs.Round(0), run.RemainingPeriod, run.IncludedTimeSpan);
             }
         }
         else
         {
+            run.JustCalcDeltaPeriods     = false;
+            run.TotalTimeWeightedBidInMs = 0m;
+            run.TotalTimeWeightedAskInMs = 0m;
+
             var sliceStart = run.CurrentTick!.AtTime;
-            var sliceEnd   = wallClockMovingAverageTimeRange.ToTime;
+            var sliceEnd   = run.CalcStartTime;
+
+            var validMs = (decimal)(sliceEnd - sliceStart).TotalMilliseconds;
+            if (validMs > (decimal)run.RemainingPeriod.TotalMilliseconds)
+            {
+                sliceStart = sliceEnd - run.RemainingPeriod;
+                validMs    = (decimal)(sliceEnd - sliceStart).TotalMilliseconds;
+            }
 
             var weightedBidAsk = SliceWeightedBidAskPair(run.CurrentTick, sliceStart, sliceEnd);
 
-            run.TotalTimeWeightedBidInMs -= weightedBidAsk.BidPrice;
-            run.TotalTimeWeightedAskInMs -= weightedBidAsk.AskPrice;
+            run.TotalTimeWeightedBidInMs = weightedBidAsk.BidPrice;
+            run.TotalTimeWeightedAskInMs = weightedBidAsk.AskPrice;
+
+            Logger.Info("State First Full Tick Add Bid: {0}, Ask: {1} for {2}ms. remaining {3} and inc {4}"
+                      , run.CurrentTick.BidPrice, run.CurrentTick.AskPrice, validMs.Round(0), run.RemainingPeriod, run.IncludedTimeSpan);
         }
     }
 
-    private void FindLastCalculatedTick(IDoublyLinkedList<IValidRangeBidAskPeriod> timeOrderedPairs)
+    private void StartFromLatestTick(IDoublyLinkedList<IValidRangeBidAskPeriod> timeOrderedPairs)
     {
-        run.JustCalcDeltaPeriods     = false;
-        run.TotalTimeWeightedBidInMs = 0m;
-        run.TotalTimeWeightedAskInMs = 0m;
-
         run.CurrentTick  = timeOrderedPairs.Tail;
-        run.PreviousTick = timeOrderedPairs.Tail;
+        run.PreviousTick = timeOrderedPairs.Tail?.Previous;
     }
 
     private BidAskPair SliceWeightedBidAskPair(IValidRangeBidAskPeriod tick, DateTime sliceStart, DateTime sliceEnd)
@@ -277,12 +352,10 @@ public class MovingAverageCalculationState
     private readonly struct PreviousRunCalculation
     {
         public PreviousRunCalculation
-        (IValidRangeBidAskPeriod startFromTick, DateTime startDeltaFrom, DateTime endDeltaFrom
-          , decimal totalTimeWeightedBidInMs, decimal totalTimeWeightedAskInMs)
+            (DateTime startDeltaFrom, DateTime endDeltaFrom, decimal totalTimeWeightedBidInMs, decimal totalTimeWeightedAskInMs)
         {
             EndDeltaFrom             = endDeltaFrom;
             StartDeltaFrom           = startDeltaFrom;
-            StartFromTick            = startFromTick;
             TotalTimeWeightedAskInMs = totalTimeWeightedAskInMs;
             TotalTimeWeightedBidInMs = totalTimeWeightedBidInMs;
         }
@@ -291,7 +364,5 @@ public class MovingAverageCalculationState
         public readonly decimal  TotalTimeWeightedAskInMs;
         public readonly DateTime StartDeltaFrom;
         public readonly DateTime EndDeltaFrom;
-
-        public readonly IValidRangeBidAskPeriod StartFromTick;
     }
 }

@@ -72,7 +72,7 @@ public class WeeklyTimeTableConfig : ConfigSection, IWeeklyTimeTableConfig
 
     public WeeklyTimeTableConfig(IWeeklyTimeTableConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
-    public TimeZoneInfo? DefaultTimeZone
+    public TimeZoneInfo DefaultTimeZone
     {
         get
         {

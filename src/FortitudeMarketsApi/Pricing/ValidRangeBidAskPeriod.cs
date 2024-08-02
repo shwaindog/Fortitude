@@ -204,7 +204,7 @@ public class ValidRangeBidAskPeriod : BidAskInstant, IValidRangeBidAskPeriod, IC
     public new ValidRangeBidAskPeriod? Next
     {
         get => base.Next as ValidRangeBidAskPeriod;
-        set => base.Previous = value;
+        set => base.Next = value;
     }
 
     public DiscreetTimePeriod CoveringPeriod { get; protected set; }
@@ -256,7 +256,7 @@ public class ValidRangeBidAskPeriod : BidAskInstant, IValidRangeBidAskPeriod, IC
     IValidRangeBidAskPeriod? IValidRangeBidAskPeriod.Next
     {
         get => base.Next as IValidRangeBidAskPeriod;
-        set => base.Previous = value;
+        set => base.Next = value;
     }
 
     IValidRangeBidAskPeriod? IDoublyLinkedListNode<IValidRangeBidAskPeriod>.Previous
@@ -268,7 +268,7 @@ public class ValidRangeBidAskPeriod : BidAskInstant, IValidRangeBidAskPeriod, IC
     IValidRangeBidAskPeriod? IDoublyLinkedListNode<IValidRangeBidAskPeriod>.Next
     {
         get => base.Next as IValidRangeBidAskPeriod;
-        set => base.Previous = value;
+        set => base.Next = value;
     }
 
     public bool UsePreviousValues
@@ -666,6 +666,10 @@ public class ValidRangeBidAskPeriod : BidAskInstant, IValidRangeBidAskPeriod, IC
 
         return this;
     }
+
+    public override string ToString() =>
+        $"{nameof(ValidRangeBidAskPeriod)}({nameof(AtTime)}: {AtTime}, {nameof(BidPrice)}: {BidPrice}, {nameof(AskPrice)}: {AskPrice}, {nameof(booleanFlags)}: {booleanFlags}, " +
+        $"{nameof(ValidTo)}: {ValidTo}, {nameof(ValidFrom)}: {ValidFrom})";
 
     // ReSharper disable VirtualMemberCallInConstructor
     public ValidRangeBidAskPeriod() { }
