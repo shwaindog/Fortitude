@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Configuration;
 using Microsoft.Extensions.Configuration;
@@ -9,16 +12,17 @@ namespace FortitudeBusRules.Config;
 
 public interface IQueuesConfig
 {
-    int MinEventQueues { get; set; }
-    int MaxEventQueues { get; set; }
-    int RequiredIOInboundQueues { get; set; }
-    int RequiredIOOutboundQueues { get; set; }
-    int MinWorkerQueues { get; set; }
-    int MaxWorkerQueues { get; set; }
-    int DefaultQueueSize { get; set; }
-    int EventQueueSize { get; set; }
-    uint MessagePumpMaxWaitMs { get; set; }
-    uint SelectorPollIntervalMs { get; set; }
+    int  MinEventQueues                { get; set; }
+    int  MaxEventQueues                { get; set; }
+    int  RequiredDataAccessQueues      { get; set; }
+    int  RequiredNetworkInboundQueues  { get; set; }
+    int  RequiredNetworkOutboundQueues { get; set; }
+    int  MinWorkerQueues               { get; set; }
+    int  MaxWorkerQueues               { get; set; }
+    int  DefaultQueueSize              { get; set; }
+    int  EventQueueSize                { get; set; }
+    uint MessagePumpMaxWaitMs          { get; set; }
+    uint SelectorPollIntervalMs        { get; set; }
 }
 
 public class QueuesConfig : ConfigSection, IQueuesConfig
@@ -26,10 +30,10 @@ public class QueuesConfig : ConfigSection, IQueuesConfig
     private static readonly Dictionary<string, string?> Defaults = new()
     {
         { nameof(MinEventQueues), "1" }, { nameof(MaxEventQueues), "10" }
-        , { nameof(RequiredIOInboundQueues), "1" }, { nameof(RequiredIOOutboundQueues), "1" }
-        , { nameof(MaxWorkerQueues), "10" }, { nameof(MinWorkerQueues), "1" }
-        , { nameof(EventQueueSize), "50_000" }, { nameof(DefaultQueueSize), "10_000" }
-        , { nameof(MessagePumpMaxWaitMs), "30" }
+      , { nameof(RequiredNetworkInboundQueues), "1" }, { nameof(RequiredNetworkOutboundQueues), "1" }
+      , { nameof(MaxWorkerQueues), "10" }, { nameof(MinWorkerQueues), "1" }
+      , { nameof(EventQueueSize), "50_000" }, { nameof(DefaultQueueSize), "10_000" }
+      , { nameof(MessagePumpMaxWaitMs), "30" }
     };
 
     public QueuesConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path)
@@ -41,15 +45,15 @@ public class QueuesConfig : ConfigSection, IQueuesConfig
 
     public QueuesConfig(IQueuesConfig toClone, IConfigurationRoot root, string path) : this(root, path)
     {
-        MinEventQueues = toClone.MinEventQueues;
-        MaxEventQueues = toClone.MaxEventQueues;
-        RequiredIOInboundQueues = toClone.RequiredIOInboundQueues;
-        RequiredIOOutboundQueues = toClone.RequiredIOOutboundQueues;
-        MinWorkerQueues = toClone.MinWorkerQueues;
-        MaxWorkerQueues = toClone.MaxWorkerQueues;
-        DefaultQueueSize = toClone.DefaultQueueSize;
-        EventQueueSize = toClone.EventQueueSize;
-        MessagePumpMaxWaitMs = toClone.MessagePumpMaxWaitMs;
+        MinEventQueues                = toClone.MinEventQueues;
+        MaxEventQueues                = toClone.MaxEventQueues;
+        RequiredNetworkInboundQueues  = toClone.RequiredNetworkInboundQueues;
+        RequiredNetworkOutboundQueues = toClone.RequiredNetworkOutboundQueues;
+        MinWorkerQueues               = toClone.MinWorkerQueues;
+        MaxWorkerQueues               = toClone.MaxWorkerQueues;
+        DefaultQueueSize              = toClone.DefaultQueueSize;
+        EventQueueSize                = toClone.EventQueueSize;
+        MessagePumpMaxWaitMs          = toClone.MessagePumpMaxWaitMs;
     }
 
     public QueuesConfig(IQueuesConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
@@ -66,16 +70,22 @@ public class QueuesConfig : ConfigSection, IQueuesConfig
         set => this[nameof(MaxEventQueues)] = value.ToString();
     }
 
-    public int RequiredIOInboundQueues
+    public int RequiredDataAccessQueues
     {
-        get => int.Parse(this[nameof(RequiredIOInboundQueues)]!);
-        set => this[nameof(RequiredIOInboundQueues)] = value.ToString();
+        get => int.Parse(this[nameof(RequiredDataAccessQueues)]!);
+        set => this[nameof(RequiredDataAccessQueues)] = value.ToString();
     }
 
-    public int RequiredIOOutboundQueues
+    public int RequiredNetworkInboundQueues
     {
-        get => int.Parse(this[nameof(RequiredIOOutboundQueues)]!);
-        set => this[nameof(RequiredIOOutboundQueues)] = value.ToString();
+        get => int.Parse(this[nameof(RequiredNetworkInboundQueues)]!);
+        set => this[nameof(RequiredNetworkInboundQueues)] = value.ToString();
+    }
+
+    public int RequiredNetworkOutboundQueues
+    {
+        get => int.Parse(this[nameof(RequiredNetworkOutboundQueues)]!);
+        set => this[nameof(RequiredNetworkOutboundQueues)] = value.ToString();
     }
 
     public int MinWorkerQueues

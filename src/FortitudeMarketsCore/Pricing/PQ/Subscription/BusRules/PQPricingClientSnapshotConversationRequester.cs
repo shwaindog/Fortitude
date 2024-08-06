@@ -5,7 +5,7 @@
 
 using FortitudeBusRules.BusMessaging;
 using FortitudeBusRules.BusMessaging.Pipelines;
-using FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
+using FortitudeBusRules.BusMessaging.Pipelines.NetworkQueues;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Connectivity.Network;
 using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization;
@@ -100,7 +100,7 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
         set => socketFactories = value;
     }
 
-    public IIOInboundMessageQueue? IOInboundMessageQueue => SocketSessionContext.IOInboundMessageQueue(messageBus);
+    public INetworkInboundMessageQueue? NetworkInboundMessageQueue => SocketSessionContext.NetworkInboundMessageQueue(messageBus);
 
     public IList<ISourceTickerInfo> LastPublishedSourceTickerInfos { get; private set; } = new List<ISourceTickerInfo>();
 
@@ -142,7 +142,7 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
 
             var registrationResponse = await messageBus.RequestAsync<RemoteRequestIdResponseRegistration, RemoteRegistrationResponse>(creatingRule
            , requestResponseHandlerRegistrationAddress, registerRequest
-           , new DispatchOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, receiverQueuePublishAmender));
+           , new DispatchOptions(RoutingFlags.TargetSpecific, MessageQueueType.NetworkInbound, receiverQueuePublishAmender));
 
             if (!registrationResponse?.Succeeded ?? false)
             {
@@ -189,12 +189,12 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
         receiverQueuePublishAmender = messageBus.RulesMatching(r => r.FriendlyName == feedName.FeedRegisterRemoteResponseRuleName()).FirstOrDefault();
         if (receiverQueuePublishAmender == null || receiverQueuePublishAmender.LifeCycleState is RuleLifeCycle.NotStarted or RuleLifeCycle.Stopped)
         {
-            var deployedSocketListenerQueue = IOInboundMessageQueue;
+            var deployedSocketListenerQueue = NetworkInboundMessageQueue;
             receiverQueuePublishAmender
                 = new PQPricingClientRequestResponseRegistrationRule(feedName, SocketSessionContext, sharedDeserializationRepo.Name);
             var dispatchResult = await messageBus.DeployRuleAsync
                 (creatingRule, receiverQueuePublishAmender
-               , new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, 1, deployedSocketListenerQueue!.Name));
+               , new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.NetworkInbound, 1, deployedSocketListenerQueue!.Name));
             //
             // logger.Info("Have deployed PQPricingClientRequestResponseRegistrationRule on {0} with dispatchResults {1}"
             //     , deployedSocketListenerQueue.Name, dispatchResult);

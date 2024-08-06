@@ -10,7 +10,7 @@ using FortitudeIO.Transports.Network.Dispatcher;
 
 #endregion
 
-namespace FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
+namespace FortitudeBusRules.BusMessaging.Pipelines.NetworkQueues;
 
 internal class BusPooledSocketDispatcherResolver : ISocketDispatcherResolver
 {
@@ -18,13 +18,13 @@ internal class BusPooledSocketDispatcherResolver : ISocketDispatcherResolver
     private readonly QueueSelectionStrategy queueSelectionStrategy;
     private readonly MessageQueueType       resolveFor;
 
-    private IIOInboundMessageQueue?  preferredFirstSelectedInboundQueue;
-    private IIOOutboundMessageQueue? preferredFirstSelectedOutboundQueue;
+    private INetworkInboundMessageQueue?  preferredFirstSelectedInboundQueue;
+    private INetworkOutboundMessageQueue? preferredFirstSelectedOutboundQueue;
 
     public BusPooledSocketDispatcherResolver
     (IConfigureMessageBus messageBus, QueueSelectionStrategy queueSelectionStrategy
-      , MessageQueueType resolveFor = MessageQueueType.AllIO, IIOInboundMessageQueue? preferredFirstSelectedInboundQueue = null
-      , IIOOutboundMessageQueue? preferredFirstSelectedOutboundQueue = null)
+      , MessageQueueType resolveFor = MessageQueueType.AllNetwork, INetworkInboundMessageQueue? preferredFirstSelectedInboundQueue = null
+      , INetworkOutboundMessageQueue? preferredFirstSelectedOutboundQueue = null)
     {
         this.messageBus = messageBus;
         this.resolveFor = resolveFor;
@@ -41,9 +41,9 @@ internal class BusPooledSocketDispatcherResolver : ISocketDispatcherResolver
     {
         var socketDispatcherListener = preferredFirstSelectedInboundQueue?.SocketDispatcherListener;
         var socketDispatcherSender   = preferredFirstSelectedOutboundQueue?.SocketDispatcherSender;
-        if ((socketDispatcherListener == null) & ((resolveFor & MessageQueueType.IOInbound) > 0))
+        if ((socketDispatcherListener == null) & ((resolveFor & MessageQueueType.NetworkInbound) > 0))
         {
-            var selectedInbound = messageBus.AllMessageQueues.IOInboundMessageQueueGroup.AsMessageQueueList()
+            var selectedInbound = messageBus.AllMessageQueues.NetworkInboundMessageQueueGroup.AsMessageQueueList()
                                             .SelectEventQueue(queueSelectionStrategy);
             socketDispatcherListener = selectedInbound.SocketDispatcherListener;
         }
@@ -52,7 +52,7 @@ internal class BusPooledSocketDispatcherResolver : ISocketDispatcherResolver
             preferredFirstSelectedInboundQueue = null;
         }
 
-        if (socketDispatcherSender == null && (resolveFor & MessageQueueType.IOOutbound) > 0)
+        if (socketDispatcherSender == null && (resolveFor & MessageQueueType.NetworkOutbound) > 0)
             socketDispatcherSender = FindSocketDispatcherSender(queueSelectionStrategy);
         else
             preferredFirstSelectedOutboundQueue = null;
@@ -62,7 +62,7 @@ internal class BusPooledSocketDispatcherResolver : ISocketDispatcherResolver
 
     private ISocketDispatcherSender FindSocketDispatcherSender(QueueSelectionStrategy queueSelectionStrategy)
     {
-        var selectedInbound = messageBus.AllMessageQueues.IOOutboundMessageQueueGroup.AsMessageQueueList()
+        var selectedInbound = messageBus.AllMessageQueues.NetworkOutboundMessageQueueGroup.AsMessageQueueList()
                                         .SelectEventQueue(queueSelectionStrategy);
         var socketDispatcherSender = selectedInbound.SocketDispatcherSender;
         return socketDispatcherSender;

@@ -42,16 +42,16 @@ public class PQPricingServerFeedRule : Rule
 
     public override async ValueTask StartAsync()
     {
-        var outboundQueueDeploy = Context.GetEventQueues(MessageQueueType.IOOutbound)
+        var outboundQueueDeploy = Context.GetEventQueues(MessageQueueType.NetworkOutbound)
                                          .SelectEventQueue(QueueSelectionStrategy.LeastBusy);
         updatePublisherRule = new PQPricingServerQuotePublisherRule(feedName, marketConnectionConfig.PricingServerConfig!);
         await this.DeployRuleAsync
-            (updatePublisherRule, new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOOutbound, 1, outboundQueueDeploy.Name));
-        var inboundQueueDeploy = Context.GetEventQueues(MessageQueueType.IOInbound)
+            (updatePublisherRule, new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.NetworkOutbound, 1, outboundQueueDeploy.Name));
+        var inboundQueueDeploy = Context.GetEventQueues(MessageQueueType.NetworkInbound)
                                         .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted);
         clientResponderRule = new PQPricingServerClientResponderRule(feedName, marketConnectionConfig.PricingServerConfig!);
         await this.DeployRuleAsync
-            (clientResponderRule, new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, 1, inboundQueueDeploy.Name));
+            (clientResponderRule, new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.NetworkInbound, 1, inboundQueueDeploy.Name));
         await RegisterEachConfiguredTicker();
         await this.RegisterRequestListenerAsync<string, FeedSourceTickerInfoUpdate>
             (allAvailableTickersRequestAddress, ReceivedAllAvailableTickersRequest);

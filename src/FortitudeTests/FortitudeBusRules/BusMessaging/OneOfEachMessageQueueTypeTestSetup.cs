@@ -6,7 +6,7 @@
 using FortitudeBusRules.BusMessaging;
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Pipelines.Groups;
-using FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
+using FortitudeBusRules.BusMessaging.Pipelines.NetworkQueues;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Config;
 using FortitudeBusRules.Connectivity.Network.Dispatcher;
@@ -30,17 +30,17 @@ public class OneOfEachMessageQueueTypeTestSetup
 
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(OneOfEachMessageQueueTypeTestSetup));
 
-    public    MessageQueue           CustomQueue1 = null!;
-    protected RouteSelectionResult   CustomQueue1SelectionResult;
-    public    MessageQueue           EventQueue1 = null!;
-    protected RouteSelectionResult   EventQueue1SelectionResult;
-    public    IOInboundMessageQueue  IOInboundQueue1 = null!;
-    protected RouteSelectionResult   IOInboundQueue1SelectionResult;
-    public    IOOutboundMessageQueue IOOutboundQueue1 = null!;
-    protected RouteSelectionResult   IOOutboundQueue1SelectionResult;
-    public    MessageBus             MessageBus   = null!;
-    public    MessageQueue           WorkerQueue1 = null!;
-    protected RouteSelectionResult   WorkerQueue1SelectionResult;
+    public    MessageQueue                CustomQueue1 = null!;
+    protected RouteSelectionResult        CustomQueue1SelectionResult;
+    public    MessageQueue                EventQueue1 = null!;
+    protected RouteSelectionResult        EventQueue1SelectionResult;
+    public    MessageBus                  MessageBus           = null!;
+    public    NetworkInboundMessageQueue  NetworkInboundQueue1 = null!;
+    protected RouteSelectionResult        NetworkInboundQueue1SelectionResult;
+    public    NetworkOutboundMessageQueue NetworkOutboundQueue1 = null!;
+    protected RouteSelectionResult        NetworkOutboundQueue1SelectionResult;
+    public    MessageQueue                WorkerQueue1 = null!;
+    protected RouteSelectionResult        WorkerQueue1SelectionResult;
 
     protected virtual int RingPollerSize => DefaultRingPollerSize;
 
@@ -58,10 +58,10 @@ public class OneOfEachMessageQueueTypeTestSetup
     {
         var defaultQueuesConfig = new QueuesConfig
         {
-            DefaultQueueSize         = RingPollerSize
-          , EventQueueSize           = RingPollerSize
-          , RequiredIOInboundQueues  = 1
-          , RequiredIOOutboundQueues = 1
+            DefaultQueueSize              = RingPollerSize
+          , EventQueueSize                = RingPollerSize
+          , RequiredNetworkInboundQueues  = 1
+          , RequiredNetworkOutboundQueues = 1
         };
         TimerContext.Provider = ResolverTimerProvider();
         var timer
@@ -71,11 +71,11 @@ public class OneOfEachMessageQueueTypeTestSetup
 
         MessageBus = new MessageBus(evtBus =>
         {
-            EventQueue1      = new MessageQueue(evtBus, MessageQueueType.Event, 1, RingPoller("EventQueue"));
-            WorkerQueue1     = new MessageQueue(evtBus, MessageQueueType.Worker, 1, RingPoller("WorkerQueue"));
-            CustomQueue1     = new MessageQueue(evtBus, MessageQueueType.Custom, 1, RingPoller("CustomQueue"));
-            IOOutboundQueue1 = new IOOutboundMessageQueue(evtBus, MessageQueueType.IOOutbound, 1, SocketSenderRingPoller());
-            IOInboundQueue1  = new IOInboundMessageQueue(evtBus, MessageQueueType.IOInbound, 1, SocketListenerRingPoller(timer));
+            EventQueue1           = new MessageQueue(evtBus, MessageQueueType.Event, 1, RingPoller("EventQueue"));
+            WorkerQueue1          = new MessageQueue(evtBus, MessageQueueType.Worker, 1, RingPoller("WorkerQueue"));
+            CustomQueue1          = new MessageQueue(evtBus, MessageQueueType.Custom, 1, RingPoller("CustomQueue"));
+            NetworkOutboundQueue1 = new NetworkOutboundMessageQueue(evtBus, MessageQueueType.NetworkOutbound, 1, SocketSenderRingPoller());
+            NetworkInboundQueue1  = new NetworkInboundMessageQueue(evtBus, MessageQueueType.NetworkInbound, 1, SocketListenerRingPoller(timer));
 
             var eventGroupContainer = new MessageQueueGroupContainer
                 (evtBus, evBus => new MessageQueueTypeGroup
@@ -83,10 +83,10 @@ public class OneOfEachMessageQueueTypeTestSetup
                      { EventQueue1 }
                , wrkBus => new MessageQueueTypeGroup(evtBus, MessageQueueType.Worker, new Recycler(), defaultQueuesConfig)
                      { WorkerQueue1 }
-               , ioInBus => new SocketListenerMessageQueueGroup(evtBus, MessageQueueType.IOInbound, new Recycler(), defaultQueuesConfig)
-                     { IOInboundQueue1 }
-               , ioOutBus => new SocketSenderMessageQueueGroup(evtBus, MessageQueueType.IOOutbound, new Recycler(), defaultQueuesConfig)
-                     { IOOutboundQueue1 }
+               , ioInBus => new SocketListenerMessageQueueGroup(evtBus, MessageQueueType.NetworkInbound, new Recycler(), defaultQueuesConfig)
+                     { NetworkInboundQueue1 }
+               , ioOutBus => new SocketSenderMessageQueueGroup(evtBus, MessageQueueType.NetworkOutbound, new Recycler(), defaultQueuesConfig)
+                     { NetworkOutboundQueue1 }
                , cstBus => new MessageQueueTypeGroup(evtBus, MessageQueueType.Custom, new Recycler(), defaultQueuesConfig)
                      { CustomQueue1 }
                 );
@@ -95,9 +95,10 @@ public class OneOfEachMessageQueueTypeTestSetup
         EventQueue1SelectionResult  = new RouteSelectionResult(EventQueue1, "OneOfEachMessageQueueTypeTestSetup", RoutingFlags.DefaultDeploy);
         WorkerQueue1SelectionResult = new RouteSelectionResult(WorkerQueue1, "OneOfEachMessageQueueTypeTestSetup", RoutingFlags.DefaultDeploy);
         CustomQueue1SelectionResult = new RouteSelectionResult(CustomQueue1, "OneOfEachMessageQueueTypeTestSetup", RoutingFlags.DefaultDeploy);
-        IOOutboundQueue1SelectionResult
-            = new RouteSelectionResult(IOOutboundQueue1, "OneOfEachMessageQueueTypeTestSetup", RoutingFlags.DefaultDeploy);
-        IOInboundQueue1SelectionResult = new RouteSelectionResult(IOInboundQueue1, "OneOfEachMessageQueueTypeTestSetup", RoutingFlags.DefaultDeploy);
+        NetworkOutboundQueue1SelectionResult
+            = new RouteSelectionResult(NetworkOutboundQueue1, "OneOfEachMessageQueueTypeTestSetup", RoutingFlags.DefaultDeploy);
+        NetworkInboundQueue1SelectionResult
+            = new RouteSelectionResult(NetworkInboundQueue1, "OneOfEachMessageQueueTypeTestSetup", RoutingFlags.DefaultDeploy);
         MessageBus.Start();
         return MessageBus;
     }

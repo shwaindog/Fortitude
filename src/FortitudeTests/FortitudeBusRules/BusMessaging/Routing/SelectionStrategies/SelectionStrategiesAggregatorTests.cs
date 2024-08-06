@@ -1,9 +1,12 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging;
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Pipelines.Groups;
-using FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
+using FortitudeBusRules.BusMessaging.Pipelines.NetworkQueues;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
@@ -20,42 +23,43 @@ namespace FortitudeTests.FortitudeBusRules.BusMessaging.Routing.SelectionStrateg
 public class SelectionStrategiesAggregatorTests
 {
     private const string FixedOrderStrategyName = FixedOrderSelectionStrategy.StrategyName;
-    private IMessageQueueGroupContainer allQueues = null!;
-    private Mock<IMessageQueue> customQueue = null!;
-    private Mock<IMessageQueue> eventQueue = null!;
-    private Mock<IIOInboundMessageQueue> ioInboundQueue = null!;
-    private Mock<IIOOutboundMessageQueue> ioOutboundQueue = null!;
-    private IRecycler recycler = null!;
-    private IRule respondingRuleFirstQueue = new RespondingRule();
-    private IRule rule = null!;
-    private Mock<IQueueContext> ruleContext = null!;
-    private SelectionStrategiesAggregator selectionStrategyAggregator = null!;
-    private Mock<IMessageQueue> workerQueue = null!;
+
+    private IMessageQueueGroupContainer        allQueues                   = null!;
+    private Mock<IMessageQueue>                customQueue                 = null!;
+    private Mock<IMessageQueue>                eventQueue                  = null!;
+    private Mock<INetworkInboundMessageQueue>  ioInboundQueue              = null!;
+    private Mock<INetworkOutboundMessageQueue> ioOutboundQueue             = null!;
+    private IRecycler                          recycler                    = null!;
+    private IRule                              respondingRuleFirstQueue    = new RespondingRule();
+    private IRule                              rule                        = null!;
+    private Mock<IQueueContext>                ruleContext                 = null!;
+    private SelectionStrategiesAggregator      selectionStrategyAggregator = null!;
+    private Mock<IMessageQueue>                workerQueue                 = null!;
 
     [TestInitialize]
     public void Setup()
     {
-        recycler = new Recycler();
+        recycler                    = new Recycler();
         selectionStrategyAggregator = new SelectionStrategiesAggregator();
 
-        ioOutboundQueue = new Mock<IIOOutboundMessageQueue>();
-        ioInboundQueue = new Mock<IIOInboundMessageQueue>();
-        eventQueue = new Mock<IMessageQueue>();
-        workerQueue = new Mock<IMessageQueue>();
-        customQueue = new Mock<IMessageQueue>();
-        ruleContext = new Mock<IQueueContext>();
+        ioOutboundQueue = new Mock<INetworkOutboundMessageQueue>();
+        ioInboundQueue  = new Mock<INetworkInboundMessageQueue>();
+        eventQueue      = new Mock<IMessageQueue>();
+        workerQueue     = new Mock<IMessageQueue>();
+        customQueue     = new Mock<IMessageQueue>();
+        ruleContext     = new Mock<IQueueContext>();
 
-        ioOutboundQueue.SetupGet(eq => eq.QueueType).Returns(IOOutbound);
-        ioInboundQueue.SetupGet(eq => eq.QueueType).Returns(IOInbound);
+        ioOutboundQueue.SetupGet(eq => eq.QueueType).Returns(NetworkOutbound);
+        ioInboundQueue.SetupGet(eq => eq.QueueType).Returns(NetworkInbound);
         eventQueue.SetupGet(eq => eq.QueueType).Returns(Event);
         eventQueue.Setup(eq => eq.IsListeningToAddress(It.IsAny<string>())).Returns(true);
         eventQueue.Setup(eq => eq.RulesListeningToAddress(It.IsAny<ISet<IRule>>(), It.IsAny<string>()))
-            .Callback((ISet<IRule> toAddTo, string destination) => toAddTo.Add(respondingRuleFirstQueue));
+                  .Callback((ISet<IRule> toAddTo, string destination) => toAddTo.Add(respondingRuleFirstQueue));
         workerQueue.SetupGet(eq => eq.QueueType).Returns(Worker);
         customQueue.SetupGet(eq => eq.QueueType).Returns(Custom);
         customQueue.Setup(eq => eq.IsListeningToAddress(It.IsAny<string>())).Returns(true);
         customQueue.Setup(eq => eq.RulesListeningToAddress(It.IsAny<ISet<IRule>>(), It.IsAny<string>()))
-            .Callback((ISet<IRule> toAddTo, string destination) => toAddTo.Add(respondingRuleFirstQueue));
+                   .Callback((ISet<IRule> toAddTo, string destination) => toAddTo.Add(respondingRuleFirstQueue));
 
         rule = new IncrementingRule();
         ruleContext.SetupGet(ec => ec.RegisteredOn).Returns(eventQueue.Object);
@@ -73,8 +77,8 @@ public class SelectionStrategiesAggregatorTests
         selectionStrategyAggregator.Add(new FixedOrderSelectionStrategy(recycler));
         var expectedStrategySelection
             = RoutingFlags.DefaultPublish;
-        var resultEnum = selectionStrategyAggregator.Select(allQueues, rule
-            , new DispatchOptions(expectedStrategySelection, Custom), "SomeAddress");
+        var resultEnum = selectionStrategyAggregator.Select
+            (allQueues, rule, new DispatchOptions(expectedStrategySelection, Custom), "SomeAddress");
 
         Assert.IsTrue(resultEnum.HasItems);
         Assert.AreEqual(1, resultEnum.Count);
@@ -91,8 +95,8 @@ public class SelectionStrategiesAggregatorTests
         selectionStrategyAggregator.Add(new FixedOrderSelectionStrategy(recycler));
         var expectedStrategySelection
             = RoutingFlags.DefaultDeploy;
-        var resultEnum = selectionStrategyAggregator.Select(allQueues, rule, rule
-            , new DeploymentOptions(expectedStrategySelection, Custom));
+        var resultEnum = selectionStrategyAggregator.Select
+            (allQueues, rule, rule, new DeploymentOptions(expectedStrategySelection, Custom));
 
         Assert.IsNotNull(resultEnum);
         var result = resultEnum.Value;
@@ -110,8 +114,8 @@ public class SelectionStrategiesAggregatorTests
         selectionStrategyAggregator.Add(new FixedOrderSelectionStrategy(recycler));
         var expectedStrategySelection
             = RoutingFlags.DefaultRequestResponse;
-        var resultEnum = selectionStrategyAggregator.Select(allQueues, rule
-            , new DispatchOptions(expectedStrategySelection, Event), "SomeAddress");
+        var resultEnum = selectionStrategyAggregator.Select
+            (allQueues, rule, new DispatchOptions(expectedStrategySelection, Event), "SomeAddress");
 
         Assert.IsTrue(resultEnum.HasItems);
         Assert.AreEqual(1, resultEnum.Count);
@@ -128,8 +132,8 @@ public class SelectionStrategiesAggregatorTests
     public void WithOrderSelectionStrategyNoneEventQueueRuleReturnsEmptySelectionResults()
     {
         selectionStrategyAggregator.Add(new FixedOrderSelectionStrategy(recycler));
-        var resultEnum = selectionStrategyAggregator.Select(allQueues, rule
-            , new DispatchOptions(targetMessageQueueType: None), "SomeAddress");
+        var resultEnum = selectionStrategyAggregator.Select
+            (allQueues, rule, new DispatchOptions(targetMessageQueueType: None), "SomeAddress");
 
         Assert.IsFalse(resultEnum.HasItems);
     }
@@ -138,8 +142,8 @@ public class SelectionStrategiesAggregatorTests
     public void WithOrderSelectionStrategyNoneEventQueueDeployRuleReturnsNull()
     {
         selectionStrategyAggregator.Add(new FixedOrderSelectionStrategy(recycler));
-        var resultEnum = selectionStrategyAggregator.Select(allQueues, rule, rule
-            , new DeploymentOptions(messageGroupType: None));
+        var resultEnum = selectionStrategyAggregator.Select
+            (allQueues, rule, rule, new DeploymentOptions(messageGroupType: None));
 
         Assert.IsNull(resultEnum);
     }

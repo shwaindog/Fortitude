@@ -5,7 +5,7 @@
 
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Pipelines.Groups;
-using FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
+using FortitudeBusRules.BusMessaging.Pipelines.NetworkQueues;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
@@ -166,10 +166,11 @@ public class PQPricingServerQuotePublisherRule : Rule
     public async ValueTask AttemptStartUpdatePublisher()
     {
         var thisQueue = Context.RegisteredOn;
-        if (thisQueue is not IIOOutboundMessageQueue)
-            Logger.Warn("Expected this rule to be deployed on an IOOutboundQueue so that it can reduce Queue hops.  Was deployed on {0}"
+        if (thisQueue is not INetworkOutboundMessageQueue)
+            Logger.Warn("Expected this rule to be deployed on an NetworkOutboundQueue so that it can reduce Queue hops.  Was deployed on {0}"
                       , thisQueue.Name);
-        var updateServerDispatcher = Context.MessageBus.BusIOResolver.GetOutboundDispatcherResolver(thisQueue as IIOOutboundMessageQueue);
+        var updateServerDispatcher
+            = Context.MessageBus.BusNetworkResolver.GetNetworkOutboundDispatcherResolver(thisQueue as INetworkOutboundMessageQueue);
         updatePublisher = PQPricingServerQuoteUpdatePublisher.BuildUdpMulticastPublisher(feedName, updatesConnectionConfig, updateServerDispatcher);
         var workerQueueConnect = Context.GetEventQueues(MessageQueueType.Worker)
                                         .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted).GetExecutionContextResult<bool, TimeSpan>(this);

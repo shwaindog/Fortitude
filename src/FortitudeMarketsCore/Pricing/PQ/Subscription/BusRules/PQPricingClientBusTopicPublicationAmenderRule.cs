@@ -5,7 +5,7 @@
 
 using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.BusMessaging.Pipelines;
-using FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
+using FortitudeBusRules.BusMessaging.Pipelines.NetworkQueues;
 using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization.Rules;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
@@ -104,9 +104,9 @@ public class PQPricingClientBusTopicPublicationAmenderRule : RemoteMessageBusTop
         await base.LaunchTopicPublicationAmenderListener();
         var interceptorListenPath = feedName.FeedDefaultAllTickersPublishInterceptPattern();
         var addressPublicationAmenderInterceptor = new PQPricingClientTickerPublishAmenderInterceptor(feedName,
-         new AddressMatcher(interceptorListenPath), (IIOInboundMessageQueue)Context.RegisteredOn);
+         new AddressMatcher(interceptorListenPath), (INetworkInboundMessageQueue)Context.RegisteredOn);
 
-        await this.AddListenSubscribeInterceptor(addressPublicationAmenderInterceptor, MessageQueueType.AllNonIO);
+        await this.AddListenSubscribeInterceptor(addressPublicationAmenderInterceptor, MessageQueueType.AllNonNetwork);
     }
 
     protected override string ExtractSubscriptionPostfix(string fullMessageAddressDestination) =>
