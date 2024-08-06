@@ -77,7 +77,7 @@ public class PQPricingClientFeedRule : Rule
             (feedAvailableTickersUpdateAddress, ReceivedFeedAvailableTickersUpdate);
         this.Publish(feedAddress,
                      new SourceFeedUpdate(PricingFeedStatus.Starting, feedName, feedAddress), new DispatchOptions(RoutingFlags.DefaultPublish));
-        var socketDispatcherResolver = Context.MessageBus.BusIOResolver.GetDispatcherResolver(QueueSelectionStrategy.FirstInSet);
+        var socketDispatcherResolver = Context.MessageBus.BusNetworkResolver.GetNetworkDispatcherResolver(QueueSelectionStrategy.FirstInSet);
         var sharedFeedDeserializationRepository
             = new BusRulesMessageDeserializationRepository
                 (new MessageDeserializationRepository($"{feedName}SharedSnapshotAndUpdateRepo", Context.PooledRecycler));

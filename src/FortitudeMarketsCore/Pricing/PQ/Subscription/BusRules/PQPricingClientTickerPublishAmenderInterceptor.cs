@@ -4,7 +4,7 @@
 #region
 
 using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
-using FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
+using FortitudeBusRules.BusMessaging.Pipelines.NetworkQueues;
 using FortitudeBusRules.Connectivity.Network.Serdes.Deserialization;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
@@ -20,10 +20,10 @@ public class PQPricingClientTickerPublishAmenderInterceptor : AddressListenSubsc
 
     private readonly string feedName;
 
-    private readonly IIOInboundMessageQueue subscribeQueue;
+    private readonly INetworkInboundMessageQueue subscribeQueue;
 
     public PQPricingClientTickerPublishAmenderInterceptor
-        (string feedName, IAddressMatcher addressMatcher, IIOInboundMessageQueue subscribeQueue)
+        (string feedName, IAddressMatcher addressMatcher, INetworkInboundMessageQueue subscribeQueue)
         : base(feedName.FeedAddress(), addressMatcher)
     {
         if (!addressMatcher.AddressMatchPattern.Contains(feedName.FeedDefaultAllTickersPublishBaseAddress()))

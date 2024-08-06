@@ -118,10 +118,10 @@ public class PQPricingClientRequesterRule
             remoteMessageBusTopicPublicationAmenderRule = new PQPricingClientBusTopicPublicationAmenderRule(
              feedName, checkSourceTickerInfos, snapshotClient!.SocketSessionContext, marketConnectionConfig.PricingServerConfig!
            , new PQtoPQPriceConverterRepository(), sharedFeedDeserializationRepo.Name);
-            var deployedSocketListenerQueue = snapshotClient.IOInboundMessageQueue;
+            var deployedSocketListenerQueue = snapshotClient.NetworkInboundMessageQueue;
             var dispatchResult = await Context.MessageBus.DeployRuleAsync
                 (this, remoteMessageBusTopicPublicationAmenderRule,
-                 new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.IOInbound, 1, deployedSocketListenerQueue!.Name));
+                 new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.NetworkInbound, 1, deployedSocketListenerQueue!.Name));
 
             // logger.Info("Have deployed PQPricingClientBusTopicPublicationAmenderRule on {0} with dispatchResults {1}"
             //     , deployedSocketListenerQueue.Name, dispatchResult);

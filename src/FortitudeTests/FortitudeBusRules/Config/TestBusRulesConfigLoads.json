@@ -5,8 +5,9 @@
     "QueuesConfig": {
       "MinEventQueues": 2,
       "MaxEventQueues": 10,
-      "RequiredIOInboundQueues": 5,
-      "RequiredIOOutboundQueues": 1,
+      "RequiredDataAccessQueues": 1,
+      "RequiredNetworkInboundQueues": 5,
+      "RequiredNetworkOutboundQueues": 1,
       "MinWorkerQueues": 3,
       "MaxWorkerQueues": 7,
       "DefaultQueueSize": 3000,

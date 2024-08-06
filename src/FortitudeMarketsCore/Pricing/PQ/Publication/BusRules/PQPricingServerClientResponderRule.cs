@@ -1,8 +1,11 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Pipelines.Groups;
-using FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
+using FortitudeBusRules.BusMessaging.Pipelines.NetworkQueues;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Conversations;
@@ -16,13 +19,16 @@ namespace FortitudeMarketsCore.Pricing.PQ.Publication.BusRules;
 public class PQPricingServerClientResponderRule : Rule
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingServerClientResponderRule));
+
     private readonly string feedName;
+
     private readonly INetworkTopicConnectionConfig snapshotConnectionConfig;
+
     private PQPricingServerSnapshotResponder? snapshotConversationResponder;
 
     public PQPricingServerClientResponderRule(string feedName, IPricingServerConfig pricingServerConfig)
     {
-        this.feedName = feedName;
+        this.feedName            = feedName;
         snapshotConnectionConfig = pricingServerConfig.SnapshotConnectionConfig!;
     }
 
@@ -35,19 +41,20 @@ public class PQPricingServerClientResponderRule : Rule
     public async ValueTask AttemptStartResponder()
     {
         var thisQueue = Context.RegisteredOn;
-        if (thisQueue is not IIOInboundMessageQueue thisIOInboundMessageQueue)
+        if (thisQueue is not INetworkInboundMessageQueue networkInboundMessageQueue)
         {
-            Logger.Warn("Expected this rule to be deployed on an IOInboundQueue so that it can reduce Queue hops.  " +
+            Logger.Warn("Expected this rule to be deployed on an NetworkInboundQueue so that it can reduce Queue hops.  " +
                         "Was deployed on {0}", thisQueue.Name);
             return;
         }
 
-        var snapshotRespondingServerDispatcher = Context.MessageBus.BusIOResolver.GetDispatcherResolver(
-            QueueSelectionStrategy.LeastBusy, MessageQueueType.AllIO, thisIOInboundMessageQueue);
+        var snapshotRespondingServerDispatcher = Context.MessageBus.BusNetworkResolver.GetNetworkDispatcherResolver(
+             QueueSelectionStrategy.LeastBusy, MessageQueueType.AllNetwork, networkInboundMessageQueue);
         snapshotConversationResponder = PQPricingServerSnapshotResponder.BuildTcpResponder(
-            feedName, snapshotConnectionConfig, snapshotRespondingServerDispatcher, Context.MessageBus);
+                                                                                           feedName, snapshotConnectionConfig
+                                                                                         , snapshotRespondingServerDispatcher, Context.MessageBus);
         var workerQueueConnect = Context.GetEventQueues(MessageQueueType.Worker)
-            .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted).GetExecutionContextResult<bool, TimeSpan>(this);
+                                        .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted).GetExecutionContextResult<bool, TimeSpan>(this);
         var connected = await snapshotConversationResponder.StartAsync(10_000, workerQueueConnect);
         if (connected)
         {

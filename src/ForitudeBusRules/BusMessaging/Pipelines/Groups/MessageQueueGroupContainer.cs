@@ -6,7 +6,7 @@
 using System.Collections;
 using FortitudeBusRules.BusMessaging.Messages;
 using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
-using FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
+using FortitudeBusRules.BusMessaging.Pipelines.NetworkQueues;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Config;
 using FortitudeBusRules.Messages;
@@ -25,11 +25,12 @@ public interface IMessageQueueGroupContainer : IEnumerable<IMessageQueue>
     bool HasStarted { get; }
     int  Count      { get; }
 
-    IMessageQueueTypeGroup      EventMessageQueueGroup      { get; }
-    IMessageQueueTypeGroup      WorkerMessageQueueGroup     { get; }
-    IIOInboundMessageTypeGroup  IOInboundMessageQueueGroup  { get; }
-    IIOOutboundMessageTypeGroup IOOutboundMessageQueueGroup { get; }
-    IMessageQueueTypeGroup      CustomMessageQueueGroup     { get; }
+    IMessageQueueTypeGroup           EventMessageQueueGroup           { get; }
+    IMessageQueueTypeGroup           WorkerMessageQueueGroup          { get; }
+    INetworkInboundMessageTypeGroup  NetworkInboundMessageQueueGroup  { get; }
+    INetworkOutboundMessageTypeGroup NetworkOutboundMessageQueueGroup { get; }
+    IMessageQueueTypeGroup           CustomMessageQueueGroup          { get; }
+    IMessageQueueTypeGroup           DataAccessMessageQueueGroup      { get; }
 
     IMessageQueueGroupContainer      Add(IMessageQueue messageQueue);
     IMessageQueueGroupContainer      AddRange(IEnumerable<IMessageQueue> eventQueue);
@@ -70,8 +71,9 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
 
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MessageQueueGroupContainer));
 
-    private readonly IConfigureMessageBus           owningMessageBus;
-    private readonly Recycler                       recycler;
+    private readonly IConfigureMessageBus owningMessageBus;
+    private readonly Recycler             recycler;
+
     private readonly DeployDispatchStrategySelector strategySelector;
 
     public MessageQueueGroupContainer(IConfigureMessageBus owningMessageBus, BusRulesConfig config)
@@ -80,12 +82,12 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         recycler              = new Recycler();
         strategySelector      = new DeployDispatchStrategySelector(recycler);
         this.owningMessageBus = owningMessageBus;
-        var ioInboundNum = Math.Max(config.QueuesConfig.RequiredIOInboundQueues, MaximumIOQueues);
-        IOInboundMessageQueueGroup = new SocketListenerMessageQueueGroup(owningMessageBus, IOInbound, recycler, config.QueuesConfig);
-        IOInboundMessageQueueGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, IOInbound, (uint)ioInboundNum));
-        var ioOutboundNum = Math.Max(config.QueuesConfig.RequiredIOOutboundQueues, MaximumIOQueues);
-        IOOutboundMessageQueueGroup = new SocketSenderMessageQueueGroup(owningMessageBus, IOOutbound, recycler, config.QueuesConfig);
-        IOOutboundMessageQueueGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, IOOutbound, (uint)ioOutboundNum));
+        var ioInboundNum = Math.Max(config.QueuesConfig.RequiredNetworkInboundQueues, MaximumIOQueues);
+        NetworkInboundMessageQueueGroup = new SocketListenerMessageQueueGroup(owningMessageBus, NetworkInbound, recycler, config.QueuesConfig);
+        NetworkInboundMessageQueueGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, NetworkInbound, (uint)ioInboundNum));
+        var ioOutboundNum = Math.Max(config.QueuesConfig.RequiredNetworkOutboundQueues, MaximumIOQueues);
+        NetworkOutboundMessageQueueGroup = new SocketSenderMessageQueueGroup(owningMessageBus, NetworkOutbound, recycler, config.QueuesConfig);
+        NetworkOutboundMessageQueueGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, NetworkOutbound, (uint)ioOutboundNum));
 
         var eventMinNum   = Math.Max(config.QueuesConfig.MinEventQueues, MinimumEventQueues);
         var eventQueueNum = Math.Max(Math.Min(config.QueuesConfig.MaxEventQueues, Environment.ProcessorCount - ReservedCoresForIO), eventMinNum);
@@ -98,44 +100,48 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         WorkerMessageQueueGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, Worker, (uint)workerQueueNum));
 
         // Runtime added group of custom queue use cases.
-        CustomMessageQueueGroup = new MessageQueueTypeGroup(owningMessageBus, Custom, recycler, config.QueuesConfig);
+        CustomMessageQueueGroup     = new MessageQueueTypeGroup(owningMessageBus, Custom, recycler, config.QueuesConfig);
+        DataAccessMessageQueueGroup = new MessageQueueTypeGroup(owningMessageBus, DataAccess, recycler, config.QueuesConfig);
     }
 
     internal MessageQueueGroupContainer
     (IConfigureMessageBus owningMessageBus
       , Func<IConfigureMessageBus, IMessageQueueTypeGroup>? createEventQueueGroup = null
       , Func<IConfigureMessageBus, IMessageQueueTypeGroup>? createWorkerGroup = null
-      , Func<IConfigureMessageBus, IIOInboundMessageTypeGroup>? createIoInboundGroup = null
-      , Func<IConfigureMessageBus, IIOOutboundMessageTypeGroup>? createIoOutboundGroup = null
+      , Func<IConfigureMessageBus, INetworkInboundMessageTypeGroup>? createIoInboundGroup = null
+      , Func<IConfigureMessageBus, INetworkOutboundMessageTypeGroup>? createIoOutboundGroup = null
       , Func<IConfigureMessageBus, IMessageQueueTypeGroup>? createCustomGroup = null)
     {
         this.owningMessageBus = owningMessageBus;
         recycler              = new Recycler();
         strategySelector      = new DeployDispatchStrategySelector(recycler);
         var defaultQueuesConfig = new QueuesConfig();
-        IOOutboundMessageQueueGroup = createIoOutboundGroup?.Invoke(owningMessageBus) ??
-                                      new SocketSenderMessageQueueGroup(owningMessageBus, IOOutbound, recycler, defaultQueuesConfig);
-        IOInboundMessageQueueGroup = createIoInboundGroup?.Invoke(owningMessageBus) ??
-                                     new SocketListenerMessageQueueGroup(owningMessageBus, IOInbound, recycler, defaultQueuesConfig);
+        NetworkOutboundMessageQueueGroup = createIoOutboundGroup?.Invoke(owningMessageBus) ??
+                                           new SocketSenderMessageQueueGroup(owningMessageBus, NetworkOutbound, recycler, defaultQueuesConfig);
+        NetworkInboundMessageQueueGroup = createIoInboundGroup?.Invoke(owningMessageBus) ??
+                                          new SocketListenerMessageQueueGroup(owningMessageBus, NetworkInbound, recycler, defaultQueuesConfig);
         EventMessageQueueGroup = createEventQueueGroup?.Invoke(owningMessageBus) ??
                                  new MessageQueueTypeGroup(owningMessageBus, Event, recycler, defaultQueuesConfig);
         WorkerMessageQueueGroup = createWorkerGroup?.Invoke(owningMessageBus) ??
                                   new MessageQueueTypeGroup(owningMessageBus, Worker, recycler, defaultQueuesConfig);
         CustomMessageQueueGroup = createCustomGroup?.Invoke(owningMessageBus) ??
                                   new MessageQueueTypeGroup(owningMessageBus, Custom, recycler, defaultQueuesConfig);
+        DataAccessMessageQueueGroup = createCustomGroup?.Invoke(owningMessageBus) ??
+                                      new MessageQueueTypeGroup(owningMessageBus, DataAccess, recycler, defaultQueuesConfig);
     }
 
     internal MessageQueueGroupContainer(IConfigureMessageBus owningMessageBus, IEnumerable<IMessageQueue> queuesToAdd)
     {
         recycler = new Recycler();
         var defaultQueuesConfig = new QueuesConfig();
-        strategySelector            = new DeployDispatchStrategySelector(recycler);
-        IOOutboundMessageQueueGroup = new SocketSenderMessageQueueGroup(owningMessageBus, IOOutbound, recycler, defaultQueuesConfig);
-        IOInboundMessageQueueGroup  = new SocketListenerMessageQueueGroup(owningMessageBus, IOInbound, recycler, defaultQueuesConfig)!;
-        EventMessageQueueGroup      = new MessageQueueTypeGroup(owningMessageBus, Event, recycler, defaultQueuesConfig)!;
-        WorkerMessageQueueGroup     = new MessageQueueTypeGroup(owningMessageBus, Worker, recycler, defaultQueuesConfig)!;
-        CustomMessageQueueGroup     = new MessageQueueTypeGroup(owningMessageBus, Custom, recycler, defaultQueuesConfig)!;
-        this.owningMessageBus       = owningMessageBus;
+        strategySelector                 = new DeployDispatchStrategySelector(recycler);
+        NetworkOutboundMessageQueueGroup = new SocketSenderMessageQueueGroup(owningMessageBus, NetworkOutbound, recycler, defaultQueuesConfig);
+        NetworkInboundMessageQueueGroup  = new SocketListenerMessageQueueGroup(owningMessageBus, NetworkInbound, recycler, defaultQueuesConfig)!;
+        EventMessageQueueGroup           = new MessageQueueTypeGroup(owningMessageBus, Event, recycler, defaultQueuesConfig)!;
+        WorkerMessageQueueGroup          = new MessageQueueTypeGroup(owningMessageBus, Worker, recycler, defaultQueuesConfig)!;
+        CustomMessageQueueGroup          = new MessageQueueTypeGroup(owningMessageBus, Custom, recycler, defaultQueuesConfig)!;
+        DataAccessMessageQueueGroup      = new MessageQueueTypeGroup(owningMessageBus, DataAccess, recycler, defaultQueuesConfig)!;
+        this.owningMessageBus            = owningMessageBus;
         foreach (var eventQueue in queuesToAdd) Add(eventQueue);
     }
 
@@ -158,11 +164,12 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
     public IEnumerator<IMessageQueue> GetEnumerator()
     {
         var eventQueueEnumerator = recycler.Borrow<AutoRecycleUnfoldingEnumerator<IMessageQueue>>();
-        eventQueueEnumerator.Add(((IMessageQueueTypeGroup<IMessageQueue>)IOOutboundMessageQueueGroup).GetEnumerator());
-        eventQueueEnumerator.Add(((IMessageQueueTypeGroup<IMessageQueue>)IOInboundMessageQueueGroup).GetEnumerator());
+        eventQueueEnumerator.Add(((IMessageQueueTypeGroup<IMessageQueue>)NetworkOutboundMessageQueueGroup).GetEnumerator());
+        eventQueueEnumerator.Add(((IMessageQueueTypeGroup<IMessageQueue>)NetworkInboundMessageQueueGroup).GetEnumerator());
         eventQueueEnumerator.Add(EventMessageQueueGroup.GetEnumerator());
         eventQueueEnumerator.Add(WorkerMessageQueueGroup.GetEnumerator());
         eventQueueEnumerator.Add(CustomMessageQueueGroup.GetEnumerator());
+        eventQueueEnumerator.Add(DataAccessMessageQueueGroup.GetEnumerator());
 
         return eventQueueEnumerator;
     }
@@ -321,11 +328,11 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         var queueGroup = item.QueueType;
         switch (queueGroup)
         {
-            case IOOutbound:
-                IOOutboundMessageQueueGroup.Add(item);
+            case NetworkOutbound:
+                NetworkOutboundMessageQueueGroup.Add(item);
                 break;
-            case IOInbound:
-                IOInboundMessageQueueGroup.Add(item);
+            case NetworkInbound:
+                NetworkInboundMessageQueueGroup.Add(item);
                 break;
             case Event:
                 EventMessageQueueGroup.Add(item);
@@ -335,6 +342,9 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
                 break;
             case Custom:
                 CustomMessageQueueGroup.Add(item);
+                break;
+            case DataAccess:
+                DataAccessMessageQueueGroup.Add(item);
                 break;
             default:
                 var message = $"Can not add queue of type {queueGroup} to EventBus ";
@@ -352,12 +362,13 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         var hasResult =
             queueGroup switch
             {
-                IOOutbound => IOOutboundMessageQueueGroup.Contains(item)
-              , IOInbound  => IOInboundMessageQueueGroup.Contains(item)
-              , Event      => EventMessageQueueGroup.Contains(item)
-              , Worker     => WorkerMessageQueueGroup.Contains(item)
-              , Custom     => CustomMessageQueueGroup.Contains(item)
-              , _          => false
+                NetworkOutbound => NetworkOutboundMessageQueueGroup.Contains(item)
+              , NetworkInbound  => NetworkInboundMessageQueueGroup.Contains(item)
+              , Event           => EventMessageQueueGroup.Contains(item)
+              , Worker          => WorkerMessageQueueGroup.Contains(item)
+              , Custom          => CustomMessageQueueGroup.Contains(item)
+              , DataAccess      => DataAccessMessageQueueGroup.Contains(item)
+              , _               => false
             };
         return hasResult;
     }
@@ -367,11 +378,12 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         var queueGroup = item.QueueType;
         switch (queueGroup)
         {
-            case IOOutbound: return IOOutboundMessageQueueGroup.StopRemoveEventQueue((IIOOutboundMessageQueue)item);
-            case IOInbound:  return IOInboundMessageQueueGroup.StopRemoveEventQueue((IIOInboundMessageQueue)item);
-            case Event:      return EventMessageQueueGroup.StopRemoveEventQueue(item);
-            case Worker:     return WorkerMessageQueueGroup.StopRemoveEventQueue(item);
-            case Custom:     return CustomMessageQueueGroup.StopRemoveEventQueue(item);
+            case NetworkOutbound: return NetworkOutboundMessageQueueGroup.StopRemoveEventQueue((INetworkOutboundMessageQueue)item);
+            case NetworkInbound:  return NetworkInboundMessageQueueGroup.StopRemoveEventQueue((INetworkInboundMessageQueue)item);
+            case Event:           return EventMessageQueueGroup.StopRemoveEventQueue(item);
+            case Worker:          return WorkerMessageQueueGroup.StopRemoveEventQueue(item);
+            case Custom:          return CustomMessageQueueGroup.StopRemoveEventQueue(item);
+            case DataAccess:      return DataAccessMessageQueueGroup.StopRemoveEventQueue(item);
             default:
                 var message = $"Can not add queue of type {queueGroup} to EventBus ";
                 Logger.Warn(message);
@@ -380,12 +392,12 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
     }
 
     public int Count =>
-        EventMessageQueueGroup.Count + WorkerMessageQueueGroup.Count + IOInboundMessageQueueGroup.Count
-      + IOOutboundMessageQueueGroup.Count + CustomMessageQueueGroup.Count;
+        EventMessageQueueGroup.Count + WorkerMessageQueueGroup.Count + NetworkInboundMessageQueueGroup.Count
+      + NetworkOutboundMessageQueueGroup.Count + CustomMessageQueueGroup.Count;
 
     public bool HasStarted =>
-        EventMessageQueueGroup.HasStarted || WorkerMessageQueueGroup.HasStarted || IOInboundMessageQueueGroup.HasStarted ||
-        IOOutboundMessageQueueGroup.HasStarted || CustomMessageQueueGroup.HasStarted;
+        EventMessageQueueGroup.HasStarted || WorkerMessageQueueGroup.HasStarted || NetworkInboundMessageQueueGroup.HasStarted ||
+        NetworkOutboundMessageQueueGroup.HasStarted || CustomMessageQueueGroup.HasStarted;
 
     public IMessageQueueGroupContainer AddRange(IEnumerable<IMessageQueue> eventQueue)
     {
@@ -394,11 +406,12 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         return this;
     }
 
-    public IMessageQueueTypeGroup      EventMessageQueueGroup      { get; }
-    public IMessageQueueTypeGroup      WorkerMessageQueueGroup     { get; }
-    public IIOInboundMessageTypeGroup  IOInboundMessageQueueGroup  { get; }
-    public IIOOutboundMessageTypeGroup IOOutboundMessageQueueGroup { get; }
-    public IMessageQueueTypeGroup      CustomMessageQueueGroup     { get; }
+    public IMessageQueueTypeGroup           EventMessageQueueGroup           { get; }
+    public IMessageQueueTypeGroup           WorkerMessageQueueGroup          { get; }
+    public INetworkInboundMessageTypeGroup  NetworkInboundMessageQueueGroup  { get; }
+    public INetworkOutboundMessageTypeGroup NetworkOutboundMessageQueueGroup { get; }
+    public IMessageQueueTypeGroup           CustomMessageQueueGroup          { get; }
+    public IMessageQueueTypeGroup           DataAccessMessageQueueGroup      { get; }
 
     public IMessageQueueTypeGroup SelectEventQueueGroup(IMessageQueue childOfGroup) => SelectEventQueueGroup(childOfGroup.QueueType);
 
@@ -406,11 +419,12 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
     {
         return selector switch
                {
-                   IOOutbound => IOOutboundMessageQueueGroup
-                 , IOInbound  => IOInboundMessageQueueGroup
-                 , Event      => EventMessageQueueGroup
-                 , Worker     => WorkerMessageQueueGroup
-                 , Custom     => CustomMessageQueueGroup
+                   NetworkOutbound => NetworkOutboundMessageQueueGroup
+                 , NetworkInbound  => NetworkInboundMessageQueueGroup
+                 , Event           => EventMessageQueueGroup
+                 , Worker          => WorkerMessageQueueGroup
+                 , Custom          => CustomMessageQueueGroup
+                 , DataAccess      => DataAccessMessageQueueGroup
                  , _ => throw new ArgumentException
                        ($"Unexpected selector EventQueueType selector value '{selector}' when selecting a specific event group type")
                };
@@ -419,11 +433,12 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
     public IMessageQueueList<IMessageQueue> SelectEventQueues(MessageQueueType selector)
     {
         var result = recycler.Borrow<MessageQueueList<IMessageQueue>>();
-        if (selector.IsIOOutbound()) result.AddRange(IOOutboundMessageQueueGroup);
-        if (selector.IsIOInbound()) result.AddRange(IOInboundMessageQueueGroup);
+        if (selector.IsNetworkOutbound()) result.AddRange(NetworkOutboundMessageQueueGroup);
+        if (selector.IsNetworkInbound()) result.AddRange(NetworkInboundMessageQueueGroup);
         if (selector.IsEvent()) result.AddRange(EventMessageQueueGroup);
         if (selector.IsWorker()) result.AddRange(WorkerMessageQueueGroup);
         if (selector.IsCustom()) result.AddRange(CustomMessageQueueGroup);
+        if (selector.IsDataAccess()) result.AddRange(DataAccessMessageQueueGroup);
 
         return result;
     }

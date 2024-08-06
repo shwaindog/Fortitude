@@ -1,7 +1,10 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections;
-using FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
+using FortitudeBusRules.BusMessaging.Pipelines.NetworkQueues;
 using FortitudeBusRules.Config;
 using FortitudeBusRules.Connectivity.Network.Dispatcher;
 using FortitudeBusRules.Messages;
@@ -19,33 +22,37 @@ namespace FortitudeBusRules.BusMessaging.Pipelines.Groups;
 
 public interface IMessageQueueTypeGroup<T> : IEnumerable<T> where T : IMessageQueue
 {
-    int Count { get; }
+    int  Count      { get; }
     bool HasStarted { get; }
     T? this[int index] { get; set; }
+
     bool Contains(T item);
-    int AddNewQueues(DeploymentOptions deploymentOptions);
+    int  AddNewQueues(DeploymentOptions deploymentOptions);
     void Add(T toAdd);
     bool StopRemoveEventQueue(T messageQueue);
+
     IMessageQueueList<T> AsMessageQueueList();
-    new IEnumerator<T> GetEnumerator();
+    new IEnumerator<T>   GetEnumerator();
 }
 
-public interface IMessageQueueTypeGroup : IMessageQueueTypeGroup<IMessageQueue>{}
+public interface IMessageQueueTypeGroup : IMessageQueueTypeGroup<IMessageQueue>;
 
 public abstract class MessageQueueTypeGroup<T> : IMessageQueueTypeGroup<T> where T : IMessageQueue
 {
-    private readonly List<T?> eventQueues = [];
-    
-    protected readonly IQueuesConfig QueuesConfig;
+    private readonly List<T?>             eventQueues = new();
+    private readonly MessageQueueType     groupType;
     private readonly IConfigureMessageBus owningMessageBus;
-    private readonly MessageQueueType groupType;
-    public MessageQueueTypeGroup(IConfigureMessageBus owningMessageBus, MessageQueueType groupType, IRecycler recycler
-        , IQueuesConfig queuesConfig)
+
+    protected readonly IQueuesConfig QueuesConfig;
+
+    protected MessageQueueTypeGroup
+    (IConfigureMessageBus owningMessageBus, MessageQueueType groupType, IRecycler recycler
+      , IQueuesConfig queuesConfig)
     {
         this.owningMessageBus = owningMessageBus;
-        this.groupType = groupType;
-        QueuesConfig = queuesConfig;
-        Recycler = recycler;
+        this.groupType        = groupType;
+        QueuesConfig          = queuesConfig;
+        Recycler              = recycler;
     }
 
     public IRecycler Recycler { get; set; }
@@ -74,14 +81,14 @@ public abstract class MessageQueueTypeGroup<T> : IMessageQueueTypeGroup<T> where
         set
         {
             if (value != null && value.QueueType != groupType)
-                throw new InvalidOperationException(
-                    $"Can not add EventQueue of type {value.QueueType} to EventQueueGroup of type {groupType}");
+                throw new InvalidOperationException
+                    ($"Can not add EventQueue of type {value.QueueType} to EventQueueGroup of type {groupType}");
 
             if (index < eventQueues.Count)
             {
                 if (value != null || eventQueues[index] != null)
-                    throw new ArgumentException(
-                        "You can only append new queues to the end of an EventQueueGroup or replace a stopped queue.");
+                    throw new ArgumentException
+                        ("You can only append new queues to the end of an EventQueueGroup or replace a stopped queue.");
 
                 var existingValue = eventQueues[index];
                 if (value == null && existingValue is { IsRunning: true }) existingValue.Shutdown();
@@ -93,11 +100,10 @@ public abstract class MessageQueueTypeGroup<T> : IMessageQueueTypeGroup<T> where
 
     public int AddNewQueues(DeploymentOptions deploymentOptions)
     {
-        var existingCount = eventQueues.Count;
+        var existingCount       = eventQueues.Count;
         var defaultNewQueueSize = groupType == MessageQueueType.Event ? QueuesConfig.EventQueueSize : QueuesConfig.DefaultQueueSize;
         for (var i = existingCount; i < existingCount + deploymentOptions.Instances; i++)
         {
-            
             var name = $"{groupType}-{i}";
 
             eventQueues.Add(CreateMessageQueue(owningMessageBus, groupType, i, name, defaultNewQueueSize, QueuesConfig.MessagePumpMaxWaitMs));
@@ -106,13 +112,11 @@ public abstract class MessageQueueTypeGroup<T> : IMessageQueueTypeGroup<T> where
         return eventQueues.Count;
     }
 
-    public abstract T CreateMessageQueue(IConfigureMessageBus configureMessageBus, MessageQueueType messageQueueType, int id, string name, int queueSize, uint noDataPauseTimeoutMs);
-
     public void Add(T item)
     {
         if (item.QueueType != groupType)
-            throw new InvalidOperationException(
-                $"Can not add EventQueue of type {item.QueueType} to EventQueueGroup of type {groupType}");
+            throw new InvalidOperationException
+                ($"Can not add EventQueue of type {item.QueueType} to EventQueueGroup of type {groupType}");
         eventQueues.Add(item);
     }
 
@@ -133,63 +137,65 @@ public abstract class MessageQueueTypeGroup<T> : IMessageQueueTypeGroup<T> where
     }
 
     public bool Contains(T item) => eventQueues.Contains(item);
+
+    public abstract T CreateMessageQueue
+        (IConfigureMessageBus configureMessageBus, MessageQueueType messageQueueType, int id, string name, int queueSize, uint noDataPauseTimeoutMs);
 }
 
 public class MessageQueueTypeGroup : MessageQueueTypeGroup<IMessageQueue>, IMessageQueueTypeGroup
 {
-    public MessageQueueTypeGroup(IConfigureMessageBus owningMessageBus, MessageQueueType groupType, IRecycler recycler, IQueuesConfig queuesConfig) : base(owningMessageBus, groupType, recycler, queuesConfig) { }
-    public override IMessageQueue CreateMessageQueue(IConfigureMessageBus configureMessageBus, MessageQueueType messageQueueType, int id, string name, int queueSize, uint noDataPauseTimeoutMs)
+    public MessageQueueTypeGroup(IConfigureMessageBus owningMessageBus, MessageQueueType groupType, IRecycler recycler, IQueuesConfig queuesConfig)
+        : base(owningMessageBus, groupType, recycler, queuesConfig) { }
+
+    public override IMessageQueue CreateMessageQueue
+        (IConfigureMessageBus configureMessageBus, MessageQueueType messageQueueType, int id, string name, int queueSize, uint noDataPauseTimeoutMs)
     {
-        var ring = new AsyncValueValueTaskPollingRing<BusMessage>( $"MessageQueue-{name}", queueSize, () => new BusMessage(), ClaimStrategyType.MultiProducers);
+        var ring = new AsyncValueValueTaskPollingRing<BusMessage>
+            ($"MessageQueue-{name}", queueSize, () => new BusMessage(), ClaimStrategyType.MultiProducers);
         var ringPoller = new AsyncValueTaskRingPoller<BusMessage>(ring, noDataPauseTimeoutMs);
         return new MessageQueue(configureMessageBus, messageQueueType, id, ringPoller);
     }
 }
 
-public interface IIOInboundMessageTypeGroup : IMessageQueueTypeGroup<IIOInboundMessageQueue>, IMessageQueueTypeGroup
+public interface INetworkInboundMessageTypeGroup : IMessageQueueTypeGroup<INetworkInboundMessageQueue>, IMessageQueueTypeGroup
 {
-    new int Count { get; }
+    new int  Count      { get; }
     new bool HasStarted { get; }
-    new int AddNewQueues(DeploymentOptions deploymentOptions);
-    new IEnumerator<IIOInboundMessageQueue> GetEnumerator();
-    new IIOInboundMessageQueue? this[int index] { get; set; }
-    new bool Contains(IIOInboundMessageQueue item);
-    new bool StopRemoveEventQueue(IIOInboundMessageQueue messageQueue);
-    new IMessageQueueList<IIOInboundMessageQueue> AsMessageQueueList();
 
+    new INetworkInboundMessageQueue? this[int index] { get; set; }
+
+    new int  AddNewQueues(DeploymentOptions deploymentOptions);
+    new bool Contains(INetworkInboundMessageQueue item);
+    new bool StopRemoveEventQueue(INetworkInboundMessageQueue messageQueue);
+
+    new IEnumerator<INetworkInboundMessageQueue>       GetEnumerator();
+    new IMessageQueueList<INetworkInboundMessageQueue> AsMessageQueueList();
 }
 
-class SocketListenerMessageQueueGroup : MessageQueueTypeGroup<IIOInboundMessageQueue>, IIOInboundMessageTypeGroup
+internal class SocketListenerMessageQueueGroup : MessageQueueTypeGroup<INetworkInboundMessageQueue>, INetworkInboundMessageTypeGroup
 {
     public static IUpdateableTimer timer = TimerContext.CreateUpdateableTimer("Fortitude.BusRules.SocketEventQueueListenerGroup.ThreadPoolTimer");
-    public SocketListenerMessageQueueGroup(IConfigureMessageBus owningMessageBus, MessageQueueType groupType, IRecycler recycler
-        , IQueuesConfig queuesConfig) : base(owningMessageBus, groupType, recycler, queuesConfig)
-    {
-    }
-    public override IIOInboundMessageQueue CreateMessageQueue(IConfigureMessageBus configureMessageBus, MessageQueueType messageQueueType, int id, string name, int queueSize, uint noDataPauseTimeoutMs)
-    {
-        var ring = new AsyncValueValueTaskPollingRing<BusMessage>( $"IOInboundMessageQueue-{name}", queueSize, () => new BusMessage(), ClaimStrategyType.MultiProducers);
-        var ringPoller = new SocketAsyncValueTaskEventQueueListener(ring, noDataPauseTimeoutMs, new SocketSelector(QueuesConfig.SelectorPollIntervalMs), timer);
-        return new IOInboundMessageQueue(configureMessageBus, messageQueueType, id, ringPoller);
-    }
+
+    public SocketListenerMessageQueueGroup
+    (IConfigureMessageBus owningMessageBus, MessageQueueType groupType, IRecycler recycler
+      , IQueuesConfig queuesConfig) : base(owningMessageBus, groupType, recycler, queuesConfig) { }
 
     IMessageQueue? IMessageQueueTypeGroup<IMessageQueue>.this[int index]
     {
         get => this[index];
-        set => this[index] = value != null ? (IIOInboundMessageQueue)value : null;
+        set => this[index] = (INetworkInboundMessageQueue?)value;
     }
 
-    public bool Contains(IMessageQueue item) => item is IIOInboundMessageQueue ioInboundMessageQueue && base.Contains(ioInboundMessageQueue);
+    public bool Contains(IMessageQueue item) => item is INetworkInboundMessageQueue ioInboundMessageQueue && base.Contains(ioInboundMessageQueue);
 
     public void Add(IMessageQueue toAdd)
     {
-        if (toAdd is IIOInboundMessageQueue ioInboundMessageQueue)
-        {
-            base.Add(ioInboundMessageQueue);
-        }
+        if (toAdd is INetworkInboundMessageQueue ioInboundMessageQueue) base.Add(ioInboundMessageQueue);
     }
 
-    public bool StopRemoveEventQueue(IMessageQueue messageQueue) => messageQueue is IIOInboundMessageQueue ioInboundMessageQueue && base.StopRemoveEventQueue(ioInboundMessageQueue);
+    public bool StopRemoveEventQueue
+        (IMessageQueue messageQueue) =>
+        messageQueue is INetworkInboundMessageQueue ioInboundMessageQueue && base.StopRemoveEventQueue(ioInboundMessageQueue);
 
 
     public new IMessageQueueList<IMessageQueue> AsMessageQueueList()
@@ -198,10 +204,10 @@ class SocketListenerMessageQueueGroup : MessageQueueTypeGroup<IIOInboundMessageQ
         messageQueueList.AddRange(this);
         return messageQueueList;
     }
-    
+
     IEnumerator<IMessageQueue> IEnumerable<IMessageQueue>.GetEnumerator() => GetEnumerator();
 
-    IEnumerator<IMessageQueue> IMessageQueueTypeGroup<IMessageQueue>.GetEnumerator() 
+    IEnumerator<IMessageQueue> IMessageQueueTypeGroup<IMessageQueue>.GetEnumerator()
     {
         var freshEnumerator = Recycler.Borrow<AutoRecycleEnumerator<IMessageQueue>>();
         for (var i = 0; i < Count; i++)
@@ -212,51 +218,57 @@ class SocketListenerMessageQueueGroup : MessageQueueTypeGroup<IIOInboundMessageQ
 
         return freshEnumerator;
     }
-}
 
-public interface IIOOutboundMessageTypeGroup : IMessageQueueTypeGroup<IIOOutboundMessageQueue>, IMessageQueueTypeGroup
-{
-    new int Count { get; }
-    new bool HasStarted { get; }
-    new int AddNewQueues(DeploymentOptions deploymentOptions);
-    new IEnumerator<IIOOutboundMessageQueue> GetEnumerator();
-    new IIOOutboundMessageQueue? this[int index] { get; set; }
-    new bool Contains(IIOOutboundMessageQueue item);
-    new bool StopRemoveEventQueue(IIOOutboundMessageQueue messageQueue);
-    new IMessageQueueList<IIOOutboundMessageQueue> AsMessageQueueList();
-
-}
-
-public class SocketSenderMessageQueueGroup(IConfigureMessageBus owningMessageBus, MessageQueueType groupType, IRecycler recycler
-    , IQueuesConfig queuesConfig) : MessageQueueTypeGroup<IIOOutboundMessageQueue>(owningMessageBus, groupType, recycler, queuesConfig), IIOOutboundMessageTypeGroup
-{
-    public override IIOOutboundMessageQueue CreateMessageQueue(IConfigureMessageBus configureMessageBus, MessageQueueType messageQueueType, int id, string name, int queueSize, uint noDataPauseTimeoutMs)
+    public override INetworkInboundMessageQueue CreateMessageQueue
+        (IConfigureMessageBus configureMessageBus, MessageQueueType messageQueueType, int id, string name, int queueSize, uint noDataPauseTimeoutMs)
     {
-        var ring = new AsyncValueValueTaskPollingRing<BusMessage>( $"IOOutboundMessageQueue-{name}", queueSize, () => new BusMessage(), ClaimStrategyType.MultiProducers);
-        var ringPoller = new SocketAsyncValueTaskEventQueueSender(ring, noDataPauseTimeoutMs);
-        return new IOOutboundMessageQueue(configureMessageBus, messageQueueType, id, ringPoller);
+        var ring = new AsyncValueValueTaskPollingRing<BusMessage>
+            ($"NetworkInboundMessageQueue-{name}", queueSize, () => new BusMessage(), ClaimStrategyType.MultiProducers);
+        var ringPoller = new SocketAsyncValueTaskEventQueueListener
+            (ring, noDataPauseTimeoutMs, new SocketSelector(QueuesConfig.SelectorPollIntervalMs), timer);
+        return new NetworkInboundMessageQueue(configureMessageBus, messageQueueType, id, ringPoller);
     }
+}
 
+public interface INetworkOutboundMessageTypeGroup : IMessageQueueTypeGroup<INetworkOutboundMessageQueue>, IMessageQueueTypeGroup
+{
+    new int  Count      { get; }
+    new bool HasStarted { get; }
+
+    new INetworkOutboundMessageQueue? this[int index] { get; set; }
+
+    new int  AddNewQueues(DeploymentOptions deploymentOptions);
+    new bool Contains(INetworkOutboundMessageQueue item);
+    new bool StopRemoveEventQueue(INetworkOutboundMessageQueue messageQueue);
+
+    new IEnumerator<INetworkOutboundMessageQueue>       GetEnumerator();
+    new IMessageQueueList<INetworkOutboundMessageQueue> AsMessageQueueList();
+}
+
+public class SocketSenderMessageQueueGroup
+(IConfigureMessageBus owningMessageBus, MessageQueueType groupType, IRecycler recycler
+  , IQueuesConfig queuesConfig) : MessageQueueTypeGroup<INetworkOutboundMessageQueue>(owningMessageBus, groupType, recycler, queuesConfig)
+  , INetworkOutboundMessageTypeGroup
+{
     IEnumerator<IMessageQueue> IEnumerable<IMessageQueue>.GetEnumerator() => GetEnumerator();
 
     IMessageQueue? IMessageQueueTypeGroup<IMessageQueue>.this[int index]
     {
         get => this[index];
-        set => this[index] = value != null ? (IIOOutboundMessageQueue)value : null;
+        set => this[index] = (INetworkOutboundMessageQueue?)value;
     }
 
-    public bool Contains(IMessageQueue item) => item is IIOOutboundMessageQueue ioOutboundMessageQueue && base.Contains(ioOutboundMessageQueue);
+    public bool Contains(IMessageQueue item) => item is INetworkOutboundMessageQueue ioOutboundMessageQueue && base.Contains(ioOutboundMessageQueue);
 
     public void Add(IMessageQueue toAdd)
     {
-        if (toAdd is IIOOutboundMessageQueue ioOutboundMessageQueue)
-        {
-            base.Add(ioOutboundMessageQueue);
-        }
+        if (toAdd is INetworkOutboundMessageQueue ioOutboundMessageQueue) base.Add(ioOutboundMessageQueue);
     }
 
-    public bool StopRemoveEventQueue(IMessageQueue messageQueue) => messageQueue is IIOOutboundMessageQueue ioOutboundMessageQueue && base.StopRemoveEventQueue(ioOutboundMessageQueue);
-    
+    public bool StopRemoveEventQueue
+        (IMessageQueue messageQueue) =>
+        messageQueue is INetworkOutboundMessageQueue ioOutboundMessageQueue && base.StopRemoveEventQueue(ioOutboundMessageQueue);
+
     IMessageQueueList<IMessageQueue> IMessageQueueTypeGroup<IMessageQueue>.AsMessageQueueList()
     {
         var messageQueueList = Recycler.Borrow<MessageQueueList<IMessageQueue>>();
@@ -264,7 +276,7 @@ public class SocketSenderMessageQueueGroup(IConfigureMessageBus owningMessageBus
         return messageQueueList;
     }
 
-    IEnumerator<IMessageQueue> IMessageQueueTypeGroup<IMessageQueue>.GetEnumerator() 
+    IEnumerator<IMessageQueue> IMessageQueueTypeGroup<IMessageQueue>.GetEnumerator()
     {
         var freshEnumerator = Recycler.Borrow<AutoRecycleEnumerator<IMessageQueue>>();
         for (var i = 0; i < Count; i++)
@@ -274,5 +286,14 @@ public class SocketSenderMessageQueueGroup(IConfigureMessageBus owningMessageBus
         }
 
         return freshEnumerator;
+    }
+
+    public override INetworkOutboundMessageQueue CreateMessageQueue
+        (IConfigureMessageBus configureMessageBus, MessageQueueType messageQueueType, int id, string name, int queueSize, uint noDataPauseTimeoutMs)
+    {
+        var ring = new AsyncValueValueTaskPollingRing<BusMessage>
+            ($"NetworkOutboundMessageQueue-{name}", queueSize, () => new BusMessage(), ClaimStrategyType.MultiProducers);
+        var ringPoller = new SocketAsyncValueTaskEventQueueSender(ring, noDataPauseTimeoutMs);
+        return new NetworkOutboundMessageQueue(configureMessageBus, messageQueueType, id, ringPoller);
     }
 }

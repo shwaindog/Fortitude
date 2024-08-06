@@ -7,7 +7,7 @@ using FortitudeBusRules.BusMessaging.Messages;
 using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Pipelines.Groups;
-using FortitudeBusRules.BusMessaging.Pipelines.IOQueues;
+using FortitudeBusRules.BusMessaging.Pipelines.NetworkQueues;
 using FortitudeBusRules.Config;
 using FortitudeBusRules.Injection;
 using FortitudeBusRules.Messages;
@@ -21,7 +21,7 @@ public interface IMessageBus
 {
     IDependencyResolver DependencyResolver { get; set; }
 
-    IBusIOResolver BusIOResolver { get; }
+    IBusNetworkResolver BusNetworkResolver { get; }
 
     void Publish<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
     void Publish<T>(IRule sender, string publishAddress, T msg);
@@ -120,7 +120,7 @@ public interface IConfigureMessageBus : IMessageBus
 
 public class MessageBus : IConfigureMessageBus
 {
-    private IBusIOResolver? busIOResolver;
+    private IBusNetworkResolver? busIOResolver;
 
     public MessageBus(BusRulesConfig config)
     {
@@ -138,7 +138,7 @@ public class MessageBus : IConfigureMessageBus
 
     public IMessageQueueGroupContainer AllMessageQueues { get; }
 
-    public IBusIOResolver BusIOResolver => busIOResolver ??= new BusIOResolver(this);
+    public IBusNetworkResolver BusNetworkResolver => busIOResolver ??= new BusNetworkResolver(this);
 
     public void Start()
     {
