@@ -15,6 +15,7 @@ public interface IQueuesConfig
     int  MinEventQueues                { get; set; }
     int  MaxEventQueues                { get; set; }
     int  RequiredDataAccessQueues      { get; set; }
+    int  RequiredCustomQueues          { get; set; }
     int  RequiredNetworkInboundQueues  { get; set; }
     int  RequiredNetworkOutboundQueues { get; set; }
     int  MinWorkerQueues               { get; set; }
@@ -30,9 +31,10 @@ public class QueuesConfig : ConfigSection, IQueuesConfig
     private static readonly Dictionary<string, string?> Defaults = new()
     {
         { nameof(MinEventQueues), "1" }, { nameof(MaxEventQueues), "10" }
-      , { nameof(RequiredNetworkInboundQueues), "1" }, { nameof(RequiredNetworkOutboundQueues), "1" }
+      , { nameof(RequiredDataAccessQueues), "0" }, { nameof(RequiredCustomQueues), "0" }
+      , { nameof(RequiredNetworkInboundQueues), "0" }, { nameof(RequiredNetworkOutboundQueues), "0" }
       , { nameof(MaxWorkerQueues), "10" }, { nameof(MinWorkerQueues), "1" }
-      , { nameof(EventQueueSize), "50_000" }, { nameof(DefaultQueueSize), "10_000" }
+      , { nameof(EventQueueSize), "100_000" }, { nameof(DefaultQueueSize), "10_000" }
       , { nameof(MessagePumpMaxWaitMs), "30" }
     };
 
@@ -41,12 +43,32 @@ public class QueuesConfig : ConfigSection, IQueuesConfig
         foreach (var checkDefault in Defaults) this[checkDefault.Key] ??= checkDefault.Value;
     }
 
+    public QueuesConfig
+    (int eventQueueSize = 10_000, int defaultQueueSize = 10_000, int minEventQueues = 1, int maxEventQueues = 10, int minWorkerQueues = 1
+      , int maxWorkerQueues = 10, int requiredNetworkInboundQueues = 0, int requiredNetworkOutboundQueues = 0, int requiredDataAccessQueues = 0
+      , int requiredCustomQueues = 0, uint messagePumpMaxWaitMs = 30)
+    {
+        MinEventQueues                = minEventQueues;
+        MaxEventQueues                = maxEventQueues;
+        RequiredDataAccessQueues      = requiredDataAccessQueues;
+        RequiredCustomQueues          = requiredCustomQueues;
+        RequiredNetworkInboundQueues  = requiredNetworkInboundQueues;
+        RequiredNetworkOutboundQueues = requiredNetworkOutboundQueues;
+        MinWorkerQueues               = minWorkerQueues;
+        MaxWorkerQueues               = maxWorkerQueues;
+        DefaultQueueSize              = defaultQueueSize;
+        EventQueueSize                = eventQueueSize;
+        MessagePumpMaxWaitMs          = messagePumpMaxWaitMs;
+    }
+
     public QueuesConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
     public QueuesConfig(IQueuesConfig toClone, IConfigurationRoot root, string path) : this(root, path)
     {
         MinEventQueues                = toClone.MinEventQueues;
         MaxEventQueues                = toClone.MaxEventQueues;
+        RequiredDataAccessQueues      = toClone.RequiredDataAccessQueues;
+        RequiredCustomQueues          = toClone.RequiredCustomQueues;
         RequiredNetworkInboundQueues  = toClone.RequiredNetworkInboundQueues;
         RequiredNetworkOutboundQueues = toClone.RequiredNetworkOutboundQueues;
         MinWorkerQueues               = toClone.MinWorkerQueues;
@@ -74,6 +96,12 @@ public class QueuesConfig : ConfigSection, IQueuesConfig
     {
         get => int.Parse(this[nameof(RequiredDataAccessQueues)]!);
         set => this[nameof(RequiredDataAccessQueues)] = value.ToString();
+    }
+
+    public int RequiredCustomQueues
+    {
+        get => int.Parse(this[nameof(RequiredCustomQueues)]!);
+        set => this[nameof(RequiredCustomQueues)] = value.ToString();
     }
 
     public int RequiredNetworkInboundQueues

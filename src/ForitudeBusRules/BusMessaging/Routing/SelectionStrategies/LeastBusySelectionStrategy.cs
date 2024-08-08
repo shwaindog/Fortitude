@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging.Pipelines.Groups;
 using FortitudeBusRules.Messages;
@@ -16,15 +19,18 @@ public class LeastBusySelectionStrategy : UsesRecycler, ISelectionStrategy
     public LeastBusySelectionStrategy(IRecycler recycler) => Recycler = recycler;
     public string Name => StrategyName;
 
-    public RouteSelectionResult? Select(IMessageQueueGroupContainer availableMessageQueues, IRule senderRule
-        , IRule deployRule
-        , DeploymentOptions deploymentOptions)
+    public RouteSelectionResult? Select
+    (IMessageQueueGroupContainer availableMessageQueues, IRule senderRule
+      , IRule deployRule
+      , DeploymentOptions deploymentOptions)
     {
         RouteSelectionResult? found = null;
-        var flags = deploymentOptions.RoutingFlags;
+
+        var flags            = deploymentOptions.RoutingFlags;
         var selectFromQueues = availableMessageQueues.SelectEventQueues(deploymentOptions.MessageGroupType);
+
         selectFromQueues.Sort(); // IEventQueue has IComparable<IEventQueue> on RecentlyReceivedMessagesCount
-        if (flags.IsPreferNotSenderQueue())
+        if (flags.IsPreferNotSenderQueue() && senderRule != Rule.NoKnownSender)
         {
             var indexOfSenderQueue = selectFromQueues.IndexOf(senderRule.Context.RegisteredOn);
             if (indexOfSenderQueue != -1) selectFromQueues.ShiftToEnd(indexOfSenderQueue);
@@ -38,18 +44,19 @@ public class LeastBusySelectionStrategy : UsesRecycler, ISelectionStrategy
         return found;
     }
 
-    public IDispatchSelectionResultSet? Select(IMessageQueueGroupContainer availableMessageQueues
-        , IRule senderRule
-        , DispatchOptions dispatchOptions
-        , string destinationAddress)
+    public IDispatchSelectionResultSet? Select
+    (IMessageQueueGroupContainer availableMessageQueues
+      , IRule senderRule
+      , DispatchOptions dispatchOptions
+      , string destinationAddress)
     {
         var flags = dispatchOptions.RoutingFlags;
         if (flags.IsSendToAll()) return null;
 
         IDispatchSelectionResultSet results = Recycler?.Borrow<DispatchSelectionResultSet>() ??
                                               new DispatchSelectionResultSet();
-        results.DispatchOptions = dispatchOptions;
-        results.StrategyName = Name;
+        results.DispatchOptions  = dispatchOptions;
+        results.StrategyName     = Name;
         results.MaxUniqueResults = 1;
         var selectFromQueues = availableMessageQueues.SelectEventQueues(dispatchOptions.TargetMessageQueueType);
         selectFromQueues.Sort(); // IEventQueue has IComparable<IEventQueue> on RecentlyReceivedMessagesCount
@@ -73,7 +80,7 @@ public class LeastBusySelectionStrategy : UsesRecycler, ISelectionStrategy
                             var firstRule = currentListeningRules[0];
                             currentListeningRules.DecrementRefCount();
                             results.Add(new RouteSelectionResult(eventQueue, Name
-                                , dispatchOptions.RoutingFlags, firstRule));
+                                                               , dispatchOptions.RoutingFlags, firstRule));
                         }
                         else
                         {
@@ -84,7 +91,7 @@ public class LeastBusySelectionStrategy : UsesRecycler, ISelectionStrategy
                     {
                         // need to exhaust Enumerator to get it to recycle and not create Garbage
                         results.Add(
-                            new RouteSelectionResult(eventQueue, Name, dispatchOptions.RoutingFlags));
+                                    new RouteSelectionResult(eventQueue, Name, dispatchOptions.RoutingFlags));
                     }
                 }
 

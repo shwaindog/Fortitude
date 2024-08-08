@@ -30,17 +30,19 @@ public class OneOfEachMessageQueueTypeTestSetup
 
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(OneOfEachMessageQueueTypeTestSetup));
 
-    public    MessageQueue                CustomQueue1 = null!;
-    protected RouteSelectionResult        CustomQueue1SelectionResult;
-    public    MessageQueue                EventQueue1 = null!;
-    protected RouteSelectionResult        EventQueue1SelectionResult;
-    public    MessageBus                  MessageBus           = null!;
+    public    MessageQueue         CustomQueue1 = null!;
+    protected RouteSelectionResult CustomQueue1SelectionResult;
+    public    MessageQueue         EventQueue1 = null!;
+    protected RouteSelectionResult EventQueue1SelectionResult;
+    public    MessageBus           MessageBus = null!;
+
     public    NetworkInboundMessageQueue  NetworkInboundQueue1 = null!;
     protected RouteSelectionResult        NetworkInboundQueue1SelectionResult;
     public    NetworkOutboundMessageQueue NetworkOutboundQueue1 = null!;
     protected RouteSelectionResult        NetworkOutboundQueue1SelectionResult;
-    public    MessageQueue                WorkerQueue1 = null!;
-    protected RouteSelectionResult        WorkerQueue1SelectionResult;
+
+    public    MessageQueue         WorkerQueue1 = null!;
+    protected RouteSelectionResult WorkerQueue1SelectionResult;
 
     protected virtual int RingPollerSize => DefaultRingPollerSize;
 
@@ -58,8 +60,9 @@ public class OneOfEachMessageQueueTypeTestSetup
     {
         var defaultQueuesConfig = new QueuesConfig
         {
-            DefaultQueueSize              = RingPollerSize
-          , EventQueueSize                = RingPollerSize
+            DefaultQueueSize = RingPollerSize
+          , EventQueueSize   = RingPollerSize
+
           , RequiredNetworkInboundQueues  = 1
           , RequiredNetworkOutboundQueues = 1
         };
@@ -71,9 +74,10 @@ public class OneOfEachMessageQueueTypeTestSetup
 
         MessageBus = new MessageBus(evtBus =>
         {
-            EventQueue1           = new MessageQueue(evtBus, MessageQueueType.Event, 1, RingPoller("EventQueue"));
-            WorkerQueue1          = new MessageQueue(evtBus, MessageQueueType.Worker, 1, RingPoller("WorkerQueue"));
-            CustomQueue1          = new MessageQueue(evtBus, MessageQueueType.Custom, 1, RingPoller("CustomQueue"));
+            EventQueue1  = new MessageQueue(evtBus, MessageQueueType.Event, 1, RingPoller("EventQueue"));
+            WorkerQueue1 = new MessageQueue(evtBus, MessageQueueType.Worker, 1, RingPoller("WorkerQueue"));
+            CustomQueue1 = new MessageQueue(evtBus, MessageQueueType.Custom, 1, RingPoller("CustomQueue"));
+
             NetworkOutboundQueue1 = new NetworkOutboundMessageQueue(evtBus, MessageQueueType.NetworkOutbound, 1, SocketSenderRingPoller());
             NetworkInboundQueue1  = new NetworkInboundMessageQueue(evtBus, MessageQueueType.NetworkInbound, 1, SocketListenerRingPoller(timer));
 

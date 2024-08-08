@@ -122,8 +122,8 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
                 }
                 finally
                 {
-                    typeBusMessage.DecrementRefCount();
                     message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
+                    typeBusMessage.DecrementRefCount();
                 }
             }
             else if (message.Type is MessageType.RequestResponse)
@@ -148,8 +148,8 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
                 }
                 finally
                 {
-                    typeBusMessage.DecrementRefCount();
                     message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
+                    typeBusMessage.DecrementRefCount();
                 }
             }
             else
@@ -185,8 +185,8 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
                 }
                 finally
                 {
-                    typeBusMessage.DecrementRefCount();
                     message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
+                    typeBusMessage.DecrementRefCount();
                 }
             }
         }
@@ -219,8 +219,8 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
                 }
                 finally
                 {
-                    typeBusMessage.DecrementRefCount();
                     message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
+                    typeBusMessage.DecrementRefCount();
                 }
             }
             else if (message.Type is MessageType.RequestResponse)
@@ -245,8 +245,8 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
                 }
                 finally
                 {
-                    typeBusMessage.DecrementRefCount();
                     message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
+                    typeBusMessage.DecrementRefCount();
                 }
             }
             else
@@ -283,8 +283,8 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
                 }
                 finally
                 {
-                    typeBusMessage.DecrementRefCount();
                     message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
+                    typeBusMessage.DecrementRefCount();
                 }
             }
             else if (message.Type is MessageType.RequestResponse)
@@ -308,8 +308,8 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
                 }
                 finally
                 {
-                    typeBusMessage.DecrementRefCount();
                     message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
+                    typeBusMessage.DecrementRefCount();
                 }
             }
 
@@ -343,8 +343,8 @@ public class MessageListenerRegistration<TPayload, TResponse> : IMessageListener
                 }
                 finally
                 {
-                    typeBusMessage.DecrementRefCount();
                     message.ProcessorRegistry?.RegisterFinish(SubscriberRule);
+                    typeBusMessage.DecrementRefCount();
                 }
             }
 

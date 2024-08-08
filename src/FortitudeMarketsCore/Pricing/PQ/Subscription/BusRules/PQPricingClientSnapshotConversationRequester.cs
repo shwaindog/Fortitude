@@ -192,7 +192,7 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
             var deployedSocketListenerQueue = NetworkInboundMessageQueue;
             receiverQueuePublishAmender
                 = new PQPricingClientRequestResponseRegistrationRule(feedName, SocketSessionContext, sharedDeserializationRepo.Name);
-            var dispatchResult = await messageBus.DeployRuleAsync
+            var dispatchResult = await messageBus.DeployChildRuleAsync
                 (creatingRule, receiverQueuePublishAmender
                , new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.NetworkInbound, 1, deployedSocketListenerQueue!.Name));
             //

@@ -32,19 +32,19 @@ public class MultipleOfEachMessageQueueTypeTestSetup
 
     public MessageQueue CustomQueue1 = null!;
 
+    protected RouteSelectionResult CustomQueue1SelectionResult;
+    public    MessageQueue         CustomQueue2 = null!;
+    protected RouteSelectionResult CustomQueue2SelectionResult;
+    public    MessageQueue         CustomQueue3 = null!;
+    protected RouteSelectionResult CustomQueue3SelectionResult;
+    public    MessageQueue         EventQueue1 = null!;
+    protected RouteSelectionResult EventQueue1SelectionResult;
+    public    MessageQueue         EventQueue2 = null!;
+    protected RouteSelectionResult EventQueue2SelectionResult;
+    public    MessageQueue         EventQueue3 = null!;
+    protected RouteSelectionResult EventQueue3SelectionResult;
+    public    MessageBus           MessageBus = null!;
 
-    protected RouteSelectionResult        CustomQueue1SelectionResult;
-    public    MessageQueue                CustomQueue2 = null!;
-    protected RouteSelectionResult        CustomQueue2SelectionResult;
-    public    MessageQueue                CustomQueue3 = null!;
-    protected RouteSelectionResult        CustomQueue3SelectionResult;
-    public    MessageQueue                EventQueue1 = null!;
-    protected RouteSelectionResult        EventQueue1SelectionResult;
-    public    MessageQueue                EventQueue2 = null!;
-    protected RouteSelectionResult        EventQueue2SelectionResult;
-    public    MessageQueue                EventQueue3 = null!;
-    protected RouteSelectionResult        EventQueue3SelectionResult;
-    public    MessageBus                  MessageBus           = null!;
     public    NetworkInboundMessageQueue  NetworkInboundQueue1 = null!;
     protected RouteSelectionResult        NetworkInboundQueue1SelectionResult;
     public    NetworkInboundMessageQueue  NetworkInboundQueue2 = null!;
@@ -57,12 +57,13 @@ public class MultipleOfEachMessageQueueTypeTestSetup
     protected RouteSelectionResult        NetworkOutboundQueue2SelectionResult;
     public    NetworkOutboundMessageQueue NetworkOutboundQueue3 = null!;
     protected RouteSelectionResult        NetworkOutboundQueue3SelectionResult;
-    public    MessageQueue                WorkerQueue1 = null!;
-    protected RouteSelectionResult        WorkerQueue1SelectionResult;
-    public    MessageQueue                WorkerQueue2 = null!;
-    protected RouteSelectionResult        WorkerQueue2SelectionResult;
-    public    MessageQueue                WorkerQueue3 = null!;
-    protected RouteSelectionResult        WorkerQueue3SelectionResult;
+
+    public    MessageQueue         WorkerQueue1 = null!;
+    protected RouteSelectionResult WorkerQueue1SelectionResult;
+    public    MessageQueue         WorkerQueue2 = null!;
+    protected RouteSelectionResult WorkerQueue2SelectionResult;
+    public    MessageQueue         WorkerQueue3 = null!;
+    protected RouteSelectionResult WorkerQueue3SelectionResult;
 
     [TestInitialize]
     public void SetupEventQueue()

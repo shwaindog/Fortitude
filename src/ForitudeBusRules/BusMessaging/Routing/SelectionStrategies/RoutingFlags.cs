@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using static FortitudeBusRules.BusMessaging.Routing.SelectionStrategies.RoutingFlags;
 
@@ -9,51 +12,53 @@ namespace FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 [Flags]
 public enum RoutingFlags
 {
-    None = 0
-    , RecalculateCache = 1 // force cache reset if required
-    , ExpireCacheAfterAMinute = 2
-    , ExpireCacheAfter100Reads = 4
-    , UseLastCacheEntry = 8 //Unset only first matching queue found
-    , DestinationCacheLast = 16 // support fast routing and rotate requests evenly
-    , SenderCacheLast = 32 // so sender can have a stateful conversation with another rule
-    , SendToAll
-        = 64 // publish can send to all or one, requests and stateful conversations can only send to one.  Unset is send to one.
+    None                     = 0
+  , ShouldCollectMetrics     = 1
+  , RecalculateCache         = 2 // force cache reset if required
+  , ExpireCacheAfterAMinute  = 4
+  , ExpireCacheAfter100Reads = 8
+  , UseLastCacheEntry        = 16 //Unset only first matching queue found
+  , DestinationCacheLast     = 32 // support fast routing and rotate requests evenly
+  , SenderCacheLast          = 64 // so sender can have a stateful conversation with another rule
+  , SendToAll                = 128
+    // publish can send to all or one, requests and stateful conversations can only send to one.  Unset is send to one.
 
-    , DefaultPublish
-        = 64 + 16 + 8 + 4 +
-          2 // SendToAll | DestinationCacheLast | UseLastCacheEntry | ExpireCacheAfter100Reads | ExpireCacheAfterAMinute
+  , DefaultPublish = 128 + 32 + 16 + 8 + 4
+    // SendToAll | DestinationCacheLast | UseLastCacheEntry | ExpireCacheAfter100Reads | ExpireCacheAfterAMinute
 
-    , RotateEvenly = 128 // Will set SenderCacheLast to know which is next
-    , DefaultRequestResponse = 128 + 32 // RotateEvenly | SenderCacheLast
-    , LeastBusyQueue = 256 // If neither LeastBusy or RotateEvenly then First Queue in order
-    , DefaultStatefulConversation = 256 + 32 + 8 // LeastBusy | SenderCacheLast | UseLastCacheEntry
-    , TargetSpecific = 512 // Either specific Queue or Rule
-    , PreferNotSenderQueue = 1024 // Prefer deploying to a queue other than the sender queue
-    , DefaultDeploy
-        = 1024 + 256 + 128 + 16 // PreferNotSenderQueue | LeastBusyQueue | RotateEvenly | DestinationCacheLast
+  , RotateEvenly                = 256           // Will set SenderCacheLast to know which is next
+  , DefaultRequestResponse      = 256 + 64      // RotateEvenly | SenderCacheLast
+  , LeastBusyQueue              = 512           // If neither LeastBusy or RotateEvenly then First Queue in order
+  , DefaultStatefulConversation = 512 + 64 + 16 // LeastBusy | SenderCacheLast | UseLastCacheEntry
+  , TargetSpecific              = 1024          // Either specific Queue or Rule
+  , PreferNotSenderQueue        = 2048          // Prefer deploying to a queue other than the sender queue
+  , DefaultDeploy
+        = 2048 + 512 + 256 + 32 // PreferNotSenderQueue | LeastBusyQueue | RotateEvenly | DestinationCacheLast
 
-    , SameAsSenderQueue = 2048 // prefer deploying or dispatching to the same queue as sender.
+  , SameAsSenderQueue = 4096 // prefer deploying or dispatching to the same queue as sender.
     // If both or none Of *SenderQueue then Rotate Evenly or LeastBusy or First In Order
-    , CanCreateNewQueue
-        = 4096 // if no matching criteria can be found allow creation of a new queue to support deployment
+  , CanCreateNewQueue
+        = 8192 // if no matching criteria can be found allow creation of a new queue to support deployment
 }
 
 public static class RoutingFlagsExtensions
 {
-    public static RoutingFlags XorToggleEnableDisabled(this RoutingFlags original
-        , RoutingFlags enable = None
-        , RoutingFlags disable = None)
+    public static RoutingFlags XorToggleEnableDisabled
+    (this RoutingFlags original
+      , RoutingFlags enable = None
+      , RoutingFlags disable = None)
     {
-        var limitedEnabled = enable & ~disable;
-        var newlyEnabled = limitedEnabled & ~original;
+        var limitedEnabled   = enable & ~disable;
+        var newlyEnabled     = limitedEnabled & ~original;
         var originalDisabled = disable & original;
         return newlyEnabled | originalDisabled;
     }
 
-    public static bool IsNone(this RoutingFlags flags) => flags == None;
-    public static bool IsRecalculateCache(this RoutingFlags flags) => (flags & RecalculateCache) != 0;
-    public static bool IsExpireCacheAfterAMinute(this RoutingFlags flags) => (flags & ExpireCacheAfterAMinute) != 0;
-    public static bool IsExpireCacheAfter100Reads(this RoutingFlags flags) => (flags & ExpireCacheAfter100Reads) != 0;
+    public static bool IsNone(this RoutingFlags flags)                      => flags == None;
+    public static bool HasShouldCollectMetricsFlag(this RoutingFlags flags) => (flags & ShouldCollectMetrics) != 0;
+    public static bool IsRecalculateCache(this RoutingFlags flags)          => (flags & RecalculateCache) != 0;
+    public static bool IsExpireCacheAfterAMinute(this RoutingFlags flags)   => (flags & ExpireCacheAfterAMinute) != 0;
+    public static bool IsExpireCacheAfter100Reads(this RoutingFlags flags)  => (flags & ExpireCacheAfter100Reads) != 0;
 
     public static bool IsUseLastCacheEntry(this RoutingFlags flags) => (flags & UseLastCacheEntry) != 0;
 

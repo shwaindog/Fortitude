@@ -70,6 +70,6 @@ public class PQPricingServerClientResponderRule : Rule
     private void LaunchNewSnapshotClientConversationRule(IConversationRequester newClientSession)
     {
         var newClientSessionRule = new PQPricingServerClientSessionRule(feedName, newClientSession);
-        this.DeployRuleAsync(newClientSessionRule, new DeploymentOptions());
+        this.DeployChildRuleAsync(newClientSessionRule, new DeploymentOptions());
     }
 }

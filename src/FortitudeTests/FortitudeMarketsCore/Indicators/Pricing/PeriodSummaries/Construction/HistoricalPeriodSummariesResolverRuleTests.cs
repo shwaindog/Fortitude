@@ -287,11 +287,11 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         restrictedRetrievalRange         = new BoundedTimeRange(historicalQuotesStartTime, stubTimeContext.UtcNow);
 
         var test15SHistoricalPeriodClient = new TestHistoricalPeriodClient(FifteenSeconds, tickerId15SPeriod);
-        await indicatorRegistryStubRule.DeployRuleAsync(test15SHistoricalPeriodClient);
+        await indicatorRegistryStubRule.DeployChildRuleAsync(test15SHistoricalPeriodClient);
 
         var histResolver15SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(fifteenSecondsHistoricalPeriodParams);
 
-        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployRuleAsync(histResolver15SRule);
+        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(histResolver15SRule);
 
         Assert.AreEqual(0, lastSummariesRetrieved.Count);
         Assert.AreEqual(14, lastQuotesRetrieved.Count);
@@ -312,7 +312,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
 
         var test30SHistoricalPeriodClient = new TestHistoricalPeriodClient(ThirtySeconds, tickerId30SPeriod);
 
-        await using var testClientDeployment = await indicatorRegistryStubRule.DeployRuleAsync(test30SHistoricalPeriodClient);
+        await using var testClientDeployment = await indicatorRegistryStubRule.DeployChildRuleAsync(test30SHistoricalPeriodClient);
 
         historical15SSummariesLatestTime = FifteenSeconds.ContainingPeriodBoundaryStart(stubTimeContext.UtcNow);
         var thirtySeconds15SPeriodHistoricalPeriodParams = new HistoricalPeriodParams
@@ -326,7 +326,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         historical30SSummariesLatestTime = ThirtySeconds.PreviousPeriodStart(testEpochTime);
         var histResolver30SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySecondsHistoricalPeriodParams);
 
-        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployRuleAsync(histResolver30SRule);
+        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(histResolver30SRule);
         await test30SHistoricalPeriodClient.BlockUntilToPersistReaches(1);
 
         Assert.AreEqual(5, lastSummariesRetrieved.Count);
@@ -344,13 +344,13 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
 
         var test30SHistoricalPeriodClient = new TestHistoricalPeriodClient(ThirtySeconds, tickerId30SPeriod);
 
-        await using var testClientDeployment = await indicatorRegistryStubRule.DeployRuleAsync(test30SHistoricalPeriodClient);
+        await using var testClientDeployment = await indicatorRegistryStubRule.DeployChildRuleAsync(test30SHistoricalPeriodClient);
 
         historical30SSummariesLatestTime = testEpochTime;
         historical15SSummariesLatestTime = testEpochTime;
         var histResolver30SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySecondsHistoricalPeriodParams);
 
-        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployRuleAsync(histResolver30SRule);
+        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(histResolver30SRule);
 
         Assert.AreEqual(0, lastSummariesRetrieved.Count);
         Assert.AreEqual(0, lastQuotesRetrieved.Count);
@@ -373,13 +373,13 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
 
         var test30SHistoricalPeriodClient = new TestHistoricalPeriodClient(ThirtySeconds, tickerId30SPeriod);
 
-        await using var testClientDeployment = await indicatorRegistryStubRule.DeployRuleAsync(test30SHistoricalPeriodClient);
+        await using var testClientDeployment = await indicatorRegistryStubRule.DeployChildRuleAsync(test30SHistoricalPeriodClient);
 
         historical30SSummariesLatestTime = testEpochTime;
         historical15SSummariesLatestTime = testEpochTime;
         var histResolver30SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySecondsHistoricalPeriodParams);
 
-        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployRuleAsync(histResolver30SRule);
+        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(histResolver30SRule);
 
         Assert.AreEqual(0, lastSummariesRetrieved.Count);
         Assert.AreEqual(0, lastQuotesRetrieved.Count);
@@ -398,14 +398,14 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
 
         var test15SHistoricalPeriodClient = new TestHistoricalPeriodClient(FifteenSeconds, tickerId15SPeriod);
 
-        await using var testClientDeployment = await indicatorRegistryStubRule.DeployRuleAsync(test15SHistoricalPeriodClient);
+        await using var testClientDeployment = await indicatorRegistryStubRule.DeployChildRuleAsync(test15SHistoricalPeriodClient);
 
         var histResolver15SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(fifteenSecondsHistoricalPeriodParams);
         historical15SSummariesLatestTime = oneSecondLevel1Quotes.First().SourceTime.AddHours(-1);
         historicalQuotesStartTime        = historical15SSummariesLatestTime.AddHours(-1);
         historicalQuotesLatestTime       = historical15SSummariesLatestTime;
         restrictedRetrievalRange         = new BoundedTimeRange(historicalQuotesLatestTime, historicalQuotesLatestTime);
-        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployRuleAsync(histResolver15SRule);
+        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(histResolver15SRule);
 
         Assert.AreEqual(0, lastSummariesRetrieved.Count);
         Assert.AreEqual(0, lastQuotesRetrieved.Count);
@@ -428,7 +428,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         var testClient = new TestHistoricalPeriodClient(ThirtySeconds, tickerId30SPeriod);
         TimeContext.Provider = new StubTimeContext(testEpochTime.AddHours(4));
 
-        await using var testClientDeployment = await indicatorRegistryStubRule.DeployRuleAsync(testClient);
+        await using var testClientDeployment = await indicatorRegistryStubRule.DeployChildRuleAsync(testClient);
         restrictedRetrievalRange         = new BoundedTimeRange(testEpochTime.AddMinutes(-30), stubTimeContext.UtcNow);
         historicalQuotesStartTime        = testEpochTime.AddHours(-1).AddSeconds(-1);
         historicalQuotesLatestTime       = testEpochTime;
@@ -448,7 +448,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         historicalQuotesStartTime        = historical15SSummariesLatestTime.AddHours(-1);
         historicalQuotesLatestTime       = historical15SSummariesLatestTime;
         restrictedRetrievalRange         = new BoundedTimeRange(historicalQuotesStartTime, historicalQuotesStartTime);
-        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployRuleAsync(histResolver30SRule);
+        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(histResolver30SRule);
 
         Assert.AreEqual(0, lastSummariesRetrieved.Count);
         Assert.AreEqual(0, lastQuotesRetrieved.Count);
@@ -473,7 +473,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         var testClient = new TestHistoricalPeriodClient(ThirtySeconds, tickerId30SPeriod);
         TimeContext.Provider = new StubTimeContext(testEpochTime.AddHours(4));
 
-        await using var testClientDeployment = await indicatorRegistryStubRule.DeployRuleAsync(testClient);
+        await using var testClientDeployment = await indicatorRegistryStubRule.DeployChildRuleAsync(testClient);
         restrictedRetrievalRange         = new BoundedTimeRange(testEpochTime.AddMinutes(-30), stubTimeContext.UtcNow);
         historicalQuotesStartTime        = testEpochTime.AddHours(-1).AddSeconds(-1);
         historicalQuotesLatestTime       = testEpochTime;
@@ -493,7 +493,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         historicalQuotesStartTime        = historical15SSummariesLatestTime.AddHours(-1);
         historicalQuotesLatestTime       = historical15SSummariesLatestTime;
         restrictedRetrievalRange         = new BoundedTimeRange(historicalQuotesStartTime, historicalQuotesStartTime);
-        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployRuleAsync(histResolver30SRule);
+        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(histResolver30SRule);
 
         Assert.AreEqual(0, lastSummariesRetrieved.Count);
         Assert.AreEqual(0, lastQuotesRetrieved.Count);
@@ -518,11 +518,11 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
 
         var test5SHistoricalPeriodClient = new TestHistoricalPeriodClient(FiveSeconds, tickerId5SPeriod);
 
-        await using var testClientDeployment = await indicatorRegistryStubRule.DeployRuleAsync(test5SHistoricalPeriodClient);
+        await using var testClientDeployment = await indicatorRegistryStubRule.DeployChildRuleAsync(test5SHistoricalPeriodClient);
 
         var histResolver5SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(fiveSecondsHistoricalPeriodParams);
 
-        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployRuleAsync(histResolver5SRule);
+        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(histResolver5SRule);
 
         Assert.AreEqual(0, lastSummariesRetrieved.Count);
         Assert.AreEqual(0, lastQuotesRetrieved.Count);

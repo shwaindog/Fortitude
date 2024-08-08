@@ -20,13 +20,16 @@ namespace FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 
 public class PQPricingClientUpdatesSubscriberRule : Rule
 {
-    private readonly ISocketDispatcherResolver         dispatcherResolver1;
-    private readonly string                            feedName;
-    private readonly IFLogger                          logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientRequesterRule));
+    private readonly ISocketDispatcherResolver dispatcherResolver;
+
+    private readonly string   feedName;
+    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientRequesterRule));
+
     private readonly IMessageDeserializationRepository sharedFeedDeserializationRepo;
 
-    private readonly INetworkTopicConnectionConfig      updateClientTopicConnectionConfig;
-    public           PQPricingClientFeedSyncMonitorRule PqPricingClientFeedSyncMonitorRule;
+    private readonly INetworkTopicConnectionConfig updateClientTopicConnectionConfig;
+
+    public PQPricingClientFeedSyncMonitorRule PqPricingClientFeedSyncMonitorRule;
 
     private PQPricingClientUpdatesConversationSubscriber? updateClient;
 
@@ -35,9 +38,10 @@ public class PQPricingClientUpdatesSubscriberRule : Rule
         IMessageDeserializationRepository sharedFeedDeserializationRepo, ISocketDispatcherResolver dispatcherResolver)
         : base("PQClient_" + feedName + "_PQClientSnapshotRule")
     {
-        this.feedName                      = feedName;
+        this.feedName = feedName;
+
         this.sharedFeedDeserializationRepo = sharedFeedDeserializationRepo;
-        dispatcherResolver1                = dispatcherResolver;
+        this.dispatcherResolver            = dispatcherResolver;
         updateClientTopicConnectionConfig  = marketConnectionConfig.PricingServerConfig!.UpdateConnectionConfig;
         PqPricingClientFeedSyncMonitorRule = new PQPricingClientFeedSyncMonitorRule(feedName, sharedFeedDeserializationRepo);
     }
@@ -55,8 +59,8 @@ public class PQPricingClientUpdatesSubscriberRule : Rule
 
     private async ValueTask LaunchUpdateClient()
     {
-        updateClient ??= PQPricingClientUpdatesConversationSubscriber.BuildUdpSubscriber(updateClientTopicConnectionConfig, dispatcherResolver1
-                                                                                       , sharedFeedDeserializationRepo);
+        updateClient ??= PQPricingClientUpdatesConversationSubscriber.BuildUdpSubscriber
+            (updateClientTopicConnectionConfig, dispatcherResolver, sharedFeedDeserializationRepo);
         var workerQueueConnect = Context.GetEventQueues(MessageQueueType.Worker)
                                         .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted).GetExecutionContextResult<bool, TimeSpan>(this);
         var connected = await updateClient.StartAsync(10_000, workerQueueConnect);
@@ -67,8 +71,8 @@ public class PQPricingClientUpdatesSubscriberRule : Rule
             return;
         }
 
-        logger.Error(
-                     "Warning did not connect to PQUpdate Client typically this means there is a misconfiguration between your configuration and environment and will not auto resolve.");
+        logger.Error("Warning did not connect to PQUpdate Client typically this means there is a misconfiguration " +
+                     "between your configuration and environment and will not auto resolve.");
     }
 
     private async ValueTask LaunchTickerSyncMonitorOnUpdateFeedListener
@@ -76,12 +80,12 @@ public class PQPricingClientUpdatesSubscriberRule : Rule
         PQPricingClientUpdatesConversationSubscriber startedUpdateClientUpdatesConversationSubscriber)
     {
         var deployedUpdatesSocketListenerQueue
-            = Context.MessageBus.BusNetworkResolver.GetNetworkInboundQueueOnSocketListener(startedUpdateClientUpdatesConversationSubscriber
-                                                                                           .SocketSessionContext
-                                                                                           .SocketDispatcher.Listener!);
+            = Context.MessageBus.BusNetworkResolver.GetNetworkInboundQueueOnSocketListener
+                (startedUpdateClientUpdatesConversationSubscriber.SocketSessionContext.SocketDispatcher.Listener!);
         PqPricingClientFeedSyncMonitorRule = new PQPricingClientFeedSyncMonitorRule(feedName, sharedFeedDeserializationRepo);
-        await this.DeployRuleAsync(PqPricingClientFeedSyncMonitorRule
-                                 , new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.NetworkInbound, 1
-                                                       , deployedUpdatesSocketListenerQueue!.Name));
+        await this.DeployChildRuleAsync
+            (PqPricingClientFeedSyncMonitorRule,
+             new DeploymentOptions
+                 (RoutingFlags.TargetSpecific, MessageQueueType.NetworkInbound, 1, deployedUpdatesSocketListenerQueue!.Name));
     }
 }

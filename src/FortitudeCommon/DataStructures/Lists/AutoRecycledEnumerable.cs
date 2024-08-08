@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
@@ -10,7 +13,8 @@ namespace FortitudeCommon.DataStructures.Lists;
 public interface IAutoRecycleEnumerable<T> : IAutoRecycledObject, IEnumerable<T>
 {
     IList<T> BackingList { get; }
-    bool HasItems { get; }
+    bool     HasItems    { get; }
+
     IAutoRecycleEnumerable<T> Add(T append);
     IAutoRecycleEnumerable<T> AddRange(IEnumerable<T> appendAll);
     IAutoRecycleEnumerable<T> Remove(T remove);
@@ -22,6 +26,7 @@ public class AutoRecycledEnumerable<T> : AutoRecycledObject, IAutoRecycleEnumera
     public static readonly IAutoRecycleEnumerable<T> Empty = new EmptyAutoRecycledEnumerable<T>();
 
     private bool disableEnumeratorRecycle;
+
     private ReusableList<T>? recycledBackingList;
 
     public ReusableList<T> ReusableBackingList
@@ -37,8 +42,7 @@ public class AutoRecycledEnumerable<T> : AutoRecycledObject, IAutoRecycleEnumera
     {
         var autoRecycleEnumerator = ReusableBackingList.GetEnumerator();
         if (disableEnumeratorRecycle) autoRecycleEnumerator.DisableAutoRecycle();
-        if (AutoRecycleAtRefCountZero) // be able to switch off auto recycle
-            DecrementRefCount();
+        if (AutoRecycleAtRefCountZero) DecrementRefCount();
 
         return autoRecycleEnumerator;
     }
@@ -92,9 +96,11 @@ public class EmptyAutoRecycledEnumerable<T> : RecyclableObject, IAutoRecycleEnum
 {
     // ReSharper disable once CollectionNeverUpdated.Local
     private static readonly IList<T> AlwaysEmptyList = new List<T>().AsReadOnly();
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<T> GetEnumerator() => Enumerable.Empty<T>().GetEnumerator();
+
     public IList<T> BackingList => AlwaysEmptyList;
 
     public bool HasItems => false;

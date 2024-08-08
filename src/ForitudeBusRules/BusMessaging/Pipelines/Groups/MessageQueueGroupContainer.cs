@@ -42,9 +42,9 @@ public interface IMessageQueueGroupContainer : IEnumerable<IMessageQueue>
     bool Contains(IMessageQueue messageQueue);
     void Start();
     void Stop();
-    void LaunchRule(IRule sender, IRule rule, DeploymentOptions deployment);
+    void LaunchRule(IRule parent, IRule rule, DeploymentOptions deployment);
 
-    ValueTask<IRuleDeploymentLifeTime> LaunchRuleAsync(IRule sender, IRule rule, DeploymentOptions deployment);
+    ValueTask<IRuleDeploymentLifeTime> LaunchRuleAsync(IRule parent, IRule rule, DeploymentOptions deployment);
 
     ValueTask<U> RequestAsync<T, U>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions);
 
@@ -62,9 +62,10 @@ public interface IMessageQueueGroupContainer : IEnumerable<IMessageQueue>
 public class MessageQueueGroupContainer : IMessageQueueGroupContainer
 {
     // ideal minimum number of cores is 6 to avoid excessive context switching
-    public const int MaximumIOQueues = 10; // inbound, outbound
+    public const int MaximumIOQueues        = 10; // inbound, outbound
+    public const int MaximumAuxiliaryQueues = 10; // inbound, outbound
 
-    public const int ReservedCoresForIO = 4; // inbound (deserializers), outbound (serializers), logging, acceptor listening thread
+    public const int ReservedCoresForIO = 4; // inbound (deserializers), outbound (serializers), logging
 
     public const int MinimumEventQueues  = 1; // at least one
     public const int MinimumWorkerQueues = 1; // at least one
@@ -82,10 +83,10 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         recycler              = new Recycler();
         strategySelector      = new DeployDispatchStrategySelector(recycler);
         this.owningMessageBus = owningMessageBus;
-        var ioInboundNum = Math.Max(config.QueuesConfig.RequiredNetworkInboundQueues, MaximumIOQueues);
+        var ioInboundNum = Math.Max(0, Math.Min(config.QueuesConfig.RequiredNetworkInboundQueues, MaximumIOQueues));
         NetworkInboundMessageQueueGroup = new SocketListenerMessageQueueGroup(owningMessageBus, NetworkInbound, recycler, config.QueuesConfig);
         NetworkInboundMessageQueueGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, NetworkInbound, (uint)ioInboundNum));
-        var ioOutboundNum = Math.Max(config.QueuesConfig.RequiredNetworkOutboundQueues, MaximumIOQueues);
+        var ioOutboundNum = Math.Max(0, Math.Min(config.QueuesConfig.RequiredNetworkOutboundQueues, MaximumIOQueues));
         NetworkOutboundMessageQueueGroup = new SocketSenderMessageQueueGroup(owningMessageBus, NetworkOutbound, recycler, config.QueuesConfig);
         NetworkOutboundMessageQueueGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, NetworkOutbound, (uint)ioOutboundNum));
 
@@ -100,8 +101,12 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         WorkerMessageQueueGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, Worker, (uint)workerQueueNum));
 
         // Runtime added group of custom queue use cases.
-        CustomMessageQueueGroup     = new MessageQueueTypeGroup(owningMessageBus, Custom, recycler, config.QueuesConfig);
+        var customNum = Math.Max(0, Math.Min(config.QueuesConfig.RequiredCustomQueues, MaximumAuxiliaryQueues));
+        CustomMessageQueueGroup = new MessageQueueTypeGroup(owningMessageBus, Custom, recycler, config.QueuesConfig);
+        CustomMessageQueueGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, Custom, (uint)customNum));
+        var dataAccessNum = Math.Max(0, Math.Min(config.QueuesConfig.RequiredDataAccessQueues, MaximumAuxiliaryQueues));
         DataAccessMessageQueueGroup = new MessageQueueTypeGroup(owningMessageBus, DataAccess, recycler, config.QueuesConfig);
+        CustomMessageQueueGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, DataAccess, (uint)dataAccessNum));
     }
 
     internal MessageQueueGroupContainer
@@ -168,7 +173,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         eventQueueEnumerator.Add(((IMessageQueueTypeGroup<IMessageQueue>)NetworkInboundMessageQueueGroup).GetEnumerator());
         eventQueueEnumerator.Add(EventMessageQueueGroup.GetEnumerator());
         eventQueueEnumerator.Add(WorkerMessageQueueGroup.GetEnumerator());
-        eventQueueEnumerator.Add(CustomMessageQueueGroup.GetEnumerator());
+        if (CustomMessageQueueGroup != null) eventQueueEnumerator.Add(CustomMessageQueueGroup.GetEnumerator());
         eventQueueEnumerator.Add(DataAccessMessageQueueGroup.GetEnumerator());
 
         return eventQueueEnumerator;
@@ -181,16 +186,16 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         return eventQueueEnumerator;
     }
 
-    public void LaunchRule(IRule sender, IRule rule, DeploymentOptions options)
+    public void LaunchRule(IRule parent, IRule rule, DeploymentOptions options)
     {
-        var selectionStrategy = strategySelector.SelectDeployStrategy(sender, rule, options);
-        var selectionResult   = selectionStrategy.Select(this, sender, rule, options);
+        var selectionStrategy = strategySelector.SelectDeployStrategy(parent, rule, options);
+        var selectionResult   = selectionStrategy.Select(this, parent, rule, options);
         if (selectionResult != null)
         {
-            sender.AddChild(rule);
+            parent.AddChild(rule);
             var routeSelectionResult  = selectionResult.Value;
             var destinationEventQueue = routeSelectionResult.MessageQueue;
-            destinationEventQueue.LaunchRule(sender, rule);
+            destinationEventQueue.LaunchRule(parent, rule);
             return;
         }
 
@@ -199,16 +204,16 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         throw new ArgumentException(message);
     }
 
-    public ValueTask<IRuleDeploymentLifeTime> LaunchRuleAsync(IRule sender, IRule rule, DeploymentOptions options)
+    public ValueTask<IRuleDeploymentLifeTime> LaunchRuleAsync(IRule parent, IRule rule, DeploymentOptions options)
     {
-        var selectionStrategy = strategySelector.SelectDeployStrategy(sender, rule, options);
-        var selectionResult   = selectionStrategy.Select(this, sender, rule, options);
+        var selectionStrategy = strategySelector.SelectDeployStrategy(parent, rule, options);
+        var selectionResult   = selectionStrategy.Select(this, parent, rule, options);
         if (selectionResult != null)
         {
-            sender.AddChild(rule);
+            parent.AddChild(rule);
             var routeSelectionResult  = selectionResult.Value;
             var destinationEventQueue = routeSelectionResult.MessageQueue;
-            return destinationEventQueue.LaunchRuleAsync(sender, rule, routeSelectionResult);
+            return destinationEventQueue.LaunchRuleAsync(parent, rule, routeSelectionResult);
         }
 
         var message = $"Could not find the required group to deploy rule {rule} to event Queue type {options.MessageGroupType}";
@@ -223,6 +228,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         if (selectionResult is { HasItems: true, Count: 1 })
         {
             var processorRegistry = sender.Context.PooledRecycler.Borrow<DispatchProcessorRegistry>();
+            processorRegistry.ShouldCollectMetrics              = dispatchOptions.RoutingFlags.HasShouldCollectMetricsFlag();
             processorRegistry.Result                            = sender.Context.PooledRecycler.Borrow<DispatchResult>();
             processorRegistry.Result.DispatchSelectionResultSet = selectionResult;
             processorRegistry.IncrementRefCount();
@@ -276,6 +282,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         if (selectionResult is { HasItems: true })
         {
             var processorRegistry = sender.Context.PooledRecycler.Borrow<DispatchProcessorRegistry>();
+            processorRegistry.ShouldCollectMetrics              = dispatchOptions.RoutingFlags.HasShouldCollectMetricsFlag();
             processorRegistry.Result                            = sender.Context.PooledRecycler.Borrow<DispatchResult>();
             processorRegistry.Result.DispatchSelectionResultSet = selectionResult;
             processorRegistry.IncrementRefCount();

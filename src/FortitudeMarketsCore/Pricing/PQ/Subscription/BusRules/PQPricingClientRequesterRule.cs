@@ -119,7 +119,7 @@ public class PQPricingClientRequesterRule
              feedName, checkSourceTickerInfos, snapshotClient!.SocketSessionContext, marketConnectionConfig.PricingServerConfig!
            , new PQtoPQPriceConverterRepository(), sharedFeedDeserializationRepo.Name);
             var deployedSocketListenerQueue = snapshotClient.NetworkInboundMessageQueue;
-            var dispatchResult = await Context.MessageBus.DeployRuleAsync
+            var dispatchResult = await Context.MessageBus.DeployChildRuleAsync
                 (this, remoteMessageBusTopicPublicationAmenderRule,
                  new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.NetworkInbound, 1, deployedSocketListenerQueue!.Name));
 

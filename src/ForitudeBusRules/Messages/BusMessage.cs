@@ -114,7 +114,7 @@ public class Payload<T> : ReusableObject<Payload<T>>, IPayload<T>
 
 public delegate bool RuleFilter(IRule appliesToRule);
 
-public interface IBusMessage : IStoreState<IBusMessage>, ICanCarrySocketSenderPayload, ICanCarrySocketReceiverPayload
+public interface IBusMessage : IRecyclableObject, IStoreState<IBusMessage>, ICanCarrySocketSenderPayload, ICanCarrySocketReceiverPayload
 {
     MessageType Type       { get; }
     IRule?      Sender     { get; }
@@ -129,6 +129,8 @@ public interface IBusMessage : IStoreState<IBusMessage>, ICanCarrySocketSenderPa
 
     void IncrementCargoRefCounts();
     void DecrementCargoRefCounts();
+
+    IBusMessage BorrowCopy(IQueueContext messageContext);
 
     IBusMessage<TAsPayload> BorrowCopy<TAsPayload>(IQueueContext messageContext);
 
@@ -156,7 +158,7 @@ public enum MessageType
   , RemoveListenSubscribeInterceptor
 }
 
-public interface IBusMessage<out TPayload> : IBusMessage, IRecyclableObject
+public interface IBusMessage<out TPayload> : IBusMessage
 {
     new IPayload<TPayload> Payload { get; }
 }
@@ -166,14 +168,13 @@ public interface IBusRespondingMessage<out TPayload, in TResponse> : IBusMessage
     new IResponseValueTaskSource<TResponse> Response { get; }
 }
 
-public class BusMessage : IBusMessage
+public class BusMessage : RecyclableObject, IBusMessage
 {
     public static readonly Payload<object> ResetStatePayload = new();
 
     public static readonly NoMessageResponseSource NoOpCompletionSource = new();
 
-    public static readonly  RuleFilter AppliesToAll = _ => true;
-    private static readonly Recycler   Recycler     = new();
+    public static readonly RuleFilter AppliesToAll = _ => true;
 
     static BusMessage() => ResetStatePayload.AutoRecycleAtRefCountZero = false;
 
@@ -215,6 +216,14 @@ public class BusMessage : IBusMessage
 
     public IBusMessage<TPayload> BorrowCopy<TPayload>(IQueueContext messageContext) => BorrowCopy<TPayload, object>(messageContext);
 
+    public IBusMessage BorrowCopy(IQueueContext messageContext)
+    {
+        var clone = messageContext.PooledRecycler.Borrow<BusMessage>();
+        clone.CopyFrom(this);
+        clone.IncrementCargoRefCounts();
+        return clone;
+    }
+
     public IBusMessage CopyFrom(IBusMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         Type     = source.Type;
@@ -240,8 +249,8 @@ public class BusMessage : IBusMessage
 
     public void SetAsTaskCallbackItem(SendOrPostCallback callback, object? state)
     {
-        var payLoad     = Recycler.Borrow<Payload<TaskPayload>>();
-        var taskPayload = Recycler.Borrow<TaskPayload>();
+        var payLoad     = Recycler?.Borrow<Payload<TaskPayload>>() ?? new Payload<TaskPayload>();
+        var taskPayload = Recycler?.Borrow<TaskPayload>() ?? new TaskPayload();
         taskPayload.Callback = callback;
         taskPayload.State    = state;
         payLoad.SetBody      = taskPayload;
@@ -268,7 +277,7 @@ public class BusMessage : IBusMessage
 
     public void SetAsSocketSenderItem(ISocketSender socketSender)
     {
-        var payLoad = Recycler.Borrow<Payload<ISocketSender>>();
+        var payLoad = Recycler?.Borrow<Payload<ISocketSender>>() ?? new Payload<ISocketSender>();
         payLoad.SetBody = socketSender;
 
         Type       = MessageType.SendToRemote;
@@ -287,9 +296,25 @@ public class BusMessage : IBusMessage
 
     public ISocketReceiver? SocketReceiver => Payload.BodyObj(PayloadRequestType.QueueReceive) as ISocketReceiver;
 
+    public override void StateReset()
+    {
+        DecrementCargoRefCounts();
+        RuleFilter = AppliesToAll;
+        Type       = MessageType.Unknown;
+        Sender     = null;
+        SentTime   = DateTimeConstants.UnixEpoch;
+        refCount   = 0;
+
+        Payload  = ResetStatePayload;
+        Response = NoOpCompletionSource;
+
+        DestinationAddress = null;
+        base.StateReset();
+    }
+
     public void SetAsSocketReceiverItem(ISocketReceiver socketReceiver, bool isAdd)
     {
-        var payLoad = Recycler.Borrow<Payload<ISocketReceiver>>();
+        var payLoad = Recycler?.Borrow<Payload<ISocketReceiver>>() ?? new Payload<ISocketReceiver>();
         payLoad.SetBody = socketReceiver;
 
         Type       = isAdd ? MessageType.AddWatchSocket : MessageType.RemoveWatchSocket;
@@ -318,9 +343,6 @@ public class BusMessage<TPayload, TResponse> : BusMessage, IBusRespondingMessage
 
     public static readonly NoMessageResponseSource<TResponse> NoTypedOpCompletionSource = new();
 
-    private int isInRecycler;
-    private int refCount;
-
     static BusMessage() => ResetStateTypedPayload.AutoRecycleAtRefCountZero = false;
 
     public new IPayload<TPayload> Payload
@@ -340,52 +362,10 @@ public class BusMessage<TPayload, TResponse> : BusMessage, IBusRespondingMessage
         set => base.Response = value;
     }
 
-    public int RefCount => refCount;
-
-    public bool AutoRecycleAtRefCountZero { get; set; }
-
-    public bool IsInRecycler
+    public override void StateReset()
     {
-        get => isInRecycler != 0;
-        set => isInRecycler = value ? 1 : 0;
-    }
-
-    public IRecycler? Recycler { get; set; }
-
-    public virtual int DecrementRefCount()
-    {
-        DecrementCargoRefCounts();
-        if (!IsInRecycler && Interlocked.Decrement(ref refCount) <= 0 && AutoRecycleAtRefCountZero) Recycle();
-        return refCount;
-    }
-
-    public virtual int IncrementRefCount()
-    {
-        if (!IsInRecycler) IncrementCargoRefCounts();
-        return Interlocked.Increment(ref refCount);
-    }
-
-    public bool Recycle()
-    {
-        if (!IsInRecycler)
-            if (Interlocked.CompareExchange(ref isInRecycler, 1, 0) == 0)
-                Recycler?.Recycle(this);
-
-        return IsInRecycler;
-    }
-
-    public void StateReset()
-    {
-        RuleFilter = AppliesToAll;
-        Type       = MessageType.Unknown;
-        Sender     = null;
-        SentTime   = DateTimeConstants.UnixEpoch;
-        refCount   = 0;
-
-        base.Payload  = ResetStateTypedPayload;
-        base.Response = NoOpCompletionSource;
-
-        DestinationAddress = null;
+        base.StateReset();
+        base.Payload = ResetStateTypedPayload;
     }
 
     public override string ToString() =>

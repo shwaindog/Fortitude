@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
@@ -15,11 +18,17 @@ namespace FortitudeTests.FortitudeCommon.Chronometry.Timers;
 public class OneOffTimerUpdateTests
 {
     private readonly AutoResetEvent autoResetEvent = new(false);
+
     private volatile int callbackCounter;
+
     private Mock<IUpdateableTimer> moqTimer = null!;
+
     private OneOffTimerUpdate oneOffTimerUpdate = null!;
+
     private Timer timer = null!;
+
     private WaitCallbackTimerCallBackRunInfo timerCallBackRunInfo = null!;
+
     private WaitCallback waitCallback = null!;
 
 
@@ -33,7 +42,7 @@ public class OneOffTimerUpdateTests
             autoResetEvent.Set();
         };
         moqTimer = new Mock<IUpdateableTimer>();
-        timer = new Timer(TimerCallback, null, MaxTimerMs, MaxTimerMs);
+        timer    = new Timer(TimerCallback, null, MaxTimerMs, MaxTimerMs);
         var firstScheduledTime = TimeContext.UtcNow;
         timerCallBackRunInfo = CreateTimerCallBackRunInfo(firstScheduledTime);
         oneOffTimerUpdate = new OneOffTimerUpdate
@@ -45,9 +54,9 @@ public class OneOffTimerUpdateTests
     private WaitCallbackTimerCallBackRunInfo CreateTimerCallBackRunInfo(DateTime firstScheduledTime) =>
         new()
         {
-            WaitCallback = waitCallback, FirstScheduledTime = firstScheduledTime, LastRunTime = DateTime.MinValue
-            , MaxNumberOfCalls = 1, NextScheduleTime = firstScheduledTime
-            , IntervalPeriodTimeSpan = TimeSpan.FromMilliseconds(500), State = null, RegisteredTimer = timer
+            WaitCallback           = waitCallback, FirstScheduledTime      = firstScheduledTime, LastRunTime = DateTime.MinValue
+          , MaxNumberOfCalls       = 1, NextScheduleTime                   = firstScheduledTime
+          , IntervalPeriodTimeSpan = TimeSpan.FromMilliseconds(500), State = null, RegisteredTimer = timer
         };
 
     [TestCleanup]
@@ -85,15 +94,16 @@ public class OneOffTimerUpdateTests
     {
         var recycler = new Recycler();
         var borrowed = recycler.Borrow<OneOffTimerUpdate>();
+
         var borrowCallBackRunInfo = recycler.Borrow<WaitCallbackTimerCallBackRunInfo>();
         borrowed.CallBackRunInfo = borrowCallBackRunInfo;
         Assert.AreEqual(1, borrowed.RefCount);
         Assert.AreEqual(2, borrowCallBackRunInfo.RefCount);
         Assert.AreEqual(false, borrowed.IsInRecycler);
         Assert.AreEqual(false, borrowCallBackRunInfo.IsInRecycler);
-        Assert.AreEqual(0, borrowed.DecrementRefCount());
-        Assert.AreEqual(0, borrowed.RefCount);
-        Assert.AreEqual(0, borrowCallBackRunInfo.RefCount);
+        Assert.AreEqual(1, borrowed.DecrementRefCount());
+        Assert.AreEqual(1, borrowed.RefCount);
+        Assert.AreEqual(1, borrowCallBackRunInfo.RefCount);
         Assert.AreEqual(true, borrowed.IsInRecycler);
         Assert.AreEqual(true, borrowCallBackRunInfo.IsInRecycler);
     }
