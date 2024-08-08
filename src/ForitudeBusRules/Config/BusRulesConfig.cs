@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.Injection;
 using FortitudeCommon.Configuration;
@@ -15,6 +18,12 @@ public class BusRulesConfig : ConfigSection
     private QueuesConfig? queuesConfig;
 
     public BusRulesConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path) { }
+
+    public BusRulesConfig(IQueuesConfig queuesConfig, IClusterConfig? clusterConfig = null)
+    {
+        QueuesConfig  = queuesConfig;
+        ClusterConfig = clusterConfig;
+    }
 
     public BusRulesConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 

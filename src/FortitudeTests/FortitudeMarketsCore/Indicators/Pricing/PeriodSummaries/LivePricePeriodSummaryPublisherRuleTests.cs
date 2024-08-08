@@ -183,11 +183,11 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
             (new PricingInstrumentId
                 ((SourceTickerIdentifier)tickerId5SPeriod
                , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, new DiscreetTimePeriod(FiveSeconds))));
-        await indicatorRegistryStubRule.DeployRuleAsync(test5SLivePeriodClient);
+        await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
 
         var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
 
-        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployRuleAsync(liveResolver5SRule);
+        await using var histResolverDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(liveResolver5SRule);
 
         var progressTime = stubTimeContext.ProgressTimeWithoutEvents;
         await test5SLivePeriodClient.SendPricesToLivePeriodRule(oneSecondLevel1Quotes.Take(12).ToList(), progressTime);
@@ -203,11 +203,11 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
             (new PricingInstrumentId
                 ((SourceTickerIdentifier)tickerId5SPeriod
                , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, new DiscreetTimePeriod(FiveSeconds))));
-        await indicatorRegistryStubRule.DeployRuleAsync(test5SLivePeriodClient);
+        await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
 
         var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
 
-        await using var live5SDeploy = await indicatorRegistryStubRule.DeployRuleAsync(liveResolver5SRule);
+        await using var live5SDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(liveResolver5SRule);
 
         stubTimeContext.IncrementedTimeCallback = async (_, _, _) =>
         {
@@ -218,7 +218,8 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
 
         var receivedCompletePeriods = await test5SLivePeriodClient.GetPopulatedCompleteResults(1);
         Assert.AreEqual(1, receivedCompletePeriods.Count);
-        var receivedLivePeriods = await test5SLivePeriodClient.GetPopulatedLiveResults(9);
+        test5SLivePeriodClient.CreateNewWait(1, 8);
+        var receivedLivePeriods = await test5SLivePeriodClient.GetPopulatedLiveResults(8);
         Assert.AreEqual(8, receivedLivePeriods.Count);
     }
 
@@ -229,11 +230,11 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
             (new PricingInstrumentId
                 ((SourceTickerIdentifier)tickerId5SPeriod
                , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, new DiscreetTimePeriod(FiveSeconds))));
-        await indicatorRegistryStubRule.DeployRuleAsync(test5SLivePeriodClient);
+        await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
 
         var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
 
-        await using var live5SDeploy = await indicatorRegistryStubRule.DeployRuleAsync(liveResolver5SRule);
+        await using var live5SDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(liveResolver5SRule);
 
         stubTimeContext.IncrementedTimeCallback = async (_, _, _) =>
         {
@@ -270,11 +271,11 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
         test1MLivePeriodClient.RegisterSubPeriodResponse
             (ThirtySeconds
            , () => new ValueTask<List<PricePeriodSummary>>(thirtySecondPeriodSummaries.Take(1).ToList()));
-        await indicatorRegistryStubRule.DeployRuleAsync(test1MLivePeriodClient);
+        await indicatorRegistryStubRule.DeployChildRuleAsync(test1MLivePeriodClient);
 
         var live1MRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(oneMinuteLivePeriodParams);
 
-        await using var live1MDeploy = await indicatorRegistryStubRule.DeployRuleAsync(live1MRule);
+        await using var live1MDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(live1MRule);
 
         stubTimeContext.IncrementedTimeCallback = async (_, _, _) =>
         {
@@ -316,11 +317,11 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
                  await taskCompletionsSource.Task;
                  return fifteenSecondPeriodSummaries.Take(1).ToList();
              });
-        await indicatorRegistryStubRule.DeployRuleAsync(test30SLivePeriodClient);
+        await indicatorRegistryStubRule.DeployChildRuleAsync(test30SLivePeriodClient);
 
         var live30SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(thirtySecondsLivePeriodParams);
 
-        await using var live30SDeploy = await indicatorRegistryStubRule.DeployRuleAsync(live30SRule);
+        await using var live30SDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(live30SRule);
 
         stubTimeContext.IncrementedTimeCallback = async (_, _, _) =>
         {
@@ -357,11 +358,11 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
                , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, new DiscreetTimePeriod(ThirtySeconds))));
         test30SLivePeriodClient.RegisterSubPeriodResponse
             (FifteenSeconds, () => new ValueTask<List<PricePeriodSummary>>(new List<PricePeriodSummary>()));
-        await indicatorRegistryStubRule.DeployRuleAsync(test30SLivePeriodClient);
+        await indicatorRegistryStubRule.DeployChildRuleAsync(test30SLivePeriodClient);
 
         var live30SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(thirtySecondsLivePeriodParams);
 
-        await using var live30SDeploy = await indicatorRegistryStubRule.DeployRuleAsync(live30SRule);
+        await using var live30SDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(live30SRule);
 
         stubTimeContext.IncrementedTimeCallback = async (_, _, _) =>
         {
@@ -394,11 +395,11 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
             (new PricingInstrumentId
                 ((SourceTickerIdentifier)tickerId5SPeriod
                , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, new DiscreetTimePeriod(FiveSeconds))));
-        await indicatorRegistryStubRule.DeployRuleAsync(test5SLivePeriodClient);
+        await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
 
         var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
 
-        await using var live5SDeploy = await indicatorRegistryStubRule.DeployRuleAsync(liveResolver5SRule);
+        await using var live5SDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(liveResolver5SRule);
 
         await stubTimeContext.UpdateTime(stubTimeContext.UtcNow.AddSeconds(20));
 
@@ -415,11 +416,11 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
             (new PricingInstrumentId
                 ((SourceTickerIdentifier)tickerId5SPeriod
                , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, new DiscreetTimePeriod(FiveSeconds))));
-        await indicatorRegistryStubRule.DeployRuleAsync(test5SLivePeriodClient);
+        await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
 
         var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
 
-        await using var live5SDeploy = await indicatorRegistryStubRule.DeployRuleAsync(liveResolver5SRule);
+        await using var live5SDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(liveResolver5SRule);
 
         stubTimeContext.IncrementedTimeCallback = async (_, _, _) =>
         {

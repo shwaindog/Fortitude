@@ -1,21 +1,30 @@
 ﻿using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Maps;
+using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 
 public class ListenerRegistry
 {
+    private readonly IRecycler    recycler;
     private readonly List<string> destinationAddresses = new();
+
     public List<IMessageListenerRegistration> matcherListenerSubscriptions = new();
+
     public IMap<string, List<IMessageListenerRegistration>> Listeners
         = new ConcurrentMap<string, List<IMessageListenerRegistration>>();
     private List<IListenSubscribeInterceptor> subscribeInterceptors = new ();
 
     private readonly AutoRecycledEnumerable<IMessageListenerRegistration> foundMatchingSubscriptions = new();
 
-    public ListenerRegistry()
+    public ListenerRegistry(IRecycler recycler)
     {
+        this.recycler  = recycler;
+
+        foundMatchingSubscriptions.Recycler = recycler;
+
+        foundMatchingSubscriptions.AutoRecycleAtRefCountZero = false;
         foundMatchingSubscriptions.DisableEnumeratorAutoRecycle();
     }
 

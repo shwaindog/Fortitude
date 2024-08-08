@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
@@ -11,22 +14,27 @@ namespace FortitudeTests.FortitudeCommon.Chronometry.Timers;
 public class UpdateableTimerTests
 {
     private Action actionCallback = null!;
+
     private volatile int actionCallbackCounter;
+
     private AutoResetEvent actionCallbackResetEvent = null!;
+
     private volatile int nonNullStateWaitCallbackCounter;
     private volatile int nullStateWaitCallbackCounter;
-    private UpdateableTimer updateableTimer = null!;
-    private WaitCallback waitCallback = null!;
-    private AutoResetEvent waitCallbackResetEvent = null!;
+
+    private UpdateableTimer updateableTimer        = null!;
+    private WaitCallback    waitCallback           = null!;
+    private AutoResetEvent  waitCallbackResetEvent = null!;
 
     [TestInitialize]
     public void SetUp()
     {
         actionCallbackResetEvent = new AutoResetEvent(false);
-        waitCallbackResetEvent = new AutoResetEvent(false);
-        nullStateWaitCallbackCounter = 0;
+        waitCallbackResetEvent   = new AutoResetEvent(false);
+
+        nullStateWaitCallbackCounter    = 0;
         nonNullStateWaitCallbackCounter = 0;
-        actionCallbackCounter = 0;
+        actionCallbackCounter           = 0;
         waitCallback = state =>
         {
             if (state == null)
@@ -74,31 +82,31 @@ public class UpdateableTimerTests
         Assert.AreEqual(true, stateWaitUpdate.IsFinished);
 
         Assert.AreEqual(1, nullStateWaitCallbackCounter);
-        Assert.AreEqual(0, statelessWaitUpdate.DecrementRefCount());
+        Assert.AreEqual(1, statelessWaitUpdate.DecrementRefCount());
         statelessWaitUpdate = updateableTimer.RunIn(TimeSpan.FromMilliseconds(20), waitCallback);
         waitCallbackResetEvent.WaitOne(1_000);
         Assert.AreEqual(2, nullStateWaitCallbackCounter);
         Assert.AreEqual(1, statelessWaitUpdate.RefCount);
         Assert.AreEqual(true, statelessWaitUpdate.IsFinished);
-        Assert.AreEqual(0, statelessWaitUpdate.DecrementRefCount());
+        Assert.AreEqual(1, statelessWaitUpdate.DecrementRefCount());
 
         Assert.AreEqual(1, actionCallbackCounter);
-        Assert.AreEqual(0, actionCallbackUpdate.DecrementRefCount());
+        Assert.AreEqual(1, actionCallbackUpdate.DecrementRefCount());
         actionCallbackUpdate = updateableTimer.RunIn(TimeSpan.FromMilliseconds(20), actionCallback);
         actionCallbackResetEvent.WaitOne(1_000);
         Assert.AreEqual(2, actionCallbackCounter);
         Assert.AreEqual(1, actionCallbackUpdate.RefCount);
         Assert.AreEqual(true, actionCallbackUpdate.IsFinished);
-        Assert.AreEqual(0, actionCallbackUpdate.DecrementRefCount());
+        Assert.AreEqual(1, actionCallbackUpdate.DecrementRefCount());
 
         Assert.AreEqual(1, nonNullStateWaitCallbackCounter);
-        Assert.AreEqual(0, stateWaitUpdate.DecrementRefCount());
+        Assert.AreEqual(1, stateWaitUpdate.DecrementRefCount());
         stateWaitUpdate = updateableTimer.RunIn(TimeSpan.FromMilliseconds(20), new object(), waitCallback);
         waitCallbackResetEvent.WaitOne(1_000);
         Assert.AreEqual(2, nonNullStateWaitCallbackCounter);
         Assert.AreEqual(1, stateWaitUpdate.RefCount);
         Assert.AreEqual(true, stateWaitUpdate.IsFinished);
-        Assert.AreEqual(0, stateWaitUpdate.DecrementRefCount());
+        Assert.AreEqual(1, stateWaitUpdate.DecrementRefCount());
     }
 
 
@@ -152,7 +160,7 @@ public class UpdateableTimerTests
         Assert.AreEqual(lastNullStateCounter, nullStateWaitCallbackCounter);
         Thread.Sleep(intervalMs * 2);
         Assert.AreEqual(lastNullStateCounter, nullStateWaitCallbackCounter);
-        Assert.AreEqual(0, statelessWaitUpdate.DecrementRefCount());
+        Assert.AreEqual(1, statelessWaitUpdate.DecrementRefCount());
     }
 
     [TestMethod]
@@ -160,7 +168,7 @@ public class UpdateableTimerTests
     {
         var intervalMs = 20;
         Assert.AreEqual(0, actionCallbackCounter);
-        var actionUpdate = updateableTimer.RunEvery(intervalMs, actionCallback);
+        var actionUpdate       = updateableTimer.RunEvery(intervalMs, actionCallback);
         var firstScheduledTime = actionUpdate.NextScheduleDateTime;
         Assert.AreEqual(1, actionUpdate.RefCount);
         actionCallbackResetEvent.WaitOne(1_000);
@@ -205,7 +213,7 @@ public class UpdateableTimerTests
         Assert.AreEqual(lastNullStateCounter, actionCallbackCounter);
         Thread.Sleep(intervalMs * 2);
         Assert.AreEqual(lastNullStateCounter, actionCallbackCounter);
-        Assert.AreEqual(0, actionUpdate.DecrementRefCount());
+        Assert.AreEqual(1, actionUpdate.DecrementRefCount());
     }
 
     [TestMethod]
@@ -258,7 +266,7 @@ public class UpdateableTimerTests
         Assert.AreEqual(lastNullStateCounter, nonNullStateWaitCallbackCounter);
         Thread.Sleep(intervalMs * 2);
         Assert.AreEqual(lastNullStateCounter, nonNullStateWaitCallbackCounter);
-        Assert.AreEqual(0, statefulTimerUpdate.DecrementRefCount());
+        Assert.AreEqual(1, statefulTimerUpdate.DecrementRefCount());
     }
 
 
@@ -290,7 +298,7 @@ public class UpdateableTimerTests
     {
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
         Assert.AreEqual(0, actionCallbackCounter);
-        var statelessWaitUpdate = updateableTimer.RunIn(20, waitCallback);
+        var statelessWaitUpdate       = updateableTimer.RunIn(20, waitCallback);
         var actionIntvlCallbackUpdate = updateableTimer.RunEvery(2_000, actionCallback);
         Thread.Sleep(40);
         updateableTimer.PauseAllTimers();
@@ -319,7 +327,7 @@ public class UpdateableTimerTests
     {
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
         Assert.AreEqual(0, actionCallbackCounter);
-        var statelessWaitUpdate = updateableTimer.RunIn(200, waitCallback);
+        var statelessWaitUpdate       = updateableTimer.RunIn(200, waitCallback);
         var actionIntvlCallbackUpdate = updateableTimer.RunEvery(200, actionCallback);
         statelessWaitUpdate.Pause();
         actionCallbackResetEvent.WaitOne(400);
@@ -344,7 +352,7 @@ public class UpdateableTimerTests
     {
         Assert.AreEqual(0, nullStateWaitCallbackCounter);
         Assert.AreEqual(0, actionCallbackCounter);
-        var statelessWaitUpdate = updateableTimer.RunEvery(200, waitCallback);
+        var statelessWaitUpdate       = updateableTimer.RunEvery(200, waitCallback);
         var actionIntvlCallbackUpdate = updateableTimer.RunEvery(200, actionCallback);
         statelessWaitUpdate.Pause();
         actionCallbackResetEvent.WaitOne(400);

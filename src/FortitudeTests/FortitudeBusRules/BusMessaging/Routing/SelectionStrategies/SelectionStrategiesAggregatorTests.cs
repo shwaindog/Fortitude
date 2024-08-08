@@ -24,30 +24,40 @@ public class SelectionStrategiesAggregatorTests
 {
     private const string FixedOrderStrategyName = FixedOrderSelectionStrategy.StrategyName;
 
-    private IMessageQueueGroupContainer        allQueues                   = null!;
-    private Mock<IMessageQueue>                customQueue                 = null!;
-    private Mock<IMessageQueue>                eventQueue                  = null!;
-    private Mock<INetworkInboundMessageQueue>  ioInboundQueue              = null!;
-    private Mock<INetworkOutboundMessageQueue> ioOutboundQueue             = null!;
-    private IRecycler                          recycler                    = null!;
-    private IRule                              respondingRuleFirstQueue    = new RespondingRule();
-    private IRule                              rule                        = null!;
-    private Mock<IQueueContext>                ruleContext                 = null!;
-    private SelectionStrategiesAggregator      selectionStrategyAggregator = null!;
-    private Mock<IMessageQueue>                workerQueue                 = null!;
+    private IMessageQueueGroupContainer allQueues = null!;
+
+    private Mock<IMessageQueue> customQueue = null!;
+    private Mock<IMessageQueue> eventQueue  = null!;
+
+    private Mock<INetworkInboundMessageQueue>  ioInboundQueue  = null!;
+    private Mock<INetworkOutboundMessageQueue> ioOutboundQueue = null!;
+
+    private IRecycler recycler = null!;
+
+    private IRule respondingRuleFirstQueue = new RespondingRule();
+
+    private IRule rule = null!;
+
+    private Mock<IQueueContext> ruleContext = null!;
+
+    private SelectionStrategiesAggregator selectionStrategyAggregator = null!;
+
+    private Mock<IMessageQueue> workerQueue = null!;
 
     [TestInitialize]
     public void Setup()
     {
-        recycler                    = new Recycler();
+        recycler = new Recycler();
+
         selectionStrategyAggregator = new SelectionStrategiesAggregator();
 
         ioOutboundQueue = new Mock<INetworkOutboundMessageQueue>();
         ioInboundQueue  = new Mock<INetworkInboundMessageQueue>();
-        eventQueue      = new Mock<IMessageQueue>();
-        workerQueue     = new Mock<IMessageQueue>();
-        customQueue     = new Mock<IMessageQueue>();
-        ruleContext     = new Mock<IQueueContext>();
+
+        eventQueue  = new Mock<IMessageQueue>();
+        workerQueue = new Mock<IMessageQueue>();
+        customQueue = new Mock<IMessageQueue>();
+        ruleContext = new Mock<IQueueContext>();
 
         ioOutboundQueue.SetupGet(eq => eq.QueueType).Returns(NetworkOutbound);
         ioInboundQueue.SetupGet(eq => eq.QueueType).Returns(NetworkInbound);

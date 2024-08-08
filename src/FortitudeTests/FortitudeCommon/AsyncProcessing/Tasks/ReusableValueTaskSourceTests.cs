@@ -139,6 +139,7 @@ public class ReusableValueTaskSourceTests
     {
         var valueTask = reusableVTaskSource.GenerateValueTask();
         var toTask    = valueTask.ToTask();
+        reusableVTaskSource.AutoRecycleOnTaskComplete = true;
 
         Assert.IsFalse(valueTask.IsCompleted);
         Assert.IsFalse(toTask.IsCompleted);

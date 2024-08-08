@@ -91,26 +91,26 @@ public class TestSubscribeToTickerRule : Rule
     private readonly string feedName;
     private readonly string feedTickerListenAddress;
 
-    private readonly ManualResetEvent haveRecievedTick;
+    private readonly ManualResetEvent haveReceivedTick;
 
     private readonly string tickerToSubscribeTo;
 
     private ISubscription? tickerListenSubscription;
 
-    public TestSubscribeToTickerRule(string feedName, string tickerToSubscribeTo, ManualResetEvent haveRecievedTick) : base(
+    public TestSubscribeToTickerRule(string feedName, string tickerToSubscribeTo, ManualResetEvent haveReceivedTick) : base(
      "TestSubscribeToTickerRule_" + feedName + "_" +
      tickerToSubscribeTo)
     {
         this.feedName            = feedName;
         this.tickerToSubscribeTo = tickerToSubscribeTo;
-        this.haveRecievedTick    = haveRecievedTick;
+        this.haveReceivedTick    = haveReceivedTick;
         feedTickerListenAddress  = $"Markets.Pricing.Subscription.Feed.{feedName}.Ticker.{tickerToSubscribeTo}";
     }
 
     public override async ValueTask StartAsync()
     {
-        tickerListenSubscription = await Context.MessageBus.RegisterListenerAsync<PQLevel3Quote>(this
-                                                                                               , feedTickerListenAddress, Handler);
+        tickerListenSubscription = await Context.MessageBus.RegisterListenerAsync<PQLevel3Quote>
+            (this, feedTickerListenAddress, Handler);
         Logger.Info("Rule {0} has subscribed to address {1} on Thread Name {2}", FriendlyName, feedTickerListenAddress, Thread.CurrentThread.Name);
     }
 
@@ -124,6 +124,6 @@ public class TestSubscribeToTickerRule : Rule
         var pqL3Quote = priceQuote.Payload.Body();
         Logger.Info("Rule {0} listening on {1} received {2} with Sequence Number {3} on Thread Name {4}", FriendlyName, feedTickerListenAddress
                   , pqL3Quote.GetType().Name, pqL3Quote.PQSequenceId, Thread.CurrentThread.Name);
-        haveRecievedTick.Set();
+        haveReceivedTick.Set();
     }
 }

@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
@@ -26,7 +29,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         new(thisPool => new KvpEnumerator(thisPool));
 
     private readonly Func<TK, TK, bool> keyComparison;
-    private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(GarbageAndLockFreeMap<TK, TV>));
+    private readonly IFLogger           logger = FLoggerFactory.Instance.GetLogger(typeof(GarbageAndLockFreeMap<TK, TV>));
 
     private readonly GarbageAndLockFreePooledFactory<Container> queueWithElements = new(() => new Container());
 
@@ -76,7 +79,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         }
     }
 
-    public int Count => queueWithElements.Count();
+    public int Count => queueWithElements.Count;
 
     public IEnumerable<TK> Keys
     {
@@ -134,7 +137,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
             }
 
         var newContainer = surplusContainers.Borrow();
-        var kvPair = new KeyValuePair<TK, TV>(key, value);
+        var kvPair       = new KeyValuePair<TK, TV>(key, value);
         newContainer.KeyValuePair = kvPair;
         reusableListOfKeyValuePairs.Clear();
         reusableListOfKeyValuePairs.Add(kvPair);
@@ -157,7 +160,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
             if (keyComparison(container.KeyValuePair.Key, key))
                 return false;
         var newContainer = surplusContainers.Borrow();
-        var kvPair = new KeyValuePair<TK, TV>(key, value);
+        var kvPair       = new KeyValuePair<TK, TV>(key, value);
         newContainer.KeyValuePair = kvPair;
         reusableListOfKeyValuePairs.Clear();
         reusableListOfKeyValuePairs.Add(kvPair);
@@ -220,7 +223,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         IDisposableEnumerable<KeyValuePair<TK, TV>>
     {
         private readonly GarbageAndLockFreePooledFactory<KvpEnumerator> thisPool;
-        private IEnumerator<Container> toConvert = Container.SingletonContainer;
+        private          IEnumerator<Container>                         toConvert = Container.SingletonContainer;
 
         public KvpEnumerator(GarbageAndLockFreePooledFactory<KvpEnumerator> thisPool) => this.thisPool = thisPool;
 

@@ -514,7 +514,7 @@ public class IndicatorServiceRegistryRule : Rule
                 existing is null or { RunStatus: ServiceRunStatus.ServiceStopped })
                 try
                 {
-                    var ruleDeployment = await this.DeployRuleAsync(serviceInfo.Rule!);
+                    var ruleDeployment = await this.DeployChildRuleAsync(serviceInfo.Rule!);
                     DeployedServices.Add(ruleDeployment);
                     if (Equals(existing, default))
                         return GlobalServiceStateLookup[serviceReq.ServiceType].LastStartResult
@@ -550,7 +550,7 @@ public class IndicatorServiceRegistryRule : Rule
                 existing is null or { RunStatus: ServiceRunStatus.ServiceStopped })
                 try
                 {
-                    var ruleDeployment = await this.DeployRuleAsync(serviceInfo.Rule!);
+                    var ruleDeployment = await this.DeployChildRuleAsync(serviceInfo.Rule!);
                     DeployedServices.Add(ruleDeployment);
                     if (Equals(existing, default))
                         return TickerPeriodServiceStateLookup[serviceReq.TickerPeriodServiceInfo].LastStartResult

@@ -37,23 +37,24 @@ public class MessagePump : IMessagePump
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MessagePump));
 
-    private readonly ListenerRegistry     listenerRegistry = new();
-    private readonly List<IListeningRule> livingRules      = new();
+    private readonly ListenerRegistry     listenerRegistry;
+    private readonly List<IListeningRule> livingRules = new();
 
     private readonly IAsyncValueTaskRingPoller<BusMessage> ringPoller;
 
-    public MessagePump(IAsyncValueTaskRingPoller<BusMessage> ringPoller, QueueContext eventContext)
+    public MessagePump(IAsyncValueTaskRingPoller<BusMessage> ringPoller, QueueContext queueContext)
     {
         this.ringPoller = ringPoller;
 
         this.ringPoller.ProcessEvent = Processor;
 
-        EventContext = eventContext;
+        QueueContext     = queueContext;
+        listenerRegistry = new ListenerRegistry(queueContext.PooledRecycler);
     }
 
     public SyncContextTaskScheduler RingPollerScheduler { get; private set; } = null!;
 
-    public QueueContext EventContext { get; set; }
+    public QueueContext QueueContext { get; set; }
 
     public bool IsRunning => ringPoller.IsRunning;
 
@@ -93,7 +94,7 @@ public class MessagePump : IMessagePump
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-        EventContext.QueueTimer.Dispose();
+        QueueContext.QueueTimer.Dispose();
         ringPoller.Dispose();
     }
 
@@ -109,7 +110,7 @@ public class MessagePump : IMessagePump
 
     public void Stop()
     {
-        EventContext.QueueTimer.Dispose();
+        QueueContext.QueueTimer.Dispose();
         ringPoller.Stop();
     }
 
@@ -282,7 +283,7 @@ public class MessagePump : IMessagePump
 
     public void InitializeInPollingThread()
     {
-        QueueContext.CurrentThreadQueueContext = EventContext;
+        QueueContext.CurrentThreadQueueContext = QueueContext;
 
         RingPollerScheduler = new SyncContextTaskScheduler();
     }
@@ -344,8 +345,10 @@ public class MessagePump : IMessagePump
     {
         var newRule = (IListeningRule)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
 
-        var processorRegistry = data.ProcessorRegistry!;
-        processorRegistry.RegisterStart(newRule);
+        var processorRegistry = data.ProcessorRegistry;
+        processorRegistry?.RegisterStart(newRule);
+        var startLaunchAwaitMessageResult
+            = data.BorrowCopy(QueueContext); // copy the async value task source potentially being awaited on so it survives any async awaits
         try
         {
             newRule.IncrementLifeTimeCount();
@@ -353,14 +356,18 @@ public class MessagePump : IMessagePump
             await newRule.StartAsync();
             newRule.LifeCycleState = RuleLifeCycle.Started;
             if (newRule.DecrementLifeTimeCount() == 0) await UnloadRuleAndDependents(newRule);
-            processorRegistry.RegisterFinish(newRule);
-            data.ProcessorRegistry!.ProcessingComplete();
         }
         catch (Exception ex)
         {
             Logger.Warn("Problem starting rule: {0}.  Caught {1}", newRule.FriendlyName, ex);
             await UnloadRuleAndDependents(newRule);
-            data.ProcessorRegistry!.SetException(ex);
+            processorRegistry?.SetException(ex);
+        }
+        finally
+        {
+            processorRegistry?.RegisterFinish(newRule);
+            startLaunchAwaitMessageResult.DecrementRefCount();
+            processorRegistry?.ProcessingComplete();
         }
     }
 }

@@ -32,16 +32,16 @@ public static class RuleExtensions
     public static ValueTask<U> RequestAsync<T, U>(this IRule sender, string publishAddress, T msg) =>
         sender.RequestAsync<T, U>(publishAddress, msg, new DispatchOptions());
 
-    public static ValueTask<IRuleDeploymentLifeTime> DeployRuleAsync(this IRule sender, IRule rule, DeploymentOptions options) =>
-        sender.Context.MessageBus.DeployRuleAsync(sender, rule, options);
+    public static ValueTask<IRuleDeploymentLifeTime> DeployChildRuleAsync(this IRule sender, IRule rule, DeploymentOptions options) =>
+        sender.Context.MessageBus.DeployChildRuleAsync(sender, rule, options);
 
-    public static ValueTask<IRuleDeploymentLifeTime> DeployRuleAsync(this IRule sender, IRule rule) =>
-        sender.DeployRuleAsync(rule, new DeploymentOptions());
+    public static ValueTask<IRuleDeploymentLifeTime> DeployChildRuleAsync(this IRule sender, IRule rule) =>
+        sender.DeployChildRuleAsync(rule, new DeploymentOptions());
 
-    public static void DeployRule(this IRule sender, IRule rule, DeploymentOptions options) =>
-        sender.Context.MessageBus.DeployRule(sender, rule, options);
+    public static void DeployChildRule(this IRule sender, IRule rule, DeploymentOptions options) =>
+        sender.Context.MessageBus.DeployChildRule(sender, rule, options);
 
-    public static void DeployRule(this IRule sender, IRule rule) => sender.DeployRule(rule, new DeploymentOptions());
+    public static void DeployChildRule(this IRule sender, IRule rule) => sender.DeployChildRule(rule, new DeploymentOptions());
 
     public static ValueTask<IDispatchResult> UndeployRuleAsync(this IRule sender, IRule toUndeployRule) =>
         sender.Context.MessageBus.UndeployRuleAsync(sender, toUndeployRule);

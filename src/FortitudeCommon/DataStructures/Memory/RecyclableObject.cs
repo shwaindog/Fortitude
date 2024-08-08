@@ -69,7 +69,7 @@ public class RecyclableObject : UsesRecycler, IRecyclableObject
 
     public virtual void StateReset()
     {
-        refCount = 0;
+        refCount = 1;
     }
 }
 

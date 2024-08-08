@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
@@ -14,6 +17,7 @@ namespace FortitudeTests.FortitudeCommon.Chronometry.Timers;
 public class TimerCallBackRunInfoTests
 {
     private Timer timer = null!;
+
     private ConcreteTimerCallbackRunInfo timerCallBackRunInfo = null!;
 
 
@@ -29,8 +33,10 @@ public class TimerCallBackRunInfoTests
         new()
         {
             FirstScheduledTime = firstScheduledTime, LastRunTime = DateTime.MinValue
-            , MaxNumberOfCalls = 1, NextScheduleTime = firstScheduledTime
-            , IntervalPeriodTimeSpan = TimeSpan.FromMilliseconds(500), RegisteredTimer = timer
+
+          , MaxNumberOfCalls = 1, NextScheduleTime = firstScheduledTime
+
+          , IntervalPeriodTimeSpan = TimeSpan.FromMilliseconds(500), RegisteredTimer = timer
         };
 
     [TestCleanup]
@@ -87,12 +93,12 @@ public class TimerCallBackRunInfoTests
     [TestMethod]
     public void RecycleTest()
     {
-        var recycler = new Recycler();
+        var recycler                     = new Recycler();
         var borrowedTimerCallbackRunInfo = recycler.Borrow<ConcreteTimerCallbackRunInfo>();
         Assert.AreEqual(1, borrowedTimerCallbackRunInfo.RefCount);
         Assert.AreEqual(false, borrowedTimerCallbackRunInfo.IsInRecycler);
-        Assert.AreEqual(0, borrowedTimerCallbackRunInfo.DecrementRefCount());
-        Assert.AreEqual(0, borrowedTimerCallbackRunInfo.RefCount);
+        Assert.AreEqual(1, borrowedTimerCallbackRunInfo.DecrementRefCount());
+        Assert.AreEqual(1, borrowedTimerCallbackRunInfo.RefCount);
         Assert.AreEqual(true, borrowedTimerCallbackRunInfo.IsInRecycler);
     }
 

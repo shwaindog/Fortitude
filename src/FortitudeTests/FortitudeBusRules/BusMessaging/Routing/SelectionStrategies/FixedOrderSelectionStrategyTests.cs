@@ -26,25 +26,35 @@ public class FixedOrderSelectionStrategyTests
     private const string StrategyName       = FixedOrderSelectionStrategy.StrategyName;
     private const string DestinationAddress = "SomeAddress";
 
-    private readonly IRule deployRule                = new ListeningRule();
+    private readonly IRule deployRule = new ListeningRule();
+
     private readonly IRule respondingRuleFirstQueue  = new RespondingRule();
     private readonly IRule respondingRuleSecondQueue = new RespondingRule();
-    private readonly IRule sendingRule               = new RequestingRule();
 
-    private IMessageQueueGroupContainer        allQueues                   = null!;
-    private Mock<IMessageQueue>                firstCustomQueue            = null!;
-    private Mock<IMessageQueue>                firstEventQueue             = null!;
-    private Mock<INetworkInboundMessageQueue>  firstIoInboundQueue         = null!;
-    private Mock<INetworkOutboundMessageQueue> firstIoOutboundQueue        = null!;
-    private Mock<IMessageQueue>                firstWorkerQueue            = null!;
-    private FixedOrderSelectionStrategy        fixedOrderSelectionStrategy = null!;
-    private IRecycler                          recycler                    = null!;
-    private Mock<IQueueContext>                ruleContext                 = null!;
-    private Mock<IMessageQueue>                secondCustomQueue           = null!;
-    private Mock<IMessageQueue>                secondEventQueue            = null!;
-    private Mock<INetworkInboundMessageQueue>  secondIoInboundQueue        = null!;
-    private Mock<INetworkOutboundMessageQueue> secondIoOutboundQueue       = null!;
-    private Mock<IMessageQueue>                secondWorkerQueue           = null!;
+    private readonly IRule sendingRule = new RequestingRule();
+
+    private IMessageQueueGroupContainer allQueues = null!;
+
+    private Mock<IMessageQueue> firstCustomQueue = null!;
+    private Mock<IMessageQueue> firstEventQueue  = null!;
+
+    private Mock<INetworkInboundMessageQueue>  firstIoInboundQueue  = null!;
+    private Mock<INetworkOutboundMessageQueue> firstIoOutboundQueue = null!;
+
+    private Mock<IMessageQueue> firstWorkerQueue = null!;
+
+    private FixedOrderSelectionStrategy fixedOrderSelectionStrategy = null!;
+
+    private IRecycler recycler = null!;
+
+    private Mock<IQueueContext> ruleContext       = null!;
+    private Mock<IMessageQueue> secondCustomQueue = null!;
+    private Mock<IMessageQueue> secondEventQueue  = null!;
+
+    private Mock<INetworkInboundMessageQueue>  secondIoInboundQueue  = null!;
+    private Mock<INetworkOutboundMessageQueue> secondIoOutboundQueue = null!;
+
+    private Mock<IMessageQueue> secondWorkerQueue = null!;
 
     [TestInitialize]
     public void Setup()

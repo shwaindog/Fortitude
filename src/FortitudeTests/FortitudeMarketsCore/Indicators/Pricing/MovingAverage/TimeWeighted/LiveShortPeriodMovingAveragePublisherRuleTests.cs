@@ -152,7 +152,7 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
 
         testClient.HistoricalRepositoryQuotesToReturn = tenMinBeforeEpoch;
 
-        await indicatorRegistryStubRule.DeployRuleAsync(live8SMovingAverage1SPubRule);
+        await indicatorRegistryStubRule.DeployChildRuleAsync(live8SMovingAverage1SPubRule);
 
         await stubTimeContext.AddSecondsAsync(1);
 

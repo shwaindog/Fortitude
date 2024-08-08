@@ -3,7 +3,6 @@
 
 #region
 
-using System.Text;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 
@@ -84,14 +83,7 @@ public class GarbageAndLockFreePooledFactoryTests
         for (var i = 0; i < MaxNumberThreads; i++) workerThreads[i].Start();
         for (var i = 0; i < MaxNumberThreads; i++) workerThreads[i].Join();
         Thread.Sleep(50);
-        var sb = new StringBuilder();
-        foreach (var metricRecorder in garbageAndLockFreePooledFactory.MetricRepo.AllMetrics())
-        {
-            metricRecorder.AppendAndReset(sb);
-            sb.AppendLine();
-        }
 
-        Console.Out.WriteLine(sb);
         Assert.IsTrue(allGood);
 
         var totalBorrowAndReturns = 0;

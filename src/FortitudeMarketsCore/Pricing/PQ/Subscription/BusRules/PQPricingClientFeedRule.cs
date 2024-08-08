@@ -86,8 +86,8 @@ public class PQPricingClientFeedRule : Rule
         pqClientUpdateSubscriberRule = new PQPricingClientUpdatesSubscriberRule
             (feedName, marketConnectionConfig, sharedFeedDeserializationRepository, socketDispatcherResolver);
 
-        var launchSnapshotClient = this.DeployRuleAsync(pqClientSnapshotRequesterRule, new DeploymentOptions());
-        var launchUpdateClient   = this.DeployRuleAsync(pqClientUpdateSubscriberRule, new DeploymentOptions());
+        var launchSnapshotClient = this.DeployChildRuleAsync(pqClientSnapshotRequesterRule, new DeploymentOptions());
+        var launchUpdateClient   = this.DeployChildRuleAsync(pqClientUpdateSubscriberRule, new DeploymentOptions());
         await launchSnapshotClient;
         await launchUpdateClient;
         Logger.Info("Launched pricing client {0}", feedName);

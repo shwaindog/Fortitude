@@ -1,6 +1,10 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging;
+using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.Config;
 using FortitudeBusRules.Rules;
 
@@ -10,13 +14,13 @@ namespace FortitudeBusRules;
 
 public class BusRules
 {
-    public IConfigureMessageBus? EventBus;
+    public IConfigureMessageBus? MessageBus;
 
-    public IMessageBus Start(BusRulesConfig busRulesConfig, IRule bootstrapRule)
+    public IMessageBus Start(BusRulesConfig busRulesConfig, IRule bootstrapRule, MessageQueueType launchOnQueueType = MessageQueueType.Worker)
     {
-        EventBus = new MessageBus(busRulesConfig);
-        EventBus.Start();
-        EventBus.DeployRuleAsync(bootstrapRule, bootstrapRule, new DeploymentOptions());
-        return EventBus;
+        MessageBus = new MessageBus(busRulesConfig);
+        MessageBus.Start();
+        MessageBus.DeployDaemonRule(bootstrapRule, new DeploymentOptions(messageGroupType: launchOnQueueType));
+        return MessageBus;
     }
 }

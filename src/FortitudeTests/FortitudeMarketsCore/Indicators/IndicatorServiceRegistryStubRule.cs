@@ -45,7 +45,7 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
     {
         try
         {
-            var deployLifeTime = await this.DeployRuleAsync(rule);
+            var deployLifeTime = await this.DeployChildRuleAsync(rule);
             DeployedServices.Add(deployLifeTime);
             var serviceRunStateResponse = new ServiceRunStateResponse(rule, ServiceRunStatus.ServiceStarted);
             GlobalServiceRegistry.Add(service, new ServiceRuntimeState(serviceRunStateResponse));
@@ -70,7 +70,7 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
     {
         try
         {
-            var deployLifeTime = await this.DeployRuleAsync(rule);
+            var deployLifeTime = await this.DeployChildRuleAsync(rule);
             DeployedServices.Add(deployLifeTime);
             var tickerPeriodServiceInfo = new TickerPeriodServiceInfo(service, sourceTickerIdentifier, period, tickerDetailLevel, usePQQuote);
             var serviceRunStateResponse = new ServiceRunStateResponse(rule, ServiceRunStatus.ServiceStarted);

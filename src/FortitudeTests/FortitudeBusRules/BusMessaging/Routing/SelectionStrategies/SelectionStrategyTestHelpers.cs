@@ -60,8 +60,7 @@ public static class SelectionStrategyTestHelpers
       , IRule expectedRule)
     {
         Assert.IsNotNull(toCheck);
-        toCheck.Value.AssertIsExpected(expectedQueueType, expectedMessageQueue, expectedRoutingFlags, expectedStrategyName
-                                     , expectedRule);
+        toCheck.Value.AssertIsExpected(expectedQueueType, expectedMessageQueue, expectedRoutingFlags, expectedStrategyName, expectedRule);
     }
 
     public static void AssertIsExpected

@@ -45,12 +45,12 @@ public class PQPricingServerFeedRule : Rule
         var outboundQueueDeploy = Context.GetEventQueues(MessageQueueType.NetworkOutbound)
                                          .SelectEventQueue(QueueSelectionStrategy.LeastBusy);
         updatePublisherRule = new PQPricingServerQuotePublisherRule(feedName, marketConnectionConfig.PricingServerConfig!);
-        await this.DeployRuleAsync
+        await this.DeployChildRuleAsync
             (updatePublisherRule, new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.NetworkOutbound, 1, outboundQueueDeploy.Name));
         var inboundQueueDeploy = Context.GetEventQueues(MessageQueueType.NetworkInbound)
                                         .SelectEventQueue(QueueSelectionStrategy.EarliestCompleted);
         clientResponderRule = new PQPricingServerClientResponderRule(feedName, marketConnectionConfig.PricingServerConfig!);
-        await this.DeployRuleAsync
+        await this.DeployChildRuleAsync
             (clientResponderRule, new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.NetworkInbound, 1, inboundQueueDeploy.Name));
         await RegisterEachConfiguredTicker();
         await this.RegisterRequestListenerAsync<string, FeedSourceTickerInfoUpdate>
