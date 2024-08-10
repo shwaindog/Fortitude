@@ -190,28 +190,9 @@ public class ProcessorRegistry<TResult, TInterface> : ReusableValueTaskSource<TI
 public class DispatchProcessorRegistry : ProcessorRegistry<DispatchResult, IDispatchResult>
 {
     public DispatchProcessorRegistry() { }
-
-    public override IDispatchResult GetResult(short token)
-    {
-        var asyncResult = Core.GetResult(token);
-        if (AutoDecrementOnGetResult && !IsInRecycler)
-            // don't increment async result lifetime
-            DecrementRefCount(); // just decrement and don't recycle as another message may have copied it
-        return asyncResult;
-    }
 }
 
 public class DeploymentLifeTimeProcessorRegistry : ProcessorRegistry<RuleDeploymentLifeTime, IRuleDeploymentLifeTime>
 {
     public DeploymentLifeTimeProcessorRegistry() { }
-
-
-    public override IRuleDeploymentLifeTime GetResult(short token)
-    {
-        var asyncResult = Core.GetResult(token);
-        if (AutoDecrementOnGetResult && !IsInRecycler)
-            // don't increment async result lifetime
-            DecrementRefCount(); // just decrement and don't recycle as another message may have copied it
-        return asyncResult;
-    }
 }

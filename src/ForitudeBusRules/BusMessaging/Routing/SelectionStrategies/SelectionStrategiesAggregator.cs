@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging.Pipelines.Groups;
 using FortitudeBusRules.Messages;
@@ -18,11 +21,13 @@ public class SelectionStrategiesAggregator : AutoRecycledObject, ISelectionStrat
 
     public string Name => "StrategySelector";
 
-    public RouteSelectionResult? Select(IMessageQueueGroupContainer availableMessageQueues, IRule senderRule
-        , IRule deployRule
-        , DeploymentOptions deploymentOptions)
+    public RouteSelectionResult? Select
+    (IMessageQueueGroupContainer availableMessageQueues, IRule senderRule
+      , IRule deployRule
+      , DeploymentOptions deploymentOptions)
     {
         RouteSelectionResult? found = null;
+        backingList.Recycler = Recycler;
         foreach (var selectionStrategy in backingList)
             if (found == null)
             {
@@ -36,12 +41,14 @@ public class SelectionStrategiesAggregator : AutoRecycledObject, ISelectionStrat
         return found;
     }
 
-    public IDispatchSelectionResultSet Select(IMessageQueueGroupContainer availableMessageQueues
-        , IRule senderRule
-        , DispatchOptions dispatchOptions
-        , string destinationAddress)
+    public IDispatchSelectionResultSet Select
+    (IMessageQueueGroupContainer availableMessageQueues
+      , IRule senderRule
+      , DispatchOptions dispatchOptions
+      , string destinationAddress)
     {
         IDispatchSelectionResultSet? found = null;
+        backingList.Recycler = Recycler;
         foreach (var selectionStrategy in backingList)
             if (found is not { HasItems: true })
             {

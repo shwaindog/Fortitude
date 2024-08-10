@@ -312,7 +312,7 @@ public class MessageBus : IConfigureMessageBus
         processorRegistry.Result = rule.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.IncrementRefCount();
         processorRegistry.Result.SentTime                = DateTime.Now;
-        processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.QueueTimer;
+        processorRegistry.ResponseTimeoutAndRecycleTimer = null;
         var dispatchResult
             = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync
                 (msgListener, rule, MessageType.ListenerSubscribe, publishAddress, processorRegistry);
@@ -338,7 +338,7 @@ public class MessageBus : IConfigureMessageBus
         processorRegistry.Result = rule.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.IncrementRefCount();
         processorRegistry.Result.SentTime                = DateTime.Now;
-        processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.QueueTimer;
+        processorRegistry.ResponseTimeoutAndRecycleTimer = null;
         var dispatchResult
             = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync
                 (msgListener, rule, MessageType.ListenerSubscribe, publishAddress, processorRegistry);
@@ -364,7 +364,7 @@ public class MessageBus : IConfigureMessageBus
         processorRegistry.Result = rule.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.IncrementRefCount();
         processorRegistry.Result.SentTime                = DateTime.Now;
-        processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.QueueTimer;
+        processorRegistry.ResponseTimeoutAndRecycleTimer = null;
         var dispatchResult
             = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync
                 (msgListener, rule, MessageType.ListenerSubscribe, publishAddress, processorRegistry);
@@ -394,7 +394,7 @@ public class MessageBus : IConfigureMessageBus
         processorRegistry.Result = rule.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.IncrementRefCount();
         processorRegistry.Result.SentTime                = DateTime.Now;
-        processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.QueueTimer;
+        processorRegistry.ResponseTimeoutAndRecycleTimer = null;
         var dispatchResult
             = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync
                 (msgListener, rule, MessageType.ListenerSubscribe, publishAddress, processorRegistry);
@@ -420,7 +420,7 @@ public class MessageBus : IConfigureMessageBus
         processorRegistry.Result = rule.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.IncrementRefCount();
         processorRegistry.Result.SentTime                = DateTime.Now;
-        processorRegistry.ResponseTimeoutAndRecycleTimer = rule.Context.QueueTimer;
+        processorRegistry.ResponseTimeoutAndRecycleTimer = null;
         var dispatchResult
             = await rule.Context.RegisteredOn.EnqueuePayloadBodyWithStatsAsync
                 (msgListener, rule, MessageType.ListenerSubscribe, publishAddress, processorRegistry);

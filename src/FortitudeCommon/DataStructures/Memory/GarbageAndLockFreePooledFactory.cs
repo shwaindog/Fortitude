@@ -122,7 +122,7 @@ namespace FortitudeCommon.DataStructures.Memory
                 }
                 var last   = elementHead;
                 var count  = 0;
-                var stopAt = (Interlocked.Add(ref slotIndex, SlotIncrement) % MaxCycleSlotDepth) + MinimumCycleStartSlot;
+                var stopAt = (MaxCycleSlotDepth - Interlocked.Add(ref slotIndex, SlotIncrement) % MaxCycleSlotDepth) + MinimumCycleStartSlot;
                 while (currentItem is { NextElement: not null, NextSpareNode: null } && spareNodeHead?.NextElement != currentItem && count++ < stopAt)
                 {
                     last        = currentItem;
@@ -132,23 +132,28 @@ namespace FortitudeCommon.DataStructures.Memory
                 {
                     continue;
                 }
-                if (Interlocked.Increment(ref currentItem.CurrentTokenValue) == currentItem.AccessTokenRequired)
+                var threadToken = Interlocked.Increment(ref currentItem.CurrentTokenValue);
+                if (threadToken == currentItem.AccessTokenRequired)
                 {
                     var skipTo = currentItem.NextElement;
                     if (Interlocked.CompareExchange(ref last.NextElement, skipTo, currentItem) == currentItem)
                     {
                         var toReturn = currentItem.Item!;
                         currentItem.Item                = default;
-                        currentItem.AccessTokenRequired = currentItem.CurrentTokenValue;
+                        currentItem.AccessTokenRequired = currentItem.CurrentTokenValue + 1;
                         ReturnNode(currentItem);
                         return toReturn;
                     }
-                    currentItem.AccessTokenRequired += 6;
+                    currentItem.AccessTokenRequired += 3;
                     continue;
                 }
-                else if (currentItem.AccessTokenRequired + 3 < currentItem.CurrentTokenValue)
+                if (currentItem.AccessTokenRequired + 1 < threadToken)
                 {
-                    currentItem.AccessTokenRequired = currentItem.AccessTokenRequired + 6;
+                    currentItem.AccessTokenRequired += 3;
+                    continue;
+                }
+                if (threadToken < currentItem.AccessTokenRequired)
+                {
                     continue;
                 }
                 DistributeReattemptTime(i);
@@ -232,7 +237,7 @@ namespace FortitudeCommon.DataStructures.Memory
                 }
                 var last   = spareNodeHead;
                 var count  = 0;
-                var stopAt = (Interlocked.Add(ref slotIndex, SlotIncrement) % MaxCycleSlotDepth) + MinimumCycleStartSlot;
+                var stopAt = (MaxCycleSlotDepth - Interlocked.Add(ref slotIndex, SlotIncrement) % MaxCycleSlotDepth) + MinimumCycleStartSlot;
                 while (currentItem is { NextSpareNode: not null, NextElement: null }
                     && elementHead?.NextElement != currentItem
                     && elementHead?.NextElement != currentItem && count++ < stopAt)
@@ -244,7 +249,8 @@ namespace FortitudeCommon.DataStructures.Memory
                 {
                     continue;
                 }
-                if (Interlocked.Increment(ref currentItem.CurrentTokenValue) == currentItem.AccessTokenRequired)
+                var threadToken = Interlocked.Increment(ref currentItem.CurrentTokenValue);
+                if (threadToken == currentItem.AccessTokenRequired)
                 {
                     var skipTo = currentItem.NextSpareNode;
                     if (Interlocked.CompareExchange(ref last.NextSpareNode, skipTo, currentItem) == currentItem)
@@ -252,12 +258,16 @@ namespace FortitudeCommon.DataStructures.Memory
                         currentItem.NextSpareNode = null;
                         return currentItem;
                     }
-                    currentItem.AccessTokenRequired += 6;
+                    currentItem.AccessTokenRequired += 3;
                     continue;
                 }
-                else if (currentItem.AccessTokenRequired + 3 < currentItem.CurrentTokenValue)
+                if (currentItem.AccessTokenRequired + 1 < threadToken)
                 {
-                    currentItem.AccessTokenRequired = currentItem.AccessTokenRequired + 6;
+                    currentItem.AccessTokenRequired = currentItem.AccessTokenRequired + 3;
+                    continue;
+                }
+                if (threadToken < currentItem.AccessTokenRequired)
+                {
                     continue;
                 }
                 DistributeReattemptTime(i);

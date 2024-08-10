@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections;
 using FortitudeBusRules.Messages;
@@ -11,14 +14,18 @@ using FortitudeCommon.Types;
 namespace FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 
 public interface IDispatchSelectionResultSet : IReusableObject<IDispatchSelectionResultSet>
-    , IEnumerable<RouteSelectionResult>
+  , IEnumerable<RouteSelectionResult>
 {
     bool HasFinished { get; }
-    bool HasItems { get; }
-    int Count { get; }
+    bool HasItems    { get; }
+    int  Count       { get; }
+
     int MaxUniqueResults { get; set; }
-    public string? StrategyName { get; set; }
+
+    string? StrategyName { get; set; }
+
     DispatchOptions DispatchOptions { get; set; }
+
     bool Add(RouteSelectionResult routeSelectionResult);
     bool AddRange(IEnumerable<RouteSelectionResult> addRange);
     void Clear();
@@ -36,19 +43,22 @@ public class DispatchSelectionResultSet : ReusableObject<IDispatchSelectionResul
         return enumerator;
     }
 
-    public string? StrategyName { get; set; }
-    public int MaxUniqueResults { get; set; }
-
-    public DispatchOptions DispatchOptions { get; set; }
-    public bool HasItems => backingList.Count > 0;
-    public int Count => backingList.Count;
 
     public bool HasFinished => backingList.Count >= MaxUniqueResults;
+    public bool HasItems    => backingList.Count > 0;
+    public int  Count       => backingList.Count;
+
+    public int MaxUniqueResults { get; set; }
+
+    public string? StrategyName { get; set; }
+
+    public DispatchOptions DispatchOptions { get; set; }
 
     public bool Add(RouteSelectionResult routeSelectionResult)
     {
         if (backingList.Count >= MaxUniqueResults) return false;
         var alreadyExists = false;
+        backingList.Recycler = Recycler;
         foreach (var existing in backingList)
             if (!alreadyExists && routeSelectionResult.MessageQueue == existing.MessageQueue)
                 alreadyExists = true;
@@ -76,18 +86,19 @@ public class DispatchSelectionResultSet : ReusableObject<IDispatchSelectionResul
         DispatchOptions = default;
         backingList.Clear();
         MaxUniqueResults = 0;
-        StrategyName = null;
+        StrategyName     = null;
         base.StateReset();
     }
 
-    public override IDispatchSelectionResultSet CopyFrom(IDispatchSelectionResultSet source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IDispatchSelectionResultSet CopyFrom
+    (IDispatchSelectionResultSet source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is DispatchSelectionResultSet dispatchSelectionResultSet)
         {
             MaxUniqueResults = dispatchSelectionResultSet.MaxUniqueResults;
-            StrategyName = dispatchSelectionResultSet.StrategyName;
-            DispatchOptions = dispatchSelectionResultSet.DispatchOptions;
+            StrategyName     = dispatchSelectionResultSet.StrategyName;
+            DispatchOptions  = dispatchSelectionResultSet.DispatchOptions;
             backingList.Clear();
             backingList.AddRange(dispatchSelectionResultSet.backingList);
         }

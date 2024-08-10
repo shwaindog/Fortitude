@@ -30,9 +30,11 @@ public class RecyclableObject : UsesRecycler, IRecyclableObject
 {
     private const int NumRecentRecycleTimes = 5;
 
-    private   int        isInRecycler;
+    private int isInRecycler;
+    #if DEBUG
     protected DateTime[] LastRecycleTimes = new DateTime[NumRecentRecycleTimes];
-    protected int        RecycleCount;
+    #endif
+    protected int RecycleCount;
 
     // ReSharper disable once InconsistentNaming
     protected int refCount = 1;
@@ -60,7 +62,9 @@ public class RecyclableObject : UsesRecycler, IRecyclableObject
         if (Recycler == null) return false;
         if (Interlocked.CompareExchange(ref isInRecycler, 1, 0) != 0) return false;
 
+        #if DEBUG
         LastRecycleTimes[RecycleCount % NumRecentRecycleTimes] = DateTime.UtcNow;
+        #endif
         Interlocked.Increment(ref RecycleCount);
         Recycler.Recycle(this);
 

@@ -59,8 +59,6 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
 
     private static int totalInstances;
 
-    private readonly TaskCompletionSource<T> taskCompletionSource = new();
-
     protected ManualResetValueTaskSourceCore<T> Core; // mutable struct; do not make this readonly
 
     private int decrementCountDownTimerSet;
@@ -69,6 +67,8 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
     protected int  InstanceNumber;
 
     private ITimerUpdate? lastTimerActive;
+
+    private TaskCompletionSource<T>? taskCompletionSource;
 
     static ReusableValueTaskSource()
     {
@@ -183,6 +183,7 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
     {
         get
         {
+            taskCompletionSource ??= new TaskCompletionSource<T>();
             var returnTask = taskCompletionSource.Task;
             AutoDecrementOnGetResult = false;
             hasCreatedAsTask         = true;
@@ -196,7 +197,7 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
     {
         // logger.Debug("instanceNumber: {0} DecrementRefCount with refCount {1} stack trace - {2}", InstanceNumber
         //     , refCount, new StackTrace());
-        if (!IsInRecycler && AutoRecycleAtRefCountZero && Interlocked.Decrement(ref refCount) <= 0) DirectOrTimerRecycle();
+        if (Interlocked.Decrement(ref refCount) <= 0 && !IsInRecycler && AutoRecycleAtRefCountZero) DirectOrTimerRecycle();
 
         return refCount;
     }
@@ -215,13 +216,13 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
     public void SetResult(T result)
     {
         Core.SetResult(result);
-        taskCompletionSource.SetResult(result);
+        taskCompletionSource?.SetResult(result);
     }
 
     public void SetException(Exception error)
     {
         Core.SetException(error);
-        taskCompletionSource.SetException(error);
+        taskCompletionSource?.SetException(error);
     }
 
     public void TrySetResult(T result)
@@ -229,7 +230,7 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
         if (Core.GetStatus(Core.Version) == ValueTaskSourceStatus.Pending)
         {
             Core.SetResult(result);
-            taskCompletionSource.TrySetResult(result);
+            taskCompletionSource?.TrySetResult(result);
         }
     }
 
@@ -240,7 +241,7 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
         AutoDecrementOnGetResult   = false;
         hasCreatedAsTask           = false;
         AwaitingValueTask          = null;
-        ResetTaskAction(taskCompletionSource.Task);
+        if (taskCompletionSource != null) ResetTaskAction(taskCompletionSource.Task);
         RunContinuationsAsynchronously = false;
         ResponseTimeoutAndRecycleTimer = null;
         ResponseTimeout                = null;
@@ -286,7 +287,7 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
     public void SetResponseTimeout(TimeSpan responseTimeout, IActionTimer? actionTimer)
     {
         var resolvedActionTimer = ResponseTimeoutAndRecycleTimer ?? actionTimer;
-        if (resolvedActionTimer != null) resolvedActionTimer.RunIn(responseTimeout, this, ResponseTimedOut);
+        resolvedActionTimer?.RunIn(responseTimeout, this, ResponseTimedOut);
     }
 
     private static void SetResponseTimedOut(ReusableValueTaskSource<T>? taskTimeOut)
@@ -328,7 +329,7 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
     private static void CheckAsTaskCompleteAgain(ReusableValueTaskSource<T>? state)
     {
         if (state == null) return;
-        if (state.taskCompletionSource.Task.IsCompleted)
+        if (state.taskCompletionSource?.Task.IsCompleted == true)
         {
             state.StartRecycleDecrementRefCountTimer();
         }

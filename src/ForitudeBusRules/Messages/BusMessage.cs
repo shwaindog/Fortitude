@@ -165,7 +165,7 @@ public interface IBusMessage<out TPayload> : IBusMessage
 
 public interface IBusRespondingMessage<out TPayload, in TResponse> : IBusMessage<TPayload>
 {
-    new IResponseValueTaskSource<TResponse> Response { get; }
+    new IReusableAsyncResponse<TResponse> Response { get; }
 }
 
 public class BusMessage : RecyclableObject, IBusMessage
@@ -351,13 +351,13 @@ public class BusMessage<TPayload, TResponse> : BusMessage, IBusRespondingMessage
         set => ((BusMessage)this).Payload = value;
     }
 
-    public new IResponseValueTaskSource<TResponse> Response
+    public new IReusableAsyncResponse<TResponse> Response
     {
         get
         {
             var underlyingResponse = base.Response;
             if (underlyingResponse is NoMessageResponseSource) return NoTypedOpCompletionSource;
-            return (IResponseValueTaskSource<TResponse>)underlyingResponse;
+            return (IReusableAsyncResponse<TResponse>)underlyingResponse;
         }
         set => base.Response = value;
     }

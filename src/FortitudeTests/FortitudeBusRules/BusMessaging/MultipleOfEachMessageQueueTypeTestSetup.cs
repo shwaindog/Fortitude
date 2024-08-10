@@ -12,7 +12,6 @@ using FortitudeBusRules.Config;
 using FortitudeBusRules.Connectivity.Network.Dispatcher;
 using FortitudeBusRules.Messages;
 using FortitudeCommon.Chronometry.Timers;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Monitoring.Logging;
@@ -106,15 +105,15 @@ public class MultipleOfEachMessageQueueTypeTestSetup
                 = new NetworkInboundMessageQueue(evtBus, MessageQueueType.NetworkInbound, 3, SocketListenerRingPoller("SocketListenerQueue3", timer));
 
             var eventGroupContainer = new MessageQueueGroupContainer
-                (evtBus, evBus => new MessageQueueTypeGroup(evtBus, MessageQueueType.Event, new Recycler(), defaultQueuesConfig)
+                (evtBus, evBus => new MessageQueueTypeGroup(evtBus, MessageQueueType.Event, defaultQueuesConfig)
                      { EventQueue1, EventQueue2, EventQueue3 }
-               , wrkBus => new MessageQueueTypeGroup(evtBus, MessageQueueType.Worker, new Recycler(), defaultQueuesConfig)
+               , wrkBus => new MessageQueueTypeGroup(evtBus, MessageQueueType.Worker, defaultQueuesConfig)
                      { WorkerQueue1, WorkerQueue2, WorkerQueue3 }
-               , ioInBus => new SocketListenerMessageQueueGroup(evtBus, MessageQueueType.NetworkInbound, new Recycler(), defaultQueuesConfig)
+               , ioInBus => new SocketListenerMessageQueueGroup(evtBus, MessageQueueType.NetworkInbound, defaultQueuesConfig)
                      { NetworkInboundQueue1, NetworkInboundQueue2, NetworkInboundQueue3 }
-               , ioOutBus => new SocketSenderMessageQueueGroup(evtBus, MessageQueueType.NetworkOutbound, new Recycler(), defaultQueuesConfig)
+               , ioOutBus => new SocketSenderMessageQueueGroup(evtBus, MessageQueueType.NetworkOutbound, defaultQueuesConfig)
                      { NetworkOutboundQueue1, NetworkOutboundQueue2, NetworkOutboundQueue3 }
-               , cstBus => new MessageQueueTypeGroup(evtBus, MessageQueueType.Custom, new Recycler(), defaultQueuesConfig)
+               , cstBus => new MessageQueueTypeGroup(evtBus, MessageQueueType.Custom, defaultQueuesConfig)
                      { CustomQueue1, CustomQueue2, CustomQueue3 });
             return eventGroupContainer;
         });
@@ -155,7 +154,7 @@ public class MultipleOfEachMessageQueueTypeTestSetup
 
     protected IAsyncValueTaskPollingRing<BusMessage> PollingRing(string name, int size = AsyncRingPollerSize)
     {
-        return new AsyncValueValueTaskPollingRing<BusMessage>(name, size, () => new BusMessage(), ClaimStrategyType.MultiProducers);
+        return new AsyncValueTaskPollingRing<BusMessage>(name, size, () => new BusMessage(), ClaimStrategyType.MultiProducers);
     }
 
     [TestCleanup]

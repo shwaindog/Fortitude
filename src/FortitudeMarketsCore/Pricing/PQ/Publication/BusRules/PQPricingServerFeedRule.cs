@@ -53,8 +53,8 @@ public class PQPricingServerFeedRule : Rule
         await this.DeployChildRuleAsync
             (clientResponderRule, new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.NetworkInbound, 1, inboundQueueDeploy.Name));
         await RegisterEachConfiguredTicker();
-        await this.RegisterRequestListenerAsync<string, FeedSourceTickerInfoUpdate>
-            (allAvailableTickersRequestAddress, ReceivedAllAvailableTickersRequest);
+        await this.RegisterRequestListenerAsync<string, FeedSourceTickerInfoUpdate>(allAvailableTickersRequestAddress
+                                                                                  , ReceivedAllAvailableTickersRequest);
     }
 
     private FeedSourceTickerInfoUpdate ReceivedAllAvailableTickersRequest(IBusRespondingMessage<string, FeedSourceTickerInfoUpdate> arg)
