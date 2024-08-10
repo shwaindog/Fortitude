@@ -25,12 +25,19 @@ public interface IReusableList<T> : IReusableObject<IReusableList<T>>, IList<T>,
 
 public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T>
 {
-    private readonly List<T> backingList = new();
+    private readonly List<T> backingList;
 
-    public ReusableList() { }
+    public ReusableList() => backingList = new List<T>();
+
+    public ReusableList(IRecycler recycler, int size = 16)
+    {
+        Recycler    = recycler;
+        backingList = new List<T>(size);
+    }
 
     private ReusableList(ReusableList<T> toClone)
     {
+        backingList = new List<T>(toClone.Count);
         // ReSharper disable once VirtualMemberCallInConstructor
         CopyFrom(toClone);
     }

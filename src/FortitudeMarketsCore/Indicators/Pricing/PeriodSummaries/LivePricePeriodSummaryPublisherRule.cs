@@ -277,7 +277,8 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
                 PublishSummaryTo(priceSummary, completeResponsePublishParams);
                 currentPeriodSummaryState.HasPublishedComplete = true;
 
-                var lastPeriodEnd                = lastPeriodSummaryState!.SubSummaryPeriods.Tail?.EndBidAsk;
+                lastPeriodSummaryState ??= new PeriodSummaryState(currentPeriodSummaryState.PeriodStartTime, periodToPublish);
+                var lastPeriodEnd                = lastPeriodSummaryState.SubSummaryPeriods.Tail?.EndBidAsk;
                 var newCurrentPeriodSummaryState = ClearExisting(lastPeriodSummaryState);
                 lastPeriodSummaryState    = currentPeriodSummaryState;
                 currentPeriodSummaryState = newCurrentPeriodSummaryState;
@@ -364,7 +365,8 @@ public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicato
         }
         else if (subPeriodContainerStart > currentPeriodSummaryState.PeriodStartTime)
         {
-            var noLastSummaryPeriod                                                                 = lastPeriodSummaryState == null;
+            var noLastSummaryPeriod = lastPeriodSummaryState == null;
+
             if (!currentPeriodSummaryState.IsEmpty) currentPeriodSummaryState.NextPeriodBidAskStart = subPeriod.EndBidAsk;
 
             if (noLastSummaryPeriod)

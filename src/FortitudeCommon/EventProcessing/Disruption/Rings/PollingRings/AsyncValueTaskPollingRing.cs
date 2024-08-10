@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.DataStructures.Memory;
@@ -13,34 +16,42 @@ namespace FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 public interface IAsyncValueTaskPollingRing<T> : ITaskCallbackPollingRing<T> where T : class, ICanCarryTaskCallbackPayload
 {
     Func<T, bool> InterceptHandler { get; set; }
+
     ValueTaskProcessEvent<T> ProcessEvent { get; set; }
 
     int Size { get; }
+
     ValueTask<long> Poll();
 
     event Action<QueueEventTime> QueueEntryStart;
     event Action<QueueEventTime> QueueEntryComplete;
 }
 
-public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> where T : class, ICanCarryTaskCallbackPayload
+public class AsyncValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> where T : class, ICanCarryTaskCallbackPayload
 {
-    private static IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(AsyncValueValueTaskPollingRing<>));
+    private static IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(AsyncValueTaskPollingRing<>));
+
     private readonly T[] cells;
 
     private readonly IClaimStrategy claimStrategy;
+
     private readonly TaskCompleteSequenceContainer[] completeAhead;
-    private readonly Sequence conCursor = new(Sequence.InitialValue);
+
+    private readonly Sequence   conCursor = new(Sequence.InitialValue);
     private readonly Sequence[] conCursors;
 
     private readonly Sequence pubCursor = new(Sequence.InitialValue);
+
     private readonly int readAheadRingMask;
     private readonly int ringMask;
+
     private long completedReadAheadConsumerCursor;
     private long completedReadAheadPublishCursor;
     private long readAheadCursor = -1;
 
-    public AsyncValueValueTaskPollingRing(string name, int size, Func<T> dataFactory
-        , ClaimStrategyType claimStrategyType, ValueTaskProcessEvent<T>? processAsyncTask = null, bool logErrors = true)
+    public AsyncValueTaskPollingRing
+    (string name, int size, Func<T> dataFactory
+      , ClaimStrategyType claimStrategyType, ValueTaskProcessEvent<T>? processAsyncTask = null, bool logErrors = true)
     {
         ProcessEvent = processAsyncTask ?? ((currentSequence, _) =>
         {
@@ -48,19 +59,22 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
             return new ValueTask<long>(currentSequence);
         });
         InterceptHandler = _ => false;
+
         Name = name;
         Size = size;
-        var ringSize = MemoryUtils.CeilingNextPowerOfTwo(size);
+
+        var ringSize          = MemoryUtils.CeilingNextPowerOfTwo(size);
         var readAheadRingSize = MemoryUtils.CeilingNextPowerOfTwo(size);
-        ringMask = ringSize - 1;
+
+        ringMask          = ringSize - 1;
         readAheadRingMask = readAheadRingSize - 1;
-        cells = new T[ringSize];
-        completeAhead = new TaskCompleteSequenceContainer[readAheadRingSize];
-        conCursors = new[] { conCursor };
+        cells             = new T[ringSize];
+        completeAhead     = new TaskCompleteSequenceContainer[readAheadRingSize];
+        conCursors        = new[] { conCursor };
 
         claimStrategy = claimStrategyType.GetInstance(name, ringSize, logErrors);
 
-        for (var i = 0; i < cells.Length; i++) cells[i] = dataFactory();
+        for (var i = 0; i < cells.Length; i++) cells[i]                 = dataFactory();
         for (var i = 0; i < completeAhead.Length; i++) completeAhead[i] = new TaskCompleteSequenceContainer();
     }
 
@@ -93,7 +107,7 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
     public async ValueTask<long> Poll()
     {
         var maxPublishedSequence = pubCursor.Value;
-        var currentSequence = readAheadCursor + 1;
+        var currentSequence      = readAheadCursor + 1;
         if (currentSequence <= maxPublishedSequence)
         {
             var datum = cells[(int)currentSequence & ringMask];
@@ -145,7 +159,7 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
     private void EnqueueCompleteAhead(long completed)
     {
         var seqId = completedReadAheadPublishCursor++;
-        var evt = completeAhead[seqId & readAheadRingMask];
+        var evt   = completeAhead[seqId & readAheadRingMask];
         evt.Value = completed;
     }
 
@@ -172,7 +186,7 @@ public class AsyncValueValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> w
             if (conCursor.Value == checkLookAhead - 1)
             {
                 // Logger.Debug("NAME: {0} play forward - ring[{1}]={2}", Name, checkLookAhead, this[checkLookAhead & ringMask]);
-                conCursor.Value = checkLookAhead;
+                conCursor.Value                  = checkLookAhead;
                 completedReadAheadConsumerCursor = currLookAheadConCur;
             }
             else if (checkLookAhead > conCursor.Value)

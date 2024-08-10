@@ -12,7 +12,8 @@ namespace FortitudeCommon.DataStructures.Memory;
 
 public interface IRecycler
 {
-    T      Borrow<T>() where T : class, new();
+    T Borrow<T>() where T : class, new();
+
     object Borrow(Type type);
 
     void Recycle(object trash);
@@ -25,6 +26,8 @@ public class SingletonRecycler
 
 public class Recycler : IRecycler
 {
+    [ThreadStatic] private static IRecycler? threadStaticRecycler;
+
     private readonly bool acceptNonCreatedObjects;
 
     private readonly ConcurrentDictionary<Type, IPooledFactory> poolFactoryMap = new();
@@ -43,6 +46,12 @@ public class Recycler : IRecycler
         this.throwWhenAttemptToRecycleRefCountNoZero = throwWhenAttemptToRecycleRefCountNoZero;
     }
 
+    public static IRecycler ThreadStaticRecycler
+    {
+        get => threadStaticRecycler ??= new Recycler();
+        set => threadStaticRecycler = value;
+    }
+
     public T Borrow<T>() where T : class, new()
     {
         if (!poolFactoryMap.TryGetValue(typeof(T), out var poolFactoryContainer))
@@ -59,7 +68,8 @@ public class Recycler : IRecycler
             while (shouldAutoRecycleOnRefCountZero && recyclable.RefCount < 1) recyclable.IncrementRefCount();
             while (shouldAutoRecycleOnRefCountZero && recyclable.RefCount > 1) recyclable.DecrementRefCount();
             recyclable.AutoRecycleAtRefCountZero = shouldAutoRecycleOnRefCountZero;
-            recyclable.IsInRecycler              = false;
+
+            recyclable.IsInRecycler = false;
         }
 
         return borrowed;
@@ -82,7 +92,8 @@ public class Recycler : IRecycler
             while (shouldAutoRecycleOnRefCountZero && recyclable.RefCount < 1) recyclable.IncrementRefCount();
             while (shouldAutoRecycleOnRefCountZero && recyclable.RefCount > 1) recyclable.DecrementRefCount();
             recyclable.AutoRecycleAtRefCountZero = shouldAutoRecycleOnRefCountZero;
-            recyclable.IsInRecycler              = false;
+
+            recyclable.IsInRecycler = false;
         }
 
         return borrowed;
@@ -95,8 +106,7 @@ public class Recycler : IRecycler
         var recyclable = trash as IRecyclableObject;
         if (recyclable != null)
         {
-            if (!recyclable.IsInRecycler)
-                throw new ArgumentException("Attempted to recycle object without setting IsInRecycler to true.");
+            if (!recyclable.IsInRecycler) throw new ArgumentException("Attempted to recycle object without setting IsInRecycler to true.");
             if (recyclable.RefCount != 0 && recyclable.AutoRecycleAtRefCountZero &&
                 throwWhenAttemptToRecycleRefCountNoZero)
                 throw new ArgumentException("Attempted to recycle ref counted object that is not at RefCount == 0");

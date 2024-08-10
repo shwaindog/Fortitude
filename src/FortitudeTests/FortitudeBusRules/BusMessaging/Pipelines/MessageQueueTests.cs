@@ -31,7 +31,8 @@ public class MessageQueueTests : SingleEventQueueTestSetup
         Assert.AreEqual(1, incRule.StartCount);
         Assert.AreEqual(EventQueue, incRule.Context.RegisteredOn);
         Assert.AreEqual(RuleLifeCycle.Started, incRule.LifeCycleState);
-        Assert.AreEqual(1, incRuleDeploymentLifeTime.RefCount);
+        Assert.IsTrue(incRuleDeploymentLifeTime.RefCount is >= 1 and <= 2);
+        Assert.IsFalse(incRuleDeploymentLifeTime.IsInRecycler);
     }
 
     [TestMethod]

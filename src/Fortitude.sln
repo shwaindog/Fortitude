@@ -15,6 +15,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeMarketsCore", "For
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ForititudeBusRules", "ForitudeBusRules\ForititudeBusRules.csproj", "{706C862A-F116-451B-A221-4E772AEE4C5F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GettingStartedCreatingAnInstance", "Examples\Documentation\wiki\FortitudeBusRules\GettingStartedCreatingAnInstance\GettingStartedCreatingAnInstance.csproj", "{1E73C0E4-81B7-44B5-A85A-D4486511DE1C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{4DCEBA9B-5515-47B5-AB5E-CB7D545F7C57}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{11345092-F010-482B-A278-82965E5FF8C0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wiki", "wiki", "{5D51B3F5-9298-4244-8B84-1D709C28EEEF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FortitudeBusRules", "FortitudeBusRules", "{FE07CA9B-3EBB-4468-89E5-6F7B5FFB5D65}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,9 +55,19 @@ Global
 		{706C862A-F116-451B-A221-4E772AEE4C5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{706C862A-F116-451B-A221-4E772AEE4C5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{706C862A-F116-451B-A221-4E772AEE4C5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E73C0E4-81B7-44B5-A85A-D4486511DE1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E73C0E4-81B7-44B5-A85A-D4486511DE1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E73C0E4-81B7-44B5-A85A-D4486511DE1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E73C0E4-81B7-44B5-A85A-D4486511DE1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1E73C0E4-81B7-44B5-A85A-D4486511DE1C} = {FE07CA9B-3EBB-4468-89E5-6F7B5FFB5D65}
+		{11345092-F010-482B-A278-82965E5FF8C0} = {4DCEBA9B-5515-47B5-AB5E-CB7D545F7C57}
+		{5D51B3F5-9298-4244-8B84-1D709C28EEEF} = {11345092-F010-482B-A278-82965E5FF8C0}
+		{FE07CA9B-3EBB-4468-89E5-6F7B5FFB5D65} = {5D51B3F5-9298-4244-8B84-1D709C28EEEF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E7162EED-FBA8-4BA2-BF46-CC10EA13AFEA}

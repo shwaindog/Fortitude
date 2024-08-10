@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging.Pipelines.Groups;
 using FortitudeBusRules.Messages;
@@ -17,13 +20,15 @@ public class FixedOrderSelectionStrategy : UsesRecycler, ISelectionStrategy
 
     public string Name => StrategyName;
 
-    public RouteSelectionResult? Select(IMessageQueueGroupContainer availableMessageQueues, IRule senderRule
-        , IRule deployRule
-        , DeploymentOptions deploymentOptions)
+    public RouteSelectionResult? Select
+        (IMessageQueueGroupContainer availableMessageQueues, IRule senderRule, IRule deployRule, DeploymentOptions deploymentOptions)
     {
         RouteSelectionResult? found = null;
+
         var flags = deploymentOptions.RoutingFlags;
+
         var selectFromQueues = availableMessageQueues.SelectEventQueues(deploymentOptions.MessageGroupType);
+
         if (flags.IsPreferNotSenderQueue())
         {
             var indexOfSenderQueue = selectFromQueues.IndexOf(senderRule.Context.RegisteredOn);
@@ -38,16 +43,15 @@ public class FixedOrderSelectionStrategy : UsesRecycler, ISelectionStrategy
         return found;
     }
 
-    public IDispatchSelectionResultSet Select(IMessageQueueGroupContainer availableMessageQueues
-        , IRule senderRule
-        , DispatchOptions dispatchOptions
-        , string destinationAddress)
+    public IDispatchSelectionResultSet Select
+        (IMessageQueueGroupContainer availableMessageQueues, IRule senderRule, DispatchOptions dispatchOptions, string destinationAddress)
     {
-        IDispatchSelectionResultSet results = Recycler?.Borrow<DispatchSelectionResultSet>() ??
-                                              new DispatchSelectionResultSet();
+        IDispatchSelectionResultSet results = Recycler?.Borrow<DispatchSelectionResultSet>() ?? new DispatchSelectionResultSet();
+
         var flags = dispatchOptions.RoutingFlags;
-        results.DispatchOptions = dispatchOptions;
-        results.StrategyName = Name;
+
+        results.DispatchOptions  = dispatchOptions;
+        results.StrategyName     = Name;
         results.MaxUniqueResults = flags.IsSendToAll() ? int.MaxValue : 1;
         var selectFromQueues = availableMessageQueues.SelectEventQueues(dispatchOptions.TargetMessageQueueType);
         if (flags.IsPreferNotSenderQueue())
@@ -69,8 +73,7 @@ public class FixedOrderSelectionStrategy : UsesRecycler, ISelectionStrategy
                         {
                             var firstRule = currentListeningRules[0];
                             currentListeningRules.DecrementRefCount();
-                            results.Add(new RouteSelectionResult(eventQueue, Name
-                                , dispatchOptions.RoutingFlags, firstRule));
+                            results.Add(new RouteSelectionResult(eventQueue, Name, dispatchOptions.RoutingFlags, firstRule));
                         }
                         else
                         {
@@ -80,8 +83,7 @@ public class FixedOrderSelectionStrategy : UsesRecycler, ISelectionStrategy
                     else
                     {
                         // need to exhaust Enumerator to get it to recycle and not create Garbage
-                        results.Add(
-                            new RouteSelectionResult(eventQueue, Name, dispatchOptions.RoutingFlags));
+                        results.Add(new RouteSelectionResult(eventQueue, Name, dispatchOptions.RoutingFlags));
                     }
                 }
 

@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
@@ -15,14 +18,18 @@ public abstract class SocketAsyncValueTaskRingPollerSender<T> : AsyncValueTaskRi
     where T : class, ICanCarryTaskCallbackPayload, ICanCarrySocketSenderPayload
 {
     protected readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(SocketBatchEnumerableRingPollerSender<>));
+
     protected readonly IOSParallelController ParallelController;
 
-    protected SocketAsyncValueTaskRingPollerSender(IAsyncValueTaskPollingRing<T> ring, uint noDataPauseTimeoutMs
-        , Action? threadStartInitialization = null,
+    protected SocketAsyncValueTaskRingPollerSender
+    (IAsyncValueTaskPollingRing<T> ring, uint noDataPauseTimeoutMs
+      , Action? threadStartInitialization = null,
         IOSParallelController? parallelController = null) : base(ring, noDataPauseTimeoutMs, threadStartInitialization, parallelController)
     {
         ring.InterceptHandler = RingPollerHandledMessage;
+
         Name = Ring.Name + "-SocketRingPollerSender";
+
         ParallelController = parallelController ?? OSParallelControllerFactory.Instance.GetOSParallelController;
     }
 
@@ -52,21 +59,23 @@ public abstract class SocketAsyncValueTaskRingPollerSender<T> : AsyncValueTaskRi
 
 public class SimpleAsyncValueTaskSocketRingPollerSender : SocketAsyncValueTaskRingPollerSender<SimpleSocketSenderPayload>
 {
-    public SimpleAsyncValueTaskSocketRingPollerSender(IAsyncValueTaskPollingRing<SimpleSocketSenderPayload> ring
-        , uint noDataPauseTimeoutMs
-        , Action? threadStartInitialization = null,
+    public SimpleAsyncValueTaskSocketRingPollerSender
+    (IAsyncValueTaskPollingRing<SimpleSocketSenderPayload> ring
+      , uint noDataPauseTimeoutMs
+      , Action? threadStartInitialization = null,
         IOSParallelController? parallelController = null) : base(ring, noDataPauseTimeoutMs, threadStartInitialization, parallelController) { }
 
-    public SimpleAsyncValueTaskSocketRingPollerSender(string name, uint noDataPauseTimeoutMs, Action? threadStartInitialization = null
-        , IOSParallelController? parallelController = null)
-        : base(new AsyncValueValueTaskPollingRing<SimpleSocketSenderPayload>(name, 10_000
-            , () => new SimpleSocketSenderPayload(),
-            ClaimStrategyType.MultiProducers), noDataPauseTimeoutMs, threadStartInitialization, parallelController) { }
+    public SimpleAsyncValueTaskSocketRingPollerSender
+    (string name, uint noDataPauseTimeoutMs, Action? threadStartInitialization = null
+      , IOSParallelController? parallelController = null)
+        : base(new AsyncValueTaskPollingRing<SimpleSocketSenderPayload>
+                   (name, 10_000, () => new SimpleSocketSenderPayload(), ClaimStrategyType.MultiProducers)
+             , noDataPauseTimeoutMs, threadStartInitialization, parallelController) { }
 
     public override void EnqueueSocketSender(ISocketSender socketSender)
     {
         var seqId = Ring.Claim();
-        var evt = Ring[seqId];
+        var evt   = Ring[seqId];
         evt.SetAsSocketSenderItem(socketSender);
         Ring.Publish(seqId);
         WakeIfAsleep();

@@ -12,6 +12,7 @@ using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.Monitoring.Logging;
@@ -283,7 +284,11 @@ public class MessagePump : IMessagePump
 
     public void InitializeInPollingThread()
     {
-        QueueContext.CurrentThreadQueueContext = QueueContext;
+        var queueRecycler = QueueContext.PooledRecycler;
+        Recycler.ThreadStaticRecycler = queueRecycler;
+        var ring                                            = ringPoller.Ring;
+        var ringSize                                        = ring.Size;
+        for (var i = 0; i < ringSize; i++) ring[i].Recycler = queueRecycler;
 
         RingPollerScheduler = new SyncContextTaskScheduler();
     }

@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.AsyncProcessing.Tasks;
@@ -17,11 +20,13 @@ public abstract class SocketAsyncValueTaskRingPollerListener<T> : AsyncValueTask
     where T : class, ICanCarryTaskCallbackPayload, ICanCarrySocketReceiverPayload
 {
     protected readonly IFLogger Logger;
-    private readonly IIntraOSThreadSignal manualResetEvent;
-    protected readonly IOSParallelController ParallelController;
-    private readonly SocketsPollerAndDecoding socketsPollerAndDecoding;
 
-    protected SocketAsyncValueTaskRingPollerListener(IAsyncValueTaskPollingRing<T> ring, uint noDataPauseTimeoutMs, ISocketSelector selector,
+    private readonly   IIntraOSThreadSignal     manualResetEvent;
+    protected readonly IOSParallelController    ParallelController;
+    private readonly   SocketsPollerAndDecoding socketsPollerAndDecoding;
+
+    protected SocketAsyncValueTaskRingPollerListener
+    (IAsyncValueTaskPollingRing<T> ring, uint noDataPauseTimeoutMs, ISocketSelector selector,
         IUpdateableTimer updateable, Action? threadStartInitialization = null, IOSParallelController? parallelController = null)
         : base(ring, noDataPauseTimeoutMs, threadStartInitialization, parallelController)
     {
@@ -117,29 +122,32 @@ public abstract class SocketAsyncValueTaskRingPollerListener<T> : AsyncValueTask
 public enum AsyncTaskSocketReceiverCommand
 {
     NotSet
-    , Add
-    , Remove
-    , TaskCallback
+  , Add
+  , Remove
+  , TaskCallback
 }
 
 public class SimpleSocketAsyncValueTaskRingPollerListener : SocketAsyncValueTaskRingPollerListener<SimpleSocketReceiverPayload>
 {
-    public SimpleSocketAsyncValueTaskRingPollerListener(IAsyncValueTaskPollingRing<SimpleSocketReceiverPayload> ring
-        , uint noDataPauseTimeoutMs
-        , ISocketSelector selector, IUpdateableTimer timer, Action? threadStartInitialization = null,
+    public SimpleSocketAsyncValueTaskRingPollerListener
+    (IAsyncValueTaskPollingRing<SimpleSocketReceiverPayload> ring
+      , uint noDataPauseTimeoutMs
+      , ISocketSelector selector, IUpdateableTimer timer, Action? threadStartInitialization = null,
         IOSParallelController? parallelController = null)
         : base(ring, noDataPauseTimeoutMs, selector, timer, threadStartInitialization, parallelController) { }
 
-    public SimpleSocketAsyncValueTaskRingPollerListener(string name, uint noDataPauseTimeoutMs, ISocketSelector selector
-        , IUpdateableTimer timer, Action? threadStartInitialization = null, IOSParallelController? parallelController = null)
-        : base(new AsyncValueValueTaskPollingRing<SimpleSocketReceiverPayload>(name, 10_000
-            , () => new SimpleSocketReceiverPayload(),
-            ClaimStrategyType.MultiProducers), noDataPauseTimeoutMs, selector, timer, threadStartInitialization, parallelController) { }
+    public SimpleSocketAsyncValueTaskRingPollerListener
+    (string name, uint noDataPauseTimeoutMs, ISocketSelector selector
+      , IUpdateableTimer timer, Action? threadStartInitialization = null, IOSParallelController? parallelController = null)
+        : base(new AsyncValueTaskPollingRing<SimpleSocketReceiverPayload>(name, 10_000
+                                                                        , () => new SimpleSocketReceiverPayload(),
+                                                                          ClaimStrategyType.MultiProducers), noDataPauseTimeoutMs, selector, timer
+             , threadStartInitialization, parallelController) { }
 
 
     protected override void EnqueueSocketReceiver(ISocketReceiver receiver, bool isAdd)
     {
-        var seqId = Ring.Claim();
+        var seqId                = Ring.Claim();
         var socketReceiverUpdate = Ring[seqId];
         socketReceiverUpdate.SetAsSocketReceiverItem(receiver, isAdd);
         Ring.Publish(seqId);

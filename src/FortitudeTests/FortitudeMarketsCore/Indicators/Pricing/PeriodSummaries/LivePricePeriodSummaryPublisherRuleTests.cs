@@ -9,7 +9,9 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
+using FortitudeCommon.Extensions;
 using FortitudeIO.TimeSeries;
+using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeMarketsApi.Pricing;
 using FortitudeMarketsApi.Pricing.Quotes;
 using FortitudeMarketsApi.Pricing.Summaries;
@@ -21,6 +23,7 @@ using FortitudeMarketsCore.Pricing.PQ.Subscription.BusRules;
 using FortitudeMarketsCore.Pricing.Quotes;
 using FortitudeMarketsCore.Pricing.Summaries;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
+using FortitudeTests.FortitudeBusRules.Rules.Common.TimeSeries;
 using FortitudeTests.FortitudeCommon.Chronometry;
 using FortitudeTests.FortitudeCommon.Chronometry.Timers;
 using FortitudeTests.FortitudeMarketsCore.Indicators.Config;
@@ -37,6 +40,9 @@ namespace FortitudeTests.FortitudeMarketsCore.Indicators.Pricing.PeriodSummaries
 [TestClass]
 public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
 {
+    private readonly List<InstrumentFileEntryInfo> lastFileEntryInfoRetrieved = new();
+    private readonly List<InstrumentFileInfo>      lastFileInfoRetrieved      = new();
+
     private readonly DateTime testEpochTime = new(2024, 7, 11);
 
     private readonly SourceTickerInfo tickerId15SPeriod = new
@@ -109,6 +115,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
             (tickerId1MPeriod, OneMinute, new IndicatorPublishInterval(TimeSpan.FromSeconds(1)), new ResponsePublishParams());
         var unitTestNoRepositoryConfig = IndicatorServicesConfigTests.UnitTestNoRepositoryConfig();
         unitTestNoRepositoryConfig.PersistenceConfig.PersistPriceSummaries = true;
+        var repoInfoStubRule = new TimeSeriesRepositoryInfoStubRule(GetStubRepoFileInfo, GetStubRepoFileEntryInfo);
         indicatorRegistryStubRule
             = new IndicatorServiceRegistryStubRule
                 (new IndicatorServiceRegistryParams(unitTestNoRepositoryConfig));
@@ -125,9 +132,71 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
         indicatorRegistryStubRule.RegisterTickerPeriodServiceStatus
             (tickerId30SPeriod, new DiscreetTimePeriod(FifteenSeconds), ServiceType.HistoricalPricePeriodSummaryResolver
            , ServiceRunStatus.ServiceStarted);
+
+        await indicatorRegistryStubRule.RegisterAndDeployGlobalService(ServiceType.TimeSeriesFileRepositoryInfo, repoInfoStubRule);
         indicatorRegistryStubRule.RegisterTickerPeriodServiceStatus
             (tickerId1MPeriod, new DiscreetTimePeriod(ThirtySeconds), ServiceType.HistoricalPricePeriodSummaryResolver
            , ServiceRunStatus.ServiceStarted);
+    }
+
+    private List<InstrumentFileInfo> GetStubRepoFileInfo
+        (string instrumentName, InstrumentType? instrumentType = null, DiscreetTimePeriod? period = null)
+    {
+        lastFileInfoRetrieved.Clear();
+        if (period?.Period == FiveSeconds)
+        {
+            var lastHistoricalPeriodSummaryStartTime = FiveSeconds.ContainingPeriodBoundaryStart(testEpochTime);
+            var lastHistoricalEntryTime = instrumentType == InstrumentType.PriceSummaryPeriod
+                ? lastHistoricalPeriodSummaryStartTime
+                : testEpochTime;
+            var earliestHistoricalEntryTime = instrumentType == InstrumentType.PriceSummaryPeriod
+                ? FiveSeconds.PreviousPeriodStart(lastHistoricalEntryTime)
+                : testEpochTime;
+            var fileStartDate = lastHistoricalEntryTime.TruncToWeekBoundary();
+            lastFileInfoRetrieved
+                .Add(new InstrumentFileInfo(tickerId5SPeriod, OneWeek, earliestHistoricalEntryTime, lastHistoricalEntryTime
+                                          , new List<DateTime> { fileStartDate }));
+            return lastFileInfoRetrieved;
+        }
+        if (period?.Period == FifteenSeconds)
+        {
+            var lastHistoricalPeriodSummaryStartTime = FifteenSeconds.ContainingPeriodBoundaryStart(testEpochTime);
+            var lastHistoricalEntryTime = instrumentType == InstrumentType.PriceSummaryPeriod
+                ? lastHistoricalPeriodSummaryStartTime
+                : testEpochTime;
+            var earliestHistoricalEntryTime = instrumentType == InstrumentType.PriceSummaryPeriod
+                ? FifteenSeconds.PreviousPeriodStart(lastHistoricalEntryTime)
+                : testEpochTime;
+            var fileStartDate = lastHistoricalEntryTime.TruncToWeekBoundary();
+            lastFileInfoRetrieved
+                .Add(new InstrumentFileInfo(tickerId15SPeriod, OneWeek, earliestHistoricalEntryTime, lastHistoricalEntryTime
+                                          , new List<DateTime> { fileStartDate }));
+            return lastFileInfoRetrieved;
+        }
+        var latestPeriodSummaryStartTIme = ThirtySeconds.ContainingPeriodBoundaryStart(testEpochTime);
+        var lastEntryTime = instrumentType == InstrumentType.PriceSummaryPeriod
+            ? latestPeriodSummaryStartTIme
+            : testEpochTime;
+        var earliestEntryTime = instrumentType == InstrumentType.PriceSummaryPeriod
+            ? ThirtySeconds.PreviousPeriodStart(latestPeriodSummaryStartTIme)
+            : testEpochTime;
+        var fileStartTime = lastEntryTime.TruncToWeekBoundary();
+        lastFileInfoRetrieved
+            .Add(new InstrumentFileInfo(tickerId30SPeriod, OneWeek, earliestEntryTime, lastEntryTime, new List<DateTime> { fileStartTime }));
+        return lastFileInfoRetrieved;
+    }
+
+    private List<InstrumentFileEntryInfo> GetStubRepoFileEntryInfo
+        (string instrumentName, InstrumentType? instrumentType = null, DiscreetTimePeriod? period = null)
+    {
+        lastFileInfoRetrieved.Clear();
+        if (instrumentName == tickerId15SPeriod.Ticker)
+        {
+            lastFileEntryInfoRetrieved.Add(new InstrumentFileEntryInfo(tickerId15SPeriod, OneWeek, new List<FileEntryInfo>(), 1));
+            return lastFileEntryInfoRetrieved;
+        }
+        lastFileEntryInfoRetrieved.Add(new InstrumentFileEntryInfo(tickerId30SPeriod, OneWeek, new List<FileEntryInfo>(), 1));
+        return lastFileEntryInfoRetrieved;
     }
 
     public override ITimerProvider ResolverTimerProvider()

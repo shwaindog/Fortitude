@@ -12,7 +12,6 @@ using FortitudeBusRules.Config;
 using FortitudeBusRules.Connectivity.Network.Dispatcher;
 using FortitudeBusRules.Messages;
 using FortitudeCommon.Chronometry.Timers;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Monitoring.Logging;
@@ -83,15 +82,15 @@ public class OneOfEachMessageQueueTypeTestSetup
 
             var eventGroupContainer = new MessageQueueGroupContainer
                 (evtBus, evBus => new MessageQueueTypeGroup
-                     (evtBus, MessageQueueType.Event, new Recycler(), defaultQueuesConfig)
+                     (evtBus, MessageQueueType.Event, defaultQueuesConfig)
                      { EventQueue1 }
-               , wrkBus => new MessageQueueTypeGroup(evtBus, MessageQueueType.Worker, new Recycler(), defaultQueuesConfig)
+               , wrkBus => new MessageQueueTypeGroup(evtBus, MessageQueueType.Worker, defaultQueuesConfig)
                      { WorkerQueue1 }
-               , ioInBus => new SocketListenerMessageQueueGroup(evtBus, MessageQueueType.NetworkInbound, new Recycler(), defaultQueuesConfig)
+               , ioInBus => new SocketListenerMessageQueueGroup(evtBus, MessageQueueType.NetworkInbound, defaultQueuesConfig)
                      { NetworkInboundQueue1 }
-               , ioOutBus => new SocketSenderMessageQueueGroup(evtBus, MessageQueueType.NetworkOutbound, new Recycler(), defaultQueuesConfig)
+               , ioOutBus => new SocketSenderMessageQueueGroup(evtBus, MessageQueueType.NetworkOutbound, defaultQueuesConfig)
                      { NetworkOutboundQueue1 }
-               , cstBus => new MessageQueueTypeGroup(evtBus, MessageQueueType.Custom, new Recycler(), defaultQueuesConfig)
+               , cstBus => new MessageQueueTypeGroup(evtBus, MessageQueueType.Custom, defaultQueuesConfig)
                      { CustomQueue1 }
                 );
             return eventGroupContainer;
@@ -126,7 +125,7 @@ public class OneOfEachMessageQueueTypeTestSetup
 
     protected IAsyncValueTaskPollingRing<BusMessage> PollingRing(string name, int size)
     {
-        return new AsyncValueValueTaskPollingRing<BusMessage>
+        return new AsyncValueTaskPollingRing<BusMessage>
             (name, size, () => new BusMessage(), ClaimStrategyType.MultiProducers, null, false);
     }
 }
