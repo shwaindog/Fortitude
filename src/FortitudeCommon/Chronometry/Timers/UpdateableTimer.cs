@@ -32,10 +32,10 @@ public class UpdateableTimer : IUpdateableTimer
 
     private readonly   ISyncLock oneOffSpinLock = new SpinLockLight();
     protected readonly ITimer    OneOffTimer;
-    private readonly   IRecycler recycler;
 
-    private int      instanceNum;
-    private bool     isDead;
+    private int  instanceNum;
+    private bool isDead;
+
     private DateTime nextOneOffTimerTickDateTime = DateTime.MinValue;
 
     private volatile bool pauseAll;
@@ -44,7 +44,7 @@ public class UpdateableTimer : IUpdateableTimer
     {
         instanceNum = Interlocked.Increment(ref totalTimers);
         this.name   = name + "-" + instanceNum;
-        recycler    = new Recycler();
+        Recycler    = new Recycler();
         OneOffTimer = CreateOneOffTimer();
     }
 
@@ -97,6 +97,8 @@ public class UpdateableTimer : IUpdateableTimer
         }
     }
 
+    public IRecycler? Recycler { get; set; }
+
     public ITimerUpdate RunIn(TimeSpan waitTimeSpan, Func<ValueTask> callback)
     {
         if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
@@ -106,7 +108,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -122,7 +124,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -138,7 +140,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -154,7 +156,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -179,7 +181,7 @@ public class UpdateableTimer : IUpdateableTimer
         var intervalTimer = CreateIntervalTimer(timerCallBack, periodTimeSpan);
         timerCallBack.RegisteredTimer = intervalTimer;
         intervalCallBacks.Add(timerCallBack);
-        var timerUpdate = recycler.Borrow<IntervalTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<IntervalTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -193,7 +195,7 @@ public class UpdateableTimer : IUpdateableTimer
         var intervalTimer = CreateIntervalTimer(timerCallBack, periodTimeSpan);
         timerCallBack.RegisteredTimer = intervalTimer;
         intervalCallBacks.Add(timerCallBack);
-        var timerUpdate = recycler.Borrow<IntervalTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<IntervalTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -208,7 +210,7 @@ public class UpdateableTimer : IUpdateableTimer
         var intervalTimer = CreateIntervalTimer(timerCallBack, periodTimeSpan);
         timerCallBack.RegisteredTimer = intervalTimer;
         intervalCallBacks.Add(timerCallBack);
-        var timerUpdate = recycler.Borrow<IntervalTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<IntervalTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -222,7 +224,7 @@ public class UpdateableTimer : IUpdateableTimer
         var intervalTimer = CreateIntervalTimer(timerCallBack, periodTimeSpan);
         timerCallBack.RegisteredTimer = intervalTimer;
         intervalCallBacks.Add(timerCallBack);
-        var timerUpdate = recycler.Borrow<IntervalTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<IntervalTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -251,7 +253,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -266,7 +268,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -281,7 +283,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -296,7 +298,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -315,7 +317,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -331,7 +333,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -348,7 +350,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -365,7 +367,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -382,7 +384,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -425,7 +427,7 @@ public class UpdateableTimer : IUpdateableTimer
             = CreateIntervalTimer(timerCallBack, periodTimeSpan);
         timerCallBack.RegisteredTimer = intervalTimer;
         intervalCallBacks.Add(timerCallBack);
-        var timerUpdate = recycler.Borrow<IntervalTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<IntervalTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -441,7 +443,7 @@ public class UpdateableTimer : IUpdateableTimer
             = CreateIntervalTimer(timerCallBack, periodTimeSpan);
         timerCallBack.RegisteredTimer = intervalTimer;
         intervalCallBacks.Add(timerCallBack);
-        var timerUpdate = recycler.Borrow<IntervalTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<IntervalTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -457,7 +459,7 @@ public class UpdateableTimer : IUpdateableTimer
             = CreateIntervalTimer(timerCallBack, periodTimeSpan);
         timerCallBack.RegisteredTimer = intervalTimer;
         intervalCallBacks.Add(timerCallBack);
-        var timerUpdate = recycler.Borrow<IntervalTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<IntervalTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -473,7 +475,7 @@ public class UpdateableTimer : IUpdateableTimer
             = CreateIntervalTimer(timerCallBack, periodTimeSpan);
         timerCallBack.RegisteredTimer = intervalTimer;
         intervalCallBacks.Add(timerCallBack);
-        var timerUpdate = recycler.Borrow<IntervalTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<IntervalTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -495,7 +497,7 @@ public class UpdateableTimer : IUpdateableTimer
             = CreateIntervalTimer(timerCallBack, periodTimeSpan);
         timerCallBack.RegisteredTimer = intervalTimer;
         intervalCallBacks.Add(timerCallBack);
-        var timerUpdate = recycler.Borrow<IntervalTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<IntervalTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -512,7 +514,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -527,7 +529,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -542,7 +544,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -557,7 +559,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -572,7 +574,7 @@ public class UpdateableTimer : IUpdateableTimer
         timerCallBack.RegisteredTimer = OneOffTimer;
         RegisterCallback(timerCallBack);
         CheckNextOneOffLaunchTimeStillCorrect(timerCallBack);
-        var timerUpdate = recycler.Borrow<OneOffTimerUpdate>();
+        var timerUpdate = Recycler!.Borrow<OneOffTimerUpdate>();
         timerCallBack.IncrementRefCount();
         timerUpdate.CallBackRunInfo = timerCallBack;
         timerUpdate.UpdateableTimer = this;
@@ -754,7 +756,7 @@ public class UpdateableTimer : IUpdateableTimer
     private TimerCallBackRunInfo GetWaitCallbackIntervalTimerRunInfo
         (TimeSpan intervalPeriod, WaitCallback callback, object? state = null)
     {
-        var callBackInfo = recycler.Borrow<WaitCallbackTimerCallBackRunInfo>();
+        var callBackInfo = Recycler!.Borrow<WaitCallbackTimerCallBackRunInfo>();
         callBackInfo.WaitCallback = callback;
         callBackInfo.State        = state;
         return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
@@ -763,7 +765,7 @@ public class UpdateableTimer : IUpdateableTimer
     private TimerCallBackRunInfo GetActionIntervalTimerRunInfo
         (TimeSpan intervalPeriod, Action callback)
     {
-        var callBackInfo = recycler.Borrow<ActionTimerCallBackRunInfo>();
+        var callBackInfo = Recycler!.Borrow<ActionTimerCallBackRunInfo>();
         callBackInfo.Action = callback;
         return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
     }
@@ -771,7 +773,7 @@ public class UpdateableTimer : IUpdateableTimer
     private TimerCallBackRunInfo GetScheduledActualActionIntervalTimerRunInfo
         (TimeSpan intervalPeriod, Action<IScheduleActualTime?> callback)
     {
-        var callBackInfo = recycler.Borrow<ScheduledActualActionStateTimerCallBackRunInfo>();
+        var callBackInfo = Recycler!.Borrow<ScheduledActualActionStateTimerCallBackRunInfo>();
         callBackInfo.Action = callback;
         return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
     }
@@ -779,7 +781,7 @@ public class UpdateableTimer : IUpdateableTimer
     private TimerCallBackRunInfo GetActionStateIntervalTimerRunInfo<T>
         (TimeSpan intervalPeriod, Action<T?> callback, T? state) where T : class
     {
-        var callBackInfo = recycler.Borrow<ActionStateTimerCallBackRunInfo<T>>();
+        var callBackInfo = Recycler!.Borrow<ActionStateTimerCallBackRunInfo<T>>();
         callBackInfo.Action = callback;
         callBackInfo.State  = state;
         return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
@@ -788,7 +790,7 @@ public class UpdateableTimer : IUpdateableTimer
     private TimerCallBackRunInfo GetScheduledActualActionStateIntervalTimerRunInfo<T>
         (TimeSpan intervalPeriod, Action<IScheduleActualTime<T>?> callback, T? state) where T : class
     {
-        var callBackInfo = recycler.Borrow<ScheduledActualActionStateTimerCallBackRunInfo<T>>();
+        var callBackInfo = Recycler!.Borrow<ScheduledActualActionStateTimerCallBackRunInfo<T>>();
         callBackInfo.Action    = callback;
         callBackInfo.SendState = state;
         return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
@@ -797,7 +799,7 @@ public class UpdateableTimer : IUpdateableTimer
     private TimerCallBackRunInfo GetValueTaskActionIntervalTimerRunInfo
         (TimeSpan intervalPeriod, Func<ValueTask> callback)
     {
-        var callBackInfo = recycler.Borrow<ValueTaskActionTimerCallBackRunInfo>();
+        var callBackInfo = Recycler!.Borrow<ValueTaskActionTimerCallBackRunInfo>();
         callBackInfo.ValueTaskAction = callback;
         return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
     }
@@ -805,7 +807,7 @@ public class UpdateableTimer : IUpdateableTimer
     private TimerCallBackRunInfo GetScheduledActualValueTaskValueTaskActionIntervalTimerRunInfo
         (TimeSpan intervalPeriod, Func<IScheduleActualTime?, ValueTask> callback)
     {
-        var callBackInfo = recycler.Borrow<ScheduledActualValueTaskActionTimerCallBackRunInfo>();
+        var callBackInfo = Recycler!.Borrow<ScheduledActualValueTaskActionTimerCallBackRunInfo>();
         callBackInfo.ValueTaskActionState = callback;
         return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
     }
@@ -813,7 +815,7 @@ public class UpdateableTimer : IUpdateableTimer
     private TimerCallBackRunInfo GetValueTaskActionStateIntervalTimerRunInfo<T>
         (TimeSpan intervalPeriod, Func<T?, ValueTask> callback, T? state) where T : class
     {
-        var callBackInfo = recycler.Borrow<ValueTaskActionStateTimerCallBackRunInfo<T>>();
+        var callBackInfo = Recycler!.Borrow<ValueTaskActionStateTimerCallBackRunInfo<T>>();
         callBackInfo.ValueTaskActionState = callback;
         callBackInfo.State                = state;
         return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
@@ -822,7 +824,7 @@ public class UpdateableTimer : IUpdateableTimer
     private TimerCallBackRunInfo GetScheduledActualValueTaskActionStateIntervalTimerRunInfo<T>
         (TimeSpan intervalPeriod, Func<IScheduleActualTime<T>?, ValueTask> callback, T? state) where T : class
     {
-        var callBackInfo = recycler.Borrow<ScheduledActualValueTaskActionStateTimerCallBackRunInfo<T>>();
+        var callBackInfo = Recycler!.Borrow<ScheduledActualValueTaskActionStateTimerCallBackRunInfo<T>>();
         callBackInfo.ValueTaskActionState = callback;
         callBackInfo.SendState            = state;
         return ConfigureIntervalTimerRunInfo(intervalPeriod, callBackInfo);
@@ -844,7 +846,7 @@ public class UpdateableTimer : IUpdateableTimer
     private TimerCallBackRunInfo GetWaitCallbackOneOffTimerRunInfo
         (DateTime runAt, WaitCallback callback, object? state = null)
     {
-        var callBackInfo = recycler.Borrow<WaitCallbackTimerCallBackRunInfo>();
+        var callBackInfo = Recycler!.Borrow<WaitCallbackTimerCallBackRunInfo>();
         callBackInfo.WaitCallback = callback;
         callBackInfo.State        = state;
         return ConfigureOneOffTimerRunInfo(runAt, callBackInfo);
@@ -852,14 +854,14 @@ public class UpdateableTimer : IUpdateableTimer
 
     private TimerCallBackRunInfo GetActionOneOffTimerRunInfo(DateTime runAt, Action callback)
     {
-        var callBackInfo = recycler.Borrow<ActionTimerCallBackRunInfo>();
+        var callBackInfo = Recycler!.Borrow<ActionTimerCallBackRunInfo>();
         callBackInfo.Action = callback;
         return ConfigureOneOffTimerRunInfo(runAt, callBackInfo);
     }
 
     private TimerCallBackRunInfo GetScheduledActualActionOneOffTimerRunInfo(DateTime runAt, Action<IScheduleActualTime?> callback)
     {
-        var callBackInfo = recycler.Borrow<ScheduledActualActionStateTimerCallBackRunInfo<IScheduleActualTime>>();
+        var callBackInfo = Recycler!.Borrow<ScheduledActualActionStateTimerCallBackRunInfo<IScheduleActualTime>>();
         callBackInfo.Action = callback;
         return ConfigureOneOffTimerRunInfo(runAt, callBackInfo);
     }
@@ -867,7 +869,7 @@ public class UpdateableTimer : IUpdateableTimer
     private TimerCallBackRunInfo GetActionStateOneOffTimerRunInfo<T>
         (DateTime runAt, Action<T?> callback, T? state) where T : class
     {
-        var callBackInfo = recycler.Borrow<ActionStateTimerCallBackRunInfo<T>>();
+        var callBackInfo = Recycler!.Borrow<ActionStateTimerCallBackRunInfo<T>>();
         callBackInfo.Action = callback;
         callBackInfo.State  = state;
         return ConfigureOneOffTimerRunInfo(runAt, callBackInfo);
@@ -876,7 +878,7 @@ public class UpdateableTimer : IUpdateableTimer
     private TimerCallBackRunInfo GetScheduledActualActionStateOneOffTimerRunInfo<T>
         (DateTime runAt, Action<IScheduleActualTime<T>?> callback, T? state) where T : class
     {
-        var callBackInfo = recycler.Borrow<ScheduledActualActionStateTimerCallBackRunInfo<T>>();
+        var callBackInfo = Recycler!.Borrow<ScheduledActualActionStateTimerCallBackRunInfo<T>>();
         callBackInfo.Action    = callback;
         callBackInfo.SendState = state;
         return ConfigureOneOffTimerRunInfo(runAt, callBackInfo);
@@ -884,7 +886,7 @@ public class UpdateableTimer : IUpdateableTimer
 
     private TimerCallBackRunInfo GetValueTaskActionOneOffTimerRunInfo(DateTime runAt, Func<ValueTask> callback)
     {
-        var callBackInfo = recycler.Borrow<ValueTaskActionTimerCallBackRunInfo>();
+        var callBackInfo = Recycler!.Borrow<ValueTaskActionTimerCallBackRunInfo>();
         callBackInfo.ValueTaskAction = callback;
         return ConfigureOneOffTimerRunInfo(runAt, callBackInfo);
     }
@@ -892,7 +894,7 @@ public class UpdateableTimer : IUpdateableTimer
     private TimerCallBackRunInfo GetValueTaskActionStateOneOffTimerRunInfo<T>
         (DateTime runAt, Func<T?, ValueTask> callback, T? state) where T : class
     {
-        var callBackInfo = recycler.Borrow<ValueTaskActionStateTimerCallBackRunInfo<T>>();
+        var callBackInfo = Recycler!.Borrow<ValueTaskActionStateTimerCallBackRunInfo<T>>();
         callBackInfo.ValueTaskActionState = callback;
         callBackInfo.State                = state;
         return ConfigureOneOffTimerRunInfo(runAt, callBackInfo);
@@ -901,7 +903,7 @@ public class UpdateableTimer : IUpdateableTimer
     private TimerCallBackRunInfo GetScheduledActualValueTaskActionStateOneOffTimerRunInfo<T>
         (DateTime runAt, Func<IScheduleActualTime<T>?, ValueTask> callback, T? state) where T : class
     {
-        var callBackInfo = recycler.Borrow<ScheduledActualValueTaskActionStateTimerCallBackRunInfo<T>>();
+        var callBackInfo = Recycler!.Borrow<ScheduledActualValueTaskActionStateTimerCallBackRunInfo<T>>();
         callBackInfo.ValueTaskActionState = callback;
         callBackInfo.SendState            = state;
         return ConfigureOneOffTimerRunInfo(runAt, callBackInfo);
@@ -910,7 +912,7 @@ public class UpdateableTimer : IUpdateableTimer
     private TimerCallBackRunInfo GetScheduledActualValueTaskActionOneOffTimerRunInfo
         (DateTime runAt, Func<IScheduleActualTime?, ValueTask> callback)
     {
-        var callBackInfo = recycler.Borrow<ScheduledActualValueTaskActionStateTimerCallBackRunInfo<IScheduleActualTime>>();
+        var callBackInfo = Recycler!.Borrow<ScheduledActualValueTaskActionStateTimerCallBackRunInfo<IScheduleActualTime>>();
         callBackInfo.ValueTaskActionState = callback;
         return ConfigureOneOffTimerRunInfo(runAt, callBackInfo);
     }

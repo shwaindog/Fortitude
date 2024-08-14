@@ -246,6 +246,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task NewLivePeriodSummary_SendTwoPeriodsOfQuotes_PublishingNextTickSendsCompleteOfFirstPeriod()
     {
         var test5SLivePeriodClient = new TestLivePeriodClient
@@ -266,6 +267,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task NewLivePeriodSummary_SendOnePeriodsOfQuotes_IncrementingTimeTriggersOnCompleteTimer()
     {
         var test5SLivePeriodClient = new TestLivePeriodClient
@@ -293,6 +295,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task NewLivePeriodSummary_SendSingleQuotes_LivePeriodUpdateReceivedBetweenEach()
     {
         var test5SLivePeriodClient = new TestLivePeriodClient
@@ -327,6 +330,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task NewLivePeriodSummary_RequestsSubPeriodReturnsWithinSamePeriod_PublishesQuotesToNextPeriod()
     {
         await stubTimeContext.AddSecondsAsync(45);
@@ -371,6 +375,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task NewLivePeriodSummary_RequestsSubPeriodReturnsWithinNextPeriod_PublishesQuotesToNextPeriod()
     {
         await stubTimeContext.AddSecondsAsync(15);
@@ -418,6 +423,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task NewLivePeriodSummary_FirstSubPeriodReturnsNoSubPeriodData_PublishesQuotesWithMissingData()
     {
         await stubTimeContext.AddSecondsAsync(15);
@@ -458,6 +464,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task NewLivePeriodSummaryOnStartup_ReceivesNoQuotesOrSubPeriods_PublishesNothing()
     {
         var test5SLivePeriodClient = new TestLivePeriodClient
@@ -479,6 +486,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task NewLivePeriodSummaryOnStartup_ReceivesNoQuotesOrSubPeriods_StartReceivingAndPublishing()
     {
         var test5SLivePeriodClient = new TestLivePeriodClient

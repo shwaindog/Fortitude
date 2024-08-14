@@ -34,8 +34,9 @@ public class QueueContext : IQueueContext
     {
         RegisteredOn             = registeredOn;
         this.configureMessageBus = configureMessageBus;
-        PooledRecycler           = pooledRecycler ?? new Recycler();
-        QueueTimer               = new QueueTimer(TimerContext.CreateUpdateableTimer($"QueueTimer_{RegisteredOn.Name}"), this);
+
+        PooledRecycler = pooledRecycler ?? new Recycler();
+        QueueTimer     = new QueueTimer(TimerContext.CreateUpdateableTimer($"QueueTimer_{RegisteredOn.Name}"), this);
     }
 
     public IMessageQueue RegisteredOn   { get; }
@@ -46,5 +47,5 @@ public class QueueContext : IQueueContext
     public IMessageQueueList<IMessageQueue> GetEventQueues(MessageQueueType selector) =>
         configureMessageBus.AllMessageQueues.SelectEventQueues(selector);
 
-    public override string ToString() => $"{GetType().Name}({nameof(RegisteredOn)}: {RegisteredOn})";
+    public override string ToString() => $"{nameof(QueueContext)}({nameof(RegisteredOn)}: {RegisteredOn})";
 }

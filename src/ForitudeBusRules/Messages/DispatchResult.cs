@@ -5,6 +5,7 @@
 
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Rules;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 
@@ -47,7 +48,7 @@ public struct RuleExecutionTime
 
 public class DispatchResult : ReusableObject<IDispatchResult>, IDispatchResult
 {
-    private readonly List<RuleExecutionTime> rulesTimes = new();
+    private readonly ReusableList<RuleExecutionTime> rulesTimes = new();
 
     public DispatchResult() { }
 
@@ -68,6 +69,16 @@ public class DispatchResult : ReusableObject<IDispatchResult>, IDispatchResult
 
     public DateTime SentTime             { get; set; }
     public DateTime FinishedDispatchTime { get; set; }
+
+    public override IRecycler? Recycler
+    {
+        get => base.Recycler;
+        set
+        {
+            base.Recycler       = value;
+            rulesTimes.Recycler = value;
+        }
+    }
 
     public override void StateReset()
     {
@@ -103,7 +114,9 @@ public class DispatchResult : ReusableObject<IDispatchResult>, IDispatchResult
     }
 
     public override string ToString() =>
-        $"{GetType().Name}({nameof(rulesTimes)}: [{string.Join(", ", rulesTimes)}], {nameof(refCount)}: {refCount}, {nameof(TotalExecutionTimeTicks)}: {TotalExecutionTimeTicks}, {nameof(TotalExecutionAwaitingTimeTicks)}: {TotalExecutionAwaitingTimeTicks}, {nameof(SentTime)}: {SentTime}, {nameof(FinishedDispatchTime)}: {FinishedDispatchTime}, {nameof(IsInRecycler)}: {IsInRecycler})";
+        $"{nameof(DispatchResult)}({nameof(rulesTimes)}: [{string.Join(", ", rulesTimes)}], {nameof(refCount)}: {refCount}, " +
+        $"{nameof(TotalExecutionTimeTicks)}: {TotalExecutionTimeTicks}, {nameof(TotalExecutionAwaitingTimeTicks)}: {TotalExecutionAwaitingTimeTicks}, " +
+        $"{nameof(SentTime)}: {SentTime}, {nameof(FinishedDispatchTime)}: {FinishedDispatchTime}, {nameof(IsInRecycler)}: {IsInRecycler})";
 }
 
 public class DispatchExecutionSummary

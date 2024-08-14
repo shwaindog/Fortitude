@@ -26,11 +26,11 @@ public abstract class SocketAsyncValueTaskRingPollerListener<T> : AsyncValueTask
     private readonly   SocketsPollerAndDecoding socketsPollerAndDecoding;
 
     protected SocketAsyncValueTaskRingPollerListener
-    (IAsyncValueTaskPollingRing<T> ring, uint noDataPauseTimeoutMs, ISocketSelector selector,
+    (IAsyncValueTaskPollingRing<T> queueMessageRing, uint noDataPauseTimeoutMs, ISocketSelector selector,
         IUpdateableTimer updateable, Action? threadStartInitialization = null, IOSParallelController? parallelController = null)
-        : base(ring, noDataPauseTimeoutMs, threadStartInitialization, parallelController)
+        : base(queueMessageRing, noDataPauseTimeoutMs, threadStartInitialization, parallelController)
     {
-        ring.InterceptHandler = RingPollerHandledMessage;
+        queueMessageRing.InterceptHandler = RingPollerHandledMessage;
         ParallelController = parallelController ?? OSParallelControllerFactory.Instance.GetOSParallelController;
         manualResetEvent = ParallelController.AllWaitingOSThreadActivateSignal(false);
         Name = Ring.Name + "-SocketAsyncValueTaskRingPollerListener";
@@ -130,11 +130,11 @@ public enum AsyncTaskSocketReceiverCommand
 public class SimpleSocketAsyncValueTaskRingPollerListener : SocketAsyncValueTaskRingPollerListener<SimpleSocketReceiverPayload>
 {
     public SimpleSocketAsyncValueTaskRingPollerListener
-    (IAsyncValueTaskPollingRing<SimpleSocketReceiverPayload> ring
+    (IAsyncValueTaskPollingRing<SimpleSocketReceiverPayload> queueMessageRing
       , uint noDataPauseTimeoutMs
       , ISocketSelector selector, IUpdateableTimer timer, Action? threadStartInitialization = null,
         IOSParallelController? parallelController = null)
-        : base(ring, noDataPauseTimeoutMs, selector, timer, threadStartInitialization, parallelController) { }
+        : base(queueMessageRing, noDataPauseTimeoutMs, selector, timer, threadStartInitialization, parallelController) { }
 
     public SimpleSocketAsyncValueTaskRingPollerListener
     (string name, uint noDataPauseTimeoutMs, ISocketSelector selector

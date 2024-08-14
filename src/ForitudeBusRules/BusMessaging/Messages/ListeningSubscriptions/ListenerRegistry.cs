@@ -1,4 +1,5 @@
-﻿using FortitudeBusRules.Rules;
+﻿using FortitudeBusRules.Messages;
+using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
@@ -104,8 +105,11 @@ public class ListenerRegistry
         return ValueTask.CompletedTask;
     }
 
-    public async ValueTask AddListenerToWatchList(IMessageListenerRegistration subscribePayload)
+    public async ValueTask AddListenerToWatchList(BusMessageValue data)
     {
+        var subscribePayload  = (IMessageListenerRegistration)data.Payload.BodyObj(PayloadRequestType.QueueReceive)!;
+        var processorRegistry = data.ProcessorRegistry;
+        processorRegistry?.RegisterStart(subscribePayload.SubscriberRule);
         subscribePayload.SubscriberRule.IncrementLifeTimeCount();
         foreach (var listenSubscribeInterceptor in subscribeInterceptors)
         {
@@ -126,6 +130,7 @@ public class ListenerRegistry
 
             ruleListeners!.Add(subscribePayload);
         }
+        processorRegistry?.RegisterFinish(subscribePayload.SubscriberRule);
     }
 
 

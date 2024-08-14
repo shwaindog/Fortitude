@@ -374,6 +374,8 @@ public readonly struct DiscreetTimePeriod
 
     public override int GetHashCode() => TimeSpan.GetHashCode();
 
+    public override string ToString() => $"{nameof(DiscreetTimePeriod)}({nameof(Period)}: {Period}, {nameof(NumberOfPeriods)}: {NumberOfPeriods})";
+
     public static bool operator ==(DiscreetTimePeriod lhs, DiscreetTimePeriod rhs) => lhs.TimeSpan == rhs.TimeSpan;
     public static bool operator !=(DiscreetTimePeriod lhs, DiscreetTimePeriod rhs) => lhs.TimeSpan != rhs.TimeSpan;
 

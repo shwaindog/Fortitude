@@ -16,11 +16,18 @@ public class BusRules
 {
     public IConfigureMessageBus? MessageBus;
 
-    public IMessageBus Start(BusRulesConfig busRulesConfig, IRule bootstrapRule, MessageQueueType launchOnQueueType = MessageQueueType.Worker)
+    public IConfigureMessageBus CreateMessageBus(BusRulesConfig busRulesConfig)
     {
         MessageBus = new MessageBus(busRulesConfig);
-        MessageBus.Start();
-        MessageBus.DeployDaemonRule(bootstrapRule, new DeploymentOptions(messageGroupType: launchOnQueueType));
         return MessageBus;
+    }
+
+    public IMessageBus CreateAndStartMessageBus
+        (BusRulesConfig busRulesConfig, IRule bootstrapRule, MessageQueueType launchOnQueueType = MessageQueueType.Worker)
+    {
+        var messageBus = CreateMessageBus(busRulesConfig);
+        messageBus.Start();
+        messageBus.DeployDaemonRule(bootstrapRule, new DeploymentOptions(messageGroupType: launchOnQueueType));
+        return messageBus;
     }
 }

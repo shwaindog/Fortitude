@@ -1,10 +1,18 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
+#region
+
+using FortitudeCommon.DataStructures.Memory;
+
+#endregion
+
 namespace FortitudeCommon.Chronometry.Timers;
 
 public interface IActionTimer
 {
+    IRecycler? Recycler { get; set; }
+
     ITimerUpdate RunIn(TimeSpan waitTimeSpan, Func<ValueTask> callback);
     ITimerUpdate RunIn(TimeSpan waitTimeSpan, Func<IScheduleActualTime?, ValueTask> callback);
     ITimerUpdate RunIn<T>(TimeSpan waitTimeSpan, T state, Func<T?, ValueTask> callback) where T : class;

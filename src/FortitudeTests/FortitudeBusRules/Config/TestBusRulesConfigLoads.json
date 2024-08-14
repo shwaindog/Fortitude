@@ -12,7 +12,8 @@
       "MaxWorkerQueues": 7,
       "DefaultQueueSize": 3000,
       "EventQueueSize": 9000,
-      "MessagePumpMaxWaitMs": 9
+      "EmptyEventQueueSleepMs": 30,
+      "DefaultEmptyQueueSleepMs": 9
     },
     "ClusterConfig": {
       "ClusterConnectivityEndpoint": {

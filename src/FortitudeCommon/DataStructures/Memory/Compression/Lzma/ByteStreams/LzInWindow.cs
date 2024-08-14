@@ -3,7 +3,6 @@
 // all credit and thanks to Igor Pavlov, Abraham Lempel and Jacob Ziv and thanks
 
 using FortitudeCommon.OSWrapper.Streams;
-using Google.Protobuf.WellKnownTypes;
 
 namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.ByteStreams;
 

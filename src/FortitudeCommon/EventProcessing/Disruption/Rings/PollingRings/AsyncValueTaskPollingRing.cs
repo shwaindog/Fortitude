@@ -17,11 +17,9 @@ public interface IAsyncValueTaskPollingRing<T> : ITaskCallbackPollingRing<T> whe
 {
     Func<T, bool> InterceptHandler { get; set; }
 
-    ValueTaskProcessEvent<T> ProcessEvent { get; set; }
-
     int Size { get; }
 
-    ValueTask<long> Poll();
+    bool Poll();
 
     event Action<QueueEventTime> QueueEntryStart;
     event Action<QueueEventTime> QueueEntryComplete;
@@ -35,47 +33,42 @@ public class AsyncValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> where 
 
     private readonly IClaimStrategy claimStrategy;
 
-    private readonly TaskCompleteSequenceContainer[] completeAhead;
-
     private readonly Sequence   conCursor = new(Sequence.InitialValue);
     private readonly Sequence[] conCursors;
+
+    private readonly AwaitingCompleteContainer[] incompleteTasks;
 
     private readonly Sequence pubCursor = new(Sequence.InitialValue);
 
     private readonly int readAheadRingMask;
     private readonly int ringMask;
 
-    private long completedReadAheadConsumerCursor;
-    private long completedReadAheadPublishCursor;
-    private long readAheadCursor = -1;
+    private long halfSize;
 
-    public AsyncValueTaskPollingRing
-    (string name, int size, Func<T> dataFactory
-      , ClaimStrategyType claimStrategyType, ValueTaskProcessEvent<T>? processAsyncTask = null, bool logErrors = true)
+    private long incompleteTasksConsumerCursor;
+    private long incompleteTasksPublishCursor;
+
+    public AsyncValueTaskPollingRing(string name, int size, Func<T> dataFactory, ClaimStrategyType claimStrategyType, bool logErrors = true)
     {
-        ProcessEvent = processAsyncTask ?? ((currentSequence, _) =>
-        {
-            Logger.Warn("Poll Sink not set on AsyncTaskPollingRing.  Will do nothing");
-            return new ValueTask<long>(currentSequence);
-        });
         InterceptHandler = _ => false;
 
         Name = name;
-        Size = size;
 
         var ringSize          = MemoryUtils.CeilingNextPowerOfTwo(size);
-        var readAheadRingSize = MemoryUtils.CeilingNextPowerOfTwo(size);
+        var readAheadRingSize = ringSize;
+        Size     = ringSize;
+        halfSize = ringSize / 2;
 
         ringMask          = ringSize - 1;
         readAheadRingMask = readAheadRingSize - 1;
         cells             = new T[ringSize];
-        completeAhead     = new TaskCompleteSequenceContainer[readAheadRingSize];
+        incompleteTasks   = new AwaitingCompleteContainer[readAheadRingSize];
         conCursors        = new[] { conCursor };
 
         claimStrategy = claimStrategyType.GetInstance(name, ringSize, logErrors);
 
-        for (var i = 0; i < cells.Length; i++) cells[i]                 = dataFactory();
-        for (var i = 0; i < completeAhead.Length; i++) completeAhead[i] = new TaskCompleteSequenceContainer();
+        for (var i = 0; i < cells.Length; i++) cells[i]                     = dataFactory();
+        for (var i = 0; i < incompleteTasks.Length; i++) incompleteTasks[i] = new AwaitingCompleteContainer();
     }
 
     public T this[long sequence] => cells[(int)sequence & ringMask];
@@ -83,8 +76,6 @@ public class AsyncValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> where 
     public int Size { get; }
 
     public string Name { get; }
-
-    public ValueTaskProcessEvent<T> ProcessEvent { get; set; }
 
     public Func<T, bool> InterceptHandler { get; set; }
 
@@ -104,48 +95,51 @@ public class AsyncValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> where 
         pubCursor.Value = sequence;
     }
 
-    public async ValueTask<long> Poll()
+    public bool Poll()
     {
         var maxPublishedSequence = pubCursor.Value;
-        var currentSequence      = readAheadCursor + 1;
+        var currentSequence      = conCursor.Value;
         if (currentSequence <= maxPublishedSequence)
         {
             var datum = cells[(int)currentSequence & ringMask];
-            readAheadCursor = currentSequence;
             try
             {
                 QueueEntryStart?.Invoke(new QueueEventTime(currentSequence, DateTime.UtcNow));
                 if (datum.IsTaskCallbackItem)
                 {
                     datum.InvokeTaskCallback();
-                    QueueEntryComplete?.Invoke(new QueueEventTime(currentSequence, DateTime.UtcNow));
-                    CheckConsumerShouldMoveForward(currentSequence);
-                    return currentSequence;
+                    datum.TaskPostProcessingCleanup();
+                    return true;
                 }
 
-                if (InterceptHandler(datum))
-                {
-                    QueueEntryComplete?.Invoke(new QueueEventTime(currentSequence, DateTime.UtcNow));
-                    CheckConsumerShouldMoveForward(currentSequence);
-                    return currentSequence;
-                }
+                if (InterceptHandler(datum)) return true;
 
-                var completedSequenceId = await ProcessEvent(currentSequence, datum);
-                QueueEntryComplete?.Invoke(new QueueEventTime(currentSequence, DateTime.UtcNow));
-                CheckConsumerShouldMoveForward(completedSequenceId);
-                return completedSequenceId;
+                var messageTask = ProcessEntry(datum);
+                if (!messageTask.IsCompleted)
+                    EnqueueIncompleteValueTask(currentSequence, messageTask);
+                else
+                    try
+                    {
+                        messageTask.GetAwaiter().GetResult();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warn("Async message number {0}. Caught {1}", currentSequence, ex);
+                    }
+                return true;
             }
             catch (Exception ex)
             {
-                QueueEntryComplete?.Invoke(new QueueEventTime(currentSequence, DateTime.UtcNow));
                 Logger.Error("Unhandled exception will attempt to recover. Got {0}", ex);
-                CheckConsumerShouldMoveForward(currentSequence);
             }
-
-            return currentSequence;
+            finally
+            {
+                QueueEntryComplete?.Invoke(new QueueEventTime(currentSequence, DateTime.UtcNow));
+                conCursor.Value = currentSequence + 1;
+                CheckAwaitingTasksComplete();
+            }
         }
-
-        return -1;
+        return false;
     }
 
     public void EnqueueCallback(SendOrPostCallback d, object? state)
@@ -156,66 +150,83 @@ public class AsyncValueTaskPollingRing<T> : IAsyncValueTaskPollingRing<T> where 
         Publish(seqId);
     }
 
-    private void EnqueueCompleteAhead(long completed)
+    public virtual ValueTask ProcessEntry(T entry)
     {
-        var seqId = completedReadAheadPublishCursor++;
-        var evt   = completeAhead[seqId & readAheadRingMask];
-        evt.Value = completed;
+        Logger.Warn("You should override this to process events");
+        return ValueTask.CompletedTask;
     }
 
-    private void CheckConsumerShouldMoveForward(long completedSequenceId)
+    private void EnqueueIncompleteValueTask(long messageId, ValueTask incompleteTask)
     {
-        if (conCursor.Value == completedSequenceId - 1)
-        {
-            // Logger.Debug("NAME: {0} In order - ring[{1}]={2}", Name, completedSequenceId, this[completedSequenceId & ringMask]);
-            conCursor.Value = completedSequenceId;
-            UpdateConCursorWithCompleteReadAheadItems(completedReadAheadConsumerCursor, completedReadAheadPublishCursor);
-        }
-        else
-        {
-            // Logger.Debug("NAME: {0} out of order - ring[{1}]={2}", Name, completedSequenceId, this[completedSequenceId & ringMask]);
-            EnqueueCompleteAhead(completedSequenceId);
-        }
+        var seqId = incompleteTasksPublishCursor++;
+        var evt   = incompleteTasks[seqId & readAheadRingMask];
+        evt.Value            = messageId;
+        evt.AwaitingComplete = incompleteTask;
     }
 
-    public void UpdateConCursorWithCompleteReadAheadItems(long lookAheadStart, long lookAheadMax)
+    public void CheckAwaitingTasksComplete()
     {
-        for (var currLookAheadConCur = lookAheadStart; currLookAheadConCur < lookAheadMax; currLookAheadConCur++)
+        var gapCount = 0;
+        for (var currLookAheadConCur = incompleteTasksConsumerCursor
+             ; currLookAheadConCur < incompleteTasksPublishCursor
+             ; currLookAheadConCur++)
         {
-            var checkLookAhead = completeAhead[currLookAheadConCur & readAheadRingMask].Value;
-            if (conCursor.Value == checkLookAhead - 1)
+            var checkIncompleteTask = incompleteTasks[currLookAheadConCur & readAheadRingMask];
+            if (checkIncompleteTask is { Value: >= 0 } and ({ AwaitingComplete.IsCompleted: true } or { AwaitingComplete.IsFaulted: true } or
+                                                            { AwaitingComplete.IsCanceled: true }))
             {
-                // Logger.Debug("NAME: {0} play forward - ring[{1}]={2}", Name, checkLookAhead, this[checkLookAhead & ringMask]);
-                conCursor.Value                  = checkLookAhead;
-                completedReadAheadConsumerCursor = currLookAheadConCur;
+                try
+                {
+                    checkIncompleteTask.AwaitingComplete.GetAwaiter().GetResult();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn("Async message number {0}. Caught {1}", checkIncompleteTask.Value, ex);
+                }
+                checkIncompleteTask.Value            = -1;
+                checkIncompleteTask.AwaitingComplete = ValueTask.CompletedTask;
+                if (currLookAheadConCur == incompleteTasksConsumerCursor) incompleteTasksConsumerCursor += 1;
             }
-            else if (checkLookAhead > conCursor.Value)
+            else
             {
-                // Logger.Debug("NAME: {0} not next completed - ring[{1}]={2}", Name, checkLookAhead, this[checkLookAhead & ringMask]);
-                if (!CheckFurtherBackCompleteReadAheadCompleteFound(currLookAheadConCur + 1, lookAheadMax)) break;
-                currLookAheadConCur--;
-            }
-        }
-    }
-
-    public bool CheckFurtherBackCompleteReadAheadCompleteFound(long lookAheadStart, long lookAheadMax)
-    {
-        for (var currLookAheadConCur = lookAheadStart; currLookAheadConCur < lookAheadMax; currLookAheadConCur++)
-        {
-            var checkLookAhead = completeAhead[currLookAheadConCur & readAheadRingMask].Value;
-            if (conCursor.Value == checkLookAhead - 1)
-            {
-                // Logger.Debug("NAME: {0} found further done completed - ring[{1}]={2}", Name, checkLookAhead, this[checkLookAhead & ringMask]);
-                conCursor.Value = checkLookAhead;
-                return true;
+                if (checkIncompleteTask.Value < 0) gapCount++;
             }
         }
-
-        return false;
+        if (gapCount > Math.Min(1000, halfSize)) CompactIncompleteRemaining();
     }
 
-    private class TaskCompleteSequenceContainer
+    public void CompactIncompleteRemaining()
     {
-        public long Value;
+        var incrementConsumer = 0;
+        for (var slot = incompleteTasksPublishCursor - 1; slot >= incompleteTasksConsumerCursor; slot--)
+        {
+            var slotTask = incompleteTasks[slot & readAheadRingMask];
+            if (slotTask is { Value: >= 0, AwaitingComplete.IsCompleted: false }) continue;
+            for (var checkToMove = slot - 1; checkToMove >= incompleteTasksConsumerCursor; checkToMove--)
+            {
+                var checkTask = incompleteTasks[checkToMove & readAheadRingMask];
+                if (checkTask is { Value: >= 0, AwaitingComplete.IsCompleted: false })
+                {
+                    slotTask.Value            = checkTask.Value;
+                    slotTask.AwaitingComplete = checkTask.AwaitingComplete;
+                    incrementConsumer++;
+                    checkTask.Value            = -1;
+                    checkTask.AwaitingComplete = ValueTask.CompletedTask;
+                    break;
+                }
+                if (checkToMove == incompleteTasksConsumerCursor)
+                {
+                    incompleteTasksConsumerCursor += incrementConsumer;
+                    return;
+                }
+            }
+        }
+        incompleteTasksConsumerCursor += incrementConsumer;
+    }
+
+    private class AwaitingCompleteContainer
+    {
+        public ValueTask AwaitingComplete;
+        public long      Value;
     }
 }

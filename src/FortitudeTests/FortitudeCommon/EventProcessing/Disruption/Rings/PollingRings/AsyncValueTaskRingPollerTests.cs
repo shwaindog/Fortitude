@@ -21,10 +21,7 @@ public class AsyncValueTaskRingPollerTests
 
     private AsyncValueTaskRingPoller<StringContainer> asyncValueTaskRingPoller = null!;
 
-    private ValueTask<long> completeNoWorkDoneValueTask;
-    private ValueTask<long> completeWorkDoneValueTask;
-    private bool            haveCalledThreadInitializeAction;
-    private ValueTask<long> incompleteValueTask;
+    private bool haveCalledThreadInitializeAction;
 
     private Mock<IIntraOSThreadSignal>  moqIntraOsThreadSignal = null!;
     private Mock<IOSThread>             moqOsThread            = null!;
@@ -49,9 +46,6 @@ public class AsyncValueTaskRingPollerTests
             Thread.Sleep(20_000);
             return 1;
         }, this);
-        incompleteValueTask         = new ValueTask<long>(incompleteTask);
-        completeWorkDoneValueTask   = new ValueTask<long>(1);
-        completeNoWorkDoneValueTask = new ValueTask<long>(-1);
 
         moqPollingRing               = new Mock<IAsyncValueTaskPollingRing<StringContainer>>();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
@@ -74,7 +68,7 @@ public class AsyncValueTaskRingPollerTests
 
         moqPollingRing.SetupAllProperties();
         moqPollingRing.Setup(pr => pr.Name).Returns("AsyncValueTaskRingPollerTests");
-        moqPollingRing.Setup(pr => pr.Poll()).Returns(completeNoWorkDoneValueTask);
+        moqPollingRing.Setup(pr => pr.Poll()).Returns(false);
     }
 
     [TestCleanup]
@@ -102,8 +96,8 @@ public class AsyncValueTaskRingPollerTests
             Assert.AreEqual(1, asyncValueTaskRingPoller.UsageCount);
             Assert.IsTrue(NonPublicInvocator.GetInstanceField<bool>(asyncValueTaskRingPoller, "isRunning"));
             asyncValueTaskRingPoller.Stop();
-            moqPollingRing.Setup(pr => pr.Poll()).Returns(completeNoWorkDoneValueTask);
-        }).Returns(completeNoWorkDoneValueTask);
+            moqPollingRing.Setup(pr => pr.Poll()).Returns(false);
+        }).Returns(false);
         asyncValueTaskRingPoller = new AsyncValueTaskRingPoller<StringContainer>
             (moqPollingRing.Object, NoDataPauseTimeout, threadInitializeAction, moqParallelController.Object);
 
@@ -134,9 +128,9 @@ public class AsyncValueTaskRingPollerTests
                     Assert.AreEqual(1, asyncValueTaskRingPoller.UsageCount);
                     Assert.IsTrue(NonPublicInvocator.GetInstanceField<bool>(asyncValueTaskRingPoller, "isRunning"));
                     asyncValueTaskRingPoller.Stop();
-                }).Returns(completeNoWorkDoneValueTask);
-            }).Returns(incompleteValueTask);
-        }).Returns(incompleteValueTask);
+                }).Returns(false);
+            }).Returns(true);
+        }).Returns(true);
         asyncValueTaskRingPoller = new AsyncValueTaskRingPoller<StringContainer>
             (moqPollingRing.Object, NoDataPauseTimeout, threadInitializeAction, moqParallelController.Object);
 

@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Monitoring.Logging;
 
@@ -9,7 +12,7 @@ namespace FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
 public interface IListenSubscribeInterceptor : IInterceptor
 {
     ValueTask Intercept(IMessageListenerRegistration messageListenerRegistration);
-    bool ShouldRunIntercept(IMessageListenerRegistration messageListenerRegistration);
+    bool      ShouldRunIntercept(IMessageListenerRegistration messageListenerRegistration);
 }
 
 public abstract class AddressListenSubscribeInterceptor : IListenSubscribeInterceptor
@@ -18,7 +21,7 @@ public abstract class AddressListenSubscribeInterceptor : IListenSubscribeInterc
 
     protected AddressListenSubscribeInterceptor(string name, IAddressMatcher addressMatcher)
     {
-        Name = name;
+        Name           = name;
         AddressMatcher = addressMatcher;
     }
 
@@ -30,14 +33,14 @@ public abstract class AddressListenSubscribeInterceptor : IListenSubscribeInterc
     {
         if (ShouldRunIntercept(messageListenerRegistration))
         {
-            await RunInterceptorAction(messageListenerRegistration);
             messageListenerRegistration.AddRunListenSubscriptionInterceptor(this);
+            await RunInterceptorAction(messageListenerRegistration);
         }
     }
 
     public bool ShouldRunIntercept(IMessageListenerRegistration messageListenerRegistration) =>
         AddressMatcher.IsMatch(messageListenerRegistration.PublishAddress)
-        && messageListenerRegistration.ActiveListenSubscribeInterceptors.All(lsi => lsi.Name != Name);
+     && messageListenerRegistration.ActiveListenSubscribeInterceptors.All(lsi => lsi.Name != Name);
 
     public abstract ValueTask RunInterceptorAction(IMessageListenerRegistration messageListenerRegistration);
 }

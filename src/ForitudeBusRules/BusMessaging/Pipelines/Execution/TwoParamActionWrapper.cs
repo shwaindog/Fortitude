@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
@@ -12,10 +15,11 @@ namespace FortitudeBusRules.BusMessaging.Pipelines.Execution;
 public class TwoParamActionWrapper<T, TU> : RecyclableObject
 {
     private static readonly IRecycler FactoryRecycler = new Recycler();
-    private static readonly ISyncLock SyncLock = new SpinLockLight();
+    private static readonly ISyncLock SyncLock        = new SpinLockLight();
 
-    public IQueueContext? CapturedQueueContext { get; private set; }
-    public Action<T, TU> OriginalRegisteredAction { get; private set; } = null!;
+    public IQueueContext? CapturedQueueContext     { get; private set; }
+    public Action<T, TU>  OriginalRegisteredAction { get; private set; } = null!;
+
     public TwoParamActionWrapper<T, TU>? Next { get; set; }
 
     private void WrappedAction(T firstParam, TU secondParam)
@@ -29,7 +33,7 @@ public class TwoParamActionWrapper<T, TU> : RecyclableObject
 
         var singleParamPayload = FactoryRecycler.Borrow<TwoParamSyncActionPayload<T, TU>>();
         singleParamPayload.Configure(OriginalRegisteredAction, firstParam, secondParam);
-        CapturedQueueContext.RegisteredOn.EnqueuePayloadBody(singleParamPayload, Rule.NoKnownSender, MessageType.QueueParamsExecutionPayload, null);
+        CapturedQueueContext.RegisteredOn.EnqueuePayloadBody(singleParamPayload, Rule.NoKnownSender, MessageType.InvokeablePayload, null);
     }
 
     public TwoParamActionWrapper<T, TU>? InvokeReturnNext(T firstParam, TU secondParam)
@@ -40,7 +44,7 @@ public class TwoParamActionWrapper<T, TU> : RecyclableObject
 
     public void Invoke(T firstParam, TU secondParam)
     {
-        var currentNext = this;
+        var currentNext                         = this;
         while (currentNext != null) currentNext = currentNext.InvokeReturnNext(firstParam, secondParam);
     }
 
@@ -48,8 +52,8 @@ public class TwoParamActionWrapper<T, TU> : RecyclableObject
     {
         if (rhs == null) return lhs;
         var callbackQueueContext = QueueContext.CurrentThreadQueueContext;
-        var toAttach = FactoryRecycler.Borrow<TwoParamActionWrapper<T, TU>>();
-        toAttach.CapturedQueueContext = callbackQueueContext;
+        var toAttach             = FactoryRecycler.Borrow<TwoParamActionWrapper<T, TU>>();
+        toAttach.CapturedQueueContext     = callbackQueueContext;
         toAttach.OriginalRegisteredAction = rhs;
         if (lhs == null) return toAttach;
         SyncLock.Acquire();
@@ -72,7 +76,7 @@ public class TwoParamActionWrapper<T, TU> : RecyclableObject
         SyncLock.Acquire();
         try
         {
-            var currentActionWrapper = lhs;
+            var                           currentActionWrapper  = lhs;
             TwoParamActionWrapper<T, TU>? previousActionWrapper = null;
             while (currentActionWrapper != null)
             {
@@ -85,7 +89,7 @@ public class TwoParamActionWrapper<T, TU> : RecyclableObject
                 }
 
                 previousActionWrapper = currentActionWrapper;
-                currentActionWrapper = currentActionWrapper.Next;
+                currentActionWrapper  = currentActionWrapper.Next;
             }
 
             return lhs;
@@ -98,12 +102,12 @@ public class TwoParamActionWrapper<T, TU> : RecyclableObject
 
     public static TwoParamActionWrapper<T, TU> LastActionWrapperInChain(TwoParamActionWrapper<T, TU> rootActionWrapper)
     {
-        var currentActionWrapper = rootActionWrapper;
+        var currentActionWrapper     = rootActionWrapper;
         var lastNonNullActionWrapper = rootActionWrapper;
         while (currentActionWrapper != null)
         {
             lastNonNullActionWrapper = currentActionWrapper;
-            currentActionWrapper = currentActionWrapper.Next;
+            currentActionWrapper     = currentActionWrapper.Next;
         }
 
         return lastNonNullActionWrapper;
@@ -112,8 +116,8 @@ public class TwoParamActionWrapper<T, TU> : RecyclableObject
     public override void StateReset()
     {
         OriginalRegisteredAction = null!;
-        CapturedQueueContext = null!;
-        Next = null!;
+        CapturedQueueContext     = null!;
+        Next                     = null!;
         base.StateReset();
     }
 }

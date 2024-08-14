@@ -7,6 +7,7 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 
 #endregion
@@ -22,7 +23,7 @@ public class RuleTimer : IRuleTimer
     private readonly ActionTimer backingTimer;
     private readonly IRule       owningRule;
 
-    private readonly List<ITimerUpdate> registeredRuleTimers = new();
+    private readonly ReusableList<ITimerUpdate> registeredRuleTimers = new();
 
     private bool isClosing;
 
@@ -32,6 +33,12 @@ public class RuleTimer : IRuleTimer
         this.backingTimer                      = backingTimer;
         this.backingTimer.OneOffWaitCallback   = OneOffTimerEnqueueAsMessage;
         this.backingTimer.IntervalWaitCallback = IntervalTimerEnqueueAsMessage;
+    }
+
+    public IRecycler? Recycler
+    {
+        get => registeredRuleTimers.Recycler;
+        set => registeredRuleTimers.Recycler = value;
     }
 
     public ITimerUpdate RunIn(TimeSpan waitTimeSpan, Func<ValueTask> callback) =>

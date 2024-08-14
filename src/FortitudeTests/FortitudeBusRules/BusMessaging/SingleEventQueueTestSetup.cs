@@ -8,9 +8,6 @@ using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Pipelines.Groups;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Config;
-using FortitudeBusRules.Messages;
-using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
-using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeTests.FortitudeCommon.Types;
 
@@ -38,9 +35,8 @@ public class SingleEventQueueTestSetup
         defaultQueuesConfig.DefaultQueueSize = AsyncRingPollerSize;
         defaultQueuesConfig.EventQueueSize   = AsyncRingPollerSize;
 
-        var ring = new AsyncValueTaskPollingRing<BusMessage>($"EventQueueTests", AsyncRingPollerSize, () => new BusMessage()
-                                                           , ClaimStrategyType.MultiProducers);
-        var ringPoller = new AsyncValueTaskRingPoller<BusMessage>(ring, 1);
+        var ring       = new QueueMessageRing($"EventQueueTests", AsyncRingPollerSize);
+        var ringPoller = new MessagePump(ring, 1);
         MessageBus = new MessageBus(evtBus =>
         {
             EventQueue = new MessageQueue(evtBus, MessageQueueType.Event, 1, ringPoller);

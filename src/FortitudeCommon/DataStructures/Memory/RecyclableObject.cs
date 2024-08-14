@@ -10,7 +10,7 @@ public interface IUsesRecycler
 
 public class UsesRecycler : IUsesRecycler
 {
-    public IRecycler? Recycler { get; set; }
+    public virtual IRecycler? Recycler { get; set; }
 }
 
 public interface IRecyclableObject : IUsesRecycler
@@ -75,6 +75,12 @@ public class RecyclableObject : UsesRecycler, IRecyclableObject
     {
         refCount = 1;
     }
+
+    // Uncomment the below if you suspect recyclable objects are being Garbage Collected
+    // ~RecyclableObject()
+    // {
+    //     Console.Out.WriteLine($"GC {GetType().Name}");
+    // }
 }
 
 public interface IAutoRecycledObject : IRecyclableObject

@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics;
 
@@ -6,20 +9,23 @@ using FortitudeCommon.Monitoring.Logging.Diagnostics;
 
 namespace FortitudeCommon.Monitoring.Logging;
 
-internal class NoopFactory : IFLoggerFactory
+public class NoOpLoggerFactory : IFLoggerFactory
 {
-    public static readonly IFLogger SingletonNoopLogger = new NoopIfLogger("Singleton");
-    public IFLogger GetLogger(string loggerName) => new NoopIfLogger(loggerName);
+    public static readonly IFLogger SingletonNoopLogger = new NoOpIfLogger("Singleton");
+
+    public static bool StartWithNoOpLoggerFactory = false;
+
+    public IFLogger GetLogger(string loggerName) => SingletonNoopLogger;
 
     public IFLogger GetLogger(Type ownerType) => GetLogger(ownerType.FullName!);
 
-    private class NoopIfLogger : IFLogger
+    private class NoOpIfLogger : IFLogger
     {
         private bool defaultEnabled = true;
 
-        public NoopIfLogger(string loggerName)
+        public NoOpIfLogger(string loggerName)
         {
-            Name = loggerName;
+            Name                = loggerName;
             HierarchicalSetting = "";
         }
 
@@ -83,7 +89,7 @@ internal class NoopFactory : IFLoggerFactory
 
         public string DefaultStringValue => "default";
 
-        public bool Enabled { get; set; }
+        public bool   Enabled             { get; set; }
         public string HierarchicalSetting { get; set; }
 
         public bool DefaultEnabled

@@ -103,6 +103,7 @@ public class PriceSummarizingFilePersisterRuleTests : OneOfEachMessageQueueTypeT
 
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task NewRepository_SendEntriesToPersister_CanRetrieveEntriesFromRepository()
     {
         persisterRule = new PriceSummarizingFilePersisterRule<PricePeriodSummary>(persisterParams);

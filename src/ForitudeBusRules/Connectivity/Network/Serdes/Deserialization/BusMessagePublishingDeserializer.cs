@@ -283,7 +283,7 @@ public class InvokeRuleCallbackListenContext<T>: ReceiverListenContext<T>
         {
             var oneParamAsyncActionCallback = recycler?.Borrow<OneParamAsyncActionPayload<T>>() ?? new OneParamAsyncActionPayload<T>();
             oneParamAsyncActionCallback.Configure(asyncCallback, message);
-            calleeRule.Context.MessageBus.Send(calleeRule, oneParamAsyncActionCallback, MessageType.QueueParamsExecutionPayload, new DispatchOptions(RoutingFlags.TargetSpecific, targetRule: calleeRule));
+            calleeRule.Context.MessageBus.Send(calleeRule, oneParamAsyncActionCallback, MessageType.InvokeablePayload, new DispatchOptions(RoutingFlags.TargetSpecific, targetRule: calleeRule));
         }
     }
 
@@ -294,7 +294,7 @@ public class InvokeRuleCallbackListenContext<T>: ReceiverListenContext<T>
         {
             var oneParamAsyncActionCallback = recycler?.Borrow<OneParamAsyncActionPayload<T>>() ?? new OneParamAsyncActionPayload<T>();
             oneParamAsyncActionCallback.Configure(asyncCallback, message);
-            calleeRule.Context.MessageBus.Send(calleeRule, oneParamAsyncActionCallback, MessageType.QueueParamsExecutionPayload, new DispatchOptions(RoutingFlags.TargetSpecific, targetRule: calleeRule));
+            calleeRule.Context.MessageBus.Send(calleeRule, oneParamAsyncActionCallback, MessageType.InvokeablePayload, new DispatchOptions(RoutingFlags.TargetSpecific, targetRule: calleeRule));
         }
     }
 

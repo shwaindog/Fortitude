@@ -75,11 +75,8 @@ public abstract class TimerCallBackRunInfo : ReusableObject<ITimerCallBackRunInf
 
     public ValueTask<DateTime> NextThreadPoolExecutionAsync()
     {
-        var reusableDateTimeSource = Recycler?.Borrow<ReusableValueTaskSource<DateTime>>() ??
-                                     new ReusableValueTaskSource<DateTime>();
-        if (Interlocked.CompareExchange(ref NextExecutionComplete, reusableDateTimeSource, null) !=
-            null)
-            reusableDateTimeSource.DecrementRefCount();
+        var reusableDateTimeSource = Recycler?.Borrow<ReusableValueTaskSource<DateTime>>() ?? new ReusableValueTaskSource<DateTime>();
+        if (Interlocked.CompareExchange(ref NextExecutionComplete, reusableDateTimeSource, null) != null) reusableDateTimeSource.DecrementRefCount();
         return NextExecutionComplete.GenerateValueTask();
     }
 

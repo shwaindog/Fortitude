@@ -62,7 +62,7 @@ public class InvalidRuleTransitionStateException(string name, RuleLifeCycle curr
 public class Rule : IListeningRule
 {
     private IRuleTimer? ruleTimer;
-    private List<IAsyncValueTaskDisposable> onStopResourceCleanup = new ();
+    private ReusableList<IAsyncValueTaskDisposable> onStopResourceCleanup = new ();
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(Rule));
 
     public static readonly Rule NoKnownSender = new()
@@ -70,13 +70,14 @@ public class Rule : IListeningRule
         Id = "UnknownSender"
     };
 
-    private readonly List<IRule> children = [];
+    private readonly ReusableList<IRule> children = [];
     private RuleFilter? appliesToThisRuleFilter;
     private RuleFilter? notAppliesToThisRuleFilter;
     private IRule? parentRule;
 
-    private int aliveRefCount;
+    private int           aliveRefCount;
     private RuleLifeCycle ruleLifeCycle;
+    private IQueueContext context = null!;
 
     public Rule()
     {
@@ -166,7 +167,17 @@ public class Rule : IListeningRule
     }
 
     public IEnumerable<IRule> ChildRules => children;
-    public IQueueContext Context { get; set; } = null!;
+    public IQueueContext Context
+    {
+        get => context;
+        set
+        {
+            context                        = value;
+
+            onStopResourceCleanup.Recycler = context?.PooledRecycler;
+            children.Recycler              = context?.PooledRecycler;
+        }
+    }
 
     public string FriendlyName { get; set; } = "Friendly Name Not Set";
     public string? Id { get; set; }

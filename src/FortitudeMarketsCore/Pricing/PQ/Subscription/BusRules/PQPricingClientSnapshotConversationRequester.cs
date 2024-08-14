@@ -58,8 +58,7 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
 
     public PQPricingClientSnapshotConversationRequester
     (ISocketSessionContext socketSessionContext, IStreamControls streamControls, string feedName
-      , IRule creatingRule
-      , IMessageDeserializationRepository sharedDeserializationRepo)
+      , IRule creatingRule, IMessageDeserializationRepository sharedDeserializationRepo)
         : base(socketSessionContext, streamControls)
     {
         this.feedName     = feedName;
@@ -123,8 +122,7 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
     }
 
     public async ValueTask<PQSourceTickerInfoResponse?> RequestSourceTickerInfoListAsync
-    (int timeout = 10_000
-      , IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null)
+        (int timeout = 10_000, IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null)
     {
         RestartTimeoutTimer();
         var started = await StartAsync(timeout, alternativeExecutionContext);
@@ -167,8 +165,7 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
     }
 
     public override async ValueTask<bool> StartAsync
-    (TimeSpan timeoutTimeSpan
-      , IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null)
+        (TimeSpan timeoutTimeSpan, IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null)
     {
         var started = await base.StartAsync(timeoutTimeSpan, alternativeExecutionContext);
         if (started) await CheckAndLaunchTopicRequestResponseRegistrationRuleStarted();
@@ -176,8 +173,7 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
     }
 
     public override async ValueTask<bool> StartAsync
-    (int timeoutMs
-      , IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null)
+        (int timeoutMs, IAlternativeExecutionContextResult<bool, TimeSpan>? alternativeExecutionContext = null)
     {
         var started = await base.StartAsync(timeoutMs, alternativeExecutionContext);
         if (started) await CheckAndLaunchTopicRequestResponseRegistrationRuleStarted();
@@ -192,7 +188,7 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
             var deployedSocketListenerQueue = NetworkInboundMessageQueue;
             receiverQueuePublishAmender
                 = new PQPricingClientRequestResponseRegistrationRule(feedName, SocketSessionContext, sharedDeserializationRepo.Name);
-            var dispatchResult = await messageBus.DeployChildRuleAsync
+            var deploymentLifeTime = await messageBus.DeployChildRuleAsync
                 (creatingRule, receiverQueuePublishAmender
                , new DeploymentOptions(RoutingFlags.TargetSpecific, MessageQueueType.NetworkInbound, 1, deployedSocketListenerQueue!.Name));
             //

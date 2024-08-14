@@ -6,6 +6,8 @@
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing.Tasks;
+using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 
 #endregion
@@ -40,10 +42,10 @@ internal enum TimeType
 public class ProcessorRegistry<TResult, TInterface> : ReusableValueTaskSource<TInterface>, IProcessorRegistry<TResult, TInterface>
     where TInterface : IDispatchResult where TResult : TInterface
 {
+    private readonly ReusableList<RuleTime> ruleTimes = new();
+
     private bool     havePublishedResults;
     private TResult? result;
-
-    private List<RuleTime> ruleTimes = new();
 
     public TResult? Result
     {
@@ -53,6 +55,16 @@ public class ProcessorRegistry<TResult, TInterface> : ReusableValueTaskSource<TI
 
     public IRule? RulePayload          { get; set; }
     public bool   ShouldCollectMetrics { get; set; }
+
+    public override IRecycler? Recycler
+    {
+        get => base.Recycler;
+        set
+        {
+            base.Recycler      = value;
+            ruleTimes.Recycler = value;
+        }
+    }
 
     public void ProcessingComplete()
     {
@@ -64,20 +76,20 @@ public class ProcessorRegistry<TResult, TInterface> : ReusableValueTaskSource<TI
         if (result != null)
         {
             IncrementRefCount();
-            if (ShouldCollectMetrics && result != null) ruleTimes.Add(new RuleTime(processor, TimeType.Start, DateTime.Now));
+            if (ShouldCollectMetrics) ruleTimes.Add(new RuleTime(processor, TimeType.Start, TimeContext.UtcNow));
         }
     }
 
     public void RegisterAwaiting(IRule processor)
     {
-        if (ShouldCollectMetrics && result != null) ruleTimes.Add(new RuleTime(processor, TimeType.Awaiting, DateTime.Now));
+        if (ShouldCollectMetrics && result != null) ruleTimes.Add(new RuleTime(processor, TimeType.Awaiting, TimeContext.UtcNow));
     }
 
     public void RegisterFinish(IRule processor)
     {
         if (result != null)
         {
-            if (ShouldCollectMetrics) ruleTimes.Add(new RuleTime(processor, TimeType.Awaiting, DateTime.Now));
+            if (ShouldCollectMetrics) ruleTimes.Add(new RuleTime(processor, TimeType.Awaiting, TimeContext.UtcNow));
             DecrementRefCount();
         }
     }
@@ -94,24 +106,9 @@ public class ProcessorRegistry<TResult, TInterface> : ReusableValueTaskSource<TI
         havePublishedResults = false;
         ShouldCollectMetrics = false;
         ruleTimes.Clear();
-        if (result != null)
-        {
-            result?.DecrementRefCount();
-            result = default;
-        }
+        result = default;
 
         base.StateReset();
-    }
-
-    public override TInterface GetResult(short token)
-    {
-        var asyncResult = Core.GetResult(token);
-        if (AutoDecrementOnGetResult && !IsInRecycler)
-        {
-            if (asyncResult is IRecyclableObject { RefCount: < 2 } recyclableResult) recyclableResult.IncrementRefCount();
-            DecrementRefCount(); // just decrement and don't recycle as another message may have copied it
-        }
-        return asyncResult;
     }
 
     private void CollectDispatchStats()
@@ -166,10 +163,12 @@ public class ProcessorRegistry<TResult, TInterface> : ReusableValueTaskSource<TI
         }
     }
 
-    public override string ToString() =>
-        $"{GetType().Name}({nameof(InstanceNumber)}: {InstanceNumber}, {nameof(Version)}: {Version}, {nameof(RefCount)}: {RefCount}, " +
+    protected string MembersToString() =>
+        $"{nameof(InstanceNumber)}: {InstanceNumber}, {nameof(Version)}: {Version}, {nameof(RefCount)}: {RefCount}, " +
         $"{nameof(IsInRecycler)}: {IsInRecycler}, {nameof(IsCompleted)}: {IsCompleted}, {nameof(result)}: {result}, " +
-        $"{nameof(havePublishedResults)}: {havePublishedResults}, {nameof(RulePayload)}: {RulePayload})";
+        $"{nameof(havePublishedResults)}: {havePublishedResults}, {nameof(RulePayload)}: {RulePayload}";
+
+    public override string ToString() => $"{nameof(ProcessorRegistry<TResult, TInterface>)}({MembersToString()})";
 
 
     private struct RuleTime
@@ -190,9 +189,12 @@ public class ProcessorRegistry<TResult, TInterface> : ReusableValueTaskSource<TI
 public class DispatchProcessorRegistry : ProcessorRegistry<DispatchResult, IDispatchResult>
 {
     public DispatchProcessorRegistry() { }
+
+    public override string ToString() => $"{nameof(DispatchProcessorRegistry)}({MembersToString()})";
 }
 
 public class DeploymentLifeTimeProcessorRegistry : ProcessorRegistry<RuleDeploymentLifeTime, IRuleDeploymentLifeTime>
 {
     public DeploymentLifeTimeProcessorRegistry() { }
+    public override string ToString() => $"{nameof(DeploymentLifeTimeProcessorRegistry)}({MembersToString()})";
 }

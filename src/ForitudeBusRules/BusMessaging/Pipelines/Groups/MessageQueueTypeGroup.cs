@@ -7,13 +7,10 @@ using System.Collections;
 using FortitudeBusRules.BusMessaging.Pipelines.NetworkQueues;
 using FortitudeBusRules.Config;
 using FortitudeBusRules.Connectivity.Network.Dispatcher;
-using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
-using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeIO.Transports.Network.Receiving;
 
 #endregion
@@ -98,11 +95,12 @@ public abstract class MessageQueueTypeGroup<T> : IMessageQueueTypeGroup<T> where
     {
         var existingCount       = eventQueues.Count;
         var defaultNewQueueSize = groupType == MessageQueueType.Event ? QueuesConfig.EventQueueSize : QueuesConfig.DefaultQueueSize;
+        var emptyQueueSleepMs   = groupType == MessageQueueType.Event ? QueuesConfig.EmptyEventQueueSleepMs : QueuesConfig.DefaultEmptyQueueSleepMs;
         for (var i = existingCount; i < existingCount + deploymentOptions.Instances; i++)
         {
             var name = $"{groupType}-{i}";
 
-            eventQueues.Add(CreateMessageQueue(owningMessageBus, groupType, i, name, defaultNewQueueSize, QueuesConfig.MessagePumpMaxWaitMs));
+            eventQueues.Add(CreateMessageQueue(owningMessageBus, groupType, i, name, defaultNewQueueSize, emptyQueueSleepMs));
         }
 
         return eventQueues.Count;
@@ -146,10 +144,8 @@ public class MessageQueueTypeGroup : MessageQueueTypeGroup<IMessageQueue>, IMess
     public override IMessageQueue CreateMessageQueue
         (IConfigureMessageBus configureMessageBus, MessageQueueType messageQueueType, int id, string name, int queueSize, uint noDataPauseTimeoutMs)
     {
-        var ring = new AsyncValueTaskPollingRing<BusMessage>
-            ($"MessageQueue-{name}", queueSize, () => new BusMessage(), ClaimStrategyType.MultiProducers);
-        var ringPoller = new AsyncValueTaskRingPoller<BusMessage>(ring, noDataPauseTimeoutMs);
-        return new MessageQueue(configureMessageBus, messageQueueType, id, ringPoller);
+        var messagePump = new MessagePump($"MessageQueue-{name}", queueSize, noDataPauseTimeoutMs);
+        return new MessageQueue(configureMessageBus, messageQueueType, id, messagePump);
     }
 }
 
@@ -218,8 +214,7 @@ internal class SocketListenerMessageQueueGroup : MessageQueueTypeGroup<INetworkI
     public override INetworkInboundMessageQueue CreateMessageQueue
         (IConfigureMessageBus configureMessageBus, MessageQueueType messageQueueType, int id, string name, int queueSize, uint noDataPauseTimeoutMs)
     {
-        var ring = new AsyncValueTaskPollingRing<BusMessage>
-            ($"NetworkInboundMessageQueue-{name}", queueSize, () => new BusMessage(), ClaimStrategyType.MultiProducers);
+        var ring = new QueueMessageRing($"NetworkInboundMessageQueue-{name}", queueSize);
         var ringPoller = new SocketAsyncValueTaskEventQueueListener
             (ring, noDataPauseTimeoutMs, new SocketSelector(QueuesConfig.SelectorPollIntervalMs), timer);
         return new NetworkInboundMessageQueue(configureMessageBus, messageQueueType, id, ringPoller);
@@ -286,8 +281,7 @@ public class SocketSenderMessageQueueGroup
     public override INetworkOutboundMessageQueue CreateMessageQueue
         (IConfigureMessageBus configureMessageBus, MessageQueueType messageQueueType, int id, string name, int queueSize, uint noDataPauseTimeoutMs)
     {
-        var ring = new AsyncValueTaskPollingRing<BusMessage>
-            ($"NetworkOutboundMessageQueue-{name}", queueSize, () => new BusMessage(), ClaimStrategyType.MultiProducers);
+        var ring       = new QueueMessageRing($"NetworkOutboundMessageQueue-{name}", queueSize);
         var ringPoller = new SocketAsyncValueTaskEventQueueSender(ring, noDataPauseTimeoutMs);
         return new NetworkOutboundMessageQueue(configureMessageBus, messageQueueType, id, ringPoller);
     }

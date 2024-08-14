@@ -14,14 +14,22 @@ namespace FortitudeCommon.Monitoring.Logging;
 public class FLoggerFactory : IFLoggerFactory
 {
     private static readonly IFLoggerFactory LoggerFactory;
+
     private static readonly Dictionary<string, IFLogger> Loggers = [];
-    private static readonly EnumerableBatchPollingRing<FLogEvent> Ring;
-    private static readonly FLogEventPoller RingPoller;
-    private static readonly object syncLock = new();
+
+    private static readonly EnumerableBatchPollingRing<FLogEvent>? Ring;
+
+    private static readonly FLogEventPoller? RingPoller;
+    private static readonly object           syncLock = new();
     private static volatile IFLoggerFactory? instance;
 
     static FLoggerFactory()
     {
+        if (NoOpLoggerFactory.StartWithNoOpLoggerFactory)
+        {
+            LoggerFactory = new NoOpLoggerFactory();
+            return;
+        }
         try
         {
             LoggerFactory = new NLogFactory();
@@ -29,7 +37,7 @@ public class FLoggerFactory : IFLoggerFactory
         catch (Exception e)
         {
             Console.WriteLine("Could not Load FLoggerFactory, Loading Noop :" + e);
-            LoggerFactory = new NoopFactory();
+            LoggerFactory = new NoOpLoggerFactory();
         }
 
         var configManager = new ConfigurationManager();

@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
@@ -21,16 +24,18 @@ public class RemoteNotificationRegistration : RecyclableObject
     protected virtual string StateToString =>
         $"{nameof(MessageId)}: {MessageId}, {nameof(Converter)}: {Converter}, {nameof(DeserializedType)}: {DeserializedType?.Name}";
 
-    public override string ToString() => $"{GetType().Name}({StateToString})";
+    public override string ToString() => $"{nameof(RemoteNotificationRegistration)}({StateToString})";
 }
 
 public class RemoteMessageBusPublishRegistration : RemoteNotificationRegistration
 {
     public string PublishAddress { get; set; } = null!;
-    public AddRemoveCommand AddRemoveRegistration { get; set; }
-    public Type PublishType { get; set; } = null!;
+    public Type   PublishType    { get; set; } = null!;
+    public IRule? Rule           { get; set; }
+
     public IQueueContext? QueueContext { get; set; }
-    public IRule? Rule { get; set; }
+
+    public AddRemoveCommand AddRemoveRegistration { get; set; }
 
     protected override string StateToString =>
         $"{base.StateToString}, {nameof(PublishAddress)}: {PublishAddress}, {nameof(AddRemoveRegistration)}: {AddRemoveRegistration}, " +
@@ -39,8 +44,8 @@ public class RemoteMessageBusPublishRegistration : RemoteNotificationRegistratio
     public override void StateReset()
     {
         QueueContext = null;
-        Rule = null;
-        PublishType = null!;
+        Rule         = null;
+        PublishType  = null!;
         base.StateReset();
     }
 }
@@ -60,38 +65,40 @@ public class RemoteRequestIdResponseRegistration : RemoteNotificationRegistratio
     public override void StateReset()
     {
         ResponseSource = null!;
-        RequestId = -1;
+        RequestId      = -1;
         base.StateReset();
     }
 }
 
 public class RemoteRegistrationResponse : RecyclableObject
 {
-    public bool Succeeded { get; set; }
+    public bool   Succeeded     { get; set; }
     public string FailureReason { get; set; } = null!;
 
     public override void StateReset()
     {
-        Succeeded = false;
+        Succeeded     = false;
         FailureReason = null!;
         base.StateReset();
     }
 
-    public override string ToString() => $"{GetType().Name}({nameof(Succeeded)}: {Succeeded}, {nameof(FailureReason)}: {FailureReason})";
+    public override string ToString() =>
+        $"{nameof(RemoteRegistrationResponse)}({nameof(Succeeded)}: {Succeeded}, {nameof(FailureReason)}: {FailureReason})";
 }
 
 public class RemoteMessageBusPublishRegistrationResponse : RecyclableObject
 {
-    public bool Succeeded { get; set; }
+    public bool   Succeeded     { get; set; }
     public string FailureReason { get; set; } = null!;
 
     public string? UnsubscribeAddress { get; set; }
+
     public RemoteMessageBusPublishRegistration? UnsubscribeRequest { get; set; }
 
     public override void StateReset()
     {
-        Succeeded = false;
-        FailureReason = null!;
+        Succeeded          = false;
+        FailureReason      = null!;
         UnsubscribeAddress = null!;
         UnsubscribeRequest?.DecrementRefCount();
         UnsubscribeRequest = null!;
@@ -99,6 +106,6 @@ public class RemoteMessageBusPublishRegistrationResponse : RecyclableObject
     }
 
     public override string ToString() =>
-        $"{GetType().Name}({nameof(Succeeded)}: {Succeeded}, {nameof(FailureReason)}: {FailureReason}, " +
+        $"{nameof(RemoteMessageBusPublishRegistrationResponse)}({nameof(Succeeded)}: {Succeeded}, {nameof(FailureReason)}: {FailureReason}, " +
         $"{nameof(UnsubscribeAddress)}: {UnsubscribeAddress}, {nameof(UnsubscribeRequest)}: {UnsubscribeRequest})";
 }

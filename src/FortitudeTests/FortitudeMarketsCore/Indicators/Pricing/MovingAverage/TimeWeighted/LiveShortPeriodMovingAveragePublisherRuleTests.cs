@@ -139,6 +139,7 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task New8SMovingAverageRuleEvery1S_RequestsHistoricalQuotes_CalculatesExpectedMovingAverageFromHistorical()
     {
         var live8SMovingAverage1SPubParams = new LiveShortPeriodMovingAveragePublishParams
