@@ -16,7 +16,8 @@ namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted
 
 public enum TestToPerform
 {
-    BatchRequestResponse
+    HelloHello
+  , BatchRequestResponse
   , SingleRequestResponse
 }
 
@@ -34,7 +35,7 @@ public class Program
     public static bool LogStartOfEachRun = false;
 
 
-    private static TestToPerform testToPerform = TestToPerform.BatchRequestResponse;
+    private static TestToPerform testToPerform = TestToPerform.SingleRequestResponse;
 
     public static void Main(string[] args)
     {

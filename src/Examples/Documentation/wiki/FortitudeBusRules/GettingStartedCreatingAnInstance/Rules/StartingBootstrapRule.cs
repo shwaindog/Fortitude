@@ -3,6 +3,7 @@
 
 #region
 
+using Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted.Step_1;
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.Rules;
 
@@ -19,6 +20,10 @@ public class StartingBootstrapRule(TestToPerform testToPerform) : Rule
 
         switch (testToPerform)
         {
+            case TestToPerform.HelloHello:
+                this.DeployDaemonRule(new HelloHelloRule()
+                                    , new DeploymentOptions(messageGroupType: MessageQueueType.Worker));
+                break;
             case TestToPerform.BatchRequestResponse:
                 this.DeployDaemonRule(new BatchTimeSendLoadTestRule(receivedRequestLatencyTimeRule)
                                     , new DeploymentOptions(messageGroupType: MessageQueueType.Worker));
