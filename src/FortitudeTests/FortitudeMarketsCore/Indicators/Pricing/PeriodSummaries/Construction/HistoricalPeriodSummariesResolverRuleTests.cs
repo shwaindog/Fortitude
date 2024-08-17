@@ -279,6 +279,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task AllTicksSummary4QuotesOn15sResolver_SendEntriesToPersister_CanRetrieveEntriesFromRepository()
     {
         stubTimeContext.AddSeconds(5);
@@ -304,6 +305,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task MissingOneHistoricalSummary_OnStartupResolverStartsPublishingAvailablePeriods_ReceiveOneHistoricalPeriodToPersist()
     {
         stubTimeContext.AddSeconds(24);
@@ -335,6 +337,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task SummariesUpToDate_StreamRequestForHistoricalGoesToRepoForUncached_ReceivesAllRequestedHistoricalSummaries()
     {
         Generate30SSummaries(121);
@@ -364,6 +367,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task SummariesUpToDate_ResponseRequestForHistoricalGoesToRepoForUncached_ReceivesAllRequestedHistoricalSummaries()
     {
         Generate30SSummaries(121);
@@ -392,6 +396,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task FromTicksSummaryLargeHistory_FileUpToDate_StreamRequestGeneratesResultsFromQuotes()
     {
         Generate1SQuotes(3631);
@@ -421,6 +426,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task FromSubSummaryLargeHistory_FileUpToDate_StreamRequestGeneratesResultsFromQuotes()
     {
         Generate15SSummaries(241);
@@ -466,6 +472,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task FromSubSummaryLargeHistory_FileUpToDate_ResponseRequestGeneratesResultsFromRepoSubSummaries()
     {
         Generate15SSummaries(241);
@@ -510,6 +517,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public async Task AllTicksSummaryLargeHistory_FileUpToDate_ResponseRequestGeneratesResultsFromQuotes()
     {
         Generate1SQuotes(3631);

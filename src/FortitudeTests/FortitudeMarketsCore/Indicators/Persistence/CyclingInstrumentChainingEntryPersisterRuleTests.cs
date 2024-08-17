@@ -151,6 +151,7 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
     }
 
     [TestMethod]
+    [Timeout(60_000)]
     public async Task NewRepository_SendEntriesToPersister_CanRetrieveEntriesFromRepository()
     {
         cyclingPersisterRule = new CyclingInstrumentChainingEntryPersisterRule<PricePeriodSummary>(cyclingPersisterParams);
@@ -158,7 +159,7 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
 
         var toCheck = GenerateAlternatingInstrumentSummaries().ToList();
 
-        foreach (var pricingPersist in toCheck) await MessageBus.PublishAsync(cyclingPersisterRule, TestEntriesToPersistAddress, pricingPersist);
+        foreach (var pricingPersist in toCheck) MessageBus.Publish(cyclingPersisterRule, TestEntriesToPersistAddress, pricingPersist);
 
         var numberPersisted = await MessageBus.RequestAsync<string, int>(cyclingPersisterRule, FullDrainRequestAddress, "CyclingPersisterTest");
 

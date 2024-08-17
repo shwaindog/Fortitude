@@ -31,7 +31,8 @@ public class BusRulesConfigTests
         Assert.AreEqual(7, busRulesConfig.QueuesConfig.MaxWorkerQueues);
         Assert.AreEqual(3000, busRulesConfig.QueuesConfig.DefaultQueueSize);
         Assert.AreEqual(9000, busRulesConfig.QueuesConfig.EventQueueSize);
-        Assert.AreEqual(9U, busRulesConfig.QueuesConfig.MessagePumpMaxWaitMs);
+        Assert.AreEqual(30u, busRulesConfig.QueuesConfig.EmptyEventQueueSleepMs);
+        Assert.AreEqual(9U, busRulesConfig.QueuesConfig.DefaultEmptyQueueSleepMs);
         var clusterConfig          = busRulesConfig.ClusterConfig;
         var clusterConnectEndpoint = clusterConfig!.ClusterConnectivityEndpoint!;
         Assert.AreEqual(ActivationState.OnStartup, clusterConnectEndpoint.ActivationState);

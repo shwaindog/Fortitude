@@ -21,8 +21,9 @@ public interface IQueuesConfig
     int  MinWorkerQueues               { get; set; }
     int  MaxWorkerQueues               { get; set; }
     int  DefaultQueueSize              { get; set; }
+    uint DefaultEmptyQueueSleepMs      { get; set; }
     int  EventQueueSize                { get; set; }
-    uint MessagePumpMaxWaitMs          { get; set; }
+    uint EmptyEventQueueSleepMs        { get; set; }
     uint SelectorPollIntervalMs        { get; set; }
 }
 
@@ -30,12 +31,12 @@ public class QueuesConfig : ConfigSection, IQueuesConfig
 {
     private static readonly Dictionary<string, string?> Defaults = new()
     {
-        { nameof(MinEventQueues), "1" }, { nameof(MaxEventQueues), "10" }
-      , { nameof(RequiredDataAccessQueues), "0" }, { nameof(RequiredCustomQueues), "0" }
-      , { nameof(RequiredNetworkInboundQueues), "0" }, { nameof(RequiredNetworkOutboundQueues), "0" }
-      , { nameof(MaxWorkerQueues), "10" }, { nameof(MinWorkerQueues), "1" }
-      , { nameof(EventQueueSize), "100_000" }, { nameof(DefaultQueueSize), "10_000" }
-      , { nameof(MessagePumpMaxWaitMs), "30" }
+        { nameof(MinEventQueues), "1" }, { nameof(MaxEventQueues), "10" }, { nameof(RequiredDataAccessQueues), "0" }
+      , { nameof(RequiredCustomQueues), "0" }
+      , { nameof(RequiredNetworkInboundQueues), "0" }, { nameof(RequiredNetworkOutboundQueues), "0" }, { nameof(MaxWorkerQueues), "10" }
+      , { nameof(MinWorkerQueues), "1" }
+      , { nameof(EventQueueSize), "100_000" }, { nameof(EmptyEventQueueSleepMs), "0" }, { nameof(DefaultQueueSize), "10_000" }
+      , { nameof(DefaultEmptyQueueSleepMs), "40" }
     };
 
     public QueuesConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path)
@@ -44,21 +45,24 @@ public class QueuesConfig : ConfigSection, IQueuesConfig
     }
 
     public QueuesConfig
-    (int eventQueueSize = 10_000, int defaultQueueSize = 10_000, int minEventQueues = 1, int maxEventQueues = 10, int minWorkerQueues = 1
-      , int maxWorkerQueues = 10, int requiredNetworkInboundQueues = 0, int requiredNetworkOutboundQueues = 0, int requiredDataAccessQueues = 0
-      , int requiredCustomQueues = 0, uint messagePumpMaxWaitMs = 30)
+    (int eventQueueSize = 10_000, int defaultQueueSize = 10_000, int minEventQueues = 1, int maxEventQueues = 10, uint emptyEventQueueSleepMs = 1
+      , int minWorkerQueues = 1
+      , int maxWorkerQueues = 10, uint defaultEmptyQueueSleepMs = 40, int requiredNetworkInboundQueues = 0, int requiredNetworkOutboundQueues = 0
+      , int requiredDataAccessQueues = 0
+      , int requiredCustomQueues = 0)
     {
         MinEventQueues                = minEventQueues;
         MaxEventQueues                = maxEventQueues;
+        EmptyEventQueueSleepMs        = emptyEventQueueSleepMs;
         RequiredDataAccessQueues      = requiredDataAccessQueues;
         RequiredCustomQueues          = requiredCustomQueues;
         RequiredNetworkInboundQueues  = requiredNetworkInboundQueues;
         RequiredNetworkOutboundQueues = requiredNetworkOutboundQueues;
         MinWorkerQueues               = minWorkerQueues;
         MaxWorkerQueues               = maxWorkerQueues;
+        DefaultEmptyQueueSleepMs      = defaultEmptyQueueSleepMs;
         DefaultQueueSize              = defaultQueueSize;
         EventQueueSize                = eventQueueSize;
-        MessagePumpMaxWaitMs          = messagePumpMaxWaitMs;
     }
 
     public QueuesConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
@@ -67,6 +71,7 @@ public class QueuesConfig : ConfigSection, IQueuesConfig
     {
         MinEventQueues                = toClone.MinEventQueues;
         MaxEventQueues                = toClone.MaxEventQueues;
+        EmptyEventQueueSleepMs        = toClone.EmptyEventQueueSleepMs;
         RequiredDataAccessQueues      = toClone.RequiredDataAccessQueues;
         RequiredCustomQueues          = toClone.RequiredCustomQueues;
         RequiredNetworkInboundQueues  = toClone.RequiredNetworkInboundQueues;
@@ -74,8 +79,8 @@ public class QueuesConfig : ConfigSection, IQueuesConfig
         MinWorkerQueues               = toClone.MinWorkerQueues;
         MaxWorkerQueues               = toClone.MaxWorkerQueues;
         DefaultQueueSize              = toClone.DefaultQueueSize;
+        DefaultEmptyQueueSleepMs      = toClone.DefaultEmptyQueueSleepMs;
         EventQueueSize                = toClone.EventQueueSize;
-        MessagePumpMaxWaitMs          = toClone.MessagePumpMaxWaitMs;
     }
 
     public QueuesConfig(IQueuesConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
@@ -134,16 +139,22 @@ public class QueuesConfig : ConfigSection, IQueuesConfig
         set => this[nameof(DefaultQueueSize)] = value.ToString();
     }
 
+    public uint DefaultEmptyQueueSleepMs
+    {
+        get => uint.Parse(this[nameof(DefaultEmptyQueueSleepMs)]!);
+        set => this[nameof(DefaultEmptyQueueSleepMs)] = value.ToString();
+    }
+
+    public uint EmptyEventQueueSleepMs
+    {
+        get => uint.Parse(this[nameof(EmptyEventQueueSleepMs)]!);
+        set => this[nameof(EmptyEventQueueSleepMs)] = value.ToString();
+    }
+
     public int EventQueueSize
     {
         get => int.Parse(this[nameof(EventQueueSize)]!);
         set => this[nameof(EventQueueSize)] = value.ToString();
-    }
-
-    public uint MessagePumpMaxWaitMs
-    {
-        get => uint.Parse(this[nameof(MessagePumpMaxWaitMs)]!);
-        set => this[nameof(MessagePumpMaxWaitMs)] = value.ToString();
     }
 
     public uint SelectorPollIntervalMs

@@ -27,7 +27,8 @@ public unsafe class MappedViewRegion : IVirtualMemoryAddressRange
 
     public int ViewSizeInPages;
 
-    public MappedViewRegion(UsageCountedMemoryMappedFile? usageCountedMemoryMappedFile, PagedMemoryMappedFile? originPagedMemoryMappedFile,
+    public MappedViewRegion
+    (UsageCountedMemoryMappedFile? usageCountedMemoryMappedFile, PagedMemoryMappedFile? originPagedMemoryMappedFile,
         byte* startAddress, int filePageOrChunkNumber, int viewSizeInPages, long fileCursorPosition)
     {
         UsageCountedMemoryMappedFile     = usageCountedMemoryMappedFile;
@@ -49,8 +50,7 @@ public unsafe class MappedViewRegion : IVirtualMemoryAddressRange
 
     public UnmanagedByteArray CreateUnmanagedByteArrayInThisRange(long viewOffset, int length)
     {
-        if (viewOffset + length > (nint)EndAddress)
-            throw new ArgumentOutOfRangeException("UnmanagedByteArray can not be mapped onto this range");
+        if (viewOffset + length > (nint)EndAddress) throw new ArgumentOutOfRangeException("UnmanagedByteArray can not be mapped onto this range");
         return new UnmanagedByteArray(this, viewOffset, length);
     }
 
@@ -215,7 +215,8 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         return pagedMemoryMappedFile.CreateMappedViewRegion("ScratchView", 0, numberOfPages, null)!;
     }
 
-    public ShiftableMemoryMappedFileView CreateShiftableMemoryMappedFileView(string viewName, long fileStartOffset = 0,
+    public ShiftableMemoryMappedFileView CreateShiftableMemoryMappedFileView
+    (string viewName, long fileStartOffset = 0,
         long minimumViewSize = ShiftableMemoryMappedFileView.DefaultMinimumShiftableViewSize, int reserveRegionMultiple = 1
       , bool closePagedMemoryMappedFileOnDispose = true)
     {
@@ -262,7 +263,8 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         return viewRegion.CreateUnmanagedByteArrayInThisRange(viewOffset, length);
     }
 
-    public MemoryMappedFileBuffer CreateMemoryMappedBuffer(long fileCursorPosition, string viewName,
+    public MemoryMappedFileBuffer CreateMemoryMappedBuffer
+    (long fileCursorPosition, string viewName,
         long minimumViewSize = ShiftableMemoryMappedFileView.DefaultMinimumShiftableViewSize, int reserveRegionMultiple = 1,
         bool closePagedMemoryMappedFileOnDispose = true)
     {
@@ -414,7 +416,7 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
 
     private void CheckDisposed()
     {
-        if (isDisposed) throw new ObjectDisposedException(GetType().Name);
+        if (isDisposed) throw new ObjectDisposedException(nameof(PagedMemoryMappedFile));
     }
 
     public unsafe bool Flush(MappedViewRegion chunk, long fileCursorFrom, long bytes)
@@ -437,8 +439,7 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
             if (addressToFlush + bytesToFlush > chunk.EndAddress) bytesToFlush = chunk.EndAddress - addressToFlush;
         }
 
-        if (!OSDirectMemoryApi.FlushPageDataToDisk(addressToFlush, (nint)bytesToFlush))
-            throw new Win32Exception();
+        if (!OSDirectMemoryApi.FlushPageDataToDisk(addressToFlush, (nint)bytesToFlush)) throw new Win32Exception();
         fileStream.Flush(true);
         return true;
     }

@@ -10,10 +10,7 @@ using FortitudeBusRules.BusMessaging.Pipelines.NetworkQueues;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Config;
 using FortitudeBusRules.Connectivity.Network.Dispatcher;
-using FortitudeBusRules.Messages;
 using FortitudeCommon.Chronometry.Timers;
-using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
-using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Transports.Network.Receiving;
 using FortitudeTests.FortitudeCommon.Types;
@@ -144,7 +141,7 @@ public class MultipleOfEachMessageQueueTypeTestSetup
         return MessageBus;
     }
 
-    protected IAsyncValueTaskRingPoller<BusMessage> RingPoller(string name) => new AsyncValueTaskRingPoller<BusMessage>(PollingRing(name), 1);
+    protected IMessagePump RingPoller(string name) => new MessagePump(PollingRing(name), 1);
 
     protected ISocketSenderMessageQueueRingPoller SocketSenderRingPoller(string name) =>
         new SocketAsyncValueTaskEventQueueSender(PollingRing(name), 1);
@@ -152,10 +149,7 @@ public class MultipleOfEachMessageQueueTypeTestSetup
     protected ISocketListenerMessageQueueRingPoller SocketListenerRingPoller(string name, IUpdateableTimer timer) =>
         new SocketAsyncValueTaskEventQueueListener(PollingRing(name), 1, new SocketSelector(1), timer);
 
-    protected IAsyncValueTaskPollingRing<BusMessage> PollingRing(string name, int size = AsyncRingPollerSize)
-    {
-        return new AsyncValueTaskPollingRing<BusMessage>(name, size, () => new BusMessage(), ClaimStrategyType.MultiProducers);
-    }
+    protected IQueueMessageRing PollingRing(string name, int size = AsyncRingPollerSize) => new QueueMessageRing(name, size);
 
     [TestCleanup]
     public void TearDownMessageBus()

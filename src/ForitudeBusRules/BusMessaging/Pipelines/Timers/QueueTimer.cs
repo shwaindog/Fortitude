@@ -7,6 +7,7 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 
 #endregion
@@ -22,11 +23,13 @@ public class QueueTimer : Rule, IQueueTimer
 {
     private static readonly NoOpTimerUpdate NoOpTimerUpdate = new();
 
-    private readonly ISingleEntryActionTimer actionTimer;
-    private readonly List<ITimerUpdate>      registeredRuleTimers = new();
-    private readonly IUpdateableTimer        updateableTimer;
+    private readonly ISingleEntryActionTimer    actionTimer;
+    private readonly ReusableList<ITimerUpdate> registeredRuleTimers = new();
+    private readonly IUpdateableTimer           updateableTimer;
 
     private bool isClosing;
+
+    private IRecycler? recycler;
 
     public QueueTimer(IUpdateableTimer updateableTimer, IQueueContext context)
     {
@@ -42,7 +45,21 @@ public class QueueTimer : Rule, IQueueTimer
     }
 
     public IRuleTimer CreateRuleTimer(IRule owningRule) =>
-        new RuleTimer(owningRule, new ActionTimer(updateableTimer, owningRule.Context.PooledRecycler));
+        new RuleTimer(owningRule, new ActionTimer(updateableTimer, owningRule.Context.PooledRecycler))
+        {
+            Recycler = recycler
+        };
+
+    public IRecycler? Recycler
+    {
+        get => recycler;
+        set
+        {
+            recycler = value;
+
+            registeredRuleTimers.Recycler = value;
+        }
+    }
 
     public ValueTask DisposeAwaitValueTask { get; set; }
 

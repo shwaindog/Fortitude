@@ -72,6 +72,7 @@ public class PeriodSummaryStateTests
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public void OneSummaryAndTwoTicks_BuildPeriodSummary_ReturnsExpectedResults()
     {
         var periodSummaryState = new PeriodSummaryState(seedDateTime, TenMinutes);
@@ -119,6 +120,7 @@ public class PeriodSummaryStateTests
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public void ThreeSummaries_BuildPeriodSummary_ReturnsExpectedResults()
     {
         var periodSummaryState = new PeriodSummaryState(seedDateTime, FifteenMinutes);
@@ -165,6 +167,7 @@ public class PeriodSummaryStateTests
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public void SingleTick_BuildPeriodSummary_ReturnsExpectedResults()
     {
         var periodSummaryState = new PeriodSummaryState(seedDateTime, FifteenMinutes);
@@ -199,6 +202,7 @@ public class PeriodSummaryStateTests
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public void TwoOneMinAndOneEightMinuteTick_BuildPeriodSummary_TimeWeightedAverageIsOnTheLongestLiveTick()
     {
         var periodSummaryState = new PeriodSummaryState(seedDateTime, TenMinutes);
@@ -246,6 +250,7 @@ public class PeriodSummaryStateTests
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public void OneLastHalfSummary_BuildPeriodSummary_SummaryFlagsIncompleteStartHalfSet()
     {
         var periodSummaryState = new PeriodSummaryState(seedDateTime, TenMinutes);
@@ -282,6 +287,7 @@ public class PeriodSummaryStateTests
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public void OneLastHalfSummaryWithPreviousEndBidAsk_BuildPeriodSummary_NoMissingPeriodFlags()
     {
         var periodSummaryState = new PeriodSummaryState(seedDateTime, TenMinutes);
@@ -325,6 +331,7 @@ public class PeriodSummaryStateTests
     }
 
     [TestMethod]
+    [Timeout(20_000)]
     public void OneFirstHalfSummaryWithPreviousEndBidAsk_BuildPeriodSummaryHalfWayThroughPeriod_NoMissingPeriodFlagsPeriodLatest()
     {
         var periodSummaryState = new PeriodSummaryState(seedDateTime, TenMinutes);

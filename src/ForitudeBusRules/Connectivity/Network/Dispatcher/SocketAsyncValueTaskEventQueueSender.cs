@@ -3,10 +3,13 @@
 
 #region
 
+using FortitudeBusRules.BusMessaging.Messages.ListeningSubscriptions;
+using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.Messages;
+using FortitudeBusRules.Rules;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
-using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.Publishing;
@@ -15,7 +18,7 @@ using FortitudeIO.Transports.Network.Publishing;
 
 namespace FortitudeBusRules.Connectivity.Network.Dispatcher;
 
-public interface ISocketSenderMessageQueueRingPoller : IAsyncValueTaskRingPoller<BusMessage>, ISocketDispatcherSender
+public interface ISocketSenderMessageQueueRingPoller : IMessagePump, ISocketDispatcherSender
 {
     new int    UsageCount { get; }
     new string Name       { get; set; }
@@ -26,19 +29,20 @@ public interface ISocketSenderMessageQueueRingPoller : IAsyncValueTaskRingPoller
 public class SocketAsyncValueTaskEventQueueSender : SocketAsyncValueTaskRingPollerSender<BusMessage>, ISocketSenderMessageQueueRingPoller
 {
     public SocketAsyncValueTaskEventQueueSender
-    (IAsyncValueTaskPollingRing<BusMessage> ring, uint noDataPauseTimeoutMs, IRecycler? recycler = null
+    (IQueueMessageRing queueMessageRing, uint noDataPauseTimeoutMs, IRecycler? recycler = null
       , IEnumerableBatchPollSink<BusMessage>? pollSink = null,
         Action? threadStartInitialization = null, IOSParallelController? parallelController = null)
-        : base(ring, noDataPauseTimeoutMs, threadStartInitialization, parallelController) =>
-        PollSink = pollSink;
+        : base(queueMessageRing, noDataPauseTimeoutMs, threadStartInitialization, parallelController)
+    {
+        PollSink                  = pollSink;
+        ThreadStartInitialization = QueueMessageRing.InitializeInPollingThread;
+    }
 
     public SocketAsyncValueTaskEventQueueSender
     (string name, int size, uint noDataPauseTimeoutMs, IRecycler? recycler = null
       , IEnumerableBatchPollSink<BusMessage>? pollSink = null,
         Action? threadStartInitialization = null, IOSParallelController? parallelController = null)
-        : this(new AsyncValueTaskPollingRing<BusMessage>(name, size, () => new BusMessage(),
-                                                         ClaimStrategyType.MultiProducers), noDataPauseTimeoutMs, recycler, pollSink
-             , threadStartInitialization, parallelController) { }
+        : this(new QueueMessageRing(name, size), noDataPauseTimeoutMs, recycler, pollSink, threadStartInitialization, parallelController) { }
 
     public IEnumerableBatchPollSink<BusMessage>? PollSink { get; set; }
 
@@ -51,4 +55,18 @@ public class SocketAsyncValueTaskEventQueueSender : SocketAsyncValueTaskRingPoll
         WakeIfAsleep();
         if (!IsRunning) Start();
     }
+
+    public QueueContext QueueContext
+    {
+        get => QueueMessageRing.QueueContext;
+        set => QueueMessageRing.QueueContext = value;
+    }
+
+    public IQueueMessageRing QueueMessageRing => (QueueMessageRing)Ring;
+
+    public bool IsListeningOn(string address) => QueueMessageRing.IsListeningOn(address);
+
+    public IEnumerable<IMessageListenerRegistration> ListeningSubscriptionsOn(string address) => QueueMessageRing.ListeningSubscriptionsOn(address);
+
+    public int CopyLivingRulesTo(IAutoRecycleEnumerable<IRule> toCopyTo) => QueueMessageRing.CopyLivingRulesTo(toCopyTo);
 }

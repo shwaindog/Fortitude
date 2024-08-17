@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Threading.Tasks.Sources;
 using FortitudeCommon.Chronometry.Timers;
+using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
@@ -38,7 +39,7 @@ public interface IReusableAsyncResponseSource<T> : IReusableAsyncResponse<T>
     ValueTask<T>? AwaitingValueTask         { get; set; }
     void          TrySetResultFromAwaitingTask(ValueTask<T> awaitingValueTask);
     void          TrySetResultFromAwaitingTask(Task<T> awaitingTask);
-    ValueTask<T>  GenerateValueTask();
+    ValueTask<T>  GenerateValueTask(Action<object?>? continuation = null);
 }
 
 // credit here to Microsoft.AspNetCore.Server.Kestrel.Core.Internal.ManualResetValueTaskSource
@@ -56,10 +57,12 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
     private static readonly Action<ReusableValueTaskSource<T>?> ResponseTimedOut               = SetResponseTimedOut;
     private static readonly Action<IAsyncResponseSource?>       RecycleReusableValueTaskSource = RecycleCompleted;
     private static readonly Action<Task<T>>                     ResetTaskAction;
+    private static readonly Type                                NonContingentPropertyType;
 
     private static int totalInstances;
 
-    protected ManualResetValueTaskSourceCore<T> Core; // mutable struct; do not make this readonly
+    // protected ManualResetValueTaskSourceCore<T> Core; // mutable struct; do not make this readonly
+    protected RecyclingValueTaskSource<T> Core; // mutable struct; do not make this readonly
 
     private int decrementCountDownTimerSet;
 
@@ -73,6 +76,8 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
     static ReusableValueTaskSource()
     {
         var paramTask = Expression.Parameter(typeof(Task<T>));
+        NonContingentPropertyType = NonPublicInvocator.GetNonPublicType
+            (typeof(Task), "System.Threading.Tasks.Task+ContingentProperties");
 
         Expression mStateFlags           = Expression.Field(paramTask, typeof(Task), "m_stateFlags");
         Expression setMStateFlags        = Expression.Assign(mStateFlags, Expression.Constant(0x2000400));
@@ -82,8 +87,7 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
         Expression setContinuationObj    = Expression.Assign(mContinuationObj, Expression.Constant(null));
         Expression mContingentProperties = Expression.Field(paramTask, typeof(Task), "m_contingentProperties");
         Expression setMContingentProperties = Expression.Assign
-            (mContingentProperties, Expression.Constant(null, NonPublicInvocator.GetNonPublicType(typeof(Task)
-                                                                                                , "System.Threading.Tasks.Task+ContingentProperties")));
+            (mContingentProperties, Expression.Constant(null, NonContingentPropertyType));
         Expression mResult    = Expression.Field(paramTask, typeof(Task<T>), "m_result");
         Expression setMResult = Expression.Assign(mResult, Expression.Constant(default(T), typeof(T)));
 
@@ -107,6 +111,16 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
 
     private bool ShouldStartDecrementCounter => Interlocked.CompareExchange(ref decrementCountDownTimerSet, 1, 0) == 0;
 
+    public override IRecycler? Recycler
+    {
+        get => base.Recycler;
+        set
+        {
+            base.Recycler = value;
+            if (value != null) Core.Recycler = value;
+        }
+    }
+
     public Type ResponseType => typeof(T);
 
     public short Version => Core.Version;
@@ -117,12 +131,6 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
 
     public bool AutoDecrementOnGetResult  { get; set; }
     public bool AutoRecycleOnTaskComplete { get; set; }
-
-    public ValueTask<T> GenerateValueTask()
-    {
-        AutoDecrementOnGetResult = !hasCreatedAsTask;
-        return new ValueTask<T>(this, Version);
-    }
 
     public void TrySetResultFromAwaitingTask(Task<T> awaitingTask)
     {
@@ -209,8 +217,14 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
 
     void IValueTaskSource.GetResult(short token)
     {
-        StartRecycleDecrementRefCountTimer();
-        Core.GetResult(token);
+        try
+        {
+            Core.GetResult(token);
+        }
+        finally
+        {
+            if (AutoDecrementOnGetResult && !IsInRecycler) DecrementRefCount();
+        }
     }
 
     public void SetResult(T result)
@@ -251,10 +265,24 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
         base.StateReset();
     }
 
+    public ValueTask<T> GenerateValueTask(Action<object?>? continuation = null)
+    {
+        AutoDecrementOnGetResult = !hasCreatedAsTask;
+        if (continuation != null) OnCompleted(continuation, null, Version, ValueTaskSourceOnCompletedFlags.UseSchedulingContext);
+        return new ValueTask<T>(this, Version);
+    }
+
     public virtual T GetResult(short token)
     {
-        var result = Core.GetResult(token);
-        if (AutoDecrementOnGetResult && !IsInRecycler) DecrementRefCount();
+        T result;
+        try
+        {
+            result = Core.GetResult(token);
+        }
+        finally
+        {
+            if (AutoDecrementOnGetResult && !IsInRecycler) DecrementRefCount();
+        }
         return result;
     }
 
@@ -268,6 +296,18 @@ public class ReusableValueTaskSource<T> : RecyclableObject, IValueTaskSource<T>,
     (Action<object?> continuation, object? state, short token
       , ValueTaskSourceOnCompletedFlags flags) =>
         Core.OnCompleted(continuation, state, token, flags);
+
+    public ValueTask ToValueTask(Action<object?>? continuation = null)
+    {
+        AutoDecrementOnGetResult = !hasCreatedAsTask;
+        if (continuation != null) OnCompleted(continuation, null, Version, ValueTaskSourceOnCompletedFlags.UseSchedulingContext);
+        return new ValueTask(this, Version);
+    }
+
+    ~ReusableValueTaskSource()
+    {
+        Console.Out.WriteLine($"GC {GetType().Name}<{GetType().GenericTypeArguments.Select(t => t.Name).JoinToString()}>");
+    }
 
     public bool DirectOrTimerRecycle()
     {

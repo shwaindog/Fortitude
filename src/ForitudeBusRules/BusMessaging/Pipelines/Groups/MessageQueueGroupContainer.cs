@@ -173,7 +173,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         eventQueueEnumerator.Add(((IMessageQueueTypeGroup<IMessageQueue>)NetworkInboundMessageQueueGroup).GetEnumerator());
         eventQueueEnumerator.Add(EventMessageQueueGroup.GetEnumerator());
         eventQueueEnumerator.Add(WorkerMessageQueueGroup.GetEnumerator());
-        if (CustomMessageQueueGroup != null) eventQueueEnumerator.Add(CustomMessageQueueGroup.GetEnumerator());
+        eventQueueEnumerator.Add(CustomMessageQueueGroup.GetEnumerator());
         eventQueueEnumerator.Add(DataAccessMessageQueueGroup.GetEnumerator());
 
         return eventQueueEnumerator;
@@ -195,7 +195,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             parent.AddChild(rule);
             var routeSelectionResult  = selectionResult.Value;
             var destinationEventQueue = routeSelectionResult.MessageQueue;
-            destinationEventQueue.LaunchRule(parent, rule);
+            destinationEventQueue.LaunchRule(parent, rule, options);
             return;
         }
 
@@ -213,7 +213,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             parent.AddChild(rule);
             var routeSelectionResult  = selectionResult.Value;
             var destinationEventQueue = routeSelectionResult.MessageQueue;
-            return destinationEventQueue.LaunchRuleAsync(parent, rule, routeSelectionResult);
+            return destinationEventQueue.LaunchRuleAsync(parent, rule, routeSelectionResult, options);
         }
 
         var message = $"Could not find the required group to deploy rule {rule} to event Queue type {options.MessageGroupType}";
@@ -267,9 +267,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             throw new KeyNotFoundException($"Address: {publishAddress} has no registered listeners");
     }
 
-    public ValueTask<IDispatchResult> PublishAsync<T>
-    (IRule sender, string publishAddress, T msg
-      , DispatchOptions dispatchOptions)
+    public ValueTask<IDispatchResult> PublishAsync<T>(IRule sender, string publishAddress, T msg, DispatchOptions dispatchOptions)
     {
         var selectionStrategy = StrategySelector.SelectDispatchStrategy(sender, dispatchOptions, publishAddress);
         var selectionResult   = selectionStrategy.Select(this, sender, dispatchOptions, publishAddress);
@@ -279,13 +277,13 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             processorRegistry.ShouldCollectMetrics              = dispatchOptions.RoutingFlags.HasShouldCollectMetricsFlag();
             processorRegistry.Result                            = sender.Context.PooledRecycler.Borrow<DispatchResult>();
             processorRegistry.Result.DispatchSelectionResultSet = selectionResult;
-            processorRegistry.IncrementRefCount();
-            processorRegistry.Result.SentTime = DateTime.Now;
+            processorRegistry.Result.SentTime                   = DateTime.Now;
             processorRegistry.ResponseTimeoutAndRecycleTimer
                 = dispatchOptions.RoutingFlags.HasShouldCollectMetricsFlag() ? sender.Context.QueueTimer : null;
             var payLoadMarshaller = dispatchOptions.PayloadMarshalOptions.ResolvePayloadMarshaller(msg, sender.Context.PooledRecycler);
             var payload           = payLoadMarshaller != null ? payLoadMarshaller.GetMarshalled(msg, PayloadRequestType.Dispatch) : msg;
             payLoadMarshaller?.IncrementRefCount(); // while QueueingEnsure queue doesn't finish before all is queued
+            processorRegistry.IncrementRefCount();
 
             foreach (var routeResult in selectionResult)
             {
@@ -298,7 +296,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             }
 
             payLoadMarshaller?.DecrementRefCount();
-            selectionResult.DecrementRefCount();
+            processorRegistry.DecrementRefCount();
 
             return processorRegistry.GenerateValueTask();
         }

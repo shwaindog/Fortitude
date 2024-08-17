@@ -18,9 +18,9 @@ public interface INetworkOutboundMessageQueue : IMessageQueue
 public class NetworkOutboundMessageQueue : MessageQueue, INetworkOutboundMessageQueue
 {
     public NetworkOutboundMessageQueue
-        (IConfigureMessageBus messageBus, MessageQueueType queueType, int id, ISocketSenderMessageQueueRingPoller ringPoller)
-        : base(messageBus, queueType, id, ringPoller) =>
-        SocketDispatcherSender = ringPoller;
+        (IConfigureMessageBus messageBus, MessageQueueType queueType, int id, ISocketSenderMessageQueueRingPoller messagePump)
+        : base(messageBus, queueType, id, messagePump) =>
+        SocketDispatcherSender = messagePump;
 
     public ISocketDispatcherSender SocketDispatcherSender { get; }
 }

@@ -48,6 +48,16 @@ public class DispatchSelectionResultSet : ReusableObject<IDispatchSelectionResul
     public bool HasItems    => backingList.Count > 0;
     public int  Count       => backingList.Count;
 
+    public override IRecycler? Recycler
+    {
+        get => base.Recycler;
+        set
+        {
+            base.Recycler        = value;
+            backingList.Recycler = value;
+        }
+    }
+
     public int MaxUniqueResults { get; set; }
 
     public string? StrategyName { get; set; }

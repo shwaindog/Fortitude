@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeIO.Transports.Network.Receiving;
@@ -9,8 +12,11 @@ namespace FortitudeIO.Transports.Network.Dispatcher;
 public class SimpleSocketReceiverPayload : ICanCarrySocketReceiverPayload
 {
     private SendOrPostCallback? sendOrPostCallback;
+
     private object? state;
+
     public AsyncTaskSocketReceiverCommand SocketReceiverCommand { get; set; } = AsyncTaskSocketReceiverCommand.Add;
+
     public ISocketReceiver? SocketReceiver { get; set; }
 
     public bool IsTaskCallbackItem => SocketReceiverCommand == AsyncTaskSocketReceiverCommand.TaskCallback;
@@ -18,8 +24,9 @@ public class SimpleSocketReceiverPayload : ICanCarrySocketReceiverPayload
     public void SetAsTaskCallbackItem(SendOrPostCallback callback, object? state)
     {
         SocketReceiverCommand = AsyncTaskSocketReceiverCommand.TaskCallback;
-        sendOrPostCallback = callback;
-        this.state = state;
+        sendOrPostCallback    = callback;
+
+        this.state     = state;
         SocketReceiver = null;
     }
 
@@ -35,9 +42,10 @@ public class SimpleSocketReceiverPayload : ICanCarrySocketReceiverPayload
 
     public void SetAsSocketReceiverItem(ISocketReceiver socketReceiver, bool isAdd)
     {
-        SocketReceiver = socketReceiver;
         SocketReceiverCommand = isAdd ? AsyncTaskSocketReceiverCommand.Add : AsyncTaskSocketReceiverCommand.Remove;
-        sendOrPostCallback = null;
-        state = null;
+        sendOrPostCallback    = null;
+
+        state          = null;
+        SocketReceiver = socketReceiver;
     }
 }

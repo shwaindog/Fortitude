@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Linq.Expressions;
 
@@ -16,61 +19,23 @@ public static class ValueTaskExtensions
     public static string ValueTaskInternalsString<T>(this ValueTask<T> valueTask) =>
         TypedValueTaskExtensions<T>.ValueTaskObjAndTokenString(valueTask);
 
-    public static async ValueTask ContinueWith<TResult>(this ValueTask<TResult> source,
-        Action<ValueTask<TResult>, object?> continuationAction, object? state)
+    public static void ContinueWith(this ValueTask source, Action continuationAction)
     {
-        // The source task is consumed after the await, and cannot be used further.
-        ValueTask<TResult> completed;
-        try
-        {
-            completed = new ValueTask<TResult>(await source.ConfigureAwait(false));
-        }
-        catch (OperationCanceledException oce)
-        {
-            var tcs = new TaskCompletionSource<TResult>();
-            tcs.SetCanceled(oce.CancellationToken);
-            completed = new ValueTask<TResult>(tcs.Task);
-        }
-        catch (Exception ex)
-        {
-            completed = new ValueTask<TResult>(Task.FromException<TResult>(ex));
-        }
-
-        continuationAction(completed, state);
-    }
-
-    public static async ValueTask ContinueWith(this ValueTask source,
-        Action<ValueTask, object?> continuationAction, object? state)
-    {
-        ValueTask completed;
-        try
-        {
-            await source;
-            completed = new ValueTask();
-        }
-        catch (OperationCanceledException oce)
-        {
-            var tcs = new TaskCompletionSource();
-            tcs.SetCanceled(oce.CancellationToken);
-            completed = new ValueTask(tcs.Task);
-        }
-        catch (Exception ex)
-        {
-            completed = new ValueTask(Task.FromException(ex));
-        }
-
-        continuationAction(completed, state);
+        if (source.IsCompleted)
+            continuationAction();
+        else
+            source.GetAwaiter().OnCompleted(continuationAction);
     }
 
     private static class TypedValueTaskExtensions<T>
     {
         private static readonly Func<ValueTask<T>, object?> ExtractValueTaskObj;
-        private static readonly Func<ValueTask<T>, short> ExtractValueTaskToken;
+        private static readonly Func<ValueTask<T>, short>   ExtractValueTaskToken;
 
         static TypedValueTaskExtensions()
         {
-            var paramValueTask = Expression.Parameter(typeof(ValueTask<T>));
-            Expression mObj = Expression.Field(paramValueTask, "_obj");
+            var        paramValueTask = Expression.Parameter(typeof(ValueTask<T>));
+            Expression mObj           = Expression.Field(paramValueTask, "_obj");
             ExtractValueTaskObj = Expression.Lambda<Func<ValueTask<T>, object?>>(mObj, paramValueTask).Compile();
 
             Expression mToken = Expression.Field(paramValueTask, "_token");
@@ -96,7 +61,7 @@ public static class ValueTaskExtensions
 
         public static string ValueTaskObjAndTokenString(ValueTask<T> valueTask)
         {
-            var obj = ExtractValueTaskObj(valueTask);
+            var obj   = ExtractValueTaskObj(valueTask);
             var token = ExtractValueTaskToken(valueTask);
             return $"ValueTask<{typeof(T).Name}>(_obj: {obj}, _token: {token})";
         }

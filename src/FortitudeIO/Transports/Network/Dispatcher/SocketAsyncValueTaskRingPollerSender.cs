@@ -22,9 +22,9 @@ public abstract class SocketAsyncValueTaskRingPollerSender<T> : AsyncValueTaskRi
     protected readonly IOSParallelController ParallelController;
 
     protected SocketAsyncValueTaskRingPollerSender
-    (IAsyncValueTaskPollingRing<T> ring, uint noDataPauseTimeoutMs
+    (IAsyncValueTaskPollingRing<T> ring, uint emptyQueueMaxSleepMs
       , Action? threadStartInitialization = null,
-        IOSParallelController? parallelController = null) : base(ring, noDataPauseTimeoutMs, threadStartInitialization, parallelController)
+        IOSParallelController? parallelController = null) : base(ring, emptyQueueMaxSleepMs, threadStartInitialization, parallelController)
     {
         ring.InterceptHandler = RingPollerHandledMessage;
 
@@ -61,16 +61,16 @@ public class SimpleAsyncValueTaskSocketRingPollerSender : SocketAsyncValueTaskRi
 {
     public SimpleAsyncValueTaskSocketRingPollerSender
     (IAsyncValueTaskPollingRing<SimpleSocketSenderPayload> ring
-      , uint noDataPauseTimeoutMs
+      , uint emptyQueueMaxSleepMs
       , Action? threadStartInitialization = null,
-        IOSParallelController? parallelController = null) : base(ring, noDataPauseTimeoutMs, threadStartInitialization, parallelController) { }
+        IOSParallelController? parallelController = null) : base(ring, emptyQueueMaxSleepMs, threadStartInitialization, parallelController) { }
 
     public SimpleAsyncValueTaskSocketRingPollerSender
-    (string name, uint noDataPauseTimeoutMs, Action? threadStartInitialization = null
+    (string name, uint emptyQueueMaxSleepMs, Action? threadStartInitialization = null
       , IOSParallelController? parallelController = null)
         : base(new AsyncValueTaskPollingRing<SimpleSocketSenderPayload>
                    (name, 10_000, () => new SimpleSocketSenderPayload(), ClaimStrategyType.MultiProducers)
-             , noDataPauseTimeoutMs, threadStartInitialization, parallelController) { }
+             , emptyQueueMaxSleepMs, threadStartInitialization, parallelController) { }
 
     public override void EnqueueSocketSender(ISocketSender socketSender)
     {

@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.DataStructures.Memory;
@@ -12,36 +15,44 @@ namespace FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 public interface IAsyncValueTaskRingPoller<T> : IRingPoller<T> where T : class, ICanCarryTaskCallbackPayload
 {
     SyncContextTaskScheduler RingPollerTaskScheduler { get; }
+
     new IAsyncValueTaskPollingRing<T> Ring { get; }
-    ValueTaskProcessEvent<T> ProcessEvent { get; set; }
+
     IRecycler Recycler { get; set; }
 }
 
 public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T : class, ICanCarryTaskCallbackPayload
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(AsyncValueTaskRingPoller<T>));
-    private readonly object initLock = new();
-    private readonly IOSParallelController osParallelController;
 
-    private readonly IIntraOSThreadSignal spinPauseSignal;
+    private readonly object initLock = new();
+
+    private readonly IOSParallelController osParallelController;
+    private readonly IIntraOSThreadSignal  spinPauseSignal;
+
     private readonly int timeoutMs;
+
     private bool gracefulShutdown = true;
+
     private volatile bool isRunning;
-    private IRecycler? recycler;
-    private Action? threadStartInitialization;
+
+    private   IRecycler? recycler;
+    protected Action?    ThreadStartInitialization;
 
     // ReSharper disable once ConvertToPrimaryConstructor
-    public AsyncValueTaskRingPoller(IAsyncValueTaskPollingRing<T> ring, uint noDataPauseTimeoutMs, Action? threadStartInitialization = null,
+    public AsyncValueTaskRingPoller
+    (IAsyncValueTaskPollingRing<T> ring, uint emptyQueueMaxSleepMs, Action? threadStartInitialization = null,
         IOSParallelController? parallelController = null)
     {
-        Ring = ring;
-        Ring.ProcessEvent = ExceptionSafeProcessEvent;
+        Ring      = ring;
+        Name      = Ring.Name + "-AsyncValueTaskPoller";
+        timeoutMs = (int)emptyQueueMaxSleepMs;
+
         Ring.InterceptHandler = RingPollerHandledMessage;
-        timeoutMs = (int)noDataPauseTimeoutMs;
-        osParallelController = parallelController ?? OSParallelControllerFactory.Instance.GetOSParallelController;
-        spinPauseSignal = osParallelController.SingleOSThreadActivateSignal(false);
-        Name = Ring.Name + "-AsyncValueTaskPoller";
-        this.threadStartInitialization = threadStartInitialization;
+        osParallelController  = parallelController ?? OSParallelControllerFactory.Instance.GetOSParallelController;
+        spinPauseSignal       = osParallelController.SingleOSThreadActivateSignal(false);
+
+        ThreadStartInitialization = threadStartInitialization;
     }
 
     public string Name { get; set; }
@@ -51,12 +62,6 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
     public bool IsRunning => isRunning;
 
     public IOSThread? ExecutingThread { get; private set; }
-
-    public ValueTaskProcessEvent<T> ProcessEvent
-    {
-        get => Ring.ProcessEvent;
-        set => Ring.ProcessEvent = value;
-    }
 
     public IAsyncValueTaskPollingRing<T> Ring { get; }
 
@@ -113,10 +118,13 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
             ++UsageCount;
             if (!isRunning)
             {
-                threadStartInitialization = threadStartInitialize ?? threadStartInitialization;
-                isRunning = true;
+                ThreadStartInitialization = threadStartInitialize ?? ThreadStartInitialization;
+
+                isRunning       = true;
                 ExecutingThread = osParallelController.CreateNewOSThread(ThreadStart);
+
                 ExecutingThread.IsBackground = true;
+
                 ExecutingThread.Name = Name;
                 ExecutingThread.Start();
             }
@@ -134,7 +142,7 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
         try
         {
             UsageCount = 0;
-            isRunning = false;
+            isRunning  = false;
             if (gracefulShutdown)
             {
                 if (ExecutingThread?.IsAlive == true)
@@ -156,12 +164,12 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
 
     protected void ThreadStart()
     {
-        threadStartInitialization?.Invoke();
+        ThreadStartInitialization?.Invoke();
         var syncContext = new TaskCallbackPollingRingSyncContext(Ring);
         SynchronizationContext.SetSynchronizationContext(syncContext);
         while (isRunning)
         {
-            spinPauseSignal.WaitOne(timeoutMs);
+            if (timeoutMs > 0) spinPauseSignal.WaitOne(timeoutMs);
             Poll(Ring.Size);
         }
     }
@@ -170,13 +178,13 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
     {
         try
         {
-            var keepPolling = true;
+            var keepPolling   = true;
             var countMessages = 0;
             BeforeProcessingEvents();
             while (keepPolling)
             {
-                var seqValueTask = Ring.Poll();
-                keepPolling = (!seqValueTask.IsCompleted || seqValueTask.Result > 0) && countMessages++ < maxMessagesPerPoll;
+                var processedAMessage = Ring.Poll();
+                keepPolling = processedAMessage && countMessages++ < maxMessagesPerPoll;
             }
         }
         catch (Exception ex)
@@ -189,23 +197,21 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
 
     protected virtual bool RingPollerHandledMessage(T data) => false;
 
-    protected virtual async ValueTask<long> ExceptionSafeProcessEvent(long sequenceId, T data)
+    protected virtual async ValueTask ExceptionSafeProcessEvent(T data)
     {
         try
         {
-            await ProcessEventMessage(sequenceId, data);
+            await ProcessEventMessage(data);
         }
         catch (Exception ex)
         {
             Logger.Warn("Caught Exception processing data {0}. Got {1}", data, ex);
         }
-
-        return sequenceId;
     }
 
-    protected virtual ValueTask<long> ProcessEventMessage(long sequenceId, T data)
+    protected virtual ValueTask ProcessEventMessage(T data)
     {
         Logger.Warn("You should override this method to process the event");
-        return new ValueTask<long>(sequenceId);
+        return ValueTask.CompletedTask;
     }
 }

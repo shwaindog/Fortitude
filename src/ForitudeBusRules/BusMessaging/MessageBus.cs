@@ -161,7 +161,7 @@ public class MessageBus : IConfigureMessageBus
     }
 
     public void DeployDaemonRule(IRule toDeployRule, DeploymentOptions options) =>
-        AllMessageQueues.LaunchRule(Rule.NoKnownSender, toDeployRule, options);
+        AllMessageQueues.LaunchRule(Rule.NoKnownSender, toDeployRule, options.SetRunAsDaemon(true));
 
     public void DeployChildRule(IRule parent, IRule toDeployRule, DeploymentOptions options) =>
         AllMessageQueues.LaunchRule(parent, toDeployRule, options);
@@ -169,7 +169,7 @@ public class MessageBus : IConfigureMessageBus
     public void DeployChildRule(IRule parent, IRule toDeployRule) => AllMessageQueues.LaunchRule(parent, toDeployRule, new DeploymentOptions());
 
     public ValueTask<IRuleDeploymentLifeTime> DeployDaemonRuleAsync(IRule toDeployRule, DeploymentOptions options) =>
-        AllMessageQueues.LaunchRuleAsync(Rule.NoKnownSender, toDeployRule, options);
+        AllMessageQueues.LaunchRuleAsync(Rule.NoKnownSender, toDeployRule, options.SetRunAsDaemon(true));
 
     public ValueTask<IRuleDeploymentLifeTime> DeployChildRuleAsync(IRule parent, IRule toDeployRule, DeploymentOptions options) =>
         AllMessageQueues.LaunchRuleAsync(parent, toDeployRule, options);
@@ -309,8 +309,7 @@ public class MessageBus : IConfigureMessageBus
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         var processorRegistry = rule.Context.PooledRecycler.Borrow<DispatchProcessorRegistry>();
-        processorRegistry.Result = rule.Context.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.IncrementRefCount();
+        processorRegistry.Result                         = rule.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.Result.SentTime                = DateTime.Now;
         processorRegistry.ResponseTimeoutAndRecycleTimer = null;
         var dispatchResult
@@ -335,8 +334,7 @@ public class MessageBus : IConfigureMessageBus
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         var processorRegistry = rule.Context.PooledRecycler.Borrow<DispatchProcessorRegistry>();
-        processorRegistry.Result = rule.Context.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.IncrementRefCount();
+        processorRegistry.Result                         = rule.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.Result.SentTime                = DateTime.Now;
         processorRegistry.ResponseTimeoutAndRecycleTimer = null;
         var dispatchResult
@@ -361,8 +359,7 @@ public class MessageBus : IConfigureMessageBus
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         var processorRegistry = rule.Context.PooledRecycler.Borrow<DispatchProcessorRegistry>();
-        processorRegistry.Result = rule.Context.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.IncrementRefCount();
+        processorRegistry.Result                         = rule.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.Result.SentTime                = DateTime.Now;
         processorRegistry.ResponseTimeoutAndRecycleTimer = null;
         var dispatchResult
@@ -391,8 +388,7 @@ public class MessageBus : IConfigureMessageBus
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         var processorRegistry = rule.Context.PooledRecycler.Borrow<DispatchProcessorRegistry>();
-        processorRegistry.Result = rule.Context.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.IncrementRefCount();
+        processorRegistry.Result                         = rule.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.Result.SentTime                = DateTime.Now;
         processorRegistry.ResponseTimeoutAndRecycleTimer = null;
         var dispatchResult
@@ -417,8 +413,7 @@ public class MessageBus : IConfigureMessageBus
         rule.IncrementLifeTimeCount();
         msgListener.SetHandlerFromSpecificMessageHandler(handler);
         var processorRegistry = rule.Context.PooledRecycler.Borrow<DispatchProcessorRegistry>();
-        processorRegistry.Result = rule.Context.PooledRecycler.Borrow<DispatchResult>();
-        processorRegistry.IncrementRefCount();
+        processorRegistry.Result                         = rule.Context.PooledRecycler.Borrow<DispatchResult>();
         processorRegistry.Result.SentTime                = DateTime.Now;
         processorRegistry.ResponseTimeoutAndRecycleTimer = null;
         var dispatchResult

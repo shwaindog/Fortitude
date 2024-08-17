@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
@@ -11,14 +14,15 @@ namespace FortitudeTests.FortitudeBusRules.Rules;
 public class IncrementingRule : Rule
 {
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(IncrementingRule));
-    private static int instanceNumber;
+    private static int      instanceNumber;
+
     private int startCount;
     private int stopCount;
 
     public IncrementingRule() : base("IncrementingRule", Interlocked.Increment(ref instanceNumber).ToString()) { }
 
     public int StartCount => startCount;
-    public int StopCount => stopCount;
+    public int StopCount  => stopCount;
 
     public override void Start()
     {
@@ -43,17 +47,19 @@ public class IncrementingRule : Rule
 public class PublishingRule : Rule
 {
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PublishingRule));
-    private static int instanceNumber;
+
+    private static   int instanceNumber;
     private readonly int maxPublishCount;
+
     private int startCount;
     private int stopCount;
 
-    public PublishingRule(int maxPublishCount, string publishAddress = "PublishingRule") : base("PublishingRule"
-        , Interlocked.Increment(ref instanceNumber).ToString())
+    public PublishingRule(int maxPublishCount, string publishAddress = "PublishingRule")
+        : base("PublishingRule", Interlocked.Increment(ref instanceNumber).ToString())
     {
         if (maxPublishCount < 2) throw new ArgumentException("Will publish at least two messages");
         this.maxPublishCount = maxPublishCount;
-        PublishAddress = publishAddress;
+        PublishAddress       = publishAddress;
     }
 
     public string PublishAddress { get; }
@@ -61,7 +67,7 @@ public class PublishingRule : Rule
     public int PublishNumber { get; set; }
 
     public int StartCount => startCount;
-    public int StopCount => stopCount;
+    public int StopCount  => stopCount;
 
     public override ValueTask StartAsync()
     {
@@ -123,12 +129,12 @@ public class ListeningRule : Rule
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(ListeningRule));
 
     private static int instanceNumber;
+
     private int startCount;
     private int stopCount;
 
-
-    public ListeningRule(string listenAddress = "PublishingRule") : base("ListeningRule"
-        , Interlocked.Increment(ref instanceNumber).ToString()) =>
+    public ListeningRule(string listenAddress = "PublishingRule")
+        : base("ListeningRule", Interlocked.Increment(ref instanceNumber).ToString()) =>
         ListenAddress = listenAddress;
 
     public string ListenAddress { get; }
@@ -138,15 +144,13 @@ public class ListeningRule : Rule
     public int LastReceivedPublishNumber { get; set; }
 
     public int StartCount => startCount;
-    public int StopCount => stopCount;
+    public int StopCount  => stopCount;
 
-    public override Task StartTaskAsync()
+    public override async Task StartTaskAsync()
     {
-        base.Start();
         logger.Info("Started ListeningRule instance {0}", Id);
-        this.RegisterListener<int>(ListenAddress, ReceivePublishIntMessage);
+        var listenSubscription = await this.RegisterListenerAsync<int>(ListenAddress, ReceivePublishIntMessage);
         Interlocked.Increment(ref startCount);
-        return Task.CompletedTask;
     }
 
     public void ReceivePublishIntMessage(IBusMessage<int> currentBusMessage)
@@ -184,13 +188,14 @@ public class RespondingRule : Rule
 {
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(ListeningRule));
 
-    private static int instanceNumber;
+    private static   int instanceNumber;
     private readonly int modifier;
+
     private int startCount;
     private int stopCount;
 
-    public RespondingRule(string listenAddress = "RespondingRule", int modifier = 10) : base("RespondingRule"
-        , Interlocked.Increment(ref instanceNumber).ToString())
+    public RespondingRule(string listenAddress = "RespondingRule", int modifier = 10)
+        : base("RespondingRule", Interlocked.Increment(ref instanceNumber).ToString())
     {
         ListenAddress = listenAddress;
         this.modifier = modifier;
@@ -203,7 +208,7 @@ public class RespondingRule : Rule
     public int LastReceivedRequestNumber { get; set; }
 
     public int StartCount => startCount;
-    public int StopCount => stopCount;
+    public int StopCount  => stopCount;
 
     public override ValueTask StartAsync()
     {
@@ -240,12 +245,12 @@ public class RequestingRule : Rule
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(ListeningRule));
 
     private static int instanceNumber;
+
     private int startCount;
     private int stopCount;
 
-
-    public RequestingRule(string requestAddress = "RespondingRule") :
-        base("RequestingRule", Interlocked.Increment(ref instanceNumber).ToString()) =>
+    public RequestingRule(string requestAddress = "RespondingRule")
+        : base("RequestingRule", Interlocked.Increment(ref instanceNumber).ToString()) =>
         RequestAddress = requestAddress;
 
     public string RequestAddress { get; }
@@ -257,21 +262,18 @@ public class RequestingRule : Rule
     public int PublishNumber { get; set; }
 
     public int StartCount => startCount;
-    public int StopCount => stopCount;
+    public int StopCount  => stopCount;
 
     public override async ValueTask StartAsync()
     {
         logger.Info("Started RequestingRule instance {0}", Id);
-        var result = await this.RequestAsync<int, int>(RequestAddress, ++PublishNumber
-            , new DispatchOptions());
+        var result = await this.RequestAsync<int, int>(RequestAddress, ++PublishNumber, new DispatchOptions());
         ReceiveCount++;
         logger.Info("RequestingRule received first result: {0}", result);
-        result = await this.RequestAsync<int, int>(RequestAddress, ++PublishNumber
-            , new DispatchOptions());
+        result = await this.RequestAsync<int, int>(RequestAddress, ++PublishNumber, new DispatchOptions());
         ReceiveCount++;
         logger.Info("RequestingRule received second result: {0}", result);
-        result = await this.RequestAsync<int, int>(RequestAddress, ++PublishNumber
-            , new DispatchOptions());
+        result = await this.RequestAsync<int, int>(RequestAddress, ++PublishNumber, new DispatchOptions());
         ReceiveCount++;
         logger.Info("RequestingRule received third result: {0}", result);
         Interlocked.Increment(ref startCount);
@@ -295,14 +297,14 @@ public class AsyncValueTaskRespondingRule : Rule
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(ListeningRule));
 
     private static int instanceNumber;
+
     private int startCount;
     private int stopCount;
 
-    public AsyncValueTaskRespondingRule(string listenAddress = "AsyncValueTaskRespondingRule"
-        , string requestAddress = "RespondingRule") : base("AsyncValueTaskRespondingRule"
-        , Interlocked.Increment(ref instanceNumber).ToString())
+    public AsyncValueTaskRespondingRule(string listenAddress = "AsyncValueTaskRespondingRule", string requestAddress = "RespondingRule")
+        : base("AsyncValueTaskRespondingRule", Interlocked.Increment(ref instanceNumber).ToString())
     {
-        ListenAddress = listenAddress;
+        ListenAddress  = listenAddress;
         RequestAddress = requestAddress;
     }
 
@@ -312,11 +314,11 @@ public class AsyncValueTaskRespondingRule : Rule
 
     public int ReceiveCount { get; set; }
 
-    public int LastReceivedRequestNumber { get; set; }
+    public int LastReceivedRequestNumber  { get; set; }
     public int LastReceivedResponseNumber { get; set; }
 
     public int StartCount => startCount;
-    public int StopCount => stopCount;
+    public int StopCount  => stopCount;
 
     public override Task StartTaskAsync()
     {
@@ -332,9 +334,7 @@ public class AsyncValueTaskRespondingRule : Rule
         logger.Info("AsyncValueTaskRespondingRule instance {0} received {1}", Id, busRequestMessage.ToString());
         ReceiveCount++;
         LastReceivedRequestNumber = busRequestMessage.Payload.Body();
-        var calculatedResult = await this.RequestAsync<int, int>(RequestAddress
-            , LastReceivedRequestNumber
-            , new DispatchOptions());
+        var calculatedResult = await this.RequestAsync<int, int>(RequestAddress, LastReceivedRequestNumber, new DispatchOptions());
         LastReceivedResponseNumber = calculatedResult;
         logger.Info("AsyncValueTaskRespondingRule instance {0} received response {1}", Id, LastReceivedResponseNumber);
         return LastReceivedResponseNumber;
@@ -358,14 +358,14 @@ public class AsyncTaskRespondingRule : Rule
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(ListeningRule));
 
     private static int instanceNumber;
+
     private int startCount;
     private int stopCount;
 
-    public AsyncTaskRespondingRule(string listenAddress = "AsyncTaskRespondingRule"
-        , string requestAddress = "RespondingRule") : base("AsyncTaskRespondingRule"
-        , Interlocked.Increment(ref instanceNumber).ToString())
+    public AsyncTaskRespondingRule(string listenAddress = "AsyncTaskRespondingRule", string requestAddress = "RespondingRule")
+        : base("AsyncTaskRespondingRule", Interlocked.Increment(ref instanceNumber).ToString())
     {
-        ListenAddress = listenAddress;
+        ListenAddress  = listenAddress;
         RequestAddress = requestAddress;
     }
 
@@ -375,11 +375,11 @@ public class AsyncTaskRespondingRule : Rule
 
     public int ReceiveCount { get; set; }
 
-    public int LastReceivedRequestNumber { get; set; }
+    public int LastReceivedRequestNumber  { get; set; }
     public int LastReceivedResponseNumber { get; set; }
 
     public int StartCount => startCount;
-    public int StopCount => stopCount;
+    public int StopCount  => stopCount;
 
     public override Task StartTaskAsync()
     {
@@ -395,8 +395,7 @@ public class AsyncTaskRespondingRule : Rule
         logger.Info("AsyncTaskRespondingRule instance {0} received {1}", Id, busRequestMessage.ToString());
         ReceiveCount++;
         LastReceivedRequestNumber = busRequestMessage.Payload.Body();
-        var calculatedResult = await this.RequestAsync<int, int>(RequestAddress, LastReceivedRequestNumber
-            , new DispatchOptions());
+        var calculatedResult = await this.RequestAsync<int, int>(RequestAddress, LastReceivedRequestNumber, new DispatchOptions());
         LastReceivedResponseNumber = calculatedResult;
         logger.Info("AsyncTaskRespondingRule instance {0} received response {1}", Id, LastReceivedResponseNumber);
         return LastReceivedResponseNumber;

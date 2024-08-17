@@ -23,7 +23,7 @@ public interface IReusableList<T> : IReusableObject<IReusableList<T>>, IList<T>,
     void ShiftToEnd(int indexToBeAtEnd);
 }
 
-public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T>
+public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T>, IReadOnlyList<T>
 {
     private readonly List<T> backingList;
 

@@ -32,11 +32,17 @@ public static class RuleExtensions
     public static ValueTask<U> RequestAsync<T, U>(this IRule sender, string publishAddress, T msg) =>
         sender.RequestAsync<T, U>(publishAddress, msg, new DispatchOptions());
 
+    public static ValueTask<IRuleDeploymentLifeTime> DeployDaemonRuleAsync(this IRule sender, IRule rule, DeploymentOptions options) =>
+        sender.Context.MessageBus.DeployDaemonRuleAsync(rule, options);
+
     public static ValueTask<IRuleDeploymentLifeTime> DeployChildRuleAsync(this IRule sender, IRule rule, DeploymentOptions options) =>
         sender.Context.MessageBus.DeployChildRuleAsync(sender, rule, options);
 
     public static ValueTask<IRuleDeploymentLifeTime> DeployChildRuleAsync(this IRule sender, IRule rule) =>
         sender.DeployChildRuleAsync(rule, new DeploymentOptions());
+
+    public static void DeployDaemonRule(this IRule sender, IRule rule, DeploymentOptions options) =>
+        sender.Context.MessageBus.DeployDaemonRule(rule, options);
 
     public static void DeployChildRule(this IRule sender, IRule rule, DeploymentOptions options) =>
         sender.Context.MessageBus.DeployChildRule(sender, rule, options);
@@ -176,6 +182,7 @@ public static class RuleExtensions
         (this IRule rule, RuleLifeCycle awaitState, IMessageQueue messageQueue, TimeSpan? timeout = null)
     {
         var reusableValueTaskSource = messageQueue.Context.PooledRecycler.Borrow<ReusableValueTaskSource<int>>();
+        reusableValueTaskSource.IncrementRefCount();
         if (timeout != null)
         {
             reusableValueTaskSource.ResponseTimeout                = timeout;
