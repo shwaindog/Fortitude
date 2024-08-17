@@ -23,7 +23,6 @@ public class SingleRequestResponseTimeSendLoadTestRule : Rule
 
     public override async ValueTask StartAsync()
     {
-        IncrementLifeTimeCount();
         // prime runtime
         await Console.Out
                      .WriteLineAsync($"{DateTime.Now:hh:mm:ss.ffffff} - Started priming SingleRequestResponseTimeSendLoadTestRule for performance testing");
@@ -38,13 +37,14 @@ public class SingleRequestResponseTimeSendLoadTestRule : Rule
         for (var i = 0; i < Program.SingleNumMessagesToSend; i++) timeSpanResultList[i] = TimeSpan.Zero;
         var stopWatch                                                                   = new Stopwatch();
         var totalLatency                                                                = TimeSpan.Zero;
-        await Console.Out.WriteLineAsync($"{DateTime.Now:hh:mm:ss.ffffff} - Priming Finished");
+        await Console.Out.WriteLineAsync
+            ($"{DateTime.Now:hh:mm:ss.ffffff} - Priming Finished" + (!Program.LogStartOfEachRun ? " starting performance test.  ETA 40-120 s" : ""));
         for (var runNum = 0; runNum < Program.NumberOfRuns; runNum++)
         {
-            // comment out console write if doing memory profiling
-            // await
-            //     Console.Out.WriteLineAsync($"{DateTime.Now:hh:mm:ss.ffffff} - Started SingleRequestResponseTimeSendLoadTestRule performance testing " +
-            //                                $"run number {runNum + 1} of {Program.NumberOfRuns} runs");
+            if (Program.LogStartOfEachRun)
+                await Console.Out.WriteLineAsync
+                    ($"{DateTime.Now:hh:mm:ss.ffffff} - Started SingleRequestResponseTimeSendLoadTestRule performance testing " +
+                     $"run number {runNum + 1} of {Program.NumberOfRuns} runs");
             stopWatch.Start();
             for (var i = 0; i < Program.SingleNumMessagesToSend; i++)
             {
@@ -64,13 +64,12 @@ public class SingleRequestResponseTimeSendLoadTestRule : Rule
         var totalMessagesSent = Program.SingleNumMessagesToSend * Program.NumberOfRuns;
         var averageLatency    = totalLatency / totalMessagesSent;
 
-        var messagesPerSecond = 1_000 * totalMessagesSent / stopWatch.ElapsedMilliseconds;
+        var messagesPerSecond = 1_000L * totalMessagesSent / stopWatch.ElapsedMilliseconds;
         await
             Console.Out.WriteLineAsync($"{DateTime.Now:hh:mm:ss.ffffff} - When sending {totalMessagesSent:###,###,##0} messages total execution time took " +
                                        $"{stopWatch.ElapsedMilliseconds:###,###,##0} ms or about {messagesPerSecond:###,##0} msgs/s.");
         await Console.Out.WriteLineAsync($"{DateTime.Now:hh:mm:ss.ffffff} - The average time for a message to be received by a listening rule " +
                                          $"was {averageLatency.TotalMicroseconds} us");
-        DecrementLifeTimeCount();
     }
 
     public override ValueTask StopAsync()
