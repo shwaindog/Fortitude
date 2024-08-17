@@ -30,12 +30,24 @@ public interface IQueueMessageRing : IAsyncValueTaskPollingRing<BusMessage>
     void InitializeInPollingThread();
 }
 
+public struct DaemonRuleStart
+{
+    public DaemonRuleStart(IListeningRule rule, ValueTask startTask)
+    {
+        Rule      = rule;
+        StartTask = startTask;
+    }
+
+    public IListeningRule Rule      { get; }
+    public ValueTask      StartTask { get; }
+}
+
 public class QueueMessageRing : AsyncValueTaskPollingRing<BusMessage>, IQueueMessageRing
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(QueueMessageRing));
 
-    internal readonly List<ValueTask>      DaemonExecutions = new();
-    internal readonly List<IListeningRule> LivingRules      = new();
+    internal readonly List<DaemonRuleStart> DaemonExecutions = new();
+    internal readonly List<IListeningRule>  LivingRules      = new();
 
     internal ListenerRegistry ListenerRegistry = null!;
     private  QueueContext     queueContext     = null!;

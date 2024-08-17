@@ -133,11 +133,12 @@ public class AsyncBusMessageProcessor : ReusableValueTaskSource<int>
         for (var i = 0; i < queueMessageRing.DaemonExecutions.Count; i++)
         {
             var checkHasFinished = queueMessageRing.DaemonExecutions[i];
-            if (checkHasFinished.IsCompleted)
+            if (checkHasFinished.StartTask.IsCompleted)
             {
                 try
                 {
-                    checkHasFinished.GetAwaiter().GetResult();
+                    checkHasFinished.StartTask.GetAwaiter().GetResult();
+                    checkHasFinished.Rule.DecrementLifeTimeCount();
                 }
                 catch (Exception ex)
                 {
@@ -407,7 +408,7 @@ public class AsyncBusMessageProcessor : ReusableValueTaskSource<int>
         {
             newRule.IncrementLifeTimeCount();
             queueMessageRing.LivingRules.Add(newRule);
-            queueMessageRing.DaemonExecutions.Add(newRule.StartAsync());
+            queueMessageRing.DaemonExecutions.Add(new DaemonRuleStart(newRule, newRule.StartAsync()));
             newRule.LifeCycleState = RuleLifeCycle.Started;
         }
         catch (Exception ex)
@@ -425,6 +426,7 @@ public class AsyncBusMessageProcessor : ReusableValueTaskSource<int>
     private void FinalizeStartRule()
     {
         newRule!.LifeCycleState = RuleLifeCycle.Started;
+        newRule.DecrementLifeTimeCount();
         FinalizeLoadRule();
     }
 
