@@ -11,13 +11,14 @@ using FortitudeCommon.Chronometry;
 
 #endregion
 
-namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted.Rules;
+namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted.Step_3;
 
 public class SingleRequestResponseTimeSendLoadTestRule : Rule
 {
-    private readonly IRule targetRequestRule;
+    private readonly Stopwatch stopWatch = new();
+    private readonly IRule     targetRequestRule;
 
-    private readonly TimeSpan[] timeSpanResultList = new TimeSpan[Program.SingleNumMessagesToSend];
+    private readonly TimeSpan[] timeSpanResultList = new TimeSpan[Step3Program.SingleNumMessagesToSend];
 
     public SingleRequestResponseTimeSendLoadTestRule(IRule targetRequestRule) => this.targetRequestRule = targetRequestRule;
 
@@ -26,7 +27,7 @@ public class SingleRequestResponseTimeSendLoadTestRule : Rule
         // prime runtime
         await Console.Out
                      .WriteLineAsync($"{DateTime.Now:hh:mm:ss.ffffff} - Started priming SingleRequestResponseTimeSendLoadTestRule for performance testing");
-        for (var i = 0; i < Program.SingleNumMessagesToSend; i++)
+        for (var i = 0; i < Step3Program.SingleNumMessagesToSend; i++)
         {
             var listenerReceiveLatency = await this.RequestAsync<DateTime, TimeSpan>
                 (ReceivedRequestLatencyTimeRule.TimeSentRequestListenAddress, TimeContext.UtcNow,
@@ -34,19 +35,19 @@ public class SingleRequestResponseTimeSendLoadTestRule : Rule
             timeSpanResultList[i] = listenerReceiveLatency;
         }
 
-        for (var i = 0; i < Program.SingleNumMessagesToSend; i++) timeSpanResultList[i] = TimeSpan.Zero;
-        var stopWatch                                                                   = new Stopwatch();
-        var totalLatency                                                                = TimeSpan.Zero;
+        for (var i = 0; i < Step3Program.SingleNumMessagesToSend; i++) timeSpanResultList[i] = TimeSpan.Zero;
+        var totalLatency                                                                     = TimeSpan.Zero;
         await Console.Out.WriteLineAsync
-            ($"{DateTime.Now:hh:mm:ss.ffffff} - Priming Finished" + (!Program.LogStartOfEachRun ? " starting performance test.  ETA 40-120 s" : ""));
-        for (var runNum = 0; runNum < Program.NumberOfRuns; runNum++)
+            ($"{DateTime.Now:hh:mm:ss.ffffff} - Priming Finished" +
+             (!Step3Program.LogStartOfEachRun ? " starting performance test.  ETA 40-120 s" : ""));
+        for (var runNum = 0; runNum < Step3Program.NumberOfRuns; runNum++)
         {
-            if (Program.LogStartOfEachRun)
+            if (Step3Program.LogStartOfEachRun)
                 await Console.Out.WriteLineAsync
                     ($"{DateTime.Now:hh:mm:ss.ffffff} - Started SingleRequestResponseTimeSendLoadTestRule performance testing " +
-                     $"run number {runNum + 1} of {Program.NumberOfRuns} runs");
+                     $"run number {runNum + 1} of {Step3Program.NumberOfRuns} runs");
             stopWatch.Start();
-            for (var i = 0; i < Program.SingleNumMessagesToSend; i++)
+            for (var i = 0; i < Step3Program.SingleNumMessagesToSend; i++)
             {
                 var listenerReceiveLatency = await this.RequestAsync<DateTime, TimeSpan>
                     (ReceivedRequestLatencyTimeRule.TimeSentRequestListenAddress, TimeContext.UtcNow,
@@ -54,14 +55,14 @@ public class SingleRequestResponseTimeSendLoadTestRule : Rule
                 timeSpanResultList[i] = listenerReceiveLatency;
             }
             stopWatch.Stop();
-            for (var i = 0; i < Program.SingleNumMessagesToSend; i++)
+            for (var i = 0; i < Step3Program.SingleNumMessagesToSend; i++)
             {
                 var listenerReceiveLatency = timeSpanResultList[i];
                 totalLatency += listenerReceiveLatency;
             }
         }
 
-        var totalMessagesSent = Program.SingleNumMessagesToSend * Program.NumberOfRuns;
+        var totalMessagesSent = Step3Program.SingleNumMessagesToSend * Step3Program.NumberOfRuns;
         var averageLatency    = totalLatency / totalMessagesSent;
 
         var messagesPerSecond = 1_000L * totalMessagesSent / stopWatch.ElapsedMilliseconds;
@@ -74,7 +75,7 @@ public class SingleRequestResponseTimeSendLoadTestRule : Rule
 
     public override ValueTask StopAsync()
     {
-        Console.Out.WriteLine("Closing BatchTimeSendLoadTestRule");
+        Console.Out.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - Closing SingleRequestResponseTimeSendLoadTestRule");
         return base.StopAsync();
     }
 }

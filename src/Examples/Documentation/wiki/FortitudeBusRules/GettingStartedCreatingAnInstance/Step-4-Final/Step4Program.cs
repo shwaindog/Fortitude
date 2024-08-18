@@ -3,7 +3,6 @@
 
 #region
 
-using Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted.Rules;
 using FortitudeBusRules;
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.Config;
@@ -12,16 +11,15 @@ using FortitudeCommon.Monitoring.Logging;
 
 #endregion
 
-namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted;
+namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted.Step_4_Final;
 
 public enum TestToPerform
 {
-    HelloHello
-  , BatchRequestResponse
+    BatchRequestResponse
   , SingleRequestResponse
 }
 
-public class Program
+public class Step4Program
 {
     public static int EventQueueSize   = 20_100;
     public static int DefaultQueueSize = 20_100;
@@ -35,11 +33,11 @@ public class Program
     public static bool LogStartOfEachRun = false;
 
 
-    private static TestToPerform testToPerform = TestToPerform.SingleRequestResponse;
+    private static TestToPerform testToPerform = TestToPerform.BatchRequestResponse;
 
     public static void Main(string[] args)
     {
-        Console.Write($"{DateTime.Now:hh:mm:ss.ffffff} - Started application in ");
+        Console.Write($"{DateTime.Now:hh:mm:ss.ffffff} - Started Step4 application in ");
         #if DEBUG
         Console.WriteLine("Debug build.");
         #else
@@ -49,8 +47,10 @@ public class Program
         NoOpLoggerFactory.StartWithNoOpLoggerFactory = true;
 
         var busRulesConfig
-            = new BusRulesConfig(new QueuesConfig(EventQueueSize, DefaultQueueSize, maxEventQueues: 1, emptyEventQueueSleepMs: 0
-                                                , defaultEmptyQueueSleepMs: 0, maxWorkerQueues: 1, requiredCustomQueues: 1));
+            = new BusRulesConfig
+                (new QueuesConfig
+                    (EventQueueSize, DefaultQueueSize, maxEventQueues: 1, emptyEventQueueSleepMs: 0
+                   , requiredCustomQueues: 1, defaultEmptyQueueSleepMs: 0, maxWorkerQueues: 1));
         var busRules   = new BusRules();
         var messageBus = busRules.CreateMessageBus(busRulesConfig);
         Console.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - Finished creating message bus");
@@ -61,5 +61,6 @@ public class Program
                                   , new DeploymentOptions(messageGroupType: MessageQueueType.Custom));
 
         Console.ReadKey();
+        messageBus.Stop();
     }
 }

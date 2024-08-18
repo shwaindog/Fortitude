@@ -11,14 +11,14 @@ using FortitudeCommon.Chronometry;
 
 #endregion
 
-namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted.Rules;
+namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted.Step_4_Final;
 
 public class BatchTimeSendLoadTestRule : Rule
 {
     private readonly Stopwatch stopWatch = new();
     private readonly IRule     targetRequestRule;
 
-    private readonly ValueTask<TimeSpan>[] timeSpanValueTaskResultList = new ValueTask<TimeSpan>[Program.BatchSendSize];
+    private readonly ValueTask<TimeSpan>[] timeSpanValueTaskResultList = new ValueTask<TimeSpan>[Step4Program.BatchSendSize];
 
     public BatchTimeSendLoadTestRule(IRule targetRequestRule) => this.targetRequestRule = targetRequestRule;
 
@@ -26,7 +26,7 @@ public class BatchTimeSendLoadTestRule : Rule
     {
         // prime runtime
         await Console.Out.WriteLineAsync($"{DateTime.Now:hh:mm:ss.ffffff} - Starting priming BatchTimeSendLoadTestRule for performance testing");
-        for (var i = 0; i < Program.BatchSendSize; i++)
+        for (var i = 0; i < Step4Program.BatchSendSize; i++)
         {
             var listenerReceiveLatency = this.RequestAsync<DateTime, TimeSpan>
                 (ReceivedRequestLatencyTimeRule.TimeSentRequestListenAddress, TimeContext.UtcNow,
@@ -34,50 +34,47 @@ public class BatchTimeSendLoadTestRule : Rule
             timeSpanValueTaskResultList[i] = listenerReceiveLatency;
         }
 
-        for (var i = 0; i < Program.BatchSendSize; i++)
+        for (var i = 0; i < Step4Program.BatchSendSize; i++)
         {
             var listenerReceiveLatency = await timeSpanValueTaskResultList[i];
             timeSpanValueTaskResultList[i] = new ValueTask<TimeSpan>(TimeSpan.Zero);
         }
         var averageLatency = TimeSpan.Zero;
         await Console.Out.WriteLineAsync($"{DateTime.Now:hh:mm:ss.ffffff} - Priming Finished" +
-                                         (!Program.LogStartOfEachRun ? " starting performance test.  ETA 40-120 s" : ""));
+                                         (!Step4Program.LogStartOfEachRun ? " starting performance test.  ETA 40-120 s" : ""));
         stopWatch.Start();
         var messageCountBase = 0;
-        for (var runNum = 0; runNum < Program.NumberOfRuns; runNum++)
+        for (var runNum = 0; runNum < Step4Program.NumberOfRuns; runNum++)
         {
-            messageCountBase = runNum * Program.BatchNumMessagesToSend;
-            // comment out console write if doing memory profiling
+            messageCountBase = runNum * Step4Program.BatchNumMessagesToSend;
 
-            if (Program.LogStartOfEachRun)
+            if (Step4Program.LogStartOfEachRun)
                 await Console.Out.WriteLineAsync
                     ($"{DateTime.Now:hh:mm:ss.ffffff} - Started BatchTimeSendLoadTestRule performance testing " +
-                     $"for run number {runNum + 1} of {Program.NumberOfRuns} runs");
-            for (var i = 0; i <= Program.BatchNumMessagesToSend; i++)
+                     $"for run number {runNum + 1} of {Step4Program.NumberOfRuns} runs");
+            for (var i = 0; i <= Step4Program.BatchNumMessagesToSend; i++)
             {
-                if (i > 0 && i % Program.BatchSendSize == 0)
+                if (i > 0 && i % Step4Program.BatchSendSize == 0)
                 {
                     stopWatch.Stop();
-                    var iStart = i - Program.BatchSendSize;
-                    // await Console.Out.WriteAsync($".");
-                    for (var j = 0; j < Program.BatchSendSize; j++)
+                    var iStart = i - Step4Program.BatchSendSize;
+                    for (var j = 0; j < Step4Program.BatchSendSize; j++)
                     {
                         var getResult = await timeSpanValueTaskResultList[j];
-                        // if (j == 9_999) Console.Out.WriteLine($"Ticks: {getResult.Ticks}");
                         averageLatency = (averageLatency * (messageCountBase + iStart + j) + getResult) / (messageCountBase + iStart + j + 1);
                         timeSpanValueTaskResultList[j] = new ValueTask<TimeSpan>(TimeSpan.Zero);
                     }
                     stopWatch.Start();
-                    if (i == Program.BatchNumMessagesToSend) break;
+                    if (i == Step4Program.BatchNumMessagesToSend) break;
                 }
                 var listenerReceiveLatency = this.RequestAsync<DateTime, TimeSpan>
                     (ReceivedRequestLatencyTimeRule.TimeSentRequestListenAddress, TimeContext.UtcNow,
                      new DispatchOptions(RoutingFlags.TargetSpecific, targetRule: targetRequestRule));
-                timeSpanValueTaskResultList[i % Program.BatchSendSize] = listenerReceiveLatency;
+                timeSpanValueTaskResultList[i % Step4Program.BatchSendSize] = listenerReceiveLatency;
             }
         }
         stopWatch.Stop();
-        var totalMessagesSent = Program.BatchNumMessagesToSend * Program.NumberOfRuns;
+        var totalMessagesSent = Step4Program.BatchNumMessagesToSend * Step4Program.NumberOfRuns;
         var messagesPerSecond = 1_000L * totalMessagesSent / stopWatch.ElapsedMilliseconds;
         await
             Console.Out.WriteLineAsync($"{DateTime.Now:hh:mm:ss.ffffff} - When sending {totalMessagesSent:###,###,##0} messages total execution time took " +
@@ -88,7 +85,7 @@ public class BatchTimeSendLoadTestRule : Rule
 
     public override ValueTask StopAsync()
     {
-        Console.Out.WriteLine("Closing BatchTimeSendLoadTestRule");
+        Console.Out.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - Closing BatchTimeSendLoadTestRule");
         return base.StopAsync();
     }
 }
