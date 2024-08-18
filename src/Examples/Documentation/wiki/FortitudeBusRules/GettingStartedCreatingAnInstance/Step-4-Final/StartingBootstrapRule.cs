@@ -3,13 +3,12 @@
 
 #region
 
-using Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted.Step_1;
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.Rules;
 
 #endregion
 
-namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted.Rules;
+namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted.Step_4_Final;
 
 public class StartingBootstrapRule(TestToPerform testToPerform) : Rule
 {
@@ -20,10 +19,6 @@ public class StartingBootstrapRule(TestToPerform testToPerform) : Rule
 
         switch (testToPerform)
         {
-            case TestToPerform.HelloHello:
-                this.DeployDaemonRule(new HelloHelloRule()
-                                    , new DeploymentOptions(messageGroupType: MessageQueueType.Worker));
-                break;
             case TestToPerform.BatchRequestResponse:
                 this.DeployDaemonRule(new BatchTimeSendLoadTestRule(receivedRequestLatencyTimeRule)
                                     , new DeploymentOptions(messageGroupType: MessageQueueType.Worker));

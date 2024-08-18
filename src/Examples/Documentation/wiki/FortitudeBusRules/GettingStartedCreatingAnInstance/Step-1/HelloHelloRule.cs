@@ -13,11 +13,11 @@ public class HelloHelloRule : Rule
 {
     public override void Start()
     {
-        Console.Out.WriteLine("You say Hello");
+        Console.Out.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - You say Hello");
     }
 
     public override void Stop()
     {
-        Console.Out.WriteLine("And I say Goodbye");
+        Console.Out.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - And I say Goodbye");
     }
 }

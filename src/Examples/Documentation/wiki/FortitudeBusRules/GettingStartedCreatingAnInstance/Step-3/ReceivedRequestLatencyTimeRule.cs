@@ -8,7 +8,7 @@ using FortitudeCommon.Chronometry;
 
 #endregion
 
-namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted.Rules;
+namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted.Step_3;
 
 public class ReceivedRequestLatencyTimeRule : Rule
 {
@@ -20,4 +20,10 @@ public class ReceivedRequestLatencyTimeRule : Rule
     }
 
     private TimeSpan ReceiveSentTimeAndReturnLatencyHandler(DateTime sentTime) => TimeContext.UtcNow - sentTime;
+
+    public override ValueTask StopAsync()
+    {
+        Console.Out.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - Closing ReceivedRequestLatencyTimeRule");
+        return base.StopAsync();
+    }
 }
