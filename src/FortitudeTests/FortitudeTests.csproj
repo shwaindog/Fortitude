@@ -27,14 +27,11 @@
     <ProjectReference Include="..\ForitudeBusRules\ForititudeBusRules.csproj" />
     <ProjectReference Include="..\FortitudeCommon\FortitudeCommon.csproj" />
     <ProjectReference Include="..\FortitudeIO\FortitudeIO.csproj" />
-    <ProjectReference Include="..\FortitudeMarketsApi\FortitudeMarketsApi.csproj" />
-    <ProjectReference Include="..\FortitudeMarketsCore\FortitudeMarketsCore.csproj" />
+    <ProjectReference Include="..\FortitudeMarkets\FortitudeMarkets.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="FortitudeCommon\OSWrapper\Memory\" />
-    <Folder Include="FortitudeMarketsCore\Configuration\ClientServerConfig\PricingConfig\" />
-    <Folder Include="FortitudeMarketsCore\Pricing\Quotes\SourceTickerInfo\" />
   </ItemGroup>
 
   <ItemGroup>
