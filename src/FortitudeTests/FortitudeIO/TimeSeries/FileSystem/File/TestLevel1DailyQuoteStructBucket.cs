@@ -7,7 +7,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
-using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 

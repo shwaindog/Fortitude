@@ -1,0 +1,86 @@
+﻿#region
+
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
+using FortitudeMarkets.Trading.Counterparties;
+using FortitudeMarkets.Trading.Executions;
+using FortitudeMarkets.Trading.Orders;
+using FortitudeMarkets.Trading.Orders.Venues;
+using FortitudeMarkets.Trading.Orders.Venues;
+
+#endregion
+
+namespace FortitudeMarkets.Trading.Executions;
+
+public class Execution : ReusableObject<IExecution>, IExecution
+{
+    public Execution()
+    {
+        ExecutionId = null!;
+        Venue = null!;
+        VenueOrderId = null!;
+        OrderId = null!;
+        CounterParty = null!;
+        CounterParty = null!;
+    }
+
+    public Execution(IExecution toClone)
+    {
+        ExecutionId = toClone.ExecutionId;
+        Venue = toClone.Venue;
+        VenueOrderId = toClone.VenueOrderId;
+        OrderId = toClone.OrderId;
+        ExecutionTime = toClone.ExecutionTime;
+        Price = toClone.Price;
+        Quantity = toClone.Quantity;
+        CumulativeQuantity = toClone.CumulativeQuantity;
+        CumulativeVwapPrice = toClone.CumulativeVwapPrice;
+        CounterParty = toClone.CounterParty;
+        ValueDate = toClone.ValueDate;
+        Type = toClone.Type;
+        ExecutionStageType = toClone.ExecutionStageType;
+    }
+
+    public Execution(IExecutionId executionId, IVenue venue, IVenueOrderId venueOrderId, IOrderId orderId,
+        DateTime executionTime, decimal price, decimal quantity, decimal cumlativeQuantity,
+        decimal cumlativeVwapPrice, IParty counterParty, DateTime valueDate, ExecutionType type
+        , ExecutionStageType stageType)
+    {
+        ExecutionId = executionId;
+        Venue = venue;
+        VenueOrderId = venueOrderId;
+        OrderId = orderId;
+        ExecutionTime = executionTime;
+        Price = price;
+        Quantity = quantity;
+        CumulativeQuantity = cumlativeQuantity;
+        CumulativeVwapPrice = cumlativeVwapPrice;
+        CounterParty = counterParty;
+        ValueDate = valueDate;
+        Type = type;
+        ExecutionStageType = stageType;
+    }
+
+    public IExecutionId ExecutionId { get; set; }
+    public IVenue Venue { get; set; }
+    public IVenueOrderId VenueOrderId { get; set; }
+    public IOrderId OrderId { get; set; }
+    public DateTime ExecutionTime { get; set; }
+    public decimal Price { get; set; }
+    public decimal Quantity { get; set; }
+    public decimal CumulativeQuantity { get; set; }
+    public decimal CumulativeVwapPrice { get; set; }
+    public IParty CounterParty { get; set; }
+    public DateTime ValueDate { get; set; }
+    public ExecutionType Type { get; set; }
+    public ExecutionStageType ExecutionStageType { get; set; }
+
+    public override IExecution CopyFrom(IExecution source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        ExecutionId = source.ExecutionId.SyncOrRecycle(ExecutionId as ExecutionId)!;
+        Venue = source.Venue.SyncOrRecycle(Venue as Venue)!;
+        return this;
+    }
+
+    public override IExecution Clone() => Recycler?.Borrow<Execution>().CopyFrom(this) ?? new Execution(this);
+}

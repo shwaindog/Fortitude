@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <RootNamespace>FortitudeMarkets</RootNamespace>
+    <Version>$(Version)</Version>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ForitudeBusRules\ForititudeBusRules.csproj" />
+    <ProjectReference Include="..\FortitudeCommon\FortitudeCommon.csproj" />
+    <ProjectReference Include="..\FortitudeIO\FortitudeIO.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Configuration\ClientServerConfig\MarketsConfig\" />
+    <Folder Include="Pricing\Quotes\SourceTickerInfo\" />
+  </ItemGroup>
+
+</Project>

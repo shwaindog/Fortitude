@@ -11,7 +11,7 @@ using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
-using FortitudeMarketsApi.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 

@@ -11,24 +11,19 @@ using FortitudeIO.Protocols.ORX.ClientServer;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.State;
-using FortitudeMarketsApi.Configuration.ClientServerConfig.TradingConfig;
-using FortitudeMarketsApi.Trading.Executions;
-using FortitudeMarketsApi.Trading.Orders;
-using FortitudeMarketsApi.Trading.Orders.Products;
-using FortitudeMarketsApi.Trading.Orders.Products.General;
-using FortitudeMarketsApi.Trading.Orders.Server;
-using FortitudeMarketsApi.Trading.Orders.Venues;
-using FortitudeMarketsCore.Configuration.ClientServerConfig.Authentication;
-using FortitudeMarketsCore.Trading;
-using FortitudeMarketsCore.Trading.Counterparties;
-using FortitudeMarketsCore.Trading.Executions;
-using FortitudeMarketsCore.Trading.Orders;
-using FortitudeMarketsCore.Trading.Orders.Client;
-using FortitudeMarketsCore.Trading.Orders.Products.General;
-using FortitudeMarketsCore.Trading.Orders.Server;
-using FortitudeMarketsCore.Trading.Orders.Venues;
-using FortitudeMarketsCore.Trading.ORX.Publication;
-using FortitudeMarketsCore.Trading.ORX.Subscription;
+using FortitudeMarkets.Configuration.ClientServerConfig.Authentication;
+using FortitudeMarkets.Configuration.ClientServerConfig.TradingConfig;
+using FortitudeMarkets.Trading;
+using FortitudeMarkets.Trading.Counterparties;
+using FortitudeMarkets.Trading.Executions;
+using FortitudeMarkets.Trading.Orders;
+using FortitudeMarkets.Trading.Orders.Client;
+using FortitudeMarkets.Trading.Orders.Products;
+using FortitudeMarkets.Trading.Orders.Products.General;
+using FortitudeMarkets.Trading.Orders.Server;
+using FortitudeMarkets.Trading.Orders.Venues;
+using FortitudeMarkets.Trading.ORX.Publication;
+using FortitudeMarkets.Trading.ORX.Subscription;
 using FortitudeTests.FortitudeCommon.Types;
 using FortitudeTests.TestEnvironment;
 
@@ -254,11 +249,13 @@ public class TradingClientServerTests
         var startWait = DateTime.Now;
         var wasSet    = waitOn.WaitOne(timeout);
         var waitTime  = DateTime.Now - startWait;
-        if (!wasSet) logger.Warn("Timed out waiting {0}ms on {1}", timeout, message);
+        if (!wasSet)
+            logger.Warn("Timed out waiting {0}ms on {1}", timeout, message);
         else if (waitTime > TimeSpan.FromMilliseconds(100)) logger.Warn("Waited {0}ms for {1}", waitTime.TotalMilliseconds, message);
     }
 
-    private bool OrxTradingServer_OnAuthenticate(ISocketSessionContext clientSessionConnection, MutableString? usr,
+    private bool OrxTradingServer_OnAuthenticate
+    (ISocketSessionContext clientSessionConnection, MutableString? usr,
         MutableString? pwd, out IUserData authData, out MutableString message)
     {
         message  = "All Good";

@@ -9,13 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeTests", "Fortitude
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeIO", "FortitudeIO\FortitudeIO.csproj", "{14EA2D1E-1A30-4AB8-8B94-8AE5CE6E6E14}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeMarketsApi", "FortitudeMarketsApi\FortitudeMarketsApi.csproj", "{C5255A46-4BFA-4467-97D2-C8CC7F1140A3}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeMarketsCore", "FortitudeMarketsCore\FortitudeMarketsCore.csproj", "{255E26B2-6660-4C78-A1B2-F396E3568987}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FortitudeMarkets", "FortitudeMarkets\FortitudeMarkets.csproj", "{255E26B2-6660-4C78-A1B2-F396E3568987}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ForititudeBusRules", "ForitudeBusRules\ForititudeBusRules.csproj", "{706C862A-F116-451B-A221-4E772AEE4C5F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GettingStartedCreatingAnInstance", "Examples\Documentation\wiki\FortitudeBusRules\GettingStartedCreatingAnInstance\GettingStartedCreatingAnInstance.csproj", "{1E73C0E4-81B7-44B5-A85A-D4486511DE1C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GettingStartedCreatingAnInstance", "Examples\Documentation\wiki\FortitudeBusRules\GettingStartedCreatingAnInstance\GettingStartedCreatingAnInstance.csproj", "{1E73C0E4-81B7-44B5-A85A-D4486511DE1C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{4DCEBA9B-5515-47B5-AB5E-CB7D545F7C57}"
 EndProject
@@ -43,10 +41,6 @@ Global
 		{14EA2D1E-1A30-4AB8-8B94-8AE5CE6E6E14}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14EA2D1E-1A30-4AB8-8B94-8AE5CE6E6E14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14EA2D1E-1A30-4AB8-8B94-8AE5CE6E6E14}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C5255A46-4BFA-4467-97D2-C8CC7F1140A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C5255A46-4BFA-4467-97D2-C8CC7F1140A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C5255A46-4BFA-4467-97D2-C8CC7F1140A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C5255A46-4BFA-4467-97D2-C8CC7F1140A3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{255E26B2-6660-4C78-A1B2-F396E3568987}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{255E26B2-6660-4C78-A1B2-F396E3568987}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{255E26B2-6660-4C78-A1B2-F396E3568987}.Release|Any CPU.ActiveCfg = Release|Any CPU

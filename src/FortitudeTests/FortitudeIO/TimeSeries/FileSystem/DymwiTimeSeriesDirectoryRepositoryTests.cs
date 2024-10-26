@@ -11,17 +11,17 @@ using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
-using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
-using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
-using FortitudeMarketsCore.Pricing.Generators.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Generators.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
-using FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.DirectoryStructure;
+using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Generators.Quotes;
+using FortitudeMarkets.Pricing.PQ.Generators.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
+using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeTests.FortitudeCommon.Extensions;
-using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.TimeSeries.FileSystem.File;
-using static FortitudeMarketsApi.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarketsApi.Pricing.Quotes.TickerDetailLevel;
+using FortitudeTests.FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File;
+using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 

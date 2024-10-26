@@ -10,8 +10,8 @@ COPY ["nuget.config", "."]
 COPY ["FortitudeTests/FortitudeTests.csproj", "FortitudeTests/"]
 COPY ["FortitudeCommon/FortitudeCommon.csproj", "FortitudeCommon/"]
 COPY ["FortitudeIO/FortitudeIO.csproj", "FortitudeIO/"]
-COPY ["FortitudeMarketsApi/FortitudeMarketsApi.csproj", "FortitudeMarketsApi/"]
-COPY ["FortitudeMarketsCore/FortitudeMarketsCore.csproj", "FortitudeMarketsCore/"]
+COPY ["FortitudeMarkets/FortitudeMarkets.csproj", "FortitudeMarkets/"]
+COPY ["FortitudeMarkets/FortitudeMarkets.csproj", "FortitudeMarkets/"]
 RUN dotnet restore "FortitudeTests/FortitudeTests.csproj"
 COPY . .
 WORKDIR "/src/FortitudeTests"

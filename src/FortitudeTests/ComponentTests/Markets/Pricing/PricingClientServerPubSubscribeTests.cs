@@ -5,18 +5,16 @@
 
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
-using FortitudeMarketsApi.Pricing.Quotes;
-using FortitudeMarketsApi.Pricing.Quotes.LastTraded;
-using FortitudeMarketsApi.Pricing.Quotes.LayeredBook;
-using FortitudeMarketsCore.Pricing.PQ.Converters;
-using FortitudeMarketsCore.Pricing.PQ.Messages.Quotes;
-using FortitudeMarketsCore.Pricing.Quotes;
-using FortitudeMarketsCore.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.PQ.Converters;
+using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
+using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeTests.FortitudeCommon.Types;
-using FortitudeTests.FortitudeMarketsCore.Pricing.PQ;
-using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Publication;
-using FortitudeTests.FortitudeMarketsCore.Pricing.PQ.Subscription.Standalone;
-using FortitudeTests.FortitudeMarketsCore.Pricing.Quotes;
+using FortitudeTests.FortitudeMarkets.Pricing.PQ;
+using FortitudeTests.FortitudeMarkets.Pricing.PQ.Publication;
+using FortitudeTests.FortitudeMarkets.Pricing.PQ.Subscription.Standalone;
+using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
