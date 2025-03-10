@@ -3,12 +3,11 @@
 
 #region
 
-using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
@@ -18,14 +17,14 @@ using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 
-public interface IPQTraderPriceVolumeLayer : IMutableTraderPriceVolumeLayer, IPQPriceVolumeLayer,
-    IEnumerable<IPQTraderLayerInfo>, IPQSupportsStringUpdates<IPriceVolumeLayer>, IHasNameIdLookup
+public interface IPQTraderPriceVolumeLayer : IMutableTraderPriceVolumeLayer, IPQPriceVolumeLayer, IPQSupportsStringUpdates<IPriceVolumeLayer>
+  , IHasNameIdLookup
 {
     new IPQTraderLayerInfo? this[int index] { get; set; }
-    new IPQNameIdLookupGenerator NameIdLookup { get; set; }
+    new IPQNameIdLookupGenerator   NameIdLookup  { get; set; }
+    new IList<IPQTraderLayerInfo?> TraderDetails { get; set; }
 
-    new IPQTraderPriceVolumeLayer       Clone();
-    new IEnumerator<IPQTraderLayerInfo> GetEnumerator();
+    new IPQTraderPriceVolumeLayer Clone();
 }
 
 public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolumeLayer
@@ -39,8 +38,7 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
 
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQTraderPriceVolumeLayer));
 
-    protected readonly IList<IPQTraderLayerInfo?> TraderDetails = new List<IPQTraderLayerInfo?>();
-    private            IPQNameIdLookupGenerator   nameIdLookup  = null!;
+    private IPQNameIdLookupGenerator nameIdLookup = null!;
 
     public PQTraderPriceVolumeLayer(IPQNameIdLookupGenerator initialDictionary) => NameIdLookup = initialDictionary;
 
@@ -52,24 +50,34 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
     {
         NameIdLookup = ipqNameIdLookupGenerator;
         if (toClone is ITraderPriceVolumeLayer traderPvl)
-            foreach (var traderLayerInfo in traderPvl)
-                TraderDetails.Add(new PQTraderLayerInfo(traderLayerInfo, ipqNameIdLookupGenerator));
+            foreach (var traderLayerInfo in traderPvl.TraderDetails)
+                TraderDetails.Add(new PQTraderLayerInfo(traderLayerInfo!, ipqNameIdLookupGenerator));
     }
 
     protected string PQTraderPriceVolumeLayerToStringMembers =>
         $"{PQPriceVolumeLayerToStringMembers}, {nameof(TraderDetails)}: [{string.Join(", ", TraderDetails)}]";
 
-    public override LayerType  LayerType          => LayerType.TraderPriceVolume;
+    public IList<IPQTraderLayerInfo?> TraderDetails { get; set; } = new List<IPQTraderLayerInfo?>();
+
+    [JsonIgnore] IList<ITraderLayerInfo?> ITraderPriceVolumeLayer.TraderDetails => TraderDetails.OfType<ITraderLayerInfo?>().ToList();
+
+    [JsonIgnore]
+    IList<IMutableTraderLayerInfo?> IMutableTraderPriceVolumeLayer.TraderDetails => TraderDetails.OfType<IMutableTraderLayerInfo?>().ToList();
+
+    [JsonIgnore] public override LayerType LayerType => LayerType.TraderPriceVolume;
+    [JsonIgnore]
     public override LayerFlags SupportsLayerFlags => LayerFlags.TraderName | LayerFlags.TraderCount | LayerFlags.TraderSize | base.SupportsLayerFlags;
 
+    [JsonIgnore]
     IMutableTraderLayerInfo? IMutableTraderPriceVolumeLayer.this[int i]
     {
         get => this[i];
         set => this[i] = value as IPQTraderLayerInfo;
     }
 
-    ITraderLayerInfo? ITraderPriceVolumeLayer.this[int i] => this[i];
+    [JsonIgnore] ITraderLayerInfo? ITraderPriceVolumeLayer.this[int i] => this[i];
 
+    [JsonIgnore]
     public IPQTraderLayerInfo? this[int i]
     {
         get
@@ -81,12 +89,12 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
         set
         {
             AssertMaxTraderSizeNotExceeded(i);
-            for (var j = TraderDetails.Count; j <= i; j++)
-                TraderDetails.Add(j < i - 1 ? new PQTraderLayerInfo(NameIdLookup) : null);
+            for (var j = TraderDetails.Count; j <= i; j++) TraderDetails.Add(j < i - 1 ? new PQTraderLayerInfo(NameIdLookup) : null);
             TraderDetails[i] = value;
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
         get => base.IsEmpty && TraderDetails.All(tli => tli?.IsEmpty ?? true);
@@ -100,6 +108,7 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
         }
     }
 
+    [JsonIgnore]
     public override bool HasUpdates
     {
         get
@@ -110,12 +119,12 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
         set
         {
             base.HasUpdates = value;
-            foreach (var pqTraderLayerInfo in TraderDetails.Where(pqtli => pqtli != null))
-                pqTraderLayerInfo!.HasUpdates = value;
+            foreach (var pqTraderLayerInfo in TraderDetails.Where(pqtli => pqtli != null)) pqTraderLayerInfo!.HasUpdates = value;
             NameIdLookup.HasUpdates = value;
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int Count
     {
         get
@@ -130,6 +139,7 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
         }
     }
 
+    [JsonIgnore]
     public bool IsTraderCountOnly
     {
         get
@@ -147,8 +157,9 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
         }
     }
 
-    INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
+    [JsonIgnore] INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
 
+    [JsonIgnore]
     public virtual IPQNameIdLookupGenerator NameIdLookup
     {
         get => nameIdLookup;
@@ -285,9 +296,9 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
         if (tpvl != null && pqtpvl == null)
         {
             var i = 0;
-            foreach (var traderLayerInfo in tpvl)
+            foreach (var traderLayerInfo in tpvl.TraderDetails)
             {
-                UpsertTraderName(i, NameIdLookup.GetId(traderLayerInfo.TraderName));
+                UpsertTraderName(i, NameIdLookup.GetId(traderLayerInfo!.TraderName));
                 UpsertTraderVolume(i++, traderLayerInfo.TraderVolume);
             }
             sourceTraderLayers = i;
@@ -303,8 +314,7 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
                 {
                     if (otherTrdrLayerInfo.IsTraderNameUpdated || isFullReplace)
                         UpsertTraderName(i, NameIdLookup.GetId(otherTrdrLayerInfo.TraderName));
-                    if (otherTrdrLayerInfo.IsTraderVolumeUpdated || isFullReplace)
-                        UpsertTraderVolume(i, otherTrdrLayerInfo.TraderVolume);
+                    if (otherTrdrLayerInfo.IsTraderVolumeUpdated || isFullReplace) UpsertTraderVolume(i, otherTrdrLayerInfo.TraderVolume);
                 }
             }
         }
@@ -333,24 +343,12 @@ public class PQTraderPriceVolumeLayer : PQPriceVolumeLayer, IPQTraderPriceVolume
         if (!(other is ITraderPriceVolumeLayer traderPvLayer)) return false;
         var baseSame  = base.AreEquivalent(other, exactTypes);
         var countSame = Count == traderPvLayer.Count;
-        var traderDetailsSame = TraderDetails.Zip(traderPvLayer, (ftd, std) =>
+        var traderDetailsSame = TraderDetails.Zip(traderPvLayer.TraderDetails, (ftd, std) =>
                                                       ftd != null && ftd.AreEquivalent(std, exactTypes)).All(same => same);
 
         var allAreSame = baseSame && countSame && traderDetailsSame;
         return allAreSame;
     }
-
-    public IEnumerator<IPQTraderLayerInfo> GetEnumerator() => TraderDetails.Take(Count).GetEnumerator()!;
-
-    IEnumerator<IMutableTraderLayerInfo> IMutableTraderPriceVolumeLayer.GetEnumerator() => GetEnumerator();
-
-    IEnumerator<IPQTraderLayerInfo> IEnumerable<IPQTraderLayerInfo>.GetEnumerator() => GetEnumerator();
-
-    IEnumerator<IMutableTraderLayerInfo> IEnumerable<IMutableTraderLayerInfo>.GetEnumerator() => GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    IEnumerator<ITraderLayerInfo> IEnumerable<ITraderLayerInfo>.GetEnumerator() => GetEnumerator();
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPriceVolumeLayer?)obj, true);
 

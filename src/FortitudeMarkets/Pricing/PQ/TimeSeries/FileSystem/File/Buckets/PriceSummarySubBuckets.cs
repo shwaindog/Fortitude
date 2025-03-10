@@ -179,7 +179,7 @@ public class UnlimitedToYearlyPriceSummarySubBuckets<TEntry> : PriceSummarySubBu
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
         IndexCount = 100;
 
-    public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.None;
+    public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.Tick;
 }
 
 public class UnlimitedToDecenniallyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<UnlimitedToDecenniallyPriceSummarySubBuckets<TEntry>
@@ -192,5 +192,5 @@ public class UnlimitedToDecenniallyPriceSummarySubBuckets<TEntry> : PriceSummary
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
         IndexCount = 100;
 
-    public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.None;
+    public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.Tick;
 }

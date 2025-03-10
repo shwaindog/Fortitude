@@ -8,9 +8,8 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Summaries;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
+using FortitudeMarkets.Pricing.Summaries;
 using static FortitudeMarkets.Pricing.PQ.Summaries.PQPriceStorageSummaryFlags;
 
 #endregion
@@ -238,7 +237,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
                 EndBidPrice == decimal.Zero && EndAskPrice == decimal.Zero &&
                 AverageBidPrice == decimal.Zero && AverageAskPrice == decimal.Zero;
             var tickCountAndVolumeZero    = TickCount == 0 && PeriodVolume == 0;
-            var summaryPeriodNone         = TimeBoundaryPeriod == TimeBoundaryPeriod.None;
+            var summaryPeriodNone         = TimeBoundaryPeriod == TimeBoundaryPeriod.Tick;
             var summaryFlagsNoneOrStorage = PeriodSummaryFlags is PricePeriodSummaryFlags.FromStorage or PricePeriodSummaryFlags.None;
             var startEndTimeUnixEpoch = PeriodStartTime == DateTimeConstants.UnixEpoch
                                      && PeriodEndTime == DateTimeConstants.UnixEpoch;
@@ -256,7 +255,7 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
 
             TickCount           = 0;
             PeriodVolume        = 0;
-            TimeBoundaryPeriod  = TimeBoundaryPeriod.None;
+            TimeBoundaryPeriod  = TimeBoundaryPeriod.Tick;
             PeriodSummaryFlags  = PricePeriodSummaryFlags.FromStorage;
             PeriodStartTime     = PeriodEndTime = DateTimeConstants.UnixEpoch;
             SummaryStorageFlags = None;

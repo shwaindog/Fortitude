@@ -3,11 +3,12 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -35,17 +36,17 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
     public PQSourceQuoteRefPriceVolumeLayer(IPriceVolumeLayer toClone, IPQNameIdLookupGenerator nameIdLookupGenerator) : base(toClone
    , nameIdLookupGenerator)
     {
-        if (toClone is ISourceQuoteRefPriceVolumeLayer sourceQtRefPvLayer)
-            SourceQuoteReference = sourceQtRefPvLayer.SourceQuoteReference;
+        if (toClone is ISourceQuoteRefPriceVolumeLayer sourceQtRefPvLayer) SourceQuoteReference = sourceQtRefPvLayer.SourceQuoteReference;
         SetFlagsSame(toClone);
     }
 
     protected string PQSourceQuoteRefPriceVolumeLayerToStringMembers =>
         $"{PQSourcePriceVolumeLayerToStringMembers}, {nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}";
 
-    public override LayerType  LayerType          => LayerType.SourceQuoteRefPriceVolume;
-    public override LayerFlags SupportsLayerFlags => LayerFlags.SourceQuoteReference | base.SupportsLayerFlags;
+    [JsonIgnore] public override LayerType  LayerType          => LayerType.SourceQuoteRefPriceVolume;
+    [JsonIgnore] public override LayerFlags SupportsLayerFlags => LayerFlags.SourceQuoteReference | base.SupportsLayerFlags;
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public uint SourceQuoteReference
     {
         get => sourceQuoteReference;
@@ -57,6 +58,7 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         }
     }
 
+    [JsonIgnore]
     public bool IsSourceQuoteReferenceUpdated
     {
         get => (UpdatedFlags & LayerFieldUpdatedFlags.SourceQuoteRefUpdatedFlag) > 0;
@@ -69,6 +71,7 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
         get => base.IsEmpty && SourceQuoteReference == 0;
@@ -120,8 +123,7 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         }
         else if (pqSourcePvl != null)
         {
-            if (pqSourcePvl.IsSourceNameUpdated || isFullReplace)
-                SourceQuoteReference = pqSourcePvl.SourceQuoteReference;
+            if (pqSourcePvl.IsSourceNameUpdated || isFullReplace) SourceQuoteReference = pqSourcePvl.SourceQuoteReference;
             if (isFullReplace) SetFlagsSame(pqSourcePvl);
         }
 

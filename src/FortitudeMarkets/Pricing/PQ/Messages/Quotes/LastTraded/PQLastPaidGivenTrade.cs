@@ -3,10 +3,11 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
 
 #endregion
 
@@ -67,11 +68,14 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         $"{PQLastTradeToStringMembers}, {nameof(WasPaid)}: {WasPaid}, " +
         $"{nameof(WasGiven)}: {WasGiven}, {nameof(TradeVolume)}: {TradeVolume:N2}";
 
-    public override LastTradeType LastTradeType => LastTradeType.PricePaidOrGivenVolume;
+    [JsonIgnore] public override LastTradeType LastTradeType => LastTradeType.PricePaidOrGivenVolume;
 
+    [JsonIgnore]
     public override LastTradedFlags SupportsLastTradedFlags =>
         LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedVolume | base.SupportsLastTradedFlags;
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool WasPaid
     {
         get => (LastTradeBooleanFlags & LastTradeBooleanFlags.WasPaid) > 0;
@@ -86,6 +90,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         }
     }
 
+    [JsonIgnore]
     public bool IsWasPaidUpdated
     {
         get => (UpdatedFlags & LastTradeUpdated.WasPaidUpdated) > 0;
@@ -98,6 +103,8 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         }
     }
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool WasGiven
     {
         get => (LastTradeBooleanFlags & LastTradeBooleanFlags.WasGiven) > 0;
@@ -112,6 +119,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         }
     }
 
+    [JsonIgnore]
     public bool IsWasGivenUpdated
     {
         get => (UpdatedFlags & LastTradeUpdated.WasGivenUpdated) > 0;
@@ -124,6 +132,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public decimal TradeVolume
     {
         get => tradeVolume;
@@ -135,6 +144,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         }
     }
 
+    [JsonIgnore]
     public bool IsTradeVolumeUpdated
     {
         get => (UpdatedFlags & LastTradeUpdated.VolumeUpdated) > 0;
@@ -147,11 +157,14 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         }
     }
 
+    [JsonIgnore]
     public override bool HasUpdates
     {
         set => base.HasUpdates = IsTradeVolumeUpdated = IsWasGivenUpdated = IsWasPaidUpdated = value;
     }
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
         get => base.IsEmpty && WasPaid == false && WasGiven == false && TradeVolume == 0m;

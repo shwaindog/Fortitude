@@ -3,6 +3,7 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 
@@ -19,9 +20,14 @@ public interface ITraderLayerInfo : IReusableObject<ITraderLayerInfo>, IInterfac
 
 public interface IMutableTraderLayerInfo : ITraderLayerInfo
 {
-    new string? TraderName   { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    new string? TraderName { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new decimal TraderVolume { get; set; }
-    new bool    IsEmpty      { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    new bool IsEmpty { get; set; }
 
     new IMutableTraderLayerInfo Clone();
 }

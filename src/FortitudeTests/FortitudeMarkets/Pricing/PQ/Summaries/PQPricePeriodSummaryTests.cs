@@ -627,10 +627,9 @@ public class PQPricePeriodSummaryTests
     [TestMethod]
     public void EmptySummary_DifferingSummaryPeriod_IsSavedAndReturned()
     {
-        Assert.AreEqual(TimeBoundaryPeriod.None, emptySummary.TimeBoundaryPeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.Tick, emptySummary.TimeBoundaryPeriod);
         var wellKnownStartTime = new DateTime(2017, 11, 19, 19, 00, 00);
-        emptySummary.PeriodStartTime = wellKnownStartTime;
-        Assert.AreEqual(TimeBoundaryPeriod.None, emptySummary.TimeBoundaryPeriod);
+        emptySummary.PeriodStartTime    = wellKnownStartTime;
         emptySummary.TimeBoundaryPeriod = TimeBoundaryPeriod.Tick;
         Assert.AreEqual(TimeBoundaryPeriod.Tick, emptySummary.TimeBoundaryPeriod);
         emptySummary.TimeBoundaryPeriod = TimeBoundaryPeriod.OneDecade;

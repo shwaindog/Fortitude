@@ -62,7 +62,7 @@ public class PricePeriodSummaryTests
     [TestMethod]
     public void EmptyPeriodSummary_New_InitializesFieldsAsExpected()
     {
-        Assert.AreEqual(TimeBoundaryPeriod.None, emptyPricePeriodSummary.TimeBoundaryPeriod);
+        Assert.AreEqual(TimeBoundaryPeriod.Tick, emptyPricePeriodSummary.TimeBoundaryPeriod);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyPricePeriodSummary.PeriodStartTime);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyPricePeriodSummary.PeriodEndTime);
 
@@ -145,10 +145,10 @@ public class PricePeriodSummaryTests
         Assert.AreEqual(TimeBoundaryPeriod.OneMonth, calculatePeriodSummary.TimeBoundaryPeriod);
         calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.OneMonth, t, t.AddDays(30));
         Assert.AreEqual(TimeBoundaryPeriod.OneMonth, calculatePeriodSummary.TimeBoundaryPeriod);
-        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.None, t, t.AddSeconds(2));
-        Assert.AreEqual(TimeBoundaryPeriod.None, calculatePeriodSummary.TimeBoundaryPeriod);
-        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.None, t, t.AddMilliseconds(10));
-        Assert.AreEqual(TimeBoundaryPeriod.None, calculatePeriodSummary.TimeBoundaryPeriod);
+        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.Tick, t, t.AddSeconds(2));
+        Assert.AreEqual(TimeBoundaryPeriod.Tick, calculatePeriodSummary.TimeBoundaryPeriod);
+        calculatePeriodSummary = new PricePeriodSummary(TimeBoundaryPeriod.Tick, t, t.AddMilliseconds(10));
+        Assert.AreEqual(TimeBoundaryPeriod.Tick, calculatePeriodSummary.TimeBoundaryPeriod);
     }
 
     [TestMethod]

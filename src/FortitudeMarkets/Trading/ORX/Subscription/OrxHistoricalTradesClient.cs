@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.Chronometry;
@@ -9,15 +12,12 @@ using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarkets.Trading.Executions;
 using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Server;
-using FortitudeMarkets.Trading.Replay;
-using FortitudeMarkets.Trading.Executions;
-using FortitudeMarkets.Trading.Orders;
-using FortitudeMarkets.Trading.Orders.Server;
 using FortitudeMarkets.Trading.ORX.Executions;
 using FortitudeMarkets.Trading.ORX.Orders.Client;
 using FortitudeMarkets.Trading.ORX.Orders.Server;
 using FortitudeMarkets.Trading.ORX.Replay;
 using FortitudeMarkets.Trading.ORX.Session;
+using FortitudeMarkets.Trading.Replay;
 
 #endregion
 
@@ -26,11 +26,12 @@ namespace FortitudeMarkets.Trading.ORX.Subscription;
 public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistoryService
 {
     protected readonly Dictionary<string, List<OrxExecutionUpdate>> PastExecutions = new();
-    protected readonly Dictionary<string, IOrder> PastOrders = new();
-    protected bool HaveReceivedAllExecutions;
-    protected bool HaveReceivedAllOrders;
+    protected readonly Dictionary<string, IOrder>                   PastOrders     = new();
+    protected          bool                                         HaveReceivedAllExecutions;
+    protected          bool                                         HaveReceivedAllOrders;
 
-    public OrxHistoricalTradesClient(IOrxClientRequester clientRequester, string serverName,
+    public OrxHistoricalTradesClient
+    (IOrxClientRequester clientRequester, string serverName,
         ILoginCredentials loginCredentials, string defaultAccount)
         : base(clientRequester, serverName, loginCredentials, defaultAccount)
     {
@@ -40,17 +41,20 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
         clientRequester.Connected += () =>
         {
             ClientRequester.DeserializationRepository.RegisterDeserializer<OrxReplayMessage>()
-                .AddDeserializedNotifier(
-                    new PassThroughDeserializedNotifier<OrxReplayMessage>($"{nameof(OrxHistoricalTradesClient)}.{nameof(HandleReplayMessage)}"
-                        , HandleReplayMessage));
+                           .AddDeserializedNotifier(
+                                                    new PassThroughDeserializedNotifier<
+                                                        OrxReplayMessage>($"{nameof(OrxHistoricalTradesClient)}.{nameof(HandleReplayMessage)}"
+                                                                        , HandleReplayMessage));
             ClientRequester.DeserializationRepository.RegisterDeserializer<OrxOrdersReceivedComplete>()
-                .AddDeserializedNotifier(
-                    new PassThroughDeserializedNotifier<OrxOrdersReceivedComplete>(
-                        $"{nameof(OrxHistoricalTradesClient)}.{nameof(HandleOrderReplayFinished)}", HandleOrderReplayFinished));
+                           .AddDeserializedNotifier(
+                                                    new PassThroughDeserializedNotifier<OrxOrdersReceivedComplete>(
+                                                     $"{nameof(OrxHistoricalTradesClient)}.{nameof(HandleOrderReplayFinished)}"
+                                                   , HandleOrderReplayFinished));
             ClientRequester.DeserializationRepository.RegisterDeserializer<OrxExecutionsReceivedComplete>()
-                .AddDeserializedNotifier(
-                    new PassThroughDeserializedNotifier<OrxExecutionsReceivedComplete>(
-                        $"{nameof(OrxHistoricalTradesClient)}.{nameof(HandleExecutionReplayFinished)}", HandleExecutionReplayFinished));
+                           .AddDeserializedNotifier(
+                                                    new PassThroughDeserializedNotifier<OrxExecutionsReceivedComplete>(
+                                                     $"{nameof(OrxHistoricalTradesClient)}.{nameof(HandleExecutionReplayFinished)}"
+                                                   , HandleExecutionReplayFinished));
         };
     }
 
@@ -58,22 +62,21 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
 
     public void FetchHistory(DateTime from, DateTime to)
     {
-        HaveReceivedAllOrders = false;
+        HaveReceivedAllOrders     = false;
         HaveReceivedAllExecutions = false;
         ClientRequester.Send(new OrxGetOrderBookMessage(DefaultAccount,
-            (TimeContext.UtcNow - from).TotalSeconds > 5));
+                                                        (TimeContext.UtcNow - from).TotalSeconds > 5));
         ClientRequester.Send(new OrxGetTradeBookMessage(DefaultAccount));
     }
 
-    public event Action<IOrderUpdate>? OnPastOrder;
+    public event Action<IOrderUpdate>?     OnPastOrder;
     public event Action<IExecutionUpdate>? OnPastExecution;
 
     private void HandleReplayMessage(OrxReplayMessage update, MessageHeader messageHeader, IConversation cx)
     {
         if (update.ReplayMessageType == ReplayMessageType.PastOrder)
             HandleOrderReplay(update.PastOrder!, messageHeader, cx);
-        else if (update.ReplayMessageType == ReplayMessageType.PastOrder)
-            HandleExecutionReplay(update.PastExecutionUpdate!, messageHeader, cx);
+        else if (update.ReplayMessageType == ReplayMessageType.PastOrder) HandleExecutionReplay(update.PastExecutionUpdate!, messageHeader, cx);
 
         OnReplayMessage(update);
     }
@@ -84,9 +87,10 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
 
         lock (PastOrders)
         {
-            if (!PastOrders.TryGetValue(update.Order!.OrderId.ClientOrderId.ToString(), out var _))
+            if (!PastOrders.TryGetValue(update.Order!.OrderId.ClientOrderId.ToString(), out _))
                 PastOrders.Add(update.Order.OrderId.ClientOrderId.ToString(), order);
-            else PastOrders[update.Order.OrderId.ClientOrderId.ToString()] = order;
+            else
+                PastOrders[update.Order.OrderId.ClientOrderId.ToString()] = order;
         }
     }
 
@@ -103,28 +107,29 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
             var orderCallbacks = OnPastOrder;
             if (orderCallbacks != null)
             {
-                var allExecutions = PastExecutions.SelectMany(pe => pe.Value).ToList();
+                var allExecutions   = PastExecutions.SelectMany(pe => pe.Value).ToList();
                 var exeMsgcallbacks = OnPastExecution;
                 foreach (var basicOrderKvP in PastOrders)
                 {
                     var executions = ConvertExecutionMessageToExecution(allExecutions, basicOrderKvP).ToList();
                     orderCallbacks(new OrderUpdate(basicOrderKvP.Value, OrderUpdateEventType.OrderRejected,
-                        TimeContext.UtcNow));
+                                                   TimeContext.UtcNow));
                     foreach (var execution in executions)
                         exeMsgcallbacks?.Invoke(new ExecutionUpdate(execution, ExecutionUpdateType.Created, null, null,
-                            TimeContext.UtcNow));
+                                                                    TimeContext.UtcNow));
                 }
             }
         }
     }
 
-    private IEnumerable<IExecution> ConvertExecutionMessageToExecution(
+    private IEnumerable<IExecution> ConvertExecutionMessageToExecution
+    (
         IEnumerable<OrxExecutionUpdate> receivedExecutionMessages, KeyValuePair<string, IOrder> basicOrderKvP)
     {
         foreach (var exeMsg in receivedExecutionMessages
                      .Where(execMsg => execMsg.Execution!.OrderId.ClientOrderId.ToString() == basicOrderKvP.Key))
         {
-            if (PastOrders.TryGetValue(exeMsg.Execution!.OrderId.ClientOrderId.ToString(), out var _))
+            if (PastOrders.TryGetValue(exeMsg.Execution!.OrderId.ClientOrderId.ToString(), out _))
                 basicOrderKvP.Value.Product!.RegisterExecution(exeMsg.Execution);
             yield return exeMsg.Execution;
         }
@@ -135,7 +140,7 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
         lock (PastExecutions)
         {
             if (!PastExecutions.TryGetValue(update.Execution!.OrderId.ClientOrderId.ToString()
-                    , out var ordersExecutions))
+                                          , out var ordersExecutions))
             {
                 ordersExecutions = new List<OrxExecutionUpdate>();
                 PastExecutions.Add(update.Execution.OrderId.ClientOrderId.ToString(), ordersExecutions);

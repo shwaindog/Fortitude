@@ -105,13 +105,13 @@ public abstract class TimeSeriesDirectoryRepositoryBase : ITimeSeriesRepository
         if (!InstrumentFilesMap.TryGetValue(instrument, out var instrumentFiles))
         {
             var fileStructure       = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
-            var fileStructurePeriod = fileStructure?.PathTimeBoundaryPeriod ?? TimeBoundaryPeriod.None;
+            var fileStructurePeriod = fileStructure?.PathTimeBoundaryPeriod ?? TimeBoundaryPeriod.Tick;
             return new InstrumentFileInfo(instrument, fileStructurePeriod);
         }
         if (instrumentFiles == null || !instrumentFiles.Any())
         {
             var fileStructure       = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
-            var fileStructurePeriod = fileStructure?.PathTimeBoundaryPeriod ?? TimeBoundaryPeriod.None;
+            var fileStructurePeriod = fileStructure?.PathTimeBoundaryPeriod ?? TimeBoundaryPeriod.Tick;
             return new InstrumentFileInfo(instrument, fileStructurePeriod);
         }
         var earliestFile           = instrumentFiles.First();
@@ -130,13 +130,13 @@ public abstract class TimeSeriesDirectoryRepositoryBase : ITimeSeriesRepository
         if (!InstrumentFilesMap.TryGetValue(instrument, out var instrumentFiles))
         {
             var fileStructure       = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
-            var fileStructurePeriod = fileStructure?.PathTimeBoundaryPeriod ?? TimeBoundaryPeriod.None;
+            var fileStructurePeriod = fileStructure?.PathTimeBoundaryPeriod ?? TimeBoundaryPeriod.Tick;
             return new InstrumentFileEntryInfo(instrument, fileStructurePeriod);
         }
         if (instrumentFiles == null || !instrumentFiles.Any())
         {
             var fileStructure       = RepositoryInfo.RepoRootDir.FindFileStructure(instrument);
-            var fileStructurePeriod = fileStructure?.PathTimeBoundaryPeriod ?? TimeBoundaryPeriod.None;
+            var fileStructurePeriod = fileStructure?.PathTimeBoundaryPeriod ?? TimeBoundaryPeriod.Tick;
             return new InstrumentFileEntryInfo(instrument, fileStructurePeriod);
         }
         var totalCount  = 0L;
@@ -159,7 +159,7 @@ public abstract class TimeSeriesDirectoryRepositoryBase : ITimeSeriesRepository
     {
         foreach (var instrument in InstrumentFilesMap.Keys)
         {
-            var isMatch = instrument.InstrumentName == instrumentName && instrument.InstrumentSource == instrumentSource;
+            var isMatch = instrument.InstrumentName == instrumentName && instrument.SourceName == instrumentSource;
             if (!isMatch) continue;
             if (instrumentType != null && instrumentType != instrument.InstrumentType) continue;
             if (coveringPeriod != null && coveringPeriod != instrument.CoveringPeriod) continue;

@@ -3,9 +3,9 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -27,9 +27,15 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
         Volume = toClone.Volume;
     }
 
-    public decimal Price  { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public decimal Price { get; set; }
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public decimal Volume { get; set; }
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public virtual bool IsEmpty
     {
         get => Price == 0m && Volume == 0m;
@@ -40,8 +46,9 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
         }
     }
 
-    public virtual LayerType  LayerType          => LayerType.PriceVolume;
-    public virtual LayerFlags SupportsLayerFlags => LayerFlags.Price | LayerFlags.Volume;
+    [JsonIgnore] public virtual LayerType LayerType => LayerType.PriceVolume;
+
+    [JsonIgnore] public virtual LayerFlags SupportsLayerFlags => LayerFlags.Price | LayerFlags.Volume;
 
     public override void StateReset()
     {

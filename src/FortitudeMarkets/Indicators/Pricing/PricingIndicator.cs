@@ -29,10 +29,10 @@ public class PricingIndicator : PricingInstrument, IPricingIndicator
     }
 
     public PricingIndicator
-    (ushort indicatorId, ushort sourceId, ushort tickerId, string indicatorName, string source, string ticker, DiscreetTimePeriod coveringPeriod
+    (ushort indicatorId, ushort sourceId, ushort tickerId, string indicatorName, string sourceName, string ticker, DiscreetTimePeriod coveringPeriod
       , IndicatorType indicatorType, MarketClassification marketClassification
       , string instrumentDescription = "No Description Given")
-        : base(sourceId, tickerId, source, ticker, coveringPeriod, InstrumentType.Indicator, marketClassification)
+        : base(sourceId, tickerId, sourceName, ticker, coveringPeriod, InstrumentType.Indicator, marketClassification)
     {
         IndicatorId    = indicatorId;
         IndicatorName  = indicatorName;
@@ -83,7 +83,7 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
     public PricingIndicatorId(IPricingIndicator pricingIndicator)
     {
         SourceId = pricingIndicator.SourceId;
-        TickerId = pricingIndicator.TickerId;
+        TickerId = pricingIndicator.InstrumentId;
         Category = pricingIndicator.Category;
 
         MarketClassification = pricingIndicator.MarketClassification;
@@ -143,7 +143,7 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
       , MarketClassification marketClassification = default, string? category = null)
     {
         SourceId = sourceTickerId.SourceId;
-        TickerId = sourceTickerId.TickerId;
+        TickerId = sourceTickerId.InstrumentId;
         Category = category;
 
         MarketClassification = marketClassification;
@@ -173,7 +173,7 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
         (ushort indicatorId, IPricingInstrumentId pricingInstrumentId, PeriodIndicatorTypePair periodIndicatorTypePair)
     {
         SourceId = pricingInstrumentId.SourceId;
-        TickerId = pricingInstrumentId.TickerId;
+        TickerId = pricingInstrumentId.InstrumentId;
         Category = pricingInstrumentId.Category;
 
         MarketClassification = pricingInstrumentId.MarketClassification;
@@ -187,7 +187,7 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
         (ushort indicatorId, IPricingInstrumentId pricingInstrumentId, DiscreetTimePeriod? coveringPeriod = null)
     {
         SourceId = pricingInstrumentId.SourceId;
-        TickerId = pricingInstrumentId.TickerId;
+        TickerId = pricingInstrumentId.InstrumentId;
         Category = pricingInstrumentId.Category;
 
         MarketClassification = pricingInstrumentId.MarketClassification;
@@ -230,7 +230,7 @@ public readonly struct PricingIndicatorId // not inheriting from ISourceTickerId
       , DiscreetTimePeriod coveringPeriod)
     {
         SourceId = pricingInstrumentId.SourceId;
-        TickerId = pricingInstrumentId.TickerId;
+        TickerId = pricingInstrumentId.InstrumentId;
         Category = pricingInstrumentId.Category;
 
         MarketClassification = pricingInstrumentId.MarketClassification;
@@ -369,12 +369,12 @@ public static class PricingIndicatorExtensions
         var returnResult = false;
         IndicatorExtensions.Register(pricingIndicator);
         if (!PricingInstrumentShortNameLookup.ContainsKey(pricingIndicator.IndicatorSourceTickerId))
-            if (pricingIndicator.Source != SourceTickerIdentifierExtensions.NoSourceNameValue &&
-                pricingIndicator.Ticker != SourceTickerIdentifierExtensions.NoTickerNameValue
+            if (pricingIndicator.SourceName != SourceTickerIdentifierExtensions.NoSourceNameValue &&
+                pricingIndicator.InstrumentName != SourceTickerIdentifierExtensions.NoTickerNameValue
              && pricingIndicator.IndicatorName.IsNotNullOrEmpty())
             {
                 var shortName
-                    = $"{pricingIndicator.Source}-{pricingIndicator.Ticker}_{pricingIndicator.IndicatorName}-{pricingIndicator.CoveringPeriod.ShortName()}";
+                    = $"{pricingIndicator.SourceName}-{pricingIndicator.InstrumentName}_{pricingIndicator.IndicatorName}-{pricingIndicator.CoveringPeriod.ShortName()}";
                 PricingInstrumentShortNameLookup.Add(pricingIndicator.IndicatorSourceTickerId, shortName);
                 returnResult = true;
             }

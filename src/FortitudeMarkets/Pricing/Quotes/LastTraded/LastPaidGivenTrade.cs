@@ -3,8 +3,8 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
 
 #endregion
 
@@ -33,14 +33,24 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
         }
     }
 
-    public override LastTradeType LastTradeType => LastTradeType.PricePaidOrGivenVolume;
+    [JsonIgnore] public override LastTradeType LastTradeType => LastTradeType.PricePaidOrGivenVolume;
 
+    [JsonIgnore]
     public override LastTradedFlags SupportsLastTradedFlags =>
         LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedVolume | base.SupportsLastTradedFlags;
 
-    public bool    WasPaid     { get; set; }
-    public bool    WasGiven    { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool WasPaid { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool WasGiven { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public decimal TradeVolume { get; set; }
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
         get => base.IsEmpty && WasPaid == false && WasGiven == false && TradeVolume == 0m;

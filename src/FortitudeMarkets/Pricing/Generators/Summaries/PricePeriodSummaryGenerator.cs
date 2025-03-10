@@ -4,9 +4,8 @@
 #region
 
 using FortitudeCommon.Chronometry;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Summaries;
 using FortitudeMarkets.Pricing.Generators.MidPrice;
+using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Summaries;
 using MathNet.Numerics;
 using MathNet.Numerics.Distributions;

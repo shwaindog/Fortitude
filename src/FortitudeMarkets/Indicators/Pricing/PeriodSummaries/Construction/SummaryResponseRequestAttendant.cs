@@ -12,7 +12,6 @@ using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Summaries;
-using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
 
@@ -28,8 +27,10 @@ public abstract class RequestResponseAttendant
 }
 
 public class SubSummaryRequestResponseAttendant
-    (IHistoricalPricePeriodSummaryResolverRule constructingRule, HistoricalPeriodResponseRequest responseRequest
-      , TimeBoundaryPeriod subSummaryPeriod)
+(
+    IHistoricalPricePeriodSummaryResolverRule constructingRule
+  , HistoricalPeriodResponseRequest responseRequest
+  , TimeBoundaryPeriod subSummaryPeriod)
     : RequestResponseAttendant(constructingRule, responseRequest), ISummaryRequestResponseAttendant
 {
     public override async ValueTask<List<PricePeriodSummary>> BuildFromParts(BoundedTimeRange requestRange)

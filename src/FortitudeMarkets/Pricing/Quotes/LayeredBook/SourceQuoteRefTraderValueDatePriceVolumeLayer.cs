@@ -3,9 +3,9 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -59,18 +59,26 @@ public class SourceQuoteRefTraderValueDatePriceVolumeLayer : TraderPriceVolumeLa
         }
     }
 
-    public override LayerType LayerType => LayerType.SourceQuoteRefTraderValueDatePriceVolume;
+    [JsonIgnore] public override LayerType LayerType => LayerType.SourceQuoteRefTraderValueDatePriceVolume;
 
+    [JsonIgnore]
     public override LayerFlags SupportsLayerFlags =>
         LayerFlags.SourceQuoteReference | LayerFlags.SourceName
                                         | LayerFlags.Executable | LayerFlags.ValueDate | base.SupportsLayerFlags;
 
-    public string?  SourceName { get; set; }
-    public bool     Executable { get; set; }
-    public DateTime ValueDate  { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? SourceName { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool Executable { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime ValueDate { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public uint SourceQuoteReference { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
         get =>

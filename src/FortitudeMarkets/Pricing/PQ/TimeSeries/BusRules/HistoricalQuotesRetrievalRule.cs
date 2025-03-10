@@ -16,8 +16,6 @@ using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
-using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.Quotes;
 using static FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules.HistoricalQuoteTimeSeriesRepositoryConstants;
@@ -126,7 +124,7 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
     {
         var matchingInstruments =
             TimeSeriesRepository!.InstrumentFilesMap.Keys
-                                 .Where(i => i.InstrumentName == sourceTickerIdentifier.Ticker && i.InstrumentSource == sourceTickerIdentifier.Source)
+                                 .Where(i => i.InstrumentName == sourceTickerIdentifier.Ticker && i.SourceName == sourceTickerIdentifier.Source)
                                  .ToList();
         return matchingInstruments.Count != 1 ? null : matchingInstruments[0];
     }

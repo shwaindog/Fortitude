@@ -43,8 +43,8 @@ public class SourceTickerInfoTests
         expectedId = ((uint)srcId << 16) + tkrId;
 
         Assert.AreEqual(expectedId, firstUniSrcTkrId.SourceTickerId);
-        Assert.AreEqual("TestTicker", firstUniSrcTkrId.Ticker);
-        Assert.AreEqual("TestSource", firstUniSrcTkrId.Source);
+        Assert.AreEqual("TestTicker", firstUniSrcTkrId.InstrumentName);
+        Assert.AreEqual("TestSource", firstUniSrcTkrId.SourceName);
 
         var secondUniSrcTkrId = new SourceTickerInfo
             (srcId, "TestSource", tkrId, "TestTicker", TickerDetailLevel.Level2Quote, Unknown);
@@ -54,10 +54,10 @@ public class SourceTickerInfoTests
     [TestMethod]
     public void DummySourceTickerInfo_New_PropertiesAreAsExpected()
     {
-        expectedId = ((uint)sourceTickerInfo.SourceId << 16) + sourceTickerInfo.TickerId;
+        expectedId = ((uint)sourceTickerInfo.SourceId << 16) + sourceTickerInfo.InstrumentId;
         Assert.AreEqual(expectedId, sourceTickerInfo.SourceTickerId);
-        Assert.AreEqual("TestSource", sourceTickerInfo.Source);
-        Assert.AreEqual("TestTicker", sourceTickerInfo.Ticker);
+        Assert.AreEqual("TestSource", sourceTickerInfo.SourceName);
+        Assert.AreEqual("TestTicker", sourceTickerInfo.InstrumentName);
         Assert.AreEqual(10, sourceTickerInfo.MaximumPublishedLayers);
         Assert.AreEqual(0.00001m, sourceTickerInfo.RoundingPrecision);
         Assert.AreEqual(0.0001m, sourceTickerInfo.Pip);
@@ -78,10 +78,10 @@ public class SourceTickerInfoTests
         var minimalSrcTkrInfo = new SourceTickerInfo
             (1, "MinimalSource", 1, "MinalTicker", TickerDetailLevel.Level2Quote, Unknown);
 
-        expectedId = ((uint)minimalSrcTkrInfo.SourceId << 16) + minimalSrcTkrInfo.TickerId;
+        expectedId = ((uint)minimalSrcTkrInfo.SourceId << 16) + minimalSrcTkrInfo.InstrumentId;
         Assert.AreEqual(expectedId, minimalSrcTkrInfo.SourceTickerId);
-        Assert.AreEqual("MinimalSource", minimalSrcTkrInfo.Source);
-        Assert.AreEqual("MinalTicker", minimalSrcTkrInfo.Ticker);
+        Assert.AreEqual("MinimalSource", minimalSrcTkrInfo.SourceName);
+        Assert.AreEqual("MinalTicker", minimalSrcTkrInfo.InstrumentName);
         Assert.AreEqual(20, minimalSrcTkrInfo.MaximumPublishedLayers);
         Assert.AreEqual(0.00001m, minimalSrcTkrInfo.RoundingPrecision);
         Assert.AreEqual(0.0001m, minimalSrcTkrInfo.Pip);
@@ -228,9 +228,9 @@ public class SourceTickerInfoTests
 
         Assert.IsTrue(toString.Contains(srcTkrInfo.GetType().Name));
         Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.SourceId)}: {srcTkrInfo.SourceId}"));
-        Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.TickerId)}: {srcTkrInfo.TickerId}"));
-        Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.Ticker)}: {srcTkrInfo.Ticker}"));
-        Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.Source)}: {srcTkrInfo.Source}"));
+        Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.InstrumentId)}: {srcTkrInfo.InstrumentId}"));
+        Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.InstrumentName)}: {srcTkrInfo.InstrumentName}"));
+        Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.SourceName)}: {srcTkrInfo.SourceName}"));
         Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.MaximumPublishedLayers)}: " +
                                         $"{srcTkrInfo.MaximumPublishedLayers}"));
         Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.RoundingPrecision)}: " +

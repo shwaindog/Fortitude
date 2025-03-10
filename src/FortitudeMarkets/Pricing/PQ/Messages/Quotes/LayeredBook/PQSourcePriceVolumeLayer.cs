@@ -3,13 +3,14 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -68,9 +69,10 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         $"{PQPriceVolumeLayerToStringMembers}, {nameof(SourceName)}: {SourceName}, " +
         $"{nameof(Executable)}: {Executable}";
 
-    public override LayerType  LayerType          => LayerType.SourcePriceVolume;
-    public override LayerFlags SupportsLayerFlags => LayerFlags.SourceName | LayerFlags.Executable | base.SupportsLayerFlags;
+    [JsonIgnore] public override LayerType  LayerType          => LayerType.SourcePriceVolume;
+    [JsonIgnore] public override LayerFlags SupportsLayerFlags => LayerFlags.SourceName | LayerFlags.Executable | base.SupportsLayerFlags;
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public ushort SourceId
     {
         get => sourceId;
@@ -82,6 +84,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         }
     }
 
+    [JsonIgnore]
     public bool IsSourceNameUpdated
     {
         get => (UpdatedFlags & LayerFieldUpdatedFlags.SourceNameUpdatedFlag) > 0;
@@ -94,6 +97,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? SourceName
     {
         get => NameIdLookup[SourceId];
@@ -107,6 +111,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool Executable
     {
         get => (LayerBooleanFlags & LayerBooleanFlags.IsExecutableFlag) != 0;
@@ -121,6 +126,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         }
     }
 
+    [JsonIgnore]
     public bool IsExecutableUpdated
     {
         get => (UpdatedFlags & LayerFieldUpdatedFlags.ExecutableUpdatedFlag) > 0;
@@ -133,8 +139,11 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         }
     }
 
-    INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
 
+    [JsonIgnore] INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
+
+
+    [JsonIgnore]
     public IPQNameIdLookupGenerator NameIdLookup
     {
         get => nameIdLookup;
@@ -148,6 +157,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
         get => base.IsEmpty && SourceId == 0 && !Executable;
@@ -167,6 +177,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         base.StateReset();
     }
 
+    [JsonIgnore]
     public override bool HasUpdates
     {
         get => base.HasUpdates || NameIdLookup.HasUpdates;

@@ -8,7 +8,6 @@ using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
 
@@ -20,8 +19,8 @@ public static class PricePeriodSummaryExtensions
     {
         if (pricePeriodSummary.PeriodStartTime.Equals(DateTimeConstants.UnixEpoch)
          || pricePeriodSummary.PeriodEndTime < pricePeriodSummary.PeriodStartTime)
-            return TimeBoundaryPeriod.None;
-        if (pricePeriodSummary.PeriodEndTime.Equals(DateTimeConstants.UnixEpoch)) return TimeBoundaryPeriod.None;
+            return TimeBoundaryPeriod.Tick;
+        if (pricePeriodSummary.PeriodEndTime.Equals(DateTimeConstants.UnixEpoch)) return TimeBoundaryPeriod.Tick;
         if (pricePeriodSummary.PeriodStartTime.Equals(pricePeriodSummary.PeriodEndTime)) return TimeBoundaryPeriod.Tick;
         var diffTimeSpan = pricePeriodSummary.PeriodEndTime - pricePeriodSummary.PeriodStartTime;
         var totalSeconds = (int)diffTimeSpan.TotalSeconds;
@@ -44,7 +43,7 @@ public static class PricePeriodSummaryExtensions
          && totalSeconds <= 366 * 24 * 3600)
             return TimeBoundaryPeriod.OneYear;
 
-        return TimeBoundaryPeriod.None;
+        return TimeBoundaryPeriod.Tick;
     }
 
     public static IChannelLimitedEventFactory<PricePeriodSummary> CreateChannelFactory

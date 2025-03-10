@@ -188,7 +188,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
         (string instrumentName, InstrumentType? instrumentType = null, DiscreetTimePeriod? period = null)
     {
         lastFileInfoRetrieved.Clear();
-        if (instrumentName == tickerId15SPeriod.Ticker)
+        if (instrumentName == tickerId15SPeriod.InstrumentName)
         {
             lastFileEntryInfoRetrieved.Add(new InstrumentFileEntryInfo(tickerId15SPeriod, OneWeek, new List<FileEntryInfo>(), 1));
             return lastFileEntryInfoRetrieved;

@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
@@ -7,7 +10,6 @@ using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarkets.Trading.Orders;
-using FortitudeMarkets.Trading.Orders.Client;
 using FortitudeMarkets.Trading.Orders.Client;
 using FortitudeMarkets.Trading.ORX.Session;
 
@@ -21,25 +23,27 @@ public class OrxOrderSubmitRequest : OrxTradingMessage, IOrderSubmitRequest
 
     public OrxOrderSubmitRequest(IOrderSubmitRequest toClone)
     {
-        OrderDetails = toClone.OrderDetails != null ? new OrxOrder(toClone.OrderDetails) : null;
-        AttemptNumber = toClone.AttemptNumber;
-        CurrentAttemptTime = toClone.CurrentAttemptTime;
+        OrderDetails        = toClone.OrderDetails != null ? new OrxOrder(toClone.OrderDetails) : null;
+        AttemptNumber       = toClone.AttemptNumber;
+        CurrentAttemptTime  = toClone.CurrentAttemptTime;
         OriginalAttemptTime = toClone.OriginalAttemptTime;
-        Tag = toClone.Tag != null ? new MutableString(toClone.Tag) : null;
+        Tag                 = toClone.Tag != null ? new MutableString(toClone.Tag) : null;
     }
 
-    public OrxOrderSubmitRequest(OrxOrder orderDetails, int attemptNumber, DateTime currentAttemptTime,
+    public OrxOrderSubmitRequest
+    (OrxOrder orderDetails, int attemptNumber, DateTime currentAttemptTime,
         DateTime originalAttemptTime, string? tag)
         : this(orderDetails, attemptNumber, currentAttemptTime, originalAttemptTime, (MutableString)tag) { }
 
-    public OrxOrderSubmitRequest(OrxOrder orderDetails, int attemptNumber, DateTime currentAttemptTime,
+    public OrxOrderSubmitRequest
+    (OrxOrder orderDetails, int attemptNumber, DateTime currentAttemptTime,
         DateTime originalAttemptTime, MutableString tag)
     {
-        OrderDetails = orderDetails;
-        AttemptNumber = attemptNumber;
-        CurrentAttemptTime = currentAttemptTime;
+        OrderDetails        = orderDetails;
+        AttemptNumber       = attemptNumber;
+        CurrentAttemptTime  = currentAttemptTime;
         OriginalAttemptTime = originalAttemptTime;
-        Tag = tag;
+        Tag                 = tag;
     }
 
     [OrxMandatoryField(10)] public OrxOrder? OrderDetails { get; set; }
@@ -66,16 +70,17 @@ public class OrxOrderSubmitRequest : OrxTradingMessage, IOrderSubmitRequest
         set => Tag = value as MutableString;
     }
 
-    public override IVersionedMessage CopyFrom(IVersionedMessage source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IVersionedMessage CopyFrom
+    (IVersionedMessage source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is IOrderSubmitRequest orderSubmitRequest)
         {
-            OrderDetails = orderSubmitRequest.OrderDetails.SyncOrRecycle(OrderDetails);
-            Tag = orderSubmitRequest.Tag.SyncOrRecycle(Tag);
-            AttemptNumber = orderSubmitRequest.AttemptNumber;
-            CurrentAttemptTime = orderSubmitRequest.CurrentAttemptTime;
+            OrderDetails        = orderSubmitRequest.OrderDetails.SyncOrRecycle(OrderDetails);
+            Tag                 = orderSubmitRequest.Tag.SyncOrRecycle(Tag);
+            AttemptNumber       = orderSubmitRequest.AttemptNumber;
+            CurrentAttemptTime  = orderSubmitRequest.CurrentAttemptTime;
             OriginalAttemptTime = orderSubmitRequest.OriginalAttemptTime;
         }
 
@@ -87,9 +92,9 @@ public class OrxOrderSubmitRequest : OrxTradingMessage, IOrderSubmitRequest
         OrderDetails?.DecrementRefCount();
         OrderDetails = null;
         Tag?.DecrementRefCount();
-        Tag = null;
-        AttemptNumber = 0;
-        CurrentAttemptTime = DateTimeConstants.UnixEpoch;
+        Tag                 = null;
+        AttemptNumber       = 0;
+        CurrentAttemptTime  = DateTimeConstants.UnixEpoch;
         OriginalAttemptTime = DateTimeConstants.UnixEpoch;
         base.StateReset();
     }
@@ -99,13 +104,13 @@ public class OrxOrderSubmitRequest : OrxTradingMessage, IOrderSubmitRequest
 
     protected bool Equals(OrxOrderSubmitRequest other)
     {
-        var orderDetailsSame = Equals(OrderDetails, other.OrderDetails);
-        var attemptNumberSame = AttemptNumber == other.AttemptNumber;
-        var currentAttemptTimeSame = Equals(CurrentAttemptTime, other.CurrentAttemptTime);
+        var orderDetailsSame        = Equals(OrderDetails, other.OrderDetails);
+        var attemptNumberSame       = AttemptNumber == other.AttemptNumber;
+        var currentAttemptTimeSame  = Equals(CurrentAttemptTime, other.CurrentAttemptTime);
         var originalAttemptTimeSame = Equals(OriginalAttemptTime, other.OriginalAttemptTime);
-        var tagSame = Equals(Tag, other.Tag);
+        var tagSame                 = Equals(Tag, other.Tag);
         return orderDetailsSame && attemptNumberSame && currentAttemptTimeSame && originalAttemptTimeSame
-               && tagSame;
+            && tagSame;
     }
 
     public override bool Equals(object? obj)

@@ -3,8 +3,8 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
 
 #endregion
 
@@ -22,14 +22,18 @@ public class LastTraderPaidGivenTrade : LastPaidGivenTrade, IMutableLastTraderPa
 
     public LastTraderPaidGivenTrade(ILastTrade toClone) : base(toClone)
     {
-        if (toClone is ILastTraderPaidGivenTrade lastTraderPaidGivenTrade)
-            TraderName = lastTraderPaidGivenTrade.TraderName;
+        if (toClone is ILastTraderPaidGivenTrade lastTraderPaidGivenTrade) TraderName = lastTraderPaidGivenTrade.TraderName;
     }
 
-    public override LastTradeType   LastTradeType           => LastTradeType.PriceLastTraderPaidOrGivenVolume;
-    public override LastTradedFlags SupportsLastTradedFlags => LastTradedFlags.TraderName | base.SupportsLastTradedFlags;
+    [JsonIgnore] public override LastTradeType   LastTradeType           => LastTradeType.PriceLastTraderPaidOrGivenVolume;
+    [JsonIgnore] public override LastTradedFlags SupportsLastTradedFlags => LastTradedFlags.TraderName | base.SupportsLastTradedFlags;
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? TraderName { get; set; }
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
         get => base.IsEmpty && TraderName == null;
@@ -52,8 +56,7 @@ public class LastTraderPaidGivenTrade : LastPaidGivenTrade, IMutableLastTraderPa
     {
         base.CopyFrom(source, copyMergeFlags);
 
-        if (source is ILastTraderPaidGivenTrade lastTraderPaidGivenTrade)
-            TraderName = lastTraderPaidGivenTrade.TraderName;
+        if (source is ILastTraderPaidGivenTrade lastTraderPaidGivenTrade) TraderName = lastTraderPaidGivenTrade.TraderName;
         return this;
     }
 

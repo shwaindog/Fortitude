@@ -32,8 +32,8 @@ public abstract class PQTickerFeedSubscription : IPQTickerFeedSubscription
         this.sourceTickerInfo = sourceTickerInfo;
     }
 
-    public string Source => sourceTickerInfo.Source;
-    public string Ticker => sourceTickerInfo.Ticker;
+    public string Source => sourceTickerInfo.SourceName;
+    public string Ticker => sourceTickerInfo.InstrumentName;
 
     public IPricingServerConfig Feed { get; }
 

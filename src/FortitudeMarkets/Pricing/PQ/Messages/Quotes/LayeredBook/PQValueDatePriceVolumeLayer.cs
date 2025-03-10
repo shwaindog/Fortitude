@@ -3,11 +3,12 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -38,9 +39,11 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
 
     protected string PQValueDatePriceVolumeLayerToStringMembers => $"{PQPriceVolumeLayerToStringMembers}, {nameof(ValueDate)}: {ValueDate}";
 
-    public override LayerType  LayerType          => LayerType.ValueDatePriceVolume;
-    public override LayerFlags SupportsLayerFlags => LayerFlags.ValueDate | base.SupportsLayerFlags;
+    [JsonIgnore] public override LayerType  LayerType          => LayerType.ValueDatePriceVolume;
+    [JsonIgnore] public override LayerFlags SupportsLayerFlags => LayerFlags.ValueDate | base.SupportsLayerFlags;
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public DateTime ValueDate
     {
         get => valueDate;
@@ -52,6 +55,7 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         }
     }
 
+    [JsonIgnore]
     public bool IsValueDateUpdated
     {
         get => (UpdatedFlags & LayerFieldUpdatedFlags.ValueDateUpdatedFlag) > 0;
@@ -64,6 +68,7 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
         get => base.IsEmpty && ValueDate == DateTimeConstants.UnixEpoch;
@@ -117,8 +122,7 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         }
         else if (pqValueDate != null)
         {
-            if (pqValueDate.IsValueDateUpdated || isFullReplace)
-                ValueDate = pqValueDate.ValueDate;
+            if (pqValueDate.IsValueDateUpdated || isFullReplace) ValueDate = pqValueDate.ValueDate;
             if (isFullReplace) SetFlagsSame(pqValueDate);
         }
         return this;

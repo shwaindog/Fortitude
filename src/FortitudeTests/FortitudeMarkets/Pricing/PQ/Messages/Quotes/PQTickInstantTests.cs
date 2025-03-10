@@ -3,8 +3,8 @@
 
 #region
 
+using System.Text.Json;
 using FortitudeCommon.AsyncProcessing;
-using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
@@ -71,7 +71,7 @@ public class PQTickInstantTests
         Assert.IsFalse(emptyQuote.IsSourceTimeDateUpdated);
         Assert.IsFalse(emptyQuote.IsSourceTimeSubHourUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceTime);
+        Assert.AreEqual(default, emptyQuote.SourceTime);
         Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         var expectedSetTime = new DateTime(2017, 10, 14, 15, 10, 59).AddTicks(9879879);
@@ -246,7 +246,7 @@ public class PQTickInstantTests
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.AreEqual(false, emptyQuote.IsReplay);
         Assert.AreEqual(FeedSyncStatus.OutOfSync, emptyQuote.FeedSyncStatus);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceTime);
+        Assert.AreEqual(default, emptyQuote.SourceTime);
         Assert.AreEqual(0m, emptyQuote.SingleTickValue);
     }
 
@@ -316,10 +316,10 @@ public class PQTickInstantTests
                                                                           new DateTime(2017, 11, 04, 16, 33, 59)
                                                                         , StorageFlags.Update).ToList();
         Assert.AreEqual(PQSourceTickerInfoTests.ExpectedSourceStringUpdate
-                            (fullyPopulatedPQTickInstant.SourceTickerInfo!.Source),
+                            (fullyPopulatedPQTickInstant.SourceTickerInfo!.SourceName),
                         ExtractFieldStringUpdateWithId(pqFieldUpdates, PQFieldKeys.SourceTickerNames, 0));
         Assert.AreEqual(PQSourceTickerInfoTests.ExpectedTickerStringUpdate
-                            (fullyPopulatedPQTickInstant.SourceTickerInfo.Ticker),
+                            (fullyPopulatedPQTickInstant.SourceTickerInfo.InstrumentName),
                         ExtractFieldStringUpdateWithId(pqFieldUpdates, PQFieldKeys.SourceTickerNames, 1));
     }
 
@@ -342,9 +342,9 @@ public class PQTickInstantTests
         var sourceStringUpdate = PQSourceTickerInfoTests.ExpectedSourceStringUpdate(expectedNewSource);
 
         emptyQuote.UpdateFieldString(tickerStringUpdate);
-        Assert.AreEqual(expectedNewTicker, emptyQuote.SourceTickerInfo!.Ticker);
+        Assert.AreEqual(expectedNewTicker, emptyQuote.SourceTickerInfo!.InstrumentName);
         emptyQuote.UpdateFieldString(sourceStringUpdate);
-        Assert.AreEqual(expectedNewSource, emptyQuote.SourceTickerInfo.Source);
+        Assert.AreEqual(expectedNewSource, emptyQuote.SourceTickerInfo.SourceName);
     }
 
     [TestMethod]
@@ -364,8 +364,8 @@ public class PQTickInstantTests
         fullyPopulatedPQTickInstant.HasUpdates = false;
         emptyQuote.CopyFrom(fullyPopulatedPQTickInstant);
         Assert.AreEqual(fullyPopulatedPQTickInstant.PQSequenceId, emptyQuote.PQSequenceId);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceTime);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.ClientReceivedTime);
+        Assert.AreEqual(default, emptyQuote.SourceTime);
+        Assert.AreEqual(default, emptyQuote.ClientReceivedTime);
         Assert.IsTrue(
                       fullyPopulatedPQTickInstant.SourceTickerInfo!.AreEquivalent(emptyQuote.SourceTickerInfo));
         Assert.AreEqual(false, emptyQuote.IsReplay);
@@ -432,6 +432,18 @@ public class PQTickInstantTests
     {
         var hashCode = emptyQuote.GetHashCode();
         Assert.IsTrue(hashCode != 0);
+    }
+
+    [TestMethod]
+    public void FullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = fullyPopulatedPQTickInstant;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
     }
 
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType
@@ -602,6 +614,8 @@ public class PQTickInstantTests
 
         ITickInstant? IDoublyLinkedListNode<ITickInstant>.Previous { get; set; }
         ITickInstant? IDoublyLinkedListNode<ITickInstant>.Next     { get; set; }
+
+        public void IncrementTimeBy(TimeSpan toChangeBy) { }
 
         public IVersionedMessage CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
             throw new NotImplementedException();

@@ -14,17 +14,20 @@ using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeMarkets.Configuration.ClientServerConfig;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Converters;
 using FortitudeMarkets.Pricing.PQ.Subscription.BusRules.BusMessages;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.Subscription.BusRules;
 
 public class PQPricingClientRequesterRule
-    (string feedName, IMarketConnectionConfig marketConnectionConfig,
-        IMessageDeserializationRepository sharedFeedDeserializationRepo, ISocketDispatcherResolver dispatcherResolver)
+(
+    string feedName
+  , IMarketConnectionConfig marketConnectionConfig
+  , IMessageDeserializationRepository sharedFeedDeserializationRepo
+  , ISocketDispatcherResolver dispatcherResolver)
     : Rule("PQClient_" + feedName + "_PQClientSnapshotRule")
 {
     private readonly string feedAvailableTickersUpdateAddress = feedName.FeedAvailableTickersUpdateAddress();
@@ -74,10 +77,10 @@ public class PQPricingClientRequesterRule
                             ?? new ValueTask<bool>(false));
         if (!succeeded)
             logger.Warn("{0} did not successfully request snapshots for [{1}]", feedName
-                      , string.Join(", ", sourceTickerInfos.Select(stqi => stqi.Ticker)));
+                      , string.Join(", ", sourceTickerInfos.Select(stqi => stqi.InstrumentName)));
         else
             logger.Info("{0} requested snapshots for [{1}]", feedName
-                      , string.Join(", ", sourceTickerInfos.Select(stqi => stqi.Ticker)));
+                      , string.Join(", ", sourceTickerInfos.Select(stqi => stqi.InstrumentName)));
     }
 
     private async ValueTask AttemptSnapshotClientStart()

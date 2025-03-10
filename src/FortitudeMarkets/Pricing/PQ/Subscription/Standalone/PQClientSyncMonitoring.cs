@@ -11,8 +11,8 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Configuration.ClientServerConfig;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -249,9 +249,9 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
             }
 
             if (!resync) continue;
-            if (!deserializersInNeedOfSnapshots.TryGetValue(pu.Identifier.Source,
+            if (!deserializersInNeedOfSnapshots.TryGetValue(pu.Identifier.SourceName,
                                                             out var pqQuoteDeserializerList))
-                deserializersInNeedOfSnapshots[pu.Identifier.Source] =
+                deserializersInNeedOfSnapshots[pu.Identifier.SourceName] =
                     pqQuoteDeserializerList = new List<ISourceTickerInfo>();
             if (!pqQuoteDeserializerList.Contains(pu.Identifier)) pqQuoteDeserializerList.Add(pu.Identifier);
         }

@@ -73,8 +73,8 @@ public class PricingClientServerPubSubscribeTests
         availableSourceTickers.UpdatedSourceTickerInfos += infos =>
         {
             Logger.Info("Client Received SourceTickerInfos [{0}]", string.Join(", ", infos));
-            if (infos.Any(stqi => stqi.Source == pqServerL2QuoteServerSetup.FirstTickerInfo.Source &&
-                                  stqi.Ticker == pqServerL2QuoteServerSetup.FirstTickerInfo.Ticker))
+            if (infos.Any(stqi => stqi.SourceName == pqServerL2QuoteServerSetup.FirstTickerInfo.SourceName &&
+                                  stqi.InstrumentName == pqServerL2QuoteServerSetup.FirstTickerInfo.InstrumentName))
                 autoResetEvent.Set();
         };
         autoResetEvent.WaitOne(3_000);
@@ -181,8 +181,8 @@ public class PricingClientServerPubSubscribeTests
         availableSourceTickers.UpdatedSourceTickerInfos += infos =>
         {
             Logger.Info("Client Received SourceTickerInfos [{0}]", string.Join(", ", infos));
-            if (infos.Any(stqi => stqi.Source == pqServerL3QuoteServerSetup.FirstTickerInfo.Source &&
-                                  stqi.Ticker == pqServerL3QuoteServerSetup.FirstTickerInfo.Ticker))
+            if (infos.Any(stqi => stqi.SourceName == pqServerL3QuoteServerSetup.FirstTickerInfo.SourceName &&
+                                  stqi.InstrumentName == pqServerL3QuoteServerSetup.FirstTickerInfo.InstrumentName))
                 autoResetEvent.Set();
         };
 

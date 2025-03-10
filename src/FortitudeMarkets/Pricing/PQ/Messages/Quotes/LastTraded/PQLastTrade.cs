@@ -3,22 +3,26 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
 
+[JsonDerivedType(typeof(PQLastTrade))]
+[JsonDerivedType(typeof(PQLastPaidGivenTrade))]
+[JsonDerivedType(typeof(PQLastTraderPaidGivenTrade))]
 public interface IPQLastTrade : IMutableLastTrade, IPQSupportsFieldUpdates<ILastTrade>
 {
-    bool IsTradeTimeSubHourUpdated { get; set; }
-    bool IsTradeTimeDateUpdated    { get; set; }
-    bool IsTradePriceUpdated       { get; set; }
+    [JsonIgnore] bool IsTradeTimeSubHourUpdated { get; set; }
+    [JsonIgnore] bool IsTradeTimeDateUpdated    { get; set; }
+    [JsonIgnore] bool IsTradePriceUpdated       { get; set; }
 
     new IPQLastTrade Clone();
 }
@@ -52,9 +56,10 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
 
     protected string PQLastTradeToStringMembers => $"{nameof(TradePrice)}: {TradePrice:N5}, {nameof(TradeTime)}: {TradeTime:O}";
 
-    public virtual LastTradeType   LastTradeType           => LastTradeType.Price;
-    public virtual LastTradedFlags SupportsLastTradedFlags => LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
+    [JsonIgnore] public virtual LastTradeType   LastTradeType           => LastTradeType.Price;
+    [JsonIgnore] public virtual LastTradedFlags SupportsLastTradedFlags => LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public DateTime TradeTime
     {
         get => tradeTime;
@@ -67,6 +72,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         }
     }
 
+    [JsonIgnore]
     public bool IsTradeTimeDateUpdated
     {
         get => (UpdatedFlags & LastTradeUpdated.TradeTimeDateUpdated) > 0;
@@ -79,6 +85,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         }
     }
 
+    [JsonIgnore]
     public bool IsTradeTimeSubHourUpdated
     {
         get => (UpdatedFlags & LastTradeUpdated.TradeTimeSubHourUpdated) > 0;
@@ -91,6 +98,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public decimal TradePrice
     {
         get => tradePrice;
@@ -102,6 +110,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         }
     }
 
+    [JsonIgnore]
     public bool IsTradePriceUpdated
     {
         get => (UpdatedFlags & LastTradeUpdated.TradePriceUpdated) > 0;
@@ -114,12 +123,14 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         }
     }
 
+    [JsonIgnore]
     public virtual bool HasUpdates
     {
         get => UpdatedFlags != LastTradeUpdated.None;
         set => IsTradePriceUpdated = IsTradeTimeDateUpdated = IsTradeTimeSubHourUpdated = value;
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public virtual bool IsEmpty
     {
         get => TradeTime == DateTimeConstants.UnixEpoch && TradePrice == 0m;

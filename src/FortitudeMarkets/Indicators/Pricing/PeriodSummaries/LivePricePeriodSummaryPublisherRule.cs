@@ -13,11 +13,10 @@ using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
-using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Summaries;
 using FortitudeMarkets.Indicators.Pricing.PeriodSummaries.Construction;
+using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.PQ.Converters;
+using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Summaries;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 

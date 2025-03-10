@@ -3,7 +3,6 @@
 
 #region
 
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Generators.MidPrice;
 using FortitudeMarkets.Pricing.Quotes;
 

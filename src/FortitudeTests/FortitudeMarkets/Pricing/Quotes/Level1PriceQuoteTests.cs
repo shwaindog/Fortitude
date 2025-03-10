@@ -3,6 +3,7 @@
 
 #region
 
+using System.Text.Json;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
@@ -264,6 +265,18 @@ public class Level1PriceQuoteTests
     public void PopulatedQuote_GetHashCode_NotEqualToZero()
     {
         Assert.AreNotEqual(0, fullyPopulatedLevel1Quote.GetHashCode());
+    }
+
+    [TestMethod]
+    public void FullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = fullyPopulatedLevel1Quote;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
     }
 
     [TestMethod]

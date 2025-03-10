@@ -11,9 +11,9 @@ using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeMarkets.Configuration.ClientServerConfig;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -119,21 +119,21 @@ public class PQClient : IDisposable
         PQSourceSubscriptionsContext? sourceSubscriptionsContext;
         lock (sourceSubscriptions)
         {
-            if (!sourceSubscriptions.TryGetValue(sourceTickerInfo.Source, out sourceSubscriptionsContext))
+            if (!sourceSubscriptions.TryGetValue(sourceTickerInfo.SourceName, out sourceSubscriptionsContext))
             {
-                sourceSubscriptions.Add(sourceTickerInfo.Source, sourceSubscriptionsContext =
+                sourceSubscriptions.Add(sourceTickerInfo.SourceName, sourceSubscriptionsContext =
                                             new PQSourceSubscriptionsContext());
-                sourceSubscriptionsContext.MarketConnectionConfig = GetFeedReferential(sourceTickerInfo.Source);
+                sourceSubscriptionsContext.MarketConnectionConfig = GetFeedReferential(sourceTickerInfo.SourceName);
             }
         }
 
         var foundSourceTickerQuoteConfig
-            = sourceTickerInfoRegistry.GetSourceTickerInfo(sourceTickerInfo.Source, sourceTickerInfo.Ticker);
+            = sourceTickerInfoRegistry.GetSourceTickerInfo(sourceTickerInfo.SourceName, sourceTickerInfo.InstrumentName);
         if (sourceSubscriptionsContext.MarketConnectionConfig == null || foundSourceTickerQuoteConfig == null) return null;
         if (sourceSubscriptionsContext.Subscriptions.Select(ssc => ssc.Source + ssc.Ticker)
-                                      .Any(st => st == sourceTickerInfo.Source + sourceTickerInfo.Ticker))
-            throw new Exception("Subscription for " + sourceTickerInfo.Ticker + " on " +
-                                sourceTickerInfo.Source + " already exists");
+                                      .Any(st => st == sourceTickerInfo.SourceName + sourceTickerInfo.InstrumentName))
+            throw new Exception("Subscription for " + sourceTickerInfo.InstrumentName + " on " +
+                                sourceTickerInfo.SourceName + " already exists");
         var foundMarketConnectionConfig = sourceSubscriptionsContext.MarketConnectionConfig;
         var sub                         = CreateQuoteStream<T>(sourceTickerInfo, foundMarketConnectionConfig);
         if (sub == null) return null;
@@ -164,7 +164,7 @@ public class PQClient : IDisposable
             var tickerPricingSubscriptionConfig = new TickerPricingSubscriptionConfig(sourceTickerInfo, pricingServerConfig);
             var quoteDeserializer               = deserializationRepository.GetDeserializer(sourceTickerInfo);
             if (quoteDeserializer != null)
-                throw new Exception("Subscription for " + sourceTickerInfo.Ticker + " on " +
+                throw new Exception("Subscription for " + sourceTickerInfo.InstrumentName + " on " +
                                     marketConnectionConfig?.Name +
                                     " already exists");
             quoteDeserializer = deserializationRepository.CreateQuoteDeserializer<T>(tickerPricingSubscriptionConfig);
@@ -197,7 +197,7 @@ public class PQClient : IDisposable
         }
         else
         {
-            Logger.Warn($"Cannot subscribe to Ticker {sourceTickerInfo.Ticker} for source " +
+            Logger.Warn($"Cannot subscribe to Ticker {sourceTickerInfo.InstrumentName} for source " +
                         $"{marketConnectionConfig?.Name ?? "serverConfig is null"} not found in MarketConnectionConfig " +
                         $"{marketConnectionConfig?.ToString() ?? "serverConfig is null"}");
         }

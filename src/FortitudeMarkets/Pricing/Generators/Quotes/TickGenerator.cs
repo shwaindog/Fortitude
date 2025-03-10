@@ -3,10 +3,11 @@
 
 #region
 
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Generators.MidPrice;
 using FortitudeMarkets.Pricing.Generators.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Generators.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
+using FortitudeMarkets.Pricing.Quotes;
 using MathNet.Numerics.Distributions;
 
 #endregion
@@ -48,6 +49,8 @@ public struct GenerateQuoteInfo
 
     public DateTime SingleQuoteStartTime = DateTime.Now;
 
+    public int CycleQuotesAmount = 0;
+
     public TimeSpan SingleQuoteNextQuoteIncrement = TimeSpan.FromMilliseconds(1);
 
     public int SingleQuoteStartSequenceNumber = 0;
@@ -72,8 +75,11 @@ public interface ITickGenerator<out TDetailLevel> where TDetailLevel : IMutableT
 
 public abstract class TickGenerator<TDetailLevel> : ITickGenerator<TDetailLevel> where TDetailLevel : IMutableTickInstant
 {
+    private readonly   TDetailLevel[]    cycleQuotes = [];
     protected readonly GenerateQuoteInfo GenerateQuoteInfo;
     private readonly   TimeSpan          singleQuoteInterval;
+
+    private int cyclePosition = 0;
 
     private int nextSingleQuoteSequenceNumber;
 
@@ -89,20 +95,41 @@ public abstract class TickGenerator<TDetailLevel> : ITickGenerator<TDetailLevel>
         nextSingleQuoteStartTime      = generateQuoteInfo.SingleQuoteStartTime;
         singleQuoteInterval           = generateQuoteInfo.SingleQuoteNextQuoteIncrement;
         nextSingleQuoteSequenceNumber = generateQuoteInfo.SingleQuoteStartSequenceNumber;
+        if (generateQuoteInfo.CycleQuotesAmount > 0)
+        {
+            var preGeneratedQuotes = new TDetailLevel[generateQuoteInfo.CycleQuotesAmount];
+            for (var i = 0; i < generateQuoteInfo.CycleQuotesAmount - 1; i++) preGeneratedQuotes[i] = Next;
+            cycleQuotes = preGeneratedQuotes;
+        }
     }
 
     public TDetailLevel Next
     {
         get
         {
-            var prevCurrMid = GenerateQuoteInfo.MidPriceGenerator
-                                               .PreviousCurrentPrices(nextSingleQuoteStartTime, singleQuoteInterval, 1
-                                                                    , nextSingleQuoteSequenceNumber++)
-                                               .First();
-            PseudoRandom             =  new Random(prevCurrMid.PreviousMid.Mid.GetHashCode() ^ prevCurrMid.CurrentMid.Mid.GetHashCode());
-            NormalDist               =  new Normal(0, 1, PseudoRandom);
-            nextSingleQuoteStartTime += singleQuoteInterval;
-            PreviousReturnedQuote    =  BuildQuote(prevCurrMid, nextSingleQuoteSequenceNumber);
+            if (cycleQuotes.Length > 0)
+            {
+                var cycleIndex = cyclePosition % cycleQuotes.Length;
+                PreviousReturnedQuote    =  cycleQuotes[cycleIndex];
+                nextSingleQuoteStartTime += singleQuoteInterval;
+                if (cyclePosition++ >= cycleQuotes.Length)
+                {
+                    PreviousReturnedQuote.IncrementTimeBy(cycleQuotes.Length * singleQuoteInterval);
+                    if (PreviousReturnedQuote is IPQTickInstant pqTickInstant) pqTickInstant.HasUpdates = true;
+                }
+            }
+            else
+            {
+                var prevCurrMid = GenerateQuoteInfo.MidPriceGenerator
+                                                   .PreviousCurrentPrices(nextSingleQuoteStartTime, singleQuoteInterval, 1
+                                                                        , nextSingleQuoteSequenceNumber++)
+                                                   .First();
+                nextSingleQuoteStartTime += singleQuoteInterval;
+
+                PseudoRandom          = new Random(prevCurrMid.PreviousMid.Mid.GetHashCode() ^ prevCurrMid.CurrentMid.Mid.GetHashCode());
+                NormalDist            = new Normal(0, 1, PseudoRandom);
+                PreviousReturnedQuote = BuildQuote(prevCurrMid, nextSingleQuoteSequenceNumber);
+            }
             return PreviousReturnedQuote;
         }
     }

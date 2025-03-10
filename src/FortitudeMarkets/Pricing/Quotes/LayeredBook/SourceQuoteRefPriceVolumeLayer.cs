@@ -3,8 +3,8 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -22,14 +22,17 @@ public class SourceQuoteRefPriceVolumeLayer : SourcePriceVolumeLayer, IMutableSo
 
     public SourceQuoteRefPriceVolumeLayer(IPriceVolumeLayer toClone) : base(toClone)
     {
-        if (toClone is ISourceQuoteRefPriceVolumeLayer srcQtRefPvLayer)
-            SourceQuoteReference = srcQtRefPvLayer.SourceQuoteReference;
+        if (toClone is ISourceQuoteRefPriceVolumeLayer srcQtRefPvLayer) SourceQuoteReference = srcQtRefPvLayer.SourceQuoteReference;
     }
 
-    public override LayerType  LayerType          => LayerType.SourceQuoteRefPriceVolume;
-    public override LayerFlags SupportsLayerFlags => LayerFlags.SourceQuoteReference | base.SupportsLayerFlags;
+    [JsonIgnore] public override LayerType  LayerType          => LayerType.SourceQuoteRefPriceVolume;
+    [JsonIgnore] public override LayerFlags SupportsLayerFlags => LayerFlags.SourceQuoteReference | base.SupportsLayerFlags;
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public uint SourceQuoteReference { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
         get => base.IsEmpty && SourceQuoteReference == 0u;

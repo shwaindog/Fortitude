@@ -12,10 +12,10 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -231,12 +231,12 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
             PublishedQuote.FeedSyncStatus = syncStatus;
             if (!ShouldPublish) return;
             PublishedQuote.DispatchedTime = TimeContext.UtcNow;
-            if (tl.Enabled) tl.Add("Ticker", Identifier.Ticker);
+            if (tl.Enabled) tl.Add("Ticker", Identifier.InstrumentName);
             detectionToPublishLatencyTraceLogger?.Add(SocketDataLatencyLogger.BeforePublish);
             // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < Subscribers.Count; i++) Subscribers[i].OnNext(PublishedQuote);
             OnNotify(PublishedQuote);
-            if (tl.Enabled) tl.Add("Source", Identifier.Source);
+            if (tl.Enabled) tl.Add("Source", Identifier.SourceName);
             PublishedQuote.HasUpdates = false;
         }
         catch

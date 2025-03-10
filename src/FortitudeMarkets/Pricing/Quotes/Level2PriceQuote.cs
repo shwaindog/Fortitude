@@ -3,13 +3,11 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Summaries;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -73,50 +71,59 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
 
     public override Level2PriceQuote Clone() => Recycler?.Borrow<Level2PriceQuote>().CopyFrom(this) as Level2PriceQuote ?? new Level2PriceQuote(this);
 
+    [JsonIgnore]
     public new Level2PriceQuote? Previous
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as Level2PriceQuote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
+
+    [JsonIgnore]
     public new Level2PriceQuote? Next
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as Level2PriceQuote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
+    [JsonIgnore]
     ILevel2Quote? ILevel2Quote.Previous
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as ILevel2Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
+    [JsonIgnore]
     ILevel2Quote? ILevel2Quote.Next
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as ILevel2Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
+    [JsonIgnore]
     ILevel2Quote? IDoublyLinkedListNode<ILevel2Quote>.Previous
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as ILevel2Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
+    [JsonIgnore]
     ILevel2Quote? IDoublyLinkedListNode<ILevel2Quote>.Next
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as ILevel2Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
-    public override TickerDetailLevel TickerDetailLevel => TickerDetailLevel.Level2Quote;
+    [JsonIgnore] public override TickerDetailLevel TickerDetailLevel => TickerDetailLevel.Level2Quote;
 
-    public IMutableOrderBook BidBook          { get; set; }
-    IOrderBook ILevel2Quote. BidBook          => BidBook;
-    public bool              IsBidBookChanged { get; set; }
-    public IMutableOrderBook AskBook          { get; set; }
-    IOrderBook ILevel2Quote. AskBook          => AskBook;
-    public bool              IsAskBookChanged { get; set; }
+    public              IMutableOrderBook       BidBook          { get; set; }
+    [JsonIgnore]        IOrderBook ILevel2Quote.BidBook          => BidBook;
+    [JsonIgnore] public bool                    IsBidBookChanged { get; set; }
 
+    public              IMutableOrderBook       AskBook          { get; set; }
+    [JsonIgnore]        IOrderBook ILevel2Quote.AskBook          => AskBook;
+    [JsonIgnore] public bool                    IsAskBookChanged { get; set; }
+
+    [JsonIgnore]
     public override decimal BidPriceTop
     {
         get => BidBook.Any() ? BidBook[0]?.Price ?? 0 : 0m;
@@ -134,6 +141,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
         }
     }
 
+    [JsonIgnore]
     public override decimal AskPriceTop
     {
         get => AskBook.Any() ? AskBook[0]?.Price ?? 0 : 0m;

@@ -6,9 +6,9 @@
 using FortitudeCommon.Chronometry;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Summaries;
 using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Summaries;
 
@@ -51,6 +51,8 @@ public class QuoteSequencedTestDataBuilder
         pricePeriodSummary.LowestAskPrice     = 0.79314m;
         pricePeriodSummary.EndBidPrice        = 0.79334m;
         pricePeriodSummary.EndAskPrice        = 0.79344m;
+        pricePeriodSummary.AverageBidPrice    = 0.79324m;
+        pricePeriodSummary.AverageAskPrice    = 0.79334m;
         pricePeriodSummary.TickCount          = 10;
         pricePeriodSummary.PeriodVolume       = 100_000_000_000;
         pricePeriodSummary.PeriodSummaryFlags = PricePeriodSummaryFlags.FromStorage;
@@ -75,14 +77,15 @@ public class QuoteSequencedTestDataBuilder
             pqLevel3Quote.RecentlyTraded[i]!.TradePrice = 0.76591m + batchId * 0.00001m + tradePriceDelta;
             pqLevel3Quote.RecentlyTraded[i]!.TradeTime  = new DateTime(2017, 07, 02, 13, 40, 11);
 
-            if (pqLevel3Quote.RecentlyTraded[i] is IPQLastPaidGivenTrade lastPaidGivenTrade)
+            if (pqLevel3Quote.RecentlyTraded[i] is IMutableLastPaidGivenTrade lastPaidGivenTrade)
             {
                 lastPaidGivenTrade.TradeVolume = 2000000 + tradeVolumeDelta;
                 lastPaidGivenTrade.WasGiven    = toggleGivenBool = !toggleGivenBool;
                 lastPaidGivenTrade.WasPaid     = togglePaidBool  = !togglePaidBool;
             }
 
-            if (pqLevel3Quote.RecentlyTraded[i] is IPQLastTraderPaidGivenTrade lastTraderTrade) lastTraderTrade.TraderName = "NewTraderName " + i;
+            if (pqLevel3Quote.RecentlyTraded[i] is IMutableLastTraderPaidGivenTrade lastTraderTrade)
+                lastTraderTrade.TraderName = "NewTraderName " + i;
         }
     }
 
@@ -157,6 +160,8 @@ public class QuoteSequencedTestDataBuilder
         level1Quote.SourceBidTime       = new DateTime(2017, 07, 16, 15, 49, 20).Add(sequenceIdTimeSpan);
         level1Quote.AdapterReceivedTime = new DateTime(2017, 07, 16, 15, 49, 30).Add(sequenceIdTimeSpan);
         level1Quote.AdapterSentTime     = new DateTime(2017, 07, 16, 15, 49, 40).Add(sequenceIdTimeSpan);
+        level1Quote.ValidFrom           = new DateTime(2017, 07, 16, 15, 49, 10).Add(sequenceIdTimeSpan);
+        level1Quote.ValidTo             = new DateTime(2017, 07, 16, 15, 49, 40).Add(sequenceIdTimeSpan);
         level1Quote.BidPriceTop         = 0.79324m + batchId * 0.00001m;
         level1Quote.AskPriceTop         = 0.79326m + batchId * 0.00001m;
 
@@ -165,12 +170,8 @@ public class QuoteSequencedTestDataBuilder
 
         switch (level1Quote.SummaryPeriod)
         {
-            case null when level1Quote is PQLevel1Quote:
-                level1Quote.SummaryPeriod = new PQPricePeriodSummary();
-                break;
-            case null:
-                level1Quote.SummaryPeriod = new PricePeriodSummary();
-                break;
+            case null when level1Quote is PQLevel1Quote: level1Quote.SummaryPeriod = new PQPricePeriodSummary(); break;
+            case null:                                   level1Quote.SummaryPeriod = new PricePeriodSummary(); break;
         }
 
         InitalizePeriodSummary(level1Quote.SummaryPeriod, batchId);

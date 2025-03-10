@@ -44,14 +44,14 @@ public class SourceTickerInfoRegistry : ISourceTickerInfoRegistry
     public IEnumerable<ISourceTickerInfo> AllSourceTickerInfos => sourceTickerMap.SelectMany(kvp => kvp.Value);
 
     public IEnumerable<ISourceTickerInfo> GetAllSourceTickerInfoForTicker(string ticker) =>
-        sourceTickerMap.SelectMany(kvp => kvp.Value).Where(stqi => stqi.Ticker == ticker);
+        sourceTickerMap.SelectMany(kvp => kvp.Value).Where(stqi => stqi.InstrumentName == ticker);
 
     public IEnumerable<ISourceTickerInfo> GetAllSourceTickerInfoForSource(string source) =>
-        sourceTickerMap.SelectMany(kvp => kvp.Value).Where(stqi => stqi.Source == source);
+        sourceTickerMap.SelectMany(kvp => kvp.Value).Where(stqi => stqi.SourceName == source);
 
     public ISourceTickerInfo? GetSourceTickerInfo(string sourceName, string ticker) =>
         sourceTickerMap.TryGetValue(sourceName, out List<ISourceTickerInfo>? sourceTickerList)
-            ? sourceTickerList!.FirstOrDefault(stqi => stqi.Ticker == ticker)
+            ? sourceTickerList!.FirstOrDefault(stqi => stqi.InstrumentName == ticker)
             : null;
 
     public void AppendReplace(IEnumerable<ISourceTickerInfo> toAmendAdd)
@@ -59,14 +59,14 @@ public class SourceTickerInfoRegistry : ISourceTickerInfoRegistry
         foreach (var sourceTickerInfo in toAmendAdd)
         {
             List<ISourceTickerInfo>? sourceTickerList;
-            if (!sourceTickerMap.TryGetValue(sourceTickerInfo.Source, out sourceTickerList))
+            if (!sourceTickerMap.TryGetValue(sourceTickerInfo.SourceName, out sourceTickerList))
             {
                 sourceTickerList = new List<ISourceTickerInfo> { sourceTickerInfo };
-                sourceTickerMap.Add(sourceTickerInfo.Source, sourceTickerList);
+                sourceTickerMap.Add(sourceTickerInfo.SourceName, sourceTickerList);
             }
             else
             {
-                var foundExisting = sourceTickerList!.FirstOrDefault(stqi => stqi.Ticker == sourceTickerInfo.Ticker);
+                var foundExisting = sourceTickerList!.FirstOrDefault(stqi => stqi.InstrumentName == sourceTickerInfo.InstrumentName);
                 if (foundExisting != null) sourceTickerList!.Remove(foundExisting);
                 sourceTickerList!.Add(sourceTickerInfo);
             }

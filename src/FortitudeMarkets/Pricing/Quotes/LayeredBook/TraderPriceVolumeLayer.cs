@@ -3,10 +3,9 @@
 
 #region
 
-using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -26,10 +25,10 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
         if (toClone is ITraderPriceVolumeLayer trdToClone)
         {
             TraderDetails = new List<IMutableTraderLayerInfo?>(trdToClone.Count);
-            foreach (var traderLayerInfo in trdToClone.Where(tli => tli != null))
+            foreach (var traderLayerInfo in trdToClone.TraderDetails.Where(tli => tli != null))
                 TraderDetails.Add(traderLayerInfo is TraderLayerInfo
                                       ? (IMutableTraderLayerInfo)traderLayerInfo.Clone()
-                                      : new TraderLayerInfo(traderLayerInfo.TraderName, traderLayerInfo.TraderVolume));
+                                      : new TraderLayerInfo(traderLayerInfo!.TraderName, traderLayerInfo.TraderVolume));
         }
         else
         {
@@ -37,10 +36,16 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
         }
     }
 
-    protected       IList<IMutableTraderLayerInfo?> TraderDetails { get; }
-    public override LayerType LayerType => LayerType.TraderPriceVolume;
+
+    public IList<IMutableTraderLayerInfo?> TraderDetails { get; }
+
+    [JsonIgnore] IList<ITraderLayerInfo?> ITraderPriceVolumeLayer.TraderDetails => TraderDetails.OfType<ITraderLayerInfo?>().ToList();
+
+    [JsonIgnore] public override LayerType LayerType => LayerType.TraderPriceVolume;
+    [JsonIgnore]
     public override LayerFlags SupportsLayerFlags => LayerFlags.TraderName | LayerFlags.TraderCount | LayerFlags.TraderSize | base.SupportsLayerFlags;
 
+    [JsonIgnore]
     public IMutableTraderLayerInfo? this[int i]
     {
         get
@@ -57,7 +62,7 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
         }
     }
 
-    ITraderLayerInfo? ITraderPriceVolumeLayer.this[int i] => this[i];
+    [JsonIgnore] ITraderLayerInfo? ITraderPriceVolumeLayer.this[int i] => this[i];
 
     public int Count
     {
@@ -73,6 +78,7 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
         get => base.IsEmpty && TraderDetails.All(tli => tli?.IsEmpty ?? true);
@@ -86,6 +92,7 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IsTraderCountOnly
     {
         get
@@ -154,16 +161,14 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
                 {
                     if (TraderDetails[i] != null)
                         TraderDetails[i]?.CopyFrom(sourceTraderPriceVolumeLayer[i]!);
-                    else if (sourceTraderPriceVolumeLayer[i] != null)
-                        TraderDetails[i] = new TraderLayerInfo(sourceTraderPriceVolumeLayer[i]!);
+                    else if (sourceTraderPriceVolumeLayer[i] != null) TraderDetails[i] = new TraderLayerInfo(sourceTraderPriceVolumeLayer[i]!);
                 }
                 else
                 {
                     TraderDetails.Add(new TraderLayerInfo(sourceTraderPriceVolumeLayer[i]!));
                 }
 
-            for (var i = TraderDetails.Count - 1; i >= sourceTraderPriceVolumeLayer.Count; i--)
-                TraderDetails[i]?.StateReset();
+            for (var i = TraderDetails.Count - 1; i >= sourceTraderPriceVolumeLayer.Count; i--) TraderDetails[i]?.StateReset();
         }
 
         return this;
@@ -181,23 +186,17 @@ public class TraderPriceVolumeLayer : PriceVolumeLayer, IMutableTraderPriceVolum
     {
         if (!(other is ITraderPriceVolumeLayer otherTvl)) return false;
         var baseSame = base.AreEquivalent(other, exactTypes);
-        var traderDetailsSame = TraderDetails.Zip(otherTvl,
+        var traderDetailsSame = TraderDetails.Zip(otherTvl.TraderDetails,
                                                   (ftd, std) => ftd != null && ftd.AreEquivalent(std, exactTypes))
                                              .All(same => same);
         return baseSame && traderDetailsSame;
     }
 
-    IEnumerator<ITraderLayerInfo> IEnumerable<ITraderLayerInfo>.GetEnumerator() => GetEnumerator();
-
-    public IEnumerator<IMutableTraderLayerInfo> GetEnumerator() => TraderDetails.Take(Count).GetEnumerator()!;
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
     private void AssertMaxTraderSizeNotExceeded(int proposedNewIndex)
     {
-        if (proposedNewIndex > byte.MaxValue)
-            throw new ArgumentOutOfRangeException($"Max Traders represented is {byte.MaxValue}");
+        if (proposedNewIndex > byte.MaxValue) throw new ArgumentOutOfRangeException($"Max Traders represented is {byte.MaxValue}");
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((ITraderPriceVolumeLayer?)obj, true);

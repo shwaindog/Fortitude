@@ -3,16 +3,16 @@
 
 #region
 
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Generators.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
+using FortitudeMarkets.Pricing.PQ.Messages.Quotes.Generators.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
-namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.Generators.LayeredBook;
+namespace FortitudeMarkets.Pricing.PQ.Generators.Quotes.LayeredBook;
 
 public class PQBookGenerator : BookGenerator
 {

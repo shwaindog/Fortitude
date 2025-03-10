@@ -3,6 +3,7 @@
 
 #region
 
+using System.Text.Json;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
@@ -489,6 +490,56 @@ public class Level3PriceQuoteTests
     {
         foreach (var populatedQuote in allFullyPopulatedQuotes) Assert.AreNotEqual(0, populatedQuote.GetHashCode());
     }
+
+
+    [TestMethod]
+    public void NoRecentlyTradedFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = noRecentlyTradedFullyPopulatedQuote;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
+    }
+
+    [TestMethod]
+    public void SimpleRecentlyTradedFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = simpleRecentlyTradedFullyPopulatedQuote;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
+    }
+
+    [TestMethod]
+    public void PaidGivenRecentlyTradedFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = paidGivenVolumeRecentlyTradedFullyPopulatedQuote;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
+    }
+
+    [TestMethod]
+    public void TraderPaidGivenRecentlyFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
+    }
+
 
     [TestMethod]
     public void FullyPopulatedQuote_ToString_ReturnsNameAndValues()

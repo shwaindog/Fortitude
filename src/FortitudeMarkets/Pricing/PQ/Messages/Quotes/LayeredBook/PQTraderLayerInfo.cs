@@ -3,12 +3,13 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -24,10 +25,10 @@ public enum TraderLayerInfoFlags : byte
 
 public interface IPQTraderLayerInfo : IMutableTraderLayerInfo, ISupportsPQNameIdLookupGenerator
 {
-    bool HasUpdates            { get; set; }
-    int  TraderNameId          { get; set; }
-    bool IsTraderNameUpdated   { get; set; }
-    bool IsTraderVolumeUpdated { get; set; }
+    [JsonIgnore] bool HasUpdates            { get; set; }
+    int               TraderNameId          { get; set; }
+    [JsonIgnore] bool IsTraderNameUpdated   { get; set; }
+    [JsonIgnore] bool IsTraderVolumeUpdated { get; set; }
 
     new IPQTraderLayerInfo Clone();
 }
@@ -75,6 +76,8 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
         }
     }
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? TraderName
     {
         get => NameIdLookup[traderNameId];
@@ -88,6 +91,7 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
         }
     }
 
+    [JsonIgnore]
     public bool IsTraderNameUpdated
     {
         get => (UpdatedFlags & TraderLayerInfoFlags.TraderNameUpdatedFlag) > 0;
@@ -100,6 +104,7 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public decimal TraderVolume
     {
         get => volume;
@@ -133,6 +138,7 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
         }
     }
 
+    [JsonIgnore]
     public bool IsTraderVolumeUpdated
     {
         get => (UpdatedFlags & TraderLayerInfoFlags.TraderVolumeUpdatedFlag) > 0;
@@ -145,8 +151,9 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
         }
     }
 
-    INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
+    [JsonIgnore] INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
 
+    [JsonIgnore]
     public IPQNameIdLookupGenerator NameIdLookup
     {
         get => nameIdLookup;
@@ -160,12 +167,14 @@ public class PQTraderLayerInfo : ReusableObject<ITraderLayerInfo>, IPQTraderLaye
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool HasUpdates
     {
         get => UpdatedFlags != TraderLayerInfoFlags.None;
         set => UpdatedFlags = value ? UpdatedFlags.AllFlags() : TraderLayerInfoFlags.None;
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IsEmpty
     {
         get => TraderName == null && TraderVolume == 0;

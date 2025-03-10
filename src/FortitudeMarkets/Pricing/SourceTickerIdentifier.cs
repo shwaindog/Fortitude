@@ -3,6 +3,7 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
@@ -13,74 +14,73 @@ namespace FortitudeMarkets.Pricing;
 
 public interface ISourceTickerId : IReusableObject<ISourceTickerId>
 {
-    uint   SourceTickerId { get; }
-    ushort SourceId       { get; }
-    ushort TickerId       { get; }
-    string Source         { get; }
-    string Ticker         { get; }
+    [JsonIgnore] uint SourceTickerId { get; }
+    ushort            SourceId       { get; }
+    ushort            InstrumentId   { get; }
+    string            SourceName     { get; }
+    string            InstrumentName { get; }
 }
 
 public class SourceTicker : ReusableObject<ISourceTickerId>, ISourceTickerId, IInterfacesComparable<ISourceTickerId>
 {
     public SourceTicker() { }
 
-    public SourceTicker(ushort sourceId, ushort tickerId, string source, string ticker)
+    public SourceTicker(ushort sourceId, ushort tickerId, string sourceName, string ticker)
     {
-        SourceId = sourceId;
-        TickerId = tickerId;
-        Source   = source;
-        Ticker   = ticker;
+        SourceId       = sourceId;
+        InstrumentId   = tickerId;
+        SourceName     = sourceName;
+        InstrumentName = ticker;
     }
 
     public SourceTicker(ISourceTickerId toClone)
     {
-        SourceId = toClone.SourceId;
-        TickerId = toClone.TickerId;
-        Source   = toClone.Source;
-        Ticker   = toClone.Ticker;
+        SourceId       = toClone.SourceId;
+        InstrumentId   = toClone.InstrumentId;
+        SourceName     = toClone.SourceName;
+        InstrumentName = toClone.InstrumentName;
     }
 
     public SourceTicker(SourceTickerIdentifier toClone)
     {
-        SourceId = toClone.SourceId;
-        TickerId = toClone.TickerId;
-        Source   = toClone.Source;
-        Ticker   = toClone.Ticker;
+        SourceId       = toClone.SourceId;
+        InstrumentId   = toClone.TickerId;
+        SourceName     = toClone.Source;
+        InstrumentName = toClone.Ticker;
     }
-
 
     public virtual bool AreEquivalent(ISourceTickerId? other, bool exactTypes = false)
     {
         var sourceIdSame = SourceId == other?.SourceId;
-        var tickerIdSame = TickerId == other?.TickerId;
-        var sourceSame   = Source == other?.Source;
-        var tickerSame   = Ticker == other?.Ticker;
+        var tickerIdSame = InstrumentId == other?.InstrumentId;
+        var sourceSame   = SourceName == other?.SourceName;
+        var tickerSame   = InstrumentName == other?.InstrumentName;
 
 
         return sourceIdSame && tickerIdSame && sourceSame && tickerSame;
     }
 
-    public uint   SourceTickerId => (uint)((SourceId << 16) | TickerId);
+    public uint   SourceTickerId => (uint)((SourceId << 16) | InstrumentId);
     public ushort SourceId       { get; set; }
-    public ushort TickerId       { get; set; }
-    public string Source         { get; set; } = null!;
-    public string Ticker         { get; set; } = null!;
+    public ushort InstrumentId   { get; set; }
+    public string SourceName     { get; set; } = null!;
+    public string InstrumentName { get; set; } = null!;
 
     public override ISourceTickerId CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        SourceId = source.SourceId;
-        TickerId = source.TickerId;
-        Source   = source.Source;
-        Ticker   = source.Ticker;
+        SourceId       = source.SourceId;
+        InstrumentId   = source.InstrumentId;
+        SourceName     = source.SourceName;
+        InstrumentName = source.InstrumentName;
         return this;
     }
 
     public override void StateReset()
     {
-        SourceId = 0;
-        TickerId = 0;
-        Source   = null!;
-        Ticker   = null!;
+        SourceId       = 0;
+        InstrumentId   = 0;
+        SourceName     = null!;
+        InstrumentName = null!;
         base.StateReset();
     }
 
@@ -96,7 +96,7 @@ public class SourceTicker : ReusableObject<ISourceTickerId>, ISourceTickerId, II
         return Equals((SourceTicker)obj);
     }
 
-    public override int GetHashCode() => HashCode.Combine(SourceId, TickerId, Source, Ticker);
+    public override int GetHashCode() => HashCode.Combine(SourceId, InstrumentId, SourceName, InstrumentName);
 
     public static implicit operator SourceTickerIdentifier(SourceTicker sourceTickerId) => new(sourceTickerId);
 }
@@ -112,7 +112,7 @@ public readonly struct SourceTickerIdentifier // not inheriting from ISourceTick
     public SourceTickerIdentifier(ISourceTickerId sourceTickerId)
     {
         SourceId = sourceTickerId.SourceId;
-        TickerId = sourceTickerId.TickerId;
+        TickerId = sourceTickerId.InstrumentId;
     }
 
     public uint   SourceTickerId => (uint)((SourceId << 16) | TickerId);
@@ -157,9 +157,9 @@ public static class SourceTickerIdentifierExtensions
     public static string SourceTickerShortName(this ISourceTickerId id)
     {
         if (!SingleStringShortNameLookup.TryGetValue(id.SourceTickerId, out var shortName))
-            if (id.Source != NoSourceNameValue && id.Ticker != NoTickerNameValue)
+            if (id.SourceName != NoSourceNameValue && id.InstrumentName != NoTickerNameValue)
             {
-                shortName = $"{id.Source}-{id.Ticker}";
+                shortName = $"{id.SourceName}-{id.InstrumentName}";
                 SingleStringShortNameLookup.Add(id.SourceTickerId, shortName);
             }
         return shortName!;
@@ -167,10 +167,10 @@ public static class SourceTickerIdentifierExtensions
 
     public static bool Register(this ISourceTickerId id)
     {
-        if (!IdToSourceNameLookup.ContainsKey(id.SourceId)) IdToSourceNameLookup.AddOrUpdate(id.SourceId, id.Source);
+        if (!IdToSourceNameLookup.ContainsKey(id.SourceId)) IdToSourceNameLookup.AddOrUpdate(id.SourceId, id.SourceName);
         if (!IdsToTickerNameLookup.TryGetValue(id.SourceTickerId, out var tickerMap))
         {
-            IdsToTickerNameLookup.Add(id.SourceTickerId, id.Ticker);
+            IdsToTickerNameLookup.Add(id.SourceTickerId, id.InstrumentName);
             return true;
         }
         return false;

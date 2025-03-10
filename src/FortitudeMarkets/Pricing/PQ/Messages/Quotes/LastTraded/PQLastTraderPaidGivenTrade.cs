@@ -3,12 +3,13 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
 
 #endregion
 
@@ -53,9 +54,11 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
 
     protected string PQLastTraderPaidGivenTradeToStringMembers => $"{PQLastPaidGivenTradeToStringMembers}, {nameof(TraderName)}: {TraderName}";
 
-    public override LastTradeType   LastTradeType           => LastTradeType.PriceLastTraderPaidOrGivenVolume;
-    public override LastTradedFlags SupportsLastTradedFlags => LastTradedFlags.TraderName | base.SupportsLastTradedFlags;
+    [JsonIgnore] public override LastTradeType   LastTradeType           => LastTradeType.PriceLastTraderPaidOrGivenVolume;
+    [JsonIgnore] public override LastTradedFlags SupportsLastTradedFlags => LastTradedFlags.TraderName | base.SupportsLastTradedFlags;
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int TraderId
     {
         get => traderId;
@@ -67,6 +70,8 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         }
     }
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? TraderName
     {
         get => TraderId == 0 ? null : NameIdLookup[traderId];
@@ -89,6 +94,7 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         }
     }
 
+    [JsonIgnore]
     public bool IsTraderNameUpdated
     {
         get => (UpdatedFlags & LastTradeUpdated.TraderNameUpdated) > 0;
@@ -100,6 +106,7 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         }
     }
 
+    [JsonIgnore]
     public override bool HasUpdates
     {
         get => base.HasUpdates || NameIdLookup.HasUpdates;
@@ -111,10 +118,11 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         }
     }
 
-    INameIdLookup IHasNameIdLookup.NameIdLookup => NameIdLookup;
+    [JsonIgnore] INameIdLookup IHasNameIdLookup.NameIdLookup => NameIdLookup;
 
-    public IPQNameIdLookupGenerator NameIdLookup { get; set; }
+    [JsonIgnore] public IPQNameIdLookupGenerator NameIdLookup { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
         get => base.IsEmpty && TraderName == null;
@@ -142,8 +150,7 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         foreach (var deltaUpdateField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                    quotePublicationPrecisionSetting))
             yield return deltaUpdateField;
-        if (!updatedOnly || IsTraderNameUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.LastTraderIdOffset, traderId);
+        if (!updatedOnly || IsTraderNameUpdated) yield return new PQFieldUpdate(PQFieldKeys.LastTraderIdOffset, traderId);
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)

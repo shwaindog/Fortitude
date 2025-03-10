@@ -11,11 +11,10 @@ using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
-using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -75,7 +74,7 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
         var pqContext = entryContext as IPQQuoteAppendContext<TEntry, TSerializeType>;
         var entry     = entryContext.CurrentEntry;
         if (entry!.SourceTickerInfo!.SourceId != PricingInstrumentId.SourceId
-         || entry.SourceTickerInfo.TickerId != PricingInstrumentId.TickerId || pqContext == null)
+         || entry.SourceTickerInfo.InstrumentId != PricingInstrumentId.InstrumentId || pqContext == null)
             return new AppendResult(StorageAttemptResult.EntryNotCompatible);
 
         bufferContext ??= new MessageBufferContext(writeBuffer);

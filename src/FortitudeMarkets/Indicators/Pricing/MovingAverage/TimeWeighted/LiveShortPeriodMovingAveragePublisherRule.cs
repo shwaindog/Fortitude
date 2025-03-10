@@ -13,8 +13,6 @@ using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
-using FortitudeMarkets.Indicators.Pricing;
-using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Indicators.Pricing.Parameters;
 using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.PQ.Converters;
@@ -185,9 +183,7 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
             if (liveTicksTimeSpan < requiredSpan)
                 switch (requestExceedsTimeRangeOptions)
                 {
-                    case RequestExceedTimeRangeOptions.GrowUnlimited:
-                        liveTicksTimeSpan = requiredSpan;
-                        break;
+                    case RequestExceedTimeRangeOptions.GrowUnlimited: liveTicksTimeSpan = requiredSpan; break;
                     case RequestExceedTimeRangeOptions.GrowToHardLimitTimeRange when requiredSpan <= hardLimitTimeSpan:
                         liveTicksTimeSpan = requiredSpan;
                         break;

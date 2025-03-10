@@ -182,7 +182,7 @@ public class CyclingInstrumentChainingEntryPersisterRule<TEntry> : TimeSeriesRep
                 var instrument = new PricingInstrument(pricingId);
                 var fileInfo   = TimeSeriesRepository.GetInstrumentFileInfo(instrument);
 
-                if (fileInfo.FilePeriod > TimeBoundaryPeriod.None) instrumentFileInfo = new InstrumentFileInfo(instrument, fileInfo.FilePeriod);
+                if (fileInfo.FilePeriod > TimeBoundaryPeriod.Tick) instrumentFileInfo = new InstrumentFileInfo(instrument, fileInfo.FilePeriod);
             }
             if (Equals(instrumentFileInfo, default(InstrumentFileInfo)))
                 throw new

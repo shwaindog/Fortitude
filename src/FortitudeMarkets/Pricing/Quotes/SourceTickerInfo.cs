@@ -4,6 +4,7 @@
 #region
 
 using System.Globalization;
+using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
@@ -19,23 +20,24 @@ namespace FortitudeMarkets.Pricing.Quotes;
 
 public interface ISourceTickerInfo : IPricingInstrumentId, IInterfacesComparable<ISourceTickerInfo>, IVersionedMessage
 {
-    TickerDetailLevel PublishedTickerDetailLevel { get; set; }
+    [JsonIgnore] TickerDetailLevel PublishedTickerDetailLevel { get; set; }
 
-    decimal RoundingPrecision      { get; set; }
-    decimal Pip                    { get; set; }
-    decimal MinSubmitSize          { get; set; }
-    decimal MaxSubmitSize          { get; set; }
-    decimal IncrementSize          { get; set; }
-    byte    MaximumPublishedLayers { get; set; }
-    ushort  MinimumQuoteLife       { get; set; }
-    uint    DefaultMaxValidMs      { get; set; }
-    bool    SubscribeToPrices      { get; set; }
-    bool    TradingEnabled         { get; set; }
+    [JsonIgnore] decimal RoundingPrecision      { get; set; }
+    [JsonIgnore] decimal Pip                    { get; set; }
+    [JsonIgnore] decimal MinSubmitSize          { get; set; }
+    [JsonIgnore] decimal MaxSubmitSize          { get; set; }
+    [JsonIgnore] decimal IncrementSize          { get; set; }
+    [JsonIgnore] byte    MaximumPublishedLayers { get; set; }
+    [JsonIgnore] ushort  MinimumQuoteLife       { get; set; }
+    [JsonIgnore] uint    DefaultMaxValidMs      { get; set; }
+    [JsonIgnore] bool    SubscribeToPrices      { get; set; }
+    [JsonIgnore] bool    TradingEnabled         { get; set; }
 
-    LayerFlags      LayerFlags      { get; set; }
+    LayerFlags LayerFlags { get; set; }
+
     LastTradedFlags LastTradedFlags { get; set; }
 
-    string FormatPrice { get; }
+    [JsonIgnore] string FormatPrice { get; }
 
     ISourceTickerInfo CopyFrom(ISourceTickerInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 
@@ -68,10 +70,10 @@ public class SourceTickerInfo : PricingInstrument, ISourceTickerInfo, ICloneable
 
     public SourceTickerInfo(ISourceTickerId sourceTickerId)
     {
-        SourceId = sourceTickerId.SourceId;
-        TickerId = sourceTickerId.TickerId;
-        Source   = sourceTickerId.Source;
-        Ticker   = sourceTickerId.Ticker;
+        SourceId       = sourceTickerId.SourceId;
+        InstrumentId   = sourceTickerId.InstrumentId;
+        SourceName     = sourceTickerId.SourceName;
+        InstrumentName = sourceTickerId.InstrumentName;
 
         PublishedTickerDetailLevel = TickerDetailLevel.Level1Quote;
 
@@ -93,10 +95,10 @@ public class SourceTickerInfo : PricingInstrument, ISourceTickerInfo, ICloneable
 
     public SourceTickerInfo(SourceTickerIdentifier sourceTickerIdentifier) : base(sourceTickerIdentifier)
     {
-        SourceId = sourceTickerIdentifier.SourceId;
-        TickerId = sourceTickerIdentifier.TickerId;
-        Source   = sourceTickerIdentifier.Source;
-        Ticker   = sourceTickerIdentifier.Ticker;
+        SourceId       = sourceTickerIdentifier.SourceId;
+        InstrumentId   = sourceTickerIdentifier.TickerId;
+        SourceName     = sourceTickerIdentifier.Source;
+        InstrumentName = sourceTickerIdentifier.Ticker;
 
         PublishedTickerDetailLevel = TickerDetailLevel.Level1Quote;
 
@@ -158,12 +160,12 @@ public class SourceTickerInfo : PricingInstrument, ISourceTickerInfo, ICloneable
     }
 
     public SourceTickerInfo
-    (ushort sourceId, string source, ushort tickerId, string ticker, TickerDetailLevel publishedTickerDetailLevel
+    (ushort sourceId, string sourceName, ushort tickerId, string ticker, TickerDetailLevel publishedTickerDetailLevel
       , MarketClassification marketClassification, byte maximumPublishedLayers = 20, decimal roundingPrecision = 0.00001m
       , decimal pip = 0.0001m, decimal minSubmitSize = 0.01m, decimal maxSubmitSize = 1_000_000m, decimal incrementSize = 0.01m
       , ushort minimumQuoteLife = 100, uint defaultMaxValidMs = 10_000, bool subscribeToPrices = true, bool tradingEnabled = false
       , LayerFlags layerFlags = LayerFlags.Price | LayerFlags.Volume, LastTradedFlags lastTradedFlags = LastTradedFlags.None)
-        : base(sourceId, tickerId, source, ticker, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick), InstrumentType.Price, marketClassification)
+        : base(sourceId, tickerId, sourceName, ticker, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick), InstrumentType.Price, marketClassification)
     {
         PublishedTickerDetailLevel = publishedTickerDetailLevel;
 
@@ -202,7 +204,7 @@ public class SourceTickerInfo : PricingInstrument, ISourceTickerInfo, ICloneable
         LayerFlags             = toClone.LayerFlags;
         LastTradedFlags        = toClone.LastTradedFlags;
 
-        foreach (var instrumentFields in toClone) this[instrumentFields.Key] = instrumentFields.Value;
+        foreach (var instrumentFields in toClone.FilledAttributes) this[instrumentFields.Key] = instrumentFields.Value;
     }
 
     public override SourceTickerInfo Clone() =>
@@ -325,7 +327,7 @@ public class SourceTickerInfo : PricingInstrument, ISourceTickerInfo, ICloneable
         LayerFlags        = source.LayerFlags;
         LastTradedFlags   = source.LastTradedFlags;
 
-        foreach (var instrumentFields in source) this[instrumentFields.Key] = instrumentFields.Value;
+        foreach (var instrumentFields in source.FilledAttributes) this[instrumentFields.Key] = instrumentFields.Value;
         return this;
     }
 
@@ -336,13 +338,13 @@ public class SourceTickerInfo : PricingInstrument, ISourceTickerInfo, ICloneable
         unchecked
         {
             var hashCode = (int)SourceId;
-            hashCode = (hashCode * 397) ^ TickerId;
+            hashCode = (hashCode * 397) ^ InstrumentId;
             return hashCode;
         }
     }
 
     public override string ToString() =>
-        $"{nameof(SourceTickerInfo)}({nameof(SourceId)}: {SourceId}, {nameof(Source)}: {Source}, {nameof(TickerId)}: {TickerId}, {nameof(Ticker)}: {Ticker},  " +
+        $"{nameof(SourceTickerInfo)}({nameof(SourceId)}: {SourceId}, {nameof(SourceName)}: {SourceName}, {nameof(InstrumentId)}: {InstrumentId}, {nameof(InstrumentName)}: {InstrumentName},  " +
         $"{nameof(PublishedTickerDetailLevel)}: {PublishedTickerDetailLevel},  {nameof(MarketClassification)}: {MarketClassification}, " +
         $"{nameof(RoundingPrecision)}: {RoundingPrecision}, {nameof(Pip)}: {Pip}, {nameof(MinSubmitSize)}: {MinSubmitSize}, " +
         $"{nameof(MaxSubmitSize)}: {MaxSubmitSize}, {nameof(IncrementSize)}: {IncrementSize}, {nameof(MinimumQuoteLife)}: {MinimumQuoteLife}, " +

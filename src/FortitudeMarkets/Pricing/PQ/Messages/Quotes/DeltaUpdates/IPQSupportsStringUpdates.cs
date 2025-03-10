@@ -3,6 +3,7 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
@@ -14,12 +15,12 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 public interface IHasNameIdLookup
 {
-    INameIdLookup? NameIdLookup { get; }
+    [JsonIgnore] INameIdLookup? NameIdLookup { get; }
 }
 
 public interface ISupportsPQNameIdLookupGenerator : IHasNameIdLookup
 {
-    new IPQNameIdLookupGenerator NameIdLookup { get; set; }
+    [JsonIgnore] new IPQNameIdLookupGenerator NameIdLookup { get; set; }
 }
 
 public interface IPQSupportsStringUpdates<T> : ITracksChanges<T> where T : class

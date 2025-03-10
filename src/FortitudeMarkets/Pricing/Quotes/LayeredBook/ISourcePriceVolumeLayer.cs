@@ -3,6 +3,7 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
 
 #endregion
@@ -11,16 +12,22 @@ namespace FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 public interface ISourcePriceVolumeLayer : IPriceVolumeLayer, ICloneable<ISourcePriceVolumeLayer>
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     string? SourceName { get; }
-    bool    Executable { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    bool Executable { get; }
 
     new ISourcePriceVolumeLayer Clone();
 }
 
 public interface IMutableSourcePriceVolumeLayer : ISourcePriceVolumeLayer, IMutablePriceVolumeLayer
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     new string? SourceName { get; set; }
-    new bool    Executable { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    new bool Executable { get; set; }
 
     new IMutableSourcePriceVolumeLayer Clone();
 }

@@ -5,13 +5,13 @@
 
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.TimeSeries;
 
 #endregion
@@ -56,31 +56,40 @@ public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, IC
 
     public override TickInstant Clone() => Recycler?.Borrow<TickInstant>().CopyFrom(this) as TickInstant ?? new TickInstant(this);
 
+
+    [JsonIgnore]
     public TickInstant? Previous
     {
         get => ((IDoublyLinkedListNode<ITickInstant>)this).Previous as TickInstant;
         set => ((IDoublyLinkedListNode<ITickInstant>)this).Previous = value;
     }
+
+    [JsonIgnore]
     public TickInstant? Next
     {
         get => ((IDoublyLinkedListNode<ITickInstant>)this).Next as TickInstant;
         set => ((IDoublyLinkedListNode<ITickInstant>)this).Next = value;
     }
 
-    public virtual TickerDetailLevel TickerDetailLevel => TickerDetailLevel.SingleValue;
+    [JsonIgnore] public virtual TickerDetailLevel               TickerDetailLevel => TickerDetailLevel.SingleValue;
+    [JsonIgnore]                ISourceTickerInfo? ITickInstant.SourceTickerInfo  => SourceTickerInfo;
 
     public ISourceTickerInfo? SourceTickerInfo { get; set; }
 
-    ISourceTickerInfo? ITickInstant.SourceTickerInfo => SourceTickerInfo;
-
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public FeedSyncStatus FeedSyncStatus { get; set; }
 
-    public bool IsReplay { get; set; }
+    public bool     IsReplay           { get; set; }
+    public DateTime ClientReceivedTime { get; set; }
 
     public virtual DateTime SourceTime      { get; set; }
     public virtual decimal  SingleTickValue { get; set; }
 
-    public DateTime ClientReceivedTime { get; set; }
+    public virtual void IncrementTimeBy(TimeSpan toChangeBy)
+    {
+        SourceTime         += toChangeBy;
+        ClientReceivedTime += toChangeBy;
+    }
 
 
     public DateTime StorageTime(IStorageTimeResolver? resolver)

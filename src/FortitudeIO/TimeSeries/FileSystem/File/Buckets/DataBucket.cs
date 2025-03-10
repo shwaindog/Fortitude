@@ -318,7 +318,7 @@ public class ProxyDataBucket<TEntry, TBucket> : DataBucket<TEntry, TBucket>, IDa
         set => endOfHeaderSectionFileOffset = value;
     }
 
-    public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.None;
+    public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.Tick;
 
     public override IEnumerable<TEntry> ReadEntries(IBuffer readBuffer, IReaderContext<TEntry> readerContext) =>
         // should never be called;

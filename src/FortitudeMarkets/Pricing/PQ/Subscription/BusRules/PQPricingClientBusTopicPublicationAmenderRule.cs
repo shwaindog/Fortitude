@@ -14,9 +14,9 @@ using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Subscription.BusRules.BusMessages;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -124,7 +124,7 @@ public class PQPricingClientBusTopicPublicationAmenderRule : RemoteMessageBusTop
             return;
         }
 
-        var foundTicker = feedSourceTickerInfos.FirstOrDefault(stqi => messageDeserializerResolveRun.SubscribePostFix.Contains(stqi.Ticker));
+        var foundTicker = feedSourceTickerInfos.FirstOrDefault(stqi => messageDeserializerResolveRun.SubscribePostFix.Contains(stqi.InstrumentName));
         if (foundTicker == null)
         {
             messageDeserializerResolveRun.FailureMessage

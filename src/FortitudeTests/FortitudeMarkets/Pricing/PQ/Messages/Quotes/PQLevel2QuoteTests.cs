@@ -3,6 +3,7 @@
 
 #region
 
+using System.Text.Json;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
@@ -1198,19 +1199,19 @@ public class PQLevel2QuoteTests
             populatedL2Quote.HasUpdates = false;
             emptyQuote.CopyFrom(populatedL2Quote);
             Assert.AreEqual(populatedL2Quote.PQSequenceId, emptyQuote.PQSequenceId);
-            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceTime);
+            Assert.AreEqual(default, emptyQuote.SourceTime);
             Assert.IsTrue(populatedL2Quote.SourceTickerInfo!.AreEquivalent(emptyQuote.SourceTickerInfo));
             Assert.AreEqual(false, emptyQuote.IsReplay);
             Assert.AreEqual(0m, emptyQuote.SingleTickValue);
             Assert.AreEqual(FeedSyncStatus.OutOfSync, emptyQuote.FeedSyncStatus);
-            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceBidTime);
-            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceAskTime);
-            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.AdapterReceivedTime);
-            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.AdapterSentTime);
-            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.ClientReceivedTime);
-            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.ProcessedTime);
-            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.DispatchedTime);
-            Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SocketReceivingTime);
+            Assert.AreEqual(default, emptyQuote.SourceBidTime);
+            Assert.AreEqual(default, emptyQuote.SourceAskTime);
+            Assert.AreEqual(default, emptyQuote.AdapterReceivedTime);
+            Assert.AreEqual(default, emptyQuote.AdapterSentTime);
+            Assert.AreEqual(default, emptyQuote.ClientReceivedTime);
+            Assert.AreEqual(default, emptyQuote.ProcessedTime);
+            Assert.AreEqual(default, emptyQuote.DispatchedTime);
+            Assert.AreEqual(default, emptyQuote.SocketReceivingTime);
             Assert.AreEqual(0m, emptyQuote.BidPriceTop);
             Assert.AreEqual(0m, emptyQuote.AskPriceTop);
             Assert.IsTrue(emptyQuote.Executable);
@@ -1306,6 +1307,78 @@ public class PQLevel2QuoteTests
             var hashCode = populatedL2Quote.GetHashCode();
             Assert.IsTrue(hashCode != 0);
         }
+    }
+
+    [TestMethod]
+    public void SimpleFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = simpleFullyPopulatedLevel2Quote;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
+    }
+
+    [TestMethod]
+    public void SourceNameFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = sourceNameFullyPopulatedLevel2Quote;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
+    }
+
+    [TestMethod]
+    public void SourceQuoteRefFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = sourceQuoteRefFullyPopulatedLevel2Quote;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
+    }
+
+    [TestMethod]
+    public void TraderDetailsFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = traderDetailsFullyPopulatedLevel2Quote;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
+    }
+
+    [TestMethod]
+    public void ValueDateFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = valueDateFullyPopulatedLevel2Quote;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
+    }
+
+    [TestMethod]
+    public void SourceQuoteRefTraderDetailsValueDateFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = everyLayerFullyPopulatedLevel2Quote;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
     }
 
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType

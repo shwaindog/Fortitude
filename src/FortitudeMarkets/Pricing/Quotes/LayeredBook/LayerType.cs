@@ -3,21 +3,23 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using static FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerFlags;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
+[JsonConverter(typeof(JsonStringEnumConverter<LayerType>))]
 public enum LayerType
 {
-    None
-  , PriceVolume
+    PriceVolume
   , SourcePriceVolume
   , SourceQuoteRefPriceVolume
   , TraderPriceVolume
   , SourceQuoteRefTraderValueDatePriceVolume
   , ValueDatePriceVolume
+  , None
 }
 
 public static class LayerTypeExtensions

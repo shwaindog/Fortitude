@@ -79,14 +79,14 @@ public class PriceSummarizingFilePersisterRule<TEntry> : TimeSeriesRepositoryAcc
         await base.StartAsync();
 
         var existingInstruments = InstrumentFileInfos
-            (tickerInfo.Ticker, tickerInfo.Source, instrumentType, coveringPeriod).ToList();
+            (tickerInfo.InstrumentName, tickerInfo.SourceName, instrumentType, coveringPeriod).ToList();
         if (existingInstruments.Any())
         {
             if (existingInstruments.Count == 1)
                 instrumentFileInfo = existingInstruments[0];
             else
                 throw new
-                    Exception($"More than one instrument exists for {tickerInfo.Ticker}, {tickerInfo.Source}, {instrumentType}, {coveringPeriod}");
+                    Exception($"More than one instrument exists for {tickerInfo.InstrumentName}, {tickerInfo.SourceName}, {instrumentType}, {coveringPeriod}");
         }
         else
         {
@@ -97,12 +97,12 @@ public class PriceSummarizingFilePersisterRule<TEntry> : TimeSeriesRepositoryAcc
             };
             var fileInfo = TimeSeriesRepository.GetInstrumentFileInfo(priceSummaryTickerInstrument);
 
-            if (fileInfo.FilePeriod > TimeBoundaryPeriod.None)
+            if (fileInfo.FilePeriod > TimeBoundaryPeriod.Tick)
                 instrumentFileInfo = new InstrumentFileInfo(priceSummaryTickerInstrument, fileInfo.FilePeriod);
         }
         if (Equals(instrumentFileInfo, default(InstrumentFileInfo)))
             throw new
-                Exception($"Could not locate a repository structure for {tickerInfo.Ticker}, {tickerInfo.Source}, {instrumentType}, {coveringPeriod}");
+                Exception($"Could not locate a repository structure for {tickerInfo.InstrumentName}, {tickerInfo.SourceName}, {instrumentType}, {coveringPeriod}");
 
 
         appendEntrySubscription = await this.RegisterListenerAsync<TEntry>(persisterParams.AppendListenAddress, ReceiveEntryToPersist);

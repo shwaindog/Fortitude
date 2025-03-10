@@ -3,16 +3,15 @@
 
 #region
 
-using FortitudeCommon.Chronometry;
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
 
 #endregion
 
@@ -41,7 +40,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
     private IPQRecentlyTraded? recentlyTraded;
 
     private uint     sourceQuoteRef;
-    private DateTime valueDate = DateTimeConstants.UnixEpoch;
+    private DateTime valueDate;
 
     public PQLevel3Quote() => recentlyTraded = new PQRecentlyTraded();
 
@@ -81,68 +80,80 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
     public override PQLevel3Quote Clone() =>
         Recycler?.Borrow<PQLevel3Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) as PQLevel3Quote ?? new PQLevel3Quote(this);
 
+    [JsonIgnore]
     public new PQLevel3Quote? Previous
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as PQLevel3Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
+    [JsonIgnore]
     public new PQLevel3Quote? Next
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as PQLevel3Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
+    [JsonIgnore]
     IPQLevel3Quote? IPQLevel3Quote.Previous
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPQLevel3Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
+    [JsonIgnore]
     IPQLevel3Quote? IPQLevel3Quote.Next
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPQLevel3Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
+    [JsonIgnore]
     ILevel3Quote? ILevel3Quote.Previous
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as ILevel3Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
+    [JsonIgnore]
     ILevel3Quote? ILevel3Quote.Next
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as ILevel3Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
+    [JsonIgnore]
     ILevel3Quote? IDoublyLinkedListNode<ILevel3Quote>.Previous
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as ILevel3Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
+    [JsonIgnore]
     ILevel3Quote? IDoublyLinkedListNode<ILevel3Quote>.Next
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as ILevel3Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
+    [JsonIgnore]
     IPQLevel3Quote? IDoublyLinkedListNode<IPQLevel3Quote>.Previous
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPQLevel3Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
+    [JsonIgnore]
     IPQLevel3Quote? IDoublyLinkedListNode<IPQLevel3Quote>.Next
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPQLevel3Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
-    public override TickerDetailLevel TickerDetailLevel => TickerDetailLevel.Level3Quote;
+    [JsonIgnore] public override TickerDetailLevel TickerDetailLevel => TickerDetailLevel.Level3Quote;
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public uint BatchId
     {
         get => batchId;
@@ -154,6 +165,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         }
     }
 
+    [JsonIgnore]
     public bool IsBatchIdUpdated
     {
         get => (UpdatedFlags & QuoteFieldUpdatedFlags.BatchIdeUpdatedFlag) > 0;
@@ -166,6 +178,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public uint SourceQuoteReference
     {
         get => sourceQuoteRef;
@@ -177,6 +190,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         }
     }
 
+    [JsonIgnore]
     public bool IsSourceQuoteReferenceUpdated
     {
         get => (UpdatedFlags & QuoteFieldUpdatedFlags.SourceQuoteReferenceUpdatedFlag) > 0;
@@ -189,6 +203,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public DateTime ValueDate
     {
         get => valueDate;
@@ -200,9 +215,10 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         }
     }
 
+    [JsonIgnore]
     public bool IsValueDateUpdated
     {
-        get => (UpdatedFlags & QuoteFieldUpdatedFlags.ValueDateUpdatedFlag) > 0;
+        get => (UpdatedFlags & QuoteFieldUpdatedFlags.ValueDateUpdatedFlag) > 0 && valueDate != default;
         set
         {
             if (value)
@@ -212,20 +228,23 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IPQRecentlyTraded? RecentlyTraded
     {
         get => recentlyTraded;
         set => recentlyTraded = value as PQRecentlyTraded;
     }
 
+    [JsonIgnore]
     IMutableRecentlyTraded? IMutableLevel3Quote.RecentlyTraded
     {
         get => RecentlyTraded;
         set => RecentlyTraded = value as IPQRecentlyTraded;
     }
 
-    IRecentlyTraded? ILevel3Quote.RecentlyTraded => RecentlyTraded;
+    [JsonIgnore] IRecentlyTraded? ILevel3Quote.RecentlyTraded => RecentlyTraded;
 
+    [JsonIgnore]
     public override bool HasUpdates
     {
         get =>
@@ -243,7 +262,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         recentlyTraded?.StateReset();
 
         BatchId   = SourceQuoteReference = 0;
-        ValueDate = DateTimeConstants.UnixEpoch;
+        ValueDate = default;
         base.ResetFields();
     }
 
@@ -289,6 +308,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         {
             PQFieldConverters.UpdateHoursFromUnixEpoch(ref valueDate, pqFieldUpdate.Value);
             IsValueDateUpdated = true;
+            if (valueDate == DateTime.UnixEpoch) valueDate = default;
             return 0;
         }
 

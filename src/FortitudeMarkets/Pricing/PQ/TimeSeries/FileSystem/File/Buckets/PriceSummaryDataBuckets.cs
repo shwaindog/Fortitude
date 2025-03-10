@@ -98,5 +98,5 @@ public class UnlimitedPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<
         bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
-    public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.None;
+    public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.Tick;
 }

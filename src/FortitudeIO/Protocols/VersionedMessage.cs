@@ -1,5 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
 
+#region
+
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 
@@ -9,8 +13,9 @@ namespace FortitudeIO.Protocols;
 
 public interface IVersionedMessage : IReusableObject<IVersionedMessage>
 {
-    uint MessageId { get; }
-    byte Version { get; }
+    [JsonIgnore] uint MessageId { get; }
+
+    [JsonIgnore] byte Version { get; }
 }
 
 public abstract class VersionedMessage : ReusableObject<IVersionedMessage>, IVersionedMessage
@@ -21,15 +26,16 @@ public abstract class VersionedMessage : ReusableObject<IVersionedMessage>, IVer
 
     protected VersionedMessage(byte version) => Version = version;
 
-    public override IVersionedMessage CopyFrom(IVersionedMessage source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IVersionedMessage CopyFrom
+    (IVersionedMessage source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         Version = source.Version;
         return this;
     }
 
     public abstract uint MessageId { get; }
-    public byte Version { get; set; }
+    public          byte Version   { get; set; }
 
     protected bool Equals(IVersionedMessage other) => Version == other.Version && MessageId == other.MessageId;
 

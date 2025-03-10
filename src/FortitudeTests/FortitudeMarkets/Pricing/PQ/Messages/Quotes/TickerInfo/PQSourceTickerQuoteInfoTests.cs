@@ -5,12 +5,12 @@
 
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
 
@@ -88,14 +88,14 @@ public class PQSourceTickerInfoTests
     {
         Assert.IsFalse(emptySrcTkrInfo.IsSourceUpdated);
         Assert.IsFalse(emptySrcTkrInfo.HasUpdates);
-        Assert.AreEqual("", emptySrcTkrInfo.Source);
+        Assert.AreEqual("", emptySrcTkrInfo.SourceName);
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         var expectedSource = "NewSourceName";
-        emptySrcTkrInfo.Source = expectedSource;
+        emptySrcTkrInfo.SourceName = expectedSource;
         Assert.IsTrue(emptySrcTkrInfo.IsSourceUpdated);
         Assert.IsTrue(emptySrcTkrInfo.HasUpdates);
-        Assert.AreEqual(expectedSource, emptySrcTkrInfo.Source);
+        Assert.AreEqual(expectedSource, emptySrcTkrInfo.SourceName);
         var sourceUpdates = emptySrcTkrInfo.GetStringUpdates(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = ExpectedSourceStringUpdate(expectedSource);
@@ -114,7 +114,7 @@ public class PQSourceTickerInfoTests
 
         var newEmpty = new PQSourceTickerInfo(emptySrcTkrInfo);
         newEmpty.UpdateFieldString(sourceUpdates[0]);
-        Assert.AreEqual(expectedSource, newEmpty.Source);
+        Assert.AreEqual(expectedSource, newEmpty.SourceName);
         Assert.IsFalse(newEmpty.IsSourceUpdated);
     }
 
@@ -123,14 +123,14 @@ public class PQSourceTickerInfoTests
     {
         Assert.IsFalse(emptySrcTkrInfo.IsTickerUpdated);
         Assert.IsFalse(emptySrcTkrInfo.HasUpdates);
-        Assert.AreEqual("", emptySrcTkrInfo.Ticker);
+        Assert.AreEqual("", emptySrcTkrInfo.InstrumentName);
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         var expectedTicker = "NewTickerName";
-        emptySrcTkrInfo.Ticker = expectedTicker;
+        emptySrcTkrInfo.InstrumentName = expectedTicker;
         Assert.IsTrue(emptySrcTkrInfo.IsTickerUpdated);
         Assert.IsTrue(emptySrcTkrInfo.HasUpdates);
-        Assert.AreEqual(expectedTicker, emptySrcTkrInfo.Ticker);
+        Assert.AreEqual(expectedTicker, emptySrcTkrInfo.InstrumentName);
         var tickerUpdates = emptySrcTkrInfo.GetStringUpdates(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, tickerUpdates.Count);
         var expectedFieldUpdate = ExpectedTickerStringUpdate(expectedTicker);
@@ -149,7 +149,7 @@ public class PQSourceTickerInfoTests
 
         var newEmpty = new PQSourceTickerInfo(emptySrcTkrInfo);
         newEmpty.UpdateFieldString(tickerUpdates[0]);
-        Assert.AreEqual(expectedTicker, newEmpty.Ticker);
+        Assert.AreEqual(expectedTicker, newEmpty.InstrumentName);
         Assert.IsFalse(newEmpty.IsTickerUpdated);
     }
 
@@ -521,9 +521,9 @@ public class PQSourceTickerInfoTests
         var pqFieldUpdates =
             fullyPopulatedSrcTkrInfo.GetStringUpdates
                 (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
-        Assert.AreEqual(ExpectedSourceStringUpdate(fullyPopulatedSrcTkrInfo.Source),
+        Assert.AreEqual(ExpectedSourceStringUpdate(fullyPopulatedSrcTkrInfo.SourceName),
                         PQTickInstantTests.ExtractFieldStringUpdateWithId(pqFieldUpdates, PQFieldKeys.SourceTickerNames, 0));
-        Assert.AreEqual(ExpectedTickerStringUpdate(fullyPopulatedSrcTkrInfo.Ticker),
+        Assert.AreEqual(ExpectedTickerStringUpdate(fullyPopulatedSrcTkrInfo.InstrumentName),
                         PQTickInstantTests.ExtractFieldStringUpdateWithId(pqFieldUpdates, PQFieldKeys.SourceTickerNames, 1));
     }
 
@@ -546,9 +546,9 @@ public class PQSourceTickerInfoTests
         var sourceStringUpdate = ExpectedSourceStringUpdate(expectedNewSource);
 
         emptySrcTkrInfo.UpdateFieldString(tickerStringUpdate);
-        Assert.AreEqual(expectedNewTicker, emptySrcTkrInfo.Ticker);
+        Assert.AreEqual(expectedNewTicker, emptySrcTkrInfo.InstrumentName);
         emptySrcTkrInfo.UpdateFieldString(sourceStringUpdate);
-        Assert.AreEqual(expectedNewSource, emptySrcTkrInfo.Source);
+        Assert.AreEqual(expectedNewSource, emptySrcTkrInfo.SourceName);
     }
 
     [TestMethod]

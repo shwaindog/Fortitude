@@ -4,7 +4,6 @@
 #region
 
 using FortitudeCommon.DataStructures.Maps.IdMap;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
@@ -70,18 +69,13 @@ public class PQLastTradeEntrySelector : LastTradeEntryFlagsSelector<IPQRecentlyT
     {
         switch (checkLastTrade)
         {
-            case null:
-                return null;
+            case null: return null;
             case PQLastTraderPaidGivenTrade pqlastTradedPaidGiventTrade:
                 return new PQLastTraderPaidGivenTrade(pqlastTradedPaidGiventTrade, nameIdLookup);
-            case PQLastTrade pqlastTrade:
-                return clone ? ((IPQLastTrade)pqlastTrade).Clone() : pqlastTrade;
-            case ILastTraderPaidGivenTrade _:
-                return new PQLastTraderPaidGivenTrade(checkLastTrade, nameIdLookup);
-            case ILastPaidGivenTrade trdrPvLayer:
-                return new PQLastPaidGivenTrade(trdrPvLayer);
-            default:
-                return new PQLastTrade(checkLastTrade);
+            case PQLastTrade pqlastTrade:         return clone ? ((IPQLastTrade)pqlastTrade).Clone() : pqlastTrade;
+            case ILastTraderPaidGivenTrade _:     return new PQLastTraderPaidGivenTrade(checkLastTrade, nameIdLookup);
+            case ILastPaidGivenTrade trdrPvLayer: return new PQLastPaidGivenTrade(trdrPvLayer);
+            default:                              return new PQLastTrade(checkLastTrade);
         }
     }
 

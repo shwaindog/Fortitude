@@ -14,11 +14,11 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
-using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Indicators.Persistence;
+using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.PQ.Converters;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules;
+using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Summaries;
 using static FortitudeIO.TimeSeries.InstrumentType;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
@@ -86,7 +86,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
     {
         State = new ResolverState(historicalPeriod.PricingInstrumentId);
 
-        if (State.PricingInstrumentId.CoveringPeriod.Period is (None or > OneYear))
+        if (State.PricingInstrumentId.CoveringPeriod.Period is (Tick or > OneYear))
             throw new Exception("Period to generate is greater than expected bounds");
 
         var subPeriod = State.PricingInstrumentId.CoveringPeriod.Period.GranularDivisiblePeriod();
@@ -157,7 +157,7 @@ public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPr
 
         if (persisterRunning && State.ExistingRepoRange.ToTime < maxPreviousTimeRange)
         {
-            if (buildPeriod is not (None or Tick))
+            if (buildPeriod is not Tick)
                 await GetSubSummaryInfoAndBuildSummariesForPersister(now, maxPreviousTimeRange);
             else
                 await BuildHistoricalSummariesForPersister(maxPreviousTimeRange);

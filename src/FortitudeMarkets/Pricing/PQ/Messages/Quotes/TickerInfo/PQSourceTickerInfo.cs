@@ -10,13 +10,12 @@ using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Configuration.ClientServerConfig;
-using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -39,11 +38,11 @@ public interface IPQSourceTickerInfo : ISourceTickerInfo, IPQPricingInstrumentId
     bool IsSubscribeToPricesUpdated          { get; set; }
     bool IsTradingEnabledUpdated             { get; set; }
 
-    new ushort SourceId   { get; set; }
-    new ushort TickerId   { get; set; }
-    new string Source     { get; set; }
-    new string Ticker     { get; set; }
-    new bool   HasUpdates { get; set; }
+    new ushort SourceId       { get; set; }
+    new ushort InstrumentId   { get; set; }
+    new string SourceName     { get; set; }
+    new string InstrumentName { get; set; }
+    new bool   HasUpdates     { get; set; }
 
     new IPQNameIdLookupGenerator NameIdLookup { get; set; }
 
@@ -100,12 +99,12 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
     }
 
     public PQSourceTickerInfo
-    (ushort sourceId, string source, ushort tickerId, string ticker, TickerDetailLevel publishedTickerDetailLevel
+    (ushort sourceId, string sourceName, ushort tickerId, string ticker, TickerDetailLevel publishedTickerDetailLevel
       , MarketClassification marketClassification, byte maximumPublishedLayers = 20, decimal roundingPrecision = 0.0001m
       , decimal pip = 0.0001m, decimal minSubmitSize = 0.01m, decimal maxSubmitSize = 1_000_000m, decimal incrementSize = 0.01m
       , ushort minimumQuoteLife = 100, uint defaultMaxValidMs = 10_000, bool subscribeToPrices = true, bool tradingEnabled = false
       , LayerFlags layerFlags = LayerFlags.Price | LayerFlags.Volume, LastTradedFlags lastTradedFlags = LastTradedFlags.None)
-        : base(sourceId, tickerId, source, ticker, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick), InstrumentType.Price, marketClassification)
+        : base(sourceId, tickerId, sourceName, ticker, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick), InstrumentType.Price, marketClassification)
     {
         PublishedTickerDetailLevel = publishedTickerDetailLevel;
 
@@ -787,13 +786,13 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         unchecked
         {
             var hashCode = (int)SourceId;
-            hashCode = (hashCode * 397) ^ TickerId;
+            hashCode = (hashCode * 397) ^ InstrumentId;
             return hashCode;
         }
     }
 
     public override string ToString() =>
-        $"{nameof(PQSourceTickerInfo)}({nameof(SourceId)}: {SourceId}, {nameof(Source)}: {Source}, {nameof(TickerId)}: {TickerId}, {nameof(Ticker)}: {Ticker},  " +
+        $"{nameof(PQSourceTickerInfo)}({nameof(SourceId)}: {SourceId}, {nameof(SourceName)}: {SourceName}, {nameof(InstrumentId)}: {InstrumentId}, {nameof(InstrumentName)}: {InstrumentName},  " +
         $"{nameof(PublishedTickerDetailLevel)}: {PublishedTickerDetailLevel},  {nameof(MarketClassification)}: {MarketClassification}, " +
         $"{nameof(RoundingPrecision)}: {RoundingPrecision}, {nameof(Pip)}: {Pip}, {nameof(MinSubmitSize)}: {MinSubmitSize}, " +
         $"{nameof(MaxSubmitSize)}: {MaxSubmitSize}, {nameof(IncrementSize)}: {IncrementSize}, {nameof(MinimumQuoteLife)}: {MinimumQuoteLife}, " +

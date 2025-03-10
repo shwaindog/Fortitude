@@ -5,9 +5,9 @@
 
 using FortitudeCommon.Types;
 using FortitudeMarkets.Configuration.ClientServerConfig;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Publication;
+using FortitudeMarkets.Pricing.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
@@ -85,7 +85,7 @@ public class PQPublisherTests
 
         var dummyTickInstant    = new PQTickInstantTests.DummyPQTickInstant();
         var moqSourceTickerInfo = new Mock<ISourceTickerInfo>();
-        moqSourceTickerInfo.As<ISourceTickerInfo>().SetupGet(stqi => stqi.Ticker).Returns("MoqTicker");
+        moqSourceTickerInfo.As<ISourceTickerInfo>().SetupGet(stqi => stqi.InstrumentName).Returns("MoqTicker");
         dummyTickInstant.SourceTickerInfo = moqSourceTickerInfo.Object;
 
         pqPublisher.PublishQuoteUpdate(dummyTickInstant);
@@ -118,7 +118,7 @@ public class PQPublisherTests
         pqPublisher = new PQPublisher<IPQLevel1Quote>(moqPqServer.Object);
 
         moqSourceTickerInfo = new Mock<ISourceTickerInfo>();
-        moqSourceTickerInfo.SetupGet(stpc => stpc.Ticker).Returns("MoqTicker");
+        moqSourceTickerInfo.SetupGet(stpc => stpc.InstrumentName).Returns("MoqTicker");
         moqSourceTickerInfo.SetupGet(stpc => stpc.RoundingPrecision).Returns(0.00001m);
         moqSourceTickerInfo.SetupGet(stpc => stpc.IncrementSize).Returns(1m);
 

@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeCommon.Chronometry;
+using System.Text.Json;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
@@ -89,7 +89,7 @@ public class PQLevel1QuoteTests
         Assert.IsFalse(emptyQuote.IsSourceAskTimeDateUpdated);
         Assert.IsFalse(emptyQuote.IsSourceAskTimeSubHourUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceAskTime);
+        Assert.AreEqual(default, emptyQuote.SourceAskTime);
         Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
         var expectedSetTime = new DateTime(2017, 10, 14, 15, 10, 59).AddTicks(9879879);
@@ -149,7 +149,7 @@ public class PQLevel1QuoteTests
         Assert.IsFalse(emptyQuote.IsSourceBidTimeDateUpdated);
         Assert.IsFalse(emptyQuote.IsSourceBidTimeSubHourUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceBidTime);
+        Assert.AreEqual(default, emptyQuote.SourceBidTime);
         Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
         var expectedSetTime = new DateTime(2017, 10, 14, 15, 10, 59).AddTicks(9879879);
@@ -209,7 +209,7 @@ public class PQLevel1QuoteTests
         Assert.IsFalse(emptyQuote.IsAdapterSentTimeDateUpdated);
         Assert.IsFalse(emptyQuote.IsAdapterSentTimeSubHourUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.AdapterSentTime);
+        Assert.AreEqual(default, emptyQuote.AdapterSentTime);
         Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
         var expectedSetTime = new DateTime(2017, 10, 14, 15, 10, 59).AddTicks(9879879);
@@ -268,7 +268,7 @@ public class PQLevel1QuoteTests
         Assert.IsFalse(emptyQuote.IsAdapterReceivedTimeDateUpdated);
         Assert.IsFalse(emptyQuote.IsAdapterReceivedTimeSubHourUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.AdapterReceivedTime);
+        Assert.AreEqual(default, emptyQuote.AdapterReceivedTime);
         Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
         var expectedSetTime = new DateTime(2017, 10, 14, 15, 10, 59).AddTicks(9879879);
@@ -506,12 +506,12 @@ public class PQLevel1QuoteTests
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.AreEqual(false, emptyQuote.IsReplay);
         Assert.AreEqual(FeedSyncStatus.OutOfSync, emptyQuote.FeedSyncStatus);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceTime);
+        Assert.AreEqual(default, emptyQuote.SourceTime);
         Assert.AreEqual(0m, emptyQuote.SingleTickValue);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceAskTime);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceBidTime);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.AdapterReceivedTime);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.AdapterSentTime);
+        Assert.AreEqual(default, emptyQuote.SourceAskTime);
+        Assert.AreEqual(default, emptyQuote.SourceBidTime);
+        Assert.AreEqual(default, emptyQuote.AdapterReceivedTime);
+        Assert.AreEqual(default, emptyQuote.AdapterSentTime);
         Assert.AreEqual(0m, emptyQuote.BidPriceTop);
         Assert.AreEqual(0m, emptyQuote.AskPriceTop);
         Assert.IsTrue(emptyQuote.Executable);
@@ -578,20 +578,20 @@ public class PQLevel1QuoteTests
         fullyPopulatedPqLevel1Quote.HasUpdates = false;
         emptyQuote.CopyFrom(fullyPopulatedPqLevel1Quote);
         Assert.AreEqual(fullyPopulatedPqLevel1Quote.PQSequenceId, emptyQuote.PQSequenceId);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceTime);
+        Assert.AreEqual(default, emptyQuote.SourceTime);
         Assert.IsTrue
             (fullyPopulatedPqLevel1Quote.SourceTickerInfo!.AreEquivalent(emptyQuote.SourceTickerInfo));
         Assert.AreEqual(false, emptyQuote.IsReplay);
         Assert.AreEqual(0m, emptyQuote.SingleTickValue);
         Assert.AreEqual(FeedSyncStatus.OutOfSync, emptyQuote.FeedSyncStatus);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceBidTime);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SourceAskTime);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.AdapterReceivedTime);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.AdapterSentTime);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.ClientReceivedTime);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.DispatchedTime);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.ProcessedTime);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyQuote.SocketReceivingTime);
+        Assert.AreEqual(default, emptyQuote.SourceBidTime);
+        Assert.AreEqual(default, emptyQuote.SourceAskTime);
+        Assert.AreEqual(default, emptyQuote.AdapterReceivedTime);
+        Assert.AreEqual(default, emptyQuote.AdapterSentTime);
+        Assert.AreEqual(default, emptyQuote.ClientReceivedTime);
+        Assert.AreEqual(default, emptyQuote.DispatchedTime);
+        Assert.AreEqual(default, emptyQuote.ProcessedTime);
+        Assert.AreEqual(default, emptyQuote.SocketReceivingTime);
         Assert.AreEqual(0m, emptyQuote.BidPriceTop);
         Assert.AreEqual(0m, emptyQuote.AskPriceTop);
         Assert.IsTrue(emptyQuote.Executable);
@@ -664,6 +664,18 @@ public class PQLevel1QuoteTests
     {
         var hashCode = emptyQuote.GetHashCode();
         Assert.IsTrue(hashCode != 0);
+    }
+
+    [TestMethod]
+    public void FullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = fullyPopulatedPqLevel1Quote;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
     }
 
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType

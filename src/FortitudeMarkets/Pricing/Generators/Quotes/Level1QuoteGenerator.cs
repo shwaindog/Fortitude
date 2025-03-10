@@ -3,7 +3,6 @@
 
 #region
 
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Generators.MidPrice;
 using FortitudeMarkets.Pricing.Quotes;
 
@@ -23,6 +22,8 @@ public abstract class Level1QuoteGeneratorBase<TQuote> : TickInstantGeneratorBas
         populateQuote.SourceBidTime       = populateQuote.SourceTime;
         populateQuote.AdapterReceivedTime = AdapterReceivedDateTime;
         populateQuote.AdapterSentTime     = AdapterSentDateTime;
+        populateQuote.ValidFrom           = populateQuote.SourceTime;
+        populateQuote.ValidTo             = populateQuote.SourceTime.AddSeconds(30);
         if (populateQuote.TickerDetailLevel == TickerDetailLevel.Level1Quote)
         {
             var bookGenerationInfo = GenerateQuoteInfo.BookGenerationInfo;

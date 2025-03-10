@@ -3,20 +3,27 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 
+[JsonDerivedType(typeof(PQPriceVolumeLayer))]
+[JsonDerivedType(typeof(PQSourcePriceVolumeLayer))]
+[JsonDerivedType(typeof(PQSourceQuoteRefPriceVolumeLayer))]
+[JsonDerivedType(typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer))]
+[JsonDerivedType(typeof(PQValueDatePriceVolumeLayer))]
+[JsonDerivedType(typeof(PQTraderPriceVolumeLayer))]
 public interface IPQPriceVolumeLayer : IMutablePriceVolumeLayer, IPQSupportsFieldUpdates<IPriceVolumeLayer>
 {
-    bool IsPriceUpdated  { get; set; }
-    bool IsVolumeUpdated { get; set; }
+    [JsonIgnore] bool IsPriceUpdated  { get; set; }
+    [JsonIgnore] bool IsVolumeUpdated { get; set; }
 
     new IPQPriceVolumeLayer Clone();
 }
@@ -46,9 +53,10 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
 
     protected string PQPriceVolumeLayerToStringMembers => $"{nameof(Price)}: {Price:N5}, {nameof(Volume)}: {Volume:N2}";
 
-    public virtual LayerType  LayerType          => LayerType.PriceVolume;
-    public virtual LayerFlags SupportsLayerFlags => LayerFlags.Price | LayerFlags.Volume;
+    [JsonIgnore] public virtual LayerType  LayerType          => LayerType.PriceVolume;
+    [JsonIgnore] public virtual LayerFlags SupportsLayerFlags => LayerFlags.Price | LayerFlags.Volume;
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public decimal Price
     {
         get => price;
@@ -60,6 +68,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public decimal Volume
     {
         get => volume;
@@ -71,6 +80,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         }
     }
 
+    [JsonIgnore]
     public bool IsPriceUpdated
     {
         get => (UpdatedFlags & LayerFieldUpdatedFlags.PriceUpdatedFlag) > 0;
@@ -83,6 +93,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         }
     }
 
+    [JsonIgnore]
     public bool IsVolumeUpdated
     {
         get => (UpdatedFlags & LayerFieldUpdatedFlags.VolumeUpdatedFlag) > 0;
@@ -95,12 +106,14 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         }
     }
 
+    [JsonIgnore]
     public virtual bool HasUpdates
     {
         get => UpdatedFlags != 0;
         set => UpdatedFlags = value ? UpdatedFlags.AllFlags() : LayerFieldUpdatedFlags.None;
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public virtual bool IsEmpty
     {
         get => Price == 0m && Volume == 0m;

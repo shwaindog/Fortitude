@@ -3,7 +3,7 @@
 
 #region
 
-using System.Collections;
+using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries.FileSystem;
@@ -12,23 +12,27 @@ using FortitudeIO.TimeSeries.FileSystem;
 
 namespace FortitudeIO.TimeSeries;
 
-public interface IInstrument : IEnumerable<KeyValuePair<string, string>>
+public interface IInstrument
 {
-    string InstrumentName   { get; }
-    string InstrumentSource { get; }
+    string InstrumentName { get; }
+    string SourceName     { get; }
 
-    string? this[string key] { get; set; }
-    IEnumerable<string> RequiredAttributeKeys { get; set; }
-    IEnumerable<string> OptionalAttributeKeys { get; set; }
+    [JsonIgnore] string? this[string key] { get; set; }
+    [JsonIgnore] IEnumerable<string> RequiredAttributeKeys { get; set; }
+    [JsonIgnore] IEnumerable<string> OptionalAttributeKeys { get; set; }
 
-    bool HasAllRequiredKeys { get; }
+    [JsonIgnore] bool HasAllRequiredKeys { get; }
 
-    IEnumerable<KeyValuePair<string, string>> AllAttributes      { get; }
-    IEnumerable<KeyValuePair<string, string>> RequiredAttributes { get; }
-    IEnumerable<KeyValuePair<string, string>> OptionalAttributes { get; }
+    [JsonIgnore] IEnumerable<KeyValuePair<string, string>> AllAttributes      { get; }
+    [JsonIgnore] IEnumerable<KeyValuePair<string, string>> FilledAttributes   { get; }
+    [JsonIgnore] IEnumerable<KeyValuePair<string, string>> RequiredAttributes { get; }
+    [JsonIgnore] IEnumerable<KeyValuePair<string, string>> OptionalAttributes { get; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public DiscreetTimePeriod CoveringPeriod { get; set; }
-    public InstrumentType     InstrumentType { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public InstrumentType InstrumentType { get; }
 
     void Add(KeyValuePair<string, string> instrumentAttribute);
     void Add(string name, string value);
@@ -38,7 +42,7 @@ public interface IInstrument : IEnumerable<KeyValuePair<string, string>>
 public static class InstrumentExtensions
 {
     public static string Name(this IInstrument instrument) =>
-        $"{instrument.InstrumentType}_{instrument.InstrumentSource}_{instrument.InstrumentName}_{instrument.CoveringPeriod}";
+        $"{instrument.InstrumentType}_{instrument.SourceName}_{instrument.InstrumentName}_{instrument.CoveringPeriod}";
 }
 
 public class Instrument : IInstrument
@@ -53,8 +57,8 @@ public class Instrument : IInstrument
       , IEnumerable<KeyValuePair<string, string>> requiredValues
       , IEnumerable<KeyValuePair<string, string>>? optionalValues = null)
     {
-        InstrumentName   = instrumentName;
-        InstrumentSource = instrumentSource;
+        InstrumentName = instrumentName;
+        SourceName     = instrumentSource;
         var optionalOrEmpty = optionalValues ?? Enumerable.Empty<KeyValuePair<string, string>>();
         instrumentAttributes = requiredValues.Concat(optionalOrEmpty).ToDictionary();
 
@@ -68,11 +72,6 @@ public class Instrument : IInstrument
     (string instrumentName, string instrumentSource, InstrumentType type, DiscreetTimePeriod coveringPeriod
       , params KeyValuePair<string, string>[] requiredValues)
         : this(instrumentName, instrumentSource, type, coveringPeriod, requiredValues, null) { }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public IEnumerator<KeyValuePair<string, string>> GetEnumerator() =>
-        instrumentAttributes.Where(kvp => kvp.Value.IsNotNullOrEmpty()).GetEnumerator();
 
     public string? this[string key]
     {
@@ -92,9 +91,14 @@ public class Instrument : IInstrument
 
     public bool Remove(string name) => instrumentAttributes.Remove(name);
 
-    public IEnumerable<KeyValuePair<string, string>> AllAttributes => instrumentAttributes;
+    [JsonIgnore] public IEnumerable<KeyValuePair<string, string>> AllAttributes => instrumentAttributes;
 
+    [JsonIgnore] public IEnumerable<KeyValuePair<string, string>> FilledAttributes => instrumentAttributes.Where(kvp => kvp.Value.IsNotNullOrEmpty());
+
+    [JsonIgnore]
     public IEnumerable<KeyValuePair<string, string>> RequiredAttributes => instrumentAttributes.Where(kvp => RequiredAttributeKeys.Contains(kvp.Key));
+
+    [JsonIgnore]
     public IEnumerable<KeyValuePair<string, string>> OptionalAttributes => instrumentAttributes.Where(kvp => OptionalAttributeKeys.Contains(kvp.Key));
 
     public IEnumerable<string> RequiredAttributeKeys
@@ -110,8 +114,8 @@ public class Instrument : IInstrument
         set => optionalKeys = value.ToArray();
     }
 
-    public string InstrumentName   { get; }
-    public string InstrumentSource { get; }
+    public string InstrumentName { get; }
+    public string SourceName     { get; }
 
     public DiscreetTimePeriod CoveringPeriod { get; set; }
     public InstrumentType     InstrumentType { get; }
@@ -148,7 +152,7 @@ public class InstrumentEntryRangeMatch
     public bool Matches(IInstrument instrument)
     {
         var instrumentNameMatches   = InstrumentNameMatch == null || instrument.InstrumentName.Contains(InstrumentNameMatch);
-        var instrumentSourceMatches = InstrumentSourceMatch == null || instrument.InstrumentSource.Contains(InstrumentSourceMatch);
+        var instrumentSourceMatches = InstrumentSourceMatch == null || instrument.SourceName.Contains(InstrumentSourceMatch);
 
         var coveringPeriodFromMatches = CoveringPeriodMatchFrom == null ||
                                         instrument.CoveringPeriod >= (CoveringPeriodMatchFrom?.AveragePeriodTimeSpan() ?? TimeSpan.Zero);

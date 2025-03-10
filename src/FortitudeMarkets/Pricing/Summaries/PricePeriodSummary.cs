@@ -3,14 +3,13 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
 
@@ -51,7 +50,7 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
     }
 
     public PricePeriodSummary
-    (TimeBoundaryPeriod timeBoundaryPeriod = TimeBoundaryPeriod.None, DateTime? startTime = null, DateTime? endTime = null,
+    (TimeBoundaryPeriod timeBoundaryPeriod = TimeBoundaryPeriod.Tick, DateTime? startTime = null, DateTime? endTime = null,
         decimal startBidPrice = 0m, decimal startAskPrice = 0m, decimal highestBidPrice = 0m, decimal highestAskPrice = 0m,
         decimal lowestBidPrice = 0m, decimal lowestAskPrice = 0m, decimal endBidPrice = 0m, decimal endAskPrice = 0m, uint tickCount = 0u,
         long periodVolume = 0L, decimal averageBidPrice = 0m, decimal averageAskPrice = 0m
@@ -98,20 +97,22 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
     public override PricePeriodSummary Clone() =>
         Recycler?.Borrow<PricePeriodSummary>().CopyFrom(this) as PricePeriodSummary ?? new PricePeriodSummary(this);
 
+    [JsonIgnore]
     public PricePeriodSummary? Previous
     {
         get => ((IPricePeriodSummary)this).Previous as PricePeriodSummary;
         set => ((IPricePeriodSummary)this).Previous = value;
     }
 
+    [JsonIgnore]
     public PricePeriodSummary? Next
     {
         get => ((IPricePeriodSummary)this).Next as PricePeriodSummary;
         set => ((IPricePeriodSummary)this).Next = value;
     }
 
-    IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Previous { get; set; }
-    IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Next     { get; set; }
+    [JsonIgnore] IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Previous { get; set; }
+    [JsonIgnore] IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Next     { get; set; }
 
     public bool IsEmpty
     {
@@ -122,7 +123,7 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
                                    EndBidPrice == decimal.Zero && EndAskPrice == decimal.Zero &&
                                    AverageBidPrice == decimal.Zero && AverageAskPrice == decimal.Zero;
             var tickCountAndVolumeZero = TickCount == 0 && PeriodVolume == 0;
-            var summaryPeriodNone      = TimeBoundaryPeriod == TimeBoundaryPeriod.None;
+            var summaryPeriodNone      = TimeBoundaryPeriod == TimeBoundaryPeriod.Tick;
             var summaryFlagsNone       = PeriodSummaryFlags == PricePeriodSummaryFlags.None;
             var startEndTimeUnixEpoch  = PeriodStartTime == DateTimeConstants.UnixEpoch && PeriodEndTime == DateTimeConstants.UnixEpoch;
             return pricesAreAllZero && tickCountAndVolumeZero && summaryPeriodNone && startEndTimeUnixEpoch && summaryFlagsNone;
@@ -134,7 +135,7 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
             LowestBidPrice     = LowestAskPrice = EndBidPrice     = EndAskPrice     = AverageAskPrice = decimal.Zero;
             TickCount          = 0;
             PeriodVolume       = 0;
-            TimeBoundaryPeriod = TimeBoundaryPeriod.None;
+            TimeBoundaryPeriod = TimeBoundaryPeriod.Tick;
             PeriodSummaryFlags = PricePeriodSummaryFlags.None;
             PeriodStartTime    = PeriodEndTime = DateTimeConstants.UnixEpoch;
         }
@@ -244,7 +245,7 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
     }
 
     public void Configure
-    (TimeBoundaryPeriod timeBoundaryPeriod = TimeBoundaryPeriod.None, DateTime? startTime = null, DateTime? endTime = null,
+    (TimeBoundaryPeriod timeBoundaryPeriod = TimeBoundaryPeriod.Tick, DateTime? startTime = null, DateTime? endTime = null,
         decimal startBidPrice = 0m, decimal startAskPrice = 0m, decimal highestBidPrice = 0m, decimal highestAskPrice = 0m,
         decimal lowestBidPrice = 0m, decimal lowestAskPrice = 0m, decimal endBidPrice = 0m, decimal endAskPrice = 0m, uint tickCount = 0u,
         long periodVolume = 0L, decimal averageBidPrice = 0m, decimal averageAskPrice = 0m

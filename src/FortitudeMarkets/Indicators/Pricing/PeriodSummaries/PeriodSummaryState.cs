@@ -9,7 +9,6 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.Summaries;
-using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
 

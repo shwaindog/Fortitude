@@ -3,15 +3,13 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Summaries;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
 
 #endregion
 
@@ -63,51 +61,67 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ICloneabl
 
     public override Level3PriceQuote Clone() => Recycler?.Borrow<Level3PriceQuote>().CopyFrom(this) as Level3PriceQuote ?? new Level3PriceQuote(this);
 
+    [JsonIgnore]
     public new Level3PriceQuote? Previous
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as Level3PriceQuote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
+
+    [JsonIgnore]
     public new Level3PriceQuote? Next
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as Level3PriceQuote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
+    [JsonIgnore]
     ILevel3Quote? ILevel3Quote.Previous
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as ILevel3Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
+    [JsonIgnore]
     ILevel3Quote? ILevel3Quote.Next
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as ILevel3Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
+    [JsonIgnore]
     ILevel3Quote? IDoublyLinkedListNode<ILevel3Quote>.Previous
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as ILevel3Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
+    [JsonIgnore]
     ILevel3Quote? IDoublyLinkedListNode<ILevel3Quote>.Next
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as ILevel3Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
-    public override TickerDetailLevel TickerDetailLevel => TickerDetailLevel.Level3Quote;
+    [JsonIgnore] public override TickerDetailLevel TickerDetailLevel => TickerDetailLevel.Level3Quote;
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IMutableRecentlyTraded? RecentlyTraded { get; set; }
 
-    IRecentlyTraded? ILevel3Quote.RecentlyTraded => RecentlyTraded;
-    public uint                   BatchId        { get; set; }
+    [JsonIgnore] IRecentlyTraded? ILevel3Quote.RecentlyTraded => RecentlyTraded;
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public uint BatchId { get; set; }
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public uint SourceQuoteReference { get; set; }
 
-    public DateTime ValueDate { get; set; } = DateTimeConstants.UnixEpoch;
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime ValueDate { get; set; }
 
     public override ITickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {

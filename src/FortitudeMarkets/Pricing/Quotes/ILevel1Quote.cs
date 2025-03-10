@@ -3,6 +3,7 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
@@ -18,19 +19,21 @@ public interface ILevel1Quote : ITickInstant, IBidAskInstant, ICloneable<ILevel1
     DateTime AdapterSentTime     { get; }
     DateTime SourceBidTime       { get; }
 
-    BidAskPair BidAskTop            { get; }
-    decimal    BidPriceTop          { get; }
-    bool       IsBidPriceTopUpdated { get; }
-    DateTime   SourceAskTime        { get; }
-    decimal    AskPriceTop          { get; }
-    bool       IsAskPriceTopUpdated { get; }
-    bool       Executable           { get; }
-    DateTime   ValidFrom            { get; }
-    DateTime   ValidTo              { get; }
+    [JsonInclude] BidAskPair BidAskTop            { get; }
+    decimal                  BidPriceTop          { get; }
+    bool                     IsBidPriceTopUpdated { get; }
+    DateTime                 SourceAskTime        { get; }
+    decimal                  AskPriceTop          { get; }
+    bool                     IsAskPriceTopUpdated { get; }
+    bool                     Executable           { get; }
+    DateTime                 ValidFrom            { get; }
+    DateTime                 ValidTo              { get; }
 
     new ILevel1Quote? Next     { get; set; }
     new ILevel1Quote? Previous { get; set; }
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     IPricePeriodSummary? SummaryPeriod { get; }
 
     new bool AreEquivalent(ITickInstant? other, bool exactTypes = false);
@@ -52,6 +55,7 @@ public interface IMutableLevel1Quote : ILevel1Quote, IMutableTickInstant
     new DateTime ValidFrom            { get; set; }
     new DateTime ValidTo              { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     new IMutablePricePeriodSummary? SummaryPeriod { get; set; }
 
     new IMutableLevel1Quote Clone();

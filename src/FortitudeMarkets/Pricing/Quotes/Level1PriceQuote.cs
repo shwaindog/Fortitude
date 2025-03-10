@@ -3,13 +3,11 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Summaries;
 using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
@@ -71,76 +69,113 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
 
     public override Level1PriceQuote Clone() => Recycler?.Borrow<Level1PriceQuote>().CopyFrom(this) as Level1PriceQuote ?? new Level1PriceQuote(this);
 
+    [JsonIgnore]
     public new Level1PriceQuote? Previous
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as Level1PriceQuote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
+    [JsonIgnore]
     public new Level1PriceQuote? Next
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as Level1PriceQuote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
+    [JsonIgnore]
     ILevel1Quote? ILevel1Quote.Previous
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as ILevel1Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
+    [JsonIgnore]
     ILevel1Quote? ILevel1Quote.Next
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as ILevel1Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
+    [JsonIgnore]
     ILevel1Quote? IDoublyLinkedListNode<ILevel1Quote>.Previous
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as ILevel1Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
 
+    [JsonIgnore]
     ILevel1Quote? IDoublyLinkedListNode<ILevel1Quote>.Next
     {
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as ILevel1Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
-    IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Previous { get; set; }
-    IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Next     { get; set; }
+    [JsonIgnore] IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Previous { get; set; }
+    [JsonIgnore] IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Next     { get; set; }
 
-    decimal IBidAskPair.BidPrice => BidPriceTop;
-    decimal IBidAskPair.AskPrice => BidPriceTop;
+    [JsonIgnore] decimal IBidAskPair.    BidPrice => BidPriceTop;
+    [JsonIgnore] decimal IBidAskPair.    AskPrice => BidPriceTop;
+    [JsonIgnore] DateTime IBidAskInstant.AtTime   => SourceTime;
 
-    DateTime IBidAskInstant.AtTime => SourceTime;
+    [JsonIgnore] public override TickerDetailLevel TickerDetailLevel => TickerDetailLevel.Level1Quote;
 
-    public override TickerDetailLevel TickerDetailLevel => TickerDetailLevel.Level1Quote;
 
-    public DateTime AdapterReceivedTime { get; set; } = DateTimeConstants.UnixEpoch;
-    public DateTime AdapterSentTime     { get; set; } = DateTimeConstants.UnixEpoch;
-    public DateTime SourceBidTime       { get; set; } = DateTimeConstants.UnixEpoch;
-    public DateTime ValidFrom           { get; set; } = DateTimeConstants.UnixEpoch;
-    public DateTime ValidTo             { get; set; } = DateTimeConstants.UnixEpoch;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime AdapterReceivedTime { get; set; }
 
-    public virtual decimal BidPriceTop { get; set; }
-    public virtual decimal AskPriceTop { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime AdapterSentTime { get; set; }
 
-    public BidAskPair BidAskTop     => new(BidPriceTop, AskPriceTop);
-    public DateTime   SourceAskTime { get; set; } = DateTimeConstants.UnixEpoch;
-    public bool       Executable    { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime SourceAskTime { get; set; }
 
-    public bool IsBidPriceTopUpdated { get; set; }
-    public bool IsAskPriceTopUpdated { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime SourceBidTime { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime ValidFrom { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime ValidTo { get; set; }
+
+
+    [JsonIgnore] public virtual decimal BidPriceTop { get; set; }
+    [JsonIgnore] public virtual decimal AskPriceTop { get; set; }
+
+    public BidAskPair BidAskTop => new(BidPriceTop, AskPriceTop);
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool Executable { get; set; }
+
+    [JsonIgnore] public bool IsBidPriceTopUpdated { get; set; }
+    [JsonIgnore] public bool IsAskPriceTopUpdated { get; set; }
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IMutablePricePeriodSummary? SummaryPeriod { get; set; }
-    IPricePeriodSummary? ILevel1Quote. SummaryPeriod => SummaryPeriod;
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    IPricePeriodSummary? ILevel1Quote.SummaryPeriod => SummaryPeriod;
+
+    [JsonInclude]
     public override DateTime SourceTime
     {
         get =>
             new(Math.Max(base.SourceTime.Ticks,
                          Math.Max(SourceBidTime.Ticks, SourceAskTime.Ticks)));
         set => base.SourceTime = value;
+    }
+
+    public override void IncrementTimeBy(TimeSpan toChangeBy)
+    {
+        base.IncrementTimeBy(toChangeBy);
+        AdapterReceivedTime += toChangeBy;
+        AdapterSentTime     += toChangeBy;
+        SourceBidTime       += toChangeBy;
+        SourceAskTime       += toChangeBy;
+        ValidFrom           += toChangeBy;
+        ValidTo             += toChangeBy;
     }
 
     public override ITickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

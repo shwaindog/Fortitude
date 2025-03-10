@@ -223,7 +223,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         (string instrumentName, InstrumentType? instrumentType = null, DiscreetTimePeriod? period = null)
     {
         lastFileInfoRetrieved.Clear();
-        if (instrumentName == tickerId15SPeriod.Ticker)
+        if (instrumentName == tickerId15SPeriod.InstrumentName)
         {
             lastFileEntryInfoRetrieved.Add(new InstrumentFileEntryInfo(tickerId15SPeriod, OneWeek, new List<FileEntryInfo>(), 1));
             return lastFileEntryInfoRetrieved;
@@ -246,15 +246,15 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
     private IEnumerable<PricePeriodSummary> GetStubSummaries
         (SourceTickerIdentifier srcTickerIdentifier, TimeBoundaryPeriod requestPeriod, UnboundedTimeRange? requestTimeRange)
     {
-        if (srcTickerIdentifier.TickerId == tickerId5SPeriod.TickerId) return Enumerable.Empty<PricePeriodSummary>();
-        if (srcTickerIdentifier.TickerId == tickerId30SPeriod.TickerId && requestPeriod == FifteenSeconds)
+        if (srcTickerIdentifier.TickerId == tickerId5SPeriod.InstrumentId) return Enumerable.Empty<PricePeriodSummary>();
+        if (srcTickerIdentifier.TickerId == tickerId30SPeriod.InstrumentId && requestPeriod == FifteenSeconds)
             return lastSummariesRetrieved =
                 fifteenSecondPeriodSummaries
                     .Where(q => q.PeriodEndTime >= restrictedRetrievalRange.FromTime
                              && q.PeriodEndTime <= restrictedRetrievalRange.ToTime
                              && q.PeriodEndTime >= (requestTimeRange?.FromTime ?? DateTime.MinValue)
                              && q.PeriodEndTime <= (requestTimeRange?.ToTime ?? DateTime.MaxValue)).ToList();
-        if (srcTickerIdentifier.TickerId == tickerId30SPeriod.TickerId && requestPeriod == ThirtySeconds)
+        if (srcTickerIdentifier.TickerId == tickerId30SPeriod.InstrumentId && requestPeriod == ThirtySeconds)
             return lastSummariesRetrieved =
                 thirtySecondPeriodSummaries
                     .Where(q => q.PeriodEndTime >= restrictedRetrievalRange.FromTime

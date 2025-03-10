@@ -13,15 +13,15 @@ using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
 using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Serdes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 
@@ -75,7 +75,7 @@ public class PQQuoteDeserializerBaseTests
     public void SetUp()
     {
         moqUniqueSrcTkrId = new Mock<ISourceTickerInfo>();
-        moqUniqueSrcTkrId.Setup(stqi => stqi.GetEnumerator()).Returns(Enumerable.Empty<KeyValuePair<string, string>>().GetEnumerator);
+        moqUniqueSrcTkrId.SetupGet(stqi => stqi.FilledAttributes).Returns([]);
         dummyTickInstantDeserializer = new DummyPQQuoteDeserializerBase<IPQTickInstant>(moqUniqueSrcTkrId.Object);
         dummyLevel1QuoteDeserializer = new DummyPQQuoteDeserializerBase<IPQLevel1Quote>(moqUniqueSrcTkrId.Object);
         dummyLevel2QuoteDeserializer = new DummyPQQuoteDeserializerBase<IPQLevel2Quote>(moqUniqueSrcTkrId.Object);
@@ -507,10 +507,10 @@ public class PQQuoteDeserializerBaseTests
             const string expectedTicker = "TestTicker";
             const string expectedSource = "TestSource";
 
-            moqUniqueSrcTkrId.As<ISourceTickerId>().Verify(usti => usti.Ticker, Times.AtLeast(4));
-            moqUniqueSrcTkrId.As<ISourceTickerId>().Verify(usti => usti.Source, Times.AtLeast(4));
-            moqUniqueSrcTkrId.As<ISourceTickerInfo>().SetupGet(usti => usti.Ticker).Returns(expectedTicker);
-            moqUniqueSrcTkrId.As<ISourceTickerInfo>().SetupGet(usti => usti.Source).Returns(expectedSource);
+            moqUniqueSrcTkrId.As<ISourceTickerId>().Verify(usti => usti.InstrumentName, Times.AtLeast(4));
+            moqUniqueSrcTkrId.As<ISourceTickerId>().Verify(usti => usti.SourceName, Times.AtLeast(4));
+            moqUniqueSrcTkrId.As<ISourceTickerInfo>().SetupGet(usti => usti.InstrumentName).Returns(expectedTicker);
+            moqUniqueSrcTkrId.As<ISourceTickerInfo>().SetupGet(usti => usti.SourceName).Returns(expectedSource);
 
             subscribedTickInstantObserver = dummyTickInstantDeserializer.Subscribe(moqTickInstantObserver.Object);
 
@@ -525,10 +525,10 @@ public class PQQuoteDeserializerBaseTests
 
 
             moqPerfLogger.Verify(ltcsl => ltcsl.Enabled, Times.AtLeast(8));
-            moqUniqueSrcTkrId.As<ISourceTickerInfo>().Verify(usti => usti.Ticker, Times.AtLeast(4));
-            moqUniqueSrcTkrId.As<ISourceTickerInfo>().Verify(usti => usti.Source, Times.AtLeast(4));
-            moqUniqueSrcTkrId.As<ISourceTickerId>().Verify(usti => usti.Ticker, Times.AtLeast(4));
-            moqUniqueSrcTkrId.As<ISourceTickerId>().Verify(usti => usti.Source, Times.AtLeast(4));
+            moqUniqueSrcTkrId.As<ISourceTickerInfo>().Verify(usti => usti.InstrumentName, Times.AtLeast(4));
+            moqUniqueSrcTkrId.As<ISourceTickerInfo>().Verify(usti => usti.SourceName, Times.AtLeast(4));
+            moqUniqueSrcTkrId.As<ISourceTickerId>().Verify(usti => usti.InstrumentName, Times.AtLeast(4));
+            moqUniqueSrcTkrId.As<ISourceTickerId>().Verify(usti => usti.SourceName, Times.AtLeast(4));
             moqPerfLogger.Verify(ltcsl => ltcsl.Add("Ticker", expectedTicker), Times.AtLeast(4));
             moqPerfLogger.Verify(ltcsl => ltcsl.Add("Source", expectedSource), Times.AtLeast(4));
             moqPerfLoggerPool.Verify(ltcslp => ltcslp.StartNewTrace(), Times.AtLeast(4));
@@ -593,8 +593,8 @@ public class PQQuoteDeserializerBaseTests
         const string expectedTicker = "TestTicker";
         const string expectedSource = "TestSource";
 
-        moqUniqueSrcTkrId.SetupGet(usti => usti.Ticker).Returns(expectedTicker);
-        moqUniqueSrcTkrId.SetupGet(usti => usti.Source).Returns(expectedSource);
+        moqUniqueSrcTkrId.SetupGet(usti => usti.InstrumentName).Returns(expectedTicker);
+        moqUniqueSrcTkrId.SetupGet(usti => usti.SourceName).Returns(expectedSource);
 
         subscribedTickInstantObserver = dummyTickInstantDeserializer.Subscribe(moqTickInstantObserver.Object);
 

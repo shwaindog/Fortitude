@@ -3,6 +3,7 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Extensions;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 
@@ -10,36 +11,36 @@ using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 
 namespace FortitudeCommon.Chronometry;
 
+[JsonConverter(typeof(JsonStringEnumConverter<TimeBoundaryPeriod>))]
 public enum TimeBoundaryPeriod : byte
 {
-    None = 0
-  , Any  = 1 
-  , Tick
+    Tick = 0
+  , Any
   , OneMicrosecond
   , OneMillisecond
-  , OneSecond      
-  , FiveSeconds    
-  , TenSeconds     
-  , FifteenSeconds 
-  , ThirtySeconds  
-  , OneMinute      
-  , FiveMinutes    
-  , TenMinutes     
-  , FifteenMinutes 
-  , ThirtyMinutes  
-  , OneHour        
-  , FourHours      
-  , TwelveHours    
-  , OneDay         
-  , OneWeek        
-  , OneMonth       
-  , OneQuarter     
-  , OneYear        
-  , FiveYears      
-  , OneDecade      
-  , OneCentury     
-  , OneMillennium  
-  , Eternity       
+  , OneSecond
+  , FiveSeconds
+  , TenSeconds
+  , FifteenSeconds
+  , ThirtySeconds
+  , OneMinute
+  , FiveMinutes
+  , TenMinutes
+  , FifteenMinutes
+  , ThirtyMinutes
+  , OneHour
+  , FourHours
+  , TwelveHours
+  , OneDay
+  , OneWeek
+  , OneMonth
+  , OneQuarter
+  , OneYear
+  , FiveYears
+  , OneDecade
+  , OneCentury
+  , OneMillennium
+  , Eternity
 }
 
 public static class TimeBoundaryPeriodsExtensions
@@ -81,9 +82,9 @@ public static class TimeBoundaryPeriodsExtensions
     {
         return period switch
                {
-                   None or Tick => TimeSpan.Zero
-                 , OneMicrosecond      => TimeSpan.FromMicroseconds(1)
-                 , OneMillisecond      => TimeSpan.FromMilliseconds(1)
+                   Tick           => TimeSpan.Zero
+                 , OneMicrosecond => TimeSpan.FromMicroseconds(1)
+                 , OneMillisecond => TimeSpan.FromMilliseconds(1)
                  , OneSecond      => TimeSpan.FromSeconds(1)
                  , FiveSeconds    => TimeSpan.FromSeconds(5)
                  , TenSeconds     => TimeSpan.FromSeconds(10)
@@ -111,17 +112,16 @@ public static class TimeBoundaryPeriodsExtensions
                };
     }
 
-    public static DateTime ContainingPeriodEnd(this TimeBoundaryPeriod period, DateTime startTime)
-    {
-        return period.PeriodEnd(period.ContainingPeriodBoundaryStart(startTime));
-    }
+    public static DateTime ContainingPeriodEnd
+        (this TimeBoundaryPeriod period, DateTime startTime) =>
+        period.PeriodEnd(period.ContainingPeriodBoundaryStart(startTime));
 
     public static DateTime PeriodEnd(this TimeBoundaryPeriod period, DateTime startTime)
     {
         return period switch
                {
-                 OneMicrosecond      => startTime.AddMicroseconds(1)
-                 , OneMillisecond      => startTime.AddMilliseconds(1)
+                   OneMicrosecond => startTime.AddMicroseconds(1)
+                 , OneMillisecond => startTime.AddMilliseconds(1)
                  , OneSecond      => startTime.AddSeconds(1)
                  , FiveSeconds    => startTime.AddSeconds(5)
                  , TenSeconds     => startTime.AddSeconds(10)
@@ -204,7 +204,7 @@ public static class TimeBoundaryPeriodsExtensions
                  , FourHours      => TwelveHours
                  , TwelveHours    => OneDay
                  , OneDay         => OneMonth
-                 , OneWeek        => None
+                 , OneWeek        => OneMonth
                  , OneMonth       => OneQuarter
                  , OneQuarter     => OneYear
                  , OneYear        => FiveYears
@@ -212,7 +212,7 @@ public static class TimeBoundaryPeriodsExtensions
                  , OneDecade      => OneCentury
                  , OneCentury     => OneMillennium
                  , OneMillennium  => Eternity
-                 , _              => None
+                 , _              => Eternity
                };
     }
 
@@ -220,7 +220,7 @@ public static class TimeBoundaryPeriodsExtensions
     {
         return period switch
                {
-                   Tick           => None
+                   Tick           => Tick
                  , OneMicrosecond => Tick
                  , OneMillisecond => OneMicrosecond
                  , OneSecond      => OneMillisecond
@@ -246,41 +246,89 @@ public static class TimeBoundaryPeriodsExtensions
                  , OneCentury     => OneDecade
                  , OneMillennium  => OneCentury
                  , Eternity       => OneMillennium
-                 , _              => None
+                 , _              => Eternity
                };
     }
+
     public static TimeBoundaryPeriod[] WholeSecondConstructingDivisiblePeriods(this TimeBoundaryPeriod period)
     {
         return period switch
                {
-                   Tick           => []
-                 , OneSecond      => [Tick]
-                 , FiveSeconds    => [OneSecond, Tick]
-                 , TenSeconds     => [FiveSeconds, OneSecond, Tick]
+                   Tick => []
+                 , OneSecond => [Tick]
+                 , FiveSeconds => [OneSecond, Tick]
+                 , TenSeconds => [FiveSeconds, OneSecond, Tick]
                  , FifteenSeconds => [FiveSeconds, OneSecond, Tick]
-                 , ThirtySeconds  => [FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , OneMinute      => [ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , FiveMinutes    => [OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , TenMinutes     => [FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
+                 , ThirtySeconds => [FifteenSeconds, FiveSeconds, OneSecond, Tick]
+                 , OneMinute => [ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
+                 , FiveMinutes => [OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
+                 , TenMinutes => [FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
                  , FifteenMinutes => [FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , ThirtyMinutes  => [FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , OneHour        => [ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , FourHours      => [OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , TwelveHours    => [FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , OneDay         => [TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , OneWeek        => [OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , OneMonth       => [OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , OneQuarter     => [OneMonth, OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , OneYear        => [OneQuarter, OneMonth, OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , FiveYears      => [OneYear, OneQuarter, OneMonth, OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , OneDecade      => [FiveYears, OneYear, OneQuarter, OneMonth, OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , OneCentury     => [OneDecade, FiveYears, OneYear, OneQuarter, OneMonth, OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , OneMillennium  => [OneCentury, OneDecade, FiveYears, OneYear, OneQuarter, OneMonth, OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , Eternity       => [OneMillennium, OneCentury, OneDecade, FiveYears, OneYear, OneQuarter, OneMonth, OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
-                 , _              => []
+                 , ThirtyMinutes => [FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
+                 , OneHour => [ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick]
+                 , FourHours =>
+                   [
+                       OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick
+                   ]
+                 , TwelveHours =>
+                   [
+                       FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds
+                     , OneSecond, Tick
+                   ]
+                 , OneDay =>
+                   [
+                       TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds
+                     , FiveSeconds, OneSecond, Tick
+                   ]
+                 , OneWeek =>
+                   [
+                       OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds
+                     , FiveSeconds, OneSecond, Tick
+                   ]
+                 , OneMonth =>
+                   [
+                       OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds
+                     , FiveSeconds, OneSecond, Tick
+                   ]
+                 , OneQuarter =>
+                   [
+                       OneMonth, OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds
+                     , FifteenSeconds, FiveSeconds, OneSecond, Tick
+                   ]
+                 , OneYear =>
+                   [
+                       OneQuarter, OneMonth, OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute
+                     , ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick
+                   ]
+                 , FiveYears =>
+                   [
+                       OneYear, OneQuarter, OneMonth, OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute
+                     , ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick
+                   ]
+                 , OneDecade =>
+                   [
+                       FiveYears, OneYear, OneQuarter, OneMonth, OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes, FiveMinutes
+                     , OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick
+                   ]
+                 , OneCentury =>
+                   [
+                       OneDecade, FiveYears, OneYear, OneQuarter, OneMonth, OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes, FifteenMinutes
+                     , FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick
+                   ]
+                 , OneMillennium =>
+                   [
+                       OneCentury, OneDecade, FiveYears, OneYear, OneQuarter, OneMonth, OneDay, TwelveHours, FourHours, OneHour, ThirtyMinutes
+                     , FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick
+                   ]
+                 , Eternity =>
+                   [
+                       OneMillennium, OneCentury, OneDecade, FiveYears, OneYear, OneQuarter, OneMonth, OneDay, TwelveHours, FourHours, OneHour
+                     , ThirtyMinutes, FifteenMinutes, FiveMinutes, OneMinute, ThirtySeconds, FifteenSeconds, FiveSeconds, OneSecond, Tick
+                   ]
+                 , _ => []
                };
     }
-    
+
     public static List<TimeBoundaryPeriodRange> WholeSecondConstructingDivisiblePeriods(this TimeBoundaryPeriod period, DateTime asAt)
     {
         var periodRanges     = new List<TimeBoundaryPeriodRange>();
@@ -332,8 +380,8 @@ public static class TimeBoundaryPeriodsExtensions
         return period switch
                {
                    Tick           => "tick"
-                 , OneMicrosecond      => "1us"
-                 , OneMillisecond      => "1ms"
+                 , OneMicrosecond => "1us"
+                 , OneMillisecond => "1ms"
                  , OneSecond      => "1s"
                  , FiveSeconds    => "5s"
                  , TenSeconds     => "10s"
@@ -365,33 +413,33 @@ public static class TimeBoundaryPeriodsExtensions
     {
         return shortName switch
                {
-                   "tick"    => Tick
+                   "tick"     => Tick
                  , "1us"      => OneMicrosecond
                  , "1ms"      => OneMillisecond
-                 , "1s"      => OneSecond
-                 , "5s"      => FiveSeconds
-                 , "10s"     => TenSeconds
-                 , "15s"     => FifteenSeconds
-                 , "30s"     => ThirtySeconds
-                 , "1m"      => OneMinute
-                 , "5m"      => FiveMinutes
-                 , "10m"     => TenMinutes
-                 , "15m"     => FifteenMinutes
-                 , "30m"     => ThirtyMinutes
-                 , "1h"      => OneHour
-                 , "4h"      => FourHours
-                 , "12h"     => TwelveHours
-                 , "1d"      => OneDay
-                 , "1W"      => OneWeek
-                 , "1M"      => OneMonth
-                 , "1Q"      => OneQuarter
-                 , "1Y"      => OneYear
-                 , "5Y"      => FiveYears
-                 , "10Y"     => OneDecade
-                 , "100Y"    => OneCentury
-                 , "1000Y"   => OneMillennium
+                 , "1s"       => OneSecond
+                 , "5s"       => FiveSeconds
+                 , "10s"      => TenSeconds
+                 , "15s"      => FifteenSeconds
+                 , "30s"      => ThirtySeconds
+                 , "1m"       => OneMinute
+                 , "5m"       => FiveMinutes
+                 , "10m"      => TenMinutes
+                 , "15m"      => FifteenMinutes
+                 , "30m"      => ThirtyMinutes
+                 , "1h"       => OneHour
+                 , "4h"       => FourHours
+                 , "12h"      => TwelveHours
+                 , "1d"       => OneDay
+                 , "1W"       => OneWeek
+                 , "1M"       => OneMonth
+                 , "1Q"       => OneQuarter
+                 , "1Y"       => OneYear
+                 , "5Y"       => FiveYears
+                 , "10Y"      => OneDecade
+                 , "100Y"     => OneCentury
+                 , "1000Y"    => OneMillennium
                  , "Eternity" => Eternity
-                 , _         => None
+                 , _          => Eternity
                };
     }
 }

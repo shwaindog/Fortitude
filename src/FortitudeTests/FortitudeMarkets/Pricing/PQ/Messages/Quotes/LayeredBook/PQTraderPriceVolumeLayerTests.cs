@@ -839,16 +839,16 @@ public class PQTraderPriceVolumeLayerTests
     public void FullyPopulatedPvlVariousInterfaces_GetEnumerator_OnlyGetsNonEmptyEntries()
     {
         Assert.AreEqual(populatedNumberOfTraders, populatedPvl.Count);
-        Assert.AreEqual(populatedNumberOfTraders, ((IEnumerable<IPQTraderLayerInfo>)populatedPvl).Count());
-        Assert.AreEqual(populatedNumberOfTraders, ((IEnumerable<IMutableTraderLayerInfo>)populatedPvl).Count());
-        Assert.AreEqual(populatedNumberOfTraders, ((IEnumerable<ITraderLayerInfo>)populatedPvl).Count());
+        Assert.AreEqual(populatedNumberOfTraders, ((IEnumerable<IPQTraderLayerInfo>)populatedPvl.TraderDetails).Count());
+        Assert.AreEqual(populatedNumberOfTraders, ((IEnumerable<IMutableTraderLayerInfo>)populatedPvl.TraderDetails).Count());
+        Assert.AreEqual(populatedNumberOfTraders, ((IEnumerable<ITraderLayerInfo>)populatedPvl.TraderDetails).Count());
 
         populatedPvl.StateReset();
 
         Assert.AreEqual(0, populatedPvl.Count);
-        Assert.AreEqual(0, ((IEnumerable<IPQTraderLayerInfo>)populatedPvl).Count());
-        Assert.AreEqual(0, ((IEnumerable<IMutableTraderLayerInfo>)populatedPvl).Count());
-        Assert.AreEqual(0, ((IEnumerable<ITraderLayerInfo>)populatedPvl).Count());
+        Assert.AreEqual(0, ((IEnumerable<IPQTraderLayerInfo>)populatedPvl.TraderDetails).Where(tli => !tli.IsEmpty).Count());
+        Assert.AreEqual(0, ((IEnumerable<IMutableTraderLayerInfo>)populatedPvl.TraderDetails).Where(tli => !tli.IsEmpty).Count());
+        Assert.AreEqual(0, ((IEnumerable<ITraderLayerInfo>)populatedPvl.TraderDetails).Where(tli => !tli.IsEmpty).Count());
     }
 
     public static void AssertContainsAllPvlFields

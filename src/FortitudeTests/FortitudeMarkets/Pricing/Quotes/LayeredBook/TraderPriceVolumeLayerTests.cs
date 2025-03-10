@@ -366,17 +366,17 @@ public class TraderPriceVolumeLayerTests
     public void FullyPopulatedPvlVariousInterfaces_GetEnumerator_OnlyGetsNonEmptyEntries()
     {
         Assert.AreEqual(populatedNumberOfTraders, populatedPvl.Count);
-        Assert.AreEqual(populatedNumberOfTraders, ((IEnumerable<ITraderLayerInfo>)populatedPvl).Count());
-        Assert.AreEqual(populatedNumberOfTraders, ((IEnumerable<IMutableTraderLayerInfo>)populatedPvl).Count());
+        Assert.AreEqual(populatedNumberOfTraders, ((IEnumerable<ITraderLayerInfo>)populatedPvl.TraderDetails).Count());
+        Assert.AreEqual(populatedNumberOfTraders, ((IEnumerable<IMutableTraderLayerInfo>)populatedPvl.TraderDetails).Count());
         // ReSharper disable RedundantCast
-        Assert.AreEqual(populatedNumberOfTraders, ((IEnumerable)populatedPvl).Cast<ITraderLayerInfo>().Count());
+        Assert.AreEqual(populatedNumberOfTraders, ((IEnumerable)populatedPvl.TraderDetails).OfType<ITraderLayerInfo>().Count());
 
         populatedPvl.StateReset();
 
         Assert.AreEqual(0, populatedPvl.Count);
-        Assert.AreEqual(0, ((IEnumerable<IMutableTraderLayerInfo>)populatedPvl).Count());
-        Assert.AreEqual(0, ((IEnumerable<ITraderLayerInfo>)populatedPvl).Count());
-        Assert.AreEqual(0, ((IEnumerable)populatedPvl).Cast<ITraderLayerInfo>().Count());
+        Assert.AreEqual(0, ((IEnumerable<IMutableTraderLayerInfo>)populatedPvl.TraderDetails).Where(tli => !tli.IsEmpty).Count());
+        Assert.AreEqual(0, ((IEnumerable<ITraderLayerInfo>)populatedPvl.TraderDetails).Where(tli => !tli.IsEmpty).Count());
+        Assert.AreEqual(0, ((IEnumerable)populatedPvl.TraderDetails).OfType<ITraderLayerInfo>().Where(tli => !tli.IsEmpty).Count());
         // ReSharper restore RedundantCast
     }
 

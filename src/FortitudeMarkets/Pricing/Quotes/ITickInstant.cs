@@ -3,6 +3,7 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
@@ -15,14 +16,16 @@ namespace FortitudeMarkets.Pricing.Quotes;
 public interface ITickInstant : IReusableObject<ITickInstant>, IInterfacesComparable<ITickInstant>
   , ITimeSeriesEntry, IDoublyLinkedListNode<ITickInstant>
 {
-    TickerDetailLevel TickerDetailLevel { get; }
+    [JsonIgnore] TickerDetailLevel TickerDetailLevel { get; }
 
-    bool           IsReplay           { get; }
-    DateTime       SourceTime         { get; }
-    DateTime       ClientReceivedTime { get; }
-    FeedSyncStatus FeedSyncStatus     { get; }
+    [JsonIgnore] bool     IsReplay           { get; }
+    [JsonIgnore] DateTime SourceTime         { get; }
+    [JsonIgnore] DateTime ClientReceivedTime { get; }
 
-    ISourceTickerInfo? SourceTickerInfo { get; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    FeedSyncStatus FeedSyncStatus { get; }
+
+    [JsonIgnore] ISourceTickerInfo? SourceTickerInfo { get; }
 
     decimal SingleTickValue { get; }
 
@@ -48,13 +51,24 @@ public struct TickInstantValue : ITimeSeriesEntry
 
 public interface IMutableTickInstant : ITickInstant
 {
-    new bool     IsReplay           { get; set; }
-    new DateTime SourceTime         { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    new bool IsReplay { get; set; }
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    new DateTime SourceTime { get; set; }
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new DateTime ClientReceivedTime { get; set; }
 
     new ISourceTickerInfo? SourceTickerInfo { get; set; }
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new decimal SingleTickValue { get; set; }
+
+    void IncrementTimeBy(TimeSpan toChangeBy);
 
     new IMutableTickInstant Clone();
 }

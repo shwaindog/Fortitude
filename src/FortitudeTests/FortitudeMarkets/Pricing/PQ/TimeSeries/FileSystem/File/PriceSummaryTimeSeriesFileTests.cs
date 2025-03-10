@@ -89,10 +89,10 @@ public class PriceSummaryTimeSeriesFileTests
         var fileStartTime =
             filePeriod switch
             {
-                TimeBoundaryPeriod.OneMonth  => startOfWeek.TruncToFirstSundayInMonth()
+                TimeBoundaryPeriod.OneWeek   => startOfWeek
+              , TimeBoundaryPeriod.OneMonth  => startOfWeek.TruncToFirstSundayInMonth()
               , TimeBoundaryPeriod.OneYear   => startOfWeek.TruncToFirstSundayInYear()
               , TimeBoundaryPeriod.OneDecade => startOfWeek.TruncToFirstSundayInDecade()
-              , TimeBoundaryPeriod.None      => DateTimeConstants.UnixEpoch
               , _                            => startOfWeek
             };
 
@@ -246,7 +246,7 @@ public class PriceSummaryTimeSeriesFileTests
     public void LongRunningUnlimitedDecenniallyYearlyFile1WSummaryPeriods_TwoSmallPeriods_OriginalValuesAreReturned()
     {
         var createParams = CreatePriceSummaryFileParameters
-            (entryCoveringPeriod: TimeBoundaryPeriod.OneWeek, internalIndexSize: 10, filePeriod: TimeBoundaryPeriod.None);
+            (entryCoveringPeriod: TimeBoundaryPeriod.OneWeek, internalIndexSize: 10, filePeriod: TimeBoundaryPeriod.OneWeek);
         using var pqPriceStorageSummaryFile = new UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<PQPriceStoragePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
             (pqPriceStorageSummaryFile, startOfWeek.AddDays(15), startOfWeek.AddDays(400).AddYears(5)
@@ -257,7 +257,7 @@ public class PriceSummaryTimeSeriesFileTests
     public void LongRunningUnlimitedDecenniallyFile1MSummaryPeriods_TwoSmallPeriods_OriginalValuesAreReturned()
     {
         var createParams = CreatePriceSummaryFileParameters
-            (entryCoveringPeriod: TimeBoundaryPeriod.OneMonth, internalIndexSize: 50, filePeriod: TimeBoundaryPeriod.None);
+            (entryCoveringPeriod: TimeBoundaryPeriod.OneMonth, internalIndexSize: 50, filePeriod: TimeBoundaryPeriod.OneWeek);
         using var priceSummaryFile = new UnlimitedDecenniallyPriceSummaryTimeSeriesFile<IPricePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
             (priceSummaryFile, startOfWeek.AddDays(15), startOfWeek.AddDays(400).AddYears(5)
@@ -268,7 +268,7 @@ public class PriceSummaryTimeSeriesFileTests
     public void LongRunningUnlimitedFile1DecadeSummaryPeriods_TwoSmallPeriods_OriginalValuesAreReturned()
     {
         var createParams = CreatePriceSummaryFileParameters
-            (entryCoveringPeriod: TimeBoundaryPeriod.OneDecade, internalIndexSize: 1, filePeriod: TimeBoundaryPeriod.None);
+            (entryCoveringPeriod: TimeBoundaryPeriod.OneDecade, internalIndexSize: 1, filePeriod: TimeBoundaryPeriod.OneWeek);
         using var dtoPriceSummaryFile = new UnlimitedPriceSummaryTimeSeriesFile<PricePeriodSummary>(createParams);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned
             (dtoPriceSummaryFile, startOfWeek.AddDays(15), startOfWeek.AddDays(3600).AddYears(5)

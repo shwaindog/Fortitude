@@ -3,9 +3,9 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -28,11 +28,16 @@ public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePric
             ValueDate = DateTimeConstants.UnixEpoch;
     }
 
-    public override LayerType LayerType => LayerType.ValueDatePriceVolume;
+    [JsonIgnore] public override LayerType LayerType => LayerType.ValueDatePriceVolume;
 
-    public override LayerFlags SupportsLayerFlags => LayerFlags.ValueDate | base.SupportsLayerFlags;
+    [JsonIgnore] public override LayerFlags SupportsLayerFlags => LayerFlags.ValueDate | base.SupportsLayerFlags;
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public DateTime ValueDate { get; set; }
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
         get => base.IsEmpty && ValueDate == DateTimeConstants.UnixEpoch;
@@ -56,8 +61,7 @@ public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePric
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
-        if (source is IValueDatePriceVolumeLayer sourceSourcePriceVolumeLayer)
-            ValueDate = sourceSourcePriceVolumeLayer.ValueDate;
+        if (source is IValueDatePriceVolumeLayer sourceSourcePriceVolumeLayer) ValueDate = sourceSourcePriceVolumeLayer.ValueDate;
         return this;
     }
 
