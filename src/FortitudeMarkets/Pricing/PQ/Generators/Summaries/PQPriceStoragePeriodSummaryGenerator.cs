@@ -3,10 +3,10 @@
 
 #region
 
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Generators.MidPrice;
 using FortitudeMarkets.Pricing.Generators.Summaries;
 using FortitudeMarkets.Pricing.PQ.Summaries;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -17,9 +17,9 @@ public class PQPriceStoragePeriodSummaryGenerator : PricePeriodSummaryGenerator<
     public PQPriceStoragePeriodSummaryGenerator(GeneratePriceSummariesInfo generatePriceSummaryInfo) : base(generatePriceSummaryInfo) { }
 
     public override PQPriceStoragePeriodSummary CreatePricePeriodSummary
-        (ISourceTickerInfo sourceTickerInfo, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+        (ISourceTickerInfo sourceTickerInfo, MidPriceTimePair midPriceTimePair)
     {
-        var currMid = previousCurrentMidPriceTime.CurrentMid;
+        var currMid = midPriceTimePair.CurrentMid;
         return new PQPriceStoragePeriodSummary
         {
             TimeBoundaryPeriod = GeneratePriceSummaryInfo.SummaryPeriod

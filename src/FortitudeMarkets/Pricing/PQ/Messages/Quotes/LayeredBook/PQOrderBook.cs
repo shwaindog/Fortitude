@@ -322,7 +322,7 @@ public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
             if (sourceLayer is { IsEmpty: false }) continue;
             if (destinationLayer is IMutablePriceVolumeLayer mutableDestinationLayer) mutableDestinationLayer.IsEmpty = true;
         }
-        for (var i = source.Count; i < source.Capacity; i++)
+        for (var i = source.Count; i < source.Capacity && source.Capacity > AllLayers.Count; i++)
             AllLayers.Add(LayerSelector.CreateExpectedImplementation(LayersOfType, NameIdLookup, null, copyMergeFlags));
 
         for (var i = source.Count; i < AllLayers.Count; i++)

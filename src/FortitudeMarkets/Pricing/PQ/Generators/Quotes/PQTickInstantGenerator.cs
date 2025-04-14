@@ -11,14 +11,13 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.Generators.Quotes;
 
-public class PQTickInstantGenerator : TickInstantGeneratorBase<PQTickInstant>
+public class PQTickInstantGenerator(CurrentQuoteInstantValueGenerator generateQuoteValues)
+    : TickInstantGeneratorBase<PQTickInstant>(generateQuoteValues)
 {
-    public PQTickInstantGenerator(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
-
-    public override PQTickInstant BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber)
+    public override PQTickInstant BuildQuote(MidPriceTimePair midPriceTimePair, int sequenceNumber)
     {
-        var toPopulate = new PQTickInstant(GenerateQuoteInfo.SourceTickerInfo);
-        PopulateQuote(toPopulate, previousCurrentMidPriceTime);
+        var toPopulate = new PQTickInstant(GenerateQuoteValues.GenerateQuoteInfo.SourceTickerInfo);
+        PopulateQuote(toPopulate, midPriceTimePair);
         toPopulate.PQSequenceId = (uint)sequenceNumber;
         return toPopulate;
     }

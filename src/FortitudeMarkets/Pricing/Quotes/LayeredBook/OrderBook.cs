@@ -42,11 +42,12 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     {
         BookSide = bookSide;
         IsLadder = isLadder;
-        this.bookLayers = bookLayers
-                          .Select(pvl => LayerSelector
-                                      .UpgradeExistingLayer(pvl, pvl.LayerType, pvl))
-                          .Cast<IPriceVolumeLayer?>()
-                          .ToList();
+        this.bookLayers =
+            bookLayers
+                .Select(pvl => LayerSelector
+                            .UpgradeExistingLayer(pvl, pvl.LayerType, pvl))
+                .Cast<IPriceVolumeLayer?>()
+                .ToList();
     }
 
     public OrderBook(IOrderBook toClone)
@@ -160,7 +161,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
             if (sourceLayer is { IsEmpty: false }) continue;
             if (destinationLayer is { } mutablePriceVolumeLayer) mutablePriceVolumeLayer.IsEmpty = true;
         }
-        for (var i = sourceDeepestLayerSet; i < source.Capacity; i++)
+        for (var i = sourceDeepestLayerSet; i < source.Capacity && source.Capacity > bookLayers.Count; i++)
             bookLayers.Add(LayerSelector.CreateExpectedImplementation(LayersOfType, null, copyMergeFlags));
 
         for (var i = sourceDeepestLayerSet; i < bookLayers.Count; i++)

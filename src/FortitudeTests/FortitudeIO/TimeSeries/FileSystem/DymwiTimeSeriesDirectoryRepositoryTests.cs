@@ -11,13 +11,13 @@ using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Generators.Quotes;
 using FortitudeMarkets.Pricing.PQ.Generators.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.DirectoryStructure;
+using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeTests.FortitudeCommon.Extensions;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
@@ -68,7 +68,7 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
         generateQuoteInfo.MidPriceGenerator!.StartTime  = week1.Date;
         generateQuoteInfo.MidPriceGenerator!.StartPrice = 1.332211m;
 
-        pqLevel3QuoteGenerator = new PQLevel3QuoteGenerator(generateQuoteInfo);
+        pqLevel3QuoteGenerator = new PQLevel3QuoteGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
 
         repoRootDir = GenerateUniqueDirectoryName();
         repositoryLocationConfig

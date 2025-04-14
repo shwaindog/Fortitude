@@ -120,12 +120,12 @@ public abstract class PricePeriodSummaryGenerator<TPriceSummary> : IPricePeriodS
     }
 
     public abstract TPriceSummary CreatePricePeriodSummary
-        (ISourceTickerInfo sourceTickerInfo, PreviousCurrentMidPriceTime previousCurrentMidPriceTime);
+        (ISourceTickerInfo sourceTickerInfo, MidPriceTimePair midPriceTimePair);
 
-    public TPriceSummary PriceSummaries(PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+    public TPriceSummary PriceSummaries(MidPriceTimePair midPriceTimePair)
     {
-        var     currMid = previousCurrentMidPriceTime.CurrentMid;
-        var     prevMid = previousCurrentMidPriceTime.PreviousMid;
+        var     currMid = midPriceTimePair.CurrentMid;
+        var     prevMid = midPriceTimePair.PreviousMid;
         decimal startMid;
         decimal startSpread;
         if (PreviousPeriodSummary == null || PseudoRandom.NextDouble() > GeneratePriceSummaryInfo.ProbabilityNextStartPriceSameAsLastEndPrice)
@@ -178,7 +178,7 @@ public abstract class PricePeriodSummaryGenerator<TPriceSummary> : IPricePeriodS
                                , (uint)(GeneratePriceSummaryInfo.AverageTickCount +
                                         NormalDist.Sample() * GeneratePriceSummaryInfo.TickCountStandardDeviation));
 
-        var priceSummary = CreatePricePeriodSummary(GeneratePriceSummaryInfo.SourceTickerInfo, previousCurrentMidPriceTime);
+        var priceSummary = CreatePricePeriodSummary(GeneratePriceSummaryInfo.SourceTickerInfo, midPriceTimePair);
 
         priceSummary.StartBidPrice   = startBidPrice;
         priceSummary.StartAskPrice   = startAskPrice;
@@ -229,9 +229,9 @@ public class PricePeriodSummaryGenerator : PricePeriodSummaryGenerator<PricePeri
     public PricePeriodSummaryGenerator(GeneratePriceSummariesInfo generatePriceSummaryInfo) : base(generatePriceSummaryInfo) { }
 
     public override PricePeriodSummary CreatePricePeriodSummary
-        (ISourceTickerInfo sourceTickerInfo, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+        (ISourceTickerInfo sourceTickerInfo, MidPriceTimePair midPriceTimePair)
     {
-        var currMid = previousCurrentMidPriceTime.CurrentMid;
+        var currMid = midPriceTimePair.CurrentMid;
         return new PricePeriodSummary(GeneratePriceSummaryInfo.SummaryPeriod, currMid.Time
                                     , GeneratePriceSummaryInfo.SummaryPeriod.PeriodEnd(currMid.Time));
     }

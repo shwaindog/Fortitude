@@ -11,8 +11,8 @@ using FortitudeBusRules.Rules;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarkets.Configuration.ClientServerConfig;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Subscription.BusRules.BusMessages;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -40,10 +40,11 @@ public class PQPricingClientFeedRule : Rule
 
     private PricingFeedStatus pricingFeedStatus;
 
-    public PQPricingClientFeedRule(IMarketConnectionConfig marketConnectionConfig) : base("PQClientSourceFeedRule" + marketConnectionConfig.Name)
+    public PQPricingClientFeedRule
+        (IMarketConnectionConfig marketConnectionConfig) : base("PQClientSourceFeedRule" + marketConnectionConfig.SourceName)
     {
         pricingFeedStatus = new PricingFeedStatus();
-        feedName          = marketConnectionConfig.Name;
+        feedName          = marketConnectionConfig.SourceName;
         feedAddress       = feedName.FeedAddress();
 
         feedStatusRequestAddress    = feedName.FeedStatusRequestAddress();
@@ -115,7 +116,7 @@ public class PQPricingClientFeedRule : Rule
         {
             var tickerHealthResponse = await this.RequestAsync<PricingFeedStatusRequest, PricingFeedStatusResponse?>
                 (feedTickersHealthRequestAddress, busRequestMessage.Payload.Body(), new DispatchOptions(RoutingFlags.TargetSpecific
-                   , targetRule: pqClientUpdateSubscriberRule.PqPricingClientFeedSyncMonitorRule, timeoutMs: 3_000));
+               , targetRule: pqClientUpdateSubscriberRule.PqPricingClientFeedSyncMonitorRule, timeoutMs: 3_000));
             pricingFeedStatusResponse = tickerHealthResponse;
             pricingFeedStatusResponse?.IncrementRefCount();
             pricingFeedStatusResponse ??= Context.PooledRecycler.Borrow<PricingFeedStatusResponse>();

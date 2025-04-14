@@ -17,8 +17,11 @@ namespace FortitudeMarkets.Configuration.ClientServerConfig;
 
 public interface IMarketConnectionConfig : IConnection, ICloneable<IMarketConnectionConfig>, IInterfacesComparable<IMarketConnectionConfig>
 {
-    ushort SourceId { get; set; }
-    string Name     { get; set; }
+    public const ushort DefaultEmptySourceIdValue   = 0;
+    public const string DefaultEmptySourceNameValue = "";
+
+    ushort SourceId   { get; set; }
+    string SourceName { get; set; }
 
     MarketConnectionType  MarketConnectionType { get; set; }
     ISourceTickersConfig? SourceTickerConfig   { get; set; }
@@ -44,11 +47,11 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
     public MarketConnectionConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
     public MarketConnectionConfig
-    (ushort sourceId, string name, MarketConnectionType marketConnectionType, ISourceTickersConfig sourceTickersConfig
+    (ushort sourceId, string sourceName, MarketConnectionType marketConnectionType, ISourceTickersConfig sourceTickersConfig
       , IPricingServerConfig? pricingServerConfig = null, ITradingServerConfig? tradingServerConfig = null) : this()
     {
-        SourceId = sourceId;
-        Name     = name;
+        SourceId   = sourceId;
+        SourceName = sourceName;
 
         MarketConnectionType = marketConnectionType;
         SourceTickerConfig   = sourceTickersConfig;
@@ -60,8 +63,8 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
     {
         ConnectionName = ConnectionName;
 
-        SourceId = toClone.SourceId;
-        Name     = toClone.Name;
+        SourceId   = toClone.SourceId;
+        SourceName = toClone.SourceName;
 
         MarketConnectionType = toClone.MarketConnectionType;
         SourceTickerConfig   = toClone.SourceTickerConfig;
@@ -73,7 +76,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
 
     public string? ConnectionName
     {
-        get => this[nameof(Name)]!;
+        get => this[nameof(SourceName)]!;
 
         set
         {
@@ -86,14 +89,14 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
 
     public ushort SourceId
     {
-        get => ushort.Parse(this[nameof(SourceId)]!);
+        get => ushort.Parse(this[nameof(SourceId)] ?? $"{IMarketConnectionConfig.DefaultEmptySourceIdValue}");
         set => this[nameof(SourceId)] = value.ToString();
     }
 
-    public string Name
+    public string SourceName
     {
-        get => this[nameof(Name)]!;
-        set => this[nameof(Name)] = value;
+        get => this[nameof(SourceName)] ?? IMarketConnectionConfig.DefaultEmptySourceNameValue;
+        set => this[nameof(SourceName)] = value;
     }
 
     public MarketConnectionType MarketConnectionType
@@ -150,15 +153,15 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
     }
 
     public IEnumerable<ISourceTickerInfo> AllSourceTickerInfos =>
-        SourceTickerConfig?.AllSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerInfo>();
+        SourceTickerConfig?.AllSourceTickerInfos(SourceId, SourceName) ?? Enumerable.Empty<ISourceTickerInfo>();
 
     public IEnumerable<ISourceTickerInfo> PricingEnabledSourceTickerInfos =>
-        SourceTickerConfig?.PricingEnabledSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerInfo>();
+        SourceTickerConfig?.PricingEnabledSourceTickerInfos(SourceId, SourceName) ?? Enumerable.Empty<ISourceTickerInfo>();
 
     public IEnumerable<ISourceTickerInfo> TradingEnabledSourceTickerInfos =>
-        SourceTickerConfig?.TradingEnabledSourceTickerInfos(SourceId, Name) ?? Enumerable.Empty<ISourceTickerInfo>();
+        SourceTickerConfig?.TradingEnabledSourceTickerInfos(SourceId, SourceName) ?? Enumerable.Empty<ISourceTickerInfo>();
 
-    public IMarketConnectionConfig ShiftPortsBy(ushort deltaPorts)
+    IMarketConnectionConfig IMarketConnectionConfig.ShiftPortsBy(ushort deltaPorts)
     {
         var shiftedMarketConnectionConfig = new MarketConnectionConfig(this)
         {
@@ -167,7 +170,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
         return shiftedMarketConnectionConfig;
     }
 
-    public ISourceTickerInfo? GetSourceTickerInfo(string ticker) => SourceTickerConfig?.GetSourceTickerInfo(SourceId, Name, ticker);
+    public ISourceTickerInfo? GetSourceTickerInfo(string ticker) => SourceTickerConfig?.GetSourceTickerInfo(SourceId, SourceName, ticker);
 
     public IMarketConnectionConfig Clone() => new MarketConnectionConfig(this);
 
@@ -186,7 +189,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
 
         var connectionNameSame = ConnectionName == other.ConnectionName;
         var idSame             = SourceId == other.SourceId;
-        var nameSame           = string.Equals(Name, other.Name);
+        var nameSame           = string.Equals(SourceName, other.SourceName);
         var serverTypeSame     = MarketConnectionType == other.MarketConnectionType;
 
         var sourceTickerConfigSame = SourceTickerConfig?.AreEquivalent(other.SourceTickerConfig, exactTypes) ?? other.SourceTickerConfig == null;
@@ -197,10 +200,19 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
         return connectionNameSame && idSame && nameSame && serverTypeSame && sourceTickerConfigSame && pricingServersSame && tradingServersSame;
     }
 
+    public MarketConnectionConfig ShiftPortsBy(ushort deltaPorts)
+    {
+        var shiftedMarketConnectionConfig = new MarketConnectionConfig(this)
+        {
+            PricingServerConfig = PricingServerConfig?.ShiftPortsBy(deltaPorts), TradingServerConfig = TradingServerConfig?.ShiftPortsBy(deltaPorts)
+        };
+        return shiftedMarketConnectionConfig;
+    }
+
     public static void ClearValues(IConfigurationRoot root, string path)
     {
         root[path + ":" + nameof(ConnectionName)]       = null;
-        root[path + ":" + nameof(Name)]                 = null;
+        root[path + ":" + nameof(SourceName)]           = null;
         root[path + ":" + nameof(SourceId)]             = "0";
         root[path + ":" + nameof(MarketConnectionType)] = "0";
         root[path + ":" + nameof(SourceTickerConfig)]   = null;
@@ -223,7 +235,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
         unchecked
         {
             var hashCode = (int)SourceId;
-            hashCode = (hashCode * 397) ^ Name.GetHashCode();
+            hashCode = (hashCode * 397) ^ SourceName.GetHashCode();
             hashCode = (hashCode * 397) ^ (int)MarketConnectionType;
             hashCode = (hashCode * 397) ^ SourceId.GetHashCode();
             return hashCode;
@@ -231,7 +243,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
     }
 
     public override string ToString() =>
-        $"{nameof(MarketConnectionConfig)}({nameof(ConnectionName)}: {ConnectionName}, {nameof(SourceId)}: {SourceId}, {nameof(Name)}: {Name}, " +
+        $"{nameof(MarketConnectionConfig)}({nameof(ConnectionName)}: {ConnectionName}, {nameof(SourceId)}: {SourceId}, {nameof(SourceName)}: {SourceName}, " +
         $"{nameof(MarketConnectionType)}: {MarketConnectionType}, {nameof(SourceTickerConfig)}: {SourceTickerConfig}, " +
         $"{nameof(PricingServerConfig)}: {PricingServerConfig}, {nameof(TradingServerConfig)}: {TradingServerConfig}, " +
         $"{nameof(Path)}: {Path})";

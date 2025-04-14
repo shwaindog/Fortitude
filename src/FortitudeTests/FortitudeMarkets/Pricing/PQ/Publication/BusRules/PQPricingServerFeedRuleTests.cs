@@ -7,11 +7,11 @@ using FortitudeBusRules.Messages;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Transports.Network.Construction;
 using FortitudeMarkets.Configuration.ClientServerConfig;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Publication.BusRules;
 using FortitudeMarkets.Pricing.PQ.Publication.BusRules.BusMessages;
 using FortitudeMarkets.Pricing.PQ.Subscription.BusRules;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Subscription.BusRules;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
@@ -51,15 +51,15 @@ public class PQPricingServerFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
         serverConfig.InitializeCommonConfig();
         haveReceivedPriceAutoResetEvent = new ManualResetEvent(false);
 
-        feedName = serverConfig.DefaultServerMarketConnectionConfig.Name;
+        feedName = serverConfig.DefaultServerMarketConnectionConfig.SourceName;
 
         var serverConfigMarketConnectionConfig = serverConfig.DefaultServerMarketConnectionConfig.ShiftPortsBy(8);
         ;
-        pricingServerFeedRule     = new PQPricingServerFeedRule(serverConfigMarketConnectionConfig);
-        clientMarketConfig        = serverConfigMarketConnectionConfig.ToggleProtocolDirection("PQPricingServerFeedRuleTests");
-        clientMarketConfig.Name   = "PQClientSourceFeedRuleTests";
-        pqPricingClientFeedRule   = new PQPricingClientFeedRule(clientMarketConfig);
-        testSubscribeToTickerRule = new TestSubscribeToTickerRule(clientMarketConfig.Name, "EUR/USD", haveReceivedPriceAutoResetEvent);
+        pricingServerFeedRule         = new PQPricingServerFeedRule(serverConfigMarketConnectionConfig);
+        clientMarketConfig            = serverConfigMarketConnectionConfig.ToggleProtocolDirection("PQPricingServerFeedRuleTests");
+        clientMarketConfig.SourceName = "PQClientSourceFeedRuleTests";
+        pqPricingClientFeedRule       = new PQPricingClientFeedRule(clientMarketConfig);
+        testSubscribeToTickerRule     = new TestSubscribeToTickerRule(clientMarketConfig.SourceName, "EUR/USD", haveReceivedPriceAutoResetEvent);
         publishQuoteEvent = new PublishQuoteEvent
         {
             AutoRecycleAtRefCountZero = false

@@ -9,9 +9,9 @@ using FortitudeCommon.Chronometry;
 
 namespace FortitudeMarkets.Pricing.Generators.MidPrice;
 
-public struct PreviousCurrentMidPriceTime
+public struct MidPriceTimePair
 {
-    public PreviousCurrentMidPriceTime(MidPriceTime previousMid, MidPriceTime currentMid)
+    public MidPriceTimePair(MidPriceTime previousMid, MidPriceTime currentMid)
     {
         PreviousMid = previousMid;
         CurrentMid  = currentMid;
@@ -49,10 +49,10 @@ public interface IMidPriceGenerator
 
     IEnumerable<MidPriceTime> Prices(DateTime startFromTime, TimeBoundaryPeriod incrementTime, int numToGenerate, int startSequenceNumber = 0);
 
-    IEnumerable<PreviousCurrentMidPriceTime> PreviousCurrentPrices
+    IEnumerable<MidPriceTimePair> PreviousCurrentPrices
         (DateTime startFromTime, TimeSpan incrementTime, int numToGenerate, int startSequenceNumber = 0);
 
-    IEnumerable<PreviousCurrentMidPriceTime> PreviousCurrentPrices
+    IEnumerable<MidPriceTimePair> PreviousCurrentPrices
         (DateTime startFromTime, TimeBoundaryPeriod incrementTime, int numToGenerate, int startSequenceNumber = 0);
 }
 
@@ -87,19 +87,19 @@ public abstract class MidPriceGenerator : IMidPriceGenerator
             yield return PriceAt(currentTime, sequenceNumber++);
     }
 
-    public IEnumerable<PreviousCurrentMidPriceTime> PreviousCurrentPrices
+    public IEnumerable<MidPriceTimePair> PreviousCurrentPrices
         (DateTime startFromTime, TimeSpan incrementTime, int numToGenerate, int startSequenceNumber = 0)
     {
         var previousStream = Prices(startFromTime, incrementTime, numToGenerate + 1, startSequenceNumber);
         var currentStream  = Prices(startFromTime + incrementTime, incrementTime, numToGenerate, startSequenceNumber + 1);
-        return previousStream.Zip(currentStream, (previous, current) => new PreviousCurrentMidPriceTime(previous, current));
+        return previousStream.Zip(currentStream, (previous, current) => new MidPriceTimePair(previous, current));
     }
 
-    public IEnumerable<PreviousCurrentMidPriceTime> PreviousCurrentPrices
+    public IEnumerable<MidPriceTimePair> PreviousCurrentPrices
         (DateTime startFromTime, TimeBoundaryPeriod incrementTime, int numToGenerate, int startSequenceNumber = 0)
     {
         var previousStream = Prices(startFromTime, incrementTime, numToGenerate + 1, startSequenceNumber);
         var currentStream  = Prices(incrementTime.PeriodEnd(startFromTime), incrementTime, numToGenerate, startSequenceNumber + 1);
-        return previousStream.Zip(currentStream, (previous, current) => new PreviousCurrentMidPriceTime(previous, current));
+        return previousStream.Zip(currentStream, (previous, current) => new MidPriceTimePair(previous, current));
     }
 }

@@ -136,7 +136,7 @@ public class PQClientTests
         moqFirstPricingServerConfig    = new Mock<IPricingServerConfig>();
         moqFirstMarketConnectionConfig.SetupGet(mcc => mcc.PricingServerConfig).Returns(moqFirstPricingServerConfig.Object);
         moqFirstMarketConnectionConfig.SetupGet(mcc => mcc.SourceId).Returns(FirstSourceId);
-        moqFirstMarketConnectionConfig.SetupGet(mcc => mcc.Name).Returns(firstTestSourceName);
+        moqFirstMarketConnectionConfig.SetupGet(mcc => mcc.SourceName).Returns(firstTestSourceName);
         moqFirstMarketConnectionConfig.Setup(mcc => mcc.GetSourceTickerInfo(firstTestTicker)).Returns(moqFirstTestSourceTickerInfo.Object);
         moqFirstMarketConnectionConfig.SetupGet(mcc => mcc.AllSourceTickerInfos).Returns(new[] { moqFirstTestSourceTickerInfo.Object });
 
@@ -144,7 +144,7 @@ public class PQClientTests
         moqSecondPricingServerConfig    = new Mock<IPricingServerConfig>();
         moqSecondMarketConnectionConfig.SetupGet(mcc => mcc.PricingServerConfig).Returns(moqSecondPricingServerConfig.Object);
         moqSecondMarketConnectionConfig.SetupGet(mcc => mcc.SourceId).Returns(SecondSourceId);
-        moqSecondMarketConnectionConfig.SetupGet(mcc => mcc.Name).Returns(secondTestSourceName);
+        moqSecondMarketConnectionConfig.SetupGet(mcc => mcc.SourceName).Returns(secondTestSourceName);
         moqSecondMarketConnectionConfig.Setup(mcc => mcc.GetSourceTickerInfo(secondTestTicker)).Returns(moqSecondTestSourceTickerInfo.Object);
         moqSecondMarketConnectionConfig.SetupGet(mcc => mcc.AllSourceTickerInfos).Returns(new[] { moqSecondTestSourceTickerInfo.Object });
 
@@ -162,9 +162,9 @@ public class PQClientTests
                         .Returns(moqFirstMarketConnectionConfig.Object);
         moqMarketsConfig.Setup(mccr => mccr.Find(secondTestSourceName))
                         .Returns(moqSecondMarketConnectionConfig.Object);
-        var serverTickerConfigs = new List<IMarketConnectionConfig>
+        var serverTickerConfigs = new Dictionary<string, IMarketConnectionConfig>
         {
-            moqFirstMarketConnectionConfig.Object, moqSecondMarketConnectionConfig.Object
+            { firstTestSourceName, moqFirstMarketConnectionConfig.Object }, { secondTestSourceName, moqSecondMarketConnectionConfig.Object }
         };
         moqMarketsConfig.SetupGet(mccr => mccr.Markets)
                         .Returns(serverTickerConfigs);
@@ -194,7 +194,7 @@ public class PQClientTests
         moqUpdateTopicServerConfig.Setup(uee => uee.GetEnumerator()).Returns(moqUpdateEndpointEnumerator.Object);
         moqUpdateServerConfig.SetupGet(scc => scc.SubnetMask).Returns("123.0.0.123").Verifiable();
         moqUpdateServerConfig.SetupGet(scc => scc.Hostname).Returns("UpdateHostName").Verifiable();
-        moqFirstMarketConnectionConfig.SetupGet(mcc => mcc.Name).Returns("TestServerName").Verifiable();
+        moqFirstMarketConnectionConfig.SetupGet(mcc => mcc.SourceName).Returns("TestServerName" as string).Verifiable();
 
         moqSnapshotServerConfig       = new Mock<IEndpointConfig>();
         moqSnapshotTopicServerConfig  = new Mock<INetworkTopicConnectionConfig>();

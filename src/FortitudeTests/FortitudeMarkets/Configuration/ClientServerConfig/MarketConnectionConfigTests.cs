@@ -39,7 +39,7 @@ public class MarketConnectionConfigTests
 
     public static void UpdateServerConfigWithValues(IMarketConnectionConfig updateConfig, string name, MarketConnectionType marketConnectionType)
     {
-        updateConfig.Name                 = name;
+        updateConfig.SourceName           = name;
         updateConfig.MarketConnectionType = marketConnectionType;
     }
 }

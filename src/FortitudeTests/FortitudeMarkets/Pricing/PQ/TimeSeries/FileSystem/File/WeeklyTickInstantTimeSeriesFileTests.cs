@@ -68,8 +68,8 @@ public class WeeklyTickInstantTimeSeriesFileTests
         generateQuoteInfo.MidPriceGenerator!.StartTime  = startOfWeek;
         generateQuoteInfo.MidPriceGenerator!.StartPrice = 1.332211m;
 
-        tickInstantGenerator   = new TickInstantGenerator(generateQuoteInfo);
-        pqTickInstantGenerator = new PQTickInstantGenerator(generateQuoteInfo);
+        tickInstantGenerator   = new TickInstantGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
+        pqTickInstantGenerator = new PQTickInstantGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
     }
 
     private void CreateTickInstantFile(FileFlags fileFlags = FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader)

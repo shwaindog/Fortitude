@@ -1,0 +1,57 @@
+{
+  "WikiExamplePubSubStep1": {
+    "PricePublishers": {
+      "Markets": {
+        "ExampleFuturesExchange": {
+          "ConnectionName": "ExampleFuturesExchange_Server",
+          "SourceId": 1,
+          "MarketConnectionType": "Pricing",
+          "SourceTickerConfig": {
+            "DefaultTickerAvailability": "PricingEnabled",
+            "DefaultPublishTickerDetailLevel": "Level2Quote",
+            "DefaultRoundingPrecision": 0.01,
+            "DefaultPip": 0.01,
+            "DefaultMaximumPublishedLayers": 4,
+            "DefaultLayerFlags": "Price, Volume",
+            "Tickers": {
+              "C": {
+                "TickerId": 1,
+                "TickerDescription": "Corn",
+                "RoundingPrecision": 0.1,
+                "DefaultPip": 0.1
+              },
+              "CL": {
+                "TickerId": 2,
+                "TickerDescription": "Crude Oil"
+              }
+            }
+          },
+          "PricingServerConfig": {
+            "SnapshotConnectionConfig": {
+              "TopicName": "ExampleFuturesExchangePricingSnapshot",
+              "ConversationProtocol": "TcpAcceptor",
+              "AvailableConnections": [
+                {
+                  "InstanceName": "allNics_TcpSnapshot_ExampleFuturesExchange",
+                  "Hostname": "0.0.0.0",
+                  "Port": 46080
+                }
+              ]
+            },
+            "UpdateConnectionConfig": {
+              "TopicName": "ExampleFuturesExchangePricingMulticastDeltaUpdates",
+              "ConversationProtocol": "UdpPublisher",
+              "AvailableConnections": [
+                {
+                  "InstanceName": "allNics_UdpDeltaUpdate_ExampleFuturesExchange",
+                  "Hostname": "0.0.0.0",
+                  "Port": 46080
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

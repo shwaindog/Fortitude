@@ -47,7 +47,7 @@ public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
         if (Cache.TryGetValue(id, out var existingName))
         {
             if (!existingName.Equals(name))
-                throw new DuplicateNameException("Attempting to add a different name to the NameIdLookup");
+                throw new DuplicateNameException($"Attempting to add a different name ('{name}') to the NameIdLookup ('{existingName}') for id {id}");
         }
         else
         {
@@ -61,7 +61,8 @@ public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
         if (source is NameIdLookupGenerator nameIdLookupGen)
         {
             if (Cache.Count == nameIdLookupGen.Cache.Count &&
-                LargestAddedId == nameIdLookupGen.LargestAddedId) return this;
+                LargestAddedId == nameIdLookupGen.LargestAddedId)
+                return this;
             foreach (var kvp in nameIdLookupGen.Cache)
             {
                 Cache[kvp.Key]           = kvp.Value;

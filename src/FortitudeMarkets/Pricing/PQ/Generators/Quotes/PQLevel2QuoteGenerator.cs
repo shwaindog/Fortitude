@@ -13,14 +13,13 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.Generators.Quotes;
 
-public class PQLevel2QuoteGenerator : Level2QuoteGeneratorBase<PQLevel2Quote>
+public class PQLevel2QuoteGenerator
+    (CurrentQuoteInstantValueGenerator generateQuoteValues) : Level2QuoteGeneratorBase<PQLevel2Quote>(generateQuoteValues)
 {
-    public PQLevel2QuoteGenerator(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
-
-    public override PQLevel2Quote BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber)
+    public override PQLevel2Quote BuildQuote(MidPriceTimePair midPriceTimePair, int sequenceNumber)
     {
-        var toPopulate = new PQLevel2Quote(GenerateQuoteInfo.SourceTickerInfo);
-        PopulateQuote(toPopulate, previousCurrentMidPriceTime);
+        var toPopulate = new PQLevel2Quote(GenerateQuoteValues.GenerateQuoteInfo.SourceTickerInfo);
+        PopulateQuote(toPopulate, midPriceTimePair);
         toPopulate.IsAskPriceTopUpdatedChanged = (PreviousReturnedQuote?.IsAskPriceTopUpdated ?? false) != toPopulate.IsAskPriceTopUpdated;
         toPopulate.IsBidPriceTopUpdatedChanged = (PreviousReturnedQuote?.IsBidPriceTopUpdated ?? false) != toPopulate.IsBidPriceTopUpdated;
 
@@ -28,5 +27,7 @@ public class PQLevel2QuoteGenerator : Level2QuoteGeneratorBase<PQLevel2Quote>
         return toPopulate;
     }
 
-    protected override IBookGenerator CreateBookGenerator(BookGenerationInfo bookGenerationInfo) => new PQBookGenerator(bookGenerationInfo);
+    protected override IBookGenerator CreateBookGenerator
+        (BookGenerationInfo bookGenerationInfo) =>
+        new PQBookGenerator(GenerateQuoteValues.BookGenerator);
 }

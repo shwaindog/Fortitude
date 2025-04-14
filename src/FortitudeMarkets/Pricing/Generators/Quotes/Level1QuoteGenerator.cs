@@ -12,31 +12,21 @@ namespace FortitudeMarkets.Pricing.Generators.Quotes;
 
 public abstract class Level1QuoteGeneratorBase<TQuote> : TickInstantGeneratorBase<TQuote> where TQuote : IMutableLevel1Quote
 {
-    protected Level1QuoteGeneratorBase(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
+    protected Level1QuoteGeneratorBase(CurrentQuoteInstantValueGenerator generateQuoteValues) : base(generateQuoteValues) { }
 
-    public void PopulateQuote(IMutableLevel1Quote populateQuote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+    public void PopulateQuote(IMutableLevel1Quote populateQuote, MidPriceTimePair midPriceTimePair)
     {
-        base.PopulateQuote(populateQuote, previousCurrentMidPriceTime);
-        populateQuote.Executable          = PseudoRandom.Next(0, 1000) < 995;
-        populateQuote.SourceAskTime       = populateQuote.SourceTime;
-        populateQuote.SourceBidTime       = populateQuote.SourceTime;
-        populateQuote.AdapterReceivedTime = AdapterReceivedDateTime;
-        populateQuote.AdapterSentTime     = AdapterSentDateTime;
-        populateQuote.ValidFrom           = populateQuote.SourceTime;
-        populateQuote.ValidTo             = populateQuote.SourceTime.AddSeconds(30);
+        base.PopulateQuote(populateQuote, midPriceTimePair);
+        populateQuote.Executable          = GenerateQuoteValues.IsExecutable;
+        populateQuote.SourceAskTime       = GenerateQuoteValues.SourceAskTime;
+        populateQuote.SourceBidTime       = GenerateQuoteValues.SourceBidTime;
+        populateQuote.AdapterReceivedTime = GenerateQuoteValues.AdapterReceivedTime;
+        populateQuote.AdapterSentTime     = GenerateQuoteValues.AdapterSentTime;
+        populateQuote.ValidFrom           = GenerateQuoteValues.ValidFrom;
+        populateQuote.ValidTo             = GenerateQuoteValues.ValidTo;
         if (populateQuote.TickerDetailLevel == TickerDetailLevel.Level1Quote)
         {
-            var bookGenerationInfo = GenerateQuoteInfo.BookGenerationInfo;
-
-            var topBidAskSpread = Math.Max(bookGenerationInfo.TightestSpreadPips,
-                                           bookGenerationInfo.AverageSpreadPips +
-                                           (decimal)NormalDist.Sample() * bookGenerationInfo.SpreadStandardDeviation);
-            var mid           = previousCurrentMidPriceTime.CurrentMid.Mid;
-            var roundedTopBid = decimal.Round(mid - topBidAskSpread / 2);
-            var roundedTopAsk = decimal.Round(mid + topBidAskSpread / 2);
-
-            while (roundedTopAsk - roundedTopBid > bookGenerationInfo.TightestSpreadPips) roundedTopBid -= bookGenerationInfo.SmallestPriceLayerPips;
-
+            var (roundedTopBid, roundedTopAsk) = GenerateQuoteValues.BookGenerator.TopBidAskPrice;
             populateQuote.AskPriceTop          = roundedTopAsk;
             populateQuote.BidPriceTop          = roundedTopBid;
             populateQuote.IsAskPriceTopUpdated = (PreviousReturnedQuote?.AskPriceTop ?? 0) != populateQuote.AskPriceTop;
@@ -47,12 +37,12 @@ public abstract class Level1QuoteGeneratorBase<TQuote> : TickInstantGeneratorBas
 
 public class Level1QuoteGenerator : Level1QuoteGeneratorBase<Level1PriceQuote>
 {
-    public Level1QuoteGenerator(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
+    public Level1QuoteGenerator(CurrentQuoteInstantValueGenerator generateQuoteValues) : base(generateQuoteValues) { }
 
-    public override Level1PriceQuote BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber)
+    public override Level1PriceQuote BuildQuote(MidPriceTimePair midPriceTimePair, int sequenceNumber)
     {
-        var toPopulate = new Level1PriceQuote(GenerateQuoteInfo.SourceTickerInfo);
-        PopulateQuote(toPopulate, previousCurrentMidPriceTime);
+        var toPopulate = new Level1PriceQuote(GenerateQuoteValues.GenerateQuoteInfo.SourceTickerInfo);
+        PopulateQuote(toPopulate, midPriceTimePair);
         return toPopulate;
     }
 }

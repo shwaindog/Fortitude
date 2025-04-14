@@ -7,10 +7,12 @@ using FortitudeBusRules.Rules;
 
 #endregion
 
-namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted.Step_1;
+namespace PublishingRecordingAndReplaying.Step_1;
 
-public class HelloHelloRule : Rule
+public class QuotePublisher(CommandLineOptions cmdCommandLineOptions) : Rule
 {
+    private readonly Venues venue;
+
     public override void Start()
     {
         Console.Out.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - I say Hello");
@@ -18,6 +20,6 @@ public class HelloHelloRule : Rule
 
     public override void Stop()
     {
-        Console.Out.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - And you Goodbye");
+        Console.Out.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - Stopping Quote Publisher for ");
     }
 }

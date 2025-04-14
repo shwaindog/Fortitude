@@ -6,13 +6,13 @@ namespace PublishingRecordingAndReplaying;
 public enum Markets : short
 {
     Corn = 1
-  , Oil
+  , CrudeOil
   , SoyBeans
   , Microsoft
   , Apple
   , Oracle
-  , EURUSD
-  , USDJPY
-  , GBPUSD
-  , USDCHF
+  , EUR_USD
+  , USD_JPY
+  , GBP_USD
+  , USD_CHF
 }

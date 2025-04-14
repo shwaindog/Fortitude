@@ -55,7 +55,7 @@ public class PQClient : IDisposable
         pqClientSyncMonitoring = new PQClientSyncMonitoring(GetSourceServerConfig, RequestSnapshots);
         sourceTickerInfoRegistry =
             new SourceTickerInfoRegistry
-                ("PQClient", marketsConfig.Markets
+                ("PQClient", marketsConfig.Markets.Values
                                           .SelectMany(mcc => mcc.AllSourceTickerInfos));
 
         this.marketsConfig         = marketsConfig;
@@ -108,7 +108,7 @@ public class PQClient : IDisposable
 
     public ISourceTickerInfoRegistry RequestSourceTickerForAllSources()
     {
-        foreach (var marketConnectionConfig in marketsConfig.Markets) RequestSourceTickerForSource(marketConnectionConfig.Name);
+        foreach (var marketConnectionConfig in marketsConfig.Markets.Values) RequestSourceTickerForSource(marketConnectionConfig.SourceName);
         return sourceTickerInfoRegistry;
     }
 
@@ -165,7 +165,7 @@ public class PQClient : IDisposable
             var quoteDeserializer               = deserializationRepository.GetDeserializer(sourceTickerInfo);
             if (quoteDeserializer != null)
                 throw new Exception("Subscription for " + sourceTickerInfo.InstrumentName + " on " +
-                                    marketConnectionConfig?.Name +
+                                    marketConnectionConfig?.SourceName +
                                     " already exists");
             quoteDeserializer = deserializationRepository.CreateQuoteDeserializer<T>(tickerPricingSubscriptionConfig);
 
@@ -198,7 +198,7 @@ public class PQClient : IDisposable
         else
         {
             Logger.Warn($"Cannot subscribe to Ticker {sourceTickerInfo.InstrumentName} for source " +
-                        $"{marketConnectionConfig?.Name ?? "serverConfig is null"} not found in MarketConnectionConfig " +
+                        $"{marketConnectionConfig?.SourceName ?? "serverConfig is null"} not found in MarketConnectionConfig " +
                         $"{marketConnectionConfig?.ToString() ?? "serverConfig is null"}");
         }
 
@@ -213,7 +213,7 @@ public class PQClient : IDisposable
             var pricingServerConfig = feedRef.PricingServerConfig!;
             var quoteDeserializer =
                 deserializationRepository.GetDeserializer(sourceTickerPublicationConfig)
-             ?? throw new Exception($"Subscription for {ticker} on {feedRef.Name} does not exists");
+             ?? throw new Exception($"Subscription for {ticker} on {feedRef.SourceName} does not exists");
 
 
             lock (unsubscribeSyncLock)
@@ -232,7 +232,7 @@ public class PQClient : IDisposable
         }
         else
         {
-            Logger.Warn($"Cannot unsubscribe to Ticker {ticker} for source {feedRef.Name} not found in " +
+            Logger.Warn($"Cannot unsubscribe to Ticker {ticker} for source {feedRef.SourceName} not found in " +
                         $"config repo {feedRef}");
         }
     }

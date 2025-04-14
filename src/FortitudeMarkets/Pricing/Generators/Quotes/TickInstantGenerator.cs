@@ -14,45 +14,28 @@ public abstract class TickInstantGeneratorBase<TDetailLevel> : TickGenerator<TDe
 {
     protected DateTime AdapterReceivedDateTime;
     protected DateTime AdapterSentDateTime;
-    protected TickInstantGeneratorBase(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
+    protected TickInstantGeneratorBase(CurrentQuoteInstantValueGenerator generateQuoteValues) : base(generateQuoteValues) { }
 
-    public void PopulateQuote(IMutableTickInstant populateQuote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+    public void PopulateQuote(IMutableTickInstant populateQuote, MidPriceTimePair midPriceTimePair)
     {
-        var timeStampInfo  = GenerateQuoteInfo.TimeStampGenerationInfo;
-        var lastSourceTime = PreviousReturnedQuote?.SourceTime ?? DateTime.MinValue;
-        var sourceTime = previousCurrentMidPriceTime.CurrentMid.Time +
-                         TimeSpan.FromTicks((long)(NormalDist.Sample() *
-                                                   timeStampInfo.IntervalStdDeviationTicks));
-        if (sourceTime - lastSourceTime < timeStampInfo.MinQuoteTimeSpan) sourceTime = lastSourceTime.Add(timeStampInfo.MinQuoteTimeSpan);
-
-        populateQuote.SourceTime      = sourceTime;
-        populateQuote.SingleTickValue = previousCurrentMidPriceTime.CurrentMid.Mid;
-
-
-        AdapterReceivedDateTime = sourceTime + timeStampInfo.AverageAdapterDelayTimeSpan +
-                                  TimeSpan.FromTicks((long)(NormalDist.Sample() *
-                                                            timeStampInfo.AdapterStandardDeviationTicks));
-
-
-        AdapterSentDateTime = AdapterReceivedDateTime + timeStampInfo.AverageAdapterProcessingTimeSpan +
-                              TimeSpan.FromTicks(Math.Max(timeStampInfo.MinAdapterDelayTicks, (long)(NormalDist.Sample() *
-                                                              timeStampInfo.AdapterStandardDeviationTicks)));
-
-        populateQuote.ClientReceivedTime = AdapterSentDateTime + timeStampInfo.ClientAdapterDelayTimeSpan +
-                                           TimeSpan.FromTicks(Math.Max(timeStampInfo.MinClientAdapterDelayTicks, (long)(NormalDist.Sample() *
-                                                                           timeStampInfo.ClientAdapterStandardDeviationTicks)));
-        populateQuote.IsReplay = PseudoRandom.Next(0, 1000) < 995;
+        var sourceTime = GenerateQuoteValues.SourceTime;
+        populateQuote.SourceTime         = sourceTime;
+        populateQuote.SingleTickValue    = midPriceTimePair.CurrentMid.Mid;
+        AdapterReceivedDateTime          = GenerateQuoteValues.AdapterReceivedTime;
+        AdapterSentDateTime              = GenerateQuoteValues.AdapterSentTime;
+        populateQuote.ClientReceivedTime = GenerateQuoteValues.ClientReceivedTime;
+        populateQuote.IsReplay           = GenerateQuoteValues.IsReplay;
     }
 }
 
 public class TickInstantGenerator : TickInstantGeneratorBase<TickInstant>
 {
-    public TickInstantGenerator(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
+    public TickInstantGenerator(CurrentQuoteInstantValueGenerator generateQuoteValues) : base(generateQuoteValues) { }
 
-    public override TickInstant BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber)
+    public override TickInstant BuildQuote(MidPriceTimePair midPriceTimePair, int sequenceNumber)
     {
-        var toPopulate = new TickInstant(GenerateQuoteInfo.SourceTickerInfo);
-        PopulateQuote(toPopulate, previousCurrentMidPriceTime);
+        var toPopulate = new TickInstant(GenerateQuoteValues.GenerateQuoteInfo.SourceTickerInfo);
+        PopulateQuote(toPopulate, midPriceTimePair);
         return toPopulate;
     }
 }

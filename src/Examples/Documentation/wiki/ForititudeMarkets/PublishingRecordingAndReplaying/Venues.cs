@@ -5,7 +5,8 @@ namespace PublishingRecordingAndReplaying;
 
 public enum Venues : short
 {
-    ExampleFuturesExchange = 1
+    NotSet                 = 0
+  , ExampleFuturesExchange = 1
   , ExampleStockExchange1
   , ExampleStockExchange2
   , ExampleCurrencyExchange
