@@ -7,10 +7,10 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 
 #endregion
 
@@ -53,10 +53,9 @@ internal class SourceTickerInfoDeserializer : MessageDeserializer<ISourceTickerI
     private static unsafe void DeserializeQuoteInfo(ISourceTickerInfo srcTkrInfo, ref byte* ptr)
     {
         srcTkrInfo.PublishedTickerDetailLevel = (TickerDetailLevel)(*ptr++);
-        srcTkrInfo.MaximumPublishedLayers     = *ptr++;
-
-        srcTkrInfo.RoundingPrecision = StreamByteOps.ToDecimal(ref ptr);
-        srcTkrInfo.Pip               = StreamByteOps.ToDecimal(ref ptr);
+        srcTkrInfo.MaximumPublishedLayers     = StreamByteOps.ToUShort(ref ptr);
+        srcTkrInfo.RoundingPrecision          = StreamByteOps.ToDecimal(ref ptr);
+        srcTkrInfo.Pip                        = StreamByteOps.ToDecimal(ref ptr);
         var booleanFlags = (SourceTickerInfoBooleanFlags)StreamByteOps.ToUInt(ref ptr);
         srcTkrInfo.SubscribeToPrices = booleanFlags.HasSubscribeToPricesFlag();
         srcTkrInfo.TradingEnabled    = booleanFlags.HasTradingEnabledFlag();

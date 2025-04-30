@@ -8,8 +8,8 @@ using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
-using FortitudeMarkets.Pricing.Summaries;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
+using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
 
@@ -230,7 +230,7 @@ public class UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<TEntry> :
         : base(pagedMemoryMappedFile, header) { }
 
     public UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.None)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.Tick)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(10)
@@ -248,7 +248,7 @@ public class UnlimitedDecenniallyPriceSummaryTimeSeriesFile<TEntry> :
         : base(pagedMemoryMappedFile, header) { }
 
     public UnlimitedDecenniallyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.None)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.Tick)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(50)
@@ -266,7 +266,7 @@ public class UnlimitedPriceSummaryTimeSeriesFile<TEntry> :
         : base(pagedMemoryMappedFile, header) { }
 
     public UnlimitedPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
-        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.None)
+        : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.Tick)
                                                .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(1)

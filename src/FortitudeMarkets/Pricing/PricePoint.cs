@@ -80,8 +80,8 @@ public class PricePoint : ReusableObject<IPricePoint>, IPricePoint
 
     public virtual bool AreEquivalent(IPricePoint? other, bool exactTypes = false)
     {
-        var singleValueSame = SingleValue == other.SingleValue;
-        var atTimeSame      = AtTime == other.AtTime;
+        var singleValueSame = SingleValue == other?.SingleValue;
+        var atTimeSame      = AtTime == other?.AtTime;
 
         var allAreSame = singleValueSame && atTimeSame;
         return allAreSame;

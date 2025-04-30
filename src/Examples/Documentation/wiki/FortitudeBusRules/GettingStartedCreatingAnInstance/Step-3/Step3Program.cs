@@ -14,11 +14,11 @@ namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted
 
 public class Step3Program
 {
-    public static int EventQueueSize   = 20_100;
-    public static int DefaultQueueSize = 20_100;
+    private const int EventQueueSize   = 20_100;
+    private const int DefaultQueueSize = 20_100;
 
-    public static int NumberOfRuns            = 100;
-    public static int SingleNumMessagesToSend = 100_000;
+    public const int NumberOfRuns            = 100;
+    public const int SingleNumMessagesToSend = 100_000;
 
     // If memory profiling ensure no console logging creates garbage
     public static bool LogStartOfEachRun = true;

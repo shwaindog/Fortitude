@@ -40,7 +40,7 @@ public class LastPaidGivenTradeTests
         Assert.IsTrue(newLt.WasPaid);
 
         Assert.AreEqual(0, emptyLt.TradePrice);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyLt.TradeTime);
+        Assert.AreEqual(default, emptyLt.TradeTime);
         Assert.AreEqual(0m, emptyLt.TradeVolume);
         Assert.IsFalse(emptyLt.WasGiven);
         Assert.IsFalse(emptyLt.WasPaid);
@@ -67,7 +67,7 @@ public class LastPaidGivenTradeTests
 
         var newEmptyLt = new LastPaidGivenTrade(emptyLt);
         Assert.AreEqual(0, newEmptyLt.TradePrice);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, newEmptyLt.TradeTime);
+        Assert.AreEqual(default, newEmptyLt.TradeTime);
         Assert.AreEqual(0m, newEmptyLt.TradeVolume);
         Assert.IsFalse(newEmptyLt.WasGiven);
         Assert.IsFalse(newEmptyLt.WasPaid);
@@ -106,7 +106,7 @@ public class LastPaidGivenTradeTests
         populatedLt.StateReset();
         Assert.IsTrue(populatedLt.IsEmpty);
         Assert.AreEqual(0m, populatedLt.TradePrice);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, populatedLt.TradeTime);
+        Assert.AreEqual(default, populatedLt.TradeTime);
         Assert.AreEqual(0m, populatedLt.TradeVolume);
         Assert.IsFalse(populatedLt.WasGiven);
         Assert.IsFalse(populatedLt.WasPaid);

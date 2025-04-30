@@ -4,8 +4,9 @@
 #region
 
 using System.Collections;
+using System.Text.Json.Serialization;
 using FortitudeCommon.Configuration;
-using FortitudeCommon.DataStructures.Lists;
+using FortitudeCommon.Extensions;
 using FortitudeIO.Transports.Network.Config;
 using Microsoft.Extensions.Configuration;
 
@@ -15,16 +16,17 @@ namespace FortitudeMarkets.Configuration.ClientServerConfig;
 
 public interface IMarketsConfig : IConnection, IEnumerable<IMarketConnectionConfig>
 {
-    IEnumerable<IMarketConnectionConfig> Markets { get; }
-    void                                 Add(IMarketConnectionConfig toAdd);
-    IMarketConnectionConfig?             Find(string name);
-    IMarketsConfig                       ToggleProtocolDirection(string connectionName);
-    IMarketsConfig                       ShiftPortsBy(ushort deltaPorts);
+    IDictionary<string, IMarketConnectionConfig> Markets { get; set; }
+
+    void                     Add(IMarketConnectionConfig toAdd);
+    IMarketConnectionConfig? Find(string name);
+    IMarketsConfig           ToggleProtocolDirection(string connectionName);
+    IMarketsConfig           ShiftPortsBy(ushort deltaPorts);
 }
 
 public class MarketsConfig : ConfigSection, IMarketsConfig
 {
-    private object? ignoreSuppressWarnings;
+    private Dictionary<string, MarketConnectionConfig> markets = new();
 
     public MarketsConfig(IConfigurationRoot root, string path) : base(root, path) { }
 
@@ -34,66 +36,112 @@ public class MarketsConfig : ConfigSection, IMarketsConfig
 
     public MarketsConfig(string connectionName, IEnumerable<IMarketConnectionConfig> marketConnectionConfigs) : this(connectionName
    , InMemoryConfigRoot, InMemoryPath) =>
-        Markets = marketConnectionConfigs;
+        markets = marketConnectionConfigs.ToDictionary(mcc => mcc.SourceName, mcc => new MarketConnectionConfig(mcc));
 
     public MarketsConfig(string connectionName, params IMarketConnectionConfig[] marketConnectionConfigs) : this(connectionName, InMemoryConfigRoot
    , InMemoryPath) =>
-        Markets = marketConnectionConfigs;
+        markets = marketConnectionConfigs.ToDictionary(mcc => mcc.SourceName, mcc => new MarketConnectionConfig(mcc));
 
     public MarketsConfig(IMarketsConfig toClone, IConfigurationRoot root, string path) : this(root, path)
     {
         ConnectionName = toClone.ConnectionName;
-        Markets        = toClone.Markets;
+        Markets        = toClone.Markets.ToDictionary(mccKvp => mccKvp.Key, mccKvp => new MarketConnectionConfig(mccKvp.Value));
     }
 
     public MarketsConfig(IMarketsConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    private IEnumerable<IConfigurationSection> NonEmptyConfigs =>
+        GetSection(nameof(Markets)).GetChildren().Where(cs => cs[nameof(IMarketConnectionConfig.SourceId)] != null);
 
-    public IEnumerator<IMarketConnectionConfig> GetEnumerator() => Markets.GetEnumerator();
-
-    public void Add(IMarketConnectionConfig toAdd)
-    {
-        var current = Markets.ToList();
-        current.Add(toAdd);
-        Markets = current;
-    }
-
-    public IMarketConnectionConfig? Find(string name) =>
-        Markets
-            .FirstOrDefault(sci => sci.Name?.Equals(name, StringComparison.InvariantCultureIgnoreCase) ?? false);
-
-    public IMarketsConfig ToggleProtocolDirection(string connectionName)
-    {
-        var toggledConfig = new MarketsConfig(connectionName, Markets.Select(mcc => mcc.ToggleProtocolDirection(connectionName)));
-        return toggledConfig;
-    }
-
-    public IEnumerable<IMarketConnectionConfig> Markets
+    public Dictionary<string, MarketConnectionConfig> Markets
     {
         get
         {
-            var autoRecycleList = Recycler.Borrow<AutoRecycledEnumerable<IMarketConnectionConfig>>();
-            foreach (var configurationSection in GetSection(nameof(Markets)).GetChildren())
-                if (configurationSection["Name"] != null)
-                    autoRecycleList.Add(new MarketConnectionConfig(ConfigRoot, configurationSection.Path));
-            return autoRecycleList;
+            foreach (var configurationSection in NonEmptyConfigs)
+            {
+                var marketConnectionConfig = new MarketConnectionConfig(ConfigRoot, configurationSection.Path);
+                if (marketConnectionConfig.SourceId != 0 && configurationSection.Key != marketConnectionConfig.SourceName)
+                    throw new
+                        ArgumentException($"The key name '{configurationSection.Key}' for a ticker config does not match the configured ticker Value {marketConnectionConfig.SourceName}");
+                if (marketConnectionConfig.SourceName.IsEmpty()) marketConnectionConfig.SourceName = configurationSection.Key;
+                if (!markets.ContainsKey(configurationSection.Key))
+                    markets.TryAdd(configurationSection.Key, marketConnectionConfig);
+                else
+                    markets[configurationSection.Key] = marketConnectionConfig;
+            }
+            return markets;
         }
         set
         {
-            var oldCount = Markets.Count();
-            var i        = 0;
-            foreach (var marketConnectionConfig in value)
+            var oldKeys = markets.Keys.ToHashSet();
+            foreach (var marketConConfigKvp in value)
             {
-                ignoreSuppressWarnings
-                    = new MarketConnectionConfig(marketConnectionConfig, ConfigRoot, Path + ":" + nameof(Markets) + $":{i}")
-                    {
-                        ConnectionName = ConnectionName
-                    };
-                i++;
+                var checkMarketConConfig = new MarketConnectionConfig(marketConConfigKvp.Value, ConfigRoot
+                                                                    , Path + ":" + nameof(Markets) + $":{marketConConfigKvp.Key}");
+                if (marketConConfigKvp.Value.SourceName.IsNotNullOrEmpty() && marketConConfigKvp.Key != marketConConfigKvp.Value.SourceName)
+                    throw new
+                        ArgumentException($"The key name '{marketConConfigKvp.Key}' for a ticker config does not match the configured ticker Value {marketConConfigKvp.Value.SourceName}");
+                if (marketConConfigKvp.Value.SourceName.IsNullOrEmpty()) checkMarketConConfig.SourceName = marketConConfigKvp.Key;
             }
 
-            for (var j = i; j < oldCount; j++) MarketConnectionConfig.ClearValues(ConfigRoot, Path + ":" + nameof(Markets) + $":{i}");
+            var deletedKeys = oldKeys.Except(value.Keys.ToHashSet());
+            foreach (var deletedKey in deletedKeys) MarketConnectionConfig.ClearValues(ConfigRoot, Path + ":" + nameof(Markets) + $":{deletedKey}");
+        }
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<IMarketConnectionConfig> GetEnumerator() => Markets.Values.GetEnumerator();
+
+    public void Add(IMarketConnectionConfig toAdd)
+    {
+        markets.Add(toAdd.SourceName, new MarketConnectionConfig(toAdd));
+    }
+
+    public IMarketConnectionConfig? Find(string name) =>
+        Markets.Values
+               .FirstOrDefault(sci => sci.SourceName?.Equals(name, StringComparison.InvariantCultureIgnoreCase) ?? false);
+
+    public IMarketsConfig ToggleProtocolDirection(string connectionName)
+    {
+        var toggledConfig = new MarketsConfig(connectionName, Markets.Values.Select(mcc => mcc.ToggleProtocolDirection(connectionName)));
+        return toggledConfig;
+    }
+
+    [JsonIgnore]
+    IDictionary<string, IMarketConnectionConfig> IMarketsConfig.Markets
+    {
+        get
+        {
+            foreach (var configurationSection in NonEmptyConfigs)
+            {
+                var marketConnectionConfig = new MarketConnectionConfig(ConfigRoot, configurationSection.Path);
+                if (marketConnectionConfig.SourceId != 0 && configurationSection.Key != marketConnectionConfig.SourceName)
+                    throw new
+                        ArgumentException($"The key name '{configurationSection.Key}' for a ticker config does not match the configured ticker Value {marketConnectionConfig.SourceName}");
+                if (marketConnectionConfig.SourceName.IsEmpty()) marketConnectionConfig.SourceName = configurationSection.Key;
+                if (!markets.ContainsKey(configurationSection.Key))
+                    markets.TryAdd(configurationSection.Key, marketConnectionConfig);
+                else
+                    markets[configurationSection.Key] = marketConnectionConfig;
+            }
+            return markets.ToDictionary(tc => tc.Key, tc => (IMarketConnectionConfig)tc.Value);
+        }
+        set
+        {
+            var oldKeys = markets.Keys.ToHashSet();
+            foreach (var marketConConfigKvp in value)
+            {
+                var checkMarketConConfig = new MarketConnectionConfig(marketConConfigKvp.Value, ConfigRoot
+                                                                    , Path + ":" + nameof(Markets) + $":{marketConConfigKvp.Key}");
+                if (marketConConfigKvp.Value.SourceName.IsNotNullOrEmpty() && marketConConfigKvp.Key != marketConConfigKvp.Value.SourceName)
+                    throw new
+                        ArgumentException($"The key name '{marketConConfigKvp.Key}' for a ticker config does not match the configured ticker Value {marketConConfigKvp.Value.SourceName}");
+                if (marketConConfigKvp.Value.SourceName.IsNullOrEmpty()) checkMarketConConfig.SourceName = marketConConfigKvp.Key;
+            }
+
+            var deletedKeys = oldKeys.Except(value.Keys.ToHashSet());
+            foreach (var deletedKey in deletedKeys) MarketConnectionConfig.ClearValues(ConfigRoot, Path + ":" + nameof(Markets) + $":{deletedKey}");
         }
     }
 
@@ -104,7 +152,7 @@ public class MarketsConfig : ConfigSection, IMarketsConfig
         {
             if (value == ConnectionName) return;
             this[nameof(ConnectionName)] = value;
-            foreach (var marketConnectionConfig in Markets) marketConnectionConfig.ConnectionName = value;
+            foreach (var marketConnectionConfig in Markets.Values) marketConnectionConfig.ConnectionName = value;
         }
     }
 
@@ -112,30 +160,38 @@ public class MarketsConfig : ConfigSection, IMarketsConfig
     {
         var shiftedMarketsConfig = new MarketsConfig(this)
         {
-            Markets = Markets.Select(mcc => mcc.ShiftPortsBy(deltaPorts))
+            Markets = Markets.ToDictionary(mccKvp => mccKvp.Key, mccKvp => mccKvp.Value.ShiftPortsBy(deltaPorts))
         };
         return shiftedMarketsConfig;
     }
 
+    public void Add(MarketConnectionConfig toAdd)
+    {
+        markets.Add(toAdd.SourceName, toAdd);
+    }
+
+    public void Add(KeyValuePair<string, IMarketConnectionConfig> toAdd)
+    {
+        markets.Add(toAdd.Key, new MarketConnectionConfig(toAdd.Value));
+    }
+
+    public void Add(KeyValuePair<string, MarketConnectionConfig> toAdd)
+    {
+        markets.Add(toAdd.Key, toAdd.Value);
+    }
+
     public bool AddOrUpdate(IMarketConnectionConfig item)
     {
-        var i = 0;
-        foreach (var existingConfig in Markets)
-        {
-            if (existingConfig.Name == item.Name)
+        if (Markets.ContainsKey(item.SourceName))
+            Markets[item.SourceName] = new MarketConnectionConfig(item, ConfigRoot, Path + ":" + nameof(Markets) + $":{item.SourceName}")
             {
-                ignoreSuppressWarnings
-                    = new MarketConnectionConfig(existingConfig, ConfigRoot, Path + ":" + nameof(Markets) + $":{i}")
-                    {
-                        ConnectionName = ConnectionName
-                    };
-                return true;
-            }
-
-            i++;
-        }
-
-        Markets = Markets.Concat(new[] { item });
+                ConnectionName = ConnectionName
+            };
+        else
+            Markets.Add(item.SourceName, new MarketConnectionConfig(item, ConfigRoot, Path + ":" + nameof(Markets) + $":{item.SourceName}")
+            {
+                ConnectionName = ConnectionName
+            });
         return true;
     }
 }

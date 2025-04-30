@@ -3,8 +3,8 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Configuration;
-using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 namespace FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
 
 [Flags]
+[JsonConverter(typeof(JsonStringEnumConverter<TickerAvailability>))]
 public enum TickerAvailability
 {
     AllDisabled    = 0
@@ -40,28 +41,42 @@ public static class TickerAvailabilityExtensions
 
 public interface ISourceTickersConfig : IInterfacesComparable<ISourceTickersConfig>
 {
+    const decimal DefaultRoundingPrecisionValue      = 0.000001m;
+    const decimal DefaultPipValue                    = 0.0001m;
+    const byte    DefaultMaximumPublishedLayersValue = 1;
+    const decimal DefaultMinSubmitSizeValue          = decimal.One;
+    const decimal DefaultMaxSubmitSizeValue          = 10_000m;
+    const decimal DefaultIncrementSizeValue          = decimal.One;
+    const ushort  DefaultMinimumQuoteLifeMsMsValue   = 0;
+    const uint    DefaultMaxValidMsValue             = 10_000;
+
+    const LayerFlags      DefaultLayerFlagsValue      = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable;
+    const LastTradedFlags DefaultLastTradedFlagsValue = LastTradedFlags.None;
+
     TickerAvailability DefaultTickerAvailability       { get; set; }
     TickerDetailLevel  DefaultPublishTickerDetailLevel { get; set; }
 
     MarketClassificationConfig DefaultMarketClassification { get; set; }
 
+    decimal DefaultPip           { get; set; }
+    decimal DefaultMinSubmitSize { get; set; }
+    decimal DefaultMaxSubmitSize { get; set; }
+    decimal DefaultIncrementSize { get; set; }
+    uint    DefaultMaxValidMs    { get; set; }
+
     decimal DefaultRoundingPrecision      { get; set; }
-    decimal DefaultPip                    { get; set; }
-    decimal DefaultMinSubmitSize          { get; set; }
-    decimal DefaultMaxSubmitSize          { get; set; }
-    decimal DefaultIncrementSize          { get; set; }
-    ushort  DefaultMinimumQuoteLife       { get; set; }
+    ushort  DefaultMinimumQuoteLifeMs     { get; set; }
     byte    DefaultMaximumPublishedLayers { get; set; }
-    uint    DefaultMaxValidMs             { get; set; }
 
     LayerFlags      DefaultLayerFlags      { get; set; }
     LastTradedFlags DefaultLastTradedFlags { get; set; }
 
-    public IEnumerable<ITickerConfig> Tickers { get; set; }
-    ISourceTickerInfo?                GetSourceTickerInfo(ushort sourceId, string sourceName, string ticker);
-    IEnumerable<ISourceTickerInfo>    AllSourceTickerInfos(ushort sourceId, string sourceName);
-    IEnumerable<ISourceTickerInfo>    PricingEnabledSourceTickerInfos(ushort sourceId, string sourceName);
-    IEnumerable<ISourceTickerInfo>    TradingEnabledSourceTickerInfos(ushort sourceId, string sourceName);
+    public IDictionary<string, ITickerConfig> Tickers { get; set; }
+
+    ISourceTickerInfo?             GetSourceTickerInfo(ushort sourceId, string sourceName, string ticker);
+    IEnumerable<ISourceTickerInfo> AllSourceTickerInfos(ushort sourceId, string sourceName);
+    IEnumerable<ISourceTickerInfo> PricingEnabledSourceTickerInfos(ushort sourceId, string sourceName);
+    IEnumerable<ISourceTickerInfo> TradingEnabledSourceTickerInfos(ushort sourceId, string sourceName);
 }
 
 public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
@@ -71,30 +86,78 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
     #pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
 
     private MarketClassificationConfig? lastMarketClassificationConfig;
+
+    private IDictionary<string, TickerConfig> tickers = new Dictionary<string, TickerConfig>();
     public SourceTickersConfig(IConfigurationRoot root, string path) : base(root, path) { }
     public SourceTickersConfig() { }
 
-    public SourceTickersConfig(params ITickerConfig[] tickersConfigs) => Tickers = tickersConfigs.ToList();
+    public SourceTickersConfig
+        (params ITickerConfig[] tickersConfigs) =>
+        ((ISourceTickersConfig)this).Tickers = tickersConfigs.ToDictionary(tc => tc.Ticker!);
 
     public SourceTickersConfig(ISourceTickersConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        DefaultTickerAvailability       = toClone.DefaultTickerAvailability;
         DefaultPublishTickerDetailLevel = toClone.DefaultPublishTickerDetailLevel;
-        DefaultMarketClassification     = toClone.DefaultMarketClassification;
-        DefaultRoundingPrecision        = toClone.DefaultRoundingPrecision;
-        DefaultPip                      = toClone.DefaultPip;
         DefaultMaximumPublishedLayers   = toClone.DefaultMaximumPublishedLayers;
-        DefaultMinSubmitSize            = toClone.DefaultMinSubmitSize;
-        DefaultMaxSubmitSize            = toClone.DefaultMaxSubmitSize;
-        DefaultIncrementSize            = toClone.DefaultIncrementSize;
-        DefaultMinimumQuoteLife         = toClone.DefaultMinimumQuoteLife;
-        DefaultMaxValidMs               = toClone.DefaultMaxValidMs;
-        DefaultLayerFlags               = toClone.DefaultLayerFlags;
-        DefaultLastTradedFlags          = toClone.DefaultLastTradedFlags;
-        Tickers                         = toClone.Tickers;
+        DefaultMarketClassification     = toClone.DefaultMarketClassification;
+
+        DefaultTickerAvailability = toClone.DefaultTickerAvailability;
+        DefaultMinimumQuoteLifeMs = toClone.DefaultMinimumQuoteLifeMs;
+        DefaultRoundingPrecision  = toClone.DefaultRoundingPrecision;
+
+        DefaultLastTradedFlags = toClone.DefaultLastTradedFlags;
+        DefaultMinSubmitSize   = toClone.DefaultMinSubmitSize;
+        DefaultMaxSubmitSize   = toClone.DefaultMaxSubmitSize;
+        DefaultIncrementSize   = toClone.DefaultIncrementSize;
+        DefaultMaxValidMs      = toClone.DefaultMaxValidMs;
+        DefaultLayerFlags      = toClone.DefaultLayerFlags;
+
+        DefaultPip                           = toClone.DefaultPip;
+        ((ISourceTickersConfig)this).Tickers = toClone.Tickers;
     }
 
     public SourceTickersConfig(ISourceTickersConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
+
+    public IDictionary<string, TickerConfig> Tickers
+    {
+        get
+        {
+            foreach (var configurationSection in NonEmptyConfigs)
+            {
+                var tickerConfig = new TickerConfig(ConfigRoot, configurationSection.Path);
+                if (tickerConfig.Ticker.IsNotNullOrEmpty() && configurationSection.Key != tickerConfig.Ticker)
+                    throw new
+                        ArgumentException($"The key name '{configurationSection.Key}' for a ticker config does not match the configured ticker Value {tickerConfig.Ticker}");
+                if (tickerConfig.Ticker.IsNullOrEmpty()) tickerConfig.Ticker = configurationSection.Key;
+                if (!tickers.ContainsKey(configurationSection.Key))
+                    tickers.TryAdd(configurationSection.Key, tickerConfig);
+                else
+                    tickers[configurationSection.Key] = tickerConfig;
+            }
+            return tickers;
+        }
+        set
+        {
+            var oldKeys = tickers.Keys.ToHashSet();
+            foreach (var tickerConfigKvp in value)
+            {
+                ignoreSuppressWarnings = new TickerConfig(tickerConfigKvp.Value, ConfigRoot
+                                                        , Path + ":" + nameof(Tickers) + $":{tickerConfigKvp.Key}");
+                if (tickerConfigKvp.Value.Ticker.IsNotNullOrEmpty() && tickerConfigKvp.Key != tickerConfigKvp.Value.Ticker)
+                    throw new
+                        ArgumentException($"The key name '{tickerConfigKvp.Key}' for a ticker config does not match the configured ticker Value {tickerConfigKvp.Value.Ticker}");
+                if (tickerConfigKvp.Value.Ticker.IsNullOrEmpty()) tickerConfigKvp.Value.Ticker = tickerConfigKvp.Key;
+            }
+
+            var deletedKeys = oldKeys.Except(value.Keys.ToHashSet());
+            foreach (var deletedKey in deletedKeys) TickerConfig.ClearValues(ConfigRoot, Path + ":" + nameof(Tickers) + $":{deletedKey}");
+
+            tickers = value;
+        }
+    }
+
+    private IEnumerable<IConfigurationSection> NonEmptyConfigs =>
+        GetSection(nameof(Tickers)).GetChildren().Where(cs => cs[nameof(ITickerConfig.TickerId)] != null);
 
     public TickerAvailability DefaultTickerAvailability
     {
@@ -129,16 +192,17 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultRoundingPrecision)];
-            return checkValue != null ? decimal.Parse(checkValue) : 0.000001m;
+            return checkValue != null ? decimal.Parse(checkValue) : ISourceTickersConfig.DefaultRoundingPrecisionValue;
         }
         set => this[nameof(DefaultRoundingPrecision)] = value.ToString();
     }
+
     public decimal DefaultPip
     {
         get
         {
             var checkValue = this[nameof(DefaultPip)];
-            return checkValue != null ? decimal.Parse(checkValue) : 0.0001m;
+            return checkValue != null ? decimal.Parse(checkValue) : ISourceTickersConfig.DefaultPipValue;
         }
         set => this[nameof(DefaultPip)] = value.ToString();
     }
@@ -148,7 +212,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultMaximumPublishedLayers)];
-            return checkValue != null ? byte.Parse(checkValue) : (byte)1;
+            return checkValue != null ? byte.Parse(checkValue) : ISourceTickersConfig.DefaultMaximumPublishedLayersValue;
         }
         set => this[nameof(DefaultMaximumPublishedLayers)] = value.ToString();
     }
@@ -158,7 +222,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultMinSubmitSize)];
-            return checkValue != null ? decimal.Parse(checkValue) : decimal.One;
+            return checkValue != null ? decimal.Parse(checkValue) : ISourceTickersConfig.DefaultMinSubmitSizeValue;
         }
         set => this[nameof(DefaultMinSubmitSize)] = value.ToString();
     }
@@ -168,7 +232,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultMaxSubmitSize)];
-            return checkValue != null ? decimal.Parse(checkValue) : 1_000_000m;
+            return checkValue != null ? decimal.Parse(checkValue) : ISourceTickersConfig.DefaultMaxSubmitSizeValue;
         }
         set => this[nameof(DefaultMaxSubmitSize)] = value.ToString();
     }
@@ -178,26 +242,27 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultIncrementSize)];
-            return checkValue != null ? decimal.Parse(checkValue) : 1m;
+            return checkValue != null ? decimal.Parse(checkValue) : ISourceTickersConfig.DefaultIncrementSizeValue;
         }
         set => this[nameof(DefaultIncrementSize)] = value.ToString();
     }
 
-    public ushort DefaultMinimumQuoteLife
+    public ushort DefaultMinimumQuoteLifeMs
     {
         get
         {
-            var checkValue = this[nameof(DefaultMinimumQuoteLife)];
-            return checkValue != null ? ushort.Parse(checkValue) : (ushort)0;
+            var checkValue = this[nameof(DefaultMinimumQuoteLifeMs)];
+            return checkValue != null ? ushort.Parse(checkValue) : ISourceTickersConfig.DefaultMinimumQuoteLifeMsMsValue;
         }
-        set => this[nameof(DefaultMinimumQuoteLife)] = value.ToString();
+        set => this[nameof(DefaultMinimumQuoteLifeMs)] = value.ToString();
     }
+
     public uint DefaultMaxValidMs
     {
         get
         {
             var checkValue = this[nameof(DefaultMaxValidMs)];
-            return checkValue != null ? uint.Parse(checkValue) : 10_000;
+            return checkValue != null ? uint.Parse(checkValue) : ISourceTickersConfig.DefaultMaxValidMsValue;
         }
         set => this[nameof(DefaultMaxValidMs)] = value.ToString();
     }
@@ -207,7 +272,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultLayerFlags)];
-            return checkValue != null ? Enum.Parse<LayerFlags>(checkValue) : LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable;
+            return checkValue != null ? Enum.Parse<LayerFlags>(checkValue) : ISourceTickersConfig.DefaultLayerFlagsValue;
         }
         set => this[nameof(DefaultLayerFlags)] = value.ToString();
     }
@@ -217,50 +282,61 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultLastTradedFlags)];
-            return checkValue != null ? Enum.Parse<LastTradedFlags>(checkValue) : LastTradedFlags.None;
+            return checkValue != null ? Enum.Parse<LastTradedFlags>(checkValue) : ISourceTickersConfig.DefaultLastTradedFlagsValue;
         }
         set => this[nameof(DefaultLastTradedFlags)] = value.ToString();
     }
 
-    public IEnumerable<ITickerConfig> Tickers
+    [JsonIgnore]
+    IDictionary<string, ITickerConfig> ISourceTickersConfig.Tickers
     {
         get
         {
-            var autoRecycleList = Recycler.Borrow<AutoRecycledEnumerable<ITickerConfig>>();
-            foreach (var configurationSection in GetSection(nameof(Tickers)).GetChildren())
-                if (configurationSection["Ticker"] != null)
-                    autoRecycleList.Add(new TickerConfig(ConfigRoot, configurationSection.Path));
-            return autoRecycleList;
+            foreach (var configurationSection in NonEmptyConfigs)
+            {
+                var tickerConfig = new TickerConfig(ConfigRoot, configurationSection.Path);
+                if (tickerConfig.Ticker.IsNotNullOrEmpty() && configurationSection.Key != tickerConfig.Ticker)
+                    throw new
+                        ArgumentException($"The key name '{configurationSection.Key}' for a ticker config does not match the configured ticker Value {tickerConfig.Ticker}");
+                if (tickerConfig.Ticker.IsNullOrEmpty()) tickerConfig.Ticker = configurationSection.Key;
+                if (!Tickers.ContainsKey(configurationSection.Key))
+                    tickers.TryAdd(configurationSection.Key, tickerConfig);
+                else
+                    tickers[configurationSection.Key] = tickerConfig;
+            }
+            return tickers.ToDictionary(tc => tc.Key, tc => (ITickerConfig)tc.Value);
         }
         set
         {
-            var oldCount = Tickers.Count();
-            var i        = 0;
-            foreach (var tickerConfig in value)
+            var oldKeys = tickers.Keys.ToHashSet();
+            foreach (var tickerConfigKvp in value)
             {
-                ignoreSuppressWarnings = new TickerConfig(tickerConfig, ConfigRoot
-                                                        , Path + ":" + nameof(Tickers) + $":{i}");
-                i++;
+                var checkTickerConfig = new TickerConfig(tickerConfigKvp.Value, ConfigRoot
+                                                       , Path + ":" + nameof(Tickers) + $":{tickerConfigKvp.Key}");
+                if (tickerConfigKvp.Value.Ticker.IsNotNullOrEmpty() && tickerConfigKvp.Key != tickerConfigKvp.Value.Ticker)
+                    throw new
+                        ArgumentException($"The key name '{tickerConfigKvp.Key}' for a ticker config does not match the configured ticker Value {tickerConfigKvp.Value.Ticker}");
+                if (tickerConfigKvp.Value.Ticker.IsNullOrEmpty()) checkTickerConfig.Ticker = tickerConfigKvp.Key;
             }
 
-            for (var j = i; j < oldCount; j++) TickerConfig.ClearValues(ConfigRoot, Path + ":" + nameof(Tickers) + $":{i}");
+            var deletedKeys = oldKeys.Except(value.Keys.ToHashSet());
+            foreach (var deletedKey in deletedKeys) TickerConfig.ClearValues(ConfigRoot, Path + ":" + nameof(Tickers) + $":{deletedKey}");
         }
     }
 
     public ISourceTickerInfo? GetSourceTickerInfo(ushort sourceId, string sourceName, string ticker)
     {
-        var tickerConfig = Tickers.FirstOrDefault(tc => tc.Ticker == ticker);
-        if (tickerConfig == null) return null;
+        if (!Tickers.TryGetValue(ticker, out var tickerConfig)) return null;
         var sourceTickerINfo =
             new SourceTickerInfo
-                (sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker
+                (sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker!
                , tickerConfig.PublishedDetailLevel ?? DefaultPublishTickerDetailLevel
                , tickerConfig.MarketClassificationConfig?.MarketClassification ?? DefaultMarketClassification.MarketClassification
                , tickerConfig.MaximumPublishedLayers ?? DefaultMaximumPublishedLayers
                , tickerConfig.RoundingPrecision ?? DefaultRoundingPrecision, tickerConfig.Pip ?? DefaultPip
                , tickerConfig.MinSubmitSize ?? DefaultMinSubmitSize
                , tickerConfig.MaxSubmitSize ?? DefaultMaxSubmitSize, tickerConfig.IncrementSize ?? DefaultIncrementSize
-               , tickerConfig.MinimumQuoteLife ?? DefaultMinimumQuoteLife, tickerConfig.DefaultMaxValidMs ?? DefaultMaxValidMs
+               , tickerConfig.MinimumQuoteLife ?? DefaultMinimumQuoteLifeMs, tickerConfig.DefaultMaxValidMs ?? DefaultMaxValidMs
                , tickerConfig.TickerAvailability.PricingEnabled() ?? DefaultTickerAvailability.IsPricingEnabled()
                , tickerConfig.TickerAvailability.TradingEnabled() ?? DefaultTickerAvailability.IsTradingEnabled()
                , tickerConfig.LayerFlags ?? DefaultLayerFlags
@@ -270,18 +346,18 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
 
     public IEnumerable<ISourceTickerInfo> AllSourceTickerInfos(ushort sourceId, string sourceName)
     {
-        foreach (var tickerConfig in Tickers)
+        foreach (var tickerConfig in Tickers.Values)
         {
             var sourceTickerINfo =
                 new SourceTickerInfo
-                    (sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker
+                    (sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker!
                    , tickerConfig.PublishedDetailLevel ?? DefaultPublishTickerDetailLevel
                    , tickerConfig.MarketClassificationConfig?.MarketClassification ?? DefaultMarketClassification.MarketClassification
                    , tickerConfig.MaximumPublishedLayers ?? DefaultMaximumPublishedLayers
                    , tickerConfig.RoundingPrecision ?? DefaultRoundingPrecision, tickerConfig.Pip ?? DefaultPip
                    , tickerConfig.MinSubmitSize ?? DefaultMinSubmitSize
                    , tickerConfig.MaxSubmitSize ?? DefaultMaxSubmitSize, tickerConfig.IncrementSize ?? DefaultIncrementSize
-                   , tickerConfig.MinimumQuoteLife ?? DefaultMinimumQuoteLife, tickerConfig.DefaultMaxValidMs ?? DefaultMaxValidMs
+                   , tickerConfig.MinimumQuoteLife ?? DefaultMinimumQuoteLifeMs, tickerConfig.DefaultMaxValidMs ?? DefaultMaxValidMs
                    , tickerConfig.TickerAvailability.PricingEnabled() ?? DefaultTickerAvailability.IsPricingEnabled()
                    , tickerConfig.TickerAvailability.TradingEnabled() ?? DefaultTickerAvailability.IsTradingEnabled()
                    , tickerConfig.LayerFlags ?? DefaultLayerFlags, tickerConfig.LastTradedFlags ?? DefaultLastTradedFlags);
@@ -291,19 +367,19 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
 
     public IEnumerable<ISourceTickerInfo> PricingEnabledSourceTickerInfos(ushort sourceId, string sourceName)
     {
-        foreach (var tickerConfig in Tickers)
+        foreach (var tickerConfig in Tickers.Values)
             if (tickerConfig.TickerAvailability is TickerAvailability.PricingEnabled or TickerAvailability.PricingAndTradingEnabled)
             {
                 var sourceTickerINfo =
                     new SourceTickerInfo
-                        (sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker
+                        (sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker!
                        , tickerConfig.PublishedDetailLevel ?? DefaultPublishTickerDetailLevel
                        , tickerConfig.MarketClassificationConfig?.MarketClassification ?? DefaultMarketClassification.MarketClassification
                        , tickerConfig.MaximumPublishedLayers ?? DefaultMaximumPublishedLayers
                        , tickerConfig.RoundingPrecision ?? DefaultRoundingPrecision, tickerConfig.Pip ?? DefaultPip
                        , tickerConfig.MinSubmitSize ?? DefaultMinSubmitSize
                        , tickerConfig.MaxSubmitSize ?? DefaultMaxSubmitSize, tickerConfig.IncrementSize ?? DefaultIncrementSize
-                       , tickerConfig.MinimumQuoteLife ?? DefaultMinimumQuoteLife, tickerConfig.DefaultMaxValidMs ?? DefaultMaxValidMs
+                       , tickerConfig.MinimumQuoteLife ?? DefaultMinimumQuoteLifeMs, tickerConfig.DefaultMaxValidMs ?? DefaultMaxValidMs
                        , tickerConfig.TickerAvailability.PricingEnabled() ?? DefaultTickerAvailability.IsPricingEnabled()
                        , tickerConfig.TickerAvailability.TradingEnabled() ?? DefaultTickerAvailability.IsTradingEnabled()
                        , tickerConfig.LayerFlags ?? DefaultLayerFlags, tickerConfig.LastTradedFlags ?? DefaultLastTradedFlags);
@@ -313,19 +389,19 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
 
     public IEnumerable<ISourceTickerInfo> TradingEnabledSourceTickerInfos(ushort sourceId, string sourceName)
     {
-        foreach (var tickerConfig in Tickers)
+        foreach (var tickerConfig in Tickers.Values)
             if (tickerConfig.TickerAvailability is TickerAvailability.TradingEnabled or TickerAvailability.PricingAndTradingEnabled)
             {
                 var sourceTickerINfo =
                     new SourceTickerInfo
-                        (sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker
+                        (sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker!
                        , tickerConfig.PublishedDetailLevel ?? DefaultPublishTickerDetailLevel
                        , tickerConfig.MarketClassificationConfig?.MarketClassification ?? DefaultMarketClassification.MarketClassification
                        , tickerConfig.MaximumPublishedLayers ?? DefaultMaximumPublishedLayers
                        , tickerConfig.RoundingPrecision ?? DefaultRoundingPrecision, tickerConfig.Pip ?? DefaultPip
                        , tickerConfig.MinSubmitSize ?? DefaultMinSubmitSize
                        , tickerConfig.MaxSubmitSize ?? DefaultMaxSubmitSize, tickerConfig.IncrementSize ?? DefaultIncrementSize
-                       , tickerConfig.MinimumQuoteLife ?? DefaultMinimumQuoteLife, tickerConfig.DefaultMaxValidMs ?? DefaultMaxValidMs
+                       , tickerConfig.MinimumQuoteLife ?? DefaultMinimumQuoteLifeMs, tickerConfig.DefaultMaxValidMs ?? DefaultMaxValidMs
                        , tickerConfig.TickerAvailability.PricingEnabled() ?? DefaultTickerAvailability.IsPricingEnabled()
                        , tickerConfig.TickerAvailability.TradingEnabled() ?? DefaultTickerAvailability.IsTradingEnabled()
                        , tickerConfig.LayerFlags ?? DefaultLayerFlags, tickerConfig.LastTradedFlags ?? DefaultLastTradedFlags);
@@ -344,11 +420,11 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         var minSubitSizeSame         = DefaultMinSubmitSize == other?.DefaultMinSubmitSize;
         var maxSubitSizeSame         = DefaultMaxSubmitSize == other?.DefaultMaxSubmitSize;
         var incrementSizeSame        = DefaultIncrementSize == other?.DefaultIncrementSize;
-        var minQuoteLifeSizeSame     = DefaultMinimumQuoteLife == other?.DefaultMinimumQuoteLife;
+        var minQuoteLifeSizeSame     = DefaultMinimumQuoteLifeMs == other?.DefaultMinimumQuoteLifeMs;
         var maxValidMsSame           = DefaultMaxValidMs == other?.DefaultMaxValidMs;
         var layerFlagsSizeSame       = DefaultLayerFlags == other?.DefaultLayerFlags;
         var lastTradedFlagsSame      = DefaultLastTradedFlags == other?.DefaultLastTradedFlags;
-        var tickerConfigsSame        = Tickers.SequenceEqual(other?.Tickers ?? Array.Empty<ITickerConfig>());
+        var tickerConfigsSame        = Tickers.Values.SequenceEqual(other?.Tickers.Values ?? Array.Empty<ITickerConfig>());
 
         return availabilitySame && quoteLevelSame && marketClassificationSame && roundingSame && pipSame && maxLayersSame && minSubitSizeSame
             && maxSubitSizeSame && incrementSizeSame && minQuoteLifeSizeSame && maxValidMsSame && layerFlagsSizeSame && lastTradedFlagsSame
@@ -376,7 +452,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         hashCode.Add(DefaultMinSubmitSize);
         hashCode.Add(DefaultMaxSubmitSize);
         hashCode.Add(DefaultIncrementSize);
-        hashCode.Add(DefaultMinimumQuoteLife);
+        hashCode.Add(DefaultMinimumQuoteLifeMs);
         hashCode.Add(DefaultMaxValidMs);
         hashCode.Add(DefaultLayerFlags);
         hashCode.Add(DefaultMaximumPublishedLayers);
@@ -390,6 +466,6 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         $"{nameof(DefaultPublishTickerDetailLevel)}: {DefaultPublishTickerDetailLevel}, {nameof(DefaultMarketClassification)}: {DefaultMarketClassification}, " +
         $"{nameof(DefaultRoundingPrecision)}: {DefaultRoundingPrecision}, {nameof(DefaultPip)}: {DefaultPip}, {nameof(DefaultMaximumPublishedLayers)}: {DefaultMaximumPublishedLayers}, " +
         $"{nameof(DefaultMinSubmitSize)}: {DefaultMinSubmitSize}, {nameof(DefaultMaxSubmitSize)}: {DefaultMaxSubmitSize}, {nameof(DefaultIncrementSize)}: {DefaultIncrementSize}, " +
-        $"{nameof(DefaultMinimumQuoteLife)}: {DefaultMinimumQuoteLife}, {nameof(DefaultMaxValidMs)}: {DefaultMaxValidMs}, {nameof(DefaultLayerFlags)}: {DefaultLayerFlags}, " +
+        $"{nameof(DefaultMinimumQuoteLifeMs)}: {DefaultMinimumQuoteLifeMs}, {nameof(DefaultMaxValidMs)}: {DefaultMaxValidMs}, {nameof(DefaultLayerFlags)}: {DefaultLayerFlags}, " +
         $"{nameof(DefaultLastTradedFlags)}: {DefaultLastTradedFlags}, {nameof(Tickers)}: {Tickers}, {nameof(Path)}: {Path})";
 }

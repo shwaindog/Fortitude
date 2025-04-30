@@ -3,6 +3,7 @@
 
 #region
 
+using System.Text.Json;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
@@ -57,27 +58,27 @@ public class Level3PriceQuoteTests
         noRecentlyTradedSrcTkrInfo = new SourceTickerInfo
             (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.ValueDate |
-                         LayerFlags.TraderCount | LayerFlags.SourceQuoteReference
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.ValueDate |
+                         LayerFlags.OrdersCount | LayerFlags.SourceQuoteReference
            , lastTradedFlags: LastTradedFlags.None);
         simpleRecentlyTradedSrcTkrInfo = new SourceTickerInfo
             (ushort.MaxValue, "TestSource", ushort.MinValue, "TestTicker", Level3Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.ValueDate |
-                         LayerFlags.TraderCount | LayerFlags.SourceQuoteReference
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.ValueDate |
+                         LayerFlags.OrdersCount | LayerFlags.SourceQuoteReference
            , lastTradedFlags: LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice);
         paidGivenVolumeRecentlyTradedSrcTkrInfo = new SourceTickerInfo
             (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.ValueDate |
-                         LayerFlags.TraderCount | LayerFlags.SourceQuoteReference
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.ValueDate |
+                         LayerFlags.OrdersCount | LayerFlags.SourceQuoteReference
            , lastTradedFlags: LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
                               LastTradedFlags.LastTradedVolume);
         traderPaidGivenVolumeRecentlyTradedSrcTkrInfo = new SourceTickerInfo
             (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.ValueDate |
-                         LayerFlags.TraderCount | LayerFlags.SourceQuoteReference
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.ValueDate |
+                         LayerFlags.OrdersCount | LayerFlags.SourceQuoteReference
            , lastTradedFlags: LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice | LastTradedFlags.TraderName);
         noRecentlyTradedEmptyQuote          = new Level3PriceQuote(noRecentlyTradedSrcTkrInfo);
         noRecentlyTradedFullyPopulatedQuote = new Level3PriceQuote(noRecentlyTradedSrcTkrInfo);
@@ -490,6 +491,56 @@ public class Level3PriceQuoteTests
         foreach (var populatedQuote in allFullyPopulatedQuotes) Assert.AreNotEqual(0, populatedQuote.GetHashCode());
     }
 
+
+    [TestMethod]
+    public void NoRecentlyTradedFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = noRecentlyTradedFullyPopulatedQuote;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
+    }
+
+    [TestMethod]
+    public void SimpleRecentlyTradedFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = simpleRecentlyTradedFullyPopulatedQuote;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
+    }
+
+    [TestMethod]
+    public void PaidGivenRecentlyTradedFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = paidGivenVolumeRecentlyTradedFullyPopulatedQuote;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
+    }
+
+    [TestMethod]
+    public void TraderPaidGivenRecentlyFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
+    }
+
+
     [TestMethod]
     public void FullyPopulatedQuote_ToString_ReturnsNameAndValues()
     {
@@ -533,16 +584,16 @@ public class Level3PriceQuoteTests
         var sourceBidBook =
             GenerateBook
                 (BookSide.BidBook, 20, 1.1123m + priceDiff, -0.0001m, 100000m + volDiff
-               , 10000m, (price, volume) => new TraderPriceVolumeLayer(price, volume));
+               , 10000m, (price, volume) => new OrdersPriceVolumeLayer(price: price, volume: volume));
         var sourceAskBook =
             GenerateBook
                 (BookSide.AskBook, 20, 1.1125m, 0.0001m, 100000m, 10000m
-               , (price, volume) => new TraderPriceVolumeLayer(price, volume));
+               , (price, volume) => new OrdersPriceVolumeLayer(price: price, volume: volume));
 
 
         var volStart = i * 1_000m;
-        UpdateTraderQuoteBook(sourceBidBook, 20, 1, 10000 + volStart, 1000 + volDiff);
-        UpdateTraderQuoteBook(sourceAskBook, 20, 1, 20000 + volStart, 500 + volDiff);
+        UpdateOrdersQuoteBook(sourceBidBook, 20, 1, 10000 + volStart, 1000 + volDiff);
+        UpdateOrdersQuoteBook(sourceAskBook, 20, 1, 20000 + volStart, 500 + volDiff);
         var     toggleBool   = false;
         decimal growVolume   = 10000;
         var     traderNumber = 1;
@@ -612,28 +663,30 @@ public class Level3PriceQuoteTests
         return new RecentlyTraded(lastTrades);
     }
 
-    private static void UpdateTraderQuoteBook
+    private static void UpdateOrdersQuoteBook
     (IOrderBook toUpdate, int numberOfLayers,
-        int numberOfTradersPerLayer, decimal startingVolume, decimal deltaVolumePerLayer)
+        int numberOfOrdersPerLayer, decimal startingVolume, decimal deltaVolumePerLayer)
     {
         var currentVolume = startingVolume;
         for (var i = 0; i < numberOfLayers; i++)
         {
-            var traderLayer = (IMutableTraderPriceVolumeLayer)toUpdate[i]!;
-            for (var j = 0; j < numberOfTradersPerLayer; j++)
+            var traderLayer = (IMutableOrdersPriceVolumeLayer)toUpdate[i]!;
+            for (var j = 0; j < numberOfOrdersPerLayer; j++)
             {
                 string? traderName                                                = null;
                 if (startingVolume != 0m && deltaVolumePerLayer != 0m) traderName = $"TraderLayer{i}_{j}";
 
-                if (traderLayer.Count <= j)
+                if (traderLayer.OrdersCount <= j)
                 {
-                    traderLayer.Add(traderName!, currentVolume + j * deltaVolumePerLayer);
+                    traderLayer.Add(new CounterPartyOrderLayerInfo(j + 1, LayerOrderFlags.CreatedFromSource, DateTime.Now
+                                                                 , currentVolume + j * deltaVolumePerLayer,
+                                                                   traderName: traderName!));
                 }
                 else
                 {
-                    var traderLayerInfo = traderLayer[j]!;
-                    traderLayerInfo.TraderName   = traderName;
-                    traderLayerInfo.TraderVolume = currentVolume + j * deltaVolumePerLayer;
+                    var traderLayerInfo = (IMutableCounterPartyOrderLayerInfo)traderLayer[j]!;
+                    traderLayerInfo.TraderName  = traderName;
+                    traderLayerInfo.OrderVolume = currentVolume + j * deltaVolumePerLayer;
                 }
             }
 

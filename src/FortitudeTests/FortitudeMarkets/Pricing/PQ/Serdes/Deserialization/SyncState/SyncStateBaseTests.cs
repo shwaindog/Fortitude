@@ -8,12 +8,12 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Types;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
+using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeTests.FortitudeIO.Transports.Network.Config;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
@@ -93,7 +93,7 @@ public class SyncStateBaseTests
             new SourceTickerInfo
                 (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
                , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-               , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+               , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
                , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                                   LastTradedFlags.LastTradedTime);
         pqQuoteStreamDeserializer
@@ -109,12 +109,7 @@ public class SyncStateBaseTests
         DesersializerPqTickInstant = pqQuoteStreamDeserializer.PublishedQuote;
         SyncSlotPQTickInstant = new PQTickInstant(SourceTickerInfo)
             { FeedSyncStatus = FeedSyncStatus.Good };
-
-
-        SetupQuoteStreamDeserializerExpectations();
     }
-
-    protected void SetupQuoteStreamDeserializerExpectations() { }
 
     private void SetLogger()
     {
@@ -150,7 +145,7 @@ public class SyncStateBaseTests
     public virtual void NewSyncState_ProcessInStateProcessNextExpectedUpdate_CallsExpectedBehaviour()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
-            (ExpectedQuotes, PQMessageFlags.Update, 1);
+            (ExpectedQuotes, PQMessageFlags.Update, 0);
         var sockBuffContext = deserializeInputList.First();
 
         syncState.ProcessInState(sockBuffContext);
@@ -164,13 +159,13 @@ public class SyncStateBaseTests
     public virtual void NewSyncState_ProcessUnsyncedUpdateMessage_CallsExpectedBehaviour()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
-            (ExpectedQuotes, PQMessageFlags.Update, 2);
+            (ExpectedQuotes, PQMessageFlags.Update, 1);
         var sockBuffContext = deserializeInputList.First();
         syncState.ProcessInState(sockBuffContext);
 
         SendPqTickInstant.HasUpdates = true;
         deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
-            (ExpectedQuotes, PQMessageFlags.Update, uint.MaxValue);
+            (ExpectedQuotes, PQMessageFlags.Update, 0);
         sockBuffContext = deserializeInputList.First();
 
         var sockBuffContextDeserializerTimestamp = new DateTime(2017, 09, 23, 19, 47, 32);
@@ -187,17 +182,14 @@ public class SyncStateBaseTests
              Assert.AreEqual(SourceTickerInfo, strParams[1]);
              Assert.AreEqual(4u, strParams[2]);
              Assert.AreEqual(0u, strParams[3]);
-             Assert.AreEqual(PQQuoteDeserializationSequencedTestDataBuilder
-                             .ClientReceivedTimestamp
-                                 (PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(uint.MaxValue))
-                             .ToString(ExpectedDateFormat),
-                             strParams[4]);
+             Assert.AreEqual(PQQuoteDeserializationSequencedTestDataBuilder.ClientReceivedTimestamp
+                                                                               (PQQuoteDeserializationSequencedTestDataBuilder
+                                                                                   .TimeOffsetForSequenceId(0))
+                                                                           .ToString(ExpectedDateFormat), strParams[4]);
              Assert.AreEqual(sockBuffContextDeserializerTimestamp.ToString(ExpectedDateFormat), strParams[5]);
              Assert.AreEqual(PQQuoteDeserializationSequencedTestDataBuilder
-                             .RecevingTimestampBaseTime
-                                 (PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(uint.MaxValue))
-                             .ToString(ExpectedDateFormat),
-                             strParams[6]);
+                             .RecevingTimestampBaseTime(PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(0))
+                             .ToString(ExpectedDateFormat), strParams[6]);
          }).Verifiable();
 
         syncState.ProcessInState(sockBuffContext);

@@ -4,8 +4,6 @@
 #region
 
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -38,14 +36,15 @@ public abstract class LayerFlagsSelector<T, Tu> : ILayerFlagsSelector<T, Tu>
         var mostCompactLayerType = layerFlags.MostCompactLayerType();
         return mostCompactLayerType switch
                {
-                   LayerType.PriceVolume => SelectSimplePriceVolumeLayer(sourceTickerInfo)
+                   LayerType.PriceVolume                => SelectSimplePriceVolumeLayer(sourceTickerInfo)
+                 , LayerType.SourcePriceVolume          => SelectSourcePriceVolumeLayer(sourceTickerInfo)
+                 , LayerType.SourceQuoteRefPriceVolume  => SelectSourceQuoteRefPriceVolumeLayer(sourceTickerInfo)
+                 , LayerType.ValueDatePriceVolume       => SelectValueDatePriceVolumeLayer(sourceTickerInfo)
+                 , LayerType.OrdersCountPriceVolume     => SelectOrdersCountPriceVolumeLayer(sourceTickerInfo)
+                 , LayerType.OrdersAnonymousPriceVolume => SelectAnonymousOrdersPriceVolumeLayer(sourceTickerInfo)
+                 , LayerType.OrdersFullPriceVolume      => SelectCounterPartyOrdersPriceVolumeLayer(sourceTickerInfo)
 
-                 , LayerType.SourceQuoteRefTraderValueDatePriceVolume => SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(sourceTickerInfo)
-
-                 , LayerType.TraderPriceVolume         => SelectTraderPriceVolumeLayer(sourceTickerInfo)
-                 , LayerType.ValueDatePriceVolume      => SelectValueDatePriceVolumeLayer(sourceTickerInfo)
-                 , LayerType.SourceQuoteRefPriceVolume => SelectSourceQuoteRefPriceVolumeLayer(sourceTickerInfo)
-                 , LayerType.SourcePriceVolume         => SelectSourcePriceVolumeLayer(sourceTickerInfo)
+                 , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(sourceTickerInfo)
 
                  , _ => SelectSimplePriceVolumeLayer(sourceTickerInfo)
                };
@@ -88,6 +87,8 @@ public abstract class LayerFlagsSelector<T, Tu> : ILayerFlagsSelector<T, Tu>
     protected abstract T SelectValueDatePriceVolumeLayer(Tu sourceTickerInfo);
     protected abstract T SelectSourcePriceVolumeLayer(Tu sourceTickerInfo);
     protected abstract T SelectSourceQuoteRefPriceVolumeLayer(Tu sourceTickerInfo);
-    protected abstract T SelectTraderPriceVolumeLayer(Tu sourceTickerInfo);
+    protected abstract T SelectOrdersCountPriceVolumeLayer(Tu sourceTickerInfo);
+    protected abstract T SelectAnonymousOrdersPriceVolumeLayer(Tu sourceTickerInfo);
+    protected abstract T SelectCounterPartyOrdersPriceVolumeLayer(Tu sourceTickerInfo);
     protected abstract T SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(Tu sourceTickerInfo);
 }

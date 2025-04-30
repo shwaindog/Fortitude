@@ -3,7 +3,6 @@
 
 #region
 
-using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes;
@@ -36,7 +35,7 @@ public class LastTradeTests
         Assert.AreEqual(testDateTime, newLt.TradeTime);
 
         Assert.AreEqual(0, emptyLt.TradePrice);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyLt.TradeTime);
+        Assert.AreEqual(default, emptyLt.TradeTime);
     }
 
     [TestMethod]
@@ -54,7 +53,7 @@ public class LastTradeTests
 
         var newEmptyLt = new LastTrade(emptyLt);
         Assert.AreEqual(0, newEmptyLt.TradePrice);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, newEmptyLt.TradeTime);
+        Assert.AreEqual(default, newEmptyLt.TradeTime);
     }
 
     [TestMethod]
@@ -83,11 +82,11 @@ public class LastTradeTests
     {
         Assert.IsFalse(populatedLt.IsEmpty);
         Assert.AreNotEqual(0m, populatedLt.TradePrice);
-        Assert.AreNotEqual(DateTimeConstants.UnixEpoch, populatedLt.TradeTime);
+        Assert.AreNotEqual(default, populatedLt.TradeTime);
         populatedLt.StateReset();
         Assert.IsTrue(populatedLt.IsEmpty);
         Assert.AreEqual(0m, populatedLt.TradePrice);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, populatedLt.TradeTime);
+        Assert.AreEqual(default, populatedLt.TradeTime);
     }
 
     [TestMethod]

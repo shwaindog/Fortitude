@@ -5,16 +5,16 @@
 
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Summaries;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
 
@@ -23,28 +23,28 @@ namespace FortitudeMarkets.Pricing.PQ.Summaries;
 public interface IPQPricePeriodSummary : IMutablePricePeriodSummary, IPQSupportsFieldUpdates<IPricePeriodSummary>
   , IDoublyLinkedListNode<IPQPricePeriodSummary>
 {
-    bool IsSummaryPeriodUpdated    { get; set; }
-    bool IsStartTimeDateUpdated    { get; set; }
-    bool IsStartTimeSubHourUpdated { get; set; }
-    bool IsEndTimeDateUpdated      { get; set; }
-    bool IsEndTimeSubHourUpdated   { get; set; }
-    bool IsStartBidPriceUpdated    { get; set; }
-    bool IsStartAskPriceUpdated    { get; set; }
-    bool IsHighestBidPriceUpdated  { get; set; }
-    bool IsHighestAskPriceUpdated  { get; set; }
-    bool IsLowestBidPriceUpdated   { get; set; }
-    bool IsLowestAskPriceUpdated   { get; set; }
-    bool IsEndBidPriceUpdated      { get; set; }
-    bool IsEndAskPriceUpdated      { get; set; }
-    bool IsTickCountUpdated        { get; set; }
+    [JsonIgnore] bool IsSummaryPeriodUpdated    { get; set; }
+    [JsonIgnore] bool IsStartTimeDateUpdated    { get; set; }
+    [JsonIgnore] bool IsStartTimeSubHourUpdated { get; set; }
+    [JsonIgnore] bool IsEndTimeDateUpdated      { get; set; }
+    [JsonIgnore] bool IsEndTimeSubHourUpdated   { get; set; }
+    [JsonIgnore] bool IsStartBidPriceUpdated    { get; set; }
+    [JsonIgnore] bool IsStartAskPriceUpdated    { get; set; }
+    [JsonIgnore] bool IsHighestBidPriceUpdated  { get; set; }
+    [JsonIgnore] bool IsHighestAskPriceUpdated  { get; set; }
+    [JsonIgnore] bool IsLowestBidPriceUpdated   { get; set; }
+    [JsonIgnore] bool IsLowestAskPriceUpdated   { get; set; }
+    [JsonIgnore] bool IsEndBidPriceUpdated      { get; set; }
+    [JsonIgnore] bool IsEndAskPriceUpdated      { get; set; }
+    [JsonIgnore] bool IsTickCountUpdated        { get; set; }
 
-    bool IsPeriodVolumeUpdated            { get; set; }
-    bool IsPricePeriodSummaryFlagsUpdated { get; set; }
-    bool IsAverageBidPriceUpdated         { get; set; }
-    bool IsAverageAskPriceUpdated         { get; set; }
+    [JsonIgnore] bool IsPeriodVolumeUpdated            { get; set; }
+    [JsonIgnore] bool IsPricePeriodSummaryFlagsUpdated { get; set; }
+    [JsonIgnore] bool IsAverageBidPriceUpdated         { get; set; }
+    [JsonIgnore] bool IsAverageAskPriceUpdated         { get; set; }
 
-    new IPQPricePeriodSummary? Previous { get; set; }
-    new IPQPricePeriodSummary? Next     { get; set; }
+    [JsonIgnore] new IPQPricePeriodSummary? Previous { get; set; }
+    [JsonIgnore] new IPQPricePeriodSummary? Next     { get; set; }
 
     new IPQPricePeriodSummary Clone();
 }
@@ -97,6 +97,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
     public override PQPricePeriodSummary Clone() =>
         Recycler?.Borrow<PQPricePeriodSummary>().CopyFrom(this) as PQPricePeriodSummary ?? new PQPricePeriodSummary(this);
 
+
     public TimeBoundaryPeriod TimeBoundaryPeriod
     {
         get => timeBoundaryPeriod;
@@ -108,6 +109,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IsEmpty
     {
         get
@@ -117,7 +119,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
                                    EndBidPrice == decimal.Zero && EndAskPrice == decimal.Zero &&
                                    AverageBidPrice == decimal.Zero && AverageAskPrice == decimal.Zero;
             var tickCountAndVolumeZero = TickCount == 0 && PeriodVolume == 0;
-            var summaryPeriodNone      = TimeBoundaryPeriod == TimeBoundaryPeriod.None;
+            var summaryPeriodNone      = TimeBoundaryPeriod == TimeBoundaryPeriod.Tick;
             var summaryFlagsNone       = PeriodSummaryFlags == PricePeriodSummaryFlags.None;
             var startEndTimeUnixEpoch  = PeriodStartTime == DateTimeConstants.UnixEpoch && PeriodEndTime == DateTimeConstants.UnixEpoch;
             return pricesAreAllZero && tickCountAndVolumeZero && summaryPeriodNone && startEndTimeUnixEpoch && summaryFlagsNone;
@@ -129,12 +131,13 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
             LowestBidPrice     = LowestAskPrice = EndBidPrice     = EndAskPrice     = AverageAskPrice = decimal.Zero;
             TickCount          = 0;
             PeriodVolume       = 0;
-            TimeBoundaryPeriod = TimeBoundaryPeriod.None;
+            TimeBoundaryPeriod = TimeBoundaryPeriod.Tick;
             PeriodSummaryFlags = PricePeriodSummaryFlags.None;
             PeriodStartTime    = PeriodEndTime = DateTimeConstants.UnixEpoch;
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public DateTime PeriodStartTime
     {
         get => startTime;
@@ -183,6 +186,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         return totalCompletePercentage;
     }
 
+    [JsonIgnore]
     public bool IsSummaryPeriodUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.SummaryPeriodFlag) > 0;
@@ -195,6 +199,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public bool IsStartTimeDateUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.StartTimeDateFlag) > 0;
@@ -207,6 +212,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public bool IsStartTimeSubHourUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.StartTimeSubHourFlag) > 0;
@@ -237,6 +243,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         return PeriodEndTime;
     }
 
+    [JsonIgnore]
     public bool IsEndTimeDateUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.EndTimeDateFlag) > 0;
@@ -249,6 +256,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public bool IsEndTimeSubHourUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.EndTimeSubHourFlag) > 0;
@@ -266,6 +274,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
     public BidAskPair EndBidAsk     => new(EndBidPrice, EndAskPrice);
     public BidAskPair AverageBidAsk => new(AverageBidPrice, AverageAskPrice);
 
+    [JsonIgnore]
     public decimal AverageBidPrice
     {
         get => averageBidPrice;
@@ -277,6 +286,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
             averageBidPrice          = value;
         }
     }
+    [JsonIgnore]
     public decimal AverageAskPrice
     {
         get => averageAskPrice;
@@ -290,6 +300,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public decimal StartBidPrice
     {
         get => startBidPrice;
@@ -301,6 +312,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public bool IsStartBidPriceUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.StartBidPriceFlag) > 0;
@@ -313,6 +325,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public decimal StartAskPrice
     {
         get => startAskPrice;
@@ -324,6 +337,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public bool IsStartAskPriceUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.StartAskPriceFlag) > 0;
@@ -336,6 +350,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public decimal HighestBidPrice
     {
         get => highestBidPrice;
@@ -347,6 +362,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public bool IsHighestBidPriceUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.HighestBidPriceFlag) > 0;
@@ -359,6 +375,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public decimal HighestAskPrice
     {
         get => highestAskPrice;
@@ -370,6 +387,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public bool IsHighestAskPriceUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.HighestAskPriceFlag) > 0;
@@ -382,6 +400,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public decimal LowestBidPrice
     {
         get => lowestBidPrice;
@@ -393,6 +412,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public bool IsLowestBidPriceUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.LowestBidPriceFlag) > 0;
@@ -405,6 +425,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public decimal LowestAskPrice
     {
         get => lowestAskPrice;
@@ -416,6 +437,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public bool IsLowestAskPriceUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.LowestAskPriceFlag) > 0;
@@ -428,6 +450,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public decimal EndBidPrice
     {
         get => endBidPrice;
@@ -439,6 +462,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public bool IsEndBidPriceUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.EndBidPriceFlag) > 0;
@@ -451,6 +475,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public decimal EndAskPrice
     {
         get => endAskPrice;
@@ -462,6 +487,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public bool IsEndAskPriceUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.EndAskPriceFlag) > 0;
@@ -474,6 +500,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public bool IsAverageBidPriceUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.AverageBidPriceFlag) > 0;
@@ -486,6 +513,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public bool IsAverageAskPriceUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.AverageAskPriceFlag) > 0;
@@ -509,6 +537,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public bool IsTickCountUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.TickCountFlag) > 0;
@@ -533,6 +562,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public bool IsPeriodVolumeUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.PeriodVolumeFlag) > 0;
@@ -545,6 +575,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public bool IsPricePeriodSummaryFlagsUpdated
     {
         get => (updatedFlags & PeriodSummaryUpdatedFlags.PricePeriodSummaryFlagsFlag) > 0;
@@ -557,22 +588,25 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
+    [JsonIgnore]
     public IPQPricePeriodSummary? Previous
     {
         get => ((IPricePeriodSummary)this).Previous as IPQPricePeriodSummary;
         set => ((IPricePeriodSummary)this).Previous = value;
     }
 
+    [JsonIgnore]
     public IPQPricePeriodSummary? Next
     {
         get => ((IPricePeriodSummary)this).Next as IPQPricePeriodSummary;
         set => ((IPricePeriodSummary)this).Next = value;
     }
 
-    IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Previous { get; set; }
+    [JsonIgnore] IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Previous { get; set; }
 
-    IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Next { get; set; }
+    [JsonIgnore] IPricePeriodSummary? IDoublyLinkedListNode<IPricePeriodSummary>.Next { get; set; }
 
+    [JsonIgnore]
     public bool HasUpdates
     {
         get => updatedFlags > 0;
@@ -585,128 +619,126 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Update) > 0;
-        if (!updatedOnly || IsSummaryPeriodUpdated) yield return new PQFieldUpdate(PQFieldKeys.SummaryPeriod, (uint)timeBoundaryPeriod);
+        if (!updatedOnly || IsSummaryPeriodUpdated) yield return new PQFieldUpdate(PQQuoteFields.SummaryPeriod, (uint)timeBoundaryPeriod);
         if (!updatedOnly || IsStartTimeDateUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.PeriodStartDateTime, startTime.GetHoursFromUnixEpoch());
+            yield return new PQFieldUpdate(PQQuoteFields.PeriodStartDateTime, startTime.GetHoursFromUnixEpoch());
         if (!updatedOnly || IsStartTimeSubHourUpdated)
         {
-            var fifthByte = startTime.GetSubHourComponent().BreakLongToByteAndUint(out var lowerFourBytes);
-            yield return new PQFieldUpdate(PQFieldKeys.PeriodStartSubHourTime, lowerFourBytes, fifthByte);
+            var fifthByte = startTime.GetSubHourComponent().BreakLongToUShortAndUint(out var lowerFourBytes);
+            yield return new PQFieldUpdate(PQQuoteFields.PeriodStartSubHourTime, lowerFourBytes, fifthByte);
         }
 
-        if (!updatedOnly || IsEndTimeDateUpdated) yield return new PQFieldUpdate(PQFieldKeys.PeriodEndDateTime, endTime.GetHoursFromUnixEpoch());
+        if (!updatedOnly || IsEndTimeDateUpdated) yield return new PQFieldUpdate(PQQuoteFields.PeriodEndDateTime, endTime.GetHoursFromUnixEpoch());
         if (!updatedOnly || IsEndTimeSubHourUpdated)
         {
-            var fifthByte = endTime.GetSubHourComponent().BreakLongToByteAndUint(out var lowerFourBytes);
-            yield return new PQFieldUpdate(PQFieldKeys.PeriodEndSubHourTime, lowerFourBytes, fifthByte);
+            var fifthByte = endTime.GetSubHourComponent().BreakLongToUShortAndUint(out var lowerFourBytes);
+            yield return new PQFieldUpdate(PQQuoteFields.PeriodEndSubHourTime, lowerFourBytes, fifthByte);
         }
 
         if (!updatedOnly || IsStartBidPriceUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.PeriodStartPrice, StartBidPrice,
+            yield return new PQFieldUpdate(PQQuoteFields.PeriodStartPrice, StartBidPrice,
                                            quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsStartAskPriceUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.PeriodStartPrice, StartAskPrice,
-                                           (byte)(PQFieldFlags.IsAskSideFlag | quotePublicationPrecisionSettings!.PriceScalingPrecision));
+            yield return new PQFieldUpdate(PQQuoteFields.PeriodStartPrice, PQDepthKey.AskSide, StartAskPrice
+                                         , quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsHighestBidPriceUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.PeriodHighestPrice, HighestBidPrice,
+            yield return new PQFieldUpdate(PQQuoteFields.PeriodHighestPrice, HighestBidPrice,
                                            quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsHighestAskPriceUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.PeriodHighestPrice, HighestAskPrice,
-                                           (byte)(PQFieldFlags.IsAskSideFlag | quotePublicationPrecisionSettings!.PriceScalingPrecision));
+            yield return new PQFieldUpdate(PQQuoteFields.PeriodHighestPrice, PQDepthKey.AskSide, HighestAskPrice
+                                         , quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsLowestBidPriceUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.PeriodLowestPrice, LowestBidPrice,
+            yield return new PQFieldUpdate(PQQuoteFields.PeriodLowestPrice, LowestBidPrice,
                                            quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsLowestAskPriceUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.PeriodLowestPrice, LowestAskPrice,
-                                           (byte)(PQFieldFlags.IsAskSideFlag | quotePublicationPrecisionSettings!.PriceScalingPrecision));
+            yield return new PQFieldUpdate(PQQuoteFields.PeriodLowestPrice, PQDepthKey.AskSide, LowestAskPrice
+                                         , quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsEndBidPriceUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.PeriodEndPrice, EndBidPrice,
+            yield return new PQFieldUpdate(PQQuoteFields.PeriodEndPrice, EndBidPrice,
                                            quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsEndAskPriceUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.PeriodEndPrice, EndAskPrice,
-                                           (byte)(PQFieldFlags.IsAskSideFlag | quotePublicationPrecisionSettings!.PriceScalingPrecision));
-        if (!updatedOnly || IsTickCountUpdated) yield return new PQFieldUpdate(PQFieldKeys.PeriodTickCount, TickCount);
-        if (!updatedOnly || IsPeriodVolumeUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.PeriodVolume, (decimal)PeriodVolume,
-                                           quotePublicationPrecisionSettings!.VolumeScalingPrecision);
+            yield return new PQFieldUpdate(PQQuoteFields.PeriodEndPrice, PQDepthKey.AskSide, EndAskPrice
+                                         , quotePublicationPrecisionSettings!.PriceScalingPrecision);
+        if (!updatedOnly || IsTickCountUpdated) yield return new PQFieldUpdate(PQQuoteFields.PeriodTickCount, TickCount);
+        if (!updatedOnly || IsPeriodVolumeUpdated) yield return new PQFieldUpdate(PQQuoteFields.PeriodVolume, PeriodVolume);
 
         if (!updatedOnly || IsPricePeriodSummaryFlagsUpdated)
         {
             var flagsUint = (uint)PeriodSummaryFlags;
-            yield return new PQFieldUpdate(PQFieldKeys.PeriodSummaryFlags, flagsUint);
+            yield return new PQFieldUpdate(PQQuoteFields.PeriodSummaryFlags, flagsUint);
         }
 
         if (!updatedOnly || IsAverageBidPriceUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.PeriodAveragePrice, AverageBidPrice,
+            yield return new PQFieldUpdate(PQQuoteFields.PeriodAveragePrice, AverageBidPrice,
                                            quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsAverageAskPriceUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.PeriodAveragePrice, AverageAskPrice,
-                                           (byte)(PQFieldFlags.IsAskSideFlag | quotePublicationPrecisionSettings!.PriceScalingPrecision));
+            yield return new PQFieldUpdate(PQQuoteFields.PeriodAveragePrice, PQDepthKey.AskSide, AverageAskPrice
+                                         , quotePublicationPrecisionSettings!.PriceScalingPrecision);
     }
 
     public int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         switch (pqFieldUpdate.Id)
         {
-            case PQFieldKeys.SummaryPeriod:
-                TimeBoundaryPeriod = (TimeBoundaryPeriod)pqFieldUpdate.Value;
+            case PQQuoteFields.SummaryPeriod:
+                TimeBoundaryPeriod = (TimeBoundaryPeriod)pqFieldUpdate.Payload;
                 return 0;
-            case PQFieldKeys.PeriodStartDateTime:
+            case PQQuoteFields.PeriodStartDateTime:
                 IsStartTimeDateUpdated = true;
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref startTime, pqFieldUpdate.Value);
+                PQFieldConverters.UpdateHoursFromUnixEpoch(ref startTime, pqFieldUpdate.Payload);
                 return 0;
-            case PQFieldKeys.PeriodStartSubHourTime:
+            case PQQuoteFields.PeriodStartSubHourTime:
                 IsStartTimeSubHourUpdated = true;
                 PQFieldConverters.UpdateSubHourComponent(ref startTime,
-                                                         pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
+                                                         pqFieldUpdate.ExtendedPayload.AppendUintToMakeLong(pqFieldUpdate.Payload));
                 return 0;
-            case PQFieldKeys.PeriodEndDateTime:
+            case PQQuoteFields.PeriodEndDateTime:
                 IsEndTimeDateUpdated = true;
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref endTime, pqFieldUpdate.Value);
+                PQFieldConverters.UpdateHoursFromUnixEpoch(ref endTime, pqFieldUpdate.Payload);
                 return 0;
-            case PQFieldKeys.PeriodEndSubHourTime:
+            case PQQuoteFields.PeriodEndSubHourTime:
                 IsEndTimeSubHourUpdated = true;
                 PQFieldConverters.UpdateSubHourComponent(ref endTime,
-                                                         pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
+                                                         pqFieldUpdate.ExtendedPayload.AppendUintToMakeLong(pqFieldUpdate.Payload));
                 return 0;
-            case PQFieldKeys.PeriodStartPrice:
+            case PQQuoteFields.PeriodStartPrice:
                 if (pqFieldUpdate.IsBid())
-                    StartBidPrice = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                    StartBidPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 else
-                    StartAskPrice = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                    StartAskPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 return 0;
-            case PQFieldKeys.PeriodHighestPrice:
+            case PQQuoteFields.PeriodHighestPrice:
                 if (pqFieldUpdate.IsBid())
-                    HighestBidPrice = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                    HighestBidPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 else
-                    HighestAskPrice = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                    HighestAskPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 return 0;
-            case PQFieldKeys.PeriodLowestPrice:
+            case PQQuoteFields.PeriodLowestPrice:
                 if (pqFieldUpdate.IsBid())
-                    LowestBidPrice = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                    LowestBidPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 else
-                    LowestAskPrice = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                    LowestAskPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 return 0;
-            case PQFieldKeys.PeriodEndPrice:
+            case PQQuoteFields.PeriodEndPrice:
                 if (pqFieldUpdate.IsBid())
-                    EndBidPrice = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                    EndBidPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 else
-                    EndAskPrice = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                    EndAskPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 return 0;
-            case PQFieldKeys.PeriodTickCount:
-                TickCount = pqFieldUpdate.Value;
+            case PQQuoteFields.PeriodTickCount:
+                TickCount = pqFieldUpdate.Payload;
                 return 0;
-            case PQFieldKeys.PeriodVolume:
-                PeriodVolume = (long)PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+            case PQQuoteFields.PeriodVolume:
+                PeriodVolume = pqFieldUpdate.ReadAsScaledLong();
                 return 0;
-            case PQFieldKeys.PeriodSummaryFlags:
-                PeriodSummaryFlags = (PricePeriodSummaryFlags)pqFieldUpdate.Value;
+            case PQQuoteFields.PeriodSummaryFlags:
+                PeriodSummaryFlags = (PricePeriodSummaryFlags)pqFieldUpdate.Payload;
                 return 0;
-            case PQFieldKeys.PeriodAveragePrice:
+            case PQQuoteFields.PeriodAveragePrice:
                 if (pqFieldUpdate.IsBid())
-                    AverageBidPrice = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                    AverageBidPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 else
-                    AverageAskPrice = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+                    AverageAskPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 return 0;
             default: return -1;
         }

@@ -16,7 +16,6 @@ using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
-using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
@@ -143,7 +142,7 @@ public class HistoricalPricePeriodSummaryRetrievalRule : TimeSeriesRepositoryAcc
             TimeSeriesRepository
                 !.InstrumentFilesMap.Keys
                  .Where(i => i.InstrumentName == sourceTickerIdentifier.Ticker
-                          && i.InstrumentSource == sourceTickerIdentifier.Source && i.CoveringPeriod == summaryPeriod)
+                          && i.SourceName == sourceTickerIdentifier.Source && i.CoveringPeriod == summaryPeriod)
                  .ToList();
         return matchingInstruments.Count != 1 ? null : matchingInstruments[0];
     }

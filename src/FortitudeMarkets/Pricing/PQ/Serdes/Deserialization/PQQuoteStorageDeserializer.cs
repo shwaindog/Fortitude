@@ -9,9 +9,9 @@ using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -29,7 +29,7 @@ internal class PQQuoteStorageDeserializer<T> : PQQuoteDeserializerBase<T> where 
         byte storageVersion = 1)
         : base(identifier, serializationFlags)
     {
-        if (string.IsNullOrEmpty(identifier.Ticker)) throw new ArgumentException("Expected no ticker to be specified.");
+        if (string.IsNullOrEmpty(identifier.InstrumentName)) throw new ArgumentException("Expected no ticker to be specified.");
         StorageVersion = storageVersion;
     }
 

@@ -29,8 +29,6 @@ public class MarketsConfigTests
 
         dummyServerConfigs = MarketConnectionConfigTests.ListOfSampleServerConfigs;
 
-        dummyServerConfigs[1].Name = "SomeOtherTradingName";
-
         marketConnectionConfig1 = dummyServerConfigs[0];
         marketConnectionConfig2 = dummyServerConfigs[1];
     }
@@ -42,7 +40,7 @@ public class MarketsConfigTests
         marketsConfig.AddOrUpdate(marketConnectionConfig1);
         marketsConfig.AddOrUpdate(marketConnectionConfig2);
 
-        var foundItem = marketsConfig.Find(marketConnectionConfig2.Name!);
+        var foundItem = marketsConfig.Find(marketConnectionConfig2.SourceName!);
 
         marketConnectionConfig2.ConnectionName = marketsConfig.ConnectionName;
 

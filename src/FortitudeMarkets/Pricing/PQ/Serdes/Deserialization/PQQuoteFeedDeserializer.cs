@@ -10,9 +10,9 @@ using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -26,7 +26,7 @@ internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T :
 
     public PQQuoteFeedDeserializer(ISourceTickerInfo identifier) : base(identifier)
     {
-        if (!string.IsNullOrEmpty(identifier.Ticker)) throw new ArgumentException("Expected no ticker to be specified.");
+        if (!string.IsNullOrEmpty(identifier.InstrumentName)) throw new ArgumentException("Expected no ticker to be specified.");
     }
 
     public PQQuoteFeedDeserializer(PQQuoteFeedDeserializer<T> toClone) : base(toClone) { }
@@ -66,7 +66,7 @@ internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T :
             return false;
         feedIsStopped = true;
         Logger.Info("Stale detected on feed {0}, {1}ms elapsed with no update",
-                    Identifier.Source, elapsed);
+                    Identifier.SourceName, elapsed);
         PushQuoteToSubscribers(FeedSyncStatus.Stale);
         return true;
     }

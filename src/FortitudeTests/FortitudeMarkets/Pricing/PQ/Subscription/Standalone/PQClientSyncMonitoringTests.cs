@@ -12,9 +12,9 @@ using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Configuration.ClientServerConfig;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Subscription.Standalone;
+using FortitudeMarkets.Pricing.Quotes;
 using Moq;
 
 #endregion
@@ -372,7 +372,7 @@ public class PQClientSyncMonitoringTests
         moqSecondQuoteDeserializer.Setup(qu => qu.CheckResync(It.IsAny<DateTime>())).Returns(true).Verifiable();
         moqSecondQuoteDeserializer.SetupGet(qu => qu.Identifier)
                                   .Returns(moqSecondQuoteDeserializerIdentifier.Object);
-        moqSecondQuoteDeserializerIdentifier.SetupGet(usti => usti.Source).Returns("TestFirstSource");
+        moqSecondQuoteDeserializerIdentifier.SetupGet(usti => usti.SourceName).Returns("TestFirstSource");
 
         monitorAction();
 
@@ -398,7 +398,7 @@ public class PQClientSyncMonitoringTests
         pqClientSyncMonitoring.CheckStartMonitoring();
         PrepareMonitorDeserializersForSnapshotResyncMoqs();
         moqSecondQuoteDeserializer.Setup(qu => qu.CheckResync(It.IsAny<DateTime>())).Returns(true).Verifiable();
-        moqFirstQuoteDeserializerIdentifier.SetupGet(usti => usti.Source).Returns(nonExistentSource);
+        moqFirstQuoteDeserializerIdentifier.SetupGet(usti => usti.SourceName).Returns(nonExistentSource);
 
         monitorAction();
 
@@ -545,11 +545,11 @@ public class PQClientSyncMonitoringTests
         moqFirstQuoteDeserializerIdentifier = new Mock<ISourceTickerInfo>();
         moqFirstQuoteDeserializer.SetupGet(qu => qu.Identifier)
                                  .Returns(moqFirstQuoteDeserializerIdentifier.Object);
-        moqFirstQuoteDeserializerIdentifier.SetupGet(usti => usti.Source).Returns("TestFirstSource");
+        moqFirstQuoteDeserializerIdentifier.SetupGet(usti => usti.SourceName).Returns("TestFirstSource");
         moqSecondQuoteDeserializerIdentifier = new Mock<ISourceTickerInfo>();
         moqSecondQuoteDeserializer.SetupGet(qu => qu.Identifier)
                                   .Returns(moqSecondQuoteDeserializerIdentifier.Object);
-        moqSecondQuoteDeserializerIdentifier.SetupGet(usti => usti.Source).Returns("TestSecondSource");
+        moqSecondQuoteDeserializerIdentifier.SetupGet(usti => usti.SourceName).Returns("TestSecondSource");
     }
 
     private void NoOp(IPQQuoteDeserializer obj) { }

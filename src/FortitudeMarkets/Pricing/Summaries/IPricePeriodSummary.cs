@@ -3,6 +3,7 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
@@ -40,21 +41,26 @@ public interface IMutablePricePeriodSummary : IPricePeriodSummary
 
     new PricePeriodSummaryFlags PeriodSummaryFlags { get; set; }
 
-    new bool     IsEmpty         { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    new bool IsEmpty { get;             set; }
     new DateTime PeriodStartTime { get; set; }
-    new DateTime PeriodEndTime   { get; set; }
-    decimal      StartBidPrice   { get; set; }
-    decimal      StartAskPrice   { get; set; }
-    decimal      HighestBidPrice { get; set; }
-    decimal      HighestAskPrice { get; set; }
-    decimal      LowestBidPrice  { get; set; }
-    decimal      LowestAskPrice  { get; set; }
-    decimal      EndBidPrice     { get; set; }
-    decimal      EndAskPrice     { get; set; }
-    new uint     TickCount       { get; set; }
-    new long     PeriodVolume    { get; set; }
-    decimal      AverageBidPrice { get; set; }
-    decimal      AverageAskPrice { get; set; }
+
+    [JsonIgnore] new DateTime PeriodEndTime { get; set; }
+
+    [JsonIgnore] decimal StartBidPrice   { get; set; }
+    [JsonIgnore] decimal StartAskPrice   { get; set; }
+    [JsonIgnore] decimal HighestBidPrice { get; set; }
+    [JsonIgnore] decimal HighestAskPrice { get; set; }
+    [JsonIgnore] decimal LowestBidPrice  { get; set; }
+    [JsonIgnore] decimal LowestAskPrice  { get; set; }
+    [JsonIgnore] decimal EndBidPrice     { get; set; }
+    [JsonIgnore] decimal EndAskPrice     { get; set; }
+    [JsonIgnore] decimal AverageBidPrice { get; set; }
+    [JsonIgnore] decimal AverageAskPrice { get; set; }
+
+    new uint TickCount    { get; set; }
+    new long PeriodVolume { get; set; }
 
     new IMutablePricePeriodSummary Clone();
 }

@@ -16,8 +16,9 @@ namespace FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
 
 public interface ITickerConfig : IInterfacesComparable<ITickerConfig>
 {
-    ushort TickerId { get; set; }
-    string Ticker   { get; set; }
+    ushort  TickerId          { get; set; }
+    string? Ticker            { get; set; }
+    string  TickerDescription { get; set; }
 
     TickerAvailability? TickerAvailability   { get; set; }
     TickerDetailLevel?  PublishedDetailLevel { get; set; }
@@ -151,10 +152,16 @@ public class TickerConfig : ConfigSection, ITickerConfig
         set => this[nameof(TickerId)] = value.ToString();
     }
 
-    public string Ticker
+    public string? Ticker
     {
-        get => this[nameof(Ticker)]!;
+        get => this[nameof(Ticker)];
         set => this[nameof(Ticker)] = value;
+    }
+
+    public string TickerDescription
+    {
+        get => this[nameof(TickerDescription)]!;
+        set => this[nameof(TickerDescription)] = value;
     }
 
     public TickerAvailability? TickerAvailability

@@ -11,10 +11,10 @@ namespace FortitudeIO.TimeSeries;
 
 public enum InstrumentType : byte
 {
-    Unknown
+    Price = 0
+  , Unknown
   , Any
   , Custom
-  , Price
   , PriceSummaryPeriod
   , Indicator
   , AlgoState

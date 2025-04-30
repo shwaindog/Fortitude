@@ -9,10 +9,10 @@ using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeMarkets.Configuration.ClientServerConfig;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Publication.BusRules.BusMessages;
 using FortitudeMarkets.Pricing.PQ.Subscription.BusRules.BusMessages;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -32,10 +32,10 @@ public class PQPricingServerFeedRule : Rule
     private PQPricingServerQuotePublisherRule?  updatePublisherRule;
 
     public PQPricingServerFeedRule(IMarketConnectionConfig marketConnectionConfig)
-        : base(marketConnectionConfig.Name + "_" + nameof(PQPricingServerFeedRule))
+        : base(marketConnectionConfig.SourceName + "_" + nameof(PQPricingServerFeedRule))
     {
         this.marketConnectionConfig       = marketConnectionConfig;
-        feedName                          = marketConnectionConfig.Name;
+        feedName                          = marketConnectionConfig.SourceName;
         publishTickerAddress              = feedName.FeedTickerPublishAddress();
         allAvailableTickersRequestAddress = feedName.FeedPricingConfiguredTickersRequestAddress();
     }

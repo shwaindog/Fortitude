@@ -1,54 +1,94 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
+#region
+
+using System.Text.Json.Serialization;
+
+#endregion
+
 namespace FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 [Flags]
+[JsonConverter(typeof(JsonStringEnumConverter<LayerFlags>))]
 public enum LayerFlags : uint
 {
-    None                 = 0x00_00
-  , Ladder               = 0x00_01
-  , Price                = 0x00_02
-  , Volume               = 0x00_04
-  , SourceQuoteReference = 0x00_08
-  , SourceName           = 0x00_10
-  , TraderCount          = 0x00_20
-  , TraderName           = 0x00_40
-  , TraderSize           = 0x00_80
-  , ValueDate            = 0x01_00
-  , Executable           = 0x02_00
+    None                  = 0x00_00
+  , Ladder                = 0x00_01
+  , Price                 = 0x00_02
+  , Volume                = 0x00_04
+  , SourceQuoteReference  = 0x00_08
+  , SourceName            = 0x00_10
+  , ValueDate             = 0x00_20
+  , Executable            = 0x00_40
+  , InternalVolume        = 0x00_80
+  , OrdersCount           = 0x01_00
+  , OrderId               = 0x02_00
+  , OrderCreated          = 0x04_00
+  , OrderUpdated          = 0x08_00
+  , OrderSize             = 0x10_00
+  , OrderRemainingSize    = 0x20_00
+  , OrderCounterPartyName = 0x40_00
+  , OrderTraderName       = 0x80_00
 }
 
 public static class LayerFlagsExtensions
 {
+    public const LayerFlags PriceVolumeLayerFlags = LayerFlags.Price | LayerFlags.Volume;
+
+    public const LayerFlags AdditionSourceLayerFlags = LayerFlags.SourceName | LayerFlags.Executable;
+
+    public const LayerFlags AdditionalSourceQuoteRefFlags = LayerFlags.SourceQuoteReference;
+
+    public const LayerFlags AdditionalValueDateFlags = LayerFlags.ValueDate;
+
+    public const LayerFlags AdditionalOrdersCountFlags = LayerFlags.OrdersCount | LayerFlags.InternalVolume;
+
+    public const LayerFlags AdditionalAnonymousOrderFlags =
+        LayerFlags.OrderId | LayerFlags.OrderCreated | LayerFlags.OrderUpdated | LayerFlags.OrderSize | LayerFlags.OrderRemainingSize;
+
+    public const LayerFlags AdditionalCounterPartyOrderFlags =
+        LayerFlags.OrderCounterPartyName | LayerFlags.OrderTraderName | AdditionalAnonymousOrderFlags;
+
+    public const LayerFlags AdditionalFullSupportLayerFlags =
+        AdditionalValueDateFlags | AdditionalSourceQuoteRefFlags | AdditionSourceLayerFlags;
+
+    public const LayerFlags FullSupportLayerFlags =
+        AdditionalFullSupportLayerFlags | AdditionalCounterPartyOrderFlags | AdditionalOrdersCountFlags | PriceVolumeLayerFlags;
+
     public static LayerFlags SupportedLayerFlags(this LayerType layerType)
     {
         switch (layerType)
         {
-            case LayerType.PriceVolume:          return LayerFlags.Price | LayerFlags.Volume;
-            case LayerType.ValueDatePriceVolume: return LayerFlags.ValueDate | LayerFlags.Price | LayerFlags.Volume;
-            case LayerType.SourcePriceVolume:    return LayerFlags.SourceName | LayerFlags.Price | LayerFlags.Volume;
-            case LayerType.SourceQuoteRefPriceVolume:
-                return LayerFlags.SourceQuoteReference | LayerFlags.SourceName | LayerFlags.Price | LayerFlags.Volume;
-            case LayerType.TraderPriceVolume:
-                return LayerFlags.TraderCount | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.Price | LayerFlags.Volume;
-            case LayerType.SourceQuoteRefTraderValueDatePriceVolume:
-                return LayerFlags.ValueDate | LayerFlags.SourceQuoteReference | LayerFlags.SourceName | LayerFlags.TraderCount
-                     | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.Price | LayerFlags.Volume;
+            case LayerType.PriceVolume: return PriceVolumeLayerFlags;
+            case LayerType.ValueDatePriceVolume: return AdditionalValueDateFlags | PriceVolumeLayerFlags;
+            case LayerType.SourcePriceVolume: return AdditionSourceLayerFlags | PriceVolumeLayerFlags;
+            case LayerType.SourceQuoteRefPriceVolume: return LayerFlags.SourceQuoteReference | AdditionSourceLayerFlags | PriceVolumeLayerFlags;
+            case LayerType.OrdersCountPriceVolume: return AdditionalOrdersCountFlags | PriceVolumeLayerFlags;
+            case LayerType.OrdersAnonymousPriceVolume: return AdditionalAnonymousOrderFlags | AdditionalOrdersCountFlags | PriceVolumeLayerFlags;
+            case LayerType.OrdersFullPriceVolume: return AdditionalCounterPartyOrderFlags | AdditionalOrdersCountFlags | PriceVolumeLayerFlags;
+            case LayerType.SourceQuoteRefOrdersValueDatePriceVolume: return FullSupportLayerFlags;
             default: return LayerFlags.None;
         }
     }
 
-    public static bool HasLadder(this LayerFlags flags)                             => (flags & LayerFlags.Ladder) > 0;
-    public static bool HasPrice(this LayerFlags flags)                              => (flags & LayerFlags.Price) > 0;
-    public static bool HasVolume(this LayerFlags flags)                             => (flags & LayerFlags.Volume) > 0;
-    public static bool HasSourceName(this LayerFlags flags)                         => (flags & LayerFlags.SourceName) > 0;
-    public static bool HasExecutable(this LayerFlags flags)                         => (flags & LayerFlags.Executable) > 0;
-    public static bool HasSourceQuoteReference(this LayerFlags flags)               => (flags & LayerFlags.SourceQuoteReference) > 0;
-    public static bool HasTraderCount(this LayerFlags flags)                        => (flags & LayerFlags.TraderCount) > 0;
-    public static bool HasTraderName(this LayerFlags flags)                         => (flags & LayerFlags.TraderName) > 0;
-    public static bool HasTraderSize(this LayerFlags flags)                         => (flags & LayerFlags.TraderSize) > 0;
-    public static bool HasValueDate(this LayerFlags flags)                          => (flags & LayerFlags.ValueDate) > 0;
+    public static bool HasLadder(this LayerFlags flags)                => (flags & LayerFlags.Ladder) > 0;
+    public static bool HasPrice(this LayerFlags flags)                 => (flags & LayerFlags.Price) > 0;
+    public static bool HasVolume(this LayerFlags flags)                => (flags & LayerFlags.Volume) > 0;
+    public static bool HasSourceName(this LayerFlags flags)            => (flags & LayerFlags.SourceName) > 0;
+    public static bool HasExecutable(this LayerFlags flags)            => (flags & LayerFlags.Executable) > 0;
+    public static bool HasSourceQuoteReference(this LayerFlags flags)  => (flags & LayerFlags.SourceQuoteReference) > 0;
+    public static bool HasValueDate(this LayerFlags flags)             => (flags & LayerFlags.ValueDate) > 0;
+    public static bool HasInternalVolume(this LayerFlags flags)        => (flags & LayerFlags.InternalVolume) > 0;
+    public static bool HasOrderCount(this LayerFlags flags)            => (flags & LayerFlags.OrdersCount) > 0;
+    public static bool HasOrderId(this LayerFlags flags)               => (flags & LayerFlags.OrderId) > 0;
+    public static bool HasOrderCreated(this LayerFlags flags)          => (flags & LayerFlags.OrderCreated) > 0;
+    public static bool HasOrderUpdated(this LayerFlags flags)          => (flags & LayerFlags.OrderUpdated) > 0;
+    public static bool HasOrderSize(this LayerFlags flags)             => (flags & LayerFlags.OrderSize) > 0;
+    public static bool HasOrderRemainingSize(this LayerFlags flags)    => (flags & LayerFlags.OrderRemainingSize) > 0;
+    public static bool HasOrderCounterPartyName(this LayerFlags flags) => (flags & LayerFlags.OrderCounterPartyName) > 0;
+    public static bool HasOrderTraderName(this LayerFlags flags)       => (flags & LayerFlags.OrderTraderName) > 0;
+
     public static bool HasAllOf(this LayerFlags flags, LayerFlags checkAllFound)    => (flags & checkAllFound) == checkAllFound;
     public static bool HasNoneOf(this LayerFlags flags, LayerFlags checkNonAreSet)  => (flags & checkNonAreSet) == 0;
     public static bool HasAnyOf(this LayerFlags flags, LayerFlags checkAnyAreFound) => (flags & checkAnyAreFound) > 0;

@@ -68,8 +68,8 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
         generateQuoteInfo.MidPriceGenerator!.StartTime  = startOfWeek;
         generateQuoteInfo.MidPriceGenerator!.StartPrice = 1.332211m;
 
-        level1QuoteGenerator   = new Level1QuoteGenerator(generateQuoteInfo);
-        pqLevel1QuoteGenerator = new PQLevel1QuoteGenerator(generateQuoteInfo);
+        level1QuoteGenerator   = new Level1QuoteGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
+        pqLevel1QuoteGenerator = new PQLevel1QuoteGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
     }
 
     private void CreateLevel1File(FileFlags fileFlags = FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader)

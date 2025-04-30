@@ -25,10 +25,8 @@ public class StaleStateTests : InSyncStateTests
     public override void NewSyncState_ProcessInStateProcessNextExpectedUpdate_CallsExpectedBehaviour()
     {
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
-            (ExpectedQuotes, PQMessageFlags.Update, uint.MaxValue);
+            (ExpectedQuotes, PQMessageFlags.Update, 0);
         var sockBuffContext = deserializeInputList.First();
-
-        SetupQuoteStreamDeserializerExpectations();
 
         MoqFlogger.Setup(fl => fl.Info("Stream {0} recovered after timeout, RecvSeqID={1}",
                                        It.IsAny<object[]>())).Callback<string, object[]>((strTemplt, strParams) =>

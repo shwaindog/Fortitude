@@ -3,10 +3,9 @@
 
 #region
 
-using FortitudeCommon.Chronometry;
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
 
 #endregion
 
@@ -16,11 +15,11 @@ namespace FortitudeMarkets.Pricing.Quotes.LastTraded;
 
 public class LastTrade : ReusableObject<ILastTrade>, IMutableLastTrade
 {
-    public LastTrade() => TradeTime = DateTimeConstants.UnixEpoch;
+    public LastTrade() => TradeTime = default;
 
     public LastTrade(decimal tradePrice = 0m, DateTime? tradeDateTime = null)
     {
-        TradeTime  = tradeDateTime ?? DateTimeConstants.UnixEpoch;
+        TradeTime  = tradeDateTime ?? default;
         TradePrice = tradePrice;
     }
 
@@ -30,27 +29,33 @@ public class LastTrade : ReusableObject<ILastTrade>, IMutableLastTrade
         TradePrice = toClone.TradePrice;
     }
 
-    public virtual LastTradeType   LastTradeType           => LastTradeType.Price;
-    public virtual LastTradedFlags SupportsLastTradedFlags => LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
+    [JsonIgnore] public virtual LastTradeType   LastTradeType           => LastTradeType.Price;
+    [JsonIgnore] public virtual LastTradedFlags SupportsLastTradedFlags => LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public DateTime TradeTime { get; set; }
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public virtual decimal TradePrice { get; set; }
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public virtual bool IsEmpty
     {
-        get => TradeTime == DateTimeConstants.UnixEpoch && TradePrice == 0m;
+        get => TradeTime == default && TradePrice == 0m;
         set
         {
             if (!value) return;
-            TradeTime  = DateTimeConstants.UnixEpoch;
+            TradeTime  = default;
             TradePrice = 0m;
         }
     }
 
     public override void StateReset()
     {
-        TradeTime  = DateTimeConstants.UnixEpoch;
+        TradeTime  = default;
         TradePrice = 0m;
         base.StateReset();
     }

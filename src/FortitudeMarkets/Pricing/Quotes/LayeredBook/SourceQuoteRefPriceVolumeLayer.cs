@@ -3,8 +3,8 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -22,14 +22,21 @@ public class SourceQuoteRefPriceVolumeLayer : SourcePriceVolumeLayer, IMutableSo
 
     public SourceQuoteRefPriceVolumeLayer(IPriceVolumeLayer toClone) : base(toClone)
     {
-        if (toClone is ISourceQuoteRefPriceVolumeLayer srcQtRefPvLayer)
-            SourceQuoteReference = srcQtRefPvLayer.SourceQuoteReference;
+        if (toClone is ISourceQuoteRefPriceVolumeLayer srcQtRefPvLayer) SourceQuoteReference = srcQtRefPvLayer.SourceQuoteReference;
     }
 
-    public override LayerType  LayerType          => LayerType.SourceQuoteRefPriceVolume;
-    public override LayerFlags SupportsLayerFlags => LayerFlags.SourceQuoteReference | base.SupportsLayerFlags;
+    protected string SourceQuoteRefPriceVolumeLayerToStringMembers =>
+        $"{SourcePriceVolumeLayerToStringMembers}, {nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}";
 
+    [JsonIgnore] public override LayerType  LayerType          => LayerType.SourceQuoteRefPriceVolume;
+    [JsonIgnore] public override LayerFlags SupportsLayerFlags => LayerFlagsExtensions.AdditionalSourceQuoteRefFlags | base.SupportsLayerFlags;
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public uint SourceQuoteReference { get; set; }
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
         get => base.IsEmpty && SourceQuoteReference == 0u;
@@ -89,9 +96,5 @@ public class SourceQuoteRefPriceVolumeLayer : SourcePriceVolumeLayer, IMutableSo
         }
     }
 
-    public override string ToString() =>
-        $"SourceQuoteRefPriceVolumeLayer{{{nameof(Price)}: {Price:N5}, {nameof(Volume)}: " +
-        $"{Volume:N2} , {nameof(SourceName)}: {SourceName}, " +
-        $"{nameof(Executable)}: {Executable}, " +
-        $"{nameof(SourceQuoteReference)}: {SourceQuoteReference:N0} }}";
+    public override string ToString() => $"{nameof(SourceQuoteRefPriceVolumeLayer)}{{{SourceQuoteRefPriceVolumeLayerToStringMembers}}}";
 }

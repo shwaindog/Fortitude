@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Text;
 using FortitudeCommon.Chronometry;
@@ -8,10 +11,7 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Trading.Counterparties;
 using FortitudeMarkets.Trading.Executions;
-using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Products;
-using FortitudeMarkets.Trading.Orders.Venues;
-using FortitudeMarkets.Trading.Counterparties;
 using FortitudeMarkets.Trading.Orders.Venues;
 
 #endregion
@@ -23,79 +23,81 @@ public sealed class Order : ReusableObject<IOrder>, IOrder
     private static IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(Order));
 
     private IOrderPublisher? orderPublisher;
-    private IProductOrder? product;
-    private OrderStatus status;
+    private IProductOrder?   product;
+    private OrderStatus      status;
 
     public Order()
     {
         product = null;
-        status = OrderStatus.New;
+        status  = OrderStatus.New;
         OrderId = null!;
     }
 
     public Order(IOrderId orderId, TimeInForce timeInForce, DateTime creationTime, IProductOrder product)
     {
-        OrderId = orderId;
-        TimeInForce = timeInForce;
-        CreationTime = creationTime;
-        this.product = product;
-        Parties = new Parties(null, null);
+        OrderId        = orderId;
+        TimeInForce    = timeInForce;
+        CreationTime   = creationTime;
+        this.product   = product;
+        Parties        = new Parties(null, null);
         OrderPublisher = null;
-        VenueOrders = new VenueOrders();
+        VenueOrders    = new VenueOrders();
     }
 
     public Order(IOrder toClone)
     {
-        OrderId = toClone.OrderId.Clone();
-        TimeInForce = toClone.TimeInForce;
-        CreationTime = toClone.CreationTime;
-        SubmitTime = toClone.SubmitTime;
-        DoneTime = toClone.DoneTime;
-        Parties = toClone.Parties?.Clone();
-        Status = toClone.Status;
+        OrderId        = toClone.OrderId.Clone();
+        TimeInForce    = toClone.TimeInForce;
+        CreationTime   = toClone.CreationTime;
+        SubmitTime     = toClone.SubmitTime;
+        DoneTime       = toClone.DoneTime;
+        Parties        = toClone.Parties?.Clone();
+        Status         = toClone.Status;
         OrderPublisher = toClone.OrderPublisher;
-        product = toClone.Product?.Clone();
+        product        = toClone.Product?.Clone();
         if (product != null) product.Order = this;
 
         VenueSelectionCriteria = toClone.VenueSelectionCriteria?.Clone();
-        VenueOrders = toClone.VenueOrders?.Clone();
-        Executions = toClone.Executions?.Clone();
+        VenueOrders            = toClone.VenueOrders?.Clone();
+        Executions             = toClone.Executions?.Clone();
     }
 
-    public Order(IOrderId orderId, TimeInForce timeInForce, DateTime creationTime, OrderStatus status,
+    public Order
+    (IOrderId orderId, TimeInForce timeInForce, DateTime creationTime, OrderStatus status,
         IProductOrder product, DateTime submitTime, IParties parties, DateTime doneTime,
         IVenueCriteria venueSelectionCriteria, IVenueOrders? venueOrders, IExecutions? executions,
         string message, IOrderPublisher? orderPublisher)
         : this(orderId, timeInForce, creationTime, status, product, submitTime, parties, doneTime,
-            venueSelectionCriteria, venueOrders, executions, orderPublisher) { }
+               venueSelectionCriteria, venueOrders, executions, orderPublisher) { }
 
-    public Order(IOrderId orderId, TimeInForce timeInForce, DateTime creationTime, OrderStatus status,
+    public Order
+    (IOrderId orderId, TimeInForce timeInForce, DateTime creationTime, OrderStatus status,
         IProductOrder product, DateTime submitTime, IParties parties, DateTime doneTime,
         IVenueCriteria venueSelectionCriteria, IVenueOrders? venueOrders, IExecutions? executions,
         IOrderPublisher? orderPublisher)
     {
-        OrderId = orderId;
-        TimeInForce = timeInForce;
-        CreationTime = creationTime;
-        Parties = parties;
-        DoneTime = doneTime;
-        Status = status;
-        OrderPublisher = orderPublisher;
-        this.product = product;
-        SubmitTime = submitTime;
+        OrderId                = orderId;
+        TimeInForce            = timeInForce;
+        CreationTime           = creationTime;
+        Parties                = parties;
+        DoneTime               = doneTime;
+        Status                 = status;
+        OrderPublisher         = orderPublisher;
+        this.product           = product;
+        SubmitTime             = submitTime;
         VenueSelectionCriteria = venueSelectionCriteria;
-        VenueOrders = venueOrders;
-        Executions = executions;
+        VenueOrders            = venueOrders;
+        Executions             = executions;
     }
 
-    public decimal PendingExecutedSize { get; set; }
-    public bool HasPendingExecutions => PendingExecutedSize > 0;
-    public IOrderId OrderId { get; set; }
-    public TimeInForce TimeInForce { get; set; }
-    public DateTime CreationTime { get; set; }
-    public DateTime SubmitTime { get; set; }
-    public DateTime DoneTime { get; set; }
-    public IParties? Parties { get; set; }
+    public decimal     PendingExecutedSize  { get; set; }
+    public bool        HasPendingExecutions => PendingExecutedSize > 0;
+    public IOrderId    OrderId              { get; set; }
+    public TimeInForce TimeInForce          { get; set; }
+    public DateTime    CreationTime         { get; set; }
+    public DateTime    SubmitTime           { get; set; }
+    public DateTime    DoneTime             { get; set; }
+    public IParties?   Parties              { get; set; }
 
     public OrderStatus Status
     {
@@ -103,7 +105,7 @@ public sealed class Order : ReusableObject<IOrder>, IOrder
         set
         {
             if (value == OrderStatus.PendingNew && status != OrderStatus.PendingNew)
-                SubmitTime = TimeContext.LocalTimeNow;
+                SubmitTime                               = TimeContext.LocalTimeNow;
             else if (value == OrderStatus.Dead) DoneTime = TimeContext.LocalTimeNow;
             status = value;
         }
@@ -131,9 +133,9 @@ public sealed class Order : ReusableObject<IOrder>, IOrder
     }
 
     public IVenueCriteria? VenueSelectionCriteria { get; set; }
-    public IVenueOrders? VenueOrders { get; set; }
-    public IExecutions? Executions { get; set; }
-    public IMutableString Message { get; set; } = new MutableString();
+    public IVenueOrders?   VenueOrders            { get; set; }
+    public IExecutions?    Executions             { get; set; }
+    public IMutableString  Message                { get; set; } = new MutableString();
 
     public override void StateReset()
     {
@@ -141,7 +143,7 @@ public sealed class Order : ReusableObject<IOrder>, IOrder
         PendingExecutedSize = 0;
         OrderId.DecrementRefCount();
         Parties?.DecrementRefCount();
-        Parties = null;
+        Parties        = null;
         OrderPublisher = null;
         Product?.DecrementRefCount();
         Product = null;
@@ -160,18 +162,18 @@ public sealed class Order : ReusableObject<IOrder>, IOrder
 
     public override IOrder CopyFrom(IOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        OrderId = source.OrderId;
-        TimeInForce = source.TimeInForce;
-        CreationTime = source.CreationTime;
-        SubmitTime = source.SubmitTime;
-        DoneTime = source.DoneTime;
-        Parties = source.Parties;
-        Status = source.Status;
+        OrderId        = source.OrderId;
+        TimeInForce    = source.TimeInForce;
+        CreationTime   = source.CreationTime;
+        SubmitTime     = source.SubmitTime;
+        DoneTime       = source.DoneTime;
+        Parties        = source.Parties;
+        Status         = source.Status;
         OrderPublisher = source.OrderPublisher;
-        Product = source.Product;
-        VenueOrders = source.VenueOrders;
-        Executions = source.Executions;
-        Message = source.Message;
+        Product        = source.Product;
+        VenueOrders    = source.VenueOrders;
+        Executions     = source.Executions;
+        Message        = source.Message;
         return this;
     }
 
@@ -193,13 +195,12 @@ public sealed class Order : ReusableObject<IOrder>, IOrder
         if (DoneTime != DateTimeConstants.UnixEpoch) sb.Append("DoneTime: ").Append(DoneTime).Append(", ");
         if (Parties != null) sb.Append("Parties: ").Append(Parties).Append(", ");
         if (OrderPublisher != null) sb.Append("OrderPublisher: ").Append(OrderPublisher).Append(", ");
-        if (VenueSelectionCriteria != null)
-            sb.Append("VenueSelectionCriteria: ").Append(VenueSelectionCriteria).Append(", ");
+        if (VenueSelectionCriteria != null) sb.Append("VenueSelectionCriteria: ").Append(VenueSelectionCriteria).Append(", ");
         if (VenueOrders != null) sb.Append("VenueOrders: ").Append(VenueOrders).Append(", ");
         if (Executions != null) sb.Append("Executions: ").Append(Executions).Append(", ");
         if (sb[^2] == ',')
         {
-            sb[^2] = ')';
+            sb[^2]    =  ')';
             sb.Length -= 1;
         }
 

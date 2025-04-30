@@ -3,12 +3,14 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using static FortitudeMarkets.Pricing.Summaries.PricePeriodSummaryFlags;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.Summaries;
 
+[JsonConverter(typeof(JsonStringEnumConverter<PricePeriodSummaryFlags>))]
 [Flags]
 public enum PricePeriodSummaryFlags : uint
 {

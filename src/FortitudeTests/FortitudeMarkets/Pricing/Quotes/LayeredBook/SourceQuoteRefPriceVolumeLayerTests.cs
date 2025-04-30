@@ -29,7 +29,7 @@ public class SourceQuoteRefPriceVolumeLayerTests
     public void SetUp()
     {
         nameIdLookupGenerator
-            = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
+            = new PQNameIdLookupGenerator(PQQuoteFields.LayerNameDictionaryUpsertCommand);
         wellKnownSourceName  = "TestSourceName";
         wellKnownQuoteRefNum = 54416884u;
 

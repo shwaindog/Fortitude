@@ -3,7 +3,6 @@
 
 #region
 
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Generators.MidPrice;
 using FortitudeMarkets.Pricing.Generators.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Quotes;
@@ -16,28 +15,29 @@ public abstract class Level2QuoteGeneratorBase<TQuote> : Level1QuoteGeneratorBas
 {
     protected readonly IBookGenerator BookGenerator;
 
-    protected Level2QuoteGeneratorBase(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) =>
-        BookGenerator = CreateBookGenerator(generateQuoteInfo.BookGenerationInfo);
+    protected Level2QuoteGeneratorBase(CurrentQuoteInstantValueGenerator generateQuoteValues) : base(generateQuoteValues) =>
+        BookGenerator = CreateBookGenerator(generateQuoteValues.GenerateQuoteInfo.BookGenerationInfo);
 
-    protected virtual IBookGenerator CreateBookGenerator(BookGenerationInfo bookGenerationInfo) => new BookGenerator(bookGenerationInfo);
+    protected virtual IBookGenerator CreateBookGenerator
+        (BookGenerationInfo bookGenerationInfo) =>
+        new BookGenerator(GenerateQuoteValues.BookGenerator);
 
-    public void PopulateQuote(IMutableLevel2Quote populateQuote, PreviousCurrentMidPriceTime previousCurrentMidPriceTime)
+    public void PopulateQuote(IMutableLevel2Quote populateQuote, MidPriceTimePair midPriceTimePair)
     {
-        base.PopulateQuote(populateQuote, previousCurrentMidPriceTime);
-        BookGenerator.PopulateBidAskBooks(populateQuote, previousCurrentMidPriceTime);
+        base.PopulateQuote(populateQuote, midPriceTimePair);
+        BookGenerator.PopulateBidAskBooks(populateQuote, midPriceTimePair);
         populateQuote.IsAskPriceTopUpdated = (PreviousReturnedQuote?.AskPriceTop ?? 0) != populateQuote.AskPriceTop;
         populateQuote.IsAskPriceTopUpdated = (PreviousReturnedQuote?.BidPriceTop ?? 0) != populateQuote.BidPriceTop;
     }
 }
 
-public class Level2QuoteGenerator : Level2QuoteGeneratorBase<Level2PriceQuote>
+public class Level2QuoteGenerator(CurrentQuoteInstantValueGenerator generateQuoteValues)
+    : Level2QuoteGeneratorBase<Level2PriceQuote>(generateQuoteValues)
 {
-    public Level2QuoteGenerator(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
-
-    public override Level2PriceQuote BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber)
+    public override Level2PriceQuote BuildQuote(MidPriceTimePair midPriceTimePair, int sequenceNumber)
     {
-        var toPopulate = new Level2PriceQuote(GenerateQuoteInfo.SourceTickerInfo);
-        PopulateQuote(toPopulate, previousCurrentMidPriceTime);
+        var toPopulate = new Level2PriceQuote(GenerateQuoteValues.GenerateQuoteInfo.SourceTickerInfo);
+        PopulateQuote(toPopulate, midPriceTimePair);
         return toPopulate;
     }
 }

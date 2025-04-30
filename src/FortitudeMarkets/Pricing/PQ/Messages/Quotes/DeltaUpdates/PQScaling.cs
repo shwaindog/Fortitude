@@ -8,6 +8,8 @@ public static class PQScaling
     private const  byte FactorMask   = 0x0F;
     internal const byte NegativeMask = 0x10;
 
+    public const byte NegativeAndScaleMask = NegativeMask | FactorMask;
+
     private static readonly decimal[] Factors =
     {
         0m
@@ -28,22 +30,50 @@ public static class PQScaling
       , 10000000m
     };
 
-    public static byte FindFlagForDecimalPlacesShift(int numberOfDecimalPlaces)
+    public static PQFieldFlags FindFlagForDecimalPlacesShift(int numberOfDecimalPlaces)
     {
         if (numberOfDecimalPlaces > 7) numberOfDecimalPlaces  = 7;
         if (numberOfDecimalPlaces < -7) numberOfDecimalPlaces = -7;
-        return (byte)(8 - numberOfDecimalPlaces);
+        return (PQFieldFlags)(8 - numberOfDecimalPlaces);
     }
 
-    public static decimal Unscale(uint value, byte flag) => value * Factors[flag & FactorMask] * ((flag & NegativeMask) > 0 ? -1 : 1);
+    public static decimal Unscale
+        (uint value, PQFieldFlags flag) =>
+        value * Factors[(byte)flag & FactorMask] * (((ushort)flag & NegativeMask) > 0 ? -1 : 1);
 
-    public static uint Scale(decimal value, byte flag) => (uint)(Math.Abs(value) * Factors[16 - (flag & FactorMask)]);
+    public static long UnscaleLong
+        (long value, PQFieldFlags flag) =>
+        (long)(value * Factors[(byte)flag & FactorMask] * (((ushort)flag & NegativeMask) > 0 ? -1 : 1));
 
-    public static byte FindPriceScaleFactor(decimal precisionExample)
+    public static uint Scale(decimal value, PQFieldFlags flag) => (uint)(Math.Abs(value) * Factors[16 - ((byte)flag & FactorMask)]);
+
+    public static ulong ScaleToLong(decimal value, PQFieldFlags flag) => (ulong)(Math.Abs(value) * Factors[16 - ((byte)flag & FactorMask)]);
+
+    public static ulong ScaleDownLong(long value)
     {
-        if (precisionExample == 0m) return 8;
-        if (precisionExample < 1_000_000m && precisionExample.Scale is > 0 and < 8) return (byte)(8 - precisionExample.Scale);
-        if (precisionExample is >= 1m and < 10m) return 8;
+        var scaleFactor = FindVolumeScaleFactor(value);
+        return (ulong)(Math.Abs(value) * Factors[16 - ((byte)scaleFactor & FactorMask)]);
+    }
+
+    public static PQFieldFlags FindVolumeScaleFactor(long volumeWithMaybeTrailingZeros)
+    {
+        if (volumeWithMaybeTrailingZeros == 0m) return (PQFieldFlags)8;
+        var currentScale = volumeWithMaybeTrailingZeros;
+        var count        = 0;
+        while (currentScale % 10 == 0)
+        {
+            count++;
+            currentScale /= 10;
+        }
+        if (count < 8) return (PQFieldFlags)(8 + count);
+        return (PQFieldFlags)15;
+    }
+
+    public static PQFieldFlags FindPriceScaleFactor(decimal precisionExample)
+    {
+        if (precisionExample == 0m) return (PQFieldFlags)8;
+        if (precisionExample < 1_000_000m && precisionExample.Scale is > 0 and < 8) return (PQFieldFlags)(8 - precisionExample.Scale);
+        if (precisionExample is >= 1m and < 10m) return (PQFieldFlags)8;
         var currentScale = precisionExample;
         var count        = 0;
         while (currentScale % 10 == 0 && currentScale > 1_000_000_000)
@@ -51,15 +81,15 @@ public static class PQScaling
             count++;
             currentScale /= 10;
         }
-        if (count < 8) return (byte)(8 + count);
-        return 15;
+        if (count < 8) return (PQFieldFlags)(8 + count);
+        return (PQFieldFlags)15;
     }
 
-    public static byte FindVolumeScaleFactor(decimal precisionExample)
+    public static PQFieldFlags FindVolumeScaleFactor(decimal precisionExample)
     {
-        if (precisionExample == 0m) return 8;
-        if (precisionExample < 10m && precisionExample.Scale is > 0 and < 8) return (byte)(8 - precisionExample.Scale);
-        if (precisionExample is >= 1m and < 10m) return 8;
+        if (precisionExample == 0m) return (PQFieldFlags)8;
+        if (precisionExample < 10m && precisionExample.Scale is > 0 and < 8) return (PQFieldFlags)(8 - precisionExample.Scale);
+        if (precisionExample is >= 1m and < 10m) return (PQFieldFlags)8;
         var currentScale = precisionExample;
         var count        = 0;
         while (currentScale % 10 == 0 && currentScale > 0)
@@ -67,11 +97,11 @@ public static class PQScaling
             count++;
             currentScale /= 10;
         }
-        if (count < 8) return (byte)(8 + count);
-        return 15;
+        if (count < 8) return (PQFieldFlags)(8 + count);
+        return (PQFieldFlags)15;
     }
 
-    public static uint AutoScale(decimal value, int maxNumberOfSignificantDigits, out byte flagSelected)
+    public static uint AutoScale(decimal value, int maxNumberOfSignificantDigits, out PQFieldFlags flagSelected)
     {
         int afterDecimalPoint = BitConverter.GetBytes(decimal.GetBits(value)[3])[2];
         var abs = Math.Abs(value);
@@ -85,8 +115,8 @@ public static class PQScaling
             ? FindFlagForDecimalPlacesShift(afterDecimalPoint)
             : FindFlagForDecimalPlacesShift(maxNumberOfSignificantDigits - beforeDecimalPoint);
 
-        flagSelected |= (byte)(value < 0 ? NegativeMask : 0);
-        return Scale(rounded, (byte)(flagSelected & 0x1F));
+        flagSelected |= (PQFieldFlags)(value < 0 ? NegativeMask : 0);
+        return Scale(rounded, (PQFieldFlags)((byte)flagSelected & 0x1F));
     }
 
     public static byte GetScalingFactor(decimal precision)

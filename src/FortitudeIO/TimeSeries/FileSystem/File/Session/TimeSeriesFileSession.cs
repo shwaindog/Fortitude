@@ -368,7 +368,7 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
         var storageTime = entry.StorageTime(timeSeriesFile.StorageTimeResolver);
 
         // None is Unlimited
-        if (!TimeBoundaryPeriodRange.ContainsTime(storageTime) && TimeBoundaryPeriodRange.TimeBoundaryPeriod != TimeBoundaryPeriod.None)
+        if (!TimeBoundaryPeriodRange.ContainsTime(storageTime) && TimeBoundaryPeriodRange.TimeBoundaryPeriod != TimeBoundaryPeriod.Tick)
         {
             if (currentlyOpenBucket?.IsOpen ?? false) currentlyOpenBucket!.CloseBucketFileViews();
             return new AppendResult(StorageAttemptResult.NextFilePeriod);
@@ -449,7 +449,7 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
         {
             var fileEndTime = TimeBoundaryPeriodRange.PeriodEnd();
             if (storageDateTime < TimeBoundaryPeriodRange.PeriodStartTime
-             || (TimeBoundaryPeriodRange.TimeBoundaryPeriod != TimeBoundaryPeriod.None
+             || (TimeBoundaryPeriodRange.TimeBoundaryPeriod != TimeBoundaryPeriod.Tick
               && storageDateTime > fileEndTime))
                 return null;
         }

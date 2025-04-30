@@ -43,6 +43,8 @@ public static class StringExtensions
 
     public static bool IsNullOrEmpty(this string? value)    => string.IsNullOrEmpty(value);
     public static bool IsNotNullOrEmpty(this string? value) => !string.IsNullOrEmpty(value);
+    public static bool IsEmpty(this string value)           => string.IsNullOrEmpty(value);
+    public static bool IsNotEmpty(this string value)        => !string.IsNullOrEmpty(value);
     public static bool IsEmptyString(this object? value)    => Equals(value, string.Empty);
 
 

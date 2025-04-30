@@ -91,7 +91,7 @@ public class PathName
             case Hour:
                 return string.Format(FormatString, timeInPeriod);
             case InstrumentName: return string.Format(FormatString, instrument.InstrumentName);
-            case InstrumentSource: return string.Format(FormatString, instrument.InstrumentSource);
+            case InstrumentSource: return string.Format(FormatString, instrument.SourceName);
             case RepositoryPathName.InstrumentType: return string.Format(FormatString, instrument.InstrumentType);
             case MarketProductType: return string.Format(FormatString, instrument[nameof(MarketProductType)]);
             case MarketRegion: return string.Format(FormatString, instrument[nameof(MarketRegion)]);
@@ -196,7 +196,7 @@ public class PathName
         switch (PathPart)
         {
             case FilePeriod: return namePart.ShortNameToTimeBoundaryPeriod();
-            default:         return TimeBoundaryPeriod.None;
+            default:         return TimeBoundaryPeriod.Tick;
         }
     }
 

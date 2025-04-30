@@ -8,9 +8,9 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeMarkets.Pricing.Summaries;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Summaries;
+using FortitudeMarkets.Pricing.Summaries;
 using static FortitudeMarkets.Pricing.PQ.Summaries.PQPriceStorageSummaryFlags;
 
 #endregion
@@ -68,8 +68,8 @@ public class PQPriceStoragePeriodSummaryDeserializer : IPQPriceStoragePeriodSumm
         var readStart   = fixedBuffer.ReadBuffer + buffer.BufferRelativeReadCursor;
         var ptr         = readStart;
         var flags       = (PQPriceStorageSummaryFlags)StreamByteOps.ToUInt(ref ptr);
-        var priceScale  = (byte)(((uint)(flags & PriceScaleMask) >> 24) & 0x0F);
-        var volumeScale = (byte)(((uint)(flags & VolumeScaleMask) >> 28) & 0x0F);
+        var priceScale  = (PQFieldFlags)(((uint)(flags & PriceScaleMask) >> 24) & 0x0F);
+        var volumeScale = (PQFieldFlags)(((uint)(flags & VolumeScaleMask) >> 28) & 0x0F);
 
         var isSnapshot = flags.HasSnapshotFlag();
         ent.HasUpdates = false;

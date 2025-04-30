@@ -1,24 +1,30 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
+#region
+
+using System.Text.Json.Serialization;
+
+#endregion
+
 namespace FortitudeCommon.DataStructures.Memory;
 
 public interface IUsesRecycler
 {
-    IRecycler? Recycler { get; set; }
+    [JsonIgnore] IRecycler? Recycler { get; set; }
 }
 
 public class UsesRecycler : IUsesRecycler
 {
-    public virtual IRecycler? Recycler { get; set; }
+    [JsonIgnore] public virtual IRecycler? Recycler { get; set; }
 }
 
 public interface IRecyclableObject : IUsesRecycler
 {
-    bool AutoRecycleAtRefCountZero { get; set; }
+    [JsonIgnore] bool AutoRecycleAtRefCountZero { get; set; }
 
-    int  RefCount     { get; }
-    bool IsInRecycler { get; set; }
+    [JsonIgnore] int  RefCount     { get; }
+    [JsonIgnore] bool IsInRecycler { get; set; }
 
     int  DecrementRefCount();
     int  IncrementRefCount();
@@ -39,9 +45,11 @@ public class RecyclableObject : UsesRecycler, IRecyclableObject
     // ReSharper disable once InconsistentNaming
     protected int refCount = 1;
 
-    public int  RefCount                  => refCount;
-    public bool AutoRecycleAtRefCountZero { get; set; }
+    [JsonIgnore] public int RefCount => refCount;
 
+    [JsonIgnore] public bool AutoRecycleAtRefCountZero { get; set; }
+
+    [JsonIgnore]
     public bool IsInRecycler
     {
         get => isInRecycler != 0;

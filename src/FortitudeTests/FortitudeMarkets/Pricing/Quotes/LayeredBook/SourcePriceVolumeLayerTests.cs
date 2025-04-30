@@ -29,7 +29,7 @@ public class SourcePriceVolumeLayerTests
     public void SetUp()
     {
         nameIdLookupGenerator
-            = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
+            = new PQNameIdLookupGenerator(PQQuoteFields.LayerNameDictionaryUpsertCommand);
         wellKnownSourceName = "TestSourceName";
 
         emptyPvl     = new SourcePriceVolumeLayer();

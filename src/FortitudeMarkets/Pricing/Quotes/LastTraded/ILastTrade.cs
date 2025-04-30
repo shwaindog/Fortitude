@@ -3,21 +3,35 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.Quotes.LastTraded;
 
+[JsonDerivedType(typeof(LastTrade))]
+[JsonDerivedType(typeof(LastPaidGivenTrade))]
+[JsonDerivedType(typeof(LastTraderPaidGivenTrade))]
+[JsonDerivedType(typeof(PQLastTrade))]
+[JsonDerivedType(typeof(PQLastPaidGivenTrade))]
+[JsonDerivedType(typeof(PQLastTraderPaidGivenTrade))]
 public interface ILastTrade : IReusableObject<ILastTrade>, IInterfacesComparable<ILastTrade>
 {
-    LastTradeType   LastTradeType           { get; }
-    LastTradedFlags SupportsLastTradedFlags { get; }
+    [JsonIgnore] LastTradeType   LastTradeType           { get; }
+    [JsonIgnore] LastTradedFlags SupportsLastTradedFlags { get; }
 
-    DateTime TradeTime  { get; }
-    decimal  TradePrice { get; }
-    bool     IsEmpty    { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    DateTime TradeTime { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    decimal TradePrice { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    bool IsEmpty { get; }
 }
 
 public interface IMutableLastTrade : ILastTrade

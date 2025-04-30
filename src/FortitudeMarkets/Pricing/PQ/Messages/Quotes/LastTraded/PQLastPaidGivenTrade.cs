@@ -3,10 +3,11 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
 
 #endregion
 
@@ -67,11 +68,14 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         $"{PQLastTradeToStringMembers}, {nameof(WasPaid)}: {WasPaid}, " +
         $"{nameof(WasGiven)}: {WasGiven}, {nameof(TradeVolume)}: {TradeVolume:N2}";
 
-    public override LastTradeType LastTradeType => LastTradeType.PricePaidOrGivenVolume;
+    [JsonIgnore] public override LastTradeType LastTradeType => LastTradeType.PricePaidOrGivenVolume;
 
+    [JsonIgnore]
     public override LastTradedFlags SupportsLastTradedFlags =>
         LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedVolume | base.SupportsLastTradedFlags;
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool WasPaid
     {
         get => (LastTradeBooleanFlags & LastTradeBooleanFlags.WasPaid) > 0;
@@ -86,6 +90,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         }
     }
 
+    [JsonIgnore]
     public bool IsWasPaidUpdated
     {
         get => (UpdatedFlags & LastTradeUpdated.WasPaidUpdated) > 0;
@@ -98,6 +103,8 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         }
     }
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool WasGiven
     {
         get => (LastTradeBooleanFlags & LastTradeBooleanFlags.WasGiven) > 0;
@@ -112,6 +119,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         }
     }
 
+    [JsonIgnore]
     public bool IsWasGivenUpdated
     {
         get => (UpdatedFlags & LastTradeUpdated.WasGivenUpdated) > 0;
@@ -124,6 +132,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public decimal TradeVolume
     {
         get => tradeVolume;
@@ -135,6 +144,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         }
     }
 
+    [JsonIgnore]
     public bool IsTradeVolumeUpdated
     {
         get => (UpdatedFlags & LastTradeUpdated.VolumeUpdated) > 0;
@@ -147,11 +157,14 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         }
     }
 
+    [JsonIgnore]
     public override bool HasUpdates
     {
         set => base.HasUpdates = IsTradeVolumeUpdated = IsWasGivenUpdated = IsWasPaidUpdated = value;
     }
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
         get => base.IsEmpty && WasPaid == false && WasGiven == false && TradeVolume == 0m;
@@ -181,23 +194,25 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         foreach (var deltaUpdateField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                    quotePublicationPrecisionSetting))
             yield return deltaUpdateField;
-        var flagModifier = (byte)((WasGiven ? PQFieldFlags.IsGivenFlag : 0)
-                                | (WasPaid ? PQFieldFlags.IsPaidFlag : 0));
-        if (!updatedOnly || IsTradeVolumeUpdated || IsWasGivenUpdated || IsWasPaidUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.LastTradeVolumeOffset, TradeVolume,
-                                           (byte)((quotePublicationPrecisionSetting?.VolumeScalingPrecision ?? 6) | flagModifier));
+        if (!updatedOnly || IsWasGivenUpdated || IsWasPaidUpdated)
+            yield return new PQFieldUpdate(PQQuoteFields.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags);
+        if (!updatedOnly || IsTradeVolumeUpdated)
+            yield return new PQFieldUpdate(PQQuoteFields.LastTradedOrderVolume, TradeVolume,
+                                           quotePublicationPrecisionSetting?.VolumeScalingPrecision ?? (PQFieldFlags)6);
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the recentlytraded has already forwarded this through to the correct lasttrade
-        if (pqFieldUpdate.Id >= PQFieldKeys.LastTradeVolumeOffset &&
-            pqFieldUpdate.Id < PQFieldKeys.LastTradeVolumeOffset +
-            PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades)
+        if (pqFieldUpdate.Id == PQQuoteFields.LastTradedBooleanFlags)
         {
-            TradeVolume = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
-            WasGiven    = (pqFieldUpdate.Flag & PQFieldFlags.IsGivenFlag) == PQFieldFlags.IsGivenFlag;
-            WasPaid     = (pqFieldUpdate.Flag & PQFieldFlags.IsPaidFlag) == PQFieldFlags.IsPaidFlag;
+            WasGiven = ((LastTradeBooleanFlags)pqFieldUpdate.Payload & LastTradeBooleanFlags.WasGiven) == LastTradeBooleanFlags.WasGiven;
+            WasPaid  = ((LastTradeBooleanFlags)pqFieldUpdate.Payload & LastTradeBooleanFlags.WasPaid) == LastTradeBooleanFlags.WasPaid;
+            return 0;
+        }
+        if (pqFieldUpdate.Id == PQQuoteFields.LastTradedOrderVolume)
+        {
+            TradeVolume = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
             return 0;
         }
 

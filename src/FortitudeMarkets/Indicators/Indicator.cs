@@ -99,7 +99,7 @@ public readonly struct IndicatorIdentifier
     public IndicatorIdentifier(IIndicator toClone)
     {
         IndicatorId      = toClone.IndicatorId;
-        InstrumentSource = toClone.InstrumentSource;
+        InstrumentSource = toClone.SourceName;
         CoveringPeriod   = toClone.CoveringPeriod;
     }
 
@@ -142,7 +142,7 @@ public readonly struct IndicatorIdentifierValue
         IndicatorType = toClone.IndicatorType;
 
         IndicatorDescription = toClone.IndicatorDescription;
-        InstrumentSource     = toClone.InstrumentSource;
+        InstrumentSource     = toClone.SourceName;
         CoveringPeriod       = toClone.CoveringPeriod;
     }
 

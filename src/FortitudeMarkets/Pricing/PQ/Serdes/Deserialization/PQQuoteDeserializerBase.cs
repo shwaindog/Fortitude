@@ -12,10 +12,10 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -192,26 +192,46 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
 
         while (ptr < end)
         {
-            var    flags = *ptr++;
-            ushort id;
-            if ((flags & PQFieldFlags.IsExtendedFieldId) == 0)
-                id = *ptr++;
-            else
-                id = StreamByteOps.ToUShort(ref ptr);
-            var pqFieldUpdate = new PQFieldUpdate(id, StreamByteOps.ToUInt(ref ptr), flags);
+            var flags = (PQFieldFlags)(*ptr++);
+            var id    = (PQQuoteFields)(*ptr++);
+
+            var hasDepth = false;
+            var depthKey = PQDepthKey.None;
+            if (flags.HasDepthKeyFlag())
+            {
+                hasDepth = true;
+                var depthByte = *ptr++;
+                if (depthByte.IsTwoByteDepth())
+                    depthKey = depthByte.ToDepthKey(*ptr++);
+                else
+                    depthKey = depthByte.ToDepthKey();
+                // depthKey = depthByte.IsTwoByteDepth() ? depthByte.ToDepthKey(*ptr++) : depthByte.ToDepthKey();
+            }
+            ushort auxiliaryPayload = 0;
+
+            if (flags.HasAuxiliaryPayloadFlag()) auxiliaryPayload = StreamByteOps.ToUShort(ref ptr);
+
+            ushort extendedPayload = 0;
+
+            if (flags.HasExtendedPayloadFlag()) extendedPayload = StreamByteOps.ToUShort(ref ptr);
+            var payload                                         = StreamByteOps.ToUInt(ref ptr);
+
+            var pqFieldUpdate = hasDepth
+                ? new PQFieldUpdate(id, depthKey, payload, extendedPayload, auxiliaryPayload, flags)
+                : new PQFieldUpdate(id, payload, extendedPayload, auxiliaryPayload, flags);
             // logger.Info("de-{0}-{1}", sequenceId, pqFieldUpdate);
             var moreBytes = ent.UpdateField(pqFieldUpdate);
             if (moreBytes <= 0 || ptr + moreBytes + 4 > end) continue;
             var stringUpdate = new PQStringUpdate
             {
                 DictionaryId = StreamByteOps.ToInt(ref ptr), Value = StreamByteOps.ToString(ref ptr, moreBytes)
-              , Command      = (pqFieldUpdate.Flag & PQFieldFlags.IsUpsert) == PQFieldFlags.IsUpsert ? CrudCommand.Upsert : CrudCommand.Delete
+              , Command      = (CrudCommand)pqFieldUpdate.ExtendedPayload
             };
             var fieldStringUpdate = new PQFieldStringUpdate
             {
                 Field = pqFieldUpdate, StringUpdate = stringUpdate
             };
-            // logger.Info("de-{1}-{0}", fieldStringUpdate);
+            // logger.Info("de-{1}-{0}", sequenceId, fieldStringUpdate);
             ent.UpdateFieldString(fieldStringUpdate);
         }
         // logger.Info("Deserialized Quote {0}: SequenceId:{1} on Deserializer.InstanceNum {2}",
@@ -231,12 +251,12 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
             PublishedQuote.FeedSyncStatus = syncStatus;
             if (!ShouldPublish) return;
             PublishedQuote.DispatchedTime = TimeContext.UtcNow;
-            if (tl.Enabled) tl.Add("Ticker", Identifier.Ticker);
+            if (tl.Enabled) tl.Add("Ticker", Identifier.InstrumentName);
             detectionToPublishLatencyTraceLogger?.Add(SocketDataLatencyLogger.BeforePublish);
             // ReSharper disable once ForCanBeConvertedToForeach
             for (var i = 0; i < Subscribers.Count; i++) Subscribers[i].OnNext(PublishedQuote);
             OnNotify(PublishedQuote);
-            if (tl.Enabled) tl.Add("Source", Identifier.Source);
+            if (tl.Enabled) tl.Add("Source", Identifier.SourceName);
             PublishedQuote.HasUpdates = false;
         }
         catch

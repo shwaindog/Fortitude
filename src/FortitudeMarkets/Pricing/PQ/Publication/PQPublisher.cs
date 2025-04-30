@@ -7,8 +7,8 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeMarkets.Configuration.ClientServerConfig;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -48,8 +48,8 @@ public class PQPublisher<T> : IPQPublisher where T : IPQTickInstant
         if (!shutdownFlag)
             foreach (var tickerRef in marketConnectionConfig.AllSourceTickerInfos)
             {
-                var picture = pqServer.Register(tickerRef.Ticker);
-                if (picture != null) pictures.AddOrUpdate(tickerRef.Ticker, picture);
+                var picture = pqServer.Register(tickerRef.InstrumentName);
+                if (picture != null) pictures.AddOrUpdate(tickerRef.InstrumentName, picture);
             }
     }
 
@@ -95,7 +95,7 @@ public class PQPublisher<T> : IPQPublisher where T : IPQTickInstant
 
     public void PublishQuoteUpdateAs(ITickInstant quote, PQMessageFlags? withMessageFlags = null)
     {
-        if (pictures.TryGetValue(quote.SourceTickerInfo!.Ticker, out var pqPicture))
+        if (pictures.TryGetValue(quote.SourceTickerInfo!.InstrumentName, out var pqPicture))
         {
             // logger.Info("About to publish quote: {0}", quote);
             pqPicture!.CopyFrom(quote);
@@ -116,8 +116,8 @@ public class PQPublisher<T> : IPQPublisher where T : IPQTickInstant
 
         if (!shutdownFlag)
         {
-            var picture = pqServer.Register(sourceTickerInfo.Ticker);
-            if (picture != null) pictures.AddOrUpdate(sourceTickerInfo.Ticker, picture);
+            var picture = pqServer.Register(sourceTickerInfo.InstrumentName);
+            if (picture != null) pictures.AddOrUpdate(sourceTickerInfo.InstrumentName, picture);
         }
     }
 }

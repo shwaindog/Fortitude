@@ -27,6 +27,7 @@ public class InSyncStateTests : SyncStateBaseTests
     {
         //can received the same update twice.
         SendUpdateSequenceId(0, PQMessageFlags.Update);
+        foreach (var expectedQuote in ExpectedQuotes) expectedQuote.SourceTime = expectedQuote.SourceTime.AddSeconds(2);
         SendUpdateSequenceId(1, PQMessageFlags.Update);
         SendUpdateSequenceId(1, PQMessageFlags.Update);
 
@@ -56,7 +57,7 @@ public class InSyncStateTests : SyncStateBaseTests
             Assert.AreEqual(0, strParams[0]);
             Assert.AreEqual(SourceTickerInfo, strParams[1]);
             Assert.AreEqual(4u, strParams[2]);
-            Assert.AreEqual(3u, strParams[3]);
+            Assert.AreEqual(2u, strParams[3]);
             Assert.AreEqual
                 (PQQuoteDeserializationSequencedTestDataBuilder
                  .ClientReceivedTimestamp
@@ -76,7 +77,7 @@ public class InSyncStateTests : SyncStateBaseTests
                       Assert.AreEqual(6, strParams.Length);
                       Assert.AreEqual(SourceTickerInfo, strParams[0]);
                       Assert.AreEqual(4u, strParams[1]);
-                      Assert.AreEqual(3u, strParams[2]);
+                      Assert.AreEqual(2u, strParams[2]);
                       Assert.AreEqual(PQQuoteDeserializationSequencedTestDataBuilder
                                       .ClientReceivedTimestamp
                                           (PQQuoteDeserializationSequencedTestDataBuilder.TimeOffsetForSequenceId(2))
@@ -120,8 +121,6 @@ public class InSyncStateTests : SyncStateBaseTests
             (ExpectedQuotes, feedType, sequenceId);
         var sockBuffContext = deserializeInputList.First();
 
-        SetupQuoteStreamDeserializerExpectations();
-
         syncState.ProcessInState(sockBuffContext);
     }
 
@@ -143,7 +142,7 @@ public class InSyncStateTests : SyncStateBaseTests
             Assert.AreEqual(3, strParams.Length);
             Assert.AreEqual(SourceTickerInfo, strParams[0]);
             Assert.AreEqual(8u, strParams[1]);
-            Assert.AreEqual(5u, strParams[2]);
+            Assert.AreEqual(4u, strParams[2]);
         }).Verifiable();
 
         NonPublicInvocator.SetInstanceField(syncState, "LogCounter", 0);

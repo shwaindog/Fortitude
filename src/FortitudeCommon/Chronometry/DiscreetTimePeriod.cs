@@ -17,19 +17,14 @@ public readonly struct DiscreetTimePeriod
     public DiscreetTimePeriod()
     {
         NumberOfPeriods = 0;
-        Period          = None;
+        Period          = Tick;
     }
 
     public DiscreetTimePeriod(TimeSpan timeSpan)
     {
-        var    preStandardizedTimeSeriesPeriod = None;
+        var    preStandardizedTimeSeriesPeriod = Tick;
         ushort preStandardNumberOfPeriods;
         if (timeSpan < TimeSpan.Zero)
-        {
-            preStandardizedTimeSeriesPeriod = None;
-            preStandardNumberOfPeriods      = 0;
-        }
-        else if (timeSpan == TimeSpan.Zero)
         {
             preStandardizedTimeSeriesPeriod = Tick;
             preStandardNumberOfPeriods      = 0;
@@ -456,8 +451,6 @@ public static class DiscreetTimePeriodExtensions
 
     public static DiscreetTimePeriod ShortNameToDiscreetTimePeriod(this string shortName)
     {
-        var checkIsCommonTimeBoundary = TimeBoundaryPeriodsExtensions.ShortNameToTimeBoundaryPeriod(shortName);
-        if (checkIsCommonTimeBoundary != None) return new DiscreetTimePeriod(checkIsCommonTimeBoundary);
         var intComponentPeriods = shortName.SafeExtractInt();
         if (intComponentPeriods == null) return new DiscreetTimePeriod();
         var numberOfPeriods = (ushort)intComponentPeriods;

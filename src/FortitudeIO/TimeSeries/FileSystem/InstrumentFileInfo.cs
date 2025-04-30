@@ -12,7 +12,7 @@ namespace FortitudeIO.TimeSeries.FileSystem;
 
 public struct InstrumentFileInfo
 {
-    public InstrumentFileInfo(IInstrument instrument, TimeBoundaryPeriod filePeriod = TimeBoundaryPeriod.None)
+    public InstrumentFileInfo(IInstrument instrument, TimeBoundaryPeriod filePeriod = TimeBoundaryPeriod.OneWeek)
     {
         HasInstrument = false;
         Instrument    = instrument;
@@ -66,7 +66,7 @@ public struct FileEntryInfo
 
 public struct InstrumentFileEntryInfo
 {
-    public InstrumentFileEntryInfo(IInstrument instrument, TimeBoundaryPeriod filePeriod = TimeBoundaryPeriod.None)
+    public InstrumentFileEntryInfo(IInstrument instrument, TimeBoundaryPeriod filePeriod = TimeBoundaryPeriod.OneWeek)
     {
         HasInstrument = false;
         Instrument    = instrument;

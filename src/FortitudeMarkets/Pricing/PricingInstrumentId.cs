@@ -3,7 +3,7 @@
 
 #region
 
-using System.Collections;
+using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
@@ -19,17 +19,20 @@ namespace FortitudeMarkets.Pricing;
 
 public interface IPricingInstrumentId : IReusableObject<IPricingInstrumentId>, ISourceTickerId, IInstrument
 {
-    MarketClassification MarketClassification { get; set; }
+    [JsonIgnore] MarketClassification MarketClassification { get; set; }
 
-    string? Category { get; set; }
+    [JsonIgnore] string? Category { get; set; }
 
-    new ushort SourceId { get; set; }
-    new ushort TickerId { get; set; }
-    new string Source   { get; set; }
-    new string Ticker   { get; set; }
+    new ushort SourceId       { get; set; }
+    new ushort InstrumentId   { get; set; }
+    new string SourceName     { get; set; }
+    new string InstrumentName { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new DiscreetTimePeriod CoveringPeriod { get; set; }
-    new InstrumentType     InstrumentType { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    new InstrumentType InstrumentType { get; set; }
 
     new IPricingInstrumentId Clone();
 }
@@ -51,9 +54,9 @@ public class PricingInstrument : SourceTicker, IPricingInstrumentId
     }
 
     public PricingInstrument
-    (ushort sourceId, ushort tickerId, string source, string ticker, DiscreetTimePeriod coveringPeriod, InstrumentType instrumentType
+    (ushort sourceId, ushort tickerId, string sourceName, string ticker, DiscreetTimePeriod coveringPeriod, InstrumentType instrumentType
       , MarketClassification marketClassification, string? category = null) :
-        base(sourceId, tickerId, source, ticker)
+        base(sourceId, tickerId, sourceName, ticker)
     {
         CoveringPeriod       = coveringPeriod;
         MarketClassification = marketClassification;
@@ -110,8 +113,8 @@ public class PricingInstrument : SourceTicker, IPricingInstrumentId
         set => coveringPeriod = value;
     }
 
-    string IInstrument.InstrumentName   => Ticker;
-    string IInstrument.InstrumentSource => Source;
+    [JsonIgnore] string IInstrument.InstrumentName => InstrumentName;
+    [JsonIgnore] string IInstrument.SourceName     => SourceName;
 
     public InstrumentType InstrumentType
     {
@@ -119,6 +122,7 @@ public class PricingInstrument : SourceTicker, IPricingInstrumentId
         set => timeSeriesType = value;
     }
 
+    [JsonIgnore]
     public string? this[string key]
     {
         get
@@ -158,17 +162,20 @@ public class PricingInstrument : SourceTicker, IPricingInstrumentId
         }
     }
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+    public IEnumerable<KeyValuePair<string, string>> FilledAttributes
     {
-        if (Category != null) yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.Category), Category);
-        if (MarketClassification.MarketType != MarketType.Unknown)
-            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketType), MarketClassification.MarketType.ToString());
-        if (MarketClassification.ProductType != ProductType.Unknown)
-            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketProductType), MarketClassification.ProductType.ToString());
-        if (MarketClassification.MarketRegion != MarketRegion.Unknown)
-            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketRegion), MarketClassification.MarketRegion.ToString());
+        get
+        {
+            if (Category != null) yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.Category), Category);
+            if (MarketClassification.MarketType != MarketType.Unknown)
+                yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketType), MarketClassification.MarketType.ToString());
+            if (MarketClassification.ProductType != ProductType.Unknown)
+                yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketProductType)
+                                                            , MarketClassification.ProductType.ToString());
+            if (MarketClassification.MarketRegion != MarketRegion.Unknown)
+                yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketRegion), MarketClassification.MarketRegion.ToString());
+        }
     }
 
     public void Add(KeyValuePair<string, string> instrumentAttribute)
@@ -244,9 +251,9 @@ public class PricingInstrument : SourceTicker, IPricingInstrumentId
 
 
     public bool HasAllRequiredKeys =>
-        Source.IsNotNullOrEmpty() && MarketClassification.MarketType != MarketType.Unknown
-                                  && MarketClassification.ProductType != ProductType.Unknown &&
-                                     MarketClassification.MarketRegion != MarketRegion.Unknown;
+        SourceName.IsNotNullOrEmpty() && MarketClassification.MarketType != MarketType.Unknown
+                                      && MarketClassification.ProductType != ProductType.Unknown &&
+                                         MarketClassification.MarketRegion != MarketRegion.Unknown;
 
     public MarketClassification MarketClassification { get; set; }
 
@@ -314,7 +321,7 @@ public readonly struct PricingInstrumentId // not inheriting from IPricingInstru
     public PricingInstrumentId(IPricingInstrumentId pricingInstrumentId)
     {
         SourceId       = pricingInstrumentId.SourceId;
-        TickerId       = pricingInstrumentId.TickerId;
+        TickerId       = pricingInstrumentId.InstrumentId;
         CoveringPeriod = pricingInstrumentId.CoveringPeriod;
         Category       = pricingInstrumentId.Category;
 
@@ -370,7 +377,7 @@ public readonly struct PricingInstrumentId // not inheriting from IPricingInstru
       , MarketClassification marketClassification = default, string? category = null)
     {
         SourceId       = sourceTickerId.SourceId;
-        TickerId       = sourceTickerId.TickerId;
+        TickerId       = sourceTickerId.InstrumentId;
         CoveringPeriod = periodInstrumentTypePair.CoveringPeriod;
         Category       = category;
 
@@ -433,13 +440,14 @@ public static class PricingInstrumentIdExtensions
         if (!PricingInstrumentIdLookup.ContainsKey(id.SourceTickerId))
         {
             var pricingInstrumentId
-                = new PricingInstrumentId(id.SourceId, id.TickerId, new PeriodInstrumentTypePair(id.InstrumentType, id.CoveringPeriod));
+                = new PricingInstrumentId(id.SourceId, id.InstrumentId, new PeriodInstrumentTypePair(id.InstrumentType, id.CoveringPeriod));
             PricingInstrumentIdLookup.Add(id.SourceTickerId, pricingInstrumentId);
         }
         if (!SingleStringShortNameLookup.TryGetValue(id.SourceTickerId, out var shortName))
-            if (id.Source != SourceTickerIdentifierExtensions.NoSourceNameValue && id.Ticker != SourceTickerIdentifierExtensions.NoTickerNameValue)
+            if (id.SourceName != SourceTickerIdentifierExtensions.NoSourceNameValue &&
+                id.InstrumentName != SourceTickerIdentifierExtensions.NoTickerNameValue)
             {
-                shortName = $"{id.Source}-{id.Ticker}_{id.InstrumentType}-{id.CoveringPeriod.ShortName()}";
+                shortName = $"{id.SourceName}-{id.InstrumentName}_{id.InstrumentType}-{id.CoveringPeriod.ShortName()}";
                 SingleStringShortNameLookup.Add(id.SourceTickerId, shortName);
                 return true;
             }

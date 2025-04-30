@@ -291,7 +291,7 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
         if (storageDateTime == default || storageDateTime == DateTimeConstants.UnixEpoch) return StorageAttemptResult.StorageTimeNotSupported;
         var bucketPeriod  = TimeBoundaryPeriod;
         var bucketEndTime = bucketPeriod.PeriodEnd(PeriodStartTime); // None is unlimited
-        if ((storageDateTime >= PeriodStartTime && storageDateTime < bucketEndTime) || bucketPeriod == TimeBoundaryPeriod.None)
+        if ((storageDateTime >= PeriodStartTime && storageDateTime < bucketEndTime) || bucketPeriod == TimeBoundaryPeriod.Tick)
             return BucketFlags.HasBucketCurrentAppendingFlag() ? StorageAttemptResult.PeriodRangeMatched : StorageAttemptResult.BucketClosedForAppend;
 
         if (storageDateTime >= bucketEndTime && storageDateTime < bucketPeriod.PeriodEnd(bucketEndTime)) return StorageAttemptResult.NextBucketPeriod;
@@ -301,7 +301,7 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
         var filePeriod    = fileRange.TimeBoundaryPeriod;
         var fileStartTime = fileRange.PeriodStartTime;
         var fileEndTime   = fileRange.PeriodEnd();
-        if (storageDateTime >= fileStartTime && (storageDateTime < fileEndTime || filePeriod == TimeBoundaryPeriod.None))
+        if (storageDateTime >= fileStartTime && (storageDateTime < fileEndTime || filePeriod == TimeBoundaryPeriod.Tick))
             return StorageAttemptResult.BucketSearchRange;
         return StorageAttemptResult.NextFilePeriod;
     }

@@ -28,7 +28,7 @@ public class LastTraderPaidGivenTradeTests
     [TestInitialize]
     public void SetUp()
     {
-        nameIdLookupGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
+        nameIdLookupGenerator = new PQNameIdLookupGenerator(PQQuoteFields.LastTradedDictionaryUpsertCommand);
 
         emptyLt      = new LastTraderPaidGivenTrade();
         testDateTime = new DateTime(2017, 12, 17, 16, 11, 52);
@@ -49,7 +49,7 @@ public class LastTraderPaidGivenTradeTests
         Assert.AreEqual(WellKnownTraderName, newLt.TraderName);
 
         Assert.AreEqual(0, emptyLt.TradePrice);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyLt.TradeTime);
+        Assert.AreEqual(default, emptyLt.TradeTime);
         Assert.AreEqual(0m, emptyLt.TradeVolume);
         Assert.IsFalse(emptyLt.WasGiven);
         Assert.IsFalse(emptyLt.WasPaid);
@@ -83,7 +83,7 @@ public class LastTraderPaidGivenTradeTests
 
         var newEmptyLt = new LastTraderPaidGivenTrade(emptyLt);
         Assert.AreEqual(0, newEmptyLt.TradePrice);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, newEmptyLt.TradeTime);
+        Assert.AreEqual(default, newEmptyLt.TradeTime);
         Assert.AreEqual(0m, newEmptyLt.TradeVolume);
         Assert.IsFalse(newEmptyLt.WasGiven);
         Assert.IsFalse(newEmptyLt.WasPaid);
@@ -126,7 +126,7 @@ public class LastTraderPaidGivenTradeTests
         populatedLt.StateReset();
         Assert.IsTrue(populatedLt.IsEmpty);
         Assert.AreEqual(0m, populatedLt.TradePrice);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, populatedLt.TradeTime);
+        Assert.AreEqual(default, populatedLt.TradeTime);
         Assert.AreEqual(0m, populatedLt.TradeVolume);
         Assert.IsFalse(populatedLt.WasGiven);
         Assert.IsFalse(populatedLt.WasPaid);

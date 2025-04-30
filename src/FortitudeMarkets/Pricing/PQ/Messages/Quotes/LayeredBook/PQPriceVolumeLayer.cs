@@ -3,38 +3,52 @@
 
 #region
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 
+[JsonDerivedType(typeof(PQPriceVolumeLayer))]
+[JsonDerivedType(typeof(PQSourcePriceVolumeLayer))]
+[JsonDerivedType(typeof(PQSourceQuoteRefPriceVolumeLayer))]
+[JsonDerivedType(typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer))]
+[JsonDerivedType(typeof(PQValueDatePriceVolumeLayer))]
+[JsonDerivedType(typeof(PQOrdersCountPriceVolumeLayer))]
+[JsonDerivedType(typeof(PQOrdersPriceVolumeLayer))]
 public interface IPQPriceVolumeLayer : IMutablePriceVolumeLayer, IPQSupportsFieldUpdates<IPriceVolumeLayer>
 {
-    bool IsPriceUpdated  { get; set; }
-    bool IsVolumeUpdated { get; set; }
+    [JsonIgnore] bool IsPriceUpdated  { get; set; }
+    [JsonIgnore] bool IsVolumeUpdated { get; set; }
 
     new IPQPriceVolumeLayer Clone();
 }
 
 public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVolumeLayer
 {
-    private decimal price;
+    protected int     NumUpdatesSinceEmpty = -1;
+    private   decimal price;
 
     protected LayerFieldUpdatedFlags UpdatedFlags;
 
     private decimal volume;
 
-    public PQPriceVolumeLayer() { }
+    public PQPriceVolumeLayer()
+    {
+        if (GetType() == typeof(PQPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+    }
 
     public PQPriceVolumeLayer(decimal price = 0m, decimal volume = 0m)
     {
         Price  = price;
         Volume = volume;
+
+        if (GetType() == typeof(PQPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
     }
 
     public PQPriceVolumeLayer(IPriceVolumeLayer toClone)
@@ -42,35 +56,40 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         Price  = toClone.Price;
         Volume = toClone.Volume;
         SetFlagsSame(toClone);
+
+        if (GetType() == typeof(PQPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
     }
 
     protected string PQPriceVolumeLayerToStringMembers => $"{nameof(Price)}: {Price:N5}, {nameof(Volume)}: {Volume:N2}";
 
-    public virtual LayerType  LayerType          => LayerType.PriceVolume;
-    public virtual LayerFlags SupportsLayerFlags => LayerFlags.Price | LayerFlags.Volume;
+    protected string UpdatedFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
 
+    [JsonIgnore] public virtual LayerType  LayerType          => LayerType.PriceVolume;
+    [JsonIgnore] public virtual LayerFlags SupportsLayerFlags => LayerFlagsExtensions.PriceVolumeLayerFlags;
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public decimal Price
     {
         get => price;
         set
         {
-            if (value == price) return;
-            IsPriceUpdated = true;
-            price          = value;
+            IsPriceUpdated |= price != value || NumUpdatesSinceEmpty == 0;
+            price          =  value;
         }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public decimal Volume
     {
         get => volume;
         set
         {
-            if (value == volume) return;
-            IsVolumeUpdated = true;
-            volume          = value;
+            IsVolumeUpdated |= volume != value || NumUpdatesSinceEmpty == 0;
+            volume          =  value;
         }
     }
 
+    [JsonIgnore]
     public bool IsPriceUpdated
     {
         get => (UpdatedFlags & LayerFieldUpdatedFlags.PriceUpdatedFlag) > 0;
@@ -83,6 +102,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         }
     }
 
+    [JsonIgnore]
     public bool IsVolumeUpdated
     {
         get => (UpdatedFlags & LayerFieldUpdatedFlags.VolumeUpdatedFlag) > 0;
@@ -95,12 +115,26 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         }
     }
 
+    [JsonIgnore]
     public virtual bool HasUpdates
     {
-        get => UpdatedFlags != 0;
-        set => UpdatedFlags = value ? UpdatedFlags.AllFlags() : LayerFieldUpdatedFlags.None;
+        get => UpdatedFlags != LayerFieldUpdatedFlags.None;
+        set
+        {
+            if (value)
+            {
+                UpdatedFlags = UpdatedFlags.AllFlags();
+                return;
+            }
+            else
+            {
+                if (HasUpdates && !IsEmpty) Interlocked.Increment(ref NumUpdatesSinceEmpty);
+                UpdatedFlags = LayerFieldUpdatedFlags.None;
+            }
+        }
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public virtual bool IsEmpty
     {
         get => Price == 0m && Volume == 0m;
@@ -108,13 +142,17 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         {
             if (!value) return;
             Price = Volume = 0m;
+
+            NumUpdatesSinceEmpty = 0;
         }
     }
 
     public override void StateReset()
     {
-        Price  = 0m;
-        Volume = 0m;
+        Price                = 0m;
+        Volume               = 0m;
+        UpdatedFlags         = LayerFieldUpdatedFlags.None;
+        NumUpdatesSinceEmpty = 0;
     }
 
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
@@ -123,34 +161,30 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         if (!updatedOnly || IsPriceUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.LayerPriceOffset, Price,
-                                           quotePublicationPrecisionSetting?.PriceScalingPrecision ?? 1);
+            yield return new PQFieldUpdate(PQQuoteFields.Price, Price,
+                                           quotePublicationPrecisionSetting?.PriceScalingPrecision ?? (PQFieldFlags)1);
         if (!updatedOnly || IsVolumeUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.LayerVolumeOffset, Volume,
-                                           quotePublicationPrecisionSetting?.VolumeScalingPrecision ?? 6);
+            yield return new PQFieldUpdate(PQQuoteFields.Volume, Volume,
+                                           quotePublicationPrecisionSetting?.VolumeScalingPrecision ?? (PQFieldFlags)6);
     }
 
     public virtual int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the book has already forwarded this through to the correct layer
-        if (pqFieldUpdate.Id >= PQFieldKeys.LayerPriceOffset &&
-            pqFieldUpdate.Id < PQFieldKeys.LayerPriceOffset + PQFieldKeys.SingleByteFieldIdMaxBookDepth)
+        if (pqFieldUpdate.Id == PQQuoteFields.Price)
         {
-            IsPriceUpdated = true;
+            IsPriceUpdated = true; // incase of reset and sending 0;
 
-            Price = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+            Price = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
             return 0;
         }
-
-        if (pqFieldUpdate.Id >= PQFieldKeys.LayerVolumeOffset &&
-            pqFieldUpdate.Id < PQFieldKeys.LayerVolumeOffset + PQFieldKeys.SingleByteFieldIdMaxBookDepth)
+        else if (pqFieldUpdate.Id == PQQuoteFields.Volume)
         {
-            IsVolumeUpdated = true;
+            IsVolumeUpdated = true; // incase of reset and sending 0;
 
-            Volume = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+            Volume = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
             return 0;
         }
-
         return -1;
     }
 
@@ -218,5 +252,5 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         }
     }
 
-    public override string ToString() => $"{GetType().Name}({PQPriceVolumeLayerToStringMembers})";
+    public override string ToString() => $"{GetType().Name}({PQPriceVolumeLayerToStringMembers}, {UpdatedFlagsToString})";
 }

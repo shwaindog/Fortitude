@@ -14,8 +14,8 @@ namespace Fortitude.Examples.Documentation.Wiki.FortitudeBusRules.GettingStarted
 
 public class Step2Program
 {
-    public static int EventQueueSize   = 20_100;
-    public static int DefaultQueueSize = 20_100;
+    private const int EventQueueSize   = 20_100;
+    private const int DefaultQueueSize = 20_100;
 
     public static void Main(string[] args)
     {

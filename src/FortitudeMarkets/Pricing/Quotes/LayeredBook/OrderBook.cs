@@ -6,8 +6,6 @@
 using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerSelector;
 
@@ -44,11 +42,12 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     {
         BookSide = bookSide;
         IsLadder = isLadder;
-        this.bookLayers = bookLayers
-                          .Select(pvl => LayerSelector
-                                      .UpgradeExistingLayer(pvl, pvl.LayerType, pvl))
-                          .Cast<IPriceVolumeLayer?>()
-                          .ToList();
+        this.bookLayers =
+            bookLayers
+                .Select(pvl => LayerSelector
+                            .UpgradeExistingLayer(pvl, pvl.LayerType, pvl))
+                .Cast<IPriceVolumeLayer?>()
+                .ToList();
     }
 
     public OrderBook(IOrderBook toClone)
@@ -148,8 +147,8 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     {
         LayersOfType = source.LayersOfType;
         IsLadder     = source.IsLadder;
-        var sourceDeepestLayerSet = source.Count;
-        for (var i = 0; i < sourceDeepestLayerSet; i++)
+        var allSourceLayers = source.Capacity;
+        for (var i = 0; i < allSourceLayers; i++)
         {
             var sourceLayer      = source[i];
             var destinationLayer = this[i];
@@ -162,10 +161,8 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
             if (sourceLayer is { IsEmpty: false }) continue;
             if (destinationLayer is { } mutablePriceVolumeLayer) mutablePriceVolumeLayer.IsEmpty = true;
         }
-        for (var i = sourceDeepestLayerSet; i < source.Capacity; i++)
-            bookLayers.Add(LayerSelector.CreateExpectedImplementation(LayersOfType, null, copyMergeFlags));
 
-        for (var i = sourceDeepestLayerSet; i < bookLayers.Count; i++)
+        for (var i = source.Count; i < bookLayers.Count; i++)
             if (bookLayers[i] is IMutablePriceVolumeLayer mutablePvl)
                 mutablePvl.IsEmpty = true;
         return this;

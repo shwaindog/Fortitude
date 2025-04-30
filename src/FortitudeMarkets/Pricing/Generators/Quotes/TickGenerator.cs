@@ -3,65 +3,13 @@
 
 #region
 
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Generators.MidPrice;
-using FortitudeMarkets.Pricing.Generators.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Generators.Quotes.LayeredBook;
-using MathNet.Numerics.Distributions;
+using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.Generators.Quotes;
-
-public struct TimeStampGenerationInfo
-{
-    public TimeStampGenerationInfo() { }
-
-    public long     IntervalStdDeviationTicks = 3000;
-    public TimeSpan MinQuoteTimeSpan          = TimeSpan.FromTicks(100);
-
-    public TimeSpan AverageAdapterDelayTimeSpan      = TimeSpan.FromTicks(400_000);
-    public long     MinAdapterDelayTicks             = 10_000;
-    public long     AdapterStandardDeviationTicks    = 200_000;
-    public TimeSpan AverageAdapterProcessingTimeSpan = TimeSpan.FromTicks(10_000);
-
-    public TimeSpan ClientAdapterDelayTimeSpan          = TimeSpan.FromTicks(200_000);
-    public long     MinClientAdapterDelayTicks          = 120_000;
-    public long     ClientAdapterStandardDeviationTicks = 100_000;
-}
-
-public struct GenerateQuoteInfo
-{
-    public GenerateQuoteInfo
-    (ISourceTickerInfo sourceTickerInfo,
-        IMidPriceGenerator? midPriceGenerator = null,
-        BookGenerationInfo? bookGenerationInfo = null,
-        TimeStampGenerationInfo? timeStampGenerationInfo = null,
-        GenerateLastTradeInfo? lastTradeInfo = null)
-    {
-        SourceTickerInfo        = sourceTickerInfo;
-        MidPriceGenerator       = midPriceGenerator ?? new SyntheticRepeatableMidPriceGenerator(1.0m, DateTime.Now);
-        BookGenerationInfo      = bookGenerationInfo ?? new BookGenerationInfo();
-        TimeStampGenerationInfo = timeStampGenerationInfo ?? new TimeStampGenerationInfo();
-        LastTradeInfo           = lastTradeInfo ?? new GenerateLastTradeInfo();
-    }
-
-    public DateTime SingleQuoteStartTime = DateTime.Now;
-
-    public TimeSpan SingleQuoteNextQuoteIncrement = TimeSpan.FromMilliseconds(1);
-
-    public int SingleQuoteStartSequenceNumber = 0;
-
-    public ISourceTickerInfo SourceTickerInfo;
-
-    public IMidPriceGenerator MidPriceGenerator;
-
-    public BookGenerationInfo BookGenerationInfo;
-
-    public TimeStampGenerationInfo TimeStampGenerationInfo;
-
-    public GenerateLastTradeInfo LastTradeInfo;
-}
 
 public interface ITickGenerator<out TDetailLevel> where TDetailLevel : IMutableTickInstant
 {
@@ -72,37 +20,61 @@ public interface ITickGenerator<out TDetailLevel> where TDetailLevel : IMutableT
 
 public abstract class TickGenerator<TDetailLevel> : ITickGenerator<TDetailLevel> where TDetailLevel : IMutableTickInstant
 {
-    protected readonly GenerateQuoteInfo GenerateQuoteInfo;
-    private readonly   TimeSpan          singleQuoteInterval;
+    private readonly   TDetailLevel[]                    cycleQuotes = [];
+    protected readonly CurrentQuoteInstantValueGenerator GenerateQuoteValues;
+    private readonly   TimeSpan                          singleQuoteInterval;
+
+    private int cyclePosition = 0;
 
     private int nextSingleQuoteSequenceNumber;
 
     private DateTime nextSingleQuoteStartTime;
 
-    protected Normal        NormalDist = null!;
     protected TDetailLevel? PreviousReturnedQuote;
-    protected Random        PseudoRandom = null!;
 
-    protected TickGenerator(GenerateQuoteInfo generateQuoteInfo)
+    protected TickGenerator(CurrentQuoteInstantValueGenerator generateQuoteValues)
     {
-        GenerateQuoteInfo             = generateQuoteInfo;
-        nextSingleQuoteStartTime      = generateQuoteInfo.SingleQuoteStartTime;
-        singleQuoteInterval           = generateQuoteInfo.SingleQuoteNextQuoteIncrement;
-        nextSingleQuoteSequenceNumber = generateQuoteInfo.SingleQuoteStartSequenceNumber;
+        GenerateQuoteValues           = generateQuoteValues;
+        nextSingleQuoteStartTime      = generateQuoteValues.GenerateQuoteInfo.SingleQuoteStartTime;
+        singleQuoteInterval           = generateQuoteValues.GenerateQuoteInfo.SingleQuoteNextQuoteIncrement;
+        nextSingleQuoteSequenceNumber = generateQuoteValues.GenerateQuoteInfo.SingleQuoteStartSequenceNumber;
+        if (generateQuoteValues.GenerateQuoteInfo.CycleQuotesAmount > 0)
+        {
+            var preGeneratedQuotes = new TDetailLevel[generateQuoteValues.GenerateQuoteInfo.CycleQuotesAmount];
+            for (var i = 0; i < generateQuoteValues.GenerateQuoteInfo.CycleQuotesAmount - 1; i++) preGeneratedQuotes[i] = Next;
+            cycleQuotes = preGeneratedQuotes;
+        }
     }
 
     public TDetailLevel Next
     {
         get
         {
-            var prevCurrMid = GenerateQuoteInfo.MidPriceGenerator
-                                               .PreviousCurrentPrices(nextSingleQuoteStartTime, singleQuoteInterval, 1
-                                                                    , nextSingleQuoteSequenceNumber++)
-                                               .First();
-            PseudoRandom             =  new Random(prevCurrMid.PreviousMid.Mid.GetHashCode() ^ prevCurrMid.CurrentMid.Mid.GetHashCode());
-            NormalDist               =  new Normal(0, 1, PseudoRandom);
-            nextSingleQuoteStartTime += singleQuoteInterval;
-            PreviousReturnedQuote    =  BuildQuote(prevCurrMid, nextSingleQuoteSequenceNumber);
+            if (cycleQuotes.Length > 0)
+            {
+                var cycleIndex = cyclePosition % cycleQuotes.Length;
+                PreviousReturnedQuote    =  cycleQuotes[cycleIndex];
+                nextSingleQuoteStartTime += singleQuoteInterval;
+                if (cyclePosition++ >= cycleQuotes.Length)
+                {
+                    PreviousReturnedQuote.IncrementTimeBy(cycleQuotes.Length * singleQuoteInterval);
+                    if (PreviousReturnedQuote is IPQTickInstant pqTickInstant) pqTickInstant.HasUpdates = true;
+                }
+            }
+            else
+            {
+                var prevCurrMid =
+                    GenerateQuoteValues
+                        .GenerateQuoteInfo
+                        .MidPriceGenerator
+                        .PreviousCurrentPrices(nextSingleQuoteStartTime, singleQuoteInterval, 1
+                                             , nextSingleQuoteSequenceNumber++)
+                        .First();
+                nextSingleQuoteStartTime += singleQuoteInterval;
+
+                GenerateQuoteValues.NextQuoteValuesInitialise(prevCurrMid);
+                PreviousReturnedQuote = BuildQuote(prevCurrMid, nextSingleQuoteSequenceNumber);
+            }
             return PreviousReturnedQuote;
         }
     }
@@ -110,15 +82,14 @@ public abstract class TickGenerator<TDetailLevel> : ITickGenerator<TDetailLevel>
     public IEnumerable<TDetailLevel> Quotes(DateTime startingFromTime, TimeSpan averageInterval, int numToGenerate, int sequenceNumber = 0)
     {
         var currentSeqNum = sequenceNumber;
-        foreach (var prevCurrMids in GenerateQuoteInfo.MidPriceGenerator
-                                                      .PreviousCurrentPrices(startingFromTime, averageInterval, numToGenerate, sequenceNumber))
+        foreach (var prevCurrMids in GenerateQuoteValues.GenerateQuoteInfo.MidPriceGenerator
+                                                        .PreviousCurrentPrices(startingFromTime, averageInterval, numToGenerate, sequenceNumber))
         {
-            PseudoRandom          = new Random(prevCurrMids.PreviousMid.Mid.GetHashCode() ^ prevCurrMids.CurrentMid.Mid.GetHashCode());
-            NormalDist            = new Normal(0, 1, PseudoRandom);
+            GenerateQuoteValues.NextQuoteValuesInitialise(prevCurrMids);
             PreviousReturnedQuote = BuildQuote(prevCurrMids, currentSeqNum++);
             yield return PreviousReturnedQuote;
         }
     }
 
-    public abstract TDetailLevel BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber);
+    public abstract TDetailLevel BuildQuote(MidPriceTimePair midPriceTimePair, int sequenceNumber);
 }

@@ -47,7 +47,7 @@ public class PQPricingClientRule : Rule
     public override async ValueTask StartAsync()
     {
         this.RegisterListener<SourceFeedUpdate>(AllFeedStatusUpdates + "*", ReceivedFeedUpdate);
-        foreach (var marketConnConfig in marketsConfig.Markets)
+        foreach (var marketConnConfig in marketsConfig.Markets.Values)
             await this.DeployChildRuleAsync(new PQPricingClientFeedRule(marketConnConfig)
                                           , new DeploymentOptions(RoutingFlags.DefaultDeploy));
     }

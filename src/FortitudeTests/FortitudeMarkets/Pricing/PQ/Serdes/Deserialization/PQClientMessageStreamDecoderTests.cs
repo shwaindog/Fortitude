@@ -9,14 +9,14 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
@@ -33,7 +33,7 @@ public class PQClientMessageStreamDecoderTests
     private const ushort ExpectedTickerId      = ushort.MaxValue;
     private const uint   ExpectedStreamId      = uint.MaxValue;
 
-    private const uint MessageSizeToQuoteSerializer = 160 + PQQuoteMessageHeader.HeaderSize;
+    private const uint MessageSizeToQuoteSerializer = 166 + PQQuoteMessageHeader.HeaderSize;
 
     private Mock<IPQClientQuoteDeserializerRepository> clientDeserializerRepo = null!;
 
@@ -54,7 +54,7 @@ public class PQClientMessageStreamDecoderTests
       , new SourceTickerInfo
             (0x5151, "SecondSource", 7777, "SecondTicker", Level3Quote, Unknown
            , 20, 0.05m, 1m, 10_000m, 1_000_000m, 5_000m, 2_000
-           , layerFlags: LayerFlags.Price | LayerFlags.TraderName | LayerFlags.Executable
+           , layerFlags: LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.Executable
            , lastTradedFlags: LastTradedFlags.PaidOrGiven)
       , new SourceTickerInfo
             (0xFFFF, "ThirdSource", 0001, "ThirdTicker", Level3Quote, Unknown
@@ -289,7 +289,7 @@ public class PQClientMessageStreamDecoderTests
           , new SourceTickerInfo
                 (0xAAAA, "FifthSource", 3333, "FifthTicker", Level3Quote, Unknown
                , 20, 0.05m, 10_000m, 1_000_000m, 5_000m, 2_000
-               , layerFlags: LayerFlags.Price | LayerFlags.TraderName | LayerFlags.Executable
+               , layerFlags: LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.Executable
                , lastTradedFlags: LastTradedFlags.PaidOrGiven)
           , new SourceTickerInfo
                 (0x2222, "SixthSource", 7777, "SixthTicker", Level3Quote, Unknown

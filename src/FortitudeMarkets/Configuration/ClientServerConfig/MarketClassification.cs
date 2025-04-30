@@ -1,8 +1,15 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
+#region
+
+using System.Text.Json.Serialization;
+
+#endregion
+
 namespace FortitudeMarkets.Configuration.ClientServerConfig;
 
+[JsonConverter(typeof(JsonStringEnumConverter<MarketRegion>))]
 public enum MarketRegion : byte
 {
     Unknown = 0
@@ -32,6 +39,7 @@ public enum MarketRegion : byte
   , Argentina
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter<MarketType>))]
 public enum MarketType : byte
 {
     Unknown = 0
@@ -60,6 +68,7 @@ public enum MarketType : byte
   , Reserved6
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter<ProductType>))]
 public enum ProductType : byte
 {
     Unknown = 0

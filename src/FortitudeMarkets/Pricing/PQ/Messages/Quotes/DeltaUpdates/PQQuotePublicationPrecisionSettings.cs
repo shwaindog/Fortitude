@@ -5,20 +5,20 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 public interface IPQPriceVolumePublicationPrecisionSettings
 {
-    byte PriceScalingPrecision  { get; }
-    byte VolumeScalingPrecision { get; }
+    PQFieldFlags PriceScalingPrecision  { get; }
+    PQFieldFlags VolumeScalingPrecision { get; }
 }
 
 public class PQPriceVolumePublicationPrecisionSettings : IPQPriceVolumePublicationPrecisionSettings
 {
     public PQPriceVolumePublicationPrecisionSettings() { }
 
-    public PQPriceVolumePublicationPrecisionSettings(byte priceScaling, byte volumeScaling)
+    public PQPriceVolumePublicationPrecisionSettings(PQFieldFlags priceScaling, PQFieldFlags volumeScaling)
     {
         PriceScalingPrecision  = priceScaling;
         VolumeScalingPrecision = volumeScaling;
     }
 
-    public byte PriceScalingPrecision  { get; set; }
-    public byte VolumeScalingPrecision { get; set; }
+    public PQFieldFlags PriceScalingPrecision  { get; set; }
+    public PQFieldFlags VolumeScalingPrecision { get; set; }
 }

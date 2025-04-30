@@ -3,7 +3,6 @@
 
 #region
 
-using System.Collections;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
@@ -11,10 +10,9 @@ using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeMarkets.Configuration.ClientServerConfig;
-using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -24,10 +22,10 @@ public interface IPQPricingInstrumentId : IPQSourceTickerId, IPricingInstrumentI
 {
     bool IsMarketClassificationUpdated { get; set; }
 
-    new ushort SourceId { get; set; }
-    new ushort TickerId { get; set; }
-    new string Source   { get; set; }
-    new string Ticker   { get; set; }
+    new ushort SourceId       { get; set; }
+    new ushort InstrumentId   { get; set; }
+    new string SourceName     { get; set; }
+    new string InstrumentName { get; set; }
 
     new IPQPricingInstrumentId Clone();
 }
@@ -47,8 +45,8 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
     }
 
     public PQPricingInstrument
-    (ushort sourceId, ushort tickerId, string source, string ticker, DiscreetTimePeriod period, InstrumentType instrumentType
-      , MarketClassification marketClassification, string? category = null) : base(sourceId, source, tickerId, ticker)
+    (ushort sourceId, ushort tickerId, string sourceName, string ticker, DiscreetTimePeriod period, InstrumentType instrumentType
+      , MarketClassification marketClassification, string? category = null) : base(sourceId, sourceName, tickerId, ticker)
     {
         CoveringPeriod       = period;
         MarketClassification = marketClassification;
@@ -63,7 +61,7 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
         Category             = toClone.Category;
         InstrumentType       = toClone.InstrumentType;
 
-        foreach (var instrumentFields in toClone) this[instrumentFields.Key] = instrumentFields.Value;
+        foreach (var instrumentFields in toClone.FilledAttributes) this[instrumentFields.Key] = instrumentFields.Value;
 
         if (toClone is IPQPricingInstrumentId pubToClone) IsMarketClassificationUpdated = pubToClone.IsMarketClassificationUpdated;
     }
@@ -84,8 +82,8 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
 
     public DiscreetTimePeriod CoveringPeriod { get; set; } = new(TimeBoundaryPeriod.Tick);
 
-    string IInstrument.InstrumentName   => Ticker;
-    string IInstrument.InstrumentSource => Source;
+    string IInstrument.InstrumentName => InstrumentName;
+    string IInstrument.SourceName     => SourceName;
 
     public InstrumentType InstrumentType
     {
@@ -117,17 +115,20 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
         }
     }
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+    public IEnumerable<KeyValuePair<string, string>> FilledAttributes
     {
-        if (Category != null) yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.Category), Category);
-        if (MarketClassification.MarketType != MarketType.Unknown)
-            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketType), MarketClassification.MarketType.ToString());
-        if (MarketClassification.ProductType != ProductType.Unknown)
-            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketProductType), MarketClassification.ProductType.ToString());
-        if (MarketClassification.MarketRegion != MarketRegion.Unknown)
-            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketRegion), MarketClassification.MarketRegion.ToString());
+        get
+        {
+            if (Category != null) yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.Category), Category);
+            if (MarketClassification.MarketType != MarketType.Unknown)
+                yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketType), MarketClassification.MarketType.ToString());
+            if (MarketClassification.ProductType != ProductType.Unknown)
+                yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketProductType)
+                                                            , MarketClassification.ProductType.ToString());
+            if (MarketClassification.MarketRegion != MarketRegion.Unknown)
+                yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketRegion), MarketClassification.MarketRegion.ToString());
+        }
     }
 
     public string? this[string key]
@@ -241,7 +242,7 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
     }
 
     public bool HasAllRequiredKeys =>
-        Source.IsNotNullOrEmpty()
+        SourceName.IsNotNullOrEmpty()
      && MarketClassification.MarketType != MarketType.Unknown
      && MarketClassification.ProductType != ProductType.Unknown && MarketClassification.MarketRegion != MarketRegion.Unknown;
 
@@ -255,15 +256,15 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
         var updatedOnly = (updateStyle & StorageFlags.Complete) == 0;
 
         if (!updatedOnly || IsMarketClassificationUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.MarketClassification, MarketClassification.CompoundedClassification);
+            yield return new PQFieldUpdate(PQQuoteFields.MarketClassification, MarketClassification.CompoundedClassification);
     }
 
     public override int UpdateField(PQFieldUpdate fieldUpdate)
     {
         switch (fieldUpdate.Id)
         {
-            case PQFieldKeys.MarketClassification:
-                MarketClassification = new MarketClassification(fieldUpdate.Value);
+            case PQQuoteFields.MarketClassification:
+                MarketClassification = new MarketClassification(fieldUpdate.Payload);
                 return 0;
         }
 
@@ -289,7 +290,7 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
             MarketClassification = source.MarketClassification;
             InstrumentType       = source.InstrumentType;
         }
-        foreach (var instrumentFields in source) this[instrumentFields.Key] = instrumentFields.Value;
+        foreach (var instrumentFields in source.FilledAttributes) this[instrumentFields.Key] = instrumentFields.Value;
 
         return this;
     }

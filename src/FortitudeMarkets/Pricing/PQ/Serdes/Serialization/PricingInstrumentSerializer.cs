@@ -7,7 +7,6 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
-using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
@@ -69,9 +68,9 @@ public class PricingInstrumentSerializer : ISerializer<IPricingInstrumentId>
         instrumentAttributes.AddRange(message.AllAttributes.Where(kvp => !kvp.Key.Contains("Market")));
         var remainingBytes = fixedBuffer.RemainingStorage;
         StreamByteOps.ToBytes(ref ptr, message.SourceId);
-        StreamByteOps.ToBytes(ref ptr, message.TickerId);
-        StreamByteOps.ToBytesWithAutoSizeHeader(ref ptr, message.Source, Math.Min(remainingBytes, 255));
-        StreamByteOps.ToBytesWithAutoSizeHeader(ref ptr, message.Ticker, Math.Min(remainingBytes, 255));
+        StreamByteOps.ToBytes(ref ptr, message.InstrumentId);
+        StreamByteOps.ToBytesWithAutoSizeHeader(ref ptr, message.SourceName, Math.Min(remainingBytes, 255));
+        StreamByteOps.ToBytesWithAutoSizeHeader(ref ptr, message.InstrumentName, Math.Min(remainingBytes, 255));
         StreamByteOps.ToBytes(ref ptr, message.MarketClassification.CompoundedClassification);
         *ptr++ = (byte)message.InstrumentType;
         StreamByteOps.ToBytes(ref ptr, (uint)message.CoveringPeriod.Period);

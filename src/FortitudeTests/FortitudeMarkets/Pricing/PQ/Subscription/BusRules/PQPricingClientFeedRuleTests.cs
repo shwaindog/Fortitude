@@ -45,10 +45,10 @@ public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
         pqPublisher                = pqServerL3QuoteServerSetup.CreatePQPublisher();
         var clientMarketConfig
             = pqServerL3QuoteServerSetup.DefaultServerMarketConnectionConfig.ToggleProtocolDirection("PQClientSourceFeedRuleTestsClient");
-        clientMarketConfig.Name         = "PQClientSourceFeedRuleTests";
+        clientMarketConfig.SourceName   = "PQClientSourceFeedRuleTests";
         pqPricingClientFeedRule         = new PQPricingClientFeedRule(clientMarketConfig);
         haveReceivedPriceAutoResetEvent = new ManualResetEvent(false);
-        testSubscribeToTickerRule       = new TestSubscribeToTickerRule(clientMarketConfig.Name, "EUR/USD", haveReceivedPriceAutoResetEvent);
+        testSubscribeToTickerRule       = new TestSubscribeToTickerRule(clientMarketConfig.SourceName, "EUR/USD", haveReceivedPriceAutoResetEvent);
     }
 
     [TestCleanup]

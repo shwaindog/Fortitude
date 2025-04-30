@@ -19,7 +19,7 @@ public static class PQFieldConverters
     {
         updateDatePart =
             new DateTime(
-                         DateTimeConstants.UnixEpochTicks + hoursFromUnixEpoch * TimeSpan.TicksPerHour +
+                         DateTime.UnixEpoch.Ticks + hoursFromUnixEpoch * TimeSpan.TicksPerHour +
                          updateDatePart.Ticks % TimeSpan.TicksPerHour, DateTimeKind.Utc);
     }
 
@@ -32,21 +32,23 @@ public static class PQFieldConverters
         new(DateTimeConstants.UnixEpochTicks + hoursFromUnixEpoch * TimeSpan.TicksPerHour +
             tensOfNanoSeconds / 10, DateTimeKind.Utc);
 
-    public static uint GetHoursFromUnixEpoch(this DateTime ts) => (uint)((ts.Ticks - DateTimeConstants.UnixEpochTicks) / TimeSpan.TicksPerHour);
+    public static uint GetHoursFromUnixEpoch
+        (this DateTime ts) =>
+        (uint)((Math.Max(ts.Ticks, DateTime.UnixEpoch.Ticks) - DateTime.UnixEpoch.Ticks) / TimeSpan.TicksPerHour);
 
     public static long GetSubHourComponent(this DateTime ts) => ts.Ticks % TimeSpan.TicksPerHour * 10;
 
-    public static long AppendUintToMakeLong(this byte highestNumberByte, uint lowestBytes)
+    public static long AppendUintToMakeLong(this ushort highestNumberByte, uint lowestBytes)
     {
         var result = (long)highestNumberByte << 32;
         result |= lowestBytes;
         return result;
     }
 
-    public static byte BreakLongToByteAndUint(this long breakThis, out uint lowestBytes)
+    public static ushort BreakLongToUShortAndUint(this long breakThis, out uint lowestBytes)
     {
         lowestBytes = (uint)breakThis;
         breakThis   = breakThis >> 32;
-        return (byte)breakThis;
+        return (ushort)breakThis;
     }
 }

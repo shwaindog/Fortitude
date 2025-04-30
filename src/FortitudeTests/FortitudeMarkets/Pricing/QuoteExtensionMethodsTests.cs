@@ -103,7 +103,7 @@ public class QuoteExtensionMethodsTests
                    && differences.Contains(newExchangerName));
         var updatedNewQuoteInfo = (SourceTickerInfo)q2.SourceTickerInfo!;
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (updatedNewQuoteInfo, (SourceTickerInfo stqi) => stqi.Source, OriginalQuoteExchangeName);
+            (updatedNewQuoteInfo, (SourceTickerInfo stqi) => stqi.SourceName, OriginalQuoteExchangeName);
         differences = originalQuote.DiffQuotes(q2);
         Console.Out.Write(differences);
         Assert.AreEqual("", differences);
@@ -126,7 +126,7 @@ public class QuoteExtensionMethodsTests
                    && differences.Contains(newTickerName));
         var updatedNewQuoteInfo = (SourceTickerInfo)q2.SourceTickerInfo!;
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (updatedNewQuoteInfo, (SourceTickerInfo stqi) => stqi.Ticker, OriginalQuoteTickerName);
+            (updatedNewQuoteInfo, (SourceTickerInfo stqi) => stqi.InstrumentName, OriginalQuoteTickerName);
         differences = originalQuote.DiffQuotes(q2);
         Console.Out.Write(differences);
         Assert.AreEqual("", differences);

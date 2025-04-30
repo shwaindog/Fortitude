@@ -3,7 +3,6 @@
 
 #region
 
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Generators.MidPrice;
 using FortitudeMarkets.Pricing.Generators.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes;
@@ -16,30 +15,29 @@ public abstract class Level3QuoteGeneratorBase<TQuote> : Level2QuoteGeneratorBas
 {
     protected readonly ILastTradedGenerator LastTradedGenerator;
 
-    protected Level3QuoteGeneratorBase(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) =>
-        LastTradedGenerator = CreateLastTradedGenerator(generateQuoteInfo.LastTradeInfo);
+    protected Level3QuoteGeneratorBase(CurrentQuoteInstantValueGenerator generateQuoteValues) : base(generateQuoteValues) =>
+        LastTradedGenerator = CreateLastTradedGenerator(generateQuoteValues.GenerateQuoteInfo.LastTradeInfo);
 
-    public void PopulateQuote(IMutableLevel3Quote populateQuote, PreviousCurrentMidPriceTime previousCurrentMid)
+    public void PopulateQuote(IMutableLevel3Quote populateQuote, MidPriceTimePair midPriceTimePair)
     {
-        base.PopulateQuote(populateQuote, previousCurrentMid);
-        LastTradedGenerator.PopulateLevel3LastTraded(populateQuote, previousCurrentMid);
-        populateQuote.ValueDate            = BookGenerator.BidLayerGenerator.GenerateValueDate(previousCurrentMid);
-        populateQuote.SourceQuoteReference = BookGenerator.BidLayerGenerator.GenerateQuoteRef(previousCurrentMid);
-        populateQuote.BatchId              = BookGenerator.BidLayerGenerator.GenerateQuoteRef(previousCurrentMid) + 1000;
+        base.PopulateQuote(populateQuote, midPriceTimePair);
+        LastTradedGenerator.PopulateLevel3LastTraded(populateQuote, midPriceTimePair);
+        populateQuote.ValueDate            = BookGenerator.QuoteBookGenerator.BookValueDate;
+        populateQuote.SourceQuoteReference = BookGenerator.QuoteBookGenerator.BookSourceQuoteRef;
+        populateQuote.BatchId              = BookGenerator.QuoteBookGenerator.BookBatchId;
     }
 
     protected virtual ILastTradedGenerator CreateLastTradedGenerator(GenerateLastTradeInfo generateLastTradeInfo) =>
         new LastTradedGenerator(generateLastTradeInfo);
 }
 
-public class Level3QuoteGenerator : Level3QuoteGeneratorBase<Level3PriceQuote>
+public class Level3QuoteGenerator(CurrentQuoteInstantValueGenerator generateQuoteValues)
+    : Level3QuoteGeneratorBase<Level3PriceQuote>(generateQuoteValues)
 {
-    public Level3QuoteGenerator(GenerateQuoteInfo generateQuoteInfo) : base(generateQuoteInfo) { }
-
-    public override Level3PriceQuote BuildQuote(PreviousCurrentMidPriceTime previousCurrentMidPriceTime, int sequenceNumber)
+    public override Level3PriceQuote BuildQuote(MidPriceTimePair midPriceTimePair, int sequenceNumber)
     {
-        var toPopulate = new Level3PriceQuote(GenerateQuoteInfo.SourceTickerInfo);
-        PopulateQuote(toPopulate, previousCurrentMidPriceTime);
+        var toPopulate = new Level3PriceQuote(GenerateQuoteValues.GenerateQuoteInfo.SourceTickerInfo);
+        PopulateQuote(toPopulate, midPriceTimePair);
         return toPopulate;
     }
 }

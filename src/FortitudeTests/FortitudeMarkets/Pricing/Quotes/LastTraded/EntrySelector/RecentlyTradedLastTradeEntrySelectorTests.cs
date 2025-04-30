@@ -43,7 +43,7 @@ public class RecentlyTradedLastTradeEntrySelectorTests
     [TestInitialize]
     public void SetUp()
     {
-        nameIdLookupGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
+        nameIdLookupGenerator = new PQNameIdLookupGenerator(PQQuoteFields.LastTradedDictionaryUpsertCommand);
         expectedTraderName    = "TraderName-Helen";
         expectedTradeTime     = new DateTime(2018, 03, 2, 14, 40, 30);
 

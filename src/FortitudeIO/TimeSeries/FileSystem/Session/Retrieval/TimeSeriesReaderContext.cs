@@ -182,9 +182,7 @@ public class TimeSeriesReaderContext<TEntry> : RecyclableObject, IReaderContext<
                 if (entry is IRecyclableObject recyclableObj) recyclableObj.DecrementRefCount();
                 maxUnconsumedSemaphore!.Release();
                 break;
-            case EntryResultSourcing.FromBlockingQueue:
-                SourceEntriesQueue!.Add(entry);
-                break;
+            case EntryResultSourcing.FromBlockingQueue: SourceEntriesQueue!.Add(entry); break;
         }
     }
 
@@ -276,7 +274,7 @@ public class TimeSeriesReaderContext<TEntry> : RecyclableObject, IReaderContext<
         {
             var entryStorageTime    = entry.StorageTime(StorageTimeResolver);
             var thisTimePeriodStart = SamplePeriod.ContainingPeriodBoundaryStart(entryStorageTime);
-            shouldIncludeThis = SamplePeriod is TimeBoundaryPeriod.None
+            shouldIncludeThis = SamplePeriod is TimeBoundaryPeriod.Tick
                              || thisTimePeriodStart != lastSamplePeriodStart;
             lastSamplePeriodStart = thisTimePeriodStart;
         }
@@ -285,18 +283,10 @@ public class TimeSeriesReaderContext<TEntry> : RecyclableObject, IReaderContext<
             foreach (var publishType in Enum.GetValues(typeof(ResultFlags)).Cast<Enum>().Where(ResultPublishFlags.HasFlag))
                 switch (publishType)
                 {
-                    case CopyToList:
-                        ResultList.Add(entry);
-                        break;
-                    case PublishToBlockingQueue:
-                        ResultList.Add(entry);
-                        break;
-                    case PublishOnObserver:
-                        ResultObserver?.OnNext(entry);
-                        break;
-                    case RunCallback:
-                        CallbackAction?.Invoke(entry);
-                        break;
+                    case CopyToList:             ResultList.Add(entry); break;
+                    case PublishToBlockingQueue: ResultList.Add(entry); break;
+                    case PublishOnObserver:      ResultObserver?.OnNext(entry); break;
+                    case RunCallback:            CallbackAction?.Invoke(entry); break;
                     case WriteResultsToBuffer:
                         if (ResultBuffer != null) ResultWriter?.Serialize((IVersionedMessage)entry, ResultBuffer);
                         break;

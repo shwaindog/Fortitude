@@ -30,8 +30,8 @@ public class PQNameIdLookupGeneratorTests
             { 1, "FirstItem" }, { 2, "SecondItem" }, { 3, "ThirdItem" }
         };
 
-        firstGeneratorSubKey1  = new PQNameIdLookupGenerator(1);
-        secondGeneratorSubKey1 = new PQNameIdLookupGenerator(2);
+        firstGeneratorSubKey1  = new PQNameIdLookupGenerator(PQQuoteFields.SourceId);
+        secondGeneratorSubKey1 = new PQNameIdLookupGenerator(PQQuoteFields.SourceTickerNames);
 
         foreach (var kvp in initialValues)
         {
@@ -77,7 +77,7 @@ public class PQNameIdLookupGeneratorTests
 
         var expectedStringUpdates = new PQFieldStringUpdate
         {
-            Field = new PQFieldUpdate(1, 0u, PQFieldFlags.IsUpsert), StringUpdate = new PQStringUpdate
+            Field = new PQFieldUpdate(PQQuoteFields.SourceId, 0u, (ushort)CrudCommand.Upsert), StringUpdate = new PQStringUpdate
             {
                 Command = CrudCommand.Upsert, DictionaryId = id, Value = "FourthItem"
             }
@@ -93,7 +93,7 @@ public class PQNameIdLookupGeneratorTests
     {
         var expectedStringUpdates = new PQFieldStringUpdate
         {
-            Field = new PQFieldUpdate(1, 0u, PQFieldFlags.IsUpsert), StringUpdate = new PQStringUpdate
+            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerId, 0u, (ushort)CrudCommand.Upsert), StringUpdate = new PQStringUpdate
             {
                 Command = CrudCommand.Upsert, DictionaryId = 1, Value = "FirstItem"
             }
@@ -101,7 +101,7 @@ public class PQNameIdLookupGeneratorTests
 
         expectedStringUpdates = new PQFieldStringUpdate
         {
-            Field = new PQFieldUpdate(2, 0u, PQFieldFlags.IsUpsert), StringUpdate = new PQStringUpdate
+            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, 0u, (ushort)CrudCommand.Upsert), StringUpdate = new PQStringUpdate
             {
                 Command = CrudCommand.Upsert, DictionaryId = 1, Value = "FirstItem"
             }
@@ -120,9 +120,8 @@ public class PQNameIdLookupGeneratorTests
 
         Assert.AreEqual(3, allFields.Count);
 
-        var newEmptyFirstDictSubKey1 = new PQNameIdLookupGenerator(1);
-        foreach (var pqFieldStringUpdate in allFields)
-            Assert.IsTrue(newEmptyFirstDictSubKey1.UpdateFieldString(pqFieldStringUpdate));
+        var newEmptyFirstDictSubKey1 = new PQNameIdLookupGenerator(PQQuoteFields.SourceId);
+        foreach (var pqFieldStringUpdate in allFields) Assert.IsTrue(newEmptyFirstDictSubKey1.UpdateFieldString(pqFieldStringUpdate));
 
         Assert.AreEqual(firstGeneratorSubKey1, newEmptyFirstDictSubKey1);
     }
@@ -137,9 +136,8 @@ public class PQNameIdLookupGeneratorTests
 
         Assert.AreEqual(3, allFields.Count);
 
-        var newEmptyFirstDictSubKey1 = new PQNameIdLookupGenerator(1);
-        foreach (var pqFieldStringUpdate in allFields)
-            Assert.IsTrue(newEmptyFirstDictSubKey1.UpdateFieldString(pqFieldStringUpdate));
+        var newEmptyFirstDictSubKey1 = new PQNameIdLookupGenerator(PQQuoteFields.SourceId);
+        foreach (var pqFieldStringUpdate in allFields) Assert.IsTrue(newEmptyFirstDictSubKey1.UpdateFieldString(pqFieldStringUpdate));
     }
 
     [TestMethod]
@@ -152,9 +150,8 @@ public class PQNameIdLookupGeneratorTests
 
         Assert.AreEqual(3, allFields.Count);
 
-        var newEmptyFirstDictSubKey1 = new PQNameIdLookupGenerator(2);
-        foreach (var pqFieldStringUpdate in allFields)
-            Assert.IsFalse(newEmptyFirstDictSubKey1.UpdateFieldString(pqFieldStringUpdate));
+        var newEmptyFirstDictSubKey1 = new PQNameIdLookupGenerator(PQQuoteFields.SourceTickerNames);
+        foreach (var pqFieldStringUpdate in allFields) Assert.IsFalse(newEmptyFirstDictSubKey1.UpdateFieldString(pqFieldStringUpdate));
 
         Assert.AreEqual(0, newEmptyFirstDictSubKey1.Count);
     }
@@ -164,7 +161,7 @@ public class PQNameIdLookupGeneratorTests
     {
         var nonUpdateInsertPQFieldStringUpdate = new PQFieldStringUpdate
         {
-            Field = new PQFieldUpdate(1, 0u, 1 | PQFieldFlags.IsUpsert), StringUpdate = new PQStringUpdate
+            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerId, 0u, (ushort)CrudCommand.Upsert), StringUpdate = new PQStringUpdate
             {
                 Command = CrudCommand.None, DictionaryId = 3, Value = "SomethingElse"
             }
@@ -191,7 +188,7 @@ public class PQNameIdLookupGeneratorTests
     [TestMethod]
     public void EmptyPQLookupGenerator_CopyFromPopulatedPQLookupGeneratorDefault_AreEqual()
     {
-        var empty = new PQNameIdLookupGenerator(1);
+        var empty = new PQNameIdLookupGenerator(PQQuoteFields.SourceId);
 
         empty.CopyFrom(firstGeneratorSubKey1);
 
@@ -203,20 +200,23 @@ public class PQNameIdLookupGeneratorTests
     {
         firstGeneratorSubKey1.HasUpdates = false;
         Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).Any());
-
-        firstGeneratorSubKey1.GetOrAddId("FourthItem");
-
-        var empty = new PQNameIdLookupGenerator(1);
+        var empty = new PQNameIdLookupGenerator(PQQuoteFields.SourceTickerId);
 
         empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1, CopyMergeFlags.JustDifferences);
 
-        Assert.AreEqual(1, empty.Count);
+        Assert.AreEqual(3, empty.Count);
 
-        empty = new PQNameIdLookupGenerator(1);
+        firstGeneratorSubKey1.GetOrAddId("FourthItem");
+
+        empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1, CopyMergeFlags.JustDifferences);
+
+        Assert.AreEqual(4, empty.Count);
+
+        empty = new PQNameIdLookupGenerator(PQQuoteFields.SourceTickerId);
 
         empty.CopyFrom(firstGeneratorSubKey1);
 
-        Assert.AreEqual(1, empty.Count);
+        Assert.AreEqual(4, empty.Count);
     }
 
     [TestMethod]
@@ -227,7 +227,7 @@ public class PQNameIdLookupGeneratorTests
 
         firstGeneratorSubKey1.GetOrAddId("FourthItem");
 
-        var empty = new PQNameIdLookupGenerator(1);
+        var empty = new PQNameIdLookupGenerator(PQQuoteFields.SourceTickerId);
 
         empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1, CopyMergeFlags.FullReplace);
 
@@ -240,13 +240,15 @@ public class PQNameIdLookupGeneratorTests
         firstGeneratorSubKey1.HasUpdates = false;
         Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).Any());
 
-        firstGeneratorSubKey1.GetOrAddId("FourthItem");
+        secondGeneratorSubKey1.CopyFrom(firstGeneratorSubKey1);
 
-        secondGeneratorSubKey1.Clear();
+        Assert.AreEqual(3, secondGeneratorSubKey1.Count);
+
+        firstGeneratorSubKey1.GetOrAddId("FourthItem");
 
         secondGeneratorSubKey1.CopyFrom(firstGeneratorSubKey1);
 
-        Assert.AreEqual(1, secondGeneratorSubKey1.Count);
+        Assert.AreEqual(4, secondGeneratorSubKey1.Count);
     }
 
     [TestMethod]
@@ -259,17 +261,17 @@ public class PQNameIdLookupGeneratorTests
 
         var originalUpdate = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).First();
 
-        var empty = new PQNameIdLookupGenerator(1);
+        var empty = new PQNameIdLookupGenerator(PQQuoteFields.SourceId);
         empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1);
         var copyUpdate = empty.GetStringUpdates(snapshotTime, StorageFlags.Update).First();
         Assert.AreEqual(originalUpdate, copyUpdate);
 
-        empty = new PQNameIdLookupGenerator(1);
+        empty = new PQNameIdLookupGenerator(PQQuoteFields.SourceId);
         empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1, CopyMergeFlags.FullReplace);
         copyUpdate = empty.GetStringUpdates(snapshotTime, StorageFlags.Update).First();
         Assert.AreEqual(originalUpdate, copyUpdate);
 
-        empty = new PQNameIdLookupGenerator(1);
+        empty = new PQNameIdLookupGenerator(PQQuoteFields.SourceId);
         empty.CopyFrom(firstGeneratorSubKey1);
         copyUpdate = empty.GetStringUpdates(snapshotTime, StorageFlags.Update).First();
         Assert.AreEqual(originalUpdate, copyUpdate);
@@ -280,7 +282,7 @@ public class PQNameIdLookupGeneratorTests
     {
         var populatedIdLookupGenerator = new NameIdLookupGenerator(initialValues);
 
-        var empty = new PQNameIdLookupGenerator(1);
+        var empty = new PQNameIdLookupGenerator(PQQuoteFields.SourceTickerId);
 
         empty.CopyFrom(populatedIdLookupGenerator);
 
@@ -370,16 +372,16 @@ public class PQNameIdLookupGeneratorTests
 
         Assert.IsTrue(firstGeneratorSubKey1.AreEquivalent(secondGeneratorSubKey1));
 
-        var subFirstSubKey1 = new PQNameIdLookupGenerator(1);
+        var subFirstSubKey1 = new PQNameIdLookupGenerator(PQQuoteFields.SourceTickerId);
         PopulateGenerator(subFirstSubKey1, removedLastEntry);
         Assert.IsTrue(firstGeneratorSubKey1.AreEquivalent(subFirstSubKey1));
         Assert.IsFalse(firstGeneratorSubKey1.AreEquivalent(subFirstSubKey1, true));
 
-        var subFirstSubKey2 = new PQNameIdLookupGenerator(1);
+        var subFirstSubKey2 = new PQNameIdLookupGenerator(PQQuoteFields.SourceTickerId);
         PopulateGenerator(subFirstSubKey2, removedLastEntry);
         Assert.IsTrue(secondGeneratorSubKey1.AreEquivalent(subFirstSubKey2));
 
-        var subSecondSubKey1 = new PQNameIdLookupGenerator(2);
+        var subSecondSubKey1 = new PQNameIdLookupGenerator(PQQuoteFields.SourceTickerNames);
         PopulateGenerator(subSecondSubKey1, removedLastEntry);
         Assert.IsTrue(secondGeneratorSubKey1.AreEquivalent(subSecondSubKey1));
         Assert.IsFalse(secondGeneratorSubKey1.AreEquivalent(subSecondSubKey1, true));
@@ -394,10 +396,11 @@ public class PQNameIdLookupGeneratorTests
         Assert.IsTrue(toString.Contains(firstGeneratorSubKey1.GetType().Name));
 
         foreach (var kvp in firstGeneratorSubKey1) Assert.IsTrue(toString.Contains($"{kvp.Key}:{kvp.Value}"));
-        Assert.IsTrue(toString.Contains("dictionaryFieldKey: 1"));
+        Assert.IsTrue(toString.Contains($"dictionaryFieldKey: {PQQuoteFields.SourceId.ToString()}"));
     }
 
-    private void PopulateGenerator(IPQNameIdLookupGenerator pqNameIdLookupGenerator,
+    private void PopulateGenerator
+    (IPQNameIdLookupGenerator pqNameIdLookupGenerator,
         IDictionary<int, string> source)
     {
         foreach (var kvp in source) pqNameIdLookupGenerator.GetOrAddId(kvp.Value);

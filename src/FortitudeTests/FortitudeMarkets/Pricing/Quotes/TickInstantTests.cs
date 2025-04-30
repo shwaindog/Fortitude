@@ -3,6 +3,7 @@
 
 #region
 
+using System.Text.Json;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
@@ -34,9 +35,9 @@ public class TickInstantTests
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
         sourceTickerInfo = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
+            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", SingleValue, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
            , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                               LastTradedFlags.LastTradedTime);
         emptyQuote                = new TickInstant(sourceTickerInfo);
@@ -185,15 +186,27 @@ public class TickInstantTests
         Assert.IsTrue(toString.Contains($"{nameof(q.ClientReceivedTime)}: {q.ClientReceivedTime:O}"));
     }
 
+    [TestMethod]
+    public void FullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = fullyPopulatedTickInstant;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
+    }
+
     internal static void AssertAreEquivalentMeetsExpectedExactComparisonType
     (bool exactComparison,
         IMutableTickInstant commonCompareQuote, IMutableTickInstant changingQuote)
     {
         var diffSrcTkrInfo = commonCompareQuote.SourceTickerInfo!.Clone();
-        diffSrcTkrInfo.Source          = "DifferSourceName";
+        diffSrcTkrInfo.SourceName      = "DifferSourceName";
         changingQuote.SourceTickerInfo = diffSrcTkrInfo;
         Assert.IsFalse(commonCompareQuote.AreEquivalent(changingQuote));
-        changingQuote.SourceTickerInfo.Source = commonCompareQuote.SourceTickerInfo.Source;
+        changingQuote.SourceTickerInfo.SourceName = commonCompareQuote.SourceTickerInfo.SourceName;
         Assert.IsTrue(commonCompareQuote.AreEquivalent(changingQuote));
 
         changingQuote.SourceTime = DateTime.Now;

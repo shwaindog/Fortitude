@@ -9,7 +9,6 @@ using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Configuration.ClientServerConfig;
-using FortitudeMarkets.Pricing;
 
 #endregion
 
@@ -50,10 +49,10 @@ internal class PricingInstrumentDeserializer : IDeserializer<IPricingInstrumentI
 
     public static unsafe void DeserializePricingInstrument(IPricingInstrumentId pricingInstrument, ref byte* ptr, IBuffer fixedBuffer)
     {
-        pricingInstrument.SourceId = StreamByteOps.ToUShort(ref ptr);
-        pricingInstrument.TickerId = StreamByteOps.ToUShort(ref ptr);
-        pricingInstrument.Source   = StreamByteOps.ToStringWithAutoSizeHeader(ref ptr, Math.Min(fixedBuffer.UnreadBytesRemaining, 255))!;
-        pricingInstrument.Ticker   = StreamByteOps.ToStringWithAutoSizeHeader(ref ptr, Math.Min(fixedBuffer.UnreadBytesRemaining, 255))!;
+        pricingInstrument.SourceId       = StreamByteOps.ToUShort(ref ptr);
+        pricingInstrument.InstrumentId   = StreamByteOps.ToUShort(ref ptr);
+        pricingInstrument.SourceName     = StreamByteOps.ToStringWithAutoSizeHeader(ref ptr, Math.Min(fixedBuffer.UnreadBytesRemaining, 255))!;
+        pricingInstrument.InstrumentName = StreamByteOps.ToStringWithAutoSizeHeader(ref ptr, Math.Min(fixedBuffer.UnreadBytesRemaining, 255))!;
 
         pricingInstrument.MarketClassification = new MarketClassification(StreamByteOps.ToUInt(ref ptr));
         pricingInstrument.InstrumentType       = (InstrumentType)(*ptr++);

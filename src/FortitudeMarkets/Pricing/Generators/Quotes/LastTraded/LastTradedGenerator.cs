@@ -3,9 +3,9 @@
 
 #region
 
+using FortitudeMarkets.Pricing.Generators.MidPrice;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Generators.MidPrice;
 using MathNet.Numerics.Distributions;
 
 #endregion
@@ -33,7 +33,7 @@ public struct GenerateLastTradeInfo
 
 public interface ILastTradedGenerator
 {
-    void PopulateLevel3LastTraded(IMutableLevel3Quote level3Quote, PreviousCurrentMidPriceTime previousCurrentMid);
+    void PopulateLevel3LastTraded(IMutableLevel3Quote level3Quote, MidPriceTimePair midPriceTimePair);
 }
 
 public class LastTradedGenerator : ILastTradedGenerator
@@ -47,11 +47,11 @@ public class LastTradedGenerator : ILastTradedGenerator
 
     public LastTradedGenerator(GenerateLastTradeInfo generateLastTradeInfo) => GenerateLastTradeInfo = generateLastTradeInfo;
 
-    public void PopulateLevel3LastTraded(IMutableLevel3Quote level3Quote, PreviousCurrentMidPriceTime previousCurrentMid)
+    public void PopulateLevel3LastTraded(IMutableLevel3Quote level3Quote, MidPriceTimePair midPriceTimePair)
     {
         if (!GenerateLastTradeInfo.GenerateLastTrades) return;
-        var prev = previousCurrentMid.PreviousMid;
-        var curr = previousCurrentMid.CurrentMid;
+        var prev = midPriceTimePair.PreviousMid;
+        var curr = midPriceTimePair.CurrentMid;
         bidCount = 0;
         askCount = 0;
 
@@ -71,24 +71,19 @@ public class LastTradedGenerator : ILastTradedGenerator
 
         switch (lastTradeType)
         {
-            case LastTradeType.None:
-                break;
-            case LastTradeType.Price:
-                PopulateLastTrades(level3Quote, numberOfLastTrades, previousCurrentMid);
-                break;
-            case LastTradeType.PricePaidOrGivenVolume:
-                PopulateLastPaidGivenTrades(level3Quote, numberOfLastTrades, previousCurrentMid);
-                break;
+            case LastTradeType.None:                   break;
+            case LastTradeType.Price:                  PopulateLastTrades(level3Quote, numberOfLastTrades, midPriceTimePair); break;
+            case LastTradeType.PricePaidOrGivenVolume: PopulateLastPaidGivenTrades(level3Quote, numberOfLastTrades, midPriceTimePair); break;
             case LastTradeType.PriceLastTraderPaidOrGivenVolume:
             case LastTradeType.PriceLastTraderName:
             default:
-                PopulateLastTraderPaidGivenTrades(level3Quote, numberOfLastTrades, previousCurrentMid);
+                PopulateLastTraderPaidGivenTrades(level3Quote, numberOfLastTrades, midPriceTimePair);
                 break;
         }
     }
 
     protected virtual void PopulateLastTrades
-        (IMutableLevel3Quote level3Quote, int numberOfTrades, PreviousCurrentMidPriceTime previousCurrentMid)
+        (IMutableLevel3Quote level3Quote, int numberOfTrades, MidPriceTimePair midPriceTimePair)
     {
         var recentlyTraded = level3Quote.RecentlyTraded!;
         InitializeRecentlyTraded(recentlyTraded);
@@ -100,14 +95,14 @@ public class LastTradedGenerator : ILastTradedGenerator
             var index        = recentlyTraded.AppendEntryAtEnd();
             var lastTradInfo = recentlyTraded[index]!;
             var isBidTrade   = pseudoRandom.NextDouble() < GenerateLastTradeInfo.LastTradedWasBidProbability;
-            PopulateLastTradePriceAndTime(lastTradInfo, isBidTrade, level3Quote, previousCurrentMid);
+            PopulateLastTradePriceAndTime(lastTradInfo, isBidTrade, level3Quote, midPriceTimePair);
         }
     }
 
     protected virtual void InitializeRecentlyTraded(IRecentlyTraded recentlyTraded) { }
 
     protected virtual void PopulateLastTradePriceAndTime
-        (IMutableLastTrade lastTrade, bool isBidTrade, IMutableLevel3Quote level3Quote, PreviousCurrentMidPriceTime previousCurrentMid)
+        (IMutableLastTrade lastTrade, bool isBidTrade, IMutableLevel3Quote level3Quote, MidPriceTimePair midPriceTimePair)
     {
         if (isBidTrade)
         {
@@ -116,7 +111,7 @@ public class LastTradedGenerator : ILastTradedGenerator
             if (priceAtIndex <= 0) return;
             var bidBookPrice = level3Quote.BidBook[priceAtIndex - 1]!;
             lastTrade.TradePrice = bidBookPrice.Price;
-            lastTrade.TradeTime  = previousCurrentMid.CurrentMid.Time - TimeSpan.FromTicks(bidCount * 777);
+            lastTrade.TradeTime  = midPriceTimePair.CurrentMid.Time - TimeSpan.FromTicks(bidCount * 777);
         }
         else
         {
@@ -125,12 +120,12 @@ public class LastTradedGenerator : ILastTradedGenerator
             if (priceAtIndex <= 0) return;
             var askBookPriceEntry = level3Quote.AskBook[priceAtIndex - 1]!;
             lastTrade.TradePrice = askBookPriceEntry.Price;
-            lastTrade.TradeTime  = previousCurrentMid.CurrentMid.Time - TimeSpan.FromTicks(askCount * 689);
+            lastTrade.TradeTime  = midPriceTimePair.CurrentMid.Time - TimeSpan.FromTicks(askCount * 689);
         }
     }
 
     protected virtual void PopulateLastPaidGivenTrades
-        (IMutableLevel3Quote level3Quote, int numberOfTrades, PreviousCurrentMidPriceTime previousCurrentMid)
+        (IMutableLevel3Quote level3Quote, int numberOfTrades, MidPriceTimePair midPriceTimePair)
     {
         var recentlyTraded = level3Quote.RecentlyTraded!;
 
@@ -141,14 +136,14 @@ public class LastTradedGenerator : ILastTradedGenerator
             var index        = recentlyTraded.AppendEntryAtEnd();
             var lastTradInfo = (IMutableLastPaidGivenTrade)recentlyTraded[index]!;
             var isBidTrade   = pseudoRandom.NextDouble() < GenerateLastTradeInfo.LastTradedWasBidProbability;
-            PopulateLastPaidGivenVolume(lastTradInfo, isBidTrade, level3Quote, previousCurrentMid);
+            PopulateLastPaidGivenVolume(lastTradInfo, isBidTrade, level3Quote, midPriceTimePair);
         }
     }
 
 
     protected virtual void PopulateLastPaidGivenVolume
     (IMutableLastPaidGivenTrade lastTradePaidGiven, bool isBidTrade, IMutableLevel3Quote level3Quote
-      , PreviousCurrentMidPriceTime previousCurrentMid)
+      , MidPriceTimePair midPriceTimePair)
     {
         if (isBidTrade)
         {
@@ -159,7 +154,7 @@ public class LastTradedGenerator : ILastTradedGenerator
             if (priceAtIndex <= 0) return;
             var bidBookPrice = level3Quote.BidBook[priceAtIndex - 1]!;
             lastTradePaidGiven.TradeVolume = bidBookPrice.Volume;
-            PopulateLastTradePriceAndTime(lastTradePaidGiven, true, level3Quote, previousCurrentMid);
+            PopulateLastTradePriceAndTime(lastTradePaidGiven, true, level3Quote, midPriceTimePair);
         }
         else
         {
@@ -170,12 +165,12 @@ public class LastTradedGenerator : ILastTradedGenerator
             if (priceAtIndex <= 0) return;
             var askBookPriceEntry = level3Quote.AskBook[priceAtIndex - 1]!;
             lastTradePaidGiven.TradeVolume = askBookPriceEntry.Volume;
-            PopulateLastTradePriceAndTime(lastTradePaidGiven, false, level3Quote, previousCurrentMid);
+            PopulateLastTradePriceAndTime(lastTradePaidGiven, false, level3Quote, midPriceTimePair);
         }
     }
 
     protected virtual void PopulateLastTraderPaidGivenTrades
-        (IMutableLevel3Quote level3Quote, int numberOfTrades, PreviousCurrentMidPriceTime previousCurrentMid)
+        (IMutableLevel3Quote level3Quote, int numberOfTrades, MidPriceTimePair midPriceTimePair)
     {
         var recentlyTraded = level3Quote.RecentlyTraded!;
 
@@ -190,7 +185,7 @@ public class LastTradedGenerator : ILastTradedGenerator
             var traderNum = pseudoRandom.Next(1, GenerateLastTradeInfo.MaxDifferentTraderNames + 1);
 
             SetTraderName(lastTradInfo, $"TraderName_{traderNum}");
-            PopulateLastPaidGivenVolume(lastTradInfo, isBidTrade, level3Quote, previousCurrentMid);
+            PopulateLastPaidGivenVolume(lastTradInfo, isBidTrade, level3Quote, midPriceTimePair);
         }
     }
 

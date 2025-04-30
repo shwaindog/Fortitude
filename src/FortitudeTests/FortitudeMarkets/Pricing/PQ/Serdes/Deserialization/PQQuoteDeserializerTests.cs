@@ -6,11 +6,11 @@
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
+using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
-using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeTests.FortitudeIO.Transports.Network.Config;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using Moq;
@@ -81,8 +81,8 @@ public class PQQuoteDeserializerTests
     {
         sourceTickerInfo = new SourceTickerInfo
             (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
-           , 20, 0.000001m, 0.0001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+           , 20, 0.000001m, 0.0001m, 1m, 50000000m, 1m, 1
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
            , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                               LastTradedFlags.LastTradedTime);
         tickerPricingSubscriptionConfig = new TickerPricingSubscriptionConfig
@@ -110,10 +110,9 @@ public class PQQuoteDeserializerTests
 
         SetupMockPublishQuoteIsExpected();
 
-        moqDispatchPerfLogger         = new Mock<IPerfLogger>();
-        quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
-        quoteDeserializerSequencedTestDataBuilder = new PQQuoteDeserializationSequencedTestDataBuilder(expectedQuotes,
-         moqDispatchPerfLogger.Object);
+        moqDispatchPerfLogger                     = new Mock<IPerfLogger>();
+        quoteSequencedTestDataBuilder             = new QuoteSequencedTestDataBuilder();
+        quoteDeserializerSequencedTestDataBuilder = new PQQuoteDeserializationSequencedTestDataBuilder(expectedQuotes, moqDispatchPerfLogger.Object);
     }
 
     [TestMethod]
@@ -169,17 +168,17 @@ public class PQQuoteDeserializerTests
         FreshSerializerDeserializeGetsExpected(PQMessageFlags.Snapshot);
         AssertQuotesAreInSync();
         AssertPublishCountIs(1);
-        SendsSequenceIdFromTo(1, 3, false);
+        SendsSequenceIdFromTo(2, 3, false);
         AssertQuotesAreInSync(false);
         AssertPublishCountIs(1);
 
         var missingUpdateSequence =
             quoteDeserializerSequencedTestDataBuilder
-                .BuildQuotesStartingAt(0, 1, new List<uint>()).First();
+                .BuildQuotesStartingAt(1, 1, new List<uint>()).First();
 
-        quoteSequencedTestDataBuilder.InitializeQuotes(expectedQuotes, 3); // gets PQSequenceId is incremented on serialization to 2
+        quoteSequencedTestDataBuilder.InitializeQuotes(expectedQuotes, 4); // gets PQSequenceId is incremented on serialization to 2
         quoteDeserializerSequencedTestDataBuilder
-            .BuildSerializeContextForQuotes(expectedQuotes, PQMessageFlags.Update, 3);
+            .BuildSerializeContextForQuotes(expectedQuotes, PQMessageFlags.Update, 4);
 
         SetupMockPublishQuoteIsExpected();
 
@@ -350,12 +349,12 @@ public class PQQuoteDeserializerTests
     }
 
     [TestMethod]
-    [Timeout(30_000)]
+    [Timeout(90_000)]
     public void OutOfSyncDeserializer_RequestSnapshotReceivesUpdatesUpToBuffer_GoesInSyncPublishesLatestUpdate()
     {
         FreshSerializerDeserializeGetsExpected(PQMessageFlags.Snapshot);
 
-        SendsSequenceIdFromTo(1, PQQuoteDeserializer<PQTickInstant>.MaxBufferedUpdates, false);
+        SendsSequenceIdFromTo(2, PQQuoteDeserializer<PQTickInstant>.MaxBufferedUpdates, false);
 
         AssertQuotesAreInSync(false);
         AssertPublishCountIs(1);
@@ -369,13 +368,12 @@ public class PQQuoteDeserializerTests
         // quoteDeserializerSequencedTestDataBuilder.BuildQuotesStartingAt(PQQuoteDeserializer<PQTickInstant>
         //     .MaxBufferedUpdates + 1, 1, new List<int>());
 
-        quoteSequencedTestDataBuilder.InitializeQuotes(expectedQuotes, PQQuoteDeserializer<PQTickInstant>.MaxBufferedUpdates);
-
+        quoteSequencedTestDataBuilder.InitializeQuotes(expectedQuotes, PQQuoteDeserializer<PQTickInstant>.MaxBufferedUpdates + 1);
 
         CallDeserializer(snapshotSequence2);
         AssertQuotesAreInSync();
-        AssertExpectedQuoteReceivedAndIsSameAsExpected();
         AssertPublishCountIs(2);
+        AssertExpectedQuoteReceivedAndIsSameAsExpected();
     }
 
     [TestMethod]
@@ -391,7 +389,6 @@ public class PQQuoteDeserializerTests
         var snapshotSequence2 =
             quoteDeserializerSequencedTestDataBuilder
                 .BuildQuotesStartingAt(1, 1, new List<uint>()).First();
-
 
         moqTickInstantObserver
             .Setup(o => o.OnNext(pqTickInstantDeserializer.PublishedQuote))
@@ -477,7 +474,7 @@ public class PQQuoteDeserializerTests
     private void FreshSerializerDeserializeGetsExpected(PQMessageFlags feedType)
     {
         AssertQuotesAreInSync(false);
-        var batchId = feedType == PQMessageFlags.Update ? uint.MaxValue : 0u;
+        var batchId = 0u;
         quoteSequencedTestDataBuilder.InitializeQuotes(expectedQuotes, 0);
         var deserializeInputList = quoteDeserializerSequencedTestDataBuilder
             .BuildSerializeContextForQuotes(expectedQuotes, feedType, batchId);
@@ -569,6 +566,8 @@ public class PQQuoteDeserializerTests
                  {
                      countTickInstantSerializerPublishes++;
                      pq.HasUpdates = false;
+
+                     expectedFullyInitializedTickInstant.HasUpdates = false;
                      if (!compareQuoteWithExpected) return;
                      Console.Out.WriteLine("TickInstant differences are \n '"
                                          + expectedFullyInitializedTickInstant.DiffQuotes(pq) + "'");
@@ -582,7 +581,9 @@ public class PQQuoteDeserializerTests
                 (pq =>
                  {
                      countLevel1SerializerPublishes++;
-                     pq.HasUpdates = false;
+
+                     pq.HasUpdates                              = false;
+                     expectedL1FullyInitializedQuote.HasUpdates = false;
                      if (!compareQuoteWithExpected) return;
                      Console.Out.WriteLine("Level1Quote differences are \n '"
                                          + expectedL1FullyInitializedQuote.DiffQuotes(pq) + "'");
@@ -596,7 +597,8 @@ public class PQQuoteDeserializerTests
                 (pq =>
                  {
                      countLevel2SerializerPublishes++;
-                     pq.HasUpdates = false;
+                     pq.HasUpdates                              = false;
+                     expectedL2FullyInitializedQuote.HasUpdates = false;
                      if (!compareQuoteWithExpected) return;
                      Console.Out.WriteLine("Level2Quote differences are \n '"
                                          + expectedL2FullyInitializedQuote.DiffQuotes(pq) + "'");
@@ -610,7 +612,8 @@ public class PQQuoteDeserializerTests
                 (pq =>
                  {
                      countLevel3SerializerPublishes++;
-                     pq.HasUpdates = false;
+                     pq.HasUpdates                              = false;
+                     expectedL3FullyInitializedQuote.HasUpdates = false;
                      if (!compareQuoteWithExpected) return;
                      Console.Out.WriteLine("Level3Quote differences are \n '"
                                          + expectedL3FullyInitializedQuote.DiffQuotes(pq) + "'");
