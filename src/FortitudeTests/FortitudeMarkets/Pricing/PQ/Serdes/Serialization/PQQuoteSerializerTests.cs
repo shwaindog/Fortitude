@@ -10,13 +10,13 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeTests.FortitudeIO.Transports.Network.Config;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using Moq;
@@ -76,45 +76,45 @@ public class PQQuoteSerializerTests
         tickInstantInfo =
             new SourceTickerInfo
                 (1, "TestSource1", 1, "TestTicker1", Level3Quote, Unknown
-               , 20, 0.000001m, 0.00001m, 30000m, 50000000m, 1000m, 1);
+               , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1);
         level1Info =
             new SourceTickerInfo
                 (2, "TestSource2", 2, "TestTicker2", Level3Quote, Unknown
-               , 20, 0.000001m, 0.00001m, 30000m, 50000000m, 1000m, 1);
+               , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1);
         valueDateInfo =
             new SourceTickerInfo
                 (7, "TestSource", 7, "TestTicker", Level3Quote, Unknown
-               , 20, 0.000001m, 0.00001m, 30000m, 50000000m, 1000m, 1
+               , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1
                , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.ValueDate
                , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                                   LastTradedFlags.LastTradedTime);
         everyLayerInfo =
             new SourceTickerInfo
                 (8, "TestSource", 8, "TestTicker", Level3Quote, Unknown
-               , 20, 0.000001m, 0.00001m, 30000m, 50000000m, 1000m, 1
+               , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1
                , layerFlags: LayerFlags.Volume.AllFlags()
                , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                                   LastTradedFlags.LastTradedTime);
         simpleNoRecentlyTradedInfo
             = new SourceTickerInfo
                 (3, "TestSource", 3, "TestTicker", Level3Quote, Unknown
-               , 20, 0.000001m, 0.00001m, 30000m, 50000000m, 1000m, 1);
+               , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1);
         srcNmLstTrdInfo =
             new SourceTickerInfo
                 (4, "TestSource", 4, "TestTicker", Level3Quote, Unknown
-               , 20, 0.000001m, 0.00001m, 30000m, 50000000m, 1000m, 1
+               , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1
                , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.SourceName
                , lastTradedFlags: LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime);
         srcQtRfPdGvnVlmInfo =
             new SourceTickerInfo
                 (5, "TestSource", 5, "TestTicker", Level3Quote, Unknown
-               , 20, 0.000001m, 0.00001m, 30000m, 50000000m, 1000m, 1
+               , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1
                , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.SourceQuoteReference, lastTradedFlags: LastTradedFlags.PaidOrGiven);
         trdrLyrTrdrPdGvnVlmDtlsInfo =
             new SourceTickerInfo
                 (6, "TestSource", 6, "TestTicker", Level3Quote, Unknown
-               , 20, 0.000001m, 0.00001m, 30000m, 50000000m, 1000m, 1
-               , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+               , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1
+               , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
                , lastTradedFlags: LastTradedFlags.TraderName);
         tickInstant       = new PQTickInstant(tickInstantInfo);
         level1Quote       = new PQLevel1Quote(level1Info);
@@ -142,7 +142,7 @@ public class PQQuoteSerializerTests
           , srcNmSmplRctlyTrdedL3Quote, srcQtRefPdGvnVlmRcntlyTrdedL3Quote, trdrPdGvnVlmRcntlyTrdedL3Quote
         };
 
-        readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]) { ReadCursor = BufferReadWriteOffset };
+        readWriteBuffer = new CircularReadWriteBuffer(new byte[12000]) { ReadCursor = BufferReadWriteOffset };
 
         moqTimeContext = new Mock<ITimeContext>();
         frozenDateTime = new DateTime(2018, 1, 15, 19, 51, 1);
@@ -252,8 +252,8 @@ public class PQQuoteSerializerTests
     {
         foreach (var pqQuote in differingQuotes)
         {
-            readWriteBuffer      = new CircularReadWriteBuffer(new byte[9000]) { ReadCursor = BufferReadWriteOffset };
-            pqQuote.PQSequenceId = uint.MaxValue; // will roll to 0 on
+            readWriteBuffer      = new CircularReadWriteBuffer(new byte[12000]) { ReadCursor = BufferReadWriteOffset };
+            pqQuote.PQSequenceId = 0; // will roll to 0 on
 
             readWriteBuffer.WriteCursor = BufferReadWriteOffset;
             var amtWritten = updateQuoteSerializer
@@ -278,27 +278,18 @@ public class PQQuoteSerializerTests
             IPQTickInstant? clientSideQuote = null;
             switch (deserializedQuote)
             {
-                case IPQQuoteDeserializer<PQTickInstant> pq0BinaryDeserializer:
-                    clientSideQuote = pq0BinaryDeserializer.PublishedQuote;
-                    break;
-                case IPQQuoteDeserializer<PQLevel1Quote> pq1BinaryDeserializer:
-                    clientSideQuote = pq1BinaryDeserializer.PublishedQuote;
-                    break;
-                case IPQQuoteDeserializer<PQLevel2Quote> pq2BinaryDeserializer:
-                    clientSideQuote = pq2BinaryDeserializer.PublishedQuote;
-                    break;
-                case IPQQuoteDeserializer<PQLevel3Quote> pq3BinaryDeserializer:
-                    clientSideQuote = pq3BinaryDeserializer.PublishedQuote;
-                    break;
-                default:
-                    Assert.Fail("Should not reach here");
-                    break;
+                case IPQQuoteDeserializer<PQTickInstant> pq0BinaryDeserializer: clientSideQuote = pq0BinaryDeserializer.PublishedQuote; break;
+                case IPQQuoteDeserializer<PQLevel1Quote> pq1BinaryDeserializer: clientSideQuote = pq1BinaryDeserializer.PublishedQuote; break;
+                case IPQQuoteDeserializer<PQLevel2Quote> pq2BinaryDeserializer: clientSideQuote = pq2BinaryDeserializer.PublishedQuote; break;
+                case IPQQuoteDeserializer<PQLevel3Quote> pq3BinaryDeserializer: clientSideQuote = pq3BinaryDeserializer.PublishedQuote; break;
+                default:                                                        Assert.Fail("Should not reach here"); break;
             }
 
             try
             {
-                pqQuote.ProcessedTime  = frozenDateTime; //set original to expected time
-                pqQuote.DispatchedTime = frozenDateTime; //set original to expected time
+                pqQuote.PQSequenceId   -= 1;
+                pqQuote.ProcessedTime  =  frozenDateTime; //set original to expected time
+                pqQuote.DispatchedTime =  frozenDateTime; //set original to expected time
 
                 clientSideQuote.HasUpdates          = false;
                 clientSideQuote.LastPublicationTime = pqQuote.LastPublicationTime; //not sent via serialization
@@ -314,6 +305,7 @@ public class PQQuoteSerializerTests
             catch (AssertFailedException)
             {
                 Console.Out.WriteLine(pqQuote.DiffQuotes(clientSideQuote));
+                Thread.Sleep(100);
                 throw;
             }
         }
@@ -340,35 +332,61 @@ public class PQQuoteSerializerTests
         var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
         Assert.AreEqual((uint)amtWritten, messagesTotalSize);
         var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);
-        Assert.AreEqual(tickInstant.PQSequenceId, sequenceNumber);
+        Assert.AreEqual((uint)Math.Max(0, (int)tickInstant.PQSequenceId - 1), sequenceNumber);
         foreach (var fieldUpdate in expectedFieldUpdates)
         {
-            var flag = *currPtr++;
+            var flag = (PQFieldFlags)(*currPtr++);
             Assert.AreEqual(fieldUpdate.Flag, flag);
-            ushort fieldId;
-            if ((flag & PQFieldFlags.IsExtendedFieldId) == 0)
-                fieldId = *currPtr++;
-            else
-                fieldId = StreamByteOps.ToUShort(ref currPtr);
+            var fieldId = (PQQuoteFields)(*currPtr++);
             Assert.AreEqual(fieldUpdate.Id, fieldId);
 
+            if (flag.HasDepthKeyFlag())
+            {
+                var depthByte = *currPtr++;
+                var depthKey  = depthByte.IsTwoByteDepth() ? depthByte.ToDepthKey(*currPtr++) : depthByte.ToDepthKey();
+                Assert.AreEqual(fieldUpdate.DepthId, depthKey);
+            }
+            if (flag.HasAuxiliaryPayloadFlag())
+            {
+                var auxPayload = StreamByteOps.ToUShort(ref currPtr);
+                Assert.AreEqual(fieldUpdate.AuxiliaryPayload, auxPayload);
+            }
+            if (flag.HasExtendedPayloadFlag())
+            {
+                var extPayload = StreamByteOps.ToUShort(ref currPtr);
+                Assert.AreEqual(fieldUpdate.ExtendedPayload, extPayload);
+            }
+
             var fieldValue = StreamByteOps.ToUInt(ref currPtr);
-            Assert.AreEqual(fieldUpdate.Value, fieldValue);
+            Assert.AreEqual(fieldUpdate.Payload, fieldValue);
         }
 
         foreach (var stringUpdate in expectedStringUpdates)
         {
-            var flag = *currPtr++;
+            var flag = (PQFieldFlags)(*currPtr++);
             Assert.AreEqual(stringUpdate.Field.Flag, flag);
             Assert.AreNotEqual(0, stringUpdate.Field.Flag);
-            ushort fieldId;
-            if ((stringUpdate.Field.Flag & PQFieldFlags.IsExtendedFieldId) == 0)
-                fieldId = *currPtr++;
-            else
-                fieldId = StreamByteOps.ToUShort(ref currPtr);
+            var fieldId = (PQQuoteFields)(*currPtr++);
             Assert.AreEqual(stringUpdate.Field.Id, fieldId);
+            if (flag.HasDepthKeyFlag())
+            {
+                var depthByte = *currPtr++;
+                var depthKey  = depthByte.IsTwoByteDepth() ? depthByte.ToDepthKey(*currPtr++) : depthByte.ToDepthKey();
+                Assert.AreEqual(stringUpdate.Field.DepthId, depthKey);
+            }
+            if (flag.HasAuxiliaryPayloadFlag())
+            {
+                var auxPayload = StreamByteOps.ToUShort(ref currPtr);
+                Assert.AreEqual(stringUpdate.Field.AuxiliaryPayload, auxPayload);
+            }
+            ushort extPayload = 0;
+            if (flag.HasExtendedPayloadFlag())
+            {
+                extPayload = StreamByteOps.ToUShort(ref currPtr);
+                Assert.AreEqual(stringUpdate.Field.ExtendedPayload, extPayload);
+            }
 
-            Assert.AreEqual(0u, stringUpdate.Field.Value);
+            Assert.AreEqual(0u, stringUpdate.Field.Payload);
             var fieldValue = StreamByteOps.ToUInt(ref currPtr);
             var bytesUsed  = (uint)GetSerializedStringSize(stringUpdate.StringUpdate.Value);
             Assert.AreEqual(bytesUsed, fieldValue);
@@ -379,7 +397,7 @@ public class PQQuoteSerializerTests
             var stringValue = StreamByteOps.ToString(ref currPtr, (int)fieldValue);
             Assert.AreEqual(stringUpdate.StringUpdate.Value, stringValue);
 
-            var command = (flag & PQFieldFlags.IsUpsert) == PQFieldFlags.IsUpsert ? CrudCommand.Upsert : CrudCommand.Delete;
+            var command = (CrudCommand)extPayload == CrudCommand.Upsert ? CrudCommand.Upsert : CrudCommand.Delete;
             Assert.AreEqual(stringUpdate.StringUpdate.Command, command
                           , $"For stringUpdate {stringUpdate} got {command} when expected {stringUpdate.StringUpdate.Command}");
         }

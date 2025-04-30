@@ -1,33 +1,37 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
-public static class PQFieldFlags
+[Flags]
+public enum PQFieldFlags : byte
 {
-    public const byte None = 0;
+    None                     = 0
+  , IncludesDepth            = 0x80 // 128
+  , IncludesExtendedPayLoad  = 0x40 // 64
+  , IncludesAuxiliaryPayload = 0x20 // 32
+  , NegativeAndScaleMask     = 0x1F // 31
+  , NegativeBit              = 0x10 // 16 
+  , DecimalScaleBits         = 0x0F // 15
 
-    // start of context specific flags
-    // for order book
-    public const byte IsAskSideFlag = 0x20;
+    // IncludesDepth | IncludesExtendedPayLoad = 192
+    // IncludesDepth | IncludesAuxiliaryPayload = 160
+    // IncludesDepth | IncludesExtendedPayLoad | IncludesAuxiliaryPayload = 224
+    // IncludesExtendedPayLoad | IncludesAuxiliaryPayload = 96
+}
 
-    public const byte IsTraderCountOnlyFlag = 0x40;
+public static class PQFieldFlagsExtensions
+{
+    public static bool HasDepthKeyFlag(this PQFieldFlags flags) => (flags & PQFieldFlags.IncludesDepth) > 0;
 
-    // for recentlytraded
-    public const byte IsPaidFlag = 0x20;
+    public static bool HasBothExtendedPayloadBytesFlags
+        (this PQFieldFlags flags) =>
+        flags.HasExtendedPayloadFlag() && flags.HasAuxiliaryPayloadFlag();
 
-    public const byte IsGivenFlag = 0x40;
+    public static bool HasExtendedPayloadFlag(this PQFieldFlags flags) =>
+        (flags & PQFieldFlags.IncludesExtendedPayLoad) == PQFieldFlags.IncludesExtendedPayLoad;
 
-
-    // for string field Update
-
-    // Insert or Update or if missing is delete
-    public const byte IsUpsert = 0x40;
-
-    // end of context specific flags
-
-    public const byte IsExtendedFieldId = 0x80;
-
-    public const byte LayerExecutableFlag = 0x01;
-
-    public static bool IsAsk(this PQFieldUpdate fieldUpdate) => (fieldUpdate.Flag & IsAskSideFlag) == IsAskSideFlag;
-
-    public static bool IsBid(this PQFieldUpdate fieldUpdate) => (fieldUpdate.Flag & IsAskSideFlag) == 0;
+    public static bool HasAuxiliaryPayloadFlag
+        (this PQFieldFlags flags) =>
+        (flags & PQFieldFlags.IncludesAuxiliaryPayload) == PQFieldFlags.IncludesAuxiliaryPayload;
 }

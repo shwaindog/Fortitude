@@ -57,6 +57,8 @@ public static class QuoteExtensionMethods
             sb.AddIfDifferent(l1q1, l1q2, q => q.AskPriceTop);
             sb.AddIfDifferent(l1q1, l1q2, q => q.Executable);
             sb.AddIfDifferent(l1q1, l1q2, q => q.SummaryPeriod!);
+            sb.AddIfDifferent(l1q1, l1q2, q => q.IsAskPriceTopUpdated!);
+            sb.AddIfDifferent(l1q1, l1q2, q => q.IsBidPriceTopUpdated!);
         }
 
         var l2q1 = ti1 as ILevel2Quote;

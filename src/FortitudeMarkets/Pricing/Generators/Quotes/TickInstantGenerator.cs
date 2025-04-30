@@ -19,8 +19,9 @@ public abstract class TickInstantGeneratorBase<TDetailLevel> : TickGenerator<TDe
     public void PopulateQuote(IMutableTickInstant populateQuote, MidPriceTimePair midPriceTimePair)
     {
         var sourceTime = GenerateQuoteValues.SourceTime;
-        populateQuote.SourceTime         = sourceTime;
-        populateQuote.SingleTickValue    = midPriceTimePair.CurrentMid.Mid;
+        populateQuote.SourceTime = sourceTime;
+        populateQuote.SingleTickValue = decimal.Round(midPriceTimePair.CurrentMid.Mid,
+                                                      GenerateQuoteValues.GenerateQuoteInfo.BookGenerationInfo.PriceRoundingDp);
         AdapterReceivedDateTime          = GenerateQuoteValues.AdapterReceivedTime;
         AdapterSentDateTime              = GenerateQuoteValues.AdapterSentTime;
         populateQuote.ClientReceivedTime = GenerateQuoteValues.ClientReceivedTime;

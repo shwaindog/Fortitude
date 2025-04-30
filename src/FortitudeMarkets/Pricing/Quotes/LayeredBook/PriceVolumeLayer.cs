@@ -27,6 +27,8 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
         Volume = toClone.Volume;
     }
 
+    protected string PriceVolumeLayerToStringMembers => $"{nameof(Price)}: {Price:N5}, {nameof(Volume)}: {Volume:N2}";
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public decimal Price { get; set; }
 
@@ -48,7 +50,7 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
 
     [JsonIgnore] public virtual LayerType LayerType => LayerType.PriceVolume;
 
-    [JsonIgnore] public virtual LayerFlags SupportsLayerFlags => LayerFlags.Price | LayerFlags.Volume;
+    [JsonIgnore] public virtual LayerFlags SupportsLayerFlags => LayerFlagsExtensions.PriceVolumeLayerFlags;
 
     public override void StateReset()
     {
@@ -89,7 +91,5 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
         }
     }
 
-    public override string ToString() =>
-        $"PriceVolumeLayer {{{nameof(Price)}: {Price:N5}, " +
-        $"{nameof(Volume)}: {Volume:N2} }}";
+    public override string ToString() => $"{nameof(PriceVolumeLayer)}{{{PriceVolumeLayerToStringMembers}}}";
 }

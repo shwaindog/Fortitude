@@ -61,11 +61,11 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
 
     public override IEnumerable<TEntry> ReadEntries(IBuffer readBuffer, IReaderContext<TEntry> readerContext)
     {
-        bufferContext ??= new MessageBufferContext(readBuffer);
+        bufferContext         ??= new MessageBufferContext(readBuffer);
+        readBuffer.ReadCursor =   0;
 
         bufferContext.EncodedBuffer = readBuffer;
 
-        if (readBuffer.ReadCursor == 0) DefaultMessageDeserializer.PublishedQuote.ResetFields();
         return ReadEntries(bufferContext, readerContext, DefaultMessageDeserializer);
     }
 
@@ -86,6 +86,7 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
         lastEntryQuote.HasUpdates = false;
         if (writeBuffer.WriteCursor == 0)
         {
+            lastEntryQuote.ResetFields();
             lastEntryQuote.CopyFrom(entry, CopyMergeFlags.FullReplace);
             messageSerializer = IndexEntryMessageSerializer;
         }
@@ -100,6 +101,7 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
         (IMessageBufferContext buffer, IReaderContext<TEntry> readerContext, IPQQuoteDeserializer<TSerializeType> bufferDeserializer)
     {
         var entryCount = 0;
+        DefaultMessageDeserializer.PublishedQuote.ResetFields();
         while (readerContext.ContinueSearching && buffer.EncodedBuffer!.ReadCursor < buffer.EncodedBuffer.WriteCursor)
         {
             entryCount++;

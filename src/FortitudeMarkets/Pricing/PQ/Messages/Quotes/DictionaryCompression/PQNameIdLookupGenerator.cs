@@ -4,7 +4,6 @@
 #region
 
 using FortitudeCommon.DataStructures.Maps.IdMap;
-using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
@@ -24,14 +23,14 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
 {
     private const uint ReservedForStringSerializedSize = 0;
 
-    private readonly   byte      dictionaryFieldKey;
-    protected readonly List<int> IdsUpdated = new();
+    private readonly   PQQuoteFields dictionaryFieldKey;
+    protected readonly List<int>     IdsUpdated = new();
 
     protected int HighestIdSerialized;
 
-    public PQNameIdLookupGenerator(byte dictionaryFieldKey) => this.dictionaryFieldKey = dictionaryFieldKey;
+    public PQNameIdLookupGenerator(PQQuoteFields dictionaryFieldKey) => this.dictionaryFieldKey = dictionaryFieldKey;
 
-    public PQNameIdLookupGenerator(INameIdLookup toClone, byte? dictionaryFieldKey = null) : base(toClone)
+    public PQNameIdLookupGenerator(INameIdLookup toClone, PQQuoteFields? dictionaryFieldKey = null) : base(toClone)
     {
         if (toClone is PQNameIdLookupGenerator pqToClone)
         {
@@ -45,7 +44,7 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
         get => IdsUpdated.Any();
         set
         {
-            IdsUpdated.Clear();
+            IdsUpdated.Clear(); // either all will be marked or none if false
             if (value)
             {
                 IdsUpdated.AddRange(Cache.Keys);
@@ -53,7 +52,7 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
             }
             else
             {
-                HighestIdSerialized = LargestAddedId;
+                HighestIdSerialized = Count;
             }
         }
     }
@@ -64,8 +63,7 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
         let sideEffect = HighestIdSerialized = Math.Max(HighestIdSerialized, kvp.Key)
         select new PQFieldStringUpdate
         {
-            Field = new PQFieldUpdate(dictionaryFieldKey, ReservedForStringSerializedSize,
-                                      PQFieldFlags.IsUpsert)
+            Field = new PQFieldUpdate(dictionaryFieldKey, ReservedForStringSerializedSize, (ushort)CrudCommand.Upsert)
           , StringUpdate = new PQStringUpdate
             {
                 DictionaryId = kvp.Key, Value = kvp.Value, Command = CrudCommand.Upsert
@@ -86,57 +84,13 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
         return true;
     }
 
-    public override INameIdLookup CopyFrom(INameIdLookup source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+
+    public override void Clear()
     {
-        if (ReferenceEquals(this, source)) return this;
-        var hasFullReplace = copyMergeFlags.HasFullReplace();
-        if (hasFullReplace) Clear();
-
-        if (source is PQNameIdLookupGenerator pqNameIdLookupGenerator)
-        {
-            if (!hasFullReplace)
-            {
-                foreach (var updatedId in pqNameIdLookupGenerator.IdsUpdated)
-                {
-                    Cache[updatedId]                                   = pqNameIdLookupGenerator[updatedId]!;
-                    ReverseLookup[pqNameIdLookupGenerator[updatedId]!] = updatedId;
-                    if (IdsUpdated.Contains(updatedId) || updatedId <= HighestIdSerialized) continue;
-                    IdsUpdated.Add(updatedId);
-                }
-                LargestAddedId = Math.Max(LargestAddedId, pqNameIdLookupGenerator.LargestAddedId);
-            }
-            else
-            {
-                if (Cache.Count != pqNameIdLookupGenerator.Cache.Count ||
-                    LargestAddedId != pqNameIdLookupGenerator.LargestAddedId)
-                {
-                    foreach (var kvp in pqNameIdLookupGenerator.Cache)
-                    {
-                        Cache[kvp.Key]           = kvp.Value;
-                        ReverseLookup[kvp.Value] = kvp.Key;
-                        IdsUpdated.Add(kvp.Key);
-                    }
-
-                    LargestAddedId      = pqNameIdLookupGenerator.LargestAddedId;
-                    HighestIdSerialized = pqNameIdLookupGenerator.HighestIdSerialized;
-                }
-            }
-        }
-        else
-        {
-            base.CopyFrom(source, copyMergeFlags);
-        }
-
-        return this;
-    }
-
-    public void Clear()
-    {
-        Cache.Clear();
-        ReverseLookup.Clear();
         IdsUpdated.Clear();
-        LargestAddedId      = 0;
         HighestIdSerialized = 0;
+
+        base.Clear();
     }
 
     IPQNameIdLookupGenerator IPQNameIdLookupGenerator.Clone() => (IPQNameIdLookupGenerator)Clone();
@@ -163,9 +117,8 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
         return baseSame && dictionaryIdSame && subDictionaryIdSame;
     }
 
-    protected override void AddNewEntry(int id, string name)
+    protected override void AddedIdAndName(int id, string? name)
     {
-        base.AddNewEntry(id, name);
         IdsUpdated.Add(id);
     }
 

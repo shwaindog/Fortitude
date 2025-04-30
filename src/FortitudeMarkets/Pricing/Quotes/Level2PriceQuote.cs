@@ -165,8 +165,8 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
 
         if (source is ILevel2Quote level2Quote)
         {
-            BidBook.CopyFrom(level2Quote.BidBook);
-            AskBook.CopyFrom(level2Quote.AskBook);
+            BidBook.CopyFrom(level2Quote.BidBook, copyMergeFlags);
+            AskBook.CopyFrom(level2Quote.AskBook, copyMergeFlags);
         }
         if (source is ILevel1Quote level1Quote)
         {

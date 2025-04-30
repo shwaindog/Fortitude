@@ -106,6 +106,7 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQTickInstant>
         fieldsToSerialize.Clear();
         stringUpdatesToSerialize.Clear();
         pqTickInstant.Lock.Acquire();
+        var estimatedTotalBytes = 0;
         try
         {
             fieldsToSerialize.AddRange(pqTickInstant.GetDeltaUpdateFields(TimeContext.UtcNow, resolvedFlags));
@@ -132,15 +133,15 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQTickInstant>
                 resolvedStorageFlags |= StorageFlags.ThreeByteMessageSize;
                 messageSizeBytes     =  3;
                 currentPtr           += messageSizeBytes;
+                estimatedTotalBytes  =  (ushort.MaxValue << 8) | byte.MaxValue;
             }
             else
             {
                 sequenceIdBytes      =  pqTickInstant.PQSequenceId == sequenceId && !publishAll ? 0 : 4;
                 resolvedStorageFlags |= sequenceIdBytes > 0 ? StorageFlags.IncludesSequenceId : StorageFlags.None;
-                var countSingleByteIdUpdates = fieldsToSerialize.Count(fu => (fu.Flag & PQFieldFlags.IsExtendedFieldId) == 0);
-                var countTwoByteIdUpdates    = fieldsToSerialize.Count(fu => (fu.Flag & PQFieldFlags.IsExtendedFieldId) > 0);
-                var totalBytes               = countSingleByteIdUpdates * 6 + countTwoByteIdUpdates * 7 + sequenceIdBytes;
-                switch (totalBytes)
+                var countFieldsBytes = fieldsToSerialize.Sum(fu => fu.RequiredBytes());
+                estimatedTotalBytes = countFieldsBytes + sequenceIdBytes + 4; // 1 for flags, 3 for possible message size bytes
+                switch (estimatedTotalBytes)
                 {
                     case < byte.MaxValue:
                         messageSizeBytes = 1;
@@ -170,7 +171,7 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQTickInstant>
                 }
                 else
                 {
-                    sequenceId = unchecked(++pqTickInstant.PQSequenceId);
+                    sequenceId = unchecked(pqTickInstant.PQSequenceId++);
                     StreamByteOps.ToBytes(ref currentPtr, sequenceId);
                 }
             }
@@ -183,39 +184,66 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQTickInstant>
             foreach (var field in fieldsToSerialize)
             {
                 // logger.Info("se-{0}-{1}", sequenceId, field);
+                // Console.Out.WriteLine("se-{0}-{1}", sequenceId, field);
 
                 if (currentPtr + FieldSize > end) return FinishProcessingMessageReturnValue(message, -1);
-                *currentPtr++ = field.Flag;
-                if ((field.Flag & PQFieldFlags.IsExtendedFieldId) == 0)
-                    *currentPtr++ = (byte)field.Id;
-                else
-                    StreamByteOps.ToBytes(ref currentPtr, field.Id);
+                *currentPtr++ = (byte)field.Flag;
+                *currentPtr++ = (byte)field.Id;
 
-                StreamByteOps.ToBytes(ref currentPtr, field.Value);
+                if (field.Flag.HasDepthKeyFlag())
+                {
+                    if (field.DepthId.IsTwoByteDepth())
+                    {
+                        StreamByteOps.ToBytes(ref currentPtr, (ushort)field.DepthId);
+                    }
+                    else
+                    {
+                        var depthByte = field.DepthId.ToByte();
+                        *currentPtr++ = depthByte;
+                    }
+                }
+                if (field.Flag.HasAuxiliaryPayloadFlag()) StreamByteOps.ToBytes(ref currentPtr, field.AuxiliaryPayload);
+                if (field.Flag.HasExtendedPayloadFlag()) StreamByteOps.ToBytes(ref currentPtr, field.ExtendedPayload);
+
+                StreamByteOps.ToBytes(ref currentPtr, field.Payload);
             }
 
             foreach (var fieldStringUpdate in stringUpdatesToSerialize)
             {
                 if (currentPtr + 100 > end) return FinishProcessingMessageReturnValue(message, -1);
 
-                *currentPtr++ = fieldStringUpdate.Field.Flag;
-                if ((fieldStringUpdate.Field.Flag & PQFieldFlags.IsExtendedFieldId) == 0)
-                    *currentPtr++ = (byte)fieldStringUpdate.Field.Id;
-                else
-                    StreamByteOps.ToBytes(ref currentPtr, fieldStringUpdate.Field.Id);
+                *currentPtr++ = (byte)fieldStringUpdate.Field.Flag;
+                *currentPtr++ = (byte)fieldStringUpdate.Field.Id;
+
+                if (fieldStringUpdate.Field.Flag.HasDepthKeyFlag())
+                {
+                    if (fieldStringUpdate.Field.DepthId.IsTwoByteDepth())
+                    {
+                        StreamByteOps.ToBytes(ref currentPtr, (ushort)fieldStringUpdate.Field.DepthId);
+                    }
+                    else
+                    {
+                        var depthByte = fieldStringUpdate.Field.DepthId.ToByte();
+                        *currentPtr++ = depthByte;
+                    }
+                }
+                if (fieldStringUpdate.Field.Flag.HasAuxiliaryPayloadFlag())
+                    StreamByteOps.ToBytes(ref currentPtr, fieldStringUpdate.Field.AuxiliaryPayload);
+                if (fieldStringUpdate.Field.Flag.HasExtendedPayloadFlag())
+                    StreamByteOps.ToBytes(ref currentPtr, fieldStringUpdate.Field.ExtendedPayload);
                 var stringSizePtr = currentPtr;
                 currentPtr += 4;
                 StreamByteOps.ToBytes(ref currentPtr, fieldStringUpdate.StringUpdate.DictionaryId);
                 var bytesUsed = StreamByteOps.ToBytes(ref currentPtr,
                                                       fieldStringUpdate.StringUpdate.Value, (int)(end - currentPtr));
                 StreamByteOps.ToBytes(ref stringSizePtr, (uint)bytesUsed);
-                // var sizeUpdatedField = fieldStringUpdate.Field;
-                // sizeUpdatedField.Value = (uint)bytesUsed;
-                // var finalStringUpdate = fieldStringUpdate;
-                // finalStringUpdate.Field = sizeUpdatedField;
-                // logger.Info("se-{0}-{1}, size-{2}", sequenceId, finalStringUpdate, bytesUsed);
-            }
 
+                var finalStringUpdate = fieldStringUpdate;
+                // logger.Info("se-{0}-{1}, size-{2}", sequenceId, finalStringUpdate, bytesUsed);
+                // Console.Out.WriteLine("se-{0}-{1}, size-{2}", sequenceId, finalStringUpdate, bytesUsed);
+            }
+            // Console.Out.WriteLine("");
+            // Console.Out.WriteLine("");
 
             *flagsPtr = serializationFlags == PQSerializationFlags.ForSocketPublish ? (byte)resolvedFlags : (byte)resolvedStorageFlags;
 
@@ -226,7 +254,7 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQTickInstant>
 
             if ((resolvedStorageFlags & (StorageFlags.OneByteMessageSize | StorageFlags.ThreeByteMessageSize)) ==
                 StorageFlags.OneByteMessageSize && written > byte.MaxValue)
-                throw new Exception($"Expected bytes written to be less than {byte.MaxValue}");
+                throw new Exception($"Expected bytes written would be {estimatedTotalBytes} bytes but it was {written}");
             if ((resolvedStorageFlags & (StorageFlags.TwoByteMessageSize | StorageFlags.ThreeByteMessageSize)) ==
                 StorageFlags.TwoByteMessageSize && written > ushort.MaxValue)
                 throw new Exception($"Expected bytes written to be less than {ushort.MaxValue}");

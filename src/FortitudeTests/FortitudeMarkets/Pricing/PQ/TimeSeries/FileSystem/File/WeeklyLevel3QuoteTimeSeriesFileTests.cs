@@ -69,7 +69,7 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
             new SourceTickerInfo
                 (19, "WeeklyLevel3QuoteTimeSeriesFileTests", 79, "PersistTest", Level3Quote, Unknown
                , numberOfLayers, layerFlags: layerType.SupportedLayerFlags(), lastTradedFlags: lastTradeType.SupportedLastTradedFlags()
-               , roundingPrecision: 0.000001m);
+               , roundingPrecision: 0.000001m, minSubmitSize: 0.01m, incrementSize: 0.01m);
 
         var generateQuoteInfo = new GenerateQuoteInfo(level3SrcTkrInfo);
         generateQuoteInfo.MidPriceGenerator!.StartTime  = startOfWeek;
@@ -247,7 +247,7 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
     [TestMethod]
     public void CreateNewPriceQuoteFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned()
     {
-        CreateLevel3File(layerType: LayerType.TraderPriceVolume, numberOfLayers: 5, lastTradeType: LastTradeType.PricePaidOrGivenVolume);
+        CreateLevel3File(layerType: LayerType.OrdersAnonymousPriceVolume, numberOfLayers: 5, lastTradeType: LastTradeType.PricePaidOrGivenVolume);
         NewFile_SavesEntriesCloseAndReopen_ReadReverseOriginalValuesAreReturned(level3QuoteGenerator);
     }
 

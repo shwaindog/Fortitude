@@ -213,8 +213,8 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
 
     public byte VolumePricePrecisionScale =>
         PrecisionSettings != null
-            ? (byte)(((PrecisionSettings.VolumeScalingPrecision & 0xF) << 4)
-                   | (PrecisionSettings.PriceScalingPrecision & 0xF))
+            ? (byte)(((byte)(PrecisionSettings.VolumeScalingPrecision & PQFieldFlags.DecimalScaleBits) << 4)
+                   | (byte)(PrecisionSettings.PriceScalingPrecision & PQFieldFlags.DecimalScaleBits))
             : (byte)0x88;
 
     public uint DeltaTickCount       { get; set; }
@@ -583,8 +583,8 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
 
     private uint GetPriceDecimalDeltaAndFlags(decimal newValue, decimal oldValue, PQPriceStorageSummaryFlags negateFlag, uint previousDelta)
     {
-        var oldScaled = PQScaling.Scale(oldValue, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
-        var newScaled = PQScaling.Scale(newValue, (byte)(PrecisionSettings!.PriceScalingPrecision & 0x1F));
+        var oldScaled = PQScaling.Scale(oldValue, (PQFieldFlags)PrecisionSettings!.PriceScalingPrecision);
+        var newScaled = PQScaling.Scale(newValue, (PQFieldFlags)PrecisionSettings!.PriceScalingPrecision);
         var delta =
             SummaryStorageFlags.SignMultiplier(negateFlag) * previousDelta + (int)newScaled - (int)oldScaled;
         if (delta < 0)
@@ -596,8 +596,8 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
 
     private uint GetVolumeLongDeltaAndFlags(long newValue, long oldValue, PQPriceStorageSummaryFlags negateFlag, uint previousDelta)
     {
-        var oldScaled = PQScaling.Scale(oldValue, (byte)(PrecisionSettings!.VolumeScalingPrecision & 0x1F));
-        var newScaled = PQScaling.Scale(newValue, (byte)(PrecisionSettings!.VolumeScalingPrecision & 0x1F));
+        var oldScaled = PQScaling.Scale(oldValue, (PQFieldFlags)PrecisionSettings!.VolumeScalingPrecision);
+        var newScaled = PQScaling.Scale(newValue, (PQFieldFlags)PrecisionSettings!.VolumeScalingPrecision);
         var delta =
             SummaryStorageFlags.SignMultiplier(negateFlag) * previousDelta + (int)newScaled - (int)oldScaled;
         if (delta < 0)
@@ -609,37 +609,65 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
 
     private IPQPriceVolumePublicationPrecisionSettings GetProposedVolumeScaleFactor()
     {
-        var priceScale = (byte)((PrecisionSettings?.PriceScalingPrecision ?? 15) & 0x0F);
+        var priceScale = (PrecisionSettings?.PriceScalingPrecision ?? PQFieldFlags.DecimalScaleBits) & PQFieldFlags.DecimalScaleBits;
         if (PrecisionSettings == null || DeltaStartBidPrice + DeltaStartAskPrice + DeltaHighestBidPrice
           + DeltaHighestAskPrice + DeltaLowestBidPrice + DeltaLowestAskPrice + DeltaEndBidPrice + DeltaEndAskPrice <= 0)
         {
-            priceScale = StartBidPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(StartBidPrice)) : priceScale;
-            priceScale = StartAskPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(StartAskPrice)) : priceScale;
-            priceScale = HighestBidPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(HighestBidPrice)) : priceScale;
-            priceScale = HighestAskPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(HighestAskPrice)) : priceScale;
-            priceScale = LowestBidPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(LowestBidPrice)) : priceScale;
-            priceScale = LowestAskPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(LowestAskPrice)) : priceScale;
-            priceScale = EndBidPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(EndBidPrice)) : priceScale;
-            priceScale = EndAskPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(EndAskPrice)) : priceScale;
-            priceScale = previousHighestBidPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(previousHighestBidPrice)) : priceScale;
-            priceScale = previousHighestAskPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(previousHighestAskPrice)) : priceScale;
-            priceScale = previousLowestBidPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(previousLowestBidPrice)) : priceScale;
-            priceScale = previousLowestAskPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(previousLowestAskPrice)) : priceScale;
-            priceScale = previousEndBidPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(previousEndBidPrice)) : priceScale;
-            priceScale = previousEndAskPrice > 0 ? Math.Min(priceScale, PQScaling.FindPriceScaleFactor(previousEndAskPrice)) : priceScale;
+            priceScale = StartBidPrice > 0
+                ? (PQFieldFlags)Math.Min((byte)priceScale, (byte)PQScaling.FindPriceScaleFactor(StartBidPrice))
+                : priceScale;
+            priceScale = StartAskPrice > 0
+                ? (PQFieldFlags)Math.Min((byte)priceScale, (byte)PQScaling.FindPriceScaleFactor(StartAskPrice))
+                : priceScale;
+            priceScale = HighestBidPrice > 0
+                ? (PQFieldFlags)Math.Min((byte)priceScale, (byte)PQScaling.FindPriceScaleFactor(HighestBidPrice))
+                : priceScale;
+            priceScale = HighestAskPrice > 0
+                ? (PQFieldFlags)Math.Min((byte)priceScale, (byte)PQScaling.FindPriceScaleFactor(HighestAskPrice))
+                : priceScale;
+            priceScale = LowestBidPrice > 0
+                ? (PQFieldFlags)Math.Min((byte)priceScale, (byte)PQScaling.FindPriceScaleFactor(LowestBidPrice))
+                : priceScale;
+            priceScale = LowestAskPrice > 0
+                ? (PQFieldFlags)Math.Min((byte)priceScale, (byte)PQScaling.FindPriceScaleFactor(LowestAskPrice))
+                : priceScale;
+            priceScale = EndBidPrice > 0 ? (PQFieldFlags)Math.Min((byte)priceScale, (byte)PQScaling.FindPriceScaleFactor(EndBidPrice)) : priceScale;
+            priceScale = EndAskPrice > 0 ? (PQFieldFlags)Math.Min((byte)priceScale, (byte)PQScaling.FindPriceScaleFactor(EndAskPrice)) : priceScale;
+            priceScale = previousHighestBidPrice > 0
+                ? (PQFieldFlags)Math.Min((byte)priceScale, (byte)PQScaling.FindPriceScaleFactor(previousHighestBidPrice))
+                : priceScale;
+            priceScale = previousHighestAskPrice > 0
+                ? (PQFieldFlags)Math.Min((byte)priceScale, (byte)PQScaling.FindPriceScaleFactor(previousHighestAskPrice))
+                : priceScale;
+            priceScale = previousLowestBidPrice > 0
+                ? (PQFieldFlags)Math.Min((byte)priceScale, (byte)PQScaling.FindPriceScaleFactor(previousLowestBidPrice))
+                : priceScale;
+            priceScale = previousLowestAskPrice > 0
+                ? (PQFieldFlags)Math.Min((byte)priceScale, (byte)PQScaling.FindPriceScaleFactor(previousLowestAskPrice))
+                : priceScale;
+            priceScale = previousEndBidPrice > 0
+                ? (PQFieldFlags)Math.Min((byte)priceScale, (byte)PQScaling.FindPriceScaleFactor(previousEndBidPrice))
+                : priceScale;
+            priceScale = previousEndAskPrice > 0
+                ? (PQFieldFlags)Math.Min((byte)priceScale, (byte)PQScaling.FindPriceScaleFactor(previousEndAskPrice))
+                : priceScale;
             // don't use AverageBidAsk as it may have many fractional decimals places
         }
 
-        var volumeScale = (byte)((PrecisionSettings?.VolumeScalingPrecision ?? 15) & 0x0F);
+        var volumeScale = (PrecisionSettings?.VolumeScalingPrecision ?? PQFieldFlags.DecimalScaleBits) & PQFieldFlags.DecimalScaleBits;
 
         if (PrecisionSettings == null || DeltaPeriodVolume <= 0)
         {
-            volumeScale = previousPeriodVolume > 0 ? Math.Min(volumeScale, PQScaling.FindVolumeScaleFactor(previousPeriodVolume)) : volumeScale;
-            volumeScale = periodVolume > 0 ? Math.Min(volumeScale, PQScaling.FindVolumeScaleFactor(periodVolume)) : volumeScale;
+            volumeScale = previousPeriodVolume > 0
+                ? (PQFieldFlags)Math.Min((byte)volumeScale, (byte)PQScaling.FindVolumeScaleFactor(previousPeriodVolume))
+                : volumeScale;
+            volumeScale = periodVolume > 0
+                ? (PQFieldFlags)Math.Min((byte)volumeScale, (byte)PQScaling.FindVolumeScaleFactor(periodVolume))
+                : volumeScale;
         }
 
-        if (PrecisionSettings == null || (PrecisionSettings.PriceScalingPrecision & 0x0F) != priceScale
-                                      || (PrecisionSettings.VolumeScalingPrecision & 0x0F) != volumeScale)
+        if (PrecisionSettings == null || (PrecisionSettings.PriceScalingPrecision & PQFieldFlags.DecimalScaleBits) != priceScale
+                                      || (PrecisionSettings.VolumeScalingPrecision & PQFieldFlags.DecimalScaleBits) != volumeScale)
             PrecisionSettings = new PQPriceVolumePublicationPrecisionSettings(priceScale, volumeScale);
 
         SummaryStorageFlags &= AllFlags & ~PriceVolumeScaleMask;

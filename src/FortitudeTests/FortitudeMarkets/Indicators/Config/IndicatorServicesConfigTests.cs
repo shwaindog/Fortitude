@@ -4,10 +4,10 @@
 #region
 
 using FortitudeIO.TimeSeries.FileSystem.Config;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Indicators.Config;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.DirectoryStructure;
+using FortitudeMarkets.Pricing.Quotes.LastTraded;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ;
 
 #endregion
@@ -20,7 +20,7 @@ public class IndicatorServicesConfigTests
     {
         var serverConfig = new LocalHostPQTestSetupCommon
         {
-            LayerDetails = LayerFlags.Price | LayerFlags.Volume | LayerFlags.TraderName | LayerFlags.TraderSize
+            LayerDetails = LayerFlags.Price | LayerFlags.Volume | LayerFlags.OrderTraderName | LayerFlags.OrderSize
           , LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
                               LastTradedFlags.LastTradedTime
         };
@@ -38,7 +38,7 @@ public class IndicatorServicesConfigTests
     {
         var serverConfig = new LocalHostPQTestSetupCommon
         {
-            LayerDetails = LayerFlags.Price | LayerFlags.Volume | LayerFlags.TraderName | LayerFlags.TraderSize
+            LayerDetails = LayerFlags.Price | LayerFlags.Volume | LayerFlags.OrderTraderName | LayerFlags.OrderSize
           , LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
                               LastTradedFlags.LastTradedTime
         };

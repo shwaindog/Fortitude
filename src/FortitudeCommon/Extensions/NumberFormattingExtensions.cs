@@ -116,6 +116,21 @@ public static class NumberFormattingExtensions
         return sb.ToString();
     }
 
+    public static string ToHex2(this ushort toConvert, bool isUpperCaseHex = true)
+    {
+        var sb                 = new StringBuilder();
+        var groupShift         = 8;
+        var currentShiftAmount = 3;
+        while (currentShiftAmount >= 0)
+        {
+            var currentByteGroup = (byte)((toConvert >> (currentShiftAmount * groupShift)) & 0xFF);
+            sb.AppendFormat(isUpperCaseHex ? "{0:X2}" : "{0:x2}", currentByteGroup);
+            if (currentShiftAmount > 0) sb.Append("_");
+            --currentShiftAmount;
+        }
+        return sb.ToString();
+    }
+
     public static string ToHex4(this uint toConvert, bool isUpperCaseHex = true)
     {
         var sb                 = new StringBuilder();

@@ -4,6 +4,8 @@
 #region
 
 using System.Collections.Concurrent;
+using FortitudeCommon.DataStructures.Maps.IdMap;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using MathNet.Numerics.Distributions;
 
 #endregion
@@ -29,13 +31,13 @@ public struct SnapshotBookGeneratedValues
         AskLayers = new SnapshotLayerGeneratedValues[maxLayersToGenerate];
         for (var i = 0; i < maxLayersToGenerate; i++)
         {
-            BidLayers[i] = new SnapshotLayerGeneratedValues(new List<SnapshotLayerTraderGeneratedValues>(maxTradersPerLayer));
-            AskLayers[i] = new SnapshotLayerGeneratedValues(new List<SnapshotLayerTraderGeneratedValues>(maxTradersPerLayer));
+            BidLayers[i] = new SnapshotLayerGeneratedValues(new List<SnapshotOrderLayerGeneratedValues>(maxTradersPerLayer));
+            AskLayers[i] = new SnapshotLayerGeneratedValues(new List<SnapshotOrderLayerGeneratedValues>(maxTradersPerLayer));
         }
     }
 }
 
-public struct SnapshotLayerGeneratedValues(List<SnapshotLayerTraderGeneratedValues>? traders = null)
+public struct SnapshotLayerGeneratedValues(List<SnapshotOrderLayerGeneratedValues>? orders = null)
 {
     public decimal?  Price;
     public decimal?  Volume;
@@ -43,24 +45,32 @@ public struct SnapshotLayerGeneratedValues(List<SnapshotLayerTraderGeneratedValu
     public bool?     Executable;
     public uint?     SourceQuoteReference;
     public DateTime? ValueDate;
-    public int?      NumTraders;
+    public uint?     OrdersCount;
+    public decimal?  InternalVolume;
 
-    public List<SnapshotLayerTraderGeneratedValues> Traders = traders ?? new List<SnapshotLayerTraderGeneratedValues>();
+    public List<SnapshotOrderLayerGeneratedValues> Orders = orders ?? new List<SnapshotOrderLayerGeneratedValues>();
 }
 
-public struct SnapshotLayerTraderGeneratedValues(decimal? traderVolume = null, int? traderId = null)
+public struct SnapshotOrderLayerGeneratedValues
 {
-    public SnapshotLayerTraderGeneratedValues(SnapshotLayerTraderGeneratedValues toClone)
-        : this(toClone.TraderVolume, toClone.TraderId) { }
-
-    public int?     TraderId;
-    public decimal? TraderVolume;
+    public int?             OrderId;
+    public LayerOrderFlags? OrderFlags;
+    public DateTime?        CreatedTime;
+    public DateTime?        UpdatedTime;
+    public int?             CounterPartyId;
+    public int?             TraderId;
+    public decimal?         OrderVolume;
+    public decimal?         OrderRemainingVolume;
 }
 
 public class QuoteBookValuesGenerator
 {
-    protected static readonly ConcurrentDictionary<int, string> CachedSourceNames = new();
-    protected static readonly ConcurrentDictionary<int, string> CachedTraderNames = new();
+    protected static readonly ConcurrentDictionary<int, string> CachedSourceNames       = new();
+    protected static readonly ConcurrentDictionary<int, string> CachedTraderNames       = new();
+    protected static readonly ConcurrentDictionary<int, string> CachedCounterPartyNames = new();
+
+    protected static readonly NameIdLookupGenerator BidBookNameToId = new();
+    protected static readonly NameIdLookupGenerator AskBookNameToId = new();
 
     private readonly BookGenerationInfo                bookGenerationInfo;
     private readonly CurrentQuoteInstantValueGenerator quoteValueGenerator;
@@ -90,8 +100,8 @@ public class QuoteBookValuesGenerator
 
         var maxLayersToGenerate = Math.Min(quoteValueGenerator.GenerateQuoteInfo.SourceTickerInfo!.MaximumPublishedLayers
                                          , bookGenerationInfo.NumberOfBookLayers);
-        CurrentBookValues  = new SnapshotBookGeneratedValues(maxLayersToGenerate, bookGenerationInfo.GenerateBookLayerInfo.AverageTradersPerLayer);
-        PreviousBookValues = new SnapshotBookGeneratedValues(maxLayersToGenerate, bookGenerationInfo.GenerateBookLayerInfo.AverageTradersPerLayer);
+        CurrentBookValues  = new SnapshotBookGeneratedValues(maxLayersToGenerate, bookGenerationInfo.GenerateBookLayerInfo.AverageOrdersPerLayer);
+        PreviousBookValues = new SnapshotBookGeneratedValues(maxLayersToGenerate, bookGenerationInfo.GenerateBookLayerInfo.AverageOrdersPerLayer);
     }
 
     public BookGenerationInfo BookGenerationInfo => bookGenerationInfo;
@@ -172,7 +182,9 @@ public class QuoteBookValuesGenerator
             prevNextLayerPrice = betterDepthPrice - prevNextLayerPrice > bookGenerationInfo.MaxPriceLayerPips * bookGenerationInfo.Pip
                 ? null
                 : prevNextLayerPrice;
-        return CurrentBookValues.BidLayers[depth].Price ??= prevNextLayerPrice ?? betterDepthPrice + priceDelta;
+        return CurrentBookValues.BidLayers[depth].Price
+            ??= decimal.Round(prevNextLayerPrice ?? betterDepthPrice + priceDelta, bookGenerationInfo.PriceRoundingDp);
+        ;
     }
 
     public virtual decimal? PreviousAskPriceWorseThan(decimal price) => PreviousAskLayerWorseThan(price)?.Price;
@@ -188,7 +200,8 @@ public class QuoteBookValuesGenerator
             prevNextLayerPrice = prevNextLayerPrice - betterDepthPrice > bookGenerationInfo.MaxPriceLayerPips * bookGenerationInfo.Pip
                 ? null
                 : prevNextLayerPrice;
-        return CurrentBookValues.AskLayers[depth].Price ??= prevNextLayerPrice ?? betterDepthPrice + priceDelta;
+        return CurrentBookValues.AskLayers[depth].Price
+            ??= decimal.Round(prevNextLayerPrice ?? betterDepthPrice + priceDelta, bookGenerationInfo.PriceRoundingDp);
     }
 
     public virtual DateTime? PreviousBidValueDateAt(decimal price, int? pos = null) =>
@@ -210,13 +223,14 @@ public class QuoteBookValuesGenerator
     {
         var prevBidSourceId = PreviousBidSourceIdAt(price, pos);
         if (!prevBidSourceId.HasValue) return null;
-        return GenerateSourceName(prevBidSourceId.Value);
+        return BidNameFromId(prevBidSourceId.Value);
     }
 
-    public virtual string BidSourceNameAt(int depth) => GenerateSourceName(BidSourceIdAt(depth));
+    public virtual string BidSourceNameAt(int depth) => BidNameFromId(BidSourceIdAt(depth));
 
     public virtual ushort BidSourceIdAt(int depth) =>
-        CurrentBookValues.BidLayers[depth].SourceId ??= PreviousBidSourceIdAt(BidPriceAt(depth), depth) ?? GenerateSourceNumber();
+        CurrentBookValues.BidLayers[depth].SourceId
+            ??= PreviousBidSourceIdAt(BidPriceAt(depth), depth) ?? (ushort)BidIdFromName(GenerateSourceName(true));
 
     public virtual ushort? PreviousAskSourceIdAt(decimal price, int? pos = null) =>
         PreviousClosestLayerWithPrice(PreviousBookValues.AskLayers, price, pos)?.SourceId;
@@ -225,13 +239,14 @@ public class QuoteBookValuesGenerator
     {
         var prevAskSourceId = PreviousAskSourceIdAt(price, pos);
         if (!prevAskSourceId.HasValue) return null;
-        return GenerateSourceName(prevAskSourceId.Value);
+        return AskNameFromId(prevAskSourceId.Value);
     }
 
-    public virtual string AskSourceNameAt(int depth) => GenerateSourceName(AskSourceIdAt(depth));
+    public virtual string AskSourceNameAt(int depth) => AskNameFromId(AskSourceIdAt(depth));
 
     public virtual ushort AskSourceIdAt(int depth) =>
-        CurrentBookValues.AskLayers[depth].SourceId ??= PreviousAskSourceIdAt(AskPriceAt(depth), depth) ?? GenerateSourceNumber();
+        CurrentBookValues.AskLayers[depth].SourceId
+            ??= PreviousAskSourceIdAt(AskPriceAt(depth), depth) ?? (ushort)AskIdFromName(GenerateSourceName(false));
 
     public virtual bool? PreviousBidExecutableAt(decimal price, int? pos = null) =>
         PreviousClosestLayerWithPrice(PreviousBookValues.BidLayers, price, pos)?.Executable;
@@ -257,137 +272,460 @@ public class QuoteBookValuesGenerator
     public virtual uint AskQuoteRefAt(int depth) =>
         CurrentBookValues.AskLayers[depth].SourceQuoteReference ??= PreviousAskQuoteRefAt(AskPriceAt(depth), depth) ?? GenerateQuoteRef();
 
-    public virtual int? PreviousBidNumOfTradersAt(decimal price, int? pos = null) =>
-        PreviousClosestLayerWithPrice(PreviousBookValues.BidLayers, price, pos)?.NumTraders;
+    public virtual uint? PreviousBidOrdersCountAt(decimal price, int? pos = null) =>
+        PreviousClosestLayerWithPrice(PreviousBookValues.BidLayers, price, pos)?.OrdersCount;
 
-    public virtual int BidNumOfTradersAt(int depth) =>
-        CurrentBookValues.BidLayers[depth].NumTraders ??= PreviousBidNumOfTradersAt(BidPriceAt(depth), depth) ?? GenerateNumOfTraders();
-
-    public virtual int? PreviousAskNumOfTradersAt(decimal price, int? pos = null) =>
-        PreviousClosestLayerWithPrice(PreviousBookValues.AskLayers, price, pos)?.NumTraders;
-
-    public virtual int AskNumOfTradersAt(int depth) =>
-        CurrentBookValues.AskLayers[depth].NumTraders ??= PreviousAskNumOfTradersAt(AskPriceAt(depth), depth) ?? GenerateNumOfTraders();
-
-    public virtual int? PreviousBidTraderIdAt(decimal price, int traderPos, int? pos = null)
+    public virtual uint BidOrdersCountAt(int depth)
     {
-        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.BidLayers, price, pos);
+        var bidOrderCount = CurrentBookValues.BidLayers[depth].OrdersCount
+            ??= PreviousBidOrdersCountAt(BidPriceAt(depth), depth) ?? GenerateOrdersCount();
+        return bidOrderCount;
+    }
+
+    public virtual uint? PreviousAskOrdersCountAt(decimal price, int? pos = null) =>
+        PreviousClosestLayerWithPrice(PreviousBookValues.AskLayers, price, pos)?.OrdersCount;
+
+    public virtual uint AskOrdersCountAt(int depth)
+    {
+        var askOrdersCount = CurrentBookValues.AskLayers[depth].OrdersCount ??=
+            PreviousAskOrdersCountAt(AskPriceAt(depth), depth) ?? GenerateOrdersCount();
+        return askOrdersCount;
+    }
+
+    public virtual decimal? PreviousInternalVolumeAt(decimal price, int? pos = null) =>
+        PreviousClosestLayerWithPrice(PreviousBookValues.BidLayers, price, pos)?.InternalVolume;
+
+    public virtual decimal BidInternalVolumeAt(int depth) =>
+        CurrentBookValues.BidLayers[depth].InternalVolume
+            ??= PreviousInternalVolumeAt(BidPriceAt(depth), depth) ?? GenerateInternalVolume(depth, BookSide.BidBook);
+
+    public virtual decimal? PreviousAskInternalVolumeAt(decimal price, int? pos = null) =>
+        PreviousClosestLayerWithPrice(PreviousBookValues.AskLayers, price, pos)?.InternalVolume;
+
+    public virtual decimal AskInternalVolumeAt(int depth) =>
+        CurrentBookValues.AskLayers[depth].InternalVolume
+            ??= PreviousAskInternalVolumeAt(AskPriceAt(depth), depth) ?? GenerateInternalVolume(depth, BookSide.BidBook);
+
+    public virtual int? PreviousBidOrderIdAt(decimal price, int orderPos)
+    {
+        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.BidLayers, price);
         if (previousLayer == null) return null;
-        return TraderLayerTraderId(previousLayer.Value, traderPos);
+        var orderLayer = PreviousOrderAtPos(previousLayer.Value, orderPos);
+        if (orderLayer == null) return null;
+        return orderLayer.Value.OrderId;
     }
 
-    public virtual string? PreviousBidTraderNameAt(decimal price, int traderPos, int? pos = null)
+    public virtual int BidOrderIdAt(int depth, int orderPos)
     {
-        var prevBidTraderId = PreviousBidTraderIdAt(price, traderPos, pos);
-        if (!prevBidTraderId.HasValue) return null;
-        return GenerateTraderName(prevBidTraderId.Value);
+        var bidOrdersAtDepth = CurrentBookValues.BidLayers[depth].Orders;
+        for (var i = bidOrdersAtDepth.Count; i <= orderPos; i++) bidOrdersAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
+        var orderDepthPos = bidOrdersAtDepth[orderPos];
+        orderDepthPos.OrderId      ??= PreviousBidOrderIdAt(BidPriceAt(depth), orderPos) ?? GenerateOrderId();
+        bidOrdersAtDepth[orderPos] =   orderDepthPos;
+        return orderDepthPos.OrderId.Value;
     }
 
-    public virtual int BidTraderIdAt(int depth, int traderPos, int? pos = null)
+    public virtual int? PreviousAskOrderIdAt(decimal price, int orderPos)
     {
-        var bidTraderAtDepth = CurrentBookValues.BidLayers[depth].Traders;
-        for (var i = bidTraderAtDepth.Count; i <= traderPos; i++) bidTraderAtDepth.Add(new SnapshotLayerTraderGeneratedValues());
-        var traderDepthPos = bidTraderAtDepth[traderPos];
-        traderDepthPos.TraderId     ??= PreviousBidTraderIdAt(BidPriceAt(depth), traderPos, pos) ?? GenerateTraderNumber();
-        bidTraderAtDepth[traderPos] =   traderDepthPos;
-        return traderDepthPos.TraderId.Value;
-    }
-
-    public virtual string BidTraderNameAt(int depth, int traderPos, int? pos = null) => GenerateTraderName(BidTraderIdAt(depth, traderPos, pos));
-
-    public virtual int? PreviousAskTraderIdAt(decimal price, int traderPos, int? pos = null)
-    {
-        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.AskLayers, price, pos);
+        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.AskLayers, price);
         if (previousLayer == null) return null;
-        return TraderLayerTraderId(previousLayer.Value, traderPos);
+        var orderLayer = PreviousOrderAtPos(previousLayer.Value, orderPos);
+        if (orderLayer == null) return null;
+        return orderLayer.Value.OrderId;
     }
 
-    public virtual string? PreviousAskTraderNameAt(decimal price, int traderPos, int? pos = null)
+    public virtual int AskOrderIdAt(int depth, int orderPos)
     {
-        var prevAskTraderId = PreviousAskTraderIdAt(price, traderPos, pos);
-        if (!prevAskTraderId.HasValue) return null;
-        return GenerateTraderName(prevAskTraderId.Value);
+        var askOrdersAtDepth = CurrentBookValues.AskLayers[depth].Orders;
+        for (var i = askOrdersAtDepth.Count; i <= orderPos; i++) askOrdersAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
+        var orderDepthPos = askOrdersAtDepth[orderPos];
+        orderDepthPos.OrderId      ??= PreviousAskOrderIdAt(AskPriceAt(depth), orderPos) ?? GenerateOrderId();
+        askOrdersAtDepth[orderPos] =   orderDepthPos;
+        return orderDepthPos.OrderId.Value;
     }
 
-    public virtual int AskTraderIdAt(int depth, int traderPos, int? pos = null)
+    public virtual LayerOrderFlags? PreviousBidOrderFlagsAt(decimal price, int orderId, int orderPos)
     {
-        var askTraderAtDepth = CurrentBookValues.AskLayers[depth].Traders;
-        for (var i = askTraderAtDepth.Count; i <= traderPos; i++) askTraderAtDepth.Add(new SnapshotLayerTraderGeneratedValues());
-        var traderDepthPos = askTraderAtDepth[traderPos];
-        traderDepthPos.TraderId     ??= PreviousAskTraderIdAt(BidPriceAt(depth), traderPos, pos) ?? GenerateTraderNumber();
-        askTraderAtDepth[traderPos] =   traderDepthPos;
-        return traderDepthPos.TraderId.Value;
-    }
-
-    public virtual string AskTraderNameAt(int depth, int traderPos, int? pos = null) => GenerateTraderName(AskTraderIdAt(depth, traderPos, pos));
-
-    public virtual decimal? PreviousBidTraderVolumeAt(decimal price, int traderId, int? pos = null)
-    {
-        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.BidLayers, price, pos);
+        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.BidLayers, price);
         if (previousLayer == null) return null;
-        return TraderLayerTraderVolume(previousLayer!.Value, traderId);
+        var orderLayer = PreviousOrderLayerWithId(previousLayer.Value, orderId);
+        if (orderLayer == null) return null;
+        return orderLayer.Value.OrderFlags;
     }
 
-    public virtual decimal BidTraderVolumeAt(int depth, int traderPos)
+    public virtual LayerOrderFlags BidOrderFlagsAt(int depth, int orderId, int orderPos)
     {
-        var bidTraderAtDepth     = CurrentBookValues.BidLayers[depth].Traders;
+        var bidOrdersAtDepth = CurrentBookValues.BidLayers[depth].Orders;
+        for (var i = bidOrdersAtDepth.Count; i <= orderPos; i++) bidOrdersAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
+        var orderDepthPos = bidOrdersAtDepth[orderPos];
+        orderDepthPos.OrderFlags   ??= PreviousBidOrderFlagsAt(BidPriceAt(depth), orderId, orderPos) ?? GenerateOrderFlags();
+        bidOrdersAtDepth[orderPos] =   orderDepthPos;
+        return orderDepthPos.OrderFlags.Value;
+    }
+
+    public virtual LayerOrderFlags? PreviousAskOrderFlagsAt(decimal price, int orderId, int orderPos)
+    {
+        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.AskLayers, price);
+        if (previousLayer == null) return null;
+        var orderLayer = PreviousOrderLayerWithId(previousLayer.Value, orderId);
+        if (orderLayer == null) return null;
+        return orderLayer.Value.OrderFlags;
+    }
+
+    public virtual LayerOrderFlags AskOrderFlagsAt(int depth, int orderId, int orderPos)
+    {
+        var askOrdersAtDepth = CurrentBookValues.AskLayers[depth].Orders;
+        for (var i = askOrdersAtDepth.Count; i <= orderPos; i++) askOrdersAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
+        var orderDepthPos = askOrdersAtDepth[orderPos];
+        orderDepthPos.OrderFlags   ??= PreviousAskOrderFlagsAt(AskPriceAt(depth), orderId, orderPos) ?? GenerateOrderFlags();
+        askOrdersAtDepth[orderPos] =   orderDepthPos;
+        return orderDepthPos.OrderFlags.Value;
+    }
+
+    public virtual DateTime? PreviousBidOrderCreatedTimeAt(decimal price, int orderId, int orderPos)
+    {
+        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.BidLayers, price);
+        if (previousLayer == null) return null;
+        var orderLayer = PreviousOrderLayerWithId(previousLayer.Value, orderId);
+        if (orderLayer == null) return null;
+        return orderLayer.Value.CreatedTime;
+    }
+
+    public virtual DateTime BidOrderCreatedTimeAt(int depth, int orderId, int orderPos)
+    {
+        var bidOrdersAtDepth = CurrentBookValues.BidLayers[depth].Orders;
+        for (var i = bidOrdersAtDepth.Count; i <= orderPos; i++) bidOrdersAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
+        var orderDepthPos = bidOrdersAtDepth[orderPos];
+        orderDepthPos.CreatedTime  ??= PreviousBidOrderCreatedTimeAt(BidPriceAt(depth), orderId, orderPos) ?? GenerateOrderCreatedTime();
+        bidOrdersAtDepth[orderPos] =   orderDepthPos;
+        return orderDepthPos.CreatedTime.Value;
+    }
+
+    public virtual DateTime? PreviousAskOrderCreatedTimeAt(decimal price, int orderId, int orderPos)
+    {
+        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.AskLayers, price);
+        if (previousLayer == null) return null;
+        var orderLayer = PreviousOrderLayerWithId(previousLayer.Value, orderId);
+        if (orderLayer == null) return null;
+        return orderLayer.Value.CreatedTime;
+    }
+
+    public virtual DateTime AskOrderCreatedTimeAt(int depth, int orderId, int orderPos)
+    {
+        var askOrdersAtDepth = CurrentBookValues.AskLayers[depth].Orders;
+        for (var i = askOrdersAtDepth.Count; i <= orderPos; i++) askOrdersAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
+        var orderDepthPos = askOrdersAtDepth[orderPos];
+        orderDepthPos.CreatedTime  ??= PreviousAskOrderCreatedTimeAt(AskPriceAt(depth), orderId, orderPos) ?? GenerateOrderCreatedTime();
+        askOrdersAtDepth[orderPos] =   orderDepthPos;
+        return orderDepthPos.CreatedTime.Value;
+    }
+
+    public virtual DateTime? PreviousBidOrderUpdatedTimeAt(decimal price, int orderId, int orderPos)
+    {
+        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.BidLayers, price);
+        if (previousLayer == null) return null;
+        var orderLayer = PreviousOrderLayerWithId(previousLayer.Value, orderId);
+        if (orderLayer == null) return null;
+        return orderLayer.Value.UpdatedTime;
+    }
+
+    public virtual DateTime BidOrderUpdatedTimeAt(int depth, int orderId, int orderPos)
+    {
+        var bidOrdersAtDepth = CurrentBookValues.BidLayers[depth].Orders;
+        for (var i = bidOrdersAtDepth.Count; i <= orderPos; i++) bidOrdersAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
+        var orderDepthPos = bidOrdersAtDepth[orderPos];
+        orderDepthPos.UpdatedTime  ??= PreviousBidOrderUpdatedTimeAt(BidPriceAt(depth), orderId, orderPos) ?? GenerateOrderUpdatedTime();
+        bidOrdersAtDepth[orderPos] =   orderDepthPos;
+        return orderDepthPos.UpdatedTime.Value;
+    }
+
+    public virtual DateTime? PreviousAskOrderUpdatedTimeAt(decimal price, int orderId, int orderPos)
+    {
+        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.AskLayers, price);
+        if (previousLayer == null) return null;
+        var orderLayer = PreviousOrderLayerWithId(previousLayer.Value, orderId);
+        if (orderLayer == null) return null;
+        return orderLayer.Value.UpdatedTime;
+    }
+
+    public virtual DateTime AskOrderUpdatedTimeAt(int depth, int orderId, int orderPos)
+    {
+        var askOrdersAtDepth = CurrentBookValues.AskLayers[depth].Orders;
+        for (var i = askOrdersAtDepth.Count; i <= orderPos; i++) askOrdersAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
+        var orderDepthPos = askOrdersAtDepth[orderPos];
+        orderDepthPos.UpdatedTime  ??= PreviousAskOrderUpdatedTimeAt(AskPriceAt(depth), orderId, orderPos) ?? GenerateOrderUpdatedTime();
+        askOrdersAtDepth[orderPos] =   orderDepthPos;
+        return orderDepthPos.UpdatedTime.Value;
+    }
+
+    public virtual decimal? PreviousBidOrderVolumeAt(decimal price, int orderId, int orderPos)
+    {
+        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.BidLayers, price);
+        if (previousLayer == null) return null;
+        var orderLayer = PreviousOrderLayerWithId(previousLayer.Value, orderId);
+        if (orderLayer == null) return null;
+        return orderLayer.Value.OrderVolume;
+    }
+
+    public virtual decimal BidOrderVolumeAt(int depth, int orderPos)
+    {
+        var bidOrdersAtDepth     = CurrentBookValues.BidLayers[depth].Orders;
         var totalAllocatedVolume = 0m;
-        var tradersAtDepth       = BidNumOfTradersAt(depth);
-        for (var i = 0; i < tradersAtDepth; i++)
+        var orderCountAtDepth    = BidOrdersCountAt(depth);
+        for (var i = 0; i < orderCountAtDepth && i < ushort.MaxValue; i++)
         {
-            if (bidTraderAtDepth.Count <= i) bidTraderAtDepth.Add(new SnapshotLayerTraderGeneratedValues());
-            totalAllocatedVolume += bidTraderAtDepth[i].TraderVolume ?? 0m;
+            if (bidOrdersAtDepth.Count <= i) bidOrdersAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
+            totalAllocatedVolume += bidOrdersAtDepth[i].OrderVolume ?? 0m;
         }
-        var traderDepthPos = bidTraderAtDepth[traderPos];
-        var bidPrice       = BidPriceAt(depth);
-        var traderId       = traderDepthPos.TraderId ??= PreviousBidTraderIdAt(bidPrice, traderPos, depth) ?? GenerateTraderNumber();
-        var bidVolume      = BidVolumeAt(depth);
+        var orderDepthPos = bidOrdersAtDepth[orderPos];
+        var bidPrice      = BidPriceAt(depth);
+        var orderId       = orderDepthPos.OrderId ??= PreviousBidOrderIdAt(bidPrice, orderPos) ?? GenerateOrderId();
+        var bidVolume     = BidVolumeAt(depth);
         var canUsePreviousTraderVol = (PreviousBidVolumeAt(bidPrice) ?? 0) > bidVolume &&
-                                      (PreviousBidNumOfTradersAt(bidPrice) ?? 0) > BidNumOfTradersAt(depth);
+                                      (PreviousBidOrdersCountAt(bidPrice) ?? 0) > BidOrdersCountAt(depth);
         // traderDepthPos.TraderVolume ??= traderPos == tradersAtDepth - 1
         //     ? bidVolume - totalAllocatedVolume
         //     : canUsePreviousTraderVol
         //         ? PreviousBidTraderVolumeAt(bidPrice, traderId, traderPos) ??
         //           GenerateTraderVolume(traderPos, tradersAtDepth, bidVolume - totalAllocatedVolume)
         //         : GenerateTraderVolume(traderPos, tradersAtDepth, bidVolume - totalAllocatedVolume);
-        traderDepthPos.TraderVolume ??= GenerateTraderVolume(traderPos, tradersAtDepth, bidVolume);
-        bidTraderAtDepth[traderPos] =   traderDepthPos;
-        return traderDepthPos.TraderVolume!.Value;
+        orderDepthPos.OrderVolume  ??= GenerateOrderVolume(orderPos, orderCountAtDepth, bidVolume);
+        bidOrdersAtDepth[orderPos] =   orderDepthPos;
+        return orderDepthPos.OrderVolume!.Value;
     }
 
-    public virtual decimal? PreviousAskTraderVolumeAt(decimal price, int traderId, int? pos = null)
+    public virtual decimal? PreviousAskOrderVolumeAt(decimal price, int orderId, int orderPos)
     {
-        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.AskLayers, price, pos);
+        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.AskLayers, price);
         if (previousLayer == null) return null;
-        return TraderLayerTraderVolume(previousLayer!.Value, traderId);
+        var orderLayer = PreviousOrderLayerWithId(previousLayer.Value, orderId);
+        if (orderLayer == null) return null;
+        return orderLayer.Value.OrderVolume;
     }
 
-    public virtual decimal AskTraderVolumeAt(int depth, int traderPos)
+    public virtual decimal AskOrderVolumeAt(int depth, int orderPos)
     {
-        var askTraderAtDepth     = CurrentBookValues.AskLayers[depth].Traders;
+        var askOrdersAtDepth     = CurrentBookValues.AskLayers[depth].Orders;
         var totalAllocatedVolume = 0m;
-        var tradersAtDepth       = AskNumOfTradersAt(depth);
-        for (var i = 0; i < tradersAtDepth; i++)
+        var orderCountAtDepth    = AskOrdersCountAt(depth);
+        for (var i = 0; i < orderCountAtDepth && i < ushort.MaxValue; i++)
         {
-            if (askTraderAtDepth.Count <= i) askTraderAtDepth.Add(new SnapshotLayerTraderGeneratedValues());
-            totalAllocatedVolume += askTraderAtDepth[i].TraderVolume ?? 0m;
+            if (askOrdersAtDepth.Count <= i) askOrdersAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
+            totalAllocatedVolume += askOrdersAtDepth[i].OrderVolume ?? 0m;
         }
-        var traderDepthPos = askTraderAtDepth[traderPos];
-        var askPrice       = AskPriceAt(depth);
-        var traderId       = traderDepthPos.TraderId ??= PreviousAskTraderIdAt(askPrice, traderPos, depth) ?? GenerateTraderNumber();
-        var askVolume      = AskVolumeAt(depth);
+        var orderDepthPos = askOrdersAtDepth[orderPos];
+        var askPrice      = AskPriceAt(depth);
+        var orderId       = orderDepthPos.OrderId ??= PreviousAskOrderIdAt(askPrice, orderPos) ?? GenerateOrderId();
+        var askVolume     = AskVolumeAt(depth);
         var canUsePreviousTraderVol = (PreviousAskVolumeAt(askPrice) ?? 0) > askVolume &&
-                                      (PreviousAskNumOfTradersAt(askPrice) ?? 0) > tradersAtDepth;
+                                      (PreviousAskOrdersCountAt(askPrice) ?? 0) > orderCountAtDepth;
         // traderDepthPos.TraderVolume ??= traderPos == tradersAtDepth - 1
         //     ? askVolume - totalAllocatedVolume
         //     : canUsePreviousTraderVol
         //         ? PreviousAskTraderVolumeAt(askPrice, traderId, traderPos) ??
         //           GenerateTraderVolume(traderPos, tradersAtDepth, askVolume - totalAllocatedVolume)
         //         : GenerateTraderVolume(traderPos, tradersAtDepth, askVolume - totalAllocatedVolume);
-        traderDepthPos.TraderVolume ??= GenerateTraderVolume(traderPos, tradersAtDepth, askVolume);
-        askTraderAtDepth[traderPos] =   traderDepthPos;
-        return traderDepthPos.TraderVolume!.Value;
+        orderDepthPos.OrderVolume  ??= GenerateOrderVolume(orderPos, orderCountAtDepth, askVolume);
+        askOrdersAtDepth[orderPos] =   orderDepthPos;
+        return orderDepthPos.OrderVolume!.Value;
     }
+
+    public virtual decimal? PreviousBidOrderRemainingVolumeAt(decimal price, int orderId, int orderPos)
+    {
+        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.BidLayers, price);
+        if (previousLayer == null) return null;
+        var orderLayer = PreviousOrderLayerWithId(previousLayer.Value, orderId);
+        if (orderLayer == null) return null;
+        return orderLayer.Value.OrderRemainingVolume;
+    }
+
+    public virtual decimal BidOrderRemainingVolumeAt(int depth, int orderPos)
+    {
+        var bidOrdersAtDepth     = CurrentBookValues.BidLayers[depth].Orders;
+        var totalAllocatedVolume = 0m;
+        var orderCountAtDepth    = BidOrdersCountAt(depth);
+        for (var i = 0; i < orderCountAtDepth && i < ushort.MaxValue; i++)
+        {
+            if (bidOrdersAtDepth.Count <= i) bidOrdersAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
+            totalAllocatedVolume += bidOrdersAtDepth[i].OrderVolume ?? 0m;
+        }
+        var orderDepthPos = bidOrdersAtDepth[orderPos];
+        var bidPrice      = BidPriceAt(depth);
+        var orderId       = orderDepthPos.OrderId ??= PreviousBidOrderIdAt(bidPrice, orderPos) ?? GenerateOrderId();
+        var bidVolume     = BidVolumeAt(depth);
+        var canUsePreviousTraderVol = (PreviousBidVolumeAt(bidPrice) ?? 0) > bidVolume &&
+                                      (PreviousBidOrdersCountAt(bidPrice) ?? 0) > BidOrdersCountAt(depth);
+        // traderDepthPos.TraderVolume ??= traderPos == tradersAtDepth - 1
+        //     ? bidVolume - totalAllocatedVolume
+        //     : canUsePreviousTraderVol
+        //         ? PreviousBidTraderVolumeAt(bidPrice, traderId, traderPos) ??
+        //           GenerateTraderVolume(traderPos, tradersAtDepth, bidVolume - totalAllocatedVolume)
+        //         : GenerateTraderVolume(traderPos, tradersAtDepth, bidVolume - totalAllocatedVolume);
+        orderDepthPos.OrderRemainingVolume ??= GenerateOrderRemainingVolume(orderPos, orderCountAtDepth, bidVolume);
+        bidOrdersAtDepth[orderPos]         =   orderDepthPos;
+        return orderDepthPos.OrderRemainingVolume!.Value;
+    }
+
+    public virtual decimal? PreviousAskOrderRemainingVolumeAt(decimal price, int orderId, int orderPos)
+    {
+        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.AskLayers, price);
+        if (previousLayer == null) return null;
+        var orderLayer = PreviousOrderLayerWithId(previousLayer.Value, orderId);
+        if (orderLayer == null) return null;
+        return orderLayer.Value.OrderVolume;
+    }
+
+    public virtual decimal AskOrderRemainingVolumeAt(int depth, int orderPos)
+    {
+        var askOrdersAtDepth     = CurrentBookValues.AskLayers[depth].Orders;
+        var totalAllocatedVolume = 0m;
+        var orderCountAtDepth    = AskOrdersCountAt(depth);
+        for (var i = 0; i < orderCountAtDepth && i < ushort.MaxValue; i++)
+        {
+            if (askOrdersAtDepth.Count <= i) askOrdersAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
+            totalAllocatedVolume += askOrdersAtDepth[i].OrderVolume ?? 0m;
+        }
+        var orderDepthPos = askOrdersAtDepth[orderPos];
+        var askPrice      = AskPriceAt(depth);
+        var orderId       = orderDepthPos.OrderId ??= PreviousAskOrderIdAt(askPrice, orderPos) ?? GenerateOrderId();
+        var askVolume     = AskVolumeAt(depth);
+        var canUsePreviousTraderVol = (PreviousAskVolumeAt(askPrice) ?? 0) > askVolume &&
+                                      (PreviousAskOrdersCountAt(askPrice) ?? 0) > orderCountAtDepth;
+        // traderDepthPos.TraderVolume ??= traderPos == tradersAtDepth - 1
+        //     ? askVolume - totalAllocatedVolume
+        //     : canUsePreviousTraderVol
+        //         ? PreviousAskTraderVolumeAt(askPrice, traderId, traderPos) ??
+        //           GenerateTraderVolume(traderPos, tradersAtDepth, askVolume - totalAllocatedVolume)
+        //         : GenerateTraderVolume(traderPos, tradersAtDepth, askVolume - totalAllocatedVolume);
+        orderDepthPos.OrderRemainingVolume ??= GenerateOrderRemainingVolume(orderPos, orderCountAtDepth, askVolume);
+        askOrdersAtDepth[orderPos]         =   orderDepthPos;
+        return orderDepthPos.OrderRemainingVolume!.Value;
+    }
+
+    public virtual int? PreviousBidOrderCounterPartyIdAt(decimal price, int orderId, int orderPos)
+    {
+        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.BidLayers, price);
+        if (previousLayer == null) return null;
+        var orderLayer = PreviousOrderLayerWithId(previousLayer.Value, orderId);
+        if (orderLayer == null) return null;
+        return orderLayer.Value.CounterPartyId;
+    }
+
+    public virtual string? PreviousBidOrderCounterPartyNameAt(decimal price, int orderId, int orderPos)
+    {
+        var prevBidCounterPartyId = PreviousBidOrderCounterPartyIdAt(price, orderId, orderPos);
+        if (!prevBidCounterPartyId.HasValue) return null;
+        return BidNameFromId(prevBidCounterPartyId.Value);
+    }
+
+    public virtual int BidOrderCounterPartyIdAt(int depth, int orderId, int orderPos)
+    {
+        var bidOrdersAtDepth = CurrentBookValues.BidLayers[depth].Orders;
+        for (var i = bidOrdersAtDepth.Count; i <= orderPos && i < ushort.MaxValue; i++) bidOrdersAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
+        var orderDepthPos = bidOrdersAtDepth[orderPos];
+        orderDepthPos.CounterPartyId ??= PreviousBidOrderCounterPartyIdAt(BidPriceAt(depth), orderId, orderPos)
+                                      ?? BidIdFromName(GenerateCounterPartyName(true));
+        bidOrdersAtDepth[orderPos] = orderDepthPos;
+        return orderDepthPos.CounterPartyId.Value;
+    }
+
+    public virtual string BidOrderCounterPartyNameAt
+        (int depth, int orderId, int orderPos) =>
+        BidNameFromId(BidOrderCounterPartyIdAt(depth, orderId, orderPos));
+
+    public virtual int? PreviousAskOrderCounterPartyIdAt(decimal price, int orderId, int orderPos)
+    {
+        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.AskLayers, price);
+        if (previousLayer == null) return null;
+        var orderLayer = PreviousOrderLayerWithId(previousLayer.Value, orderId);
+        if (orderLayer == null) return null;
+        return orderLayer.Value.CounterPartyId;
+    }
+
+    public virtual string? PreviousAskOrderCounterPartyNameAt(decimal price, int orderId, int orderPos)
+    {
+        var prevAskOrderCounterPartyId = PreviousAskOrderCounterPartyIdAt(price, orderId, orderPos);
+        if (!prevAskOrderCounterPartyId.HasValue) return null;
+        return AskNameFromId(prevAskOrderCounterPartyId.Value);
+    }
+
+    public virtual int AskOrderCounterPartyIdAt(int depth, int orderId, int orderPos)
+    {
+        var askOrdersAtDepth = CurrentBookValues.AskLayers[depth].Orders;
+        for (var i = askOrdersAtDepth.Count; i <= orderPos && i < ushort.MaxValue; i++) askOrdersAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
+        var orderDepthPos = askOrdersAtDepth[orderPos];
+        orderDepthPos.CounterPartyId ??= PreviousAskOrderCounterPartyIdAt(AskPriceAt(depth), orderId, orderPos)
+                                      ?? AskIdFromName(GenerateCounterPartyName(false));
+        askOrdersAtDepth[orderPos] = orderDepthPos;
+        return orderDepthPos.CounterPartyId.Value;
+    }
+
+    public virtual string AskOrderCounterPartyNameAt
+        (int depth, int orderId, int orderPos) =>
+        AskNameFromId(AskOrderCounterPartyIdAt(depth, orderId, orderPos));
+
+    public virtual int? PreviousBidOrderTraderIdAt(decimal price, int orderId, int orderPos)
+    {
+        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.BidLayers, price);
+        if (previousLayer == null) return null;
+        var orderLayer = PreviousOrderLayerWithId(previousLayer.Value, orderId);
+        if (orderLayer == null) return null;
+        return orderLayer.Value.TraderId;
+    }
+
+    public virtual string? PreviousBidOrderTraderNameAt(decimal price, int orderId, int orderPos)
+    {
+        var prevBidTraderId = PreviousBidOrderTraderIdAt(price, orderId, orderPos);
+        if (!prevBidTraderId.HasValue) return null;
+        return BidNameFromId(prevBidTraderId.Value);
+    }
+
+    public virtual int BidOrderTraderIdAt(int depth, int orderId, int orderPos)
+    {
+        var bidTraderAtDepth = CurrentBookValues.BidLayers[depth].Orders;
+        for (var i = bidTraderAtDepth.Count; i <= orderPos && i < ushort.MaxValue; i++) bidTraderAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
+        var traderDepthPos = bidTraderAtDepth[orderPos];
+        traderDepthPos.TraderId ??= PreviousBidOrderTraderIdAt(BidPriceAt(depth), orderId, orderPos)
+                                 ?? BidIdFromName(GenerateTraderName(true));
+        bidTraderAtDepth[orderPos] = traderDepthPos;
+        return traderDepthPos.TraderId.Value;
+    }
+
+    public virtual string BidOrderTraderNameAt
+        (int depth, int orderId, int orderPos) =>
+        BidNameFromId(BidOrderTraderIdAt(depth, orderId, orderPos));
+
+    public virtual int? PreviousAskOrderTraderIdAt(decimal price, int orderId, int orderPos)
+    {
+        var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.AskLayers, price);
+        if (previousLayer == null) return null;
+        var orderLayer = PreviousOrderLayerWithId(previousLayer.Value, orderId);
+        if (orderLayer == null) return null;
+        return orderLayer.Value.TraderId;
+    }
+
+    public virtual string? PreviousAskOrderTraderNameAt(decimal price, int orderId, int orderPos)
+    {
+        var prevAskTraderId = PreviousAskOrderTraderIdAt(price, orderId, orderPos);
+        if (!prevAskTraderId.HasValue) return null;
+        return AskNameFromId(prevAskTraderId.Value);
+    }
+
+    public virtual int AskOrderTraderIdAt(int depth, int orderId, int orderPos)
+    {
+        var askTraderAtDepth = CurrentBookValues.AskLayers[depth].Orders;
+        for (var i = askTraderAtDepth.Count; i <= orderPos && i < ushort.MaxValue; i++) askTraderAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
+        var traderDepthPos = askTraderAtDepth[orderPos];
+        traderDepthPos.TraderId ??= PreviousAskOrderTraderIdAt(AskPriceAt(depth), orderId, orderPos)
+                                 ?? AskIdFromName(GenerateTraderName(false));
+        askTraderAtDepth[orderPos] = traderDepthPos;
+        return traderDepthPos.TraderId.Value;
+    }
+
+    public virtual string AskOrderTraderNameAt
+        (int depth, int orderId, int orderPos) =>
+        AskNameFromId(AskOrderTraderIdAt(depth, orderId, orderPos));
+
 
     public virtual void NextBookValuesInitialise()
     {
@@ -400,28 +738,34 @@ public class QuoteBookValuesGenerator
         EnsureDepthSupported(maxLayersToGenerate);
     }
 
-    protected virtual int? TraderLayerTraderId(SnapshotLayerGeneratedValues previousLayer, int pos)
+    protected virtual SnapshotOrderLayerGeneratedValues? PreviousOrderAtPos(SnapshotLayerGeneratedValues previousLayer, int orderPos)
     {
-        var layerTraders = previousLayer.Traders;
-        if (layerTraders.Count <= pos) return null;
-        var traderLayer = layerTraders[pos];
-        if (traderLayer.TraderId == null) return null;
-        return GenerateTraderNumber();
+        var layerOrders = previousLayer.Orders;
+        var orderLayer  = layerOrders.Skip(orderPos).FirstOrDefault();
+        return orderLayer;
     }
 
-    protected virtual decimal? TraderLayerTraderVolume(SnapshotLayerGeneratedValues previousLayer, int traderId)
+    protected virtual SnapshotOrderLayerGeneratedValues? PreviousOrderLayerWithId(SnapshotLayerGeneratedValues previousLayer, int orderId)
     {
-        var traderLayer = previousLayer.Traders.FirstOrDefault(sltgv => sltgv.TraderId == traderId);
-        if (traderLayer.TraderId != traderId) return null;
-        return traderLayer.TraderVolume;
+        var layerOrders = previousLayer.Orders;
+        var orderLayer  = layerOrders.FirstOrDefault(solgv => solgv.OrderId == orderId);
+        return orderLayer;
     }
 
-    protected virtual int GenerateNumOfTraders() =>
-        Math.Min
-            (bookGenerationInfo.GenerateBookLayerInfo.MaxNumberOfUniqueTraderName,
-             Math.Max(0, bookGenerationInfo.GenerateBookLayerInfo.AverageTradersPerLayer +
-                         (int)(BookNormalDist.Sample() *
-                               bookGenerationInfo.GenerateBookLayerInfo.TradersPerLayerStandardDeviation)));
+
+    protected virtual uint GenerateOrdersCount() =>
+        (uint)Math.Clamp(Math.Max(0, bookGenerationInfo.GenerateBookLayerInfo.AverageOrdersPerLayer +
+                                     (int)(BookNormalDist.Sample() *
+                                           bookGenerationInfo.GenerateBookLayerInfo.OrdersCountPerLayerStandardDeviation)),
+                         bookGenerationInfo.GenerateBookLayerInfo.MinOrdersPerLayer,
+                         bookGenerationInfo.GenerateBookLayerInfo.MaxOrdersPerLayer);
+
+    protected virtual decimal GenerateInternalVolume(int depth, BookSide side) =>
+        (uint)BookPseudoRandom.NextDouble() < bookGenerationInfo.GenerateBookLayerInfo.OrderIsInternalProbability
+            ? side == BookSide.AskBook
+                ? AskOrderVolumeAt(depth, 0)
+                : BidOrderVolumeAt(depth, 0)
+            : 0m;
 
     protected virtual SnapshotLayerGeneratedValues? PreviousBidLayerWorseThan(decimal price) =>
         PreviousBookValues.BidLayers.FirstOrDefault(slgv => slgv.Price < price);
@@ -430,16 +774,16 @@ public class QuoteBookValuesGenerator
         PreviousBookValues.AskLayers.FirstOrDefault(slgv => slgv.Price > price);
 
     protected virtual SnapshotLayerGeneratedValues? PreviousClosestLayerWithPrice
-        (SnapshotLayerGeneratedValues[] layers, decimal price, int? pos = null)
+        (SnapshotLayerGeneratedValues[] layers, decimal price, int? orderPos = null)
     {
-        if (pos != null && layers.Count(slgv => slgv.Price == price) > 1)
+        if (orderPos != null && layers.Count(slgv => slgv.Price == price) > 1)
         {
-            var checkLayer = layers[pos!.Value];
-            if (layers.Length > pos && checkLayer.Price == price) return checkLayer;
-            var countDown = pos;
+            var checkLayer = layers[orderPos!.Value];
+            if (layers.Length > orderPos && checkLayer.Price == price) return checkLayer;
+            var countDown = orderPos;
 
             SnapshotLayerGeneratedValues? closestMatch = null;
-            for (var i = 0; i < pos && i < layers.Length; i++)
+            for (var i = 0; i < orderPos && i < layers.Length; i++)
             {
                 var layer = layers[i];
                 if (layer.Price == price)
@@ -469,19 +813,87 @@ public class QuoteBookValuesGenerator
     protected virtual ushort GenerateSourceNumber() =>
         (ushort)BookPseudoRandom.Next(1, bookGenerationInfo.GenerateBookLayerInfo.MaxNumberOfSourceNames + 1);
 
-    protected virtual string GenerateSourceName(int number) => CachedSourceNames.GetOrAdd(number, num => $"SourceName_{num}");
+    protected virtual string GenerateSourceName(bool isBid)
+    {
+        var number     = GenerateSourceNumber();
+        var sourceName = CachedSourceNames.GetOrAdd(number, num => $"SourceName_{num}");
+        switch (isBid)
+        {
+            case true:  BidIdFromName(sourceName); break;
+            case false: AskIdFromName(sourceName); break;
+        }
+        return sourceName;
+    }
+
+    protected virtual int GenerateOrderId() =>
+        (int)((quoteValueGenerator.CurrentMidPriceTimePair.CurrentMid.Time.Ticks / TimeSpan.TicksPerMillisecond) & 0x7FFF_FFFF);
+
+    protected virtual LayerOrderFlags GenerateOrderFlags() =>
+        (LayerOrderFlags)((quoteValueGenerator.CurrentMidPriceTimePair.CurrentMid.Time.Ticks / TimeSpan.TicksPerMillisecond) & 0x0FFF_FFFF);
+
+    protected virtual DateTime GenerateOrderCreatedTime() => DateTime.Now;
+    protected virtual DateTime GenerateOrderUpdatedTime() => DateTime.Now;
+
+    protected virtual int GenerateCounterPartyNumber() =>
+        BookPseudoRandom.Next(1, bookGenerationInfo.GenerateBookLayerInfo.MaxNumberOfUniqueCounterPartyNames + 1);
 
     protected virtual int GenerateTraderNumber() =>
-        BookPseudoRandom.Next(1, bookGenerationInfo.GenerateBookLayerInfo.MaxNumberOfUniqueTraderName + 1);
+        BookPseudoRandom.Next(1, bookGenerationInfo.GenerateBookLayerInfo.MaxNumberOfUniqueTraderNames + 1);
 
-    protected virtual string GenerateTraderName(int number) => CachedTraderNames.GetOrAdd(number, num => $"TraderName_{num}");
+    protected virtual int AskIdFromName(string name)
+    {
+        var value = AskBookNameToId.GetOrAddId(name);
+        // Console.Out.WriteLine($"Set AskBookNameId[{value}] = {name}");
+        return value;
+        // BidIdFromName(name);
+    }
 
-    protected virtual decimal GenerateTraderVolume
-        (int pos, int tradersAtDepth, decimal remainingUnallocatedVolume) =>
+    protected virtual int BidIdFromName(string name)
+    {
+        var value = BidBookNameToId.GetOrAddId(name);
+        // Console.Out.WriteLine($"Set JointBookNameId[{value}] = {name}");
+        // Console.Out.WriteLine($"Set BidBookNameId[{value}] = {name}");
+        return value;
+    }
+
+    protected virtual string AskNameFromId(int nameId) => AskBookNameToId[nameId]!;
+
+    protected virtual string BidNameFromId(int nameId) => BidBookNameToId[nameId]!;
+
+    protected virtual string GenerateCounterPartyName(bool isBid)
+    {
+        var number           = GenerateCounterPartyNumber();
+        var counterPartyName = CachedCounterPartyNames.GetOrAdd(number, num => $"CounterParty_{num}");
+        switch (isBid)
+        {
+            case true:  BidIdFromName(counterPartyName); break;
+            case false: AskIdFromName(counterPartyName); break;
+        }
+        return counterPartyName;
+    }
+
+    protected virtual string GenerateTraderName(bool isBid)
+    {
+        var number     = GenerateTraderNumber();
+        var traderName = CachedTraderNames.GetOrAdd(number, num => $"TraderName_{num}");
+        switch (isBid)
+        {
+            case true:  BidIdFromName(traderName); break;
+            case false: AskIdFromName(traderName); break;
+        }
+        return traderName;
+    }
+
+    protected virtual decimal GenerateOrderVolume
+        (int pos, uint ordersCount, decimal remainingUnallocatedVolume) =>
         // pos == tradersAtDepth - 1 || tradersAtDepth == 0
         //     ? remainingUnallocatedVolume
         //     : remainingUnallocatedVolume / Math.Max(1, tradersAtDepth);
-        remainingUnallocatedVolume / Math.Max(1, tradersAtDepth);
+        decimal.Round(remainingUnallocatedVolume / Math.Max(1, ordersCount), 2);
+
+    protected virtual decimal GenerateOrderRemainingVolume
+        (int pos, uint ordersCount, decimal remainingUnallocatedVolume) =>
+        decimal.Round(remainingUnallocatedVolume / Math.Max(1, ordersCount), 2);
 
     protected virtual DateTime GenerateValueDate()
     {
@@ -494,15 +906,13 @@ public class QuoteBookValuesGenerator
     }
 
     protected virtual decimal GenerateVolumeAt(int depth) =>
-        (long)Math.Clamp(
-                         (
-                             bookGenerationInfo.AverageTopOfBookVolume
-                           + Math.Max(bookGenerationInfo.HighestVolumeLayer - CurrentBookValues.BidLayers.Length
-                                    , bookGenerationInfo.HighestVolumeLayer - Math.Abs(depth - bookGenerationInfo.HighestVolumeLayer)) *
-                             bookGenerationInfo.AverageDeltaVolumePerLayer
-                           + (decimal)BookNormalDist.Sample() * bookGenerationInfo.MaxVolumeVariance
-                         ) / bookGenerationInfo.VolumeRounding * bookGenerationInfo.VolumeRounding
-                       , decimal.Zero, bookGenerationInfo.HighestVolumeLayer);
+        decimal.Round(Math.Clamp(
+                                 bookGenerationInfo.AverageTopOfBookVolume
+                               + Math.Max(bookGenerationInfo.HighestVolumeLayer - CurrentBookValues.BidLayers.Length
+                                        , bookGenerationInfo.HighestVolumeLayer - Math.Abs(depth - bookGenerationInfo.HighestVolumeLayer)) *
+                                 bookGenerationInfo.AverageDeltaVolumePerLayer
+                               + (decimal)BookNormalDist.Sample() * bookGenerationInfo.MaxVolumeVariance
+                               , 100m, bookGenerationInfo.HighestLayerAverageVolume), bookGenerationInfo.VolumeRoundingDp);
 
     protected virtual decimal GeneratePriceDelta() =>
         Math.Clamp(Math.Ceiling((bookGenerationInfo.AverageLayerPips +
@@ -516,26 +926,26 @@ public class QuoteBookValuesGenerator
         if (CurrentBookValues.BidLayers.Length < requireQuoteLayers)
         {
             var increasedSize = new SnapshotLayerGeneratedValues[requireQuoteLayers];
-            for (var i = 0; i < CurrentBookValues.BidLayers.Length; i++) increasedSize[i].Traders = CurrentBookValues.BidLayers[i].Traders;
+            for (var i = 0; i < CurrentBookValues.BidLayers.Length; i++) increasedSize[i].Orders = CurrentBookValues.BidLayers[i].Orders;
             CurrentBookValues.BidLayers = increasedSize;
         }
         if (CurrentBookValues.AskLayers.Length < requireQuoteLayers)
         {
             var increasedSize = new SnapshotLayerGeneratedValues[requireQuoteLayers];
-            for (var i = 0; i < CurrentBookValues.AskLayers.Length; i++) increasedSize[i].Traders = CurrentBookValues.AskLayers[i].Traders;
+            for (var i = 0; i < CurrentBookValues.AskLayers.Length; i++) increasedSize[i].Orders = CurrentBookValues.AskLayers[i].Orders;
             CurrentBookValues.AskLayers = increasedSize;
         }
         for (var i = 0; i < requireQuoteLayers; i++)
         {
             var bidLayer = CurrentBookValues.BidLayers[i];
-            CurrentBookValues.BidLayers[i] = new SnapshotLayerGeneratedValues(bidLayer.Traders);
-            for (var j = 0; j < bookGenerationInfo.GenerateBookLayerInfo.AverageTradersPerLayer; j++)
-                bidLayer.Traders.Add(new SnapshotLayerTraderGeneratedValues());
+            CurrentBookValues.BidLayers[i] = new SnapshotLayerGeneratedValues(bidLayer.Orders);
+            for (var j = 0; j < bookGenerationInfo.GenerateBookLayerInfo.AverageOrdersPerLayer; j++)
+                bidLayer.Orders.Add(new SnapshotOrderLayerGeneratedValues());
 
             var askLayer = CurrentBookValues.AskLayers[i];
-            CurrentBookValues.AskLayers[i] = new SnapshotLayerGeneratedValues(askLayer.Traders);
-            for (var j = 0; j < bookGenerationInfo.GenerateBookLayerInfo.AverageTradersPerLayer; j++)
-                askLayer.Traders.Add(new SnapshotLayerTraderGeneratedValues());
+            CurrentBookValues.AskLayers[i] = new SnapshotLayerGeneratedValues(askLayer.Orders);
+            for (var j = 0; j < bookGenerationInfo.GenerateBookLayerInfo.AverageOrdersPerLayer; j++)
+                askLayer.Orders.Add(new SnapshotOrderLayerGeneratedValues());
         }
     }
 }

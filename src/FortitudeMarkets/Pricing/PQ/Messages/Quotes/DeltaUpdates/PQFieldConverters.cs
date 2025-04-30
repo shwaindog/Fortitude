@@ -38,17 +38,17 @@ public static class PQFieldConverters
 
     public static long GetSubHourComponent(this DateTime ts) => ts.Ticks % TimeSpan.TicksPerHour * 10;
 
-    public static long AppendUintToMakeLong(this byte highestNumberByte, uint lowestBytes)
+    public static long AppendUintToMakeLong(this ushort highestNumberByte, uint lowestBytes)
     {
         var result = (long)highestNumberByte << 32;
         result |= lowestBytes;
         return result;
     }
 
-    public static byte BreakLongToByteAndUint(this long breakThis, out uint lowestBytes)
+    public static ushort BreakLongToUShortAndUint(this long breakThis, out uint lowestBytes)
     {
         lowestBytes = (uint)breakThis;
         breakThis   = breakThis >> 32;
-        return (byte)breakThis;
+        return (ushort)breakThis;
     }
 }

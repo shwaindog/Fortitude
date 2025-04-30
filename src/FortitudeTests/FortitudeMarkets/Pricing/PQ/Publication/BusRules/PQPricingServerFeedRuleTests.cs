@@ -44,7 +44,7 @@ public class PQPricingServerFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
 
         serverConfig = new LocalHostPQTestSetupCommon
         {
-            LayerDetails = LayerFlags.Price | LayerFlags.Volume | LayerFlags.TraderName | LayerFlags.TraderSize
+            LayerDetails = LayerFlags.Price | LayerFlags.Volume | LayerFlags.OrderTraderName | LayerFlags.OrderSize
           , LastTradedFlags = LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
                               LastTradedFlags.LastTradedTime
         };

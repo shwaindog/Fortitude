@@ -86,7 +86,7 @@ public class Level2PriceQuoteTests
         traderDetailsSourceTickerInfo = new SourceTickerInfo
             (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level2Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
            , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                               LastTradedFlags.LastTradedTime);
         valueDateSourceTickerInfo = new SourceTickerInfo
@@ -280,7 +280,7 @@ public class Level2PriceQuoteTests
     public void TraderLevel2Quote_New_BuildsTraderPriceVolumeLayeredBook()
     {
         AssertLayerTypeIsExpected
-            (typeof(TraderPriceVolumeLayer), traderDetailsEmptyLevel2Quote, traderDetailsFullyPopulatedLevel2Quote);
+            (typeof(OrdersPriceVolumeLayer), traderDetailsEmptyLevel2Quote, traderDetailsFullyPopulatedLevel2Quote);
     }
 
     [TestMethod]
@@ -294,7 +294,7 @@ public class Level2PriceQuoteTests
     public void EveryLayerLevel2Quote_New_BuildsSourceQuoteRefTraderValueDatePriceVolumeLayeredBook()
     {
         AssertLayerTypeIsExpected
-            (typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer), everyLayerEmptyLevel2Quote, everyLayerFullyPopulatedLevel2Quote);
+            (typeof(SourceQuoteRefOrdersValueDatePriceVolumeLayer), everyLayerEmptyLevel2Quote, everyLayerFullyPopulatedLevel2Quote);
     }
 
     [TestMethod]

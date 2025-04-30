@@ -34,6 +34,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
 
     protected LastTradeUpdated UpdatedFlags;
 
+
     public PQLastTrade() { }
 
     public PQLastTrade(decimal tradePrice = 0m, DateTime? tradeTime = null)
@@ -54,7 +55,8 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         }
     }
 
-    protected string PQLastTradeToStringMembers => $"{nameof(TradePrice)}: {TradePrice:N5}, {nameof(TradeTime)}: {TradeTime:O}";
+    protected string PQLastTradeToStringMembers =>
+        $"{nameof(TradePrice)}: {TradePrice:N5}, {nameof(TradeTime)}: {TradeTime:O} {nameof(UpdatedFlags)}: {UpdatedFlags}";
 
     [JsonIgnore] public virtual LastTradeType   LastTradeType           => LastTradeType.Price;
     [JsonIgnore] public virtual LastTradedFlags SupportsLastTradedFlags => LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime;
@@ -155,44 +157,37 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         if (!updatedOnly || IsTradeTimeDateUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.LastTradeTimeHourOffset,
-                                           TradeTime.GetHoursFromUnixEpoch());
+            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate, TradeTime.GetHoursFromUnixEpoch());
         if (!updatedOnly || IsTradeTimeSubHourUpdated)
         {
-            var flag = TradeTime.GetSubHourComponent().BreakLongToByteAndUint(out var value);
-            yield return new PQFieldUpdate(PQFieldKeys.LastTradeTimeSubHourOffset, value, flag);
+            var extended = TradeTime.GetSubHourComponent().BreakLongToUShortAndUint(out var value);
+            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeSubHour, value, extended);
         }
 
         if (!updatedOnly || IsTradePriceUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.LastTradePriceOffset, TradePrice,
-                                           quotePublicationPrecisionSetting?.PriceScalingPrecision ?? 1);
+            yield return new PQFieldUpdate(PQQuoteFields.LastTradedAtPrice, TradePrice,
+                                           quotePublicationPrecisionSetting?.PriceScalingPrecision ?? (PQFieldFlags)1);
     }
 
     public virtual int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the recentlytraded has already forwarded this through to the correct lasttrade
-        if (pqFieldUpdate.Id >= PQFieldKeys.LastTradeTimeHourOffset &&
-            pqFieldUpdate.Id < PQFieldKeys.LastTradeTimeHourOffset + PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades)
+        if (pqFieldUpdate.Id == PQQuoteFields.LastTradedTradeTimeDate)
         {
-            PQFieldConverters.UpdateHoursFromUnixEpoch(ref tradeTime, pqFieldUpdate.Value);
+            PQFieldConverters.UpdateHoursFromUnixEpoch(ref tradeTime, pqFieldUpdate.Payload);
             IsTradeTimeDateUpdated = true;
             return 0;
         }
-
-        if (pqFieldUpdate.Id >= PQFieldKeys.LastTradeTimeSubHourOffset &&
-            pqFieldUpdate.Id < PQFieldKeys.LastTradeTimeSubHourOffset +
-            PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades)
+        if (pqFieldUpdate.Id == PQQuoteFields.LastTradedTradeTimeSubHour)
         {
             PQFieldConverters.UpdateSubHourComponent(ref tradeTime,
-                                                     pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
+                                                     pqFieldUpdate.ExtendedPayload.AppendUintToMakeLong(pqFieldUpdate.Payload));
             IsTradeTimeSubHourUpdated = true;
             return 0;
         }
-
-        if (pqFieldUpdate.Id >= PQFieldKeys.LastTradePriceOffset &&
-            pqFieldUpdate.Id < PQFieldKeys.LastTradePriceOffset + PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades)
+        if (pqFieldUpdate.Id == PQQuoteFields.LastTradedAtPrice)
         {
-            TradePrice = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+            TradePrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
             return 0;
         }
 

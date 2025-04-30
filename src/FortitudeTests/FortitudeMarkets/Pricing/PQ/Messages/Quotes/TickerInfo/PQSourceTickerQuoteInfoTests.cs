@@ -35,7 +35,7 @@ public class PQSourceTickerInfoTests
                 (new SourceTickerInfo
                     (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, FxMajor
                    , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-                   , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderName | LayerFlags.TraderSize | LayerFlags.TraderCount
+                   , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
                    , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                                       LastTradedFlags.LastTradedTime));
         emptySrcTkrInfo =
@@ -63,7 +63,7 @@ public class PQSourceTickerInfoTests
         Assert.AreEqual(expectedStreamId, emptySrcTkrInfo.SourceTickerId);
         var sourceUpdates = emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.SourceTickerId, expectedStreamId);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.SourceTickerId, expectedStreamId);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptySrcTkrInfo.IsIdUpdated = false;
@@ -72,7 +72,7 @@ public class PQSourceTickerInfoTests
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         sourceUpdates = (from update in emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id == PQFieldKeys.SourceTickerId
+            where update.Id == PQQuoteFields.SourceTickerId
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -107,7 +107,7 @@ public class PQSourceTickerInfoTests
         Assert.IsTrue(emptySrcTkrInfo.GetStringUpdates(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         sourceUpdates = (from update in emptySrcTkrInfo.GetStringUpdates(testDateTime, StorageFlags.Snapshot)
-            where update.Field.Id == PQFieldKeys.SourceTickerNames && update.StringUpdate.DictionaryId == 0
+            where update.Field.Id == PQQuoteFields.SourceTickerNames && update.StringUpdate.DictionaryId == 0
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -142,7 +142,7 @@ public class PQSourceTickerInfoTests
         Assert.IsTrue(emptySrcTkrInfo.GetStringUpdates(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         tickerUpdates = (from update in emptySrcTkrInfo.GetStringUpdates(testDateTime, StorageFlags.Snapshot)
-            where update.Field.Id == PQFieldKeys.SourceTickerNames && update.StringUpdate.DictionaryId == 1
+            where update.Field.Id == PQQuoteFields.SourceTickerNames && update.StringUpdate.DictionaryId == 1
             select update).ToList();
         Assert.AreEqual(1, tickerUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, tickerUpdates[0]);
@@ -168,10 +168,9 @@ public class PQSourceTickerInfoTests
         Assert.AreEqual(expectedRoundPrecision, emptySrcTkrInfo.RoundingPrecision);
         var sourceUpdates = emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        var decimalPlaces     = BitConverter.GetBytes(decimal.GetBits(expectedRoundPrecision)[3])[2];
-        var roundingNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) * expectedRoundPrecision);
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.PriceRoundingPrecision, roundingNoDecimal,
-                                                    decimalPlaces);
+        var decimalPlaces       = BitConverter.GetBytes(decimal.GetBits(expectedRoundPrecision)[3])[2];
+        var roundingNoDecimal   = (uint)((decimal)Math.Pow(10, decimalPlaces) * expectedRoundPrecision);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.PriceRoundingPrecision, roundingNoDecimal, (PQFieldFlags)decimalPlaces);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptySrcTkrInfo.IsRoundingPrecisionUpdated = false;
@@ -180,7 +179,7 @@ public class PQSourceTickerInfoTests
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         sourceUpdates = (from update in emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id == PQFieldKeys.PriceRoundingPrecision
+            where update.Id == PQQuoteFields.PriceRoundingPrecision
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -208,8 +207,8 @@ public class PQSourceTickerInfoTests
         Assert.AreEqual(1, sourceUpdates.Count);
         var decimalPlaces     = BitConverter.GetBytes(decimal.GetBits(expectedMinSubmitSize)[3])[2];
         var roundingNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) * expectedMinSubmitSize);
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.MinSubmitSize, roundingNoDecimal,
-                                                    decimalPlaces);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.MinSubmitSize, roundingNoDecimal,
+                                                    (PQFieldFlags)decimalPlaces);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptySrcTkrInfo.IsMinSubmitSizeUpdated = false;
@@ -218,7 +217,7 @@ public class PQSourceTickerInfoTests
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         sourceUpdates = (from update in emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id == PQFieldKeys.MinSubmitSize
+            where update.Id == PQQuoteFields.MinSubmitSize
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -246,8 +245,8 @@ public class PQSourceTickerInfoTests
         Assert.AreEqual(1, sourceUpdates.Count);
         var decimalPlaces     = BitConverter.GetBytes(decimal.GetBits(expectedMaxSubmitSize)[3])[2];
         var roundingNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) * expectedMaxSubmitSize);
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.MaxSubmitSize, roundingNoDecimal,
-                                                    decimalPlaces);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.MaxSubmitSize, roundingNoDecimal,
+                                                    (PQFieldFlags)decimalPlaces);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptySrcTkrInfo.IsMaxSubmitSizeUpdated = false;
@@ -256,7 +255,7 @@ public class PQSourceTickerInfoTests
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         sourceUpdates = (from update in emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id == PQFieldKeys.MaxSubmitSize
+            where update.Id == PQQuoteFields.MaxSubmitSize
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -284,8 +283,8 @@ public class PQSourceTickerInfoTests
         Assert.AreEqual(1, sourceUpdates.Count);
         var decimalPlaces     = BitConverter.GetBytes(decimal.GetBits(expectedIncrementSize)[3])[2];
         var roundingNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) * expectedIncrementSize);
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.IncrementSize, roundingNoDecimal,
-                                                    decimalPlaces);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.IncrementSize, roundingNoDecimal,
+                                                    (PQFieldFlags)decimalPlaces);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptySrcTkrInfo.IsIncrementSizeUpdated = false;
@@ -294,7 +293,7 @@ public class PQSourceTickerInfoTests
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         sourceUpdates = (from update in emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id == PQFieldKeys.IncrementSize
+            where update.Id == PQQuoteFields.IncrementSize
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -320,7 +319,7 @@ public class PQSourceTickerInfoTests
         Assert.AreEqual(expectedMinimumQuoteLife, emptySrcTkrInfo.MinimumQuoteLife);
         var sourceUpdates = emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.MinimumQuoteLifeMs, expectedMinimumQuoteLife);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.MinimumQuoteLifeMs, expectedMinimumQuoteLife);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptySrcTkrInfo.IsMinimumQuoteLifeUpdated = false;
@@ -329,7 +328,7 @@ public class PQSourceTickerInfoTests
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         sourceUpdates = (from update in emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id == PQFieldKeys.MinimumQuoteLifeMs
+            where update.Id == PQQuoteFields.MinimumQuoteLifeMs
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -348,14 +347,14 @@ public class PQSourceTickerInfoTests
         Assert.AreEqual(LayerFlags.None, emptySrcTkrInfo.LayerFlags);
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
-        var expectedLayerFlags = LayerFlags.TraderName | LayerFlags.Volume | LayerFlags.Price | LayerFlags.TraderSize;
+        var expectedLayerFlags = LayerFlags.OrderTraderName | LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderSize;
         emptySrcTkrInfo.LayerFlags = expectedLayerFlags;
         Assert.IsTrue(emptySrcTkrInfo.IsLayerFlagsUpdated);
         Assert.IsTrue(emptySrcTkrInfo.HasUpdates);
         Assert.AreEqual(expectedLayerFlags, emptySrcTkrInfo.LayerFlags);
         var sourceUpdates = emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.LayerFlags, (uint)expectedLayerFlags);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LayerFlags, (uint)expectedLayerFlags);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptySrcTkrInfo.IsLayerFlagsUpdated = false;
@@ -364,7 +363,7 @@ public class PQSourceTickerInfoTests
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         sourceUpdates = (from update in emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id == PQFieldKeys.LayerFlags
+            where update.Id == PQQuoteFields.LayerFlags
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -390,7 +389,7 @@ public class PQSourceTickerInfoTests
         Assert.AreEqual(expectedMaximumPublishedLayers, emptySrcTkrInfo.MaximumPublishedLayers);
         var sourceUpdates = emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.MaximumPublishedLayers,
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.MaximumPublishedLayers,
                                                     expectedMaximumPublishedLayers);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
@@ -400,7 +399,7 @@ public class PQSourceTickerInfoTests
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         sourceUpdates = (from update in emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id == PQFieldKeys.MaximumPublishedLayers
+            where update.Id == PQQuoteFields.MaximumPublishedLayers
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -427,7 +426,7 @@ public class PQSourceTickerInfoTests
         Assert.AreEqual(expectedLastTradedFlags, emptySrcTkrInfo.LastTradedFlags);
         var sourceUpdates = emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.LastTradedFlags, (uint)expectedLastTradedFlags);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedFlags, (uint)expectedLastTradedFlags);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptySrcTkrInfo.IsLastTradedFlagsUpdated = false;
@@ -436,7 +435,7 @@ public class PQSourceTickerInfoTests
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         sourceUpdates = (from update in emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id == PQFieldKeys.LastTradedFlags
+            where update.Id == PQQuoteFields.LastTradedFlags
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -522,16 +521,16 @@ public class PQSourceTickerInfoTests
             fullyPopulatedSrcTkrInfo.GetStringUpdates
                 (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
         Assert.AreEqual(ExpectedSourceStringUpdate(fullyPopulatedSrcTkrInfo.SourceName),
-                        PQTickInstantTests.ExtractFieldStringUpdateWithId(pqFieldUpdates, PQFieldKeys.SourceTickerNames, 0));
+                        PQTickInstantTests.ExtractFieldStringUpdateWithId(pqFieldUpdates, PQQuoteFields.SourceTickerNames, 0));
         Assert.AreEqual(ExpectedTickerStringUpdate(fullyPopulatedSrcTkrInfo.InstrumentName),
-                        PQTickInstantTests.ExtractFieldStringUpdateWithId(pqFieldUpdates, PQFieldKeys.SourceTickerNames, 1));
+                        PQTickInstantTests.ExtractFieldStringUpdateWithId(pqFieldUpdates, PQQuoteFields.SourceTickerNames, 1));
     }
 
     [TestMethod]
     public void EmptyQuote_ReceiveSourceTickerStringFieldUpdateInUpdateField_ReturnsSizeFoundInField()
     {
         var expectedSize         = 37;
-        var pqStringFieldSize    = new PQFieldUpdate(PQFieldKeys.SourceTickerNames, expectedSize);
+        var pqStringFieldSize    = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, expectedSize);
         var sizeToReadFromBuffer = emptySrcTkrInfo.UpdateField(pqStringFieldSize);
         Assert.AreEqual(expectedSize, sizeToReadFromBuffer);
     }
@@ -657,41 +656,41 @@ public class PQSourceTickerInfoTests
     (IList<PQFieldUpdate> checkFieldUpdates,
         ISourceTickerInfo srcTkrInfo)
     {
-        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.SourceTickerId, srcTkrInfo.SourceTickerId),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.SourceTickerId));
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.SourceTickerId, srcTkrInfo.SourceTickerId),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceTickerId));
         var decimalPlaces = BitConverter.GetBytes(decimal.GetBits(
                                                                   srcTkrInfo.RoundingPrecision)[3])[2];
         var roundingNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) *
                                        srcTkrInfo.RoundingPrecision);
-        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.PriceRoundingPrecision, roundingNoDecimal, decimalPlaces),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.PriceRoundingPrecision));
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PriceRoundingPrecision, roundingNoDecimal, (PQFieldFlags)decimalPlaces),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PriceRoundingPrecision));
         decimalPlaces = BitConverter.GetBytes(decimal.GetBits(srcTkrInfo.MinSubmitSize)[3])[2];
         var minSubmitNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) *
                                         srcTkrInfo.MinSubmitSize);
-        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.MinSubmitSize, minSubmitNoDecimal, decimalPlaces),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.MinSubmitSize));
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.MinSubmitSize, minSubmitNoDecimal, (PQFieldFlags)decimalPlaces),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.MinSubmitSize));
         decimalPlaces = BitConverter.GetBytes(decimal.GetBits(srcTkrInfo.MaxSubmitSize)[3])[2];
         var maxSubmitNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) *
                                         srcTkrInfo.MaxSubmitSize);
-        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.MaxSubmitSize, maxSubmitNoDecimal, decimalPlaces),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.MaxSubmitSize));
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.MaxSubmitSize, maxSubmitNoDecimal, (PQFieldFlags)decimalPlaces),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.MaxSubmitSize));
         decimalPlaces = BitConverter.GetBytes(decimal.GetBits(srcTkrInfo.IncrementSize)[3])[2];
         var incrementSizeNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) *
                                             srcTkrInfo.IncrementSize);
-        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.IncrementSize, incrementSizeNoDecimal, decimalPlaces),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.IncrementSize));
-        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LayerFlags, (uint)srcTkrInfo.LayerFlags),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.LayerFlags));
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.IncrementSize, incrementSizeNoDecimal, (PQFieldFlags)decimalPlaces),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.IncrementSize));
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerFlags, (uint)srcTkrInfo.LayerFlags),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerFlags));
         if (srcTkrInfo.LastTradedFlags != LastTradedFlags.None)
-            Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LastTradedFlags, (uint)srcTkrInfo.LastTradedFlags),
-                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFieldKeys.LastTradedFlags));
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedFlags, (uint)srcTkrInfo.LastTradedFlags),
+                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedFlags));
     }
 
 
     public static PQFieldStringUpdate ExpectedSourceStringUpdate(string sourceValue) =>
         new()
         {
-            Field = new PQFieldUpdate(PQFieldKeys.SourceTickerNames, 0, PQFieldFlags.IsUpsert), StringUpdate
+            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, 0, (ushort)CrudCommand.Upsert), StringUpdate
                 = new PQStringUpdate
                 {
                     DictionaryId = 0, Value = sourceValue, Command = CrudCommand.Upsert
@@ -702,7 +701,7 @@ public class PQSourceTickerInfoTests
     public static PQFieldStringUpdate ExpectedTickerStringUpdate(string tickerValue) =>
         new()
         {
-            Field = new PQFieldUpdate(PQFieldKeys.SourceTickerNames, 0, PQFieldFlags.IsUpsert), StringUpdate
+            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, 0, (ushort)CrudCommand.Upsert), StringUpdate
                 = new PQStringUpdate
                 {
                     DictionaryId = 1, Value = tickerValue, Command = CrudCommand.Upsert

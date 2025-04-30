@@ -150,8 +150,7 @@ public class PQValueDatePriceVolumeLayerTests
         var sourceUpdates = emptyPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.FirstLayerDateOffset,
-                                                    expectedDateTime.GetHoursFromUnixEpoch(), PQFieldFlags.IsExtendedFieldId);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LayerValueDate, expectedDateTime.GetHoursFromUnixEpoch());
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyPvl.IsValueDateUpdated = false;
@@ -166,12 +165,11 @@ public class PQValueDatePriceVolumeLayerTests
         Assert.AreEqual(nextExpectedValueDate, emptyPvl.ValueDate);
         sourceUpdates = emptyPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.FirstLayerDateOffset,
-                                                nextExpectedValueDate.GetHoursFromUnixEpoch(), PQFieldFlags.IsExtendedFieldId);
+        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LayerValueDate, nextExpectedValueDate.GetHoursFromUnixEpoch());
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         sourceUpdates = (from update in emptyPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id == PQFieldKeys.FirstLayerDateOffset
+            where update.Id == PQQuoteFields.LayerValueDate
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -190,7 +188,7 @@ public class PQValueDatePriceVolumeLayerTests
     }
 
     [TestMethod]
-    public void PopulatedPvl_Reset_ReturnsReturnsLayerToEmpty()
+    public void PopulatedPvl_SetIsEmptyTrue_ReturnsReturnsLayerToEmptyExceptUpdatedFlags()
     {
         Assert.IsFalse(populatedPvl.IsEmpty);
         Assert.AreNotEqual(0m, populatedPvl.Price);
@@ -199,7 +197,7 @@ public class PQValueDatePriceVolumeLayerTests
         Assert.IsTrue(populatedPvl.IsPriceUpdated);
         Assert.IsTrue(populatedPvl.IsVolumeUpdated);
         Assert.IsTrue(populatedPvl.IsValueDateUpdated);
-        populatedPvl.StateReset();
+        populatedPvl.IsEmpty = true;
         Assert.IsTrue(populatedPvl.IsEmpty);
         Assert.AreEqual(0m, populatedPvl.Price);
         Assert.AreEqual(0m, populatedPvl.Volume);
@@ -330,9 +328,9 @@ public class PQValueDatePriceVolumeLayerTests
     {
         PQPriceVolumeLayerTests.AssertContainsAllPvlFields(checkFieldUpdates, pvl);
 
-        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.FirstLayerDateOffset, pvl.ValueDate.GetHoursFromUnixEpoch(),
-                                          PQFieldFlags.IsExtendedFieldId), PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                         PQFieldKeys.FirstLayerDateOffset, PQFieldFlags.IsExtendedFieldId), $"For {pvl.GetType().Name} ");
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerValueDate, pvl.ValueDate.GetHoursFromUnixEpoch()),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                                                                    PQQuoteFields.LayerValueDate), $"For {pvl.GetType().Name} ");
     }
 
 

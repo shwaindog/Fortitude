@@ -12,19 +12,21 @@ namespace FortitudeCommon.DataStructures.Maps.IdMap;
 
 public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
 {
-    protected int LargestAddedId;
+    protected readonly List<int> InsertionOrder;
 
-    public NameIdLookupGenerator() { }
+    private INameIdLookup? lastCopiedInstance;
+
+    public NameIdLookupGenerator() => InsertionOrder = new List<int>();
 
     public NameIdLookupGenerator(INameIdLookup toClone) : base(toClone)
     {
-        if (toClone is NameIdLookupGenerator nameIdToClone)
-            LargestAddedId = nameIdToClone.LargestAddedId;
+        if (toClone is NameIdLookupGenerator nameIdLookup)
+            InsertionOrder = nameIdLookup.InsertionOrder.ToList();
         else
-            LargestAddedId = Cache.Keys.Max();
+            InsertionOrder = Cache.Keys.ToList();
     }
 
-    public NameIdLookupGenerator(IDictionary<int, string> copyDict) : base(copyDict) => LargestAddedId = Cache.Keys.Max();
+    public NameIdLookupGenerator(IDictionary<int, string> copyDict) : base(copyDict) => InsertionOrder = copyDict.Keys.ToList();
 
     public override int this[string? name] => GetOrAddId(name);
 
@@ -32,8 +34,8 @@ public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
     {
         if (name == null) return 0;
         if (ReverseLookup.TryGetValue(name, out var id)) return id;
-        var newId = LargestAddedId + 1;
-        AddNewEntry(newId, name);
+        var newId = InsertionOrder.Any() ? InsertionOrder.Max() + 1 : 1;
+        TryAddNewEntry(newId, name);
         return newId;
     }
 
@@ -42,40 +44,45 @@ public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
         foreach (var existingPair in existingPairs) SetIdToName(existingPair.Key, existingPair.Value);
     }
 
-    public void SetIdToName(int id, string name)
+    public void SetIdToName(int id, string? name)
     {
-        if (Cache.TryGetValue(id, out var existingName))
-        {
-            if (!existingName.Equals(name))
-                throw new DuplicateNameException($"Attempting to add a different name ('{name}') to the NameIdLookup ('{existingName}') for id {id}");
-        }
-        else
-        {
-            AddNewEntry(id, name);
-        }
+        TryAddNewEntry(id, name);
     }
 
     public virtual INameIdLookup CopyFrom(INameIdLookup source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (ReferenceEquals(this, source)) return this;
+        var hasFullReplace = copyMergeFlags.HasFullReplace();
+        if (hasFullReplace) Clear();
+        var hasAppendMissing = copyMergeFlags.HasAppendMissing();
         if (source is NameIdLookupGenerator nameIdLookupGen)
         {
-            if (Cache.Count == nameIdLookupGen.Cache.Count &&
-                LargestAddedId == nameIdLookupGen.LargestAddedId)
-                return this;
-            foreach (var kvp in nameIdLookupGen.Cache)
+            if (hasFullReplace || hasAppendMissing || !ReferenceEquals(lastCopiedInstance, source))
             {
-                Cache[kvp.Key]           = kvp.Value;
-                ReverseLookup[kvp.Value] = kvp.Key;
+                for (var i = 0; i < nameIdLookupGen.InsertionOrder.Count; i++)
+                {
+                    var newIndex = nameIdLookupGen.InsertionOrder[i];
+                    var newName  = nameIdLookupGen.Cache[newIndex];
+                    TryAddNewEntry(newIndex, newName);
+                }
             }
+            else
+            {
+                if (Cache.Count == nameIdLookupGen.Cache.Count) return this;
 
-            LargestAddedId = Math.Max(LargestAddedId, nameIdLookupGen.LargestAddedId);
+                for (var i = InsertionOrder.Count; i < nameIdLookupGen.InsertionOrder.Count; i++)
+                {
+                    var newIndex = nameIdLookupGen.InsertionOrder[i];
+                    var newName  = nameIdLookupGen.Cache[newIndex];
+                    TryAddNewEntry(newIndex, newName);
+                }
+            }
         }
         else
         {
-            foreach (var kvp in source) SetIdToName(kvp.Key, kvp.Value); //Updates LargestAddId if required
+            foreach (var kvp in source) TryAddNewEntry(kvp.Key, kvp.Value);
         }
-
+        lastCopiedInstance = source;
         return this;
     }
 
@@ -94,21 +101,55 @@ public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
         if (!(other is INameIdLookupGenerator)) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
 
-        var baseSame      = base.AreEquivalent(other, exactTypes);
-        var largestIdSame = true;
-        if (exactTypes)
-        {
-            var nameIdGenerator = other as NameIdLookupGenerator;
-            largestIdSame = LargestAddedId == nameIdGenerator?.LargestAddedId;
-        }
+        var baseSame             = base.AreEquivalent(other, exactTypes);
+        var sameType             = true;
+        if (exactTypes) sameType = other is NameIdLookupGenerator;
 
-        return baseSame && largestIdSame;
+        return baseSame && sameType;
     }
 
-    protected virtual void AddNewEntry(int id, string name)
+    public override IEnumerator<KeyValuePair<int, string>> GetEnumerator() =>
+        InsertionOrder
+            .Select(i => new KeyValuePair<int, string>(i, Cache[i]))
+            .GetEnumerator();
+
+    public virtual void Clear()
     {
-        Cache.Add(id, name);
-        ReverseLookup.Add(name, id);
-        if (id > LargestAddedId) LargestAddedId = id;
+        Cache.Clear();
+        InsertionOrder.Clear();
+        ReverseLookup.Clear();
     }
+
+    protected virtual bool TryAddNewEntry(int id, string? name)
+    {
+        var wasAdded = false;
+        if (id == 0 || name == null) return wasAdded;
+        if (Cache.TryGetValue(id, out var existingName))
+        {
+            if (!existingName.Equals(name))
+                throw new
+                    DuplicateNameException($"Attempting to add a different name ('{name}') to the" +
+                                           $" NameIdLookup ('{existingName}') for attempted id {id}");
+            return wasAdded;
+        }
+        if (ReverseLookup.TryGetValue(name, out var checkoutId))
+        {
+            if (!id.Equals(checkoutId))
+                // Console.Out.WriteLine($"Attempting to add Chache[{id} = \"{name}\"]");
+                // foreach (var i in ReverseLookup) Console.Out.WriteLine($"ReverseLookup[{i.Key}]={i.Value}");
+                // foreach (var i in Cache) Console.Out.WriteLine($"Cache[{i.Key}]={i.Value}");
+                throw new
+                    DuplicateNameException($"Attempting to add a different name ('{name}') with" +
+                                           $" id {id} to the NameIdLookup ('{checkoutId}') already set to {Cache[checkoutId]}");
+            return wasAdded;
+        }
+        Cache.Add(id, name);
+        InsertionOrder.Add(id);
+        ReverseLookup.Add(name, id);
+        AddedIdAndName(id, name);
+        wasAdded = true;
+        return wasAdded;
+    }
+
+    protected virtual void AddedIdAndName(int id, string? name) { }
 }

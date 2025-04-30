@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
@@ -15,7 +18,7 @@ public class PQFieldConvertersTests
         var dateNearEndOfHour = new DateTime(2015, 11, 01, 23, 59, 58).AddMilliseconds(987);
 
         var hoursFromEpoch = dateNearEndOfHour.GetHoursFromUnixEpoch();
-        var nanosInHour = dateNearEndOfHour.GetSubHourComponent();
+        var nanosInHour    = dateNearEndOfHour.GetSubHourComponent();
 
         var reconstituteDateTime = new DateTime();
 
@@ -34,7 +37,7 @@ public class PQFieldConvertersTests
         var nanosInHour = dateNearEndOfHour.GetSubHourComponent();
 
         uint uintComponent;
-        var byteComponent = nanosInHour.BreakLongToByteAndUint(out uintComponent);
+        var  byteComponent = nanosInHour.BreakLongToUShortAndUint(out uintComponent);
 
         var reconstitutedLong = byteComponent.AppendUintToMakeLong(uintComponent);
 

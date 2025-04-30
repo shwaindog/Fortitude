@@ -27,20 +27,24 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
 
     public PQValueDatePriceVolumeLayer
         (decimal price = 0m, decimal volume = 0m, DateTime? valueDate = null)
-        : base(price, volume) =>
+        : base(price, volume)
+    {
         ValueDate = valueDate ?? DateTimeConstants.UnixEpoch;
+        if (GetType() == typeof(PQValueDatePriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+    }
 
     public PQValueDatePriceVolumeLayer(IPriceVolumeLayer toClone) : base(toClone)
     {
         if (toClone is IValueDatePriceVolumeLayer valueDateToClone) ValueDate = valueDateToClone.ValueDate;
 
         SetFlagsSame(toClone);
+        if (GetType() == typeof(PQValueDatePriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
     }
 
     protected string PQValueDatePriceVolumeLayerToStringMembers => $"{PQPriceVolumeLayerToStringMembers}, {nameof(ValueDate)}: {ValueDate}";
 
     [JsonIgnore] public override LayerType  LayerType          => LayerType.ValueDatePriceVolume;
-    [JsonIgnore] public override LayerFlags SupportsLayerFlags => LayerFlags.ValueDate | base.SupportsLayerFlags;
+    [JsonIgnore] public override LayerFlags SupportsLayerFlags => LayerFlagsExtensions.AdditionalValueDateFlags | base.SupportsLayerFlags;
 
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -49,9 +53,8 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         get => valueDate;
         set
         {
-            if (valueDate == value) return;
-            IsValueDateUpdated = true;
-            valueDate          = value;
+            IsValueDateUpdated |= valueDate != value || NumUpdatesSinceEmpty == 0;
+            valueDate          =  value;
         }
     }
 
@@ -94,21 +97,20 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                 quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
-        if (!updatedOnly || IsValueDateUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.FirstLayerDateOffset, valueDate.GetHoursFromUnixEpoch(),
-                                           PQFieldFlags.IsExtendedFieldId);
+        if (!updatedOnly || IsValueDateUpdated) yield return new PQFieldUpdate(PQQuoteFields.LayerValueDate, valueDate.GetHoursFromUnixEpoch());
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the book has already forwarded this through to the correct layer
-        if (pqFieldUpdate.Id < PQFieldKeys.FirstLayerDateOffset || pqFieldUpdate.Id >=
-            PQFieldKeys.FirstLayerDateOffset + PQFieldKeys.SingleByteFieldIdMaxBookDepth)
-            return base.UpdateField(pqFieldUpdate);
-        var originalValueDate = valueDate;
-        PQFieldConverters.UpdateHoursFromUnixEpoch(ref valueDate, pqFieldUpdate.Value);
-        IsValueDateUpdated = originalValueDate != valueDate;
-        return 0;
+        if (pqFieldUpdate.Id == PQQuoteFields.LayerValueDate)
+        {
+            var originalValueDate = valueDate;
+            PQFieldConverters.UpdateHoursFromUnixEpoch(ref valueDate, pqFieldUpdate.Payload);
+            IsValueDateUpdated = originalValueDate != valueDate; // incase of reset and sending 0;
+            return 0;
+        }
+        return base.UpdateField(pqFieldUpdate);
     }
 
     public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
@@ -160,5 +162,5 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         }
     }
 
-    public override string ToString() => $"{GetType().Name}({PQValueDatePriceVolumeLayerToStringMembers})";
+    public override string ToString() => $"{GetType().Name}({PQValueDatePriceVolumeLayerToStringMembers}, {UpdatedFlagsToString})";
 }

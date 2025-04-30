@@ -17,15 +17,16 @@ namespace FortitudeMarkets.Pricing.Quotes.LayeredBook;
 [JsonDerivedType(typeof(PriceVolumeLayer))]
 [JsonDerivedType(typeof(SourcePriceVolumeLayer))]
 [JsonDerivedType(typeof(SourceQuoteRefPriceVolumeLayer))]
-[JsonDerivedType(typeof(SourceQuoteRefTraderValueDatePriceVolumeLayer))]
+[JsonDerivedType(typeof(SourceQuoteRefOrdersValueDatePriceVolumeLayer))]
 [JsonDerivedType(typeof(ValueDatePriceVolumeLayer))]
-[JsonDerivedType(typeof(TraderPriceVolumeLayer))]
+[JsonDerivedType(typeof(OrdersPriceVolumeLayer))]
 [JsonDerivedType(typeof(PQPriceVolumeLayer))]
 [JsonDerivedType(typeof(PQSourcePriceVolumeLayer))]
 [JsonDerivedType(typeof(PQSourceQuoteRefPriceVolumeLayer))]
-[JsonDerivedType(typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer))]
+[JsonDerivedType(typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer))]
 [JsonDerivedType(typeof(PQValueDatePriceVolumeLayer))]
-[JsonDerivedType(typeof(PQTraderPriceVolumeLayer))]
+[JsonDerivedType(typeof(PQOrdersCountPriceVolumeLayer))]
+[JsonDerivedType(typeof(PQOrdersPriceVolumeLayer))]
 public interface IPriceVolumeLayer : IReusableObject<IPriceVolumeLayer>, IInterfacesComparable<IPriceVolumeLayer>
 {
     [JsonIgnore] LayerType  LayerType          { get; }

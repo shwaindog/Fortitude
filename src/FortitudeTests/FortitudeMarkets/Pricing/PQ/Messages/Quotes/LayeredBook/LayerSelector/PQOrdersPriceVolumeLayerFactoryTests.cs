@@ -1,31 +1,37 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
 
+#region
+
+using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook.LayerSelector;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
 namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook.LayerSelector;
 
 [TestClass]
-public class PQTraderPriceVolumeLayerFactoryTests : PQPriceVolumeFactoryTestsBase
+public class PQOrdersPriceVolumeLayerFactoryTests : PQPriceVolumeFactoryTestsBase
 {
     [TestMethod]
     public void NewPQLastTradeFactory_EntryCreationTypeAndCreateNewLastTradeEnty_ReturnExpected()
     {
-        var pvlFactory = new PQTraderPriceVolumeLayerFactory(NameIdLookupGenerator.Clone());
+        var pvlFactory = new PQOrdersPriceVolumeLayerFactory(LayerType.OrdersFullPriceVolume, NameIdLookupGenerator.Clone());
 
-        var emptyPvl = new PQTraderPriceVolumeLayer(NameIdLookupGenerator.Clone());
+        var emptyPvl = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, NameIdLookupGenerator.Clone());
 
-        Assert.AreEqual(typeof(PQTraderPriceVolumeLayer), pvlFactory.LayerCreationType);
+        Assert.AreEqual(typeof(PQOrdersPriceVolumeLayer), pvlFactory.LayerCreationType);
         Assert.AreEqual(emptyPvl, pvlFactory.CreateNewLayer());
     }
 
     [TestMethod]
     public void InitialisedOtherTypes_UpgradeLayer_PreservesAsMuchCommonSupportedFields()
     {
-        var pvlFactory = new PQTraderPriceVolumeLayerFactory(new PQNameIdLookupGenerator(0));
+        var pvlFactory = new PQOrdersPriceVolumeLayerFactory(LayerType.OrdersFullPriceVolume
+                                                           , new PQNameIdLookupGenerator(PQQuoteFields.SourceTickerNames));
 
         var simplePvl = pvlFactory.UpgradeLayer(SimplePvl);
         Assert.IsTrue(SimplePvl.AreEquivalent(simplePvl));

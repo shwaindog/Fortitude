@@ -167,7 +167,7 @@ public class PQSourceTickerId : ReusableObject<IPQSourceTickerId>, IPQSourceTick
         set => UpdatedFlags = value ? UpdatedFlags.AllFlags() : SourceTickerInfoUpdatedFlags.None;
     }
 
-    public IPQNameIdLookupGenerator NameIdLookup { get; set; } = new PQNameIdLookupGenerator(PQFieldKeys.SourceTickerNames);
+    public IPQNameIdLookupGenerator NameIdLookup { get; set; } = new PQNameIdLookupGenerator(PQQuoteFields.SourceTickerNames);
 
     INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
 
@@ -176,7 +176,7 @@ public class PQSourceTickerId : ReusableObject<IPQSourceTickerId>, IPQSourceTick
     {
         var updatedOnly = (updateStyle & StorageFlags.Complete) == 0;
 
-        if (!updatedOnly || IsIdUpdated) yield return new PQFieldUpdate(PQFieldKeys.SourceTickerId, SourceTickerId);
+        if (!updatedOnly || IsIdUpdated) yield return new PQFieldUpdate(PQQuoteFields.SourceTickerId, SourceTickerId);
     }
 
     public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
@@ -185,7 +185,7 @@ public class PQSourceTickerId : ReusableObject<IPQSourceTickerId>, IPQSourceTick
         if (!isUpdateOnly || IsSourceUpdated)
             yield return new PQFieldStringUpdate
             {
-                Field = new PQFieldUpdate(PQFieldKeys.SourceTickerNames, 0, PQFieldFlags.IsUpsert), StringUpdate
+                Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, 0, (ushort)CrudCommand.Upsert), StringUpdate
                     = new PQStringUpdate
                     {
                         DictionaryId = 0, Value = SourceName, Command = CrudCommand.Upsert
@@ -194,7 +194,7 @@ public class PQSourceTickerId : ReusableObject<IPQSourceTickerId>, IPQSourceTick
         if (!isUpdateOnly || IsTickerUpdated)
             yield return new PQFieldStringUpdate
             {
-                Field = new PQFieldUpdate(PQFieldKeys.SourceTickerNames, 0, PQFieldFlags.IsUpsert), StringUpdate
+                Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, 0, (ushort)CrudCommand.Upsert), StringUpdate
                     = new PQStringUpdate
                     {
                         DictionaryId = 1, Value = InstrumentName, Command = CrudCommand.Upsert
@@ -204,7 +204,7 @@ public class PQSourceTickerId : ReusableObject<IPQSourceTickerId>, IPQSourceTick
 
     public bool UpdateFieldString(PQFieldStringUpdate updates)
     {
-        if (updates.Field.Id == PQFieldKeys.SourceTickerNames)
+        if (updates.Field.Id == PQQuoteFields.SourceTickerNames)
         {
             var stringUpdt = updates.StringUpdate;
             var upsert     = stringUpdt.Command == CrudCommand.Upsert;
@@ -221,11 +221,11 @@ public class PQSourceTickerId : ReusableObject<IPQSourceTickerId>, IPQSourceTick
     {
         switch (fieldUpdate.Id)
         {
-            case PQFieldKeys.SourceTickerId:
-                SourceId     = (ushort)(fieldUpdate.Value >> 16);
-                InstrumentId = (ushort)(fieldUpdate.Value & 0xFFFF);
+            case PQQuoteFields.SourceTickerId:
+                SourceId     = (ushort)(fieldUpdate.Payload >> 16);
+                InstrumentId = (ushort)(fieldUpdate.Payload & 0xFFFF);
                 return 0;
-            case PQFieldKeys.SourceTickerNames: return (int)fieldUpdate.Value;
+            case PQQuoteFields.SourceTickerNames: return (int)fieldUpdate.Payload;
         }
         return -1;
     }

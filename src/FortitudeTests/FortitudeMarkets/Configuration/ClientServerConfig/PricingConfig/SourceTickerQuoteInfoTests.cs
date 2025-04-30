@@ -82,16 +82,16 @@ public class SourceTickerInfoTests
         Assert.AreEqual(expectedId, minimalSrcTkrInfo.SourceTickerId);
         Assert.AreEqual("MinimalSource", minimalSrcTkrInfo.SourceName);
         Assert.AreEqual("MinalTicker", minimalSrcTkrInfo.InstrumentName);
-        Assert.AreEqual(20, minimalSrcTkrInfo.MaximumPublishedLayers);
-        Assert.AreEqual(0.00001m, minimalSrcTkrInfo.RoundingPrecision);
-        Assert.AreEqual(0.0001m, minimalSrcTkrInfo.Pip);
-        Assert.AreEqual(0.01m, minimalSrcTkrInfo.MinSubmitSize);
-        Assert.AreEqual(1_000_000m, minimalSrcTkrInfo.MaxSubmitSize);
-        Assert.AreEqual(0.01m, minimalSrcTkrInfo.IncrementSize);
-        Assert.AreEqual(100, minimalSrcTkrInfo.MinimumQuoteLife);
-        Assert.AreEqual(10_000u, sourceTickerInfo.DefaultMaxValidMs);
-        Assert.AreEqual(LayerFlags.Price | LayerFlags.Volume, minimalSrcTkrInfo.LayerFlags);
-        Assert.AreEqual(LastTradedFlags.None, minimalSrcTkrInfo.LastTradedFlags);
+        Assert.AreEqual(SourceTickerInfo.DefaultMaximumPublishedLayers, minimalSrcTkrInfo.MaximumPublishedLayers);
+        Assert.AreEqual(SourceTickerInfo.DefaultRoundingPrecision, minimalSrcTkrInfo.RoundingPrecision);
+        Assert.AreEqual(SourceTickerInfo.DefaultPip, minimalSrcTkrInfo.Pip);
+        Assert.AreEqual(SourceTickerInfo.DefaultMinSubmitSize, minimalSrcTkrInfo.MinSubmitSize);
+        Assert.AreEqual(SourceTickerInfo.DefaultMaxSubmitSize, minimalSrcTkrInfo.MaxSubmitSize);
+        Assert.AreEqual(SourceTickerInfo.DefaultIncrementSize, minimalSrcTkrInfo.IncrementSize);
+        Assert.AreEqual(SourceTickerInfo.DefaultMinimumQuoteLife, minimalSrcTkrInfo.MinimumQuoteLife);
+        Assert.AreEqual(SourceTickerInfo.DefaultDefaultMaxValidMs, sourceTickerInfo.DefaultMaxValidMs);
+        Assert.AreEqual(SourceTickerInfo.PriceVolumeFlags, minimalSrcTkrInfo.LayerFlags);
+        Assert.AreEqual(SourceTickerInfo.DefaultLastTradedFlags, minimalSrcTkrInfo.LastTradedFlags);
     }
 
     [TestMethod]
@@ -203,9 +203,10 @@ public class SourceTickerInfoTests
         // ReSharper disable RedundantArgumentDefaultValue
         var matchingStqi = new SourceTickerInfo
             (1, "TestSource", 1, "TestTicker", TickerDetailLevel.Level2Quote, Unknown
-           , 20, 0.00001m, 0.0001m, 0.01m, 1_000_000, 0.01m, 100
-           , 10_000, layerFlags: LayerFlags.Price | LayerFlags.Volume
-           , lastTradedFlags: LastTradedFlags.None);
+           , SourceTickerInfo.DefaultMaximumPublishedLayers, SourceTickerInfo.DefaultRoundingPrecision, SourceTickerInfo.DefaultPip,
+             SourceTickerInfo.DefaultMinSubmitSize, SourceTickerInfo.DefaultMaxSubmitSize, SourceTickerInfo.DefaultIncrementSize,
+             SourceTickerInfo.DefaultMinimumQuoteLife, SourceTickerInfo.DefaultDefaultMaxValidMs, SourceTickerInfo.DefaultSubscribeToPrices,
+             SourceTickerInfo.DefaultTradingEnabled, LayerFlags.Price | LayerFlags.Volume, LastTradedFlags.None);
         Assert.AreEqual(commonStqi, matchingStqi);
         // ReSharper restore RedundantArgumentDefaultValue
     }
@@ -228,9 +229,9 @@ public class SourceTickerInfoTests
 
         Assert.IsTrue(toString.Contains(srcTkrInfo.GetType().Name));
         Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.SourceId)}: {srcTkrInfo.SourceId}"));
+        Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.SourceName)}: {srcTkrInfo.SourceName}"));
         Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.InstrumentId)}: {srcTkrInfo.InstrumentId}"));
         Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.InstrumentName)}: {srcTkrInfo.InstrumentName}"));
-        Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.SourceName)}: {srcTkrInfo.SourceName}"));
         Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.MaximumPublishedLayers)}: " +
                                         $"{srcTkrInfo.MaximumPublishedLayers}"));
         Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.RoundingPrecision)}: " +
@@ -243,5 +244,9 @@ public class SourceTickerInfoTests
         Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.LayerFlags)}: {srcTkrInfo.LayerFlags}"));
         Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.LastTradedFlags)}: " +
                                         $"{srcTkrInfo.LastTradedFlags}"));
+        Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.SubscribeToPrices)}: " +
+                                        $"{srcTkrInfo.SubscribeToPrices}"));
+        Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.TradingEnabled)}: " +
+                                        $"{srcTkrInfo.TradingEnabled}"));
     }
 }

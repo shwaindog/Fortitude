@@ -119,8 +119,7 @@ public class PQLastTradeTests
         var sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.LastTradePriceOffset,
-                                                    expectedPrice, 1);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedAtPrice, expectedPrice, (PQFieldFlags)1);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyLt.IsTradePriceUpdated = false;
@@ -135,12 +134,12 @@ public class PQLastTradeTests
         Assert.AreEqual(nextExpectedPrice, emptyLt.TradePrice);
         sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.LastTradePriceOffset, nextExpectedPrice, 1);
+        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedAtPrice, nextExpectedPrice, (PQFieldFlags)1);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyLt.HasUpdates = false;
         sourceUpdates = (from update in emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id == PQFieldKeys.LastTradePriceOffset
+            where update.Id == PQQuoteFields.LastTradedAtPrice
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -169,11 +168,10 @@ public class PQLastTradeTests
         var sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(2, sourceUpdates.Count);
 
-        var expectedHoursFieldUpdate = new PQFieldUpdate(PQFieldKeys.LastTradeTimeHourOffset,
+        var expectedHoursFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate,
                                                          expectedDateTime.GetHoursFromUnixEpoch());
-        var flag = expectedDateTime.GetSubHourComponent().BreakLongToByteAndUint(out var subHoursBase);
-        var expectedSubHoursFieldUpdate = new PQFieldUpdate(PQFieldKeys.LastTradeTimeSubHourOffset,
-                                                            subHoursBase, flag);
+        var extended                    = expectedDateTime.GetSubHourComponent().BreakLongToUShortAndUint(out var subHoursBase);
+        var expectedSubHoursFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeSubHour, subHoursBase, extended);
         Assert.AreEqual(expectedHoursFieldUpdate, sourceUpdates[0]);
         Assert.AreEqual(expectedSubHoursFieldUpdate, sourceUpdates[1]);
 
@@ -195,18 +193,16 @@ public class PQLastTradeTests
         Assert.AreEqual(nextExpectedPrice, emptyLt.TradeTime);
         sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(2, sourceUpdates.Count);
-        expectedHoursFieldUpdate = new PQFieldUpdate(PQFieldKeys.LastTradeTimeHourOffset,
-                                                     nextExpectedPrice.GetHoursFromUnixEpoch());
-        flag = nextExpectedPrice.GetSubHourComponent().BreakLongToByteAndUint(out subHoursBase);
-        expectedSubHoursFieldUpdate = new PQFieldUpdate(PQFieldKeys.LastTradeTimeSubHourOffset,
-                                                        subHoursBase, flag);
+        expectedHoursFieldUpdate    = new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate, nextExpectedPrice.GetHoursFromUnixEpoch());
+        extended                    = nextExpectedPrice.GetSubHourComponent().BreakLongToUShortAndUint(out subHoursBase);
+        expectedSubHoursFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeSubHour, subHoursBase, extended);
         Assert.AreEqual(expectedHoursFieldUpdate, sourceUpdates[0]);
         Assert.AreEqual(expectedSubHoursFieldUpdate, sourceUpdates[1]);
 
         emptyLt.HasUpdates = false;
         sourceUpdates = (from update in emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id == PQFieldKeys.LastTradeTimeHourOffset ||
-                  update.Id == PQFieldKeys.LastTradeTimeSubHourOffset
+            where update.Id == PQQuoteFields.LastTradedTradeTimeDate ||
+                  update.Id == PQQuoteFields.LastTradedTradeTimeSubHour
             select update).ToList();
         Assert.AreEqual(2, sourceUpdates.Count);
         Assert.AreEqual(expectedHoursFieldUpdate, sourceUpdates[0]);
@@ -371,16 +367,16 @@ public class PQLastTradeTests
 
     public static void AssertContainsAllLtFields(IList<PQFieldUpdate> checkFieldUpdates, IPQLastTrade lt)
     {
-        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LastTradePriceOffset, lt.TradePrice, 1),
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedAtPrice, lt.TradePrice, (PQFieldFlags)1),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                                                                    PQFieldKeys.LastTradePriceOffset, 1), $"For {lt.GetType().Name} ");
-        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LastTradeTimeHourOffset,
+                                                                    PQQuoteFields.LastTradedAtPrice, (PQFieldFlags)1), $"For {lt.GetType().Name} ");
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate,
                                           lt.TradeTime.GetHoursFromUnixEpoch()), PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                         PQFieldKeys.LastTradeTimeHourOffset), $"For {lt.GetType().Name} ");
-        var fifthByte = lt.TradeTime.GetSubHourComponent().BreakLongToByteAndUint(out var lowerFourBytes);
-        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LastTradeTimeSubHourOffset, lowerFourBytes, fifthByte),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                                                                    PQFieldKeys.LastTradeTimeSubHourOffset), $"For {lt.GetType().Name} ");
+                         PQQuoteFields.LastTradedTradeTimeDate), $"For {lt.GetType().Name} ");
+        var extended = lt.TradeTime.GetSubHourComponent().BreakLongToUShortAndUint(out var lowerFourBytes);
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeSubHour, lowerFourBytes, extended),
+                        PQTickInstantTests.ExtractFieldUpdateWithId
+                            (checkFieldUpdates, PQQuoteFields.LastTradedTradeTimeSubHour), $"For {lt.GetType().Name} ");
     }
 
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType

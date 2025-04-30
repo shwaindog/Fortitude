@@ -62,7 +62,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
 
         SendPqTickInstant.HasUpdates = true;
         deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
-            (ExpectedQuotes, PQMessageFlags.Update, uint.MaxValue);
+            (ExpectedQuotes, PQMessageFlags.Update, 0);
         sockBuffContext = deserializeInputList.First();
 
         MoqFlogger.Setup(fl => fl.Info(It.IsAny<string>(), It.IsAny<object[]>())).Callback<string, object[]>(
@@ -74,7 +74,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
              Assert.AreEqual(SourceTickerInfo, strParams[0]);
              Assert.AreEqual(0u, strParams[1]);
              Assert.AreEqual(0u, strParams[2]);
-             Assert.AreEqual(3u, strParams[3]);
+             Assert.AreEqual(2u, strParams[3]);
          }).Verifiable();
 
         syncState.ProcessInState(sockBuffContext);

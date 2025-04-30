@@ -17,7 +17,9 @@ public struct BookGenerationInfo
 
     public decimal Pip = 0.0001m;
 
-    public int VolumeRounding = 10_000;
+    public int VolumeRoundingDp = 2;
+
+    public int PriceRoundingDp = 5;
 
     public int NumberOfBookLayers = 20;
 

@@ -28,7 +28,7 @@ public class LastTraderPaidGivenTradeTests
     [TestInitialize]
     public void SetUp()
     {
-        nameIdLookupGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
+        nameIdLookupGenerator = new PQNameIdLookupGenerator(PQQuoteFields.LastTradedDictionaryUpsertCommand);
 
         emptyLt      = new LastTraderPaidGivenTrade();
         testDateTime = new DateTime(2017, 12, 17, 16, 11, 52);

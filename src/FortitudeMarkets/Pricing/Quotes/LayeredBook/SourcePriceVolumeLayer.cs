@@ -32,8 +32,11 @@ public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolum
         }
     }
 
+    protected string SourcePriceVolumeLayerToStringMembers =>
+        $"{PriceVolumeLayerToStringMembers}, {nameof(SourceName)}: {SourceName}, {nameof(Executable)}: {Executable}";
+
     [JsonIgnore] public override LayerType  LayerType          => LayerType.SourcePriceVolume;
-    [JsonIgnore] public override LayerFlags SupportsLayerFlags => LayerFlags.SourceName | LayerFlags.Executable | base.SupportsLayerFlags;
+    [JsonIgnore] public override LayerFlags SupportsLayerFlags => LayerFlagsExtensions.AdditionSourceLayerFlags | base.SupportsLayerFlags;
 
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -111,8 +114,5 @@ public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolum
         }
     }
 
-    public override string ToString() =>
-        $"SourcePriceVolumeLayer{{{nameof(Price)}: {Price:N5}, {nameof(Volume)}: " +
-        $"{Volume:N2}, {nameof(SourceName)}: {SourceName}, " +
-        $"{nameof(Executable)}: {Executable} }}";
+    public override string ToString() => $"{nameof(SourcePriceVolumeLayer)}{{{SourcePriceVolumeLayerToStringMembers} }}";
 }

@@ -1,3 +1,6 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using System.Collections;
@@ -14,7 +17,7 @@ public class IdLookup<T> : IIdLookup<T> where T : notnull
 {
     private static int lastInstanceNum;
 
-    protected readonly IDictionary<int, T> Cache = new Dictionary<int, T>();
+    protected readonly IDictionary<int, T> Cache         = new Dictionary<int, T>();
     protected readonly IDictionary<T, int> ReverseLookup = new Dictionary<T, int>();
 
     public IdLookup() { }
@@ -22,7 +25,7 @@ public class IdLookup<T> : IIdLookup<T> where T : notnull
     public IdLookup(IDictionary<int, T>? copyDict)
     {
         if (copyDict == null) return;
-        Cache = new Dictionary<int, T>(copyDict);
+        Cache         = new Dictionary<int, T>(copyDict);
         ReverseLookup = Cache.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
     }
 
@@ -30,7 +33,15 @@ public class IdLookup<T> : IIdLookup<T> where T : notnull
 
     public int InstanceNum { get; } = Interlocked.Increment(ref lastInstanceNum);
 
-    public virtual T? this[int id] => Cache.TryGetValue(id, out var name) ? name : default;
+    public virtual T? this[int id]
+    {
+        get
+        {
+            var result = Cache.TryGetValue(id, out var name) ? name : default;
+            Console.Out.WriteLine("");
+            return result;
+        }
+    }
 
     public virtual int this[T? name]
     {
@@ -55,7 +66,7 @@ public class IdLookup<T> : IIdLookup<T> where T : notnull
     {
         if (other == null) return false;
         var containsAtLeast = !other.Except(this).Any();
-        var countSame = true;
+        var countSame       = true;
         if (exactTypes)
         {
             var exactNameIdLookup = other as IdLookup<T>;
@@ -67,7 +78,7 @@ public class IdLookup<T> : IIdLookup<T> where T : notnull
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<KeyValuePair<int, T>> GetEnumerator() => Cache.GetEnumerator();
+    public virtual IEnumerator<KeyValuePair<int, T>> GetEnumerator() => Cache.GetEnumerator();
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IIdLookup<T>, true);
 

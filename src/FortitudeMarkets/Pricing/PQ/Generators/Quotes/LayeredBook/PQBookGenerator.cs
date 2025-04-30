@@ -17,15 +17,11 @@ namespace FortitudeMarkets.Pricing.PQ.Generators.Quotes.LayeredBook;
 public class PQBookGenerator : BookGenerator
 {
     private readonly IPQNameIdLookupGenerator
-        consistentAskNameIdGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
+        consistentAskNameIdGenerator = new PQNameIdLookupGenerator(PQQuoteFields.LayerNameDictionaryUpsertCommand);
     private readonly IPQNameIdLookupGenerator
-        consistentBidNameIdGenerator = new PQNameIdLookupGenerator(PQFieldKeys.LayerNameDictionaryUpsertCommand);
+        consistentBidNameIdGenerator = new PQNameIdLookupGenerator(PQQuoteFields.LayerNameDictionaryUpsertCommand);
 
-    public PQBookGenerator(QuoteBookValuesGenerator quoteBookGenerator) : base(quoteBookGenerator)
-    {
-        consistentAskNameIdGenerator.GetOrAddId(TraderPriceVolumeLayer.TraderCountOnlyName);
-        consistentBidNameIdGenerator.GetOrAddId(TraderPriceVolumeLayer.TraderCountOnlyName);
-    }
+    public PQBookGenerator(QuoteBookValuesGenerator quoteBookGenerator) : base(quoteBookGenerator) { }
 
     public override void InitializeBook(IMutableOrderBook newBook)
     {
@@ -36,14 +32,34 @@ public class PQBookGenerator : BookGenerator
         base.InitializeBook(newBook);
     }
 
+    protected override void SetPrice(BookSide side, IMutablePriceVolumeLayer priceVolumeLayer, decimal price, decimal? prevPrice)
+    {
+        if (priceVolumeLayer is IPQPriceVolumeLayer pqOrdersCountPvl) pqOrdersCountPvl.IsPriceUpdated = price != prevPrice;
+        base.SetPrice(side, priceVolumeLayer, price, prevPrice);
+    }
+
+    protected override void SetVolume(BookSide side, IMutablePriceVolumeLayer priceVolumeLayer, decimal volume, decimal? prevVolume)
+    {
+        if (priceVolumeLayer is IPQPriceVolumeLayer pqOrdersCountPvl) pqOrdersCountPvl.IsVolumeUpdated = volume != prevVolume;
+        base.SetVolume(side, priceVolumeLayer, volume, prevVolume);
+    }
+
+    protected override void SetValueDate
+        (BookSide side, IMutableValueDatePriceVolumeLayer valueDatePriceVolumeLayer, DateTime newValueDate, DateTime? prevValueDate)
+    {
+        if (valueDatePriceVolumeLayer is IPQValueDatePriceVolumeLayer pqValueDatePvl)
+            pqValueDatePvl.IsValueDateUpdated = newValueDate != prevValueDate;
+        base.SetValueDate(side, valueDatePriceVolumeLayer, newValueDate, prevValueDate);
+    }
+
     protected override void SetExecutable(BookSide side, IMutableSourcePriceVolumeLayer sourcePriceVolumeLayer, bool executable, bool? prevExecutable)
     {
         var isExecutableUpdated = executable == prevExecutable || !executable;
 
-        if (sourcePriceVolumeLayer is PQSourcePriceVolumeLayer pqSourcePvl) pqSourcePvl.IsExecutableUpdated                   = isExecutableUpdated;
-        if (sourcePriceVolumeLayer is PQSourceQuoteRefPriceVolumeLayer pqSourceQtRefPvl) pqSourceQtRefPvl.IsExecutableUpdated = isExecutableUpdated;
-        if (sourcePriceVolumeLayer is PQSourceQuoteRefTraderValueDatePriceVolumeLayer pqSourceQtRefTrdrPvl)
-            pqSourceQtRefTrdrPvl.IsExecutableUpdated = isExecutableUpdated;
+        if (sourcePriceVolumeLayer is IPQSourcePriceVolumeLayer pqSourcePvl) pqSourcePvl.IsExecutableUpdated                   = isExecutableUpdated;
+        if (sourcePriceVolumeLayer is IPQSourceQuoteRefPriceVolumeLayer pqSourceQtRefPvl) pqSourceQtRefPvl.IsExecutableUpdated = isExecutableUpdated;
+        if (sourcePriceVolumeLayer is IPQSourceQuoteRefOrdersValueDatePriceVolumeLayer pqSourceQtRefOrderValueDtPvl)
+            pqSourceQtRefOrderValueDtPvl.IsExecutableUpdated = isExecutableUpdated;
 
         base.SetExecutable(side, sourcePriceVolumeLayer, executable, prevExecutable);
     }
@@ -51,40 +67,139 @@ public class PQBookGenerator : BookGenerator
     protected override void SetSourceName
         (BookSide side, IMutableSourcePriceVolumeLayer sourcePriceVolumeLayer, string sourceName, ushort sourceId, ushort? prevSourceId)
     {
-        var pqSrcId = side switch
-                      {
-                          BookSide.AskBook => consistentAskNameIdGenerator.GetOrAddId(sourceName)
-                        , BookSide.BidBook => consistentBidNameIdGenerator.GetOrAddId(sourceName)
-                        , _                => 0
-                      };
+        switch (side)
+        {
+            case BookSide.AskBook:
+
+                consistentAskNameIdGenerator.SetIdToName(sourceId, sourceName);
+                if (sourcePriceVolumeLayer is IPQSourcePriceVolumeLayer pqAskSrcLyrInfo)
+                    pqAskSrcLyrInfo.NameIdLookup.CopyFrom(consistentAskNameIdGenerator);
+                break;
+            case
+                BookSide.BidBook:
+                consistentBidNameIdGenerator.SetIdToName(sourceId, sourceName);
+                if (sourcePriceVolumeLayer is IPQSourcePriceVolumeLayer pqBidSrcLyrInfo)
+                    pqBidSrcLyrInfo.NameIdLookup.CopyFrom(consistentBidNameIdGenerator);
+                break;
+        }
         var isSourceNameUpdated = sourceId == prevSourceId;
 
-        if (sourcePriceVolumeLayer is PQSourcePriceVolumeLayer pqSourcePvl) pqSourcePvl.IsSourceNameUpdated                   = isSourceNameUpdated;
-        if (sourcePriceVolumeLayer is PQSourceQuoteRefPriceVolumeLayer pqSourceQtRefPvl) pqSourceQtRefPvl.IsSourceNameUpdated = isSourceNameUpdated;
-        if (sourcePriceVolumeLayer is PQSourceQuoteRefTraderValueDatePriceVolumeLayer pqSourceQtRefTrdrPvl)
-            pqSourceQtRefTrdrPvl.IsSourceNameUpdated = isSourceNameUpdated;
+        if (sourcePriceVolumeLayer is IPQSourcePriceVolumeLayer pqSourcePvl) pqSourcePvl.IsSourceNameUpdated                   = isSourceNameUpdated;
+        if (sourcePriceVolumeLayer is IPQSourceQuoteRefPriceVolumeLayer pqSourceQtRefPvl) pqSourceQtRefPvl.IsSourceNameUpdated = isSourceNameUpdated;
+        if (sourcePriceVolumeLayer is IPQSourceQuoteRefOrdersValueDatePriceVolumeLayer pqSourceQtRefOrderValueDtPvl)
+            pqSourceQtRefOrderValueDtPvl.IsSourceNameUpdated = isSourceNameUpdated;
 
         base.SetSourceName(side, sourcePriceVolumeLayer, sourceName, sourceId, prevSourceId);
     }
 
-    protected override void SetTraderName(BookSide side, IMutableTraderLayerInfo traderLayerInfo, int pos, string traderName, string? prevTraderName)
+    protected override void SetOrdersCount
+        (BookSide side, IMutableOrdersCountPriceVolumeLayer ordersCountPriceVolumeLayer, uint ordersCount, uint? prevOrdersCount)
     {
-        var pqSrcId = side switch
-                      {
-                          BookSide.AskBook => consistentAskNameIdGenerator.GetOrAddId(traderName)
-                        , BookSide.BidBook => consistentBidNameIdGenerator.GetOrAddId(traderName)
-                        , _                => 0
-                      };
-        base.SetTraderName(side, traderLayerInfo, pos, traderName, prevTraderName);
+        if (ordersCountPriceVolumeLayer is IPQOrdersPriceVolumeLayer pqOrdersCountPvl)
+            pqOrdersCountPvl.IsOrdersCountUpdated = ordersCount != prevOrdersCount;
+        base.SetOrdersCount(side, ordersCountPriceVolumeLayer, ordersCount, prevOrdersCount);
     }
 
-    protected override void SetTraderVolume
-        (BookSide side, IMutableTraderLayerInfo traderLayerInfo, int pos, decimal traderVolume, decimal? prevTraderVolume)
+    protected override void SetInternalVolume
+        (BookSide side, IMutableOrdersCountPriceVolumeLayer ordersCountPriceVolumeLayer, decimal internalVolume, decimal? prevInternalVolume)
     {
-        var isTraderVolumeUpdated = traderVolume > 0 || traderVolume == prevTraderVolume;
+        if (ordersCountPriceVolumeLayer is IPQOrdersPriceVolumeLayer pqOrdersCountPvl)
+            pqOrdersCountPvl.IsInternalVolumeUpdated = internalVolume != prevInternalVolume;
+        base.SetInternalVolume(side, ordersCountPriceVolumeLayer, internalVolume, prevInternalVolume);
+    }
 
-        if (traderLayerInfo is PQTraderLayerInfo pqSourcePvl) pqSourcePvl.IsTraderVolumeUpdated = isTraderVolumeUpdated;
+    protected override void SetOrderId(BookSide side, IMutableAnonymousOrderLayerInfo orderLayerInfo, int pos, int orderId, int? prevOrderId)
+    {
+        if (orderLayerInfo is IPQAnonymousOrderLayerInfo pqAnonOrderLyrInfo) pqAnonOrderLyrInfo.IsOrderIdUpdated = orderId != prevOrderId;
+        base.SetOrderId(side, orderLayerInfo, pos, orderId, prevOrderId);
+    }
 
-        base.SetTraderVolume(side, traderLayerInfo, pos, traderVolume, prevTraderVolume);
+    protected override void SetOrderFlags
+        (BookSide side, IMutableAnonymousOrderLayerInfo orderLayerInfo, int pos, LayerOrderFlags orderFlags, LayerOrderFlags? prevOrderFlags)
+    {
+        if (orderLayerInfo is IPQAnonymousOrderLayerInfo pqAnonOrderLyrInfo) pqAnonOrderLyrInfo.IsOrderFlagsUpdated = orderFlags != prevOrderFlags;
+        base.SetOrderFlags(side, orderLayerInfo, pos, orderFlags, prevOrderFlags);
+    }
+
+    protected override void SetOrderCreatedTime
+        (BookSide side, IMutableAnonymousOrderLayerInfo orderLayerInfo, int pos, DateTime orderCreatedTime, DateTime? prevOrderCreatedTime)
+    {
+        if (orderLayerInfo is IPQAnonymousOrderLayerInfo pqAnonOrderLyrInfo)
+        {
+            pqAnonOrderLyrInfo.IsCreatedTimeDateUpdated = orderCreatedTime.GetHoursFromUnixEpoch() != prevOrderCreatedTime?.GetHoursFromUnixEpoch();
+            pqAnonOrderLyrInfo.IsCreatedTimeSubHourUpdated = orderCreatedTime.GetSubHourComponent() != prevOrderCreatedTime?.GetSubHourComponent();
+        }
+        base.SetOrderCreatedTime(side, orderLayerInfo, pos, orderCreatedTime, prevOrderCreatedTime);
+    }
+
+    protected override void SetOrderUpdatedTime
+        (BookSide side, IMutableAnonymousOrderLayerInfo orderLayerInfo, int pos, DateTime orderUpdatedTime, DateTime? prevOrderUpdatedTime)
+    {
+        if (orderLayerInfo is IPQAnonymousOrderLayerInfo pqAnonOrderLyrInfo)
+        {
+            pqAnonOrderLyrInfo.IsUpdatedTimeDateUpdated = orderUpdatedTime.GetHoursFromUnixEpoch() != prevOrderUpdatedTime?.GetHoursFromUnixEpoch();
+            pqAnonOrderLyrInfo.IsUpdatedTimeSubHourUpdated = orderUpdatedTime.GetSubHourComponent() != prevOrderUpdatedTime?.GetSubHourComponent();
+        }
+        base.SetOrderUpdatedTime(side, orderLayerInfo, pos, orderUpdatedTime, prevOrderUpdatedTime);
+    }
+
+    protected override void SetOrderVolume
+        (BookSide side, IMutableAnonymousOrderLayerInfo orderLayerInfo, int pos, decimal orderVolume, decimal? prevOrderVolume)
+    {
+        if (orderLayerInfo is IPQAnonymousOrderLayerInfo pqOrderLayerInfo) pqOrderLayerInfo.IsOrderVolumeUpdated = orderVolume != prevOrderVolume;
+        base.SetOrderVolume(side, orderLayerInfo, pos, orderVolume, prevOrderVolume);
+    }
+
+    protected override void SetOrderRemainingVolume
+        (BookSide side, IMutableAnonymousOrderLayerInfo orderLayerInfo, int pos, decimal orderRemainingVolume, decimal? prevOrderRemainingVolume)
+    {
+        if (orderLayerInfo is IPQAnonymousOrderLayerInfo pqAnonOrderLyrInfo)
+            pqAnonOrderLyrInfo.IsOrderRemainingVolumeUpdated = orderRemainingVolume != prevOrderRemainingVolume;
+        base.SetOrderRemainingVolume(side, orderLayerInfo, pos, orderRemainingVolume, prevOrderRemainingVolume);
+    }
+
+    protected override void SetOrderCounterPartyName
+    (BookSide side, IMutableCounterPartyOrderLayerInfo orderLayerInfo, int pos, string counterPartyName,
+        int counterPartyId, int? prevCounterPartyNameId)
+    {
+        switch (side)
+        {
+            case BookSide.AskBook:
+
+                consistentAskNameIdGenerator.SetIdToName(counterPartyId, counterPartyName);
+                if (orderLayerInfo is IPQCounterPartyOrderLayerInfo pqAskCpOrderLyrInfo)
+                    pqAskCpOrderLyrInfo.NameIdLookup.CopyFrom(consistentAskNameIdGenerator);
+                break;
+            case
+                BookSide.BidBook:
+                consistentBidNameIdGenerator.SetIdToName(counterPartyId, counterPartyName);
+                if (orderLayerInfo is IPQCounterPartyOrderLayerInfo pqBidCpOrderLyrInfo)
+                    pqBidCpOrderLyrInfo.NameIdLookup.CopyFrom(consistentBidNameIdGenerator);
+                break;
+        }
+        if (orderLayerInfo is IPQCounterPartyOrderLayerInfo pqCpOrdLyrInfo) pqCpOrdLyrInfo.IsCounterPartyNameUpdated = true;
+        base.SetOrderCounterPartyName(side, orderLayerInfo, pos, counterPartyName, counterPartyId, prevCounterPartyNameId);
+    }
+
+    protected override void SetOrderTraderName
+        (BookSide side, IMutableCounterPartyOrderLayerInfo orderLayerInfo, int pos, string traderName, int traderNameId, int? prevTraderNameId)
+    {
+        switch (side)
+        {
+            case BookSide.AskBook:
+
+                consistentAskNameIdGenerator.SetIdToName(traderNameId, traderName);
+                if (orderLayerInfo is IPQCounterPartyOrderLayerInfo pqAskCpOrderLyrInfo)
+                    pqAskCpOrderLyrInfo.NameIdLookup.CopyFrom(consistentAskNameIdGenerator);
+                break;
+            case
+                BookSide.BidBook:
+                consistentBidNameIdGenerator.SetIdToName(traderNameId, traderName);
+                if (orderLayerInfo is IPQCounterPartyOrderLayerInfo pqBidCpOrderLyrInfo)
+                    pqBidCpOrderLyrInfo.NameIdLookup.CopyFrom(consistentBidNameIdGenerator);
+                break;
+        }
+        if (orderLayerInfo is IPQCounterPartyOrderLayerInfo pqCpOrdLyrInfo) pqCpOrdLyrInfo.IsTraderNameUpdated = true;
+        base.SetOrderTraderName(side, orderLayerInfo, pos, traderName, traderNameId, prevTraderNameId);
     }
 }

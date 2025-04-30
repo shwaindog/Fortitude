@@ -256,15 +256,15 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
         var updatedOnly = (updateStyle & StorageFlags.Complete) == 0;
 
         if (!updatedOnly || IsMarketClassificationUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.MarketClassification, MarketClassification.CompoundedClassification);
+            yield return new PQFieldUpdate(PQQuoteFields.MarketClassification, MarketClassification.CompoundedClassification);
     }
 
     public override int UpdateField(PQFieldUpdate fieldUpdate)
     {
         switch (fieldUpdate.Id)
         {
-            case PQFieldKeys.MarketClassification:
-                MarketClassification = new MarketClassification(fieldUpdate.Value);
+            case PQQuoteFields.MarketClassification:
+                MarketClassification = new MarketClassification(fieldUpdate.Payload);
                 return 0;
         }
 

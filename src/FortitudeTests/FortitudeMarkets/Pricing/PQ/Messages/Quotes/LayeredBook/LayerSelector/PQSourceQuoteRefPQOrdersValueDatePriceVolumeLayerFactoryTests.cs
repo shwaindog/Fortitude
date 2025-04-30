@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
@@ -9,25 +12,27 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook.LayerSelector;
 namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook.LayerSelector;
 
 [TestClass]
-public class PQSourceQuoteRefPQTraderValueDatePriceVolumeLayerFactoryTests : PQPriceVolumeFactoryTestsBase
+public class PQSourceQuoteRefPQOrdersValueDatePriceVolumeLayerFactoryTests : PQPriceVolumeFactoryTestsBase
 {
     [TestMethod]
     public void NewPQLastTradeFactory_EntryCreationTypeAndCreateNewLastTradeEnty_ReturnExpected()
     {
-        var pvlFactory = new PQSourceQuoteRefPQTraderValueDatePriceVolumeLayerFactory(
-            new PQNameIdLookupGenerator(0));
+        var pvlFactory = new PQSourceQuoteRefPQOrdersValueDatePriceVolumeLayerFactory(
+                                                                                      new PQNameIdLookupGenerator(0));
 
-        var emptyPvl = new PQSourceQuoteRefTraderValueDatePriceVolumeLayer(NameIdLookupGenerator);
+        var emptyPvl = new PQSourceQuoteRefOrdersValueDatePriceVolumeLayer(NameIdLookupGenerator);
 
-        Assert.AreEqual(typeof(PQSourceQuoteRefTraderValueDatePriceVolumeLayer), pvlFactory.LayerCreationType);
-        Assert.AreEqual(emptyPvl, pvlFactory.CreateNewLayer());
+        Assert.AreEqual(typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer), pvlFactory.LayerCreationType);
+        var fromFactory = pvlFactory.CreateNewLayer();
+        fromFactory.HasUpdates = false;
+        Assert.AreEqual(emptyPvl, fromFactory);
     }
 
     [TestMethod]
     public void InitialisedOtherTypes_UpgradeLayer_PreservesAsMuchCommonSupportedFields()
     {
-        var pvlFactory = new PQSourceQuoteRefPQTraderValueDatePriceVolumeLayerFactory(
-            new PQNameIdLookupGenerator(0));
+        var pvlFactory = new PQSourceQuoteRefPQOrdersValueDatePriceVolumeLayerFactory(
+                                                                                      new PQNameIdLookupGenerator(0));
 
         var simplePvl = pvlFactory.UpgradeLayer(SimplePvl);
         Assert.IsTrue(SimplePvl.AreEquivalent(simplePvl));

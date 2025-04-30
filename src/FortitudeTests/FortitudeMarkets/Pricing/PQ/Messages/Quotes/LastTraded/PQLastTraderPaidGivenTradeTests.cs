@@ -31,8 +31,8 @@ public class PQLastTraderPaidGivenTradeTests
     [TestInitialize]
     public void SetUp()
     {
-        emptyNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
-        nameIdLookup      = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
+        emptyNameIdLookup = new PQNameIdLookupGenerator(PQQuoteFields.LastTradedDictionaryUpsertCommand);
+        nameIdLookup      = new PQNameIdLookupGenerator(PQQuoteFields.LastTradedDictionaryUpsertCommand);
         emptyLt           = new PQLastTraderPaidGivenTrade(emptyNameIdLookup.Clone());
         testDateTime      = new DateTime(2017, 12, 17, 16, 11, 52);
         populatedLt = new PQLastTraderPaidGivenTrade(nameIdLookup.Clone(), 4.2949_672m, testDateTime, 42_949_672.95m, true, true)
@@ -294,7 +294,7 @@ public class PQLastTraderPaidGivenTradeTests
         var sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
-        var expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.LastTraderIdOffset, emptyLt.TraderId);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedTraderId, emptyLt.TraderId);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyLt.IsTraderNameUpdated = false;
@@ -314,13 +314,11 @@ public class PQLastTraderPaidGivenTradeTests
         var stringUpdates = emptyLt.GetStringUpdates(testDateTime, StorageFlags.Update)
                                    .ToList();
         Assert.AreEqual(1, stringUpdates.Count);
-        expectedFieldUpdate = new PQFieldUpdate(PQFieldKeys.LastTraderIdOffset,
-                                                emptyLt.TraderId);
+        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedTraderId, emptyLt.TraderId);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
         var expectedStringUpdates = new PQFieldStringUpdate
         {
-            Field = new PQFieldUpdate(
-                                      PQFieldKeys.LastTraderDictionaryUpsertCommand, 0u, PQFieldFlags.IsUpsert)
+            Field = new PQFieldUpdate(PQQuoteFields.LastTradedDictionaryUpsertCommand, 0u, (ushort)CrudCommand.Upsert)
           , StringUpdate = new PQStringUpdate
             {
                 Command = CrudCommand.Upsert, DictionaryId = emptyLt.NameIdLookup[emptyLt.TraderName]
@@ -331,12 +329,12 @@ public class PQLastTraderPaidGivenTradeTests
 
         emptyLt.HasUpdates = false;
         sourceUpdates = (from update in emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id == PQFieldKeys.LastTraderIdOffset
+            where update.Id == PQQuoteFields.LastTradedTraderId
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
-        var newEmptyNameIdLookup = new PQNameIdLookupGenerator(PQFieldKeys.LastTraderDictionaryUpsertCommand);
+        var newEmptyNameIdLookup = new PQNameIdLookupGenerator(PQQuoteFields.LastTradedDictionaryUpsertCommand);
         var newEmpty             = new PQLastTraderPaidGivenTrade(newEmptyNameIdLookup);
         newEmpty.UpdateField(sourceUpdates[0]);
         newEmpty.UpdateFieldString(stringUpdates[0]);
@@ -535,9 +533,9 @@ public class PQLastTraderPaidGivenTradeTests
     {
         PQLastPaidGivenTradeTests.AssertContainsAllLtFields(checkFieldUpdates, lt);
 
-        Assert.AreEqual(new PQFieldUpdate(PQFieldKeys.LastTraderIdOffset, lt.TraderId),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                                                                    PQFieldKeys.LastTraderIdOffset), $"For asklayer {lt.GetType().Name}");
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTraderId, lt.TraderId),
+                        PQTickInstantTests.ExtractFieldUpdateWithId
+                            (checkFieldUpdates, PQQuoteFields.LastTradedTraderId), $"For asklayer {lt.GetType().Name}");
     }
 
     [TestMethod]

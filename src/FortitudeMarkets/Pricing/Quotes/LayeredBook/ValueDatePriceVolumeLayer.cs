@@ -28,9 +28,11 @@ public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePric
             ValueDate = DateTimeConstants.UnixEpoch;
     }
 
+    protected string ValueDatePriceVolumeLayerToStringMembers => $"{PriceVolumeLayerToStringMembers}, {nameof(ValueDate)}: {ValueDate}";
+
     [JsonIgnore] public override LayerType LayerType => LayerType.ValueDatePriceVolume;
 
-    [JsonIgnore] public override LayerFlags SupportsLayerFlags => LayerFlags.ValueDate | base.SupportsLayerFlags;
+    [JsonIgnore] public override LayerFlags SupportsLayerFlags => LayerFlagsExtensions.AdditionalValueDateFlags | base.SupportsLayerFlags;
 
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -94,7 +96,5 @@ public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePric
         }
     }
 
-    public override string ToString() =>
-        $"ValueDatePriceVolumeLayer {{{nameof(Price)}: {Price:N5}, {nameof(Volume)}: " +
-        $"{Volume:N2} , {nameof(ValueDate)}: {ValueDate} }}";
+    public override string ToString() => $"{nameof(ValueDatePriceVolumeLayer)}{{{ValueDatePriceVolumeLayerToStringMembers}}}";
 }

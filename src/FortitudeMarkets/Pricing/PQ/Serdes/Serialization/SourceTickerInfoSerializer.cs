@@ -8,9 +8,9 @@ using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -83,7 +83,7 @@ public class SourceTickerInfoSerializer : IMessageSerializer<ISourceTickerInfo>
     private static unsafe void SerializeQuoteInfo(ISourceTickerInfo message, ref byte* ptr)
     {
         *ptr++ = (byte)message.PublishedTickerDetailLevel;
-        *ptr++ = message.MaximumPublishedLayers;
+        StreamByteOps.ToBytes(ref ptr, message.MaximumPublishedLayers);
         var booleanValues = message.GetSourceTickerInfoBooleanFlagsEnum();
         StreamByteOps.ToBytes(ref ptr, message.RoundingPrecision);
         StreamByteOps.ToBytes(ref ptr, message.Pip);

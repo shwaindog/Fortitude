@@ -155,7 +155,7 @@ public class PricingClientServerPubSubscribeTests
     [TestMethod]
     public void Lvl3TraderLayerQuoteFullDepthLastTraderTrade_SyncViaUpdateAndResets_PublishesAllFieldsAndResets()
     {
-        Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.TraderName | LayerFlags.TraderSize,
+        Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.OrderTraderName | LayerFlags.OrderSize,
               LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
               LastTradedFlags.LastTradedTime);
         // setup listener if listening before publishing the updates should be enough that no snapshot is required.

@@ -107,7 +107,7 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
         }
 
         SyncLock = new SpinLockLight();
-        if (toClone is PQTickInstant pqTickInstant) UpdatedFlags = pqTickInstant.UpdatedFlags;
+        SetFlagsSame(toClone);
     }
 
     protected string TickInstantToStringMembers =>
@@ -119,6 +119,8 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
         $"{nameof(IsFeedSyncStatusUpdated)}: {IsFeedSyncStatusUpdated}, {nameof(SingleTickValue)}: {SingleTickValue}, " +
         $"{nameof(IsSingleValueUpdated)}: {IsSingleValueUpdated}, {nameof(IsReplay)}: {IsReplay}, " +
         $"{nameof(IsReplayUpdated)}: {IsReplayUpdated}, {nameof(HasUpdates)}: {HasUpdates}";
+
+    protected string UpdatedFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
 
     public override PQTickInstant Clone() =>
         Recycler?.Borrow<PQTickInstant>().CopyFrom(this, CopyMergeFlags.FullReplace) as PQTickInstant ?? new PQTickInstant(this);
@@ -528,62 +530,62 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
                 yield return field;
 
         if (!updatedOnly || IsSingleValueUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.SingleTickValue, SingleTickValue,
-                                           PQSourceTickerInfo?.PriceScalingPrecision ?? 1);
+            yield return new PQFieldUpdate(PQQuoteFields.SingleTickValue, SingleTickValue,
+                                           PQSourceTickerInfo?.PriceScalingPrecision ?? (PQFieldFlags)1);
         if (!updatedOnly || IsSourceTimeDateUpdated)
-            yield return new PQFieldUpdate(PQFieldKeys.SourceSentDateTime, sourceTime.GetHoursFromUnixEpoch());
+            yield return new PQFieldUpdate(PQQuoteFields.SourceSentDateTime, sourceTime.GetHoursFromUnixEpoch());
         if (!updatedOnly || IsSourceTimeSubHourUpdated)
         {
-            var fifthByte = sourceTime.GetSubHourComponent().BreakLongToByteAndUint(out var lower4Bytes);
-            yield return new PQFieldUpdate(PQFieldKeys.SourceSentSubHourTime, lower4Bytes, fifthByte);
+            var extended = sourceTime.GetSubHourComponent().BreakLongToUShortAndUint(out var lower4Bytes);
+            yield return new PQFieldUpdate(PQQuoteFields.SourceSentSubHourTime, lower4Bytes, extended);
         }
         if (!updatedOnly || IsBooleanFlagsChanged())
         {
             var booleanFields = GenerateBooleanFlags(!updatedOnly);
-            yield return new PQFieldUpdate(PQFieldKeys.QuoteBooleanFlags, (uint)booleanFields);
+            yield return new PQFieldUpdate(PQQuoteFields.QuoteBooleanFlags, (uint)booleanFields);
         }
 
-        if (!updatedOnly || IsFeedSyncStatusUpdated) yield return new PQFieldUpdate(PQFieldKeys.PQSyncStatus, (byte)FeedSyncStatus);
+        if (!updatedOnly || IsFeedSyncStatusUpdated) yield return new PQFieldUpdate(PQQuoteFields.PQSyncStatus, (byte)FeedSyncStatus);
 
         var includeReceiverTimes = (messageFlags & StorageFlags.IncludeReceiverTimes) > 0;
         if (includeReceiverTimes)
         {
             if (!updatedOnly || IsSocketReceivedTimeDateUpdated)
-                yield return new PQFieldUpdate(PQFieldKeys.SocketReceivingDateTime
+                yield return new PQFieldUpdate(PQQuoteFields.SocketReceivingDateTime
                                              , SocketReceivingTime.GetHoursFromUnixEpoch());
 
             if (!updatedOnly || IsSocketReceivedTimeSubHourUpdated)
             {
-                var fifthByte = SocketReceivingTime.GetSubHourComponent().BreakLongToByteAndUint(out var lower4Bytes);
-                yield return new PQFieldUpdate(PQFieldKeys.SocketReceivingSubHourTime, lower4Bytes, fifthByte);
+                var extended = SocketReceivingTime.GetSubHourComponent().BreakLongToUShortAndUint(out var lower4Bytes);
+                yield return new PQFieldUpdate(PQQuoteFields.SocketReceivingSubHourTime, lower4Bytes, extended);
             }
 
             if (!updatedOnly || IsProcessedTimeDateUpdated)
-                yield return new PQFieldUpdate(PQFieldKeys.ProcessedDateTime, ProcessedTime.GetHoursFromUnixEpoch());
+                yield return new PQFieldUpdate(PQQuoteFields.ProcessedDateTime, ProcessedTime.GetHoursFromUnixEpoch());
 
             if (!updatedOnly || IsProcessedTimeSubHourUpdated)
             {
-                var fifthByte = ProcessedTime.GetSubHourComponent().BreakLongToByteAndUint(out var lower4Bytes);
-                yield return new PQFieldUpdate(PQFieldKeys.ProcessedSubHourTime, lower4Bytes, fifthByte);
+                var extended = ProcessedTime.GetSubHourComponent().BreakLongToUShortAndUint(out var lower4Bytes);
+                yield return new PQFieldUpdate(PQQuoteFields.ProcessedSubHourTime, lower4Bytes, extended);
             }
 
             if (!updatedOnly || IsDispatchedTimeDateUpdated)
-                yield return new PQFieldUpdate(PQFieldKeys.DispatchedDateTime, DispatchedTime.GetHoursFromUnixEpoch());
+                yield return new PQFieldUpdate(PQQuoteFields.DispatchedDateTime, DispatchedTime.GetHoursFromUnixEpoch());
 
             if (!updatedOnly || IsDispatchedTimeSubHourUpdated)
             {
-                var fifthByte = DispatchedTime.GetSubHourComponent().BreakLongToByteAndUint(out var lower4Bytes);
-                yield return new PQFieldUpdate(PQFieldKeys.DispatchedSubHourTime, lower4Bytes, fifthByte);
+                var extended = DispatchedTime.GetSubHourComponent().BreakLongToUShortAndUint(out var lower4Bytes);
+                yield return new PQFieldUpdate(PQQuoteFields.DispatchedSubHourTime, lower4Bytes, extended);
             }
 
             if (!updatedOnly || IsClientReceivedTimeDateUpdated)
-                yield return new PQFieldUpdate(PQFieldKeys.ClientReceivedDateTime
+                yield return new PQFieldUpdate(PQQuoteFields.ClientReceivedDateTime
                                              , ClientReceivedTime.GetHoursFromUnixEpoch());
 
             if (!updatedOnly || IsClientReceivedTimeSubHourUpdated)
             {
-                var fifthByte = ClientReceivedTime.GetSubHourComponent().BreakLongToByteAndUint(out var lower4Bytes);
-                yield return new PQFieldUpdate(PQFieldKeys.ClientReceivedSubHourTime, lower4Bytes, fifthByte);
+                var extended = ClientReceivedTime.GetSubHourComponent().BreakLongToUShortAndUint(out var lower4Bytes);
+                yield return new PQFieldUpdate(PQQuoteFields.ClientReceivedSubHourTime, lower4Bytes, extended);
             }
         }
     }
@@ -594,69 +596,70 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
         if (infoResult > 0) return infoResult;
         switch (pqFieldUpdate.Id)
         {
-            case PQFieldKeys.SingleTickValue:
-                IsSingleValueUpdated = true;
-                SingleTickValue      = PQScaling.Unscale(pqFieldUpdate.Value, pqFieldUpdate.Flag);
+            case PQQuoteFields.SingleTickValue:
+                IsSingleValueUpdated = true; // incase of reset and sending 0;
+                SingleTickValue      = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 return 0;
-            case PQFieldKeys.SourceSentDateTime:
-                IsSourceTimeDateUpdated = true;
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref sourceTime, pqFieldUpdate.Value);
+            case PQQuoteFields.SourceSentDateTime:
+                IsSourceTimeDateUpdated = true; // incase of reset and sending 0;
+                PQFieldConverters.UpdateHoursFromUnixEpoch(ref sourceTime, pqFieldUpdate.Payload);
                 if (sourceTime == DateTime.UnixEpoch) sourceTime = default;
                 return 0;
-            case PQFieldKeys.SourceSentSubHourTime:
-                IsSourceTimeSubHourUpdated = true;
+            case PQQuoteFields.SourceSentSubHourTime:
+                IsSourceTimeSubHourUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSubHourComponent(ref sourceTime,
-                                                         pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
+                                                         pqFieldUpdate.ExtendedPayload.AppendUintToMakeLong(pqFieldUpdate.Payload));
                 if (sourceTime == DateTime.UnixEpoch) sourceTime = default;
                 return 0;
-            case PQFieldKeys.QuoteBooleanFlags:
-                SetBooleanFields((PQBooleanValues)pqFieldUpdate.Value);
+            case PQQuoteFields.QuoteBooleanFlags:
+                SetBooleanFields((PQBooleanValues)pqFieldUpdate.Payload);
                 return 0;
-            case PQFieldKeys.PQSyncStatus:
-                FeedSyncStatus = (FeedSyncStatus)pqFieldUpdate.Value;
+            case PQQuoteFields.PQSyncStatus:
+                IsFeedSyncStatusUpdated = true; // incase of reset and sending 0;
+                FeedSyncStatus          = (FeedSyncStatus)pqFieldUpdate.Payload;
                 return 0;
-            case PQFieldKeys.SocketReceivingDateTime:
-                IsSocketReceivedTimeDateUpdated = true;
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref socketReceivingTime, pqFieldUpdate.Value);
+            case PQQuoteFields.SocketReceivingDateTime:
+                IsSocketReceivedTimeDateUpdated = true; // incase of reset and sending 0;
+                PQFieldConverters.UpdateHoursFromUnixEpoch(ref socketReceivingTime, pqFieldUpdate.Payload);
                 if (socketReceivingTime == DateTime.UnixEpoch) socketReceivingTime = default;
                 return 0;
-            case PQFieldKeys.SocketReceivingSubHourTime:
-                IsSocketReceivedTimeSubHourUpdated = true;
+            case PQQuoteFields.SocketReceivingSubHourTime:
+                IsSocketReceivedTimeSubHourUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSubHourComponent(ref socketReceivingTime,
-                                                         pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
+                                                         pqFieldUpdate.ExtendedPayload.AppendUintToMakeLong(pqFieldUpdate.Payload));
                 if (socketReceivingTime == DateTime.UnixEpoch) socketReceivingTime = default;
                 return 0;
-            case PQFieldKeys.ProcessedDateTime:
-                IsProcessedTimeDateUpdated = true;
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref processedTime, pqFieldUpdate.Value);
+            case PQQuoteFields.ProcessedDateTime:
+                IsProcessedTimeDateUpdated = true; // incase of reset and sending 0;
+                PQFieldConverters.UpdateHoursFromUnixEpoch(ref processedTime, pqFieldUpdate.Payload);
                 if (processedTime == DateTime.UnixEpoch) processedTime = default;
                 return 0;
-            case PQFieldKeys.ProcessedSubHourTime:
-                IsProcessedTimeSubHourUpdated = true;
+            case PQQuoteFields.ProcessedSubHourTime:
+                IsProcessedTimeSubHourUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSubHourComponent(ref processedTime,
-                                                         pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
+                                                         pqFieldUpdate.ExtendedPayload.AppendUintToMakeLong(pqFieldUpdate.Payload));
                 if (processedTime == DateTime.UnixEpoch) processedTime = default;
                 return 0;
-            case PQFieldKeys.DispatchedDateTime:
-                IsDispatchedTimeDateUpdated = true;
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref dispatchedTime, pqFieldUpdate.Value);
+            case PQQuoteFields.DispatchedDateTime:
+                IsDispatchedTimeDateUpdated = true; // incase of reset and sending 0;
+                PQFieldConverters.UpdateHoursFromUnixEpoch(ref dispatchedTime, pqFieldUpdate.Payload);
                 if (dispatchedTime == DateTime.UnixEpoch) dispatchedTime = default;
                 return 0;
-            case PQFieldKeys.DispatchedSubHourTime:
-                IsDispatchedTimeSubHourUpdated = true;
+            case PQQuoteFields.DispatchedSubHourTime:
+                IsDispatchedTimeSubHourUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSubHourComponent(ref dispatchedTime,
-                                                         pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
+                                                         pqFieldUpdate.ExtendedPayload.AppendUintToMakeLong(pqFieldUpdate.Payload));
                 if (dispatchedTime == DateTime.UnixEpoch) dispatchedTime = default;
                 return 0;
-            case PQFieldKeys.ClientReceivedDateTime:
-                IsClientReceivedTimeDateUpdated = true;
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref clientReceivedTime, pqFieldUpdate.Value);
+            case PQQuoteFields.ClientReceivedDateTime:
+                IsClientReceivedTimeDateUpdated = true; // incase of reset and sending 0;
+                PQFieldConverters.UpdateHoursFromUnixEpoch(ref clientReceivedTime, pqFieldUpdate.Payload);
                 if (clientReceivedTime == DateTime.UnixEpoch) clientReceivedTime = default;
                 return 0;
-            case PQFieldKeys.ClientReceivedSubHourTime:
-                IsClientReceivedTimeSubHourUpdated = true;
+            case PQQuoteFields.ClientReceivedSubHourTime:
+                IsClientReceivedTimeSubHourUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSubHourComponent(ref clientReceivedTime,
-                                                         pqFieldUpdate.Flag.AppendUintToMakeLong(pqFieldUpdate.Value));
+                                                         pqFieldUpdate.ExtendedPayload.AppendUintToMakeLong(pqFieldUpdate.Payload));
                 if (clientReceivedTime == DateTime.UnixEpoch) clientReceivedTime = default;
                 return 0;
         }
@@ -917,5 +920,10 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
         }
     }
 
-    public override string ToString() => $"{GetType().Name}({TickInstantToStringMembers})";
+    public override string ToString() => $"{GetType().Name}({TickInstantToStringMembers}, {UpdatedFlagsToString})";
+
+    protected void SetFlagsSame(ITickInstant toCopyFlags)
+    {
+        if (toCopyFlags is PQTickInstant pqToClone) UpdatedFlags = pqToClone.UpdatedFlags;
+    }
 }
