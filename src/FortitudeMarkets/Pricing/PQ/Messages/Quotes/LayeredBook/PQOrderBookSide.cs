@@ -15,6 +15,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook.LayerSelector;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
@@ -59,8 +60,9 @@ public interface IPQOrderBookSide : IMutableOrderBookSide, IPQSupportsFieldUpdat
 public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 {
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQOrderBookSide));
-    private        decimal  adapterOpenInterestVolume;
-    private        decimal  adapterOpenInterestVwap;
+
+    private decimal adapterOpenInterestVolume;
+    private decimal adapterOpenInterestVwap;
 
     private IList<IPQPriceVolumeLayer?>? allLayers;
 
@@ -80,31 +82,36 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
     }
 
-    public PQOrderBookSide(BookSide bookSide, LayerType layerType = LayerType.PriceVolume, bool isLadder = false)
+    public PQOrderBookSide(BookSide bookSide, LayerType layerType = LayerType.PriceVolume, 
+        int numBookLayers = SourceTickerInfo.DefaultMaximumPublishedLayers, bool isLadder = false, 
+        IPQNameIdLookupGenerator? nameIdLookupGenerator = null)
     {
-        BookSide     = bookSide;
-        IsLadder     = isLadder;
-        NameIdLookup = InitializeNewIdLookupGenerator();
-        LayersOfType = layerType;
+        BookSide        = bookSide;
+        IsLadder        = isLadder;
+        NameIdLookup    = nameIdLookupGenerator ?? InitializeNewIdLookupGenerator();
+        LayersOfType    = layerType;
+        MaxPublishDepth = (ushort)numBookLayers;
 
         if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
     }
 
-    public PQOrderBookSide(BookSide bookSide, IPQSourceTickerInfo srcTickerInfo)
+    public PQOrderBookSide(BookSide bookSide, IPQSourceTickerInfo srcTickerInfo, 
+        IPQNameIdLookupGenerator? nameIdLookupGenerator = null)
     {
         BookSide     = bookSide;
         IsLadder     = srcTickerInfo.LayerFlags.HasLadder();
-        NameIdLookup = InitializeNewIdLookupGenerator(srcTickerInfo.NameIdLookup);
+        NameIdLookup = nameIdLookupGenerator ?? InitializeNewIdLookupGenerator(srcTickerInfo.NameIdLookup);
         EnsureRelatedItemsAreConfigured(srcTickerInfo);
 
         if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
     }
 
-    public PQOrderBookSide(BookSide bookSide, IEnumerable<IPriceVolumeLayer>? bookLayers = null, bool isLadder = false)
+    public PQOrderBookSide(BookSide bookSide, IEnumerable<IPriceVolumeLayer>? bookLayers = null, 
+        bool isLadder = false, IPQNameIdLookupGenerator? nameIdLookupGenerator = null)
     {
         BookSide     = bookSide;
         IsLadder     = isLadder;
-        NameIdLookup = SourceOtherExistingOrNewPQNameIdNameLookup(bookLayers);
+        NameIdLookup = nameIdLookupGenerator ?? SourceOtherExistingOrNewPQNameIdNameLookup(bookLayers);
         AllLayers = bookLayers?
                     .Select(pvl => (IPQPriceVolumeLayer?)LayerSelector.UpgradeExistingLayer(pvl, pvl.LayerType, pvl))
                     .ToList() ?? new List<IPQPriceVolumeLayer?>();
@@ -113,10 +120,10 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
     }
 
-    public PQOrderBookSide(IOrderBookSide toClone)
+    public PQOrderBookSide(IOrderBookSide toClone, IPQNameIdLookupGenerator? nameIdLookupGenerator = null)
     {
         BookSide     = toClone.BookSide;
-        NameIdLookup = SourceOtherExistingOrNewPQNameIdNameLookup(toClone);
+        NameIdLookup = InitializeNewIdLookupGenerator(nameIdLookupGenerator, toClone);
         IsLadder     = toClone.IsLadder;
         var size = toClone.Capacity;
         AllLayers = new List<IPQPriceVolumeLayer?>(size);
@@ -138,9 +145,11 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
     }
 
+    public ushort MaxPublishDepth { get; }
+
     private IPQOrderBookLayerFactorySelector LayerSelector { get; set; } = null!;
 
-    protected string PQOrderBookToStringMembers =>
+    protected string PQOrderBookSideToStringMembers =>
         $"{nameof(Capacity)}: {Capacity}, {nameof(Count)}: {Count}, {nameof(IsLadder)}: {IsLadder}, " +
         $"{nameof(AllLayers)}:[{string.Join(", ", AllLayers.Take(Count))}]";
 
@@ -535,11 +544,13 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         return thisLayDict;
     }
 
-    public IPQNameIdLookupGenerator InitializeNewIdLookupGenerator(IPQNameIdLookupGenerator? optionalExisting = null)
+    public IPQNameIdLookupGenerator InitializeNewIdLookupGenerator(IPQNameIdLookupGenerator? optionalExisting = null, IOrderBookSide? clone = null)
     {
         IPQNameIdLookupGenerator thisBookNameIdLookupGenerator = optionalExisting != null
             ? new PQNameIdLookupGenerator(optionalExisting, PQQuoteFields.LayerNameDictionaryUpsertCommand)
-            : new PQNameIdLookupGenerator(PQQuoteFields.LayerNameDictionaryUpsertCommand);
+            : clone is IPQOrderBookSide pqClone 
+                ? new PQNameIdLookupGenerator(pqClone.NameIdLookup, PQQuoteFields.LayerNameDictionaryUpsertCommand)
+                : new PQNameIdLookupGenerator(PQQuoteFields.LayerNameDictionaryUpsertCommand);
         return thisBookNameIdLookupGenerator;
     }
 
@@ -547,5 +558,5 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public override int GetHashCode() => AllLayers != null ? AllLayers.GetHashCode() : 0;
 
-    public override string ToString() => $"{GetType().Name}({PQOrderBookToStringMembers})";
+    public override string ToString() => $"{GetType().Name}({PQOrderBookSideToStringMembers})";
 }

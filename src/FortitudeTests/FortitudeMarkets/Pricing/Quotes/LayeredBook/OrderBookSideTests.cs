@@ -218,14 +218,18 @@ public class OrderBookSideTests
     }
 
     [TestMethod]
-    public void NewOrderBook_InitializedWithLayers_ContainsSameInstanceLayersAsInitialized()
+    public void NewOrderBook_InitializedWithLayers_ContainsNewInstanceLayersWithSameValues()
     {
         for (var i = 0; i < allPopulatedOrderBooks.Count; i++)
         {
             var populatedOrderBook = allPopulatedOrderBooks[i];
             var populatedLayers    = allPopulatedLayers[i];
             Assert.AreEqual(MaxNumberOfLayers, populatedOrderBook.Count);
-            for (var j = 0; j < MaxNumberOfTraders; j++) Assert.AreSame(populatedLayers[j], populatedOrderBook[j]);
+            for (var j = 0; j < MaxNumberOfTraders; j++)
+            {
+                Assert.AreNotSame(populatedLayers[j], populatedOrderBook[j]);
+                Assert.AreEqual(populatedLayers[j], populatedOrderBook[j]);
+            }
         }
     }
 

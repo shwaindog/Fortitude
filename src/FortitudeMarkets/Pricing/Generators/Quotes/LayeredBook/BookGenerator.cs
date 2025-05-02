@@ -30,8 +30,8 @@ public class BookGenerator : IBookGenerator
 
         var maxLayersToGenerate = Math.Min(level2Quote.SourceTickerInfo!.MaximumPublishedLayers
                                          , QuoteBookGenerator.BookGenerationInfo.NumberOfBookLayers);
-        PopulateBook(level2Quote.BidBookSide, roundedTopBid, maxLayersToGenerate, midPriceTimePair);
-        PopulateBook(level2Quote.AskBookSide, roundedTopAsk, maxLayersToGenerate, midPriceTimePair);
+        PopulateBook(level2Quote.OrderBook.BidSide, roundedTopBid, maxLayersToGenerate, midPriceTimePair);
+        PopulateBook(level2Quote.OrderBook.AskSide, roundedTopAsk, maxLayersToGenerate, midPriceTimePair);
     }
 
     public virtual void InitializeBook(IMutableOrderBookSide newBookSide) { }

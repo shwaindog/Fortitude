@@ -26,13 +26,12 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ICloneabl
       , DateTime? clientReceivedTime = null, DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null, DateTime? sourceBidTime = null
       , bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null, DateTime? validFrom = null, DateTime? validTo = null
       , bool isAskPriceTopChanged = false
-      , bool executable = false, IPricePeriodSummary? periodSummary = null, IOrderBookSide? bidBook = null, bool isBidBookChanged = false
-      , IOrderBookSide? askBook = null, bool isAskBookChanged = false, IRecentlyTraded? recentlyTraded = null, uint batchId = 0u
-      , uint sourceQuoteRef = 0u
+      , bool executable = false, IPricePeriodSummary? periodSummary = null, IOrderBook? orderBook = null, 
+        IRecentlyTraded? recentlyTraded = null, uint batchId = 0u, uint sourceQuoteRef = 0u
       , DateTime? valueDate = null)
         : base(sourceTickerInfo, sourceTime, isReplay, feedSyncStatus, singlePrice, clientReceivedTime, adapterReceivedTime,
                adapterSentTime, sourceBidTime, isBidPriceTopChanged, sourceAskTime, validFrom, validTo, isAskPriceTopChanged, executable,
-               periodSummary, bidBook, isBidBookChanged, askBook, isAskBookChanged)
+               periodSummary, orderBook ?? new OrderBook(sourceTickerInfo))
     {
         if (recentlyTraded is RecentlyTraded mutableRecentlyTraded)
             RecentlyTraded = mutableRecentlyTraded;
@@ -196,8 +195,8 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ICloneabl
         $"{BidPriceTop:N5}, {nameof(IsBidPriceTopChanged)}: {IsBidPriceTopChanged}, {nameof(SourceAskTime)}: " +
         $"{SourceAskTime:O}, {nameof(AskPriceTop)}: {AskPriceTop:N5}, {nameof(IsAskPriceTopChanged)}: " +
         $"{IsAskPriceTopChanged}, {nameof(Executable)}: {Executable}, {nameof(SummaryPeriod)}: " +
-        $"{SummaryPeriod}, {nameof(BidBookSide)}: {BidBookSide}, {nameof(IsBidBookChanged)}: {IsBidBookChanged}, " +
-        $"{nameof(AskBookSide)}: {AskBookSide}, {nameof(IsAskBookChanged)}: {IsAskBookChanged}, " +
+        $"{SummaryPeriod}, {nameof(BidBook)}: {BidBook}, {nameof(IsBidBookChanged)}: {IsBidBookChanged}, " +
+        $"{nameof(AskBook)}: {AskBook}, {nameof(IsAskBookChanged)}: {IsAskBookChanged}, " +
         $"{nameof(RecentlyTraded)}: {RecentlyTraded}, {nameof(BatchId)}: {BatchId}, " +
         $"{nameof(SourceQuoteReference)}: {SourceQuoteReference}, {nameof(ValueDate)}: {ValueDate:u} }}";
 }

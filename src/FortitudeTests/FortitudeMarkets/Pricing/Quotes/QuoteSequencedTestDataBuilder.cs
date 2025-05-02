@@ -99,23 +99,23 @@ public class QuoteSequencedTestDataBuilder
     private void SetupLevel2Quote(IMutableLevel2Quote? level2Quote, uint batchId)
     {
         if (level2Quote == null) return;
-        var numLayers = level2Quote.BidBookSide.Capacity;
-        Assert.IsTrue(numLayers >= 20);
+        var numLayers = level2Quote.BidBook.Capacity;
+        Assert.IsTrue(numLayers >= 1);
         for (var i = 0; i < numLayers; i++)
         {
             var deltaPrice  = 0.00001m * i;
             var deltaVolume = batchId * 100_000 + 100_000m * i;
-            var mutableBid  = level2Quote.BidBookSide[i]!;
-            var mutableAsk  = level2Quote.AskBookSide[i]!;
+            var mutableBid  = level2Quote.OrderBook.BidSide[i]!;
+            var mutableAsk  = level2Quote.OrderBook.AskSide[i]!;
             mutableBid.Price  = 0.791905m + batchId * 0.00001m - deltaPrice;
             mutableBid.Volume = 100_000 + deltaVolume;
             mutableAsk.Price  = 0.791906m + batchId * 0.00001m + deltaPrice;
             mutableAsk.Volume = 100_0000 + deltaVolume;
 
             if (mutableBid is IMutableSourcePriceVolumeLayer mutableBidPriceVal)
-                SetupSourceNameOnLayer(mutableBidPriceVal, level2Quote.BidBookSide, batchId);
+                SetupSourceNameOnLayer(mutableBidPriceVal, level2Quote.OrderBook.BidSide, batchId);
             if (mutableAsk is IMutableSourcePriceVolumeLayer mutableAskPriceVal)
-                SetupSourceNameOnLayer(mutableAskPriceVal, level2Quote.AskBookSide, batchId);
+                SetupSourceNameOnLayer(mutableAskPriceVal, level2Quote.OrderBook.AskSide, batchId);
             if (mutableBid is IMutableSourceQuoteRefPriceVolumeLayer mutableBidSrcQuotRef)
                 SetupSourceQuoteRefOnLayer(mutableBidSrcQuotRef, true, batchId);
             if (mutableAsk is IMutableSourceQuoteRefPriceVolumeLayer mutableAskSrcQuotRef)
@@ -130,10 +130,10 @@ public class QuoteSequencedTestDataBuilder
             if (mutableAsk is IMutableOrdersPriceVolumeLayer mutableAskAnonOrders) SetupAnonymousOrdersOnLayer(mutableAskAnonOrders, false, batchId);
             if (mutableBid is IMutableOrdersPriceVolumeLayer mutableBidCounterPartyOrders
              && mutableBidCounterPartyOrders.LayerType.SupportsOrdersFullPriceVolume())
-                SetupCounterPartyOrdersOnLayer(mutableBidCounterPartyOrders, level2Quote.BidBookSide, batchId);
+                SetupCounterPartyOrdersOnLayer(mutableBidCounterPartyOrders, level2Quote.OrderBook.BidSide, batchId);
             if (mutableAsk is IMutableOrdersPriceVolumeLayer mutableAskCounterPartyOrders
              && mutableAskCounterPartyOrders.LayerType.SupportsOrdersFullPriceVolume())
-                SetupCounterPartyOrdersOnLayer(mutableAskCounterPartyOrders, level2Quote.AskBookSide, batchId);
+                SetupCounterPartyOrdersOnLayer(mutableAskCounterPartyOrders, level2Quote.OrderBook.AskSide, batchId);
         }
     }
 

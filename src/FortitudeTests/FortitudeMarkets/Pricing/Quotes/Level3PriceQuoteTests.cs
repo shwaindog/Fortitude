@@ -133,8 +133,8 @@ public class Level3PriceQuoteTests
             Assert.AreEqual(0m, emptyL3Quote.AskPriceTop);
             Assert.AreEqual(false, emptyL3Quote.Executable);
             Assert.IsNull(emptyL3Quote.SummaryPeriod);
-            Assert.AreEqual(new OrderBookSide(BookSide.BidBook, emptyL3Quote.SourceTickerInfo!), emptyL3Quote.BidBookSide);
-            Assert.AreEqual(new OrderBookSide(BookSide.AskBook, emptyL3Quote.SourceTickerInfo!), emptyL3Quote.AskBookSide);
+            Assert.AreEqual(new OrderBookSide(BookSide.BidBook, emptyL3Quote.SourceTickerInfo!), emptyL3Quote.BidBook);
+            Assert.AreEqual(new OrderBookSide(BookSide.AskBook, emptyL3Quote.SourceTickerInfo!), emptyL3Quote.AskBook);
             Assert.IsFalse(emptyL3Quote.IsBidBookChanged);
             Assert.IsFalse(emptyL3Quote.IsAskBookChanged);
             Assert.IsTrue(emptyL3Quote.RecentlyTraded == null ||
@@ -181,9 +181,9 @@ public class Level3PriceQuoteTests
             new Level3PriceQuote
                 (simpleRecentlyTradedSrcTkrInfo, expectedSourceTime, true, FeedSyncStatus.Good, expectedSingleValue, expectedClientReceivedTime
                , expectedAdapterReceiveTime, expectedAdapterSentTime, expectedSourceBidTime, true
-               , expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2), true, true, expectedPeriodSummary, expectedBidBook
-               , true, expectedAskBook, true, expectedRecentlyTraded, expectedBatchId
-               , expectedSourceQuoteRef, expectedValueDate);
+               , expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2), true, true, 
+                 expectedPeriodSummary, new OrderBook(expectedBidBook, expectedAskBook), expectedRecentlyTraded, expectedBatchId ,
+                 expectedSourceQuoteRef, expectedValueDate);
 
         Assert.AreSame(simpleRecentlyTradedSrcTkrInfo, fromConstructor.SourceTickerInfo);
         Assert.AreEqual(expectedSourceTime, fromConstructor.SourceTime);
@@ -200,10 +200,10 @@ public class Level3PriceQuoteTests
         Assert.AreEqual(true, fromConstructor.IsAskPriceTopChanged);
         Assert.AreEqual(true, fromConstructor.Executable);
         Assert.AreEqual(expectedPeriodSummary, fromConstructor.SummaryPeriod);
-        Assert.AreEqual(expectedBidBook, fromConstructor.BidBookSide);
-        Assert.AreEqual(expectedAskBook, fromConstructor.AskBookSide);
-        Assert.IsTrue(fromConstructor.IsBidBookChanged);
-        Assert.IsTrue(fromConstructor.IsAskBookChanged);
+        Assert.AreEqual(expectedBidBook, fromConstructor.BidBook);
+        Assert.AreEqual(expectedAskBook, fromConstructor.AskBook);
+        Assert.IsFalse(fromConstructor.IsBidBookChanged);
+        Assert.IsFalse(fromConstructor.IsAskBookChanged);
         Assert.AreEqual(expectedRecentlyTraded, fromConstructor.RecentlyTraded);
         Assert.AreEqual(expectedBatchId, fromConstructor.BatchId);
         Assert.AreEqual(expectedSourceQuoteRef, fromConstructor.SourceQuoteReference);
@@ -248,7 +248,7 @@ public class Level3PriceQuoteTests
                 (simpleRecentlyTradedSrcTkrInfo, expectedSourceTime, true, FeedSyncStatus.Good, expectedSingleValue, expectedClientReceivedTime
                , expectedAdapterReceiveTime, expectedAdapterSentTime, expectedSourceBidTime, true
                , expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2), true, true
-               , expectedPeriodSummary, expectedBidBook, true, expectedAskBook, true, convertedRecentlyTraded
+               , expectedPeriodSummary, new OrderBook(expectedBidBook, expectedAskBook), convertedRecentlyTraded
                , expectedBatchId, expectedSourceQuoteRef, expectedValueDate);
 
         Assert.IsInstanceOfType(fromConstructor.RecentlyTraded, typeof(RecentlyTraded));
@@ -338,35 +338,35 @@ public class Level3PriceQuoteTests
 
         foreach (var emptyQuote in allEmptyQuotes)
         {
-            var expectedBidOrderBook = emptyQuote.BidBookSide.Clone();
+            var expectedBidOrderBook = emptyQuote.BidBook.Clone();
             expectedBidOrderBook[0]!.Price = expectedBidPriceTop;
-            var expectedAskOrderBook = emptyQuote.AskBookSide.Clone();
+            var expectedAskOrderBook = emptyQuote.AskBook.Clone();
             expectedAskOrderBook[0]!.Price = expectedAskPriceTop;
             var expectedRecentlyTraded                                                = emptyQuote.RecentlyTraded;
             if (expectedRecentlyTraded != null) expectedRecentlyTraded[0]!.TradePrice = 12345m;
 
-            emptyQuote.SourceTime           = expectedSourceTime;
-            emptyQuote.IsReplay             = true;
-            emptyQuote.SingleTickValue      = expectedSingleValue;
-            emptyQuote.ClientReceivedTime   = expectedClientReceivedTime;
-            emptyQuote.AdapterReceivedTime  = expectedAdapterReceiveTime;
-            emptyQuote.AdapterSentTime      = expectedAdapterSentTime;
-            emptyQuote.SourceBidTime        = expectedSourceBidTime;
-            emptyQuote.BidPriceTop          = expectedBidPriceTop;
-            emptyQuote.IsBidPriceTopChanged = true;
-            emptyQuote.SourceAskTime        = expectedSourceAskTime;
-            emptyQuote.AskPriceTop          = expectedAskPriceTop;
-            emptyQuote.IsAskPriceTopChanged = true;
-            emptyQuote.Executable           = true;
-            emptyQuote.SummaryPeriod        = expectedPeriodSummary;
-            emptyQuote.BidBookSide          = expectedBidOrderBook;
-            emptyQuote.IsBidBookChanged     = true;
-            emptyQuote.AskBookSide          = expectedAskOrderBook;
-            emptyQuote.IsAskBookChanged     = true;
-            emptyQuote.RecentlyTraded       = expectedRecentlyTraded;
-            emptyQuote.BatchId              = expectedBatchId;
-            emptyQuote.SourceQuoteReference = expectedSourceQuoteRef;
-            emptyQuote.ValueDate            = expectedValueDate;
+            emptyQuote.SourceTime                 = expectedSourceTime;
+            emptyQuote.IsReplay                   = true;
+            emptyQuote.SingleTickValue            = expectedSingleValue;
+            emptyQuote.ClientReceivedTime         = expectedClientReceivedTime;
+            emptyQuote.AdapterReceivedTime        = expectedAdapterReceiveTime;
+            emptyQuote.AdapterSentTime            = expectedAdapterSentTime;
+            emptyQuote.SourceBidTime              = expectedSourceBidTime;
+            emptyQuote.BidPriceTop                = expectedBidPriceTop;
+            emptyQuote.IsBidPriceTopChanged       = true;
+            emptyQuote.SourceAskTime              = expectedSourceAskTime;
+            emptyQuote.AskPriceTop                = expectedAskPriceTop;
+            emptyQuote.IsAskPriceTopChanged       = true;
+            emptyQuote.Executable                 = true;
+            emptyQuote.SummaryPeriod              = expectedPeriodSummary;
+            emptyQuote.OrderBook.BidSide          = expectedBidOrderBook;
+            emptyQuote.OrderBook.IsBidBookChanged = true;
+            emptyQuote.OrderBook.AskSide          = expectedAskOrderBook;
+            emptyQuote.OrderBook.IsAskBookChanged = true;
+            emptyQuote.RecentlyTraded             = expectedRecentlyTraded;
+            emptyQuote.BatchId                    = expectedBatchId;
+            emptyQuote.SourceQuoteReference       = expectedSourceQuoteRef;
+            emptyQuote.ValueDate                  = expectedValueDate;
 
             Assert.AreEqual(expectedSourceTime, emptyQuote.SourceTime);
             Assert.AreEqual(true, emptyQuote.IsReplay);
@@ -382,9 +382,9 @@ public class Level3PriceQuoteTests
             Assert.AreEqual(true, emptyQuote.IsAskPriceTopChanged);
             Assert.AreEqual(true, emptyQuote.Executable);
             Assert.AreEqual(expectedPeriodSummary, emptyQuote.SummaryPeriod);
-            Assert.AreSame(expectedBidOrderBook, emptyQuote.BidBookSide);
+            Assert.AreSame(expectedBidOrderBook, emptyQuote.BidBook);
             Assert.AreEqual(true, emptyQuote.IsBidBookChanged);
-            Assert.AreSame(expectedAskOrderBook, emptyQuote.AskBookSide);
+            Assert.AreSame(expectedAskOrderBook, emptyQuote.AskBook);
             Assert.AreEqual(true, emptyQuote.IsAskBookChanged);
             Assert.AreEqual(expectedRecentlyTraded, emptyQuote.RecentlyTraded);
             Assert.AreEqual(expectedBatchId, emptyQuote.BatchId);
@@ -481,8 +481,7 @@ public class Level3PriceQuoteTests
     public void OneDifferenceAtATime_AreEquivalent_ReturnsExpected()
     {
         foreach (var populatedQuote in allFullyPopulatedQuotes)
-            AssertAreEquivalentMeetsExpectedExactComparisonType
-                (false, populatedQuote, (IMutableLevel3Quote)populatedQuote.Clone());
+            AssertAreEquivalentMeetsExpectedExactComparisonType(false, populatedQuote, populatedQuote.Clone());
     }
 
     [TestMethod]
@@ -566,9 +565,9 @@ public class Level3PriceQuoteTests
             Assert.IsTrue(toString.Contains($"{nameof(q.IsAskPriceTopChanged)}: {q.IsAskPriceTopChanged}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.Executable)}: {q.Executable}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.SummaryPeriod)}: {q.SummaryPeriod}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.BidBookSide)}: {q.BidBookSide}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.BidBook)}: {q.BidBook}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.IsBidBookChanged)}: {q.IsBidBookChanged}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.AskBookSide)}: {q.AskBookSide}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.AskBook)}: {q.AskBook}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.IsAskBookChanged)}: {q.IsAskBookChanged}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.RecentlyTraded)}: {q.RecentlyTraded}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.BatchId)}: {q.BatchId}"));
@@ -619,8 +618,8 @@ public class Level3PriceQuoteTests
            , true, new DateTime(2015, 08, 06, 22, 07, 22).AddMilliseconds(i)
            , new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(123 + i)
            , new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(2_123 + i)
-           , false, true, new PricePeriodSummary(), sourceBidBook, true, sourceAskBook
-           , true, recentlyTraded, 1008 + (uint)i, 43749887 + (uint)i
+           , false, true, new PricePeriodSummary(), new OrderBook(sourceBidBook, sourceAskBook)
+           , recentlyTraded, 1008 + (uint)i, 43749887 + (uint)i
            , new DateTime(2017, 12, 29, 21, 0, 0).AddMilliseconds(i));
     }
 

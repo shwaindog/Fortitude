@@ -106,19 +106,19 @@ public class LastTradedGenerator : ILastTradedGenerator
     {
         if (isBidTrade)
         {
-            var bidBookEntries = level3Quote.BidBookSide.Count;
+            var bidBookEntries = level3Quote.BidBook.Count;
             var priceAtIndex   = Math.Min(++bidCount, bidBookEntries);
             if (priceAtIndex <= 0) return;
-            var bidBookPrice = level3Quote.BidBookSide[priceAtIndex - 1]!;
+            var bidBookPrice = level3Quote.BidBook[priceAtIndex - 1]!;
             lastTrade.TradePrice = bidBookPrice.Price;
             lastTrade.TradeTime  = midPriceTimePair.CurrentMid.Time - TimeSpan.FromTicks(bidCount * 777);
         }
         else
         {
-            var askBookEntries = level3Quote.AskBookSide.Count;
+            var askBookEntries = level3Quote.AskBook.Count;
             var priceAtIndex   = Math.Min(++askCount, askBookEntries);
             if (priceAtIndex <= 0) return;
-            var askBookPriceEntry = level3Quote.AskBookSide[priceAtIndex - 1]!;
+            var askBookPriceEntry = level3Quote.AskBook[priceAtIndex - 1]!;
             lastTrade.TradePrice = askBookPriceEntry.Price;
             lastTrade.TradeTime  = midPriceTimePair.CurrentMid.Time - TimeSpan.FromTicks(askCount * 689);
         }
@@ -149,10 +149,10 @@ public class LastTradedGenerator : ILastTradedGenerator
         {
             lastTradePaidGiven.WasPaid  = bidCount == 0;
             lastTradePaidGiven.WasGiven = bidCount > 0;
-            var bidBookEntries = level3Quote.BidBookSide.Count;
+            var bidBookEntries = level3Quote.BidBook.Count;
             var priceAtIndex   = Math.Min(++bidCount, bidBookEntries);
             if (priceAtIndex <= 0) return;
-            var bidBookPrice = level3Quote.BidBookSide[priceAtIndex - 1]!;
+            var bidBookPrice = level3Quote.BidBook[priceAtIndex - 1]!;
             lastTradePaidGiven.TradeVolume = bidBookPrice.Volume;
             PopulateLastTradePriceAndTime(lastTradePaidGiven, true, level3Quote, midPriceTimePair);
         }
@@ -160,10 +160,10 @@ public class LastTradedGenerator : ILastTradedGenerator
         {
             lastTradePaidGiven.WasGiven = askCount == 0;
             lastTradePaidGiven.WasPaid  = askCount > 0;
-            var askBookEntries = level3Quote.AskBookSide.Count;
+            var askBookEntries = level3Quote.AskBook.Count;
             var priceAtIndex   = Math.Min(++askCount, askBookEntries);
             if (priceAtIndex <= 0) return;
-            var askBookPriceEntry = level3Quote.AskBookSide[priceAtIndex - 1]!;
+            var askBookPriceEntry = level3Quote.AskBook[priceAtIndex - 1]!;
             lastTradePaidGiven.TradeVolume = askBookPriceEntry.Volume;
             PopulateLastTradePriceAndTime(lastTradePaidGiven, false, level3Quote, midPriceTimePair);
         }

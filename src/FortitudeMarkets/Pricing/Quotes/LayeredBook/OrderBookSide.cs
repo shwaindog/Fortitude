@@ -24,41 +24,50 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         bookLayers = new List<IPriceVolumeLayer?>();
     }
 
-    public OrderBookSide(BookSide bookSide, LayerType layerType = LayerType.PriceVolume, bool isLadder = false)
+    public OrderBookSide
+    (BookSide bookSide, LayerType layerType = LayerType.PriceVolume, ushort maxPublishDepth = SourceTickerInfo.DefaultMaximumPublishedLayers
+      , bool isLadder = false)
     {
-        BookSide     = bookSide;
-        LayersOfType = layerType;
-        bookLayers   = new List<IPriceVolumeLayer?>();
-        IsLadder     = isLadder;
+        BookSide        = bookSide;
+        MaxPublishDepth = maxPublishDepth;
+        LayersOfType    = layerType;
+        bookLayers      = Enumerable.Repeat(LayerSelector?.CreateExpectedImplementation(layerType), maxPublishDepth).ToList();
+        IsLadder        = isLadder;
     }
 
-    public OrderBookSide(BookSide bookSide, int numBookLayers, bool isLadder = false)
+    public OrderBookSide(BookSide bookSide, ushort numBookLayers, bool isLadder = false)
     {
-        BookSide   = bookSide;
-        bookLayers = new List<IPriceVolumeLayer?>(numBookLayers);
-        IsLadder   = isLadder;
+        BookSide        = bookSide;
+        MaxPublishDepth = numBookLayers;
+        bookLayers      = Enumerable.Repeat(LayerSelector?.CreateExpectedImplementation(LayersOfType), numBookLayers).ToList();
+        IsLadder        = isLadder;
     }
 
     public OrderBookSide(BookSide bookSide, IEnumerable<IPriceVolumeLayer> bookLayers, bool isLadder = false)
     {
-        BookSide = bookSide;
-        IsLadder = isLadder;
+        BookSide        = bookSide;
+        IsLadder        = isLadder;
+        MaxPublishDepth = (ushort)bookLayers.Count();
         this.bookLayers =
             bookLayers
                 .Select(pvl => LayerSelector
-                            .UpgradeExistingLayer(pvl, pvl.LayerType, pvl))
+                            .CreateExpectedImplementation(pvl.LayerType, pvl))
                 .Cast<IPriceVolumeLayer?>()
                 .ToList();
     }
 
     public OrderBookSide(IOrderBookSide toClone)
     {
-        BookSide     = toClone.BookSide;
-        bookLayers   = new List<IPriceVolumeLayer?>(toClone.Count());
-        LayersOfType = toClone.LayersOfType;
-        IsLadder     = toClone.IsLadder;
-        foreach (var priceVolumeLayer in toClone)
-            bookLayers.Add(LayerSelector.CreateExpectedImplementation(priceVolumeLayer.LayerType, priceVolumeLayer));
+        BookSide        = toClone.BookSide;
+        MaxPublishDepth = toClone.MaxPublishDepth;
+        bookLayers      = new List<IPriceVolumeLayer?>(toClone.Count());
+        LayersOfType    = toClone.LayersOfType;
+        IsLadder        = toClone.IsLadder;
+        bookLayers =
+            toClone
+                .Select
+                    (pvl => LayerSelector?.CreateExpectedImplementation(pvl.LayerType, pvl))
+                .ToList();
         Capacity = toClone.Capacity;
     }
 
@@ -66,11 +75,16 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     {
         BookSide = bookSide;
 
-        LayersOfType = sourceTickerInfo.LayerFlags.MostCompactLayerType();
-        IsLadder     = sourceTickerInfo.LayerFlags.HasLadder();
-        bookLayers   = new List<IPriceVolumeLayer?>(sourceTickerInfo.MaximumPublishedLayers);
-        for (var i = 0; i < sourceTickerInfo.MaximumPublishedLayers; i++) bookLayers.Add(LayerSelector.FindForLayerFlags(sourceTickerInfo));
+        LayersOfType    = sourceTickerInfo.LayerFlags.MostCompactLayerType();
+        IsLadder        = sourceTickerInfo.LayerFlags.HasLadder();
+        MaxPublishDepth = sourceTickerInfo.MaximumPublishedLayers;
+        bookLayers =
+            Enumerable
+                .Repeat(LayerSelector?.CreateExpectedImplementation(LayersOfType), MaxPublishDepth)
+                .ToList();
     }
+
+    public ushort MaxPublishDepth { get; private set; }
 
     public static ILayerFlagsSelector<IPriceVolumeLayer, ISourceTickerInfo> LayerSelector { get; set; } =
         new OrderBookLayerFactorySelector();

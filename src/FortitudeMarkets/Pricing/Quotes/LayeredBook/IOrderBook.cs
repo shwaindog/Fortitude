@@ -18,6 +18,12 @@ public interface IOrderBook : IReusableObject<IOrderBook>, IInterfacesComparable
     IOrderBookSide AskSide { get; }
     IOrderBookSide BidSide { get; }
 
+    ushort MaxPublishDepth { get; }
+
+    bool IsBidBookChanged { get; }
+    
+    bool IsAskBookChanged { get; }
+
     decimal? MidPrice { get; }
 
     OpenInterest? SourceOpenInterest    { get; }
@@ -32,8 +38,12 @@ public interface IMutableOrderBook : IOrderBook, IInterfacesComparable<IMutableO
 {
     new LayerType LayersOfType { get; set; }
 
-    new IOrderBookSide AskSide { get; set; }
-    new IOrderBookSide BidSide { get; set; }
+    new IMutableOrderBookSide AskSide { get; set; }
+    new IMutableOrderBookSide BidSide { get; set; }
+
+    new bool IsBidBookChanged { get; set; }
+    
+    new bool IsAskBookChanged { get; set; }
 
     new OpenInterest? SourceOpenInterest  { get; set; }
     new OpenInterest  AdapterOpenInterest { get; set; }

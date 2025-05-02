@@ -73,8 +73,8 @@ public static class QuoteExtensionMethods
         }
         else if (l2q1 != null) //no need for && l2q2 != null
         {
-            sb.AddIfDifferent(l2q1, l2q2, q => q.BidBookSide, exactValues);
-            sb.AddIfDifferent(l2q1, l2q2, q => q.AskBookSide, exactValues);
+            sb.AddIfDifferent(l2q1, l2q2, q => q.BidBook, exactValues);
+            sb.AddIfDifferent(l2q1, l2q2, q => q.AskBook, exactValues);
         }
 
         var l3q1 = ti1 as ILevel3Quote;

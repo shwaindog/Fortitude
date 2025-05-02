@@ -25,6 +25,7 @@ public interface IOrderBookSide : IEnumerable<IPriceVolumeLayer>, IReusableObjec
     LayerFlags LayersSupportsLayerFlags { get; }
 
     bool IsLadder { get; }
+    public ushort MaxPublishDepth { get; }
 
     OpenInterest? SourceOpenInterest    { get; }
     OpenInterest  AdapterOpenInterest   { get; }
