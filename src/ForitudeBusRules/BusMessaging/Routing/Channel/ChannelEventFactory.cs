@@ -5,7 +5,7 @@
 
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -45,6 +45,8 @@ public class ChannelWrappingEventFactory<TEvent> : ReusableObject<IChannel>, ICh
 
     public Type EventType => BackingChannel.EventType;
 
+    public Func<TEvent> SourceEvent => Borrow<TEvent>;
+
     public ValueTask<bool> Publish(IRule sender, TEvent toPublish) => BackingChannel.Publish(sender, toPublish);
 
     public ValueTask<bool> Publish(IRule sender, IEnumerable<TEvent> batchToPublish) => BackingChannel.Publish(sender, batchToPublish);
@@ -58,8 +60,6 @@ public class ChannelWrappingEventFactory<TEvent> : ReusableObject<IChannel>, ICh
     public object Borrow(Type type) => BackingRecycler.Borrow(type);
 
     public void Recycle(object trash) => BackingRecycler.Recycle(trash);
-
-    public Func<TEvent> SourceEvent => Borrow<TEvent>;
 
     public override IChannel CopyFrom(IChannel source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -110,6 +110,8 @@ public class ChannelWrappingEventFactory<TEvent, TConcrete> : ReusableObject<ICh
 
     public Type EventType => BackingChannel.EventType;
 
+    public Func<TEvent> SourceEvent => Borrow<TConcrete>;
+
     public ValueTask<bool> Publish(IRule sender, TEvent toPublish) => BackingChannel.Publish(sender, toPublish);
 
     public ValueTask<bool> Publish(IRule sender, IEnumerable<TEvent> batchToPublish) => BackingChannel.Publish(sender, batchToPublish);
@@ -123,8 +125,6 @@ public class ChannelWrappingEventFactory<TEvent, TConcrete> : ReusableObject<ICh
     public object Borrow(Type type) => BackingRecycler.Borrow(type);
 
     public void Recycle(object trash) => BackingRecycler.Recycle(trash);
-
-    public Func<TEvent> SourceEvent => Borrow<TConcrete>;
 
     public override IChannel CopyFrom(IChannel source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -178,11 +178,11 @@ public class ChannelWrappingLimitedEventFactory<TEvent> : ChannelWrappingEventFa
         set => LimitedRecycler.MaxTypeBorrowLimit = value;
     }
 
+    public Func<TEvent?> TrySourceEvent => TryBorrow<TEvent>;
+
     public T? TryBorrow<T>() where T : class, new() => LimitedRecycler.TryBorrow<T>();
 
     public object? TryBorrow(Type type) => LimitedRecycler.TryBorrow(type);
-
-    public Func<TEvent?> TrySourceEvent => TryBorrow<TEvent>;
 
     public override IChannel Clone() =>
         Recycler?.Borrow<ChannelWrappingLimitedEventFactory<TEvent>>().CopyFrom(this) ?? new ChannelWrappingLimitedEventFactory<TEvent>(this);
@@ -219,11 +219,11 @@ public class ChannelWrappingLimitedEventFactory<TEvent, TConcrete> : ChannelWrap
         set => LimitedRecycler.MaxTypeBorrowLimit = value;
     }
 
+    public Func<TEvent?> TrySourceEvent => TryBorrow<TConcrete>;
+
     public T? TryBorrow<T>() where T : class, new() => LimitedRecycler.TryBorrow<T>();
 
     public object? TryBorrow(Type type) => LimitedRecycler.TryBorrow(type);
-
-    public Func<TEvent?> TrySourceEvent => TryBorrow<TConcrete>;
 
     public override IChannel Clone() =>
         Recycler?.Borrow<ChannelWrappingLimitedEventFactory<TEvent, TConcrete>>().CopyFrom(this) ??

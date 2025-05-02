@@ -9,15 +9,16 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeMarkets.Configuration.ClientServerConfig;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
+using FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -141,8 +142,8 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQTickInstant
             try
             {
                 var seqId = ent.PQSequenceId;
-                ent.CopyFrom((ITickInstant)quote);
-                quote.HasUpdates = false;
+                ent.CopyFrom(quote, CopyMergeFlags.Default);
+                quote.UpdateComplete();
                 ent.PQSequenceId = seqId;
             }
             finally

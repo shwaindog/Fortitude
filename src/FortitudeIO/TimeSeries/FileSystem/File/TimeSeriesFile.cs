@@ -176,7 +176,7 @@ public unsafe class TimeSeriesFile<TFile, TBucket, TEntry> : ITimeSeriesFile<TBu
         if (existingOpen) return null;
         IncrementSessionCount();
         writerSession?.ReopenSession(FileFlags.WriterOpened);
-        writerSession ??= new TimeSeriesFileSession<TFile, TBucket, TEntry>(this, true, ushort.MaxValue * 4);
+        writerSession ??= new TimeSeriesFileSession<TFile, TBucket, TEntry>(this, true, ushort.MaxValue * 16);
         return writerSession;
     }
 

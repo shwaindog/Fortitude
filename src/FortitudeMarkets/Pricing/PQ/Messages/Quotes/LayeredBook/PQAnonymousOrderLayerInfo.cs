@@ -6,6 +6,7 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
@@ -297,7 +298,6 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
             }
             else
             {
-                if (HasUpdates && !IsEmpty) Interlocked.Increment(ref NumUpdatesSinceEmpty);
                 UpdatedFlags = OrderLayerInfoFlags.None;
             }
         }
@@ -323,6 +323,14 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
 
             NumUpdatesSinceEmpty = 0;
         }
+    }
+
+    public uint UpdateCount => (uint)NumUpdatesSinceEmpty;
+
+    public virtual void UpdateComplete()
+    {
+        if (HasUpdates && !IsEmpty) NumUpdatesSinceEmpty++;
+        HasUpdates = false;
     }
 
     public virtual int UpdateField(PQFieldUpdate fieldUpdate)
@@ -452,9 +460,7 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
         if (toCopyFlags is PQAnonymousOrderLayerInfo pqToClone) UpdatedFlags = pqToClone.UpdatedFlags;
     }
 
-    public override PQAnonymousOrderLayerInfo CopyFrom
-    (IAnonymousOrderLayerInfo? source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override PQAnonymousOrderLayerInfo CopyFrom(IAnonymousOrderLayerInfo? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is null) return this;
         if (source is not IPQAnonymousOrderLayerInfo pqAnonOrderLyrInfo)

@@ -7,6 +7,7 @@ using System.Globalization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Configuration.ClientServerConfig;
@@ -198,9 +199,8 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => publishedTickerDetailLevel;
         set
         {
-            if (publishedTickerDetailLevel == value) return;
-            IsPublishedTickerDetailLevelUpdated = true;
-            publishedTickerDetailLevel          = value;
+            IsPublishedTickerDetailLevelUpdated |= publishedTickerDetailLevel != value || NumUpdates == 0;
+            publishedTickerDetailLevel          =  value;
         }
     }
 
@@ -209,10 +209,9 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => roundingPrecision;
         set
         {
-            if (roundingPrecision == value) return;
-            IsRoundingPrecisionUpdated = true;
-            formatPrice                = null;
-            roundingPrecision          = value;
+            IsRoundingPrecisionUpdated |= roundingPrecision != value || NumUpdates == 0;
+            formatPrice                =  null;
+            roundingPrecision          =  value;
         }
     }
 
@@ -221,9 +220,8 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => pip;
         set
         {
-            if (pip == value) return;
-            IsPipUpdated = true;
-            pip          = value;
+            IsPipUpdated |= pip != value || NumUpdates == 0;
+            pip          =  value;
         }
     }
 
@@ -232,10 +230,8 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => minSubmitSize;
         set
         {
-            if (minSubmitSize == value) return;
-
-            IsMinSubmitSizeUpdated = true;
-            minSubmitSize          = value;
+            IsMinSubmitSizeUpdated |= minSubmitSize != value || NumUpdates == 0;
+            minSubmitSize          =  value;
         }
     }
 
@@ -244,10 +240,8 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => maxSubmitSize;
         set
         {
-            if (maxSubmitSize == value) return;
-
-            IsMaxSubmitSizeUpdated = true;
-            maxSubmitSize          = value;
+            IsMaxSubmitSizeUpdated |= maxSubmitSize != value || NumUpdates == 0;
+            maxSubmitSize          =  value;
         }
     }
 
@@ -256,10 +250,8 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => incrementSize;
         set
         {
-            if (incrementSize == value) return;
-
-            IsIncrementSizeUpdated = true;
-            incrementSize          = value;
+            IsIncrementSizeUpdated |= incrementSize != value || NumUpdates == 0;
+            incrementSize          =  value;
         }
     }
 
@@ -268,10 +260,8 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => minimumQuoteLife;
         set
         {
-            if (minimumQuoteLife == value) return;
-
-            IsMinimumQuoteLifeUpdated = true;
-            minimumQuoteLife          = value;
+            IsMinimumQuoteLifeUpdated |= minimumQuoteLife != value || NumUpdates == 0;
+            minimumQuoteLife          =  value;
         }
     }
 
@@ -280,10 +270,8 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => defaultMaxValidMs;
         set
         {
-            if (defaultMaxValidMs == value) return;
-
-            IsDefaultMaxValidMsUpdated = true;
-            defaultMaxValidMs          = value;
+            IsDefaultMaxValidMsUpdated |= defaultMaxValidMs != value || NumUpdates == 0;
+            defaultMaxValidMs          =  value;
         }
     }
 
@@ -292,9 +280,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => (booleanFlags & SourceTickerInfoBooleanFlags.SubscribeToPricesSet) > 0;
         set
         {
-            if (SubscribeToPrices == value) return;
-
-            IsSubscribeToPricesUpdated = true;
+            IsSubscribeToPricesUpdated |= SubscribeToPrices != value || NumUpdates == 0;
 
             if (value)
                 booleanFlags |= SourceTickerInfoBooleanFlags.SubscribeToPricesSet;
@@ -308,9 +294,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => (booleanFlags & SourceTickerInfoBooleanFlags.TradingEnabledSet) > 0;
         set
         {
-            if (TradingEnabled == value) return;
-
-            IsTradingEnabledUpdated = true;
+            IsTradingEnabledUpdated |= TradingEnabled || NumUpdates == 0;
 
             if (value)
                 booleanFlags |= SourceTickerInfoBooleanFlags.TradingEnabledSet;
@@ -324,10 +308,8 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => layerFlags;
         set
         {
-            if (layerFlags == value) return;
-
-            IsLayerFlagsUpdated = true;
-            layerFlags          = value;
+            IsLayerFlagsUpdated |= layerFlags != value || NumUpdates == 0;
+            layerFlags          =  value;
         }
     }
 
@@ -336,10 +318,8 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => maximumPublishedLayers;
         set
         {
-            if (maximumPublishedLayers == value) return;
-
-            IsMaximumPublishedLayersUpdated = true;
-            maximumPublishedLayers          = value;
+            IsMaximumPublishedLayersUpdated |= maximumPublishedLayers != value || NumUpdates == 0;
+            maximumPublishedLayers          =  value;
         }
     }
 
@@ -348,9 +328,8 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => lastTradedFlags;
         set
         {
-            if (lastTradedFlags == value) return;
-            IsLastTradedFlagsUpdated = true;
-            lastTradedFlags          = value;
+            IsLastTradedFlagsUpdated |= lastTradedFlags != value || NumUpdates == 0;
+            lastTradedFlags          =  value;
         }
     }
 

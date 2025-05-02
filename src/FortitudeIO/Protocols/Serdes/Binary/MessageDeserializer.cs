@@ -9,6 +9,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
@@ -16,7 +17,7 @@ using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 
 namespace FortitudeIO.Protocols.Serdes.Binary;
 
-public interface IMessageDeserializer : IStoreState<IMessageDeserializer>, ICloneable<IMessageDeserializer>
+public interface IMessageDeserializer : ITransferState<IMessageDeserializer>, ICloneable<IMessageDeserializer>
 {
     int   InstanceNumber         { get; }
     uint? RegisteredForMessageId { get; set; }
@@ -50,7 +51,7 @@ public abstract class BinaryMessageDeserializer<TM> : IMessageDeserializer<TM>
 
     public IMessageDeserializationRepository? RegisteredRepository { get; set; }
 
-    public virtual IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => this;
+    public virtual ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags) => this;
 
 
     public virtual IMessageDeserializer CopyFrom(IMessageDeserializer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
@@ -84,7 +85,7 @@ public interface INotifyingMessageDeserializer : IMessageDeserializer
 }
 
 public interface INotifyingMessageDeserializer<TM> : IMessageDeserializer<TM>, INotifyingMessageDeserializer
-  , IStoreState<INotifyingMessageDeserializer<TM>>
+  , ITransferState<INotifyingMessageDeserializer<TM>>
     where TM : class, IVersionedMessage
 {
     new event ConversationMessageReceivedHandler<TM>? ConversationMessageDeserialized;
@@ -116,10 +117,27 @@ public abstract class MessageDeserializer<TM> : BinaryMessageDeserializer<TM>, I
             registeredNotifiers.Add(cloneRegisteredNotifier.Key, cloneRegisteredNotifier.Value.Clone());
     }
 
-    object? IMessageDeserializer.Deserialize(IBufferContext bufferContext) => Deserialize(bufferContext);
-    public bool                  RemoveOnZeroNotifiers                     { get; set; }
+    public bool RemoveOnZeroNotifiers { get; set; }
 
     public IEnumerable<IDeserializedNotifier> AllDeserializedNotifiers => registeredNotifiers.Values;
+
+    public IDeserializedNotifier? this[string name]
+    {
+        get => registeredNotifiers.TryGetValue(name, out var deserializedNotifier) ? deserializedNotifier : null;
+        set
+        {
+            if (registeredNotifiers.TryGetValue(name, out var preexistingNotifier))
+            {
+                if (value == preexistingNotifier) return;
+                preexistingNotifier?.Unsubscribe?.Invoke();
+            }
+
+            registeredNotifiers.AddOrUpdate(name, value!);
+            value?.RegisterMessageDeserializer(this);
+        }
+    }
+
+    object? IMessageDeserializer.Deserialize(IBufferContext bufferContext) => Deserialize(bufferContext);
 
     public bool IsRegistered(MessageDeserializedHandler<IVersionedMessage> deserializedHandler) =>
         ConversationMessageDeserialized != null
@@ -177,22 +195,6 @@ public abstract class MessageDeserializer<TM> : BinaryMessageDeserializer<TM>, I
         }
     }
 
-    public IDeserializedNotifier? this[string name]
-    {
-        get => registeredNotifiers.TryGetValue(name, out var deserializedNotifier) ? deserializedNotifier : null;
-        set
-        {
-            if (registeredNotifiers.TryGetValue(name, out var preexistingNotifier))
-            {
-                if (value == preexistingNotifier) return;
-                preexistingNotifier?.Unsubscribe?.Invoke();
-            }
-
-            registeredNotifiers.AddOrUpdate(name, value!);
-            value?.RegisterMessageDeserializer(this);
-        }
-    }
-
     public IDeserializedNotifier<TM, TR> AddDeserializedNotifier<TR>(IDeserializedNotifier<TM, TR> deserializedNotifier)
     {
         registeredNotifiers.Add(deserializedNotifier.Name, deserializedNotifier);
@@ -209,13 +211,14 @@ public abstract class MessageDeserializer<TM> : BinaryMessageDeserializer<TM>, I
         foreach (var msgId in RegisteredRepository.GetRegisteredMessageIds(this)) RegisteredRepository.UnregisterDeserializer(msgId);
     }
 
-    public override IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) =>
+    public override ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((INotifyingMessageDeserializer<TM>)source, copyMergeFlags);
 
     public override IMessageDeserializer CopyFrom(IMessageDeserializer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CopyFrom((INotifyingMessageDeserializer<TM>)source, copyMergeFlags);
 
-    public INotifyingMessageDeserializer<TM> CopyFrom(INotifyingMessageDeserializer<TM> source
+    public INotifyingMessageDeserializer<TM> CopyFrom
+    (INotifyingMessageDeserializer<TM> source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if ((copyMergeFlags & CopyMergeFlags.RemoveUnmatched) > 0) registeredNotifiers.Clear();
@@ -236,8 +239,7 @@ public abstract class MessageDeserializer<TM> : BinaryMessageDeserializer<TM>, I
                 if ((copyMergeFlags & CopyMergeFlags.AppendMissing) > 0)
                 {
                     preExisting = this[sourceAllDeserializedNotifier.Name];
-                    if (preExisting == null)
-                        this[sourceAllDeserializedNotifier.Name] = sourceAllDeserializedNotifier.Clone();
+                    if (preExisting == null) this[sourceAllDeserializedNotifier.Name] = sourceAllDeserializedNotifier.Clone();
                 }
             }
             else

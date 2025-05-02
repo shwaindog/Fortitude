@@ -4,7 +4,7 @@
 #region
 
 using FortitudeCommon.DataStructures.Maps.IdMap;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;

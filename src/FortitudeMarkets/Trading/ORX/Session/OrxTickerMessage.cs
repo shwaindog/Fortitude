@@ -1,8 +1,10 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Text;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Authentication;
@@ -17,7 +19,7 @@ public sealed class OrxTickerMessage : OrxTradingMessage
     public OrxTickerMessage(string exchange, string ticker)
     {
         Exchange = exchange;
-        Ticker = ticker;
+        Ticker   = ticker;
     }
 
     public OrxTickerMessage() { }
@@ -47,21 +49,22 @@ public sealed class OrxTickerMessage : OrxTradingMessage
 
     [OrxMandatoryField(18)] public bool Tradeable { get; set; }
 
-    public override IVersionedMessage CopyFrom(IVersionedMessage source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IVersionedMessage CopyFrom
+    (IVersionedMessage source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is OrxTickerMessage message)
         {
-            Exchange = message.Exchange?.SyncOrRecycle(Exchange);
-            Ticker = message.Ticker?.SyncOrRecycle(Ticker);
-            ContractSize = message.ContractSize;
-            MinimumSize = message.MinimumSize;
-            SizeIncrement = message.SizeIncrement;
-            MaximumSize = message.MaximumSize;
+            Exchange       = message.Exchange?.SyncOrRecycle(Exchange);
+            Ticker         = message.Ticker?.SyncOrRecycle(Ticker);
+            ContractSize   = message.ContractSize;
+            MinimumSize    = message.MinimumSize;
+            SizeIncrement  = message.SizeIncrement;
+            MaximumSize    = message.MaximumSize;
             PriceIncrement = message.PriceIncrement;
-            Mql = message.Mql;
-            Tradeable = message.Tradeable;
+            Mql            = message.Mql;
+            Tradeable      = message.Tradeable;
         }
 
         return this;
@@ -72,14 +75,14 @@ public sealed class OrxTickerMessage : OrxTradingMessage
         Exchange?.DecrementRefCount();
         Exchange = null;
         Ticker?.DecrementRefCount();
-        Ticker = null;
-        ContractSize = 0;
-        MinimumSize = 0;
-        SizeIncrement = 0;
-        MaximumSize = 0;
+        Ticker         = null;
+        ContractSize   = 0;
+        MinimumSize    = 0;
+        SizeIncrement  = 0;
+        MaximumSize    = 0;
         PriceIncrement = 0;
-        Mql = 0;
-        Tradeable = false;
+        Mql            = 0;
+        Tradeable      = false;
         base.StateReset();
     }
 
@@ -96,16 +99,17 @@ public sealed class OrxTickerMessage : OrxTradingMessage
         return hash;
     }
 
-    internal void UpdateData(long contractSize, long minSize, long sizeInc, long maxSize,
+    internal void UpdateData
+    (long contractSize, long minSize, long sizeInc, long maxSize,
         decimal priceInc,
         uint mql)
     {
-        ContractSize = contractSize;
-        MinimumSize = minSize;
-        SizeIncrement = sizeInc;
-        MaximumSize = maxSize;
+        ContractSize   = contractSize;
+        MinimumSize    = minSize;
+        SizeIncrement  = sizeInc;
+        MaximumSize    = maxSize;
         PriceIncrement = priceInc;
-        Mql = mql;
+        Mql            = mql;
     }
 
     internal void UpdateStatus(bool tradeable)

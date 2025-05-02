@@ -3,16 +3,17 @@
 
 #region
 
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
 namespace FortitudeCommon.DataStructures.Maps.IdMap;
 
-public interface INameIdLookupGenerator : INameIdLookup, IStoreState<INameIdLookup>
+public interface INameIdLookupGenerator : INameIdLookup, ITransferState<INameIdLookup>
 {
-    int                        GetOrAddId(string? name);
-    void                       AppendNewNames(IEnumerable<KeyValuePair<int, string>> existingPairs);
-    void                       SetIdToName(int id, string name);
+    int  GetOrAddId(string? name);
+    void AppendNewNames(IEnumerable<KeyValuePair<int, string>> existingPairs);
+    void SetIdToName(int id, string name);
+
     new INameIdLookupGenerator Clone();
 }

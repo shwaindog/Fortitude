@@ -6,7 +6,7 @@
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using static FortitudeBusRules.BusMessaging.Messages.MarshallerType;
 using static FortitudeBusRules.BusMessaging.Messages.PayloadRequestType;
 
@@ -328,8 +328,8 @@ public class PayloadMarshaller<T> : ReusableObject<IPayloadMarshaller<T>>, IPayl
             case BorrowReusable:
                 if (input is IReusableObject)
                 {
-                    var borrowed = (IStoreState)(ReceiverRecycler ?? SenderRecycler).Borrow(typeof(T));
-                    borrowed.CopyFrom((IStoreState)input, CopyMergeFlags.FullReplace);
+                    var borrowed = (ITransferState)(ReceiverRecycler ?? SenderRecycler).Borrow(typeof(T));
+                    borrowed.CopyFrom((ITransferState)input, CopyMergeFlags.FullReplace);
                     result = (T)borrowed;
                 }
 

@@ -8,6 +8,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
@@ -31,9 +32,9 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
         ValidFrom            = validFrom ?? DateTimeConstants.UnixEpoch;
         ValidTo              = validTo ?? DateTimeConstants.UnixEpoch;
         SourceBidTime        = sourceBidTime ?? DateTimeConstants.UnixEpoch;
-        IsBidPriceTopUpdated = isBidPriceTopChanged;
+        IsBidPriceTopChanged = isBidPriceTopChanged;
         SourceAskTime        = sourceAskTime ?? DateTimeConstants.UnixEpoch;
-        IsAskPriceTopUpdated = isAskPriceTopChanged;
+        IsAskPriceTopChanged = isAskPriceTopChanged;
         Executable           = executable;
         if (periodSummary is not null) SummaryPeriod = new PricePeriodSummary(periodSummary);
 
@@ -53,9 +54,9 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
             ValidFrom            = lvl1Quote.ValidFrom;
             ValidTo              = lvl1Quote.ValidTo;
             SourceBidTime        = lvl1Quote.SourceBidTime;
-            IsBidPriceTopUpdated = lvl1Quote.IsBidPriceTopUpdated;
+            IsBidPriceTopChanged = lvl1Quote.IsBidPriceTopChanged;
             SourceAskTime        = lvl1Quote.SourceAskTime;
-            IsAskPriceTopUpdated = lvl1Quote.IsAskPriceTopUpdated;
+            IsAskPriceTopChanged = lvl1Quote.IsAskPriceTopChanged;
             Executable           = lvl1Quote.Executable;
             if (lvl1Quote.SummaryPeriod is { IsEmpty: false }) SummaryPeriod = new PricePeriodSummary(lvl1Quote.SummaryPeriod);
 
@@ -148,8 +149,8 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool Executable { get; set; }
 
-    [JsonIgnore] public bool IsBidPriceTopUpdated { get; set; }
-    [JsonIgnore] public bool IsAskPriceTopUpdated { get; set; }
+    [JsonIgnore] public bool IsBidPriceTopChanged { get; set; }
+    [JsonIgnore] public bool IsAskPriceTopChanged { get; set; }
 
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -195,8 +196,8 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
                 BidPriceTop = level1Quote.BidPriceTop;
                 AskPriceTop = level1Quote.AskPriceTop;
             }
-            IsAskPriceTopUpdated = level1Quote.IsAskPriceTopUpdated;
-            IsBidPriceTopUpdated = level1Quote.IsBidPriceTopUpdated;
+            IsAskPriceTopChanged = level1Quote.IsAskPriceTopChanged;
+            IsBidPriceTopChanged = level1Quote.IsBidPriceTopChanged;
             Executable           = level1Quote.Executable;
             if (level1Quote.SummaryPeriod is { IsEmpty: false })
             {
@@ -212,11 +213,11 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
         return this;
     }
 
-    IReusableObject<IBidAskInstant> IStoreState<IReusableObject<IBidAskInstant>>.CopyFrom
+    IReusableObject<IBidAskInstant> ITransferState<IReusableObject<IBidAskInstant>>.CopyFrom
         (IReusableObject<IBidAskInstant> source, CopyMergeFlags copyMergeFlags) =>
         (ILevel1Quote)CopyFrom((ILevel1Quote)source, copyMergeFlags);
 
-    IBidAskInstant IStoreState<IBidAskInstant>.CopyFrom(IBidAskInstant source, CopyMergeFlags copyMergeFlags) =>
+    IBidAskInstant ITransferState<IBidAskInstant>.CopyFrom(IBidAskInstant source, CopyMergeFlags copyMergeFlags) =>
         (ILevel1Quote)CopyFrom((ILevel1Quote)source, copyMergeFlags);
 
     ILevel1Quote ICloneable<ILevel1Quote>.Clone() => Clone();
@@ -257,8 +258,8 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
             = ((SummaryPeriod == null || SummaryPeriod.IsEmpty) && (otherL1.SummaryPeriod == null || otherL1.SummaryPeriod.IsEmpty)) ||
               (SummaryPeriod?.AreEquivalent(otherL1.SummaryPeriod, exactTypes) ?? otherL1.SummaryPeriod == null);
 
-        var isBidPriceTopChangedSame = IsBidPriceTopUpdated == otherL1.IsBidPriceTopUpdated;
-        var isAskPriceTopChangedSame = IsAskPriceTopUpdated == otherL1.IsAskPriceTopUpdated;
+        var isBidPriceTopChangedSame = IsBidPriceTopChanged == otherL1.IsBidPriceTopChanged;
+        var isAskPriceTopChangedSame = IsAskPriceTopChanged == otherL1.IsAskPriceTopChanged;
 
         var isEquivalent = baseIsSame && adapterReceivedTimeSame && adapterSentTimeSame && sourceBidTimeSame && validFromTimeSame && validToTimeSame
                         && bidPriceTopSame && isBidPriceTopChangedSame && sourceAskTimeSame && askPriceTopSame && isAskPriceTopChangedSame
@@ -279,10 +280,10 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
             hashCode = (hashCode * 397) ^ ValidFrom.GetHashCode();
             hashCode = (hashCode * 397) ^ ValidTo.GetHashCode();
             hashCode = (hashCode * 397) ^ BidPriceTop.GetHashCode();
-            hashCode = (hashCode * 397) ^ IsBidPriceTopUpdated.GetHashCode();
+            hashCode = (hashCode * 397) ^ IsBidPriceTopChanged.GetHashCode();
             hashCode = (hashCode * 397) ^ SourceAskTime.GetHashCode();
             hashCode = (hashCode * 397) ^ AskPriceTop.GetHashCode();
-            hashCode = (hashCode * 397) ^ IsAskPriceTopUpdated.GetHashCode();
+            hashCode = (hashCode * 397) ^ IsAskPriceTopChanged.GetHashCode();
             hashCode = (hashCode * 397) ^ Executable.GetHashCode();
             hashCode = (hashCode * 397) ^ SummaryPeriod?.GetHashCode() ?? 0;
             return hashCode;
@@ -293,7 +294,7 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
         $"Level1PriceQuote {{{nameof(SourceTickerInfo)}: {SourceTickerInfo}, {nameof(SourceTime)}: {SourceTime:O}, {nameof(IsReplay)}: {IsReplay}, " +
         $"{nameof(SingleTickValue)}: {SingleTickValue:N5}, {nameof(ClientReceivedTime)}: {ClientReceivedTime:O}, {nameof(AdapterReceivedTime)}: {AdapterReceivedTime:O}, " +
         $"{nameof(AdapterSentTime)}: {AdapterSentTime:O}, {nameof(SourceBidTime)}: {SourceBidTime:O}, {nameof(ValidFrom)}: {ValidFrom:O}, {nameof(ValidTo)}: {ValidTo:O}, " +
-        $"{nameof(BidPriceTop)}: {BidPriceTop:N5}, {nameof(IsBidPriceTopUpdated)}: {IsBidPriceTopUpdated}, {nameof(SourceAskTime)}: {SourceAskTime:O}, " +
-        $"{nameof(AskPriceTop)}: {AskPriceTop:N5}, {nameof(IsAskPriceTopUpdated)}: {IsAskPriceTopUpdated}, {nameof(Executable)}: {Executable}, " +
+        $"{nameof(BidPriceTop)}: {BidPriceTop:N5}, {nameof(IsBidPriceTopChanged)}: {IsBidPriceTopChanged}, {nameof(SourceAskTime)}: {SourceAskTime:O}, " +
+        $"{nameof(AskPriceTop)}: {AskPriceTop:N5}, {nameof(IsAskPriceTopChanged)}: {IsAskPriceTopChanged}, {nameof(Executable)}: {Executable}, " +
         $"{nameof(SummaryPeriod)}: {SummaryPeriod} }}";
 }

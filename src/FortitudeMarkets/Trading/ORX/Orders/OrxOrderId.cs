@@ -1,8 +1,10 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Text;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarkets.Trading.Orders;
@@ -11,30 +13,33 @@ using FortitudeMarkets.Trading.Orders;
 
 namespace FortitudeMarkets.Trading.ORX.Orders;
 
-public class OrxOrderId : ReusableObject<IOrderId>, IOrderId, IStoreState<OrxOrderId>
+public class OrxOrderId : ReusableObject<IOrderId>, IOrderId, ITransferState<OrxOrderId>
 {
     public OrxOrderId() { }
 
     public OrxOrderId(IOrderId toClone)
     {
-        ClientOrderId = toClone.ClientOrderId;
-        AdapterOrderId = toClone.AdapterOrderId;
+        ClientOrderId      = toClone.ClientOrderId;
+        AdapterOrderId     = toClone.AdapterOrderId;
         VenueClientOrderId = toClone.VenueClientOrderId != null ? new MutableString(toClone.VenueClientOrderId) : null;
         VenueAdapterOrderId
             = toClone.VenueAdapterOrderId != null ? new MutableString(toClone.VenueAdapterOrderId) : null;
         ParentOrderId = toClone.ParentOrderId != null ? new OrxOrderId(toClone.ParentOrderId) : null;
-        TrackingId = toClone.TrackingId != null ? new MutableString(toClone.TrackingId) : null;
+        TrackingId    = toClone.TrackingId != null ? new MutableString(toClone.TrackingId) : null;
     }
 
-    public OrxOrderId(long clientOrderId, MutableString venueClientOrderId, long adapterOrderId = 0,
+    public OrxOrderId
+    (long clientOrderId, MutableString venueClientOrderId, long adapterOrderId = 0,
         MutableString? venueAdapterOrderId = null, OrxOrderId? parentOrderId = null, MutableString? trackingId = null)
     {
-        ClientOrderId = clientOrderId;
-        AdapterOrderId = adapterOrderId;
+        ClientOrderId      = clientOrderId;
+        AdapterOrderId     = adapterOrderId;
         VenueClientOrderId = venueClientOrderId;
+
         VenueAdapterOrderId = venueAdapterOrderId;
+
         ParentOrderId = parentOrderId;
-        TrackingId = trackingId;
+        TrackingId    = trackingId;
     }
 
     [OrxMandatoryField(1)] public MutableString? VenueClientOrderId { get; set; }
@@ -44,6 +49,7 @@ public class OrxOrderId : ReusableObject<IOrderId>, IOrderId, IStoreState<OrxOrd
     [OrxOptionalField(4)] public MutableString? TrackingId { get; set; }
 
     [OrxOptionalField(5)] public OrxOrderId? ParentOrderId { get; set; }
+
     public bool AutoRecycledByProducer { get; set; } = false;
 
     [OrxMandatoryField(0)] public long ClientOrderId { get; set; }
@@ -78,12 +84,14 @@ public class OrxOrderId : ReusableObject<IOrderId>, IOrderId, IStoreState<OrxOrd
 
     public override IOrderId CopyFrom(IOrderId orderId, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        ClientOrderId = orderId.ClientOrderId;
+        ClientOrderId      = orderId.ClientOrderId;
         VenueClientOrderId = orderId.VenueClientOrderId.SyncOrRecycle(VenueClientOrderId);
-        AdapterOrderId = orderId.AdapterOrderId;
+        AdapterOrderId     = orderId.AdapterOrderId;
+
         VenueAdapterOrderId = orderId.VenueAdapterOrderId.SyncOrRecycle(VenueAdapterOrderId);
+
         ParentOrderId = orderId.ParentOrderId.SyncOrRecycle(ParentOrderId);
-        TrackingId = orderId.TrackingId.SyncOrRecycle(TrackingId);
+        TrackingId    = orderId.TrackingId.SyncOrRecycle(TrackingId);
         return this;
     }
 
@@ -92,12 +100,13 @@ public class OrxOrderId : ReusableObject<IOrderId>, IOrderId, IStoreState<OrxOrd
 
     protected bool Equals(OrxOrderId other)
     {
-        var clientOrderIdSame = Equals(ClientOrderId, other.ClientOrderId);
+        var clientOrderIdSame      = Equals(ClientOrderId, other.ClientOrderId);
         var venueClientOrderIdSame = Equals(VenueClientOrderId, other.VenueClientOrderId);
-        var adapterOrderId = Equals(AdapterOrderId, other.AdapterOrderId);
-        var venueAdapterOrderId = Equals(VenueAdapterOrderId, other.VenueAdapterOrderId);
-        var parentOrderIdSame = Equals(ParentOrderId, other.ParentOrderId);
-        var trackingIdSame = Equals(TrackingId, other.TrackingId);
+        var adapterOrderId         = Equals(AdapterOrderId, other.AdapterOrderId);
+        var venueAdapterOrderId    = Equals(VenueAdapterOrderId, other.VenueAdapterOrderId);
+        var parentOrderIdSame      = Equals(ParentOrderId, other.ParentOrderId);
+        var trackingIdSame         = Equals(TrackingId, other.TrackingId);
+
         return clientOrderIdSame && venueClientOrderIdSame && adapterOrderId && venueAdapterOrderId &&
                parentOrderIdSame && trackingIdSame;
     }
@@ -132,14 +141,13 @@ public class OrxOrderId : ReusableObject<IOrderId>, IOrderId, IStoreState<OrxOrd
         if (ClientOrderId != 0) sb.Append("ClientOrderId: ").Append(ClientOrderId).Append(", ");
         if (AdapterOrderId != 0) sb.Append("AdapterOrderId: ").Append(AdapterOrderId).Append(", ");
         if (TrackingId != null && TrackingId.Length > 0) sb.Append("TrackingId: ").Append(TrackingId).Append(", ");
-        if (VenueClientOrderId != null && VenueClientOrderId.Length > 0)
-            sb.Append("VenueClientOrderId: ").Append(VenueClientOrderId).Append(", ");
+        if (VenueClientOrderId != null && VenueClientOrderId.Length > 0) sb.Append("VenueClientOrderId: ").Append(VenueClientOrderId).Append(", ");
         if (VenueAdapterOrderId != null && VenueAdapterOrderId.Length > 0)
             sb.Append("VenueAdapterOrderId: ").Append(VenueAdapterOrderId).Append(", ");
         if (ParentOrderId != null) sb.Append("ParentOrderId: ").Append(ParentOrderId).Append(", ");
         if (sb[^2] == ',')
         {
-            sb[^2] = ')';
+            sb[^2]    =  ')';
             sb.Length -= 1;
         }
 

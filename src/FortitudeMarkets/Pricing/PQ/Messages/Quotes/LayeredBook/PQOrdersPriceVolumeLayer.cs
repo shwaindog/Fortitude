@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
@@ -279,6 +280,12 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         }
     }
 
+    public override void UpdateComplete()
+    {
+        NameIdLookup.UpdateComplete();
+        base.UpdateComplete();
+    }
+
     public bool RemoveAt(int index)
     {
         orders?[index].StateReset();
@@ -376,30 +383,6 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         return NameIdLookup.UpdateFieldString(stringUpdate);
     }
 
-    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        var isFullReplace = copyMergeFlags.HasFullReplace();
-        var pqopvl        = source as IPQOrdersPriceVolumeLayer;
-        var opvl          = source as IOrdersPriceVolumeLayer;
-        if (pqopvl != null) NameIdLookup.CopyFrom(pqopvl.NameIdLookup, copyMergeFlags);
-        if (opvl != null)
-        {
-            for (var j = 0; j < opvl.Orders.Count; j++)
-            {
-                var sourceOrder = opvl[j];
-                var destOrder   = this[j];
-                destOrder!.CopyFrom(sourceOrder!, copyMergeFlags);
-            }
-            for (var i = opvl.Orders.Count; i < SafeOrdersLength; i++)
-                if (orders?[i] is { IsEmpty: false } makeEmpty)
-                    makeEmpty.IsEmpty = true;
-        }
-        base.CopyFrom(source, copyMergeFlags);
-        if (pqopvl != null && isFullReplace) SetFlagsSame(source);
-
-        return this;
-    }
-
     IPQOrdersPriceVolumeLayer IPQOrdersPriceVolumeLayer.Clone() => Clone();
 
     IOrdersPriceVolumeLayer ICloneable<IOrdersPriceVolumeLayer>.Clone() => Clone();
@@ -432,6 +415,30 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
             var entryToUpdate = this[indexToUpdate]!;
             entryToUpdate.CopyFrom(order, CopyMergeFlags.FullReplace);
         }
+    }
+
+    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        var isFullReplace = copyMergeFlags.HasFullReplace();
+        var pqopvl        = source as IPQOrdersPriceVolumeLayer;
+        var opvl          = source as IOrdersPriceVolumeLayer;
+        if (pqopvl != null) NameIdLookup.CopyFrom(pqopvl.NameIdLookup, copyMergeFlags);
+        if (opvl != null)
+        {
+            for (var j = 0; j < opvl.Orders.Count; j++)
+            {
+                var sourceOrder = opvl[j];
+                var destOrder   = this[j];
+                destOrder!.CopyFrom(sourceOrder!, copyMergeFlags);
+            }
+            for (var i = opvl.Orders.Count; i < SafeOrdersLength; i++)
+                if (orders?[i] is { IsEmpty: false } makeEmpty)
+                    makeEmpty.IsEmpty = true;
+        }
+        base.CopyFrom(source, copyMergeFlags);
+        if (pqopvl != null && isFullReplace) SetFlagsSame(source);
+
+        return this;
     }
 
     public override PQOrdersPriceVolumeLayer Clone() => new(this, LayerType, NameIdLookup);

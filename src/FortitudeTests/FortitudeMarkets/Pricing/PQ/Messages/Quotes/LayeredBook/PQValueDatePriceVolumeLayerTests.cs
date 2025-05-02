@@ -337,8 +337,8 @@ public class PQValueDatePriceVolumeLayerTests
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType
     (bool exactComparison,
         PQValueDatePriceVolumeLayer? original, PQValueDatePriceVolumeLayer? changingPriceVolumeLayer,
-        IOrderBook? originalOrderBook = null,
-        IOrderBook? changingOrderBook = null,
+        IOrderBookSide? originalOrderBook = null,
+        IOrderBookSide? changingOrderBook = null,
         ILevel2Quote? originalQuote = null,
         ILevel2Quote? changingQuote = null)
     {

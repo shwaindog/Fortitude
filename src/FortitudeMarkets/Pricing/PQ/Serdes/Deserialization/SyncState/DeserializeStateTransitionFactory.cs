@@ -10,6 +10,11 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
+public interface IDeserializeStateTransitionFactory<T> where T : PQTickInstant, new()
+{
+    SyncStateBase<T> TransitionToState(QuoteSyncState desiredState, SyncStateBase<T> currentState);
+}
+
 internal class DeserializeStateTransitionFactory<T> : IDeserializeStateTransitionFactory<T>
     where T : PQTickInstant, new()
 {

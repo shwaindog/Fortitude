@@ -5,7 +5,7 @@
 
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 

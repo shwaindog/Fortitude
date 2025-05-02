@@ -11,6 +11,7 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
@@ -51,15 +52,16 @@ public interface IPQPricePeriodSummary : IMutablePricePeriodSummary, IPQSupports
 
 public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPricePeriodSummary, ICloneable<PQPricePeriodSummary>
 {
-    private decimal  averageAskPrice;
-    private decimal  averageBidPrice;
-    private decimal  endAskPrice;
-    private decimal  endBidPrice;
-    private DateTime endTime = DateTimeConstants.UnixEpoch;
-    private decimal  highestAskPrice;
-    private decimal  highestBidPrice;
-    private decimal  lowestAskPrice;
-    private decimal  lowestBidPrice;
+    private   decimal  averageAskPrice;
+    private   decimal  averageBidPrice;
+    private   decimal  endAskPrice;
+    private   decimal  endBidPrice;
+    private   DateTime endTime = DateTimeConstants.UnixEpoch;
+    private   decimal  highestAskPrice;
+    private   decimal  highestBidPrice;
+    private   decimal  lowestAskPrice;
+    private   decimal  lowestBidPrice;
+    protected uint     NumUpdatesSinceEmpty = uint.MaxValue;
 
     private PricePeriodSummaryFlags periodSummaryFlags;
 
@@ -72,7 +74,10 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
     private TimeBoundaryPeriod        timeBoundaryPeriod;
     private PeriodSummaryUpdatedFlags updatedFlags;
 
-    public PQPricePeriodSummary() { }
+    public PQPricePeriodSummary()
+    {
+        if (GetType() == typeof(PQPricePeriodSummary)) NumUpdatesSinceEmpty = 0;
+    }
 
     public PQPricePeriodSummary(IPricePeriodSummary toClone)
     {
@@ -92,6 +97,8 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         PeriodSummaryFlags = toClone.PeriodSummaryFlags;
         AverageBidPrice    = toClone.AverageBidAsk.BidPrice;
         AverageAskPrice    = toClone.AverageBidAsk.AskPrice;
+
+        if (GetType() == typeof(PQPricePeriodSummary)) NumUpdatesSinceEmpty = 0;
     }
 
     public override PQPricePeriodSummary Clone() =>
@@ -103,8 +110,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         get => timeBoundaryPeriod;
         set
         {
-            if (value == timeBoundaryPeriod) return;
-            IsSummaryPeriodUpdated = true;
+            IsSummaryPeriodUpdated = timeBoundaryPeriod != value || NumUpdatesSinceEmpty == 0;
             timeBoundaryPeriod     = value;
         }
     }
@@ -134,6 +140,8 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
             TimeBoundaryPeriod = TimeBoundaryPeriod.Tick;
             PeriodSummaryFlags = PricePeriodSummaryFlags.None;
             PeriodStartTime    = PeriodEndTime = DateTimeConstants.UnixEpoch;
+
+            NumUpdatesSinceEmpty = 0;
         }
     }
 
@@ -161,11 +169,8 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         get => periodSummaryFlags;
         set
         {
-            if (value == periodSummaryFlags) return;
-
-            IsPricePeriodSummaryFlagsUpdated = true;
-
-            periodSummaryFlags = value;
+            IsPricePeriodSummaryFlagsUpdated = periodSummaryFlags != value || NumUpdatesSinceEmpty == 0;
+            periodSummaryFlags               = value;
         }
     }
 
@@ -230,9 +235,8 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         get => endTime;
         set
         {
-            if (endTime == value) return;
-            IsEndTimeDateUpdated    |= endTime.GetHoursFromUnixEpoch() != value.GetHoursFromUnixEpoch();
-            IsEndTimeSubHourUpdated |= endTime.GetSubHourComponent() != value.GetSubHourComponent();
+            IsEndTimeDateUpdated    |= endTime.GetHoursFromUnixEpoch() != value.GetHoursFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
+            IsEndTimeSubHourUpdated |= endTime.GetSubHourComponent() != value.GetSubHourComponent() || NumUpdatesSinceEmpty == 0;
             endTime                 =  value;
         }
     }
@@ -280,9 +284,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         get => averageBidPrice;
         set
         {
-            if (averageBidPrice == value) return;
-
-            IsAverageBidPriceUpdated = true;
+            IsAverageBidPriceUpdated = averageBidPrice != value || NumUpdatesSinceEmpty == 0;
             averageBidPrice          = value;
         }
     }
@@ -292,9 +294,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         get => averageAskPrice;
         set
         {
-            if (averageAskPrice == value) return;
-
-            IsAverageAskPriceUpdated = true;
+            IsAverageAskPriceUpdated = averageAskPrice != value || NumUpdatesSinceEmpty == 0;
 
             averageAskPrice = value;
         }
@@ -306,8 +306,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         get => startBidPrice;
         set
         {
-            if (startBidPrice == value) return;
-            IsStartBidPriceUpdated = true;
+            IsStartBidPriceUpdated = startBidPrice != value || NumUpdatesSinceEmpty == 0;
             startBidPrice          = value;
         }
     }
@@ -331,8 +330,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         get => startAskPrice;
         set
         {
-            if (startAskPrice == value) return;
-            IsStartAskPriceUpdated = true;
+            IsStartAskPriceUpdated = startAskPrice != value || NumUpdatesSinceEmpty == 0;
             startAskPrice          = value;
         }
     }
@@ -356,8 +354,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         get => highestBidPrice;
         set
         {
-            if (highestBidPrice == value) return;
-            IsHighestBidPriceUpdated = true;
+            IsHighestBidPriceUpdated = highestBidPrice != value || NumUpdatesSinceEmpty == 0;
             highestBidPrice          = value;
         }
     }
@@ -381,8 +378,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         get => highestAskPrice;
         set
         {
-            if (highestAskPrice == value) return;
-            IsHighestAskPriceUpdated = true;
+            IsHighestAskPriceUpdated = highestAskPrice != value || NumUpdatesSinceEmpty == 0;
             highestAskPrice          = value;
         }
     }
@@ -406,8 +402,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         get => lowestBidPrice;
         set
         {
-            if (lowestBidPrice == value) return;
-            IsLowestBidPriceUpdated = true;
+            IsLowestBidPriceUpdated = lowestBidPrice != value || NumUpdatesSinceEmpty == 0;
             lowestBidPrice          = value;
         }
     }
@@ -431,8 +426,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         get => lowestAskPrice;
         set
         {
-            if (lowestAskPrice == value) return;
-            IsLowestAskPriceUpdated = true;
+            IsLowestAskPriceUpdated = lowestAskPrice != value || NumUpdatesSinceEmpty == 0;
             lowestAskPrice          = value;
         }
     }
@@ -456,8 +450,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         get => endBidPrice;
         set
         {
-            if (endBidPrice == value) return;
-            IsEndBidPriceUpdated = true;
+            IsEndBidPriceUpdated = endBidPrice != value || NumUpdatesSinceEmpty == 0;
             endBidPrice          = value;
         }
     }
@@ -481,8 +474,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         get => endAskPrice;
         set
         {
-            if (endAskPrice == value) return;
-            IsEndAskPriceUpdated = true;
+            IsEndAskPriceUpdated = endAskPrice != value || NumUpdatesSinceEmpty == 0;
             endAskPrice          = value;
         }
     }
@@ -531,8 +523,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         get => tickCount;
         set
         {
-            if (tickCount == value) return;
-            IsTickCountUpdated = true;
+            IsTickCountUpdated = tickCount != value || NumUpdatesSinceEmpty == 0;
             tickCount          = value;
         }
     }
@@ -555,10 +546,8 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         get => periodVolume;
         set
         {
-            if (periodVolume == value) return;
-            IsPeriodVolumeUpdated = true;
-
-            periodVolume = value;
+            IsPeriodVolumeUpdated = periodVolume != value || NumUpdatesSinceEmpty == 0;
+            periodVolume          = value;
         }
     }
 
@@ -611,6 +600,14 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
     {
         get => updatedFlags > 0;
         set => updatedFlags = value ? updatedFlags.AllFlags() : 0;
+    }
+
+    public uint UpdateCount => NumUpdatesSinceEmpty;
+
+    public virtual void UpdateComplete()
+    {
+        if (HasUpdates && !IsEmpty) NumUpdatesSinceEmpty++;
+        HasUpdates = false;
     }
 
     [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
@@ -744,7 +741,7 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         }
     }
 
-    IReusableObject<IPricePeriodSummary> IStoreState<IReusableObject<IPricePeriodSummary>>.CopyFrom
+    IReusableObject<IPricePeriodSummary> ITransferState<IReusableObject<IPricePeriodSummary>>.CopyFrom
         (IReusableObject<IPricePeriodSummary> source, CopyMergeFlags copyMergeFlags) =>
         (IPQPricePeriodSummary)CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
 
@@ -808,7 +805,9 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         return this;
     }
 
-    IStoreState IStoreState.CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
+    ITransferState ITransferState.CopyFrom
+        (ITransferState source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
 
     IMutablePricePeriodSummary IMutablePricePeriodSummary.Clone() => Clone();
 
@@ -823,6 +822,8 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         Next       = Previous = null;
         IsEmpty    = true;
         HasUpdates = false;
+
+        NumUpdatesSinceEmpty = 0;
         base.StateReset();
     }
 

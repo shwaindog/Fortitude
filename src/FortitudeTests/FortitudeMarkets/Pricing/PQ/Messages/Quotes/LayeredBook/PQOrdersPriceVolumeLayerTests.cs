@@ -577,10 +577,9 @@ public class PQOrdersPriceVolumeLayerTests
             var orderLayerInfo = emptyCounterPartyOrdersPvl[i]!;
             // increment NumUpdatesSinceEmpty
             orderLayerInfo.CreatedTime                 = testDateTime;
-            orderLayerInfo.HasUpdates                  = false;
+            orderLayerInfo.UpdateComplete();
             orderLayerInfo.CreatedTime                 = DateTime.MinValue;
-            orderLayerInfo.IsCreatedTimeDateUpdated    = false;
-            orderLayerInfo.IsCreatedTimeSubHourUpdated = false;
+            orderLayerInfo.UpdateComplete();
 
             Assert.IsFalse(orderLayerInfo.IsCreatedTimeDateUpdated);
             Assert.IsFalse(orderLayerInfo.IsCreatedTimeSubHourUpdated);
@@ -636,10 +635,9 @@ public class PQOrdersPriceVolumeLayerTests
             var orderLayerInfo = emptyCounterPartyOrdersPvl[i]!;
             // increment NumUpdatesSinceEmpty
             orderLayerInfo.CreatedTime                 = testDateTime;
-            orderLayerInfo.HasUpdates                  = false;
+            orderLayerInfo.UpdateComplete();
             orderLayerInfo.CreatedTime                 = DateTime.MinValue;
-            orderLayerInfo.IsCreatedTimeDateUpdated    = false;
-            orderLayerInfo.IsCreatedTimeSubHourUpdated = false;
+            orderLayerInfo.UpdateComplete();
 
             Assert.IsFalse(orderLayerInfo.IsCreatedTimeDateUpdated);
             Assert.IsFalse(orderLayerInfo.IsCreatedTimeSubHourUpdated);
@@ -696,10 +694,9 @@ public class PQOrdersPriceVolumeLayerTests
             var orderLayerInfo = emptyCounterPartyOrdersPvl[i]!;
             // increment NumUpdatesSinceEmpty
             orderLayerInfo.UpdatedTime                 = testDateTime;
-            orderLayerInfo.HasUpdates                  = false;
+            orderLayerInfo.UpdateComplete();
             orderLayerInfo.UpdatedTime                 = DateTime.MinValue;
-            orderLayerInfo.IsUpdatedTimeDateUpdated    = false;
-            orderLayerInfo.IsUpdatedTimeSubHourUpdated = false;
+            orderLayerInfo.UpdateComplete();
 
             Assert.IsFalse(orderLayerInfo.IsUpdatedTimeDateUpdated);
             Assert.IsFalse(orderLayerInfo.IsUpdatedTimeSubHourUpdated);
@@ -756,10 +753,9 @@ public class PQOrdersPriceVolumeLayerTests
             var orderLayerInfo = emptyCounterPartyOrdersPvl[i]!;
             // increment NumUpdatesSinceEmpty
             orderLayerInfo.UpdatedTime                 = testDateTime;
-            orderLayerInfo.HasUpdates                  = false;
+            orderLayerInfo.UpdateComplete();
             orderLayerInfo.UpdatedTime                 = DateTime.MinValue;
-            orderLayerInfo.IsUpdatedTimeDateUpdated    = false;
-            orderLayerInfo.IsUpdatedTimeSubHourUpdated = false;
+            orderLayerInfo.UpdateComplete();
 
             Assert.IsFalse(orderLayerInfo.IsUpdatedTimeDateUpdated);
             Assert.IsFalse(orderLayerInfo.IsUpdatedTimeSubHourUpdated);
@@ -1515,8 +1511,8 @@ public class PQOrdersPriceVolumeLayerTests
     (bool exactComparison,
         IPQOrdersPriceVolumeLayer? original,
         IPQOrdersPriceVolumeLayer? changingPriceVolumeLayer,
-        IOrderBook? originalOrderBook = null,
-        IOrderBook? changingOrderBook = null,
+        IOrderBookSide? originalOrderBook = null,
+        IOrderBookSide? changingOrderBook = null,
         ILevel2Quote? originalQuote = null,
         ILevel2Quote? changingQuote = null)
     {

@@ -169,8 +169,8 @@ public class ValueDatePriceVolumeLayerTests
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType
     (bool exactComparison,
         IMutableValueDatePriceVolumeLayer? original, IMutableValueDatePriceVolumeLayer? changingPriceVolumeLayer,
-        IOrderBook? originalOrderBook = null,
-        IOrderBook? changingOrderBook = null,
+        IOrderBookSide? originalOrderBook = null,
+        IOrderBookSide? changingOrderBook = null,
         ILevel2Quote? originalQuote = null,
         ILevel2Quote? changingQuote = null)
     {

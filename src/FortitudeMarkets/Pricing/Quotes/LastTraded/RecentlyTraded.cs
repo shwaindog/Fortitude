@@ -10,6 +10,7 @@ using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.Quotes.LastTraded.EntrySelector;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 

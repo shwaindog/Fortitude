@@ -19,15 +19,20 @@ public interface ILevel1Quote : ITickInstant, IBidAskInstant, ICloneable<ILevel1
     DateTime AdapterSentTime     { get; }
     DateTime SourceBidTime       { get; }
 
-    [JsonInclude] BidAskPair BidAskTop            { get; }
-    decimal                  BidPriceTop          { get; }
-    bool                     IsBidPriceTopUpdated { get; }
-    DateTime                 SourceAskTime        { get; }
-    decimal                  AskPriceTop          { get; }
-    bool                     IsAskPriceTopUpdated { get; }
-    bool                     Executable           { get; }
-    DateTime                 ValidFrom            { get; }
-    DateTime                 ValidTo              { get; }
+    [JsonInclude] BidAskPair BidAskTop { get; }
+
+    decimal BidPriceTop { get; }
+
+    bool IsBidPriceTopChanged { get; }
+
+    DateTime SourceAskTime { get; }
+    decimal  AskPriceTop   { get; }
+
+    bool IsAskPriceTopChanged { get; }
+
+    bool     Executable { get; }
+    DateTime ValidFrom  { get; }
+    DateTime ValidTo    { get; }
 
     new ILevel1Quote? Next     { get; set; }
     new ILevel1Quote? Previous { get; set; }
@@ -47,10 +52,10 @@ public interface IMutableLevel1Quote : ILevel1Quote, IMutableTickInstant
     new DateTime AdapterReceivedTime  { get; set; }
     new DateTime SourceBidTime        { get; set; }
     new decimal  BidPriceTop          { get; set; }
-    new bool     IsBidPriceTopUpdated { get; set; }
+    new bool     IsBidPriceTopChanged { get; set; }
     new DateTime SourceAskTime        { get; set; }
     new decimal  AskPriceTop          { get; set; }
-    new bool     IsAskPriceTopUpdated { get; set; }
+    new bool     IsAskPriceTopChanged { get; set; }
     new bool     Executable           { get; set; }
     new DateTime ValidFrom            { get; set; }
     new DateTime ValidTo              { get; set; }

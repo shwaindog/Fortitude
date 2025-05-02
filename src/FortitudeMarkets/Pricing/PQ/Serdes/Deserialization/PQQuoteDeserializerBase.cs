@@ -80,14 +80,12 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
 
     public void OnSyncOk(IPQQuoteDeserializer quoteDeserializer)
     {
-        var onSyncOk = SyncOk;
-        onSyncOk?.Invoke(quoteDeserializer);
+        SyncOk?.Invoke(quoteDeserializer);
     }
 
     public void OnOutOfSync(IPQQuoteDeserializer quoteDeserializer)
     {
-        var onOutOfSync = OutOfSync;
-        onOutOfSync?.Invoke(quoteDeserializer);
+        OutOfSync?.Invoke(quoteDeserializer);
     }
 
     public virtual bool HasTimedOutAndNeedsSnapshot(DateTime utcNow) => false;
@@ -122,11 +120,12 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
 
     public unsafe int UpdateQuote(IMessageBufferContext readContext, T ent, uint sequenceId)
     {
+        ent.UpdateComplete();
         if (readContext is SocketBufferReadContext sockBuffContext)
         {
-            ent.ClientReceivedTime  = sockBuffContext?.DetectTimestamp ?? DateTime.MinValue;
-            ent.SocketReceivingTime = sockBuffContext?.ReceivingTimestamp ?? DateTime.MinValue;
-            ent.ProcessedTime       = sockBuffContext?.DeserializerTime ?? DateTime.Now;
+            ent.ClientReceivedTime  = sockBuffContext.DetectTimestamp;
+            ent.SocketReceivingTime = sockBuffContext.ReceivingTimestamp;
+            ent.ProcessedTime       = sockBuffContext.DeserializerTime;
         }
 
         using var fixedBuffer = readContext.EncodedBuffer!;

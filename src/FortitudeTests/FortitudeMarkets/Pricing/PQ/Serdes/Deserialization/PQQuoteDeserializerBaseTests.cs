@@ -356,14 +356,14 @@ public class PQQuoteDeserializerBaseTests
     {
         var expectedL2Quote = new PQLevel2Quote(sourceTickerInfo);
 
-        var numLayers = expectedL2Quote.BidBook.Capacity;
+        var numLayers = expectedL2Quote.BidBookSide.Capacity;
         Assert.IsTrue(numLayers >= 20);
         for (var i = 0; i < numLayers; i++)
         {
-            var bidBooki = expectedL2Quote.BidBook[i]!;
+            var bidBooki = expectedL2Quote.BidBookSide[i]!;
             bidBooki.Price  = 0.791905m - 0.00001m * i;
             bidBooki.Volume = 30000 + 10000 * i;
-            var askBooki = expectedL2Quote.AskBook[i]!;
+            var askBooki = expectedL2Quote.AskBookSide[i]!;
             askBooki.Price  = 0.791906m + 0.00001m * i;
             askBooki.Volume = 30000 + 10000 * i;
         }
@@ -382,10 +382,11 @@ public class PQQuoteDeserializerBaseTests
 
         for (var i = 0; i < numLayers; i++)
         {
-            var expectedBidBooki = expectedL2Quote.BidBook[i]!;
-            var actualBidBooki   = actualL2Quote.BidBook[i]!;
-            var expectedAskBooki = expectedL2Quote.AskBook[i]!;
-            var actualAskBooki   = actualL2Quote.AskBook[i]!;
+            var expectedBidBooki = expectedL2Quote.BidBookSide[i]!;
+            var actualBidBooki   = actualL2Quote.BidBookSide[i]!;
+            var expectedAskBooki = expectedL2Quote.AskBookSide[i]!;
+            var actualAskBooki   = actualL2Quote.AskBookSide[i]!;
+
             Assert.AreEqual(expectedBidBooki.Price, actualBidBooki.Price);
             Assert.AreEqual(expectedBidBooki.Volume, actualBidBooki.Volume);
             Assert.AreEqual(expectedAskBooki.Price, actualAskBooki.Price);
@@ -398,7 +399,7 @@ public class PQQuoteDeserializerBaseTests
     {
         var expectedL3Quote = new PQLevel3Quote(sourceTickerInfo);
 
-        var deepestPossibleLayerIndex = expectedL3Quote.BidBook.Capacity;
+        var deepestPossibleLayerIndex = expectedL3Quote.BidBookSide.Capacity;
         Assert.IsTrue(deepestPossibleLayerIndex >= 20);
         var toggleGivenBool = false;
         var togglePaidBool  = true;

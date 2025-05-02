@@ -6,6 +6,7 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 

@@ -6,7 +6,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using Moq;
 using static FortitudeCommon.Chronometry.Timers.UpdateableTimer;
 
@@ -71,7 +71,7 @@ public class OneOffTimerUpdateTests
     public void CopyFromTest()
     {
         var fromCopy = new OneOffTimerUpdate();
-        fromCopy.CopyFrom((IStoreState)oneOffTimerUpdate, CopyMergeFlags.Default);
+        fromCopy.CopyFrom((ITransferState)oneOffTimerUpdate, CopyMergeFlags.Default);
 
         Assert.AreEqual(oneOffTimerUpdate.CallBackRunInfo, fromCopy.CallBackRunInfo);
         Assert.AreEqual(oneOffTimerUpdate.UpdateableTimer, fromCopy.UpdateableTimer);

@@ -1,7 +1,10 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeMarkets.Trading.Orders;
@@ -18,19 +21,22 @@ public class OrxOrderStatusUpdate : OrxTradingMessage, IOrderStatusUpdate
 
     public OrxOrderStatusUpdate(IOrderStatusUpdate toClone)
     {
-        OrderId = new OrxOrderId(toClone.OrderId);
-        NewOrderStatus = toClone.NewOrderStatus;
+        OrderId   = new OrxOrderId(toClone.OrderId);
         EventType = toClone.EventType;
+
+        NewOrderStatus = toClone.NewOrderStatus;
     }
 
     public OrxOrderStatusUpdate(OrxOrderId orderId, OrderStatus newOrderStatus, OrderUpdateEventType eventType)
     {
-        OrderId = orderId;
-        NewOrderStatus = newOrderStatus;
+        OrderId   = orderId;
         EventType = eventType;
+
+        NewOrderStatus = newOrderStatus;
     }
 
     public OrxOrderId OrderId { get; set; }
+
     public override uint MessageId => (uint)TradingMessageIds.StatusUpdate;
 
     IOrderId IOrderStatusUpdate.OrderId
@@ -40,17 +46,20 @@ public class OrxOrderStatusUpdate : OrxTradingMessage, IOrderStatusUpdate
     }
 
     public OrderStatus NewOrderStatus { get; set; }
+
     public OrderUpdateEventType EventType { get; set; }
 
-    public override IVersionedMessage CopyFrom(IVersionedMessage source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IVersionedMessage CopyFrom
+        (IVersionedMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is IOrderStatusUpdate orderStatusUpdate)
         {
             OrderId = orderStatusUpdate.OrderId.SyncOrRecycle(OrderId)!;
-            NewOrderStatus = orderStatusUpdate.NewOrderStatus;
+
             EventType = orderStatusUpdate.EventType;
+
+            NewOrderStatus = orderStatusUpdate.NewOrderStatus;
         }
 
         return this;
@@ -59,7 +68,9 @@ public class OrxOrderStatusUpdate : OrxTradingMessage, IOrderStatusUpdate
     public override void StateReset()
     {
         NewOrderStatus = OrderStatus.Unknown;
+
         EventType = OrderUpdateEventType.Unknown;
+
         base.StateReset();
     }
 
@@ -67,7 +78,8 @@ public class OrxOrderStatusUpdate : OrxTradingMessage, IOrderStatusUpdate
         (IAuthenticatedMessage?)Recycler?.Borrow<OrxOrderStatusUpdate>().CopyFrom(this) ??
         new OrxOrderStatusUpdate(this);
 
-    internal void Configure(IOrderId orderId, OrderStatus orderStatus, OrderUpdateEventType orderUpdateEventType,
+    internal void Configure
+    (IOrderId orderId, OrderStatus orderStatus, OrderUpdateEventType orderUpdateEventType,
         IRecycler orxRecyclerFactory)
     {
         Configure();
@@ -79,6 +91,7 @@ public class OrxOrderStatusUpdate : OrxTradingMessage, IOrderStatusUpdate
         }
 
         NewOrderStatus = orderStatus;
+
         EventType = orderUpdateEventType;
     }
 }

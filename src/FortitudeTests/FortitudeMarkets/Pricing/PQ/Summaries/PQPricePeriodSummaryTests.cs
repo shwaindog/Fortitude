@@ -43,7 +43,7 @@ public class PQPricePeriodSummaryTests
             new PQSourceTickerInfo
                 (new SourceTickerInfo
                     (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
-                   , 20, 0.00001m, 0.00001m, 10_000_000m, 50_000_000_000m, 10_000_000m, 1
+                   , 20, 0.000001m, 0.00001m, 10_000_000m, 50_000_000_000m, 10_000_000m, 1
                    , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
                    , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                                       LastTradedFlags.LastTradedTime));
@@ -179,7 +179,7 @@ public class PQPricePeriodSummaryTests
             (0, emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pricePrecisionSettings).Count());
 
         var expectedStartBidPrice = 1.23456m;
-        var scaleFactor           = PQScaling.FindPriceScaleFactor(expectedStartBidPrice - 1);
+        var scaleFactor           = pricePrecisionSettings.PriceScalingPrecision;
         emptySummary.StartBidPrice = expectedStartBidPrice;
         Assert.IsTrue(emptySummary.IsStartBidPriceUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
@@ -220,7 +220,7 @@ public class PQPricePeriodSummaryTests
             (0, emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pricePrecisionSettings).Count());
 
         var expectedStartAskPrice = 1.23456m;
-        var scaleFactor           = PQScaling.FindPriceScaleFactor(expectedStartAskPrice - 1);
+        var scaleFactor           = pricePrecisionSettings.PriceScalingPrecision;
         emptySummary.StartAskPrice = expectedStartAskPrice;
         Assert.IsTrue(emptySummary.IsStartAskPriceUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
@@ -262,7 +262,7 @@ public class PQPricePeriodSummaryTests
             (0, emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pricePrecisionSettings).Count());
 
         var expectedHighestBidPrice = 1.23456m;
-        var scaleFactor             = PQScaling.FindPriceScaleFactor(expectedHighestBidPrice - 1);
+        var scaleFactor             = pricePrecisionSettings.PriceScalingPrecision;
         emptySummary.HighestBidPrice = expectedHighestBidPrice;
         Assert.IsTrue(emptySummary.IsHighestBidPriceUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
@@ -303,7 +303,7 @@ public class PQPricePeriodSummaryTests
             (0, emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pricePrecisionSettings).Count());
 
         var expectedHighestAskPrice = 1.23456m;
-        var scaleFactor             = PQScaling.FindPriceScaleFactor(expectedHighestAskPrice - 1);
+        var scaleFactor             = pricePrecisionSettings.PriceScalingPrecision;
         emptySummary.HighestAskPrice = expectedHighestAskPrice;
         Assert.IsTrue(emptySummary.IsHighestAskPriceUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
@@ -344,7 +344,7 @@ public class PQPricePeriodSummaryTests
             (0, emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pricePrecisionSettings).Count());
 
         var expectedLowestBidPrice = 1.23456m;
-        var scaleFactor            = PQScaling.FindPriceScaleFactor(expectedLowestBidPrice - 1);
+        var scaleFactor            = pricePrecisionSettings.PriceScalingPrecision;
         emptySummary.LowestBidPrice = expectedLowestBidPrice;
         Assert.IsTrue(emptySummary.IsLowestBidPriceUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
@@ -385,7 +385,7 @@ public class PQPricePeriodSummaryTests
             (0, emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pricePrecisionSettings).Count());
 
         var expectedLowestAskPrice = 1.23456m;
-        var scaleFactor            = PQScaling.FindPriceScaleFactor(expectedLowestAskPrice - 1);
+        var scaleFactor            = pricePrecisionSettings.PriceScalingPrecision;
         emptySummary.LowestAskPrice = expectedLowestAskPrice;
         Assert.IsTrue(emptySummary.IsLowestAskPriceUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
@@ -427,7 +427,7 @@ public class PQPricePeriodSummaryTests
                             (testDateTime, StorageFlags.Update, pricePrecisionSettings).Count());
 
         var expectedEndBidPrice = 1.23456m;
-        var scaleFactor         = PQScaling.FindPriceScaleFactor(expectedEndBidPrice - 1);
+        var scaleFactor         = pricePrecisionSettings.PriceScalingPrecision;
         emptySummary.EndBidPrice = expectedEndBidPrice;
         Assert.IsTrue(emptySummary.IsEndBidPriceUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);
@@ -468,7 +468,8 @@ public class PQPricePeriodSummaryTests
             (0, emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pricePrecisionSettings).Count());
 
         var expectedEndAskPrice = 1.23456m;
-        var scaleFactor         = PQScaling.FindPriceScaleFactor(expectedEndAskPrice - 1);
+        
+        var scaleFactor         = pricePrecisionSettings.PriceScalingPrecision;
         emptySummary.EndAskPrice = expectedEndAskPrice;
         Assert.IsTrue(emptySummary.IsEndAskPriceUpdated);
         Assert.IsTrue(emptySummary.HasUpdates);

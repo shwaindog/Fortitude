@@ -1,6 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
 
-using FortitudeCommon.Types;
+#region
+
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarkets.Trading.Orders;
@@ -17,14 +20,15 @@ public class OrxOrderAmendResponse : OrxOrderUpdate, IOrderAmendResponse
 
     public OrxOrderAmendResponse(IOrderAmendResponse toClone) : base(toClone)
     {
-        AmendType = toClone.AmendType;
+        AmendType  = toClone.AmendType;
         OldOrderId = toClone.OldOrderId != null ? new OrxOrderId(toClone.OldOrderId) : null;
     }
 
-    public OrxOrderAmendResponse(OrxOrder order, OrderUpdateEventType reason, DateTime adapterUpdateTime,
+    public OrxOrderAmendResponse
+    (OrxOrder order, OrderUpdateEventType reason, DateTime adapterUpdateTime,
         AmendType amendType, OrxOrderId? oldOrderId) : base(order, reason, adapterUpdateTime)
     {
-        AmendType = amendType;
+        AmendType  = amendType;
         OldOrderId = oldOrderId;
     }
 
@@ -44,7 +48,7 @@ public class OrxOrderAmendResponse : OrxOrderUpdate, IOrderAmendResponse
     {
         OldOrderId?.DecrementRefCount();
         OldOrderId = null;
-        AmendType = default;
+        AmendType  = default;
         base.StateReset();
     }
 
@@ -52,8 +56,8 @@ public class OrxOrderAmendResponse : OrxOrderUpdate, IOrderAmendResponse
         (IOrderAmendResponse?)Recycler?.Borrow<OrxOrderAmendResponse>().CopyFrom(this) ??
         new OrxOrderAmendResponse(this);
 
-    public override IVersionedMessage CopyFrom(IVersionedMessage source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IVersionedMessage CopyFrom
+        (IVersionedMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is IOrderAmendResponse amendResponse)

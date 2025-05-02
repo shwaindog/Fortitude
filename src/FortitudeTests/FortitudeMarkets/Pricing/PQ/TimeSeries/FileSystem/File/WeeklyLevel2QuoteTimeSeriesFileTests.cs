@@ -3,6 +3,7 @@
 
 #region
 
+using System.Diagnostics;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
@@ -100,7 +101,7 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
                      ($"TestInstrumentName{layerType}",
                       $"TestSourceName_{Interlocked.Increment(ref testCounter)}", InstrumentType.Price
                     , new DiscreetTimePeriod(TimeBoundaryPeriod.Tick), instrumentFields, optionalInstrumentFields),
-                 TimeBoundaryPeriod.OneWeek, DateTime.UtcNow.Date, 7, fileFlags, 6);
+                 TimeBoundaryPeriod.OneWeek, DateTime.UtcNow.Date, 7, fileFlags, 16);
         var createPriceQuoteFile = new PriceTimeSeriesFileParameters(level2SrcTkrInfo, createTestCreateFileParameters);
         level2OneWeekFile   = new WeeklyLevel2QuoteTimeSeriesFile(createPriceQuoteFile);
         level2SessionWriter = level2OneWeekFile.GetWriterSession()!;
@@ -318,6 +319,10 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         foreach (var firstPeriod in toPersistAndCheck)
         {
             var result = level2SessionWriter.AppendEntry(firstPeriod);
+            if (result.StorageAttemptResult == StorageAttemptResult.StorageSizeFailure)
+            {
+                Debugger.Break();
+            }
             Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         }
         level2OneWeekFile.AutoCloseOnZeroSessions = false;

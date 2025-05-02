@@ -7,6 +7,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.Summaries;
@@ -86,15 +87,16 @@ public interface IPQPriceStoragePeriodSummary : IMutablePricePeriodSummary, ITra
 
 public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPriceStoragePeriodSummary, ICloneable<PQPriceStoragePeriodSummary>
 {
-    private decimal averageAskPrice;
-    private decimal averageBidPrice;
-    private uint    deltaPeriodsFromPrevious;
-    private decimal endAskPrice;
-    private decimal endBidPrice;
-    private decimal highestAskPrice;
-    private decimal highestBidPrice;
-    private decimal lowestAskPrice;
-    private decimal lowestBidPrice;
+    private   decimal averageAskPrice;
+    private   decimal averageBidPrice;
+    private   uint    deltaPeriodsFromPrevious;
+    private   decimal endAskPrice;
+    private   decimal endBidPrice;
+    private   decimal highestAskPrice;
+    private   decimal highestBidPrice;
+    private   decimal lowestAskPrice;
+    private   decimal lowestBidPrice;
+    protected uint    NumUpdatesSinceEmpty = uint.MaxValue;
 
     private PricePeriodSummaryFlags periodSummaryFlags;
 
@@ -117,6 +119,8 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
     {
         SummaryStorageFlags |= Snapshot;
         PeriodSummaryFlags  =  PricePeriodSummaryFlags.FromStorage;
+
+        if (GetType() == typeof(PQPriceStoragePeriodSummary)) NumUpdatesSinceEmpty = 0;
     }
 
     public PQPriceStoragePeriodSummary(IPQPriceStoragePeriodSummary toClone)
@@ -138,6 +142,8 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         PeriodSummaryFlags = toClone.PeriodSummaryFlags | PricePeriodSummaryFlags.FromStorage;
         AverageBidPrice    = toClone.AverageBidPrice;
         AverageAskPrice    = toClone.AverageBidPrice;
+
+        if (GetType() == typeof(PQPriceStoragePeriodSummary)) NumUpdatesSinceEmpty = 0;
     }
 
     public override PQPriceStoragePeriodSummary Clone() =>
@@ -259,6 +265,8 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
             PeriodSummaryFlags  = PricePeriodSummaryFlags.FromStorage;
             PeriodStartTime     = PeriodEndTime = DateTimeConstants.UnixEpoch;
             SummaryStorageFlags = None;
+
+            NumUpdatesSinceEmpty = 0;
         }
     }
 
@@ -434,6 +442,14 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         }
     }
 
+    public uint UpdateCount => NumUpdatesSinceEmpty;
+
+    public void UpdateComplete()
+    {
+        if (HasUpdates && !IsEmpty) NumUpdatesSinceEmpty++;
+        HasUpdates = false;
+    }
+
     public IPricePeriodSummary? Previous { get; set; }
 
     public IPricePeriodSummary? Next { get; set; }
@@ -475,15 +491,19 @@ public class PQPriceStoragePeriodSummary : ReusableObject<IPricePeriodSummary>, 
         Next       = Previous = null;
         IsEmpty    = true;
         HasUpdates = false;
+
+        NumUpdatesSinceEmpty = 0;
         base.StateReset();
     }
 
-    IStoreState IStoreState.CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
+    ITransferState ITransferState.CopyFrom
+        (ITransferState source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPricePeriodSummary)source, copyMergeFlags);
 
     IMutablePricePeriodSummary IMutablePricePeriodSummary.Clone() =>
         Recycler?.Borrow<PQPriceStoragePeriodSummary>().CopyFrom(this) as IMutablePricePeriodSummary ?? new PQPriceStoragePeriodSummary(this);
 
-    IReusableObject<IPricePeriodSummary> IStoreState<IReusableObject<IPricePeriodSummary>>.CopyFrom
+    IReusableObject<IPricePeriodSummary> ITransferState<IReusableObject<IPricePeriodSummary>>.CopyFrom
         (IReusableObject<IPricePeriodSummary> source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IMutablePricePeriodSummary)source, copyMergeFlags);
 

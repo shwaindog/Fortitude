@@ -5,6 +5,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -73,11 +74,11 @@ public class BidAsk : ReusableObject<IMutableBidAsk>, IMutableBidAsk
     public decimal BidPrice { get; set; }
     public decimal AskPrice { get; set; }
 
-    IBidAskPair IStoreState<IBidAskPair>.CopyFrom
+    IBidAskPair ITransferState<IBidAskPair>.CopyFrom
         (IBidAskPair source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IMutableBidAsk)source, copyMergeFlags);
 
-    IReusableObject<IBidAskPair> IStoreState<IReusableObject<IBidAskPair>>.CopyFrom
+    IReusableObject<IBidAskPair> ITransferState<IReusableObject<IBidAskPair>>.CopyFrom
         (IReusableObject<IBidAskPair> source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IMutableBidAsk)source, copyMergeFlags);
 

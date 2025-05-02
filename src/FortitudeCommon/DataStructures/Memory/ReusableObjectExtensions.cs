@@ -1,6 +1,10 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -15,9 +19,9 @@ public static class ReusableObjectExtensions
         return null;
     }
 
-    public static TReturn? CopyOrClone<TCommon, TReturn>(this TCommon? source, TReturn? preExisting
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-        where TReturn : class, IStoreState<TCommon>, IRecyclableObject, new() where TCommon : class, IRecyclableObject
+    public static TReturn? CopyOrClone<TCommon, TReturn>
+        (this TCommon? source, TReturn? preExisting, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+        where TReturn : class, ITransferState<TCommon>, IRecyclableObject, new() where TCommon : class, IRecyclableObject
     {
         if (preExisting != null && source != null)
         {
@@ -37,9 +41,9 @@ public static class ReusableObjectExtensions
     }
 
 
-    public static TReturn? SyncOrRecycle<TCommon, TReturn>(this TCommon? source, TReturn? preExisting
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-        where TReturn : class, IStoreState<TCommon>, IRecyclableObject, new() where TCommon : class, IRecyclableObject
+    public static TReturn? SyncOrRecycle<TCommon, TReturn>
+        (this TCommon? source, TReturn? preExisting, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+        where TReturn : class, ITransferState<TCommon>, IRecyclableObject, new() where TCommon : class, IRecyclableObject
     {
         if (source != null) return source.CopyOrClone(preExisting, copyMergeFlags);
         preExisting?.DecrementRefCount();

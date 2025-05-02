@@ -4,7 +4,7 @@
 #region
 
 using System.Text.Json.Serialization;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
@@ -43,6 +43,8 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         TradeVolume = tradeVolume;
         WasPaid     = wasPaid;
         WasGiven    = wasGiven;
+
+        if (GetType() == typeof(PQLastPaidGivenTrade)) NumUpdatesSinceEmpty = 0;
     }
 
     public PQLastPaidGivenTrade(ILastTrade toClone) : base(toClone)
@@ -62,6 +64,8 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         }
 
         if (toClone is PQLastPaidGivenTrade pqLastPaidGiven) UpdatedFlags = pqLastPaidGiven.UpdatedFlags;
+
+        if (GetType() == typeof(PQLastPaidGivenTrade)) NumUpdatesSinceEmpty = 0;
     }
 
     protected string PQLastPaidGivenTradeToStringMembers =>
@@ -81,8 +85,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         get => (LastTradeBooleanFlags & LastTradeBooleanFlags.WasPaid) > 0;
         set
         {
-            if (WasPaid == value) return;
-            IsWasPaidUpdated = true;
+            IsWasPaidUpdated |= WasPaid != value || NumUpdatesSinceEmpty == 0;
             if (value)
                 LastTradeBooleanFlags |= LastTradeBooleanFlags.WasPaid;
 
@@ -110,8 +113,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         get => (LastTradeBooleanFlags & LastTradeBooleanFlags.WasGiven) > 0;
         set
         {
-            if (WasGiven == value) return;
-            IsWasGivenUpdated = true;
+            IsWasGivenUpdated |= WasGiven != value || NumUpdatesSinceEmpty == 0;
             if (value)
                 LastTradeBooleanFlags |= LastTradeBooleanFlags.WasGiven;
 
@@ -138,9 +140,8 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         get => tradeVolume;
         set
         {
-            if (tradeVolume == value) return;
-            IsTradeVolumeUpdated = true;
-            tradeVolume          = value;
+            IsTradeVolumeUpdated |= tradeVolume != value || NumUpdatesSinceEmpty == 0;
+            tradeVolume          =  value;
         }
     }
 
@@ -194,7 +195,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         foreach (var deltaUpdateField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                    quotePublicationPrecisionSetting))
             yield return deltaUpdateField;
-        if (!updatedOnly || IsWasGivenUpdated || IsWasPaidUpdated)
+        if (!updatedOnly || IsBooleanFlagsChanged())
             yield return new PQFieldUpdate(PQQuoteFields.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags);
         if (!updatedOnly || IsTradeVolumeUpdated)
             yield return new PQFieldUpdate(PQQuoteFields.LastTradedOrderVolume, TradeVolume,
@@ -264,6 +265,8 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         var wasGivenSame = WasGiven == pqLastPaidGivenTrader.WasGiven;
         return baseSame && traderVolumeSame && wasPaidSame && wasGivenSame;
     }
+
+    protected virtual bool IsBooleanFlagsChanged() => IsWasGivenUpdated || IsWasPaidUpdated;
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ILastTrade, true);
 

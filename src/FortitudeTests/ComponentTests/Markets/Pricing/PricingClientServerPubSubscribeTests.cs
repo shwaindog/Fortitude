@@ -145,9 +145,9 @@ public class PricingClientServerPubSubscribeTests
         NonPublicInvocator.SetAutoPropertyInstanceField
             (destinationSnapshot, (Level2PriceQuote pq) => pq.ClientReceivedTime, sourcePriceQuote.ClientReceivedTime);
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (destinationSnapshot, (Level2PriceQuote pq) => pq.IsAskPriceTopUpdated, sourcePriceQuote.IsAskPriceTopUpdated);
+            (destinationSnapshot, (Level2PriceQuote pq) => pq.IsAskPriceTopChanged, sourcePriceQuote.IsAskPriceTopChanged);
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (destinationSnapshot, (Level2PriceQuote pq) => pq.IsBidPriceTopUpdated, sourcePriceQuote.IsBidPriceTopUpdated);
+            (destinationSnapshot, (Level2PriceQuote pq) => pq.IsBidPriceTopChanged, sourcePriceQuote.IsBidPriceTopChanged);
     }
 
     [TestCategory("Integration")]
@@ -244,9 +244,9 @@ public class PricingClientServerPubSubscribeTests
 
     private static void ResetL2QuoteLayers(Level2PriceQuote level2PriceQuote)
     {
-        ((OrderBook)level2PriceQuote.BidBook).StateReset();
+        ((OrderBookSide)level2PriceQuote.BidBookSide).StateReset();
         ((IMutableLevel2Quote)level2PriceQuote).IsBidBookChanged = true;
-        ((OrderBook)level2PriceQuote.AskBook).StateReset();
+        ((OrderBookSide)level2PriceQuote.AskBookSide).StateReset();
         ((IMutableLevel2Quote)level2PriceQuote).IsAskBookChanged = true;
 
         level2PriceQuote.SingleTickValue = 0m;

@@ -965,8 +965,8 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayerTests
     (bool exactComparison,
         PQSourceQuoteRefOrdersValueDatePriceVolumeLayer? original,
         PQSourceQuoteRefOrdersValueDatePriceVolumeLayer? changingPriceVolumeLayer,
-        IOrderBook? originalOrderBook = null,
-        IOrderBook? changingOrderBook = null,
+        IOrderBookSide? originalOrderBook = null,
+        IOrderBookSide? changingOrderBook = null,
         ILevel2Quote? originalQuote = null,
         ILevel2Quote? changingQuote = null)
     {

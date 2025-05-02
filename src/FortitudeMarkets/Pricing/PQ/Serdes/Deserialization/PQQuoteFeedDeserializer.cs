@@ -40,11 +40,14 @@ internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T :
         if ((readContext.MarshalType & MarshalType.Binary) == 0) throw new ArgumentException("Expected readContext to be a binary buffer context");
         if (readContext is IMessageBufferContext bufferContext)
         {
-            var sockBuffContext                                           = bufferContext as SocketBufferReadContext;
+            var sockBuffContext = bufferContext as SocketBufferReadContext;
+
             if (sockBuffContext != null) sockBuffContext.DeserializerTime = TimeContext.UtcNow;
-            using var fixedBuffer                                         = bufferContext.EncodedBuffer!;
-            var       ptr                                                 = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
-            var       sequenceId                                          = StreamByteOps.ToUInt(ref ptr);
+
+            using var fixedBuffer = bufferContext.EncodedBuffer!;
+
+            var ptr        = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+            var sequenceId = StreamByteOps.ToUInt(ref ptr);
             UpdateQuote(bufferContext, PublishedQuote, sequenceId);
             PushQuoteToSubscribers(FeedSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);
             if (feedIsStopped)

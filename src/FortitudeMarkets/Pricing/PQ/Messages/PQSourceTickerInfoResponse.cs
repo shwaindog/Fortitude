@@ -4,7 +4,7 @@
 #region
 
 using FortitudeCommon.DataStructures.Collections;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeMarkets.Pricing.Quotes;
 

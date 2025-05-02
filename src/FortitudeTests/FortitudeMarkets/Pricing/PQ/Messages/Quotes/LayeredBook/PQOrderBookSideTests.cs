@@ -22,7 +22,7 @@ using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
 namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 
 [TestClass]
-public class PQOrderBookTests
+public class PQOrderBookSideTests
 {
     private const int MaxNumberOfLayers = 19; // test being less than max.
 
@@ -34,57 +34,61 @@ public class PQOrderBookTests
     private const int     ExpectedOrdersCount    = 3; // not too many traders.
     private const decimal ExpectedInternalVolume = 20_000_000m;
 
-    private const int             ExpectedOrderId              = 250;
-    private const LayerOrderFlags ExpectedOrderFlags           = LayerOrderFlags.CreatedFromSource;
-    private const decimal         ExpectedOrderVolume          = 50.50m;
-    private const decimal         ExpectedOrderRemainingVolume = 10.25m;
-    private const string          ExpectedCounterPartyBase     = "TestCounterPartyName_";
-    private const string          ExpectedTraderNameBase       = "TestTraderName_";
+    private const LayerOrderFlags ExpectedOrderFlags = LayerOrderFlags.CreatedFromSource;
+
+    private const int     ExpectedOrderId              = 250;
+    private const decimal ExpectedOrderVolume          = 50.50m;
+    private const decimal ExpectedOrderRemainingVolume = 10.25m;
+    private const string  ExpectedCounterPartyBase     = "TestCounterPartyName_";
+    private const string  ExpectedTraderNameBase       = "TestTraderName_";
 
     private static readonly DateTime ExpectedValueDate        = new(2017, 12, 09, 14, 0, 0);
     private static readonly DateTime ExpectedOrderCreatedTime = new DateTime(2025, 4, 21, 6, 27, 23).AddMilliseconds(123).AddMicroseconds(456);
     private static readonly DateTime ExpectedOrderUpdatedTime = new DateTime(2025, 4, 21, 12, 8, 59).AddMilliseconds(789).AddMicroseconds(213);
 
-    private PQOrderBook allFieldsFullyPopulatedOrderBook = null!;
+    private IPQOrderBookSide allFieldsFullyPopulatedOrderBookSide = null!;
 
     private IList<IPQSourceQuoteRefOrdersValueDatePriceVolumeLayer> allFieldsLayers = null!;
 
     private List<IReadOnlyList<IPQPriceVolumeLayer?>> allPopulatedLayers = null!;
 
-    private List<PQOrderBook> allPopulatedOrderBooks = null!;
+    private List<IPQOrderBookSide> allPopulatedOrderBooks = null!;
 
-    private PQNameIdLookupGenerator               nameIdLookupGenerator                     = null!;
-    private PQOrderBook                           ordersAnonFullyPopulatedOrderBook         = null!;
-    private IList<IPQOrdersPriceVolumeLayer>      ordersAnonLayers                          = null!;
-    private PQOrderBook                           ordersCounterPartyFullyPopulatedOrderBook = null!;
-    private IList<IPQOrdersPriceVolumeLayer>      ordersCounterPartyLayers                  = null!;
-    private PQOrderBook                           ordersCountFullyPopulatedOrderBook        = null!;
-    private IList<IPQOrdersCountPriceVolumeLayer> ordersCountLayers                         = null!;
+    private PQNameIdLookupGenerator          nameIdLookupGenerator                         = null!;
+    private IPQOrderBookSide                 ordersAnonFullyPopulatedOrderBookSide         = null!;
+    private IList<IPQOrdersPriceVolumeLayer> ordersAnonLayers                              = null!;
+    private IPQOrderBookSide                 ordersCounterPartyFullyPopulatedOrderBookSide = null!;
+    private IList<IPQOrdersPriceVolumeLayer> ordersCounterPartyLayers                      = null!;
+    private IPQOrderBookSide                 ordersCountFullyPopulatedOrderBookSide        = null!;
+
+    private IList<IPQOrdersCountPriceVolumeLayer> ordersCountLayers = null!;
 
     private PQSourceTickerInfo publicationPrecisionSettings = null!;
 
-    private PQOrderBook                              simpleFullyPopulatedOrderBook      = null!;
-    private IList<IPQPriceVolumeLayer>               simpleLayers                       = null!;
-    private PQOrderBook                              sourceFullyPopulatedOrderBook      = null!;
-    private IList<IPQSourcePriceVolumeLayer>         sourceLayers                       = null!;
-    private PQOrderBook                              sourceQtRefFullyPopulatedOrderBook = null!;
-    private IList<IPQSourceQuoteRefPriceVolumeLayer> sourceQtRefLayers                  = null!;
-    private PQOrderBook                              valueDateFullyPopulatedOrderBook   = null!;
-    private IList<IPQValueDatePriceVolumeLayer>      valueDateLayers                    = null!;
+    private IPQOrderBookSide simpleFullyPopulatedOrderBookSide = null!;
+
+    private IList<IPQPriceVolumeLayer>       simpleLayers                           = null!;
+    private IPQOrderBookSide                 sourceFullyPopulatedOrderBookSide      = null!;
+    private IList<IPQSourcePriceVolumeLayer> sourceLayers                           = null!;
+    private IPQOrderBookSide                 sourceQtRefFullyPopulatedOrderBookSide = null!;
+
+    private IList<IPQSourceQuoteRefPriceVolumeLayer> sourceQtRefLayers                    = null!;
+    private IPQOrderBookSide                         valueDateFullyPopulatedOrderBookSide = null!;
+    private IList<IPQValueDatePriceVolumeLayer>      valueDateLayers                      = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        nameIdLookupGenerator = new PQNameIdLookupGenerator(PQQuoteFields.LayerNameDictionaryUpsertCommand);
-
-        simpleLayers             = new List<IPQPriceVolumeLayer>(MaxNumberOfLayers);
-        sourceLayers             = new List<IPQSourcePriceVolumeLayer>(MaxNumberOfLayers);
-        sourceQtRefLayers        = new List<IPQSourceQuoteRefPriceVolumeLayer>(MaxNumberOfLayers);
-        valueDateLayers          = new List<IPQValueDatePriceVolumeLayer>(MaxNumberOfLayers);
-        ordersCountLayers        = new List<IPQOrdersCountPriceVolumeLayer>(MaxNumberOfLayers);
-        ordersAnonLayers         = new List<IPQOrdersPriceVolumeLayer>(MaxNumberOfLayers);
+        nameIdLookupGenerator    = new PQNameIdLookupGenerator(PQQuoteFields.LayerNameDictionaryUpsertCommand);
         ordersCounterPartyLayers = new List<IPQOrdersPriceVolumeLayer>(MaxNumberOfLayers);
-        allFieldsLayers          = new List<IPQSourceQuoteRefOrdersValueDatePriceVolumeLayer>(MaxNumberOfLayers);
+
+        simpleLayers      = new List<IPQPriceVolumeLayer>(MaxNumberOfLayers);
+        sourceLayers      = new List<IPQSourcePriceVolumeLayer>(MaxNumberOfLayers);
+        sourceQtRefLayers = new List<IPQSourceQuoteRefPriceVolumeLayer>(MaxNumberOfLayers);
+        valueDateLayers   = new List<IPQValueDatePriceVolumeLayer>(MaxNumberOfLayers);
+        ordersCountLayers = new List<IPQOrdersCountPriceVolumeLayer>(MaxNumberOfLayers);
+        ordersAnonLayers  = new List<IPQOrdersPriceVolumeLayer>(MaxNumberOfLayers);
+        allFieldsLayers   = new List<IPQSourceQuoteRefOrdersValueDatePriceVolumeLayer>(MaxNumberOfLayers);
 
         // placed in the same order as the orderBooks at the end of Setup
         allPopulatedLayers = new List<IReadOnlyList<IPQPriceVolumeLayer?>>
@@ -126,13 +130,15 @@ public class PQOrderBookTests
             ordersCounterPartyLayers.Add(counterPartyOrdersPvL);
             for (var j = 0; j < ExpectedOrdersCount; j++)
             {
-                allFieldsPvL.Add(new PQCounterPartyOrderLayerInfo
-                                     (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderFlags, ExpectedOrderCreatedTime, ExpectedOrderVolume
-                                    , ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedCounterPartyBase + i
-                                    , ExpectedTraderNameBase + i));
-                anonOrdersPvL.Add(new PQAnonymousOrderLayerInfo
-                                      (ExpectedOrderId, ExpectedOrderFlags, ExpectedOrderCreatedTime, ExpectedOrderVolume
-                                     , ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume));
+                allFieldsPvL.Add
+                    (new PQCounterPartyOrderLayerInfo
+                        (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderFlags, ExpectedOrderCreatedTime, ExpectedOrderVolume
+                       , ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedCounterPartyBase + i
+                       , ExpectedTraderNameBase + i));
+                anonOrdersPvL.Add
+                    (new PQAnonymousOrderLayerInfo
+                        (ExpectedOrderId, ExpectedOrderFlags, ExpectedOrderCreatedTime, ExpectedOrderVolume
+                       , ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume));
                 counterPartyOrdersPvL.Add
                     (new PQCounterPartyOrderLayerInfo
                         (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderFlags, ExpectedOrderCreatedTime, ExpectedOrderVolume,
@@ -140,21 +146,22 @@ public class PQOrderBookTests
             }
         }
 
-        simpleFullyPopulatedOrderBook             = new PQOrderBook(BookSide.BidBook, simpleLayers);
-        sourceFullyPopulatedOrderBook             = new PQOrderBook(BookSide.BidBook, sourceLayers);
-        sourceQtRefFullyPopulatedOrderBook        = new PQOrderBook(BookSide.BidBook, sourceQtRefLayers);
-        ordersCountFullyPopulatedOrderBook        = new PQOrderBook(BookSide.BidBook, ordersCountLayers);
-        ordersAnonFullyPopulatedOrderBook         = new PQOrderBook(BookSide.BidBook, ordersAnonLayers);
-        ordersCounterPartyFullyPopulatedOrderBook = new PQOrderBook(BookSide.BidBook, ordersCounterPartyLayers);
-        valueDateFullyPopulatedOrderBook          = new PQOrderBook(BookSide.BidBook, valueDateLayers);
+        simpleFullyPopulatedOrderBookSide      = new PQOrderBookSide(BookSide.BidBook, simpleLayers);
+        sourceFullyPopulatedOrderBookSide      = new PQOrderBookSide(BookSide.BidBook, sourceLayers);
+        sourceQtRefFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, sourceQtRefLayers);
+        ordersCountFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, ordersCountLayers);
+        ordersAnonFullyPopulatedOrderBookSide  = new PQOrderBookSide(BookSide.BidBook, ordersAnonLayers);
+        valueDateFullyPopulatedOrderBookSide   = new PQOrderBookSide(BookSide.BidBook, valueDateLayers);
 
-        allFieldsFullyPopulatedOrderBook = new PQOrderBook(BookSide.BidBook, allFieldsLayers);
+        ordersCounterPartyFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, ordersCounterPartyLayers);
 
-        allPopulatedOrderBooks = new List<PQOrderBook>
+        allFieldsFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, allFieldsLayers);
+
+        allPopulatedOrderBooks = new List<IPQOrderBookSide>
         {
-            simpleFullyPopulatedOrderBook, sourceFullyPopulatedOrderBook, sourceQtRefFullyPopulatedOrderBook
-          , valueDateFullyPopulatedOrderBook, ordersCountFullyPopulatedOrderBook, ordersAnonFullyPopulatedOrderBook
-          , ordersCounterPartyFullyPopulatedOrderBook, allFieldsFullyPopulatedOrderBook
+            simpleFullyPopulatedOrderBookSide, sourceFullyPopulatedOrderBookSide, sourceQtRefFullyPopulatedOrderBookSide
+          , valueDateFullyPopulatedOrderBookSide, ordersCountFullyPopulatedOrderBookSide, ordersAnonFullyPopulatedOrderBookSide
+          , ordersCounterPartyFullyPopulatedOrderBookSide, allFieldsFullyPopulatedOrderBookSide
         };
         // {
         //     ordersAnonFullyPopulatedOrderBook
@@ -173,44 +180,44 @@ public class PQOrderBookTests
     public void FromSourceTickerInfo_New_InitializesOrderBookWithExpectedLayerTypes()
     {
         publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume;
-        var orderBook = new PQOrderBook(BookSide.BidBook, publicationPrecisionSettings);
+        var orderBook = new PQOrderBookSide(BookSide.BidBook, publicationPrecisionSettings);
         AssertBookHasLayersOfType(orderBook, typeof(PQPriceVolumeLayer));
 
         publicationPrecisionSettings.LayerFlags =
             LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName | LayerFlags.Executable;
-        orderBook = new PQOrderBook(BookSide.AskBook, publicationPrecisionSettings);
+        orderBook = new PQOrderBookSide(BookSide.AskBook, publicationPrecisionSettings);
 
         AssertBookHasLayersOfType(orderBook, typeof(PQSourcePriceVolumeLayer));
         publicationPrecisionSettings.LayerFlags =
             LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName | LayerFlags.Executable | LayerFlags.SourceQuoteReference;
-        orderBook = new PQOrderBook(BookSide.BidBook, publicationPrecisionSettings);
+        orderBook = new PQOrderBookSide(BookSide.BidBook, publicationPrecisionSettings);
         AssertBookHasLayersOfType(orderBook, typeof(PQSourceQuoteRefPriceVolumeLayer));
 
         publicationPrecisionSettings.LayerFlags =
             LayerFlags.Price | LayerFlags.Volume | LayerFlags.ValueDate;
-        orderBook = new PQOrderBook(BookSide.AskBook, publicationPrecisionSettings);
+        orderBook = new PQOrderBookSide(BookSide.AskBook, publicationPrecisionSettings);
         AssertBookHasLayersOfType(orderBook, typeof(PQValueDatePriceVolumeLayer));
 
         publicationPrecisionSettings.LayerFlags =
             LayerFlags.Price | LayerFlags.Volume | LayerFlags.OrdersCount;
-        orderBook = new PQOrderBook(BookSide.BidBook, publicationPrecisionSettings);
+        orderBook = new PQOrderBookSide(BookSide.BidBook, publicationPrecisionSettings);
         AssertBookHasLayersOfType(orderBook, typeof(PQOrdersCountPriceVolumeLayer));
 
         publicationPrecisionSettings.LayerFlags =
             LayerFlags.Price | LayerFlags.Volume | LayerFlags.OrdersCount | LayerFlags.OrderId | LayerFlags.OrderCreated
           | LayerFlags.OrderUpdated | LayerFlags.OrderSize | LayerFlags.OrderRemainingSize;
-        orderBook = new PQOrderBook(BookSide.BidBook, publicationPrecisionSettings);
+        orderBook = new PQOrderBookSide(BookSide.BidBook, publicationPrecisionSettings);
         AssertBookHasLayersOfType(orderBook, typeof(PQOrdersCountPriceVolumeLayer));
 
         publicationPrecisionSettings.LayerFlags =
             LayerFlags.Price | LayerFlags.Volume | LayerFlags.OrdersCount | LayerFlags.OrderId | LayerFlags.OrderCreated
           | LayerFlags.OrderUpdated | LayerFlags.OrderSize | LayerFlags.OrderRemainingSize | LayerFlags.OrderCounterPartyName |
             LayerFlags.OrderTraderName;
-        orderBook = new PQOrderBook(BookSide.BidBook, publicationPrecisionSettings);
+        orderBook = new PQOrderBookSide(BookSide.BidBook, publicationPrecisionSettings);
         AssertBookHasLayersOfType(orderBook, typeof(PQOrdersPriceVolumeLayer));
 
         publicationPrecisionSettings.LayerFlags = LayerFlags.Price.AllFlags();
-        orderBook                               = new PQOrderBook(BookSide.AskBook, publicationPrecisionSettings);
+        orderBook                               = new PQOrderBookSide(BookSide.AskBook, publicationPrecisionSettings);
         AssertBookHasLayersOfType(orderBook, typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer));
     }
 
@@ -221,91 +228,91 @@ public class PQOrderBookTests
         {
             new PriceVolumeLayer()
         };
-        var orderBook = new PQOrderBook(BookSide.BidBook, nonPQList);
+        var orderBook = new PQOrderBookSide(BookSide.BidBook, nonPQList);
         Assert.IsInstanceOfType(orderBook[0], typeof(PQPriceVolumeLayer));
 
         nonPQList.Clear();
         nonPQList.Add(new SourcePriceVolumeLayer());
-        orderBook = new PQOrderBook(BookSide.AskBook, nonPQList);
+        orderBook = new PQOrderBookSide(BookSide.AskBook, nonPQList);
         Assert.IsInstanceOfType(orderBook[0], typeof(PQSourcePriceVolumeLayer));
 
         nonPQList.Clear();
         nonPQList.Add(new SourceQuoteRefPriceVolumeLayer());
-        orderBook = new PQOrderBook(BookSide.BidBook, nonPQList);
+        orderBook = new PQOrderBookSide(BookSide.BidBook, nonPQList);
         Assert.IsInstanceOfType(orderBook[0], typeof(PQSourceQuoteRefPriceVolumeLayer));
 
         nonPQList.Clear();
         nonPQList.Add(new ValueDatePriceVolumeLayer());
-        orderBook = new PQOrderBook(BookSide.AskBook, nonPQList);
+        orderBook = new PQOrderBookSide(BookSide.AskBook, nonPQList);
         Assert.IsInstanceOfType(orderBook[0], typeof(PQValueDatePriceVolumeLayer));
 
         nonPQList.Clear();
         nonPQList.Add(new OrdersCountPriceVolumeLayer());
-        orderBook = new PQOrderBook(BookSide.BidBook, nonPQList);
+        orderBook = new PQOrderBookSide(BookSide.BidBook, nonPQList);
         Assert.IsInstanceOfType(orderBook[0], typeof(PQOrdersCountPriceVolumeLayer));
 
         nonPQList.Clear();
         nonPQList.Add(new OrdersPriceVolumeLayer());
-        orderBook = new PQOrderBook(BookSide.BidBook, nonPQList);
+        orderBook = new PQOrderBookSide(BookSide.BidBook, nonPQList);
         Assert.IsInstanceOfType(orderBook[0], typeof(PQOrdersPriceVolumeLayer));
 
         nonPQList.Clear();
         nonPQList.Add(new SourceQuoteRefOrdersValueDatePriceVolumeLayer());
-        orderBook = new PQOrderBook(BookSide.AskBook, nonPQList);
+        orderBook = new PQOrderBookSide(BookSide.AskBook, nonPQList);
         Assert.IsInstanceOfType(orderBook[0], typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer));
 
-        orderBook = new PQOrderBook();
+        orderBook = new PQOrderBookSide();
         Assert.AreEqual(0, orderBook.Count);
     }
 
     [TestMethod]
     public void PQOrderBook_InitializedFromOrderBook_ConvertsLayers()
     {
-        var nonPqOrderBook = new OrderBook(BookSide.BidBook, publicationPrecisionSettings);
-        var pqorderBook    = new PQOrderBook(nonPqOrderBook);
+        var nonPqOrderBook = new OrderBookSide(BookSide.BidBook, publicationPrecisionSettings);
+        var pqorderBook    = new PQOrderBookSide(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQPriceVolumeLayer));
 
         publicationPrecisionSettings.LayerFlags =
             LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName | LayerFlags.Executable;
-        nonPqOrderBook = new OrderBook(BookSide.AskBook, publicationPrecisionSettings);
-        pqorderBook    = new PQOrderBook(nonPqOrderBook);
+        nonPqOrderBook = new OrderBookSide(BookSide.AskBook, publicationPrecisionSettings);
+        pqorderBook    = new PQOrderBookSide(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQSourcePriceVolumeLayer));
 
         publicationPrecisionSettings.LayerFlags =
             LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName | LayerFlags.Executable | LayerFlags.SourceQuoteReference;
-        nonPqOrderBook = new OrderBook(BookSide.BidBook, publicationPrecisionSettings);
-        pqorderBook    = new PQOrderBook(nonPqOrderBook);
+        nonPqOrderBook = new OrderBookSide(BookSide.BidBook, publicationPrecisionSettings);
+        pqorderBook    = new PQOrderBookSide(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQSourceQuoteRefPriceVolumeLayer));
 
         publicationPrecisionSettings.LayerFlags =
             LayerFlags.Price | LayerFlags.Volume | LayerFlags.ValueDate;
-        nonPqOrderBook = new OrderBook(BookSide.AskBook, publicationPrecisionSettings);
-        pqorderBook    = new PQOrderBook(nonPqOrderBook);
+        nonPqOrderBook = new OrderBookSide(BookSide.AskBook, publicationPrecisionSettings);
+        pqorderBook    = new PQOrderBookSide(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQValueDatePriceVolumeLayer));
 
         publicationPrecisionSettings.LayerFlags =
             LayerFlags.Price | LayerFlags.Volume | LayerFlags.OrdersCount;
-        nonPqOrderBook = new OrderBook(BookSide.BidBook, publicationPrecisionSettings);
-        pqorderBook    = new PQOrderBook(nonPqOrderBook);
+        nonPqOrderBook = new OrderBookSide(BookSide.BidBook, publicationPrecisionSettings);
+        pqorderBook    = new PQOrderBookSide(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQOrdersCountPriceVolumeLayer));
 
         publicationPrecisionSettings.LayerFlags =
             LayerFlags.Price | LayerFlags.Volume | LayerFlags.OrdersCount | LayerFlags.OrderId | LayerFlags.OrderCreated
           | LayerFlags.OrderUpdated | LayerFlags.OrderSize | LayerFlags.OrderRemainingSize;
-        nonPqOrderBook = new OrderBook(BookSide.BidBook, publicationPrecisionSettings);
-        pqorderBook    = new PQOrderBook(nonPqOrderBook);
+        nonPqOrderBook = new OrderBookSide(BookSide.BidBook, publicationPrecisionSettings);
+        pqorderBook    = new PQOrderBookSide(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQOrdersPriceVolumeLayer));
 
         publicationPrecisionSettings.LayerFlags =
             LayerFlags.Price | LayerFlags.Volume | LayerFlags.OrderTraderName | LayerFlags.OrdersCount | LayerFlags.OrderSize;
-        nonPqOrderBook = new OrderBook(BookSide.BidBook, publicationPrecisionSettings);
-        pqorderBook    = new PQOrderBook(nonPqOrderBook);
+        nonPqOrderBook = new OrderBookSide(BookSide.BidBook, publicationPrecisionSettings);
+        pqorderBook    = new PQOrderBookSide(nonPqOrderBook);
         AssertBookHasLayersOfType(pqorderBook, typeof(PQOrdersPriceVolumeLayer));
 
         publicationPrecisionSettings.LayerFlags = LayerFlags.Price.AllFlags();
 
-        nonPqOrderBook = new OrderBook(BookSide.AskBook, publicationPrecisionSettings);
-        pqorderBook    = new PQOrderBook(nonPqOrderBook);
+        nonPqOrderBook = new OrderBookSide(BookSide.AskBook, publicationPrecisionSettings);
+        pqorderBook    = new PQOrderBookSide(nonPqOrderBook);
 
         AssertBookHasLayersOfType(pqorderBook, typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer));
     }
@@ -328,15 +335,15 @@ public class PQOrderBookTests
         for (var i = 0; i < allPopulatedOrderBooks.Count; i++)
         {
             var populatedOrderBook = allPopulatedOrderBooks[i];
-            var clonedOrderBook    = new PQOrderBook(populatedOrderBook);
+            var clonedOrderBook    = new PQOrderBookSide(populatedOrderBook);
             Assert.AreEqual(MaxNumberOfLayers, clonedOrderBook.AllLayers.Count);
             for (var j = 0; j < ExpectedOrdersCount; j++) Assert.AreNotSame(populatedOrderBook[j], clonedOrderBook[j]);
         }
 
         publicationPrecisionSettings.LayerFlags = LayerFlags.Price | LayerFlags.Volume;
-        var emptyOrderBook = new PQOrderBook(BookSide.BidBook, publicationPrecisionSettings);
+        var emptyOrderBook = new PQOrderBookSide(BookSide.BidBook, publicationPrecisionSettings);
         Assert.AreEqual(0, emptyOrderBook.Count);
-        var clonedEmptyOrderBook = new PQOrderBook(emptyOrderBook);
+        var clonedEmptyOrderBook = new PQOrderBookSide(emptyOrderBook);
         Assert.AreEqual(0, clonedEmptyOrderBook.Count);
         for (var j = 0; j < ExpectedOrdersCount; j++) Assert.AreNotSame(emptyOrderBook[j], clonedEmptyOrderBook[j]);
     }
@@ -347,15 +354,15 @@ public class PQOrderBookTests
         foreach (var populatedOrderBook in allPopulatedOrderBooks)
             for (var i = 0; i < MaxNumberOfLayers; i++)
             {
-                var layer       = ((IOrderBook)populatedOrderBook)[i];
+                var layer       = ((IOrderBookSide)populatedOrderBook)[i];
                 var clonedLayer = (IPQPriceVolumeLayer)layer!.Clone();
 
                 populatedOrderBook[i] = clonedLayer;
-                Assert.AreNotSame(layer, ((IMutableOrderBook)populatedOrderBook)[i]);
+                Assert.AreNotSame(layer, ((IMutableOrderBookSide)populatedOrderBook)[i]);
                 Assert.AreSame(clonedLayer, populatedOrderBook[i]);
                 if (i == populatedOrderBook.AllLayers.Count - 1)
                 {
-                    ((IMutableOrderBook)populatedOrderBook)[i] = null;
+                    ((IMutableOrderBookSide)populatedOrderBook)[i] = null;
                     Assert.AreEqual(MaxNumberOfLayers - 1, populatedOrderBook.AllLayers.Count);
                 }
             }
@@ -394,7 +401,7 @@ public class PQOrderBookTests
     [ExpectedException(typeof(ArgumentException))]
     public void PopulatedOrderBook_CapacityLargerThanMaxBookDepth_ThrowsException()
     {
-        simpleFullyPopulatedOrderBook.Capacity = PQFieldKeys.SingleByteFieldIdMaxBookDepth + 1;
+        simpleFullyPopulatedOrderBookSide.Capacity = PQFieldKeys.SingleByteFieldIdMaxBookDepth + 1;
     }
 
     [TestMethod]
@@ -612,13 +619,13 @@ public class PQOrderBookTests
     [TestMethod]
     public void FullyPopulatedOrderBook_CopyFromLessLayers_ReplicatesMissingValues()
     {
-        var clonePopulated = simpleFullyPopulatedOrderBook.Clone();
+        var clonePopulated = simpleFullyPopulatedOrderBookSide.Clone();
         Assert.AreEqual(MaxNumberOfLayers, clonePopulated.Count);
         clonePopulated[clonePopulated.Count - 1] = null;
         clonePopulated[clonePopulated.Count - 1] = null;
         clonePopulated[clonePopulated.Count - 1] = null;
         Assert.AreEqual(MaxNumberOfLayers - 3, clonePopulated.Count);
-        var notEmpty = new PQOrderBook(simpleFullyPopulatedOrderBook);
+        var notEmpty = new PQOrderBookSide(simpleFullyPopulatedOrderBookSide);
         Assert.AreEqual(MaxNumberOfLayers, notEmpty.Count);
         notEmpty.CopyFrom(clonePopulated);
         Assert.AreEqual(MaxNumberOfLayers - 3, notEmpty.Count);
@@ -627,13 +634,13 @@ public class PQOrderBookTests
     [TestMethod]
     public void FullyPopulatedOrderBook_CopyFromWithNull_ReplicatesGap()
     {
-        var clonePopulated = simpleFullyPopulatedOrderBook.Clone();
+        var clonePopulated = simpleFullyPopulatedOrderBookSide.Clone();
         Assert.AreEqual(MaxNumberOfLayers, clonePopulated.Count);
         clonePopulated[clonePopulated.Count - 1] = null;
         clonePopulated[clonePopulated.Count - 1] = null;
         clonePopulated[5]                        = null;
         Assert.AreEqual(MaxNumberOfLayers - 2, clonePopulated.Count);
-        var notEmpty = new PQOrderBook(simpleFullyPopulatedOrderBook);
+        var notEmpty = new PQOrderBookSide(simpleFullyPopulatedOrderBookSide);
         Assert.AreEqual(MaxNumberOfLayers, notEmpty.Count);
         notEmpty.CopyFrom(clonePopulated);
         Assert.AreEqual(notEmpty[5], new PQPriceVolumeLayer() { IsPriceUpdated = ExpectedExecutable, IsVolumeUpdated = ExpectedExecutable });
@@ -643,12 +650,12 @@ public class PQOrderBookTests
     [TestMethod]
     public void FullyPopulatedOrderBook_CopyFromAlreadyContainsNull_FillsGap()
     {
-        var clonePopulated = simpleFullyPopulatedOrderBook.Clone();
+        var clonePopulated = simpleFullyPopulatedOrderBookSide.Clone();
         Assert.AreEqual(MaxNumberOfLayers, clonePopulated.Count);
         clonePopulated[clonePopulated.Count - 1] = null;
         clonePopulated[clonePopulated.Count - 1] = null;
         Assert.AreEqual(MaxNumberOfLayers - 2, clonePopulated.Count);
-        var notEmpty = new PQOrderBook(simpleFullyPopulatedOrderBook) { [5] = null };
+        var notEmpty = new PQOrderBookSide(simpleFullyPopulatedOrderBookSide) { [5] = null };
         Assert.AreEqual(MaxNumberOfLayers, notEmpty.Count);
         notEmpty.CopyFrom(clonePopulated);
         Assert.AreEqual(notEmpty[5], clonePopulated[5]);
@@ -697,7 +704,7 @@ public class PQOrderBookTests
     {
         foreach (var populatedOrderBook in allPopulatedOrderBooks)
         {
-            var nonPQOrderBook = new OrderBook(populatedOrderBook);
+            var nonPQOrderBook = new OrderBookSide(populatedOrderBook);
             var newEmpty       = CreateNewEmpty(populatedOrderBook);
             newEmpty.CopyFrom(nonPQOrderBook);
             Assert.AreEqual(populatedOrderBook, newEmpty);
@@ -729,7 +736,7 @@ public class PQOrderBookTests
         foreach (var otherOrderBook in allPopulatedOrderBooks
                      .Where(ob => !ReferenceEquals(ob, originalTypeOrderBook)))
         {
-            var clonedPopulatedOrderBook = (PQOrderBook)originalTypeOrderBook.Clone();
+            var clonedPopulatedOrderBook = (IPQOrderBookSide)originalTypeOrderBook.Clone();
             AssertAllLayersAreOfTypeAndEquivalentTo(clonedPopulatedOrderBook, originalTypeOrderBook,
                                                     originalTypeOrderBook[0]!.GetType(), false);
             clonedPopulatedOrderBook.CopyFrom(otherOrderBook);
@@ -747,11 +754,11 @@ public class PQOrderBookTests
     {
         foreach (var populatedOrderBook in allPopulatedOrderBooks)
         {
-            var clonedOrderBook = ((ICloneable<IOrderBook>)populatedOrderBook).Clone();
+            var clonedOrderBook = ((ICloneable<IOrderBookSide>)populatedOrderBook).Clone();
             Assert.AreNotSame(clonedOrderBook, populatedOrderBook);
             Assert.AreEqual(populatedOrderBook, clonedOrderBook);
 
-            var cloned2 = (IPQOrderBook)((ICloneable)populatedOrderBook).Clone();
+            var cloned2 = (IPQOrderBookSide)((ICloneable)populatedOrderBook).Clone();
             Assert.AreNotSame(cloned2, populatedOrderBook);
             Assert.AreEqual(populatedOrderBook, cloned2);
         }
@@ -762,7 +769,7 @@ public class PQOrderBookTests
     {
         foreach (var populatedOrderBook in allPopulatedOrderBooks)
         {
-            var fullyPopulatedClone = (PQOrderBook)((ICloneable)populatedOrderBook).Clone();
+            var fullyPopulatedClone = (IPQOrderBookSide)((ICloneable)populatedOrderBook).Clone();
             AssertAreEquivalentMeetsExpectedExactComparisonType(ExpectedExecutable, populatedOrderBook,
                                                                 fullyPopulatedClone);
             AssertAreEquivalentMeetsExpectedExactComparisonType(false, populatedOrderBook,
@@ -777,9 +784,9 @@ public class PQOrderBookTests
         {
             Assert.AreEqual(populatedOrderBook, populatedOrderBook);
             Assert.AreEqual(populatedOrderBook, ((ICloneable)populatedOrderBook).Clone());
-            Assert.AreEqual(populatedOrderBook, ((ICloneable<IOrderBook>)populatedOrderBook).Clone());
-            Assert.AreEqual(populatedOrderBook, ((ICloneable<IMutableOrderBook>)populatedOrderBook).Clone());
-            Assert.AreEqual(populatedOrderBook, ((ICloneable<IPQOrderBook>)populatedOrderBook).Clone());
+            Assert.AreEqual(populatedOrderBook, ((ICloneable<IOrderBookSide>)populatedOrderBook).Clone());
+            Assert.AreEqual(populatedOrderBook, ((ICloneable<IMutableOrderBookSide>)populatedOrderBook).Clone());
+            Assert.AreEqual(populatedOrderBook, ((ICloneable<IPQOrderBookSide>)populatedOrderBook).Clone());
         }
     }
 
@@ -813,7 +820,7 @@ public class PQOrderBookTests
     [TestMethod]
     public void FullyPopulatedPvlVariousInterfaces_GetEnumerator_OnlyGetsNonEmptyEntries()
     {
-        var rt = allFieldsFullyPopulatedOrderBook;
+        var rt = allFieldsFullyPopulatedOrderBookSide;
         Assert.AreEqual(MaxNumberOfLayers, rt.Count);
         Assert.AreEqual(MaxNumberOfLayers, ((IEnumerable<IPQPriceVolumeLayer>)rt).Count());
         Assert.AreEqual(MaxNumberOfLayers, ((IEnumerable<IPriceVolumeLayer>)rt).Count());
@@ -828,17 +835,17 @@ public class PQOrderBookTests
     }
 
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType
-    (bool exactComparison, PQOrderBook original, PQOrderBook changingOrderBook, PQLevel2Quote? originalQuote = null
+    (bool exactComparison, IPQOrderBookSide original, IPQOrderBookSide changingOrderBookSide, PQLevel2Quote? originalQuote = null
       , PQLevel2Quote? changingQuote = null)
     {
-        if (original.GetType() == typeof(PQOrderBook))
+        if (original.GetType() == typeof(PQOrderBookSide))
             Assert.AreEqual
-                (!exactComparison, changingOrderBook.AreEquivalent(new OrderBook(original), exactComparison));
+                (!exactComparison, changingOrderBookSide.AreEquivalent(new OrderBookSide(original), exactComparison));
 
-        Assert.AreEqual(original.AllLayers.Count, changingOrderBook.AllLayers.Count);
+        Assert.AreEqual(original.AllLayers.Count, changingOrderBookSide.AllLayers.Count);
 
         var originalLayers = original.AllLayers;
-        var changingLayers = changingOrderBook.AllLayers;
+        var changingLayers = changingOrderBookSide.AllLayers;
 
         for (var i = 0; i < originalLayers.Count; i++)
         {
@@ -846,58 +853,58 @@ public class PQOrderBookTests
                 .AssertAreEquivalentMeetsExpectedExactComparisonType
                     (exactComparison, (PQPriceVolumeLayer)originalLayers[i]!,
                      (PQPriceVolumeLayer)changingLayers[i]!, original,
-                     changingOrderBook, originalQuote!, changingQuote!);
+                     changingOrderBookSide, originalQuote!, changingQuote!);
             if (originalLayers[i] is PQSourcePriceVolumeLayer)
                 PQSourcePriceVolumeLayerTests
                     .AssertAreEquivalentMeetsExpectedExactComparisonType
                         (exactComparison, (PQSourcePriceVolumeLayer)originalLayers[i]!,
                          (PQSourcePriceVolumeLayer)changingLayers[i]!, original,
-                         changingOrderBook, originalQuote!, changingQuote!);
+                         changingOrderBookSide, originalQuote!, changingQuote!);
             if (originalLayers[i] is PQSourceQuoteRefPriceVolumeLayer)
                 PQSourceQuoteRefPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType(
                  exactComparison, (PQSourceQuoteRefPriceVolumeLayer)originalLayers[i]!,
                  (PQSourceQuoteRefPriceVolumeLayer)changingLayers[i]!, original,
-                 changingOrderBook, originalQuote!, changingQuote!);
+                 changingOrderBookSide, originalQuote!, changingQuote!);
             if (originalLayers[i] is PQValueDatePriceVolumeLayer)
                 PQValueDatePriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType(
                  exactComparison, (PQValueDatePriceVolumeLayer)originalLayers[i]!,
                  (PQValueDatePriceVolumeLayer)changingLayers[i]!, original,
-                 changingOrderBook, originalQuote!, changingQuote);
+                 changingOrderBookSide, originalQuote!, changingQuote);
             if (originalLayers[i] is PQOrdersPriceVolumeLayer)
                 PQOrdersPriceVolumeLayerTests
                     .AssertAreEquivalentMeetsExpectedExactComparisonType
                         (exactComparison, (PQOrdersPriceVolumeLayer)originalLayers[i]!,
                          (PQOrdersPriceVolumeLayer)changingLayers[i]!, original,
-                         changingOrderBook, originalQuote, changingQuote);
+                         changingOrderBookSide, originalQuote, changingQuote);
             if (originalLayers[i] is PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
                 PQSourceQuoteRefOrdersValueDatePriceVolumeLayerTests
                     .AssertAreEquivalentMeetsExpectedExactComparisonType
                         (exactComparison, (PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)originalLayers[i]!,
                          (PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)changingLayers[i]!, original
-                       , changingOrderBook, originalQuote, changingQuote);
+                       , changingOrderBookSide, originalQuote, changingQuote);
         }
     }
 
     public static void AssertContainsAllOrderBookFields
-        (IPQPriceVolumePublicationPrecisionSettings precisionSettings, IList<PQFieldUpdate> checkFieldUpdates, PQOrderBook orderBook)
+        (IPQPriceVolumePublicationPrecisionSettings precisionSettings, IList<PQFieldUpdate> checkFieldUpdates, IPQOrderBookSide orderBookSide)
     {
         var priceScale  = precisionSettings.PriceScalingPrecision;
         var volumeScale = precisionSettings.VolumeScalingPrecision;
         for (var i = 0; i < MaxNumberOfLayers; i++)
         {
-            var pvl = orderBook[i];
+            var pvl = orderBookSide[i];
 
-            var depthId = (PQDepthKey)i | (orderBook.BookSide == BookSide.AskBook ? PQDepthKey.AskSide : PQDepthKey.None);
+            var depthId = (PQDepthKey)i | (orderBookSide.BookSide == BookSide.AskBook ? PQDepthKey.AskSide : PQDepthKey.None);
             Assert.AreEqual
                 (new PQFieldUpdate
                      (PQQuoteFields.Price, depthId, pvl!.Price, priceScale),
                  PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.Price, depthId, priceScale),
-                 $"For {orderBook.BookSide}  {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+                 $"For {orderBookSide.BookSide}  {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
             Assert.AreEqual
                 (new PQFieldUpdate
                      (PQQuoteFields.Volume, depthId, PQScaling.Scale(pvl.Volume, volumeScale), volumeScale),
                  PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.Volume, depthId, volumeScale),
-                 $"For {orderBook.BookSide}  {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+                 $"For {orderBookSide.BookSide}  {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             if (pvl is IPQSourcePriceVolumeLayer srcPvl)
             {
@@ -908,7 +915,7 @@ public class PQOrderBookTests
                 Assert.AreEqual
                     (new PQFieldUpdate
                          (PQQuoteFields.SourceId, depthId, (uint)nameIdLookup[srcPvl.SourceName!]), srcId,
-                     $"For {orderBook.BookSide}  {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+                     $"For {orderBookSide.BookSide}  {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
             }
 
             if (pvl is IPQSourceQuoteRefPriceVolumeLayer srcQtRefPvl)
@@ -1068,13 +1075,13 @@ public class PQOrderBookTests
     }
 
     private void AssertAllLayersAreOfTypeAndEquivalentTo
-    (PQOrderBook upgradedOrderBook,
-        PQOrderBook equivalentTo, Type expectedType, bool compareForEquivalence = ExpectedExecutable,
+    (IPQOrderBookSide upgradedOrderBookSide,
+        IPQOrderBookSide equivalentTo, Type expectedType, bool compareForEquivalence = ExpectedExecutable,
         bool exactlyEquals = false)
     {
-        for (var i = 0; i < upgradedOrderBook.Capacity; i++)
+        for (var i = 0; i < upgradedOrderBookSide.Capacity; i++)
         {
-            var upgradedLayer = upgradedOrderBook[i];
+            var upgradedLayer = upgradedOrderBookSide[i];
 
             var copyFromLayer = equivalentTo[i];
 
@@ -1085,19 +1092,19 @@ public class PQOrderBookTests
         }
     }
 
-    private static PQOrderBook CreateNewEmpty(PQOrderBook populatedOrderBook)
+    private static IPQOrderBookSide CreateNewEmpty(IPQOrderBookSide populatedOrderBookSide)
     {
-        var cloneGensis = populatedOrderBook[0]!.Clone();
+        var cloneGensis = populatedOrderBookSide[0]!.Clone();
         cloneGensis.StateReset();
         var clonedEmptyLayers = new List<IPQPriceVolumeLayer>(MaxNumberOfLayers);
         for (var i = 0; i < MaxNumberOfLayers; i++) clonedEmptyLayers.Add(cloneGensis.Clone());
-        var newEmpty = new PQOrderBook(populatedOrderBook.BookSide, clonedEmptyLayers);
+        var newEmpty = new PQOrderBookSide(populatedOrderBookSide.BookSide, clonedEmptyLayers);
         return newEmpty;
     }
 
-    private void AssertBookHasLayersOfType(PQOrderBook orderBook, Type expectedType)
+    private void AssertBookHasLayersOfType(IPQOrderBookSide orderBookSide, Type expectedType)
     {
-        for (var i = 0; i < MaxNumberOfLayers; i++) Assert.IsInstanceOfType(orderBook[i], expectedType);
+        for (var i = 0; i < MaxNumberOfLayers; i++) Assert.IsInstanceOfType(orderBookSide[i], expectedType);
     }
 
     private static void AssertOrderLayerInfoIsExpected

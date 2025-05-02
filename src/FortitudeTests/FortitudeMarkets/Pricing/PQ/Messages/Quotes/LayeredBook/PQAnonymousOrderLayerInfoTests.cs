@@ -18,13 +18,16 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
 [TestClass]
 public class PQAnonymousOrderLayerInfoTests
 {
-    private const    int                        OrderId              = 80085;
-    private const    LayerOrderFlags            OrderFlags           = LayerOrderFlags.CreatedFromSource | LayerOrderFlags.IsInternallyCreatedOrder;
-    private const    decimal                    OrderVolume          = 100_000.50m;
-    private const    decimal                    OrderRemainingVolume = 50_000.25m;
-    private readonly DateTime                   CreatedTime          = new DateTime(2025, 4, 21, 6, 27, 23).AddMilliseconds(123).AddMicroseconds(456);
-    private readonly DateTime                   UpdatedTime          = new DateTime(2025, 4, 21, 12, 8, 59).AddMilliseconds(789).AddMicroseconds(213);
-    private          IPQAnonymousOrderLayerInfo emptyAoli            = null!;
+    private const LayerOrderFlags OrderFlags = LayerOrderFlags.CreatedFromSource | LayerOrderFlags.IsInternallyCreatedOrder;
+
+    private const int     OrderId              = 80085;
+    private const decimal OrderVolume          = 100_000.50m;
+    private const decimal OrderRemainingVolume = 50_000.25m;
+
+    private readonly DateTime CreatedTime = new DateTime(2025, 4, 21, 6, 27, 23).AddMilliseconds(123).AddMicroseconds(456);
+    private readonly DateTime UpdatedTime = new DateTime(2025, 4, 21, 12, 8, 59).AddMilliseconds(789).AddMicroseconds(213);
+
+    private IPQAnonymousOrderLayerInfo emptyAoli = null!;
 
     private IPQNameIdLookupGenerator   emptyNameIdLookup = null!;
     private IPQNameIdLookupGenerator   nameIdLookup      = null!;
@@ -367,11 +370,11 @@ public class PQAnonymousOrderLayerInfoTests
     {
         var newEmptyPqAoli = new PQAnonymousOrderLayerInfo
         {
-            CreatedTime = DateTime.UnixEpoch, HasUpdates = false
+            CreatedTime = DateTime.UnixEpoch
         };
-
+        newEmptyPqAoli.UpdateComplete();
         emptyAoli.CreatedTime = DateTime.UnixEpoch;
-        emptyAoli.HasUpdates  = false;
+        emptyAoli.UpdateComplete();
 
         Assert.AreEqual(emptyAoli, newEmptyPqAoli);
         Assert.IsFalse(emptyAoli.HasUpdates);
@@ -459,11 +462,11 @@ public class PQAnonymousOrderLayerInfoTests
     {
         var newEmptyPqAoli = new PQAnonymousOrderLayerInfo
         {
-            UpdatedTime = DateTime.UnixEpoch, HasUpdates = false
+            UpdatedTime = DateTime.UnixEpoch
         };
-
+        newEmptyPqAoli.UpdateComplete();
         emptyAoli.UpdatedTime = DateTime.UnixEpoch;
-        emptyAoli.HasUpdates  = false;
+        emptyAoli.UpdateComplete();
 
         Assert.IsFalse(emptyAoli.HasUpdates);
         Assert.IsFalse(newEmptyPqAoli.HasUpdates);
@@ -747,8 +750,8 @@ public class PQAnonymousOrderLayerInfoTests
         IPQAnonymousOrderLayerInfo? changingTraderLayerInfo,
         IOrdersPriceVolumeLayer? originalTraderPriceVolumeLayer = null,
         IOrdersPriceVolumeLayer? changingTraderPriceVolumeLayer = null,
-        IOrderBook? originalOrderBook = null,
-        IOrderBook? changingOrderBook = null,
+        IOrderBookSide? originalOrderBook = null,
+        IOrderBookSide? changingOrderBook = null,
         ILevel2Quote? originalQuote = null,
         ILevel2Quote? changingQuote = null)
     {

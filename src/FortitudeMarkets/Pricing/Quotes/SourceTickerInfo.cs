@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Configuration.ClientServerConfig;
@@ -289,10 +290,10 @@ public class SourceTickerInfo : PricingInstrument, ISourceTickerInfo, ICloneable
     }
 
 
-    IVersionedMessage IStoreState<IVersionedMessage>.CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags) =>
+    IVersionedMessage ITransferState<IVersionedMessage>.CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((ISourceTickerInfo)source, copyMergeFlags);
 
-    IReusableObject<IVersionedMessage> IStoreState<IReusableObject<IVersionedMessage>>.CopyFrom
+    IReusableObject<IVersionedMessage> ITransferState<IReusableObject<IVersionedMessage>>.CopyFrom
     (IReusableObject<IVersionedMessage> source
       , CopyMergeFlags copyMergeFlags) =>
         CopyFrom((ISourceTickerInfo)source, copyMergeFlags);
@@ -304,7 +305,7 @@ public class SourceTickerInfo : PricingInstrument, ISourceTickerInfo, ICloneable
     IPricingInstrumentId IPricingInstrumentId.Clone() => Clone();
     ISourceTickerInfo ISourceTickerInfo.      Clone() => Clone();
 
-    ISourceTickerId IStoreState<ISourceTickerId>.CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags)
+    ISourceTickerId ITransferState<ISourceTickerId>.CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags)
     {
         if (source is ISourceTickerInfo srcTkrQuoteInfo) return CopyFrom(srcTkrQuoteInfo, copyMergeFlags);
         PublishedTickerDetailLevel = TickerDetailLevel.Level1Quote;

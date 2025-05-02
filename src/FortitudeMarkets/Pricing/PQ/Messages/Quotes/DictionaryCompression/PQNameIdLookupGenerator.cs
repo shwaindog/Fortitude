@@ -28,6 +28,8 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
 
     protected int HighestIdSerialized;
 
+    protected uint NumOfUpdates = 0;
+
     public PQNameIdLookupGenerator(PQQuoteFields dictionaryFieldKey) => this.dictionaryFieldKey = dictionaryFieldKey;
 
     public PQNameIdLookupGenerator(INameIdLookup toClone, PQQuoteFields? dictionaryFieldKey = null) : base(toClone)
@@ -54,6 +56,17 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
             {
                 HighestIdSerialized = Count;
             }
+        }
+    }
+
+    public uint UpdateCount => NumOfUpdates;
+
+    public void UpdateComplete()
+    {
+        if (HasUpdates)
+        {
+            NumOfUpdates++;
+            HasUpdates = false;
         }
     }
 

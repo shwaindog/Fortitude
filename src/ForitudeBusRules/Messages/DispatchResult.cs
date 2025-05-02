@@ -7,7 +7,7 @@ using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 

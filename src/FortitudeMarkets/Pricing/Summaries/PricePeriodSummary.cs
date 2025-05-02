@@ -9,6 +9,7 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.TimeSeries;
 
 #endregion
@@ -196,10 +197,10 @@ public class PricePeriodSummary : ReusableObject<IPricePeriodSummary>, IMutableP
         return PeriodEndTime;
     }
 
-    IPricePeriodSummary IStoreState<IPricePeriodSummary>.CopyFrom(IPricePeriodSummary source, CopyMergeFlags copyMergeFlags) =>
+    IPricePeriodSummary ITransferState<IPricePeriodSummary>.CopyFrom(IPricePeriodSummary source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IMutablePricePeriodSummary)source, copyMergeFlags);
 
-    IReusableObject<IPricePeriodSummary> IStoreState<IReusableObject<IPricePeriodSummary>>.CopyFrom
+    IReusableObject<IPricePeriodSummary> ITransferState<IReusableObject<IPricePeriodSummary>>.CopyFrom
         (IReusableObject<IPricePeriodSummary> source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IMutablePricePeriodSummary)source, copyMergeFlags);
 

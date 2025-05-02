@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
@@ -218,6 +219,12 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
         }
     }
 
+    public override void UpdateComplete()
+    {
+        NameIdLookup.UpdateComplete();
+        base.UpdateComplete();
+    }
+
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
     (DateTime snapShotTime, StorageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
@@ -251,17 +258,6 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
-    {
-        if (stringUpdate.Field.Id != PQQuoteFields.LayerNameDictionaryUpsertCommand) return false;
-        return NameIdLookup.UpdateFieldString(stringUpdate);
-    }
-
-    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
-    {
-        foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate;
-    }
-
     public override void StateReset()
     {
         traderNameId       = 0;
@@ -276,9 +272,6 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
     public IReusableObject<ICounterPartyOrderLayerInfo> CopyFrom
     (IReusableObject<ICounterPartyOrderLayerInfo> source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        CopyFrom((IAnonymousOrderLayerInfo?)source, copyMergeFlags);
-
-    public IPQCounterPartyOrderLayerInfo CopyFrom(IPQCounterPartyOrderLayerInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CopyFrom((IAnonymousOrderLayerInfo?)source, copyMergeFlags);
 
 
@@ -309,6 +302,20 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
 
         return baseSame && traderNameSame && counterPartySame && updatedSame;
     }
+
+    public bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
+    {
+        if (stringUpdate.Field.Id != PQQuoteFields.LayerNameDictionaryUpsertCommand) return false;
+        return NameIdLookup.UpdateFieldString(stringUpdate);
+    }
+
+    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
+    {
+        foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate;
+    }
+
+    public IPQCounterPartyOrderLayerInfo CopyFrom(IPQCounterPartyOrderLayerInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        CopyFrom((IAnonymousOrderLayerInfo?)source, copyMergeFlags);
 
     public override PQCounterPartyOrderLayerInfo CopyFrom
         (IAnonymousOrderLayerInfo? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

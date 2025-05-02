@@ -50,7 +50,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(DataBucket<,>));
 
-    protected ShiftableMemoryMappedFileView? BucketAppenderDataReaderFileView;
+    protected ShiftableMemoryMappedFileView? BucketAppenderOrDataReaderFileView;
 
     private DataBucketHeader  cacheDataHeaderExtension;
     private LzmaEncoderParams compressionParams = new();
@@ -85,7 +85,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
     {
         get
         {
-            if (!IsOpenForAppend || BucketAppenderDataReaderFileView == null) return null;
+            if (!IsOpenForAppend || BucketAppenderOrDataReaderFileView == null) return null;
 
             if (writerBuffer == null)
             {
@@ -95,9 +95,9 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
                     if (TotalFileDataSizeBytes > 0)
                     {
                         var uncompressedRange = (IByteArray)writerBuffer.BackingMemoryAddressRange;
-                        var viewOffset        = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
+                        var viewOffset        = StartOfDataSectionOffset - BucketAppenderOrDataReaderFileView!.LowerViewFileCursorOffset;
                         var compressedRange
-                            = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)TotalFileDataSizeBytes);
+                            = BucketAppenderOrDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)TotalFileDataSizeBytes);
                         var uncompressedStream = new ByteArrayMemoryStream(uncompressedRange, true, false);
                         var compressedStream   = new ByteArrayMemoryStream(compressedRange, true);
                         lzmaDecoder ??= new LzmaDecoder();
@@ -107,15 +107,19 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
                 }
                 else
                 {
-                    BucketAppenderDataReaderFileView!.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, ushort.MaxValue * 4, true);
-                    var viewOffset            = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
-                    var uncompressedFileRange = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, ushort.MaxValue * 4);
+                    BucketAppenderOrDataReaderFileView!.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, ushort.MaxValue * 16, true);
+                    var viewOffset            = StartOfDataSectionOffset - BucketAppenderOrDataReaderFileView!.LowerViewFileCursorOffset;
+                    var uncompressedFileRange = BucketAppenderOrDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, ushort.MaxValue * 16);
                     writerBuffer = new GrowableUnmanagedBuffer(uncompressedFileRange)
                     {
-                        GrowRemainingBytesThreshold = ushort.MaxValue * Math.Max(1, BucketAppenderDataReaderFileView.HalfViewPageSize / 2)
+                        GrowRemainingBytesThreshold = ushort.MaxValue
                     };
                 }
                 writerBuffer.WriteCursor = (long)ExpandedDataSize;
+            }
+            if (writerBuffer is GrowableUnmanagedBuffer growableBuffer && writerBuffer.RemainingStorage < growableBuffer.GrowRemainingBytesThreshold)
+            {
+                writerBuffer = growableBuffer.GrowByDefaultSize();
             }
             return writerBuffer;
         }
@@ -140,8 +144,8 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
             cacheDataHeaderExtension.ExpandedDataSize = value;
             if (!IsDataCompressed)
             {
-                var additionalWriteSize = Writable ? 4 * 1024 : 0;
-                BucketAppenderDataReaderFileView?.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset
+                var additionalWriteSize = Writable ? 64 * 1024 : 0;
+                BucketAppenderOrDataReaderFileView?.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset
                                                                                         , (long)value + additionalWriteSize);
             }
         }
@@ -164,12 +168,12 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
         if (IsDataCompressed)
         {
             // var start            = DateTime.Now;
-            var uncompressionBufferSize = Math.Max(ExpandedDataSize, 4_096);
+            var uncompressionBufferSize = Math.Max(ExpandedDataSize, 4_096*4_096);
             var uncompressedBuffer      = OwningSession.UncompressedBuffer;
             uncompressedBuffer.SetLength((long)uncompressionBufferSize);
-            BucketAppenderDataReaderFileView?.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, (long)TotalFileDataSizeBytes);
-            var viewOffset         = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
-            var compressedRange    = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)TotalFileDataSizeBytes);
+            BucketAppenderOrDataReaderFileView?.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, (long)TotalFileDataSizeBytes);
+            var viewOffset         = StartOfDataSectionOffset - BucketAppenderOrDataReaderFileView!.LowerViewFileCursorOffset;
+            var compressedRange    = BucketAppenderOrDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)TotalFileDataSizeBytes);
             var uncompressedStream = new ByteArrayMemoryStream(uncompressedBuffer.BackingByteArray, true, false);
             var compressedStream   = new ByteArrayMemoryStream(compressedRange, true, false);
             lzmaDecoder ??= new LzmaDecoder();
@@ -181,9 +185,9 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
         }
         else
         {
-            BucketAppenderDataReaderFileView!.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, (int)ExpandedDataSize);
-            var viewOffset            = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
-            var uncompressedFileRange = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)ExpandedDataSize);
+            BucketAppenderOrDataReaderFileView!.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, (int)ExpandedDataSize);
+            var viewOffset            = StartOfDataSectionOffset - BucketAppenderOrDataReaderFileView!.LowerViewFileCursorOffset;
+            var uncompressedFileRange = BucketAppenderOrDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)ExpandedDataSize);
             readerBuffer             = new FixedByteArrayBuffer(uncompressedFileRange);
             readerBuffer.WriteCursor = (long)ExpandedDataSize;
         }
@@ -207,14 +211,14 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
             .FixedFileCursorBufferPointer(StartDataBucketHeaderSectionOffset, shouldGrow: Writable);
         cacheDataHeaderExtension         =   *mappedDataHeader;
         alternativeHeaderAndDataFileView ??= BucketContainer.ContainingSession.ActiveBucketDataFileView;
-        BucketAppenderDataReaderFileView =   alternativeHeaderAndDataFileView;
+        BucketAppenderOrDataReaderFileView =   alternativeHeaderAndDataFileView;
         if (asWritable && OwningSession.FileHeader.FileFlags.HasWriteDataCompressedFlag() && ExpandedDataSize == 0)
             BucketFlags |= BucketFlags.CompressedData;
-        if (BucketHeaderFileView != BucketAppenderDataReaderFileView)
+        if (BucketHeaderFileView != BucketAppenderOrDataReaderFileView)
         {
             var requiredSize = IsDataCompressed ? TotalFileDataSizeBytes : ExpandedDataSize;
             requiredSize += Writable ? (ulong)ushort.MaxValue : 0;
-            BucketAppenderDataReaderFileView.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, (long)requiredSize);
+            BucketAppenderOrDataReaderFileView.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, (long)requiredSize);
         }
         return this;
     }
@@ -232,10 +236,10 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
                 var originalByteArraySize     = uncompressedByteArray.Length;
                 uncompressedByteArray.SetLength((long)ExpandedDataSize);
                 var uncompressedStream = new ByteArrayMemoryStream(uncompressedByteArray, true, false);
-                BucketAppenderDataReaderFileView?.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, safeCompressionBufferSize, true);
-                var viewOffset = StartOfDataSectionOffset - BucketAppenderDataReaderFileView!.LowerViewFileCursorOffset;
+                BucketAppenderOrDataReaderFileView?.EnsureViewCoversFileCursorOffsetAndSize(StartOfDataSectionOffset, safeCompressionBufferSize, true);
+                var viewOffset = StartOfDataSectionOffset - BucketAppenderOrDataReaderFileView!.LowerViewFileCursorOffset;
                 var compressedRange
-                    = BucketAppenderDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)safeCompressionBufferSize);
+                    = BucketAppenderOrDataReaderFileView.CreateUnmanagedByteArrayInThisRange(viewOffset, (int)safeCompressionBufferSize);
                 var compressedStream = new ByteArrayMemoryStream(compressedRange, true, false);
                 lzmaEncoder                      ??= new LzmaEncoder();
                 compressionParams.DictionarySize =   (int)ExpandedDataSize / 2;
@@ -259,7 +263,7 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
         }
         readerBuffer?.Dispose();
         readerBuffer                     = null;
-        BucketAppenderDataReaderFileView = null;
+        BucketAppenderOrDataReaderFileView = null;
         base.CloseBucketFileViews();
     }
 

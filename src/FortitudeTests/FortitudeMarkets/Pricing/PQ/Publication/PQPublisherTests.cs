@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Configuration.ClientServerConfig;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Publication;
@@ -79,8 +79,9 @@ public class PQPublisherTests
     {
         SetupTickerWithPublisher();
 
-        moqPQLevel1Quote.Setup(pql1q => pql1q.CopyFrom(It.IsAny<ITickInstant>(), CopyMergeFlags.Default))
-                        .Verifiable();
+        var moqTkInst = moqPQLevel1Quote.As<ITickInstant>();
+        moqTkInst.Setup(pql1q => pql1q.CopyFrom(It.IsAny<ITickInstant>(), CopyMergeFlags.Default))
+                 .Verifiable();
         moqPqServer.Setup(pqs => pqs.Publish(moqPQLevel1Quote.Object)).Verifiable();
 
         var dummyTickInstant    = new PQTickInstantTests.DummyPQTickInstant();

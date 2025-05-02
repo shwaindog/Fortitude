@@ -236,6 +236,7 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
             if (!originalEntry.AreEquivalent(compareEntry))
             {
                 Logger.Warn("Entries at {0} differ test failed \noriginal {1}\n returned {2}", i, originalEntry, compareEntry);
+                Logger.Warn("Diff is {0}", originalEntry.DiffQuotes(compareEntry));
                 FLoggerFactory.WaitUntilDrained();
                 Assert.Fail($"Entries at {i} differ test failed \noriginal {originalEntry}\n returned {compareEntry}");
             }

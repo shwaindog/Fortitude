@@ -29,8 +29,8 @@ public abstract class Level1QuoteGeneratorBase<TQuote> : TickInstantGeneratorBas
             var (roundedTopBid, roundedTopAsk) = GenerateQuoteValues.BookGenerator.TopBidAskPrice;
             populateQuote.AskPriceTop          = roundedTopAsk;
             populateQuote.BidPriceTop          = roundedTopBid;
-            populateQuote.IsAskPriceTopUpdated = (PreviousReturnedQuote?.AskPriceTop ?? 0) != populateQuote.AskPriceTop;
-            populateQuote.IsBidPriceTopUpdated = (PreviousReturnedQuote?.BidPriceTop ?? 0) != populateQuote.BidPriceTop;
+            populateQuote.IsAskPriceTopChanged = (PreviousReturnedQuote?.AskPriceTop ?? 0) != populateQuote.AskPriceTop;
+            populateQuote.IsBidPriceTopChanged = (PreviousReturnedQuote?.BidPriceTop ?? 0) != populateQuote.BidPriceTop;
         }
     }
 }

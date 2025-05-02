@@ -27,9 +27,10 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
     private   IBucketFactory<TBucket>? bucketFactory;
 
     protected ShiftableMemoryMappedFileView? BucketHeaderFileView;
-    private   BucketHeader                   cacheBucketHeader;
-    protected IMessageSerializer?            EntrySerializer;
-    protected BucketHeader*                  MappedFileBucketInfo;
+
+    private   BucketHeader        cacheBucketHeader;
+    protected IMessageSerializer? EntrySerializer;
+    protected BucketHeader*       MappedFileBucketInfo;
 
     protected long  RequiredHeaderViewFileCursorOffset;
     protected byte* RequiredHeaderViewLocation;
@@ -39,8 +40,9 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
     (IMutableBucketContainer bucketContainer,
         long bucketFileCursorOffset, bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
     {
-        BucketContainer                   = bucketContainer;
-        OwningSession                     = bucketContainer.ContainingSession;
+        BucketContainer = bucketContainer;
+        OwningSession   = bucketContainer.ContainingSession;
+
         OwningSession.CurrentlyOpenBucket = this;
         var headerRealignmentDelta = bucketFileCursorOffset % 8 > 0 ? 8 - bucketFileCursorOffset % 8 : 0;
         FileCursorOffset = bucketFileCursorOffset + headerRealignmentDelta;
@@ -266,7 +268,6 @@ public abstract unsafe class BucketBase<TEntry, TBucket> : IBucketNavigation<TBu
     public bool IsOpen => BucketHeaderFileView != null;
 
     public bool IsOpenForAppend => BucketFlags.HasBucketCurrentAppendingFlag();
-
 
     public IStorageTimeResolver<TEntry>? StorageTimeResolver { get; set; }
 

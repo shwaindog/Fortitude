@@ -466,8 +466,8 @@ public class PQSourcePriceVolumeLayerTests
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType
     (bool exactComparison,
         IPQSourcePriceVolumeLayer? original, IPQSourcePriceVolumeLayer? changingPriceVolumeLayer,
-        IOrderBook? originalOrderBook = null,
-        IOrderBook? changingOrderBook = null,
+        IOrderBookSide? originalOrderBook = null,
+        IOrderBookSide? changingOrderBook = null,
         ILevel2Quote? originalQuote = null,
         ILevel2Quote? changingQuote = null)
     {

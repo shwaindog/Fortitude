@@ -1,7 +1,10 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeBusRules.BusMessaging.Pipelines.Execution;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 
@@ -12,27 +15,29 @@ namespace FortitudeBusRules.Connectivity.Network.Serdes.Deserialization;
 public class BusRulesMessageDeserializationRepository : IMessageDeserializationRepository
 {
     private readonly IMessageDeserializationRepository backingDeserializationRepository;
+
     private SingleParamActionWrapper<IMessageDeserializer>? registeredActionWrapper;
     private SingleParamActionWrapper<IMessageDeserializer>? unregisteredActionWrapper;
 
     public BusRulesMessageDeserializationRepository(IMessageDeserializationRepository backingDeserializationRepository)
     {
-        this.backingDeserializationRepository = backingDeserializationRepository;
-        backingDeserializationRepository.MessageDeserializerRegistered += FireBusRulesEventMessageDeserializerRegistered;
+        this.backingDeserializationRepository                            =  backingDeserializationRepository;
+        backingDeserializationRepository.MessageDeserializerRegistered   += FireBusRulesEventMessageDeserializerRegistered;
         backingDeserializationRepository.MessageDeserializerUnregistered += FireBusRulesEventMessageDeserializerUnregistered;
     }
 
-    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) =>
+    public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags) =>
         backingDeserializationRepository.CopyFrom(source, copyMergeFlags);
 
     public IMessageSerdesRepository CopyFrom(IMessageSerdesRepository source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         backingDeserializationRepository.CopyFrom(source, copyMergeFlags);
 
-    public IEnumerable<uint> RegisteredMessageIds => backingDeserializationRepository.RegisteredMessageIds;
-    public bool IsRegistered(uint msgId) => backingDeserializationRepository.IsRegistered(msgId);
+    public IEnumerable<uint> RegisteredMessageIds     => backingDeserializationRepository.RegisteredMessageIds;
+    public bool              IsRegistered(uint msgId) => backingDeserializationRepository.IsRegistered(msgId);
 
-    public IMessageDeserializationRepository CopyFrom(IMessageDeserializationRepository source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+    public IMessageDeserializationRepository CopyFrom
+    (IMessageDeserializationRepository source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         backingDeserializationRepository.CopyFrom(source, copyMergeFlags);
 
     public string Name => backingDeserializationRepository.Name;

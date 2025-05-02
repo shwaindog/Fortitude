@@ -6,6 +6,7 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Summaries;
 
@@ -17,8 +18,8 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
 {
     public Level2PriceQuote()
     {
-        BidBook = new OrderBook(BookSide.BidBook, 20);
-        AskBook = new OrderBook(BookSide.AskBook, 20);
+        BidBookSide = new OrderBookSide(BookSide.BidBook, 20);
+        AskBookSide = new OrderBookSide(BookSide.AskBook, 20);
     }
 
     public Level2PriceQuote
@@ -26,21 +27,21 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
       , decimal singlePrice = 0m, DateTime? clientReceivedTime = null, DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null
       , DateTime? sourceBidTime = null, bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null, DateTime? validFrom = null
       , DateTime? validTo = null
-      , bool isAskPriceTopChanged = false, bool executable = false, IPricePeriodSummary? periodSummary = null, IOrderBook? bidBook = null
-      , bool isBidBookChanged = false, IOrderBook? askBook = null, bool isAskBookChanged = false)
+      , bool isAskPriceTopChanged = false, bool executable = false, IPricePeriodSummary? periodSummary = null, IOrderBookSide? bidBook = null
+      , bool isBidBookChanged = false, IOrderBookSide? askBook = null, bool isAskBookChanged = false)
         : base(sourceTickerInfo, sourceTime, isReplay, feedSyncStatus, singlePrice, clientReceivedTime, adapterReceivedTime,
                adapterSentTime, sourceBidTime, validFrom, validTo, 0m, isBidPriceTopChanged, sourceAskTime, 0m,
                isAskPriceTopChanged, executable, periodSummary)
     {
-        if (bidBook is OrderBook mutBidOrderBook)
-            BidBook = mutBidOrderBook;
+        if (bidBook is OrderBookSide mutBidOrderBook)
+            BidBookSide = mutBidOrderBook;
         else
-            BidBook = bidBook != null ? new OrderBook(bidBook) : new OrderBook(BookSide.BidBook, SourceTickerInfo!);
+            BidBookSide = bidBook != null ? new OrderBookSide(bidBook) : new OrderBookSide(BookSide.BidBook, SourceTickerInfo!);
         IsBidBookChanged = isBidBookChanged;
-        if (askBook is OrderBook mutAskOrderBook)
-            AskBook = mutAskOrderBook;
+        if (askBook is OrderBookSide mutAskOrderBook)
+            AskBookSide = mutAskOrderBook;
         else
-            AskBook = askBook != null ? new OrderBook(askBook) : new OrderBook(BookSide.AskBook, SourceTickerInfo!);
+            AskBookSide = askBook != null ? new OrderBookSide(askBook) : new OrderBookSide(BookSide.AskBook, SourceTickerInfo!);
         IsAskBookChanged = isAskBookChanged;
     }
 
@@ -48,24 +49,24 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
     {
         if (toClone is ILevel2Quote level2ToClone)
         {
-            if (level2ToClone.BidBook is OrderBook bidOrdBook)
-                BidBook = bidOrdBook.Clone();
+            if (level2ToClone.BidBookSide is OrderBookSide bidOrdBook)
+                BidBookSide = bidOrdBook.Clone();
             else
-                BidBook = new OrderBook(level2ToClone.BidBook);
+                BidBookSide = new OrderBookSide(level2ToClone.BidBookSide);
 
             IsBidBookChanged = level2ToClone.IsBidBookChanged;
 
-            if (level2ToClone.AskBook is OrderBook askOrdBook)
-                AskBook = askOrdBook.Clone();
+            if (level2ToClone.AskBookSide is OrderBookSide askOrdBook)
+                AskBookSide = askOrdBook.Clone();
             else
-                AskBook = new OrderBook(level2ToClone.AskBook);
+                AskBookSide = new OrderBookSide(level2ToClone.AskBookSide);
 
             IsAskBookChanged = level2ToClone.IsAskBookChanged;
         }
         else
         {
-            BidBook = new OrderBook(BookSide.BidBook, 20);
-            AskBook = new OrderBook(BookSide.AskBook, 20);
+            BidBookSide = new OrderBookSide(BookSide.BidBook, 20);
+            AskBookSide = new OrderBookSide(BookSide.AskBook, 20);
         }
     }
 
@@ -115,28 +116,30 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
 
     [JsonIgnore] public override TickerDetailLevel TickerDetailLevel => TickerDetailLevel.Level2Quote;
 
-    public              IMutableOrderBook       BidBook          { get; set; }
-    [JsonIgnore]        IOrderBook ILevel2Quote.BidBook          => BidBook;
-    [JsonIgnore] public bool                    IsBidBookChanged { get; set; }
+    public       IMutableOrderBookSide       BidBookSide { get; set; }
+    [JsonIgnore] IOrderBookSide ILevel2Quote.BidBookSide => BidBookSide;
 
-    public              IMutableOrderBook       AskBook          { get; set; }
-    [JsonIgnore]        IOrderBook ILevel2Quote.AskBook          => AskBook;
-    [JsonIgnore] public bool                    IsAskBookChanged { get; set; }
+    [JsonIgnore] public bool IsBidBookChanged { get; set; }
+
+    public       IMutableOrderBookSide       AskBookSide { get; set; }
+    [JsonIgnore] IOrderBookSide ILevel2Quote.AskBookSide => AskBookSide;
+
+    [JsonIgnore] public bool IsAskBookChanged { get; set; }
 
     [JsonIgnore]
     public override decimal BidPriceTop
     {
-        get => BidBook.Any() ? BidBook[0]?.Price ?? 0 : 0m;
+        get => BidBookSide.Any() ? BidBookSide[0]?.Price ?? 0 : 0m;
         set
         {
-            if (BidBook.Capacity > 0 && BidBook[0] != null)
+            if (BidBookSide.Capacity > 0 && BidBookSide[0] != null)
             {
-                BidBook[0]!.Price = value;
+                BidBookSide[0]!.Price = value;
             }
             else
             {
-                BidBook[0]        = OrderBook.LayerSelector.FindForLayerFlags(SourceTickerInfo!) as IMutablePriceVolumeLayer;
-                BidBook[0]!.Price = value;
+                BidBookSide[0]        = OrderBookSide.LayerSelector.FindForLayerFlags(SourceTickerInfo!) as IMutablePriceVolumeLayer;
+                BidBookSide[0]!.Price = value;
             }
         }
     }
@@ -144,17 +147,17 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
     [JsonIgnore]
     public override decimal AskPriceTop
     {
-        get => AskBook.Any() ? AskBook[0]?.Price ?? 0 : 0m;
+        get => AskBookSide.Any() ? AskBookSide[0]?.Price ?? 0 : 0m;
         set
         {
-            if (AskBook.Capacity > 0 && BidBook[0] != null)
+            if (AskBookSide.Capacity > 0 && BidBookSide[0] != null)
             {
-                AskBook[0]!.Price = value;
+                AskBookSide[0]!.Price = value;
             }
             else
             {
-                AskBook[0]        = OrderBook.LayerSelector.FindForLayerFlags(SourceTickerInfo!) as IMutablePriceVolumeLayer;
-                AskBook[0]!.Price = value;
+                AskBookSide[0]        = OrderBookSide.LayerSelector.FindForLayerFlags(SourceTickerInfo!) as IMutablePriceVolumeLayer;
+                AskBookSide[0]!.Price = value;
             }
         }
     }
@@ -165,13 +168,13 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
 
         if (source is ILevel2Quote level2Quote)
         {
-            BidBook.CopyFrom(level2Quote.BidBook, copyMergeFlags);
-            AskBook.CopyFrom(level2Quote.AskBook, copyMergeFlags);
+            BidBookSide.CopyFrom(level2Quote.BidBookSide, copyMergeFlags);
+            AskBookSide.CopyFrom(level2Quote.AskBookSide, copyMergeFlags);
         }
         if (source is ILevel1Quote level1Quote)
         {
-            IsBidPriceTopUpdated = level1Quote.IsBidPriceTopUpdated;
-            IsBidPriceTopUpdated = level1Quote.IsBidPriceTopUpdated;
+            IsBidPriceTopChanged = level1Quote.IsBidPriceTopChanged;
+            IsBidPriceTopChanged = level1Quote.IsBidPriceTopChanged;
         }
 
         return this;
@@ -189,8 +192,9 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
         if (!(other is ILevel2Quote otherL2)) return false;
         var baseIsSame = base.AreEquivalent(otherL2, exactTypes);
 
-        var bidBooksSame       = BidBook?.AreEquivalent(otherL2.BidBook, exactTypes) ?? otherL2?.BidBook == null;
-        var askBooksSame       = AskBook?.AreEquivalent(otherL2!.AskBook, exactTypes) ?? otherL2?.AskBook == null;
+        var bidBooksSame = BidBookSide?.AreEquivalent(otherL2.BidBookSide, exactTypes) ?? otherL2?.BidBookSide == null;
+        var askBooksSame = AskBookSide?.AreEquivalent(otherL2!.AskBookSide, exactTypes) ?? otherL2?.AskBookSide == null;
+
         var bidBookChangedSame = true;
         var askBookChangedSame = true;
         if (exactTypes)
@@ -210,9 +214,9 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
         unchecked
         {
             var hashCode = base.GetHashCode();
-            hashCode = (hashCode * 397) ^ (BidBook != null ? BidBook.GetHashCode() : 0);
+            hashCode = (hashCode * 397) ^ (BidBookSide != null ? BidBookSide.GetHashCode() : 0);
             hashCode = (hashCode * 397) ^ IsBidBookChanged.GetHashCode();
-            hashCode = (hashCode * 397) ^ (AskBook != null ? AskBook.GetHashCode() : 0);
+            hashCode = (hashCode * 397) ^ (AskBookSide != null ? AskBookSide.GetHashCode() : 0);
             hashCode = (hashCode * 397) ^ IsAskBookChanged.GetHashCode();
             return hashCode;
         }
@@ -224,9 +228,9 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
         $"{SingleTickValue:N5}, {nameof(ClientReceivedTime)}: {ClientReceivedTime:O}, " +
         $"{nameof(AdapterReceivedTime)}: {AdapterReceivedTime:O}, {nameof(AdapterSentTime)}: " +
         $"{AdapterSentTime:O}, {nameof(SourceBidTime)}: {SourceBidTime:O}, {nameof(BidPriceTop)}: {BidPriceTop:N5}, " +
-        $"{nameof(IsBidPriceTopUpdated)}: {IsBidPriceTopUpdated}, {nameof(SourceAskTime)}: {SourceAskTime:O}, " +
-        $"{nameof(AskPriceTop)}: {AskPriceTop:N5}, {nameof(IsAskPriceTopUpdated)}: {IsAskPriceTopUpdated}, " +
-        $"{nameof(Executable)}: {Executable}, {nameof(SummaryPeriod)}: {SummaryPeriod}, {nameof(BidBook)}:" +
-        $" {BidBook}, {nameof(IsBidBookChanged)}: {IsBidBookChanged}, {nameof(AskBook)}: {AskBook}, " +
+        $"{nameof(IsBidPriceTopChanged)}: {IsBidPriceTopChanged}, {nameof(SourceAskTime)}: {SourceAskTime:O}, " +
+        $"{nameof(AskPriceTop)}: {AskPriceTop:N5}, {nameof(IsAskPriceTopChanged)}: {IsAskPriceTopChanged}, " +
+        $"{nameof(Executable)}: {Executable}, {nameof(SummaryPeriod)}: {SummaryPeriod}, {nameof(BidBookSide)}:" +
+        $" {BidBookSide}, {nameof(IsBidBookChanged)}: {IsBidBookChanged}, {nameof(AskBookSide)}: {AskBookSide}, " +
         $"{nameof(IsAskBookChanged)}: {IsAskBookChanged}}}";
 }

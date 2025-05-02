@@ -8,6 +8,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
@@ -269,7 +270,7 @@ public class PricingInstrument : SourceTicker, IPricingInstrumentId
         return this;
     }
 
-    IReusableObject<IPricingInstrumentId> IStoreState<IReusableObject<IPricingInstrumentId>>.CopyFrom
+    IReusableObject<IPricingInstrumentId> ITransferState<IReusableObject<IPricingInstrumentId>>.CopyFrom
         (IReusableObject<IPricingInstrumentId> source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IPricingInstrumentId)source, copyMergeFlags);
 

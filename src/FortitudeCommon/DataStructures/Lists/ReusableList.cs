@@ -6,7 +6,7 @@
 using System.Collections;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 

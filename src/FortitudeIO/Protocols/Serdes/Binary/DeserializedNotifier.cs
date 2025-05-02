@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections;
 using FortitudeCommon.AsyncProcessing.Tasks;
@@ -6,19 +9,23 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Conversations;
 
 #endregion
 
 namespace FortitudeIO.Protocols.Serdes.Binary;
 
-public interface IDeserializedNotifier : IStoreState<IDeserializedNotifier>, ICloneable<IDeserializedNotifier>
+public interface IDeserializedNotifier : ITransferState<IDeserializedNotifier>, ICloneable<IDeserializedNotifier>
 {
     bool RemoveOnZeroSubscribers { get; set; }
+
     string Name { get; }
+
     int SubscriberCount { get; }
-    Action? Unsubscribe { get; set; }
-    Type NotifyingType { get; }
+
+    Action? Unsubscribe   { get; set; }
+    Type    NotifyingType { get; }
     IReceiverListenContext? this[string name] { get; set; }
     void AddRequestExpected(int requestId, IAsyncResponseSource responseValueSource);
 
@@ -36,9 +43,9 @@ public interface IDeserializedNotifier<TM, TR> : IDeserializedNotifier, IEnumera
 [Flags]
 public enum DeserializeNotifyTypeFlags
 {
-    None = 0
-    , MessageAndConversation = 1
-    , JustMessage = 2
+    None                   = 0
+  , MessageAndConversation = 1
+  , JustMessage            = 2
 }
 
 public delegate void MessageOnlyDeserializedHandler<in TM>(TM deserializedMessage);
@@ -46,7 +53,9 @@ public delegate void MessageOnlyDeserializedHandler<in TM>(TM deserializedMessag
 public abstract class DeserializedNotifierBase<TM> : IDeserializedNotifier where TM : class, IVersionedMessage
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(DeserializedNotifierBase<TM>));
+
     protected readonly bool DeserializedIsResponseMessage;
+
     protected readonly DeserializeNotifyTypeFlags DeserializeNotifyType;
 
     protected readonly IMap<int, IAsyncResponseSource>
@@ -58,22 +67,27 @@ public abstract class DeserializedNotifierBase<TM> : IDeserializedNotifier where
     protected DeserializedNotifierBase(string registrationLocation)
     {
         Name = registrationLocation;
+
         DeserializeNotifyType = DeserializeNotifyTypeFlags.MessageAndConversation;
+
         DeserializedIsResponseMessage = typeof(TM).GetInterfaces().Any(t => t == typeof(IResponseMessage));
     }
 
     protected DeserializedNotifierBase(string registrationLocation, DeserializeNotifyTypeFlags deserializeNotifyType) : this(registrationLocation)
     {
         DeserializeNotifyType = deserializeNotifyType;
+
         Name = registrationLocation;
     }
 
     protected DeserializedNotifierBase(DeserializedNotifierBase<TM> toClone)
     {
         DeserializedIsResponseMessage = toClone.DeserializedIsResponseMessage;
-        DeserializeNotifyType = toClone.DeserializeNotifyType;
+
+        DeserializeNotifyType    = toClone.DeserializeNotifyType;
         ExpectedRequestResponses = toClone.ExpectedRequestResponses.Clone();
-        subscriberCount = toClone.subscriberCount;
+        subscriberCount          = toClone.subscriberCount;
+
         Name = toClone.Name;
     }
 
@@ -99,6 +113,7 @@ public abstract class DeserializedNotifierBase<TM> : IDeserializedNotifier where
     }
 
     public Action? Unsubscribe { get; set; }
+
     public bool RemoveOnZeroSubscribers { get; set; } = true;
 
     public void AddRequestExpected(int requestId, IAsyncResponseSource responseValueSource)
@@ -111,7 +126,7 @@ public abstract class DeserializedNotifierBase<TM> : IDeserializedNotifier where
         else
         {
             throw new ArgumentException(
-                "Attempting to add a responseValueSource that is either the wrong type expected or the message can not source a request Id ");
+                                        "Attempting to add a responseValueSource that is either the wrong type expected or the message can not source a request Id ");
         }
     }
 
@@ -121,14 +136,14 @@ public abstract class DeserializedNotifierBase<TM> : IDeserializedNotifier where
             RegisterMessageDeserializer(typedNotifyingMessageDeserializer);
         else
             throw new ArgumentException(
-                $"Expected to received a INotifyingMessageDeserializer<{typeof(TM).Name}> but got {notifyingMessageDeserializer.GetType()}");
+                                        $"Expected to received a INotifyingMessageDeserializer<{typeof(TM).Name}> but got {notifyingMessageDeserializer.GetType()}");
     }
 
     object ICloneable.Clone() => Clone();
 
     public abstract IDeserializedNotifier Clone();
 
-    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IDeserializedNotifier)source, copyMergeFlags);
+    public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags) => CopyFrom((IDeserializedNotifier)source, copyMergeFlags);
 
     public abstract IDeserializedNotifier CopyFrom(IDeserializedNotifier source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 
@@ -137,13 +152,14 @@ public abstract class DeserializedNotifierBase<TM> : IDeserializedNotifier where
     public void RegisterMessageDeserializer(INotifyingMessageDeserializer<TM> notifyingMessageDeserializer)
     {
         RegistrationCountChanged += notifyingMessageDeserializer.OnNotifierSubscribeCountChanged;
-        Unsubscribe += () => { RegistrationCountChanged -= notifyingMessageDeserializer.OnNotifierSubscribeCountChanged; };
+        Unsubscribe              += () => { RegistrationCountChanged -= notifyingMessageDeserializer.OnNotifierSubscribeCountChanged; };
         if (DeserializeNotifyType == DeserializeNotifyTypeFlags.MessageAndConversation)
         {
             notifyingMessageDeserializer.ConversationMessageDeserialized += AttachToDeserializerConversationHandler;
             Unsubscribe += () =>
             {
                 RegistrationCountChanged -= notifyingMessageDeserializer.OnNotifierSubscribeCountChanged;
+
                 notifyingMessageDeserializer.ConversationMessageDeserialized -= AttachToDeserializerConversationHandler;
             };
         }
@@ -157,7 +173,7 @@ public abstract class DeserializedNotifierBase<TM> : IDeserializedNotifier where
 }
 
 public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>, IDeserializedNotifier<TM, TM>
-    , IStoreState<PassThroughDeserializedNotifier<TM>>
+  , ITransferState<PassThroughDeserializedNotifier<TM>>
     where TM : class, IVersionedMessage, new()
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PassThroughDeserializedNotifier<TM>));
@@ -173,8 +189,9 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
         : base(registrationLocation, DeserializeNotifyTypeFlags.JustMessage) =>
         receiverMessageDeserializedHandler = messageDeserializedHandler;
 
-    public PassThroughDeserializedNotifier(string registrationLocation, DeserializeNotifyTypeFlags deserializeNotifyType
-        , params IReceiverListenContext<TM>[] registerAllReceiverListenContexts) :
+    public PassThroughDeserializedNotifier
+    (string registrationLocation, DeserializeNotifyTypeFlags deserializeNotifyType
+      , params IReceiverListenContext<TM>[] registerAllReceiverListenContexts) :
         base(registrationLocation, deserializeNotifyType)
     {
         foreach (var receiverListenContext in registerAllReceiverListenContexts)
@@ -184,22 +201,22 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
     public PassThroughDeserializedNotifier(PassThroughDeserializedNotifier<TM> toClone) : base(toClone)
     {
         receiverConversationMessageReceivedHandler = toClone.receiverConversationMessageReceivedHandler;
-        receiverMessageDeserializedHandler = toClone.receiverMessageDeserializedHandler;
+        receiverMessageDeserializedHandler         = toClone.receiverMessageDeserializedHandler;
         foreach (var kvpRReceiverContexts in toClone.registeredReceiverContexts)
             registeredReceiverContexts.Add(kvpRReceiverContexts.Key, kvpRReceiverContexts.Value.Clone());
     }
 
     public override ConversationMessageReceivedHandler<TM>? AttachToDeserializerConversationHandler =>
         receiverConversationMessageReceivedHandler != null
-        || (DeserializeNotifyType & DeserializeNotifyTypeFlags.MessageAndConversation) > 0 ?
-            ConversationMessageDeserialized :
-            null;
+     || (DeserializeNotifyType & DeserializeNotifyTypeFlags.MessageAndConversation) > 0
+            ? ConversationMessageDeserialized
+            : null;
 
     public override MessageDeserializedHandler<TM>? AttachToDeserializerMessageHandler =>
         receiverConversationMessageReceivedHandler != null
-        || (DeserializeNotifyType & DeserializeNotifyTypeFlags.JustMessage) > 0 ?
-            MessageDeserialized :
-            null;
+     || (DeserializeNotifyType & DeserializeNotifyTypeFlags.JustMessage) > 0
+            ? MessageDeserialized
+            : null;
 
     public override IReceiverListenContext? this[string name]
     {
@@ -219,7 +236,7 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
     public bool Add(IReceiverListenContext<TM> receiverListenContext)
     {
         var oldReceiverListenCount = registeredReceiverContexts.Count;
-        var wasAdded = registeredReceiverContexts.Add(receiverListenContext.Name, receiverListenContext);
+        var wasAdded               = registeredReceiverContexts.Add(receiverListenContext.Name, receiverListenContext);
         SubscriberCount += registeredReceiverContexts.Count - oldReceiverListenCount;
         return wasAdded;
     }
@@ -241,12 +258,14 @@ public class PassThroughDeserializedNotifier<TM> : DeserializedNotifierBase<TM>,
     public override IDeserializedNotifier CopyFrom(IDeserializedNotifier source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CopyFrom((PassThroughDeserializedNotifier<TM>)source, copyMergeFlags);
 
-    public PassThroughDeserializedNotifier<TM> CopyFrom(PassThroughDeserializedNotifier<TM> source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public PassThroughDeserializedNotifier<TM> CopyFrom
+    (PassThroughDeserializedNotifier<TM> source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if ((copyMergeFlags & CopyMergeFlags.RemoveUnmatched) > 0) registeredReceiverContexts.Clear();
 
         receiverConversationMessageReceivedHandler = source.receiverConversationMessageReceivedHandler;
+
         receiverMessageDeserializedHandler = source.receiverMessageDeserializedHandler;
         foreach (var kvpReceiverContexts in source.registeredReceiverContexts)
             if ((copyMergeFlags & CopyMergeFlags.FullReplace) == 0)
@@ -324,40 +343,49 @@ public delegate void ConvertedConversationMessageReceivedHandler<in TM>(TM deser
 public delegate void ConvertedMessageOnlyDeserializedHandler<in TM>(TM deserializedMessage);
 
 public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<TM>, IDeserializedNotifier<TM, TR>
-    , IStoreState<ConvertingDeserializedNotifier<TM, TR>>
+  , ITransferState<ConvertingDeserializedNotifier<TM, TR>>
     where TM : class, IVersionedMessage, new()
 {
     private static IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(ConvertingDeserializedNotifier<TM, TR>));
 
     private readonly bool convertedIsResponseMessage;
+
     private readonly IMap<string, IReceiverListenContext<TR>> registeredReceiverContexts = new ConcurrentMap<string, IReceiverListenContext<TR>>();
 
     private ConvertedConversationMessageReceivedHandler<TR>? receiverConversationMessageReceivedHandler;
+
     private ConvertedMessageOnlyDeserializedHandler<TR>? receiverMessageOnlyDeserializedHandler;
 
-    public ConvertingDeserializedNotifier(string registrationLocation, IConverter<TM, TR> converter
-        , ConvertedConversationMessageReceivedHandler<TR> conversationMessageReceived) : base(registrationLocation
-        , DeserializeNotifyTypeFlags.MessageAndConversation)
+    public ConvertingDeserializedNotifier
+    (string registrationLocation, IConverter<TM, TR> converter
+      , ConvertedConversationMessageReceivedHandler<TR> conversationMessageReceived) : base(registrationLocation
+                                                                                          , DeserializeNotifyTypeFlags.MessageAndConversation)
     {
         convertedIsResponseMessage = typeof(TR).GetInterfaces().Any(t => t == typeof(IResponseMessage));
-        Converter = converter;
+        Converter                  = converter;
+
         receiverConversationMessageReceivedHandler = conversationMessageReceived;
     }
 
-    public ConvertingDeserializedNotifier(string registrationLocation, IConverter<TM, TR> converter
-        , ConvertedMessageOnlyDeserializedHandler<TR> messageOnlyDeserializedHandler) : base(registrationLocation
-        , DeserializeNotifyTypeFlags.JustMessage)
+    public ConvertingDeserializedNotifier
+    (string registrationLocation, IConverter<TM, TR> converter
+      , ConvertedMessageOnlyDeserializedHandler<TR> messageOnlyDeserializedHandler) : base(registrationLocation
+                                                                                         , DeserializeNotifyTypeFlags.JustMessage)
     {
         convertedIsResponseMessage = typeof(TR).GetInterfaces().Any(t => t == typeof(IResponseMessage));
-        Converter = converter;
+        Converter                  = converter;
+
         receiverMessageOnlyDeserializedHandler = messageOnlyDeserializedHandler;
     }
 
-    public ConvertingDeserializedNotifier(string registrationLocation, IConverter<TM, TR> converter, DeserializeNotifyTypeFlags deserializeNotifyType
-        , params IReceiverListenContext<TR>[] registerAllReceiverListenContexts) : base(registrationLocation, deserializeNotifyType)
+    public ConvertingDeserializedNotifier
+    (string registrationLocation, IConverter<TM, TR> converter, DeserializeNotifyTypeFlags deserializeNotifyType
+      , params IReceiverListenContext<TR>[] registerAllReceiverListenContexts) : base(registrationLocation, deserializeNotifyType)
     {
         convertedIsResponseMessage = typeof(TR).GetInterfaces().Any(t => t == typeof(IResponseMessage));
+
         Converter = converter;
+
         foreach (var receiverListenContext in registerAllReceiverListenContexts)
             registeredReceiverContexts.Add(receiverListenContext.Name, receiverListenContext);
     }
@@ -365,11 +393,13 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
     public ConvertingDeserializedNotifier(ConvertingDeserializedNotifier<TM, TR> toClone) : base(toClone)
     {
         convertedIsResponseMessage = toClone.convertedIsResponseMessage;
+
         receiverConversationMessageReceivedHandler = toClone.receiverConversationMessageReceivedHandler;
-        receiverMessageOnlyDeserializedHandler = toClone.receiverMessageOnlyDeserializedHandler;
+        receiverMessageOnlyDeserializedHandler     = toClone.receiverMessageOnlyDeserializedHandler;
         foreach (var kvpRReceiverContexts in toClone.registeredReceiverContexts)
             registeredReceiverContexts.Add(kvpRReceiverContexts.Key, kvpRReceiverContexts.Value.Clone());
         registeredReceiverContexts = toClone.registeredReceiverContexts.Clone();
+
         Converter = toClone.Converter;
     }
 
@@ -377,15 +407,15 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
 
     public override ConversationMessageReceivedHandler<TM>? AttachToDeserializerConversationHandler =>
         receiverConversationMessageReceivedHandler != null
-        || (DeserializeNotifyType & DeserializeNotifyTypeFlags.MessageAndConversation) > 0 ?
-            ConversationMessageDeserialized :
-            null;
+     || (DeserializeNotifyType & DeserializeNotifyTypeFlags.MessageAndConversation) > 0
+            ? ConversationMessageDeserialized
+            : null;
 
     public override MessageDeserializedHandler<TM>? AttachToDeserializerMessageHandler =>
         receiverConversationMessageReceivedHandler != null
-        || (DeserializeNotifyType & DeserializeNotifyTypeFlags.JustMessage) > 0 ?
-            MessageDeserialized :
-            null;
+     || (DeserializeNotifyType & DeserializeNotifyTypeFlags.JustMessage) > 0
+            ? MessageDeserialized
+            : null;
 
     public override Type NotifyingType => typeof(TR);
 
@@ -406,7 +436,7 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
     public bool Add(IReceiverListenContext<TR> receiverListenContext)
     {
         var oldReceiverListenCount = registeredReceiverContexts.Count;
-        var wasAdded = registeredReceiverContexts.Add(receiverListenContext.Name, receiverListenContext);
+        var wasAdded               = registeredReceiverContexts.Add(receiverListenContext.Name, receiverListenContext);
         SubscriberCount += registeredReceiverContexts.Count - oldReceiverListenCount;
         return wasAdded;
     }
@@ -433,13 +463,13 @@ public class ConvertingDeserializedNotifier<TM, TR> : DeserializedNotifierBase<T
     public override IDeserializedNotifier CopyFrom(IDeserializedNotifier source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CopyFrom((ConvertingDeserializedNotifier<TM, TR>)source, copyMergeFlags);
 
-    public ConvertingDeserializedNotifier<TM, TR> CopyFrom(ConvertingDeserializedNotifier<TM, TR> source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public ConvertingDeserializedNotifier<TM, TR> CopyFrom
+        (ConvertingDeserializedNotifier<TM, TR> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if ((copyMergeFlags & CopyMergeFlags.RemoveUnmatched) > 0) registeredReceiverContexts.Clear();
 
         receiverConversationMessageReceivedHandler = source.receiverConversationMessageReceivedHandler;
-        receiverMessageOnlyDeserializedHandler = source.receiverMessageOnlyDeserializedHandler;
+        receiverMessageOnlyDeserializedHandler     = source.receiverMessageOnlyDeserializedHandler;
         foreach (var kvpReceiverContexts in source.registeredReceiverContexts)
             if ((copyMergeFlags & CopyMergeFlags.FullReplace) == 0)
             {

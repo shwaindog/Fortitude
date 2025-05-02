@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 

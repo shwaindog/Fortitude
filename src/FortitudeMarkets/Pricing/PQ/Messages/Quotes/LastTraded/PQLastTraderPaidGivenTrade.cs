@@ -6,7 +6,7 @@
 using System.Diagnostics;
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
@@ -29,9 +29,15 @@ public interface IPQLastTraderPaidGivenTrade : IPQLastPaidGivenTrade, IMutableLa
 public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPaidGivenTrade
 {
     private IPQNameIdLookupGenerator nameIdLookup;
-    private int                      traderId;
 
-    public PQLastTraderPaidGivenTrade(IPQNameIdLookupGenerator traderIdToNameLookup) => nameIdLookup = traderIdToNameLookup;
+    private int traderId;
+
+    public PQLastTraderPaidGivenTrade(IPQNameIdLookupGenerator traderIdToNameLookup)
+    {
+        nameIdLookup = traderIdToNameLookup;
+
+        if (GetType() == typeof(PQLastTraderPaidGivenTrade)) NumUpdatesSinceEmpty = 0;
+    }
 
     public PQLastTraderPaidGivenTrade
     (IPQNameIdLookupGenerator traderIdToNameLookup, decimal tradePrice = 0m, DateTime? tradeTime = null
@@ -40,6 +46,8 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
     {
         nameIdLookup = traderIdToNameLookup;
         TraderName   = traderName;
+
+        if (GetType() == typeof(PQLastTraderPaidGivenTrade)) NumUpdatesSinceEmpty = 0;
     }
 
     public PQLastTraderPaidGivenTrade(ILastTrade toClone, IPQNameIdLookupGenerator traderIdToNameLookup) : base(toClone)
@@ -52,6 +60,8 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         }
 
         if (toClone is ILastTraderPaidGivenTrade lastTraderPaidGivenTrade) TraderName = lastTraderPaidGivenTrade.TraderName;
+
+        if (GetType() == typeof(PQLastTraderPaidGivenTrade)) NumUpdatesSinceEmpty = 0;
     }
 
     protected string PQLastTraderPaidGivenTradeToStringMembers => $"{PQLastPaidGivenTradeToStringMembers}, {nameof(TraderName)}: {TraderName}";
@@ -66,9 +76,9 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         get => traderId;
         set
         {
-            if (value == traderId) return;
-            IsTraderNameUpdated = true;
-            traderId            = value;
+            IsTraderNameUpdated |= traderId != value || NumUpdatesSinceEmpty == 0;
+
+            traderId = value;
         }
     }
 
@@ -103,7 +113,8 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         set
         {
             if (value)
-                UpdatedFlags                           |= LastTradeUpdated.TraderNameUpdated;
+                UpdatedFlags |= LastTradeUpdated.TraderNameUpdated;
+
             else if (IsTraderNameUpdated) UpdatedFlags ^= LastTradeUpdated.TraderNameUpdated;
         }
     }
@@ -149,6 +160,12 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
 
             base.IsEmpty = true;
         }
+    }
+
+    public override void UpdateComplete()
+    {
+        NameIdLookup.UpdateComplete();
+        base.UpdateComplete();
     }
 
     public override void StateReset()

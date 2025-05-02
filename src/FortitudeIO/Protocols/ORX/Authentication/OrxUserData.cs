@@ -1,7 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Serdes;
@@ -23,7 +25,7 @@ public class OrxUserData : ReusableObject<IUserData>, IUserData
     public OrxUserData(MutableString userId, OrxAuthenticationData? authData = null)
     {
         AuthData = authData;
-        UserId = userId;
+        UserId   = userId;
     }
 
     [OrxMandatoryField(0)] public MutableString? UserId { get; set; }
@@ -55,14 +57,14 @@ public class OrxUserData : ReusableObject<IUserData>, IUserData
 
     public override IUserData CopyFrom(IUserData userData, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        UserId = userData.UserId?.CopyOrClone(UserId);
+        UserId   = userData.UserId?.CopyOrClone(UserId);
         AuthData = userData.AuthData?.CopyOrClone(AuthData);
         return this;
     }
 
     protected bool Equals(OrxUserData other)
     {
-        var userIdSame = Equals(UserId, other.UserId);
+        var userIdSame   = Equals(UserId, other.UserId);
         var authDataSame = Equals(AuthData, other.AuthData);
         return userIdSame && authDataSame;
     }

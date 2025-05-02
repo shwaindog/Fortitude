@@ -6,6 +6,7 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
@@ -69,7 +70,7 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
         get => ordersCount;
         set
         {
-            IsOrdersCountUpdated |= ordersCount != value;
+            IsOrdersCountUpdated |= ordersCount != value || NumUpdatesSinceEmpty == 0;
             ordersCount          =  value;
         }
     }
@@ -80,7 +81,7 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
         get => internalVolume;
         set
         {
-            IsInternalVolumeUpdated |= internalVolume != value;
+            IsInternalVolumeUpdated |= internalVolume != value || NumUpdatesSinceEmpty == 0;
             internalVolume          =  value;
         }
     }

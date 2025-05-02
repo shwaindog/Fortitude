@@ -186,7 +186,7 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQTickInstant>
                 // logger.Info("se-{0}-{1}", sequenceId, field);
                 // Console.Out.WriteLine("se-{0}-{1}", sequenceId, field);
 
-                if (currentPtr + FieldSize > end) return FinishProcessingMessageReturnValue(message, -1);
+                if (currentPtr + field.RequiredBytes() > end) return FinishProcessingMessageReturnValue(message, -1);
                 *currentPtr++ = (byte)field.Flag;
                 *currentPtr++ = (byte)field.Id;
 

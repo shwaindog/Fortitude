@@ -32,9 +32,7 @@ public enum QuoteFieldUpdatedFlags : ulong
   , ValidFromTimeSubHourUpdatedFlag       = 0x0040_0000
   , ValidToDateUpdatedFlag                = 0x0080_0000
   , ValidToSubHourUpdatedFlag             = 0x0100_0000
-  , PreviousQuoteBidTopUpdatedFlag        = 0x0200_0000
   , BidTopPriceUpdatedFlag                = 0x0400_0000
-  , PreviousQuoteAskTopUpdatedFlag        = 0x0800_0000
   , AskTopPriceUpdatedFlag                = 0x1000_0000
   , ExecutableUpdatedFlag                 = 0x2000_0000
   , BatchIdeUpdatedFlag                   = 0x4000_0000

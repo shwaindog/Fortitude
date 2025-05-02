@@ -57,8 +57,8 @@ public static class QuoteExtensionMethods
             sb.AddIfDifferent(l1q1, l1q2, q => q.AskPriceTop);
             sb.AddIfDifferent(l1q1, l1q2, q => q.Executable);
             sb.AddIfDifferent(l1q1, l1q2, q => q.SummaryPeriod!);
-            sb.AddIfDifferent(l1q1, l1q2, q => q.IsAskPriceTopUpdated!);
-            sb.AddIfDifferent(l1q1, l1q2, q => q.IsBidPriceTopUpdated!);
+            sb.AddIfDifferent(l1q1, l1q2, q => q.IsAskPriceTopChanged!);
+            sb.AddIfDifferent(l1q1, l1q2, q => q.IsBidPriceTopChanged!);
         }
 
         var l2q1 = ti1 as ILevel2Quote;
@@ -73,8 +73,8 @@ public static class QuoteExtensionMethods
         }
         else if (l2q1 != null) //no need for && l2q2 != null
         {
-            sb.AddIfDifferent(l2q1, l2q2, q => q.BidBook, exactValues);
-            sb.AddIfDifferent(l2q1, l2q2, q => q.AskBook, exactValues);
+            sb.AddIfDifferent(l2q1, l2q2, q => q.BidBookSide, exactValues);
+            sb.AddIfDifferent(l2q1, l2q2, q => q.AskBookSide, exactValues);
         }
 
         var l3q1 = ti1 as ILevel3Quote;
@@ -212,7 +212,7 @@ public static class QuoteExtensionMethods
     }
 
     private static StringBuilder AddIfDifferent
-        (this StringBuilder sb, ILevel2Quote? q1, ILevel2Quote? q2, Expression<Func<ILevel2Quote, IOrderBook>> property, bool exactTypes = true)
+        (this StringBuilder sb, ILevel2Quote? q1, ILevel2Quote? q2, Expression<Func<ILevel2Quote, IOrderBookSide>> property, bool exactTypes = true)
     {
         var evaluator    = property.Compile();
         var q1Value      = q1 != null ? evaluator(q1) : null;

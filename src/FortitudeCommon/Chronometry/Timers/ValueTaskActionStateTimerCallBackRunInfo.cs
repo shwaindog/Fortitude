@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -58,8 +58,7 @@ internal class ValueTaskActionStateTimerCallBackRunInfo<T> : TimerCallBackRunInf
     public T? State { get; set; }
 
     public override ITimerCallBackRunInfo CopyFrom
-    (ITimerCallBackRunInfo source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+        (ITimerCallBackRunInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is ValueTaskActionStateTimerCallBackRunInfo<T> actionTimerCallBackRunInfo)
         {

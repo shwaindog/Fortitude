@@ -6,6 +6,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
@@ -302,7 +303,7 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
     public override IPQPricingInstrumentId Clone() =>
         Recycler?.Borrow<PQPricingInstrument>().CopyFrom(this) as PQPricingInstrument ?? new PQPricingInstrument(this);
 
-    IReusableObject<IPricingInstrumentId> IStoreState<IReusableObject<IPricingInstrumentId>>.CopyFrom
+    IReusableObject<IPricingInstrumentId> ITransferState<IReusableObject<IPricingInstrumentId>>.CopyFrom
         (IReusableObject<IPricingInstrumentId> source, CopyMergeFlags copyMergeFlags) =>
         (IPQPricingInstrumentId)CopyFrom(source, copyMergeFlags);
 

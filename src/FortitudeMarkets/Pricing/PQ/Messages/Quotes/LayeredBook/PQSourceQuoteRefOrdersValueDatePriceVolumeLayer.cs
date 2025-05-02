@@ -6,6 +6,7 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
@@ -107,9 +108,8 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolu
         get => sourceQuoteReference;
         set
         {
-            if (sourceQuoteReference == value) return;
-            IsSourceQuoteReferenceUpdated = true;
-            sourceQuoteReference          = value;
+            IsSourceQuoteReferenceUpdated |= sourceQuoteReference != value || NumUpdatesSinceEmpty == 0;
+            sourceQuoteReference          =  value;
         }
     }
 
@@ -237,6 +237,12 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolu
         }
     }
 
+    public override void UpdateComplete()
+    {
+        NameIdLookup.UpdateComplete();
+        base.UpdateComplete();
+    }
+
     public override void StateReset()
     {
         ValueDate  = DateTimeConstants.UnixEpoch;
@@ -315,8 +321,7 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolu
     }
 
     public override IPriceVolumeLayer CopyFrom
-    (IPriceVolumeLayer source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+        (IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         var isFullReplace = copyMergeFlags.HasFullReplace();

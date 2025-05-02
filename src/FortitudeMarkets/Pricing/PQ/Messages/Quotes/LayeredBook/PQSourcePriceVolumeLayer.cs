@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
@@ -119,7 +120,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         get => (LayerBooleanFlags & LayerBooleanFlags.IsExecutableFlag) != 0;
         set
         {
-            IsExecutableUpdated |= (LayerBooleanFlags & LayerBooleanFlags.IsExecutableFlag) > 0 != value || NumUpdatesSinceEmpty == 0;
+            IsExecutableUpdated |= Executable != value || NumUpdatesSinceEmpty == 0;
             if (value)
                 LayerBooleanFlags |= LayerBooleanFlags.IsExecutableFlag;
 
@@ -179,6 +180,12 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         }
     }
 
+    public override void UpdateComplete()
+    {
+        NameIdLookup.UpdateComplete();
+        base.UpdateComplete();
+    }
+
     public override void StateReset()
     {
         SourceId   = 0;
@@ -192,7 +199,6 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         get => base.HasUpdates || NameIdLookup.HasUpdates;
         set
         {
-            if (value) return;
             NameIdLookup.HasUpdates = value;
             base.HasUpdates         = value;
         }

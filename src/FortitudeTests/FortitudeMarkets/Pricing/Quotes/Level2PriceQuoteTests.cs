@@ -158,8 +158,8 @@ public class Level2PriceQuoteTests
             Assert.AreEqual(0m, emptyL2Quote.AskPriceTop);
             Assert.AreEqual(false, emptyL2Quote.Executable);
             Assert.IsNull(emptyL2Quote.SummaryPeriod);
-            Assert.AreEqual(new OrderBook(BookSide.BidBook, emptyL2Quote.SourceTickerInfo!), emptyL2Quote.BidBook);
-            Assert.AreEqual(new OrderBook(BookSide.AskBook, emptyL2Quote.SourceTickerInfo!), emptyL2Quote.AskBook);
+            Assert.AreEqual(new OrderBookSide(BookSide.BidBook, emptyL2Quote.SourceTickerInfo!), emptyL2Quote.BidBookSide);
+            Assert.AreEqual(new OrderBookSide(BookSide.AskBook, emptyL2Quote.SourceTickerInfo!), emptyL2Quote.AskBookSide);
             Assert.IsFalse(emptyL2Quote.IsBidBookChanged);
             Assert.IsFalse(emptyL2Quote.IsAskBookChanged);
         }
@@ -179,13 +179,12 @@ public class Level2PriceQuoteTests
         var expectedAskPriceTop        = 3.45678m;
         var expectedPeriodSummary      = new PricePeriodSummary();
         var expectedBidBook =
-            new OrderBook
-                (BookSide.BidBook, simpleSourceTickerInfo)
-                {
-                    [0] = new PriceVolumeLayer(expectedBidPriceTop, 1_000_000)
-                };
+            new OrderBookSide(BookSide.BidBook, simpleSourceTickerInfo)
+            {
+                [0] = new PriceVolumeLayer(expectedBidPriceTop, 1_000_000)
+            };
         var expectedAskBook =
-            new OrderBook(BookSide.AskBook, simpleSourceTickerInfo)
+            new OrderBookSide(BookSide.AskBook, simpleSourceTickerInfo)
             {
                 [0] = new PriceVolumeLayer(expectedAskPriceTop, 1_000_000)
             };
@@ -206,14 +205,14 @@ public class Level2PriceQuoteTests
         Assert.AreEqual(expectedAdapterSentTime, fromConstructor.AdapterSentTime);
         Assert.AreEqual(expectedSourceBidTime, fromConstructor.SourceBidTime);
         Assert.AreEqual(expectedBidPriceTop, fromConstructor.BidPriceTop);
-        Assert.AreEqual(true, fromConstructor.IsBidPriceTopUpdated);
+        Assert.AreEqual(true, fromConstructor.IsBidPriceTopChanged);
         Assert.AreEqual(expectedSourceAskTime, fromConstructor.SourceAskTime);
         Assert.AreEqual(expectedAskPriceTop, fromConstructor.AskPriceTop);
-        Assert.AreEqual(true, fromConstructor.IsAskPriceTopUpdated);
+        Assert.AreEqual(true, fromConstructor.IsAskPriceTopChanged);
         Assert.AreEqual(true, fromConstructor.Executable);
         Assert.AreEqual(expectedPeriodSummary, fromConstructor.SummaryPeriod);
-        Assert.AreEqual(expectedBidBook, fromConstructor.BidBook);
-        Assert.AreEqual(expectedAskBook, fromConstructor.AskBook);
+        Assert.AreEqual(expectedBidBook, fromConstructor.BidBookSide);
+        Assert.AreEqual(expectedAskBook, fromConstructor.AskBookSide);
         Assert.IsTrue(fromConstructor.IsBidBookChanged);
         Assert.IsTrue(fromConstructor.IsAskBookChanged);
     }
@@ -232,17 +231,17 @@ public class Level2PriceQuoteTests
         var expectedAskPriceTop        = 3.45678m;
         var expectedPeriodSummary      = new PricePeriodSummary();
         var convertedBidBook =
-            new PQOrderBook(BookSide.BidBook, new PQSourceTickerInfo(simpleSourceTickerInfo))
+            new PQOrderBookSide(BookSide.BidBook, new PQSourceTickerInfo(simpleSourceTickerInfo))
             {
                 [0] = new PQPriceVolumeLayer(expectedBidPriceTop, 1_000_000)
             };
         var convertedAskBook =
-            new PQOrderBook(BookSide.AskBook, new PQSourceTickerInfo(simpleSourceTickerInfo))
+            new PQOrderBookSide(BookSide.AskBook, new PQSourceTickerInfo(simpleSourceTickerInfo))
             {
                 [0] = new PQPriceVolumeLayer(expectedAskPriceTop, 1_000_000)
             };
-        var expectedBidBook = new OrderBook(convertedBidBook);
-        var expectedAskBook = new OrderBook(convertedAskBook);
+        var expectedBidBook = new OrderBookSide(convertedBidBook);
+        var expectedAskBook = new OrderBookSide(convertedAskBook);
 
         var fromConstructor =
             new Level2PriceQuote
@@ -251,8 +250,8 @@ public class Level2PriceQuoteTests
                , expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2), true
                , true, expectedPeriodSummary, convertedBidBook, true, convertedAskBook, true);
 
-        Assert.AreEqual(expectedBidBook, fromConstructor.BidBook);
-        Assert.AreEqual(expectedAskBook, fromConstructor.AskBook);
+        Assert.AreEqual(expectedBidBook, fromConstructor.BidBookSide);
+        Assert.AreEqual(expectedAskBook, fromConstructor.AskBookSide);
     }
 
     [TestMethod]
@@ -312,22 +311,22 @@ public class Level2PriceQuoteTests
     {
         foreach (var populatedQuote in allFullyPopulatedQuotes)
         {
-            var originalBidBook = populatedQuote.BidBook;
-            var originalAskBook = populatedQuote.AskBook;
+            var originalBidBook = populatedQuote.BidBookSide;
+            var originalAskBook = populatedQuote.AskBookSide;
 
-            var pqBidBook = new PQOrderBook(originalBidBook);
-            var pqAskBook = new PQOrderBook(originalAskBook);
+            var pqBidBook = new PQOrderBookSide(originalBidBook);
+            var pqAskBook = new PQOrderBookSide(originalAskBook);
 
-            populatedQuote.BidBook = pqBidBook;
-            populatedQuote.AskBook = pqAskBook;
+            populatedQuote.BidBookSide = pqBidBook;
+            populatedQuote.AskBookSide = pqAskBook;
 
             var copyQuote = new Level2PriceQuote(populatedQuote);
             Assert.AreNotEqual(populatedQuote, copyQuote);
             Assert.IsTrue(populatedQuote.AreEquivalent(copyQuote));
             Assert.IsTrue(copyQuote.AreEquivalent(populatedQuote));
 
-            populatedQuote.BidBook = originalBidBook;
-            populatedQuote.AskBook = originalAskBook;
+            populatedQuote.BidBookSide = originalBidBook;
+            populatedQuote.AskBookSide = originalAskBook;
         }
     }
 
@@ -347,9 +346,9 @@ public class Level2PriceQuoteTests
 
         foreach (var emptyQuote in allEmptyQuotes)
         {
-            var expectedBidOrderBook = emptyQuote.BidBook.Clone();
+            var expectedBidOrderBook = emptyQuote.BidBookSide.Clone();
             expectedBidOrderBook[0]!.Price = expectedBidPriceTop;
-            var expectedAskOrderBook = emptyQuote.AskBook.Clone();
+            var expectedAskOrderBook = emptyQuote.AskBookSide.Clone();
             expectedAskOrderBook[0]!.Price = expectedAskPriceTop;
 
             emptyQuote.SourceTime           = expectedSourceTime;
@@ -360,15 +359,15 @@ public class Level2PriceQuoteTests
             emptyQuote.AdapterSentTime      = expectedAdapterSentTime;
             emptyQuote.SourceBidTime        = expectedSourceBidTime;
             emptyQuote.BidPriceTop          = expectedBidPriceTop;
-            emptyQuote.IsBidPriceTopUpdated = true;
+            emptyQuote.IsBidPriceTopChanged = true;
             emptyQuote.SourceAskTime        = expectedSourceAskTime;
             emptyQuote.AskPriceTop          = expectedAskPriceTop;
-            emptyQuote.IsAskPriceTopUpdated = true;
+            emptyQuote.IsAskPriceTopChanged = true;
             emptyQuote.Executable           = true;
             emptyQuote.SummaryPeriod        = expectedPeriodSummary;
-            emptyQuote.BidBook              = expectedBidOrderBook;
+            emptyQuote.BidBookSide          = expectedBidOrderBook;
             emptyQuote.IsBidBookChanged     = true;
-            emptyQuote.AskBook              = expectedAskOrderBook;
+            emptyQuote.AskBookSide          = expectedAskOrderBook;
             emptyQuote.IsAskBookChanged     = true;
 
             Assert.AreEqual(expectedSourceTime, emptyQuote.SourceTime);
@@ -379,15 +378,15 @@ public class Level2PriceQuoteTests
             Assert.AreEqual(expectedAdapterSentTime, emptyQuote.AdapterSentTime);
             Assert.AreEqual(expectedSourceBidTime, emptyQuote.SourceBidTime);
             Assert.AreEqual(expectedBidPriceTop, emptyQuote.BidPriceTop);
-            Assert.AreEqual(true, emptyQuote.IsBidPriceTopUpdated);
+            Assert.AreEqual(true, emptyQuote.IsBidPriceTopChanged);
             Assert.AreEqual(expectedSourceAskTime, emptyQuote.SourceAskTime);
             Assert.AreEqual(expectedAskPriceTop, emptyQuote.AskPriceTop);
-            Assert.AreEqual(true, emptyQuote.IsAskPriceTopUpdated);
+            Assert.AreEqual(true, emptyQuote.IsAskPriceTopChanged);
             Assert.AreEqual(true, emptyQuote.Executable);
             Assert.AreEqual(expectedPeriodSummary, emptyQuote.SummaryPeriod);
-            Assert.AreSame(expectedBidOrderBook, emptyQuote.BidBook);
+            Assert.AreSame(expectedBidOrderBook, emptyQuote.BidBookSide);
             Assert.AreEqual(true, emptyQuote.IsBidBookChanged);
-            Assert.AreSame(expectedAskOrderBook, emptyQuote.AskBook);
+            Assert.AreSame(expectedAskOrderBook, emptyQuote.AskBookSide);
             Assert.AreEqual(true, emptyQuote.IsAskBookChanged);
         }
     }
@@ -572,15 +571,15 @@ public class Level2PriceQuoteTests
             Assert.IsTrue(toString.Contains($"{nameof(q.AdapterSentTime)}: {q.AdapterSentTime:O}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.SourceBidTime)}: {q.SourceBidTime:O}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.BidPriceTop)}: {q.BidPriceTop:N5}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.IsBidPriceTopUpdated)}: {q.IsBidPriceTopUpdated}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.IsBidPriceTopChanged)}: {q.IsBidPriceTopChanged}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.SourceAskTime)}: {q.SourceAskTime:O}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.AskPriceTop)}: {q.AskPriceTop:N5}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.IsAskPriceTopUpdated)}: {q.IsAskPriceTopUpdated}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.IsAskPriceTopChanged)}: {q.IsAskPriceTopChanged}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.Executable)}: {q.Executable}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.SummaryPeriod)}: {q.SummaryPeriod}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.BidBook)}: {q.BidBook}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.BidBookSide)}: {q.BidBookSide}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.IsBidBookChanged)}: {q.IsBidBookChanged}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.AskBook)}: {q.AskBook}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.AskBookSide)}: {q.AskBookSide}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.IsAskBookChanged)}: {q.IsAskBookChanged}"));
         }
     }
@@ -609,7 +608,7 @@ public class Level2PriceQuoteTests
            , true, new PricePeriodSummary(), sourceBidBook, true, sourceAskBook, true);
     }
 
-    private static OrderBook GenerateBook<T>
+    private static OrderBookSide GenerateBook<T>
     (BookSide bookSide, int numberOfLayers, decimal startingPrice, decimal deltaPricePerLayer,
         decimal startingVolume, decimal deltaVolumePerLayer, Func<decimal, decimal, T> genNewLayerObj)
         where T : IPriceVolumeLayer
@@ -624,11 +623,11 @@ public class Level2PriceQuoteTests
             currentVolume += deltaVolumePerLayer;
         }
 
-        return new OrderBook(bookSide, generatedLayers.Cast<IPriceVolumeLayer>().ToList());
+        return new OrderBookSide(bookSide, generatedLayers.Cast<IPriceVolumeLayer>().ToList());
     }
 
 
-    private static void UpdateSourceQuoteBook(IOrderBook toUpdate, int numberOfLayers, decimal startingVolume, decimal deltaVolumePerLayer)
+    private static void UpdateSourceQuoteBook(IOrderBookSide toUpdate, int numberOfLayers, decimal startingVolume, decimal deltaVolumePerLayer)
     {
         var currentVolume = startingVolume;
         for (var i = 0; i < numberOfLayers; i++)
@@ -649,13 +648,13 @@ public class Level2PriceQuoteTests
         Level1PriceQuoteTests.AssertAreEquivalentMeetsExpectedExactComparisonType
             (exactComparison, commonCompareQuote, changingQuote);
 
-        OrderBookTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-            (exactComparison, (OrderBook)commonCompareQuote.BidBook
-           , (OrderBook)changingQuote.BidBook, commonCompareQuote, changingQuote);
+        OrderBookSideTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+            (exactComparison, (OrderBookSide)commonCompareQuote.BidBookSide
+           , (OrderBookSide)changingQuote.BidBookSide, commonCompareQuote, changingQuote);
 
-        OrderBookTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-            (exactComparison, (OrderBook)commonCompareQuote.AskBook
-           , (OrderBook)changingQuote.AskBook, commonCompareQuote, changingQuote);
+        OrderBookSideTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+            (exactComparison, (OrderBookSide)commonCompareQuote.AskBookSide
+           , (OrderBookSide)changingQuote.AskBookSide, commonCompareQuote, changingQuote);
     }
 
     private void AssertLayerTypeIsExpected(Type expectedType, params Level2PriceQuote[] quotesToCheck)
@@ -663,12 +662,12 @@ public class Level2PriceQuoteTests
         foreach (var level2Quote in quotesToCheck)
             for (var i = 0; i < level2Quote.SourceTickerInfo!.MaximumPublishedLayers; i++)
             {
-                Assert.AreEqual(expectedType, level2Quote.BidBook[i]?.GetType(),
+                Assert.AreEqual(expectedType, level2Quote.BidBookSide[i]?.GetType(),
                                 $"BidBook[{i}] expectedType: {expectedType.Name} " +
-                                $"actualType: {level2Quote.BidBook[i]?.GetType()?.Name ?? "null"}");
-                Assert.AreEqual(expectedType, level2Quote.AskBook[i]?.GetType(),
+                                $"actualType: {level2Quote.BidBookSide[i]?.GetType()?.Name ?? "null"}");
+                Assert.AreEqual(expectedType, level2Quote.AskBookSide[i]?.GetType(),
                                 $"BidBook[{i}] expectedType: {expectedType.Name} " +
-                                $"actualType: {level2Quote.BidBook[i]?.GetType()?.Name ?? "null"}");
+                                $"actualType: {level2Quote.BidBookSide[i]?.GetType()?.Name ?? "null"}");
             }
     }
 }

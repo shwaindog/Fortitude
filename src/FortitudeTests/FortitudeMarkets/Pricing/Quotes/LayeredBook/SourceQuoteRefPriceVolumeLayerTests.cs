@@ -212,8 +212,8 @@ public class SourceQuoteRefPriceVolumeLayerTests
     (bool exactComparison,
         IMutableSourceQuoteRefPriceVolumeLayer? original,
         IMutableSourceQuoteRefPriceVolumeLayer? changingPriceVolumeLayer,
-        IOrderBook? originalOrderBook = null,
-        IOrderBook? changingOrderBook = null,
+        IOrderBookSide? originalOrderBook = null,
+        IOrderBookSide? changingOrderBook = null,
         ILevel2Quote? originalQuote = null,
         ILevel2Quote? changingQuote = null)
     {

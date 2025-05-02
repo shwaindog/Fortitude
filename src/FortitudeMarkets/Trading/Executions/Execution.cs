@@ -4,7 +4,7 @@
 #region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Trading.Counterparties;
 using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Venues;

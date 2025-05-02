@@ -1,9 +1,11 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
-using FortitudeMarkets.Trading.Orders.Venues;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -18,12 +20,14 @@ public class VenueCriteria : ReusableObject<IVenueCriteria>, IVenueCriteria
     public VenueCriteria(IVenueCriteria toClone)
     {
         venues = toClone.Select(v => v.Clone()).ToList();
+
         VenueSelectionMethod = toClone.VenueSelectionMethod;
     }
 
     public VenueCriteria(IList<IVenue> venues, VenueSelectionMethod venueSelectionMethod)
     {
         this.venues = venues;
+
         VenueSelectionMethod = venueSelectionMethod;
     }
 
@@ -34,6 +38,7 @@ public class VenueCriteria : ReusableObject<IVenueCriteria>, IVenueCriteria
     }
 
     public int Count => venues.Count;
+
     public VenueSelectionMethod VenueSelectionMethod { get; set; }
 
     public override void StateReset()
@@ -42,17 +47,17 @@ public class VenueCriteria : ReusableObject<IVenueCriteria>, IVenueCriteria
         venues.Clear();
     }
 
-    public override IVenueCriteria Clone() =>
-        Recycler?.Borrow<VenueCriteria>().CopyFrom(this) ?? new VenueCriteria(this);
+    public override IVenueCriteria Clone() => Recycler?.Borrow<VenueCriteria>().CopyFrom(this) ?? new VenueCriteria(this);
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<IVenue> GetEnumerator() => venues.GetEnumerator();
 
-    public override IVenueCriteria CopyFrom(IVenueCriteria source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IVenueCriteria CopyFrom
+        (IVenueCriteria source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         venues = source.ToList();
+
         VenueSelectionMethod = source.VenueSelectionMethod;
         return this;
     }

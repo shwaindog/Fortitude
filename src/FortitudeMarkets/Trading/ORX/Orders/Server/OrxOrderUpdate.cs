@@ -1,9 +1,12 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Text;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarkets.Trading.Orders;
@@ -14,7 +17,7 @@ using FortitudeMarkets.Trading.ORX.Session;
 
 namespace FortitudeMarkets.Trading.ORX.Orders.Server;
 
-public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, IStoreState<OrxOrderUpdate>
+public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, ITransferState<OrxOrderUpdate>
 {
     private OrxOrder? order;
     public OrxOrderUpdate() { }
@@ -26,8 +29,8 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, IStoreState<OrxOr
 
     public OrxOrderUpdate(IOrder order, OrderUpdateEventType reason, DateTime adapterUpdateTime)
     {
-        Order = order is OrxOrder orxOrder ? orxOrder : new OrxOrder(order);
-        OrderUpdateType = reason;
+        Order             = order is OrxOrder orxOrder ? orxOrder : new OrxOrder(order);
+        OrderUpdateType   = reason;
         AdapterUpdateTime = adapterUpdateTime;
     }
 
@@ -60,21 +63,22 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, IStoreState<OrxOr
 
     public override void StateReset()
     {
-        OrderUpdateType = OrderUpdateEventType.Unknown;
+        OrderUpdateType   = OrderUpdateEventType.Unknown;
         AdapterUpdateTime = DateTimeConstants.UnixEpoch;
-        Order = null; // decremented in setter
+        Order             = null; // decremented in setter
         base.StateReset();
     }
 
-    public override IVersionedMessage CopyFrom(IVersionedMessage versionedMessage
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IVersionedMessage CopyFrom
+    (IVersionedMessage versionedMessage
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(versionedMessage, copyMergeFlags);
         if (versionedMessage is IOrderUpdate orderUpdate)
         {
-            Order = orderUpdate.Order.SyncOrRecycle(Order);
+            Order             = orderUpdate.Order.SyncOrRecycle(Order);
             AdapterUpdateTime = orderUpdate.AdapterUpdateTime;
-            OrderUpdateType = orderUpdate.OrderUpdateType;
+            OrderUpdateType   = orderUpdate.OrderUpdateType;
         }
 
         return this;
@@ -83,8 +87,8 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, IStoreState<OrxOr
     public IOrderUpdate CopyFrom(IOrderUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
-        Order = source.Order.CopyOrClone(Order);
-        OrderUpdateType = source.OrderUpdateType;
+        Order             = source.Order.CopyOrClone(Order);
+        OrderUpdateType   = source.OrderUpdateType;
         AdapterUpdateTime = source.AdapterUpdateTime;
         return this;
     }
@@ -95,8 +99,8 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, IStoreState<OrxOr
     public OrxOrderUpdate CopyFrom(OrxOrderUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
-        Order = source.Order.CopyOrClone(Order);
-        OrderUpdateType = source.OrderUpdateType;
+        Order             = source.Order.CopyOrClone(Order);
+        OrderUpdateType   = source.OrderUpdateType;
         AdapterUpdateTime = source.AdapterUpdateTime;
         return this;
     }
@@ -107,15 +111,12 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, IStoreState<OrxOr
         var sb = new StringBuilder();
         sb.Append("OrxOrderUpdate(");
         if (Order != null) sb.Append("VenueOrder: ").Append(Order).Append(", ");
-        if (OrderUpdateType != OrderUpdateEventType.Unknown)
-            sb.Append("OrderUpdateType: ").Append(OrderUpdateType).Append(", ");
-        if (AdapterUpdateTime != DateTimeConstants.UnixEpoch)
-            sb.Append("AdapterUpdateTime: ").Append(AdapterUpdateTime).Append(", ");
-        if (ClientReceivedTime != DateTimeConstants.UnixEpoch)
-            sb.Append("ClientReceivedTime: ").Append(ClientReceivedTime).Append(", ");
+        if (OrderUpdateType != OrderUpdateEventType.Unknown) sb.Append("OrderUpdateType: ").Append(OrderUpdateType).Append(", ");
+        if (AdapterUpdateTime != DateTimeConstants.UnixEpoch) sb.Append("AdapterUpdateTime: ").Append(AdapterUpdateTime).Append(", ");
+        if (ClientReceivedTime != DateTimeConstants.UnixEpoch) sb.Append("ClientReceivedTime: ").Append(ClientReceivedTime).Append(", ");
         if (sb[^2] == ',')
         {
-            sb[^2] = ')';
+            sb[^2]    =  ')';
             sb.Length -= 1;
         }
 

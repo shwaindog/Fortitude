@@ -133,8 +133,8 @@ public class Level3PriceQuoteTests
             Assert.AreEqual(0m, emptyL3Quote.AskPriceTop);
             Assert.AreEqual(false, emptyL3Quote.Executable);
             Assert.IsNull(emptyL3Quote.SummaryPeriod);
-            Assert.AreEqual(new OrderBook(BookSide.BidBook, emptyL3Quote.SourceTickerInfo!), emptyL3Quote.BidBook);
-            Assert.AreEqual(new OrderBook(BookSide.AskBook, emptyL3Quote.SourceTickerInfo!), emptyL3Quote.AskBook);
+            Assert.AreEqual(new OrderBookSide(BookSide.BidBook, emptyL3Quote.SourceTickerInfo!), emptyL3Quote.BidBookSide);
+            Assert.AreEqual(new OrderBookSide(BookSide.AskBook, emptyL3Quote.SourceTickerInfo!), emptyL3Quote.AskBookSide);
             Assert.IsFalse(emptyL3Quote.IsBidBookChanged);
             Assert.IsFalse(emptyL3Quote.IsAskBookChanged);
             Assert.IsTrue(emptyL3Quote.RecentlyTraded == null ||
@@ -159,12 +159,12 @@ public class Level3PriceQuoteTests
         var expectedAskPriceTop        = 3.45678m;
         var expectedPeriodSummary      = new PricePeriodSummary();
         var expectedBidBook =
-            new OrderBook(BookSide.BidBook, simpleRecentlyTradedSrcTkrInfo)
+            new OrderBookSide(BookSide.BidBook, simpleRecentlyTradedSrcTkrInfo)
             {
                 [0] = new PriceVolumeLayer(expectedBidPriceTop, 1_000_000)
             };
         var expectedAskBook =
-            new OrderBook(BookSide.AskBook, simpleRecentlyTradedSrcTkrInfo)
+            new OrderBookSide(BookSide.AskBook, simpleRecentlyTradedSrcTkrInfo)
             {
                 [0] = new PriceVolumeLayer(expectedAskPriceTop, 1_000_000)
             };
@@ -194,14 +194,14 @@ public class Level3PriceQuoteTests
         Assert.AreEqual(expectedAdapterSentTime, fromConstructor.AdapterSentTime);
         Assert.AreEqual(expectedSourceBidTime, fromConstructor.SourceBidTime);
         Assert.AreEqual(expectedBidPriceTop, fromConstructor.BidPriceTop);
-        Assert.AreEqual(true, fromConstructor.IsBidPriceTopUpdated);
+        Assert.AreEqual(true, fromConstructor.IsBidPriceTopChanged);
         Assert.AreEqual(expectedSourceAskTime, fromConstructor.SourceAskTime);
         Assert.AreEqual(expectedAskPriceTop, fromConstructor.AskPriceTop);
-        Assert.AreEqual(true, fromConstructor.IsAskPriceTopUpdated);
+        Assert.AreEqual(true, fromConstructor.IsAskPriceTopChanged);
         Assert.AreEqual(true, fromConstructor.Executable);
         Assert.AreEqual(expectedPeriodSummary, fromConstructor.SummaryPeriod);
-        Assert.AreEqual(expectedBidBook, fromConstructor.BidBook);
-        Assert.AreEqual(expectedAskBook, fromConstructor.AskBook);
+        Assert.AreEqual(expectedBidBook, fromConstructor.BidBookSide);
+        Assert.AreEqual(expectedAskBook, fromConstructor.AskBookSide);
         Assert.IsTrue(fromConstructor.IsBidBookChanged);
         Assert.IsTrue(fromConstructor.IsAskBookChanged);
         Assert.AreEqual(expectedRecentlyTraded, fromConstructor.RecentlyTraded);
@@ -224,12 +224,12 @@ public class Level3PriceQuoteTests
         var expectedAskPriceTop        = 3.45678m;
         var expectedPeriodSummary      = new PricePeriodSummary();
         var expectedBidBook =
-            new OrderBook(BookSide.BidBook, simpleRecentlyTradedSrcTkrInfo)
+            new OrderBookSide(BookSide.BidBook, simpleRecentlyTradedSrcTkrInfo)
             {
                 [0] = new PriceVolumeLayer(expectedBidPriceTop, 1_000_000)
             };
         var expectedAskBook =
-            new OrderBook(BookSide.AskBook, simpleRecentlyTradedSrcTkrInfo)
+            new OrderBookSide(BookSide.AskBook, simpleRecentlyTradedSrcTkrInfo)
             {
                 [0] = new PriceVolumeLayer(expectedAskPriceTop, 1_000_000)
             };
@@ -338,9 +338,9 @@ public class Level3PriceQuoteTests
 
         foreach (var emptyQuote in allEmptyQuotes)
         {
-            var expectedBidOrderBook = emptyQuote.BidBook.Clone();
+            var expectedBidOrderBook = emptyQuote.BidBookSide.Clone();
             expectedBidOrderBook[0]!.Price = expectedBidPriceTop;
-            var expectedAskOrderBook = emptyQuote.AskBook.Clone();
+            var expectedAskOrderBook = emptyQuote.AskBookSide.Clone();
             expectedAskOrderBook[0]!.Price = expectedAskPriceTop;
             var expectedRecentlyTraded                                                = emptyQuote.RecentlyTraded;
             if (expectedRecentlyTraded != null) expectedRecentlyTraded[0]!.TradePrice = 12345m;
@@ -353,15 +353,15 @@ public class Level3PriceQuoteTests
             emptyQuote.AdapterSentTime      = expectedAdapterSentTime;
             emptyQuote.SourceBidTime        = expectedSourceBidTime;
             emptyQuote.BidPriceTop          = expectedBidPriceTop;
-            emptyQuote.IsBidPriceTopUpdated = true;
+            emptyQuote.IsBidPriceTopChanged = true;
             emptyQuote.SourceAskTime        = expectedSourceAskTime;
             emptyQuote.AskPriceTop          = expectedAskPriceTop;
-            emptyQuote.IsAskPriceTopUpdated = true;
+            emptyQuote.IsAskPriceTopChanged = true;
             emptyQuote.Executable           = true;
             emptyQuote.SummaryPeriod        = expectedPeriodSummary;
-            emptyQuote.BidBook              = expectedBidOrderBook;
+            emptyQuote.BidBookSide          = expectedBidOrderBook;
             emptyQuote.IsBidBookChanged     = true;
-            emptyQuote.AskBook              = expectedAskOrderBook;
+            emptyQuote.AskBookSide          = expectedAskOrderBook;
             emptyQuote.IsAskBookChanged     = true;
             emptyQuote.RecentlyTraded       = expectedRecentlyTraded;
             emptyQuote.BatchId              = expectedBatchId;
@@ -376,15 +376,15 @@ public class Level3PriceQuoteTests
             Assert.AreEqual(expectedAdapterSentTime, emptyQuote.AdapterSentTime);
             Assert.AreEqual(expectedSourceBidTime, emptyQuote.SourceBidTime);
             Assert.AreEqual(expectedBidPriceTop, emptyQuote.BidPriceTop);
-            Assert.AreEqual(true, emptyQuote.IsBidPriceTopUpdated);
+            Assert.AreEqual(true, emptyQuote.IsBidPriceTopChanged);
             Assert.AreEqual(expectedSourceAskTime, emptyQuote.SourceAskTime);
             Assert.AreEqual(expectedAskPriceTop, emptyQuote.AskPriceTop);
-            Assert.AreEqual(true, emptyQuote.IsAskPriceTopUpdated);
+            Assert.AreEqual(true, emptyQuote.IsAskPriceTopChanged);
             Assert.AreEqual(true, emptyQuote.Executable);
             Assert.AreEqual(expectedPeriodSummary, emptyQuote.SummaryPeriod);
-            Assert.AreSame(expectedBidOrderBook, emptyQuote.BidBook);
+            Assert.AreSame(expectedBidOrderBook, emptyQuote.BidBookSide);
             Assert.AreEqual(true, emptyQuote.IsBidBookChanged);
-            Assert.AreSame(expectedAskOrderBook, emptyQuote.AskBook);
+            Assert.AreSame(expectedAskOrderBook, emptyQuote.AskBookSide);
             Assert.AreEqual(true, emptyQuote.IsAskBookChanged);
             Assert.AreEqual(expectedRecentlyTraded, emptyQuote.RecentlyTraded);
             Assert.AreEqual(expectedBatchId, emptyQuote.BatchId);
@@ -560,15 +560,15 @@ public class Level3PriceQuoteTests
             Assert.IsTrue(toString.Contains($"{nameof(q.AdapterSentTime)}: {q.AdapterSentTime:O}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.SourceBidTime)}: {q.SourceBidTime:O}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.BidPriceTop)}: {q.BidPriceTop:N5}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.IsBidPriceTopUpdated)}: {q.IsBidPriceTopUpdated}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.IsBidPriceTopChanged)}: {q.IsBidPriceTopChanged}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.SourceAskTime)}: {q.SourceAskTime:O}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.AskPriceTop)}: {q.AskPriceTop:N5}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.IsAskPriceTopUpdated)}: {q.IsAskPriceTopUpdated}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.IsAskPriceTopChanged)}: {q.IsAskPriceTopChanged}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.Executable)}: {q.Executable}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.SummaryPeriod)}: {q.SummaryPeriod}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.BidBook)}: {q.BidBook}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.BidBookSide)}: {q.BidBookSide}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.IsBidBookChanged)}: {q.IsBidBookChanged}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.AskBook)}: {q.AskBook}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.AskBookSide)}: {q.AskBookSide}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.IsAskBookChanged)}: {q.IsAskBookChanged}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.RecentlyTraded)}: {q.RecentlyTraded}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.BatchId)}: {q.BatchId}"));
@@ -624,7 +624,7 @@ public class Level3PriceQuoteTests
            , new DateTime(2017, 12, 29, 21, 0, 0).AddMilliseconds(i));
     }
 
-    private static OrderBook GenerateBook<T>
+    private static OrderBookSide GenerateBook<T>
     (BookSide bookSide, int numberOfLayers, decimal startingPrice, decimal deltaPricePerLayer,
         decimal startingVolume, decimal deltaVolumePerLayer, Func<decimal, decimal, T> genNewLayerObj)
         where T : IPriceVolumeLayer
@@ -639,7 +639,7 @@ public class Level3PriceQuoteTests
             currentVolume += deltaVolumePerLayer;
         }
 
-        return new OrderBook(bookSide, generatedLayers.Cast<IPriceVolumeLayer>().ToList());
+        return new OrderBookSide(bookSide, generatedLayers.Cast<IPriceVolumeLayer>().ToList());
     }
 
 
@@ -664,7 +664,7 @@ public class Level3PriceQuoteTests
     }
 
     private static void UpdateOrdersQuoteBook
-    (IOrderBook toUpdate, int numberOfLayers,
+    (IOrderBookSide toUpdate, int numberOfLayers,
         int numberOfOrdersPerLayer, decimal startingVolume, decimal deltaVolumePerLayer)
     {
         var currentVolume = startingVolume;

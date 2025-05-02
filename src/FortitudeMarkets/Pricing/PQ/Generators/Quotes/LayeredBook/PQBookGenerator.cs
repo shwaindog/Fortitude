@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.Generators.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
@@ -23,13 +23,13 @@ public class PQBookGenerator : BookGenerator
 
     public PQBookGenerator(QuoteBookValuesGenerator quoteBookGenerator) : base(quoteBookGenerator) { }
 
-    public override void InitializeBook(IMutableOrderBook newBook)
+    public override void InitializeBook(IMutableOrderBookSide newBookSide)
     {
-        if (newBook is IPQOrderBook pqOrderBook)
-            pqOrderBook.NameIdLookup.CopyFrom(newBook.BookSide == BookSide.BidBook
+        if (newBookSide is IPQOrderBookSide pqOrderBook)
+            pqOrderBook.NameIdLookup.CopyFrom(newBookSide.BookSide == BookSide.BidBook
                                                   ? consistentBidNameIdGenerator
                                                   : consistentAskNameIdGenerator, CopyMergeFlags.FullReplace);
-        base.InitializeBook(newBook);
+        base.InitializeBook(newBookSide);
     }
 
     protected override void SetPrice(BookSide side, IMutablePriceVolumeLayer priceVolumeLayer, decimal price, decimal? prevPrice)

@@ -654,36 +654,43 @@ public class PQSourceTickerInfoTests
 
     public static void AssertSourceTickerInfoContainsAllFields
     (IList<PQFieldUpdate> checkFieldUpdates,
-        ISourceTickerInfo srcTkrInfo)
+        IPQSourceTickerInfo srcTkrInfo)
     {
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.SourceTickerId, srcTkrInfo.SourceTickerId),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceTickerId));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceTickerId),
+                        $"For {srcTkrInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         var decimalPlaces = BitConverter.GetBytes(decimal.GetBits(
                                                                   srcTkrInfo.RoundingPrecision)[3])[2];
         var roundingNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) *
                                        srcTkrInfo.RoundingPrecision);
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PriceRoundingPrecision, roundingNoDecimal, (PQFieldFlags)decimalPlaces),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PriceRoundingPrecision));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PriceRoundingPrecision),
+                        $"For {srcTkrInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         decimalPlaces = BitConverter.GetBytes(decimal.GetBits(srcTkrInfo.MinSubmitSize)[3])[2];
         var minSubmitNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) *
                                         srcTkrInfo.MinSubmitSize);
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.MinSubmitSize, minSubmitNoDecimal, (PQFieldFlags)decimalPlaces),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.MinSubmitSize));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.MinSubmitSize),
+                        $"For {srcTkrInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         decimalPlaces = BitConverter.GetBytes(decimal.GetBits(srcTkrInfo.MaxSubmitSize)[3])[2];
         var maxSubmitNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) *
                                         srcTkrInfo.MaxSubmitSize);
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.MaxSubmitSize, maxSubmitNoDecimal, (PQFieldFlags)decimalPlaces),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.MaxSubmitSize));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.MaxSubmitSize),
+                        $"For {srcTkrInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         decimalPlaces = BitConverter.GetBytes(decimal.GetBits(srcTkrInfo.IncrementSize)[3])[2];
         var incrementSizeNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) *
                                             srcTkrInfo.IncrementSize);
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.IncrementSize, incrementSizeNoDecimal, (PQFieldFlags)decimalPlaces),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.IncrementSize));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.IncrementSize),
+                        $"For {srcTkrInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerFlags, (uint)srcTkrInfo.LayerFlags),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerFlags));
-        if (srcTkrInfo.LastTradedFlags != LastTradedFlags.None)
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerFlags),
+                        $"For {srcTkrInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+        if (srcTkrInfo.IsLastTradedFlagsUpdated)
             Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedFlags, (uint)srcTkrInfo.LastTradedFlags),
-                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedFlags));
+                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedFlags),
+                            $"For {srcTkrInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
     }
 
 

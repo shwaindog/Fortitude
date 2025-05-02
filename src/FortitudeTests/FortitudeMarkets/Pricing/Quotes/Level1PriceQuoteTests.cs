@@ -93,10 +93,10 @@ public class Level1PriceQuoteTests
         Assert.AreEqual(expectedAdapterSentTime, fromConstructor.AdapterSentTime);
         Assert.AreEqual(expectedSourceBidTime, fromConstructor.SourceBidTime);
         Assert.AreEqual(expectedBidPriceTop, fromConstructor.BidPriceTop);
-        Assert.AreEqual(true, fromConstructor.IsBidPriceTopUpdated);
+        Assert.AreEqual(true, fromConstructor.IsBidPriceTopChanged);
         Assert.AreEqual(expectedSourceAskTime, fromConstructor.SourceAskTime);
         Assert.AreEqual(expectedAskPriceTop, fromConstructor.AskPriceTop);
-        Assert.AreEqual(true, fromConstructor.IsAskPriceTopUpdated);
+        Assert.AreEqual(true, fromConstructor.IsAskPriceTopChanged);
         Assert.AreEqual(true, fromConstructor.Executable);
         Assert.AreEqual(expectedPeriodSummary, fromConstructor.SummaryPeriod);
     }
@@ -177,10 +177,10 @@ public class Level1PriceQuoteTests
         emptyQuote.AdapterSentTime      = expectedAdapterSentTime;
         emptyQuote.SourceBidTime        = expectedSourceBidTime;
         emptyQuote.BidPriceTop          = expectedBidPriceTop;
-        emptyQuote.IsBidPriceTopUpdated = true;
+        emptyQuote.IsBidPriceTopChanged = true;
         emptyQuote.SourceAskTime        = expectedSourceAskTime;
         emptyQuote.AskPriceTop          = expectedAskPriceTop;
-        emptyQuote.IsAskPriceTopUpdated = true;
+        emptyQuote.IsAskPriceTopChanged = true;
         emptyQuote.Executable           = true;
         emptyQuote.SummaryPeriod        = expectedPeriodSummary;
 
@@ -193,10 +193,10 @@ public class Level1PriceQuoteTests
         Assert.AreEqual(expectedAdapterSentTime, emptyQuote.AdapterSentTime);
         Assert.AreEqual(expectedSourceBidTime, emptyQuote.SourceBidTime);
         Assert.AreEqual(expectedBidPriceTop, emptyQuote.BidPriceTop);
-        Assert.AreEqual(true, emptyQuote.IsBidPriceTopUpdated);
+        Assert.AreEqual(true, emptyQuote.IsBidPriceTopChanged);
         Assert.AreEqual(expectedSourceAskTime, emptyQuote.SourceAskTime);
         Assert.AreEqual(expectedAskPriceTop, emptyQuote.AskPriceTop);
-        Assert.AreEqual(true, emptyQuote.IsAskPriceTopUpdated);
+        Assert.AreEqual(true, emptyQuote.IsAskPriceTopChanged);
         Assert.AreEqual(true, emptyQuote.Executable);
         Assert.AreEqual(expectedPeriodSummary, emptyQuote.SummaryPeriod);
     }
@@ -296,10 +296,10 @@ public class Level1PriceQuoteTests
         Assert.IsTrue(toString.Contains($"{nameof(q.AdapterSentTime)}: {q.AdapterSentTime:O}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.SourceBidTime)}: {q.SourceBidTime:O}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.BidPriceTop)}: {q.BidPriceTop:N5}"));
-        Assert.IsTrue(toString.Contains($"{nameof(q.IsBidPriceTopUpdated)}: {q.IsBidPriceTopUpdated}"));
+        Assert.IsTrue(toString.Contains($"{nameof(q.IsBidPriceTopChanged)}: {q.IsBidPriceTopChanged}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.SourceAskTime)}: {q.SourceAskTime:O}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.AskPriceTop)}: {q.AskPriceTop:N5}"));
-        Assert.IsTrue(toString.Contains($"{nameof(q.IsAskPriceTopUpdated)}: {q.IsAskPriceTopUpdated}"));
+        Assert.IsTrue(toString.Contains($"{nameof(q.IsAskPriceTopChanged)}: {q.IsAskPriceTopChanged}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.Executable)}: {q.Executable}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.SummaryPeriod)}: {q.SummaryPeriod}"));
     }
@@ -337,9 +337,9 @@ public class Level1PriceQuoteTests
         changingQuote.BidPriceTop = commonCompareQuote.BidPriceTop;
         Assert.IsTrue(commonCompareQuote.AreEquivalent(changingQuote));
 
-        changingQuote.IsBidPriceTopUpdated = !commonCompareQuote.IsBidPriceTopUpdated;
+        changingQuote.IsBidPriceTopChanged = !commonCompareQuote.IsBidPriceTopChanged;
         Assert.IsFalse(commonCompareQuote.AreEquivalent(changingQuote));
-        changingQuote.IsBidPriceTopUpdated = commonCompareQuote.IsBidPriceTopUpdated;
+        changingQuote.IsBidPriceTopChanged = commonCompareQuote.IsBidPriceTopChanged;
         Assert.IsTrue(commonCompareQuote.AreEquivalent(changingQuote));
 
         changingQuote.SourceAskTime = DateTime.Now;
@@ -352,9 +352,9 @@ public class Level1PriceQuoteTests
         changingQuote.AskPriceTop = commonCompareQuote.AskPriceTop;
         Assert.IsTrue(commonCompareQuote.AreEquivalent(changingQuote));
 
-        changingQuote.IsAskPriceTopUpdated = !commonCompareQuote.IsAskPriceTopUpdated;
+        changingQuote.IsAskPriceTopChanged = !commonCompareQuote.IsAskPriceTopChanged;
         Assert.IsFalse(commonCompareQuote.AreEquivalent(changingQuote));
-        changingQuote.IsAskPriceTopUpdated = commonCompareQuote.IsAskPriceTopUpdated;
+        changingQuote.IsAskPriceTopChanged = commonCompareQuote.IsAskPriceTopChanged;
         Assert.IsTrue(commonCompareQuote.AreEquivalent(changingQuote));
 
         changingQuote.Executable = !commonCompareQuote.Executable;

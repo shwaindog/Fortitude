@@ -1,7 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarkets.Trading.Executions;
@@ -15,14 +17,14 @@ public class OrxExecutionId : ReusableObject<IExecutionId>, IExecutionId
     public OrxExecutionId()
     {
         VenueExecutionId = new MutableString();
-        BookingSystemId = new MutableString();
+        BookingSystemId  = new MutableString();
     }
 
     public OrxExecutionId(IExecutionId toClone)
     {
-        VenueExecutionId = new MutableString(toClone.VenueExecutionId);
+        VenueExecutionId   = new MutableString(toClone.VenueExecutionId);
         AdapterExecutionId = toClone.AdapterExecutionId;
-        BookingSystemId = new MutableString(toClone.BookingSystemId);
+        BookingSystemId    = new MutableString(toClone.BookingSystemId);
     }
 
     public OrxExecutionId(string venueExecutionId, int adapterExecutionId, string bookingSystemId)
@@ -30,9 +32,9 @@ public class OrxExecutionId : ReusableObject<IExecutionId>, IExecutionId
 
     public OrxExecutionId(MutableString venueExecutionId, int adapterExecutionId, MutableString bookingSystemId)
     {
-        VenueExecutionId = venueExecutionId;
+        VenueExecutionId   = venueExecutionId;
         AdapterExecutionId = adapterExecutionId;
-        BookingSystemId = bookingSystemId;
+        BookingSystemId    = bookingSystemId;
     }
 
     [OrxMandatoryField(0)] public MutableString VenueExecutionId { get; set; }
@@ -55,20 +57,20 @@ public class OrxExecutionId : ReusableObject<IExecutionId>, IExecutionId
 
     public override IExecutionId Clone() => Recycler?.Borrow<OrxExecutionId>().CopyFrom(this) ?? new OrxExecutionId(this);
 
-    public override IExecutionId CopyFrom(IExecutionId executionId
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IExecutionId CopyFrom
+        (IExecutionId executionId, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        VenueExecutionId = executionId.VenueExecutionId.SyncOrRecycle(VenueExecutionId)!;
+        VenueExecutionId   = executionId.VenueExecutionId.SyncOrRecycle(VenueExecutionId)!;
         AdapterExecutionId = executionId.AdapterExecutionId;
-        BookingSystemId = executionId.BookingSystemId.SyncOrRecycle(BookingSystemId)!;
+        BookingSystemId    = executionId.BookingSystemId.SyncOrRecycle(BookingSystemId)!;
         return this;
     }
 
     protected bool Equals(OrxExecutionId other)
     {
-        var venueExeuctionIdSame = Equals(VenueExecutionId, other.VenueExecutionId);
+        var venueExeuctionIdSame   = Equals(VenueExecutionId, other.VenueExecutionId);
         var adapterExecutionIdSame = AdapterExecutionId == other.AdapterExecutionId;
-        var bookingSystemIdSame = Equals(BookingSystemId, other.BookingSystemId);
+        var bookingSystemIdSame    = Equals(BookingSystemId, other.BookingSystemId);
 
         return venueExeuctionIdSame && adapterExecutionIdSame && bookingSystemIdSame;
     }

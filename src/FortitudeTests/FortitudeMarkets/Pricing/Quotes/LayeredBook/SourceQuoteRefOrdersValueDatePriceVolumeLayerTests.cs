@@ -18,13 +18,14 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.Quotes.LayeredBook;
 [TestClass]
 public class SourceQuoteRefOrdersValueDatePriceVolumeLayerTests
 {
-    private const int                                           NumOfOrders        = 2;
-    private const uint                                          OrderCount         = 2;
-    private const decimal                                       InternalVolume     = 1_949_672m;
-    private       IPQNameIdLookupGenerator                      emptyNameIdLookup  = null!;
-    private       SourceQuoteRefOrdersValueDatePriceVolumeLayer emptyPvl           = null!;
-    private       bool[]                                        expectNotPopulated = null!;
-    private       bool[]                                        expectPopulated    = null!;
+    private const int     NumOfOrders    = 2;
+    private const uint    OrderCount     = 2;
+    private const decimal InternalVolume = 1_949_672m;
+
+    private IPQNameIdLookupGenerator                      emptyNameIdLookup  = null!;
+    private SourceQuoteRefOrdersValueDatePriceVolumeLayer emptyPvl           = null!;
+    private bool[]                                        expectNotPopulated = null!;
+    private bool[]                                        expectPopulated    = null!;
 
     private SourceQuoteRefOrdersValueDatePriceVolumeLayer populatedPvl = null!;
 
@@ -401,8 +402,8 @@ public class SourceQuoteRefOrdersValueDatePriceVolumeLayerTests
     (bool exactComparison,
         IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer? original,
         IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer? changingPriceVolumeLayer,
-        IOrderBook? originalOrderBook = null,
-        IOrderBook? changingOrderBook = null,
+        IOrderBookSide? originalOrderBook = null,
+        IOrderBookSide? changingOrderBook = null,
         ILevel2Quote? originalQuote = null,
         ILevel2Quote? changingQuote = null)
     {

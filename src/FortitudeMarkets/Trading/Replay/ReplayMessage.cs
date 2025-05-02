@@ -4,7 +4,7 @@
 #region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeMarkets.Trading.Executions;
 using FortitudeMarkets.Trading.Orders.Server;
@@ -24,10 +24,11 @@ public class ReplayMessage : TradingMessage, IReplayMessage
         CopyFrom(toClone);
     }
 
-    public override uint              MessageId           => (uint)TradingMessageIds.Replay;
-    public          ReplayMessageType ReplayMessageType   { get; set; }
-    public          IOrderUpdate?     PastOrder           { get; set; }
-    public          IExecutionUpdate? PastExecutionUpdate { get; set; }
+    public override uint MessageId => (uint)TradingMessageIds.Replay;
+
+    public ReplayMessageType ReplayMessageType   { get; set; }
+    public IOrderUpdate?     PastOrder           { get; set; }
+    public IExecutionUpdate? PastExecutionUpdate { get; set; }
 
     public override IVersionedMessage CopyFrom
     (IVersionedMessage source

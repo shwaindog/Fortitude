@@ -4,7 +4,7 @@
 #region
 
 using System.Data;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -29,25 +29,6 @@ public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
     public NameIdLookupGenerator(IDictionary<int, string> copyDict) : base(copyDict) => InsertionOrder = copyDict.Keys.ToList();
 
     public override int this[string? name] => GetOrAddId(name);
-
-    public int GetOrAddId(string? name)
-    {
-        if (name == null) return 0;
-        if (ReverseLookup.TryGetValue(name, out var id)) return id;
-        var newId = InsertionOrder.Any() ? InsertionOrder.Max() + 1 : 1;
-        TryAddNewEntry(newId, name);
-        return newId;
-    }
-
-    public void AppendNewNames(IEnumerable<KeyValuePair<int, string>> existingPairs)
-    {
-        foreach (var existingPair in existingPairs) SetIdToName(existingPair.Key, existingPair.Value);
-    }
-
-    public void SetIdToName(int id, string? name)
-    {
-        TryAddNewEntry(id, name);
-    }
 
     public virtual INameIdLookup CopyFrom(INameIdLookup source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -86,15 +67,13 @@ public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
         return this;
     }
 
-    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags)
+    public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags)
     {
         CopyFrom((INameIdLookup)source, copyMergeFlags);
         return this;
     }
 
     public override object Clone() => new NameIdLookupGenerator(this);
-
-    INameIdLookupGenerator INameIdLookupGenerator.Clone() => (INameIdLookupGenerator)Clone();
 
     public override bool AreEquivalent(IIdLookup<string>? other, bool exactTypes = false)
     {
@@ -112,6 +91,27 @@ public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
         InsertionOrder
             .Select(i => new KeyValuePair<int, string>(i, Cache[i]))
             .GetEnumerator();
+
+    public int GetOrAddId(string? name)
+    {
+        if (name == null) return 0;
+        if (ReverseLookup.TryGetValue(name, out var id)) return id;
+        var newId = InsertionOrder.Any() ? InsertionOrder.Max() + 1 : 1;
+        TryAddNewEntry(newId, name);
+        return newId;
+    }
+
+    public void AppendNewNames(IEnumerable<KeyValuePair<int, string>> existingPairs)
+    {
+        foreach (var existingPair in existingPairs) SetIdToName(existingPair.Key, existingPair.Value);
+    }
+
+    public void SetIdToName(int id, string? name)
+    {
+        TryAddNewEntry(id, name);
+    }
+
+    INameIdLookupGenerator INameIdLookupGenerator.Clone() => (INameIdLookupGenerator)Clone();
 
     public virtual void Clear()
     {

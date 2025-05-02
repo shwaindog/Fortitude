@@ -9,6 +9,7 @@ using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Pricing.PQ.Messages;
@@ -39,7 +40,8 @@ public class PQTickInstantTests
     private PQTickInstant newlyPopulatedPQTickInstant = null!;
 
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = null!;
-    private PQSourceTickerInfo            sourceTickerInfo              = null!;
+
+    private PQSourceTickerInfo sourceTickerInfo = null!;
 
     private DateTime testDateTime;
 
@@ -518,7 +520,7 @@ public class PQTickInstantTests
     {
         var priceScale = precisionSettings.PriceScalingPrecision;
         PQSourceTickerInfoTests.AssertSourceTickerInfoContainsAllFields
-            (checkFieldUpdates, originalQuote.SourceTickerInfo!);
+            (checkFieldUpdates, (PQSourceTickerInfo)originalQuote.SourceTickerInfo!);
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PQSyncStatus, (uint)originalQuote.FeedSyncStatus),
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PQSyncStatus),
                         $"For {originalQuote.GetType().Name} and {originalQuote.SourceTickerInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
@@ -586,7 +588,7 @@ public class PQTickInstantTests
 
     /// Created because when built Moq couldn't handle a property redefinition in interfaces and sets up only
     /// the most base form of the property leaving the redefined property unsetup.
-    internal class DummyPQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IStoreState<DummyPQTickInstant>
+    internal class DummyPQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, ITransferState<DummyPQTickInstant>
     {
         public uint MessageId    => (uint)PQMessageIds.Quote;
         public byte Version      => 1;
@@ -641,6 +643,13 @@ public class PQTickInstantTests
 
         public DateTime LastPublicationTime { get; set; }
 
+        public uint UpdateCount => 0;
+
+        public void UpdateComplete()
+        {
+            HasUpdates = false;
+        }
+
         IVersionedMessage ICloneable<IVersionedMessage>.Clone() => (IVersionedMessage)Clone();
 
         ITickInstant ICloneable<ITickInstant>.  Clone() => Clone();
@@ -690,7 +699,11 @@ public class PQTickInstantTests
 
         public bool AreEquivalent(ITickInstant? other, bool exactTypes = false) => false;
 
-        public DummyPQTickInstant CopyFrom(DummyPQTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
+        IPQTickInstant IPQTickInstant.CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags) => this;
+
+        public virtual DummyPQTickInstant CopyFrom(DummyPQTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
+
+        public IPQTickInstant CopyFrom(IPQTickInstant source, CopyMergeFlags copyMergeFlags) => this;
 
         public override ITickInstant Clone() => new PQLevel1QuoteTests.DummyLevel1Quote();
 

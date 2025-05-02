@@ -6,6 +6,7 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
@@ -31,7 +32,7 @@ public interface IPQPriceVolumeLayer : IMutablePriceVolumeLayer, IPQSupportsFiel
 
 public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVolumeLayer
 {
-    protected int     NumUpdatesSinceEmpty = -1;
+    protected uint    NumUpdatesSinceEmpty = uint.MaxValue;
     private   decimal price;
 
     protected LayerFieldUpdatedFlags UpdatedFlags;
@@ -128,7 +129,6 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
             }
             else
             {
-                if (HasUpdates && !IsEmpty) Interlocked.Increment(ref NumUpdatesSinceEmpty);
                 UpdatedFlags = LayerFieldUpdatedFlags.None;
             }
         }
@@ -147,11 +147,20 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         }
     }
 
+    public uint UpdateCount => NumUpdatesSinceEmpty;
+
+    public virtual void UpdateComplete()
+    {
+        if (HasUpdates && !IsEmpty) NumUpdatesSinceEmpty++;
+        HasUpdates = false;
+    }
+
     public override void StateReset()
     {
-        Price                = 0m;
-        Volume               = 0m;
-        UpdatedFlags         = LayerFieldUpdatedFlags.None;
+        Price        = 0m;
+        Volume       = 0m;
+        UpdatedFlags = LayerFieldUpdatedFlags.None;
+
         NumUpdatesSinceEmpty = 0;
     }
 

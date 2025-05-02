@@ -143,7 +143,7 @@ public class TimeSeriesFileSession<TFile, TBucket, TEntry> : IFileWriterSession<
 
     public FixedByteArrayBuffer UncompressedBuffer
     {
-        get { return uncompressedBuffer ??= new GrowableUnmanagedBuffer(MemoryUtils.CreateUnmanagedByteArray((long)ushort.MaxValue * 4)); }
+        get { return uncompressedBuffer ??= new GrowableUnmanagedBuffer(MemoryUtils.CreateUnmanagedByteArray((long)ushort.MaxValue * 16)); }
     }
     public IMutableTimeSeriesFileHeader FileHeader => timeSeriesFile.Header;
 

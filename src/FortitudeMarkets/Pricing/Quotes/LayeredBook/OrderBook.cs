@@ -1,13 +1,11 @@
-// Licensed under the MIT license.
+﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
 #region
 
-using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerSelector;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -15,195 +13,116 @@ namespace FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 {
-    private IList<IPriceVolumeLayer?> bookLayers;
+    public OrderBook() : this(LayerType.PriceVolume, SourceTickerInfo.DefaultMaximumPublishedLayers, false) { }
 
-    public OrderBook()
+    public OrderBook(LayerType layerType = LayerType.PriceVolume, int numBookLayers = 0, bool isLadder = false)
     {
-        BookSide   = BookSide.Unknown;
-        bookLayers = new List<IPriceVolumeLayer?>();
-    }
-
-    public OrderBook(BookSide bookSide, LayerType layerType = LayerType.PriceVolume, bool isLadder = false)
-    {
-        BookSide     = bookSide;
         LayersOfType = layerType;
-        bookLayers   = new List<IPriceVolumeLayer?>();
         IsLadder     = isLadder;
-    }
 
-    public OrderBook(BookSide bookSide, int numBookLayers, bool isLadder = false)
-    {
-        BookSide   = bookSide;
-        bookLayers = new List<IPriceVolumeLayer?>(numBookLayers);
-        IsLadder   = isLadder;
-    }
-
-    public OrderBook(BookSide bookSide, IEnumerable<IPriceVolumeLayer> bookLayers, bool isLadder = false)
-    {
-        BookSide = bookSide;
-        IsLadder = isLadder;
-        this.bookLayers =
-            bookLayers
-                .Select(pvl => LayerSelector
-                            .UpgradeExistingLayer(pvl, pvl.LayerType, pvl))
-                .Cast<IPriceVolumeLayer?>()
-                .ToList();
+        AskSide = new OrderBookSide(BookSide.AskBook, layerType, isLadder);
+        BidSide = new OrderBookSide(BookSide.BidBook, layerType, isLadder);
     }
 
     public OrderBook(IOrderBook toClone)
     {
-        BookSide     = toClone.BookSide;
-        bookLayers   = new List<IPriceVolumeLayer?>(toClone.Count());
-        LayersOfType = toClone.LayersOfType;
-        IsLadder     = toClone.IsLadder;
-        foreach (var priceVolumeLayer in toClone)
-            bookLayers.Add(LayerSelector.CreateExpectedImplementation(priceVolumeLayer.LayerType, priceVolumeLayer));
-        Capacity = toClone.Capacity;
+        LayersOfType        = toClone.LayersOfType;
+        IsLadder            = toClone.IsLadder;
+        SourceOpenInterest  = toClone.SourceOpenInterest;
+        AdapterOpenInterest = toClone.AdapterOpenInterest;
+
+        AskSide = new OrderBookSide(toClone.AskSide);
+        BidSide = new OrderBookSide(toClone.BidSide);
     }
 
-    public OrderBook(BookSide bookSide, ISourceTickerInfo sourceTickerInfo)
-    {
-        BookSide = bookSide;
+    public LayerType  LayersOfType { get; set; }
+    public LayerFlags LayerFlags   => LayersOfType.SupportedLayerFlags();
 
-        LayersOfType = sourceTickerInfo.LayerFlags.MostCompactLayerType();
-        IsLadder     = sourceTickerInfo.LayerFlags.HasLadder();
-        bookLayers   = new List<IPriceVolumeLayer?>(sourceTickerInfo.MaximumPublishedLayers);
-        for (var i = 0; i < sourceTickerInfo.MaximumPublishedLayers; i++) bookLayers.Add(LayerSelector.FindForLayerFlags(sourceTickerInfo));
-    }
+    public IOrderBookSide AskSide { get; set; }
+    public IOrderBookSide BidSide { get; set; }
 
-    public static ILayerFlagsSelector<IPriceVolumeLayer, ISourceTickerInfo> LayerSelector { get; set; } =
-        new OrderBookLayerFactorySelector();
+    public decimal? MidPrice => 0;
 
-    public LayerType LayersOfType { get; private set; } = LayerType.PriceVolume;
-
-    public LayerFlags LayersSupportsLayerFlags => LayersOfType.SupportedLayerFlags();
-
-    public bool IsLadder { get; private set; }
-
-    public IMutablePriceVolumeLayer? this[int level]
-    {
-        get => level < bookLayers.Count && level >= 0 ? (IMutablePriceVolumeLayer)bookLayers[level]! : null;
-        set
-        {
-            if (value == null && level == bookLayers.Count - 1)
-            {
-                bookLayers.RemoveAt(level);
-                return;
-            }
-
-            bookLayers[level] = value!;
-        }
-    }
-
-    public BookSide BookSide { get; }
-
-    IPriceVolumeLayer? IOrderBook.this[int level] => this[level];
-
-    public int Count
+    public OpenInterest? SourceOpenInterest  { get; set; }
+    public OpenInterest  AdapterOpenInterest { get; set; }
+    public OpenInterest PublishedOpenInterest
     {
         get
         {
-            for (var i = bookLayers.Count - 1; i >= 0; i--)
-            {
-                var layerAtLevel = bookLayers[i];
-                if ((layerAtLevel?.Price ?? 0) > 0) return i + 1;
-            }
+            var bidOpenInterest = BidSide.PublishedOpenInterest;
+            var askOpenInterest = AskSide.PublishedOpenInterest;
 
-            return 0;
+            var totalVolume = bidOpenInterest.Volume + askOpenInterest.Volume;
+            var totalPriceVolume = totalVolume != 0
+                ? (bidOpenInterest.Volume * bidOpenInterest.Vwap + askOpenInterest.Volume * askOpenInterest.Vwap) / totalVolume
+                : 0m;
+
+            return new OpenInterest(MarketDataSource.Published, totalVolume, totalPriceVolume);
         }
     }
 
-    public int Capacity
-    {
-        get => bookLayers.Count;
-        set
-        {
-            if (value > PQFieldKeys.SingleByteFieldIdMaxBookDepth)
-                throw new ArgumentException("Expected OrderBook Capacity to be less than or equal to " +
-                                            PQFieldKeys.SingleByteFieldIdMaxBookDepth);
-            while (bookLayers.Count < value)
-            {
-                var cloneFirstLayer = LayerSelector.CreateExpectedImplementation(LayersOfType);
-                cloneFirstLayer?.StateReset();
-                if (cloneFirstLayer != null) bookLayers.Add(cloneFirstLayer);
-            }
-        }
-    }
-
-    public int AppendEntryAtEnd()
-    {
-        var index = bookLayers.Count;
-        bookLayers.Add(LayerSelector.CreateExpectedImplementation(LayersOfType));
-        return index;
-    }
-
-    public override void StateReset()
-    {
-        for (var i = 0; i < bookLayers.Count; i++) (bookLayers[i] as IMutablePriceVolumeLayer)?.StateReset();
-        base.StateReset();
-    }
-
-    public override IOrderBook CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        LayersOfType = source.LayersOfType;
-        IsLadder     = source.IsLadder;
-        var allSourceLayers = source.Capacity;
-        for (var i = 0; i < allSourceLayers; i++)
-        {
-            var sourceLayer      = source[i];
-            var destinationLayer = this[i];
-
-            if (i < bookLayers.Count)
-                bookLayers[i] = LayerSelector.UpgradeExistingLayer(destinationLayer, LayersOfType, sourceLayer);
-            else
-                bookLayers.Add(LayerSelector.CreateExpectedImplementation(LayersOfType, sourceLayer));
-
-            if (sourceLayer is { IsEmpty: false }) continue;
-            if (destinationLayer is { } mutablePriceVolumeLayer) mutablePriceVolumeLayer.IsEmpty = true;
-        }
-
-        for (var i = source.Count; i < bookLayers.Count; i++)
-            if (bookLayers[i] is IMutablePriceVolumeLayer mutablePvl)
-                mutablePvl.IsEmpty = true;
-        return this;
-    }
+    public uint DailyTickUpdateCount { get; set; }
+    public bool IsLadder             { get; set; }
 
     IMutableOrderBook ICloneable<IMutableOrderBook>.Clone() => Clone();
 
     IMutableOrderBook IMutableOrderBook.Clone() => Clone();
 
-    IOrderBook ICloneable<IOrderBook>.Clone() => Clone();
-
-    object ICloneable.Clone() => Clone();
-
-    public bool AreEquivalent(IOrderBook? other, bool exactTypes = false)
+    public virtual bool AreEquivalent(IOrderBook? other, bool exactTypes = false)
     {
         if (other == null) return false;
-        if (exactTypes && other.GetType() != GetType()) return false;
+        if (exactTypes && other.GetType() != typeof(OrderBook)) return false;
 
-        var ladderSame = IsLadder == other.IsLadder;
-        var countSame  = Count == other.Count;
-        var bookLayersSame = countSame && (exactTypes
-            ? this.SequenceEqual(other)
-            : bookLayers.Take(Count)
-                        .Zip(other.Take(Count), (thisLayer, otherLayer) => new { thisLayer, otherLayer })
-                        .All(joined => joined.thisLayer != null
-                                    && joined.thisLayer.AreEquivalent(joined.otherLayer)));
-        var allAreSame = ladderSame && countSame && bookLayersSame;
-        return allAreSame;
+        var layerTypesSame          = LayersOfType == other.LayersOfType;
+        var isLadderSame            = IsLadder == other.IsLadder;
+        var dailyTickCountSame      = DailyTickUpdateCount == other.DailyTickUpdateCount;
+        var sourceOpenInterestSame  = Equals(SourceOpenInterest, other.SourceOpenInterest);
+        var adapterOpenInterestSame = Equals(AdapterOpenInterest, other.AdapterOpenInterest);
+        var askSideSame             = AskSide.AreEquivalent(other.AskSide, exactTypes);
+        var bidSideSame             = BidSide.AreEquivalent(other.BidSide, exactTypes);
+
+        var allSame = layerTypesSame && isLadderSame && dailyTickCountSame && sourceOpenInterestSame
+                   && adapterOpenInterestSame && askSideSame && bidSideSame;
+        return allSame;
     }
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    public bool AreEquivalent(IMutableOrderBook? other, bool exactTypes = false) => AreEquivalent((IOrderBook?)other, exactTypes);
 
-    public IEnumerator<IPriceVolumeLayer> GetEnumerator() => bookLayers.Take(Count).GetEnumerator()!;
+    public override OrderBook CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        LayersOfType         = source.LayersOfType;
+        IsLadder             = source.IsLadder;
+        DailyTickUpdateCount = source.DailyTickUpdateCount;
+        SourceOpenInterest   = source.SourceOpenInterest;
+        AdapterOpenInterest  = source.AdapterOpenInterest;
+        BidSide.CopyFrom(source.BidSide, copyMergeFlags);
+        AskSide.CopyFrom(source.AskSide, copyMergeFlags);
+        return this;
+    }
 
-    public override OrderBook Clone() => (OrderBook?)Recycler?.Borrow<OrderBook>().CopyFrom(this) ?? new OrderBook(this);
+    public override OrderBook Clone() => Recycler?.Borrow<OrderBook>().CopyFrom(this) ?? new OrderBook(this);
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IOrderBook?)obj, true);
 
-    public override int GetHashCode() => bookLayers?.GetHashCode() ?? 0;
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            var hashCode = new HashCode();
+            hashCode.Add(LayersOfType);
+            hashCode.Add(IsLadder);
+            hashCode.Add(DailyTickUpdateCount);
+            hashCode.Add(SourceOpenInterest ?? default);
+            hashCode.Add(AdapterOpenInterest);
+            hashCode.Add(AskSide);
+            hashCode.Add(BidSide);
+
+            return hashCode.ToHashCode();
+        }
+    }
 
     public override string ToString() =>
-        $"OrderBook {{{nameof(Capacity)}: {Capacity}, {nameof(Count)}: {Count},, {nameof(IsLadder)}: {IsLadder},  " +
-        $"{nameof(bookLayers)}:[{string.Join(", ", bookLayers.Take(Count))}] }}";
+        $"{nameof(OrderBook)}{{{nameof(LayersOfType)}: {LayersOfType}, {nameof(DailyTickUpdateCount)}: {DailyTickUpdateCount}, " +
+        $"{nameof(SourceOpenInterest)}: {SourceOpenInterest},  {nameof(AdapterOpenInterest)}: {AdapterOpenInterest}, " +
+        $"{nameof(AskSide)}: {AskSide}, {nameof(BidSide)}: {BidSide}, {nameof(IsLadder)}: {IsLadder}, ";
 }
