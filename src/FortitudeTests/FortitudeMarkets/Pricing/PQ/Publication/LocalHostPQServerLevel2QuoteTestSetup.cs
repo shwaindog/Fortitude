@@ -4,7 +4,6 @@
 #region
 
 using FortitudeMarkets.Configuration.ClientServerConfig;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Publication;
 using FortitudeMarkets.Pricing.Quotes;
@@ -31,7 +30,6 @@ public class LocalHostPQServerLevel2QuoteTestSetup : LocalHostPQServerTestSetupB
 
     public void InitializeLevel2QuoteConfig()
     {
-        LayerDetails = LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName;
         InitializeServerPrereqs();
     }
 

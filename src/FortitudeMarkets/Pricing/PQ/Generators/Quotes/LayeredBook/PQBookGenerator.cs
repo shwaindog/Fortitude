@@ -126,8 +126,8 @@ public class PQBookGenerator : BookGenerator
     {
         if (orderLayerInfo is IPQAnonymousOrderLayerInfo pqAnonOrderLyrInfo)
         {
-            pqAnonOrderLyrInfo.IsCreatedTimeDateUpdated = orderCreatedTime.GetHoursFromUnixEpoch() != prevOrderCreatedTime?.GetHoursFromUnixEpoch();
-            pqAnonOrderLyrInfo.IsCreatedTimeSubHourUpdated = orderCreatedTime.GetSubHourComponent() != prevOrderCreatedTime?.GetSubHourComponent();
+            pqAnonOrderLyrInfo.IsCreatedTimeDateUpdated = orderCreatedTime.Get2MinIntervalsFromUnixEpoch() != prevOrderCreatedTime?.Get2MinIntervalsFromUnixEpoch();
+            pqAnonOrderLyrInfo.IsCreatedTimeSub2MinUpdated = orderCreatedTime.GetSub2MinComponent() != prevOrderCreatedTime?.GetSub2MinComponent();
         }
         base.SetOrderCreatedTime(side, orderLayerInfo, pos, orderCreatedTime, prevOrderCreatedTime);
     }
@@ -137,8 +137,8 @@ public class PQBookGenerator : BookGenerator
     {
         if (orderLayerInfo is IPQAnonymousOrderLayerInfo pqAnonOrderLyrInfo)
         {
-            pqAnonOrderLyrInfo.IsUpdatedTimeDateUpdated = orderUpdatedTime.GetHoursFromUnixEpoch() != prevOrderUpdatedTime?.GetHoursFromUnixEpoch();
-            pqAnonOrderLyrInfo.IsUpdatedTimeSubHourUpdated = orderUpdatedTime.GetSubHourComponent() != prevOrderUpdatedTime?.GetSubHourComponent();
+            pqAnonOrderLyrInfo.IsUpdatedTimeDateUpdated = orderUpdatedTime.Get2MinIntervalsFromUnixEpoch() != prevOrderUpdatedTime?.Get2MinIntervalsFromUnixEpoch();
+            pqAnonOrderLyrInfo.IsUpdatedTimeSub2MinUpdated = orderUpdatedTime.GetSub2MinComponent() != prevOrderUpdatedTime?.GetSub2MinComponent();
         }
         base.SetOrderUpdatedTime(side, orderLayerInfo, pos, orderUpdatedTime, prevOrderUpdatedTime);
     }

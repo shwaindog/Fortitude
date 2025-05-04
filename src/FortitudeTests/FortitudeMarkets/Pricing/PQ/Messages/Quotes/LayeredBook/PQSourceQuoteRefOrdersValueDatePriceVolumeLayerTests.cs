@@ -402,7 +402,7 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayerTests
         var sourceUpdates = emptyPvl.GetDeltaUpdateFields(TestDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
-        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LayerValueDate, expectedDateTime.GetHoursFromUnixEpoch());
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LayerValueDate, expectedDateTime.Get2MinIntervalsFromUnixEpoch());
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyPvl.IsValueDateUpdated = false;
@@ -417,7 +417,7 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayerTests
         Assert.AreEqual(nextExpectedValueDate, emptyPvl.ValueDate);
         sourceUpdates = emptyPvl.GetDeltaUpdateFields(TestDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LayerValueDate, nextExpectedValueDate.GetHoursFromUnixEpoch());
+        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LayerValueDate, nextExpectedValueDate.Get2MinIntervalsFromUnixEpoch());
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         sourceUpdates = (from update in emptyPvl.GetDeltaUpdateFields(TestDateTime, StorageFlags.Snapshot)
@@ -489,9 +489,9 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayerTests
 
         emptyPvl.IsSourceNameUpdated = false;
         Assert.IsFalse(emptyPvl.IsSourceNameUpdated);
-        Assert.IsTrue(emptyPvl.HasUpdates);
-        emptyPvl.NameIdLookup.HasUpdates = false;
         Assert.IsFalse(emptyPvl.HasUpdates);
+        emptyPvl.NameIdLookup.HasUpdates = false;
+        Assert.IsFalse(emptyPvl.NameIdLookup.HasUpdates);
         Assert.IsTrue(emptyPvl.GetDeltaUpdateFields(TestDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         var nextExpectedSourceName = "AnotherSourceName";
@@ -943,7 +943,7 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayerTests
     {
         PQOrdersPriceVolumeLayerTests.AssertContainsAllPvlFields(checkFieldUpdates, pvl, bookIndex, priceScale, volumeScale);
 
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerValueDate, pvl.ValueDate.GetHoursFromUnixEpoch()),
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerValueDate, pvl.ValueDate.Get2MinIntervalsFromUnixEpoch()),
                         PQTickInstantTests.ExtractFieldUpdateWithId
                             (checkFieldUpdates, PQQuoteFields.LayerValueDate), $"For {pvl.GetType().Name} ");
 

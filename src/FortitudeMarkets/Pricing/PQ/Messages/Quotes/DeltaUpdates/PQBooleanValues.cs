@@ -20,6 +20,7 @@ public enum PQBooleanValues : uint
   , IsAskPriceTopChangedUpdatedFlag = 0x08_00_00
 
   , BooleanUpdatesMask = 0x0F_00_00
+  , DefaultEmptyQuoteFlags = 0x00_00_02
 }
 
 public static class PQBooleanValuesExtensions

@@ -53,8 +53,26 @@ public static class LayerFlagsExtensions
     public const LayerFlags AdditionalFullSupportLayerFlags =
         AdditionalValueDateFlags | AdditionalSourceQuoteRefFlags | AdditionSourceLayerFlags;
 
+    public const LayerFlags FullSourceFlags =
+        AdditionSourceLayerFlags | PriceVolumeLayerFlags;
+
+    public const LayerFlags FullSourceQuoteRefFlags =
+        AdditionalSourceQuoteRefFlags | FullSourceFlags;
+
+    public const LayerFlags FullValueDateFlags =
+        AdditionalValueDateFlags | PriceVolumeLayerFlags;
+
+    public const LayerFlags FullOrdersCountFlags =
+        AdditionalOrdersCountFlags | PriceVolumeLayerFlags;
+
+    public const LayerFlags FullAnonymousOrderFlags =
+        AdditionalAnonymousOrderFlags | FullOrdersCountFlags;
+
+    public const LayerFlags FullCounterPartyOrdersFlags =
+        AdditionalCounterPartyOrderFlags | FullAnonymousOrderFlags;
+
     public const LayerFlags FullSupportLayerFlags =
-        AdditionalFullSupportLayerFlags | AdditionalCounterPartyOrderFlags | AdditionalOrdersCountFlags | PriceVolumeLayerFlags;
+        AdditionalFullSupportLayerFlags | FullCounterPartyOrdersFlags;
 
     public static LayerFlags SupportedLayerFlags(this LayerType layerType)
     {
@@ -88,6 +106,8 @@ public static class LayerFlagsExtensions
     public static bool HasOrderRemainingSize(this LayerFlags flags)    => (flags & LayerFlags.OrderRemainingSize) > 0;
     public static bool HasOrderCounterPartyName(this LayerFlags flags) => (flags & LayerFlags.OrderCounterPartyName) > 0;
     public static bool HasOrderTraderName(this LayerFlags flags)       => (flags & LayerFlags.OrderTraderName) > 0;
+
+    public static LayerFlags Unset(this LayerFlags flags, LayerFlags toUnset) => flags & ~toUnset;
 
     public static bool HasAllOf(this LayerFlags flags, LayerFlags checkAllFound)    => (flags & checkAllFound) == checkAllFound;
     public static bool HasNoneOf(this LayerFlags flags, LayerFlags checkNonAreSet)  => (flags & checkNonAreSet) == 0;

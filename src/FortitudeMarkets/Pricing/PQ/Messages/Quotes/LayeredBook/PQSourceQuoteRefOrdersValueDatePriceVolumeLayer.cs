@@ -229,7 +229,7 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolu
     [JsonIgnore]
     public override bool HasUpdates
     {
-        get => base.HasUpdates || NameIdLookup!.HasUpdates;
+        get => base.HasUpdates;
         set
         {
             base.HasUpdates          = value;
@@ -262,7 +262,7 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolu
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                 quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
-        if (!updatedOnly || IsValueDateUpdated) yield return new PQFieldUpdate(PQQuoteFields.LayerValueDate, valueDate.GetHoursFromUnixEpoch());
+        if (!updatedOnly || IsValueDateUpdated) yield return new PQFieldUpdate(PQQuoteFields.LayerValueDate, valueDate.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsSourceNameUpdated) yield return new PQFieldUpdate(PQQuoteFields.SourceId, SourceId);
         if (!updatedOnly || IsExecutableUpdated)
             yield return new PQFieldUpdate(PQQuoteFields.LayerBooleanFlags
@@ -276,7 +276,7 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolu
         if (pqFieldUpdate.Id == PQQuoteFields.LayerValueDate)
         {
             var originalValueDate = valueDate;
-            PQFieldConverters.UpdateHoursFromUnixEpoch(ref valueDate, pqFieldUpdate.Payload);
+            PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref valueDate, pqFieldUpdate.Payload);
             IsValueDateUpdated = originalValueDate != valueDate;
             return 0;
         }

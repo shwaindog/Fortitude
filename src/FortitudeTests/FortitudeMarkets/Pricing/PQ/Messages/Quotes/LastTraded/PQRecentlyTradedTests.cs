@@ -173,7 +173,7 @@ public class PQRecentlyTradedTests
                 lt.IsTradeTimeDateUpdated = false;
                 Assert.IsTrue(populatedRecentlyTraded.HasUpdates);
                 Assert.IsTrue(lt.HasUpdates);
-                lt.IsTradeTimeSubHourUpdated = false;
+                lt.IsTradeTimeSub2MinUpdated = false;
                 Assert.IsFalse(populatedRecentlyTraded.HasUpdates);
                 Assert.IsFalse(lt.HasUpdates);
                 if (lt is IPQLastPaidGivenTrade lastPaidGivenTrade)
@@ -397,7 +397,7 @@ public class PQRecentlyTradedTests
                 Assert.AreEqual(DateTimeConstants.UnixEpoch, pvl.TradeTime);
                 Assert.IsFalse(pvl.IsTradePriceUpdated);
                 Assert.IsFalse(pvl.IsTradeTimeDateUpdated);
-                Assert.IsFalse(pvl.IsTradeTimeSubHourUpdated);
+                Assert.IsFalse(pvl.IsTradeTimeSub2MinUpdated);
                 if (pvl is IPQLastPaidGivenTrade paidGivenTrade)
                 {
                     Assert.IsFalse(paidGivenTrade.WasGiven);
@@ -614,11 +614,11 @@ public class PQRecentlyTradedTests
                             PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedAtPrice, depthId, priceScale),
                             $"For lastTradeType {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate, depthId, lastTrade.TradeTime.GetHoursFromUnixEpoch()),
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate, depthId, lastTrade.TradeTime.Get2MinIntervalsFromUnixEpoch()),
                             PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedTradeTimeDate, depthId),
                             $"For bidlayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-            var extended = lastTrade.TradeTime.GetSubHourComponent().BreakLongToUShortAndUint(out var subHourBase);
+            var extended = lastTrade.TradeTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBase);
             Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeSubHour, depthId, subHourBase, extended)
                           , PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                         PQQuoteFields.LastTradedTradeTimeSubHour, depthId, extended),

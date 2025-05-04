@@ -34,13 +34,15 @@ public enum OrderBookSideUpdatedFlags : byte
 
 public interface IPQOrderBookSide : IMutableOrderBookSide, IPQSupportsFieldUpdates<IOrderBookSide>,
     IPQSupportsStringUpdates<IOrderBookSide>, IEnumerable<IPQPriceVolumeLayer>, ICloneable<IPQOrderBookSide>,
-    IRelatedItem<IPQSourceTickerInfo>, IRelatedLinkedItem<LayerFlags, IPQNameIdLookupGenerator>,
+    IRelatedItems<LayerFlags, ushort>, IRelatedItems<INameIdLookupGenerator>,
     ISupportsPQNameIdLookupGenerator
 
 {
     new IPQPriceVolumeLayer? this[int level] { get; set; }
-    IList<IPQPriceVolumeLayer?>  AllLayers    { get; set; }
-    new bool                     HasUpdates   { get; set; }
+    IList<IPQPriceVolumeLayer?> AllLayers { get; set; }
+
+    new bool HasUpdates { get; set; }
+
     new IPQNameIdLookupGenerator NameIdLookup { get; set; }
 
     decimal? SourceOpenInterestVolume  { get; set; }
@@ -64,7 +66,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     private decimal adapterOpenInterestVolume;
     private decimal adapterOpenInterestVwap;
 
-    private IList<IPQPriceVolumeLayer?>? allLayers;
+    private IList<IPQPriceVolumeLayer> allLayers;
 
     private IPQNameIdLookupGenerator nameIdLookupGenerator = null!;
 
@@ -74,78 +76,118 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     protected OrderBookSideUpdatedFlags UpdatedFlags;
 
+    private LayerFlags layerFlags      = LayerFlagsExtensions.PriceVolumeLayerFlags;
+    private ushort     maxPublishDepth = 1;
+
     public PQOrderBookSide()
     {
         BookSide     = BookSide.Unknown;
         NameIdLookup = InitializeNewIdLookupGenerator();
+        allLayers    = [new PQPriceVolumeLayer()];
 
         if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
     }
 
-    public PQOrderBookSide(BookSide bookSide, LayerType layerType = LayerType.PriceVolume, 
-        int numBookLayers = SourceTickerInfo.DefaultMaximumPublishedLayers, bool isLadder = false, 
+    public PQOrderBookSide
+    (BookSide bookSide, LayerType layerType = LayerType.PriceVolume,
+        int numBookLayers = SourceTickerInfo.DefaultMaximumPublishedLayers, bool isLadder = false,
         IPQNameIdLookupGenerator? nameIdLookupGenerator = null)
     {
-        BookSide        = bookSide;
-        IsLadder        = isLadder;
-        NameIdLookup    = nameIdLookupGenerator ?? InitializeNewIdLookupGenerator();
-        LayersOfType    = layerType;
-        MaxPublishDepth = (ushort)numBookLayers;
+        BookSide                 =  bookSide;
+        LayerSupportedFlags =  layerType.SupportedLayerFlags();
+        LayerSupportedFlags |= LayerSupportedType.SupportedLayerFlags();
+        IsLadder                 =  isLadder;
+        NameIdLookup             =  nameIdLookupGenerator ?? InitializeNewIdLookupGenerator();
+        MaxPublishDepth          =  (ushort)numBookLayers;
+        allLayers                =  new List<IPQPriceVolumeLayer>(MaxPublishDepth);
+        for (var i = 0; i < MaxPublishDepth; i++)
+        {
+            var pqLayer = LayerSelector.CreateExpectedImplementation(LayerSupportedType, NameIdLookup);
+            allLayers.Add(pqLayer);
+        }
 
         if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
     }
 
-    public PQOrderBookSide(BookSide bookSide, IPQSourceTickerInfo srcTickerInfo, 
+    public PQOrderBookSide
+        (BookSide bookSide, ISourceTickerInfo srcTickerInfo, IPQNameIdLookupGenerator? nameIdLookupGenerator = null)
+    {
+        BookSide                 =  bookSide;
+        LayerSupportedFlags =  srcTickerInfo.LayerFlags;
+        layerFlags               |= LayerSupportedType.SupportedLayerFlags();
+        MaxPublishDepth          =  srcTickerInfo?.MaximumPublishedLayers ?? 1;
+        NameIdLookup = nameIdLookupGenerator ??
+                       (srcTickerInfo is IPQSourceTickerInfo pqSrcTkrInfo
+                           ? InitializeNewIdLookupGenerator(pqSrcTkrInfo.NameIdLookup)
+                           : InitializeNewIdLookupGenerator());
+        
+        allLayers = new List<IPQPriceVolumeLayer>(MaxPublishDepth);
+        for (var i = 0; i < MaxPublishDepth; i++)
+        {
+            var pqLayer = LayerSelector.CreateExpectedImplementation(LayerSupportedType, NameIdLookup);
+            AllLayers.Add(pqLayer);
+        }
+        EnsureRelatedItemsAreConfigured(nameIdLookupGenerator);
+
+        if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
+    }
+
+    public PQOrderBookSide
+    (BookSide bookSide, IEnumerable<IPriceVolumeLayer>? bookLayers = null, bool isLadder = false,
         IPQNameIdLookupGenerator? nameIdLookupGenerator = null)
     {
-        BookSide     = bookSide;
-        IsLadder     = srcTickerInfo.LayerFlags.HasLadder();
-        NameIdLookup = nameIdLookupGenerator ?? InitializeNewIdLookupGenerator(srcTickerInfo.NameIdLookup);
-        EnsureRelatedItemsAreConfigured(srcTickerInfo);
+        BookSide                 = bookSide;
+        LayerSupportedFlags = bookLayers?.FirstOrDefault()?.SupportsLayerFlags ?? LayerFlagsExtensions.PriceVolumeLayerFlags;
+        IsLadder                 = isLadder;
+        MaxPublishDepth          = (ushort)(bookLayers?.Count() ?? 1);
 
-        if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
-    }
-
-    public PQOrderBookSide(BookSide bookSide, IEnumerable<IPriceVolumeLayer>? bookLayers = null, 
-        bool isLadder = false, IPQNameIdLookupGenerator? nameIdLookupGenerator = null)
-    {
-        BookSide     = bookSide;
-        IsLadder     = isLadder;
         NameIdLookup = nameIdLookupGenerator ?? SourceOtherExistingOrNewPQNameIdNameLookup(bookLayers);
-        AllLayers = bookLayers?
-                    .Select(pvl => (IPQPriceVolumeLayer?)LayerSelector.UpgradeExistingLayer(pvl, pvl.LayerType, pvl))
-                    .ToList() ?? new List<IPQPriceVolumeLayer?>();
-        LayersOfType = bookLayers?.FirstOrDefault()?.LayerType ?? LayerType.PriceVolume;
+        allLayers =
+            (bookLayers?.Select(pvl => LayerSelector.UpgradeExistingLayer(pvl, pvl.LayerType, pvl))
+                       .OfType<IPQPriceVolumeLayer>()
+                       .ToList() ?? [LayerSelector.CreateExpectedImplementation(LayerSupportedType, NameIdLookup)]
+            );
 
         if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
     }
 
     public PQOrderBookSide(IOrderBookSide toClone, IPQNameIdLookupGenerator? nameIdLookupGenerator = null)
     {
-        BookSide     = toClone.BookSide;
-        NameIdLookup = InitializeNewIdLookupGenerator(nameIdLookupGenerator, toClone);
-        IsLadder     = toClone.IsLadder;
+        BookSide = toClone.BookSide;
+
+        LayerSupportedFlags =  toClone.LayerSupportedFlags;
+        layerFlags               |= LayerSupportedType.SupportedLayerFlags();
+
+        MaxPublishDepth = toClone.MaxPublishDepth;
+        NameIdLookup    = InitializeNewIdLookupGenerator(nameIdLookupGenerator, toClone);
+
         var size = toClone.Capacity;
-        AllLayers = new List<IPQPriceVolumeLayer?>(size);
+        allLayers = new List<IPQPriceVolumeLayer>(size);
         Capacity  = toClone.Capacity;
         for (var i = 0; i < size; i++)
         {
             var sourceLayer = toClone[i];
             if (sourceLayer != null)
             {
-                var pqLayer = (IPQPriceVolumeLayer?)LayerSelector.CreateExpectedImplementation(sourceLayer.LayerType, NameIdLookup, sourceLayer);
+                var pqLayer = LayerSelector.CreateExpectedImplementation(sourceLayer.LayerType, NameIdLookup, sourceLayer);
                 AllLayers.Add(pqLayer);
             }
             else
             {
-                AllLayers.Add(null);
+                var pqLayer = LayerSelector.CreateExpectedImplementation(LayerSupportedType, NameIdLookup);
+                pqLayer.IsEmpty = true;
+                AllLayers.Add(pqLayer);
             }
         }
 
         if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
     }
 
-    public ushort MaxPublishDepth { get; }
+    public ushort MaxPublishDepth
+    {
+        get => maxPublishDepth;
+        private set => maxPublishDepth = Math.Max((byte)1, Math.Min(value, PQFieldKeys.TwoByteFieldIdMaxBookDepth));
+    }
 
     private IPQOrderBookLayerFactorySelector LayerSelector { get; set; } = null!;
 
@@ -155,11 +197,23 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
 
-    public LayerType LayersOfType { get; private set; } = LayerType.PriceVolume;
+    public LayerType LayerSupportedType
+    {
+        get => LayerSupportedFlags.MostCompactLayerType();
+        private set => LayerSupportedFlags |= value.SupportedLayerFlags();
+    }
 
-    public LayerFlags LayersSupportsLayerFlags => LayersOfType.SupportedLayerFlags();
+    public LayerFlags LayerSupportedFlags
+    {
+        get => layerFlags;
+        set => layerFlags = layerFlags.Unset(LayerFlags.Ladder) | value;
+    }
 
-    public bool IsLadder { get; private set; }
+    public bool IsLadder
+    {
+        get => layerFlags.HasLadder();
+        set => layerFlags = value ? layerFlags | LayerFlags.Ladder : layerFlags.Unset(LayerFlags.Ladder);
+    }
 
     public BookSide BookSide { get; }
 
@@ -168,13 +222,17 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         get => level < AllLayers.Count && level >= 0 ? AllLayers[level] : null;
         set
         {
-            if (value == null && level == AllLayers.Count - 1)
+            if (value == null)
             {
-                AllLayers.RemoveAt(level);
-                return;
+                if (level < AllLayers.Count)
+                {
+                    AllLayers[level].IsEmpty = true;
+                }
             }
-
-            AllLayers[level] = value;
+            else
+            {
+                AllLayers[level] = value;
+            }
         }
     }
 
@@ -186,9 +244,9 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         set => this[level] = value as IPQPriceVolumeLayer;
     }
 
-    public IList<IPQPriceVolumeLayer?> AllLayers
+    public IList<IPQPriceVolumeLayer> AllLayers
     {
-        get => allLayers ??= new List<IPQPriceVolumeLayer?>();
+        get => allLayers;
         set => allLayers = value;
     }
 
@@ -209,7 +267,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public int Capacity
     {
-        get => AllLayers.Count;
+        get => Math.Min(MaxPublishDepth, AllLayers.Count);
         set
         {
             if (value > PQFieldKeys.SingleByteFieldIdMaxBookDepth)
@@ -229,7 +287,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     {
         get
         {
-            for (var i = AllLayers.Count - 1; i >= 0; i--)
+            for (var i = Math.Min(MaxPublishDepth, AllLayers.Count - 1); i >= 0; i--)
             {
                 var layerAtLevel = AllLayers[i];
                 if ((layerAtLevel?.Price ?? 0) > 0) return i + 1;
@@ -417,20 +475,25 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public override IOrderBookSide CopyFrom(IOrderBookSide source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        if (source is PQOrderBookSide sourcePqOrderBook) NameIdLookup.CopyFrom(sourcePqOrderBook.NameIdLookup, copyMergeFlags);
-        LayersOfType = source.LayersOfType;
-        IsLadder     = source.IsLadder;
+        if (!copyMergeFlags.HasSkipReferenceLookups() && source is PQOrderBookSide sourcePqOrderBook)
+            NameIdLookup.CopyFrom(sourcePqOrderBook.NameIdLookup, copyMergeFlags);
+        copyMergeFlags = copyMergeFlags.AddSkipReferenceLookups();
+
+        LayerSupportedFlags = source.LayerSupportedFlags;
+        MaxPublishDepth          = source.MaxPublishDepth;
+        var originalCount = Count;
 
         var allSourceLayers = source.Capacity;
         for (var i = 0; i < allSourceLayers; i++)
         {
-            var sourceLayer      = source[i];
+            var sourceLayer = source[i];
+            if (sourceLayer is null or { IsEmpty: true } && i >= originalCount) continue;
             var destinationLayer = this[i];
 
             if (i < AllLayers.Count)
-                AllLayers[i] = LayerSelector.UpgradeExistingLayer(destinationLayer, NameIdLookup, LayersOfType, sourceLayer, copyMergeFlags);
+                AllLayers[i] = LayerSelector.UpgradeExistingLayer(destinationLayer, NameIdLookup, LayerSupportedType, sourceLayer, copyMergeFlags);
             else
-                AllLayers.Add(LayerSelector.CreateExpectedImplementation(LayersOfType, NameIdLookup, sourceLayer, copyMergeFlags));
+                AllLayers.Add(LayerSelector.CreateExpectedImplementation(LayerSupportedType, NameIdLookup, sourceLayer, copyMergeFlags));
             if (sourceLayer is { IsEmpty: false }) continue;
             if (destinationLayer is IMutablePriceVolumeLayer mutableDestinationLayer) mutableDestinationLayer.IsEmpty = true;
         }
@@ -444,37 +507,34 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     public int AppendEntryAtEnd()
     {
         var index = AllLayers.Count;
-        AllLayers.Add(LayerSelector.CreateExpectedImplementation(LayersOfType, NameIdLookup));
+        AllLayers.Add(LayerSelector.CreateExpectedImplementation(LayerSupportedType, NameIdLookup));
         return index;
     }
 
-    public void EnsureRelatedItemsAreConfigured(LayerFlags layerFlags, IPQNameIdLookupGenerator? otherNameIdLookupGenerator)
+    public void EnsureRelatedItemsAreConfigured(INameIdLookupGenerator? otherNameIdLookupGenerator)
     {
-        if (otherNameIdLookupGenerator != null)
+        if (otherNameIdLookupGenerator != null && !ReferenceEquals(NameIdLookup, nameIdLookupGenerator))
         {
             NameIdLookup.CopyFrom(otherNameIdLookupGenerator);
             if (NameIdLookup.Count != otherNameIdLookupGenerator.Count) NameIdLookup.CopyFrom(otherNameIdLookupGenerator, CopyMergeFlags.FullReplace);
-            LayersOfType = layerFlags.MostCompactLayerType();
         }
     }
 
-    public void EnsureRelatedItemsAreConfigured(IPQSourceTickerInfo? referenceInstance)
+    public void EnsureRelatedItemsAreConfigured(LayerFlags newLayerFlags, ushort bookDepth)
     {
-        if (referenceInstance is { NameIdLookup: not null }) NameIdLookup.CopyFrom(referenceInstance.NameIdLookup);
-        LayersOfType = referenceInstance?.LayerFlags.MostCompactLayerType() ?? LayersOfType;
-        IsLadder     = referenceInstance?.LayerFlags.HasLadder() ?? false;
-        int maxBookDepth = Math.Max((byte)1, Math.Min(referenceInstance!.MaximumPublishedLayers, PQFieldKeys.TwoByteFieldIdMaxBookDepth));
+        LayerSupportedFlags = newLayerFlags;
+        MaxPublishDepth          = bookDepth;
 
-        var layerFactory = LayerSelector.FindForLayerFlags(referenceInstance);
+        var layerFactory = LayerSelector.FindForLayerFlags(LayerSupportedFlags);
 
-        for (var i = 0; i < maxBookDepth; i++)
+        for (var i = 0; i < MaxPublishDepth; i++)
             if (i >= AllLayers.Count || AllLayers[i] == null)
                 AllLayers.Add(layerFactory.CreateNewLayer());
             else if (i < AllLayers.Count && AllLayers[i] is { } currentLayer
-                                         && !LayerSelector.OriginalCanWhollyContain(LayersSupportsLayerFlags
+                                         && !LayerSelector.OriginalCanWhollyContain(LayerSupportedFlags
                                                                                   , currentLayer.SupportsLayerFlags))
                 AllLayers[i] = layerFactory.UpgradeLayer(currentLayer);
-        for (var i = maxBookDepth; i < AllLayers.Count; i++) AllLayers.RemoveAt(i);
+        for (var i = MaxPublishDepth; i < AllLayers.Count; i++) AllLayers.RemoveAt(i);
     }
 
     public virtual bool AreEquivalent(IOrderBookSide? other, bool exactTypes = false)
@@ -482,17 +542,23 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
 
-        var isLadderSame      = IsLadder == other.IsLadder;
+        var layerFlagsSame    = LayerSupportedFlags == other.LayerSupportedFlags;
         var deepestPricedSame = Count == other.Count;
-        var bookLayersSame = exactTypes
-            ? AllLayers.SequenceEqual(other)
-            : AllLayers.Zip(other, (thisLayer, otherLayer) => new { thisLayer, otherLayer })
-                       .All(joined => joined.thisLayer != null && joined.thisLayer.AreEquivalent(joined.otherLayer));
+        var maxPubDepthSame   = MaxPublishDepth == other.MaxPublishDepth;
+        var bookLayersSame    = true;
+        for (int i = 0; i < Count; i++)
+        {
+            var localLayer  = this[i];
+            var otherLayer  = other[i];
+            var layerIsSame = localLayer?.AreEquivalent(otherLayer, exactTypes) ?? otherLayer == null;
+            bookLayersSame &= layerIsSame;
+        }
 
-        var deepestPossibleSame                                                  = true;
+        var deepestPossibleSame = true;
+
         if (other is IMutableOrderBookSide mutableOrderBook) deepestPossibleSame = Capacity == mutableOrderBook.Capacity;
 
-        var allAreSame = isLadderSame && deepestPossibleSame && deepestPricedSame && bookLayersSame;
+        var allAreSame = layerFlagsSame && deepestPossibleSame && deepestPricedSame && maxPubDepthSame && bookLayersSame;
         return allAreSame;
     }
 
@@ -509,7 +575,6 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         NumOfUpdates = 0;
         base.StateReset();
     }
-
 
     public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
     {
@@ -548,7 +613,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     {
         IPQNameIdLookupGenerator thisBookNameIdLookupGenerator = optionalExisting != null
             ? new PQNameIdLookupGenerator(optionalExisting, PQQuoteFields.LayerNameDictionaryUpsertCommand)
-            : clone is IPQOrderBookSide pqClone 
+            : clone is IPQOrderBookSide pqClone
                 ? new PQNameIdLookupGenerator(pqClone.NameIdLookup, PQQuoteFields.LayerNameDictionaryUpsertCommand)
                 : new PQNameIdLookupGenerator(PQQuoteFields.LayerNameDictionaryUpsertCommand);
         return thisBookNameIdLookupGenerator;

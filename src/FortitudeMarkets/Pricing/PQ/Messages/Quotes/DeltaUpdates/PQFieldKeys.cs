@@ -104,7 +104,7 @@ public enum PQQuoteFields : byte
   , OrderId                     = 123 // 0x7B
   , OrderFlags                  = 124 // 0x7C
   , OrderCreatedDate            = 125 // 0x7D
-  , OrderCreatedTimeSubHour     = 126 // 0x7E
+  , OrderCreatedTimeSub2Min     = 126 // 0x7E
   , OrderUpdatedDate            = 127 // 0x7F
   , OrderUpdatedTimeSubHour     = 128 // 0x80
   , OrderVolume                 = 129 // 0x81

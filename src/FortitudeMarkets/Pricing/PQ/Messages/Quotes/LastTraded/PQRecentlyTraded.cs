@@ -22,7 +22,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
 
 public interface IPQRecentlyTraded : IMutableRecentlyTraded,
     IPQSupportsFieldUpdates<IRecentlyTraded>, IPQSupportsStringUpdates<IRecentlyTraded>,
-    IEnumerable<IPQLastTrade>, IRelatedItem<IPQNameIdLookupGenerator>, IRelatedItem<IPQSourceTickerInfo>
+    IEnumerable<IPQLastTrade>, IRelatedItems<IPQNameIdLookupGenerator>, IRelatedItems<IPQSourceTickerInfo>
   , ISupportsPQNameIdLookupGenerator
 {
     new IPQLastTrade? this[int index] { get; set; }

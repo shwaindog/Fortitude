@@ -42,16 +42,16 @@ public interface IPQAnonymousOrderLayerInfo : IMutableAnonymousOrderLayerInfo, I
     bool IsOrderFlagsUpdated { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    bool IsCreatedTimeSubHourUpdated { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     bool IsCreatedTimeDateUpdated { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    bool IsUpdatedTimeSubHourUpdated { get; set; }
+    bool IsCreatedTimeSub2MinUpdated { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     bool IsUpdatedTimeDateUpdated { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    bool IsUpdatedTimeSub2MinUpdated { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     bool IsOrderVolumeUpdated { get; set; }
@@ -145,8 +145,8 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
         get => createdTime;
         set
         {
-            IsCreatedTimeDateUpdated    |= createdTime.GetHoursFromUnixEpoch() != value.GetHoursFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
-            IsCreatedTimeSubHourUpdated |= createdTime.GetSubHourComponent() != value.GetSubHourComponent() || NumUpdatesSinceEmpty == 0;
+            IsCreatedTimeDateUpdated    |= createdTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
+            IsCreatedTimeSub2MinUpdated |= createdTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
             createdTime                 =  value;
         }
     }
@@ -157,8 +157,8 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
         get => updatedTime;
         set
         {
-            IsUpdatedTimeDateUpdated    |= updatedTime.GetHoursFromUnixEpoch() != value.GetHoursFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
-            IsUpdatedTimeSubHourUpdated |= updatedTime.GetSubHourComponent() != value.GetSubHourComponent() || NumUpdatesSinceEmpty == 0;
+            IsUpdatedTimeDateUpdated    |= updatedTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
+            IsUpdatedTimeSub2MinUpdated |= updatedTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
             updatedTime                 =  value;
         }
     }
@@ -211,7 +211,7 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
     }
 
 
-    public bool IsCreatedTimeSubHourUpdated
+    public bool IsCreatedTimeSub2MinUpdated
     {
         get => (UpdatedFlags & OrderLayerInfoFlags.CreatedTimeSubHourFlag) > 0;
         set
@@ -219,7 +219,7 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
             if (value)
                 UpdatedFlags |= OrderLayerInfoFlags.CreatedTimeSubHourFlag;
 
-            else if (IsCreatedTimeSubHourUpdated) UpdatedFlags ^= OrderLayerInfoFlags.CreatedTimeSubHourFlag;
+            else if (IsCreatedTimeSub2MinUpdated) UpdatedFlags ^= OrderLayerInfoFlags.CreatedTimeSubHourFlag;
         }
     }
     public bool IsCreatedTimeDateUpdated
@@ -235,7 +235,7 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
     }
 
 
-    public bool IsUpdatedTimeSubHourUpdated
+    public bool IsUpdatedTimeSub2MinUpdated
     {
         get => (UpdatedFlags & OrderLayerInfoFlags.UpdatedTimeSubHourFlag) > 0;
         set
@@ -243,7 +243,7 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
             if (value)
                 UpdatedFlags |= OrderLayerInfoFlags.UpdatedTimeSubHourFlag;
 
-            else if (IsUpdatedTimeSubHourUpdated) UpdatedFlags ^= OrderLayerInfoFlags.UpdatedTimeSubHourFlag;
+            else if (IsUpdatedTimeSub2MinUpdated) UpdatedFlags ^= OrderLayerInfoFlags.UpdatedTimeSubHourFlag;
         }
     }
 
@@ -347,24 +347,24 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
                 return 0;
             case PQQuoteFields.OrderCreatedDate:
                 IsCreatedTimeDateUpdated = true; // incase of reset and sending 0;
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref createdTime, fieldUpdate.Payload);
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref createdTime, fieldUpdate.Payload);
                 if (createdTime == DateTime.UnixEpoch) createdTime = default;
                 return 0;
-            case PQQuoteFields.OrderCreatedTimeSubHour:
-                IsCreatedTimeSubHourUpdated = true; // incase of reset and sending 0;
-                PQFieldConverters.UpdateSubHourComponent
-                    (ref createdTime, fieldUpdate.ExtendedPayload.AppendUintToMakeLong(fieldUpdate.Payload));
+            case PQQuoteFields.OrderCreatedTimeSub2Min:
+                IsCreatedTimeSub2MinUpdated = true; // incase of reset and sending 0;
+                PQFieldConverters.UpdateSub2MinComponent
+                    (ref createdTime, fieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(fieldUpdate.Payload));
                 if (createdTime == DateTime.UnixEpoch) createdTime = default;
                 return 0;
             case PQQuoteFields.OrderUpdatedDate:
                 IsUpdatedTimeDateUpdated = true; // incase of reset and sending 0;
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref updatedTime, fieldUpdate.Payload);
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref updatedTime, fieldUpdate.Payload);
                 if (updatedTime == DateTime.UnixEpoch) updatedTime = default;
                 return 0;
             case PQQuoteFields.OrderUpdatedTimeSubHour:
-                IsUpdatedTimeSubHourUpdated = true; // incase of reset and sending 0;
-                PQFieldConverters.UpdateSubHourComponent
-                    (ref updatedTime, fieldUpdate.ExtendedPayload.AppendUintToMakeLong(fieldUpdate.Payload));
+                IsUpdatedTimeSub2MinUpdated = true; // incase of reset and sending 0;
+                PQFieldConverters.UpdateSub2MinComponent
+                    (ref updatedTime, fieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(fieldUpdate.Payload));
                 if (updatedTime == DateTime.UnixEpoch) updatedTime = default;
                 return 0;
             case PQQuoteFields.OrderVolume:
@@ -388,18 +388,18 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
         if (!updatedOnly || IsOrderFlagsUpdated) yield return new PQFieldUpdate(PQQuoteFields.OrderFlags, (uint)OrderFlags);
 
         if (!updatedOnly || IsCreatedTimeDateUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.OrderCreatedDate, createdTime.GetHoursFromUnixEpoch());
-        if (!updatedOnly || IsCreatedTimeSubHourUpdated)
+            yield return new PQFieldUpdate(PQQuoteFields.OrderCreatedDate, createdTime.Get2MinIntervalsFromUnixEpoch());
+        if (!updatedOnly || IsCreatedTimeSub2MinUpdated)
         {
-            var extended = createdTime.GetSubHourComponent().BreakLongToUShortAndUint(out var value);
-            yield return new PQFieldUpdate(PQQuoteFields.OrderCreatedTimeSubHour, value, extended);
+            var extended = createdTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
+            yield return new PQFieldUpdate(PQQuoteFields.OrderCreatedTimeSub2Min, value, extended);
         }
         if (!updatedOnly || IsUpdatedTimeDateUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.OrderUpdatedDate, updatedTime.GetHoursFromUnixEpoch());
+            yield return new PQFieldUpdate(PQQuoteFields.OrderUpdatedDate, updatedTime.Get2MinIntervalsFromUnixEpoch());
 
-        if (!updatedOnly || IsUpdatedTimeSubHourUpdated)
+        if (!updatedOnly || IsUpdatedTimeSub2MinUpdated)
         {
-            var extended = updatedTime.GetSubHourComponent().BreakLongToUShortAndUint(out var value);
+            var extended = updatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQQuoteFields.OrderUpdatedTimeSubHour, value, extended);
         }
         if (!updatedOnly || IsOrderVolumeUpdated)
@@ -479,9 +479,9 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
 
             if (pqAnonOrderLyrInfo.IsOrderIdUpdated || isFullReplace) OrderId       = pqAnonOrderLyrInfo.OrderId;
             if (pqAnonOrderLyrInfo.IsOrderFlagsUpdated || isFullReplace) OrderFlags = pqAnonOrderLyrInfo.OrderFlags;
-            if (pqAnonOrderLyrInfo.IsCreatedTimeDateUpdated || pqAnonOrderLyrInfo.IsCreatedTimeSubHourUpdated || isFullReplace)
+            if (pqAnonOrderLyrInfo.IsCreatedTimeDateUpdated || pqAnonOrderLyrInfo.IsCreatedTimeSub2MinUpdated || isFullReplace)
                 CreatedTime = pqAnonOrderLyrInfo.CreatedTime;
-            if (pqAnonOrderLyrInfo.IsUpdatedTimeDateUpdated || pqAnonOrderLyrInfo.IsUpdatedTimeSubHourUpdated || isFullReplace)
+            if (pqAnonOrderLyrInfo.IsUpdatedTimeDateUpdated || pqAnonOrderLyrInfo.IsUpdatedTimeSub2MinUpdated || isFullReplace)
                 UpdatedTime = pqAnonOrderLyrInfo.UpdatedTime;
             if (pqAnonOrderLyrInfo.IsOrderVolumeUpdated || isFullReplace) OrderVolume = pqAnonOrderLyrInfo.OrderVolume;
 

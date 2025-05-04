@@ -13,6 +13,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
 
@@ -24,7 +25,6 @@ public interface IPQLevel2Quote : IPQLevel1Quote, IMutableLevel2Quote, IDoublyLi
 
     new IPQOrderBookSide BidBook { get; set; }
     new IPQOrderBookSide AskBook { get; set; }
-
 
     new IPQLevel2Quote? Next     { get; set; }
     new IPQLevel2Quote? Previous { get; set; }
@@ -47,12 +47,35 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
         orderBook   = new PQOrderBook();
         if (GetType() == typeof(PQLevel2Quote)) NumOfUpdates = 0;
     }
-
-    public PQLevel2Quote(ISourceTickerInfo sourceTickerInfo)
-        : base(sourceTickerInfo)
+    
+    // Reflection invoked constructor (PQServer<T>)
+    public PQLevel2Quote(ISourceTickerInfo sourceTickerInfo) : this(sourceTickerInfo, singlePrice: 0m)
     {
-        orderBook   = new PQOrderBook(PQSourceTickerInfo!);
-        EnsureRelatedItemsAreConfigured(this);
+    }
+
+    public PQLevel2Quote(ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, bool isReplay = false
+      , FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good, decimal singlePrice = 0m, DateTime? clientReceivedTime = null
+      , DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null, DateTime? sourceBidTime = null 
+      , bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null, DateTime? validFrom = null
+      , DateTime? validTo = null, bool isAskPriceTopChanged = false, bool executable = true, IPricePeriodSummary? periodSummary = null
+      , IOrderBook? orderBook = null)
+        : base(sourceTickerInfo, sourceTime, isReplay, feedSyncStatus, singlePrice, clientReceivedTime, adapterReceivedTime,
+               adapterSentTime, sourceBidTime, isBidPriceTopChanged, sourceAskTime, validFrom, validTo, isAskPriceTopChanged, executable,
+               periodSummary)
+    {
+        if (orderBook is IPQOrderBook pqOrderBook)
+        {
+            this.orderBook = pqOrderBook;
+        } 
+        else if (orderBook != null)
+        {
+            this.orderBook = new PQOrderBook(orderBook);
+        }
+        else
+        {
+            this.orderBook = new PQOrderBook(PQSourceTickerInfo!);
+        }
+        OrderBook.EnsureRelatedItemsAreConfigured(SourceTickerInfo, null);
 
         if (GetType() == typeof(PQLevel2Quote)) NumOfUpdates = 0;
     }
@@ -91,7 +114,8 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
     }
 
     protected string Level2ToStringMembers =>
-        $"{Level1ToStringMembers}, {nameof(IsBidBookChanged)}: {IsBidBookChanged}, {nameof(IsAskBookChanged)}: {IsAskBookChanged}, {nameof(BidBook)}: {BidBook}, {nameof(AskBook)}: {AskBook}, {nameof(BidPriceTop)}: {BidPriceTop}, {nameof(AskPriceTop)}: {AskPriceTop}";
+        $"{Level1ToStringMembers}, {nameof(BidBook)}: {BidBook}, {nameof(AskBook)}: {AskBook}, {nameof(BidPriceTop)}: {BidPriceTop}, " +
+        $"{nameof(AskPriceTop)}: {AskPriceTop}";
 
     public override PQLevel2Quote Clone() =>
         Recycler?.Borrow<PQLevel2Quote>().CopyFrom(this, CopyMergeFlags.FullReplace)  ?? new PQLevel2Quote(this);
@@ -168,19 +192,6 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
 
     [JsonIgnore] public override TickerDetailLevel TickerDetailLevel => TickerDetailLevel.Level2Quote;
 
-    [JsonIgnore]
-    public bool IsBidBookChanged
-    {
-        get => orderBook.BidSide.HasUpdates;
-        set => orderBook.BidSide.HasUpdates = value;
-    }
-
-    [JsonIgnore]
-    public bool IsAskBookChanged
-    {
-        get => orderBook.AskSide.HasUpdates;
-        set => orderBook.AskSide.HasUpdates = value;
-    }
 
     [JsonIgnore]
     public override bool HasUpdates
@@ -206,7 +217,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
         set
         {
             orderBook = value;
-            EnsureRelatedItemsAreConfigured(orderBook);
+            orderBook.EnsureRelatedItemsAreConfigured(SourceTickerInfo!, null);
         }
     }
 
@@ -261,8 +272,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
 
     public override void UpdateComplete()
     {
-        AskBook.UpdateComplete();
-        BidBook.UpdateComplete();
+        OrderBook.UpdateComplete();
         base.UpdateComplete();
     }
 
@@ -277,7 +287,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
     (DateTime snapShotTime, StorageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        quotePublicationPrecisionSetting = quotePublicationPrecisionSetting ?? PQSourceTickerInfo;
+        quotePublicationPrecisionSetting ??= PQSourceTickerInfo;
         foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                quotePublicationPrecisionSetting))
             yield return updatedField;
@@ -313,39 +323,27 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
     public override void EnsureRelatedItemsAreConfigured(ITickInstant? quote)
     {
         base.EnsureRelatedItemsAreConfigured(quote);
-
-        if (ReferenceEquals(quote, this) && quote is IPQLevel2Quote pqLevel2Quote)
+        if (quote is ILevel2Quote l2Quote)
         {
-            BidBook.EnsureRelatedItemsAreConfigured(pqLevel2Quote.BidBook.LayersSupportsLayerFlags, pqLevel2Quote.BidBook.NameIdLookup);
-            AskBook.EnsureRelatedItemsAreConfigured(pqLevel2Quote.AskBook.LayersSupportsLayerFlags, pqLevel2Quote.AskBook.NameIdLookup);
-        }
-        else
+            OrderBook.EnsureRelatedItemsAreConfigured(l2Quote.SourceTickerInfo, l2Quote.OrderBook);
+        } else if (quote?.SourceTickerInfo != null)
         {
-            BidBook.EnsureRelatedItemsAreConfigured(PQSourceTickerInfo);
-            AskBook.EnsureRelatedItemsAreConfigured(PQSourceTickerInfo);
+            EnsureOrderBookRelatedItemsAreConfigured(quote.SourceTickerInfo);
         }
     }
 
-    public virtual void EnsureRelatedItemsAreConfigured(IOrderBook? quote)
+    public virtual void EnsureOrderBookRelatedItemsAreConfigured(ISourceTickerInfo? sourceTickerInfo)
     {
-        orderBook.EnsureRelatedItemsAreConfigured(quote);
+        orderBook.EnsureRelatedItemsAreConfigured(sourceTickerInfo, null);
     }
 
     public override bool AreEquivalent(ITickInstant? other, bool exactTypes = false)
     {
         if (!(other is ILevel2Quote otherL2)) return false;
         var baseSame           = base.AreEquivalent(other, exactTypes);
-        var bidBooksSame       = BidBook.AreEquivalent(otherL2.BidBook, exactTypes);
-        var askBookSame        = AskBook.AreEquivalent(otherL2.AskBook, exactTypes);
-        var bidBookChangedSame = true;
-        var askBookChangedSame = true;
-        if (exactTypes)
-        {
-            bidBookChangedSame = IsBidBookChanged == otherL2.IsBidBookChanged;
-            askBookChangedSame = IsAskBookChanged == otherL2.IsAskBookChanged;
-        }
+        var orderBookSame       = OrderBook.AreEquivalent(otherL2.OrderBook, exactTypes);
 
-        var allAreSame = baseSame && bidBooksSame && askBookSame && bidBookChangedSame && askBookChangedSame;
+        var allAreSame = baseSame && orderBookSame;
         return allAreSame;
     }
 
@@ -368,7 +366,6 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
 
         return false;
     }
-
 
     IPQLevel2Quote IPQLevel2Quote.CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
 

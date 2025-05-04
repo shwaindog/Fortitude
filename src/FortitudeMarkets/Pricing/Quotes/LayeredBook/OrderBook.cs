@@ -13,14 +13,15 @@ namespace FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 {
+    private LayerFlags layerFlags;
     public OrderBook() : this(LayerType.PriceVolume) { }
 
     public OrderBook
     (LayerType layerType = LayerType.PriceVolume,
         int numBookLayers = SourceTickerInfo.DefaultMaximumPublishedLayers, bool isLadder = false)
     {
-        LayersOfType    = layerType;
-        IsLadder        = isLadder;
+        layerFlags      = layerType.SupportedLayerFlags();
+        layerFlags      |= isLadder ? LayerFlags.Ladder : LayerFlags.None;
         MaxPublishDepth = (ushort)numBookLayers;
 
         AskSide = new OrderBookSide(BookSide.AskBook, layerType, MaxPublishDepth, isLadder);
@@ -29,11 +30,11 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 
     public OrderBook(IOrderBook toClone)
     {
-        LayersOfType        = toClone.LayersOfType;
-        IsLadder            = toClone.IsLadder;
-        SourceOpenInterest  = toClone.SourceOpenInterest;
-        AdapterOpenInterest = toClone.AdapterOpenInterest;
-        MaxPublishDepth     = toClone.MaxPublishDepth;
+        layerFlags          =  toClone.LayerSupportedFlags;
+        layerFlags          |= LayersSupportedType.SupportedLayerFlags();
+        SourceOpenInterest  =  toClone.SourceOpenInterest;
+        AdapterOpenInterest =  toClone.AdapterOpenInterest;
+        MaxPublishDepth     =  toClone.MaxPublishDepth;
 
         AskSide = new OrderBookSide(toClone.AskSide);
         BidSide = new OrderBookSide(toClone.BidSide);
@@ -58,23 +59,40 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
             AskSide = new OrderBookSide(askBookSide);
         }
 
-        LayersOfType        = BidSide.LayersOfType;
-        IsLadder            = isLadder;
-        MaxPublishDepth     = Math.Max(BidSide.MaxPublishDepth, AskSide.MaxPublishDepth);
+        layerFlags =  bidSide.LayerSupportedFlags | askBookSide.LayerSupportedFlags;
+        layerFlags |= LayersSupportedType.SupportedLayerFlags();
+        layerFlags |=  isLadder ? LayerFlags.Ladder : LayerFlags.None;
+
+        MaxPublishDepth = Math.Max(BidSide.MaxPublishDepth, AskSide.MaxPublishDepth);
     }
 
     public OrderBook(ISourceTickerInfo sourceTickerInfo)
     {
-        LayersOfType    = sourceTickerInfo.LayerFlags.MostCompactLayerType();
-        IsLadder        = sourceTickerInfo.LayerFlags.HasLadder();
+        layerFlags =  sourceTickerInfo.LayerFlags;
+        layerFlags |= LayersSupportedType.SupportedLayerFlags();
+
         MaxPublishDepth = sourceTickerInfo.MaximumPublishedLayers;
 
         AskSide = new OrderBookSide(BookSide.AskBook, sourceTickerInfo);
         BidSide = new OrderBookSide(BookSide.BidBook, sourceTickerInfo);
     }
 
-    public LayerType  LayersOfType { get; set; }
-    public LayerFlags LayerFlags   => LayersOfType.SupportedLayerFlags();
+    public LayerType LayersSupportedType
+    {
+        get => LayerSupportedFlags.MostCompactLayerType();
+        set => LayerSupportedFlags = value.SupportedLayerFlags();
+    }
+    public LayerFlags LayerSupportedFlags
+    {
+        get => layerFlags;
+        set
+        {
+            layerFlags = layerFlags.Unset(LayerFlags.Ladder) | value;
+
+            AskSide.LayerSupportedFlags = layerFlags;
+            BidSide.LayerSupportedFlags = layerFlags;
+        }
+    }
 
     IOrderBookSide IOrderBook.AskSide => AskSide;
     IOrderBookSide IOrderBook.BidSide => BidSide;
@@ -108,7 +126,12 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     }
 
     public uint DailyTickUpdateCount { get; set; }
-    public bool IsLadder             { get; set; }
+
+    public bool IsLadder
+    {
+        get => LayerSupportedFlags.HasLadder();
+        set => LayerSupportedFlags = value ? LayerFlags.Ladder : LayerFlags.None;
+    }
 
     IMutableOrderBook ICloneable<IMutableOrderBook>.Clone() => Clone();
 
@@ -119,8 +142,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         if (other == null) return false;
         if (exactTypes && other.GetType() != typeof(OrderBook)) return false;
 
-        var layerTypesSame          = LayersOfType == other.LayersOfType;
-        var isLadderSame            = IsLadder == other.IsLadder;
+        var layerFlagsSame          = LayerSupportedFlags == other.LayerSupportedFlags;
         var maxDepthSame            = MaxPublishDepth == other.MaxPublishDepth;
         var dailyTickCountSame      = DailyTickUpdateCount == other.DailyTickUpdateCount;
         var sourceOpenInterestSame  = Equals(SourceOpenInterest, other.SourceOpenInterest);
@@ -128,8 +150,12 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         var askSideSame             = AskSide.AreEquivalent(other.AskSide, exactTypes);
         var bidSideSame             = BidSide.AreEquivalent(other.BidSide, exactTypes);
 
-        var allSame = layerTypesSame && isLadderSame && maxDepthSame && dailyTickCountSame && sourceOpenInterestSame
+        var allSame = layerFlagsSame && maxDepthSame && dailyTickCountSame && sourceOpenInterestSame
                    && adapterOpenInterestSame && askSideSame && bidSideSame;
+        if (!allSame)
+        {
+            Console.Out.WriteLine("");
+        }
         return allSame;
     }
 
@@ -137,9 +163,8 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 
     public override OrderBook CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        LayersOfType         = source.LayersOfType;
-        IsLadder             = source.IsLadder;
-        MaxPublishDepth      = MaxPublishDepth;
+        LayerSupportedFlags           = source.LayerSupportedFlags;
+        MaxPublishDepth      = source.MaxPublishDepth;
         IsBidBookChanged     = source.IsBidBookChanged;
         IsAskBookChanged     = source.IsAskBookChanged;
         DailyTickUpdateCount = source.DailyTickUpdateCount;
@@ -159,7 +184,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         unchecked
         {
             var hashCode = new HashCode();
-            hashCode.Add(LayersOfType);
+            hashCode.Add(LayersSupportedType);
             hashCode.Add(IsLadder);
             hashCode.Add(MaxPublishDepth);
             hashCode.Add(IsBidBookChanged);
@@ -175,7 +200,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     }
 
     protected string OrderBookToStringMembers =>
-        $"{nameof(LayersOfType)}: {LayersOfType}, {nameof(DailyTickUpdateCount)}: {DailyTickUpdateCount}, " +
+        $"{nameof(LayersSupportedType)}: {LayersSupportedType}, {nameof(DailyTickUpdateCount)}: {DailyTickUpdateCount}, " +
         $"{nameof(SourceOpenInterest)}: {SourceOpenInterest},  {nameof(AdapterOpenInterest)}: {AdapterOpenInterest}, " +
         $"{nameof(IsAskBookChanged)}: {IsAskBookChanged},  {nameof(IsBidBookChanged)}: {IsBidBookChanged}, " +
         $"{nameof(AskSide)}: {AskSide}, {nameof(BidSide)}: {BidSide}, {nameof(IsLadder)}: {IsLadder}";

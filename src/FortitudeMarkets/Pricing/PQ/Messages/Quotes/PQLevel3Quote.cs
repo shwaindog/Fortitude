@@ -10,9 +10,13 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
+using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.PQ.Summaries;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
 
@@ -51,10 +55,35 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         if (GetType() == typeof(PQLevel3Quote)) NumOfUpdates = 0;
     }
 
-    public PQLevel3Quote(ISourceTickerInfo uniqueSourceTickerIdentifier)
-        : base(uniqueSourceTickerIdentifier)
+    // Reflection invoked constructor (PQServer<T>)
+    public PQLevel3Quote(ISourceTickerInfo sourceTickerInfo) : this(sourceTickerInfo, singlePrice: 0m)
     {
-        if (PQSourceTickerInfo!.LastTradedFlags != LastTradedFlags.None) recentlyTraded = new PQRecentlyTraded(PQSourceTickerInfo);
+    }
+
+    public PQLevel3Quote(ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, bool isReplay = false, FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good
+      , decimal singlePrice = 0m, DateTime? clientReceivedTime = null, DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null
+      , DateTime? sourceBidTime = null , bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null, DateTime? validFrom = null
+      , DateTime? validTo = null, bool isAskPriceTopChanged = false, bool executable = true, IPricePeriodSummary? periodSummary = null
+      , IOrderBook? orderBook = null, IRecentlyTraded? recentlyTraded = null, uint batchId = 0u, uint sourceQuoteRef = 0u, DateTime? valueDate = null)
+        : base(sourceTickerInfo, sourceTime, isReplay, feedSyncStatus, singlePrice, clientReceivedTime, adapterReceivedTime,
+               adapterSentTime, sourceBidTime, isBidPriceTopChanged, sourceAskTime, validFrom, validTo, isAskPriceTopChanged, executable,
+               periodSummary, orderBook)
+    {
+        if (recentlyTraded is IPQRecentlyTraded pqRecentlyTraded)
+        {
+            this.recentlyTraded = pqRecentlyTraded;
+        }
+        else if(recentlyTraded != null)
+        {
+            this.recentlyTraded = new PQRecentlyTraded(recentlyTraded);
+        } 
+        else if (PQSourceTickerInfo!.LastTradedFlags != LastTradedFlags.None)
+        {
+            this.recentlyTraded = new PQRecentlyTraded(PQSourceTickerInfo);
+        }
+        BatchId              = batchId;
+        SourceQuoteReference = sourceQuoteRef;
+        ValueDate            = valueDate ?? DateTime.MinValue;
 
         if (GetType() == typeof(PQLevel3Quote)) NumOfUpdates = 0;
     }
@@ -303,7 +332,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         if (!updatedOnly || IsBatchIdUpdated) yield return new PQFieldUpdate(PQQuoteFields.BatchId, BatchId);
 
         if (!updatedOnly || IsSourceQuoteReferenceUpdated) yield return new PQFieldUpdate(PQQuoteFields.QuoteSourceQuoteRef, SourceQuoteReference);
-        if (!updatedOnly || IsValueDateUpdated) yield return new PQFieldUpdate(PQQuoteFields.QuoteValueDate, valueDate.GetHoursFromUnixEpoch());
+        if (!updatedOnly || IsValueDateUpdated) yield return new PQFieldUpdate(PQQuoteFields.QuoteValueDate, valueDate.Get2MinIntervalsFromUnixEpoch());
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
@@ -330,7 +359,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         if (pqFieldUpdate.Id == PQQuoteFields.QuoteValueDate)
         {
             IsValueDateUpdated = true; // incase of reset and sending 0;
-            PQFieldConverters.UpdateHoursFromUnixEpoch(ref valueDate, pqFieldUpdate.Payload);
+            PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref valueDate, pqFieldUpdate.Payload);
             if (valueDate == DateTime.UnixEpoch) valueDate = default;
             return 0;
         }

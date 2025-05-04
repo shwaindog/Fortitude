@@ -39,13 +39,13 @@ public class PQLastTradeTests
         Assert.AreEqual(testDateTime, newLt.TradeTime);
         Assert.IsTrue(newLt.IsTradePriceUpdated);
         Assert.IsTrue(newLt.IsTradeTimeDateUpdated);
-        Assert.IsTrue(newLt.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(newLt.IsTradeTimeSub2MinUpdated);
 
         Assert.AreEqual(0, emptyLt.TradePrice);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyLt.TradeTime);
         Assert.IsFalse(emptyLt.IsTradePriceUpdated);
         Assert.IsFalse(emptyLt.IsTradeTimeDateUpdated);
-        Assert.IsFalse(emptyLt.IsTradeTimeSubHourUpdated);
+        Assert.IsFalse(emptyLt.IsTradeTimeSub2MinUpdated);
     }
 
     [TestMethod]
@@ -57,7 +57,7 @@ public class PQLastTradeTests
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
         Assert.IsTrue(fromPQInstance.IsTradePriceUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeTimeDateUpdated);
-        Assert.IsTrue(fromPQInstance.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(fromPQInstance.IsTradeTimeSub2MinUpdated);
 
         var nonPQLt           = new LastTrade(1.23456m, testDateTime);
         var fromNonPqInstance = new PQLastTrade(nonPQLt);
@@ -65,14 +65,14 @@ public class PQLastTradeTests
         Assert.AreEqual(testDateTime, fromNonPqInstance.TradeTime);
         Assert.IsTrue(fromNonPqInstance.IsTradePriceUpdated);
         Assert.IsTrue(fromNonPqInstance.IsTradeTimeDateUpdated);
-        Assert.IsTrue(fromNonPqInstance.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(fromNonPqInstance.IsTradeTimeSub2MinUpdated);
 
         var newEmptyLt = new PQLastTrade(emptyLt);
         Assert.AreEqual(0, newEmptyLt.TradePrice);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, newEmptyLt.TradeTime);
         Assert.IsFalse(newEmptyLt.IsTradePriceUpdated);
         Assert.IsFalse(newEmptyLt.IsTradeTimeDateUpdated);
-        Assert.IsFalse(newEmptyLt.IsTradeTimeSubHourUpdated);
+        Assert.IsFalse(newEmptyLt.IsTradeTimeSub2MinUpdated);
     }
 
     [TestMethod]
@@ -84,7 +84,7 @@ public class PQLastTradeTests
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
         Assert.IsFalse(fromPQInstance.IsTradePriceUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeTimeDateUpdated);
-        Assert.IsTrue(fromPQInstance.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(fromPQInstance.IsTradeTimeSub2MinUpdated);
 
         newPopulatedLt = new PQLastTrade(20, testDateTime) { IsTradeTimeDateUpdated = false };
         fromPQInstance = new PQLastTrade(newPopulatedLt);
@@ -92,15 +92,15 @@ public class PQLastTradeTests
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
         Assert.IsTrue(fromPQInstance.IsTradePriceUpdated);
         Assert.IsFalse(fromPQInstance.IsTradeTimeDateUpdated);
-        Assert.IsTrue(fromPQInstance.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(fromPQInstance.IsTradeTimeSub2MinUpdated);
 
-        newPopulatedLt = new PQLastTrade(20, testDateTime) { IsTradeTimeSubHourUpdated = false };
+        newPopulatedLt = new PQLastTrade(20, testDateTime) { IsTradeTimeSub2MinUpdated = false };
         fromPQInstance = new PQLastTrade(newPopulatedLt);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
         Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
         Assert.IsTrue(fromPQInstance.IsTradePriceUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeTimeDateUpdated);
-        Assert.IsFalse(fromPQInstance.IsTradeTimeSubHourUpdated);
+        Assert.IsFalse(fromPQInstance.IsTradeTimeSub2MinUpdated);
     }
 
     [TestMethod]
@@ -154,7 +154,7 @@ public class PQLastTradeTests
     public void EmptyLt_TradeTimeChanged_ExpectedPropertyUpdatedDeltaUpdatesAffected()
     {
         Assert.IsFalse(emptyLt.IsTradeTimeDateUpdated);
-        Assert.IsFalse(emptyLt.IsTradeTimeSubHourUpdated);
+        Assert.IsFalse(emptyLt.IsTradeTimeSub2MinUpdated);
         Assert.IsFalse(emptyLt.HasUpdates);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyLt.TradeTime);
         Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
@@ -162,21 +162,21 @@ public class PQLastTradeTests
         var expectedDateTime = new DateTime(2018, 1, 6, 16, 34, 35);
         emptyLt.TradeTime = expectedDateTime;
         Assert.IsTrue(emptyLt.IsTradeTimeDateUpdated);
-        Assert.IsTrue(emptyLt.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(emptyLt.IsTradeTimeSub2MinUpdated);
         Assert.IsTrue(emptyLt.HasUpdates);
         Assert.AreEqual(expectedDateTime, emptyLt.TradeTime);
         var sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(2, sourceUpdates.Count);
 
         var expectedHoursFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate,
-                                                         expectedDateTime.GetHoursFromUnixEpoch());
-        var extended                    = expectedDateTime.GetSubHourComponent().BreakLongToUShortAndUint(out var subHoursBase);
+                                                         expectedDateTime.Get2MinIntervalsFromUnixEpoch());
+        var extended                    = expectedDateTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHoursBase);
         var expectedSubHoursFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeSubHour, subHoursBase, extended);
         Assert.AreEqual(expectedHoursFieldUpdate, sourceUpdates[0]);
         Assert.AreEqual(expectedSubHoursFieldUpdate, sourceUpdates[1]);
 
-        emptyLt.IsTradeTimeSubHourUpdated = false;
-        Assert.IsFalse(emptyLt.IsTradeTimeSubHourUpdated);
+        emptyLt.IsTradeTimeSub2MinUpdated = false;
+        Assert.IsFalse(emptyLt.IsTradeTimeSub2MinUpdated);
         Assert.IsTrue(emptyLt.HasUpdates);
         Assert.AreEqual(1, emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
@@ -188,13 +188,13 @@ public class PQLastTradeTests
         var nextExpectedPrice = new DateTime(2018, 1, 6, 15, 35, 35);
         emptyLt.TradeTime = nextExpectedPrice;
         Assert.IsTrue(emptyLt.IsTradeTimeDateUpdated);
-        Assert.IsTrue(emptyLt.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(emptyLt.IsTradeTimeSub2MinUpdated);
         Assert.IsTrue(emptyLt.HasUpdates);
         Assert.AreEqual(nextExpectedPrice, emptyLt.TradeTime);
         sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(2, sourceUpdates.Count);
-        expectedHoursFieldUpdate    = new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate, nextExpectedPrice.GetHoursFromUnixEpoch());
-        extended                    = nextExpectedPrice.GetSubHourComponent().BreakLongToUShortAndUint(out subHoursBase);
+        expectedHoursFieldUpdate    = new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate, nextExpectedPrice.Get2MinIntervalsFromUnixEpoch());
+        extended                    = nextExpectedPrice.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out subHoursBase);
         expectedSubHoursFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeSubHour, subHoursBase, extended);
         Assert.AreEqual(expectedHoursFieldUpdate, sourceUpdates[0]);
         Assert.AreEqual(expectedSubHoursFieldUpdate, sourceUpdates[1]);
@@ -213,7 +213,7 @@ public class PQLastTradeTests
         newEmpty.UpdateField(sourceUpdates[1]);
         Assert.AreEqual(nextExpectedPrice, newEmpty.TradeTime);
         Assert.IsTrue(newEmpty.IsTradeTimeDateUpdated);
-        Assert.IsTrue(newEmpty.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(newEmpty.IsTradeTimeSub2MinUpdated);
     }
 
     [TestMethod]
@@ -222,17 +222,17 @@ public class PQLastTradeTests
         Assert.IsTrue(populatedLt.HasUpdates);
         Assert.IsTrue(populatedLt.IsTradePriceUpdated);
         Assert.IsTrue(populatedLt.IsTradeTimeDateUpdated);
-        Assert.IsTrue(populatedLt.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(populatedLt.IsTradeTimeSub2MinUpdated);
         populatedLt.HasUpdates = false;
         Assert.IsFalse(populatedLt.HasUpdates);
         Assert.IsFalse(populatedLt.IsTradePriceUpdated);
         Assert.IsFalse(populatedLt.IsTradeTimeDateUpdated);
-        Assert.IsFalse(populatedLt.IsTradeTimeSubHourUpdated);
+        Assert.IsFalse(populatedLt.IsTradeTimeSub2MinUpdated);
         populatedLt.HasUpdates = true;
         Assert.IsTrue(populatedLt.HasUpdates);
         Assert.IsTrue(populatedLt.IsTradeTimeDateUpdated);
         Assert.IsTrue(populatedLt.IsTradeTimeDateUpdated);
-        Assert.IsTrue(populatedLt.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(populatedLt.IsTradeTimeSub2MinUpdated);
     }
 
     [TestMethod]
@@ -250,14 +250,14 @@ public class PQLastTradeTests
         Assert.AreNotEqual(DateTimeConstants.UnixEpoch, populatedLt.TradeTime);
         Assert.IsTrue(populatedLt.IsTradePriceUpdated);
         Assert.IsTrue(populatedLt.IsTradeTimeDateUpdated);
-        Assert.IsTrue(populatedLt.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(populatedLt.IsTradeTimeSub2MinUpdated);
         populatedLt.StateReset();
         Assert.IsTrue(populatedLt.IsEmpty);
         Assert.AreEqual(0m, populatedLt.TradePrice);
         Assert.AreEqual(DateTimeConstants.UnixEpoch, populatedLt.TradeTime);
         Assert.IsFalse(populatedLt.IsTradePriceUpdated);
         Assert.IsFalse(populatedLt.IsTradeTimeDateUpdated);
-        Assert.IsFalse(populatedLt.IsTradeTimeSubHourUpdated);
+        Assert.IsFalse(populatedLt.IsTradeTimeSub2MinUpdated);
     }
 
     [TestMethod]
@@ -315,7 +315,7 @@ public class PQLastTradeTests
         Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyPriceVolumeLayer.TradeTime);
         Assert.IsFalse(emptyPriceVolumeLayer.IsTradePriceUpdated);
         Assert.IsFalse(emptyPriceVolumeLayer.IsTradeTimeDateUpdated);
-        Assert.IsFalse(emptyPriceVolumeLayer.IsTradeTimeSubHourUpdated);
+        Assert.IsFalse(emptyPriceVolumeLayer.IsTradeTimeSub2MinUpdated);
     }
 
     [TestMethod]
@@ -371,9 +371,9 @@ public class PQLastTradeTests
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                                                                     PQQuoteFields.LastTradedAtPrice, (PQFieldFlags)1), $"For {lt.GetType().Name} ");
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate,
-                                          lt.TradeTime.GetHoursFromUnixEpoch()), PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
+                                          lt.TradeTime.Get2MinIntervalsFromUnixEpoch()), PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
                          PQQuoteFields.LastTradedTradeTimeDate), $"For {lt.GetType().Name} ");
-        var extended = lt.TradeTime.GetSubHourComponent().BreakLongToUShortAndUint(out var lowerFourBytes);
+        var extended = lt.TradeTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerFourBytes);
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeSubHour, lowerFourBytes, extended),
                         PQTickInstantTests.ExtractFieldUpdateWithId
                             (checkFieldUpdates, PQQuoteFields.LastTradedTradeTimeSubHour), $"For {lt.GetType().Name} ");
@@ -447,7 +447,7 @@ public class PQLastTradeTests
                           originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
-        changingLastTrade.IsTradeTimeSubHourUpdated = !changingLastTrade.IsTradeTimeSubHourUpdated;
+        changingLastTrade.IsTradeTimeSub2MinUpdated = !changingLastTrade.IsTradeTimeSub2MinUpdated;
         Assert.AreEqual(!exactComparison, original.AreEquivalent(changingLastTrade, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.AreEqual(!exactComparison,
@@ -455,7 +455,7 @@ public class PQLastTradeTests
         if (originalQuote != null)
             Assert.AreEqual(!exactComparison,
                             originalQuote.AreEquivalent(changingQuote, exactComparison));
-        changingLastTrade.IsTradeTimeSubHourUpdated = original.IsTradeTimeSubHourUpdated;
+        changingLastTrade.IsTradeTimeSub2MinUpdated = original.IsTradeTimeSub2MinUpdated;
         Assert.IsTrue(changingLastTrade.AreEquivalent(original, exactComparison));
         if (originalRecentlyTraded != null)
             Assert.IsTrue(

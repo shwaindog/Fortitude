@@ -40,7 +40,7 @@ public class LocalHostPQServerLevel3QuoteTestSetup : LocalHostPQServerTestSetupB
 
     public void InitializeLevel3QuoteConfig()
     {
-        LayerDetails = LayerFlags.Price | LayerFlags.Volume | LayerFlags.OrderTraderName | LayerFlags.OrderSize;
+        LayerDetails = LayerFlagsExtensions.FullCounterPartyOrdersFlags;
         LastTradedFlags =
             LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedTime;
         InitializeServerPrereqs();

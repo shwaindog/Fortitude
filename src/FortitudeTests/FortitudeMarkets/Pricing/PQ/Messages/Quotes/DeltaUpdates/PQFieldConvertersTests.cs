@@ -17,30 +17,30 @@ public class PQFieldConvertersTests
     {
         var dateNearEndOfHour = new DateTime(2015, 11, 01, 23, 59, 58).AddMilliseconds(987);
 
-        var hoursFromEpoch = dateNearEndOfHour.GetHoursFromUnixEpoch();
-        var nanosInHour    = dateNearEndOfHour.GetSubHourComponent();
+        var hoursFromEpoch = dateNearEndOfHour.Get2MinIntervalsFromUnixEpoch();
+        var nanosInHour    = dateNearEndOfHour.GetSub2MinComponent();
 
         var reconstituteDateTime = new DateTime();
 
-        PQFieldConverters.UpdateHoursFromUnixEpoch(ref reconstituteDateTime, hoursFromEpoch);
-        PQFieldConverters.UpdateSubHourComponent(ref reconstituteDateTime, nanosInHour);
+        PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref reconstituteDateTime, hoursFromEpoch);
+        PQFieldConverters.UpdateSub2MinComponent(ref reconstituteDateTime, nanosInHour);
 
         Assert.AreEqual(dateNearEndOfHour, reconstituteDateTime);
     }
 
 
     [TestMethod]
-    public void DateNearEndOfHour_WhenConvertedToNumbersAndNumbersSplitAndReconstituted_NumberIsStillTheSame()
+    public void DateNearEndOf2MinInterval_WhenConvertedToNumbersAndNumbersSplitAndReconstituted_NumberIsStillTheSame()
     {
         var dateNearEndOfHour = new DateTime(2015, 11, 01, 23, 59, 58).AddMilliseconds(987);
 
-        var nanosInHour = dateNearEndOfHour.GetSubHourComponent();
+        var nanosIn2Mins = dateNearEndOfHour.GetSub2MinComponent();
 
         uint uintComponent;
-        var  byteComponent = nanosInHour.BreakLongToUShortAndUint(out uintComponent);
+        var  byteComponent = nanosIn2Mins.BreakLongToUShortAndScaleFlags(out uintComponent);
 
-        var reconstitutedLong = byteComponent.AppendUintToMakeLong(uintComponent);
+        var reconstitutedLong = byteComponent.AppendScaleFlagsToUintToMakeLong(uintComponent);
 
-        Assert.AreEqual(nanosInHour, reconstitutedLong);
+        Assert.AreEqual(nanosIn2Mins, reconstitutedLong);
     }
 }

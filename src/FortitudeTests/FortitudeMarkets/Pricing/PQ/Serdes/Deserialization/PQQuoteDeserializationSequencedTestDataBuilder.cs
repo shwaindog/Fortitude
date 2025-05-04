@@ -36,8 +36,7 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
     }
 
     internal IList<IList<SocketBufferReadContext>> BuildQuotesStartingAt
-    (uint sequenceId, int numberBatches,
-        IList<uint> snapshotSequenceIds)
+        (uint sequenceId, int numberBatches, IList<uint> snapshotSequenceIds)
     {
         IList<IList<SocketBufferReadContext>> sequenceIdBatches = new List<IList<SocketBufferReadContext>>();
 
@@ -45,8 +44,8 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
         {
             var isSnapshot = snapshotSequenceIds?.Contains(i) ?? false;
             quoteSequencedTestDataBuilder.InitializeQuotes(expectedQuotes, i);
-            var currentBatch = BuildSerializeContextForQuotes(expectedQuotes,
-                                                              isSnapshot ? PQMessageFlags.Snapshot : PQMessageFlags.Update, i);
+            var currentBatch =
+                BuildSerializeContextForQuotes(expectedQuotes, isSnapshot ? PQMessageFlags.Snapshot : PQMessageFlags.Update, i);
             sequenceIdBatches.Add(currentBatch);
         }
 
@@ -57,13 +56,12 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
     (
         IList<IPQTickInstant> serializeQuotes, PQMessageFlags feedType, uint sequenceId)
     {
-        var deserializeContexts = new List<SocketBufferReadContext>(
-                                                                    serializeQuotes.Count);
-        var quoteSerializer
-            = new PQQuoteSerializer(feedType);
+        var deserializeContexts = new List<SocketBufferReadContext>(serializeQuotes.Count);
+        var quoteSerializer = new PQQuoteSerializer(feedType);
         foreach (var quote in serializeQuotes)
         {
             quote.PQSequenceId = sequenceId;
+            quote.HasUpdates   = true;
             var sequenceIdTimeSpan = TimeOffsetForSequenceId(sequenceId);
             var sockBuffContext = new SocketBufferReadContext
             {
@@ -79,8 +77,9 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
             if (amountWritten < 0) throw new Exception("Serializer wrote less than expected to buffer.");
             sockBuffContext.EncodedBuffer.ReadCursor  =  BufferReadWriteOffset + PQQuoteMessageHeader.HeaderSize;
             sockBuffContext.EncodedBuffer.WriteCursor += amountWritten;
-            sockBuffContext.MessageHeader             =  new MessageHeader(1, (byte)feedType, quote.MessageId, (uint)amountWritten, sockBuffContext);
-            sockBuffContext.LastWriteLength           =  amountWritten;
+
+            sockBuffContext.MessageHeader   = new MessageHeader(1, (byte)feedType, quote.MessageId, (uint)amountWritten, sockBuffContext);
+            sockBuffContext.LastWriteLength = amountWritten;
             deserializeContexts.Add(sockBuffContext);
         }
 

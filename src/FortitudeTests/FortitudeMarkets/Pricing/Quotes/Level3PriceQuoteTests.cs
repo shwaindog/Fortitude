@@ -135,8 +135,8 @@ public class Level3PriceQuoteTests
             Assert.IsNull(emptyL3Quote.SummaryPeriod);
             Assert.AreEqual(new OrderBookSide(BookSide.BidBook, emptyL3Quote.SourceTickerInfo!), emptyL3Quote.BidBook);
             Assert.AreEqual(new OrderBookSide(BookSide.AskBook, emptyL3Quote.SourceTickerInfo!), emptyL3Quote.AskBook);
-            Assert.IsFalse(emptyL3Quote.IsBidBookChanged);
-            Assert.IsFalse(emptyL3Quote.IsAskBookChanged);
+            Assert.IsFalse(emptyL3Quote.OrderBook.IsBidBookChanged);
+            Assert.IsFalse(emptyL3Quote.OrderBook.IsAskBookChanged);
             Assert.IsTrue(emptyL3Quote.RecentlyTraded == null ||
                           emptyL3Quote.RecentlyTraded.Equals(new RecentlyTraded(emptyL3Quote.SourceTickerInfo!)));
             Assert.AreEqual(0u, emptyL3Quote.BatchId);
@@ -202,8 +202,8 @@ public class Level3PriceQuoteTests
         Assert.AreEqual(expectedPeriodSummary, fromConstructor.SummaryPeriod);
         Assert.AreEqual(expectedBidBook, fromConstructor.BidBook);
         Assert.AreEqual(expectedAskBook, fromConstructor.AskBook);
-        Assert.IsFalse(fromConstructor.IsBidBookChanged);
-        Assert.IsFalse(fromConstructor.IsAskBookChanged);
+        Assert.IsFalse(fromConstructor.OrderBook.IsBidBookChanged);
+        Assert.IsFalse(fromConstructor.OrderBook.IsAskBookChanged);
         Assert.AreEqual(expectedRecentlyTraded, fromConstructor.RecentlyTraded);
         Assert.AreEqual(expectedBatchId, fromConstructor.BatchId);
         Assert.AreEqual(expectedSourceQuoteRef, fromConstructor.SourceQuoteReference);
@@ -383,9 +383,9 @@ public class Level3PriceQuoteTests
             Assert.AreEqual(true, emptyQuote.Executable);
             Assert.AreEqual(expectedPeriodSummary, emptyQuote.SummaryPeriod);
             Assert.AreSame(expectedBidOrderBook, emptyQuote.BidBook);
-            Assert.AreEqual(true, emptyQuote.IsBidBookChanged);
+            Assert.AreEqual(true, emptyQuote.OrderBook.IsBidBookChanged);
             Assert.AreSame(expectedAskOrderBook, emptyQuote.AskBook);
-            Assert.AreEqual(true, emptyQuote.IsAskBookChanged);
+            Assert.AreEqual(true, emptyQuote.OrderBook.IsAskBookChanged);
             Assert.AreEqual(expectedRecentlyTraded, emptyQuote.RecentlyTraded);
             Assert.AreEqual(expectedBatchId, emptyQuote.BatchId);
             Assert.AreEqual(expectedSourceQuoteRef, emptyQuote.SourceQuoteReference);
@@ -565,10 +565,7 @@ public class Level3PriceQuoteTests
             Assert.IsTrue(toString.Contains($"{nameof(q.IsAskPriceTopChanged)}: {q.IsAskPriceTopChanged}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.Executable)}: {q.Executable}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.SummaryPeriod)}: {q.SummaryPeriod}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.BidBook)}: {q.BidBook}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.IsBidBookChanged)}: {q.IsBidBookChanged}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.AskBook)}: {q.AskBook}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.IsAskBookChanged)}: {q.IsAskBookChanged}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.OrderBook)}: {q.OrderBook}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.RecentlyTraded)}: {q.RecentlyTraded}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.BatchId)}: {q.BatchId}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.SourceQuoteReference)}: {q.SourceQuoteReference}"));

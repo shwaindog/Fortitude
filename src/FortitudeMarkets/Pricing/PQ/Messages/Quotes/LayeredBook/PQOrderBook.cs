@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using FortitudeCommon.DataStructures.Collections;
+﻿using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
@@ -15,8 +14,8 @@ using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
 {
     public interface IPQOrderBook : IMutableOrderBook, IPQSupportsFieldUpdates<IOrderBook>, IPQSupportsStringUpdates<IOrderBook>
-      , IRelatedItem<IOrderBook>, ICloneable<IPQOrderBook>, IRelatedLinkedItem<LayerFlags, IPQNameIdLookupGenerator>,
-        ISupportsPQNameIdLookupGenerator
+      , IRelatedItems<ISourceTickerInfo, IOrderBook>, ICloneable<IPQOrderBook>
+      , ISupportsPQNameIdLookupGenerator
     {
         new IPQOrderBookSide BidSide { get; set; }
         new IPQOrderBookSide AskSide { get; set; }
@@ -50,19 +49,22 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
 
     public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
     {
-        private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQOrderBookSide));
+        private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQOrderBook));
 
         private decimal adapterOpenInterestVolume;
         private decimal adapterOpenInterestVwap;
 
-        private IPQNameIdLookupGenerator nameIdLookupGenerator = null!;
+        private IPQNameIdLookupGenerator nameIdLookupGenerator;
 
         protected uint NumOfUpdates = uint.MaxValue;
 
-        private decimal? sourceOpenInterestVolume;
-        private decimal? sourceOpenInterestVwap;
+        private decimal? sourceOpenInterestVolume = null;
+        private decimal? sourceOpenInterestVwap   = null;
 
         protected OrderBookSideUpdatedFlags UpdatedFlags;
+
+        private ushort     maxPublishDepth;
+        private LayerFlags layerFlags;
 
         public PQOrderBook() : this(LayerType.PriceVolume)
         {
@@ -74,10 +76,11 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             ushort numBookLayers = SourceTickerInfo.DefaultMaximumPublishedLayers,
             bool isLadder = false)
         {
-            LayersOfType          = layerType;
-            IsLadder              = isLadder;
-            MaxPublishDepth       = numBookLayers;
-            nameIdLookupGenerator = SourceOtherExistingOrNewPQNameIdNameLookup(this);
+            layerFlags            =  layerType.SupportedLayerFlags();
+            layerFlags            |= LayersSupportedType.SupportedLayerFlags();
+            layerFlags            |=  isLadder ? LayerFlags.Ladder : LayerFlags.None;
+            MaxPublishDepth       =  numBookLayers;
+            nameIdLookupGenerator =  SourceOtherExistingOrNewPQNameIdNameLookup(this);
 
             AskSide = new PQOrderBookSide(BookSide.AskBook, layerType, numBookLayers, isLadder, nameIdLookupGenerator);
             BidSide = new PQOrderBookSide(BookSide.BidBook, layerType, numBookLayers, isLadder, nameIdLookupGenerator);
@@ -85,15 +88,17 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             if (GetType() == typeof(PQOrderBook)) NumOfUpdates = 0;
         }
 
-        public PQOrderBook(IPQSourceTickerInfo srcTickerInfo)
+        public PQOrderBook(ISourceTickerInfo srcTickerInfo)
         {
-            IsLadder              = srcTickerInfo.LayerFlags.HasLadder();
-            nameIdLookupGenerator = InitializeNewIdLookupGenerator(srcTickerInfo.NameIdLookup);
+            layerFlags      =  srcTickerInfo.LayerFlags;
+            layerFlags      |= LayersSupportedType.SupportedLayerFlags();
+            MaxPublishDepth =  srcTickerInfo.MaximumPublishedLayers;
+            nameIdLookupGenerator ??= srcTickerInfo is IPQSourceTickerInfo pqSrcTkrInfo
+                ? InitializeNewIdLookupGenerator(pqSrcTkrInfo.NameIdLookup)
+                : InitializeNewIdLookupGenerator();
 
             AskSide = new PQOrderBookSide(BookSide.AskBook, srcTickerInfo, nameIdLookupGenerator);
             BidSide = new PQOrderBookSide(BookSide.BidBook, srcTickerInfo, nameIdLookupGenerator);
-
-            EnsureRelatedItemsAreConfigured(srcTickerInfo);
 
             if (GetType() == typeof(PQOrderBook)) NumOfUpdates = 0;
         }
@@ -101,20 +106,23 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
         public PQOrderBook
             (IEnumerable<IPriceVolumeLayer>? bidBookLayers = null, IEnumerable<IPriceVolumeLayer>? askBookLayers = null, bool isLadder = false)
         {
-            IsLadder     = isLadder;
-            LayersOfType = (bidBookLayers ?? []).Concat(askBookLayers ?? [])?.FirstOrDefault()?.LayerType ?? LayerType.PriceVolume;
+            layerFlags |= (bidBookLayers ?? []).Concat(askBookLayers ?? []).FirstOrDefault()?.SupportsLayerFlags ??
+                         LayerFlagsExtensions.PriceVolumeLayerFlags;
+            layerFlags |= LayersSupportedType.SupportedLayerFlags();
+            layerFlags |=  isLadder ? LayerFlags.Ladder : LayerFlags.None;
 
             nameIdLookupGenerator = SourceOtherExistingOrNewPQNameIdNameLookup(bidBookLayers);
 
-            AskSide = new PQOrderBookSide(BookSide.AskBook, askBookLayers, isLadder, nameIdLookupGenerator);
-            BidSide = new PQOrderBookSide(BookSide.BidBook, bidBookLayers, isLadder, nameIdLookupGenerator);
+            AskSide = new PQOrderBookSide(BookSide.AskBook, askBookLayers, IsLadder, nameIdLookupGenerator);
+            BidSide = new PQOrderBookSide(BookSide.BidBook, bidBookLayers, IsLadder, nameIdLookupGenerator);
 
             if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
         }
 
         public PQOrderBook(IOrderBook toClone)
         {
-            IsLadder = toClone.IsLadder;
+            layerFlags =  toClone.LayerSupportedFlags;
+            layerFlags |= LayersSupportedType.SupportedLayerFlags();
 
             nameIdLookupGenerator = SourceOtherExistingOrNewPQNameIdNameLookup(toClone);
 
@@ -125,16 +133,26 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
         }
 
         protected string PQOrderBookToStringMembers =>
-            $"{nameof(LayersOfType)}: {LayersOfType}, {nameof(DailyTickUpdateCount)}: {DailyTickUpdateCount}, " +
+            $"{nameof(LayersSupportedType)}: {LayersSupportedType}, {nameof(DailyTickUpdateCount)}: {DailyTickUpdateCount}, " +
             $"{nameof(MaxPublishDepth)}, {MaxPublishDepth}, {nameof(SourceOpenInterest)}: {SourceOpenInterest}, " +
             $"{nameof(AdapterOpenInterest)}: {AdapterOpenInterest}, {nameof(IsAskBookChanged)}: {IsAskBookChanged},  " +
             $"{nameof(IsBidBookChanged)}: {IsBidBookChanged}, {nameof(AskSide)}: {AskSide}, {nameof(BidSide)}: {BidSide}, " +
             $"{nameof(IsLadder)}: {IsLadder}";
 
-        INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
+        protected string JustOrderBookUpdatedFlags => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
 
-        public LayerType  LayersOfType { get; set; }
-        public LayerFlags LayerFlags   => LayersOfType.SupportedLayerFlags();
+        INameIdLookup IHasNameIdLookup.NameIdLookup => NameIdLookup;
+
+        public LayerType LayersSupportedType
+        {
+            get => LayerSupportedFlags.MostCompactLayerType();
+            set => LayerSupportedFlags = value.SupportedLayerFlags();
+        }
+        public LayerFlags LayerSupportedFlags
+        {
+            get => layerFlags;
+            set => layerFlags = layerFlags.Unset(LayerFlags.Ladder) | value;
+        }
 
         public IPQOrderBookSide AskSide { get; set; }
         public IPQOrderBookSide BidSide { get; set; }
@@ -180,9 +198,17 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             set => AskSide.HasUpdates = value;
         }
 
-        public bool IsLadder { get; set; }
+        public bool IsLadder
+        {
+            get => LayerSupportedFlags.HasLadder();
+            set => LayerSupportedFlags = value ? LayerFlags.Ladder : LayerFlags.None;
+        }
 
-        public ushort MaxPublishDepth { get; private set; }
+        public ushort MaxPublishDepth
+        {
+            get => maxPublishDepth;
+            private set => maxPublishDepth = Math.Max((byte)1, Math.Min(value, PQFieldKeys.TwoByteFieldIdMaxBookDepth));
+        }
 
         public decimal? MidPrice => (BidSide[0]?.Price ?? 0 + AskSide[0]?.Price ?? 0) / 2;
 
@@ -290,7 +316,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
         {
             get
             {
-                if (sourceOpenInterestVolume != null || sourceOpenInterestVwap != null)
+                if (sourceOpenInterestVolume is not null and not 0m || sourceOpenInterestVwap is not null and not 0m)
                     return new OpenInterest(MarketDataSource.Venue, sourceOpenInterestVolume ?? 0m, sourceOpenInterestVwap ?? 0);
                 return null;
             }
@@ -374,51 +400,44 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
         public override PQOrderBook CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
         {
             if (source is PQOrderBook sourcePqOrderBook) NameIdLookup.CopyFrom(sourcePqOrderBook.NameIdLookup, copyMergeFlags);
-            LayersOfType         = source.LayersOfType;
+            LayerSupportedFlags           = source.LayerSupportedFlags;
             IsLadder             = source.IsLadder;
-            MaxPublishDepth      = MaxPublishDepth;
+            MaxPublishDepth      = source.MaxPublishDepth;
             DailyTickUpdateCount = source.DailyTickUpdateCount;
             SourceOpenInterest   = source.SourceOpenInterest;
             AdapterOpenInterest  = source.AdapterOpenInterest;
-            BidSide.CopyFrom(source.BidSide, copyMergeFlags);
-            AskSide.CopyFrom(source.AskSide, copyMergeFlags);
+            BidSide.CopyFrom(source.BidSide, copyMergeFlags.AddSkipReferenceLookups());
+            AskSide.CopyFrom(source.AskSide, copyMergeFlags.AddSkipReferenceLookups());
             return this;
         }
 
-        public void EnsureRelatedItemsAreConfigured(IOrderBook? referenceInstance)
+        public void EnsureRelatedItemsAreConfigured(INameIdLookupGenerator? otherNameIdLookupGenerator)
         {
-            LayersOfType    = referenceInstance?.LayersOfType ?? LayersOfType;
-            MaxPublishDepth = referenceInstance?.MaxPublishDepth ?? MaxPublishDepth;
-            IsLadder        = referenceInstance?.IsLadder ?? IsLadder;
-            if (ReferenceEquals(referenceInstance, this) && referenceInstance is IPQOrderBook pqOrderBook)
+            if (otherNameIdLookupGenerator != null && !ReferenceEquals(NameIdLookup, otherNameIdLookupGenerator))
             {
-                BidSide.EnsureRelatedItemsAreConfigured(pqOrderBook.BidSide.LayersSupportsLayerFlags, pqOrderBook.BidSide.NameIdLookup);
-                AskSide.EnsureRelatedItemsAreConfigured(pqOrderBook.AskSide.LayersSupportsLayerFlags, pqOrderBook.AskSide.NameIdLookup);
-            }
-            else
-            {
-                BidSide.EnsureRelatedItemsAreConfigured(referenceInstance.LayerFlags, NameIdLookup);
-                AskSide.EnsureRelatedItemsAreConfigured(referenceInstance.LayerFlags, NameIdLookup);
+                NameIdLookup.CopyFrom(otherNameIdLookupGenerator);
+                if (NameIdLookup.Count != otherNameIdLookupGenerator.Count)
+                    NameIdLookup.CopyFrom(otherNameIdLookupGenerator, CopyMergeFlags.FullReplace);
             }
         }
 
-        public void EnsureRelatedItemsAreConfigured(LayerFlags layerFlags, IPQNameIdLookupGenerator? otherNameIdLookupGenerator)
+        public void EnsureRelatedItemsAreConfigured(ISourceTickerInfo? refSrcTickerInfo, IOrderBook? refOrderBook = null)
         {
-            LayersOfType = layerFlags.MostCompactLayerType();
-            BidSide.EnsureRelatedItemsAreConfigured(layerFlags, otherNameIdLookupGenerator);
-            AskSide.EnsureRelatedItemsAreConfigured(layerFlags, otherNameIdLookupGenerator);
+            if (ReferenceEquals(refOrderBook, this)) return;
+            LayerSupportedFlags      = (LayerSupportedFlags.Unset(LayerFlags.Ladder) | refSrcTickerInfo?.LayerFlags ?? refOrderBook?.LayerSupportedFlags ?? LayerSupportedFlags);
+            layerFlags |= LayersSupportedType.SupportedLayerFlags();
+            MaxPublishDepth = refSrcTickerInfo?.MaximumPublishedLayers ?? refOrderBook?.MaxPublishDepth ?? MaxPublishDepth;
+            IsLadder        = refSrcTickerInfo?.LayerFlags.HasLadder() ?? refOrderBook?.IsLadder ?? IsLadder;
+            if (refOrderBook is IPQOrderBook pqOrderBook)
+            {
+                EnsureRelatedItemsAreConfigured(pqOrderBook.NameIdLookup);
+            }
+            BidSide.NameIdLookup = NameIdLookup;
+            AskSide.NameIdLookup = NameIdLookup;
+
+            BidSide.EnsureRelatedItemsAreConfigured(LayerSupportedFlags, MaxPublishDepth);
+            AskSide.EnsureRelatedItemsAreConfigured(LayerSupportedFlags, MaxPublishDepth);
         }
-
-        public void EnsureRelatedItemsAreConfigured(IPQSourceTickerInfo? referenceInstance)
-        {
-            LayersOfType    = referenceInstance?.LayerFlags.MostCompactLayerType() ?? LayersOfType;
-            MaxPublishDepth = referenceInstance?.MaximumPublishedLayers ?? MaxPublishDepth;
-            IsLadder        = referenceInstance?.LayerFlags.HasLadder() ?? false;
-            BidSide.EnsureRelatedItemsAreConfigured(referenceInstance);
-            AskSide.EnsureRelatedItemsAreConfigured(referenceInstance);
-        }
-
-
 
         bool IInterfacesComparable<IMutableOrderBook>.AreEquivalent(IMutableOrderBook? other, bool exactTypes) => AreEquivalent(other, exactTypes);
 
@@ -427,7 +446,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             if (other == null) return false;
             if (exactTypes && other.GetType() != GetType()) return false;
 
-            var layerTypesSame          = LayersOfType == other.LayersOfType;
+            var layerTypesSame          = LayersSupportedType == other.LayersSupportedType;
             var isLadderSame            = IsLadder == other.IsLadder;
             var maxDepthSame            = MaxPublishDepth == other.MaxPublishDepth;
             var dailyTickCountSame      = DailyTickUpdateCount == other.DailyTickUpdateCount;
@@ -446,21 +465,30 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
 
             var allSame = layerTypesSame && isLadderSame && maxDepthSame && dailyTickCountSame && sourceOpenInterestSame
                        && adapterOpenInterestSame && bidBooksSame && askBookSame && bidBookChangedSame && askBookChangedSame;
-
+            if (!allSame)
+            {
+                Console.Out.WriteLine("");
+            }
             return allSame;
         }
 
         public override void StateReset()
         {
-            LayersOfType        = LayerType.PriceVolume;
-            MaxPublishDepth     = SourceTickerInfo.DefaultMaximumPublishedLayers;
-            IsLadder            = false;
-            SourceOpenInterest  = null;
-            AdapterOpenInterest = new OpenInterest(MarketDataSource.Adapter, 0m, 0m);
-            AdapterOpenInterest = new OpenInterest(MarketDataSource.Adapter, 0m, 0m);
+            NameIdLookup.Clear();
+            SourceOpenInterest = null;
+
+            sourceOpenInterestVolume  = null;
+            sourceOpenInterestVwap    = null;
+            adapterOpenInterestVolume = 0m;
+            adapterOpenInterestVwap   = 0m;
+            AdapterOpenInterest       = new OpenInterest(MarketDataSource.Adapter, 0m, 0m);
 
             BidSide.StateReset();
             AskSide.StateReset();
+
+            HasUpdates = false;
+
+            UpdatedFlags = OrderBookSideUpdatedFlags.None;
 
             base.StateReset();
         }
@@ -487,7 +515,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             if (source is IPQOrderBook pqOrderBook)
                 thisLayDict = InitializeNewIdLookupGenerator(pqOrderBook.NameIdLookup);
             else
-                thisLayDict = InitializeNewIdLookupGenerator(null);
+                thisLayDict = InitializeNewIdLookupGenerator();
 
             return thisLayDict;
         }
@@ -501,9 +529,9 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
                 thisLayDict = InitializeNewIdLookupGenerator
                     (
                      source?.OfType<ISupportsPQNameIdLookupGenerator>()
-                           ?.Where(pvl => pvl is { NameIdLookup: not null })
-                           ?.Select(pvl => pvl.NameIdLookup)
-                           ?.FirstOrDefault());
+                           .Where(pvl => pvl is { NameIdLookup: not null })
+                           .Select(pvl => pvl.NameIdLookup)
+                           .FirstOrDefault());
 
             return thisLayDict;
         }
@@ -523,7 +551,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             unchecked
             {
                 var hashCode = new HashCode();
-                hashCode.Add(LayersOfType);
+                hashCode.Add(LayersSupportedType);
                 hashCode.Add(IsLadder);
                 hashCode.Add(MaxPublishDepth);
                 hashCode.Add(IsBidBookChanged);
@@ -538,6 +566,6 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             }
         }
 
-        public override string ToString() => $"{GetType().Name}({PQOrderBookToStringMembers})";
+        public override string ToString() => $"{GetType().Name}({PQOrderBookToStringMembers}, {JustOrderBookUpdatedFlags})";
     }
 }

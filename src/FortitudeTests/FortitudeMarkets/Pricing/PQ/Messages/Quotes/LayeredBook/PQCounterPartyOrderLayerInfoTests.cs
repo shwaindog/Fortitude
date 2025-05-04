@@ -60,9 +60,9 @@ public class PQCounterPartyOrderLayerInfoTests
         Assert.IsTrue(newCpoli.IsOrderIdUpdated);
         Assert.IsTrue(newCpoli.IsOrderFlagsUpdated);
         Assert.IsTrue(newCpoli.IsCreatedTimeDateUpdated);
-        Assert.IsTrue(newCpoli.IsCreatedTimeSubHourUpdated);
+        Assert.IsTrue(newCpoli.IsCreatedTimeSub2MinUpdated);
         Assert.IsTrue(newCpoli.IsUpdatedTimeDateUpdated);
-        Assert.IsTrue(newCpoli.IsUpdatedTimeSubHourUpdated);
+        Assert.IsTrue(newCpoli.IsUpdatedTimeSub2MinUpdated);
         Assert.IsTrue(newCpoli.IsOrderVolumeUpdated);
         Assert.IsTrue(newCpoli.IsOrderRemainingVolumeUpdated);
         Assert.IsTrue(newCpoli.IsCounterPartyNameUpdated);
@@ -83,9 +83,9 @@ public class PQCounterPartyOrderLayerInfoTests
         Assert.IsFalse(fromEmptyAoli.IsOrderIdUpdated);
         Assert.IsFalse(fromEmptyAoli.IsOrderFlagsUpdated);
         Assert.IsFalse(fromEmptyAoli.IsCreatedTimeDateUpdated);
-        Assert.IsFalse(fromEmptyAoli.IsCreatedTimeSubHourUpdated);
+        Assert.IsFalse(fromEmptyAoli.IsCreatedTimeSub2MinUpdated);
         Assert.IsFalse(fromEmptyAoli.IsUpdatedTimeDateUpdated);
-        Assert.IsFalse(fromEmptyAoli.IsUpdatedTimeSubHourUpdated);
+        Assert.IsFalse(fromEmptyAoli.IsUpdatedTimeSub2MinUpdated);
         Assert.IsFalse(fromEmptyAoli.IsOrderVolumeUpdated);
         Assert.IsFalse(fromEmptyAoli.IsOrderRemainingVolumeUpdated);
         Assert.IsFalse(fromEmptyAoli.IsCounterPartyNameUpdated);
@@ -108,9 +108,9 @@ public class PQCounterPartyOrderLayerInfoTests
         Assert.IsTrue(fromNonPQInstance.IsOrderIdUpdated);
         Assert.IsTrue(fromNonPQInstance.IsOrderFlagsUpdated);
         Assert.IsTrue(fromNonPQInstance.IsCreatedTimeDateUpdated);
-        Assert.IsTrue(fromNonPQInstance.IsCreatedTimeSubHourUpdated);
+        Assert.IsTrue(fromNonPQInstance.IsCreatedTimeSub2MinUpdated);
         Assert.IsTrue(fromNonPQInstance.IsUpdatedTimeDateUpdated);
-        Assert.IsTrue(fromNonPQInstance.IsUpdatedTimeSubHourUpdated);
+        Assert.IsTrue(fromNonPQInstance.IsUpdatedTimeSub2MinUpdated);
         Assert.IsTrue(fromNonPQInstance.IsOrderVolumeUpdated);
         Assert.IsTrue(fromNonPQInstance.IsOrderRemainingVolumeUpdated);
         Assert.IsTrue(fromNonPQInstance.IsCounterPartyNameUpdated);
@@ -133,9 +133,9 @@ public class PQCounterPartyOrderLayerInfoTests
         Assert.IsFalse(fromNonPqEmptyAoli.IsOrderIdUpdated);
         Assert.IsFalse(fromNonPqEmptyAoli.IsOrderFlagsUpdated);
         Assert.IsFalse(fromNonPqEmptyAoli.IsCreatedTimeDateUpdated);
-        Assert.IsFalse(fromNonPqEmptyAoli.IsCreatedTimeSubHourUpdated);
+        Assert.IsFalse(fromNonPqEmptyAoli.IsCreatedTimeSub2MinUpdated);
         Assert.IsFalse(fromNonPqEmptyAoli.IsUpdatedTimeDateUpdated);
-        Assert.IsFalse(fromNonPqEmptyAoli.IsUpdatedTimeSubHourUpdated);
+        Assert.IsFalse(fromNonPqEmptyAoli.IsUpdatedTimeSub2MinUpdated);
         Assert.IsFalse(fromNonPqEmptyAoli.IsOrderVolumeUpdated);
         Assert.IsFalse(fromNonPqEmptyAoli.IsOrderRemainingVolumeUpdated);
         Assert.IsFalse(fromNonPqEmptyAoli.IsCounterPartyNameUpdated);
@@ -162,9 +162,9 @@ public class PQCounterPartyOrderLayerInfoTests
         Assert.IsTrue(newCpoli.IsOrderIdUpdated);
         Assert.IsTrue(newCpoli.IsOrderFlagsUpdated);
         Assert.IsTrue(newCpoli.IsCreatedTimeDateUpdated);
-        Assert.IsTrue(newCpoli.IsCreatedTimeSubHourUpdated);
+        Assert.IsTrue(newCpoli.IsCreatedTimeSub2MinUpdated);
         Assert.IsTrue(newCpoli.IsUpdatedTimeDateUpdated);
-        Assert.IsTrue(newCpoli.IsUpdatedTimeSubHourUpdated);
+        Assert.IsTrue(newCpoli.IsUpdatedTimeSub2MinUpdated);
         Assert.IsTrue(newCpoli.IsOrderVolumeUpdated);
         Assert.IsTrue(newCpoli.IsOrderRemainingVolumeUpdated);
         Assert.IsTrue(newCpoli.IsCounterPartyNameUpdated);
@@ -185,9 +185,9 @@ public class PQCounterPartyOrderLayerInfoTests
         Assert.IsFalse(fromEmptyAoli.IsOrderIdUpdated);
         Assert.IsFalse(fromEmptyAoli.IsOrderFlagsUpdated);
         Assert.IsFalse(fromEmptyAoli.IsCreatedTimeDateUpdated);
-        Assert.IsFalse(fromEmptyAoli.IsCreatedTimeSubHourUpdated);
+        Assert.IsFalse(fromEmptyAoli.IsCreatedTimeSub2MinUpdated);
         Assert.IsFalse(fromEmptyAoli.IsUpdatedTimeDateUpdated);
-        Assert.IsFalse(fromEmptyAoli.IsUpdatedTimeSubHourUpdated);
+        Assert.IsFalse(fromEmptyAoli.IsUpdatedTimeSub2MinUpdated);
         Assert.IsFalse(fromEmptyAoli.IsOrderVolumeUpdated);
         Assert.IsFalse(fromEmptyAoli.IsOrderRemainingVolumeUpdated);
         Assert.IsFalse(fromEmptyAoli.IsCounterPartyNameUpdated);
@@ -210,9 +210,9 @@ public class PQCounterPartyOrderLayerInfoTests
         Assert.IsTrue(fromNonPQInstance.IsOrderIdUpdated);
         Assert.IsTrue(fromNonPQInstance.IsOrderFlagsUpdated);
         Assert.IsTrue(fromNonPQInstance.IsCreatedTimeDateUpdated);
-        Assert.IsTrue(fromNonPQInstance.IsCreatedTimeSubHourUpdated);
+        Assert.IsTrue(fromNonPQInstance.IsCreatedTimeSub2MinUpdated);
         Assert.IsTrue(fromNonPQInstance.IsUpdatedTimeDateUpdated);
-        Assert.IsTrue(fromNonPQInstance.IsUpdatedTimeSubHourUpdated);
+        Assert.IsTrue(fromNonPQInstance.IsUpdatedTimeSub2MinUpdated);
         Assert.IsTrue(fromNonPQInstance.IsOrderVolumeUpdated);
         Assert.IsTrue(fromNonPQInstance.IsOrderRemainingVolumeUpdated);
         Assert.IsTrue(fromNonPQInstance.IsCounterPartyNameUpdated);
@@ -235,9 +235,9 @@ public class PQCounterPartyOrderLayerInfoTests
         Assert.IsFalse(fromNonPqEmptyAoli.IsOrderIdUpdated);
         Assert.IsFalse(fromNonPqEmptyAoli.IsOrderFlagsUpdated);
         Assert.IsFalse(fromNonPqEmptyAoli.IsCreatedTimeDateUpdated);
-        Assert.IsFalse(fromNonPqEmptyAoli.IsCreatedTimeSubHourUpdated);
+        Assert.IsFalse(fromNonPqEmptyAoli.IsCreatedTimeSub2MinUpdated);
         Assert.IsFalse(fromNonPqEmptyAoli.IsUpdatedTimeDateUpdated);
-        Assert.IsFalse(fromNonPqEmptyAoli.IsUpdatedTimeSubHourUpdated);
+        Assert.IsFalse(fromNonPqEmptyAoli.IsUpdatedTimeSub2MinUpdated);
         Assert.IsFalse(fromNonPqEmptyAoli.IsOrderVolumeUpdated);
         Assert.IsFalse(fromNonPqEmptyAoli.IsOrderRemainingVolumeUpdated);
         Assert.IsFalse(fromNonPqEmptyAoli.IsCounterPartyNameUpdated);
@@ -252,8 +252,8 @@ public class PQCounterPartyOrderLayerInfoTests
         var newPopulatedAoli = new PQCounterPartyOrderLayerInfo(emptyNameIdLookup, OrderId, OrderFlags, CreatedTime, OrderVolume,
                                                                 UpdatedTime, OrderRemainingVolume, CounterPartyName, TraderName)
         {
-            IsOrderIdUpdated         = false, IsOrderFlagsUpdated = false, IsCreatedTimeDateUpdated = false, IsCreatedTimeSubHourUpdated = false
-          , IsUpdatedTimeDateUpdated = false, IsUpdatedTimeSubHourUpdated = false, IsOrderVolumeUpdated = false, IsOrderRemainingVolumeUpdated = false
+            IsOrderIdUpdated         = false, IsOrderFlagsUpdated = false, IsCreatedTimeDateUpdated = false, IsCreatedTimeSub2MinUpdated = false
+          , IsUpdatedTimeDateUpdated = false, IsUpdatedTimeSub2MinUpdated = false, IsOrderVolumeUpdated = false, IsOrderRemainingVolumeUpdated = false
           , IsTraderNameUpdated      = false
         };
         var fromPQInstance
@@ -269,9 +269,9 @@ public class PQCounterPartyOrderLayerInfoTests
         Assert.IsFalse(fromPQInstance.IsOrderIdUpdated);
         Assert.IsFalse(fromPQInstance.IsOrderFlagsUpdated);
         Assert.IsFalse(fromPQInstance.IsCreatedTimeDateUpdated);
-        Assert.IsFalse(fromPQInstance.IsCreatedTimeSubHourUpdated);
+        Assert.IsFalse(fromPQInstance.IsCreatedTimeSub2MinUpdated);
         Assert.IsFalse(fromPQInstance.IsUpdatedTimeDateUpdated);
-        Assert.IsFalse(fromPQInstance.IsUpdatedTimeSubHourUpdated);
+        Assert.IsFalse(fromPQInstance.IsUpdatedTimeSub2MinUpdated);
         Assert.IsFalse(fromPQInstance.IsOrderVolumeUpdated);
         Assert.IsFalse(fromPQInstance.IsOrderRemainingVolumeUpdated);
         Assert.IsFalse(fromPQInstance.IsTraderNameUpdated);
@@ -294,9 +294,9 @@ public class PQCounterPartyOrderLayerInfoTests
         Assert.IsFalse(fromPQInstance.IsOrderIdUpdated);
         Assert.IsFalse(fromPQInstance.IsOrderFlagsUpdated);
         Assert.IsFalse(fromPQInstance.IsCreatedTimeDateUpdated);
-        Assert.IsFalse(fromPQInstance.IsCreatedTimeSubHourUpdated);
+        Assert.IsFalse(fromPQInstance.IsCreatedTimeSub2MinUpdated);
         Assert.IsFalse(fromPQInstance.IsUpdatedTimeDateUpdated);
-        Assert.IsFalse(fromPQInstance.IsUpdatedTimeSubHourUpdated);
+        Assert.IsFalse(fromPQInstance.IsUpdatedTimeSub2MinUpdated);
         Assert.IsFalse(fromPQInstance.IsOrderVolumeUpdated);
         Assert.IsFalse(fromPQInstance.IsOrderRemainingVolumeUpdated);
         Assert.IsFalse(fromPQInstance.IsCounterPartyNameUpdated);
@@ -393,9 +393,9 @@ public class PQCounterPartyOrderLayerInfoTests
         Assert.IsTrue(populatedCpoli.IsOrderIdUpdated);
         Assert.IsTrue(populatedCpoli.IsOrderFlagsUpdated);
         Assert.IsTrue(populatedCpoli.IsCreatedTimeDateUpdated);
-        Assert.IsTrue(populatedCpoli.IsCreatedTimeSubHourUpdated);
+        Assert.IsTrue(populatedCpoli.IsCreatedTimeSub2MinUpdated);
         Assert.IsTrue(populatedCpoli.IsUpdatedTimeDateUpdated);
-        Assert.IsTrue(populatedCpoli.IsUpdatedTimeSubHourUpdated);
+        Assert.IsTrue(populatedCpoli.IsUpdatedTimeSub2MinUpdated);
         Assert.IsTrue(populatedCpoli.IsOrderVolumeUpdated);
         Assert.IsTrue(populatedCpoli.IsOrderRemainingVolumeUpdated);
         Assert.IsTrue(populatedCpoli.IsTraderNameUpdated);
@@ -414,9 +414,9 @@ public class PQCounterPartyOrderLayerInfoTests
         Assert.IsTrue(populatedCpoli.IsOrderIdUpdated);
         Assert.IsTrue(populatedCpoli.IsOrderFlagsUpdated);
         Assert.IsTrue(populatedCpoli.IsCreatedTimeDateUpdated);
-        Assert.IsTrue(populatedCpoli.IsCreatedTimeSubHourUpdated);
+        Assert.IsTrue(populatedCpoli.IsCreatedTimeSub2MinUpdated);
         Assert.IsTrue(populatedCpoli.IsUpdatedTimeDateUpdated);
-        Assert.IsTrue(populatedCpoli.IsUpdatedTimeSubHourUpdated);
+        Assert.IsTrue(populatedCpoli.IsUpdatedTimeSub2MinUpdated);
         Assert.IsTrue(populatedCpoli.IsOrderVolumeUpdated);
         Assert.IsTrue(populatedCpoli.IsOrderRemainingVolumeUpdated);
         Assert.IsTrue(populatedCpoli.IsTraderNameUpdated);
@@ -427,9 +427,9 @@ public class PQCounterPartyOrderLayerInfoTests
         Assert.IsFalse(populatedCpoli.IsOrderIdUpdated);
         Assert.IsFalse(populatedCpoli.IsOrderFlagsUpdated);
         Assert.IsFalse(populatedCpoli.IsCreatedTimeDateUpdated);
-        Assert.IsFalse(populatedCpoli.IsCreatedTimeSubHourUpdated);
+        Assert.IsFalse(populatedCpoli.IsCreatedTimeSub2MinUpdated);
         Assert.IsFalse(populatedCpoli.IsUpdatedTimeDateUpdated);
-        Assert.IsFalse(populatedCpoli.IsUpdatedTimeSubHourUpdated);
+        Assert.IsFalse(populatedCpoli.IsUpdatedTimeSub2MinUpdated);
         Assert.IsFalse(populatedCpoli.IsOrderVolumeUpdated);
         Assert.IsFalse(populatedCpoli.IsOrderRemainingVolumeUpdated);
         Assert.IsFalse(populatedCpoli.IsTraderNameUpdated);

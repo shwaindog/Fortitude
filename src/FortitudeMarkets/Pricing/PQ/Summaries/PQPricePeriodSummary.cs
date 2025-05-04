@@ -152,8 +152,8 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         set
         {
             if (startTime == value) return;
-            IsStartTimeDateUpdated    |= startTime.GetHoursFromUnixEpoch() != value.GetHoursFromUnixEpoch();
-            IsStartTimeSubHourUpdated |= startTime.GetSubHourComponent() != value.GetSubHourComponent();
+            IsStartTimeDateUpdated    |= startTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch();
+            IsStartTimeSubHourUpdated |= startTime.GetSub2MinComponent() != value.GetSub2MinComponent();
             startTime                 =  value;
         }
     }
@@ -235,8 +235,8 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         get => endTime;
         set
         {
-            IsEndTimeDateUpdated    |= endTime.GetHoursFromUnixEpoch() != value.GetHoursFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
-            IsEndTimeSubHourUpdated |= endTime.GetSubHourComponent() != value.GetSubHourComponent() || NumUpdatesSinceEmpty == 0;
+            IsEndTimeDateUpdated    |= endTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
+            IsEndTimeSubHourUpdated |= endTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
             endTime                 =  value;
         }
     }
@@ -618,17 +618,17 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         var updatedOnly = (messageFlags & StorageFlags.Update) > 0;
         if (!updatedOnly || IsSummaryPeriodUpdated) yield return new PQFieldUpdate(PQQuoteFields.SummaryPeriod, (uint)timeBoundaryPeriod);
         if (!updatedOnly || IsStartTimeDateUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.PeriodStartDateTime, startTime.GetHoursFromUnixEpoch());
+            yield return new PQFieldUpdate(PQQuoteFields.PeriodStartDateTime, startTime.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsStartTimeSubHourUpdated)
         {
-            var fifthByte = startTime.GetSubHourComponent().BreakLongToUShortAndUint(out var lowerFourBytes);
+            var fifthByte = startTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerFourBytes);
             yield return new PQFieldUpdate(PQQuoteFields.PeriodStartSubHourTime, lowerFourBytes, fifthByte);
         }
 
-        if (!updatedOnly || IsEndTimeDateUpdated) yield return new PQFieldUpdate(PQQuoteFields.PeriodEndDateTime, endTime.GetHoursFromUnixEpoch());
+        if (!updatedOnly || IsEndTimeDateUpdated) yield return new PQFieldUpdate(PQQuoteFields.PeriodEndDateTime, endTime.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsEndTimeSubHourUpdated)
         {
-            var fifthByte = endTime.GetSubHourComponent().BreakLongToUShortAndUint(out var lowerFourBytes);
+            var fifthByte = endTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerFourBytes);
             yield return new PQFieldUpdate(PQQuoteFields.PeriodEndSubHourTime, lowerFourBytes, fifthByte);
         }
 
@@ -682,21 +682,21 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
                 return 0;
             case PQQuoteFields.PeriodStartDateTime:
                 IsStartTimeDateUpdated = true;
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref startTime, pqFieldUpdate.Payload);
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref startTime, pqFieldUpdate.Payload);
                 return 0;
             case PQQuoteFields.PeriodStartSubHourTime:
                 IsStartTimeSubHourUpdated = true;
-                PQFieldConverters.UpdateSubHourComponent(ref startTime,
-                                                         pqFieldUpdate.ExtendedPayload.AppendUintToMakeLong(pqFieldUpdate.Payload));
+                PQFieldConverters.UpdateSub2MinComponent
+                    (ref startTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
                 return 0;
             case PQQuoteFields.PeriodEndDateTime:
                 IsEndTimeDateUpdated = true;
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref endTime, pqFieldUpdate.Payload);
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref endTime, pqFieldUpdate.Payload);
                 return 0;
             case PQQuoteFields.PeriodEndSubHourTime:
                 IsEndTimeSubHourUpdated = true;
-                PQFieldConverters.UpdateSubHourComponent(ref endTime,
-                                                         pqFieldUpdate.ExtendedPayload.AppendUintToMakeLong(pqFieldUpdate.Payload));
+                PQFieldConverters.UpdateSub2MinComponent
+                    (ref endTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
                 return 0;
             case PQQuoteFields.PeriodStartPrice:
                 if (pqFieldUpdate.IsBid())
@@ -771,17 +771,17 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
             // between types only copy the changed parts not everything.
             if (pqPs.IsSummaryPeriodUpdated) TimeBoundaryPeriod = pqPs.TimeBoundaryPeriod;
             if (pqPs.IsStartTimeDateUpdated)
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref startTime,
-                                                           pqPs.PeriodStartTime.GetHoursFromUnixEpoch());
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref startTime,
+                                                           pqPs.PeriodStartTime.Get2MinIntervalsFromUnixEpoch());
             if (pqPs.IsStartTimeSubHourUpdated)
-                PQFieldConverters.UpdateSubHourComponent(ref startTime,
-                                                         pqPs.PeriodStartTime.GetSubHourComponent());
+                PQFieldConverters.UpdateSub2MinComponent(ref startTime,
+                                                         pqPs.PeriodStartTime.GetSub2MinComponent());
             if (pqPs.IsEndTimeDateUpdated)
-                PQFieldConverters.UpdateHoursFromUnixEpoch(ref endTime,
-                                                           pqPs.PeriodEndTime.GetHoursFromUnixEpoch());
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref endTime,
+                                                           pqPs.PeriodEndTime.Get2MinIntervalsFromUnixEpoch());
             if (pqPs.IsEndTimeSubHourUpdated)
-                PQFieldConverters.UpdateSubHourComponent(ref endTime,
-                                                         pqPs.PeriodEndTime.GetSubHourComponent());
+                PQFieldConverters.UpdateSub2MinComponent(ref endTime,
+                                                         pqPs.PeriodEndTime.GetSub2MinComponent());
 
             if (pqPs.IsStartBidPriceUpdated) StartBidPrice     = pqPs.StartBidPrice;
             if (pqPs.IsStartAskPriceUpdated) StartAskPrice     = pqPs.StartAskPrice;
@@ -860,7 +860,8 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
                       && highestBidPriceSame && highestAskPriceSame && lowestBidPriceSame && lowestAskPriceSame
                       && endBidPriceSame && endAskPriceSame && tickCountSame && periodVolumeSame && periodSummaryFlagsSame
                       && updateFlagsSame && averageBidSame && averageAskSame;
-        if (!allAreSame) Debugger.Break();
+        if (!allAreSame) Console.Out.WriteLine("");
+        ;
         return allAreSame;
     }
 

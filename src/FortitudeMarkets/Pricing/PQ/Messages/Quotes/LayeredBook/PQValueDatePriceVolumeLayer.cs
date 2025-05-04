@@ -98,7 +98,7 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                 quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
-        if (!updatedOnly || IsValueDateUpdated) yield return new PQFieldUpdate(PQQuoteFields.LayerValueDate, valueDate.GetHoursFromUnixEpoch());
+        if (!updatedOnly || IsValueDateUpdated) yield return new PQFieldUpdate(PQQuoteFields.LayerValueDate, valueDate.Get2MinIntervalsFromUnixEpoch());
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
@@ -107,7 +107,7 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         if (pqFieldUpdate.Id == PQQuoteFields.LayerValueDate)
         {
             var originalValueDate = valueDate;
-            PQFieldConverters.UpdateHoursFromUnixEpoch(ref valueDate, pqFieldUpdate.Payload);
+            PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref valueDate, pqFieldUpdate.Payload);
             IsValueDateUpdated = originalValueDate != valueDate; // incase of reset and sending 0;
             return 0;
         }

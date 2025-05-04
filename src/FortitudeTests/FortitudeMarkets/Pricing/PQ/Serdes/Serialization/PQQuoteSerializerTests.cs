@@ -296,9 +296,9 @@ public class PQQuoteSerializerTests
                 clientSideQuote.DispatchedTime      = pqQuote.DispatchedTime;      //set original to expected time
 
                 clientSideQuote.IsDispatchedTimeDateUpdated    = pqQuote.IsDispatchedTimeDateUpdated;
-                clientSideQuote.IsDispatchedTimeSubHourUpdated = pqQuote.IsDispatchedTimeSubHourUpdated;
+                clientSideQuote.IsDispatchedTimeSub2MinUpdated = pqQuote.IsDispatchedTimeSub2MinUpdated;
                 clientSideQuote.IsProcessedTimeDateUpdated     = pqQuote.IsProcessedTimeDateUpdated;
-                clientSideQuote.IsProcessedTimeSubHourUpdated  = pqQuote.IsProcessedTimeSubHourUpdated;
+                clientSideQuote.IsProcessedTimeSub2MinUpdated  = pqQuote.IsProcessedTimeSub2MinUpdated;
 
                 Assert.AreEqual(pqQuote, clientSideQuote);
             }

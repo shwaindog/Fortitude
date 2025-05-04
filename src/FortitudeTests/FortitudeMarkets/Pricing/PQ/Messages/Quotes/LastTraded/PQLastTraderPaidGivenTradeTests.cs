@@ -57,7 +57,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.AreEqual(WellKnownTraderName, newLt.TraderName);
         Assert.IsTrue(newLt.IsTradePriceUpdated);
         Assert.IsTrue(newLt.IsTradeTimeDateUpdated);
-        Assert.IsTrue(newLt.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(newLt.IsTradeTimeSub2MinUpdated);
         Assert.IsTrue(newLt.IsTradeVolumeUpdated);
         Assert.IsTrue(newLt.IsWasGivenUpdated);
         Assert.IsTrue(newLt.IsWasPaidUpdated);
@@ -71,7 +71,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsNull(emptyLt.TraderName);
         Assert.IsFalse(emptyLt.IsTradePriceUpdated);
         Assert.IsFalse(emptyLt.IsTradeTimeDateUpdated);
-        Assert.IsFalse(emptyLt.IsTradeTimeSubHourUpdated);
+        Assert.IsFalse(emptyLt.IsTradeTimeSub2MinUpdated);
         Assert.IsFalse(emptyLt.IsTradeVolumeUpdated);
         Assert.IsFalse(emptyLt.IsWasGivenUpdated);
         Assert.IsFalse(emptyLt.IsWasPaidUpdated);
@@ -95,7 +95,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.AreEqual(WellKnownTraderName, fromPQInstance.TraderName);
         Assert.IsTrue(fromPQInstance.IsTradePriceUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeTimeDateUpdated);
-        Assert.IsTrue(fromPQInstance.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(fromPQInstance.IsTradeTimeSub2MinUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeVolumeUpdated);
         Assert.IsTrue(fromPQInstance.IsWasGivenUpdated);
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
@@ -112,7 +112,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.AreEqual(WellKnownTraderName, fromNonPqInstance.TraderName);
         Assert.IsTrue(fromNonPqInstance.IsTradePriceUpdated);
         Assert.IsTrue(fromNonPqInstance.IsTradeTimeDateUpdated);
-        Assert.IsTrue(fromNonPqInstance.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(fromNonPqInstance.IsTradeTimeSub2MinUpdated);
         Assert.IsTrue(fromNonPqInstance.IsTradeVolumeUpdated);
         Assert.IsTrue(fromNonPqInstance.IsWasGivenUpdated);
         Assert.IsTrue(fromNonPqInstance.IsWasPaidUpdated);
@@ -127,7 +127,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsNull(newEmptyLt.TraderName);
         Assert.IsFalse(newEmptyLt.IsTradePriceUpdated);
         Assert.IsFalse(newEmptyLt.IsTradeTimeDateUpdated);
-        Assert.IsFalse(newEmptyLt.IsTradeTimeSubHourUpdated);
+        Assert.IsFalse(newEmptyLt.IsTradeTimeSub2MinUpdated);
         Assert.IsFalse(newEmptyLt.IsTradeVolumeUpdated);
         Assert.IsFalse(newEmptyLt.IsWasGivenUpdated);
         Assert.IsFalse(newEmptyLt.IsWasPaidUpdated);
@@ -151,7 +151,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.AreEqual(WellKnownTraderName, fromPQInstance.TraderName);
         Assert.IsFalse(fromPQInstance.IsTradePriceUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeTimeDateUpdated);
-        Assert.IsTrue(fromPQInstance.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(fromPQInstance.IsTradeTimeSub2MinUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeVolumeUpdated);
         Assert.IsTrue(fromPQInstance.IsWasGivenUpdated);
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
@@ -171,7 +171,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.AreEqual(WellKnownTraderName, fromPQInstance.TraderName);
         Assert.IsTrue(fromPQInstance.IsTradePriceUpdated);
         Assert.IsFalse(fromPQInstance.IsTradeTimeDateUpdated);
-        Assert.IsTrue(fromPQInstance.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(fromPQInstance.IsTradeTimeSub2MinUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeVolumeUpdated);
         Assert.IsTrue(fromPQInstance.IsWasGivenUpdated);
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
@@ -180,7 +180,7 @@ public class PQLastTraderPaidGivenTradeTests
         newPopulatedLt =
             new PQLastTraderPaidGivenTrade(nameIdLookup, 20, testDateTime, 42_949_672.95m, true, true)
             {
-                TraderName = WellKnownTraderName, IsTradeTimeSubHourUpdated = false
+                TraderName = WellKnownTraderName, IsTradeTimeSub2MinUpdated = false
             };
         fromPQInstance = new PQLastTraderPaidGivenTrade(newPopulatedLt, newPopulatedLt.NameIdLookup);
         Assert.AreEqual(20m, fromPQInstance.TradePrice);
@@ -191,7 +191,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.AreEqual(WellKnownTraderName, fromPQInstance.TraderName);
         Assert.IsTrue(fromPQInstance.IsTradePriceUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeTimeDateUpdated);
-        Assert.IsFalse(fromPQInstance.IsTradeTimeSubHourUpdated);
+        Assert.IsFalse(fromPQInstance.IsTradeTimeSub2MinUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeVolumeUpdated);
         Assert.IsTrue(fromPQInstance.IsWasGivenUpdated);
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
@@ -211,7 +211,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.AreEqual(WellKnownTraderName, fromPQInstance.TraderName);
         Assert.IsTrue(fromPQInstance.IsTradePriceUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeTimeDateUpdated);
-        Assert.IsTrue(fromPQInstance.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(fromPQInstance.IsTradeTimeSub2MinUpdated);
         Assert.IsFalse(fromPQInstance.IsTradeVolumeUpdated);
         Assert.IsTrue(fromPQInstance.IsWasGivenUpdated);
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
@@ -231,7 +231,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.AreEqual(WellKnownTraderName, fromPQInstance.TraderName);
         Assert.IsTrue(fromPQInstance.IsTradePriceUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeTimeDateUpdated);
-        Assert.IsTrue(fromPQInstance.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(fromPQInstance.IsTradeTimeSub2MinUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeVolumeUpdated);
         Assert.IsFalse(fromPQInstance.IsWasGivenUpdated);
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
@@ -251,7 +251,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.AreEqual(WellKnownTraderName, fromPQInstance.TraderName);
         Assert.IsTrue(fromPQInstance.IsTradePriceUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeTimeDateUpdated);
-        Assert.IsTrue(fromPQInstance.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(fromPQInstance.IsTradeTimeSub2MinUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeVolumeUpdated);
         Assert.IsTrue(fromPQInstance.IsWasGivenUpdated);
         Assert.IsFalse(fromPQInstance.IsWasPaidUpdated);
@@ -271,7 +271,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.AreEqual(WellKnownTraderName, fromPQInstance.TraderName);
         Assert.IsTrue(fromPQInstance.IsTradePriceUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeTimeDateUpdated);
-        Assert.IsTrue(fromPQInstance.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(fromPQInstance.IsTradeTimeSub2MinUpdated);
         Assert.IsTrue(fromPQInstance.IsTradeVolumeUpdated);
         Assert.IsTrue(fromPQInstance.IsWasGivenUpdated);
         Assert.IsTrue(fromPQInstance.IsWasPaidUpdated);
@@ -348,7 +348,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(populatedLt.HasUpdates);
         Assert.IsTrue(populatedLt.IsTradePriceUpdated);
         Assert.IsTrue(populatedLt.IsTradeTimeDateUpdated);
-        Assert.IsTrue(populatedLt.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(populatedLt.IsTradeTimeSub2MinUpdated);
         Assert.IsTrue(populatedLt.IsTradeVolumeUpdated);
         Assert.IsTrue(populatedLt.IsWasGivenUpdated);
         Assert.IsTrue(populatedLt.IsWasPaidUpdated);
@@ -357,7 +357,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsFalse(populatedLt.HasUpdates);
         Assert.IsFalse(populatedLt.IsTradePriceUpdated);
         Assert.IsFalse(populatedLt.IsTradeTimeDateUpdated);
-        Assert.IsFalse(populatedLt.IsTradeTimeSubHourUpdated);
+        Assert.IsFalse(populatedLt.IsTradeTimeSub2MinUpdated);
         Assert.IsFalse(populatedLt.IsTradeVolumeUpdated);
         Assert.IsFalse(populatedLt.IsWasGivenUpdated);
         Assert.IsFalse(populatedLt.IsWasPaidUpdated);
@@ -366,7 +366,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(populatedLt.HasUpdates);
         Assert.IsTrue(populatedLt.IsTradeTimeDateUpdated);
         Assert.IsTrue(populatedLt.IsTradeTimeDateUpdated);
-        Assert.IsTrue(populatedLt.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(populatedLt.IsTradeTimeSub2MinUpdated);
         Assert.IsTrue(populatedLt.IsTradeVolumeUpdated);
         Assert.IsTrue(populatedLt.IsWasGivenUpdated);
         Assert.IsTrue(populatedLt.IsWasPaidUpdated);
@@ -384,7 +384,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(populatedLt.WasPaid);
         Assert.IsTrue(populatedLt.IsTradePriceUpdated);
         Assert.IsTrue(populatedLt.IsTradeTimeDateUpdated);
-        Assert.IsTrue(populatedLt.IsTradeTimeSubHourUpdated);
+        Assert.IsTrue(populatedLt.IsTradeTimeSub2MinUpdated);
         Assert.IsTrue(populatedLt.IsTradeVolumeUpdated);
         Assert.IsTrue(populatedLt.IsWasGivenUpdated);
         Assert.IsTrue(populatedLt.IsWasPaidUpdated);
@@ -398,7 +398,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsFalse(populatedLt.WasPaid);
         Assert.IsFalse(populatedLt.IsTradePriceUpdated);
         Assert.IsFalse(populatedLt.IsTradeTimeDateUpdated);
-        Assert.IsFalse(populatedLt.IsTradeTimeSubHourUpdated);
+        Assert.IsFalse(populatedLt.IsTradeTimeSub2MinUpdated);
         Assert.IsFalse(populatedLt.IsTradeVolumeUpdated);
         Assert.IsFalse(populatedLt.IsWasGivenUpdated);
         Assert.IsFalse(populatedLt.IsWasPaidUpdated);
@@ -475,7 +475,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsNull(emptyPriceVolumeLayer.TraderName);
         Assert.IsFalse(emptyPriceVolumeLayer.IsTradePriceUpdated);
         Assert.IsFalse(emptyPriceVolumeLayer.IsTradeTimeDateUpdated);
-        Assert.IsFalse(emptyPriceVolumeLayer.IsTradeTimeSubHourUpdated);
+        Assert.IsFalse(emptyPriceVolumeLayer.IsTradeTimeSub2MinUpdated);
         Assert.IsFalse(emptyPriceVolumeLayer.IsTradeVolumeUpdated);
         Assert.IsFalse(emptyPriceVolumeLayer.IsWasGivenUpdated);
         Assert.IsFalse(emptyPriceVolumeLayer.IsWasPaidUpdated);

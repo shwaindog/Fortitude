@@ -278,9 +278,9 @@ public class PQOrdersPriceVolumeLayerTests
             orderLayer.IsOrderIdUpdated              = false;
             orderLayer.IsOrderFlagsUpdated           = false;
             orderLayer.IsCreatedTimeDateUpdated      = false;
-            orderLayer.IsCreatedTimeSubHourUpdated   = false;
+            orderLayer.IsCreatedTimeSub2MinUpdated   = false;
             orderLayer.IsUpdatedTimeDateUpdated      = false;
-            orderLayer.IsUpdatedTimeSubHourUpdated   = false;
+            orderLayer.IsUpdatedTimeSub2MinUpdated   = false;
             orderLayer.IsOrderVolumeUpdated          = false;
             orderLayer.IsOrderRemainingVolumeUpdated = false;
             if (orderLayer is IPQCounterPartyOrderLayerInfo counterPartyOrderLayer)
@@ -311,11 +311,11 @@ public class PQOrdersPriceVolumeLayerTests
         foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsCreatedTimeDateUpdated = false;
 
         newPopulatedPvl = new PQOrdersPriceVolumeLayer(originalCpLayerOrder, LayerType.OrdersAnonymousPriceVolume, nameIdLookup.Clone());
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsCreatedTimeSubHourUpdated = true;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsCreatedTimeSub2MinUpdated = true;
         fromPQInstance  = new PQOrdersPriceVolumeLayer(newPopulatedPvl, LayerType.OrdersAnonymousPriceVolume, newPopulatedPvl.NameIdLookup);
         expectedUpdated = Enumerable.Range(1, NumOfOrders).Select(_ => new ExpectedUpdated(IsCreatedTimeSubHourUpdated: true)).ToArray();
         AssertOrdersAreAsExpected(fromPQInstance, expectPopulatedOrders, null, expectedUpdated);
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsCreatedTimeSubHourUpdated = false;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsCreatedTimeSub2MinUpdated = false;
 
         newPopulatedPvl = new PQOrdersPriceVolumeLayer(originalCpLayerOrder, LayerType.OrdersAnonymousPriceVolume, nameIdLookup.Clone());
         foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsUpdatedTimeDateUpdated = true;
@@ -325,11 +325,11 @@ public class PQOrdersPriceVolumeLayerTests
         foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsUpdatedTimeDateUpdated = false;
 
         newPopulatedPvl = new PQOrdersPriceVolumeLayer(originalCpLayerOrder, LayerType.OrdersAnonymousPriceVolume, nameIdLookup.Clone());
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsUpdatedTimeSubHourUpdated = true;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsUpdatedTimeSub2MinUpdated = true;
         fromPQInstance  = new PQOrdersPriceVolumeLayer(newPopulatedPvl, LayerType.OrdersAnonymousPriceVolume, newPopulatedPvl.NameIdLookup);
         expectedUpdated = Enumerable.Range(1, NumOfOrders).Select(_ => new ExpectedUpdated(IsUpdatedTimeSubHourUpdated: true)).ToArray();
         AssertOrdersAreAsExpected(fromPQInstance, expectPopulatedOrders, null, expectedUpdated);
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsUpdatedTimeSubHourUpdated = false;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsUpdatedTimeSub2MinUpdated = false;
 
         newPopulatedPvl = new PQOrdersPriceVolumeLayer(originalCpLayerOrder, LayerType.OrdersAnonymousPriceVolume, nameIdLookup.Clone());
         foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsOrderVolumeUpdated = true;
@@ -582,7 +582,7 @@ public class PQOrdersPriceVolumeLayerTests
             orderLayerInfo.UpdateComplete();
 
             Assert.IsFalse(orderLayerInfo.IsCreatedTimeDateUpdated);
-            Assert.IsFalse(orderLayerInfo.IsCreatedTimeSubHourUpdated);
+            Assert.IsFalse(orderLayerInfo.IsCreatedTimeSub2MinUpdated);
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
             Assert.AreEqual(DateTime.MinValue, orderLayerInfo.CreatedTime);
             Assert.AreEqual(0, emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
@@ -590,12 +590,12 @@ public class PQOrdersPriceVolumeLayerTests
             var expectedCreatedTime = DateTime.UnixEpoch.AddHours(1);
             orderLayerInfo.CreatedTime = expectedCreatedTime;
             Assert.IsTrue(orderLayerInfo.IsCreatedTimeDateUpdated);
-            Assert.IsFalse(orderLayerInfo.IsCreatedTimeSubHourUpdated);
+            Assert.IsFalse(orderLayerInfo.IsCreatedTimeSub2MinUpdated);
             Assert.IsTrue(emptyCounterPartyOrdersPvl.HasUpdates);
             Assert.AreEqual(expectedCreatedTime, orderLayerInfo.CreatedTime);
             var layerUpdates = emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
-            var value              = expectedCreatedTime.GetHoursFromUnixEpoch();
+            var value              = expectedCreatedTime.Get2MinIntervalsFromUnixEpoch();
             var orderIndex         = (ushort)i;
             var expectedLayerField = new PQFieldUpdate(PQQuoteFields.OrderCreatedDate, value, 0, orderIndex);
             Assert.AreEqual(expectedLayerField, layerUpdates[0]);
@@ -614,7 +614,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             orderLayerInfo.CreatedTime                 = DateTime.MinValue;
             orderLayerInfo.IsCreatedTimeDateUpdated    = false;
-            orderLayerInfo.IsCreatedTimeSubHourUpdated = false;
+            orderLayerInfo.IsCreatedTimeSub2MinUpdated = false;
 
             var newEmpty = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
             newEmpty.UpdateField(layerUpdates[0]);
@@ -622,7 +622,7 @@ public class PQOrdersPriceVolumeLayerTests
             Assert.AreEqual(expectedCreatedTime, foundTraderInfo!.CreatedTime);
             Assert.IsTrue(foundTraderInfo.HasUpdates);
             Assert.IsTrue(foundTraderInfo.IsCreatedTimeDateUpdated);
-            Assert.IsFalse(foundTraderInfo.IsCreatedTimeSubHourUpdated);
+            Assert.IsFalse(foundTraderInfo.IsCreatedTimeSub2MinUpdated);
         }
     }
 
@@ -640,39 +640,39 @@ public class PQOrdersPriceVolumeLayerTests
             orderLayerInfo.UpdateComplete();
 
             Assert.IsFalse(orderLayerInfo.IsCreatedTimeDateUpdated);
-            Assert.IsFalse(orderLayerInfo.IsCreatedTimeSubHourUpdated);
+            Assert.IsFalse(orderLayerInfo.IsCreatedTimeSub2MinUpdated);
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
             Assert.AreEqual(DateTime.MinValue, orderLayerInfo.CreatedTime);
             Assert.AreEqual(0, emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
-            var expectedCreatedTime = DateTime.MinValue.AddMinutes(30);
+            var expectedCreatedTime = DateTime.MinValue.AddMinutes(1);
             orderLayerInfo.CreatedTime = expectedCreatedTime;
             Assert.IsFalse(orderLayerInfo.IsCreatedTimeDateUpdated);
-            Assert.IsTrue(orderLayerInfo.IsCreatedTimeSubHourUpdated);
+            Assert.IsTrue(orderLayerInfo.IsCreatedTimeSub2MinUpdated);
             Assert.IsTrue(emptyCounterPartyOrdersPvl.HasUpdates);
             Assert.AreEqual(expectedCreatedTime, orderLayerInfo.CreatedTime);
             var layerUpdates = emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
-            var extended           = expectedCreatedTime.GetSubHourComponent().BreakLongToUShortAndUint(out var value);
+            var extended           = expectedCreatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             var orderIndex         = (ushort)i;
-            var expectedLayerField = new PQFieldUpdate(PQQuoteFields.OrderCreatedTimeSubHour, value, extended, orderIndex);
+            var expectedLayerField = new PQFieldUpdate(PQQuoteFields.OrderCreatedTimeSub2Min, value, 0, orderIndex, extended);
             Assert.AreEqual(expectedLayerField, layerUpdates[0]);
 
-            orderLayerInfo.IsCreatedTimeSubHourUpdated = false;
+            orderLayerInfo.IsCreatedTimeSub2MinUpdated = false;
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
             Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
-            orderLayerInfo.IsCreatedTimeSubHourUpdated = true;
+            orderLayerInfo.IsCreatedTimeSub2MinUpdated = true;
             layerUpdates =
                 (from update in emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-                    where update.Id == PQQuoteFields.OrderCreatedTimeSubHour && update.AuxiliaryPayload == orderIndex
+                    where update.Id == PQQuoteFields.OrderCreatedTimeSub2Min && update.AuxiliaryPayload == orderIndex
                     select update).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
             Assert.AreEqual(expectedLayerField, layerUpdates[0]);
 
             orderLayerInfo.CreatedTime                 = DateTime.MinValue;
             orderLayerInfo.IsCreatedTimeDateUpdated    = false;
-            orderLayerInfo.IsCreatedTimeSubHourUpdated = false;
+            orderLayerInfo.IsCreatedTimeSub2MinUpdated = false;
 
             var newEmpty = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
             newEmpty.UpdateField(layerUpdates[0]);
@@ -680,7 +680,7 @@ public class PQOrdersPriceVolumeLayerTests
             Assert.AreEqual(expectedCreatedTime, foundTraderInfo!.CreatedTime);
             Assert.IsTrue(newEmpty.HasUpdates);
             Assert.IsTrue(foundTraderInfo.HasUpdates);
-            Assert.IsTrue(foundTraderInfo.IsCreatedTimeSubHourUpdated);
+            Assert.IsTrue(foundTraderInfo.IsCreatedTimeSub2MinUpdated);
             Assert.IsFalse(foundTraderInfo.IsCreatedTimeDateUpdated);
         }
     }
@@ -699,7 +699,7 @@ public class PQOrdersPriceVolumeLayerTests
             orderLayerInfo.UpdateComplete();
 
             Assert.IsFalse(orderLayerInfo.IsUpdatedTimeDateUpdated);
-            Assert.IsFalse(orderLayerInfo.IsUpdatedTimeSubHourUpdated);
+            Assert.IsFalse(orderLayerInfo.IsUpdatedTimeSub2MinUpdated);
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
             Assert.AreEqual(DateTime.MinValue, orderLayerInfo.UpdatedTime);
             Assert.AreEqual(0, emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
@@ -707,12 +707,12 @@ public class PQOrdersPriceVolumeLayerTests
             var expectedUpdatedTime = DateTime.UnixEpoch.AddHours(1);
             orderLayerInfo.UpdatedTime = expectedUpdatedTime;
             Assert.IsTrue(orderLayerInfo.IsUpdatedTimeDateUpdated);
-            Assert.IsFalse(orderLayerInfo.IsUpdatedTimeSubHourUpdated);
+            Assert.IsFalse(orderLayerInfo.IsUpdatedTimeSub2MinUpdated);
             Assert.IsTrue(emptyCounterPartyOrdersPvl.HasUpdates);
             Assert.AreEqual(expectedUpdatedTime, orderLayerInfo.UpdatedTime);
             var layerUpdates = emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
-            var value              = expectedUpdatedTime.GetHoursFromUnixEpoch();
+            var value              = expectedUpdatedTime.Get2MinIntervalsFromUnixEpoch();
             var orderIndex         = (ushort)i;
             var expectedLayerField = new PQFieldUpdate(PQQuoteFields.OrderUpdatedDate, value, 0, orderIndex);
             Assert.AreEqual(expectedLayerField, layerUpdates[0]);
@@ -731,7 +731,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             orderLayerInfo.UpdatedTime                 = DateTime.MinValue;
             orderLayerInfo.IsUpdatedTimeDateUpdated    = false;
-            orderLayerInfo.IsUpdatedTimeSubHourUpdated = false;
+            orderLayerInfo.IsUpdatedTimeSub2MinUpdated = false;
 
             var newEmpty = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
             newEmpty.UpdateField(layerUpdates[0]);
@@ -740,7 +740,7 @@ public class PQOrdersPriceVolumeLayerTests
             Assert.IsTrue(newEmpty.HasUpdates);
             Assert.IsTrue(foundTraderInfo.HasUpdates);
             Assert.IsTrue(foundTraderInfo.IsUpdatedTimeDateUpdated);
-            Assert.IsFalse(foundTraderInfo.IsUpdatedTimeSubHourUpdated);
+            Assert.IsFalse(foundTraderInfo.IsUpdatedTimeSub2MinUpdated);
         }
     }
 
@@ -758,29 +758,29 @@ public class PQOrdersPriceVolumeLayerTests
             orderLayerInfo.UpdateComplete();
 
             Assert.IsFalse(orderLayerInfo.IsUpdatedTimeDateUpdated);
-            Assert.IsFalse(orderLayerInfo.IsUpdatedTimeSubHourUpdated);
+            Assert.IsFalse(orderLayerInfo.IsUpdatedTimeSub2MinUpdated);
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
             Assert.AreEqual(DateTime.MinValue, orderLayerInfo.UpdatedTime);
             Assert.AreEqual(0, emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
-            var expectedUpdatedTime = DateTime.MinValue.AddMinutes(30);
+            var expectedUpdatedTime = DateTime.MinValue.AddMinutes(1);
             orderLayerInfo.UpdatedTime = expectedUpdatedTime;
             Assert.IsFalse(orderLayerInfo.IsUpdatedTimeDateUpdated);
-            Assert.IsTrue(orderLayerInfo.IsUpdatedTimeSubHourUpdated);
+            Assert.IsTrue(orderLayerInfo.IsUpdatedTimeSub2MinUpdated);
             Assert.IsTrue(emptyCounterPartyOrdersPvl.HasUpdates);
             Assert.AreEqual(expectedUpdatedTime, orderLayerInfo.UpdatedTime);
             var layerUpdates = emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
-            var extended           = expectedUpdatedTime.GetSubHourComponent().BreakLongToUShortAndUint(out var value);
+            var extended           = expectedUpdatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             var orderIndex         = (ushort)i;
-            var expectedLayerField = new PQFieldUpdate(PQQuoteFields.OrderUpdatedTimeSubHour, value, extended, orderIndex);
+            var expectedLayerField = new PQFieldUpdate(PQQuoteFields.OrderUpdatedTimeSubHour, value, 0,  orderIndex, extended);
             Assert.AreEqual(expectedLayerField, layerUpdates[0]);
 
-            orderLayerInfo.IsUpdatedTimeSubHourUpdated = false;
+            orderLayerInfo.IsUpdatedTimeSub2MinUpdated = false;
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
             Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
-            orderLayerInfo.IsUpdatedTimeSubHourUpdated = true;
+            orderLayerInfo.IsUpdatedTimeSub2MinUpdated = true;
             layerUpdates =
                 (from update in emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
                     where update.Id == PQQuoteFields.OrderUpdatedTimeSubHour && update.AuxiliaryPayload == orderIndex
@@ -790,7 +790,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             orderLayerInfo.UpdatedTime                 = DateTime.MinValue;
             orderLayerInfo.IsUpdatedTimeDateUpdated    = false;
-            orderLayerInfo.IsUpdatedTimeSubHourUpdated = false;
+            orderLayerInfo.IsUpdatedTimeSub2MinUpdated = false;
 
             var newEmpty = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
             newEmpty.UpdateField(layerUpdates[0]);
@@ -798,7 +798,7 @@ public class PQOrdersPriceVolumeLayerTests
             Assert.AreEqual(expectedUpdatedTime, foundTraderInfo!.UpdatedTime);
             Assert.IsTrue(newEmpty.HasUpdates);
             Assert.IsTrue(foundTraderInfo.HasUpdates);
-            Assert.IsTrue(foundTraderInfo.IsUpdatedTimeSubHourUpdated);
+            Assert.IsTrue(foundTraderInfo.IsUpdatedTimeSub2MinUpdated);
             Assert.IsFalse(foundTraderInfo.IsUpdatedTimeDateUpdated);
         }
     }
@@ -1097,9 +1097,9 @@ public class PQOrdersPriceVolumeLayerTests
             Assert.IsTrue(checkOrderLayer.IsOrderIdUpdated);
             Assert.IsTrue(checkOrderLayer.IsOrderFlagsUpdated);
             Assert.IsTrue(checkOrderLayer.IsCreatedTimeDateUpdated);
-            Assert.IsTrue(checkOrderLayer.IsCreatedTimeSubHourUpdated);
+            Assert.IsTrue(checkOrderLayer.IsCreatedTimeSub2MinUpdated);
             Assert.IsTrue(checkOrderLayer.IsUpdatedTimeDateUpdated);
-            Assert.IsTrue(checkOrderLayer.IsUpdatedTimeSubHourUpdated);
+            Assert.IsTrue(checkOrderLayer.IsUpdatedTimeSub2MinUpdated);
             Assert.IsTrue(checkOrderLayer.IsOrderVolumeUpdated);
             Assert.IsTrue(checkOrderLayer.IsOrderRemainingVolumeUpdated);
             if (checkOrderLayer is ICounterPartyOrderLayerInfo checkCounterPartyLayer)
@@ -1138,9 +1138,9 @@ public class PQOrdersPriceVolumeLayerTests
             Assert.IsTrue(checkOrderLayer.IsOrderIdUpdated);
             Assert.IsTrue(checkOrderLayer.IsOrderFlagsUpdated);
             Assert.IsTrue(checkOrderLayer.IsCreatedTimeDateUpdated);
-            Assert.IsTrue(checkOrderLayer.IsCreatedTimeSubHourUpdated);
+            Assert.IsTrue(checkOrderLayer.IsCreatedTimeSub2MinUpdated);
             Assert.IsTrue(checkOrderLayer.IsUpdatedTimeDateUpdated);
-            Assert.IsTrue(checkOrderLayer.IsUpdatedTimeSubHourUpdated);
+            Assert.IsTrue(checkOrderLayer.IsUpdatedTimeSub2MinUpdated);
             Assert.IsTrue(checkOrderLayer.IsOrderVolumeUpdated);
             Assert.IsTrue(checkOrderLayer.IsOrderRemainingVolumeUpdated);
             if (checkOrderLayer is ICounterPartyOrderLayerInfo checkCounterPartyLayer)
@@ -1452,29 +1452,28 @@ public class PQOrdersPriceVolumeLayerTests
                             PQLevel2QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.OrderFlags, depthId, value, 0, orderIndex),
                             $"For {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-            value = orderLayerInfo.CreatedTime.GetHoursFromUnixEpoch();
+            value = orderLayerInfo.CreatedTime.Get2MinIntervalsFromUnixEpoch();
             Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.OrderCreatedDate, depthId, value, 0, orderIndex),
                             PQLevel2QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.OrderCreatedDate, depthId, value, 0
                                                                       , orderIndex),
                             $"For {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-            var extended = orderLayerInfo.CreatedTime.GetSubHourComponent().BreakLongToUShortAndUint(out value);
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.OrderCreatedTimeSubHour, depthId, value, extended, orderIndex),
-                            PQLevel2QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.OrderCreatedTimeSubHour, depthId, value
-                                                                      , extended
-                                                                      , orderIndex),
+            var extended = orderLayerInfo.CreatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out value);
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.OrderCreatedTimeSub2Min, depthId, value, 0, orderIndex, extended),
+                            PQLevel2QuoteTests.ExtractFieldUpdateWithId
+                                (checkFieldUpdates, PQQuoteFields.OrderCreatedTimeSub2Min, depthId, value , 0, orderIndex, extended),
                             $"For {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-            value = orderLayerInfo.UpdatedTime.GetHoursFromUnixEpoch();
+            value = orderLayerInfo.UpdatedTime.Get2MinIntervalsFromUnixEpoch();
             Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.OrderUpdatedDate, depthId, value, 0, orderIndex),
                             PQLevel2QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.OrderUpdatedDate, depthId, value, 0
                                                                       , orderIndex),
                             $"For {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-            extended = orderLayerInfo.UpdatedTime.GetSubHourComponent().BreakLongToUShortAndUint(out value);
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.OrderUpdatedTimeSubHour, depthId, value, extended, orderIndex),
+            extended = orderLayerInfo.UpdatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out value);
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.OrderUpdatedTimeSubHour, depthId, value, 0, orderIndex, extended),
                             PQLevel2QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.OrderUpdatedTimeSubHour, depthId, value
-                                                                      , extended, orderIndex),
+                                                                      , 0, orderIndex, extended),
                             $"For {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             value = PQScaling.Scale(orderLayerInfo.OrderVolume, volumeScale);
@@ -1616,9 +1615,9 @@ public class PQOrdersPriceVolumeLayerTests
                     Assert.AreEqual(expectedUpdated?[i].IsOrderIdUpdated ?? true, pqAnonymousOrder.IsOrderIdUpdated);
                     Assert.AreEqual(expectedUpdated?[i].IsOrderFlagsUpdated ?? true, pqAnonymousOrder.IsOrderFlagsUpdated);
                     Assert.AreEqual(expectedUpdated?[i].IsCreatedDateUpdated ?? true, pqAnonymousOrder.IsCreatedTimeDateUpdated);
-                    Assert.AreEqual(expectedUpdated?[i].IsCreatedTimeSubHourUpdated ?? true, pqAnonymousOrder.IsCreatedTimeSubHourUpdated);
+                    Assert.AreEqual(expectedUpdated?[i].IsCreatedTimeSubHourUpdated ?? true, pqAnonymousOrder.IsCreatedTimeSub2MinUpdated);
                     Assert.AreEqual(expectedUpdated?[i].IsUpdatedTimeDateUpdated ?? true, pqAnonymousOrder.IsUpdatedTimeDateUpdated);
-                    Assert.AreEqual(expectedUpdated?[i].IsUpdatedTimeSubHourUpdated ?? true, pqAnonymousOrder.IsUpdatedTimeSubHourUpdated);
+                    Assert.AreEqual(expectedUpdated?[i].IsUpdatedTimeSubHourUpdated ?? true, pqAnonymousOrder.IsUpdatedTimeSub2MinUpdated);
                     Assert.AreEqual(expectedUpdated?[i].IsOrderVolumeUpdated ?? true, pqAnonymousOrder.IsOrderVolumeUpdated);
                     Assert.AreEqual(expectedUpdated?[i].IsOrderRemainingVolumeUpdated ?? true, pqAnonymousOrder.IsOrderRemainingVolumeUpdated);
                 }
@@ -1647,9 +1646,9 @@ public class PQOrdersPriceVolumeLayerTests
                     Assert.IsFalse(pqAnonymousOrder.IsOrderIdUpdated);
                     Assert.IsFalse(pqAnonymousOrder.IsOrderFlagsUpdated);
                     Assert.IsFalse(pqAnonymousOrder.IsCreatedTimeDateUpdated);
-                    Assert.IsFalse(pqAnonymousOrder.IsCreatedTimeSubHourUpdated);
+                    Assert.IsFalse(pqAnonymousOrder.IsCreatedTimeSub2MinUpdated);
                     Assert.IsFalse(pqAnonymousOrder.IsUpdatedTimeDateUpdated);
-                    Assert.IsFalse(pqAnonymousOrder.IsUpdatedTimeSubHourUpdated);
+                    Assert.IsFalse(pqAnonymousOrder.IsUpdatedTimeSub2MinUpdated);
                     Assert.IsFalse(pqAnonymousOrder.IsOrderVolumeUpdated);
                     Assert.IsFalse(pqAnonymousOrder.IsOrderRemainingVolumeUpdated);
                 }

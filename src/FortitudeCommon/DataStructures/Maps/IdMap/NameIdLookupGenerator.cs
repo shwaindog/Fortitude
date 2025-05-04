@@ -32,7 +32,7 @@ public class NameIdLookupGenerator : NameIdLookup, INameIdLookupGenerator
 
     public virtual INameIdLookup CopyFrom(INameIdLookup source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        if (ReferenceEquals(this, source)) return this;
+        if (ReferenceEquals(this, source) || copyMergeFlags.HasSkipReferenceLookups()) return this;
         var hasFullReplace = copyMergeFlags.HasFullReplace();
         if (hasFullReplace) Clear();
         var hasAppendMissing = copyMergeFlags.HasAppendMissing();

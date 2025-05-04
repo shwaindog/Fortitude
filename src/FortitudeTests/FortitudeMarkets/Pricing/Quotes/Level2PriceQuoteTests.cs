@@ -160,8 +160,8 @@ public class Level2PriceQuoteTests
             Assert.IsNull(emptyL2Quote.SummaryPeriod);
             Assert.AreEqual(new OrderBookSide(BookSide.BidBook, emptyL2Quote.SourceTickerInfo!), emptyL2Quote.BidBook);
             Assert.AreEqual(new OrderBookSide(BookSide.AskBook, emptyL2Quote.SourceTickerInfo!), emptyL2Quote.AskBook);
-            Assert.IsFalse(emptyL2Quote.IsBidBookChanged);
-            Assert.IsFalse(emptyL2Quote.IsAskBookChanged);
+            Assert.IsFalse(emptyL2Quote.OrderBook.IsBidBookChanged);
+            Assert.IsFalse(emptyL2Quote.OrderBook.IsAskBookChanged);
         }
     }
 
@@ -213,8 +213,8 @@ public class Level2PriceQuoteTests
         Assert.AreEqual(expectedPeriodSummary, fromConstructor.SummaryPeriod);
         Assert.AreEqual(expectedBidBook, fromConstructor.BidBook);
         Assert.AreEqual(expectedAskBook, fromConstructor.AskBook);
-        Assert.IsFalse(fromConstructor.IsBidBookChanged);
-        Assert.IsFalse(fromConstructor.IsAskBookChanged);
+        Assert.IsFalse(fromConstructor.OrderBook.IsBidBookChanged);
+        Assert.IsFalse(fromConstructor.OrderBook.IsAskBookChanged);
     }
 
     [TestMethod]
@@ -385,9 +385,9 @@ public class Level2PriceQuoteTests
             Assert.AreEqual(true, emptyQuote.Executable);
             Assert.AreEqual(expectedPeriodSummary, emptyQuote.SummaryPeriod);
             Assert.AreSame(expectedBidOrderBook, emptyQuote.BidBook);
-            Assert.AreEqual(true, emptyQuote.IsBidBookChanged);
+            Assert.AreEqual(true, emptyQuote.OrderBook.IsBidBookChanged);
             Assert.AreSame(expectedAskOrderBook, emptyQuote.AskBook);
-            Assert.AreEqual(true, emptyQuote.IsAskBookChanged);
+            Assert.AreEqual(true, emptyQuote.OrderBook.IsAskBookChanged);
         }
     }
 

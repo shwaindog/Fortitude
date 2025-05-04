@@ -195,8 +195,6 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ICloneabl
         $"{BidPriceTop:N5}, {nameof(IsBidPriceTopChanged)}: {IsBidPriceTopChanged}, {nameof(SourceAskTime)}: " +
         $"{SourceAskTime:O}, {nameof(AskPriceTop)}: {AskPriceTop:N5}, {nameof(IsAskPriceTopChanged)}: " +
         $"{IsAskPriceTopChanged}, {nameof(Executable)}: {Executable}, {nameof(SummaryPeriod)}: " +
-        $"{SummaryPeriod}, {nameof(BidBook)}: {BidBook}, {nameof(IsBidBookChanged)}: {IsBidBookChanged}, " +
-        $"{nameof(AskBook)}: {AskBook}, {nameof(IsAskBookChanged)}: {IsAskBookChanged}, " +
-        $"{nameof(RecentlyTraded)}: {RecentlyTraded}, {nameof(BatchId)}: {BatchId}, " +
-        $"{nameof(SourceQuoteReference)}: {SourceQuoteReference}, {nameof(ValueDate)}: {ValueDate:u} }}";
+        $"{SummaryPeriod}, {nameof(OrderBook)}: {OrderBook}, {nameof(RecentlyTraded)}: {RecentlyTraded}, " +
+        $"{nameof(BatchId)}: {BatchId}, {nameof(SourceQuoteReference)}: {SourceQuoteReference}, {nameof(ValueDate)}: {ValueDate:u} }}";
 }

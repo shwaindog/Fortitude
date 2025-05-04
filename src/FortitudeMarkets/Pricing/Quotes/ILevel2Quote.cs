@@ -17,11 +17,8 @@ public interface ILevel2Quote : ILevel1Quote, ICloneable<ILevel2Quote>, IDoublyL
 
     IOrderBookSide BidBook { get; }
 
-    bool IsBidBookChanged { get; }
-
     IOrderBookSide AskBook { get; }
 
-    bool IsAskBookChanged { get; }
 
     new ILevel2Quote? Next     { get; set; }
     new ILevel2Quote? Previous { get; set; }

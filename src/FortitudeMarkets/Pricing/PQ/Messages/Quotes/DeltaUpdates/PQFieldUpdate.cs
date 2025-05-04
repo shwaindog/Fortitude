@@ -147,10 +147,8 @@ public struct PQFieldUpdate
         DepthId          = depthId;
         ExtendedPayload  = extendedPayload;
         AuxiliaryPayload = auxiliaryPayload;
-        var hasExtended         = ExtendedPayload > 0;
-        var hasOptionalExtended = AuxiliaryPayload > 0;
-        var additionalFlags = (hasExtended ? PQFieldFlags.IncludesExtendedPayLoad : PQFieldFlags.None) |
-                              (hasOptionalExtended ? PQFieldFlags.IncludesAuxiliaryPayload : PQFieldFlags.None);
+        var additionalFlags = (ExtendedPayload > 0 ? PQFieldFlags.IncludesExtendedPayLoad : PQFieldFlags.None) |
+                              (AuxiliaryPayload > 0 ? PQFieldFlags.IncludesAuxiliaryPayload : PQFieldFlags.None);
 
         var depthIdFlag = depthId > 0 ? PQFieldFlags.IncludesDepth : PQFieldFlags.None;
         Flag    = flag | depthIdFlag | additionalFlags;

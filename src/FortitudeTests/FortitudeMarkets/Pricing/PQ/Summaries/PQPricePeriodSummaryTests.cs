@@ -74,8 +74,8 @@ public class PQPricePeriodSummaryTests
         var sourceAskUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Update,
                                                                  pricePrecisionSettings).ToList();
         Assert.AreEqual(2, sourceAskUpdates.Count);
-        var hoursSinceUnixEpoch = expectedSetTime.GetHoursFromUnixEpoch();
-        var fifthByte           = expectedSetTime.GetSubHourComponent().BreakLongToUShortAndUint(out var lowerFourBytes);
+        var hoursSinceUnixEpoch = expectedSetTime.Get2MinIntervalsFromUnixEpoch();
+        var fifthByte           = expectedSetTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerFourBytes);
         var expectedHour        = new PQFieldUpdate(PQQuoteFields.PeriodStartDateTime, hoursSinceUnixEpoch);
         var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.PeriodStartSubHourTime, lowerFourBytes, fifthByte);
         Assert.AreEqual(expectedHour, sourceAskUpdates[0]);
@@ -131,8 +131,8 @@ public class PQPricePeriodSummaryTests
         var sourceAskUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Update,
                                                                  pricePrecisionSettings).ToList();
         Assert.AreEqual(2, sourceAskUpdates.Count);
-        var hoursSinceUnixEpoch = expectedSetTime.GetHoursFromUnixEpoch();
-        var fifthByte           = expectedSetTime.GetSubHourComponent().BreakLongToUShortAndUint(out var lowerFourBytes);
+        var hoursSinceUnixEpoch = expectedSetTime.Get2MinIntervalsFromUnixEpoch();
+        var fifthByte           = expectedSetTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerFourBytes);
         var expectedHour        = new PQFieldUpdate(PQQuoteFields.PeriodEndDateTime, hoursSinceUnixEpoch);
         var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.PeriodEndSubHourTime, lowerFourBytes, fifthByte);
         Assert.AreEqual(expectedHour, sourceAskUpdates[0]);
@@ -851,15 +851,15 @@ public class PQPricePeriodSummaryTests
         var priceScale  = precisionSettings.PriceScalingPrecision;
         var volumeScale = precisionSettings.VolumeScalingPrecision;
         Assert.AreEqual(new PQFieldUpdate
-                            (PQQuoteFields.PeriodStartDateTime, periodSummary.PeriodStartTime.GetHoursFromUnixEpoch()),
+                            (PQQuoteFields.PeriodStartDateTime, periodSummary.PeriodStartTime.Get2MinIntervalsFromUnixEpoch()),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodStartDateTime));
-        var fifthByte = periodSummary.PeriodStartTime.GetSubHourComponent().BreakLongToUShortAndUint(out var lowerFourBytes);
+        var fifthByte = periodSummary.PeriodStartTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerFourBytes);
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodStartSubHourTime, lowerFourBytes, fifthByte),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodStartSubHourTime));
         Assert.AreEqual(new PQFieldUpdate
-                            (PQQuoteFields.PeriodEndDateTime, periodSummary.PeriodEndTime.GetHoursFromUnixEpoch()),
+                            (PQQuoteFields.PeriodEndDateTime, periodSummary.PeriodEndTime.Get2MinIntervalsFromUnixEpoch()),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodEndDateTime));
-        fifthByte = periodSummary.PeriodEndTime.GetSubHourComponent().BreakLongToUShortAndUint(out lowerFourBytes);
+        fifthByte = periodSummary.PeriodEndTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out lowerFourBytes);
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodEndSubHourTime, lowerFourBytes, fifthByte),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodEndSubHourTime));
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodStartPrice, periodSummary.StartBidPrice, priceScale),

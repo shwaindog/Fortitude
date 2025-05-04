@@ -21,8 +21,8 @@ public enum BookSide
 public interface IOrderBookSide : IEnumerable<IPriceVolumeLayer>, IReusableObject<IOrderBookSide>,
     IInterfacesComparable<IOrderBookSide>
 {
-    LayerType  LayersOfType             { get; }
-    LayerFlags LayersSupportsLayerFlags { get; }
+    LayerType  LayerSupportedType             { get; }
+    LayerFlags LayerSupportedFlags { get; }
 
     bool IsLadder { get; }
     public ushort MaxPublishDepth { get; }
@@ -42,7 +42,8 @@ public interface IOrderBookSide : IEnumerable<IPriceVolumeLayer>, IReusableObjec
 public interface IMutableOrderBookSide : IOrderBookSide, ICloneable<IMutableOrderBookSide>
 {
     new int Capacity { get; set; }
-
+    
+    new LayerFlags    LayerSupportedFlags { get; set; }
     new OpenInterest? SourceOpenInterest  { get; set; }
     new OpenInterest  AdapterOpenInterest { get; set; }
 

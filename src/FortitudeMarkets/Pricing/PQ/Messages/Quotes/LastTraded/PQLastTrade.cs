@@ -21,7 +21,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
 [JsonDerivedType(typeof(PQLastTraderPaidGivenTrade))]
 public interface IPQLastTrade : IMutableLastTrade, IPQSupportsFieldUpdates<ILastTrade>
 {
-    [JsonIgnore] bool IsTradeTimeSubHourUpdated { get; set; }
+    [JsonIgnore] bool IsTradeTimeSub2MinUpdated { get; set; }
     [JsonIgnore] bool IsTradeTimeDateUpdated    { get; set; }
     [JsonIgnore] bool IsTradePriceUpdated       { get; set; }
 
@@ -57,7 +57,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         if (toClone is IPQLastTrade pqLastTrade)
         {
             IsTradeTimeDateUpdated    = pqLastTrade.IsTradeTimeDateUpdated;
-            IsTradeTimeSubHourUpdated = pqLastTrade.IsTradeTimeSubHourUpdated;
+            IsTradeTimeSub2MinUpdated = pqLastTrade.IsTradeTimeSub2MinUpdated;
             IsTradePriceUpdated       = pqLastTrade.IsTradePriceUpdated;
         }
 
@@ -77,8 +77,8 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         get => tradeTime;
         set
         {
-            IsTradeTimeDateUpdated    |= tradeTime.GetHoursFromUnixEpoch() != value.GetHoursFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
-            IsTradeTimeSubHourUpdated |= tradeTime.GetSubHourComponent() != value.GetSubHourComponent() || NumUpdatesSinceEmpty == 0;
+            IsTradeTimeDateUpdated    |= tradeTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
+            IsTradeTimeSub2MinUpdated |= tradeTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
             tradeTime                 =  value;
         }
     }
@@ -97,7 +97,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
     }
 
     [JsonIgnore]
-    public bool IsTradeTimeSubHourUpdated
+    public bool IsTradeTimeSub2MinUpdated
     {
         get => (UpdatedFlags & LastTradeUpdated.TradeTimeSubHourUpdated) > 0;
         set
@@ -105,7 +105,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
             if (value)
                 UpdatedFlags |= LastTradeUpdated.TradeTimeSubHourUpdated;
 
-            else if (IsTradeTimeSubHourUpdated) UpdatedFlags ^= LastTradeUpdated.TradeTimeSubHourUpdated;
+            else if (IsTradeTimeSub2MinUpdated) UpdatedFlags ^= LastTradeUpdated.TradeTimeSubHourUpdated;
         }
     }
 
@@ -137,7 +137,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
     public virtual bool HasUpdates
     {
         get => UpdatedFlags != LastTradeUpdated.None;
-        set => IsTradePriceUpdated = IsTradeTimeDateUpdated = IsTradeTimeSubHourUpdated = value;
+        set => IsTradePriceUpdated = IsTradeTimeDateUpdated = IsTradeTimeSub2MinUpdated = value;
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -179,10 +179,10 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         if (!updatedOnly || IsTradeTimeDateUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate, TradeTime.GetHoursFromUnixEpoch());
-        if (!updatedOnly || IsTradeTimeSubHourUpdated)
+            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate, TradeTime.Get2MinIntervalsFromUnixEpoch());
+        if (!updatedOnly || IsTradeTimeSub2MinUpdated)
         {
-            var extended = TradeTime.GetSubHourComponent().BreakLongToUShortAndUint(out var value);
+            var extended = TradeTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeSubHour, value, extended);
         }
 
@@ -196,15 +196,15 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         // assume the recentlytraded has already forwarded this through to the correct lasttrade
         if (pqFieldUpdate.Id == PQQuoteFields.LastTradedTradeTimeDate)
         {
-            PQFieldConverters.UpdateHoursFromUnixEpoch(ref tradeTime, pqFieldUpdate.Payload);
+            PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref tradeTime, pqFieldUpdate.Payload);
             IsTradeTimeDateUpdated = true;
             return 0;
         }
         if (pqFieldUpdate.Id == PQQuoteFields.LastTradedTradeTimeSubHour)
         {
-            PQFieldConverters.UpdateSubHourComponent(ref tradeTime,
-                                                     pqFieldUpdate.ExtendedPayload.AppendUintToMakeLong(pqFieldUpdate.Payload));
-            IsTradeTimeSubHourUpdated = true;
+            PQFieldConverters.UpdateSub2MinComponent(ref tradeTime,
+                                                     pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
+            IsTradeTimeSub2MinUpdated = true;
             return 0;
         }
         if (pqFieldUpdate.Id == PQQuoteFields.LastTradedAtPrice)
@@ -228,7 +228,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         {
             var isFullReplace = copyMergeFlags.HasFullReplace();
 
-            if (pqlt.IsTradeTimeDateUpdated || pqlt.IsTradeTimeSubHourUpdated || isFullReplace) TradeTime = pqlt.TradeTime;
+            if (pqlt.IsTradeTimeDateUpdated || pqlt.IsTradeTimeSub2MinUpdated || isFullReplace) TradeTime = pqlt.TradeTime;
 
             if (pqlt.IsTradePriceUpdated || isFullReplace) TradePrice = pqlt.TradePrice;
             if (isFullReplace) UpdatedFlags                           = pqlt.UpdatedFlags;

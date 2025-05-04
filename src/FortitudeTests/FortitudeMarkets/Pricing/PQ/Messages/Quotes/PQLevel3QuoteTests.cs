@@ -62,31 +62,25 @@ public class PQLevel3QuoteTests
         noRecentlyTradedSrcTkrInfo =
             new SourceTickerInfo
                 (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
-               , 20, 0.000001m, 0.0001m, 1m, 50000000m, 30000m, 1
-               , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.ValueDate |
-                             LayerFlags.OrdersCount | LayerFlags.SourceQuoteReference
+                , roundingPrecision:.000001m, layerFlags: LayerFlagsExtensions.FullSupportLayerFlags
                , lastTradedFlags: LastTradedFlags.None);
         simpleRecentlyTradedSrcTkrInfo =
             new SourceTickerInfo
                 (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
-               , 20, 0.000001m, 0.0001m, 1m, 50000000m, 30000m, 1
-               , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.ValueDate
-                           | LayerFlags.OrdersCount | LayerFlags.SourceQuoteReference
+               , roundingPrecision:.000001m, layerFlags: LayerFlagsExtensions.AdditionalAnonymousOrderFlags | LayerFlagsExtensions.PriceVolumeLayerFlags
                , lastTradedFlags: LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice);
         paidGivenVolumeRecentlyTradedSrcTkrInfo =
             new SourceTickerInfo
                 (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
-               , 20, 0.000001m, 0.0001m, 1m, 50000000m, 30000m, 1
-               , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.ValueDate
-                           | LayerFlags.OrdersCount | LayerFlags.SourceQuoteReference
+               , roundingPrecision:.000001m, layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize 
+                                                       | LayerFlags.ValueDate | LayerFlags.OrdersCount | LayerFlags.SourceQuoteReference
                , lastTradedFlags: LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
                                   LastTradedFlags.LastTradedVolume);
         traderPaidGivenVolumeRecentlyTradedSrcTkrInfo =
             new SourceTickerInfo
                 (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
-               , 20, 0.000001m, 0.0001m, 1m, 50000000m, 30000m, 1
-               , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.ValueDate |
-                             LayerFlags.OrdersCount | LayerFlags.SourceQuoteReference
+               , roundingPrecision:.000001m, layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize 
+                                                       | LayerFlags.ValueDate | LayerFlags.OrdersCount | LayerFlags.SourceQuoteReference
                , lastTradedFlags: LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice | LastTradedFlags.TraderName);
         noRecentlyTradedEmptyQuote          = new PQLevel3Quote(new PQSourceTickerInfo(noRecentlyTradedSrcTkrInfo)) { HasUpdates = false };
         noRecentlyTradedFullyPopulatedQuote = new PQLevel3Quote(noRecentlyTradedSrcTkrInfo);
@@ -185,7 +179,7 @@ public class PQLevel3QuoteTests
         noRecentlyTradedEmptyQuote.IsBatchIdUpdated = false;
         Assert.IsTrue(noRecentlyTradedEmptyQuote.HasUpdates);
         noRecentlyTradedEmptyQuote.IsAdapterSentTimeDateUpdated    = false;
-        noRecentlyTradedEmptyQuote.IsAdapterSentTimeSubHourUpdated = false;
+        noRecentlyTradedEmptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
         Assert.IsFalse(noRecentlyTradedEmptyQuote.HasUpdates);
         Assert.IsTrue(noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
@@ -233,7 +227,7 @@ public class PQLevel3QuoteTests
         noRecentlyTradedEmptyQuote.IsSourceQuoteReferenceUpdated = false;
         Assert.IsTrue(noRecentlyTradedEmptyQuote.HasUpdates);
         noRecentlyTradedEmptyQuote.IsAdapterSentTimeDateUpdated    = false;
-        noRecentlyTradedEmptyQuote.IsAdapterSentTimeSubHourUpdated = false;
+        noRecentlyTradedEmptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
         Assert.IsFalse(noRecentlyTradedEmptyQuote.HasUpdates);
         Assert.IsTrue(noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
@@ -275,13 +269,13 @@ public class PQLevel3QuoteTests
         Assert.AreEqual(expectedValueDate, noRecentlyTradedEmptyQuote.ValueDate);
         var level3QuoteUpdates = noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(3, level3QuoteUpdates.Count);
-        var expectedLayerField = new PQFieldUpdate(PQQuoteFields.QuoteValueDate, expectedValueDate.GetHoursFromUnixEpoch());
+        var expectedLayerField = new PQFieldUpdate(PQQuoteFields.QuoteValueDate, expectedValueDate.Get2MinIntervalsFromUnixEpoch());
         Assert.AreEqual(expectedLayerField, level3QuoteUpdates[2]);
 
         noRecentlyTradedEmptyQuote.IsValueDateUpdated = false;
         Assert.IsTrue(noRecentlyTradedEmptyQuote.HasUpdates);
         noRecentlyTradedEmptyQuote.IsAdapterSentTimeDateUpdated    = false;
-        noRecentlyTradedEmptyQuote.IsAdapterSentTimeSubHourUpdated = false;
+        noRecentlyTradedEmptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
         Assert.IsFalse(noRecentlyTradedEmptyQuote.HasUpdates);
         Assert.IsTrue(noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
@@ -350,7 +344,7 @@ public class PQLevel3QuoteTests
                 Assert.IsFalse(lastTrade.HasUpdates);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 emptyQuote.IsAdapterSentTimeDateUpdated    = false;
-                emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
+                emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
@@ -396,7 +390,7 @@ public class PQLevel3QuoteTests
                 emptyQuote.HasUpdates          = false;
 
                 Assert.IsFalse(lastTrade.IsTradeTimeDateUpdated);
-                Assert.IsFalse(lastTrade.IsTradeTimeSubHourUpdated);
+                Assert.IsFalse(lastTrade.IsTradeTimeSub2MinUpdated);
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.AreEqual(DateTimeConstants.UnixEpoch, lastTrade.TradeTime);
                 Assert.AreEqual(0, lastTrade.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
@@ -405,15 +399,15 @@ public class PQLevel3QuoteTests
                 var expectedTradeTime = new DateTime(2017, 12, 31, 13, 12, 20).AddTicks(9_999_999);
                 lastTrade.TradeTime = expectedTradeTime;
                 Assert.IsTrue(lastTrade.IsTradeTimeDateUpdated);
-                Assert.IsTrue(lastTrade.IsTradeTimeSubHourUpdated);
+                Assert.IsTrue(lastTrade.IsTradeTimeSub2MinUpdated);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 Assert.AreEqual(expectedTradeTime, lastTrade.TradeTime);
                 var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
                 Assert.AreEqual(4, quoteUpdates.Count);
                 var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
                 Assert.AreEqual(2, lastTradeUpdates.Count);
-                var hoursFromEpoch = expectedTradeTime.GetHoursFromUnixEpoch();
-                var flag           = expectedTradeTime.GetSubHourComponent().BreakLongToUShortAndUint(out var subHourBase);
+                var hoursFromEpoch = expectedTradeTime.Get2MinIntervalsFromUnixEpoch();
+                var flag           = expectedTradeTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBase);
 
                 var expectedLastTradeHoursField =
                     new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate, hoursFromEpoch);
@@ -440,16 +434,16 @@ public class PQLevel3QuoteTests
                 Assert.AreEqual(3, quoteSubHourUpdates.Count);
                 Assert.AreEqual(expectedQuoteLastTradeTimeSubHoursField, quoteSubHourUpdates[2]);
 
-                lastTrade.IsTradeTimeSubHourUpdated = false;
+                lastTrade.IsTradeTimeSub2MinUpdated = false;
                 Assert.IsFalse(lastTrade.HasUpdates);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 emptyQuote.IsAdapterSentTimeDateUpdated    = false;
-                emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
+                emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
                 lastTrade.IsTradeTimeDateUpdated    = true;
-                lastTrade.IsTradeTimeSubHourUpdated = true;
+                lastTrade.IsTradeTimeSub2MinUpdated = true;
                 quoteUpdates =
                     (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
                         where (update.Id == PQQuoteFields.LastTradedTradeTimeDate && update.DepthId == (PQDepthKey)i) ||
@@ -460,7 +454,7 @@ public class PQLevel3QuoteTests
                 Assert.AreEqual(expectedQuoteLastTradeTimeSubHoursField, quoteUpdates[1]);
                 lastTrade.TradeTime                 = DateTimeConstants.UnixEpoch;
                 lastTrade.IsTradeTimeDateUpdated    = false;
-                lastTrade.IsTradeTimeSubHourUpdated = false;
+                lastTrade.IsTradeTimeSub2MinUpdated = false;
 
                 var newEmpty = new PQLevel3Quote(emptyQuote.SourceTickerInfo!);
                 newEmpty.UpdateField(quoteUpdates[0]);
@@ -469,7 +463,7 @@ public class PQLevel3QuoteTests
                 Assert.AreEqual(expectedTradeTime, foundLayer.TradeTime);
                 Assert.IsTrue(newEmpty.HasUpdates);
                 Assert.IsTrue(foundLayer.IsTradeTimeDateUpdated);
-                Assert.IsTrue(foundLayer.IsTradeTimeSubHourUpdated);
+                Assert.IsTrue(foundLayer.IsTradeTimeSub2MinUpdated);
             }
         }
     }
@@ -523,7 +517,7 @@ public class PQLevel3QuoteTests
                 Assert.IsFalse(lastTrade.HasUpdates);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 emptyQuote.IsAdapterSentTimeDateUpdated    = false;
-                emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
+                emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
@@ -596,7 +590,7 @@ public class PQLevel3QuoteTests
                 Assert.IsFalse(lastTrade.HasUpdates);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 emptyQuote.IsAdapterSentTimeDateUpdated    = false;
-                emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
+                emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
@@ -673,7 +667,7 @@ public class PQLevel3QuoteTests
             Assert.IsFalse(ordersCountPriceVolumeLayer.HasUpdates);
             Assert.IsTrue(emptyQuote.HasUpdates);
             emptyQuote.IsAdapterSentTimeDateUpdated    = false;
-            emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
+            emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
             Assert.IsFalse(emptyQuote.HasUpdates);
             Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
@@ -764,7 +758,7 @@ public class PQLevel3QuoteTests
                 Assert.IsFalse(ordersPriceVolumeLayer.HasUpdates);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 emptyQuote.IsAdapterSentTimeDateUpdated    = false;
-                emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
+                emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
@@ -854,7 +848,7 @@ public class PQLevel3QuoteTests
                 Assert.IsFalse(ordersPriceVolumeLayer.HasUpdates);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 emptyQuote.IsAdapterSentTimeDateUpdated    = false;
-                emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
+                emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
@@ -916,7 +910,7 @@ public class PQLevel3QuoteTests
                 emptyQuote.HasUpdates          = false;
 
                 Assert.IsFalse(anonOrderLayer.IsCreatedTimeDateUpdated);
-                Assert.IsFalse(anonOrderLayer.IsCreatedTimeSubHourUpdated);
+                Assert.IsFalse(anonOrderLayer.IsCreatedTimeSub2MinUpdated);
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.AreEqual(DateTime.MinValue, anonOrderLayer.CreatedTime);
                 Assert.AreEqual(0, anonOrderLayer
@@ -926,7 +920,7 @@ public class PQLevel3QuoteTests
                 var expectedCreatedTime = new DateTime(2017, 12, 03, 19, 27, 53);
                 anonOrderLayer.CreatedTime = expectedCreatedTime;
                 Assert.IsTrue(anonOrderLayer.IsCreatedTimeDateUpdated);
-                Assert.IsTrue(anonOrderLayer.IsCreatedTimeSubHourUpdated);
+                Assert.IsTrue(anonOrderLayer.IsCreatedTimeSub2MinUpdated);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 Assert.AreEqual(expectedCreatedTime, anonOrderLayer.CreatedTime);
                 var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
@@ -935,44 +929,45 @@ public class PQLevel3QuoteTests
                                    .GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
                 Assert.AreEqual(2, layerUpdates.Count);
                 var orderIndex                = (ushort)i;
-                var hoursSinceUnixEpoch       = expectedCreatedTime.GetHoursFromUnixEpoch();
+                var hoursSinceUnixEpoch       = expectedCreatedTime.Get2MinIntervalsFromUnixEpoch();
                 var expectedDateLayerField    = new PQFieldUpdate(PQQuoteFields.OrderCreatedDate, hoursSinceUnixEpoch, 0, orderIndex);
-                var extended                  = expectedCreatedTime.GetSubHourComponent().BreakLongToUShortAndUint(out var subHourBottom);
-                var expectedSubHourLayerField = new PQFieldUpdate(PQQuoteFields.OrderCreatedTimeSubHour, subHourBottom, extended, orderIndex);
+                var extended                  = expectedCreatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var sub2MinBottom);
+                var expectedSub2MinLayerField = new PQFieldUpdate(PQQuoteFields.OrderCreatedTimeSub2Min, sub2MinBottom, 0, orderIndex, extended);
                 var depthId                   = (PQDepthKey)indexFromTop | (isBid ? PQDepthKey.None : PQDepthKey.AskSide);
-                var expectedSideDateLayerField =
+                var expectedDateField =
                     new PQFieldUpdate(PQQuoteFields.OrderCreatedDate, depthId, expectedDateLayerField.Payload, 0, orderIndex);
-                var expectedSideSubHourLayerField =
-                    new PQFieldUpdate(PQQuoteFields.OrderCreatedTimeSubHour, depthId, expectedSubHourLayerField.Payload,
-                                      expectedSubHourLayerField.ExtendedPayload, orderIndex);
+                var expectedSub2MinField =
+                    new PQFieldUpdate(PQQuoteFields.OrderCreatedTimeSub2Min, depthId, expectedSub2MinLayerField.Payload,
+                                      expectedSub2MinLayerField.ExtendedPayload, orderIndex, expectedSub2MinLayerField.Flag);
                 Assert.AreEqual(expectedDateLayerField, layerUpdates[0]);
-                Assert.AreEqual(expectedSubHourLayerField, layerUpdates[1]);
-                Assert.AreEqual(expectedSideDateLayerField, quoteUpdates[2]);
-                Assert.AreEqual(expectedSideSubHourLayerField, quoteUpdates[3]);
+                Assert.AreEqual(expectedSub2MinLayerField, layerUpdates[1]);
+                Assert.AreEqual(expectedDateField, quoteUpdates[2]);
+                Assert.AreEqual(expectedSub2MinField, quoteUpdates[3]);
 
                 anonOrderLayer.IsCreatedTimeDateUpdated    = false;
-                anonOrderLayer.IsCreatedTimeSubHourUpdated = false;
+                anonOrderLayer.IsCreatedTimeSub2MinUpdated = false;
                 Assert.IsFalse(ordersPriceVolumeLayer.HasUpdates);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 emptyQuote.IsAdapterSentTimeDateUpdated    = false;
-                emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
+                emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
                 anonOrderLayer.IsCreatedTimeDateUpdated    = true;
-                anonOrderLayer.IsCreatedTimeSubHourUpdated = true;
+                anonOrderLayer.IsCreatedTimeSub2MinUpdated = true;
                 quoteUpdates =
                     (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
                         where (update.Id == PQQuoteFields.OrderCreatedDate && update.DepthId == depthId && update.AuxiliaryPayload == orderIndex)
-                           || (update.Id == PQQuoteFields.OrderCreatedTimeSubHour && update.DepthId == depthId &&
+                           || (update.Id == PQQuoteFields.OrderCreatedTimeSub2Min && update.DepthId == depthId &&
                                update.AuxiliaryPayload == orderIndex)
                         select update).ToList();
                 Assert.AreEqual(2, quoteUpdates.Count);
-                Assert.AreEqual(expectedSideDateLayerField, quoteUpdates[0]);
-                Assert.AreEqual(expectedSideSubHourLayerField, quoteUpdates[1]);
-                anonOrderLayer.CreatedTime                 = DateTimeConstants.UnixEpoch;
-                anonOrderLayer.IsCreatedTimeDateUpdated    = false;
-                anonOrderLayer.IsCreatedTimeSubHourUpdated = false;
+                Assert.AreEqual(expectedDateField, quoteUpdates[0]);
+                Assert.AreEqual(expectedSub2MinField, quoteUpdates[1]);
+                emptyQuote.AdapterSentTime = DateTime.UnixEpoch;
+                anonOrderLayer.CreatedTime = DateTime.UnixEpoch;
+
+                emptyQuote.HasUpdates = false;
 
                 var newEmpty = new PQLevel2Quote(emptyQuote.SourceTickerInfo!);
                 newEmpty.UpdateField(quoteUpdates[0]);
@@ -983,7 +978,7 @@ public class PQLevel3QuoteTests
                 Assert.AreEqual(expectedCreatedTime, foundAnonOrderInfo.CreatedTime);
                 Assert.IsTrue(newEmpty.HasUpdates);
                 Assert.IsTrue(foundAnonOrderInfo.IsCreatedTimeDateUpdated);
-                Assert.IsTrue(foundAnonOrderInfo.IsCreatedTimeSubHourUpdated);
+                Assert.IsTrue(foundAnonOrderInfo.IsCreatedTimeSub2MinUpdated);
             }
         }
     }
@@ -1022,7 +1017,7 @@ public class PQLevel3QuoteTests
                 emptyQuote.HasUpdates          = false;
 
                 Assert.IsFalse(anonOrderLayer.IsUpdatedTimeDateUpdated);
-                Assert.IsFalse(anonOrderLayer.IsUpdatedTimeSubHourUpdated);
+                Assert.IsFalse(anonOrderLayer.IsUpdatedTimeSub2MinUpdated);
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.AreEqual(DateTime.MinValue, anonOrderLayer.UpdatedTime);
                 Assert.AreEqual(0, anonOrderLayer
@@ -1032,7 +1027,7 @@ public class PQLevel3QuoteTests
                 var expectedUpdatedTime = new DateTime(2017, 12, 03, 19, 41, 22); //only to the nearest hour
                 anonOrderLayer.UpdatedTime = expectedUpdatedTime;
                 Assert.IsTrue(anonOrderLayer.IsUpdatedTimeDateUpdated);
-                Assert.IsTrue(anonOrderLayer.IsUpdatedTimeSubHourUpdated);
+                Assert.IsTrue(anonOrderLayer.IsUpdatedTimeSub2MinUpdated);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 Assert.AreEqual(expectedUpdatedTime, anonOrderLayer.UpdatedTime);
                 var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
@@ -1041,32 +1036,32 @@ public class PQLevel3QuoteTests
                                    .GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
                 Assert.AreEqual(2, layerUpdates.Count);
                 var orderIndex                = (ushort)i;
-                var hoursSinceUnixEpoch       = expectedUpdatedTime.GetHoursFromUnixEpoch();
+                var hoursSinceUnixEpoch       = expectedUpdatedTime.Get2MinIntervalsFromUnixEpoch();
                 var expectedDateLayerField    = new PQFieldUpdate(PQQuoteFields.OrderUpdatedDate, hoursSinceUnixEpoch, 0, orderIndex);
-                var extended                  = expectedUpdatedTime.GetSubHourComponent().BreakLongToUShortAndUint(out var subHourBottom);
-                var expectedSubHourLayerField = new PQFieldUpdate(PQQuoteFields.OrderUpdatedTimeSubHour, subHourBottom, extended, orderIndex);
+                var extended                  = expectedUpdatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBottom);
+                var expectedSub2MinLayerField = new PQFieldUpdate(PQQuoteFields.OrderUpdatedTimeSubHour, subHourBottom, 0, orderIndex, extended);
                 var depthId                   = (PQDepthKey)indexFromTop | (isBid ? PQDepthKey.None : PQDepthKey.AskSide);
                 var expectedSideDateLayerField =
                     new PQFieldUpdate(PQQuoteFields.OrderUpdatedDate, depthId, expectedDateLayerField.Payload, 0, orderIndex);
-                var expectedSideSubHourLayerField =
-                    new PQFieldUpdate(PQQuoteFields.OrderUpdatedTimeSubHour, depthId, expectedSubHourLayerField.Payload,
-                                      expectedSubHourLayerField.ExtendedPayload, orderIndex);
+                var expectedSideSub2MinLayerField =
+                    new PQFieldUpdate(PQQuoteFields.OrderUpdatedTimeSubHour, depthId, expectedSub2MinLayerField.Payload,
+                                      expectedSub2MinLayerField.ExtendedPayload, orderIndex, expectedSub2MinLayerField.Flag);
                 Assert.AreEqual(expectedDateLayerField, layerUpdates[0]);
-                Assert.AreEqual(expectedSubHourLayerField, layerUpdates[1]);
+                Assert.AreEqual(expectedSub2MinLayerField, layerUpdates[1]);
                 Assert.AreEqual(expectedSideDateLayerField, quoteUpdates[2]);
-                Assert.AreEqual(expectedSideSubHourLayerField, quoteUpdates[3]);
+                Assert.AreEqual(expectedSideSub2MinLayerField, quoteUpdates[3]);
 
                 anonOrderLayer.IsUpdatedTimeDateUpdated    = false;
-                anonOrderLayer.IsUpdatedTimeSubHourUpdated = false;
+                anonOrderLayer.IsUpdatedTimeSub2MinUpdated = false;
                 Assert.IsFalse(ordersPriceVolumeLayer.HasUpdates);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 emptyQuote.IsAdapterSentTimeDateUpdated    = false;
-                emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
+                emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
                 anonOrderLayer.IsUpdatedTimeDateUpdated    = true;
-                anonOrderLayer.IsUpdatedTimeSubHourUpdated = true;
+                anonOrderLayer.IsUpdatedTimeSub2MinUpdated = true;
                 quoteUpdates =
                     (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
                         where (update.Id == PQQuoteFields.OrderUpdatedDate && update.DepthId == depthId && update.AuxiliaryPayload == orderIndex)
@@ -1075,10 +1070,11 @@ public class PQLevel3QuoteTests
                         select update).ToList();
                 Assert.AreEqual(2, quoteUpdates.Count);
                 Assert.AreEqual(expectedSideDateLayerField, quoteUpdates[0]);
-                Assert.AreEqual(expectedSideSubHourLayerField, quoteUpdates[1]);
-                anonOrderLayer.UpdatedTime                 = DateTimeConstants.UnixEpoch;
-                anonOrderLayer.IsUpdatedTimeDateUpdated    = false;
-                anonOrderLayer.IsUpdatedTimeSubHourUpdated = false;
+                Assert.AreEqual(expectedSideSub2MinLayerField, quoteUpdates[1]);
+                emptyQuote.AdapterSentTime                 = DateTime.UnixEpoch;
+                anonOrderLayer.UpdatedTime                 = DateTime.UnixEpoch;
+
+                emptyQuote.HasUpdates = false;
 
                 var newEmpty = new PQLevel2Quote(emptyQuote.SourceTickerInfo!);
                 newEmpty.UpdateField(quoteUpdates[0]);
@@ -1089,7 +1085,7 @@ public class PQLevel3QuoteTests
                 Assert.AreEqual(expectedUpdatedTime, foundAnonOrderInfo.UpdatedTime);
                 Assert.IsTrue(newEmpty.HasUpdates);
                 Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeDateUpdated);
-                Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeSubHourUpdated);
+                Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeSub2MinUpdated);
             }
         }
     }
@@ -1159,7 +1155,7 @@ public class PQLevel3QuoteTests
                 Assert.IsFalse(orderPriceVolumeLayer.HasUpdates);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 emptyQuote.IsAdapterSentTimeDateUpdated    = false;
-                emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
+                emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
@@ -1251,7 +1247,7 @@ public class PQLevel3QuoteTests
                 Assert.IsFalse(orderPriceVolumeLayer.HasUpdates);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 emptyQuote.IsAdapterSentTimeDateUpdated    = false;
-                emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
+                emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
                 Assert.IsFalse(emptyQuote.HasUpdates);
                 Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
@@ -1367,7 +1363,7 @@ public class PQLevel3QuoteTests
                     Assert.IsFalse(cpOrdersPriceVolumeLayer.HasUpdates);
                     Assert.IsTrue(emptyQuote.HasUpdates);
                     emptyQuote.IsAdapterSentTimeDateUpdated    = false;
-                    emptyQuote.IsAdapterSentTimeSubHourUpdated = false;
+                    emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
                     Assert.IsFalse(emptyQuote.HasUpdates);
                     Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
@@ -1442,8 +1438,7 @@ public class PQLevel3QuoteTests
             var pqFieldUpdates =
                 populatedL3Quote.GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Update, precisionSettings).ToList();
-            AssertContainsAllLevel3Fields
-                (precisionSettings, pqFieldUpdates, populatedL3Quote);
+            AssertContainsAllLevel3Fields(precisionSettings, pqFieldUpdates, populatedL3Quote);
         }
     }
 
@@ -1457,8 +1452,7 @@ public class PQLevel3QuoteTests
             var pqFieldUpdates =
                 populatedL3Quote.GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot, precisionSettings).ToList();
-            AssertContainsAllLevel3Fields
-                (precisionSettings, pqFieldUpdates, populatedL3Quote);
+            AssertContainsAllLevel3Fields(precisionSettings, pqFieldUpdates, populatedL3Quote);
         }
     }
 
@@ -1540,7 +1534,7 @@ public class PQLevel3QuoteTests
             Assert.IsTrue(pqLevel3Quote.SourceTickerInfo!.AreEquivalent(emptyQuote.SourceTickerInfo));
             Assert.AreEqual(false, emptyQuote.IsReplay);
             Assert.AreEqual(0m, emptyQuote.SingleTickValue);
-            Assert.AreEqual(FeedSyncStatus.OutOfSync, emptyQuote.FeedSyncStatus);
+            Assert.AreEqual(FeedSyncStatus.Good, emptyQuote.FeedSyncStatus);
             Assert.AreEqual(default, emptyQuote.SourceBidTime);
             Assert.AreEqual(default, emptyQuote.SourceAskTime);
             Assert.AreEqual(default, emptyQuote.AdapterReceivedTime);
@@ -1556,21 +1550,21 @@ public class PQLevel3QuoteTests
             Assert.IsFalse(emptyQuote.IsSourceQuoteReferenceUpdated);
             Assert.IsFalse(emptyQuote.IsValueDateUpdated);
             Assert.IsFalse(emptyQuote.IsSourceTimeDateUpdated);
-            Assert.IsFalse(emptyQuote.IsSourceTimeSubHourUpdated);
+            Assert.IsFalse(emptyQuote.IsSourceTimeSub2MinUpdated);
             Assert.IsFalse(emptyQuote.IsReplayUpdated);
             Assert.IsFalse(emptyQuote.IsSingleValueUpdated);
             Assert.IsFalse(emptyQuote.IsFeedSyncStatusUpdated);
             Assert.IsFalse(emptyQuote.IsSourceBidTimeDateUpdated);
-            Assert.IsFalse(emptyQuote.IsSourceBidTimeSubHourUpdated);
+            Assert.IsFalse(emptyQuote.IsSourceBidTimeSub2MinUpdated);
             Assert.IsFalse(emptyQuote.IsSourceAskTimeDateUpdated);
-            Assert.IsFalse(emptyQuote.IsSourceAskTimeSubHourUpdated);
+            Assert.IsFalse(emptyQuote.IsSourceAskTimeSub2MinUpdated);
             Assert.IsFalse(emptyQuote.IsAdapterReceivedTimeDateUpdated);
-            Assert.IsFalse(emptyQuote.IsAdapterReceivedTimeSubHourUpdated);
+            Assert.IsFalse(emptyQuote.IsAdapterReceivedTimeSub2MinUpdated);
             Assert.IsFalse(emptyQuote.IsAdapterSentTimeDateUpdated);
-            Assert.IsFalse(emptyQuote.IsAdapterSentTimeSubHourUpdated);
+            Assert.IsFalse(emptyQuote.IsAdapterSentTimeSub2MinUpdated);
             Assert.IsFalse(emptyQuote.IsBidPriceTopUpdated);
             Assert.IsFalse(emptyQuote.IsAskPriceTopUpdated);
-            Assert.IsTrue(emptyQuote.IsExecutableUpdated);
+            Assert.IsFalse(emptyQuote.IsExecutableUpdated);
             foreach (var pvl in emptyQuote.BidBook) PQLevel2QuoteTests.AssertAreDefaultValues(pvl);
             foreach (var pvl in emptyQuote.AskBook) PQLevel2QuoteTests.AssertAreDefaultValues(pvl);
             if (emptyQuote.RecentlyTraded == null) continue;
@@ -1740,7 +1734,7 @@ public class PQLevel3QuoteTests
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.BatchId));
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.QuoteSourceQuoteRef, l3Q.SourceQuoteReference),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.QuoteSourceQuoteRef));
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.QuoteValueDate, l3Q.ValueDate.GetHoursFromUnixEpoch()),
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.QuoteValueDate, l3Q.ValueDate.Get2MinIntervalsFromUnixEpoch()),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.QuoteValueDate));
         if (l3Q.RecentlyTraded == null) return;
         var priceScale = precisionSettings.PriceScalingPrecision;
@@ -1754,10 +1748,10 @@ public class PQLevel3QuoteTests
                , PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedAtPrice, (PQDepthKey)i, priceScale),
                  $"For asklayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
             Assert.AreEqual
-                (new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate, (PQDepthKey)i, lastTrade.TradeTime.GetHoursFromUnixEpoch())
+                (new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate, (PQDepthKey)i, lastTrade.TradeTime.Get2MinIntervalsFromUnixEpoch())
                , PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedTradeTimeDate, (PQDepthKey)i),
                  $"For asklayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
-            var flag = lastTrade.TradeTime.GetSubHourComponent().BreakLongToUShortAndUint(out var subHourBase);
+            var flag = lastTrade.TradeTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBase);
             Assert.AreEqual
                 (new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeSubHour, (PQDepthKey)i, subHourBase, flag)
                , PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedTradeTimeSubHour, (PQDepthKey)i),
@@ -1791,7 +1785,7 @@ public class PQLevel3QuoteTests
         Assert.AreEqual(DateTimeConstants.UnixEpoch, pvl.TradeTime);
         Assert.IsFalse(pvl.IsTradePriceUpdated);
         Assert.IsFalse(pvl.IsTradeTimeDateUpdated);
-        Assert.IsFalse(pvl.IsTradeTimeSubHourUpdated);
+        Assert.IsFalse(pvl.IsTradeTimeSub2MinUpdated);
         if (pvl is IPQLastPaidGivenTrade paidGivenTrade)
         {
             Assert.AreEqual(0m, paidGivenTrade.TradeVolume);

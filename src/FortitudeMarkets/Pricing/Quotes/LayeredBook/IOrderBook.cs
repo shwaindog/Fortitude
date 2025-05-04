@@ -12,8 +12,8 @@ namespace FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 public interface IOrderBook : IReusableObject<IOrderBook>, IInterfacesComparable<IOrderBook>
 {
-    LayerType  LayersOfType { get; }
-    LayerFlags LayerFlags   { get; }
+    LayerType  LayersSupportedType { get; }
+    LayerFlags LayerSupportedFlags   { get; }
 
     IOrderBookSide AskSide { get; }
     IOrderBookSide BidSide { get; }
@@ -36,7 +36,8 @@ public interface IOrderBook : IReusableObject<IOrderBook>, IInterfacesComparable
 
 public interface IMutableOrderBook : IOrderBook, IInterfacesComparable<IMutableOrderBook>, ICloneable<IMutableOrderBook>
 {
-    new LayerType LayersOfType { get; set; }
+    new LayerType  LayersSupportedType { get; set; }
+    new LayerFlags LayerSupportedFlags { get; set; }
 
     new IMutableOrderBookSide AskSide { get; set; }
     new IMutableOrderBookSide BidSide { get; set; }

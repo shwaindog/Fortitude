@@ -363,7 +363,7 @@ public class PQOrderBookSideTests
                 if (i == populatedOrderBook.AllLayers.Count - 1)
                 {
                     ((IMutableOrderBookSide)populatedOrderBook)[i] = null;
-                    Assert.AreEqual(MaxNumberOfLayers - 1, populatedOrderBook.AllLayers.Count);
+                    Assert.AreEqual(MaxNumberOfLayers -1, populatedOrderBook.Count);
                 }
             }
     }
@@ -392,7 +392,7 @@ public class PQOrderBookSideTests
             Assert.AreEqual(populatedOrderBook.AllLayers.Count, populatedOrderBook.Capacity);
             Assert.AreEqual(MaxNumberOfLayers, populatedOrderBook.Capacity);
             populatedOrderBook[MaxNumberOfLayers - 1] = null;
-            Assert.AreEqual(MaxNumberOfLayers - 1, populatedOrderBook.Capacity);
+            Assert.AreEqual(MaxNumberOfLayers, populatedOrderBook.Capacity);
             Assert.AreEqual(populatedOrderBook.AllLayers.Count, populatedOrderBook.Capacity);
         }
     }
@@ -492,13 +492,13 @@ public class PQOrderBookSideTests
                         orderLayerInfo.CreatedTime = new DateTime(2025, 4, 25, 19, 18, 23);
                         Assert.IsTrue(populatedOrderBook.HasUpdates);
                         orderLayerInfo.IsCreatedTimeDateUpdated    = false;
-                        orderLayerInfo.IsCreatedTimeSubHourUpdated = false;
+                        orderLayerInfo.IsCreatedTimeSub2MinUpdated = false;
                         Assert.IsFalse(populatedOrderBook.HasUpdates);
 
                         orderLayerInfo.UpdatedTime = new DateTime(2025, 4, 25, 19, 18, 23);
                         Assert.IsTrue(populatedOrderBook.HasUpdates);
                         orderLayerInfo.IsUpdatedTimeDateUpdated    = false;
-                        orderLayerInfo.IsUpdatedTimeSubHourUpdated = false;
+                        orderLayerInfo.IsUpdatedTimeSub2MinUpdated = false;
                         Assert.IsFalse(populatedOrderBook.HasUpdates);
 
                         orderLayerInfo.OrderVolume = 3_000m;
@@ -932,7 +932,7 @@ public class PQOrderBookSideTests
                 var valueDate = PQTickInstantTests.ExtractFieldUpdateWithId
                     (checkFieldUpdates, PQQuoteFields.LayerValueDate, depthId);
 
-                var dateAsHoursFromEpoch = valueDatePvl.ValueDate.GetHoursFromUnixEpoch();
+                var dateAsHoursFromEpoch = valueDatePvl.ValueDate.Get2MinIntervalsFromUnixEpoch();
 
                 Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerValueDate, depthId, dateAsHoursFromEpoch), valueDate);
             }

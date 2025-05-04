@@ -62,7 +62,7 @@ public class InitializationStateTests : SynchronisingStateTests
              Assert.AreEqual(10u, strParams[3]);
          }).Verifiable();
         deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
-            (ExpectedQuotes, PQMessageFlags.Update, uint.MaxValue); // will roll over to SequenceId = 0 on update generation.
+            (ExpectedQuotes, PQMessageFlags.Update, 0); // will roll over to SequenceId = 0 on update generation.
         sockBuffContext = deserializeInputList.First();
         syncState.ProcessInState(sockBuffContext);
 
