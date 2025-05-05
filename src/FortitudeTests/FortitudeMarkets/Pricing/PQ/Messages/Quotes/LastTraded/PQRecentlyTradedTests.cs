@@ -19,7 +19,7 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
 [TestClass]
 public class PQRecentlyTradedTests
 {
-    private const int MaxNumberOfEntries = PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades;
+    private const int MaxNumberOfEntries = PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades;
 
     private IList<PQRecentlyTraded>            allFullyPopulatedRecentlyTraded = null!;
     private List<IReadOnlyList<IPQLastTrade>>  allPopulatedEntries             = null!;
@@ -529,9 +529,8 @@ public class PQRecentlyTradedTests
             Assert.IsTrue(toString.Contains(q.GetType().Name));
 
             Assert.IsTrue(toString.Contains(
-                                            $"lastTrades: [{string.Join(",", (IEnumerable<ILastTrade>)populatedQuote)}]"));
+                                            $"LastTrades: [{string.Join(", ", (IEnumerable<ILastTrade>)populatedQuote)}]"));
             Assert.IsTrue(toString.Contains($"{nameof(q.Count)}: {q.Count}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.HasUpdates)}: {q.HasUpdates}"));
         }
     }
 
@@ -601,27 +600,30 @@ public class PQRecentlyTradedTests
 
     public static void AssertContainsAllLevelRecentlyTradedFields
     (IList<PQFieldUpdate> checkFieldUpdates,
-        PQRecentlyTraded recentlyTraded, uint expectedBooleanFlags = 3)
+        IPQRecentlyTraded recentlyTraded, PQBooleanValues expectedBooleanFlags = PQBooleanValuesExtensions.AllFields
+      ,  PQFieldFlags priceScale = (PQFieldFlags)1,  PQFieldFlags volumeScale = (PQFieldFlags)6)
     {
         for (var i = 0; i < MaxNumberOfEntries; i++)
         {
             var lastTrade = recentlyTraded[i]!;
             var depthId   = (PQDepthKey)i;
 
-            var priceScale = (PQFieldFlags)1;
 
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedAtPrice, depthId, lastTrade.TradePrice, priceScale),
-                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedAtPrice, depthId, priceScale),
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.TickLastTradedTrades, depthId, PQSubFieldKeys.LastTradedAtPrice, lastTrade.TradePrice, priceScale),
+                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.TickLastTradedTrades, depthId, 
+                                                                        PQSubFieldKeys.LastTradedAtPrice, priceScale),
                             $"For lastTradeType {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate, depthId, lastTrade.TradeTime.Get2MinIntervalsFromUnixEpoch()),
-                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedTradeTimeDate, depthId),
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.TickLastTradedTrades, depthId, PQSubFieldKeys.LastTradedTradeTimeDate,
+                                              lastTrade.TradeTime.Get2MinIntervalsFromUnixEpoch()),
+                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.TickLastTradedTrades, depthId,
+                                                                        PQSubFieldKeys.LastTradedTradeTimeDate),
                             $"For bidlayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             var extended = lastTrade.TradeTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBase);
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTradeSub2MinTime, depthId, subHourBase, extended)
-                          , PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                                                                        PQQuoteFields.LastTradedTradeSub2MinTime, depthId, extended),
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.TickLastTradedTrades, depthId, PQSubFieldKeys.LastTradedTradeSub2MinTime, subHourBase, extended)
+                          , PQTickInstantTests.ExtractFieldUpdateWithId
+                                (checkFieldUpdates, PQQuoteFields.TickLastTradedTrades, depthId, PQSubFieldKeys.LastTradedTradeSub2MinTime, extended),
                             $"For asklayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             if (lastTrade is IPQLastPaidGivenTrade pqPaidGivenTrade)
@@ -630,18 +632,18 @@ public class PQRecentlyTradedTests
                 lastTradedBoolFlags |= pqPaidGivenTrade.WasPaid ? LastTradeBooleanFlags.WasPaid : LastTradeBooleanFlags.None;
 
 
-                Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedBooleanFlags, depthId,
-                                                  (uint)lastTradedBoolFlags),
-                                PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                                                                            PQQuoteFields.LastTradedBooleanFlags, depthId),
+                Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.TickLastTradedTrades, depthId, PQSubFieldKeys.LastTradedBooleanFlags, (uint)lastTradedBoolFlags),
+                                PQTickInstantTests.ExtractFieldUpdateWithId
+                                    (checkFieldUpdates, PQQuoteFields.TickLastTradedTrades, depthId, PQSubFieldKeys.LastTradedBooleanFlags),
                                 $"For asklayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
             }
 
             if (lastTrade is IPQLastTraderPaidGivenTrade pqTraderPaidGivenTrade)
             {
                 var lastTradedTraderId = (uint)pqTraderPaidGivenTrade.TraderId;
-                Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTraderId, depthId, lastTradedTraderId),
-                                PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedTraderId, depthId),
+                Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.TickLastTradedTrades, depthId, PQSubFieldKeys.LastTradedTraderId, lastTradedTraderId),
+                                PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.TickLastTradedTrades, depthId, 
+                                                                            PQSubFieldKeys.LastTradedTraderId),
                                 $"For asklayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
             }
         }

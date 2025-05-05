@@ -142,7 +142,7 @@ public class PQQuoteSerializerTests
           , srcNmSmplRctlyTrdedL3Quote, srcQtRefPdGvnVlmRcntlyTrdedL3Quote, trdrPdGvnVlmRcntlyTrdedL3Quote
         };
 
-        readWriteBuffer = new CircularReadWriteBuffer(new byte[12000]) { ReadCursor = BufferReadWriteOffset };
+        readWriteBuffer = new CircularReadWriteBuffer(new byte[14000]) { ReadCursor = BufferReadWriteOffset };
 
         moqTimeContext = new Mock<ITimeContext>();
         frozenDateTime = new DateTime(2018, 1, 15, 19, 51, 1);
@@ -252,8 +252,8 @@ public class PQQuoteSerializerTests
     {
         foreach (var pqQuote in differingQuotes)
         {
-            readWriteBuffer      = new CircularReadWriteBuffer(new byte[12000]) { ReadCursor = BufferReadWriteOffset };
-            pqQuote.PQSequenceId = 0; // will roll to 0 on
+            readWriteBuffer      = new CircularReadWriteBuffer(new byte[14000]) { ReadCursor = BufferReadWriteOffset };
+            pqQuote.PQSequenceId = 0; 
 
             readWriteBuffer.WriteCursor = BufferReadWriteOffset;
             var amtWritten = updateQuoteSerializer
@@ -348,7 +348,7 @@ public class PQQuoteSerializerTests
             }
             if (flag.HasSubIdFlag())
             {
-                var subId = (PQSubFieldKey)(*currPtr++);
+                var subId = (PQSubFieldKeys)(*currPtr++);
                 Assert.AreEqual(fieldUpdate.SubId, subId);
             }
             if (flag.HasAuxiliaryPayloadFlag())
@@ -374,10 +374,10 @@ public class PQQuoteSerializerTests
                 var depthKey  = depthByte.IsTwoByteDepth() ? depthByte.ToDepthKey(*currPtr++) : depthByte.ToDepthKey();
                 Assert.AreEqual(stringUpdate.Field.DepthId, depthKey);
             }
-            PQSubFieldKey subId = PQSubFieldKey.None;
+            PQSubFieldKeys subId = PQSubFieldKeys.None;
             if (flag.HasSubIdFlag())
             {
-                subId = (PQSubFieldKey)(*currPtr++);
+                subId = (PQSubFieldKeys)(*currPtr++);
                 Assert.AreEqual(stringUpdate.Field.SubId, subId);
             }
             if (flag.HasAuxiliaryPayloadFlag())
@@ -397,7 +397,7 @@ public class PQQuoteSerializerTests
             var stringValue = StreamByteOps.ToString(ref currPtr, (int)fieldValue);
             Assert.AreEqual(stringUpdate.StringUpdate.Value, stringValue);
 
-            var command = subId == PQSubFieldKey.CommandUpsert ? CrudCommand.Upsert : CrudCommand.Delete;
+            var command = subId == PQSubFieldKeys.CommandUpsert ? CrudCommand.Upsert : CrudCommand.Delete;
             Assert.AreEqual(stringUpdate.StringUpdate.Command, command
                           , $"For stringUpdate {stringUpdate} got {command} when expected {stringUpdate.StringUpdate.Command}");
         }

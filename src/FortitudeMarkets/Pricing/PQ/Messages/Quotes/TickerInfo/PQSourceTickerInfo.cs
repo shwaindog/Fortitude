@@ -81,7 +81,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
 
     public PQSourceTickerInfo()
     {
-        PublishedTickerDetailLevel = TickerDetailLevel.Level1Quote;
+        IsPublishedTickerDetailLevelUpdated = true;
 
         Pip = 0.0001m;
 
@@ -107,7 +107,8 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
       , LayerFlags layerFlags = LayerFlags.Price | LayerFlags.Volume, LastTradedFlags lastTradedFlags = LastTradedFlags.None)
         : base(sourceId, tickerId, sourceName, ticker, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick), InstrumentType.Price, marketClassification)
     {
-        PublishedTickerDetailLevel = publishedTickerDetailLevel;
+        PublishedTickerDetailLevel          = publishedTickerDetailLevel;
+        IsPublishedTickerDetailLevelUpdated = true;
 
         Pip = pip;
 
@@ -131,7 +132,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
 
     public PQSourceTickerInfo(ISourceTickerInfo toClone) : base(toClone)
     {
-        PublishedTickerDetailLevel = toClone.PublishedTickerDetailLevel;
+        PublishedTickerDetailLevel          = toClone.PublishedTickerDetailLevel;
 
         Pip = toClone.Pip;
 

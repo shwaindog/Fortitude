@@ -207,9 +207,9 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
                 // depthKey = depthByte.IsTwoByteDepth() ? depthByte.ToDepthKey(*ptr++) : depthByte.ToDepthKey();
             }
 
-            PQSubFieldKey subId = PQSubFieldKey.None;
+            PQSubFieldKeys subId = PQSubFieldKeys.None;
 
-            if (flags.HasSubIdFlag()) subId = (PQSubFieldKey)(*ptr++);
+            if (flags.HasSubIdFlag()) subId = (PQSubFieldKeys)(*ptr++);
 
             ushort auxiliaryPayload = 0;
 

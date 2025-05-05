@@ -705,7 +705,7 @@ public class Level3PriceQuoteTests
     private void AssertLastTradeTypeIsExpected(Type expectedType, params Level3PriceQuote[] quotesToCheck)
     {
         foreach (var level3Quote in quotesToCheck)
-            for (var i = 0; i < PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades; i++)
+            for (var i = 0; i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades; i++)
                 Assert.AreEqual(expectedType, level3Quote.RecentlyTraded![i]!.GetType());
     }
 }

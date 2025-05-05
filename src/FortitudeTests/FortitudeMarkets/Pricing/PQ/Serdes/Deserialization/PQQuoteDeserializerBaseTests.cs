@@ -404,7 +404,7 @@ public class PQQuoteDeserializerBaseTests
         var toggleGivenBool = false;
         var togglePaidBool  = true;
         for (var i = 0; i < deepestPossibleLayerIndex; i++)
-            if (i < PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades &&
+            if (i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades &&
                 expectedL3Quote.RecentlyTraded![i] is PQLastTraderPaidGivenTrade lastTradeInfo)
             {
                 lastTradeInfo.TradePrice  = 0.76591m;
@@ -427,7 +427,7 @@ public class PQQuoteDeserializerBaseTests
         socketBufferReadContext.EncodedBuffer.ReadCursor = BufferReadWriteOffset + PQQuoteMessageHeader.HeaderSize;
         dummyTickInstantDeserializer.InvokeUpdateQuote(socketBufferReadContext, actualL3Quote, expectedSequenceId);
 
-        for (var i = 0; i < deepestPossibleLayerIndex && i < PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades; i++)
+        for (var i = 0; i < deepestPossibleLayerIndex && i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades; i++)
         {
             var expectedLastTradeInfo = expectedL3Quote.RecentlyTraded![i] as PQLastTraderPaidGivenTrade;
             Assert.IsNotNull(expectedLastTradeInfo);

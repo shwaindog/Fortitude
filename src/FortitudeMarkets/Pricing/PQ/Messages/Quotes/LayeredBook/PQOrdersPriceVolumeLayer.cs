@@ -353,7 +353,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the book has already forwarded this through to the correct layer
-        if (pqFieldUpdate.Id is >= PQQuoteFields.OrderId and <= PQQuoteFields.OrderTraderNameId)
+        if (pqFieldUpdate.Id is PQQuoteFields.LayerOrders)
         {
             var index          = pqFieldUpdate.AuxiliaryPayload;
             var orderLayerInfo = this[index]!;

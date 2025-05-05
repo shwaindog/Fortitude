@@ -601,7 +601,7 @@ public class PQLevel1QuoteTests
         emptyQuote.CopyFrom(fullyPopulatedPqLevel1Quote);
         Assert.AreEqual(fullyPopulatedPqLevel1Quote.PQSequenceId, emptyQuote.PQSequenceId);
         Assert.AreEqual(default, emptyQuote.SourceTime);
-        Assert.IsTrue
+        Assert.IsFalse
             (fullyPopulatedPqLevel1Quote.SourceTickerInfo!.AreEquivalent(emptyQuote.SourceTickerInfo));
         Assert.AreEqual(false, emptyQuote.IsReplay);
         Assert.AreEqual(0m, emptyQuote.SingleTickValue);

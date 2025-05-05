@@ -179,35 +179,35 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         if (!updatedOnly || IsTradeTimeDateUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate, TradeTime.Get2MinIntervalsFromUnixEpoch());
+            yield return new PQFieldUpdate(PQQuoteFields.TickLastTradedTrades, PQSubFieldKeys.LastTradedTradeTimeDate, TradeTime.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsTradeTimeSub2MinUpdated)
         {
             var extended = TradeTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTradeSub2MinTime, value, extended);
+            yield return new PQFieldUpdate(PQQuoteFields.TickLastTradedTrades, PQSubFieldKeys.LastTradedTradeSub2MinTime,  value, extended);
         }
 
         if (!updatedOnly || IsTradePriceUpdated)
             yield return new PQFieldUpdate
-                (PQQuoteFields.LastTradedAtPrice, TradePrice, quotePublicationPrecisionSetting?.PriceScalingPrecision ?? (PQFieldFlags)1);
+                (PQQuoteFields.TickLastTradedTrades, PQSubFieldKeys.LastTradedAtPrice, TradePrice, quotePublicationPrecisionSetting?.PriceScalingPrecision ?? (PQFieldFlags)1);
     }
 
     public virtual int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the recentlytraded has already forwarded this through to the correct lasttrade
-        if (pqFieldUpdate.Id == PQQuoteFields.LastTradedTradeTimeDate)
+        if (pqFieldUpdate.SubId == PQSubFieldKeys.LastTradedTradeTimeDate)
         {
             PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref tradeTime, pqFieldUpdate.Payload);
             IsTradeTimeDateUpdated = true;
             return 0;
         }
-        if (pqFieldUpdate.Id == PQQuoteFields.LastTradedTradeSub2MinTime)
+        if (pqFieldUpdate.SubId == PQSubFieldKeys.LastTradedTradeSub2MinTime)
         {
             PQFieldConverters.UpdateSub2MinComponent(ref tradeTime,
                                                      pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
             IsTradeTimeSub2MinUpdated = true;
             return 0;
         }
-        if (pqFieldUpdate.Id == PQQuoteFields.LastTradedAtPrice)
+        if (pqFieldUpdate.SubId == PQSubFieldKeys.LastTradedAtPrice)
         {
             TradePrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
             return 0;

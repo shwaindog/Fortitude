@@ -54,6 +54,8 @@ public interface IPQTickInstant : IDoublyLinkedListNode<IPQTickInstant>, IMutabl
     new IPQTickInstant? Next           { get; set; }
     new IPQTickInstant? Previous       { get; set; }
 
+    new IPQSourceTickerInfo? SourceTickerInfo { get; set; }
+
     void ResetFields();
 
     new IPQTickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags);
@@ -75,7 +77,7 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
     private   FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good;
     protected uint           NumOfUpdates   = uint.MaxValue;
 
-    protected PQSourceTickerInfo? PQSourceTickerInfo;
+    protected IPQSourceTickerInfo? PQSourceTickerInfo;
 
     private DateTime processedTime;
     private decimal  singleValue;
@@ -97,7 +99,14 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
     public PQTickInstant(ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, bool isReplay = false, 
         FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good, decimal singlePrice = 0m, DateTime? clientReceivedTime = null)
     {
-        SourceTickerInfo = sourceTickerInfo;
+        if (sourceTickerInfo is IPQSourceTickerInfo pqSourceTickerInfo)
+        {
+            SourceTickerInfo = pqSourceTickerInfo;
+        }
+        else 
+        {
+            SourceTickerInfo = new PQSourceTickerInfo(sourceTickerInfo);
+        }
 
         SourceTime              = sourceTime ?? DateTime.MinValue;
         IsReplay                = isReplay;
@@ -211,7 +220,13 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
 
     [JsonIgnore] ISourceTickerInfo? ITickInstant.SourceTickerInfo => PQSourceTickerInfo;
 
-    public ISourceTickerInfo? SourceTickerInfo
+    ISourceTickerInfo? IMutableTickInstant.SourceTickerInfo
+    {
+        get => SourceTickerInfo;
+        set => SourceTickerInfo = ConvertToPQSourceTickerInfo(value!, PQSourceTickerInfo);
+    }
+
+    public IPQSourceTickerInfo? SourceTickerInfo
     {
         get => PQSourceTickerInfo;
         set
@@ -912,12 +927,12 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
 
     public virtual PQTickInstant SetSourceTickerInfo(ISourceTickerInfo toSet)
     {
-        SourceTickerInfo = toSet;
+        ((IMutableTickInstant)this).SourceTickerInfo = toSet;
         return this;
     }
 
-    private PQSourceTickerInfo ConvertToPQSourceTickerInfo
-        (ISourceTickerInfo value, PQSourceTickerInfo? originalQuoteInfo)
+    private IPQSourceTickerInfo ConvertToPQSourceTickerInfo
+        (ISourceTickerInfo value, IPQSourceTickerInfo? originalQuoteInfo)
     {
         if (originalQuoteInfo == null)
         {

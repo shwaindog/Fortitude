@@ -216,7 +216,7 @@ public class PQLastPaidGivenTradeTests
         var sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
-        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedOrderVolume, expectedVolume, (PQFieldFlags)6);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.TickLastTradedTrades, PQSubFieldKeys.LastTradedOrderVolume, expectedVolume, (PQFieldFlags)6);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyLt.IsTradeVolumeUpdated = false;
@@ -231,12 +231,12 @@ public class PQLastPaidGivenTradeTests
         Assert.AreEqual(nextExpectedVolume, emptyLt.TradeVolume);
         sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedOrderVolume, nextExpectedVolume, (PQFieldFlags)6);
+        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.TickLastTradedTrades, PQSubFieldKeys.LastTradedOrderVolume, nextExpectedVolume, (PQFieldFlags)6);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyLt.HasUpdates = false;
         sourceUpdates = (from update in emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id == PQQuoteFields.LastTradedOrderVolume
+            where update.SubId == PQSubFieldKeys.LastTradedOrderVolume
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -261,7 +261,7 @@ public class PQLastPaidGivenTradeTests
         Assert.IsTrue(emptyLt.WasGiven);
         var sourceLayerUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceLayerUpdates.Count);
-        var expectedLayerField = new PQFieldUpdate(PQQuoteFields.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags.WasGiven);
+        var expectedLayerField = new PQFieldUpdate(PQQuoteFields.TickLastTradedTrades, PQSubFieldKeys.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags.WasGiven);
         Assert.AreEqual(expectedLayerField, sourceLayerUpdates[0]);
 
         emptyLt.IsWasGivenUpdated = false;
@@ -271,7 +271,7 @@ public class PQLastPaidGivenTradeTests
         emptyLt.IsWasGivenUpdated = true;
         sourceLayerUpdates =
             (from update in emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-                where update.Id == PQQuoteFields.LastTradedBooleanFlags
+                where update.SubId == PQSubFieldKeys.LastTradedBooleanFlags
                 select update).ToList();
         Assert.AreEqual(1, sourceLayerUpdates.Count);
         Assert.AreEqual(expectedLayerField, sourceLayerUpdates[0]);
@@ -297,7 +297,7 @@ public class PQLastPaidGivenTradeTests
         Assert.IsTrue(emptyLt.WasPaid);
         var sourceLayerUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceLayerUpdates.Count);
-        var expectedLayerField = new PQFieldUpdate(PQQuoteFields.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags.WasPaid);
+        var expectedLayerField = new PQFieldUpdate(PQQuoteFields.TickLastTradedTrades, PQSubFieldKeys.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags.WasPaid);
         Assert.AreEqual(expectedLayerField, sourceLayerUpdates[0]);
 
         emptyLt.IsWasPaidUpdated = false;
@@ -307,7 +307,7 @@ public class PQLastPaidGivenTradeTests
         emptyLt.IsWasPaidUpdated = true;
         sourceLayerUpdates =
             (from update in emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-                where update.Id == PQQuoteFields.LastTradedBooleanFlags
+                where update.SubId == PQSubFieldKeys.LastTradedBooleanFlags
                 select update).ToList();
         Assert.AreEqual(1, sourceLayerUpdates.Count);
         Assert.AreEqual(expectedLayerField, sourceLayerUpdates[0]);
@@ -520,10 +520,10 @@ public class PQLastPaidGivenTradeTests
         var expectedFlag = lt.WasGiven ? LastTradeBooleanFlags.WasGiven : noVal;
         expectedFlag |= lt.WasPaid ? LastTradeBooleanFlags.WasPaid : noVal;
 
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedBooleanFlags,
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.TickLastTradedTrades, PQSubFieldKeys.LastTradedBooleanFlags,
                                           (uint)expectedFlag),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                                                                    PQQuoteFields.LastTradedBooleanFlags), $"For asklayer {lt.GetType().Name}");
+                                                                    PQQuoteFields.TickLastTradedTrades, PQSubFieldKeys.LastTradedBooleanFlags), $"For asklayer {lt.GetType().Name}");
     }
 
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType

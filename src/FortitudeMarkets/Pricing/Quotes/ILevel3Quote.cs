@@ -13,6 +13,7 @@ namespace FortitudeMarkets.Pricing.Quotes;
 
 public interface ILevel3Quote : ILevel2Quote, ICloneable<ILevel3Quote>, IDoublyLinkedListNode<ILevel3Quote>
 {
+    // ILastTradedList? TickLastTraded { get; }
     IRecentlyTraded? RecentlyTraded { get; }
 
     uint     BatchId              { get; }

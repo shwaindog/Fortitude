@@ -75,7 +75,7 @@ public class QuoteSequencedTestDataBuilder
         var toggleGivenBool = false;
         var togglePaidBool  = true;
         if (pqLevel3Quote.RecentlyTraded == null) return;
-        for (var i = 0; i < PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades; i++)
+        for (var i = 0; i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades; i++)
         {
             var tradePriceDelta  = 0.00001m * i;
             var tradeVolumeDelta = batchId * 10000 + 10000m * i;

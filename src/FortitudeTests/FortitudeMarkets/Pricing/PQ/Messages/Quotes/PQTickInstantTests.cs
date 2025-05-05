@@ -368,8 +368,7 @@ public class PQTickInstantTests
         Assert.AreEqual(fullyPopulatedPQTickInstant.PQSequenceId, emptyQuote.PQSequenceId);
         Assert.AreEqual(default, emptyQuote.SourceTime);
         Assert.AreEqual(default, emptyQuote.ClientReceivedTime);
-        Assert.IsTrue(
-                      fullyPopulatedPQTickInstant.SourceTickerInfo!.AreEquivalent(emptyQuote.SourceTickerInfo));
+        Assert.IsFalse(fullyPopulatedPQTickInstant.SourceTickerInfo!.AreEquivalent(emptyQuote.SourceTickerInfo));
         Assert.AreEqual(false, emptyQuote.IsReplay);
         Assert.AreEqual(0m, emptyQuote.SingleTickValue);
         Assert.AreEqual(FeedSyncStatus.Good, emptyQuote.FeedSyncStatus);
@@ -556,6 +555,12 @@ public class PQTickInstantTests
     }
 
     public static PQFieldUpdate ExtractFieldUpdateWithId
+        (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQSubFieldKeys subId, PQFieldFlags flagValue = PQFieldFlags.None)
+    {
+        return allUpdates.FirstOrDefault(fu => fu.Id == id && fu.SubId == subId);
+    }
+
+    public static PQFieldUpdate ExtractFieldUpdateWithId
         (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQDepthKey depthId, PQFieldFlags flag = PQFieldFlags.None)
     {
         var useDepthFlag = depthId > 0 ? PQFieldFlags.IncludesDepth : PQFieldFlags.None;
@@ -573,11 +578,11 @@ public class PQTickInstantTests
     }
 
     public static PQFieldUpdate ExtractFieldUpdateWithId
-        (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQDepthKey depthId, PQSubFieldKey subId, PQFieldFlags flag = PQFieldFlags.None)
+        (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQDepthKey depthId, PQSubFieldKeys subId, PQFieldFlags flag = PQFieldFlags.None)
     {
-        var useExtendedFlag = subId > 0 ? PQFieldFlags.IncludesSubId : PQFieldFlags.None;
+        var useSubId = subId > 0 ? PQFieldFlags.IncludesSubId : PQFieldFlags.None;
         var useDepthFlag    = depthId > 0 ? PQFieldFlags.IncludesDepth : PQFieldFlags.None;
-        var tryFlags        = flag | useDepthFlag | useExtendedFlag;
+        var tryFlags        = flag | useDepthFlag | useSubId;
         var tryGetValue = allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubId == subId &&
                                                           fu.Flag == tryFlags);
         var tryAgainValue = !Equals(tryGetValue, default(PQFieldUpdate))
@@ -613,7 +618,14 @@ public class PQTickInstantTests
 
         public DateTime ClientReceivedTime => DateTime.Now;
 
-        public ISourceTickerInfo? SourceTickerInfo { get; set; }
+        ISourceTickerInfo? ITickInstant.SourceTickerInfo => SourceTickerInfo;
+        ISourceTickerInfo? IMutableTickInstant.SourceTickerInfo
+        {
+            get => SourceTickerInfo;
+            set => SourceTickerInfo = (IPQSourceTickerInfo?)value;
+        }
+
+        public IPQSourceTickerInfo? SourceTickerInfo { get; set; }
 
         public DateTime SocketReceivingTime { get; set; }
 

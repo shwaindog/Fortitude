@@ -418,7 +418,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
 
     public override PQTickInstant SetSourceTickerInfo(ISourceTickerInfo toSet)
     {
-        SourceTickerInfo = toSet;
+        ((IMutableTickInstant)this).SourceTickerInfo = toSet;
         EnsureRelatedItemsAreConfigured(this);
         return this;
     }

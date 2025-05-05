@@ -19,7 +19,7 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.Quotes.LastTraded;
 [TestClass]
 public class RecentlyTradedTests
 {
-    private const int MaxNumberOfEntries = PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades - 1;
+    private const int MaxNumberOfEntries = PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades - 1;
 
     private IList<RecentlyTraded> allFullyPopulatedRecentlyTraded = null!;
 

@@ -6,6 +6,7 @@
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Configuration.ClientServerConfig;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Publication;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes;
@@ -85,7 +86,7 @@ public class PQPublisherTests
         moqPqServer.Setup(pqs => pqs.Publish(moqPQLevel1Quote.Object)).Verifiable();
 
         var dummyTickInstant    = new PQTickInstantTests.DummyPQTickInstant();
-        var moqSourceTickerInfo = new Mock<ISourceTickerInfo>();
+        var moqSourceTickerInfo = new Mock<IPQSourceTickerInfo>();
         moqSourceTickerInfo.As<ISourceTickerInfo>().SetupGet(stqi => stqi.InstrumentName).Returns("MoqTicker");
         dummyTickInstant.SourceTickerInfo = moqSourceTickerInfo.Object;
 

@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates
 {
-    [Flags]
-    public enum PQSubFieldKey : byte
+    public enum PQSubFieldKeys : byte
     {
         None           = 0
             
+        // Aligns with CrudCommand enum values
      ,  CommandInsert  = 1  // Create
      ,  CommandRead    = 2  // Read
      ,  CommandUpdate = 3   // Update
@@ -31,7 +31,6 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates
       , PricePeriodSummaryFlags         = 21 // 0x0C
       , PricePeriodAveragePrice         = 22 // 0x0D
       , PricePeriodNormalisedVolatility = 23 // 0x0D
-
 
       , OrderId                      = 50 // 0x32
       , OrderSequenceId              = 51 // 0x33
