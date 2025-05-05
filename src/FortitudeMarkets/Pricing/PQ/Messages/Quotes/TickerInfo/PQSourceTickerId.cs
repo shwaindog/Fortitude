@@ -219,7 +219,7 @@ public class PQSourceTickerId : ReusableObject<IPQSourceTickerId>, IPQSourceTick
         if (!isUpdateOnly || IsSourceUpdated)
             yield return new PQFieldStringUpdate
             {
-                Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, 0, (ushort)CrudCommand.Upsert), StringUpdate
+                Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, CrudCommand.Upsert.ToPQSubFieldId(), 0), StringUpdate
                     = new PQStringUpdate
                     {
                         DictionaryId = 0, Value = SourceName, Command = CrudCommand.Upsert
@@ -228,7 +228,7 @@ public class PQSourceTickerId : ReusableObject<IPQSourceTickerId>, IPQSourceTick
         if (!isUpdateOnly || IsTickerUpdated)
             yield return new PQFieldStringUpdate
             {
-                Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, 0, (ushort)CrudCommand.Upsert), StringUpdate
+                Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, CrudCommand.Upsert.ToPQSubFieldId(), 0), StringUpdate
                     = new PQStringUpdate
                     {
                         DictionaryId = 1, Value = InstrumentName, Command = CrudCommand.Upsert

@@ -183,7 +183,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         if (!updatedOnly || IsTradeTimeSub2MinUpdated)
         {
             var extended = TradeTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeSubHour, value, extended);
+            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTradeSub2MinTime, value, extended);
         }
 
         if (!updatedOnly || IsTradePriceUpdated)
@@ -200,7 +200,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
             IsTradeTimeDateUpdated = true;
             return 0;
         }
-        if (pqFieldUpdate.Id == PQQuoteFields.LastTradedTradeTimeSubHour)
+        if (pqFieldUpdate.Id == PQQuoteFields.LastTradedTradeSub2MinTime)
         {
             PQFieldConverters.UpdateSub2MinComponent(ref tradeTime,
                                                      pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));

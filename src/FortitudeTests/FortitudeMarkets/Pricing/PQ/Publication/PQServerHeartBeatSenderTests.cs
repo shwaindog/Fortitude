@@ -457,7 +457,8 @@ public class PQServerHeartBeatSenderTests
 
             Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
             pqServerHeartBeatSender.StartSendingHeartBeats();
-
+            
+            Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
             pqServerHeartBeatSender.CheckPublishHeartbeats();
             moqOsParallelController.Verify();
             moqQuotesList.Verify();

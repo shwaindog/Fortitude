@@ -12,16 +12,15 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
-public class SourceQuoteRefOrdersValueDatePriceVolumeLayer : OrdersPriceVolumeLayer,
-    IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer
+public class FullSupportPriceVolumeLayer : OrdersPriceVolumeLayer, IMutableFullSupportPriceVolumeLayer
 {
-    public SourceQuoteRefOrdersValueDatePriceVolumeLayer() : base(LayerType.OrdersFullPriceVolume) => ValueDate = DateTimeConstants.UnixEpoch;
+    public FullSupportPriceVolumeLayer() : base(LayerType.OrdersFullPriceVolume) => ValueDate = DateTimeConstants.UnixEpoch;
 
-    public SourceQuoteRefOrdersValueDatePriceVolumeLayer
+    public FullSupportPriceVolumeLayer
     (decimal price = 0m, decimal volume = 0m,
         DateTime? valueDate = null, string? sourceName = null, bool executable = false,
-        uint quoteRef = 0u, uint ordersCount = 0, decimal internalVolume = 0) : base(LayerType.OrdersFullPriceVolume, price, volume, ordersCount
-                                                                                   , internalVolume)
+        uint quoteRef = 0u, uint ordersCount = 0, decimal internalVolume = 0)
+        : base(LayerType.OrdersFullPriceVolume, price, volume, ordersCount, internalVolume)
     {
         SourceName = sourceName;
         Executable = executable;
@@ -31,17 +30,17 @@ public class SourceQuoteRefOrdersValueDatePriceVolumeLayer : OrdersPriceVolumeLa
         ValueDate = valueDate ?? DateTimeConstants.UnixEpoch;
     }
 
-    public SourceQuoteRefOrdersValueDatePriceVolumeLayer(IPriceVolumeLayer toClone)
+    public FullSupportPriceVolumeLayer(IPriceVolumeLayer toClone)
         : base(toClone, LayerType.SourceQuoteRefOrdersValueDatePriceVolume)
     {
-        if (toClone is ISourceQuoteRefOrdersValueDatePriceVolumeLayer srcQtRefTrdrVlDtPriceVolumeLayer)
+        if (toClone is IFullSupportPriceVolumeLayer fullSupportPriceVolumeLayer)
         {
-            SourceName = srcQtRefTrdrVlDtPriceVolumeLayer.SourceName;
-            Executable = srcQtRefTrdrVlDtPriceVolumeLayer.Executable;
+            SourceName = fullSupportPriceVolumeLayer.SourceName;
+            Executable = fullSupportPriceVolumeLayer.Executable;
 
-            SourceQuoteReference = srcQtRefTrdrVlDtPriceVolumeLayer.SourceQuoteReference;
+            SourceQuoteReference = fullSupportPriceVolumeLayer.SourceQuoteReference;
 
-            ValueDate = srcQtRefTrdrVlDtPriceVolumeLayer.ValueDate;
+            ValueDate = fullSupportPriceVolumeLayer.ValueDate;
         }
         else if (toClone is ISourceQuoteRefPriceVolumeLayer srcQtRefPriceVolumeLayer)
         {
@@ -62,7 +61,7 @@ public class SourceQuoteRefOrdersValueDatePriceVolumeLayer : OrdersPriceVolumeLa
     }
 
 
-    protected string SourceQuoteRefTraderValueDatePriceVolumeLayerToStringMembers =>
+    protected string FullSupportPriceVolumeLayerToStringMembers =>
         $"{OrdersCountPriceVolumeLayerToStringMembers}, {nameof(SourceName)}: {SourceName}, {nameof(Executable)}: {Executable}, " +
         $"{nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}, {nameof(ValueDate)}: {ValueDate}, {JustOrdersToString}";
 
@@ -106,9 +105,10 @@ public class SourceQuoteRefOrdersValueDatePriceVolumeLayer : OrdersPriceVolumeLa
     public override void StateReset()
     {
         base.StateReset();
-        SourceName           = null;
-        Executable           = false;
-        ValueDate            = DateTimeConstants.UnixEpoch;
+        SourceName = null;
+        Executable = false;
+        ValueDate  = DateTimeConstants.UnixEpoch;
+
         SourceQuoteReference = 0;
     }
 
@@ -122,9 +122,9 @@ public class SourceQuoteRefOrdersValueDatePriceVolumeLayer : OrdersPriceVolumeLa
 
     IValueDatePriceVolumeLayer IValueDatePriceVolumeLayer.Clone() => Clone();
 
-    ISourceQuoteRefOrdersValueDatePriceVolumeLayer ICloneable<ISourceQuoteRefOrdersValueDatePriceVolumeLayer>.Clone() => Clone();
+    IFullSupportPriceVolumeLayer ICloneable<IFullSupportPriceVolumeLayer>.Clone() => Clone();
 
-    ISourceQuoteRefOrdersValueDatePriceVolumeLayer ISourceQuoteRefOrdersValueDatePriceVolumeLayer.Clone() => Clone();
+    IFullSupportPriceVolumeLayer IFullSupportPriceVolumeLayer.Clone() => Clone();
 
     IMutableSourceQuoteRefPriceVolumeLayer ICloneable<IMutableSourceQuoteRefPriceVolumeLayer>.Clone() => Clone();
 
@@ -134,11 +134,11 @@ public class SourceQuoteRefOrdersValueDatePriceVolumeLayer : OrdersPriceVolumeLa
 
     IMutableValueDatePriceVolumeLayer IMutableValueDatePriceVolumeLayer.Clone() => Clone();
 
-    IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer
-        ICloneable<IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer>.Clone() =>
+    IMutableFullSupportPriceVolumeLayer
+        ICloneable<IMutableFullSupportPriceVolumeLayer>.Clone() =>
         Clone();
 
-    IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer.
+    IMutableFullSupportPriceVolumeLayer IMutableFullSupportPriceVolumeLayer.
         Clone() =>
         Clone();
 
@@ -148,31 +148,32 @@ public class SourceQuoteRefOrdersValueDatePriceVolumeLayer : OrdersPriceVolumeLa
 
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {
-        if (!(other is ISourceQuoteRefOrdersValueDatePriceVolumeLayer srcQtRefTrdrVlDtPvLayer)) return false;
+        if (!(other is IFullSupportPriceVolumeLayer fullSupportPvLayer)) return false;
 
-        var baseSame                 = base.AreEquivalent(other, exactTypes);
-        var sourceNameSame           = SourceName == srcQtRefTrdrVlDtPvLayer.SourceName;
-        var executableSame           = Executable == srcQtRefTrdrVlDtPvLayer.Executable;
-        var sourceQuoteReferenceSame = SourceQuoteReference == srcQtRefTrdrVlDtPvLayer.SourceQuoteReference;
-        var valueDateSame            = ValueDate == srcQtRefTrdrVlDtPvLayer.ValueDate;
+        var baseSame       = base.AreEquivalent(other, exactTypes);
+        var sourceNameSame = SourceName == fullSupportPvLayer.SourceName;
+        var executableSame = Executable == fullSupportPvLayer.Executable;
+        var valueDateSame  = ValueDate == fullSupportPvLayer.ValueDate;
+
+        var sourceQuoteReferenceSame = SourceQuoteReference == fullSupportPvLayer.SourceQuoteReference;
 
         var allAreSame = baseSame && sourceNameSame && executableSame && sourceQuoteReferenceSame && valueDateSame;
         return allAreSame;
     }
 
-    public override SourceQuoteRefOrdersValueDatePriceVolumeLayer CopyFrom
+    public override FullSupportPriceVolumeLayer CopyFrom
     (IPriceVolumeLayer source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
-        if (source is ISourceQuoteRefOrdersValueDatePriceVolumeLayer srcQtRefTrdrVlDtPriceVolumeLayer)
+        if (source is IFullSupportPriceVolumeLayer fullSupportPriceVolumeLayer)
         {
-            SourceName = srcQtRefTrdrVlDtPriceVolumeLayer.SourceName;
-            Executable = srcQtRefTrdrVlDtPriceVolumeLayer.Executable;
+            SourceName = fullSupportPriceVolumeLayer.SourceName;
+            Executable = fullSupportPriceVolumeLayer.Executable;
 
-            SourceQuoteReference = srcQtRefTrdrVlDtPriceVolumeLayer.SourceQuoteReference;
+            SourceQuoteReference = fullSupportPriceVolumeLayer.SourceQuoteReference;
 
-            ValueDate = srcQtRefTrdrVlDtPriceVolumeLayer.ValueDate;
+            ValueDate = fullSupportPriceVolumeLayer.ValueDate;
         }
         else if (source is ISourceQuoteRefPriceVolumeLayer srcQtRefPriceVolumeLayer)
         {
@@ -194,9 +195,9 @@ public class SourceQuoteRefOrdersValueDatePriceVolumeLayer : OrdersPriceVolumeLa
         return this;
     }
 
-    public override SourceQuoteRefOrdersValueDatePriceVolumeLayer Clone() =>
-        Recycler?.Borrow<SourceQuoteRefOrdersValueDatePriceVolumeLayer>().CopyFrom(this) ??
-        new SourceQuoteRefOrdersValueDatePriceVolumeLayer(this);
+    public override FullSupportPriceVolumeLayer Clone() =>
+        Recycler?.Borrow<FullSupportPriceVolumeLayer>().CopyFrom(this) ??
+        new FullSupportPriceVolumeLayer(this);
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPriceVolumeLayer?)obj, true);
 
@@ -213,6 +214,5 @@ public class SourceQuoteRefOrdersValueDatePriceVolumeLayer : OrdersPriceVolumeLa
         }
     }
 
-    public override string ToString() =>
-        $"{nameof(SourceQuoteRefOrdersValueDatePriceVolumeLayer)}{{{SourceQuoteRefTraderValueDatePriceVolumeLayerToStringMembers}}}";
+    public override string ToString() => $"{nameof(FullSupportPriceVolumeLayer)}{{{FullSupportPriceVolumeLayerToStringMembers}}}";
 }

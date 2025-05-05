@@ -36,7 +36,7 @@ public class OrderBookLayerFactorySelector : LayerFlagsSelector<IPriceVolumeLaye
     protected override IPriceVolumeLayer SelectCounterPartyOrdersPriceVolumeLayer () => new OrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume);
 
     protected override IPriceVolumeLayer SelectSourceQuoteRefTraderValueDatePriceVolumeLayer() =>
-        new SourceQuoteRefOrdersValueDatePriceVolumeLayer();
+        new FullSupportPriceVolumeLayer();
 
     public override IPriceVolumeLayer CreateExpectedImplementation
     (LayerType desiredLayerType, IPriceVolumeLayer? copy = null
@@ -60,7 +60,7 @@ public class OrderBookLayerFactorySelector : LayerFlagsSelector<IPriceVolumeLaye
               , LayerType.OrdersAnonymousPriceVolume => new OrdersPriceVolumeLayer(desiredLayerType)
               , LayerType.OrdersFullPriceVolume      => new OrdersPriceVolumeLayer(desiredLayerType)
 
-              , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => new SourceQuoteRefOrdersValueDatePriceVolumeLayer()
+              , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => new FullSupportPriceVolumeLayer()
 
               , _ => new PriceVolumeLayer()
             };

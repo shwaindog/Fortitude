@@ -350,7 +350,7 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref createdTime, fieldUpdate.Payload);
                 if (createdTime == DateTime.UnixEpoch) createdTime = default;
                 return 0;
-            case PQQuoteFields.OrderCreatedTimeSub2Min:
+            case PQQuoteFields.OrderCreatedSub2MinTime:
                 IsCreatedTimeSub2MinUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref createdTime, fieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(fieldUpdate.Payload));
@@ -361,7 +361,7 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref updatedTime, fieldUpdate.Payload);
                 if (updatedTime == DateTime.UnixEpoch) updatedTime = default;
                 return 0;
-            case PQQuoteFields.OrderUpdatedTimeSubHour:
+            case PQQuoteFields.OrderUpdatedSub2MinTime:
                 IsUpdatedTimeSub2MinUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref updatedTime, fieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(fieldUpdate.Payload));
@@ -392,7 +392,7 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
         if (!updatedOnly || IsCreatedTimeSub2MinUpdated)
         {
             var extended = createdTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQQuoteFields.OrderCreatedTimeSub2Min, value, extended);
+            yield return new PQFieldUpdate(PQQuoteFields.OrderCreatedSub2MinTime, value, extended);
         }
         if (!updatedOnly || IsUpdatedTimeDateUpdated)
             yield return new PQFieldUpdate(PQQuoteFields.OrderUpdatedDate, updatedTime.Get2MinIntervalsFromUnixEpoch());
@@ -400,7 +400,7 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
         if (!updatedOnly || IsUpdatedTimeSub2MinUpdated)
         {
             var extended = updatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQQuoteFields.OrderUpdatedTimeSubHour, value, extended);
+            yield return new PQFieldUpdate(PQQuoteFields.OrderUpdatedSub2MinTime, value, extended);
         }
         if (!updatedOnly || IsOrderVolumeUpdated)
             yield return new PQFieldUpdate(PQQuoteFields.OrderVolume, OrderVolume,

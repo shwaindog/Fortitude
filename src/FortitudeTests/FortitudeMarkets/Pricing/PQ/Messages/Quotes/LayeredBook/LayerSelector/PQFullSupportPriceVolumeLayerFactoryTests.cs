@@ -12,17 +12,17 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook.LayerSelector;
 namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook.LayerSelector;
 
 [TestClass]
-public class PQSourceQuoteRefPQOrdersValueDatePriceVolumeLayerFactoryTests : PQPriceVolumeFactoryTestsBase
+public class PQFullSupportPriceVolumeLayerFactoryTests : PQPriceVolumeFactoryTestsBase
 {
     [TestMethod]
     public void NewPQLastTradeFactory_EntryCreationTypeAndCreateNewLastTradeEnty_ReturnExpected()
     {
-        var pvlFactory = new PQSourceQuoteRefPQOrdersValueDatePriceVolumeLayerFactory(
+        var pvlFactory = new PQFullSupportPriceVolumeLayerFactory(
                                                                                       new PQNameIdLookupGenerator(0));
 
-        var emptyPvl = new PQSourceQuoteRefOrdersValueDatePriceVolumeLayer(NameIdLookupGenerator);
+        var emptyPvl = new PQFullSupportPriceVolumeLayer(NameIdLookupGenerator);
 
-        Assert.AreEqual(typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer), pvlFactory.LayerCreationType);
+        Assert.AreEqual(typeof(PQFullSupportPriceVolumeLayer), pvlFactory.LayerCreationType);
         var fromFactory = pvlFactory.CreateNewLayer();
         fromFactory.HasUpdates = false;
         Assert.AreEqual(emptyPvl, fromFactory);
@@ -31,7 +31,7 @@ public class PQSourceQuoteRefPQOrdersValueDatePriceVolumeLayerFactoryTests : PQP
     [TestMethod]
     public void InitialisedOtherTypes_UpgradeLayer_PreservesAsMuchCommonSupportedFields()
     {
-        var pvlFactory = new PQSourceQuoteRefPQOrdersValueDatePriceVolumeLayerFactory(
+        var pvlFactory = new PQFullSupportPriceVolumeLayerFactory(
                                                                                       new PQNameIdLookupGenerator(0));
 
         var simplePvl = pvlFactory.UpgradeLayer(SimplePvl);

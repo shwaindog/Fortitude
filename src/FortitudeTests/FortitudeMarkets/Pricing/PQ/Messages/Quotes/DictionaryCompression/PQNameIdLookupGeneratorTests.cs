@@ -77,7 +77,7 @@ public class PQNameIdLookupGeneratorTests
 
         var expectedStringUpdates = new PQFieldStringUpdate
         {
-            Field = new PQFieldUpdate(PQQuoteFields.SourceId, 0u, (ushort)CrudCommand.Upsert), StringUpdate = new PQStringUpdate
+            Field = new PQFieldUpdate(PQQuoteFields.SourceId, CrudCommand.Upsert.ToPQSubFieldId(), 0u), StringUpdate = new PQStringUpdate
             {
                 Command = CrudCommand.Upsert, DictionaryId = id, Value = "FourthItem"
             }
@@ -93,7 +93,7 @@ public class PQNameIdLookupGeneratorTests
     {
         var expectedStringUpdates = new PQFieldStringUpdate
         {
-            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerId, 0u, (ushort)CrudCommand.Upsert), StringUpdate = new PQStringUpdate
+            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerId, CrudCommand.Upsert.ToPQSubFieldId(), 0u), StringUpdate = new PQStringUpdate
             {
                 Command = CrudCommand.Upsert, DictionaryId = 1, Value = "FirstItem"
             }
@@ -101,7 +101,7 @@ public class PQNameIdLookupGeneratorTests
 
         expectedStringUpdates = new PQFieldStringUpdate
         {
-            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, 0u, (ushort)CrudCommand.Upsert), StringUpdate = new PQStringUpdate
+            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, CrudCommand.Upsert.ToPQSubFieldId(), 0u), StringUpdate = new PQStringUpdate
             {
                 Command = CrudCommand.Upsert, DictionaryId = 1, Value = "FirstItem"
             }
@@ -161,7 +161,7 @@ public class PQNameIdLookupGeneratorTests
     {
         var nonUpdateInsertPQFieldStringUpdate = new PQFieldStringUpdate
         {
-            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerId, 0u, (ushort)CrudCommand.Upsert), StringUpdate = new PQStringUpdate
+            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerId, (ushort)CrudCommand.Upsert, 0u), StringUpdate = new PQStringUpdate
             {
                 Command = CrudCommand.None, DictionaryId = 3, Value = "SomethingElse"
             }

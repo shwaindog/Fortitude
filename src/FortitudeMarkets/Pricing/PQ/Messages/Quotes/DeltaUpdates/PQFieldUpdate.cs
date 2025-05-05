@@ -11,143 +11,85 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 public struct PQFieldUpdate
 {
-    public PQFieldFlags  Flag;
-    public PQQuoteFields Id;
-    public PQDepthKey    DepthId;
-    public ushort        AuxiliaryPayload;
-    public ushort        ExtendedPayload;
-    public uint          Payload;
+    public PQFieldFlags    Flag;
+    public PQQuoteFields   Id;
+    public PQSubFieldKey SubId;
+    public PQDepthKey      DepthId;
 
+    public ushort AuxiliaryPayload;
+    public uint   Payload;
 
     public PQFieldUpdate(PQQuoteFields id, uint payload, PQFieldFlags flag = 0)
-    {
-        Id      = id;
-        Flag    = flag;
-        Payload = payload;
-    }
+        : this(id, PQDepthKey.None, PQSubFieldKey.None, 0, payload, flag) { }
 
     public PQFieldUpdate(PQQuoteFields id, int payload, PQFieldFlags flag = 0)
-        : this(id, (uint)payload, flag) { }
-
+        : this(id, PQDepthKey.None, PQSubFieldKey.None, 0, payload, flag) { }
 
     public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, uint payload, PQFieldFlags flag = 0)
-    {
-        Id      = id;
-        DepthId = depthId;
-        var depthIdFlag = depthId > 0 ? PQFieldFlags.IncludesDepth : PQFieldFlags.None;
-        Flag    = flag | depthIdFlag;
-        Payload = payload;
-    }
+        : this(id, depthId, PQSubFieldKey.None, 0, payload, flag) { }
 
     public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, int payload, PQFieldFlags flag = 0)
-        : this(id, depthId, (uint)payload, flag) { }
+        : this(id, depthId, PQSubFieldKey.None, 0, (uint)payload, flag) { }
 
+    public PQFieldUpdate(PQQuoteFields id, PQSubFieldKey subId, uint payload, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, subId, 0, payload, flag) { }
 
-    public PQFieldUpdate(PQQuoteFields id, uint payload, ushort extendedPayload, PQFieldFlags flag = 0)
-    {
-        Id              = id;
-        ExtendedPayload = extendedPayload;
+    public PQFieldUpdate(PQQuoteFields id, PQSubFieldKey subId, int payload, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, subId, (uint)payload, flag) { }
 
-        var hasExtended     = ExtendedPayload > 0;
-        var additionalFlags = hasExtended ? PQFieldFlags.IncludesExtendedPayLoad : PQFieldFlags.None;
+    public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, PQSubFieldKey subId, uint payload, PQFieldFlags flag = 0)
+        : this(id, depthId, subId, 0, payload, flag) { }
 
-        Flag    = flag | additionalFlags;
-        Payload = payload;
-    }
+    public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, PQSubFieldKey subId, int payload, PQFieldFlags flag = 0)
+        : this(id, depthId, subId, 0, (uint)payload, flag) { }
 
-    public PQFieldUpdate(PQQuoteFields id, int payload, ushort extendedPayload, PQFieldFlags flag = 0)
-        : this(id, (uint)payload, extendedPayload, flag) { }
+    public PQFieldUpdate
+        (PQQuoteFields id, ushort auxiliaryPayload, uint payload, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, PQSubFieldKey.None, auxiliaryPayload, payload, flag) { }
 
+    public PQFieldUpdate
+        (PQQuoteFields id, PQDepthKey depthId, ushort auxiliaryPayload, uint payload, PQFieldFlags flag = 0)
+        : this(id, depthId, PQSubFieldKey.None, auxiliaryPayload, payload, flag) { }
 
-    public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, uint payload, ushort extendedPayload, PQFieldFlags flag = 0)
-    {
-        Id      = id;
-        DepthId = depthId;
+    public PQFieldUpdate
+        (PQQuoteFields id, PQSubFieldKey subId, ushort auxiliaryPayload, uint payload, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, subId, auxiliaryPayload, payload, flag) { }
 
-        ExtendedPayload = extendedPayload;
-        var hasExtended     = ExtendedPayload > 0;
-        var additionalFlags = hasExtended ? PQFieldFlags.IncludesExtendedPayLoad : PQFieldFlags.None;
+    public PQFieldUpdate
+        (PQQuoteFields id, ushort auxiliaryPayload, int payload, PQFieldFlags flag = 0)
+        : this(id, PQSubFieldKey.None, auxiliaryPayload, (uint)payload, flag) { }
 
-        var depthIdFlag = depthId > 0 ? PQFieldFlags.IncludesDepth : PQFieldFlags.None;
-        Flag    = flag | depthIdFlag | additionalFlags;
-        Payload = payload;
-    }
+    public PQFieldUpdate
+        (PQQuoteFields id, PQSubFieldKey subId, ushort auxiliaryPayload, int payload, PQFieldFlags flag = 0)
+        : this(id, subId, auxiliaryPayload, (uint)payload, flag) { }
 
-    public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, int payload, ushort extendedPayload, PQFieldFlags flag = 0)
-        : this(id, depthId, (uint)payload, extendedPayload, flag) { }
-
-
-    public PQFieldUpdate(PQQuoteFields id, uint payload, uint extendedPayload, PQFieldFlags flag = 0)
-    {
-        Id               = id;
-        ExtendedPayload  = (ushort)(extendedPayload & 0xFF_FF);
-        AuxiliaryPayload = (ushort)((extendedPayload >> 16) & 0xFF_FF);
-        var hasExtended         = ExtendedPayload > 0;
-        var hasOptionalExtended = AuxiliaryPayload > 0;
-        var additionalFlags = (hasExtended ? PQFieldFlags.IncludesExtendedPayLoad : PQFieldFlags.None) |
-                              (hasOptionalExtended ? PQFieldFlags.IncludesAuxiliaryPayload : PQFieldFlags.None);
-
-        Flag    = flag | additionalFlags;
-        Payload = payload;
-    }
-
-    public PQFieldUpdate(PQQuoteFields id, int payload, uint extendedPayload, PQFieldFlags flag = 0)
-        : this(id, (uint)payload, extendedPayload, flag) { }
-
-    public PQFieldUpdate(PQQuoteFields id, int payload, int extendedPayload, PQFieldFlags flag = 0)
-        : this(id, (uint)payload, (uint)extendedPayload, flag) { }
-
-    public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, uint payload, uint extendedPayload, PQFieldFlags flag = 0)
+    public PQFieldUpdate
+        (PQQuoteFields id, PQDepthKey depthId, PQSubFieldKey subId, ushort auxiliaryPayload, int payload, PQFieldFlags flag = 0)
     {
         Id               = id;
         DepthId          = depthId;
-        ExtendedPayload  = (ushort)(extendedPayload & 0xFF_FF);
-        AuxiliaryPayload = (ushort)((extendedPayload >> 16) & 0xFF_FF);
-        var hasExtended         = ExtendedPayload > 0;
-        var hasOptionalExtended = AuxiliaryPayload > 0;
-        var additionalFlags = (hasExtended ? PQFieldFlags.IncludesExtendedPayLoad : PQFieldFlags.None) |
-                              (hasOptionalExtended ? PQFieldFlags.IncludesAuxiliaryPayload : PQFieldFlags.None);
+        SubId            = subId;
+
+        AuxiliaryPayload = auxiliaryPayload;
+        
+        var isNegativeFlag = payload < 0 ? PQFieldFlags.NegativeBit : PQFieldFlags.None;
+
+        var additionalFlags = (SubId > 0 ? PQFieldFlags.IncludesSubId : PQFieldFlags.None) |
+                              (AuxiliaryPayload > 0 ? PQFieldFlags.IncludesAuxiliaryPayload : PQFieldFlags.None);
 
         var depthIdFlag = depthId > 0 ? PQFieldFlags.IncludesDepth : PQFieldFlags.None;
-        Flag    = flag | depthIdFlag | additionalFlags;
-        Payload = payload;
-    }
-
-    public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, int payload, uint extendedPayload, PQFieldFlags flag = 0)
-        : this(id, (uint)payload, extendedPayload, flag) { }
-
-    public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, int payload, int extendedPayload, PQFieldFlags flag = 0)
-        : this(id, (uint)payload, (uint)extendedPayload, flag) { }
-
-
-    public PQFieldUpdate
-        (PQQuoteFields id, uint payload, ushort extendedPayload, ushort auxiliaryPayload, PQFieldFlags flag = 0)
-    {
-        Id               = id;
-        ExtendedPayload  = extendedPayload;
-        AuxiliaryPayload = auxiliaryPayload;
-        var hasExtended         = ExtendedPayload > 0;
-        var hasOptionalExtended = AuxiliaryPayload > 0;
-        var additionalFlags = (hasExtended ? PQFieldFlags.IncludesExtendedPayLoad : PQFieldFlags.None) |
-                              (hasOptionalExtended ? PQFieldFlags.IncludesAuxiliaryPayload : PQFieldFlags.None);
-
-        Flag    = flag | additionalFlags;
-        Payload = payload;
+        Flag    = flag | depthIdFlag | additionalFlags | isNegativeFlag;
+        Payload = (uint)payload;
     }
 
     public PQFieldUpdate
-        (PQQuoteFields id, int payload, ushort extendedPayload, ushort auxiliaryPayload, PQFieldFlags flag = 0)
-        : this(id, (uint)payload, extendedPayload, auxiliaryPayload, flag) { }
-
-
-    public PQFieldUpdate
-        (PQQuoteFields id, PQDepthKey depthId, uint payload, ushort extendedPayload, ushort auxiliaryPayload, PQFieldFlags flag = 0)
+        (PQQuoteFields id, PQDepthKey depthId, PQSubFieldKey subId, ushort auxiliaryPayload, uint payload, PQFieldFlags flag = 0)
     {
         Id               = id;
         DepthId          = depthId;
-        ExtendedPayload  = extendedPayload;
+        SubId            = subId;
         AuxiliaryPayload = auxiliaryPayload;
-        var additionalFlags = (ExtendedPayload > 0 ? PQFieldFlags.IncludesExtendedPayLoad : PQFieldFlags.None) |
+        var additionalFlags = (SubId > 0 ? PQFieldFlags.IncludesSubId : PQFieldFlags.None) |
                               (AuxiliaryPayload > 0 ? PQFieldFlags.IncludesAuxiliaryPayload : PQFieldFlags.None);
 
         var depthIdFlag = depthId > 0 ? PQFieldFlags.IncludesDepth : PQFieldFlags.None;
@@ -155,88 +97,87 @@ public struct PQFieldUpdate
         Payload = payload;
     }
 
-    public PQFieldUpdate
-        (PQQuoteFields id, PQDepthKey depthId, int payload, ushort extendedPayload, ushort auxiliaryPayload, PQFieldFlags flag = 0)
-        : this(id, depthId, (uint)payload, extendedPayload, auxiliaryPayload, flag) { }
-
     public PQFieldUpdate(PQQuoteFields id, long value, PQFieldFlags flag = 0)
-    {
-        Id = id;
+        : this(id, PQDepthKey.None, PQSubFieldKey.None, value, flag) { }
 
-        var scaledDownLong = PQScaling.ScaleDownLong(value);
-        ExtendedPayload  = (ushort)((scaledDownLong >> 32) & 0xFF_FF);
-        AuxiliaryPayload = (ushort)((scaledDownLong >> 48) & 0xFF_FF);
-
-        var hasExtended         = ExtendedPayload > 0;
-        var hasOptionalExtended = AuxiliaryPayload > 0;
-        var additionalFlags = (hasExtended ? PQFieldFlags.IncludesExtendedPayLoad : PQFieldFlags.None) |
-                              (hasOptionalExtended ? PQFieldFlags.IncludesAuxiliaryPayload : PQFieldFlags.None);
-        var isNegativeFlag = value < 0 ? PQFieldFlags.NegativeBit : PQFieldFlags.None;
-        var scaleFactor    = (PQFieldFlags)PQScaling.FindVolumeScaleFactor(value);
-
-        Flag    = flag | additionalFlags | isNegativeFlag | scaleFactor;
-        Payload = (uint)(scaledDownLong & 0xFF_FF_FF_FF);
-    }
-
-
-    public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, long value, PQFieldFlags flag = 0)
+    public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, PQSubFieldKey subId, long value, PQFieldFlags flag = 0)
     {
         Id      = id;
         DepthId = depthId;
+        SubId   = subId;
 
-        var scaledDownLong = PQScaling.ScaleDownLong(value);
-        ExtendedPayload  = (ushort)((scaledDownLong >> 32) & 0xFF_FF);
-        AuxiliaryPayload = (ushort)((scaledDownLong >> 48) & 0xFF_FF);
+        var scaledDownLong = PQScaling.ScaleDownLongTo48Bits(value);
+        AuxiliaryPayload = (ushort)((scaledDownLong >> 32) & 0xFF_FF);
 
-        var hasExtended         = ExtendedPayload > 0;
-        var hasOptionalExtended = AuxiliaryPayload > 0;
-        var additionalFlags = (hasExtended ? PQFieldFlags.IncludesExtendedPayLoad : PQFieldFlags.None) |
-                              (hasOptionalExtended ? PQFieldFlags.IncludesAuxiliaryPayload : PQFieldFlags.None);
+        var additionalFlags = (SubId > 0 ? PQFieldFlags.IncludesSubId : PQFieldFlags.None) |
+                              (AuxiliaryPayload > 0 ? PQFieldFlags.IncludesAuxiliaryPayload : PQFieldFlags.None);
         var isNegativeFlag = value < 0 ? PQFieldFlags.NegativeBit : PQFieldFlags.None;
-        var scaleFactor    = (PQFieldFlags)PQScaling.FindVolumeScaleFactor(value);
+        var scaleFactor    = PQScaling.FindVolumeScaleFactor48Bits(value);
         var depthIdFlag    = depthId > 0 ? PQFieldFlags.IncludesDepth : PQFieldFlags.None;
         Flag    = flag | depthIdFlag | additionalFlags | isNegativeFlag | scaleFactor;
         Payload = (uint)(scaledDownLong & 0xFF_FF_FF_FF);
     }
 
+    public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, ushort auxiliaryPayload, long value, PQFieldFlags flag = 0)
+        : this(id, depthId, PQSubFieldKey.None, auxiliaryPayload, value, flag) { }
 
-    public PQFieldUpdate(PQQuoteFields id, decimal value, PQFieldFlags flag = 0)
-    {
-        Id = id;
-        var isNegativeFlag = value < 0 ? PQFieldFlags.NegativeBit : PQFieldFlags.None;
-        Flag    = flag | isNegativeFlag;
-        Payload = PQScaling.Scale(value, Flag & PQFieldFlags.NegativeAndScaleMask);
-    }
+    public PQFieldUpdate(PQQuoteFields id, ushort auxiliaryPayload, long value, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, PQSubFieldKey.None, auxiliaryPayload, value, flag) { }
 
+    public PQFieldUpdate(PQQuoteFields id, PQSubFieldKey subId, ushort auxiliaryPayload, long value, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, subId, auxiliaryPayload, value, flag) { }
 
-    public PQFieldUpdate(PQQuoteFields id, decimal value, ushort auxiliaryPayload, PQFieldFlags flag = 0)
-    {
-        Id = id;
-
-        AuxiliaryPayload = auxiliaryPayload;
-
-        var isNegativeFlag      = value < 0 ? PQFieldFlags.NegativeBit : PQFieldFlags.None;
-        var hasOptionalExtended = AuxiliaryPayload > 0;
-        var additionalFlags     = hasOptionalExtended ? PQFieldFlags.IncludesAuxiliaryPayload : PQFieldFlags.None;
-        Flag    = flag | isNegativeFlag | additionalFlags;
-        Payload = PQScaling.Scale(value, Flag & PQFieldFlags.NegativeAndScaleMask);
-    }
-
-
-    public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, decimal value, PQFieldFlags flag = 0)
+    public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, PQSubFieldKey subId, ushort auxiliaryPayload, long value, PQFieldFlags flag = 0)
     {
         Id      = id;
         DepthId = depthId;
+        SubId   = subId;
+
+        AuxiliaryPayload = auxiliaryPayload;
+
+        var additionalFlags = (SubId > 0 ? PQFieldFlags.IncludesSubId : PQFieldFlags.None) |
+                              (AuxiliaryPayload > 0 ? PQFieldFlags.IncludesAuxiliaryPayload : PQFieldFlags.None);
+        var isNegativeFlag = value < 0 ? PQFieldFlags.NegativeBit : PQFieldFlags.None;
+        var scaleFactor    = PQScaling.FindVolumeScaleFactor32Bits(value);
+        var depthIdFlag    = depthId > 0 ? PQFieldFlags.IncludesDepth : PQFieldFlags.None;
+        Flag = flag | depthIdFlag | additionalFlags | isNegativeFlag | scaleFactor;
+        var scaledDownLong = PQScaling.ScaleDownLongTo32Bits(value);
+        Payload = (uint)(scaledDownLong & 0xFF_FF_FF_FF);
+    }
+
+    public PQFieldUpdate(PQQuoteFields id, decimal value, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, PQSubFieldKey.None, 0, value, flag) { }
+
+    public PQFieldUpdate(PQQuoteFields id, PQSubFieldKey subId, decimal value, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, subId, 0, value, flag) { }
+
+    public PQFieldUpdate(PQQuoteFields id, ushort auxiliaryPayload, decimal value, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, PQSubFieldKey.None, auxiliaryPayload, value, flag) { }
+
+    public PQFieldUpdate(PQQuoteFields id, PQSubFieldKey subId, ushort auxiliaryPayload, decimal value, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, subId, auxiliaryPayload, value, flag) { }
+
+    public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, decimal value, PQFieldFlags flag = 0)
+        : this(id, depthId, PQSubFieldKey.None, 0, value, flag) { }
+
+    public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, PQSubFieldKey subId, ushort auxiliaryPayload, decimal value, PQFieldFlags flag = 0)
+    {
+        Id      = id;
+        DepthId = depthId;
+        SubId   = subId;
+
+        AuxiliaryPayload = auxiliaryPayload;
 
         var isNegativeFlag = value < 0 ? PQFieldFlags.NegativeBit : PQFieldFlags.None;
-        var depthIdFlag    = depthId > 0 ? PQFieldFlags.IncludesDepth : PQFieldFlags.None;
-        Flag    = flag | depthIdFlag | isNegativeFlag;
+        var additionalFlags = (SubId > 0 ? PQFieldFlags.IncludesSubId : PQFieldFlags.None) |
+                              (AuxiliaryPayload > 0 ? PQFieldFlags.IncludesAuxiliaryPayload : PQFieldFlags.None);
+        var depthIdFlag = depthId > 0 ? PQFieldFlags.IncludesDepth : PQFieldFlags.None;
+        Flag    = flag | depthIdFlag | additionalFlags | isNegativeFlag;
         Payload = PQScaling.Scale(value, Flag & PQFieldFlags.NegativeAndScaleMask);
     }
 
-
     public bool Equals(PQFieldUpdate other) =>
-        Flag == other.Flag && Id == other.Id && DepthId == other.DepthId && ExtendedPayload == other.ExtendedPayload
+        Flag == other.Flag && Id == other.Id && DepthId == other.DepthId && SubId == other.SubId
      && AuxiliaryPayload == other.AuxiliaryPayload && Payload == other.Payload;
 
     public override bool Equals(object? obj)
@@ -258,8 +199,8 @@ public struct PQFieldUpdate
 
     public override string ToString() =>
         $"{nameof(PQFieldUpdate)}{{{nameof(Id)}: {Id}, {nameof(DepthId)}: ({(PQDepthKey)((ushort)DepthId & PQDepthKeyExtensions.TwoByteFlagsMask)}," +
-        $"{(ushort)(DepthId & PQDepthKey.DepthMask)}), {nameof(Payload)}: 0x{Payload.ToHex2()}, " +
-        $"{nameof(ExtendedPayload)}: 0x{ExtendedPayload.ToHex2()} , {nameof(AuxiliaryPayload)}: 0x{AuxiliaryPayload.ToHex2()}, {nameof(Flag)}: {Flag}}}";
+        $"{(ushort)(DepthId & PQDepthKey.DepthMask)}), {nameof(SubId)}: {SubId}, {nameof(AuxiliaryPayload)}: 0x{AuxiliaryPayload.ToHex2()}, " +
+        $"{nameof(Payload)}: 0x{Payload.ToHex2()}, {nameof(Flag)}: {Flag}}}";
 }
 
 public static class PQFieldUpdateExtensions
@@ -278,32 +219,32 @@ public static class PQFieldUpdateExtensions
                 ? sizeof(ushort)
                 : sizeof(byte)
             : 0;
-        if (fieldUpdate.Flag.HasBothExtendedPayloadBytesFlags()) return fieldSize + sizeof(ushort) + sizeof(ushort);
-        fieldSize += fieldUpdate.Flag.HasExtendedPayloadFlag() ? sizeof(ushort) : 0;
+        if (fieldUpdate.Flag.HasBothExtendedPayloadBytesFlags()) return fieldSize + sizeof(byte) + sizeof(ushort);
+        fieldSize += fieldUpdate.Flag.HasSubIdFlag() ? sizeof(byte) : 0;
         fieldSize += fieldUpdate.Flag.HasAuxiliaryPayloadFlag() ? sizeof(ushort) : 0;
         return fieldSize;
     }
 
     public static PQFieldUpdate AtDepth(this PQFieldUpdate fieldUpdate, ushort atDepth) =>
-        new(fieldUpdate.Id, fieldUpdate.DepthId | atDepth.DepthToDepthKey(), fieldUpdate.Payload,
-            fieldUpdate.ExtendedPayload, fieldUpdate.AuxiliaryPayload, fieldUpdate.Flag);
+        new(fieldUpdate.Id, fieldUpdate.DepthId | atDepth.DepthToDepthKey(),
+            fieldUpdate.SubId, fieldUpdate.AuxiliaryPayload, fieldUpdate.Payload, fieldUpdate.Flag);
 
     public static PQFieldUpdate WithDepth(this PQFieldUpdate fieldUpdate, PQDepthKey atDepth) =>
-        new(fieldUpdate.Id, fieldUpdate.DepthId | atDepth, fieldUpdate.Payload,
-            fieldUpdate.ExtendedPayload, fieldUpdate.AuxiliaryPayload, fieldUpdate.Flag);
+        new(fieldUpdate.Id, fieldUpdate.DepthId | atDepth,
+            fieldUpdate.SubId, fieldUpdate.AuxiliaryPayload, fieldUpdate.Payload, fieldUpdate.Flag);
 
     public static PQFieldUpdate WithAuxiliary
         (this PQFieldUpdate fieldUpdate, ushort auxiliaryValue) =>
-        new(fieldUpdate.Id, fieldUpdate.DepthId, fieldUpdate.Payload, fieldUpdate.ExtendedPayload,
-            auxiliaryValue, fieldUpdate.Flag);
+        new(fieldUpdate.Id, fieldUpdate.DepthId, fieldUpdate.SubId, auxiliaryValue, fieldUpdate.Payload, fieldUpdate.Flag);
 
     public static PQFieldUpdate SetIsAsk(this PQFieldUpdate fieldUpdate) =>
-        new(fieldUpdate.Id, fieldUpdate.DepthId | PQDepthKey.AskSide, fieldUpdate.Payload,
-            fieldUpdate.ExtendedPayload, fieldUpdate.AuxiliaryPayload, fieldUpdate.Flag | PQFieldFlags.IncludesDepth);
+        new(fieldUpdate.Id, fieldUpdate.DepthId | PQDepthKey.AskSide,
+            fieldUpdate.SubId, fieldUpdate.AuxiliaryPayload, fieldUpdate.Payload, fieldUpdate.Flag | PQFieldFlags.IncludesDepth);
 
-    public static long ReadAsScaledLong(this PQFieldUpdate fieldUpdate) =>
-        PQScaling.UnscaleLong(((long)fieldUpdate.AuxiliaryPayload << 48) | ((long)fieldUpdate.ExtendedPayload << 32) | fieldUpdate.Payload
-                            , fieldUpdate.Flag);
+    public static long ReadPayloadAndAuxiliaryAs48BitScaledLong(this PQFieldUpdate fieldUpdate) =>
+        PQScaling.UnscaleLong(((long)fieldUpdate.AuxiliaryPayload << 32) | fieldUpdate.Payload, fieldUpdate.Flag);
+
+    public static long ReadPayloadAs32BitScaledLong(this PQFieldUpdate fieldUpdate) => PQScaling.UnscaleLong(fieldUpdate.Payload, fieldUpdate.Flag);
 }
 
 public struct PQFieldStringUpdate
@@ -392,12 +333,15 @@ public static class PQFieldStringUpdateExtensions
 public enum CrudCommand : byte
 {
     None
-  , Upsert // Insert or update
-  , Delete
+  , Insert = 1 // Create
+  , Read   = 2 // Read
+  , Update = 3 // Update
+  , Delete = 4 // Delete
+  , Upsert = 5 // Insert or Update
 }
 
 public static class CrudCommandExtensions
 {
-    public static ushort      ToUShort(this CrudCommand crudCommand)       => (ushort)crudCommand;
+    public static PQSubFieldKey      ToPQSubFieldId(this CrudCommand crudCommand)       => (PQSubFieldKey)crudCommand;
     public static CrudCommand ToCrudCommand(this ushort ushortCrudCommand) => (CrudCommand)ushortCrudCommand;
 }

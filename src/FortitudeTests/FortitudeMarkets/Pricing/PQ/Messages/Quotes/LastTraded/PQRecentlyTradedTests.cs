@@ -619,9 +619,9 @@ public class PQRecentlyTradedTests
                             $"For bidlayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             var extended = lastTrade.TradeTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBase);
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeSubHour, depthId, subHourBase, extended)
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTradeSub2MinTime, depthId, subHourBase, extended)
                           , PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                                                                        PQQuoteFields.LastTradedTradeTimeSubHour, depthId, extended),
+                                                                        PQQuoteFields.LastTradedTradeSub2MinTime, depthId, extended),
                             $"For asklayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             if (lastTrade is IPQLastPaidGivenTrade pqPaidGivenTrade)

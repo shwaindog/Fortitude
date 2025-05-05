@@ -76,7 +76,7 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
         let sideEffect = HighestIdSerialized = Math.Max(HighestIdSerialized, kvp.Key)
         select new PQFieldStringUpdate
         {
-            Field = new PQFieldUpdate(dictionaryFieldKey, ReservedForStringSerializedSize, (ushort)CrudCommand.Upsert)
+            Field = new PQFieldUpdate(dictionaryFieldKey, CrudCommand.Upsert.ToPQSubFieldId(), ReservedForStringSerializedSize)
           , StringUpdate = new PQStringUpdate
             {
                 DictionaryId = kvp.Key, Value = kvp.Value, Command = CrudCommand.Upsert

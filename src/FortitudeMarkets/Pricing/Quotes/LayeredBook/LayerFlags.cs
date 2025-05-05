@@ -78,15 +78,17 @@ public static class LayerFlagsExtensions
     {
         switch (layerType)
         {
-            case LayerType.PriceVolume: return PriceVolumeLayerFlags;
-            case LayerType.ValueDatePriceVolume: return AdditionalValueDateFlags | PriceVolumeLayerFlags;
-            case LayerType.SourcePriceVolume: return AdditionSourceLayerFlags | PriceVolumeLayerFlags;
-            case LayerType.SourceQuoteRefPriceVolume: return LayerFlags.SourceQuoteReference | AdditionSourceLayerFlags | PriceVolumeLayerFlags;
-            case LayerType.OrdersCountPriceVolume: return AdditionalOrdersCountFlags | PriceVolumeLayerFlags;
-            case LayerType.OrdersAnonymousPriceVolume: return AdditionalAnonymousOrderFlags | AdditionalOrdersCountFlags | PriceVolumeLayerFlags;
-            case LayerType.OrdersFullPriceVolume: return AdditionalCounterPartyOrderFlags | AdditionalOrdersCountFlags | PriceVolumeLayerFlags;
+            case LayerType.PriceVolume:                              return PriceVolumeLayerFlags;
+            case LayerType.ValueDatePriceVolume:                     return FullValueDateFlags;
+            case LayerType.SourcePriceVolume:                        return FullSourceFlags;
+            case LayerType.SourceQuoteRefPriceVolume:                return FullSourceQuoteRefFlags;
+            case LayerType.OrdersCountPriceVolume:                   return FullOrdersCountFlags;
+            case LayerType.OrdersAnonymousPriceVolume:               return FullAnonymousOrderFlags;
+            case LayerType.OrdersFullPriceVolume:                    return FullCounterPartyOrdersFlags;
+
             case LayerType.SourceQuoteRefOrdersValueDatePriceVolume: return FullSupportLayerFlags;
-            default: return LayerFlags.None;
+
+            default:                                                 return LayerFlags.None;
         }
     }
 

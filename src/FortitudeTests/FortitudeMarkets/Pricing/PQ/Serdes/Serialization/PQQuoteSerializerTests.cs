@@ -346,15 +346,15 @@ public class PQQuoteSerializerTests
                 var depthKey  = depthByte.IsTwoByteDepth() ? depthByte.ToDepthKey(*currPtr++) : depthByte.ToDepthKey();
                 Assert.AreEqual(fieldUpdate.DepthId, depthKey);
             }
+            if (flag.HasSubIdFlag())
+            {
+                var subId = (PQSubFieldKey)(*currPtr++);
+                Assert.AreEqual(fieldUpdate.SubId, subId);
+            }
             if (flag.HasAuxiliaryPayloadFlag())
             {
                 var auxPayload = StreamByteOps.ToUShort(ref currPtr);
                 Assert.AreEqual(fieldUpdate.AuxiliaryPayload, auxPayload);
-            }
-            if (flag.HasExtendedPayloadFlag())
-            {
-                var extPayload = StreamByteOps.ToUShort(ref currPtr);
-                Assert.AreEqual(fieldUpdate.ExtendedPayload, extPayload);
             }
 
             var fieldValue = StreamByteOps.ToUInt(ref currPtr);
@@ -374,16 +374,16 @@ public class PQQuoteSerializerTests
                 var depthKey  = depthByte.IsTwoByteDepth() ? depthByte.ToDepthKey(*currPtr++) : depthByte.ToDepthKey();
                 Assert.AreEqual(stringUpdate.Field.DepthId, depthKey);
             }
+            PQSubFieldKey subId = PQSubFieldKey.None;
+            if (flag.HasSubIdFlag())
+            {
+                subId = (PQSubFieldKey)(*currPtr++);
+                Assert.AreEqual(stringUpdate.Field.SubId, subId);
+            }
             if (flag.HasAuxiliaryPayloadFlag())
             {
                 var auxPayload = StreamByteOps.ToUShort(ref currPtr);
                 Assert.AreEqual(stringUpdate.Field.AuxiliaryPayload, auxPayload);
-            }
-            ushort extPayload = 0;
-            if (flag.HasExtendedPayloadFlag())
-            {
-                extPayload = StreamByteOps.ToUShort(ref currPtr);
-                Assert.AreEqual(stringUpdate.Field.ExtendedPayload, extPayload);
             }
 
             Assert.AreEqual(0u, stringUpdate.Field.Payload);
@@ -397,7 +397,7 @@ public class PQQuoteSerializerTests
             var stringValue = StreamByteOps.ToString(ref currPtr, (int)fieldValue);
             Assert.AreEqual(stringUpdate.StringUpdate.Value, stringValue);
 
-            var command = (CrudCommand)extPayload == CrudCommand.Upsert ? CrudCommand.Upsert : CrudCommand.Delete;
+            var command = subId == PQSubFieldKey.CommandUpsert ? CrudCommand.Upsert : CrudCommand.Delete;
             Assert.AreEqual(stringUpdate.StringUpdate.Command, command
                           , $"For stringUpdate {stringUpdate} got {command} when expected {stringUpdate.StringUpdate.Command}");
         }

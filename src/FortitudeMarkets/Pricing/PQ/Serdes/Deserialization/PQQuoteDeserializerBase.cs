@@ -206,25 +206,27 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
                     depthKey = depthByte.ToDepthKey();
                 // depthKey = depthByte.IsTwoByteDepth() ? depthByte.ToDepthKey(*ptr++) : depthByte.ToDepthKey();
             }
+
+            PQSubFieldKey subId = PQSubFieldKey.None;
+
+            if (flags.HasSubIdFlag()) subId = (PQSubFieldKey)(*ptr++);
+
             ushort auxiliaryPayload = 0;
 
             if (flags.HasAuxiliaryPayloadFlag()) auxiliaryPayload = StreamByteOps.ToUShort(ref ptr);
 
-            ushort extendedPayload = 0;
-
-            if (flags.HasExtendedPayloadFlag()) extendedPayload = StreamByteOps.ToUShort(ref ptr);
-            var payload                                         = StreamByteOps.ToUInt(ref ptr);
+            var payload = StreamByteOps.ToUInt(ref ptr);
 
             var pqFieldUpdate = hasDepth
-                ? new PQFieldUpdate(id, depthKey, payload, extendedPayload, auxiliaryPayload, flags)
-                : new PQFieldUpdate(id, payload, extendedPayload, auxiliaryPayload, flags);
+                ? new PQFieldUpdate(id, depthKey, subId, auxiliaryPayload, payload, flags)
+                : new PQFieldUpdate(id, subId, auxiliaryPayload, payload, flags);
             // logger.Info("de-{0}-{1}", sequenceId, pqFieldUpdate);
             var moreBytes = ent.UpdateField(pqFieldUpdate);
             if (moreBytes <= 0 || ptr + moreBytes + 4 > end) continue;
             var stringUpdate = new PQStringUpdate
             {
                 DictionaryId = StreamByteOps.ToInt(ref ptr), Value = StreamByteOps.ToString(ref ptr, moreBytes)
-              , Command      = (CrudCommand)pqFieldUpdate.ExtendedPayload
+              , Command      = (CrudCommand)pqFieldUpdate.SubId
             };
             var fieldStringUpdate = new PQFieldStringUpdate
             {

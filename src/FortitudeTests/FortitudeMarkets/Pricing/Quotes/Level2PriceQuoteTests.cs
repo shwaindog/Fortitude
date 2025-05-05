@@ -293,7 +293,7 @@ public class Level2PriceQuoteTests
     public void EveryLayerLevel2Quote_New_BuildsSourceQuoteRefTraderValueDatePriceVolumeLayeredBook()
     {
         AssertLayerTypeIsExpected
-            (typeof(SourceQuoteRefOrdersValueDatePriceVolumeLayer), everyLayerEmptyLevel2Quote, everyLayerFullyPopulatedLevel2Quote);
+            (typeof(FullSupportPriceVolumeLayer), everyLayerEmptyLevel2Quote, everyLayerFullyPopulatedLevel2Quote);
     }
 
     [TestMethod]

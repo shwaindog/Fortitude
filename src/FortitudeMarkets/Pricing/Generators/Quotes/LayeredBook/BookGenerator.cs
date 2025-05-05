@@ -131,7 +131,7 @@ public class BookGenerator : IBookGenerator
                 PopulateCounterPartyOrdersPriceVolume((IMutableOrdersPriceVolumeLayer)bookLayer, depth, side);
                 return;
             case LayerType.SourceQuoteRefOrdersValueDatePriceVolume:
-                PopulateSourceQuoteRefTraderPriceVolume((IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer)bookLayer, depth, side);
+                PopulateSourceQuoteRefTraderPriceVolume((IMutableFullSupportPriceVolumeLayer)bookLayer, depth, side);
                 return;
         }
     }
@@ -441,7 +441,7 @@ public class BookGenerator : IBookGenerator
 
     protected virtual void PopulateSourceQuoteRefTraderPriceVolume
     (
-        IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer srcQtRefTrdrVlDtPriceVolumeLayer
+        IMutableFullSupportPriceVolumeLayer srcQtRefTrdrVlDtPriceVolumeLayer
       , int depth
       , BookSide side
     )

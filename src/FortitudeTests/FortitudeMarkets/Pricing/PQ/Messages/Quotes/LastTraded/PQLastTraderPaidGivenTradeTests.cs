@@ -318,7 +318,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
         var expectedStringUpdates = new PQFieldStringUpdate
         {
-            Field = new PQFieldUpdate(PQQuoteFields.LastTradedDictionaryUpsertCommand, 0u, (ushort)CrudCommand.Upsert)
+            Field = new PQFieldUpdate(PQQuoteFields.LastTradedDictionaryUpsertCommand, CrudCommand.Upsert.ToPQSubFieldId(), 0u)
           , StringUpdate = new PQStringUpdate
             {
                 Command = CrudCommand.Upsert, DictionaryId = emptyLt.NameIdLookup[emptyLt.TraderName]

@@ -87,7 +87,7 @@ public class PQTickInstantTests
         var hoursSinceUnixEpoch = expectedSetTime.Get2MinIntervalsFromUnixEpoch();
         var extended            = expectedSetTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourComponent);
         var expectedHour        = new PQFieldUpdate(PQQuoteFields.SourceSentDateTime, hoursSinceUnixEpoch);
-        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.SourceSentSubHourTime, subHourComponent, extended);
+        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.SourceSentSub2MinTime, subHourComponent, extended);
         Assert.AreEqual(expectedHour, sourceUpdates[0]);
         Assert.AreEqual(expectedSubHour, sourceUpdates[1]);
 
@@ -103,7 +103,7 @@ public class PQTickInstantTests
         Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id >= PQQuoteFields.SourceSentDateTime && update.Id <= PQQuoteFields.SourceSentSubHourTime
+            where update.Id >= PQQuoteFields.SourceSentDateTime && update.Id <= PQQuoteFields.SourceSentSub2MinTime
             orderby update.Id
             select update).ToList();
         Assert.AreEqual(2, sourceUpdates.Count);
@@ -536,8 +536,8 @@ public class PQTickInstantTests
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceSentDateTime),
                         $"For {originalQuote.GetType().Name} and {originalQuote.SourceTickerInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         var flag = sourceTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.SourceSentSubHourTime, value, flag),
-                        ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceSentSubHourTime),
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.SourceSentSub2MinTime, value, flag),
+                        ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceSentSub2MinTime),
                         $"For {originalQuote.GetType().Name} and {originalQuote.SourceTickerInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.QuoteBooleanFlags, (uint)expectedBooleanFlags),
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.QuoteBooleanFlags),
@@ -573,20 +573,20 @@ public class PQTickInstantTests
     }
 
     public static PQFieldUpdate ExtractFieldUpdateWithId
-        (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQDepthKey depthId, ushort extended, PQFieldFlags flag = PQFieldFlags.None)
+        (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQDepthKey depthId, PQSubFieldKey subId, PQFieldFlags flag = PQFieldFlags.None)
     {
-        var useExtendedFlag = extended > 0 ? PQFieldFlags.IncludesExtendedPayLoad : PQFieldFlags.None;
+        var useExtendedFlag = subId > 0 ? PQFieldFlags.IncludesSubId : PQFieldFlags.None;
         var useDepthFlag    = depthId > 0 ? PQFieldFlags.IncludesDepth : PQFieldFlags.None;
         var tryFlags        = flag | useDepthFlag | useExtendedFlag;
-        var tryGetValue = allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.ExtendedPayload == extended &&
+        var tryGetValue = allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubId == subId &&
                                                           fu.Flag == tryFlags);
         var tryAgainValue = !Equals(tryGetValue, default(PQFieldUpdate))
             ? tryGetValue
-            : allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.ExtendedPayload == extended &&
+            : allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubId == subId &&
                                               fu.Flag == (flag | PQFieldFlags.IncludesDepth));
         var tryTryAgainValue = !Equals(tryAgainValue, default(PQFieldUpdate))
             ? tryGetValue
-            : allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.ExtendedPayload == extended && fu.Flag == flag);
+            : allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubId == subId && fu.Flag == flag);
         return tryTryAgainValue;
     }
 

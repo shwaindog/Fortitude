@@ -16,17 +16,17 @@ using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 
-public interface IPQSourceQuoteRefOrdersValueDatePriceVolumeLayer : IPQOrdersPriceVolumeLayer,
+public interface IPQFullSupportPriceVolumeLayer : IPQOrdersPriceVolumeLayer,
     IPQValueDatePriceVolumeLayer, IPQSourceQuoteRefPriceVolumeLayer,
-    IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer
+    IMutableFullSupportPriceVolumeLayer
 {
     new IPQNameIdLookupGenerator NameIdLookup { get; set; }
 
-    new IPQSourceQuoteRefOrdersValueDatePriceVolumeLayer Clone();
+    new IPQFullSupportPriceVolumeLayer Clone();
 }
 
-public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolumeLayer,
-    IPQSourceQuoteRefOrdersValueDatePriceVolumeLayer
+public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer,
+    IPQFullSupportPriceVolumeLayer
 {
     protected LayerBooleanFlags LayerBooleanFlags;
 
@@ -34,13 +34,13 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolu
     private uint     sourceQuoteReference;
     private DateTime valueDate = DateTimeConstants.UnixEpoch;
 
-    public PQSourceQuoteRefOrdersValueDatePriceVolumeLayer(IPQNameIdLookupGenerator initialDict)
+    public PQFullSupportPriceVolumeLayer(IPQNameIdLookupGenerator initialDict)
         : base(LayerType.SourceQuoteRefOrdersValueDatePriceVolume, initialDict)
     {
-        if (GetType() == typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQFullSupportPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
     }
 
-    public PQSourceQuoteRefOrdersValueDatePriceVolumeLayer
+    public PQFullSupportPriceVolumeLayer
     (IPQNameIdLookupGenerator nameIdLookup, decimal price = 0m, decimal volume = 0m, DateTime? valueDate = null
       , string? sourceName = null, bool executable = false, uint sourceQuoteReference = 0u, uint ordersCount = 0, decimal internalVolume = 0m)
         : base(nameIdLookup, LayerType.SourceQuoteRefOrdersValueDatePriceVolume, price, volume, ordersCount, internalVolume)
@@ -51,10 +51,10 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolu
 
         SourceQuoteReference = sourceQuoteReference;
 
-        if (GetType() == typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQFullSupportPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
     }
 
-    public PQSourceQuoteRefOrdersValueDatePriceVolumeLayer(IPriceVolumeLayer toClone, IPQNameIdLookupGenerator ipNameIdLookupGenerator)
+    public PQFullSupportPriceVolumeLayer(IPriceVolumeLayer toClone, IPQNameIdLookupGenerator ipNameIdLookupGenerator)
         : base(toClone, LayerType.SourceQuoteRefOrdersValueDatePriceVolume, ipNameIdLookupGenerator)
     {
         if (toClone is ISourcePriceVolumeLayer srcPvl)
@@ -67,10 +67,10 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolu
         if (toClone is IValueDatePriceVolumeLayer valueDatePvl) ValueDate                = valueDatePvl.ValueDate;
         SetFlagsSame(toClone);
 
-        if (GetType() == typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQFullSupportPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
     }
 
-    protected string PQSourceQuoteRefTraderValueDatePriceVolumeLayerToStringMembers =>
+    protected string PQFullSupportVolumeLayerToStringMembers =>
         $"{PQOrdersCountVolumeLayerToStringMembers}, {nameof(SourceName)}: {SourceName}, {nameof(Executable)}: {Executable}, " +
         $"{nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}, {nameof(ValueDate)}: {ValueDate}, {PQJustOrdersToStringMembers}";
 
@@ -255,8 +255,7 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolu
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags messageFlags,
-        IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
+    (DateTime snapShotTime, StorageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
@@ -328,14 +327,14 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolu
         switch (source)
         {
             // IPQOrdersPriceVolumeLayer && IPQOrdersCountPriceVolumeLayer are done in base
-            case IPQSourceQuoteRefOrdersValueDatePriceVolumeLayer srcQtRefTrdrVlDtPv:
-                NameIdLookup.CopyFrom(srcQtRefTrdrVlDtPv.NameIdLookup);
-                if (srcQtRefTrdrVlDtPv.IsValueDateUpdated || isFullReplace) ValueDate                       = srcQtRefTrdrVlDtPv.ValueDate;
-                if (srcQtRefTrdrVlDtPv.IsSourceQuoteReferenceUpdated || isFullReplace) SourceQuoteReference = srcQtRefTrdrVlDtPv.SourceQuoteReference;
-                if (srcQtRefTrdrVlDtPv.IsSourceNameUpdated || isFullReplace)
-                    SourceId = (ushort)NameIdLookup.GetOrAddId(srcQtRefTrdrVlDtPv.SourceName);
-                if (srcQtRefTrdrVlDtPv.IsExecutableUpdated || isFullReplace) Executable = srcQtRefTrdrVlDtPv.Executable;
-                if (isFullReplace) SetFlagsSame(srcQtRefTrdrVlDtPv);
+            case IPQFullSupportPriceVolumeLayer fullSupportPvLayer:
+                NameIdLookup.CopyFrom(fullSupportPvLayer.NameIdLookup);
+                if (fullSupportPvLayer.IsValueDateUpdated || isFullReplace) ValueDate                       = fullSupportPvLayer.ValueDate;
+                if (fullSupportPvLayer.IsSourceQuoteReferenceUpdated || isFullReplace) SourceQuoteReference = fullSupportPvLayer.SourceQuoteReference;
+                if (fullSupportPvLayer.IsSourceNameUpdated || isFullReplace)
+                    SourceId = (ushort)NameIdLookup.GetOrAddId(fullSupportPvLayer.SourceName);
+                if (fullSupportPvLayer.IsExecutableUpdated || isFullReplace) Executable = fullSupportPvLayer.Executable;
+                if (isFullReplace) SetFlagsSame(fullSupportPvLayer);
                 break;
             case IPQSourceQuoteRefPriceVolumeLayer pqSrcQtRefPvLayer:
                 NameIdLookup.CopyFrom(pqSrcQtRefPvLayer.NameIdLookup);
@@ -354,7 +353,7 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolu
                 if (pqValueDate.IsValueDateUpdated || isFullReplace) ValueDate = pqValueDate.ValueDate;
                 if (isFullReplace) SetFlagsSame(pqValueDate);
                 break;
-            case ISourceQuoteRefOrdersValueDatePriceVolumeLayer srcQtRefTrdrVlPvLayer:
+            case IFullSupportPriceVolumeLayer srcQtRefTrdrVlPvLayer:
 
                 ValueDate  = srcQtRefTrdrVlPvLayer.ValueDate;
                 SourceName = srcQtRefTrdrVlPvLayer.SourceName;
@@ -378,7 +377,7 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolu
         return this;
     }
 
-    IPQSourceQuoteRefOrdersValueDatePriceVolumeLayer IPQSourceQuoteRefOrdersValueDatePriceVolumeLayer.Clone() => Clone();
+    IPQFullSupportPriceVolumeLayer IPQFullSupportPriceVolumeLayer.Clone() => Clone();
 
     IPQSourceQuoteRefPriceVolumeLayer IPQSourceQuoteRefPriceVolumeLayer.Clone() => Clone();
 
@@ -394,17 +393,17 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolu
 
     ISourceQuoteRefPriceVolumeLayer ISourceQuoteRefPriceVolumeLayer.Clone() => Clone();
 
-    ISourceQuoteRefOrdersValueDatePriceVolumeLayer ICloneable<ISourceQuoteRefOrdersValueDatePriceVolumeLayer>.Clone() => Clone();
+    IFullSupportPriceVolumeLayer ICloneable<IFullSupportPriceVolumeLayer>.Clone() => Clone();
 
-    ISourceQuoteRefOrdersValueDatePriceVolumeLayer ISourceQuoteRefOrdersValueDatePriceVolumeLayer.Clone() => Clone();
+    IFullSupportPriceVolumeLayer IFullSupportPriceVolumeLayer.Clone() => Clone();
 
     IMutableSourceQuoteRefPriceVolumeLayer ICloneable<IMutableSourceQuoteRefPriceVolumeLayer>.Clone() => Clone();
 
     IMutableSourceQuoteRefPriceVolumeLayer IMutableSourceQuoteRefPriceVolumeLayer.Clone() => Clone();
 
-    IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer ICloneable<IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer>.Clone() => Clone();
+    IMutableFullSupportPriceVolumeLayer ICloneable<IMutableFullSupportPriceVolumeLayer>.Clone() => Clone();
 
-    IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer.Clone() => Clone();
+    IMutableFullSupportPriceVolumeLayer IMutableFullSupportPriceVolumeLayer.Clone() => Clone();
 
     IMutableValueDatePriceVolumeLayer ICloneable<IMutableValueDatePriceVolumeLayer>.Clone() => Clone();
 
@@ -418,19 +417,19 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolu
 
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {
-        if (!(other is IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer srcQtRefTrdrVlDtPvLayer)) return false;
+        if (!(other is IMutableFullSupportPriceVolumeLayer fullSupportPvLayer)) return false;
 
         var baseSame           = base.AreEquivalent(other, exactTypes);
-        var valueDateSame      = ValueDate == srcQtRefTrdrVlDtPvLayer.ValueDate;
-        var sourceQuoteRefSame = SourceQuoteReference == srcQtRefTrdrVlDtPvLayer.SourceQuoteReference;
-        var sourceNameSame     = SourceName == srcQtRefTrdrVlDtPvLayer.SourceName;
-        var executableSame     = Executable == srcQtRefTrdrVlDtPvLayer.Executable;
+        var valueDateSame      = ValueDate == fullSupportPvLayer.ValueDate;
+        var sourceQuoteRefSame = SourceQuoteReference == fullSupportPvLayer.SourceQuoteReference;
+        var sourceNameSame     = SourceName == fullSupportPvLayer.SourceName;
+        var executableSame     = Executable == fullSupportPvLayer.Executable;
 
         var allAreSame = baseSame && valueDateSame && sourceQuoteRefSame && sourceNameSame && executableSame;
         return allAreSame;
     }
 
-    public override PQSourceQuoteRefOrdersValueDatePriceVolumeLayer Clone() => new(this, NameIdLookup);
+    public override PQFullSupportPriceVolumeLayer Clone() => new(this, NameIdLookup);
 
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPriceVolumeLayer?)obj, true);
@@ -449,5 +448,5 @@ public class PQSourceQuoteRefOrdersValueDatePriceVolumeLayer : PQOrdersPriceVolu
     }
 
     public override string ToString() =>
-        $"{GetType().Name}({PQSourceQuoteRefTraderValueDatePriceVolumeLayerToStringMembers}, {UpdatedFlagsToString})";
+        $"{GetType().Name}({PQFullSupportVolumeLayerToStringMembers}, {UpdatedFlagsToString})";
 }

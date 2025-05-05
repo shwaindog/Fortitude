@@ -18,7 +18,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 [JsonDerivedType(typeof(PQPriceVolumeLayer))]
 [JsonDerivedType(typeof(PQSourcePriceVolumeLayer))]
 [JsonDerivedType(typeof(PQSourceQuoteRefPriceVolumeLayer))]
-[JsonDerivedType(typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer))]
+[JsonDerivedType(typeof(PQFullSupportPriceVolumeLayer))]
 [JsonDerivedType(typeof(PQValueDatePriceVolumeLayer))]
 [JsonDerivedType(typeof(PQOrdersCountPriceVolumeLayer))]
 [JsonDerivedType(typeof(PQOrdersPriceVolumeLayer))]

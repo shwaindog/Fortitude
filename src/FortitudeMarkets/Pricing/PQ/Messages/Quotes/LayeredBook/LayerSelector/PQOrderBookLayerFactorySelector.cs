@@ -102,7 +102,7 @@ public class PQOrderBookLayerFactorySelector : LayerFlagsSelector<IPQOrderBookLa
                          , LayerType.OrdersAnonymousPriceVolume => new PQOrdersPriceVolumeLayer(checkForConvert, nameIdLookup)
                          , LayerType.OrdersFullPriceVolume      => new PQOrdersPriceVolumeLayer(checkForConvert, nameIdLookup)
 
-                         , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => new PQSourceQuoteRefOrdersValueDatePriceVolumeLayer(nameIdLookup)
+                         , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => new PQFullSupportPriceVolumeLayer(nameIdLookup)
 
                          , _ => new PQPriceVolumeLayer()
                        };
@@ -132,6 +132,6 @@ public class PQOrderBookLayerFactorySelector : LayerFlagsSelector<IPQOrderBookLa
 
 
     protected override IPQOrderBookLayerFactory SelectSourceQuoteRefTraderValueDatePriceVolumeLayer() =>
-        new PQSourceQuoteRefPQOrdersValueDatePriceVolumeLayerFactory(NameIdLookup);
+        new PQFullSupportPriceVolumeLayerFactory(NameIdLookup);
 
 }

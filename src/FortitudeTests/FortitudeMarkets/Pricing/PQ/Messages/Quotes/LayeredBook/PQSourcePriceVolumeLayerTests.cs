@@ -221,7 +221,7 @@ public class PQSourcePriceVolumeLayerTests
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
         var expectedStringUpdates = new PQFieldStringUpdate
         {
-            Field = new PQFieldUpdate(PQQuoteFields.LayerNameDictionaryUpsertCommand, 0u, CrudCommand.Upsert.ToUShort())
+            Field = new PQFieldUpdate(PQQuoteFields.LayerNameDictionaryUpsertCommand, CrudCommand.Upsert.ToPQSubFieldId(), 0u)
           , StringUpdate = new PQStringUpdate
             {
                 Command = CrudCommand.Upsert, DictionaryId = emptyPvl.NameIdLookup[emptyPvl.SourceName]

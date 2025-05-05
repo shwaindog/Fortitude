@@ -77,7 +77,7 @@ public class PQPricePeriodSummaryTests
         var hoursSinceUnixEpoch = expectedSetTime.Get2MinIntervalsFromUnixEpoch();
         var fifthByte           = expectedSetTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerFourBytes);
         var expectedHour        = new PQFieldUpdate(PQQuoteFields.PeriodStartDateTime, hoursSinceUnixEpoch);
-        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.PeriodStartSubHourTime, lowerFourBytes, fifthByte);
+        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.PeriodStartSub2MinTime, lowerFourBytes, fifthByte);
         Assert.AreEqual(expectedHour, sourceAskUpdates[0]);
         Assert.AreEqual(expectedSubHour, sourceAskUpdates[1]);
 
@@ -97,7 +97,7 @@ public class PQPricePeriodSummaryTests
         sourceAskUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot,
                                                                              pricePrecisionSettings)
             where update.Id >= PQQuoteFields.PeriodStartDateTime && update.Id <=
-                PQQuoteFields.PeriodStartSubHourTime
+                PQQuoteFields.PeriodStartSub2MinTime
             orderby update.Id
             select update).ToList();
         Assert.AreEqual(2, sourceAskUpdates.Count);
@@ -134,7 +134,7 @@ public class PQPricePeriodSummaryTests
         var hoursSinceUnixEpoch = expectedSetTime.Get2MinIntervalsFromUnixEpoch();
         var fifthByte           = expectedSetTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerFourBytes);
         var expectedHour        = new PQFieldUpdate(PQQuoteFields.PeriodEndDateTime, hoursSinceUnixEpoch);
-        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.PeriodEndSubHourTime, lowerFourBytes, fifthByte);
+        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.PeriodEndSub2MinTime, lowerFourBytes, fifthByte);
         Assert.AreEqual(expectedHour, sourceAskUpdates[0]);
         Assert.AreEqual(expectedSubHour, sourceAskUpdates[1]);
 
@@ -154,7 +154,7 @@ public class PQPricePeriodSummaryTests
         sourceAskUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot,
                                                                              pricePrecisionSettings)
             where update.Id >= PQQuoteFields.PeriodEndDateTime && update.Id <=
-                PQQuoteFields.PeriodEndSubHourTime
+                PQQuoteFields.PeriodEndSub2MinTime
             orderby update.Id
             select update).ToList();
         Assert.AreEqual(2, sourceAskUpdates.Count);
@@ -854,14 +854,14 @@ public class PQPricePeriodSummaryTests
                             (PQQuoteFields.PeriodStartDateTime, periodSummary.PeriodStartTime.Get2MinIntervalsFromUnixEpoch()),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodStartDateTime));
         var fifthByte = periodSummary.PeriodStartTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerFourBytes);
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodStartSubHourTime, lowerFourBytes, fifthByte),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodStartSubHourTime));
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodStartSub2MinTime, lowerFourBytes, fifthByte),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodStartSub2MinTime));
         Assert.AreEqual(new PQFieldUpdate
                             (PQQuoteFields.PeriodEndDateTime, periodSummary.PeriodEndTime.Get2MinIntervalsFromUnixEpoch()),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodEndDateTime));
         fifthByte = periodSummary.PeriodEndTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out lowerFourBytes);
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodEndSubHourTime, lowerFourBytes, fifthByte),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodEndSubHourTime));
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodEndSub2MinTime, lowerFourBytes, fifthByte),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodEndSub2MinTime));
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodStartPrice, periodSummary.StartBidPrice, priceScale),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodStartPrice, priceScale));
         Assert.AreEqual(new PQFieldUpdate

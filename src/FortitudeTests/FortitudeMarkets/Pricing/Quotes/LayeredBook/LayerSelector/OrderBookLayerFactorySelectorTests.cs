@@ -55,7 +55,7 @@ public class OrderBookLayerFactorySelectorTests
     private PQSourcePriceVolumeLayer         pqSourcePriceVolumeLayer         = null!;
     private PQSourceQuoteRefPriceVolumeLayer pqSourceQutoeRefPriceVolumeLayer = null!;
 
-    private PQSourceQuoteRefOrdersValueDatePriceVolumeLayer pqSrcQtRefTrdrVlDtPvl       = null!;
+    private PQFullSupportPriceVolumeLayer pqSrcQtRefTrdrVlDtPvl       = null!;
     private PQValueDatePriceVolumeLayer                     pqValueDatePriceVolumeLayer = null!;
 
     private PriceVolumeLayer               priceVolumeLayer               = null!;
@@ -63,7 +63,7 @@ public class OrderBookLayerFactorySelectorTests
     private SourceQuoteRefPriceVolumeLayer sourceQutoeRefPriceVolumeLayer = null!;
     private ISourceTickerInfo              sourceTickerInfo               = null!;
 
-    private SourceQuoteRefOrdersValueDatePriceVolumeLayer srcQtRefTrdrVlDtPvl       = null!;
+    private FullSupportPriceVolumeLayer srcQtRefTrdrVlDtPvl       = null!;
     private ValueDatePriceVolumeLayer                     valueDatePriceVolumeLayer = null!;
 
     [TestInitialize]
@@ -98,7 +98,7 @@ public class OrderBookLayerFactorySelectorTests
                     (ExpectedOrderId, ExpectedOrderFlags, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderUpdatedTime
                    , ExpectedOrderRemainingVolume, expectedCounterPartyName, expectedTraderName)
             };
-        srcQtRefTrdrVlDtPvl = new SourceQuoteRefOrdersValueDatePriceVolumeLayer
+        srcQtRefTrdrVlDtPvl = new FullSupportPriceVolumeLayer
             (ExpectedPrice, ExpectedVolume, expectedValueDate, expectedSourceName, true, ExpectedQuoteRef, ExpectedOrdersCount
            , ExpectedInternalVolume)
             {
@@ -132,7 +132,7 @@ public class OrderBookLayerFactorySelectorTests
                    , ExpectedOrderVolume, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, expectedCounterPartyName
                    , expectedTraderName)
             };
-        pqSrcQtRefTrdrVlDtPvl = new PQSourceQuoteRefOrdersValueDatePriceVolumeLayer
+        pqSrcQtRefTrdrVlDtPvl = new PQFullSupportPriceVolumeLayer
             (nameIdGenerator.Clone(), ExpectedPrice, ExpectedVolume, expectedValueDate, expectedSourceName, true, ExpectedQuoteRef
            , ExpectedOrdersCount, ExpectedInternalVolume)
             {
@@ -302,61 +302,61 @@ public class OrderBookLayerFactorySelectorTests
         sourceTickerInfo.LayerFlags = LayerFlags.SourceQuoteReference | LayerFlags.OrderTraderName;
         var pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
-                        typeof(SourceQuoteRefOrdersValueDatePriceVolumeLayer));
+                        typeof(FullSupportPriceVolumeLayer));
         sourceTickerInfo.LayerFlags = LayerFlags.ValueDate | LayerFlags.SourceQuoteReference;
         pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
-                        typeof(SourceQuoteRefOrdersValueDatePriceVolumeLayer));
+                        typeof(FullSupportPriceVolumeLayer));
         sourceTickerInfo.LayerFlags = LayerFlags.ValueDate | LayerFlags.OrderTraderName;
         pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
-                        typeof(SourceQuoteRefOrdersValueDatePriceVolumeLayer));
+                        typeof(FullSupportPriceVolumeLayer));
         sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume |
                                       LayerFlags.ValueDate | LayerFlags.SourceName;
         pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
-                        typeof(SourceQuoteRefOrdersValueDatePriceVolumeLayer));
+                        typeof(FullSupportPriceVolumeLayer));
 
         sourceTickerInfo.LayerFlags = LayerFlags.Executable | LayerFlags.ValueDate;
         pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
-                        typeof(SourceQuoteRefOrdersValueDatePriceVolumeLayer));
+                        typeof(FullSupportPriceVolumeLayer));
         sourceTickerInfo.LayerFlags = LayerFlags.OrderTraderName | LayerFlags.Executable |
                                       LayerFlags.SourceQuoteReference;
         pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
-                        typeof(SourceQuoteRefOrdersValueDatePriceVolumeLayer));
+                        typeof(FullSupportPriceVolumeLayer));
         sourceTickerInfo.LayerFlags = LayerFlags.OrderTraderName | LayerFlags.Executable | LayerFlags.ValueDate;
         pvl                         = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
-                        typeof(SourceQuoteRefOrdersValueDatePriceVolumeLayer));
+                        typeof(FullSupportPriceVolumeLayer));
         sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
                                       LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
         pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
-                        typeof(SourceQuoteRefOrdersValueDatePriceVolumeLayer));
+                        typeof(FullSupportPriceVolumeLayer));
 
         sourceTickerInfo.LayerFlags = LayerFlags.Executable | LayerFlags.SourceName |
                                       LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
         pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
-                        typeof(SourceQuoteRefOrdersValueDatePriceVolumeLayer));
+                        typeof(FullSupportPriceVolumeLayer));
         sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Executable | LayerFlags.SourceName |
                                       LayerFlags.SourceQuoteReference | LayerFlags.OrderTraderName;
         pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
-                        typeof(SourceQuoteRefOrdersValueDatePriceVolumeLayer));
+                        typeof(FullSupportPriceVolumeLayer));
         sourceTickerInfo.LayerFlags = LayerFlags.Volume | LayerFlags.Executable | LayerFlags.SourceName |
                                       LayerFlags.SourceQuoteReference | LayerFlags.ValueDate;
         pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
-                        typeof(SourceQuoteRefOrdersValueDatePriceVolumeLayer));
+                        typeof(FullSupportPriceVolumeLayer));
         sourceTickerInfo.LayerFlags = LayerFlags.Price | LayerFlags.Volume | LayerFlags.Executable |
                                       LayerFlags.SourceName | LayerFlags.SourceQuoteReference |
                                       LayerFlags.ValueDate | LayerFlags.OrderTraderName;
         pvl = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(pvl.GetType(),
-                        typeof(SourceQuoteRefOrdersValueDatePriceVolumeLayer));
+                        typeof(FullSupportPriceVolumeLayer));
     }
 
     [TestMethod]
@@ -430,7 +430,7 @@ public class OrderBookLayerFactorySelectorTests
         Assert.AreEqual(expectedTraderName, ((ICounterPartyOrderLayerInfo)pqCpOrdersPvl[0]!).TraderName);
 
         pvl = layerSelector.CreateExpectedImplementation(LayerType.SourceQuoteRefOrdersValueDatePriceVolume, pqSrcQtRefTrdrVlDtPvl);
-        var convertedPqSrcQtRefTrdrVlDtPvl = pvl as SourceQuoteRefOrdersValueDatePriceVolumeLayer;
+        var convertedPqSrcQtRefTrdrVlDtPvl = pvl as FullSupportPriceVolumeLayer;
         Assert.IsNotNull(convertedPqSrcQtRefTrdrVlDtPvl);
         Assert.AreEqual(ExpectedPrice, convertedPqSrcQtRefTrdrVlDtPvl.Price);
         Assert.AreEqual(ExpectedVolume, convertedPqSrcQtRefTrdrVlDtPvl.Volume);
@@ -554,7 +554,7 @@ public class OrderBookLayerFactorySelectorTests
         Assert.AreEqual(expectedTraderName, ((ICounterPartyOrderLayerInfo)countOrdersPvl[0]!).TraderName);
 
         pvl = layerSelector.CreateExpectedImplementation(srcQtRefTrdrVlDtPvl.LayerType).CopyFrom(srcQtRefTrdrVlDtPvl);
-        var convertedPqSrcQtRefTrdrVlDtPvl = pvl as SourceQuoteRefOrdersValueDatePriceVolumeLayer;
+        var convertedPqSrcQtRefTrdrVlDtPvl = pvl as FullSupportPriceVolumeLayer;
         Assert.IsNotNull(convertedPqSrcQtRefTrdrVlDtPvl);
         Assert.AreNotSame(srcQtRefTrdrVlDtPvl, pvl);
         Assert.AreEqual(ExpectedPrice, pvl.Price);

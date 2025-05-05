@@ -105,20 +105,20 @@ public class PQLevel1QuoteTests
         Assert.IsTrue(emptyQuote.HasUpdates);
         Assert.AreEqual(expectedSetTime, emptyQuote.SourceAskTime);
         var sourceAskUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-            where update.Id is >= PQQuoteFields.SourceAskDateTime and <= PQQuoteFields.SourceAskSubHourTime
+            where update.Id is >= PQQuoteFields.SourceAskDateTime and <= PQQuoteFields.SourceAskSub2MinTime
             orderby update.Id
             select update).ToList();
         Assert.AreEqual(2, sourceAskUpdates.Count);
         var hoursSinceUnixEpoch = expectedSetTime.Get2MinIntervalsFromUnixEpoch();
         var extended            = expectedSetTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourComponent);
         var expectedHour        = new PQFieldUpdate(PQQuoteFields.SourceAskDateTime, hoursSinceUnixEpoch);
-        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.SourceAskSubHourTime, subHourComponent, extended);
+        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.SourceAskSub2MinTime, subHourComponent, extended);
         Assert.AreEqual(expectedHour, sourceAskUpdates[0]);
         Assert.AreEqual(expectedSubHour, sourceAskUpdates[1]);
 
         Assert.IsTrue(emptyQuote.HasUpdates);
         sourceAskUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-            where update.Id is >= PQQuoteFields.SourceAskDateTime and <= PQQuoteFields.SourceAskSubHourTime
+            where update.Id is >= PQQuoteFields.SourceAskDateTime and <= PQQuoteFields.SourceAskSub2MinTime
             orderby update.Id
             select update).ToList();
         Assert.AreEqual(2, sourceAskUpdates.Count);
@@ -164,20 +164,20 @@ public class PQLevel1QuoteTests
         Assert.IsTrue(emptyQuote.HasUpdates);
         Assert.AreEqual(expectedSetTime, emptyQuote.SourceBidTime);
         var sourceBidUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-            where update.Id is >= PQQuoteFields.SourceBidDateTime and <= PQQuoteFields.SourceBidSubHourTime
+            where update.Id is >= PQQuoteFields.SourceBidDateTime and <= PQQuoteFields.SourceBidSub2MinTime
             orderby update.Id
             select update).ToList();
         Assert.AreEqual(2, sourceBidUpdates.Count);
         var hoursSinceUnixEpoch = expectedSetTime.Get2MinIntervalsFromUnixEpoch();
         var extended            = expectedSetTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourComponent);
         var expectedHour        = new PQFieldUpdate(PQQuoteFields.SourceBidDateTime, hoursSinceUnixEpoch);
-        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.SourceBidSubHourTime, subHourComponent, extended);
+        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.SourceBidSub2MinTime, subHourComponent, extended);
         Assert.AreEqual(expectedHour, sourceBidUpdates[0]);
         Assert.AreEqual(expectedSubHour, sourceBidUpdates[1]);
 
         Assert.IsTrue(emptyQuote.HasUpdates);
         sourceBidUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-            where update.Id is >= PQQuoteFields.SourceBidDateTime and <= PQQuoteFields.SourceBidSubHourTime
+            where update.Id is >= PQQuoteFields.SourceBidDateTime and <= PQQuoteFields.SourceBidSub2MinTime
             orderby update.Id
             select update).ToList();
         Assert.AreEqual(2, sourceBidUpdates.Count);
@@ -223,7 +223,7 @@ public class PQLevel1QuoteTests
         var subHourComponent    = expectedSetTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerBytes);
         var expectedHour        = new PQFieldUpdate(PQQuoteFields.AdapterSentDateTime, hoursSinceUnixEpoch);
         var expectedSubHour = new PQFieldUpdate
-            (PQQuoteFields.AdapterSentSubHourTime, lowerBytes, subHourComponent);
+            (PQQuoteFields.AdapterSentSub2MinTime, lowerBytes, subHourComponent);
         Assert.AreEqual(expectedHour, adapterSentUpdates[1]);
         Assert.AreEqual(expectedSubHour, adapterSentUpdates[2]);
 
@@ -241,14 +241,14 @@ public class PQLevel1QuoteTests
         Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
         adapterSentUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id is >= PQQuoteFields.AdapterSentDateTime and <= PQQuoteFields.AdapterSentSubHourTime
+            where update.Id is >= PQQuoteFields.AdapterSentDateTime and <= PQQuoteFields.AdapterSentSub2MinTime
             orderby update.Id
             select update).ToList();
         Assert.AreEqual(2, adapterSentUpdates.Count);
         hoursSinceUnixEpoch = testDateTime.Get2MinIntervalsFromUnixEpoch();
         expectedHour        = new PQFieldUpdate(PQQuoteFields.AdapterSentDateTime, hoursSinceUnixEpoch);
         subHourComponent    = testDateTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out lowerBytes);
-        expectedSubHour     = new PQFieldUpdate(PQQuoteFields.AdapterSentSubHourTime, lowerBytes, subHourComponent);
+        expectedSubHour     = new PQFieldUpdate(PQQuoteFields.AdapterSentSub2MinTime, lowerBytes, subHourComponent);
         Assert.AreEqual(expectedHour, adapterSentUpdates[0]);
         Assert.AreEqual(expectedSubHour, adapterSentUpdates[1]);
 
@@ -281,20 +281,20 @@ public class PQLevel1QuoteTests
         Assert.IsTrue(emptyQuote.HasUpdates);
         Assert.AreEqual(expectedSetTime, emptyQuote.AdapterReceivedTime);
         var adapterReceivedUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-            where update.Id is >= PQQuoteFields.AdapterReceivedDateTime and <= PQQuoteFields.AdapterReceivedSubHourTime
+            where update.Id is >= PQQuoteFields.AdapterReceivedDateTime and <= PQQuoteFields.AdapterReceivedSub2MinTime
             orderby update.Id
             select update).ToList();
         Assert.AreEqual(2, adapterReceivedUpdates.Count);
         var hoursSinceUnixEpoch = expectedSetTime.Get2MinIntervalsFromUnixEpoch();
         var extended            = expectedSetTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourComponent);
         var expectedHour        = new PQFieldUpdate(PQQuoteFields.AdapterReceivedDateTime, hoursSinceUnixEpoch);
-        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.AdapterReceivedSubHourTime, subHourComponent, extended);
+        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.AdapterReceivedSub2MinTime, subHourComponent, extended);
         Assert.AreEqual(expectedHour, adapterReceivedUpdates[0]);
         Assert.AreEqual(expectedSubHour, adapterReceivedUpdates[1]);
 
         Assert.IsTrue(emptyQuote.HasUpdates);
         adapterReceivedUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-            where update.Id is >= PQQuoteFields.AdapterReceivedDateTime and <= PQQuoteFields.AdapterReceivedSubHourTime
+            where update.Id is >= PQQuoteFields.AdapterReceivedDateTime and <= PQQuoteFields.AdapterReceivedSub2MinTime
             orderby update.Id
             select update).ToList();
         Assert.AreEqual(2, adapterReceivedUpdates.Count);
@@ -778,25 +778,25 @@ public class PQLevel1QuoteTests
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.SourceBidDateTime, l1Q.SourceBidTime.Get2MinIntervalsFromUnixEpoch()),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceBidDateTime));
         var flag = l1Q.SourceBidTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.SourceBidSubHourTime, value, flag),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceBidSubHourTime));
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.SourceBidSub2MinTime, value, flag),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceBidSub2MinTime));
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.SourceAskDateTime, l1Q.SourceAskTime.Get2MinIntervalsFromUnixEpoch()),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceAskDateTime));
         flag = l1Q.SourceAskTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out value);
         Assert.AreEqual
-            (new PQFieldUpdate(PQQuoteFields.SourceAskSubHourTime, value, flag)
-           , PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceAskSubHourTime));
+            (new PQFieldUpdate(PQQuoteFields.SourceAskSub2MinTime, value, flag)
+           , PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceAskSub2MinTime));
         Assert.AreEqual
             (new PQFieldUpdate(PQQuoteFields.AdapterReceivedDateTime, l1Q.AdapterReceivedTime.Get2MinIntervalsFromUnixEpoch()),
              PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.AdapterReceivedDateTime));
         flag = l1Q.AdapterReceivedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out value);
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.AdapterReceivedSubHourTime, value, flag),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.AdapterReceivedSubHourTime));
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.AdapterReceivedSub2MinTime, value, flag),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.AdapterReceivedSub2MinTime));
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.AdapterSentDateTime, l1Q.AdapterSentTime.Get2MinIntervalsFromUnixEpoch()),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.AdapterSentDateTime));
         flag = l1Q.AdapterSentTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out value);
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.AdapterSentSubHourTime, value, flag),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.AdapterSentSubHourTime));
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.AdapterSentSub2MinTime, value, flag),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.AdapterSentSub2MinTime));
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.Price, PQScaling.Scale(l1Q.BidPriceTop, priceScale), priceScale),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.Price, priceScale));
         Assert.AreEqual

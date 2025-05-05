@@ -246,7 +246,6 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         var baseSame       = base.AreEquivalent(other, exactTypes);
         var traderNameSame = TraderName == pqLastTraderPaidGivenTrade.TraderName;
         var allSame        = baseSame && traderNameSame;
-        if (!allSame) Debugger.Break();
         return allSame;
     }
 

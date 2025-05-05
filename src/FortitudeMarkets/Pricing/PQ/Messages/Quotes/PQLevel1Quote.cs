@@ -710,42 +710,42 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         if (!updatedOnly || IsAdapterSentTimeSub2MinUpdated)
         {
             var extended = adapterSentTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQQuoteFields.AdapterSentSubHourTime, value, extended);
+            yield return new PQFieldUpdate(PQQuoteFields.AdapterSentSub2MinTime, value, extended);
         }
         if (!updatedOnly || IsAdapterReceivedTimeDateUpdated)
             yield return new PQFieldUpdate(PQQuoteFields.AdapterReceivedDateTime, adapterReceivedTime.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsAdapterReceivedTimeSub2MinUpdated)
         {
             var extended = adapterReceivedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQQuoteFields.AdapterReceivedSubHourTime, value, extended);
+            yield return new PQFieldUpdate(PQQuoteFields.AdapterReceivedSub2MinTime, value, extended);
         }
         if (!updatedOnly || IsSourceBidTimeDateUpdated)
             yield return new PQFieldUpdate(PQQuoteFields.SourceBidDateTime, sourceBidTime.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsSourceBidTimeSub2MinUpdated)
         {
             var extended = sourceBidTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQQuoteFields.SourceBidSubHourTime, value, extended);
+            yield return new PQFieldUpdate(PQQuoteFields.SourceBidSub2MinTime, value, extended);
         }
         if (!updatedOnly || IsSourceAskTimeDateUpdated)
             yield return new PQFieldUpdate(PQQuoteFields.SourceAskDateTime, sourceAskTime.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsSourceAskTimeSub2MinUpdated)
         {
             var extended = sourceAskTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQQuoteFields.SourceAskSubHourTime, value, extended);
+            yield return new PQFieldUpdate(PQQuoteFields.SourceAskSub2MinTime, value, extended);
         }
         if (!updatedOnly || IsValidFromTimeDateUpdated)
             yield return new PQFieldUpdate(PQQuoteFields.QuoteValidFromDate, validFromTime.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsValidFromTimeSub2MinUpdated)
         {
             var extended = validFromTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQQuoteFields.QuoteValidFromSubHourTime, value, extended);
+            yield return new PQFieldUpdate(PQQuoteFields.QuoteValidFromSub2MinTime, value, extended);
         }
         if (!updatedOnly || IsValidToTimeDateUpdated)
             yield return new PQFieldUpdate(PQQuoteFields.QuoteValidToDate, validToTime.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsValidToTimeSub2MinUpdated)
         {
             var extended = validToTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQQuoteFields.QuoteValidToSubHourTime, value, extended);
+            yield return new PQFieldUpdate(PQQuoteFields.QuoteValidToSub2MinTime, value, extended);
         }
 
         foreach (var updatedField in GetDeltaUpdateTopBookPriceFields(snapShotTime, updatedOnly, precisionSettings)) yield return updatedField;
@@ -770,7 +770,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref adapterSentTime, pqFieldUpdate.Payload);
                 if (adapterSentTime == DateTime.UnixEpoch) adapterSentTime = default;
                 return 0;
-            case PQQuoteFields.AdapterSentSubHourTime:
+            case PQQuoteFields.AdapterSentSub2MinTime:
                 IsAdapterSentTimeSub2MinUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref adapterSentTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
@@ -781,7 +781,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref adapterReceivedTime, pqFieldUpdate.Payload);
                 if (adapterReceivedTime == DateTime.UnixEpoch) adapterReceivedTime = default;
                 return 0;
-            case PQQuoteFields.AdapterReceivedSubHourTime:
+            case PQQuoteFields.AdapterReceivedSub2MinTime:
                 IsAdapterReceivedTimeSub2MinUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref adapterReceivedTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
@@ -792,7 +792,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref sourceBidTime, pqFieldUpdate.Payload);
                 if (sourceBidTime == DateTime.UnixEpoch) sourceBidTime = default;
                 return 0;
-            case PQQuoteFields.SourceBidSubHourTime:
+            case PQQuoteFields.SourceBidSub2MinTime:
                 IsSourceBidTimeSub2MinUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref sourceBidTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
@@ -803,7 +803,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref sourceAskTime, pqFieldUpdate.Payload);
                 if (sourceAskTime == DateTime.UnixEpoch) sourceAskTime = default;
                 return 0;
-            case PQQuoteFields.SourceAskSubHourTime:
+            case PQQuoteFields.SourceAskSub2MinTime:
                 IsSourceAskTimeSub2MinUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref sourceAskTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
@@ -814,7 +814,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref validFromTime, pqFieldUpdate.Payload);
                 if (validFromTime == DateTime.UnixEpoch) validFromTime = default;
                 return 0;
-            case PQQuoteFields.QuoteValidFromSubHourTime:
+            case PQQuoteFields.QuoteValidFromSub2MinTime:
                 IsValidFromTimeSub2MinUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref validFromTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
@@ -825,7 +825,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref validToTime, pqFieldUpdate.Payload);
                 if (validToTime == DateTime.UnixEpoch) validToTime = default;
                 return 0;
-            case PQQuoteFields.QuoteValidToSubHourTime:
+            case PQQuoteFields.QuoteValidToSub2MinTime:
                 IsValidToTimeSub2MinUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref validToTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));

@@ -697,7 +697,7 @@ public class PQSourceTickerInfoTests
     public static PQFieldStringUpdate ExpectedSourceStringUpdate(string sourceValue) =>
         new()
         {
-            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, 0, (ushort)CrudCommand.Upsert), StringUpdate
+            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, CrudCommand.Upsert.ToPQSubFieldId(), 0), StringUpdate
                 = new PQStringUpdate
                 {
                     DictionaryId = 0, Value = sourceValue, Command = CrudCommand.Upsert
@@ -708,7 +708,7 @@ public class PQSourceTickerInfoTests
     public static PQFieldStringUpdate ExpectedTickerStringUpdate(string tickerValue) =>
         new()
         {
-            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, 0, (ushort)CrudCommand.Upsert), StringUpdate
+            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, CrudCommand.Upsert.ToPQSubFieldId(), 0), StringUpdate
                 = new PQStringUpdate
                 {
                     DictionaryId = 1, Value = tickerValue, Command = CrudCommand.Upsert

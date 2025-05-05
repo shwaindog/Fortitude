@@ -48,7 +48,7 @@ public class PQOrderBookSideTests
 
     private IPQOrderBookSide allFieldsFullyPopulatedOrderBookSide = null!;
 
-    private IList<IPQSourceQuoteRefOrdersValueDatePriceVolumeLayer> allFieldsLayers = null!;
+    private IList<IPQFullSupportPriceVolumeLayer> allFieldsLayers = null!;
 
     private List<IReadOnlyList<IPQPriceVolumeLayer?>> allPopulatedLayers = null!;
 
@@ -88,7 +88,7 @@ public class PQOrderBookSideTests
         valueDateLayers   = new List<IPQValueDatePriceVolumeLayer>(MaxNumberOfLayers);
         ordersCountLayers = new List<IPQOrdersCountPriceVolumeLayer>(MaxNumberOfLayers);
         ordersAnonLayers  = new List<IPQOrdersPriceVolumeLayer>(MaxNumberOfLayers);
-        allFieldsLayers   = new List<IPQSourceQuoteRefOrdersValueDatePriceVolumeLayer>(MaxNumberOfLayers);
+        allFieldsLayers   = new List<IPQFullSupportPriceVolumeLayer>(MaxNumberOfLayers);
 
         // placed in the same order as the orderBooks at the end of Setup
         allPopulatedLayers = new List<IReadOnlyList<IPQPriceVolumeLayer?>>
@@ -116,7 +116,7 @@ public class PQOrderBookSideTests
                 (new PQValueDatePriceVolumeLayer
                     (ExpectedPrice, ExpectedVolume, ExpectedValueDate));
 
-            var allFieldsPvL = new PQSourceQuoteRefOrdersValueDatePriceVolumeLayer
+            var allFieldsPvL = new PQFullSupportPriceVolumeLayer
                 (nameIdLookupGenerator, ExpectedPrice, ExpectedVolume, ExpectedValueDate,
                  ExpectedSourceName, ExpectedExecutable, ExpectedSourceQuoteRef, ExpectedOrdersCount, ExpectedInternalVolume);
             allFieldsLayers.Add(allFieldsPvL);
@@ -218,7 +218,7 @@ public class PQOrderBookSideTests
 
         publicationPrecisionSettings.LayerFlags = LayerFlags.Price.AllFlags();
         orderBook                               = new PQOrderBookSide(BookSide.AskBook, publicationPrecisionSettings);
-        AssertBookHasLayersOfType(orderBook, typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer));
+        AssertBookHasLayersOfType(orderBook, typeof(PQFullSupportPriceVolumeLayer));
     }
 
     [TestMethod]
@@ -257,9 +257,9 @@ public class PQOrderBookSideTests
         Assert.IsInstanceOfType(orderBook[0], typeof(PQOrdersPriceVolumeLayer));
 
         nonPQList.Clear();
-        nonPQList.Add(new SourceQuoteRefOrdersValueDatePriceVolumeLayer());
+        nonPQList.Add(new FullSupportPriceVolumeLayer());
         orderBook = new PQOrderBookSide(BookSide.AskBook, nonPQList);
-        Assert.IsInstanceOfType(orderBook[0], typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer));
+        Assert.IsInstanceOfType(orderBook[0], typeof(PQFullSupportPriceVolumeLayer));
 
         orderBook = new PQOrderBookSide();
         Assert.AreEqual(0, orderBook.Count);
@@ -314,7 +314,7 @@ public class PQOrderBookSideTests
         nonPqOrderBook = new OrderBookSide(BookSide.AskBook, publicationPrecisionSettings);
         pqorderBook    = new PQOrderBookSide(nonPqOrderBook);
 
-        AssertBookHasLayersOfType(pqorderBook, typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer));
+        AssertBookHasLayersOfType(pqorderBook, typeof(PQFullSupportPriceVolumeLayer));
     }
 
     [TestMethod]
@@ -876,11 +876,11 @@ public class PQOrderBookSideTests
                         (exactComparison, (PQOrdersPriceVolumeLayer)originalLayers[i]!,
                          (PQOrdersPriceVolumeLayer)changingLayers[i]!, original,
                          changingOrderBookSide, originalQuote, changingQuote);
-            if (originalLayers[i] is PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
-                PQSourceQuoteRefOrdersValueDatePriceVolumeLayerTests
+            if (originalLayers[i] is PQFullSupportPriceVolumeLayer)
+                PQFullSupportPriceVolumeLayerTests
                     .AssertAreEquivalentMeetsExpectedExactComparisonType
-                        (exactComparison, (PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)originalLayers[i]!,
-                         (PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)changingLayers[i]!, original
+                        (exactComparison, (PQFullSupportPriceVolumeLayer)originalLayers[i]!,
+                         (PQFullSupportPriceVolumeLayer)changingLayers[i]!, original
                        , changingOrderBookSide, originalQuote, changingQuote);
         }
     }
@@ -960,7 +960,7 @@ public class PQOrderBookSideTests
                          , LayerType.OrdersFullPriceVolume      => typeof(PQOrdersPriceVolumeLayer)
                          , LayerType.ValueDatePriceVolume       => typeof(PQValueDatePriceVolumeLayer)
                          , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
                          , _ => throw new NotImplementedException()
                        }
                  , LayerType.SourcePriceVolume =>
@@ -969,12 +969,12 @@ public class PQOrderBookSideTests
                            LayerType.PriceVolume                => typeof(PQSourcePriceVolumeLayer)
                          , LayerType.SourcePriceVolume          => typeof(PQSourcePriceVolumeLayer)
                          , LayerType.SourceQuoteRefPriceVolume  => typeof(PQSourceQuoteRefPriceVolumeLayer)
-                         , LayerType.OrdersCountPriceVolume     => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
-                         , LayerType.OrdersAnonymousPriceVolume => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
-                         , LayerType.OrdersFullPriceVolume      => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
-                         , LayerType.ValueDatePriceVolume       => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                         , LayerType.OrdersCountPriceVolume     => typeof(PQFullSupportPriceVolumeLayer)
+                         , LayerType.OrdersAnonymousPriceVolume => typeof(PQFullSupportPriceVolumeLayer)
+                         , LayerType.OrdersFullPriceVolume      => typeof(PQFullSupportPriceVolumeLayer)
+                         , LayerType.ValueDatePriceVolume       => typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
                          , _ => throw new NotImplementedException()
                        }
                  , LayerType.SourceQuoteRefPriceVolume =>
@@ -983,91 +983,91 @@ public class PQOrderBookSideTests
                            LayerType.PriceVolume                => typeof(PQSourceQuoteRefPriceVolumeLayer)
                          , LayerType.SourcePriceVolume          => typeof(PQSourceQuoteRefPriceVolumeLayer)
                          , LayerType.SourceQuoteRefPriceVolume  => typeof(PQSourceQuoteRefPriceVolumeLayer)
-                         , LayerType.OrdersCountPriceVolume     => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
-                         , LayerType.OrdersAnonymousPriceVolume => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
-                         , LayerType.OrdersFullPriceVolume      => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                         , LayerType.OrdersCountPriceVolume     => typeof(PQFullSupportPriceVolumeLayer)
+                         , LayerType.OrdersAnonymousPriceVolume => typeof(PQFullSupportPriceVolumeLayer)
+                         , LayerType.OrdersFullPriceVolume      => typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.ValueDatePriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
                          , _ => throw new NotImplementedException()
                        }
                  , LayerType.ValueDatePriceVolume =>
                        copyType switch
                        {
                            LayerType.PriceVolume       => typeof(PQValueDatePriceVolumeLayer)
-                         , LayerType.SourcePriceVolume => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                         , LayerType.SourcePriceVolume => typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.SourceQuoteRefPriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
-                         , LayerType.OrdersCountPriceVolume     => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
-                         , LayerType.OrdersAnonymousPriceVolume => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
-                         , LayerType.OrdersFullPriceVolume      => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
+                         , LayerType.OrdersCountPriceVolume     => typeof(PQFullSupportPriceVolumeLayer)
+                         , LayerType.OrdersAnonymousPriceVolume => typeof(PQFullSupportPriceVolumeLayer)
+                         , LayerType.OrdersFullPriceVolume      => typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.ValueDatePriceVolume       => typeof(PQValueDatePriceVolumeLayer)
                          , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
                          , _ => throw new NotImplementedException()
                        }
                  , LayerType.OrdersCountPriceVolume =>
                        copyType switch
                        {
                            LayerType.PriceVolume                => typeof(PQOrdersCountPriceVolumeLayer)
-                         , LayerType.SourcePriceVolume          => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
-                         , LayerType.SourceQuoteRefPriceVolume  => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                         , LayerType.SourcePriceVolume          => typeof(PQFullSupportPriceVolumeLayer)
+                         , LayerType.SourceQuoteRefPriceVolume  => typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.OrdersCountPriceVolume     => typeof(PQOrdersCountPriceVolumeLayer)
                          , LayerType.OrdersAnonymousPriceVolume => typeof(PQOrdersPriceVolumeLayer)
                          , LayerType.OrdersFullPriceVolume      => typeof(PQOrdersPriceVolumeLayer)
-                         , LayerType.ValueDatePriceVolume       => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                         , LayerType.ValueDatePriceVolume       => typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
                          , _ => throw new NotImplementedException()
                        }
                  , LayerType.OrdersAnonymousPriceVolume =>
                        copyType switch
                        {
                            LayerType.PriceVolume                => typeof(PQOrdersPriceVolumeLayer)
-                         , LayerType.SourcePriceVolume          => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
-                         , LayerType.SourceQuoteRefPriceVolume  => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                         , LayerType.SourcePriceVolume          => typeof(PQFullSupportPriceVolumeLayer)
+                         , LayerType.SourceQuoteRefPriceVolume  => typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.OrdersCountPriceVolume     => typeof(PQOrdersPriceVolumeLayer)
                          , LayerType.OrdersAnonymousPriceVolume => typeof(PQOrdersPriceVolumeLayer)
                          , LayerType.OrdersFullPriceVolume      => typeof(PQOrdersPriceVolumeLayer)
-                         , LayerType.ValueDatePriceVolume       => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                         , LayerType.ValueDatePriceVolume       => typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
                          , _ => throw new NotImplementedException()
                        }
                  , LayerType.OrdersFullPriceVolume =>
                        copyType switch
                        {
                            LayerType.PriceVolume                => typeof(PQOrdersPriceVolumeLayer)
-                         , LayerType.SourcePriceVolume          => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
-                         , LayerType.SourceQuoteRefPriceVolume  => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                         , LayerType.SourcePriceVolume          => typeof(PQFullSupportPriceVolumeLayer)
+                         , LayerType.SourceQuoteRefPriceVolume  => typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.OrdersCountPriceVolume     => typeof(PQOrdersPriceVolumeLayer)
                          , LayerType.OrdersAnonymousPriceVolume => typeof(PQOrdersPriceVolumeLayer)
                          , LayerType.OrdersFullPriceVolume      => typeof(PQOrdersPriceVolumeLayer)
-                         , LayerType.ValueDatePriceVolume       => typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                         , LayerType.ValueDatePriceVolume       => typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
                          , _ => throw new NotImplementedException()
                        }
                  , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
                        copyType switch
                        {
                            LayerType.PriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.SourcePriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.SourceQuoteRefPriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.OrdersCountPriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.OrdersAnonymousPriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.OrdersFullPriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.ValueDatePriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
-                               typeof(PQSourceQuoteRefOrdersValueDatePriceVolumeLayer)
+                               typeof(PQFullSupportPriceVolumeLayer)
                          , _ => throw new NotImplementedException()
                        }
                  , _ => throw new NotImplementedException()

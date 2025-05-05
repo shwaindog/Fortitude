@@ -58,7 +58,7 @@ public class PQBookGenerator : BookGenerator
 
         if (sourcePriceVolumeLayer is IPQSourcePriceVolumeLayer pqSourcePvl) pqSourcePvl.IsExecutableUpdated                   = isExecutableUpdated;
         if (sourcePriceVolumeLayer is IPQSourceQuoteRefPriceVolumeLayer pqSourceQtRefPvl) pqSourceQtRefPvl.IsExecutableUpdated = isExecutableUpdated;
-        if (sourcePriceVolumeLayer is IPQSourceQuoteRefOrdersValueDatePriceVolumeLayer pqSourceQtRefOrderValueDtPvl)
+        if (sourcePriceVolumeLayer is IPQFullSupportPriceVolumeLayer pqSourceQtRefOrderValueDtPvl)
             pqSourceQtRefOrderValueDtPvl.IsExecutableUpdated = isExecutableUpdated;
 
         base.SetExecutable(side, sourcePriceVolumeLayer, executable, prevExecutable);
@@ -86,7 +86,7 @@ public class PQBookGenerator : BookGenerator
 
         if (sourcePriceVolumeLayer is IPQSourcePriceVolumeLayer pqSourcePvl) pqSourcePvl.IsSourceNameUpdated                   = isSourceNameUpdated;
         if (sourcePriceVolumeLayer is IPQSourceQuoteRefPriceVolumeLayer pqSourceQtRefPvl) pqSourceQtRefPvl.IsSourceNameUpdated = isSourceNameUpdated;
-        if (sourcePriceVolumeLayer is IPQSourceQuoteRefOrdersValueDatePriceVolumeLayer pqSourceQtRefOrderValueDtPvl)
+        if (sourcePriceVolumeLayer is IPQFullSupportPriceVolumeLayer pqSourceQtRefOrderValueDtPvl)
             pqSourceQtRefOrderValueDtPvl.IsSourceNameUpdated = isSourceNameUpdated;
 
         base.SetSourceName(side, sourcePriceVolumeLayer, sourceName, sourceId, prevSourceId);
