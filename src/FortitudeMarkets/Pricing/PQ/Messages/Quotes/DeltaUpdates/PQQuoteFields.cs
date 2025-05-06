@@ -26,11 +26,10 @@ public enum PQQuoteFields : byte
   , IncrementSize            = 11 // 0x0B
   , DefaultMaxValidMs        = 12 // 0x0C 
   , MinimumQuoteLifeMs       = 13 // 0x0D 
-  , QuoteFlags               = 14 // 0x0E
+  , QuoteAdditionalFlags     = 14 // 0x0E
   , LayerFlags               = 15 // 0x0F
   , LastTradedFlags          = 16 // 0x10
   , ExecutionUpdateFlags     = 17 // 0x11
-  , SupplementaryInfoFlags   = 18 // 0x12
 
     // Source TickInstant Values
   , SingleTickValue       = 20 // 0x14
@@ -62,113 +61,147 @@ public enum PQQuoteFields : byte
   , QuoteValidToDate           = 43 // 0x2B
   , QuoteValidToSub2MinTime    = 44 // 0x2C
     // Best Bid Ask Price Sent a Depth 0 from Level 2 Quote Fields below
+  , PublishUpdateFlags         = 45 // 0x2D
+  , StageSequenceIds           = 46 // 0x2E
+  , ContinuousPriceAdjustments = 47 // 0x2F
+    // price period summary fields
+  , PriceCandleStick        = 50 // 0x32
+  , CandleConflationSummary = 51 // 0x33
+  , CandleRecentShift       = 52 // 0x34
+  , CandleRecent            = 53 // 0x35
+  , CandleDaily             = 54 // 0x36
+  , CandlePreviousDay       = 55 // 0x37
+  , CandleHistoricalShift   = 56 // 0x38
+  , CandleHistorical        = 57 // 0x39
 
-  , SourceSequenceId       = 50 // 0x32
-  , AdapterSeqId           = 51 // 0x33
-  , ClientSeqId            = 52 // 0x34
-  , SourceState            = 53 // 0x35
-  , SourceNextState        = 54 // 0x36
-  , SourceNextStateTimeMin = 55 // 0x37
+  , MovingAverageCurrentSlidingWindow   = 60 // 0x3C
+  , MovingAverageDiscreetShortTermShift = 61 // 0x3D
+  , MovingAverageDiscreetShortTerm      = 62 // 0x3E
+  , MovingAverageRecentDailyShift       = 63 // 0x3F
+  , MovingAverageRecentDaily            = 64 // 0x40
+  , MovingAverageHistoricalShift        = 65 // 0x41
+  , MovingAverageHistorical             = 66 // 0x42
 
-    // period summary fields
-  , ConflatedPublishPriceSummary     = 60 // 0x3C
-  , PriceSummaryCurrentPeriod        = 61 // 0x3D
-  , PriceSummaryCurrentDay           = 62 // 0x3E
-  , PriceSummaryPreviousTradingDay   = 63 // 0x3F
-  , PriceSummaryShiftPreviousPeriods = 64 // 0x40
-  , PriceSummaryPreviousPeriods      = 65 // 0x41
+  , VolatilityCurrentSlidingWindow   = 69 // 0x45
+  , VolatilityDiscreetShortTermShift = 70 // 0x46
+  , VolatilityDiscreetShortTerm      = 71 // 0x47
+  , VolatilityRecentDailyShift       = 72 // 0x48
+  , VolatilityRecentDaily            = 73 // 0x49
+  , VolatilityHistoricalShift        = 74 // 0x4A
+  , VolatilityHistorical             = 75 // 0x4B
 
-  
-  , PriceSummaryPeriod          = 70 // 0x46
-  , SummaryPeriod          = 71 // 0x47
-  , PeriodStartDateTime    = 72 // 0x48
-  , PeriodStartSub2MinTime = 73 // 0x49
-  , PeriodStartPrice       = 74 // 0x4A
-  , PeriodEndDateTime      = 75 // 0x4B
-  , PeriodEndSub2MinTime   = 76 // 0x4C 
-  , PeriodEndPrice         = 77 // 0x4D 
-  , PeriodHighestPrice     = 78 // 0x4E 
-  , PeriodLowestPrice      = 79 // 0x4F 
-  , PeriodTickCount        = 80 // 0x50 
-  , PeriodVolume           = 81 // 0x51
-  , PeriodSummaryFlags     = 82 // 0x52
-  , PeriodAveragePrice     = 83 // 0x53
+  , QuoteOptionalInfoDictionaryUpsertCommand = 78 // 0x4E
 
-  , SignalProcessingSeqId = 90 // 0x5A
-  , StrategySeqId         = 91 // 0x5B
-  , AlgoSeqId             = 92 // 0x5C
-  , StoragePersistSeqId   = 93 // 0x5D
+  , MarketEventCurrent        = 80 // 0x50
+  , MarketEventsRecentShift   = 81 // 0x51
+  , MarketEventsRecent        = 82 // 0x52
+  , MarketEventsUpcomingShift = 83 // 0x53
+  , MarketEventsUpcoming      = 84 // 0x54
+
+  , PivotShortTermShift  = 86 // 0x56
+  , PivotShortTerm       = 87 // 0x57
+  , PivotMediumTermShift = 88 // 0x58
+  , PivotMediumTerm      = 89 // 0x59
+  , PivotLongTermShift   = 90 // 0x5A
+  , PivotLongTerm        = 91 // 0x5B
+
+  , PriceBoundaryLineClosest                = 94  // 0x5E
+  , PriceBoundaryLinesActiveShortTermShift  = 95  // 0x5F
+  , PriceBoundaryLinesActiveShortTerm       = 96  // 0x60
+  , PriceBoundaryLinesActiveMediumTermShift = 97  // 0x61
+  , PriceBoundaryLinesActiveMediumTerm      = 98  // 0x62
+  , PriceBoundaryLinesActiveLongTermShift   = 99  // 0x63
+  , PriceBoundaryLinesActiveLongTerm        = 100 // 0x64
+  , PriceBoundaryLinesRecentlyBreachedShift = 101 // 0x65
+  , PriceBoundaryLinesRecentlyBreached      = 102 // 0x66
+
+  , StrategyDecisionLastMade          = 105 // 0x69
+  , StrategyDecisionRecentShift       = 106 // 0x6A
+  , StrategyDecisionRecent            = 107 // 0x6B
+  , StrategyDecisionActiveOrdersShift = 108 // 0x6C
+  , StrategyDecisionActiveOrders      = 109 // 0x6D
+
+    // Level 2 Quote Fields
+  , OpenInterestTotal     = 113 // 0x71
+  , OpenInterestSided     = 114 // 0x72
+  , DailyAdapterTickCount = 115 // 0x73
+  , DailyTradedTotal      = 116 // 0x74
 
     // Level 2 Quote Layer Fields
-  , LayerNameDictionaryUpsertCommand = 100 // 0x64  StringFieldUpdate
-  , ShiftBookByLayers                = 101 // 0x65
+  , LayerNameDictionaryUpsertCommand = 118 // 0x76  StringFieldUpdate
+  , ShiftBookByLayers                = 119 // 0x77
 
-  , SourceTotalOpenInterestVolume = 102 // 0x66
-  , SourceTotalOpenInterestVwap   = 103 // 0x67
-  , SourceSideOpenInterestVolume  = 104 // 0x68
-  , SourceSideOpenInterestVwap    = 105 // 0x69
-  , AdapterSideOpenInterestVolume = 106 // 0x6A
-  , AdapterSideOpenInterestVwap   = 107 // 0x6B
-  , DailyAdapterTickCount         = 108 // 0x6C
-  , DailySourceTradedVolume       = 109 // 0x6D
-  , DailyAdapterTradedVolume      = 110 // 0x6E
-  , DailySourceTradedVwap         = 111 // 0x6F
-  , DailyAdapterTradedVwap        = 112 // 0x70
+  , Price                       = 120 // 0x78 
+  , Volume                      = 121 // 0x79 
+  , LayerBooleanFlags           = 122 // 0x7A 
+  , SourceId                    = 123 // 0x7B 
+  , LayerSourceQuoteRef         = 124 // 0x7C 
+  , LayerValueDate              = 125 // 0x7D 
+  , ContractType                = 126 // 0x7E 
+  , ExpiryDate                  = 127 // 0x7F 
+  , NearValueDate               = 128 // 0x80 
+  , FarValueDate                = 129 // 0x81 
+  , NearForwardPoints           = 130 // 0x82
+  , FarForwardPoints            = 131 // 0x83
+  , UnderlyingTickerId          = 132 // 0x84
+  , BrokeragePriceDelta         = 133 // 0x85
+  , SlippagePriceDelta          = 134 // 0x86
+  , EffectivePriceDelta         = 135 // 0x87
+  , RemainingVolume             = 136 // 0x88
+  , PendingExecutionVolume      = 137 // 0x89
+  , InternalVolume              = 138 // 0x8A
+  , OrdersCount                 = 139 // 0x8B
+  , ShiftLayerOrders            = 140 // 0x8C
+  , LayerOrders                 = 141 // 0x8D
+  , LayerValidFromDate          = 142 // 0x9B
+  , LayerValidFromSub2MinTime   = 143 // 0x9C
+  , LayerValidToDate            = 144 // 0x9D
+  , LayerValidToSub2MinTime     = 145 // 0x9E
+  , LayerLastUpdatedDate        = 146 // 0x9F
+  , LayerLastUpdatedSub2MinTime = 147 // 0xA0
 
-    // Level 2 Quote Layer Fields
-  , Price                        = 120 // 0x78 
-  , Volume                       = 121 // 0x79 
-  , LayerBooleanFlags            = 122 // 0x7A 
-  , SourceId                     = 123 // 0x7B 
-  , LayerSourceQuoteRef          = 124 // 0x7C 
-  , LayerValueDate               = 125 // 0x7D 
-  , ContractType                 = 126 // 0x7E 
-  , ExpiryDate                   = 127 // 0x7F 
-  , NearValueDate                = 128 // 0x80 
-  , FarValueDate                 = 129 // 0x81 
-  , NearForwardPoints            = 130 // 0x82
-  , FarForwardPoints             = 131 // 0x83
-  , UnderlyingTickerId           = 132 // 0x84
-  , BrokeragePriceDelta          = 133 // 0x85
-  , SlippagePriceDelta           = 134 // 0x86
-  , EffectivePriceDelta          = 135 // 0x87
-  , RemainingVolume              = 136 // 0x88
-  , PendingExecutionVolume       = 137 // 0x89
-  , InternalVolume               = 138 // 0x8A
-  , OrdersCount                  = 139 // 0x8B
-  , ShiftLayerOrders             = 140 // 0x8C
-  , LayerOrders                  = 141 // 0x8D
-  , LayerValidFromDate           = 156 // 0x9B
-  , LayerValidFromSub2MinTime    = 157 // 0x9C
-  , LayerValidToDate             = 158 // 0x9D
-  , LayerValidToSub2MinTime      = 159 // 0x9E
-  , LayerLastUpdatedDate         = 160 // 0x9F
-  , LayerLastUpdatedSub2MinTime  = 161 // 0xA0
+    , AllLayersRangeEnd = 179 // 0xBE
 
-  , AllLayersRangeEnd      = 190 // 0xBE
-  , ExecutionStatsCurrent  = 191 // 0xBF
-  , ExecutionStatsPrevious = 192 // 0xC0
-  , ExecutionStatsDaily    = 193 // 0xC0
-  , ExecutionStatsSource   = 194 // 0xC0
+  , ExecutionStatsCurrent     = 180 // 0xB4
+  , ExecutionStatsRecentShift = 181 // 0xB5
+  , ExecutionStatsRecent      = 182 // 0xB6
+  , ExecutionStatsDaily       = 183 // 0xB7
+  , ExecutionStatsLifetime    = 184 // 0xB8
 
     // Level 3 Quote Layer Fields
   , LastTradedDictionaryUpsertCommand = 200 // 0xC8
-  , TickLastTradedTrades              = 201 // 0xC9
-  , ShiftRecentLastTraded             = 202 
-  , RecentLastTradedTrades         
+  , LastTradedTickTrades              = 201 // 0xC9
+  , LastTradedRecentlyShift           = 202 // 0xCA
+  , LastTradedRecently                = 203 // 0xCB
 
-  , BatchId             = 230 // 0xE6
-  , QuoteSourceQuoteRef = 231 // 0xE7
-  , QuoteValueDate      = 232 // 0xE8
-  , QuoteNearDate       = 233 // 0xE9
-  , QuoteFarDate        = 234 // 0xEA
-  , QuoteContractType   = 235 // 0xEB
-  , QuoteExpiryDate     = 236 // 0xEC
+  , AdapterInternalOrdersTick        = 211 // 0xD3
+  , AdapterInternalOrdersOpenShift   = 212 // 0xD4
+  , AdapterInternalOrdersOpen        = 213 // 0xD5
+  , AdapterInternalOrdersRecentShift = 214 // 0xD6
+  , AdapterInternalOrdersRecent      = 215 // 0xD7
 
-  , ExecutionRemainingBuyMarginVolume  = 240
-  , ExecutionRemainingSellMarginVolume = 241
-  , ExecutionOpenConsumedBuyMargin     = 242
-  , ExecutionOpenConsumedSellMargin    = 243
+  , BatchId                 = 220 // 0xDC
+  , QuoteSourceQuoteRef     = 221 // 0xDD
+  , QuoteValueDate          = 222 // 0xDE
+  , QuoteNearDate           = 223 // 0xDF
+  , QuoteNearForwardType    = 224 // 0xE0
+  , QuoteFarDate            = 225 // 0xE1
+  , QuoteFarForwardType     = 226 // 0xE2
+  , QuoteUnderlyingTickerId = 227 // 0xE3
+  , QuoteContractType       = 228 // 0xE4
+  , QuoteExpiryDate         = 229 // 0xE5
+
+  , LimitBreachCurrent     = 234 // 0xEA
+  , LimitBreachRecentShift = 235 // 0xEB
+  , LimitBreachRecent      = 236 // 0xEC
+
+  , SourceRemainingBuyMarginVolume  = 240 // 0xF0
+  , SourceRemainingSellMarginVolume = 241 // 0xF1
+  , SourceOpenConsumedBuyMargin     = 242 // 0xF2
+  , SourceOpenConsumedSellMargin    = 243 // 0xF3
+  , NetPositionExposure             = 244 // 0xF4
+  , MaxAllowedExposure              = 245 // 0xF5
+  , MaxAllowedRemainingExposure     = 246 // 0xF6
 }
 
 [TestClassNotRequired]
@@ -177,5 +210,4 @@ public static class PQQuoteFieldsExtensions
     public const byte   SingleByteFieldIdMaxBookDepth          = PQDepthKeyExtensions.SingleByteDepthMask + 1; // 63
     public const ushort TwoByteFieldIdMaxBookDepth             = (ushort)PQDepthKey.DepthMask + 1;             // 16,383
     public const byte   SingleByteFieldIdMaxPossibleLastTrades = 10;
-
 }

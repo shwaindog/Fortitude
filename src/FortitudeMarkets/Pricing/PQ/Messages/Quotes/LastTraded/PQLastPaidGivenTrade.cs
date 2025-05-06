@@ -196,9 +196,9 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
                                                                    quotePublicationPrecisionSetting))
             yield return deltaUpdateField;
         if (!updatedOnly || IsBooleanFlagsChanged())
-            yield return new PQFieldUpdate(PQQuoteFields.TickLastTradedTrades, PQSubFieldKeys.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags);
+            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags);
         if (!updatedOnly || IsTradeVolumeUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.TickLastTradedTrades, PQSubFieldKeys.LastTradedOrderVolume, TradeVolume,
+            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedOrderVolume, TradeVolume,
                                            quotePublicationPrecisionSetting?.VolumeScalingPrecision ?? (PQFieldFlags)6);
     }
 

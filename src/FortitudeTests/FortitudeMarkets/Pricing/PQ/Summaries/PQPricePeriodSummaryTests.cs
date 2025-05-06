@@ -76,8 +76,8 @@ public class PQPricePeriodSummaryTests
         Assert.AreEqual(2, sourceAskUpdates.Count);
         var hoursSinceUnixEpoch = expectedSetTime.Get2MinIntervalsFromUnixEpoch();
         var fifthByte           = expectedSetTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerFourBytes);
-        var expectedHour        = new PQFieldUpdate(PQQuoteFields.PeriodStartDateTime, hoursSinceUnixEpoch);
-        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.PeriodStartSub2MinTime, lowerFourBytes, fifthByte);
+        var expectedHour        = new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodStartDateTime, hoursSinceUnixEpoch);
+        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodStartSub2MinTime, lowerFourBytes, fifthByte);
         Assert.AreEqual(expectedHour, sourceAskUpdates[0]);
         Assert.AreEqual(expectedSubHour, sourceAskUpdates[1]);
 
@@ -96,8 +96,7 @@ public class PQPricePeriodSummaryTests
 
         sourceAskUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot,
                                                                              pricePrecisionSettings)
-            where update.Id >= PQQuoteFields.PeriodStartDateTime && update.Id <=
-                PQQuoteFields.PeriodStartSub2MinTime
+            where update.SubId is >= PQSubFieldKeys.PricePeriodStartDateTime and <= PQSubFieldKeys.PricePeriodStartSub2MinTime
             orderby update.Id
             select update).ToList();
         Assert.AreEqual(2, sourceAskUpdates.Count);
@@ -133,8 +132,8 @@ public class PQPricePeriodSummaryTests
         Assert.AreEqual(2, sourceAskUpdates.Count);
         var hoursSinceUnixEpoch = expectedSetTime.Get2MinIntervalsFromUnixEpoch();
         var fifthByte           = expectedSetTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerFourBytes);
-        var expectedHour        = new PQFieldUpdate(PQQuoteFields.PeriodEndDateTime, hoursSinceUnixEpoch);
-        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.PeriodEndSub2MinTime, lowerFourBytes, fifthByte);
+        var expectedHour        = new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodEndDateTime, hoursSinceUnixEpoch);
+        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodEndSub2MinTime, lowerFourBytes, fifthByte);
         Assert.AreEqual(expectedHour, sourceAskUpdates[0]);
         Assert.AreEqual(expectedSubHour, sourceAskUpdates[1]);
 
@@ -153,8 +152,8 @@ public class PQPricePeriodSummaryTests
 
         sourceAskUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot,
                                                                              pricePrecisionSettings)
-            where update.Id >= PQQuoteFields.PeriodEndDateTime && update.Id <=
-                PQQuoteFields.PeriodEndSub2MinTime
+            where update.SubId is >= PQSubFieldKeys.PricePeriodEndDateTime and <=
+                PQSubFieldKeys.PricePeriodEndSub2MinTime
             orderby update.Id
             select update).ToList();
         Assert.AreEqual(2, sourceAskUpdates.Count);
@@ -187,7 +186,7 @@ public class PQPricePeriodSummaryTests
         var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Update,
                                                               pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.PeriodStartPrice, expectedStartBidPrice, scaleFactor);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodStartPrice, expectedStartBidPrice, scaleFactor);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptySummary.IsStartBidPriceUpdated = false;
@@ -198,8 +197,7 @@ public class PQPricePeriodSummaryTests
 
         sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields
                 (testDateTime, StorageFlags.Snapshot, pricePrecisionSettings)
-            where update.Id == PQQuoteFields.PeriodStartPrice
-               && update.Flag == scaleFactor
+            where update is {SubId : PQSubFieldKeys.PricePeriodStartPrice, DepthId: PQDepthKey.None }
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -229,7 +227,7 @@ public class PQPricePeriodSummaryTests
                                                               pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate
-            (PQQuoteFields.PeriodStartPrice, PQDepthKey.AskSide, expectedStartAskPrice, scaleFactor);
+            (PQQuoteFields.PriceCandleStick, PQDepthKey.AskSide, PQSubFieldKeys.PricePeriodStartPrice, expectedStartAskPrice, scaleFactor);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptySummary.IsStartAskPriceUpdated = false;
@@ -240,8 +238,7 @@ public class PQPricePeriodSummaryTests
 
         sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields
                 (testDateTime, StorageFlags.Snapshot, pricePrecisionSettings)
-            where update is { Id: PQQuoteFields.PeriodStartPrice, DepthId: PQDepthKey.AskSide }
-               && update.Flag == (scaleFactor | PQFieldFlags.IncludesDepth)
+            where update is { SubId: PQSubFieldKeys.PricePeriodStartPrice, DepthId: PQDepthKey.AskSide }
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -270,7 +267,7 @@ public class PQPricePeriodSummaryTests
         var sourceUpdates = emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Update,
                                                               pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.PeriodHighestPrice, expectedHighestBidPrice, scaleFactor);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodHighestPrice, expectedHighestBidPrice, scaleFactor);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptySummary.IsHighestBidPriceUpdated = false;
@@ -281,8 +278,7 @@ public class PQPricePeriodSummaryTests
 
         sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields
                 (testDateTime, StorageFlags.Snapshot, pricePrecisionSettings)
-            where update.Id == PQQuoteFields.PeriodHighestPrice
-               && update.Flag == scaleFactor
+            where update is {SubId: PQSubFieldKeys.PricePeriodHighestPrice, DepthId: PQDepthKey.None}
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -312,7 +308,7 @@ public class PQPricePeriodSummaryTests
             (testDateTime, StorageFlags.Update, pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate
-            (PQQuoteFields.PeriodHighestPrice, PQDepthKey.AskSide, expectedHighestAskPrice, scaleFactor);
+            (PQQuoteFields.PriceCandleStick, PQDepthKey.AskSide, PQSubFieldKeys.PricePeriodHighestPrice, expectedHighestAskPrice, scaleFactor);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptySummary.IsHighestAskPriceUpdated = false;
@@ -322,8 +318,7 @@ public class PQPricePeriodSummaryTests
 
         sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot,
                                                                           pricePrecisionSettings)
-            where update is { Id: PQQuoteFields.PeriodHighestPrice, DepthId: PQDepthKey.AskSide }
-               && update.Flag == (scaleFactor | PQFieldFlags.IncludesDepth)
+            where update is { SubId: PQSubFieldKeys.PricePeriodHighestPrice, DepthId: PQDepthKey.AskSide }
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -352,7 +347,7 @@ public class PQPricePeriodSummaryTests
         var sourceUpdates = emptySummary.GetDeltaUpdateFields
             (testDateTime, StorageFlags.Update, pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.PeriodLowestPrice, expectedLowestBidPrice, scaleFactor);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodLowestPrice, expectedLowestBidPrice, scaleFactor);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptySummary.IsLowestBidPriceUpdated = false;
@@ -363,8 +358,7 @@ public class PQPricePeriodSummaryTests
 
         sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields
                 (testDateTime, StorageFlags.Snapshot, pricePrecisionSettings)
-            where update.Id == PQQuoteFields.PeriodLowestPrice
-               && update.Flag == scaleFactor
+            where update is {SubId : PQSubFieldKeys.PricePeriodLowestPrice, DepthId: PQDepthKey.None }
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -393,7 +387,7 @@ public class PQPricePeriodSummaryTests
         var sourceUpdates = emptySummary.GetDeltaUpdateFields
             (testDateTime, StorageFlags.Update, pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.PeriodLowestPrice, PQDepthKey.AskSide, expectedLowestAskPrice,
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQDepthKey.AskSide, PQSubFieldKeys.PricePeriodLowestPrice, expectedLowestAskPrice,
                                                     scaleFactor);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
@@ -405,8 +399,7 @@ public class PQPricePeriodSummaryTests
 
         sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields
                 (testDateTime, StorageFlags.Snapshot, pricePrecisionSettings)
-            where update is { Id: PQQuoteFields.PeriodLowestPrice, DepthId: PQDepthKey.AskSide }
-               && update.Flag == (scaleFactor | PQFieldFlags.IncludesDepth)
+            where update is { SubId: PQSubFieldKeys.PricePeriodLowestPrice, DepthId: PQDepthKey.AskSide }
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -435,7 +428,7 @@ public class PQPricePeriodSummaryTests
         var sourceUpdates = emptySummary.GetDeltaUpdateFields
             (testDateTime, StorageFlags.Update, pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.PeriodEndPrice, expectedEndBidPrice, scaleFactor);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodEndPrice, expectedEndBidPrice, scaleFactor);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptySummary.IsEndBidPriceUpdated = false;
@@ -446,8 +439,7 @@ public class PQPricePeriodSummaryTests
 
         sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields
                 (testDateTime, StorageFlags.Snapshot, pricePrecisionSettings)
-            where update.Id == PQQuoteFields.PeriodEndPrice
-               && update.Flag == scaleFactor
+            where update is {SubId: PQSubFieldKeys.PricePeriodEndPrice, DepthId: PQDepthKey.None}
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -479,7 +471,7 @@ public class PQPricePeriodSummaryTests
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate =
             new PQFieldUpdate
-                (PQQuoteFields.PeriodEndPrice, PQDepthKey.AskSide, expectedEndAskPrice, scaleFactor);
+                (PQQuoteFields.PriceCandleStick, PQDepthKey.AskSide, PQSubFieldKeys.PricePeriodEndPrice, expectedEndAskPrice, scaleFactor);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptySummary.IsEndAskPriceUpdated = false;
@@ -488,10 +480,10 @@ public class PQPricePeriodSummaryTests
         Assert.IsTrue
             (emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pricePrecisionSettings).IsNullOrEmpty());
 
-        sourceUpdates = (from update in emptySummary
-                .GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, pricePrecisionSettings)
-            where update is { Id: PQQuoteFields.PeriodEndPrice, DepthId: PQDepthKey.AskSide }
-               && update.Flag == (scaleFactor | PQFieldFlags.IncludesDepth)
+        var deltaUpdateFields = emptySummary
+            .GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, pricePrecisionSettings).ToList();
+        sourceUpdates = (from update in deltaUpdateFields
+            where update is { SubId: PQSubFieldKeys.PricePeriodEndPrice, DepthId: PQDepthKey.AskSide }
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -518,7 +510,7 @@ public class PQPricePeriodSummaryTests
         var sourceUpdates = emptySummary.GetDeltaUpdateFields
             (testDateTime, StorageFlags.Update, pricePrecisionSettings).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.PeriodTickCount, expectedTickCount);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodTickCount, expectedTickCount);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptySummary.IsTickCountUpdated = false;
@@ -529,7 +521,7 @@ public class PQPricePeriodSummaryTests
 
         sourceUpdates = (from update in emptySummary.GetDeltaUpdateFields
                 (testDateTime, StorageFlags.Snapshot, pricePrecisionSettings)
-            where update.Id == PQQuoteFields.PeriodTickCount
+            where update.SubId == PQSubFieldKeys.PricePeriodTickCount
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -560,7 +552,7 @@ public class PQPricePeriodSummaryTests
         Assert.AreEqual(1, periodVolumeUpdates.Count);
         var expectedFieldUpdate =
             new PQFieldUpdate
-                (PQQuoteFields.PeriodVolume, (decimal)expectedPeriodVolume, scaleFactor);
+                (PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodVolume, expectedPeriodVolume, scaleFactor);
         Assert.AreEqual(expectedFieldUpdate, periodVolumeUpdates[0]);
 
         emptySummary.IsPeriodVolumeUpdated = false;
@@ -571,7 +563,7 @@ public class PQPricePeriodSummaryTests
 
         periodVolumeUpdates = (from update in emptySummary
                 .GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, pricePrecisionSettings)
-            where update.Id == PQQuoteFields.PeriodVolume
+            where update.SubId == PQSubFieldKeys.PricePeriodVolume
             orderby update.Id
             select update).ToList();
         Assert.AreEqual(1, periodVolumeUpdates.Count);
@@ -602,7 +594,7 @@ public class PQPricePeriodSummaryTests
         Assert.AreEqual(1, periodFlagUpdates.Count);
         var expectedFieldUpdate =
             new PQFieldUpdate
-                (PQQuoteFields.PeriodSummaryFlags, (uint)expectedFlagsVolume);
+                (PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodSummaryFlags, (uint)expectedFlagsVolume);
         Assert.AreEqual(expectedFieldUpdate, periodFlagUpdates[0]);
 
         emptySummary.IsPricePeriodSummaryFlagsUpdated = false;
@@ -613,7 +605,7 @@ public class PQPricePeriodSummaryTests
 
         periodFlagUpdates = (from update in emptySummary
                 .GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, pricePrecisionSettings)
-            where update.Id == PQQuoteFields.PeriodSummaryFlags
+            where update.SubId == PQSubFieldKeys.PricePeriodSummaryFlags
             orderby update.Id
             select update).ToList();
         Assert.AreEqual(1, periodFlagUpdates.Count);
@@ -846,55 +838,64 @@ public class PQPricePeriodSummaryTests
     }
 
     public static void AssertPeriodSummaryContainsAllFields
-        (IPQPriceVolumePublicationPrecisionSettings precisionSettings, IList<PQFieldUpdate> checkFieldUpdates, IPQPricePeriodSummary periodSummary)
+        (IPQPriceVolumePublicationPrecisionSettings precisionSettings,  IList<PQFieldUpdate> checkFieldUpdates, IPQPricePeriodSummary periodSummary, PQQuoteFields quoteField = PQQuoteFields.PriceCandleStick)
     {
         var priceScale  = precisionSettings.PriceScalingPrecision;
         var volumeScale = precisionSettings.VolumeScalingPrecision;
         Assert.AreEqual(new PQFieldUpdate
-                            (PQQuoteFields.PeriodStartDateTime, periodSummary.PeriodStartTime.Get2MinIntervalsFromUnixEpoch()),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodStartDateTime));
+                            (quoteField, PQSubFieldKeys.PricePeriodStartDateTime, periodSummary.PeriodStartTime.Get2MinIntervalsFromUnixEpoch()),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, quoteField, PQSubFieldKeys.PricePeriodStartDateTime),
+                        $"For PricePeriodSummary {periodSummary} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         var fifthByte = periodSummary.PeriodStartTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerFourBytes);
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodStartSub2MinTime, lowerFourBytes, fifthByte),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodStartSub2MinTime));
+        Assert.AreEqual(new PQFieldUpdate(quoteField, PQSubFieldKeys.PricePeriodStartSub2MinTime, lowerFourBytes, fifthByte),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, quoteField, PQSubFieldKeys.PricePeriodStartSub2MinTime),
+                        $"For PricePeriodSummary {periodSummary} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         Assert.AreEqual(new PQFieldUpdate
-                            (PQQuoteFields.PeriodEndDateTime, periodSummary.PeriodEndTime.Get2MinIntervalsFromUnixEpoch()),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodEndDateTime));
+                            (quoteField, PQSubFieldKeys.PricePeriodEndDateTime, periodSummary.PeriodEndTime.Get2MinIntervalsFromUnixEpoch()),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, quoteField, PQSubFieldKeys.PricePeriodEndDateTime),
+                        $"For PricePeriodSummary {periodSummary} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         fifthByte = periodSummary.PeriodEndTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out lowerFourBytes);
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodEndSub2MinTime, lowerFourBytes, fifthByte),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodEndSub2MinTime));
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodStartPrice, periodSummary.StartBidPrice, priceScale),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodStartPrice, priceScale));
-        Assert.AreEqual(new PQFieldUpdate
-                            (PQQuoteFields.PeriodStartPrice, PQDepthKey.AskSide, PQScaling.Scale(periodSummary.StartAskPrice, priceScale)
-                           , priceScale),
+        Assert.AreEqual(new PQFieldUpdate(quoteField, PQSubFieldKeys.PricePeriodEndSub2MinTime, lowerFourBytes, fifthByte),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, quoteField, PQSubFieldKeys.PricePeriodEndSub2MinTime),
+                        $"For PricePeriodSummary {periodSummary} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+        Assert.AreEqual(new PQFieldUpdate(quoteField, PQSubFieldKeys.PricePeriodStartPrice, periodSummary.StartBidPrice, priceScale),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, quoteField, PQSubFieldKeys.PricePeriodStartPrice, priceScale),
+                        $"For PricePeriodSummary {periodSummary} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+        Assert.AreEqual(new PQFieldUpdate (quoteField, PQDepthKey.AskSide, PQSubFieldKeys.PricePeriodStartPrice, periodSummary.StartAskPrice, priceScale),
                         PQTickInstantTests.ExtractFieldUpdateWithId
-                            (checkFieldUpdates, PQQuoteFields.PeriodStartPrice, PQDepthKey.AskSide, priceScale));
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodHighestPrice, PQScaling.Scale(periodSummary.HighestBidPrice, priceScale), priceScale),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodHighestPrice, priceScale));
+                            (checkFieldUpdates, quoteField, PQDepthKey.AskSide, PQSubFieldKeys.PricePeriodStartPrice, priceScale),
+                        $"For PricePeriodSummary {periodSummary} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+        Assert.AreEqual(new PQFieldUpdate(quoteField, PQSubFieldKeys.PricePeriodHighestPrice, periodSummary.HighestBidPrice, priceScale),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, quoteField, PQSubFieldKeys.PricePeriodHighestPrice, priceScale),
+                        $"For PricePeriodSummary {periodSummary} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         Assert.AreEqual(new PQFieldUpdate
-                            (PQQuoteFields.PeriodHighestPrice, PQDepthKey.AskSide, PQScaling.Scale(periodSummary.HighestAskPrice, priceScale)
-                           , priceScale),
+                            (quoteField, PQDepthKey.AskSide, PQSubFieldKeys.PricePeriodHighestPrice, periodSummary.HighestAskPrice, priceScale),
                         PQTickInstantTests.ExtractFieldUpdateWithId
-                            (checkFieldUpdates, PQQuoteFields.PeriodHighestPrice, PQDepthKey.AskSide, priceScale));
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodLowestPrice, PQScaling.Scale(periodSummary.LowestBidPrice, priceScale), priceScale),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodLowestPrice, priceScale));
+                            (checkFieldUpdates, quoteField, PQDepthKey.AskSide, PQSubFieldKeys.PricePeriodHighestPrice, priceScale),
+                        $"For PricePeriodSummary {periodSummary} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+        Assert.AreEqual(new PQFieldUpdate(quoteField, PQSubFieldKeys.PricePeriodLowestPrice, periodSummary.LowestBidPrice, priceScale),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, quoteField, PQSubFieldKeys.PricePeriodLowestPrice, priceScale),
+                        $"For PricePeriodSummary {periodSummary} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         Assert.AreEqual(new PQFieldUpdate
-                            (PQQuoteFields.PeriodLowestPrice, PQDepthKey.AskSide, PQScaling.Scale(periodSummary.LowestAskPrice, priceScale)
-                           , priceScale),
+                            (quoteField,  PQDepthKey.AskSide, PQSubFieldKeys.PricePeriodLowestPrice,periodSummary.LowestAskPrice, priceScale),
                         PQTickInstantTests.ExtractFieldUpdateWithId
-                            (checkFieldUpdates, PQQuoteFields.PeriodLowestPrice, PQDepthKey.AskSide, priceScale));
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodEndPrice, PQScaling.Scale(periodSummary.EndBidPrice, priceScale), priceScale),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodEndPrice, priceScale));
-        Assert.AreEqual(new PQFieldUpdate
-                            (PQQuoteFields.PeriodEndPrice, PQDepthKey.AskSide, PQScaling.Scale(periodSummary.EndAskPrice, priceScale)
-                           , priceScale),
+                            (checkFieldUpdates, quoteField, PQDepthKey.AskSide, PQSubFieldKeys.PricePeriodLowestPrice, priceScale),
+                        $"For PricePeriodSummary {periodSummary} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+        Assert.AreEqual(new PQFieldUpdate(quoteField, PQSubFieldKeys.PricePeriodEndPrice, periodSummary.EndBidPrice, priceScale),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, quoteField, PQSubFieldKeys.PricePeriodEndPrice, priceScale),
+                        $"For PricePeriodSummary {periodSummary} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+        Assert.AreEqual(new PQFieldUpdate(quoteField, PQDepthKey.AskSide,  PQSubFieldKeys.PricePeriodEndPrice, periodSummary.EndAskPrice, priceScale),
                         PQTickInstantTests.ExtractFieldUpdateWithId
-                            (checkFieldUpdates, PQQuoteFields.PeriodEndPrice, PQDepthKey.AskSide, priceScale));
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodTickCount, periodSummary.TickCount),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodTickCount));
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodVolume, periodSummary.PeriodVolume),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodVolume));
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PeriodSummaryFlags, (uint)periodSummary.PeriodSummaryFlags),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PeriodSummaryFlags));
+                            (checkFieldUpdates, quoteField, PQDepthKey.AskSide, PQSubFieldKeys.PricePeriodEndPrice, priceScale),
+                        $"For PricePeriodSummary {periodSummary} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+        Assert.AreEqual(new PQFieldUpdate(quoteField, PQSubFieldKeys.PricePeriodTickCount, periodSummary.TickCount),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, quoteField, PQSubFieldKeys.PricePeriodTickCount),
+                        $"For PricePeriodSummary {periodSummary} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+        Assert.AreEqual(new PQFieldUpdate(quoteField, PQSubFieldKeys.PricePeriodVolume, periodSummary.PeriodVolume),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, quoteField, PQSubFieldKeys.PricePeriodVolume),
+                        $"For PricePeriodSummary {periodSummary} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+        Assert.AreEqual(new PQFieldUpdate(quoteField, PQSubFieldKeys.PricePeriodSummaryFlags, (uint)periodSummary.PeriodSummaryFlags),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, quoteField, PQSubFieldKeys.PricePeriodSummaryFlags),
+                        $"For PricePeriodSummary {periodSummary} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
     }
 }

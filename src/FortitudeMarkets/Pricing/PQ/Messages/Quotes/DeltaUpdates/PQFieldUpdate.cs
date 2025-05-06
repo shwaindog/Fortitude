@@ -100,6 +100,9 @@ public struct PQFieldUpdate
     public PQFieldUpdate(PQQuoteFields id, long value, PQFieldFlags flag = 0)
         : this(id, PQDepthKey.None, PQSubFieldKeys.None, value, flag) { }
 
+    public PQFieldUpdate(PQQuoteFields id, PQSubFieldKeys subId, long value, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, subId,  value, flag) { }
+
     public PQFieldUpdate(PQQuoteFields id, PQDepthKey depthId, PQSubFieldKeys subId, long value, PQFieldFlags flag = 0)
     {
         Id      = id;
@@ -123,6 +126,7 @@ public struct PQFieldUpdate
 
     public PQFieldUpdate(PQQuoteFields id, ushort auxiliaryPayload, long value, PQFieldFlags flag = 0)
         : this(id, PQDepthKey.None, PQSubFieldKeys.None, auxiliaryPayload, value, flag) { }
+
 
     public PQFieldUpdate(PQQuoteFields id, PQSubFieldKeys subId, ushort auxiliaryPayload, long value, PQFieldFlags flag = 0)
         : this(id, PQDepthKey.None, subId, auxiliaryPayload, value, flag) { }
@@ -234,6 +238,10 @@ public static class PQFieldUpdateExtensions
 
     public static PQFieldUpdate WithDepth(this PQFieldUpdate fieldUpdate, PQDepthKey atDepth) =>
         new(fieldUpdate.Id, fieldUpdate.DepthId | atDepth,
+            fieldUpdate.SubId, fieldUpdate.AuxiliaryPayload, fieldUpdate.Payload, fieldUpdate.Flag);
+
+    public static PQFieldUpdate WithFieldId(this PQFieldUpdate fieldUpdate, PQQuoteFields newField) =>
+        new(newField, fieldUpdate.DepthId,
             fieldUpdate.SubId, fieldUpdate.AuxiliaryPayload, fieldUpdate.Payload, fieldUpdate.Flag);
 
     public static PQFieldUpdate WithAuxiliary

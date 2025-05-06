@@ -205,7 +205,7 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
 
     public virtual int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
-        if (pqFieldUpdate.Id is PQQuoteFields.TickLastTradedTrades)
+        if (pqFieldUpdate.Id is PQQuoteFields.LastTradedTickTrades)
         {
             var index       = pqFieldUpdate.DepthIndex();
             var pqLastTrade = this[index] as PQLastTrade;

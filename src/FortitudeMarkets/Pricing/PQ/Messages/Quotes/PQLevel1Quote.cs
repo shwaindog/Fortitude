@@ -752,13 +752,12 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         if (SummaryPeriod != null)
             foreach (var periodSummaryUpdates in SummaryPeriod.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                                     precisionSettings))
-                yield return periodSummaryUpdates;
+                yield return periodSummaryUpdates.WithFieldId(PQQuoteFields.CandleConflationSummary);
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
-        if (pqFieldUpdate.Id >= PQQuoteFields.SummaryPeriod &&
-            pqFieldUpdate.Id <= PQQuoteFields.PeriodAveragePrice)
+        if (pqFieldUpdate.Id == PQQuoteFields.CandleConflationSummary)
         {
             SummaryPeriod ??= new PQPricePeriodSummary();
             return SummaryPeriod.UpdateField(pqFieldUpdate);

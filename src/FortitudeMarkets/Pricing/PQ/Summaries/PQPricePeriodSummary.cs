@@ -616,122 +616,122 @@ public class PQPricePeriodSummary : ReusableObject<IPricePeriodSummary>, IPQPric
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Update) > 0;
-        if (!updatedOnly || IsSummaryPeriodUpdated) yield return new PQFieldUpdate(PQQuoteFields.SummaryPeriod, (uint)timeBoundaryPeriod);
+        if (!updatedOnly || IsSummaryPeriodUpdated) yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PriceSummaryPeriod, (uint)timeBoundaryPeriod);
         if (!updatedOnly || IsStartTimeDateUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.PeriodStartDateTime, startTime.Get2MinIntervalsFromUnixEpoch());
+            yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodStartDateTime, startTime.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsStartTimeSubHourUpdated)
         {
             var fifthByte = startTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerFourBytes);
-            yield return new PQFieldUpdate(PQQuoteFields.PeriodStartSub2MinTime, lowerFourBytes, fifthByte);
+            yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodStartSub2MinTime, lowerFourBytes, fifthByte);
         }
 
-        if (!updatedOnly || IsEndTimeDateUpdated) yield return new PQFieldUpdate(PQQuoteFields.PeriodEndDateTime, endTime.Get2MinIntervalsFromUnixEpoch());
+        if (!updatedOnly || IsEndTimeDateUpdated) yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodEndDateTime, endTime.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsEndTimeSubHourUpdated)
         {
             var fifthByte = endTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerFourBytes);
-            yield return new PQFieldUpdate(PQQuoteFields.PeriodEndSub2MinTime, lowerFourBytes, fifthByte);
+            yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodEndSub2MinTime, lowerFourBytes, fifthByte);
         }
 
         if (!updatedOnly || IsStartBidPriceUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.PeriodStartPrice, StartBidPrice,
+            yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodStartPrice, StartBidPrice,
                                            quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsStartAskPriceUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.PeriodStartPrice, PQDepthKey.AskSide, StartAskPrice
+            yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQDepthKey.AskSide, PQSubFieldKeys.PricePeriodStartPrice,  StartAskPrice
                                          , quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsHighestBidPriceUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.PeriodHighestPrice, HighestBidPrice,
+            yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodHighestPrice, HighestBidPrice,
                                            quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsHighestAskPriceUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.PeriodHighestPrice, PQDepthKey.AskSide, HighestAskPrice
+            yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQDepthKey.AskSide, PQSubFieldKeys.PricePeriodHighestPrice, HighestAskPrice
                                          , quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsLowestBidPriceUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.PeriodLowestPrice, LowestBidPrice,
+            yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodLowestPrice, LowestBidPrice,
                                            quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsLowestAskPriceUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.PeriodLowestPrice, PQDepthKey.AskSide, LowestAskPrice
+            yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQDepthKey.AskSide, PQSubFieldKeys.PricePeriodLowestPrice, LowestAskPrice
                                          , quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsEndBidPriceUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.PeriodEndPrice, EndBidPrice,
+            yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodEndPrice, EndBidPrice,
                                            quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsEndAskPriceUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.PeriodEndPrice, PQDepthKey.AskSide, EndAskPrice
+            yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQDepthKey.AskSide, PQSubFieldKeys.PricePeriodEndPrice, EndAskPrice
                                          , quotePublicationPrecisionSettings!.PriceScalingPrecision);
-        if (!updatedOnly || IsTickCountUpdated) yield return new PQFieldUpdate(PQQuoteFields.PeriodTickCount, TickCount);
-        if (!updatedOnly || IsPeriodVolumeUpdated) yield return new PQFieldUpdate(PQQuoteFields.PeriodVolume, PeriodVolume);
+        if (!updatedOnly || IsTickCountUpdated) yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodTickCount, TickCount);
+        if (!updatedOnly || IsPeriodVolumeUpdated) yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodVolume, PeriodVolume);
 
         if (!updatedOnly || IsPricePeriodSummaryFlagsUpdated)
         {
             var flagsUint = (uint)PeriodSummaryFlags;
-            yield return new PQFieldUpdate(PQQuoteFields.PeriodSummaryFlags, flagsUint);
+            yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodSummaryFlags, flagsUint);
         }
 
         if (!updatedOnly || IsAverageBidPriceUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.PeriodAveragePrice, AverageBidPrice,
+            yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQSubFieldKeys.PricePeriodAveragePrice, AverageBidPrice,
                                            quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsAverageAskPriceUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.PeriodAveragePrice, PQDepthKey.AskSide, AverageAskPrice
+            yield return new PQFieldUpdate(PQQuoteFields.PriceCandleStick, PQDepthKey.AskSide, PQSubFieldKeys.PricePeriodAveragePrice,  AverageAskPrice
                                          , quotePublicationPrecisionSettings!.PriceScalingPrecision);
     }
 
     public int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
-        switch (pqFieldUpdate.Id)
+        switch (pqFieldUpdate.SubId)
         {
-            case PQQuoteFields.SummaryPeriod:
+            case PQSubFieldKeys.PriceSummaryPeriod:
                 TimeBoundaryPeriod = (TimeBoundaryPeriod)pqFieldUpdate.Payload;
                 return 0;
-            case PQQuoteFields.PeriodStartDateTime:
+            case PQSubFieldKeys.PricePeriodStartDateTime:
                 IsStartTimeDateUpdated = true;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref startTime, pqFieldUpdate.Payload);
                 return 0;
-            case PQQuoteFields.PeriodStartSub2MinTime:
+            case PQSubFieldKeys.PricePeriodStartSub2MinTime:
                 IsStartTimeSubHourUpdated = true;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref startTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
                 return 0;
-            case PQQuoteFields.PeriodEndDateTime:
+            case PQSubFieldKeys.PricePeriodEndDateTime:
                 IsEndTimeDateUpdated = true;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref endTime, pqFieldUpdate.Payload);
                 return 0;
-            case PQQuoteFields.PeriodEndSub2MinTime:
+            case PQSubFieldKeys.PricePeriodEndSub2MinTime:
                 IsEndTimeSubHourUpdated = true;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref endTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
                 return 0;
-            case PQQuoteFields.PeriodStartPrice:
+            case PQSubFieldKeys.PricePeriodStartPrice:
                 if (pqFieldUpdate.IsBid())
                     StartBidPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 else
                     StartAskPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 return 0;
-            case PQQuoteFields.PeriodHighestPrice:
+            case PQSubFieldKeys.PricePeriodHighestPrice:
                 if (pqFieldUpdate.IsBid())
                     HighestBidPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 else
                     HighestAskPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 return 0;
-            case PQQuoteFields.PeriodLowestPrice:
+            case PQSubFieldKeys.PricePeriodLowestPrice:
                 if (pqFieldUpdate.IsBid())
                     LowestBidPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 else
                     LowestAskPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 return 0;
-            case PQQuoteFields.PeriodEndPrice:
+            case PQSubFieldKeys.PricePeriodEndPrice:
                 if (pqFieldUpdate.IsBid())
                     EndBidPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 else
                     EndAskPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 return 0;
-            case PQQuoteFields.PeriodTickCount:
+            case PQSubFieldKeys.PricePeriodTickCount:
                 TickCount = pqFieldUpdate.Payload;
                 return 0;
-            case PQQuoteFields.PeriodVolume:
+            case PQSubFieldKeys.PricePeriodVolume:
                 PeriodVolume = pqFieldUpdate.ReadPayloadAndAuxiliaryAs48BitScaledLong();
                 return 0;
-            case PQQuoteFields.PeriodSummaryFlags:
+            case PQSubFieldKeys.PricePeriodSummaryFlags:
                 PeriodSummaryFlags = (PricePeriodSummaryFlags)pqFieldUpdate.Payload;
                 return 0;
-            case PQQuoteFields.PeriodAveragePrice:
+            case PQSubFieldKeys.PricePeriodAveragePrice:
                 if (pqFieldUpdate.IsBid())
                     AverageBidPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 else

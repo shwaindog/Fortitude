@@ -5,13 +5,13 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 public static class PQScaling
 {
-    private const  byte FactorMask   = 0x0F;
-    internal const byte NegativeMask = 0x10;
+    private const  byte FactorMask   = (byte)PQFieldFlags.DecimalScaleBits;
+    internal const byte NegativeMask = (byte)PQFieldFlags.NegativeBit;
 
     internal const ulong Max48BitsULong = 0xFFFF_FFFF_FFFF;
     internal const ulong Max32BitsULong = 0xFFFF_FFFF;
 
-    public const byte NegativeAndScaleMask = NegativeMask | FactorMask;
+    public const byte NegativeAndScaleMask = (byte)PQFieldFlags.NegativeAndScaleMask;
 
     private static readonly decimal[] Factors =
     {

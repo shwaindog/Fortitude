@@ -327,9 +327,9 @@ public class PQLevel1QuoteTests
         emptyQuote.BidPriceTop = 1m;
         Assert.IsTrue(emptyQuote.HasUpdates);
         emptyQuote.UpdateComplete();
-        emptyQuote.BidPriceTop = 0;
+        emptyQuote.BidPriceTop          = 0;
         emptyQuote.IsBidPriceTopChanged = false;
-        emptyQuote.HasUpdates  = false;
+        emptyQuote.HasUpdates           = false;
         Assert.AreEqual(0m, emptyQuote.BidPriceTop);
         Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
@@ -772,7 +772,8 @@ public class PQLevel1QuoteTests
       , PQBooleanValues expectedBooleanFlags = PQBooleanValuesExtensions.AllFields)
     {
         var priceScale = precisionSettings.PriceScalingPrecision;
-        PQPricePeriodSummaryTests.AssertPeriodSummaryContainsAllFields(precisionSettings, checkFieldUpdates, l1Q.SummaryPeriod!);
+        PQPricePeriodSummaryTests.AssertPeriodSummaryContainsAllFields(precisionSettings, checkFieldUpdates, l1Q.SummaryPeriod!
+                                                                     , PQQuoteFields.CandleConflationSummary);
 
         PQTickInstantTests.AssertContainsAllTickInstantFields(precisionSettings, checkFieldUpdates, l1Q, expectedBooleanFlags);
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.SourceBidDateTime, l1Q.SourceBidTime.Get2MinIntervalsFromUnixEpoch()),
@@ -806,9 +807,10 @@ public class PQLevel1QuoteTests
 
     internal class DummyLevel1Quote : PQTickInstantTests.DummyPQTickInstant, IPQLevel1Quote
     {
-        public          bool              IsBidPriceTopChangedUpdated { get; set; }
-        public          bool              IsAskPriceTopChangedUpdated { get; set; }
-        public override TickerDetailLevel TickerDetailLevel           => Level1Quote;
+        public bool IsBidPriceTopChangedUpdated { get; set; }
+        public bool IsAskPriceTopChangedUpdated { get; set; }
+
+        public override TickerDetailLevel TickerDetailLevel => Level1Quote;
 
         IMutablePricePeriodSummary? IMutableLevel1Quote.SummaryPeriod
         {
@@ -891,6 +893,7 @@ public class PQLevel1QuoteTests
 
         ILevel1Quote? ILevel1Quote.    Next     { get; set; }
         ILevel1Quote? ILevel1Quote.    Previous { get; set; }
+
         IPQLevel1Quote? IPQLevel1Quote.Next     { get; set; }
         IPQLevel1Quote? IPQLevel1Quote.Previous { get; set; }
 
