@@ -74,7 +74,7 @@ public class QuoteSequencedTestDataBuilder
 
         var toggleGivenBool = false;
         var togglePaidBool  = true;
-        if (pqLevel3Quote.RecentlyTraded == null) return;
+        if (pqLevel3Quote.RecentlyTraded == null || pqLevel3Quote.SourceTickerInfo?.LastTradedFlags == LastTradedFlags.None) return;
         for (var i = 0; i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades; i++)
         {
             var tradePriceDelta  = 0.00001m * i;
@@ -99,23 +99,34 @@ public class QuoteSequencedTestDataBuilder
     private void SetupLevel2Quote(IMutableLevel2Quote? level2Quote, uint batchId)
     {
         if (level2Quote == null) return;
-        var numLayers = level2Quote.BidBook.Capacity;
+        SetupOrderBook(level2Quote.OrderBook, batchId);
+    }
+
+    public void SetupOrderBook(IMutableOrderBook orderBook, uint batchId)
+    {
+        var numLayers = orderBook.MaxPublishDepth;
+        orderBook.OpenInterest!.DataSource = batchId % 2 == 0 ? MarketDataSource.Adapter : MarketDataSource.Venue;
+        orderBook.OpenInterest.UpdateTime  = new DateTime(2017, 5, 7, 9, 40, 11).AddSeconds(batchId);
+        orderBook.OpenInterest!.Volume     = batchId * 100_000;
+        orderBook.OpenInterest!.Vwap       = 0.791905m;
+
+        orderBook.DailyTickUpdateCount = batchId + 1;
         Assert.IsTrue(numLayers >= 1);
         for (var i = 0; i < numLayers; i++)
         {
             var deltaPrice  = 0.00001m * i;
             var deltaVolume = batchId * 100_000 + 100_000m * i;
-            var mutableBid  = level2Quote.OrderBook.BidSide[i]!;
-            var mutableAsk  = level2Quote.OrderBook.AskSide[i]!;
+            var mutableBid  = orderBook.BidSide[i]!;
+            var mutableAsk  = orderBook.AskSide[i]!;
             mutableBid.Price  = 0.791905m + batchId * 0.00001m - deltaPrice;
             mutableBid.Volume = 100_000 + deltaVolume;
             mutableAsk.Price  = 0.791906m + batchId * 0.00001m + deltaPrice;
             mutableAsk.Volume = 100_0000 + deltaVolume;
 
             if (mutableBid is IMutableSourcePriceVolumeLayer mutableBidPriceVal)
-                SetupSourceNameOnLayer(mutableBidPriceVal, level2Quote.OrderBook.BidSide, batchId);
+                SetupSourceNameOnLayer(mutableBidPriceVal, orderBook.BidSide, batchId);
             if (mutableAsk is IMutableSourcePriceVolumeLayer mutableAskPriceVal)
-                SetupSourceNameOnLayer(mutableAskPriceVal, level2Quote.OrderBook.AskSide, batchId);
+                SetupSourceNameOnLayer(mutableAskPriceVal, orderBook.AskSide, batchId);
             if (mutableBid is IMutableSourceQuoteRefPriceVolumeLayer mutableBidSrcQuotRef)
                 SetupSourceQuoteRefOnLayer(mutableBidSrcQuotRef, true, batchId);
             if (mutableAsk is IMutableSourceQuoteRefPriceVolumeLayer mutableAskSrcQuotRef)
@@ -130,10 +141,10 @@ public class QuoteSequencedTestDataBuilder
             if (mutableAsk is IMutableOrdersPriceVolumeLayer mutableAskAnonOrders) SetupAnonymousOrdersOnLayer(mutableAskAnonOrders, false, batchId);
             if (mutableBid is IMutableOrdersPriceVolumeLayer mutableBidCounterPartyOrders
              && mutableBidCounterPartyOrders.LayerType.SupportsOrdersFullPriceVolume())
-                SetupCounterPartyOrdersOnLayer(mutableBidCounterPartyOrders, level2Quote.OrderBook.BidSide, batchId);
+                SetupCounterPartyOrdersOnLayer(mutableBidCounterPartyOrders, orderBook.BidSide, batchId);
             if (mutableAsk is IMutableOrdersPriceVolumeLayer mutableAskCounterPartyOrders
              && mutableAskCounterPartyOrders.LayerType.SupportsOrdersFullPriceVolume())
-                SetupCounterPartyOrdersOnLayer(mutableAskCounterPartyOrders, level2Quote.OrderBook.AskSide, batchId);
+                SetupCounterPartyOrdersOnLayer(mutableAskCounterPartyOrders, orderBook.AskSide, batchId);
         }
     }
 

@@ -208,7 +208,7 @@ public class QuoteExtensionMethodsTests
           && differences.Select((c, i) => differences.Substring(i))
                         .Count(sub => sub.StartsWith(expectedNew)) == 2);
         Assert.IsTrue
-            (differences.Contains(nameof(q2.BidBook))
+            (differences.Contains(nameof(q2.OrderBook.BidSide))
           && differences.Contains("[ 0]") && differences.Contains("PriceVolumeLayer"));
     }
 
@@ -230,7 +230,7 @@ public class QuoteExtensionMethodsTests
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
                    && differences.Select((c, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 2);
-        Assert.IsTrue(differences.Contains(nameof(q2.AskBook))
+        Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.AskSide))
                    && differences.Contains("[ 0]") && differences.Contains("PriceVolumeLayer"));
     }
 
@@ -250,7 +250,7 @@ public class QuoteExtensionMethodsTests
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
                    && differences.Select((c, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1);
-        Assert.IsTrue(differences.Contains(nameof(q2.BidBook))
+        Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.BidSide))
                    && differences.Contains("[ 0]")
                    && differences.Contains("[ 1]")
                    && differences.Select((c, i) => differences.Substring(i))
@@ -265,7 +265,7 @@ public class QuoteExtensionMethodsTests
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
                    && differences.Select((c, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1);
-        Assert.IsTrue(differences.Contains(nameof(q2.BidBook))
+        Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.BidSide))
                    && differences.Contains("[ 0]")
                    && differences.Contains("[ 1]")
                    && differences.Select((c, i) => differences.Substring(i))
@@ -280,7 +280,7 @@ public class QuoteExtensionMethodsTests
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
                    && differences.Select((c, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1);
-        Assert.IsTrue(differences.Contains(nameof(q2.BidBook))
+        Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.BidSide))
                    && differences.Contains("[ 0]")
                    && differences.Contains("[ 1]")
                    && differences.Select((c, i) => differences.Substring(i))
@@ -295,7 +295,7 @@ public class QuoteExtensionMethodsTests
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
                    && differences.Select((c, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1);
-        Assert.IsTrue(differences.Contains(nameof(q2.BidBook))
+        Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.BidSide))
                    && differences.Contains("[ 0]")
                    && differences.Contains("[ 1]")
                    && differences.Select((c, i) => differences.Substring(i))
@@ -311,7 +311,7 @@ public class QuoteExtensionMethodsTests
         Console.Out.WriteLine(differences);
         expectedOriginal = OriginalBidTopVolume.ToString(PricingConstants.UniversalVolumeFormating);
         expectedNew      = newBidTopVolume.ToString(PricingConstants.UniversalVolumeFormating);
-        Assert.IsTrue(differences.Contains(nameof(q2.BidBook))
+        Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.BidSide))
                    && differences.Select((c, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 1
                    && differences.Select((c, i) => differences.Substring(i))
@@ -334,7 +334,7 @@ public class QuoteExtensionMethodsTests
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
                    && differences.Select((c, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1);
-        Assert.IsTrue(differences.Contains(nameof(q2.AskBook))
+        Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.AskSide))
                    && differences.Contains("[ 0]")
                    && differences.Contains("[ 1]")
                    && differences.Select((c, i) => differences.Substring(i))
@@ -349,7 +349,7 @@ public class QuoteExtensionMethodsTests
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
                    && differences.Select((c, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1);
-        Assert.IsTrue(differences.Contains(nameof(q2.AskBook))
+        Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.AskSide))
                    && differences.Contains("[ 0]")
                    && differences.Contains("[ 1]")
                    && differences.Select((c, i) => differences.Substring(i))
@@ -364,7 +364,7 @@ public class QuoteExtensionMethodsTests
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
                    && differences.Select((c, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1);
-        Assert.IsTrue(differences.Contains(nameof(q2.AskBook))
+        Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.AskSide))
                    && differences.Contains("[ 0]")
                    && differences.Contains("[ 1]")
                    && differences.Select((c, i) => differences.Substring(i))
@@ -379,7 +379,7 @@ public class QuoteExtensionMethodsTests
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
                    && differences.Select((c, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1);
-        Assert.IsTrue(differences.Contains(nameof(q2.AskBook))
+        Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.AskSide))
                    && differences.Contains("[ 0]")
                    && differences.Contains("[ 1]")
                    && differences.Select((c, i) => differences.Substring(i))
@@ -395,7 +395,7 @@ public class QuoteExtensionMethodsTests
         Console.Out.WriteLine(differences);
         expectedOriginal = OriginalAskTopVolume.ToString(PricingConstants.UniversalVolumeFormating);
         expectedNew      = newAskTopVolume.ToString(PricingConstants.UniversalVolumeFormating);
-        Assert.IsTrue(differences.Contains(nameof(q2.AskBook))
+        Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.AskSide))
                    && differences.Select((c, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 1
                    && differences.Select((c, i) => differences.Substring(i))

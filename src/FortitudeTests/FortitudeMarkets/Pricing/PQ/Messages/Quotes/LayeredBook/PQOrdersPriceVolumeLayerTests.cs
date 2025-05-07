@@ -1508,8 +1508,10 @@ public class PQOrdersPriceVolumeLayerTests
     (bool exactComparison,
         IPQOrdersPriceVolumeLayer? original,
         IPQOrdersPriceVolumeLayer? changingPriceVolumeLayer,
-        IOrderBookSide? originalOrderBook = null,
-        IOrderBookSide? changingOrderBook = null,
+        IOrderBookSide? originalOrderBookSide = null,
+        IOrderBookSide? changingOrderBookSide = null,
+        IOrderBook? originalOrderBook = null,
+        IOrderBook? changingOrderBook = null,
         ILevel2Quote? originalQuote = null,
         ILevel2Quote? changingQuote = null)
     {
@@ -1518,8 +1520,8 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.IsNotNull(changingPriceVolumeLayer);
 
         PQPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-            (exactComparison, original, changingPriceVolumeLayer, originalOrderBook
-           , changingOrderBook, originalQuote, changingQuote);
+            (exactComparison, original, changingPriceVolumeLayer, originalOrderBookSide
+           , changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote, changingQuote);
 
         if (original.GetType() == typeof(PQOrdersPriceVolumeLayer))
             Assert.AreEqual(!exactComparison,
@@ -1535,7 +1537,7 @@ public class PQOrdersPriceVolumeLayerTests
             if (originalTraderInfo is PQAnonymousOrderLayerInfo pqOriginalTraderInfo)
                 PQAnonymousOrderLayerInfoTests.AssertAreEquivalentMeetsExpectedExactComparisonType
                     (exactComparison, pqOriginalTraderInfo, (PQAnonymousOrderLayerInfo)changingTraderInfo!, original
-                   , changingPriceVolumeLayer, originalOrderBook, changingOrderBook, originalQuote, changingQuote);
+                   , changingPriceVolumeLayer, originalOrderBookSide, changingOrderBookSide, originalQuote, changingQuote);
         }
     }
 

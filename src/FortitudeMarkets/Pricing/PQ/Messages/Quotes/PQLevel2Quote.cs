@@ -299,7 +299,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         if (pqFieldUpdate.Id == PQQuoteFields.LayerNameDictionaryUpsertCommand) return (int)pqFieldUpdate.Payload;
-        if (pqFieldUpdate.Id is >= PQQuoteFields.ShiftBookByLayers and <= PQQuoteFields.AllLayersRangeEnd)
+        if (pqFieldUpdate.Id is >= PQQuoteFields.OpenInterestTotal and <= PQQuoteFields.AllLayersRangeEnd)
         {
             var result      = orderBook.UpdateField(pqFieldUpdate);
             // pass Best Price through to Level 1 quote 

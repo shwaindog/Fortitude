@@ -3,12 +3,16 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
+using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
@@ -29,9 +33,12 @@ public class PQAnonymousOrderLayerInfoTests
 
     private IPQAnonymousOrderLayerInfo emptyAoli = null!;
 
-    private IPQNameIdLookupGenerator   emptyNameIdLookup = null!;
-    private IPQNameIdLookupGenerator   nameIdLookup      = null!;
-    private IPQAnonymousOrderLayerInfo populatedAoli     = null!;
+    private static IPQNameIdLookupGenerator   emptyNameIdLookup = new PQNameIdLookupGenerator(PQQuoteFields.LayerNameDictionaryUpsertCommand);
+
+    private        IPQNameIdLookupGenerator   nameIdLookup      = null!;
+    private        IPQAnonymousOrderLayerInfo populatedAoli     = null!;
+    
+    private static DateTime testDateTime = new DateTime(2017, 10, 08, 18, 33, 24);
 
     [TestInitialize]
     public void SetUp()
@@ -306,6 +313,1241 @@ public class PQAnonymousOrderLayerInfoTests
         Assert.IsFalse(fromPQInstance.IsEmpty);
         Assert.IsTrue(fromPQInstance.HasUpdates);
     }
+
+    [TestMethod]
+    public void PopulatedAoli_OrderIdChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
+    {
+        populatedAoli.HasUpdates = false;
+
+        AssertOrdersOrderIdFieldUpdatesReturnAsExpected(populatedAoli);
+    }
+
+    public static void AssertOrdersOrderIdFieldUpdatesReturnAsExpected
+    (
+        IPQAnonymousOrderLayerInfo? anonOrderInfo,
+        ushort orderIndex = 0,
+        IPQOrdersPriceVolumeLayer? ordersLayer = null,
+        int bookDepth = 0,
+        IPQOrderBookSide? orderBookSide = null,
+        IPQOrderBook? orderBook = null,
+        IPQLevel2Quote? l2Quote = null
+    )
+    {
+        if (anonOrderInfo == null) return;
+        var olNotNull     = ordersLayer != null;
+        var bsNotNull     = orderBookSide != null;
+        var bkNotNull     = orderBook != null;
+        var l2QNotNull    = l2Quote != null;
+        var isBid         = orderBook == null || orderBookSide?.BookSide == BookSide.BidBook;
+        var depthNoSide   = (PQDepthKey)bookDepth;
+        var depthWithSide = (PQDepthKey)bookDepth | (isBid ? PQDepthKey.None : PQDepthKey.AskSide);
+
+        testDateTime = testDateTime.AddHours(1).AddMinutes(1);
+
+        Assert.IsFalse(anonOrderInfo.IsOrderIdUpdated);
+        Assert.IsFalse(anonOrderInfo.HasUpdates);
+        anonOrderInfo.OrderId = 12;
+        Assert.IsTrue(anonOrderInfo.HasUpdates);
+        anonOrderInfo.UpdateComplete();
+        anonOrderInfo.OrderId          = 0;
+        anonOrderInfo.IsOrderIdUpdated = false;
+        anonOrderInfo.HasUpdates           = false;
+
+        Assert.AreEqual(0, anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (bsNotNull) Assert.AreEqual(0, orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+
+        var expectedOrderId= 128;
+        anonOrderInfo.OrderId = expectedOrderId;
+        Assert.IsTrue(anonOrderInfo.HasUpdates);
+        Assert.AreEqual(expectedOrderId, anonOrderInfo.OrderId);
+        Assert.IsTrue(anonOrderInfo.IsOrderIdUpdated);
+        var precisionSettings = l2Quote?.SourceTickerInfo ?? PQSourceTickerInfoTests.OrdersCountL3TraderNamePaidOrGivenSti;
+        var l2QUpdates = l2QNotNull
+            ? l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var bkUpdates = bkNotNull
+            ? orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var bsUpdates = bsNotNull
+            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var olUpdates = olNotNull
+            ? ordersLayer!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        if (l2QNotNull) Assert.AreEqual(3, l2QUpdates.Count);
+        if (bkNotNull) Assert.AreEqual(1, bkUpdates.Count);
+        if (bsNotNull) Assert.AreEqual(1, bsUpdates.Count);
+        if (olNotNull) Assert.AreEqual(1, olUpdates.Count);
+        var orderInfoUpdates = anonOrderInfo
+                           .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
+        Assert.AreEqual(1, orderInfoUpdates.Count);
+        var expectedOrderInfo
+            = new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderId, expectedOrderId);
+        var expectedLayer     = expectedOrderInfo.WithAuxiliary(orderIndex);
+        var expectedBookSide  = expectedLayer.WithDepth(depthNoSide);
+        var expectedOrderBook = expectedBookSide.WithDepth(depthWithSide);
+        Assert.AreEqual(expectedOrderInfo, orderInfoUpdates[0]);
+        if (olNotNull) Assert.AreEqual(expectedLayer, olUpdates[0]);
+        if (bsNotNull) Assert.AreEqual(expectedBookSide, bsUpdates[0]);
+        if (bkNotNull) Assert.AreEqual(expectedOrderBook, bkUpdates[0]);
+        if (l2QNotNull) Assert.AreEqual(expectedOrderBook, l2QUpdates[2]);
+
+        anonOrderInfo.IsOrderIdUpdated = false;
+        Assert.IsFalse(anonOrderInfo.HasUpdates);
+        if (olNotNull) Assert.IsFalse(ordersLayer!.HasUpdates);
+        if (bsNotNull) Assert.IsFalse(orderBookSide!.HasUpdates);
+        if (bkNotNull) Assert.IsFalse(orderBook!.HasUpdates);
+        if (l2QNotNull)
+        {
+            Assert.IsTrue(l2Quote!.HasUpdates);
+            l2Quote.IsAdapterSentTimeDateUpdated    = false;
+            l2Quote.IsAdapterSentTimeSub2MinUpdated = false;
+            Assert.IsFalse(l2Quote.HasUpdates);
+            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).Count());
+        }
+        Assert.IsTrue(anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).IsNullOrEmpty());
+
+        if (l2QNotNull)
+        {
+            l2QUpdates =
+            (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderId } 
+                   && update.DepthId == depthWithSide && update.AuxiliaryPayload == orderIndex
+                select update).ToList();
+            Assert.AreEqual(1, l2QUpdates.Count);
+            Assert.AreEqual(expectedOrderBook, l2QUpdates[0]);
+
+            var newEmpty = new PQLevel2Quote(l2Quote.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(l2QUpdates[0]);
+            var foundLayer =
+                (IPQOrdersPriceVolumeLayer)(isBid ? newEmpty.BidBook : newEmpty.AskBook)[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedOrderId, foundAnonOrderInfo.OrderId);
+            Assert.IsTrue(foundAnonOrderInfo.IsOrderIdUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (bkNotNull)
+        {
+            bkUpdates =
+                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderId } 
+                       && update.DepthId == depthWithSide && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(1, bkUpdates.Count);
+            Assert.AreEqual(expectedOrderBook, bkUpdates[0]);
+
+            var newEmpty = new PQOrderBook(l2Quote?.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(bkUpdates[0]);
+            var foundLayer =
+                (IPQOrdersPriceVolumeLayer)(isBid ? newEmpty.BidSide : newEmpty.AskSide)[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedOrderId, foundAnonOrderInfo.OrderId);
+            Assert.IsTrue(foundAnonOrderInfo.IsOrderIdUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (bsNotNull)
+        {
+            bsUpdates =
+                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderId } 
+                       && update.DepthId == depthNoSide && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(1, bsUpdates.Count);
+            Assert.AreEqual(expectedBookSide, bsUpdates[0]);
+
+            var newEmpty = new PQOrderBookSide(orderBookSide.BookSide, l2Quote?.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(bsUpdates[0]);
+            var foundLayer         = (IPQOrdersPriceVolumeLayer)newEmpty[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedOrderId, foundAnonOrderInfo.OrderId);
+            Assert.IsTrue(foundAnonOrderInfo.IsOrderIdUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (olNotNull)
+        {
+            olUpdates =
+                (from update in ordersLayer!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderId } && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(1, olUpdates.Count);
+            Assert.AreEqual(expectedLayer, olUpdates[0]);
+
+            var newLayer = new PQOrdersPriceVolumeLayer(LayerType.OrdersAnonymousPriceVolume, emptyNameIdLookup.Clone());
+            newLayer.UpdateField(olUpdates[0]);
+            var foundAnonOrderInfo = newLayer[orderIndex]!;
+            Assert.AreEqual(expectedOrderId, foundAnonOrderInfo.OrderId);
+            Assert.IsTrue(foundAnonOrderInfo.IsOrderIdUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(newLayer.HasUpdates);
+        }
+        orderInfoUpdates =
+            (from update in anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderId }
+                select update).ToList();
+        Assert.AreEqual(1, orderInfoUpdates.Count);
+        Assert.AreEqual(expectedOrderInfo, orderInfoUpdates[0]);
+
+        var newAnonOrderInfo = new PQAnonymousOrderLayerInfo();
+        newAnonOrderInfo.UpdateField(orderInfoUpdates[0]);
+        Assert.AreEqual(expectedOrderId, newAnonOrderInfo.OrderId);
+        Assert.IsTrue(newAnonOrderInfo.IsOrderIdUpdated);
+        Assert.IsTrue(newAnonOrderInfo.HasUpdates);
+
+        anonOrderInfo.OrderId = 0;
+        anonOrderInfo.HasUpdates     = false;
+        if (l2QNotNull) l2Quote!.HasUpdates = false;
+    }
+
+    [TestMethod]
+    public void PopulatedAoli_OrderFlagsChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
+    {
+        populatedAoli.HasUpdates = false;
+
+        AssertOrdersOrderFlagsFieldUpdatesReturnAsExpected(populatedAoli);
+    }
+
+    public static void AssertOrdersOrderFlagsFieldUpdatesReturnAsExpected
+    (
+        IPQAnonymousOrderLayerInfo? anonOrderInfo,
+        ushort orderIndex = 0,
+        IPQOrdersPriceVolumeLayer? ordersLayer = null,
+        int bookDepth = 0,
+        IPQOrderBookSide? orderBookSide = null,
+        IPQOrderBook? orderBook = null,
+        IPQLevel2Quote? l2Quote = null
+    )
+    {
+        if (anonOrderInfo == null) return;
+        var olNotNull     = ordersLayer != null;
+        var bsNotNull     = orderBookSide != null;
+        var bkNotNull     = orderBook != null;
+        var l2QNotNull    = l2Quote != null;
+        var isBid         = orderBook == null || orderBookSide?.BookSide == BookSide.BidBook;
+        var depthNoSide   = (PQDepthKey)bookDepth;
+        var depthWithSide = (PQDepthKey)bookDepth | (isBid ? PQDepthKey.None : PQDepthKey.AskSide);
+
+        testDateTime = testDateTime.AddHours(1).AddMinutes(1);
+
+        Assert.IsFalse(anonOrderInfo.IsOrderIdUpdated);
+        Assert.IsFalse(anonOrderInfo.HasUpdates);
+        anonOrderInfo.OrderFlags =  LayerOrderFlags.AmendRequested;
+        Assert.IsTrue(anonOrderInfo.HasUpdates);
+        anonOrderInfo.UpdateComplete();
+        anonOrderInfo.OrderFlags       = LayerOrderFlags.None;
+        anonOrderInfo.IsOrderIdUpdated = false;
+        anonOrderInfo.HasUpdates       = false;
+
+        Assert.AreEqual(0, anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (bsNotNull) Assert.AreEqual(0, orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+
+        var expectedOrderFlags= LayerOrderFlags.IsInternallyCreatedOrder | LayerOrderFlags.IsSyntheticTrackingOrder;
+        anonOrderInfo.OrderFlags = expectedOrderFlags;
+        Assert.IsTrue(anonOrderInfo.HasUpdates);
+        Assert.AreEqual(expectedOrderFlags, anonOrderInfo.OrderFlags);
+        Assert.IsTrue(anonOrderInfo.IsOrderFlagsUpdated);
+        var precisionSettings = l2Quote?.SourceTickerInfo ?? PQSourceTickerInfoTests.OrdersCountL3TraderNamePaidOrGivenSti;
+        var l2QUpdates = l2QNotNull
+            ? l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var bkUpdates = bkNotNull
+            ? orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var bsUpdates = bsNotNull
+            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var olUpdates = olNotNull
+            ? ordersLayer!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        if (l2QNotNull) Assert.AreEqual(3, l2QUpdates.Count);
+        if (bkNotNull) Assert.AreEqual(1, bkUpdates.Count);
+        if (bsNotNull) Assert.AreEqual(1, bsUpdates.Count);
+        if (olNotNull) Assert.AreEqual(1, olUpdates.Count);
+        var orderInfoUpdates = anonOrderInfo
+                           .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
+        Assert.AreEqual(1, orderInfoUpdates.Count);
+        var expectedOrderInfo
+            = new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderFlags, (uint)expectedOrderFlags);
+        var expectedLayer     = expectedOrderInfo.WithAuxiliary(orderIndex);
+        var expectedBookSide  = expectedLayer.WithDepth(depthNoSide);
+        var expectedOrderBook = expectedBookSide.WithDepth(depthWithSide);
+        Assert.AreEqual(expectedOrderInfo, orderInfoUpdates[0]);
+        if (olNotNull) Assert.AreEqual(expectedLayer, olUpdates[0]);
+        if (bsNotNull) Assert.AreEqual(expectedBookSide, bsUpdates[0]);
+        if (bkNotNull) Assert.AreEqual(expectedOrderBook, bkUpdates[0]);
+        if (l2QNotNull) Assert.AreEqual(expectedOrderBook, l2QUpdates[2]);
+
+        anonOrderInfo.IsOrderFlagsUpdated = false;
+        Assert.IsFalse(anonOrderInfo.HasUpdates);
+        if (olNotNull) Assert.IsFalse(ordersLayer!.HasUpdates);
+        if (bsNotNull) Assert.IsFalse(orderBookSide!.HasUpdates);
+        if (bkNotNull) Assert.IsFalse(orderBook!.HasUpdates);
+        if (l2QNotNull)
+        {
+            Assert.IsTrue(l2Quote!.HasUpdates);
+            l2Quote.IsAdapterSentTimeDateUpdated    = false;
+            l2Quote.IsAdapterSentTimeSub2MinUpdated = false;
+            Assert.IsFalse(l2Quote.HasUpdates);
+            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).Count());
+        }
+        Assert.IsTrue(anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).IsNullOrEmpty());
+
+        if (l2QNotNull)
+        {
+            l2QUpdates =
+            (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderFlags } 
+                   && update.DepthId == depthWithSide && update.AuxiliaryPayload == orderIndex
+                select update).ToList();
+            Assert.AreEqual(1, l2QUpdates.Count);
+            Assert.AreEqual(expectedOrderBook, l2QUpdates[0]);
+
+            var newEmpty = new PQLevel2Quote(l2Quote.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(l2QUpdates[0]);
+            var foundLayer =
+                (IPQOrdersPriceVolumeLayer)(isBid ? newEmpty.BidBook : newEmpty.AskBook)[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedOrderFlags, foundAnonOrderInfo.OrderFlags);
+            Assert.IsTrue(foundAnonOrderInfo.IsOrderFlagsUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (bkNotNull)
+        {
+            bkUpdates =
+                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderFlags } 
+                       && update.DepthId == depthWithSide && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(1, bkUpdates.Count);
+            Assert.AreEqual(expectedOrderBook, bkUpdates[0]);
+
+            var newEmpty = new PQOrderBook(l2Quote?.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(bkUpdates[0]);
+            var foundLayer =
+                (IPQOrdersPriceVolumeLayer)(isBid ? newEmpty.BidSide : newEmpty.AskSide)[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedOrderFlags, foundAnonOrderInfo.OrderFlags);
+            Assert.IsTrue(foundAnonOrderInfo.IsOrderFlagsUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (bsNotNull)
+        {
+            bsUpdates =
+                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderFlags } 
+                       && update.DepthId == depthNoSide && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(1, bsUpdates.Count);
+            Assert.AreEqual(expectedBookSide, bsUpdates[0]);
+
+            var newEmpty = new PQOrderBookSide(orderBookSide.BookSide, l2Quote?.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(bsUpdates[0]);
+            var foundLayer         = (IPQOrdersPriceVolumeLayer)newEmpty[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedOrderFlags, foundAnonOrderInfo.OrderFlags);
+            Assert.IsTrue(foundAnonOrderInfo.IsOrderFlagsUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (olNotNull)
+        {
+            olUpdates =
+                (from update in ordersLayer!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderFlags } && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(1, olUpdates.Count);
+            Assert.AreEqual(expectedLayer, olUpdates[0]);
+
+            var newLayer = new PQOrdersPriceVolumeLayer(LayerType.OrdersAnonymousPriceVolume, emptyNameIdLookup.Clone());
+            newLayer.UpdateField(olUpdates[0]);
+            var foundAnonOrderInfo = newLayer[orderIndex]!;
+            Assert.AreEqual(expectedOrderFlags, foundAnonOrderInfo.OrderFlags);
+            Assert.IsTrue(foundAnonOrderInfo.IsOrderFlagsUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(newLayer.HasUpdates);
+        }
+        orderInfoUpdates =
+            (from update in anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderFlags }
+                select update).ToList();
+        Assert.AreEqual(1, orderInfoUpdates.Count);
+        Assert.AreEqual(expectedOrderInfo, orderInfoUpdates[0]);
+
+        var newAnonOrderInfo = new PQAnonymousOrderLayerInfo();
+        newAnonOrderInfo.UpdateField(orderInfoUpdates[0]);
+        Assert.AreEqual(expectedOrderFlags, newAnonOrderInfo.OrderFlags);
+        Assert.IsTrue(newAnonOrderInfo.IsOrderFlagsUpdated);
+        Assert.IsTrue(newAnonOrderInfo.HasUpdates);
+
+        anonOrderInfo.OrderFlags = LayerOrderFlags.None;
+        anonOrderInfo.HasUpdates = false;
+        if (l2QNotNull) l2Quote!.HasUpdates = false;
+    }
+
+    [TestMethod]
+    public void PopulatedAoli_OrderCreatedDateChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
+    {
+        populatedAoli.HasUpdates = false;
+
+        AssertOrdersOrderCreatedTimeFieldUpdatesReturnAsExpected(populatedAoli);
+    }
+
+    public static void AssertOrdersOrderCreatedTimeFieldUpdatesReturnAsExpected
+    (
+        IPQAnonymousOrderLayerInfo? anonOrderInfo,
+        ushort orderIndex = 0,
+        IPQOrdersPriceVolumeLayer? ordersLayer = null,
+        int bookDepth = 0,
+        IPQOrderBookSide? orderBookSide = null,
+        IPQOrderBook? orderBook = null,
+        IPQLevel2Quote? l2Quote = null
+    )
+    {
+        if (anonOrderInfo == null) return;
+        var olNotNull     = ordersLayer != null;
+        var bsNotNull     = orderBookSide != null;
+        var bkNotNull     = orderBook != null;
+        var l2QNotNull    = l2Quote != null;
+        var isBid         = orderBook == null || orderBookSide?.BookSide == BookSide.BidBook;
+        var depthNoSide   = (PQDepthKey)bookDepth;
+        var depthWithSide = (PQDepthKey)bookDepth | (isBid ? PQDepthKey.None : PQDepthKey.AskSide);
+
+        testDateTime = testDateTime.AddHours(1).AddMinutes(1);
+
+        Assert.IsFalse(anonOrderInfo.IsOrderIdUpdated);
+        Assert.IsFalse(anonOrderInfo.HasUpdates);
+        anonOrderInfo.CreatedTime =  DateTime.Now;
+        Assert.IsTrue(anonOrderInfo.HasUpdates);
+        anonOrderInfo.UpdateComplete();
+        anonOrderInfo.CreatedTime      = DateTime.MinValue;
+        anonOrderInfo.IsCreatedTimeDateUpdated = false;
+        anonOrderInfo.IsCreatedTimeSub2MinUpdated = false;
+        anonOrderInfo.HasUpdates       = false;
+
+        Assert.AreEqual(0, anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (bsNotNull) Assert.AreEqual(0, orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        
+        var expectedCreatedTime = new DateTime(2017, 12, 03, 19, 27, 53);
+        anonOrderInfo.CreatedTime = expectedCreatedTime;
+        Assert.IsTrue(anonOrderInfo.HasUpdates);
+        Assert.AreEqual(expectedCreatedTime, anonOrderInfo.CreatedTime);
+        Assert.IsTrue(anonOrderInfo.IsCreatedTimeDateUpdated);
+        Assert.IsTrue(anonOrderInfo.IsCreatedTimeSub2MinUpdated);
+        var precisionSettings = l2Quote?.SourceTickerInfo ?? PQSourceTickerInfoTests.OrdersCountL3TraderNamePaidOrGivenSti;
+        var l2QUpdates = l2QNotNull
+            ? l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var bkUpdates = bkNotNull
+            ? orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var bsUpdates = bsNotNull
+            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var olUpdates = olNotNull
+            ? ordersLayer!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        if (l2QNotNull) Assert.AreEqual(4, l2QUpdates.Count);
+        if (bkNotNull) Assert.AreEqual(2, bkUpdates.Count);
+        if (bsNotNull) Assert.AreEqual(2, bsUpdates.Count);
+        if (olNotNull) Assert.AreEqual(2, olUpdates.Count);
+        var orderInfoUpdates = anonOrderInfo
+                           .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
+        Assert.AreEqual(2, orderInfoUpdates.Count);
+        var twoMinIntervalsSinceUnixEpoch       = expectedCreatedTime.Get2MinIntervalsFromUnixEpoch();
+        var expectedOrderInfoDate    = new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderCreatedDate, twoMinIntervalsSinceUnixEpoch);
+        var extended                  = expectedCreatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBottom);
+        var expectedOrderInfoTime = new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderCreatedSub2MinTime, subHourBottom, extended);
+        var expectedLayerDate     = expectedOrderInfoDate.WithAuxiliary(orderIndex);
+        var expectedLayerTime     = expectedOrderInfoTime.WithAuxiliary(orderIndex);
+        var expectedBookSideDate  = expectedLayerDate.WithDepth(depthNoSide);
+        var expectedBookSideTime  = expectedLayerTime.WithDepth(depthNoSide);
+        var expectedOrderBookDate = expectedBookSideDate.WithDepth(depthWithSide);
+        var expectedOrderBookTime = expectedBookSideTime.WithDepth(depthWithSide);
+        Assert.AreEqual(expectedOrderInfoDate, orderInfoUpdates[0]);
+        Assert.AreEqual(expectedOrderInfoTime, orderInfoUpdates[1]);
+        if (olNotNull)
+        {
+            Assert.AreEqual(expectedLayerDate, olUpdates[0]);
+            Assert.AreEqual(expectedLayerTime, olUpdates[1]);
+        }
+        if (bsNotNull)
+        {
+            Assert.AreEqual(expectedBookSideDate, bsUpdates[0]);
+            Assert.AreEqual(expectedBookSideTime, bsUpdates[1]);
+        }
+        if (bkNotNull)
+        {
+            Assert.AreEqual(expectedOrderBookDate, bkUpdates[0]);
+            Assert.AreEqual(expectedOrderBookTime, bkUpdates[1]);
+        }
+        if (l2QNotNull)
+        {
+            Assert.AreEqual(expectedOrderBookDate, l2QUpdates[2]);
+            Assert.AreEqual(expectedOrderBookTime, l2QUpdates[3]);
+        }
+
+        anonOrderInfo.IsCreatedTimeDateUpdated = false;
+        anonOrderInfo.IsCreatedTimeSub2MinUpdated = false;
+        Assert.IsFalse(anonOrderInfo.HasUpdates);
+        if (olNotNull) Assert.IsFalse(ordersLayer!.HasUpdates);
+        if (bsNotNull) Assert.IsFalse(orderBookSide!.HasUpdates);
+        if (bkNotNull) Assert.IsFalse(orderBook!.HasUpdates);
+        if (l2QNotNull)
+        {
+            Assert.IsTrue(l2Quote!.HasUpdates);
+            l2Quote.IsAdapterSentTimeDateUpdated    = false;
+            l2Quote.IsAdapterSentTimeSub2MinUpdated = false;
+            Assert.IsFalse(l2Quote.HasUpdates);
+            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).Count());
+        }
+        Assert.IsTrue(anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).IsNullOrEmpty());
+
+        if (l2QNotNull)
+        {
+            l2QUpdates =
+            (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderCreatedDate or PQSubFieldKeys.OrderCreatedSub2MinTime } 
+                   && update.DepthId == depthWithSide && update.AuxiliaryPayload == orderIndex
+                select update).ToList();
+            Assert.AreEqual(2, l2QUpdates.Count);
+            Assert.AreEqual(expectedOrderBookDate, l2QUpdates[0]);
+            Assert.AreEqual(expectedOrderBookTime, l2QUpdates[1]);
+
+            var newEmpty = new PQLevel2Quote(l2Quote.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(l2QUpdates[0]);
+            newEmpty.UpdateField(l2QUpdates[1]);
+            var foundLayer =
+                (IPQOrdersPriceVolumeLayer)(isBid ? newEmpty.BidBook : newEmpty.AskBook)[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedCreatedTime, foundAnonOrderInfo.CreatedTime);
+            Assert.IsTrue(foundAnonOrderInfo.IsCreatedTimeDateUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.IsCreatedTimeSub2MinUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (bkNotNull)
+        {
+            bkUpdates =
+                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderCreatedDate or PQSubFieldKeys.OrderCreatedSub2MinTime } 
+                       && update.DepthId == depthWithSide && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(2, bkUpdates.Count);
+            Assert.AreEqual(expectedOrderBookDate, bkUpdates[0]);
+            Assert.AreEqual(expectedOrderBookTime, bkUpdates[1]);
+
+            var newEmpty = new PQOrderBook(l2Quote?.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(bkUpdates[0]);
+            newEmpty.UpdateField(bkUpdates[1]);
+            var foundLayer =
+                (IPQOrdersPriceVolumeLayer)(isBid ? newEmpty.BidSide : newEmpty.AskSide)[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedCreatedTime, foundAnonOrderInfo.CreatedTime);
+            Assert.IsTrue(foundAnonOrderInfo.IsCreatedTimeDateUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.IsCreatedTimeSub2MinUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (bsNotNull)
+        {
+            bsUpdates =
+                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderCreatedDate or PQSubFieldKeys.OrderCreatedSub2MinTime } 
+                       && update.DepthId == depthNoSide && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(2, bsUpdates.Count);
+            Assert.AreEqual(expectedBookSideDate, bsUpdates[0]);
+            Assert.AreEqual(expectedBookSideTime, bsUpdates[1]);
+
+            var newEmpty = new PQOrderBookSide(orderBookSide.BookSide, l2Quote?.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(bsUpdates[0]);
+            newEmpty.UpdateField(bsUpdates[1]);
+            var foundLayer         = (IPQOrdersPriceVolumeLayer)newEmpty[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedCreatedTime, foundAnonOrderInfo.CreatedTime);
+            Assert.IsTrue(foundAnonOrderInfo.IsCreatedTimeDateUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.IsCreatedTimeSub2MinUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (olNotNull)
+        {
+            olUpdates =
+                (from update in ordersLayer!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderCreatedDate or PQSubFieldKeys.OrderCreatedSub2MinTime }
+                       && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(2, olUpdates.Count);
+            Assert.AreEqual(expectedLayerDate, olUpdates[0]);
+            Assert.AreEqual(expectedLayerTime, olUpdates[1]);
+
+            var newLayer = new PQOrdersPriceVolumeLayer(LayerType.OrdersAnonymousPriceVolume, emptyNameIdLookup.Clone());
+            newLayer.UpdateField(olUpdates[0]);
+            newLayer.UpdateField(olUpdates[1]);
+            var foundAnonOrderInfo = newLayer[orderIndex]!;
+            Assert.AreEqual(expectedCreatedTime, foundAnonOrderInfo.CreatedTime);
+            Assert.IsTrue(foundAnonOrderInfo.IsCreatedTimeDateUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.IsCreatedTimeSub2MinUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(newLayer.HasUpdates);
+        }
+        orderInfoUpdates =
+            (from update in anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderCreatedDate or PQSubFieldKeys.OrderCreatedSub2MinTime }
+                select update).ToList();
+        Assert.AreEqual(2, orderInfoUpdates.Count);
+        Assert.AreEqual(expectedOrderInfoDate, orderInfoUpdates[0]);
+        Assert.AreEqual(expectedOrderInfoTime, orderInfoUpdates[1]);
+
+        var newAnonOrderInfo = new PQAnonymousOrderLayerInfo();
+        newAnonOrderInfo.UpdateField(orderInfoUpdates[0]);
+        newAnonOrderInfo.UpdateField(orderInfoUpdates[1]);
+        Assert.AreEqual(expectedCreatedTime, newAnonOrderInfo.CreatedTime);
+        Assert.IsTrue(newAnonOrderInfo.IsCreatedTimeDateUpdated);
+        Assert.IsTrue(newAnonOrderInfo.IsCreatedTimeSub2MinUpdated);
+        Assert.IsTrue(newAnonOrderInfo.HasUpdates);
+
+        anonOrderInfo.OrderFlags = LayerOrderFlags.None;
+        anonOrderInfo.HasUpdates = false;
+        if (l2QNotNull) l2Quote!.HasUpdates = false;
+    }
+
+    [TestMethod]
+    public void PopulatedAoli_OrderUpdatedDateChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
+    {
+        populatedAoli.HasUpdates = false;
+
+        AssertOrdersOrderUpdatedTimeFieldUpdatesReturnAsExpected(populatedAoli);
+    }
+
+    public static void AssertOrdersOrderUpdatedTimeFieldUpdatesReturnAsExpected
+    (
+        IPQAnonymousOrderLayerInfo? anonOrderInfo,
+        ushort orderIndex = 0,
+        IPQOrdersPriceVolumeLayer? ordersLayer = null,
+        int bookDepth = 0,
+        IPQOrderBookSide? orderBookSide = null,
+        IPQOrderBook? orderBook = null,
+        IPQLevel2Quote? l2Quote = null
+    )
+    {
+        if (anonOrderInfo == null) return;
+        var olNotNull     = ordersLayer != null;
+        var bsNotNull     = orderBookSide != null;
+        var bkNotNull     = orderBook != null;
+        var l2QNotNull    = l2Quote != null;
+        var isBid         = orderBook == null || orderBookSide?.BookSide == BookSide.BidBook;
+        var depthNoSide   = (PQDepthKey)bookDepth;
+        var depthWithSide = (PQDepthKey)bookDepth | (isBid ? PQDepthKey.None : PQDepthKey.AskSide);
+
+        testDateTime = testDateTime.AddHours(1).AddMinutes(1);
+
+        Assert.IsFalse(anonOrderInfo.IsOrderIdUpdated);
+        Assert.IsFalse(anonOrderInfo.HasUpdates);
+        anonOrderInfo.UpdatedTime =  DateTime.Now;
+        Assert.IsTrue(anonOrderInfo.HasUpdates);
+        anonOrderInfo.UpdateComplete();
+        anonOrderInfo.UpdatedTime                 = DateTime.MinValue;
+        anonOrderInfo.IsUpdatedTimeDateUpdated    = false;
+        anonOrderInfo.IsUpdatedTimeSub2MinUpdated = false;
+        anonOrderInfo.HasUpdates                  = false;
+
+        Assert.AreEqual(0, anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (bsNotNull) Assert.AreEqual(0, orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        
+        var expectedCreatedTime = new DateTime(2017, 12, 03, 19, 27, 53);
+        anonOrderInfo.UpdatedTime = expectedCreatedTime;
+        Assert.IsTrue(anonOrderInfo.HasUpdates);
+        Assert.AreEqual(expectedCreatedTime, anonOrderInfo.UpdatedTime);
+        Assert.IsTrue(anonOrderInfo.IsUpdatedTimeDateUpdated);
+        Assert.IsTrue(anonOrderInfo.IsUpdatedTimeSub2MinUpdated);
+        var precisionSettings = l2Quote?.SourceTickerInfo ?? PQSourceTickerInfoTests.OrdersCountL3TraderNamePaidOrGivenSti;
+        var l2QUpdates = l2QNotNull
+            ? l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var bkUpdates = bkNotNull
+            ? orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var bsUpdates = bsNotNull
+            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var olUpdates = olNotNull
+            ? ordersLayer!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        if (l2QNotNull) Assert.AreEqual(4, l2QUpdates.Count);
+        if (bkNotNull) Assert.AreEqual(2, bkUpdates.Count);
+        if (bsNotNull) Assert.AreEqual(2, bsUpdates.Count);
+        if (olNotNull) Assert.AreEqual(2, olUpdates.Count);
+        var orderInfoUpdates = anonOrderInfo
+                           .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
+        Assert.AreEqual(2, orderInfoUpdates.Count);
+        var hoursSinceUnixEpoch       = expectedCreatedTime.Get2MinIntervalsFromUnixEpoch();
+        var expectedOrderInfoDate    = new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderUpdatedDate, hoursSinceUnixEpoch);
+        var extended                  = expectedCreatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBottom);
+        var expectedOrderInfoTime = new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderUpdatedSub2MinTime, subHourBottom, extended);
+        var expectedLayerDate     = expectedOrderInfoDate.WithAuxiliary(orderIndex);
+        var expectedLayerTime     = expectedOrderInfoTime.WithAuxiliary(orderIndex);
+        var expectedBookSideDate  = expectedLayerDate.WithDepth(depthNoSide);
+        var expectedBookSideTime  = expectedLayerTime.WithDepth(depthNoSide);
+        var expectedOrderBookDate = expectedBookSideDate.WithDepth(depthWithSide);
+        var expectedOrderBookTime = expectedBookSideTime.WithDepth(depthWithSide);
+        Assert.AreEqual(expectedOrderInfoDate, orderInfoUpdates[0]);
+        Assert.AreEqual(expectedOrderInfoTime, orderInfoUpdates[1]);
+        if (olNotNull)
+        {
+            Assert.AreEqual(expectedLayerDate, olUpdates[0]);
+            Assert.AreEqual(expectedLayerTime, olUpdates[1]);
+        }
+        if (bsNotNull)
+        {
+            Assert.AreEqual(expectedBookSideDate, bsUpdates[0]);
+            Assert.AreEqual(expectedBookSideTime, bsUpdates[1]);
+        }
+        if (bkNotNull)
+        {
+            Assert.AreEqual(expectedOrderBookDate, bkUpdates[0]);
+            Assert.AreEqual(expectedOrderBookTime, bkUpdates[1]);
+        }
+        if (l2QNotNull)
+        {
+            Assert.AreEqual(expectedOrderBookDate, l2QUpdates[2]);
+            Assert.AreEqual(expectedOrderBookTime, l2QUpdates[3]);
+        }
+
+        anonOrderInfo.IsUpdatedTimeDateUpdated = false;
+        anonOrderInfo.IsUpdatedTimeSub2MinUpdated = false;
+        Assert.IsFalse(anonOrderInfo.HasUpdates);
+        if (olNotNull) Assert.IsFalse(ordersLayer!.HasUpdates);
+        if (bsNotNull) Assert.IsFalse(orderBookSide!.HasUpdates);
+        if (bkNotNull) Assert.IsFalse(orderBook!.HasUpdates);
+        if (l2QNotNull)
+        {
+            Assert.IsTrue(l2Quote!.HasUpdates);
+            l2Quote.IsAdapterSentTimeDateUpdated    = false;
+            l2Quote.IsAdapterSentTimeSub2MinUpdated = false;
+            Assert.IsFalse(l2Quote.HasUpdates);
+            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).Count());
+        }
+        Assert.IsTrue(anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).IsNullOrEmpty());
+
+        if (l2QNotNull)
+        {
+            l2QUpdates =
+            (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderUpdatedDate or PQSubFieldKeys.OrderUpdatedSub2MinTime } 
+                   && update.DepthId == depthWithSide && update.AuxiliaryPayload == orderIndex
+                select update).ToList();
+            Assert.AreEqual(2, l2QUpdates.Count);
+            Assert.AreEqual(expectedOrderBookDate, l2QUpdates[0]);
+            Assert.AreEqual(expectedOrderBookTime, l2QUpdates[1]);
+
+            var newEmpty = new PQLevel2Quote(l2Quote.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(l2QUpdates[0]);
+            newEmpty.UpdateField(l2QUpdates[1]);
+            var foundLayer =
+                (IPQOrdersPriceVolumeLayer)(isBid ? newEmpty.BidBook : newEmpty.AskBook)[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedCreatedTime, foundAnonOrderInfo.UpdatedTime);
+            Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeDateUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeSub2MinUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (bkNotNull)
+        {
+            bkUpdates =
+                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderUpdatedDate or PQSubFieldKeys.OrderUpdatedSub2MinTime } 
+                       && update.DepthId == depthWithSide && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(2, bkUpdates.Count);
+            Assert.AreEqual(expectedOrderBookDate, bkUpdates[0]);
+            Assert.AreEqual(expectedOrderBookTime, bkUpdates[1]);
+
+            var newEmpty = new PQOrderBook(l2Quote?.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(bkUpdates[0]);
+            newEmpty.UpdateField(bkUpdates[1]);
+            var foundLayer =
+                (IPQOrdersPriceVolumeLayer)(isBid ? newEmpty.BidSide : newEmpty.AskSide)[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedCreatedTime, foundAnonOrderInfo.UpdatedTime);
+            Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeDateUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeSub2MinUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (bsNotNull)
+        {
+            bsUpdates =
+                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderUpdatedDate or PQSubFieldKeys.OrderUpdatedSub2MinTime } 
+                       && update.DepthId == depthNoSide && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(2, bsUpdates.Count);
+            Assert.AreEqual(expectedBookSideDate, bsUpdates[0]);
+            Assert.AreEqual(expectedBookSideTime, bsUpdates[1]);
+
+            var newEmpty = new PQOrderBookSide(orderBookSide.BookSide, l2Quote?.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(bsUpdates[0]);
+            newEmpty.UpdateField(bsUpdates[1]);
+            var foundLayer         = (IPQOrdersPriceVolumeLayer)newEmpty[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedCreatedTime, foundAnonOrderInfo.UpdatedTime);
+            Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeDateUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeSub2MinUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (olNotNull)
+        {
+            olUpdates =
+                (from update in ordersLayer!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderUpdatedDate or PQSubFieldKeys.OrderUpdatedSub2MinTime }
+                       && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(2, olUpdates.Count);
+            Assert.AreEqual(expectedLayerDate, olUpdates[0]);
+            Assert.AreEqual(expectedLayerTime, olUpdates[1]);
+
+            var newLayer = new PQOrdersPriceVolumeLayer(LayerType.OrdersAnonymousPriceVolume, emptyNameIdLookup.Clone());
+            newLayer.UpdateField(olUpdates[0]);
+            newLayer.UpdateField(olUpdates[1]);
+            var foundAnonOrderInfo = newLayer[orderIndex]!;
+            Assert.AreEqual(expectedCreatedTime, foundAnonOrderInfo.UpdatedTime);
+            Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeDateUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeSub2MinUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(newLayer.HasUpdates);
+        }
+        orderInfoUpdates =
+            (from update in anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderUpdatedDate or PQSubFieldKeys.OrderUpdatedSub2MinTime }
+                select update).ToList();
+        Assert.AreEqual(2, orderInfoUpdates.Count);
+        Assert.AreEqual(expectedOrderInfoDate, orderInfoUpdates[0]);
+        Assert.AreEqual(expectedOrderInfoTime, orderInfoUpdates[1]);
+
+        var newAnonOrderInfo = new PQAnonymousOrderLayerInfo();
+        newAnonOrderInfo.UpdateField(orderInfoUpdates[0]);
+        newAnonOrderInfo.UpdateField(orderInfoUpdates[1]);
+        Assert.AreEqual(expectedCreatedTime, newAnonOrderInfo.UpdatedTime);
+        Assert.IsTrue(newAnonOrderInfo.IsUpdatedTimeDateUpdated);
+        Assert.IsTrue(newAnonOrderInfo.IsUpdatedTimeSub2MinUpdated);
+        Assert.IsTrue(newAnonOrderInfo.HasUpdates);
+
+        anonOrderInfo.OrderFlags = LayerOrderFlags.None;
+        anonOrderInfo.HasUpdates = false;
+        if (l2QNotNull) l2Quote!.HasUpdates = false;
+    }
+
+    [TestMethod]
+    public void PopulatedAoli_OrderRemainingVolumeChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
+    {
+        populatedAoli.HasUpdates = false;
+
+        AssertOrdersOrderRemainingVolumeFieldUpdatesReturnAsExpected(populatedAoli);
+    }
+
+    public static void AssertOrdersOrderRemainingVolumeFieldUpdatesReturnAsExpected
+    (
+        IPQAnonymousOrderLayerInfo? anonOrderInfo,
+        ushort orderIndex = 0,
+        IPQOrdersPriceVolumeLayer? ordersLayer = null,
+        int bookDepth = 0,
+        IPQOrderBookSide? orderBookSide = null,
+        IPQOrderBook? orderBook = null,
+        IPQLevel2Quote? l2Quote = null
+    )
+    {
+        if (anonOrderInfo == null) return;
+        var olNotNull     = ordersLayer != null;
+        var bsNotNull     = orderBookSide != null;
+        var bkNotNull     = orderBook != null;
+        var l2QNotNull    = l2Quote != null;
+        var isBid         = orderBook == null || orderBookSide?.BookSide == BookSide.BidBook;
+        var depthNoSide   = (PQDepthKey)bookDepth;
+        var depthWithSide = (PQDepthKey)bookDepth | (isBid ? PQDepthKey.None : PQDepthKey.AskSide);
+
+        testDateTime = testDateTime.AddHours(1).AddMinutes(1);
+
+        Assert.IsFalse(anonOrderInfo.IsOrderRemainingVolumeUpdated);
+        Assert.IsFalse(anonOrderInfo.HasUpdates);
+        anonOrderInfo.OrderRemainingVolume = 12;
+        Assert.IsTrue(anonOrderInfo.HasUpdates);
+        anonOrderInfo.UpdateComplete();
+        anonOrderInfo.OrderRemainingVolume          = 0;
+        anonOrderInfo.IsOrderRemainingVolumeUpdated = false;
+        anonOrderInfo.HasUpdates           = false;
+
+        Assert.AreEqual(0, anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (bsNotNull) Assert.AreEqual(0, orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+
+        var expectedOrderRemainingVolume= 4682m;
+        anonOrderInfo.OrderRemainingVolume = expectedOrderRemainingVolume;
+        Assert.IsTrue(anonOrderInfo.HasUpdates);
+        Assert.AreEqual(expectedOrderRemainingVolume, anonOrderInfo.OrderRemainingVolume);
+        Assert.IsTrue(anonOrderInfo.IsOrderRemainingVolumeUpdated);
+        var precisionSettings = l2Quote?.SourceTickerInfo ?? PQSourceTickerInfoTests.OrdersCountL3TraderNamePaidOrGivenSti;
+        var l2QUpdates = l2QNotNull
+            ? l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var bkUpdates = bkNotNull
+            ? orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var bsUpdates = bsNotNull
+            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var olUpdates = olNotNull
+            ? ordersLayer!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        if (l2QNotNull) Assert.AreEqual(3, l2QUpdates.Count);
+        if (bkNotNull) Assert.AreEqual(1, bkUpdates.Count);
+        if (bsNotNull) Assert.AreEqual(1, bsUpdates.Count);
+        if (olNotNull) Assert.AreEqual(1, olUpdates.Count);
+        var orderInfoUpdates = anonOrderInfo
+                           .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
+        Assert.AreEqual(1, orderInfoUpdates.Count);
+        var expectedOrderInfo
+            = new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderRemainingVolume, expectedOrderRemainingVolume, precisionSettings.VolumeScalingPrecision);
+        var expectedLayer     = expectedOrderInfo.WithAuxiliary(orderIndex);
+        var expectedBookSide  = expectedLayer.WithDepth(depthNoSide);
+        var expectedOrderBook = expectedBookSide.WithDepth(depthWithSide);
+        Assert.AreEqual(expectedOrderInfo, orderInfoUpdates[0]);
+        if (olNotNull) Assert.AreEqual(expectedLayer, olUpdates[0]);
+        if (bsNotNull) Assert.AreEqual(expectedBookSide, bsUpdates[0]);
+        if (bkNotNull) Assert.AreEqual(expectedOrderBook, bkUpdates[0]);
+        if (l2QNotNull) Assert.AreEqual(expectedOrderBook, l2QUpdates[2]);
+
+        anonOrderInfo.IsOrderRemainingVolumeUpdated = false;
+        Assert.IsFalse(anonOrderInfo.HasUpdates);
+        if (olNotNull) Assert.IsFalse(ordersLayer!.HasUpdates);
+        if (bsNotNull) Assert.IsFalse(orderBookSide!.HasUpdates);
+        if (bkNotNull) Assert.IsFalse(orderBook!.HasUpdates);
+        if (l2QNotNull)
+        {
+            Assert.IsTrue(l2Quote!.HasUpdates);
+            l2Quote.IsAdapterSentTimeDateUpdated    = false;
+            l2Quote.IsAdapterSentTimeSub2MinUpdated = false;
+            Assert.IsFalse(l2Quote.HasUpdates);
+            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).Count());
+        }
+        Assert.IsTrue(anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).IsNullOrEmpty());
+
+        if (l2QNotNull)
+        {
+            l2QUpdates =
+            (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderRemainingVolume } 
+                   && update.DepthId == depthWithSide && update.AuxiliaryPayload == orderIndex
+                select update).ToList();
+            Assert.AreEqual(1, l2QUpdates.Count);
+            Assert.AreEqual(expectedOrderBook, l2QUpdates[0]);
+
+            var newEmpty = new PQLevel2Quote(l2Quote.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(l2QUpdates[0]);
+            var foundLayer =
+                (IPQOrdersPriceVolumeLayer)(isBid ? newEmpty.BidBook : newEmpty.AskBook)[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedOrderRemainingVolume, foundAnonOrderInfo.OrderRemainingVolume);
+            Assert.IsTrue(foundAnonOrderInfo.IsOrderRemainingVolumeUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (bkNotNull)
+        {
+            bkUpdates =
+                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderRemainingVolume } 
+                       && update.DepthId == depthWithSide && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(1, bkUpdates.Count);
+            Assert.AreEqual(expectedOrderBook, bkUpdates[0]);
+
+            var newEmpty = new PQOrderBook(l2Quote?.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(bkUpdates[0]);
+            var foundLayer =
+                (IPQOrdersPriceVolumeLayer)(isBid ? newEmpty.BidSide : newEmpty.AskSide)[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedOrderRemainingVolume, foundAnonOrderInfo.OrderRemainingVolume);
+            Assert.IsTrue(foundAnonOrderInfo.IsOrderRemainingVolumeUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (bsNotNull)
+        {
+            bsUpdates =
+                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderRemainingVolume } 
+                       && update.DepthId == depthNoSide && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(1, bsUpdates.Count);
+            Assert.AreEqual(expectedBookSide, bsUpdates[0]);
+
+            var newEmpty = new PQOrderBookSide(orderBookSide.BookSide, l2Quote?.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(bsUpdates[0]);
+            var foundLayer         = (IPQOrdersPriceVolumeLayer)newEmpty[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedOrderRemainingVolume, foundAnonOrderInfo.OrderRemainingVolume);
+            Assert.IsTrue(foundAnonOrderInfo.IsOrderRemainingVolumeUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (olNotNull)
+        {
+            olUpdates =
+                (from update in ordersLayer!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderRemainingVolume } && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(1, olUpdates.Count);
+            Assert.AreEqual(expectedLayer, olUpdates[0]);
+
+            var newLayer = new PQOrdersPriceVolumeLayer(LayerType.OrdersAnonymousPriceVolume, emptyNameIdLookup.Clone());
+            newLayer.UpdateField(olUpdates[0]);
+            var foundAnonOrderInfo = newLayer[orderIndex]!;
+            Assert.AreEqual(expectedOrderRemainingVolume, foundAnonOrderInfo.OrderRemainingVolume);
+            Assert.IsTrue(foundAnonOrderInfo.IsOrderRemainingVolumeUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(newLayer.HasUpdates);
+        }
+        orderInfoUpdates =
+            (from update in anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderRemainingVolume }
+                select update).ToList();
+        Assert.AreEqual(1, orderInfoUpdates.Count);
+        Assert.AreEqual(expectedOrderInfo, orderInfoUpdates[0]);
+
+        var newAnonOrderInfo = new PQAnonymousOrderLayerInfo();
+        newAnonOrderInfo.UpdateField(orderInfoUpdates[0]);
+        Assert.AreEqual(expectedOrderRemainingVolume, newAnonOrderInfo.OrderRemainingVolume);
+        Assert.IsTrue(newAnonOrderInfo.IsOrderRemainingVolumeUpdated);
+        Assert.IsTrue(newAnonOrderInfo.HasUpdates);
+
+        anonOrderInfo.OrderRemainingVolume = 0;
+        anonOrderInfo.HasUpdates     = false;
+        if (l2QNotNull) l2Quote!.HasUpdates = false;
+    }
+
+    [TestMethod]
+    public void PopulatedAoli_OrderVolumeChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
+    {
+        populatedAoli.HasUpdates = false;
+
+        AssertOrdersOrderVolumeFieldUpdatesReturnAsExpected(populatedAoli);
+    }
+
+    public static void AssertOrdersOrderVolumeFieldUpdatesReturnAsExpected
+    (
+        IPQAnonymousOrderLayerInfo? anonOrderInfo,
+        ushort orderIndex = 0,
+        IPQOrdersPriceVolumeLayer? ordersLayer = null,
+        int bookDepth = 0,
+        IPQOrderBookSide? orderBookSide = null,
+        IPQOrderBook? orderBook = null,
+        IPQLevel2Quote? l2Quote = null
+    )
+    {
+        if (anonOrderInfo == null) return;
+        var olNotNull     = ordersLayer != null;
+        var bsNotNull     = orderBookSide != null;
+        var bkNotNull     = orderBook != null;
+        var l2QNotNull    = l2Quote != null;
+        var isBid         = orderBook == null || orderBookSide?.BookSide == BookSide.BidBook;
+        var depthNoSide   = (PQDepthKey)bookDepth;
+        var depthWithSide = (PQDepthKey)bookDepth | (isBid ? PQDepthKey.None : PQDepthKey.AskSide);
+
+        testDateTime = testDateTime.AddHours(1).AddMinutes(1);
+
+        Assert.IsFalse(anonOrderInfo.IsOrderVolumeUpdated);
+        Assert.IsFalse(anonOrderInfo.HasUpdates);
+        anonOrderInfo.OrderVolume = 12;
+        Assert.IsTrue(anonOrderInfo.HasUpdates);
+        anonOrderInfo.UpdateComplete();
+        anonOrderInfo.OrderVolume          = 0;
+        anonOrderInfo.IsOrderVolumeUpdated = false;
+        anonOrderInfo.HasUpdates           = false;
+
+        Assert.AreEqual(0, anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (bsNotNull) Assert.AreEqual(0, orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+
+        var expectedOrderVolume= 4682m;
+        anonOrderInfo.OrderVolume = expectedOrderVolume;
+        Assert.IsTrue(anonOrderInfo.HasUpdates);
+        Assert.AreEqual(expectedOrderVolume, anonOrderInfo.OrderVolume);
+        Assert.IsTrue(anonOrderInfo.IsOrderVolumeUpdated);
+        var precisionSettings = l2Quote?.SourceTickerInfo ?? PQSourceTickerInfoTests.OrdersCountL3TraderNamePaidOrGivenSti;
+        var l2QUpdates = l2QNotNull
+            ? l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var bkUpdates = bkNotNull
+            ? orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var bsUpdates = bsNotNull
+            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        var olUpdates = olNotNull
+            ? ordersLayer!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            : [];
+        if (l2QNotNull) Assert.AreEqual(3, l2QUpdates.Count);
+        if (bkNotNull) Assert.AreEqual(1, bkUpdates.Count);
+        if (bsNotNull) Assert.AreEqual(1, bsUpdates.Count);
+        if (olNotNull) Assert.AreEqual(1, olUpdates.Count);
+        var orderInfoUpdates = anonOrderInfo
+                           .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
+        Assert.AreEqual(1, orderInfoUpdates.Count);
+        var expectedOrderInfo
+            = new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderVolume, expectedOrderVolume, precisionSettings.VolumeScalingPrecision);
+        var expectedLayer     = expectedOrderInfo.WithAuxiliary(orderIndex);
+        var expectedBookSide  = expectedLayer.WithDepth(depthNoSide);
+        var expectedOrderBook = expectedBookSide.WithDepth(depthWithSide);
+        Assert.AreEqual(expectedOrderInfo, orderInfoUpdates[0]);
+        if (olNotNull) Assert.AreEqual(expectedLayer, olUpdates[0]);
+        if (bsNotNull) Assert.AreEqual(expectedBookSide, bsUpdates[0]);
+        if (bkNotNull) Assert.AreEqual(expectedOrderBook, bkUpdates[0]);
+        if (l2QNotNull) Assert.AreEqual(expectedOrderBook, l2QUpdates[2]);
+
+        anonOrderInfo.IsOrderVolumeUpdated = false;
+        Assert.IsFalse(anonOrderInfo.HasUpdates);
+        if (olNotNull) Assert.IsFalse(ordersLayer!.HasUpdates);
+        if (bsNotNull) Assert.IsFalse(orderBookSide!.HasUpdates);
+        if (bkNotNull) Assert.IsFalse(orderBook!.HasUpdates);
+        if (l2QNotNull)
+        {
+            Assert.IsTrue(l2Quote!.HasUpdates);
+            l2Quote.IsAdapterSentTimeDateUpdated    = false;
+            l2Quote.IsAdapterSentTimeSub2MinUpdated = false;
+            Assert.IsFalse(l2Quote.HasUpdates);
+            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).Count());
+        }
+        Assert.IsTrue(anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).IsNullOrEmpty());
+
+        if (l2QNotNull)
+        {
+            l2QUpdates =
+            (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderVolume } 
+                   && update.DepthId == depthWithSide && update.AuxiliaryPayload == orderIndex
+                select update).ToList();
+            Assert.AreEqual(1, l2QUpdates.Count);
+            Assert.AreEqual(expectedOrderBook, l2QUpdates[0]);
+
+            var newEmpty = new PQLevel2Quote(l2Quote.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(l2QUpdates[0]);
+            var foundLayer =
+                (IPQOrdersPriceVolumeLayer)(isBid ? newEmpty.BidBook : newEmpty.AskBook)[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedOrderVolume, foundAnonOrderInfo.OrderVolume);
+            Assert.IsTrue(foundAnonOrderInfo.IsOrderVolumeUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (bkNotNull)
+        {
+            bkUpdates =
+                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderVolume } 
+                       && update.DepthId == depthWithSide && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(1, bkUpdates.Count);
+            Assert.AreEqual(expectedOrderBook, bkUpdates[0]);
+
+            var newEmpty = new PQOrderBook(l2Quote?.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(bkUpdates[0]);
+            var foundLayer =
+                (IPQOrdersPriceVolumeLayer)(isBid ? newEmpty.BidSide : newEmpty.AskSide)[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedOrderVolume, foundAnonOrderInfo.OrderVolume);
+            Assert.IsTrue(foundAnonOrderInfo.IsOrderVolumeUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (bsNotNull)
+        {
+            bsUpdates =
+                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderVolume } 
+                       && update.DepthId == depthNoSide && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(1, bsUpdates.Count);
+            Assert.AreEqual(expectedBookSide, bsUpdates[0]);
+
+            var newEmpty = new PQOrderBookSide(orderBookSide.BookSide, l2Quote?.SourceTickerInfo ?? precisionSettings);
+            newEmpty.UpdateField(bsUpdates[0]);
+            var foundLayer         = (IPQOrdersPriceVolumeLayer)newEmpty[bookDepth]!;
+            var foundAnonOrderInfo = foundLayer[orderIndex]!;
+            Assert.AreEqual(expectedOrderVolume, foundAnonOrderInfo.OrderVolume);
+            Assert.IsTrue(foundAnonOrderInfo.IsOrderVolumeUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(foundLayer.HasUpdates);
+            Assert.IsTrue(newEmpty.HasUpdates);
+        }
+        if (olNotNull)
+        {
+            olUpdates =
+                (from update in ordersLayer!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                    where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderVolume } && update.AuxiliaryPayload == orderIndex
+                    select update).ToList();
+            Assert.AreEqual(1, olUpdates.Count);
+            Assert.AreEqual(expectedLayer, olUpdates[0]);
+
+            var newLayer = new PQOrdersPriceVolumeLayer(LayerType.OrdersAnonymousPriceVolume, emptyNameIdLookup.Clone());
+            newLayer.UpdateField(olUpdates[0]);
+            var foundAnonOrderInfo = newLayer[orderIndex]!;
+            Assert.AreEqual(expectedOrderVolume, foundAnonOrderInfo.OrderVolume);
+            Assert.IsTrue(foundAnonOrderInfo.IsOrderVolumeUpdated);
+            Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
+            Assert.IsTrue(newLayer.HasUpdates);
+        }
+        orderInfoUpdates =
+            (from update in anonOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                where update is { Id: PQQuoteFields.LayerOrders, SubId: PQSubFieldKeys.OrderVolume }
+                select update).ToList();
+        Assert.AreEqual(1, orderInfoUpdates.Count);
+        Assert.AreEqual(expectedOrderInfo, orderInfoUpdates[0]);
+
+        var newAnonOrderInfo = new PQAnonymousOrderLayerInfo();
+        newAnonOrderInfo.UpdateField(orderInfoUpdates[0]);
+        Assert.AreEqual(expectedOrderVolume, newAnonOrderInfo.OrderVolume);
+        Assert.IsTrue(newAnonOrderInfo.IsOrderVolumeUpdated);
+        Assert.IsTrue(newAnonOrderInfo.HasUpdates);
+
+        anonOrderInfo.OrderVolume = 0;
+        anonOrderInfo.HasUpdates     = false;
+        if (l2QNotNull) l2Quote!.HasUpdates = false;
+    }
+
 
     [TestMethod]
     public void EmptyPqAoli_OrderIdChanged_ExpectedPropertiesUpdated()

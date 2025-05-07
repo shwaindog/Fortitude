@@ -196,7 +196,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
     [JsonIgnore]
     public override bool HasUpdates
     {
-        get => base.HasUpdates || NameIdLookup.HasUpdates;
+        get => base.HasUpdates;
         set
         {
             NameIdLookup.HasUpdates = value;

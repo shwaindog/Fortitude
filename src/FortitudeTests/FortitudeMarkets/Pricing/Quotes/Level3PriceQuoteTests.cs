@@ -15,8 +15,6 @@ using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Summaries;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes.LastTraded;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
 
 #endregion
 
@@ -55,31 +53,10 @@ public class Level3PriceQuoteTests
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
-        noRecentlyTradedSrcTkrInfo = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.ValueDate |
-                         LayerFlags.OrdersCount | LayerFlags.SourceQuoteReference
-           , lastTradedFlags: LastTradedFlags.None);
-        simpleRecentlyTradedSrcTkrInfo = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MinValue, "TestTicker", Level3Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.ValueDate |
-                         LayerFlags.OrdersCount | LayerFlags.SourceQuoteReference
-           , lastTradedFlags: LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice);
-        paidGivenVolumeRecentlyTradedSrcTkrInfo = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.ValueDate |
-                         LayerFlags.OrdersCount | LayerFlags.SourceQuoteReference
-           , lastTradedFlags: LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven |
-                              LastTradedFlags.LastTradedVolume);
-        traderPaidGivenVolumeRecentlyTradedSrcTkrInfo = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.ValueDate |
-                         LayerFlags.OrdersCount | LayerFlags.SourceQuoteReference
-           , lastTradedFlags: LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedPrice | LastTradedFlags.TraderName);
+        noRecentlyTradedSrcTkrInfo                    = SourceTickerInfoTests.OrdersCounterPartyL3NoRecentlyTradeSti;
+        simpleRecentlyTradedSrcTkrInfo                = SourceTickerInfoTests.OrdersCounterPartyL3JustTradeTradeSti;
+        paidGivenVolumeRecentlyTradedSrcTkrInfo       = SourceTickerInfoTests.FullSupportL3PaidOrGivenTradeSti;
+        traderPaidGivenVolumeRecentlyTradedSrcTkrInfo = SourceTickerInfoTests.FullSupportL3TraderNamePaidOrGivenSti;
         noRecentlyTradedEmptyQuote          = new Level3PriceQuote(noRecentlyTradedSrcTkrInfo);
         noRecentlyTradedFullyPopulatedQuote = new Level3PriceQuote(noRecentlyTradedSrcTkrInfo);
         quoteSequencedTestDataBuilder.InitializeQuote(noRecentlyTradedFullyPopulatedQuote, 9);

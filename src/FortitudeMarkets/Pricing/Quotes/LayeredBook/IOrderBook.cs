@@ -26,9 +26,9 @@ public interface IOrderBook : IReusableObject<IOrderBook>, IInterfacesComparable
 
     decimal? MidPrice { get; }
 
-    OpenInterest? SourceOpenInterest    { get; }
-    OpenInterest  AdapterOpenInterest   { get; }
-    OpenInterest  PublishedOpenInterest { get; }
+    bool          HasNonEmptyOpenInterest { get; }
+
+    IOpenInterest OpenInterest                          { get; }
 
     uint DailyTickUpdateCount { get; }
     bool IsLadder             { get; }
@@ -44,10 +44,10 @@ public interface IMutableOrderBook : IOrderBook, IInterfacesComparable<IMutableO
 
     new bool IsBidBookChanged { get; set; }
     
-    new bool IsAskBookChanged { get; set; }
+    new bool IsAskBookChanged        { get; set; }
+    new bool HasNonEmptyOpenInterest { get; set; }
 
-    new OpenInterest? SourceOpenInterest  { get; set; }
-    new OpenInterest  AdapterOpenInterest { get; set; }
+    new IMutableOpenInterest? OpenInterest  { get; set; }
 
     new uint DailyTickUpdateCount { get; set; }
     new bool IsLadder             { get; set; }

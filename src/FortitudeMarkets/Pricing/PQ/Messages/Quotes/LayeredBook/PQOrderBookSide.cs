@@ -22,15 +22,6 @@ using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 
-[Flags]
-public enum OrderBookSideUpdatedFlags : byte
-{
-    None                             = 0
-  , SourceOpenInterestVolumeUpdated  = 1
-  , SourceOpenInterestVwapUpdated    = 2
-  , AdapterOpenInterestVolumeUpdated = 4
-  , AdapterOpenInterestVwapUpdated   = 8
-}
 
 public interface IPQOrderBookSide : IMutableOrderBookSide, IPQSupportsFieldUpdates<IOrderBookSide>,
     IPQSupportsStringUpdates<IOrderBookSide>, IEnumerable<IPQPriceVolumeLayer>, ICloneable<IPQOrderBookSide>,
@@ -44,18 +35,13 @@ public interface IPQOrderBookSide : IMutableOrderBookSide, IPQSupportsFieldUpdat
     new bool HasUpdates { get; set; }
 
     new IPQNameIdLookupGenerator NameIdLookup { get; set; }
+    
+    new IPQOpenInterest? OpenInterestSide              { get; set; }
 
-    decimal? SourceOpenInterestVolume  { get; set; }
-    decimal? SourceOpenInterestVwap    { get; set; }
-    decimal  AdapterOpenInterestVolume { get; set; }
-    decimal  AdapterOpenInterestVwap   { get; set; }
-
-    bool IsSourceOpenInterestVolumeUpdated  { get; set; }
-    bool IsSourceOpenInterestVwapUpdated    { get; set; }
-    bool IsAdapterOpenInterestVolumeUpdated { get; set; }
-    bool IsAdapterOpenInterestVwapUpdated   { get; set; }
+    bool                 IsDailyTickUpdateCountUpdated { get; set; }
 
     new IPQOrderBookSide                 Clone();
+
     new IEnumerator<IPQPriceVolumeLayer> GetEnumerator();
 }
 
@@ -63,21 +49,18 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 {
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQOrderBookSide));
 
-    private decimal adapterOpenInterestVolume;
-    private decimal adapterOpenInterestVwap;
-
     private IList<IPQPriceVolumeLayer> allLayers;
 
     private IPQNameIdLookupGenerator nameIdLookupGenerator = null!;
 
-    protected uint     NumOfUpdates = uint.MaxValue;
-    private   decimal? sourceOpenInterestVolume;
-    private   decimal? sourceOpenInterestVwap;
+    protected uint             NumOfUpdates = uint.MaxValue;
+    private   IPQOpenInterest? pqOpenInterestSide;
 
-    protected OrderBookSideUpdatedFlags UpdatedFlags;
+    protected OrderBookUpdatedFlags UpdatedFlags;
 
     private LayerFlags layerFlags      = LayerFlagsExtensions.PriceVolumeLayerFlags;
     private ushort     maxPublishDepth = 1;
+    private uint       dailyTickUpdateCount;
 
     public PQOrderBookSide()
     {
@@ -158,6 +141,11 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         LayerSupportedFlags =  toClone.LayerSupportedFlags;
         layerFlags               |= LayerSupportedType.SupportedLayerFlags();
 
+        if (toClone.HasNonEmptyOpenInterest)
+        {
+            pqOpenInterestSide = new PQOpenInterest(toClone.OpenInterestSide);
+        }
+
         MaxPublishDepth = toClone.MaxPublishDepth;
         NameIdLookup    = InitializeNewIdLookupGenerator(nameIdLookupGenerator, toClone);
 
@@ -193,6 +181,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     protected string PQOrderBookSideToStringMembers =>
         $"{nameof(Capacity)}: {Capacity}, {nameof(Count)}: {Count}, {nameof(IsLadder)}: {IsLadder}, " +
+        $"{nameof(OpenInterestSide)}: {OpenInterestSide}, {nameof(DailyTickUpdateCount)}: {DailyTickUpdateCount}, " +
         $"{nameof(AllLayers)}:[{string.Join(", ", AllLayers.Take(Count))}]";
 
     INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
@@ -212,7 +201,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     public bool IsLadder
     {
         get => layerFlags.HasLadder();
-        set => layerFlags = value ? layerFlags | LayerFlags.Ladder : layerFlags.Unset(LayerFlags.Ladder);
+        set => LayerSupportedFlags = value ? LayerFlags.Ladder : LayerFlags.None;
     }
 
     public BookSide BookSide { get; }
@@ -304,124 +293,86 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         {
             foreach (var pqPvLayer in AllLayers.Where(pql => pql is not null)) pqPvLayer!.HasUpdates = value;
             NameIdLookup.HasUpdates = value;
+            if (pqOpenInterestSide != null)
+            {
+                pqOpenInterestSide.HasUpdates = value;
+            }
+            UpdatedFlags = OrderBookUpdatedFlags.None;
         }
     }
 
-    public decimal? SourceOpenInterestVolume
+    public bool HasNonEmptyOpenInterest
     {
-        get => sourceOpenInterestVolume;
+        get => pqOpenInterestSide is { IsEmpty: false, DataSource: not (MarketDataSource.None or MarketDataSource.Published) };
         set
         {
-            IsSourceOpenInterestVolumeUpdated |= sourceOpenInterestVolume != value || NumOfUpdates == 0;
-            sourceOpenInterestVolume          =  value;
+            if (value) return;
+            if (pqOpenInterestSide != null)
+            {
+                pqOpenInterestSide.IsEmpty = true;
+            }
         }
     }
-    public decimal? SourceOpenInterestVwap
+
+    IOpenInterest IOrderBookSide.OpenInterestSide => OpenInterestSide!;
+    IMutableOpenInterest? IMutableOrderBookSide.OpenInterestSide
     {
-        get => sourceOpenInterestVwap;
-        set
-        {
-            IsSourceOpenInterestVwapUpdated |= sourceOpenInterestVwap != value || NumOfUpdates == 0;
-            sourceOpenInterestVwap          =  value;
-        }
-    }
-    public decimal AdapterOpenInterestVolume
-    {
-        get => adapterOpenInterestVolume;
-        set
-        {
-            IsAdapterOpenInterestVolumeUpdated |= adapterOpenInterestVolume != value || NumOfUpdates == 0;
-            adapterOpenInterestVolume          =  value;
-        }
-    }
-    public decimal AdapterOpenInterestVwap
-    {
-        get => adapterOpenInterestVwap;
-        set
-        {
-            IsAdapterOpenInterestVwapUpdated |= adapterOpenInterestVwap != value || NumOfUpdates == 0;
-            adapterOpenInterestVwap          =  value;
-        }
+        get => OpenInterestSide;
+        set => OpenInterestSide = (IPQOpenInterest?)value;
     }
 
-    public bool IsSourceOpenInterestVolumeUpdated
-    {
-        get => (UpdatedFlags & OrderBookSideUpdatedFlags.SourceOpenInterestVolumeUpdated) > 0;
-        set
-        {
-            if (value)
-                UpdatedFlags |= OrderBookSideUpdatedFlags.SourceOpenInterestVolumeUpdated;
-
-            else if (IsSourceOpenInterestVolumeUpdated) UpdatedFlags ^= OrderBookSideUpdatedFlags.SourceOpenInterestVolumeUpdated;
-        }
-    }
-
-    public bool IsSourceOpenInterestVwapUpdated
-    {
-        get => (UpdatedFlags & OrderBookSideUpdatedFlags.SourceOpenInterestVwapUpdated) > 0;
-        set
-        {
-            if (value)
-                UpdatedFlags |= OrderBookSideUpdatedFlags.SourceOpenInterestVwapUpdated;
-
-            else if (IsSourceOpenInterestVwapUpdated) UpdatedFlags ^= OrderBookSideUpdatedFlags.SourceOpenInterestVwapUpdated;
-        }
-    }
-
-    public bool IsAdapterOpenInterestVolumeUpdated
-    {
-        get => (UpdatedFlags & OrderBookSideUpdatedFlags.AdapterOpenInterestVolumeUpdated) > 0;
-        set
-        {
-            if (value)
-                UpdatedFlags |= OrderBookSideUpdatedFlags.AdapterOpenInterestVolumeUpdated;
-
-            else if (IsAdapterOpenInterestVolumeUpdated) UpdatedFlags ^= OrderBookSideUpdatedFlags.AdapterOpenInterestVolumeUpdated;
-        }
-    }
-
-    public bool IsAdapterOpenInterestVwapUpdated
-    {
-        get => (UpdatedFlags & OrderBookSideUpdatedFlags.AdapterOpenInterestVwapUpdated) > 0;
-        set
-        {
-            if (value)
-                UpdatedFlags |= OrderBookSideUpdatedFlags.AdapterOpenInterestVwapUpdated;
-
-            else if (IsAdapterOpenInterestVwapUpdated) UpdatedFlags ^= OrderBookSideUpdatedFlags.AdapterOpenInterestVwapUpdated;
-        }
-    }
-
-    public OpenInterest? SourceOpenInterest
+    public IPQOpenInterest? OpenInterestSide
     {
         get
         {
-            if (sourceOpenInterestVolume != null || sourceOpenInterestVwap != null)
-                return new OpenInterest(MarketDataSource.Venue, sourceOpenInterestVolume ?? 0m, sourceOpenInterestVwap ?? 0);
-            return null;
-        }
-        set
-        {
-            SourceOpenInterestVolume = value?.Volume;
-            SourceOpenInterestVwap   = value?.Vwap;
-        }
-    }
-    public OpenInterest AdapterOpenInterest
-    {
-        get => new(MarketDataSource.Venue, adapterOpenInterestVolume, adapterOpenInterestVwap);
-        set
-        {
-            SourceOpenInterestVolume = value.Volume;
-            SourceOpenInterestVwap   = value.Vwap;
-        }
-    }
-
-    public OpenInterest PublishedOpenInterest
-    {
-        get
-        {
+            if (HasNonEmptyOpenInterest)
+                return pqOpenInterestSide;
             var vwapResult = this.CalculateVwap();
-            return new OpenInterest(MarketDataSource.Published, vwapResult.VolumeAchieved, vwapResult.AchievedVwap);
+            
+            pqOpenInterestSide            ??= new PQOpenInterest();
+            pqOpenInterestSide.DataSource =   MarketDataSource.Published;
+            pqOpenInterestSide.UpdateTime =   DateTime.Now;
+            pqOpenInterestSide.Volume     =   vwapResult.VolumeAchieved;
+            pqOpenInterestSide.Vwap       =   vwapResult.AchievedVwap;
+            return pqOpenInterestSide;
+        }
+        set
+        {
+            if (value != null)
+            {
+                pqOpenInterestSide ??= new PQOpenInterest();
+
+                pqOpenInterestSide.DataSource = value.DataSource;
+                pqOpenInterestSide.UpdateTime = value.UpdateTime;
+                pqOpenInterestSide.Volume     = value.Volume;
+                pqOpenInterestSide.Vwap       = value.Vwap;
+            }
+            else if (pqOpenInterestSide != null)
+            {
+                pqOpenInterestSide.IsEmpty = true;
+            }
+        }
+    }
+    
+    public uint DailyTickUpdateCount
+    {
+        get => dailyTickUpdateCount;
+        set
+        {
+            IsDailyTickUpdateCountUpdated |= value != dailyTickUpdateCount || NumOfUpdates == 0;
+            dailyTickUpdateCount          =  value;
+        }
+    }
+
+    public bool IsDailyTickUpdateCountUpdated
+    {
+        get => (UpdatedFlags & OrderBookUpdatedFlags.IsDailyTickCountUpdated) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= OrderBookUpdatedFlags.IsDailyTickCountUpdated;
+
+            else if (IsDailyTickUpdateCountUpdated) UpdatedFlags ^= OrderBookUpdatedFlags.IsDailyTickCountUpdated;
         }
     }
 
@@ -431,6 +382,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     {
         foreach (var pqPriceVolumeLayer in AllLayers.OfType<IPQPriceVolumeLayer>()) pqPriceVolumeLayer.UpdateComplete();
         NameIdLookup.UpdateComplete();
+        pqOpenInterestSide?.UpdateComplete();
         if (HasUpdates)
         {
             NumOfUpdates++;
@@ -442,6 +394,18 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     (DateTime snapShotTime, StorageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
+        var updatedOnly       = (messageFlags & StorageFlags.Complete) == 0;
+        if (!updatedOnly || IsDailyTickUpdateCountUpdated)
+        {
+            yield return new PQFieldUpdate(PQQuoteFields.DailySidedTickCount, DailyTickUpdateCount);
+        }
+        if (pqOpenInterestSide != null)
+        {
+            foreach (var oiUpdates in pqOpenInterestSide.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSetting))
+            {
+                yield return oiUpdates.WithFieldId(PQQuoteFields.OpenInterestSided);
+            }
+        }
         for (var i = 0; i < AllLayers.Count; i++)
             if (this[i] is { } currentLayer)
                 foreach (var layerFields in currentLayer.GetDeltaUpdateFields(snapShotTime,
@@ -454,6 +418,18 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
+        if (pqFieldUpdate.Id == PQQuoteFields.DailySidedTickCount)
+        {
+            IsDailyTickUpdateCountUpdated = true;
+
+            DailyTickUpdateCount          = pqFieldUpdate.Payload;
+            return 0;
+        }
+        if (pqFieldUpdate.Id is PQQuoteFields.OpenInterestSided)
+        {
+            pqOpenInterestSide ??= new PQOpenInterest();
+            return pqOpenInterestSide.UpdateField(pqFieldUpdate);
+        }
         if (pqFieldUpdate.Id is >= PQQuoteFields.Price and < PQQuoteFields.AllLayersRangeEnd)
         {
             var index              = pqFieldUpdate.DepthIndex();
@@ -478,9 +454,17 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         if (!copyMergeFlags.HasSkipReferenceLookups() && source is PQOrderBookSide sourcePqOrderBook)
             NameIdLookup.CopyFrom(sourcePqOrderBook.NameIdLookup, copyMergeFlags);
         copyMergeFlags = copyMergeFlags.AddSkipReferenceLookups();
+        if (source.HasNonEmptyOpenInterest)
+        {
+            pqOpenInterestSide ??= new PQOpenInterest();
+            pqOpenInterestSide.CopyFrom(source.OpenInterestSide, copyMergeFlags);
+        } else if (pqOpenInterestSide != null)
+        {
+            pqOpenInterestSide.IsEmpty = true;
+        }
 
-        LayerSupportedFlags = source.LayerSupportedFlags;
-        MaxPublishDepth          = source.MaxPublishDepth;
+        LayerSupportedFlags =   source.LayerSupportedFlags;
+        MaxPublishDepth     =   source.MaxPublishDepth;
         var originalCount = Count;
 
         var allSourceLayers = source.Capacity;
@@ -545,6 +529,11 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         var layerFlagsSame    = LayerSupportedFlags == other.LayerSupportedFlags;
         var deepestPricedSame = Count == other.Count;
         var maxPubDepthSame   = MaxPublishDepth == other.MaxPublishDepth;
+        var openInterestSame  = HasNonEmptyOpenInterest == other.HasNonEmptyOpenInterest;
+        if (openInterestSame && other.HasNonEmptyOpenInterest && HasNonEmptyOpenInterest)
+        {
+            openInterestSame = Equals(pqOpenInterestSide, other.OpenInterestSide);
+        }
         var bookLayersSame    = true;
         for (int i = 0; i < Count; i++)
         {
@@ -558,7 +547,8 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
         if (other is IMutableOrderBookSide mutableOrderBook) deepestPossibleSame = Capacity == mutableOrderBook.Capacity;
 
-        var allAreSame = layerFlagsSame && deepestPossibleSame && deepestPricedSame && maxPubDepthSame && bookLayersSame;
+        var allAreSame = layerFlagsSame && deepestPossibleSame && deepestPricedSame 
+                      && maxPubDepthSame && bookLayersSame && openInterestSame;
         return allAreSame;
     }
 
@@ -572,6 +562,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     {
         for (var i = 0; i < AllLayers.Count; i++) AllLayers[i]?.StateReset();
         NameIdLookup.Clear();
+        pqOpenInterestSide?.StateReset();
         NumOfUpdates = 0;
         base.StateReset();
     }

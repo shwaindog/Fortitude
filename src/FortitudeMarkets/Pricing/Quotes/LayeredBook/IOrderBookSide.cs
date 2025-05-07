@@ -25,11 +25,12 @@ public interface IOrderBookSide : IEnumerable<IPriceVolumeLayer>, IReusableObjec
     LayerFlags LayerSupportedFlags { get; }
 
     bool IsLadder { get; }
-    public ushort MaxPublishDepth { get; }
+    ushort MaxPublishDepth { get; }
 
-    OpenInterest? SourceOpenInterest    { get; }
-    OpenInterest  AdapterOpenInterest   { get; }
-    OpenInterest  PublishedOpenInterest { get; }
+    uint DailyTickUpdateCount { get; }
+    
+    bool      HasNonEmptyOpenInterest { get; }
+    IOpenInterest OpenInterestSide               { get; }
 
     int Capacity { get; }
     int Count    { get; }
@@ -43,9 +44,13 @@ public interface IMutableOrderBookSide : IOrderBookSide, ICloneable<IMutableOrde
 {
     new int Capacity { get; set; }
     
-    new LayerFlags    LayerSupportedFlags { get; set; }
-    new OpenInterest? SourceOpenInterest  { get; set; }
-    new OpenInterest  AdapterOpenInterest { get; set; }
+    new LayerFlags            LayerSupportedFlags { get; set; }
+    
+    new bool HasNonEmptyOpenInterest { get; set; }
+
+    new uint  DailyTickUpdateCount    { get; set; }
+
+    new IMutableOpenInterest? OpenInterestSide        { get; set; }
 
     new IMutablePriceVolumeLayer? this[int level] { get; set; }
     new IMutableOrderBookSide Clone();

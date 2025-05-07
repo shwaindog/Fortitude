@@ -96,7 +96,15 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
 
     public IPQLastTrade? this[int i]
     {
-        get => lastTrades[i];
+        get 
+        {
+            while (i >= lastTrades.Count && i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades)
+            {
+                var factory = LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags);
+                lastTrades.Add(factory!.CreateNewLastTradeEntry());
+            }
+            return lastTrades[i];
+        }
         set
         {
             lastTrades[i] = value;

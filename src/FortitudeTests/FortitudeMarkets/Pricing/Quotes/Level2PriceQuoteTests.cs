@@ -30,7 +30,7 @@ public class Level2PriceQuoteTests
     private Level2PriceQuote everyLayerEmptyLevel2Quote          = null!;
     private Level2PriceQuote everyLayerFullyPopulatedLevel2Quote = null!;
 
-    private ISourceTickerInfo everyLayerSourceTickerInfo = null!;
+    private ISourceTickerInfo fullSupportSourceTickerInfo = null!;
 
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = null!;
 
@@ -53,7 +53,7 @@ public class Level2PriceQuoteTests
     private Level2PriceQuote traderDetailsEmptyLevel2Quote          = null!;
     private Level2PriceQuote traderDetailsFullyPopulatedLevel2Quote = null!;
 
-    private ISourceTickerInfo traderDetailsSourceTickerInfo = null!;
+    private ISourceTickerInfo ordersCounterPartySourceTickerInfo = null!;
 
     private Level2PriceQuote valueDateEmptyLevel2Quote          = null!;
     private Level2PriceQuote valueDateFullyPopulatedLevel2Quote = null!;
@@ -65,42 +65,13 @@ public class Level2PriceQuoteTests
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
-        simpleSourceTickerInfo = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level2Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price
-           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
-                              LastTradedFlags.LastTradedTime);
-        sourceNameSourceTickerInfo = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level2Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.SourceName
-           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
-                              LastTradedFlags.LastTradedTime);
-        sourceRefSourceTickerInfo = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level2Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.SourceQuoteReference
-           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
-                              LastTradedFlags.LastTradedTime);
-        traderDetailsSourceTickerInfo = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level2Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
-           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
-                              LastTradedFlags.LastTradedTime);
-        valueDateSourceTickerInfo = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level2Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.ValueDate
-           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
-                              LastTradedFlags.LastTradedTime);
-        everyLayerSourceTickerInfo = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level2Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlagsExtensions.FullSupportLayerFlags
-           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
-                              LastTradedFlags.LastTradedTime);
+        simpleSourceTickerInfo             = SourceTickerInfoTests.SimpleL2PriceVolumeSti;
+        sourceNameSourceTickerInfo         = SourceTickerInfoTests.SourceNameL2PriceVolumeSti;
+        sourceRefSourceTickerInfo          = SourceTickerInfoTests.SourceQuoteRefL2PriceVolumeSti;
+        ordersCounterPartySourceTickerInfo = SourceTickerInfoTests.OrdersCounterPartyL2PriceVolumeSti;
+        valueDateSourceTickerInfo          = SourceTickerInfoTests.ValueDateL2PriceVolumeSti;
+        fullSupportSourceTickerInfo         = SourceTickerInfoTests.FullSupportL2PriceVolumeSti; 
+
         simpleEmptyLevel2Quote          = new Level2PriceQuote(simpleSourceTickerInfo);
         simpleFullyPopulatedLevel2Quote = new Level2PriceQuote(simpleSourceTickerInfo);
         quoteSequencedTestDataBuilder.InitializeQuote(simpleFullyPopulatedLevel2Quote, 1);
@@ -110,14 +81,14 @@ public class Level2PriceQuoteTests
         sourceQuoteRefEmptyLevel2Quote          = new Level2PriceQuote(sourceRefSourceTickerInfo);
         sourceQuoteRefFullyPopulatedLevel2Quote = new Level2PriceQuote(sourceRefSourceTickerInfo);
         quoteSequencedTestDataBuilder.InitializeQuote(sourceQuoteRefFullyPopulatedLevel2Quote, 3);
-        traderDetailsEmptyLevel2Quote          = new Level2PriceQuote(traderDetailsSourceTickerInfo);
-        traderDetailsFullyPopulatedLevel2Quote = new Level2PriceQuote(traderDetailsSourceTickerInfo);
+        traderDetailsEmptyLevel2Quote          = new Level2PriceQuote(ordersCounterPartySourceTickerInfo);
+        traderDetailsFullyPopulatedLevel2Quote = new Level2PriceQuote(ordersCounterPartySourceTickerInfo);
         quoteSequencedTestDataBuilder.InitializeQuote(traderDetailsFullyPopulatedLevel2Quote, 4);
         valueDateEmptyLevel2Quote          = new Level2PriceQuote(valueDateSourceTickerInfo);
         valueDateFullyPopulatedLevel2Quote = new Level2PriceQuote(valueDateSourceTickerInfo);
         quoteSequencedTestDataBuilder.InitializeQuote(valueDateFullyPopulatedLevel2Quote, 5);
-        everyLayerEmptyLevel2Quote          = new Level2PriceQuote(everyLayerSourceTickerInfo);
-        everyLayerFullyPopulatedLevel2Quote = new Level2PriceQuote(everyLayerSourceTickerInfo);
+        everyLayerEmptyLevel2Quote          = new Level2PriceQuote(fullSupportSourceTickerInfo);
+        everyLayerFullyPopulatedLevel2Quote = new Level2PriceQuote(fullSupportSourceTickerInfo);
         quoteSequencedTestDataBuilder.InitializeQuote(everyLayerFullyPopulatedLevel2Quote, 5);
 
         allFullyPopulatedQuotes = new List<Level2PriceQuote>
@@ -142,8 +113,8 @@ public class Level2PriceQuoteTests
         Assert.AreSame(sourceNameSourceTickerInfo, sourceNameEmptyLevel2Quote.SourceTickerInfo);
         Assert.AreSame(sourceRefSourceTickerInfo, sourceQuoteRefEmptyLevel2Quote.SourceTickerInfo);
         Assert.AreSame(valueDateSourceTickerInfo, valueDateEmptyLevel2Quote.SourceTickerInfo);
-        Assert.AreSame(traderDetailsSourceTickerInfo, traderDetailsEmptyLevel2Quote.SourceTickerInfo);
-        Assert.AreSame(everyLayerSourceTickerInfo, everyLayerEmptyLevel2Quote.SourceTickerInfo);
+        Assert.AreSame(ordersCounterPartySourceTickerInfo, traderDetailsEmptyLevel2Quote.SourceTickerInfo);
+        Assert.AreSame(fullSupportSourceTickerInfo, everyLayerEmptyLevel2Quote.SourceTickerInfo);
         foreach (var emptyL2Quote in allEmptyQuotes)
         {
             Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyL2Quote.SourceTime);
@@ -178,6 +149,7 @@ public class Level2PriceQuoteTests
         var expectedSourceAskTime      = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop        = 3.45678m;
         var expectedPeriodSummary      = new PricePeriodSummary();
+        var expectedDailyTickCount      = 10u;
         var expectedBidBook =
             new OrderBookSide(BookSide.BidBook, simpleSourceTickerInfo)
             {
@@ -194,7 +166,7 @@ public class Level2PriceQuoteTests
                 (simpleSourceTickerInfo, expectedSourceTime, true, FeedSyncStatus.Good, expectedSingleValue, expectedClientReceivedTime
                , expectedAdapterReceiveTime, expectedAdapterSentTime, expectedSourceBidTime, true
                , expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2), true, true
-               , expectedPeriodSummary, new OrderBook(expectedBidBook, expectedAskBook, true));
+               , expectedPeriodSummary, new OrderBook(expectedBidBook, expectedAskBook, expectedDailyTickCount,  true));
 
         Assert.AreSame(simpleSourceTickerInfo, fromConstructor.SourceTickerInfo);
         Assert.AreEqual(expectedSourceTime, fromConstructor.SourceTime);
@@ -213,6 +185,7 @@ public class Level2PriceQuoteTests
         Assert.AreEqual(expectedPeriodSummary, fromConstructor.SummaryPeriod);
         Assert.AreEqual(expectedBidBook, fromConstructor.BidBook);
         Assert.AreEqual(expectedAskBook, fromConstructor.AskBook);
+        Assert.AreEqual(expectedDailyTickCount, fromConstructor.OrderBook.DailyTickUpdateCount);
         Assert.IsFalse(fromConstructor.OrderBook.IsBidBookChanged);
         Assert.IsFalse(fromConstructor.OrderBook.IsAskBookChanged);
     }
@@ -229,6 +202,7 @@ public class Level2PriceQuoteTests
         var expectedBidPriceTop        = 2.34567m;
         var expectedSourceAskTime      = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop        = 3.45678m;
+        var expectedDailyTickCount     = 10u;
         var expectedPeriodSummary      = new PricePeriodSummary();
         var convertedBidBook =
             new PQOrderBookSide(BookSide.BidBook, new PQSourceTickerInfo(simpleSourceTickerInfo))
@@ -248,7 +222,7 @@ public class Level2PriceQuoteTests
                 (simpleSourceTickerInfo, expectedSourceTime, true, FeedSyncStatus.Good, expectedSingleValue, expectedClientReceivedTime
                , expectedAdapterReceiveTime, expectedAdapterSentTime, expectedSourceBidTime, true
                , expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2), true
-               , true, expectedPeriodSummary, new OrderBook(convertedBidBook, convertedAskBook, true));
+               , true, expectedPeriodSummary, new OrderBook(convertedBidBook, convertedAskBook, expectedDailyTickCount, true));
 
         Assert.AreEqual(expectedBidBook, fromConstructor.BidBook);
         Assert.AreEqual(expectedAskBook, fromConstructor.AskBook);
@@ -602,7 +576,7 @@ public class Level2PriceQuoteTests
            , true, new DateTime(2015, 08, 06, 22, 07, 22)
            , new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(123)
            , new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(2_123), false
-           , true, new PricePeriodSummary(), new OrderBook(sourceBidBook, sourceAskBook, true));
+           , true, new PricePeriodSummary(), new OrderBook(sourceBidBook, sourceAskBook, 15, true));
     }
 
     private static OrderBookSide GenerateBook<T>
@@ -640,18 +614,16 @@ public class Level2PriceQuoteTests
     }
 
     internal static void AssertAreEquivalentMeetsExpectedExactComparisonType
-        (bool exactComparison, IMutableLevel2Quote commonCompareQuote, IMutableLevel2Quote changingQuote)
+        (bool exactComparison, 
+            IMutableLevel2Quote commonCompareQuote, 
+            IMutableLevel2Quote changingQuote)
     {
         Level1PriceQuoteTests.AssertAreEquivalentMeetsExpectedExactComparisonType
             (exactComparison, commonCompareQuote, changingQuote);
 
-        OrderBookSideTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-            (exactComparison, (OrderBookSide)commonCompareQuote.BidBook
-           , (OrderBookSide)changingQuote.BidBook, commonCompareQuote, changingQuote);
-
-        OrderBookSideTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-            (exactComparison, (OrderBookSide)commonCompareQuote.AskBook
-           , (OrderBookSide)changingQuote.AskBook, commonCompareQuote, changingQuote);
+        OrderBookTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+            (exactComparison, commonCompareQuote.OrderBook
+           , changingQuote.OrderBook, commonCompareQuote, changingQuote);
     }
 
     private void AssertLayerTypeIsExpected(Type expectedType, params Level2PriceQuote[] quotesToCheck)

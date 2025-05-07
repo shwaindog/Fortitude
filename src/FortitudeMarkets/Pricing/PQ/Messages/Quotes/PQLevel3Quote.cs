@@ -11,6 +11,7 @@ using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.PQ.Summaries;
 using FortitudeMarkets.Pricing.Quotes;
@@ -50,7 +51,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
 
     public PQLevel3Quote()
     {
-        recentlyTraded = new PQRecentlyTraded();
+        // recentlyTraded = new PQRecentlyTraded();
 
         if (GetType() == typeof(PQLevel3Quote)) NumOfUpdates = 0;
     }
@@ -58,6 +59,10 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
     // Reflection invoked constructor (PQServer<T>)
     public PQLevel3Quote(ISourceTickerInfo sourceTickerInfo) : this(sourceTickerInfo, singlePrice: 0m)
     {
+        if (sourceTickerInfo.LastTradedFlags != LastTradedFlags.None)
+        {
+            recentlyTraded ??= new PQRecentlyTraded();
+        }
     }
 
     public PQLevel3Quote(ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, bool isReplay = false, FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good
@@ -96,18 +101,15 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
             SourceQuoteReference = ipql3QToClone.SourceQuoteReference;
             ValueDate            = ipql3QToClone.ValueDate;
             recentlyTraded       = ipql3QToClone?.RecentlyTraded?.Clone();
-        }
-
-        if (toClone is PQLevel3Quote pql3QToClone)
+        } else if (toClone is ILevel3Quote l3QToClone)
         {
-            IsValueDateUpdated = pql3QToClone.IsValueDateUpdated;
-            IsBatchIdUpdated   = pql3QToClone.IsBatchIdUpdated;
-
-            IsSourceQuoteReferenceUpdated = pql3QToClone.IsSourceQuoteReferenceUpdated;
-
-            IsValueDateUpdated = pql3QToClone.IsSourceQuoteReferenceUpdated;
-
-            UpdatedFlags = pql3QToClone.UpdatedFlags;
+            BatchId              = l3QToClone.BatchId;
+            SourceQuoteReference = l3QToClone.SourceQuoteReference;
+            ValueDate            = l3QToClone.ValueDate;
+            if (l3QToClone.RecentlyTraded != null)
+            {
+                recentlyTraded = new PQRecentlyTraded(l3QToClone.RecentlyTraded);
+            }
         }
         SetFlagsSame(toClone);
 
@@ -121,7 +123,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         $"{nameof(IsValueDateUpdated)}: {IsValueDateUpdated}, {nameof(RecentlyTraded)}: {RecentlyTraded}";
 
     public override PQLevel3Quote Clone() =>
-        Recycler?.Borrow<PQLevel3Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) as PQLevel3Quote ?? new PQLevel3Quote(this);
+        Recycler?.Borrow<PQLevel3Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new PQLevel3Quote(this);
 
     [JsonIgnore]
     public new PQLevel3Quote? Previous
@@ -339,7 +341,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
     {
         if (pqFieldUpdate.Id == PQQuoteFields.LastTradedDictionaryUpsertCommand) return (int)pqFieldUpdate.Payload;
         if (recentlyTraded != null
-         && pqFieldUpdate.Id is PQQuoteFields.LastTradedTickTrades)
+         && pqFieldUpdate.Id is >= PQQuoteFields.LastTradedTickTrades and <= PQQuoteFields.LastTradedRecently)
             return recentlyTraded!.UpdateField(pqFieldUpdate);
         if (pqFieldUpdate.Id == PQQuoteFields.BatchId)
         {
@@ -390,7 +392,14 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
     public override void EnsureRelatedItemsAreConfigured(ITickInstant? quote)
     {
         base.EnsureRelatedItemsAreConfigured(quote);
-        if (quote is IPQLevel3Quote pqLevel3Quote) recentlyTraded?.EnsureRelatedItemsAreConfigured(pqLevel3Quote.RecentlyTraded?.NameIdLookup);
+        if (quote is IPQLevel3Quote pqLevel3Quote)
+        {
+            if (pqLevel3Quote.RecentlyTraded != null || PQSourceTickerInfo?.LastTradedFlags != LastTradedFlags.None)
+            {
+                recentlyTraded ??= new PQRecentlyTraded(PQSourceTickerInfo!);
+            }
+            recentlyTraded?.EnsureRelatedItemsAreConfigured(pqLevel3Quote.RecentlyTraded?.NameIdLookup);
+        }
     }
 
     ILevel3Quote ICloneable<ILevel3Quote>.Clone() => Clone();

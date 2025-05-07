@@ -169,8 +169,10 @@ public class ValueDatePriceVolumeLayerTests
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType
     (bool exactComparison,
         IMutableValueDatePriceVolumeLayer? original, IMutableValueDatePriceVolumeLayer? changingPriceVolumeLayer,
-        IOrderBookSide? originalOrderBook = null,
-        IOrderBookSide? changingOrderBook = null,
+        IOrderBookSide? originalOrderBookSide = null,
+        IOrderBookSide? changingOrderBookSide = null,
+        IOrderBook? originalOrderBook = null,
+        IOrderBook? changingOrderBook = null,
         ILevel2Quote? originalQuote = null,
         ILevel2Quote? changingQuote = null)
     {
@@ -179,19 +181,22 @@ public class ValueDatePriceVolumeLayerTests
         Assert.IsNotNull(changingPriceVolumeLayer);
 
         PriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-            (exactComparison, original, changingPriceVolumeLayer, originalOrderBook, changingOrderBook, originalQuote, changingQuote);
+            (exactComparison, original, changingPriceVolumeLayer, originalOrderBookSide, changingOrderBookSide, 
+             originalOrderBook, changingOrderBook, originalQuote, changingQuote);
 
         changingPriceVolumeLayer.ValueDate = new DateTime(2017, 11, 30, 23, 44, 16);
         Assert.IsFalse(original.AreEquivalent(changingPriceVolumeLayer, exactComparison));
-        if (originalOrderBook != null)
+        if (originalOrderBookSide != null)
             Assert.IsFalse
-                (originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
+                (originalOrderBookSide.AreEquivalent(changingOrderBookSide, exactComparison));
+        if (originalOrderBook != null) Assert.IsFalse(originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingPriceVolumeLayer.ValueDate = original.ValueDate;
         Assert.IsTrue(original.AreEquivalent(changingPriceVolumeLayer, exactComparison));
-        if (originalOrderBook != null)
+        if (originalOrderBookSide != null)
             Assert.IsTrue
-                (originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
+                (originalOrderBookSide.AreEquivalent(changingOrderBookSide, exactComparison));
+        if (originalOrderBook != null) Assert.IsTrue(originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
     }
 }

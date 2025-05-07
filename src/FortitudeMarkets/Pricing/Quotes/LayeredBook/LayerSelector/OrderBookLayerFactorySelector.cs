@@ -60,7 +60,7 @@ public class OrderBookLayerFactorySelector : LayerFlagsSelector<IPriceVolumeLaye
               , LayerType.OrdersAnonymousPriceVolume => new OrdersPriceVolumeLayer(desiredLayerType)
               , LayerType.OrdersFullPriceVolume      => new OrdersPriceVolumeLayer(desiredLayerType)
 
-              , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => new FullSupportPriceVolumeLayer()
+              , LayerType.FullSupportPriceVolume => new FullSupportPriceVolumeLayer()
 
               , _ => new PriceVolumeLayer()
             };

@@ -52,7 +52,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
             {
                 LayerType.OrdersAnonymousPriceVolume => false
               , LayerType.OrdersFullPriceVolume => true
-              , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => true
+              , LayerType.FullSupportPriceVolume => true
               , _ => throw new ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {layerType}")
             };
 
@@ -69,7 +69,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
             {
                 LayerType.OrdersAnonymousPriceVolume => false
               , LayerType.OrdersFullPriceVolume => true
-              , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => true
+              , LayerType.FullSupportPriceVolume => true
               , _ => throw new ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {layerType}")
             };
         orders = layerOrders?.OfType<IMutableAnonymousOrderLayerInfo>().ToList() ?? new List<IMutableAnonymousOrderLayerInfo>();
@@ -84,7 +84,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
                 {
                     LayerType.OrdersAnonymousPriceVolume               => false
                   , LayerType.OrdersFullPriceVolume                    => true
-                  , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => true
+                  , LayerType.FullSupportPriceVolume => true
                   , _ => throw new
                         ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {asLayerType}")
                 };

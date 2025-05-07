@@ -35,7 +35,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer,
     private DateTime valueDate = DateTimeConstants.UnixEpoch;
 
     public PQFullSupportPriceVolumeLayer(IPQNameIdLookupGenerator initialDict)
-        : base(LayerType.SourceQuoteRefOrdersValueDatePriceVolume, initialDict)
+        : base(LayerType.FullSupportPriceVolume, initialDict)
     {
         if (GetType() == typeof(PQFullSupportPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
     }
@@ -43,7 +43,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer,
     public PQFullSupportPriceVolumeLayer
     (IPQNameIdLookupGenerator nameIdLookup, decimal price = 0m, decimal volume = 0m, DateTime? valueDate = null
       , string? sourceName = null, bool executable = false, uint sourceQuoteReference = 0u, uint ordersCount = 0, decimal internalVolume = 0m)
-        : base(nameIdLookup, LayerType.SourceQuoteRefOrdersValueDatePriceVolume, price, volume, ordersCount, internalVolume)
+        : base(nameIdLookup, LayerType.FullSupportPriceVolume, price, volume, ordersCount, internalVolume)
     {
         ValueDate  = valueDate ?? DateTimeConstants.UnixEpoch;
         SourceName = sourceName;
@@ -55,7 +55,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer,
     }
 
     public PQFullSupportPriceVolumeLayer(IPriceVolumeLayer toClone, IPQNameIdLookupGenerator ipNameIdLookupGenerator)
-        : base(toClone, LayerType.SourceQuoteRefOrdersValueDatePriceVolume, ipNameIdLookupGenerator)
+        : base(toClone, LayerType.FullSupportPriceVolume, ipNameIdLookupGenerator)
     {
         if (toClone is ISourcePriceVolumeLayer srcPvl)
         {
@@ -87,7 +87,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer,
         }
     }
 
-    [JsonIgnore] public override LayerType LayerType => LayerType.SourceQuoteRefOrdersValueDatePriceVolume;
+    [JsonIgnore] public override LayerType LayerType => LayerType.FullSupportPriceVolume;
 
     [JsonIgnore] public override LayerFlags SupportsLayerFlags => LayerFlagsExtensions.AdditionalFullSupportLayerFlags | base.SupportsLayerFlags;
 

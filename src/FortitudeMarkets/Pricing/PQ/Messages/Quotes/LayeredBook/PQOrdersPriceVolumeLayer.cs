@@ -56,7 +56,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
             {
                 LayerType.OrdersAnonymousPriceVolume => false
               , LayerType.OrdersFullPriceVolume => true
-              , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => true
+              , LayerType.FullSupportPriceVolume => true
               , _ => throw new ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {layerType}")
             };
 
@@ -76,7 +76,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
             {
                 LayerType.OrdersAnonymousPriceVolume => false
               , LayerType.OrdersFullPriceVolume => true
-              , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => true
+              , LayerType.FullSupportPriceVolume => true
               , _ => throw new ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {layerType}")
             };
 
@@ -95,7 +95,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
             {
                 LayerType.OrdersAnonymousPriceVolume => false
               , LayerType.OrdersFullPriceVolume => true
-              , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => true
+              , LayerType.FullSupportPriceVolume => true
               , _ => throw new ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {layerType}")
             };
         NameIdLookup = ipqNameIdLookupGenerator;
@@ -370,9 +370,8 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         {
             var tli = orders?[i] as IPQCounterPartyOrderLayerInfo;
             if (tli is null or { IsEmpty: true, HasUpdates: false } || i + 1 == ushort.MaxValue) continue;
-            if (tli.HasUpdates)
-                foreach (var stringUpdate in tli.GetStringUpdates(snapShotTime, messageFlags))
-                    yield return stringUpdate.WithAuxiliary(i);
+            foreach (var stringUpdate in tli.GetStringUpdates(snapShotTime, messageFlags))
+                yield return stringUpdate.WithAuxiliary(i);
             if (i + 1 == numberOfTraderInfos) break;
         }
     }

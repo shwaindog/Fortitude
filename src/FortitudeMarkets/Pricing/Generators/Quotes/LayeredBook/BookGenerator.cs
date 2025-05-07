@@ -130,7 +130,7 @@ public class BookGenerator : IBookGenerator
             case LayerType.OrdersFullPriceVolume:
                 PopulateCounterPartyOrdersPriceVolume((IMutableOrdersPriceVolumeLayer)bookLayer, depth, side);
                 return;
-            case LayerType.SourceQuoteRefOrdersValueDatePriceVolume:
+            case LayerType.FullSupportPriceVolume:
                 PopulateSourceQuoteRefTraderPriceVolume((IMutableFullSupportPriceVolumeLayer)bookLayer, depth, side);
                 return;
         }

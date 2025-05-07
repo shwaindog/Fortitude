@@ -280,28 +280,28 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
     [TestMethod]
     public void CreateSourceQuoteRefTraderValueDatePriceVolumeQuote_TwoSmallPeriods_OriginalValuesAreReturned()
     {
-        CreateLevel2File(layerType: LayerType.SourceQuoteRefOrdersValueDatePriceVolume);
+        CreateLevel2File(layerType: LayerType.FullSupportPriceVolume);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned(level2QuoteGenerator, asLevel2PriceQuoteFactory);
     }
 
     [TestMethod]
     public void CreatePQSourceQuoteRefTraderValueDatePriceVolumeQuote_TwoSmallPeriods_OriginalValuesAreReturned()
     {
-        CreateLevel2File(layerType: LayerType.SourceQuoteRefOrdersValueDatePriceVolume);
+        CreateLevel2File(layerType: LayerType.FullSupportPriceVolume);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned(pqLevel2QuoteGenerator, asPQLevel2QuoteFactory);
     }
 
     [TestMethod]
     public void CreateSourceQuoteRefTraderValueDatePriceVolumeQuote_TwoSmallCompressedPeriods_OriginalValuesAreReturned()
     {
-        CreateLevel2File(FileFlags.WriteDataCompressed, LayerType.SourceQuoteRefOrdersValueDatePriceVolume);
+        CreateLevel2File(FileFlags.WriteDataCompressed, LayerType.FullSupportPriceVolume);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned(level2QuoteGenerator, asLevel2PriceQuoteFactory);
     }
 
     [TestMethod]
     public void CreatePQSourceQuoteRefTraderValueDatePriceVolumeQuote_TwoSmallCompressedPeriods_OriginalValuesAreReturned()
     {
-        CreateLevel2File(FileFlags.WriteDataCompressed, LayerType.SourceQuoteRefOrdersValueDatePriceVolume);
+        CreateLevel2File(FileFlags.WriteDataCompressed, LayerType.FullSupportPriceVolume);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned(pqLevel2QuoteGenerator, asPQLevel2QuoteFactory);
     }
 
@@ -393,7 +393,7 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
     [TestMethod]
     public void CreateNewPriceQuoteFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned()
     {
-        CreateLevel2File(layerType: LayerType.SourceQuoteRefOrdersValueDatePriceVolume, numberOfLayers: 12);
+        CreateLevel2File(layerType: LayerType.FullSupportPriceVolume, numberOfLayers: 12);
         NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned(level2QuoteGenerator, asLevel2PriceQuoteFactory);
     }
 

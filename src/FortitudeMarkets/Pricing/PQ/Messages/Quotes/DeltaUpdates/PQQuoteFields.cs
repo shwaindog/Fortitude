@@ -124,8 +124,9 @@ public enum PQQuoteFields : byte
     // Level 2 Quote Fields
   , OpenInterestTotal     = 113 // 0x71
   , OpenInterestSided     = 114 // 0x72
-  , DailyAdapterTickCount = 115 // 0x73
-  , DailyTradedTotal      = 116 // 0x74
+  , DailyTotalTickCount = 115 // 0x73
+  , DailySidedTickCount   = 116 // 0x74
+  , DailyTradedTotal      = 117 // 0x75
 
     // Level 2 Quote Layer Fields
   , LayerNameDictionaryUpsertCommand = 118 // 0x76  StringFieldUpdate
@@ -160,7 +161,7 @@ public enum PQQuoteFields : byte
   , LayerLastUpdatedDate        = 146 // 0x9F
   , LayerLastUpdatedSub2MinTime = 147 // 0xA0
 
-    , AllLayersRangeEnd = 179 // 0xBE
+  , AllLayersRangeEnd = 179 // 0xBE
 
   , ExecutionStatsCurrent     = 180 // 0xB4
   , ExecutionStatsRecentShift = 181 // 0xB5

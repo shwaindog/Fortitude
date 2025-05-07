@@ -86,7 +86,7 @@ public static class LayerFlagsExtensions
             case LayerType.OrdersAnonymousPriceVolume:               return FullAnonymousOrderFlags;
             case LayerType.OrdersFullPriceVolume:                    return FullCounterPartyOrdersFlags;
 
-            case LayerType.SourceQuoteRefOrdersValueDatePriceVolume: return FullSupportLayerFlags;
+            case LayerType.FullSupportPriceVolume: return FullSupportLayerFlags;
 
             default:                                                 return LayerFlags.None;
         }

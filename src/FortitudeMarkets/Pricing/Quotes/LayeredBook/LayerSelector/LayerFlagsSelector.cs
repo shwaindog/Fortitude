@@ -47,7 +47,7 @@ public abstract class LayerFlagsSelector<T> : ILayerFlagsSelector<T> where T : c
                  , LayerType.OrdersAnonymousPriceVolume => SelectAnonymousOrdersPriceVolumeLayer()
                  , LayerType.OrdersFullPriceVolume      => SelectCounterPartyOrdersPriceVolumeLayer()
 
-                 , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => SelectSourceQuoteRefTraderValueDatePriceVolumeLayer()
+                 , LayerType.FullSupportPriceVolume => SelectSourceQuoteRefTraderValueDatePriceVolumeLayer()
 
                  , _ => SelectSimplePriceVolumeLayer()
                };

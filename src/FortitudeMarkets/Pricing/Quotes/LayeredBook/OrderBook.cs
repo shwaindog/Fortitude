@@ -13,7 +13,8 @@ namespace FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 {
-    private LayerFlags layerFlags;
+    private LayerFlags    layerFlags;
+    private IMutableOpenInterest? openInterest;
     public OrderBook() : this(LayerType.PriceVolume) { }
 
     public OrderBook
@@ -32,16 +33,20 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     {
         layerFlags          =  toClone.LayerSupportedFlags;
         layerFlags          |= LayersSupportedType.SupportedLayerFlags();
-        SourceOpenInterest  =  toClone.SourceOpenInterest;
-        AdapterOpenInterest =  toClone.AdapterOpenInterest;
         MaxPublishDepth     =  toClone.MaxPublishDepth;
+        DailyTickUpdateCount = toClone.DailyTickUpdateCount;
+        if (toClone.HasNonEmptyOpenInterest)
+        {
+            openInterest = new OpenInterest(toClone.OpenInterest);
+        }
 
         AskSide = new OrderBookSide(toClone.AskSide);
         BidSide = new OrderBookSide(toClone.BidSide);
     }
 
-    public OrderBook(IOrderBookSide bidSide, IOrderBookSide askBookSide, bool isLadder = false)
+    public OrderBook(IOrderBookSide bidSide, IOrderBookSide askBookSide, uint dailyTickCount = 0, bool isLadder = false)
     {
+        DailyTickUpdateCount = dailyTickCount;
         if (bidSide is OrderBookSide orderBookBid)
         {
             BidSide = orderBookBid;
@@ -107,21 +112,58 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 
     public decimal? MidPrice => (BidSide[0]?.Price ?? 0 + AskSide[0]?.Price ?? 0) / 2;
 
-    public OpenInterest? SourceOpenInterest  { get; set; }
-    public OpenInterest  AdapterOpenInterest { get; set; }
-    public OpenInterest PublishedOpenInterest
+    public bool HasNonEmptyOpenInterest
+    {
+        get => openInterest is {IsEmpty: false};
+        set
+        {
+            if (value) return;
+            if (openInterest != null)
+            {
+                openInterest.IsEmpty = true;
+            }
+        }
+    }
+
+    IOpenInterest IOrderBook.OpenInterest => OpenInterest!;
+
+
+    public IMutableOpenInterest? OpenInterest
     {
         get
         {
-            var bidOpenInterest = BidSide.PublishedOpenInterest;
-            var askOpenInterest = AskSide.PublishedOpenInterest;
+            if (HasNonEmptyOpenInterest && openInterest is not {DataSource: (MarketDataSource.Published or MarketDataSource.None)}) return openInterest;
+
+            var bidOpenInterest = BidSide.OpenInterestSide;
+            var askOpenInterest = AskSide.OpenInterestSide;
 
             var totalVolume = bidOpenInterest.Volume + askOpenInterest.Volume;
             var totalPriceVolume = totalVolume != 0
                 ? (bidOpenInterest.Volume * bidOpenInterest.Vwap + askOpenInterest.Volume * askOpenInterest.Vwap) / totalVolume
                 : 0m;
+            openInterest            ??= new OpenInterest();
+            openInterest.DataSource =   MarketDataSource.Published;
+            openInterest.UpdateTime =   DateTime.Now;
+            openInterest.Volume     =   totalVolume;
+            openInterest.Vwap       =   totalPriceVolume;
 
-            return new OpenInterest(MarketDataSource.Published, totalVolume, totalPriceVolume);
+            return openInterest;
+        }
+        set
+        {
+            if (value != null)
+            {
+                openInterest ??= new OpenInterest();
+
+                openInterest.DataSource = value.DataSource;
+                openInterest.UpdateTime = value.UpdateTime;
+                openInterest.Volume     = value.Volume;
+                openInterest.Vwap       = value.Vwap;
+            }
+            else if (openInterest != null)
+            {
+                openInterest.IsEmpty = true;
+            }
         }
     }
 
@@ -133,6 +175,18 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         set => LayerSupportedFlags = value ? LayerFlags.Ladder : LayerFlags.None;
     }
 
+
+    public override void StateReset()
+    {
+        DailyTickUpdateCount = 0;
+        openInterest?.StateReset();
+        BidSide.StateReset();
+        AskSide.StateReset();
+        IsAskBookChanged = false;
+        IsBidBookChanged = false;
+        base.StateReset();
+    }
+
     IMutableOrderBook ICloneable<IMutableOrderBook>.Clone() => Clone();
 
     IMutableOrderBook IMutableOrderBook.Clone() => Clone();
@@ -142,16 +196,18 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         if (other == null) return false;
         if (exactTypes && other.GetType() != typeof(OrderBook)) return false;
 
-        var layerFlagsSame          = LayerSupportedFlags == other.LayerSupportedFlags;
-        var maxDepthSame            = MaxPublishDepth == other.MaxPublishDepth;
-        var dailyTickCountSame      = DailyTickUpdateCount == other.DailyTickUpdateCount;
-        var sourceOpenInterestSame  = Equals(SourceOpenInterest, other.SourceOpenInterest);
-        var adapterOpenInterestSame = Equals(AdapterOpenInterest, other.AdapterOpenInterest);
-        var askSideSame             = AskSide.AreEquivalent(other.AskSide, exactTypes);
-        var bidSideSame             = BidSide.AreEquivalent(other.BidSide, exactTypes);
+        var layerFlagsSame     = LayerSupportedFlags == other.LayerSupportedFlags;
+        var maxDepthSame       = MaxPublishDepth == other.MaxPublishDepth;
+        var dailyTickCountSame = DailyTickUpdateCount == other.DailyTickUpdateCount;
+        var openInterestSame   = HasNonEmptyOpenInterest == other.HasNonEmptyOpenInterest;
+        if (openInterestSame && other.HasNonEmptyOpenInterest && HasNonEmptyOpenInterest)
+        {
+            openInterestSame = openInterest?.AreEquivalent(other.OpenInterest, exactTypes) ?? false;
+        }
+        var askSideSame        = AskSide.AreEquivalent(other.AskSide, exactTypes);
+        var bidSideSame        = BidSide.AreEquivalent(other.BidSide, exactTypes);
 
-        var allSame = layerFlagsSame && maxDepthSame && dailyTickCountSame && sourceOpenInterestSame
-                   && adapterOpenInterestSame && askSideSame && bidSideSame;
+        var allSame = layerFlagsSame && maxDepthSame && dailyTickCountSame && askSideSame && bidSideSame && openInterestSame;
         if (!allSame)
         {
             Console.Out.WriteLine("");
@@ -164,12 +220,18 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     public override OrderBook CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         LayerSupportedFlags           = source.LayerSupportedFlags;
+        if (source.HasNonEmptyOpenInterest)
+        {
+            openInterest ??= new OpenInterest();
+            openInterest.CopyFrom(source.OpenInterest, copyMergeFlags);
+        } else if (openInterest != null)
+        {
+            openInterest.IsEmpty = true;
+        }
         MaxPublishDepth      = source.MaxPublishDepth;
         IsBidBookChanged     = source.IsBidBookChanged;
         IsAskBookChanged     = source.IsAskBookChanged;
         DailyTickUpdateCount = source.DailyTickUpdateCount;
-        SourceOpenInterest   = source.SourceOpenInterest;
-        AdapterOpenInterest  = source.AdapterOpenInterest;
         BidSide.CopyFrom(source.BidSide, copyMergeFlags);
         AskSide.CopyFrom(source.AskSide, copyMergeFlags);
         return this;
@@ -190,8 +252,6 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
             hashCode.Add(IsBidBookChanged);
             hashCode.Add(IsAskBookChanged);
             hashCode.Add(DailyTickUpdateCount);
-            hashCode.Add(SourceOpenInterest ?? default);
-            hashCode.Add(AdapterOpenInterest);
             hashCode.Add(AskSide);
             hashCode.Add(BidSide);
 
@@ -201,7 +261,6 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 
     protected string OrderBookToStringMembers =>
         $"{nameof(LayersSupportedType)}: {LayersSupportedType}, {nameof(DailyTickUpdateCount)}: {DailyTickUpdateCount}, " +
-        $"{nameof(SourceOpenInterest)}: {SourceOpenInterest},  {nameof(AdapterOpenInterest)}: {AdapterOpenInterest}, " +
         $"{nameof(IsAskBookChanged)}: {IsAskBookChanged},  {nameof(IsBidBookChanged)}: {IsBidBookChanged}, " +
         $"{nameof(AskSide)}: {AskSide}, {nameof(BidSide)}: {BidSide}, {nameof(IsLadder)}: {IsLadder}";
 

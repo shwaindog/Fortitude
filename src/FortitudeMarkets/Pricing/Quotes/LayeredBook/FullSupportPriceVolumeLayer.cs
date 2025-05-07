@@ -31,7 +31,7 @@ public class FullSupportPriceVolumeLayer : OrdersPriceVolumeLayer, IMutableFullS
     }
 
     public FullSupportPriceVolumeLayer(IPriceVolumeLayer toClone)
-        : base(toClone, LayerType.SourceQuoteRefOrdersValueDatePriceVolume)
+        : base(toClone, LayerType.FullSupportPriceVolume)
     {
         if (toClone is IFullSupportPriceVolumeLayer fullSupportPriceVolumeLayer)
         {
@@ -65,7 +65,7 @@ public class FullSupportPriceVolumeLayer : OrdersPriceVolumeLayer, IMutableFullS
         $"{OrdersCountPriceVolumeLayerToStringMembers}, {nameof(SourceName)}: {SourceName}, {nameof(Executable)}: {Executable}, " +
         $"{nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}, {nameof(ValueDate)}: {ValueDate}, {JustOrdersToString}";
 
-    [JsonIgnore] public override LayerType LayerType => LayerType.SourceQuoteRefOrdersValueDatePriceVolume;
+    [JsonIgnore] public override LayerType LayerType => LayerType.FullSupportPriceVolume;
 
     [JsonIgnore] public override LayerFlags SupportsLayerFlags => LayerFlagsExtensions.AdditionalFullSupportLayerFlags | base.SupportsLayerFlags;
 

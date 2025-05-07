@@ -607,7 +607,7 @@ public class PQOrderBookLayerFactorySelectorTests
         var ltOrderCountPriceVolumeLayerFlags        = LayerType.OrdersCountPriceVolume.SupportedLayerFlags();
         var ltOrderAnonPriceVolumeLayerFlags         = LayerType.OrdersAnonymousPriceVolume.SupportedLayerFlags();
         var ltOrderCounterPartyPriceVolumeLayerFlags = LayerType.OrdersFullPriceVolume.SupportedLayerFlags();
-        var ltSrcQtRefTrdrVlDtPvlFlags               = LayerType.SourceQuoteRefOrdersValueDatePriceVolume.SupportedLayerFlags();
+        var ltSrcQtRefTrdrVlDtPvlFlags               = LayerType.FullSupportPriceVolume.SupportedLayerFlags();
 
 
         Assert.IsTrue(layerSelector.OriginalCanWhollyContain(ltPriceVolumeLayerFlags, priceVolumeSupportedFlags));
@@ -693,7 +693,7 @@ public class PQOrderBookLayerFactorySelectorTests
         var ltOrderCountPriceVolumeLayerFlags        = LayerType.OrdersCountPriceVolume.SupportedLayerFlags();
         var ltOrderAnonPriceVolumeLayerFlags         = LayerType.OrdersAnonymousPriceVolume.SupportedLayerFlags();
         var ltOrderCounterPartyPriceVolumeLayerFlags = LayerType.OrdersFullPriceVolume.SupportedLayerFlags();
-        var ltSrcQtRefTrdrVlDtPvlFlags               = LayerType.SourceQuoteRefOrdersValueDatePriceVolume.SupportedLayerFlags();
+        var ltSrcQtRefTrdrVlDtPvlFlags               = LayerType.FullSupportPriceVolume.SupportedLayerFlags();
 
         Assert.IsTrue(layerSelector.OriginalCanWhollyContain(ltPriceVolumeLayerFlags, pqPriceVolumeSupportedFlags));
         Assert.IsFalse(layerSelector.OriginalCanWhollyContain(ltSourcePriceVolumeLayerFlags, pqPriceVolumeSupportedFlags));

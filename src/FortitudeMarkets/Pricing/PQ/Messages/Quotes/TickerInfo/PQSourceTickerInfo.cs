@@ -525,6 +525,10 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         var allAreSame = baseIsSame && tickerDetailLevelSame && roundingPrecisionSame && pipSame && minSubmitSizeSame && maxSubmitSizeSame
                       && incrementSizeSame && minQuoteLifeSame && layerFlagsSame && maxPublishLayersSame && defaultMaxValidSame && subscribeSame
                       && tradingEnabledSame && lastTradedFlagsSame && updatesSame;
+        if (!allAreSame)
+        {
+            Console.Out.WriteLine("");
+        }
         return allAreSame;
     }
 
@@ -778,4 +782,47 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         $"{nameof(MaxSubmitSize)}: {MaxSubmitSize}, {nameof(IncrementSize)}: {IncrementSize}, {nameof(MinimumQuoteLife)}: {MinimumQuoteLife}, " +
         $"{nameof(DefaultMaxValidMs)}: {DefaultMaxValidMs}, {nameof(SubscribeToPrices)}: {SubscribeToPrices}, {nameof(TradingEnabled)}: {TradingEnabled}, " +
         $"{nameof(LayerFlags)}: {LayerFlags:F}, {nameof(MaximumPublishedLayers)}: {MaximumPublishedLayers}, {nameof(LastTradedFlags)}: {LastTradedFlags})";
+}
+
+
+public static class PQSourceTickerInfoExtensions
+{
+    public static PQSourceTickerInfo WithRoundingPrecision(this PQSourceTickerInfo toCopy, decimal roundingPrecision) =>
+        new(toCopy) { RoundingPrecision = roundingPrecision };
+
+    public static PQSourceTickerInfo WithTickerDetailLevel(this PQSourceTickerInfo toCopy, TickerDetailLevel tickerDetailLevel) =>
+        new(toCopy) { PublishedTickerDetailLevel = tickerDetailLevel };
+
+    public static PQSourceTickerInfo WithPip(this PQSourceTickerInfo toCopy, decimal pip) =>
+        new(toCopy) { Pip = pip };
+
+    public static PQSourceTickerInfo WithDefaultMaxValidMs(this PQSourceTickerInfo toCopy, uint defaultMaxValidMs) =>
+        new(toCopy) { DefaultMaxValidMs = defaultMaxValidMs };
+
+    public static PQSourceTickerInfo WithSubscribeToPrices(this PQSourceTickerInfo toCopy, bool subscribeToPrice) =>
+        new(toCopy) { SubscribeToPrices = subscribeToPrice };
+
+    public static PQSourceTickerInfo WithTradingEnabled(this PQSourceTickerInfo toCopy, bool tradingEnabled) =>
+        new(toCopy) { TradingEnabled = tradingEnabled };
+
+    public static PQSourceTickerInfo WithMaximumPublishedLayers(this PQSourceTickerInfo toCopy, ushort maxPublishedLayers) =>
+        new(toCopy) { MaximumPublishedLayers = maxPublishedLayers };
+
+    public static PQSourceTickerInfo WithMinSubmitSize(this PQSourceTickerInfo toCopy, decimal minSubmitSize) =>
+        new(toCopy) { MinSubmitSize = minSubmitSize };
+
+    public static PQSourceTickerInfo WithMaxSubmitSize(this PQSourceTickerInfo toCopy, decimal maxSubmitSize) =>
+        new(toCopy) { MaxSubmitSize = maxSubmitSize };
+
+    public static PQSourceTickerInfo WithIncrementSize(this PQSourceTickerInfo toCopy, decimal incrementSize) =>
+        new(toCopy) { IncrementSize = incrementSize };
+
+    public static PQSourceTickerInfo WithMinimumQuoteLife(this PQSourceTickerInfo toCopy, ushort minQuoteLifeMs) =>
+        new(toCopy) { MinimumQuoteLife = minQuoteLifeMs };
+
+    public static PQSourceTickerInfo WithLayerFlags(this PQSourceTickerInfo toCopy, LayerFlags layerFlags) =>
+        new(toCopy) { LayerFlags = layerFlags };
+
+    public static PQSourceTickerInfo WithLastTradedFlags(this PQSourceTickerInfo toCopy, LastTradedFlags lastTradedFlags) =>
+        new(toCopy) { LastTradedFlags = lastTradedFlags };
 }

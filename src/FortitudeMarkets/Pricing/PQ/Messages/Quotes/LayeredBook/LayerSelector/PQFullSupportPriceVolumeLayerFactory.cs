@@ -13,7 +13,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook.LayerSelector;
 public class PQFullSupportPriceVolumeLayerFactory : PQOrdersPriceVolumeLayerFactory
 {
     public PQFullSupportPriceVolumeLayerFactory(IPQNameIdLookupGenerator nameIdLookup)
-        : base(LayerType.SourceQuoteRefOrdersValueDatePriceVolume, nameIdLookup) { }
+        : base(LayerType.FullSupportPriceVolume, nameIdLookup) { }
 
     public override Type LayerCreationType => typeof(PQFullSupportPriceVolumeLayer);
 

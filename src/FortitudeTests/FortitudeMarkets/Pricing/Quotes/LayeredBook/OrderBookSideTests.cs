@@ -499,12 +499,42 @@ public class OrderBookSideTests
     {
         for (var i = 0; i < MaxNumberOfLayers; i++) Assert.IsInstanceOfType(orderBookSide[i], expectedType);
     }
+    
+    internal static OrderBookSide GenerateBookSide<T>
+    (BookSide bookSide, int numberOfLayers, decimal startingPrice, decimal deltaPricePerLayer,
+        decimal startingVolume, decimal deltaVolumePerLayer, Func<decimal, decimal, T> genNewLayerObj)
+        where T : IPriceVolumeLayer
+    {
+        var generatedLayers = new List<T>();
+        var currentPrice    = startingPrice;
+        var currentVolume   = startingVolume;
+        for (var i = 0; i < numberOfLayers; i++)
+        {
+            generatedLayers.Add(genNewLayerObj(currentPrice, currentVolume));
+            if (bookSide == BookSide.AskBook)
+            {
+                currentPrice += deltaPricePerLayer;
+            }
+            else
+            {
+                currentPrice -= deltaPricePerLayer;
+            }
+            currentVolume += deltaVolumePerLayer;
+        }
+
+        return new OrderBookSide(bookSide, generatedLayers.Cast<IPriceVolumeLayer>().ToList());
+    }
 
     internal static void AssertAreEquivalentMeetsExpectedExactComparisonType
     (bool exactComparison,
-        IMutableOrderBookSide commonOrderBookSide, IMutableOrderBookSide changingOrderBookSide,
-        IMutableLevel2Quote? originalQuote = null, IMutableLevel2Quote? changingQuote = null)
+        IMutableOrderBookSide commonOrderBookSide,
+        IMutableOrderBookSide changingOrderBookSide,
+        IOrderBook? originalOrderBook = null,
+        IOrderBook? changingOrderBook = null,
+        IMutableLevel2Quote? originalQuote = null,
+        IMutableLevel2Quote? changingQuote = null)
     {
+        if (changingOrderBook == null && changingOrderBook == null) return;
         Assert.AreEqual(commonOrderBookSide.Count, changingOrderBookSide.Count);
 
         for (var i = 0; i < commonOrderBookSide.Count; i++)
@@ -513,7 +543,7 @@ public class OrderBookSideTests
                 (
                  exactComparison, commonOrderBookSide[i],
                  changingOrderBookSide[i], commonOrderBookSide,
-                 changingOrderBookSide, originalQuote, changingQuote
+                 changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote, changingQuote
                 );
             SourcePriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
                 (
@@ -521,7 +551,7 @@ public class OrderBookSideTests
                , commonOrderBookSide[i] as IMutableSourcePriceVolumeLayer,
                  changingOrderBookSide[i] as IMutableSourcePriceVolumeLayer
                , commonOrderBookSide,
-                 changingOrderBookSide, originalQuote, changingQuote
+                 changingOrderBookSide,  originalOrderBook, changingOrderBook, originalQuote, changingQuote
                 );
             SourceQuoteRefPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
                 (
@@ -531,15 +561,23 @@ public class OrderBookSideTests
                  changingOrderBookSide[i] as
                      IMutableSourceQuoteRefPriceVolumeLayer
                , commonOrderBookSide,
-                 changingOrderBookSide, originalQuote, changingQuote
+                 changingOrderBookSide,  originalOrderBook, changingOrderBook, originalQuote, changingQuote
                 );
             ValueDatePriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
                 (
                  exactComparison
-               , commonOrderBookSide[i] as ValueDatePriceVolumeLayer,
-                 changingOrderBookSide[i] as ValueDatePriceVolumeLayer
+               , commonOrderBookSide[i] as IMutableValueDatePriceVolumeLayer,
+                 changingOrderBookSide[i] as IMutableValueDatePriceVolumeLayer
                , commonOrderBookSide,
-                 changingOrderBookSide, originalQuote, changingQuote
+                 changingOrderBookSide,  originalOrderBook, changingOrderBook, originalQuote, changingQuote
+                );
+            OrdersCountPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+                (
+                 exactComparison
+               , commonOrderBookSide[i] as IMutableOrdersCountPriceVolumeLayer,
+                 changingOrderBookSide[i] as IMutableOrdersCountPriceVolumeLayer
+               , commonOrderBookSide,
+                 changingOrderBookSide,  originalOrderBook, changingOrderBook, originalQuote, changingQuote
                 );
             OrdersPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
                 (
@@ -547,12 +585,12 @@ public class OrderBookSideTests
                , commonOrderBookSide[i] as IMutableOrdersPriceVolumeLayer,
                  changingOrderBookSide[i] as IMutableOrdersPriceVolumeLayer
                , commonOrderBookSide,
-                 changingOrderBookSide, originalQuote, changingQuote
+                 changingOrderBookSide,  originalOrderBook, changingOrderBook, originalQuote, changingQuote
                 );
             FullSupportPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType(
-             exactComparison, commonOrderBookSide[i] as FullSupportPriceVolumeLayer,
-             changingOrderBookSide[i] as FullSupportPriceVolumeLayer, commonOrderBookSide,
-             changingOrderBookSide, originalQuote, changingQuote);
+             exactComparison, commonOrderBookSide[i] as IMutableFullSupportPriceVolumeLayer,
+             changingOrderBookSide[i] as IMutableFullSupportPriceVolumeLayer, commonOrderBookSide,
+             changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote, changingQuote);
         }
     }
 }

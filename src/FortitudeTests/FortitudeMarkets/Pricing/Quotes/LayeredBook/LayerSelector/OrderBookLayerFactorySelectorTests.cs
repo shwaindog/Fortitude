@@ -429,7 +429,7 @@ public class OrderBookLayerFactorySelectorTests
         Assert.AreEqual(expectedCounterPartyName, ((ICounterPartyOrderLayerInfo)pqCpOrdersPvl[0]!).CounterPartyName);
         Assert.AreEqual(expectedTraderName, ((ICounterPartyOrderLayerInfo)pqCpOrdersPvl[0]!).TraderName);
 
-        pvl = layerSelector.CreateExpectedImplementation(LayerType.SourceQuoteRefOrdersValueDatePriceVolume, pqSrcQtRefTrdrVlDtPvl);
+        pvl = layerSelector.CreateExpectedImplementation(LayerType.FullSupportPriceVolume, pqSrcQtRefTrdrVlDtPvl);
         var convertedPqSrcQtRefTrdrVlDtPvl = pvl as FullSupportPriceVolumeLayer;
         Assert.IsNotNull(convertedPqSrcQtRefTrdrVlDtPvl);
         Assert.AreEqual(ExpectedPrice, convertedPqSrcQtRefTrdrVlDtPvl.Price);

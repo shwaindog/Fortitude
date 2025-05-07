@@ -835,8 +835,13 @@ public class PQOrderBookSideTests
     }
 
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType
-    (bool exactComparison, IPQOrderBookSide original, IPQOrderBookSide changingOrderBookSide, PQLevel2Quote? originalQuote = null
-      , PQLevel2Quote? changingQuote = null)
+    (bool exactComparison, 
+        IPQOrderBookSide original, 
+        IPQOrderBookSide changingOrderBookSide, 
+        IOrderBook? originalOrderBook = null,
+        IOrderBook? changingOrderBook = null,
+        IPQLevel2Quote? originalQuote = null
+      , IPQLevel2Quote? changingQuote = null)
     {
         if (original.GetType() == typeof(PQOrderBookSide))
             Assert.AreEqual
@@ -853,35 +858,35 @@ public class PQOrderBookSideTests
                 .AssertAreEquivalentMeetsExpectedExactComparisonType
                     (exactComparison, (PQPriceVolumeLayer)originalLayers[i]!,
                      (PQPriceVolumeLayer)changingLayers[i]!, original,
-                     changingOrderBookSide, originalQuote!, changingQuote!);
+                     changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote!, changingQuote!);
             if (originalLayers[i] is PQSourcePriceVolumeLayer)
                 PQSourcePriceVolumeLayerTests
                     .AssertAreEquivalentMeetsExpectedExactComparisonType
                         (exactComparison, (PQSourcePriceVolumeLayer)originalLayers[i]!,
                          (PQSourcePriceVolumeLayer)changingLayers[i]!, original,
-                         changingOrderBookSide, originalQuote!, changingQuote!);
+                         changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote!, changingQuote!);
             if (originalLayers[i] is PQSourceQuoteRefPriceVolumeLayer)
                 PQSourceQuoteRefPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType(
                  exactComparison, (PQSourceQuoteRefPriceVolumeLayer)originalLayers[i]!,
                  (PQSourceQuoteRefPriceVolumeLayer)changingLayers[i]!, original,
-                 changingOrderBookSide, originalQuote!, changingQuote!);
+                 changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote!, changingQuote!);
             if (originalLayers[i] is PQValueDatePriceVolumeLayer)
                 PQValueDatePriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType(
                  exactComparison, (PQValueDatePriceVolumeLayer)originalLayers[i]!,
                  (PQValueDatePriceVolumeLayer)changingLayers[i]!, original,
-                 changingOrderBookSide, originalQuote!, changingQuote);
+                 changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote!, changingQuote);
             if (originalLayers[i] is PQOrdersPriceVolumeLayer)
                 PQOrdersPriceVolumeLayerTests
                     .AssertAreEquivalentMeetsExpectedExactComparisonType
                         (exactComparison, (PQOrdersPriceVolumeLayer)originalLayers[i]!,
                          (PQOrdersPriceVolumeLayer)changingLayers[i]!, original,
-                         changingOrderBookSide, originalQuote, changingQuote);
+                         changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote, changingQuote);
             if (originalLayers[i] is PQFullSupportPriceVolumeLayer)
                 PQFullSupportPriceVolumeLayerTests
                     .AssertAreEquivalentMeetsExpectedExactComparisonType
                         (exactComparison, (PQFullSupportPriceVolumeLayer)originalLayers[i]!,
                          (PQFullSupportPriceVolumeLayer)changingLayers[i]!, original
-                       , changingOrderBookSide, originalQuote, changingQuote);
+                       , changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote, changingQuote);
         }
     }
 
@@ -959,7 +964,7 @@ public class PQOrderBookSideTests
                          , LayerType.OrdersAnonymousPriceVolume => typeof(PQOrdersPriceVolumeLayer)
                          , LayerType.OrdersFullPriceVolume      => typeof(PQOrdersPriceVolumeLayer)
                          , LayerType.ValueDatePriceVolume       => typeof(PQValueDatePriceVolumeLayer)
-                         , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
+                         , LayerType.FullSupportPriceVolume =>
                                typeof(PQFullSupportPriceVolumeLayer)
                          , _ => throw new NotImplementedException()
                        }
@@ -973,7 +978,7 @@ public class PQOrderBookSideTests
                          , LayerType.OrdersAnonymousPriceVolume => typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.OrdersFullPriceVolume      => typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.ValueDatePriceVolume       => typeof(PQFullSupportPriceVolumeLayer)
-                         , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
+                         , LayerType.FullSupportPriceVolume =>
                                typeof(PQFullSupportPriceVolumeLayer)
                          , _ => throw new NotImplementedException()
                        }
@@ -988,7 +993,7 @@ public class PQOrderBookSideTests
                          , LayerType.OrdersFullPriceVolume      => typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.ValueDatePriceVolume =>
                                typeof(PQFullSupportPriceVolumeLayer)
-                         , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
+                         , LayerType.FullSupportPriceVolume =>
                                typeof(PQFullSupportPriceVolumeLayer)
                          , _ => throw new NotImplementedException()
                        }
@@ -1003,7 +1008,7 @@ public class PQOrderBookSideTests
                          , LayerType.OrdersAnonymousPriceVolume => typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.OrdersFullPriceVolume      => typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.ValueDatePriceVolume       => typeof(PQValueDatePriceVolumeLayer)
-                         , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
+                         , LayerType.FullSupportPriceVolume =>
                                typeof(PQFullSupportPriceVolumeLayer)
                          , _ => throw new NotImplementedException()
                        }
@@ -1017,7 +1022,7 @@ public class PQOrderBookSideTests
                          , LayerType.OrdersAnonymousPriceVolume => typeof(PQOrdersPriceVolumeLayer)
                          , LayerType.OrdersFullPriceVolume      => typeof(PQOrdersPriceVolumeLayer)
                          , LayerType.ValueDatePriceVolume       => typeof(PQFullSupportPriceVolumeLayer)
-                         , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
+                         , LayerType.FullSupportPriceVolume =>
                                typeof(PQFullSupportPriceVolumeLayer)
                          , _ => throw new NotImplementedException()
                        }
@@ -1031,7 +1036,7 @@ public class PQOrderBookSideTests
                          , LayerType.OrdersAnonymousPriceVolume => typeof(PQOrdersPriceVolumeLayer)
                          , LayerType.OrdersFullPriceVolume      => typeof(PQOrdersPriceVolumeLayer)
                          , LayerType.ValueDatePriceVolume       => typeof(PQFullSupportPriceVolumeLayer)
-                         , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
+                         , LayerType.FullSupportPriceVolume =>
                                typeof(PQFullSupportPriceVolumeLayer)
                          , _ => throw new NotImplementedException()
                        }
@@ -1045,11 +1050,11 @@ public class PQOrderBookSideTests
                          , LayerType.OrdersAnonymousPriceVolume => typeof(PQOrdersPriceVolumeLayer)
                          , LayerType.OrdersFullPriceVolume      => typeof(PQOrdersPriceVolumeLayer)
                          , LayerType.ValueDatePriceVolume       => typeof(PQFullSupportPriceVolumeLayer)
-                         , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
+                         , LayerType.FullSupportPriceVolume =>
                                typeof(PQFullSupportPriceVolumeLayer)
                          , _ => throw new NotImplementedException()
                        }
-                 , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
+                 , LayerType.FullSupportPriceVolume =>
                        copyType switch
                        {
                            LayerType.PriceVolume =>
@@ -1066,7 +1071,7 @@ public class PQOrderBookSideTests
                                typeof(PQFullSupportPriceVolumeLayer)
                          , LayerType.ValueDatePriceVolume =>
                                typeof(PQFullSupportPriceVolumeLayer)
-                         , LayerType.SourceQuoteRefOrdersValueDatePriceVolume =>
+                         , LayerType.FullSupportPriceVolume =>
                                typeof(PQFullSupportPriceVolumeLayer)
                          , _ => throw new NotImplementedException()
                        }

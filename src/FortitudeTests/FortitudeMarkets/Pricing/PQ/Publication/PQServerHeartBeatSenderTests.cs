@@ -149,6 +149,7 @@ public class PQServerHeartBeatSenderTests
 
             Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
             pqServerHeartBeatSender.StartSendingHeartBeats();
+            Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
 
             pqServerHeartBeatSender.CheckPublishHeartbeats();
             moqUpdateServer.Verify(us => us.IsStarted, Times.Exactly(1));
@@ -212,6 +213,7 @@ public class PQServerHeartBeatSenderTests
 
             Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
             pqServerHeartBeatSender.StartSendingHeartBeats();
+            Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
 
             pqServerHeartBeatSender.CheckPublishHeartbeats();
             moqUpdateServer.Verify(us => us.IsStarted, Times.Exactly(0));
@@ -274,6 +276,7 @@ public class PQServerHeartBeatSenderTests
 
             Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
             pqServerHeartBeatSender.StartSendingHeartBeats();
+            Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
 
             pqServerHeartBeatSender.CheckPublishHeartbeats();
             moqUpdateServer.Verify(us => us.IsStarted, Times.Exactly(1));
@@ -334,6 +337,7 @@ public class PQServerHeartBeatSenderTests
 
             Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
             pqServerHeartBeatSender.StartSendingHeartBeats();
+            Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
 
             pqServerHeartBeatSender.CheckPublishHeartbeats();
             moqQuotesList.Verify();
@@ -392,6 +396,7 @@ public class PQServerHeartBeatSenderTests
 
             Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
             pqServerHeartBeatSender.StartSendingHeartBeats();
+            Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
 
             var moqLogger = new Mock<IFLogger>();
             moqLogger.Setup(l => l.Error(It.IsAny<string>(), It.IsAny<object[]>())).Verifiable();
@@ -457,6 +462,7 @@ public class PQServerHeartBeatSenderTests
 
             Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
             pqServerHeartBeatSender.StartSendingHeartBeats();
+            Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
             
             Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
             pqServerHeartBeatSender.CheckPublishHeartbeats();
