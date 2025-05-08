@@ -187,8 +187,18 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
         }
         else if (pqocpvl != null)
         {
-            if (pqocpvl.IsOrdersCountUpdated || isFullReplace) OrdersCount       = pqocpvl.OrdersCount;
-            if (pqocpvl.IsInternalVolumeUpdated || isFullReplace) InternalVolume = pqocpvl.InternalVolume;
+            if (pqocpvl.IsOrdersCountUpdated || isFullReplace)
+            {
+                IsOrdersCountUpdated = true;
+
+                OrdersCount       = pqocpvl.OrdersCount;
+            }
+            if (pqocpvl.IsInternalVolumeUpdated || isFullReplace)
+            {
+                IsInternalVolumeUpdated = true;
+
+                InternalVolume = pqocpvl.InternalVolume;
+            }
         }
         if (pqocpvl != null && isFullReplace) SetFlagsSame(source);
 

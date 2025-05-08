@@ -125,7 +125,12 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         }
         else if (pqValueDate != null)
         {
-            if (pqValueDate.IsValueDateUpdated || isFullReplace) ValueDate = pqValueDate.ValueDate;
+            if (pqValueDate.IsValueDateUpdated || isFullReplace)
+            {
+                IsValueDateUpdated = true;
+
+                ValueDate = pqValueDate.ValueDate;
+            }
             if (isFullReplace) SetFlagsSame(pqValueDate);
         }
         return this;

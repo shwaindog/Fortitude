@@ -477,15 +477,55 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
         {
             var isFullReplace = copyMergeFlags.HasFullReplace();
 
-            if (pqAnonOrderLyrInfo.IsOrderIdUpdated || isFullReplace) OrderId       = pqAnonOrderLyrInfo.OrderId;
-            if (pqAnonOrderLyrInfo.IsOrderFlagsUpdated || isFullReplace) OrderFlags = pqAnonOrderLyrInfo.OrderFlags;
-            if (pqAnonOrderLyrInfo.IsCreatedTimeDateUpdated || pqAnonOrderLyrInfo.IsCreatedTimeSub2MinUpdated || isFullReplace)
-                CreatedTime = pqAnonOrderLyrInfo.CreatedTime;
-            if (pqAnonOrderLyrInfo.IsUpdatedTimeDateUpdated || pqAnonOrderLyrInfo.IsUpdatedTimeSub2MinUpdated || isFullReplace)
-                UpdatedTime = pqAnonOrderLyrInfo.UpdatedTime;
-            if (pqAnonOrderLyrInfo.IsOrderVolumeUpdated || isFullReplace) OrderVolume = pqAnonOrderLyrInfo.OrderVolume;
+            if (pqAnonOrderLyrInfo.IsOrderIdUpdated || isFullReplace)
+            {
+                IsOrderIdUpdated = true;
 
-            if (pqAnonOrderLyrInfo.IsOrderRemainingVolumeUpdated || isFullReplace) OrderRemainingVolume = pqAnonOrderLyrInfo.OrderRemainingVolume;
+                OrderId       = pqAnonOrderLyrInfo.OrderId;
+            }
+            if (pqAnonOrderLyrInfo.IsOrderFlagsUpdated || isFullReplace)
+            {
+                IsOrderFlagsUpdated = true;
+
+                OrderFlags = pqAnonOrderLyrInfo.OrderFlags;
+            }
+            if (pqAnonOrderLyrInfo.IsCreatedTimeDateUpdated || isFullReplace)
+            {
+                IsCreatedTimeDateUpdated = true;
+
+                CreatedTime = pqAnonOrderLyrInfo.CreatedTime;
+            }
+            if (pqAnonOrderLyrInfo.IsCreatedTimeSub2MinUpdated || isFullReplace)
+            {
+                IsCreatedTimeSub2MinUpdated = true;
+
+                CreatedTime = pqAnonOrderLyrInfo.CreatedTime;
+            }
+            if (pqAnonOrderLyrInfo.IsUpdatedTimeDateUpdated || isFullReplace)
+            {
+                IsUpdatedTimeDateUpdated = true;
+
+                UpdatedTime = pqAnonOrderLyrInfo.UpdatedTime;
+            }
+            if (pqAnonOrderLyrInfo.IsUpdatedTimeSub2MinUpdated || isFullReplace)
+            {
+                IsUpdatedTimeSub2MinUpdated = true;
+
+                UpdatedTime = pqAnonOrderLyrInfo.UpdatedTime;
+            }
+            if (pqAnonOrderLyrInfo.IsOrderVolumeUpdated || isFullReplace)
+            {
+                IsOrderVolumeUpdated = true;
+
+                OrderVolume = pqAnonOrderLyrInfo.OrderVolume;
+            }
+
+            if (pqAnonOrderLyrInfo.IsOrderRemainingVolumeUpdated || isFullReplace)
+            {
+                IsOrderRemainingVolumeUpdated = true;
+
+                OrderRemainingVolume = pqAnonOrderLyrInfo.OrderRemainingVolume;
+            }
 
             if (isFullReplace) UpdatedFlags = (source as PQAnonymousOrderLayerInfo)?.UpdatedFlags ?? UpdatedFlags;
         }

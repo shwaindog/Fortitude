@@ -158,14 +158,6 @@ public class PQOrdersCountPriceVolumeLayerTests
         AssertOrdersCountFieldUpdatesReturnAsExpected(populatedPvl);
     }
 
-    [TestMethod]
-    public void PopulatedPvl_LayerInternalVolumeChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
-    {
-        populatedPvl.HasUpdates = false;
-
-        AssertInternalVolumeFieldUpdatesReturnAsExpected(populatedPvl);
-    }
-
     public static void AssertOrdersCountFieldUpdatesReturnAsExpected
     (
         IPQOrdersCountPriceVolumeLayer? ordersCountLayer,
@@ -312,6 +304,14 @@ public class PQOrdersCountPriceVolumeLayerTests
         ordersCountLayer.OrdersCount = 0u;
         ordersCountLayer.HasUpdates     = false;
         if (l2QNotNull) l2Quote!.HasUpdates = false;
+    }
+
+    [TestMethod]
+    public void PopulatedPvl_LayerInternalVolumeChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
+    {
+        populatedPvl.HasUpdates = false;
+
+        AssertInternalVolumeFieldUpdatesReturnAsExpected(populatedPvl);
     }
 
     public static void AssertInternalVolumeFieldUpdatesReturnAsExpected

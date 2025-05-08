@@ -258,8 +258,9 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 
     protected string OrderBookToStringMembers =>
         $"{nameof(LayersSupportedType)}: {LayersSupportedType}, {nameof(DailyTickUpdateCount)}: {DailyTickUpdateCount}, " +
-        $"{nameof(IsAskBookChanged)}: {IsAskBookChanged},  {nameof(IsBidBookChanged)}: {IsBidBookChanged}, " +
-        $"{nameof(AskSide)}: {AskSide}, {nameof(BidSide)}: {BidSide}, {nameof(IsLadder)}: {IsLadder}";
+        $"{nameof(OpenInterest)}: {OpenInterest}, {nameof(IsAskBookChanged)}: {IsAskBookChanged}, " +
+        $"{nameof(IsBidBookChanged)}: {IsBidBookChanged}, {nameof(AskSide)}: {AskSide}, {nameof(BidSide)}: {BidSide}, " +
+        $"{nameof(IsLadder)}: {IsLadder}";
 
     public override string ToString() => $"{nameof(OrderBook)}{{{OrderBookToStringMembers}}}";
 }

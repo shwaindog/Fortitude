@@ -287,7 +287,13 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public bool HasUpdates
     {
-        get { return AllLayers.Any(pqpvl => pqpvl.HasUpdates); }
+        get
+        {
+            return UpdatedFlags != OrderBookUpdatedFlags.None
+                || (HasNonEmptyOpenInterest 
+                 && pqOpenInterestSide is {DataSource: not(MarketDataSource.None or MarketDataSource.Published), HasUpdates: true })
+                || AllLayers.Any(pqpvl => pqpvl.HasUpdates);
+        }
         set
         {
             foreach (var pqPvLayer in AllLayers) pqPvLayer.HasUpdates = value;
@@ -303,7 +309,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public bool HasNonEmptyOpenInterest
     {
-        get => pqOpenInterestSide is { IsEmpty: false, DataSource: not (MarketDataSource.None or MarketDataSource.Published) };
+        get => pqOpenInterestSide is { IsEmpty: false};
         set
         {
             if (value) return;
@@ -325,10 +331,12 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     {
         get
         {
-            if (HasNonEmptyOpenInterest) return pqOpenInterestSide;
+            if (HasNonEmptyOpenInterest && pqOpenInterestSide is {DataSource: not (MarketDataSource.None or MarketDataSource.Published) })
+                return pqOpenInterestSide;
+
             var vwapResult = this.CalculateVwap();
 
-            pqOpenInterestSide            ??= new PQMarketAggregate();
+            pqOpenInterestSide ??= new PQMarketAggregate();
             pqOpenInterestSide.DataSource =   MarketDataSource.Published;
             pqOpenInterestSide.UpdateTime =   DateTime.Now;
             pqOpenInterestSide.Volume     =   vwapResult.VolumeAchieved;

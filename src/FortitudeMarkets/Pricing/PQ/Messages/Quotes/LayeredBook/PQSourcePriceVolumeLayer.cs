@@ -53,7 +53,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         NameIdLookup = nameIdLookupGenerator;
         if (toClone is IPQSourcePriceVolumeLayer pqSourcePvToClone)
         {
-            SourceId            = (ushort)NameIdLookup.GetOrAddId(pqSourcePvToClone.SourceName);
+            SourceName          = pqSourcePvToClone.SourceName;
             Executable          = pqSourcePvToClone.Executable;
             IsSourceNameUpdated = pqSourcePvToClone.IsSourceNameUpdated;
             IsExecutableUpdated = pqSourcePvToClone.IsExecutableUpdated;
@@ -69,7 +69,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
     }
 
     protected string PQSourcePriceVolumeLayerToStringMembers =>
-        $"{PQPriceVolumeLayerToStringMembers}, {nameof(SourceName)}: {SourceName}, " +
+        $"{PQPriceVolumeLayerToStringMembers}, {nameof(SourceId)}: {SourceId}, {nameof(SourceName)}: {SourceName}, " +
         $"{nameof(Executable)}: {Executable}";
 
     [JsonIgnore] public override LayerType  LayerType          => LayerType.SourcePriceVolume;
@@ -263,10 +263,20 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         else if (pqspvl != null)
         {
             var isFullReplace = copyMergeFlags.HasFullReplace();
-            NameIdLookup.CopyFrom(pqspvl.NameIdLookup, copyMergeFlags);
+            if(!copyMergeFlags.HasSkipReferenceLookups()) NameIdLookup.CopyFrom(pqspvl.NameIdLookup, copyMergeFlags);
 
-            if (pqspvl.IsSourceNameUpdated || isFullReplace) SourceId   = pqspvl.SourceId;
-            if (pqspvl.IsExecutableUpdated || isFullReplace) Executable = pqspvl.Executable;
+            if (pqspvl.IsSourceNameUpdated || isFullReplace)
+            {
+                IsSourceNameUpdated = true;
+
+                SourceId   = pqspvl.SourceId;
+            }
+            if (pqspvl.IsExecutableUpdated || isFullReplace)
+            {
+                IsExecutableUpdated = true;
+
+                Executable = pqspvl.Executable;
+            }
 
             if (isFullReplace) SetFlagsSame(pqspvl);
         }

@@ -71,8 +71,9 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer,
     }
 
     protected string PQFullSupportVolumeLayerToStringMembers =>
-        $"{PQOrdersCountVolumeLayerToStringMembers}, {nameof(SourceName)}: {SourceName}, {nameof(Executable)}: {Executable}, " +
-        $"{nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}, {nameof(ValueDate)}: {ValueDate}, {PQJustOrdersToStringMembers}";
+        $"{PQOrdersCountVolumeLayerToStringMembers}, {nameof(SourceId)}: {SourceId}, {nameof(SourceName)}: {SourceName}, " +
+        $"{nameof(Executable)}: {Executable}, {nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}, {nameof(ValueDate)}: {ValueDate}, " +
+        $"{PQJustOrdersToStringMembers}";
 
     [JsonIgnore]
     public bool IsValueDateUpdated
@@ -323,34 +324,82 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer,
         (IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
-        var isFullReplace = copyMergeFlags.HasFullReplace();
+        var isFullReplace    = copyMergeFlags.HasFullReplace();
+        var isSkipRefLookups = copyMergeFlags.HasSkipReferenceLookups();
         switch (source)
         {
             // IPQOrdersPriceVolumeLayer && IPQOrdersCountPriceVolumeLayer are done in base
             case IPQFullSupportPriceVolumeLayer fullSupportPvLayer:
-                NameIdLookup.CopyFrom(fullSupportPvLayer.NameIdLookup);
-                if (fullSupportPvLayer.IsValueDateUpdated || isFullReplace) ValueDate                       = fullSupportPvLayer.ValueDate;
-                if (fullSupportPvLayer.IsSourceQuoteReferenceUpdated || isFullReplace) SourceQuoteReference = fullSupportPvLayer.SourceQuoteReference;
+                if(!isSkipRefLookups)  NameIdLookup.CopyFrom(fullSupportPvLayer.NameIdLookup);
+                if (fullSupportPvLayer.IsValueDateUpdated || isFullReplace)
+                {
+                    IsValueDateUpdated = true;
+                    ValueDate          = fullSupportPvLayer.ValueDate;
+                }
+                if (fullSupportPvLayer.IsSourceQuoteReferenceUpdated || isFullReplace)
+                {
+                    IsSourceQuoteReferenceUpdated = true;
+
+                    SourceQuoteReference          = fullSupportPvLayer.SourceQuoteReference;
+                }
                 if (fullSupportPvLayer.IsSourceNameUpdated || isFullReplace)
-                    SourceId = (ushort)NameIdLookup.GetOrAddId(fullSupportPvLayer.SourceName);
-                if (fullSupportPvLayer.IsExecutableUpdated || isFullReplace) Executable = fullSupportPvLayer.Executable;
+                {
+                    IsSourceNameUpdated = true;
+
+                    SourceId = fullSupportPvLayer.SourceId;
+                }
+                if (fullSupportPvLayer.IsExecutableUpdated || isFullReplace)
+                {
+                    IsExecutableUpdated = true;
+                    Executable          = fullSupportPvLayer.Executable;
+                }
                 if (isFullReplace) SetFlagsSame(fullSupportPvLayer);
                 break;
             case IPQSourceQuoteRefPriceVolumeLayer pqSrcQtRefPvLayer:
-                NameIdLookup.CopyFrom(pqSrcQtRefPvLayer.NameIdLookup);
-                if (pqSrcQtRefPvLayer.IsSourceQuoteReferenceUpdated || isFullReplace) SourceQuoteReference = pqSrcQtRefPvLayer.SourceQuoteReference;
-                if (pqSrcQtRefPvLayer.IsSourceNameUpdated || isFullReplace) SourceId = (ushort)NameIdLookup.GetOrAddId(pqSrcQtRefPvLayer.SourceName);
-                if (pqSrcQtRefPvLayer.IsExecutableUpdated || isFullReplace) Executable = pqSrcQtRefPvLayer.Executable;
+                if(!isSkipRefLookups) NameIdLookup.CopyFrom(pqSrcQtRefPvLayer.NameIdLookup);
+                if (pqSrcQtRefPvLayer.IsSourceQuoteReferenceUpdated || isFullReplace)
+                {
+                    IsSourceQuoteReferenceUpdated = true;
+
+                    SourceQuoteReference = pqSrcQtRefPvLayer.SourceQuoteReference;
+                }
+                if (pqSrcQtRefPvLayer.IsSourceNameUpdated || isFullReplace)
+                {
+                    IsSourceNameUpdated = true;
+
+                    SourceId = pqSrcQtRefPvLayer.SourceId;
+                }
+                if (pqSrcQtRefPvLayer.IsExecutableUpdated || isFullReplace)
+                {
+                    IsExecutableUpdated = true;
+
+                    Executable = pqSrcQtRefPvLayer.Executable;
+                }
                 if (isFullReplace) SetFlagsSame(pqSrcQtRefPvLayer);
                 break;
             case IPQSourcePriceVolumeLayer pqSourcePvLayer:
-                NameIdLookup.CopyFrom(pqSourcePvLayer.NameIdLookup);
-                if (pqSourcePvLayer.IsSourceNameUpdated || isFullReplace) SourceId   = (ushort)NameIdLookup.GetOrAddId(pqSourcePvLayer.SourceName);
-                if (pqSourcePvLayer.IsExecutableUpdated || isFullReplace) Executable = pqSourcePvLayer.Executable;
+                if(!isSkipRefLookups) NameIdLookup.CopyFrom(pqSourcePvLayer.NameIdLookup);
+                if (pqSourcePvLayer.IsSourceNameUpdated || isFullReplace)
+                {
+                    IsSourceNameUpdated = true;
+
+                    SourceId   = pqSourcePvLayer.SourceId;
+                }
+                if (pqSourcePvLayer.IsExecutableUpdated || isFullReplace)
+                {
+                    IsExecutableUpdated = true;
+
+                    Executable = pqSourcePvLayer.Executable;
+                }
                 if (isFullReplace) SetFlagsSame(pqSourcePvLayer);
                 break;
             case IPQValueDatePriceVolumeLayer pqValueDate:
-                if (pqValueDate.IsValueDateUpdated || isFullReplace) ValueDate = pqValueDate.ValueDate;
+                if (pqValueDate.IsValueDateUpdated || isFullReplace)
+                {
+                    IsValueDateUpdated = true;
+
+                    ValueDate = pqValueDate.ValueDate;
+                }
                 if (isFullReplace) SetFlagsSame(pqValueDate);
                 break;
             case IFullSupportPriceVolumeLayer srcQtRefTrdrVlPvLayer:

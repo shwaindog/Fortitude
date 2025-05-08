@@ -327,8 +327,18 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
 
             var isFullReplace = copyMergeFlags.HasFullReplace();
 
-            if (pqCpOrderLyrInfo.IsCounterPartyNameUpdated || isFullReplace) OrderCounterPartyNameId = pqCpOrderLyrInfo.OrderCounterPartyNameId;
-            if (pqCpOrderLyrInfo.IsTraderNameUpdated || isFullReplace) OrderTraderNameId             = pqCpOrderLyrInfo.OrderTraderNameId;
+            if (pqCpOrderLyrInfo.IsCounterPartyNameUpdated || isFullReplace)
+            {
+                IsCounterPartyNameUpdated = true;
+
+                OrderCounterPartyNameId = pqCpOrderLyrInfo.OrderCounterPartyNameId;
+            }
+            if (pqCpOrderLyrInfo.IsTraderNameUpdated || isFullReplace)
+            {
+                IsTraderNameUpdated = true;
+
+                OrderTraderNameId             = pqCpOrderLyrInfo.OrderTraderNameId;
+            }
 
             if (isFullReplace && pqCpOrderLyrInfo is PQCounterPartyOrderLayerInfo pqCounterPartyOrder)
                 UpdatedFlags = pqCounterPartyOrder.UpdatedFlags;

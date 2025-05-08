@@ -107,11 +107,24 @@ public class QuoteSequencedTestDataBuilder
 
     public void SetupOrderBook(IMutableOrderBook orderBook, uint batchId)
     {
-        var numLayers = orderBook.MaxPublishDepth;
-        orderBook.OpenInterest!.DataSource = batchId % 2 == 0 ? MarketDataSource.Adapter : MarketDataSource.Venue;
-        orderBook.OpenInterest.UpdateTime  = new DateTime(2017, 5, 7, 9, 40, 11).AddSeconds(batchId);
-        orderBook.OpenInterest!.Volume     = batchId * 100_000;
-        orderBook.OpenInterest!.Vwap       = 0.791905m;
+        var numLayers             = orderBook.MaxPublishDepth;
+        var totalOpenInterest = orderBook.OpenInterest!;
+        totalOpenInterest.DataSource = batchId % 2 == 0 ? MarketDataSource.Adapter : MarketDataSource.Venue;
+        totalOpenInterest.UpdateTime  = new DateTime(2017, 5, 7, 9, 40, 11).AddSeconds(batchId);
+        totalOpenInterest.Volume     = batchId * 100_000;
+        totalOpenInterest.Vwap       = 0.791905m;
+
+        var bidOpenInterest = orderBook.BidSide.OpenInterestSide!;
+        bidOpenInterest.DataSource = batchId % 2 == 0 ? MarketDataSource.Adapter : MarketDataSource.Venue;
+        bidOpenInterest.UpdateTime = new DateTime(2017, 5, 7, 9, 20, 11).AddSeconds(batchId);
+        bidOpenInterest.Volume     = batchId * 50_000;
+        bidOpenInterest.Vwap       = 0.790905m;
+
+        var askOpenInterest = orderBook.AskSide.OpenInterestSide!;
+        askOpenInterest.DataSource = batchId % 2 == 0 ? MarketDataSource.Adapter : MarketDataSource.Venue;
+        askOpenInterest.UpdateTime  = new DateTime(2017, 5, 7, 9, 30, 11).AddSeconds(batchId);
+        askOpenInterest.Volume     = batchId * 50_000;
+        askOpenInterest.Vwap       = 0.792905m;
 
         orderBook.DailyTickUpdateCount = batchId + 1;
         Assert.IsTrue(numLayers >= 1);

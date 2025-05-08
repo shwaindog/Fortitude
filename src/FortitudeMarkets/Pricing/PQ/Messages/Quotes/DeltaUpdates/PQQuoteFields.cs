@@ -203,6 +203,8 @@ public enum PQQuoteFields : byte
   , NetPositionExposure             = 244 // 0xF4
   , MaxAllowedExposure              = 245 // 0xF5
   , MaxAllowedRemainingExposure     = 246 // 0xF6
+
+  , ParentContextRemapped = 255
 }
 
 [TestClassNotRequired]

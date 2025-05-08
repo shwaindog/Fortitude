@@ -335,6 +335,65 @@ public class PQLevel2QuoteTests
     }
 
     [TestMethod]
+    public void AllLevel2QuoteTypes_OrderBookTotalDailyTickUpdateCountChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
+    {
+        foreach (var emptyQuote in allEmptyQuotes)
+        {
+            var orderBook = emptyQuote.OrderBook;
+
+            PQOrderBookTests.AssertDailyTickUpdateCountFieldUpdatesReturnAsExpected(orderBook, emptyQuote);
+        }
+    }
+
+    [TestMethod]
+    public void AllLevel2QuoteTypes_OrderBookTotalOpenInterestFieldsChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
+    {
+        foreach (var emptyQuote in allEmptyQuotes)
+        {
+            var orderBook         = emptyQuote.OrderBook;
+            var totalOpenInterest = orderBook.OpenInterest!;
+            totalOpenInterest.HasUpdates = false;
+
+            PQMarketAggregateTests.AssertAllMarketAggregateFieldsUpdatesReturnAsExpected
+                (totalOpenInterest, PQQuoteFields.OpenInterestTotal, null, orderBook, emptyQuote);
+        }
+    }
+
+    [TestMethod]
+    public void AllLevel2QuoteTypes_AllOrderBookBidSideFieldsChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
+    {
+        foreach (var emptyQuote in allEmptyQuotes)
+        {
+            var orderBook         = emptyQuote.OrderBook;
+            var bidBook           = orderBook.BidSide;
+            var sideOpenInterest = bidBook.OpenInterestSide!;
+            sideOpenInterest.HasUpdates = false;
+
+            PQMarketAggregateTests.AssertAllMarketAggregateFieldsUpdatesReturnAsExpected
+                (sideOpenInterest, PQQuoteFields.OpenInterestSided, bidBook, orderBook, emptyQuote);
+
+            PQOrderBookSideTests.AssertDailyTickUpdateCountFieldUpdatesReturnAsExpected(bidBook, orderBook, emptyQuote);
+        }
+    }
+
+    [TestMethod]
+    public void AllLevel2QuoteTypes_AllOrderBookAskSideFieldsChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
+    {
+        foreach (var emptyQuote in allEmptyQuotes)
+        {
+            var orderBook         = emptyQuote.OrderBook;
+            var askBook           = orderBook.AskSide;
+            var sideOpenInterest = askBook.OpenInterestSide!;
+            sideOpenInterest.HasUpdates = false;
+
+            PQMarketAggregateTests.AssertAllMarketAggregateFieldsUpdatesReturnAsExpected
+                (sideOpenInterest, PQQuoteFields.OpenInterestSided, askBook, orderBook, emptyQuote);
+
+            PQOrderBookSideTests.AssertDailyTickUpdateCountFieldUpdatesReturnAsExpected(askBook, orderBook, emptyQuote);
+        }
+    }
+
+    [TestMethod]
     public void AllLevel2QuoteTypes_LayerPriceChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
     {
         foreach (var emptyQuote in allEmptyQuotes)

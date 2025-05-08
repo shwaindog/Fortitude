@@ -13,8 +13,8 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.Quotes.LayeredBook;
 [TestClass]
 public class OrderBookTests
 {
-        private IList<OrderBook> allEmptyOrderBooks      = null!;
-    private     IList<OrderBook> allFullyPopulatedOrderBooks = null!;
+    private IList<OrderBook> allEmptyOrderBooks          = null!;
+    private IList<OrderBook> allFullyPopulatedOrderBooks = null!;
 
     private OrderBook fullSupportEmptyOrderBook          = null!;
     private OrderBook fullSupportFullyPopulatedOrderBook = null!;
@@ -36,6 +36,11 @@ public class OrderBookTests
     private OrderBook sourceQuoteRefEmptyOrderBook          = null!;
     private OrderBook sourceQuoteRefFullyPopulatedOrderBook = null!;
 
+    private OrderBook orderCountEmptyOrderBook          = null!;
+    private OrderBook orderCountFullyPopulatedOrderBook = null!;
+
+    private ISourceTickerInfo orderCountSourceTickerInfo = null!;
+
     private ISourceTickerInfo sourceRefSourceTickerInfo = null!;
 
     private OrderBook ordersEmptyOrderBook          = null!;
@@ -53,16 +58,17 @@ public class OrderBookTests
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
-        
+
         simpleSourceTickerInfo             = SourceTickerInfoTests.SimpleL2PriceVolumeSti;
         sourceNameSourceTickerInfo         = SourceTickerInfoTests.SourceNameL2PriceVolumeSti;
         sourceRefSourceTickerInfo          = SourceTickerInfoTests.SourceQuoteRefL2PriceVolumeSti;
+        orderCountSourceTickerInfo         = SourceTickerInfoTests.OrdersCountL3JustTradeTradeSti;
         ordersCounterPartySourceTickerInfo = SourceTickerInfoTests.OrdersCounterPartyL2PriceVolumeSti;
         valueDateSourceTickerInfo          = SourceTickerInfoTests.ValueDateL2PriceVolumeSti;
-        fullSupportSourceTickerInfo        = SourceTickerInfoTests.FullSupportL2PriceVolumeSti; 
+        fullSupportSourceTickerInfo        = SourceTickerInfoTests.FullSupportL2PriceVolumeSti;
 
-        simpleEmptyOrderBook               = new OrderBook(simpleSourceTickerInfo);
-        simpleFullyPopulatedOrderBook      = new OrderBook(simpleSourceTickerInfo);
+        simpleEmptyOrderBook          = new OrderBook(simpleSourceTickerInfo);
+        simpleFullyPopulatedOrderBook = new OrderBook(simpleSourceTickerInfo);
         quoteSequencedTestDataBuilder.SetupOrderBook(simpleFullyPopulatedOrderBook, 1);
         sourceNameEmptyOrderBook          = new OrderBook(sourceNameSourceTickerInfo);
         sourceNameFullyPopulatedOrderBook = new OrderBook(sourceNameSourceTickerInfo);
@@ -70,26 +76,31 @@ public class OrderBookTests
         sourceQuoteRefEmptyOrderBook          = new OrderBook(sourceRefSourceTickerInfo);
         sourceQuoteRefFullyPopulatedOrderBook = new OrderBook(sourceRefSourceTickerInfo);
         quoteSequencedTestDataBuilder.SetupOrderBook(sourceQuoteRefFullyPopulatedOrderBook, 3);
+        orderCountEmptyOrderBook          = new OrderBook(orderCountSourceTickerInfo);
+        orderCountFullyPopulatedOrderBook = new OrderBook(orderCountSourceTickerInfo);
+        quoteSequencedTestDataBuilder.SetupOrderBook(orderCountFullyPopulatedOrderBook, 4);
         ordersEmptyOrderBook          = new OrderBook(ordersCounterPartySourceTickerInfo);
         ordersFullyPopulatedOrderBook = new OrderBook(ordersCounterPartySourceTickerInfo);
-        quoteSequencedTestDataBuilder.SetupOrderBook(ordersFullyPopulatedOrderBook, 4);
+        quoteSequencedTestDataBuilder.SetupOrderBook(ordersFullyPopulatedOrderBook, 5);
         valueDateEmptyOrderBook          = new OrderBook(valueDateSourceTickerInfo);
         valueDateFullyPopulatedOrderBook = new OrderBook(valueDateSourceTickerInfo);
-        quoteSequencedTestDataBuilder.SetupOrderBook(valueDateFullyPopulatedOrderBook, 5);
+        quoteSequencedTestDataBuilder.SetupOrderBook(valueDateFullyPopulatedOrderBook, 6);
         fullSupportEmptyOrderBook          = new OrderBook(fullSupportSourceTickerInfo);
         fullSupportFullyPopulatedOrderBook = new OrderBook(fullSupportSourceTickerInfo);
-        quoteSequencedTestDataBuilder.SetupOrderBook(fullSupportFullyPopulatedOrderBook, 5);
+        quoteSequencedTestDataBuilder.SetupOrderBook(fullSupportFullyPopulatedOrderBook, 7);
 
         allFullyPopulatedOrderBooks = new List<OrderBook>
         {
             simpleFullyPopulatedOrderBook, sourceNameFullyPopulatedOrderBook
           , sourceQuoteRefFullyPopulatedOrderBook, ordersFullyPopulatedOrderBook
-          , valueDateFullyPopulatedOrderBook, fullSupportFullyPopulatedOrderBook
+          , orderCountFullyPopulatedOrderBook, valueDateFullyPopulatedOrderBook
+          , fullSupportFullyPopulatedOrderBook
         };
         allEmptyOrderBooks = new List<OrderBook>
         {
             simpleEmptyOrderBook, sourceNameEmptyOrderBook, sourceQuoteRefEmptyOrderBook
-          , ordersEmptyOrderBook, valueDateEmptyOrderBook, fullSupportEmptyOrderBook
+          , orderCountEmptyOrderBook, ordersEmptyOrderBook, valueDateEmptyOrderBook
+          , fullSupportEmptyOrderBook
         };
     }
 
@@ -150,7 +161,7 @@ public class OrderBookTests
                 [0] = new PriceVolumeLayer(expectedAskPriceTop, 1_000_000)
             };
 
-        var fromConstructor = new OrderBook (expectedBidBook, expectedAskBook, expectedDailyTickCount, true);
+        var fromConstructor = new OrderBook(expectedBidBook, expectedAskBook, expectedDailyTickCount, true);
 
         Assert.AreSame(expectedBidBook, fromConstructor.BidSide);
         Assert.AreSame(expectedAskBook, fromConstructor.AskSide);
@@ -180,10 +191,10 @@ public class OrderBookTests
             {
                 [0] = new PQPriceVolumeLayer(expectedAskPriceTop, 1_000_000)
             };
-        
-        var fromPQConstructor = new PQOrderBook (convertedBidBook, convertedAskBook, expectedDailyTickCount, true);
-        var fromConstructor = new OrderBook (fromPQConstructor);
-        
+
+        var fromPQConstructor = new PQOrderBook(convertedBidBook, convertedAskBook, expectedDailyTickCount, true);
+        var fromConstructor   = new OrderBook(fromPQConstructor);
+
         Assert.AreNotSame(convertedBidBook, fromConstructor.BidSide);
         Assert.AreNotSame(convertedAskBook, fromConstructor.AskSide);
         Assert.AreEqual(simpleSourceTickerInfo.MaximumPublishedLayers, fromConstructor.MaxPublishDepth);
@@ -276,8 +287,8 @@ public class OrderBookTests
     [TestMethod]
     public void PopulatedQuote_Mutate_UpdatesFields()
     {
-        var expectedBidPriceTop        = 2.34567m;
-        var expectedAskPriceTop        = 3.45678m;
+        var expectedBidPriceTop = 2.34567m;
+        var expectedAskPriceTop = 3.45678m;
 
         foreach (var emptyOrderBook in allEmptyOrderBooks)
         {
@@ -418,7 +429,19 @@ public class OrderBookTests
     }
 
     [TestMethod]
-    public void TraderDetailsFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    public void OrderCountFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    {
+        var so = new JsonSerializerOptions()
+        {
+            WriteIndented = true
+        };
+        var q      = orderCountFullyPopulatedOrderBook;
+        var toJson = JsonSerializer.Serialize(q, so);
+        Console.Out.WriteLine(toJson);
+    }
+
+    [TestMethod]
+    public void OrdersFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
     {
         var so = new JsonSerializerOptions()
         {
@@ -468,6 +491,7 @@ public class OrderBookTests
             Assert.IsTrue(toString.Contains($"{nameof(q.DailyTickUpdateCount)}: {q.DailyTickUpdateCount}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.IsAskBookChanged)}: {q.IsAskBookChanged}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.IsBidBookChanged)}: {q.IsBidBookChanged}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.OpenInterest)}: {q.OpenInterest}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.AskSide)}: {q.AskSide}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.BidSide)}: {q.BidSide}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.IsLadder)}: {q.IsLadder}"));
@@ -490,11 +514,11 @@ public class OrderBookTests
 
 
     internal static void AssertAreEquivalentMeetsExpectedExactComparisonType
-        (bool exactComparison, 
-            IMutableOrderBook? commonCompareOrderBook, 
-            IMutableOrderBook? changingOrderBook,
-            IMutableLevel2Quote? originalQuote = null,
-            IMutableLevel2Quote? changingQuote = null)
+    (bool exactComparison,
+        IMutableOrderBook? commonCompareOrderBook,
+        IMutableOrderBook? changingOrderBook,
+        IMutableLevel2Quote? originalQuote = null,
+        IMutableLevel2Quote? changingQuote = null)
     {
         if (commonCompareOrderBook == null && changingOrderBook == null) return;
 
@@ -525,11 +549,11 @@ public class OrderBookTests
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
         MarketAggregateTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-            (exactComparison, commonCompareOrderBook.OpenInterest, changingOrderBook.OpenInterest, 
+            (exactComparison, commonCompareOrderBook.OpenInterest, changingOrderBook.OpenInterest,
              null, null, commonCompareOrderBook, changingOrderBook, originalQuote, changingQuote);
 
         OrderBookSideTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-            (exactComparison,commonCompareOrderBook.BidSide
+            (exactComparison, commonCompareOrderBook.BidSide
            , changingOrderBook.BidSide, commonCompareOrderBook, changingOrderBook);
 
         OrderBookSideTests.AssertAreEquivalentMeetsExpectedExactComparisonType

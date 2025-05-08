@@ -926,8 +926,8 @@ public class PQAnonymousOrderLayerInfoTests
         Assert.IsTrue(newAnonOrderInfo.IsCreatedTimeSub2MinUpdated);
         Assert.IsTrue(newAnonOrderInfo.HasUpdates);
 
-        anonOrderInfo.OrderFlags = LayerOrderFlags.None;
-        anonOrderInfo.HasUpdates = false;
+        anonOrderInfo.CreatedTime = DateTime.MinValue;
+        anonOrderInfo.HasUpdates  = false;
         if (l2QNotNull) l2Quote!.HasUpdates = false;
     }
 
@@ -961,7 +961,8 @@ public class PQAnonymousOrderLayerInfoTests
 
         testDateTime = testDateTime.AddHours(1).AddMinutes(1);
 
-        Assert.IsFalse(anonOrderInfo.IsOrderIdUpdated);
+        Assert.IsFalse(anonOrderInfo.IsUpdatedTimeDateUpdated);
+        Assert.IsFalse(anonOrderInfo.IsUpdatedTimeSub2MinUpdated);
         Assert.IsFalse(anonOrderInfo.HasUpdates);
         anonOrderInfo.UpdatedTime =  DateTime.Now;
         Assert.IsTrue(anonOrderInfo.HasUpdates);
@@ -976,10 +977,10 @@ public class PQAnonymousOrderLayerInfoTests
         if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
         if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
         
-        var expectedCreatedTime = new DateTime(2017, 12, 03, 19, 27, 53);
-        anonOrderInfo.UpdatedTime = expectedCreatedTime;
+        var expectedUpdatedTime = new DateTime(2017, 12, 03, 19, 27, 53);
+        anonOrderInfo.UpdatedTime = expectedUpdatedTime;
         Assert.IsTrue(anonOrderInfo.HasUpdates);
-        Assert.AreEqual(expectedCreatedTime, anonOrderInfo.UpdatedTime);
+        Assert.AreEqual(expectedUpdatedTime, anonOrderInfo.UpdatedTime);
         Assert.IsTrue(anonOrderInfo.IsUpdatedTimeDateUpdated);
         Assert.IsTrue(anonOrderInfo.IsUpdatedTimeSub2MinUpdated);
         var precisionSettings = l2Quote?.SourceTickerInfo ?? PQSourceTickerInfoTests.OrdersCountL3TraderNamePaidOrGivenSti;
@@ -1002,9 +1003,9 @@ public class PQAnonymousOrderLayerInfoTests
         var orderInfoUpdates = anonOrderInfo
                            .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
         Assert.AreEqual(2, orderInfoUpdates.Count);
-        var hoursSinceUnixEpoch       = expectedCreatedTime.Get2MinIntervalsFromUnixEpoch();
+        var hoursSinceUnixEpoch       = expectedUpdatedTime.Get2MinIntervalsFromUnixEpoch();
         var expectedOrderInfoDate    = new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderUpdatedDate, hoursSinceUnixEpoch);
-        var extended                  = expectedCreatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBottom);
+        var extended                  = expectedUpdatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBottom);
         var expectedOrderInfoTime = new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderUpdatedSub2MinTime, subHourBottom, extended);
         var expectedLayerDate     = expectedOrderInfoDate.WithAuxiliary(orderIndex);
         var expectedLayerTime     = expectedOrderInfoTime.WithAuxiliary(orderIndex);
@@ -1068,7 +1069,7 @@ public class PQAnonymousOrderLayerInfoTests
             var foundLayer =
                 (IPQOrdersPriceVolumeLayer)(isBid ? newEmpty.BidBook : newEmpty.AskBook)[bookDepth]!;
             var foundAnonOrderInfo = foundLayer[orderIndex]!;
-            Assert.AreEqual(expectedCreatedTime, foundAnonOrderInfo.UpdatedTime);
+            Assert.AreEqual(expectedUpdatedTime, foundAnonOrderInfo.UpdatedTime);
             Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeDateUpdated);
             Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeSub2MinUpdated);
             Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
@@ -1092,7 +1093,7 @@ public class PQAnonymousOrderLayerInfoTests
             var foundLayer =
                 (IPQOrdersPriceVolumeLayer)(isBid ? newEmpty.BidSide : newEmpty.AskSide)[bookDepth]!;
             var foundAnonOrderInfo = foundLayer[orderIndex]!;
-            Assert.AreEqual(expectedCreatedTime, foundAnonOrderInfo.UpdatedTime);
+            Assert.AreEqual(expectedUpdatedTime, foundAnonOrderInfo.UpdatedTime);
             Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeDateUpdated);
             Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeSub2MinUpdated);
             Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
@@ -1115,7 +1116,7 @@ public class PQAnonymousOrderLayerInfoTests
             newEmpty.UpdateField(bsUpdates[1]);
             var foundLayer         = (IPQOrdersPriceVolumeLayer)newEmpty[bookDepth]!;
             var foundAnonOrderInfo = foundLayer[orderIndex]!;
-            Assert.AreEqual(expectedCreatedTime, foundAnonOrderInfo.UpdatedTime);
+            Assert.AreEqual(expectedUpdatedTime, foundAnonOrderInfo.UpdatedTime);
             Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeDateUpdated);
             Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeSub2MinUpdated);
             Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
@@ -1137,7 +1138,7 @@ public class PQAnonymousOrderLayerInfoTests
             newLayer.UpdateField(olUpdates[0]);
             newLayer.UpdateField(olUpdates[1]);
             var foundAnonOrderInfo = newLayer[orderIndex]!;
-            Assert.AreEqual(expectedCreatedTime, foundAnonOrderInfo.UpdatedTime);
+            Assert.AreEqual(expectedUpdatedTime, foundAnonOrderInfo.UpdatedTime);
             Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeDateUpdated);
             Assert.IsTrue(foundAnonOrderInfo.IsUpdatedTimeSub2MinUpdated);
             Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
@@ -1154,13 +1155,13 @@ public class PQAnonymousOrderLayerInfoTests
         var newAnonOrderInfo = new PQAnonymousOrderLayerInfo();
         newAnonOrderInfo.UpdateField(orderInfoUpdates[0]);
         newAnonOrderInfo.UpdateField(orderInfoUpdates[1]);
-        Assert.AreEqual(expectedCreatedTime, newAnonOrderInfo.UpdatedTime);
+        Assert.AreEqual(expectedUpdatedTime, newAnonOrderInfo.UpdatedTime);
         Assert.IsTrue(newAnonOrderInfo.IsUpdatedTimeDateUpdated);
         Assert.IsTrue(newAnonOrderInfo.IsUpdatedTimeSub2MinUpdated);
         Assert.IsTrue(newAnonOrderInfo.HasUpdates);
 
-        anonOrderInfo.OrderFlags = LayerOrderFlags.None;
-        anonOrderInfo.HasUpdates = false;
+        anonOrderInfo.UpdatedTime = DateTime.MinValue;
+        anonOrderInfo.HasUpdates  = false;
         if (l2QNotNull) l2Quote!.HasUpdates = false;
     }
 

@@ -148,6 +148,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             layerFlags =  toClone.LayerSupportedFlags;
             layerFlags |= LayersSupportedType.SupportedLayerFlags();
 
+            MaxPublishDepth      = toClone.MaxPublishDepth;
             DailyTickUpdateCount = toClone.DailyTickUpdateCount;
 
             nameIdLookupGenerator = SourceOtherExistingOrNewPQNameIdNameLookup(toClone);
@@ -273,7 +274,10 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
 
         public bool HasUpdates
         {
-            get => BidSide.HasUpdates || AskSide.HasUpdates;
+            get =>
+                UpdatedFlags != OrderBookUpdatedFlags.None || BidSide.HasUpdates || AskSide.HasUpdates
+             || (HasNonEmptyOpenInterest
+              && pqOpenInterest is { DataSource: not (MarketDataSource.None or MarketDataSource.Published), HasUpdates: true });
             set
             {
                 BidSide.HasUpdates        = value;
@@ -375,7 +379,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             if (pqOpenInterest != null)
             {
                 foreach (var oiFields in pqOpenInterest.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSetting))
-                    yield return oiFields;
+                    yield return oiFields.WithFieldId(PQQuoteFields.OpenInterestTotal);
             }
             foreach (var bidFields in BidSide.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSetting))
                 yield return bidFields;

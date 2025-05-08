@@ -29,7 +29,6 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
       , IsVwapUpdated               = 0x10
     }
 
-
     public class PQMarketAggregate : ReusableObject<IMarketAggregate>, IPQMarketAggregate
     {
         protected PQMarketAggregateUpdatedFlags UpdatedFlags;
@@ -243,23 +242,23 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
         {
             var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
             if (!updatedOnly || IsDataSourceUpdated)
-                yield return new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateSource, (uint)DataSource);
+                yield return new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateSource, (uint)DataSource);
 
             if (!updatedOnly || IsUpdatedDateUpdated)
-                yield return new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateUpdateDate
+                yield return new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateUpdateDate
                                              , updateTime.Get2MinIntervalsFromUnixEpoch());
             if (!updatedOnly || IsUpdatedSub2MinTimeUpdated)
             {
                 var extended = updateTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-                yield return new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateUpdateSub2MinTime, value, extended);
+                yield return new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateUpdateSub2MinTime, value, extended);
             }
             if (!updatedOnly || IsVolumeUpdated)
-                yield return new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateVolume, Volume,
+                yield return new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateVolume, Volume,
                                                quotePublicationPrecisionSettings?.VolumeScalingPrecision ?? (PQFieldFlags)6);
 
             if (!updatedOnly || IsVwapUpdated)
             {
-                yield return new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateVwap, Vwap,
+                yield return new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateVwap, Vwap,
                                                quotePublicationPrecisionSettings?.PriceScalingPrecision ?? (PQFieldFlags)2);
             }
         }
@@ -377,16 +376,13 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
 
         public override int GetHashCode()
         {
-            unchecked
-            {
-                var hashCode = new HashCode();
-                hashCode.Add(DataSource);
-                hashCode.Add(UpdateTime);
-                hashCode.Add(Volume);
-                hashCode.Add(Vwap);
+            var hashCode = new HashCode();
+            hashCode.Add(DataSource);
+            hashCode.Add(UpdateTime);
+            hashCode.Add(Volume);
+            hashCode.Add(Vwap);
 
-                return hashCode.ToHashCode();
-            }
+            return hashCode.ToHashCode();
         }
 
         protected string PQOpenInterestToStringMembers =>
