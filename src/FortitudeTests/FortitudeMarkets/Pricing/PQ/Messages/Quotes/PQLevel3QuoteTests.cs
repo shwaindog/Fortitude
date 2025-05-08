@@ -16,6 +16,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
@@ -91,6 +92,9 @@ public class PQLevel3QuoteTests
             noRecentlyTradedFullyPopulatedQuote, simpleRecentlyTradedFullyPopulatedQuote
           , paidGivenVolumeRecentlyTradedFullyPopulatedQuote, traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote
         };
+        // {
+        //     simpleRecentlyTradedFullyPopulatedQuote
+        // };
         allEmptyQuotes = new List<PQLevel3Quote>
         {
             noRecentlyTradedEmptyQuote, simpleRecentlyTradedEmptyQuote, paidGivenVolumeRecentlyTradedEmptyQuote
@@ -280,7 +284,7 @@ public class PQLevel3QuoteTests
         foreach (var emptyQuote in allEmptyQuotes)
         {
             if (emptyQuote.RecentlyTraded == null) continue;
-            for (var i = 0; i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades; i++)
+            for (var i = 0; i < QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades; i++)
             {
                 testDateTime = testDateTime.AddHours(1).AddSeconds(1);
 
@@ -355,7 +359,7 @@ public class PQLevel3QuoteTests
         foreach (var emptyQuote in allEmptyQuotes)
         {
             if (emptyQuote.RecentlyTraded == null) continue;
-            for (var i = 0; i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades; i++)
+            for (var i = 0; i < QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades; i++)
             {
                 testDateTime = testDateTime.AddHours(1).AddSeconds(1);
 
@@ -373,7 +377,7 @@ public class PQLevel3QuoteTests
                 Assert.IsFalse(lastTrade.IsTradeTimeDateUpdated);
                 Assert.IsFalse(lastTrade.IsTradeTimeSub2MinUpdated);
                 Assert.IsFalse(emptyQuote.HasUpdates);
-                Assert.AreEqual(DateTimeConstants.UnixEpoch, lastTrade.TradeTime);
+                Assert.AreEqual(DateTime.MinValue, lastTrade.TradeTime);
                 Assert.AreEqual(0, lastTrade.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
                 Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
@@ -434,7 +438,7 @@ public class PQLevel3QuoteTests
                 Assert.AreEqual(2, quoteUpdates.Count);
                 Assert.AreEqual(expectedQuoteLastTradeTimeHoursField, quoteUpdates[0]);
                 Assert.AreEqual(expectedQuoteLastTradeTimeSubHoursField, quoteUpdates[1]);
-                lastTrade.TradeTime                 = DateTimeConstants.UnixEpoch;
+                lastTrade.TradeTime                 = DateTime.MinValue;
                 lastTrade.IsTradeTimeDateUpdated    = false;
                 lastTrade.IsTradeTimeSub2MinUpdated = false;
 
@@ -456,7 +460,7 @@ public class PQLevel3QuoteTests
         foreach (var emptyQuote in allEmptyQuotes)
         {
             if (!(emptyQuote.RecentlyTraded?[0] is IPQLastPaidGivenTrade)) continue;
-            for (var i = 0; i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades; i++)
+            for (var i = 0; i < QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades; i++)
             {
                 testDateTime = testDateTime.AddHours(1).AddSeconds(1);
 
@@ -530,7 +534,7 @@ public class PQLevel3QuoteTests
         foreach (var emptyQuote in allEmptyQuotes)
         {
             if (!(emptyQuote.RecentlyTraded?[0] is IPQLastPaidGivenTrade)) continue;
-            for (var i = 0; i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades; i++)
+            for (var i = 0; i < QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades; i++)
             {
                 testDateTime = testDateTime.AddHours(1).AddSeconds(1);
 
@@ -1302,7 +1306,7 @@ public class PQLevel3QuoteTests
     private void AssertLastTradeTypeIsExpected(Type expectedType, params PQLevel3Quote[] quotesToCheck)
     {
         foreach (var level3Quote in quotesToCheck)
-            for (var i = 0; i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades; i++)
+            for (var i = 0; i < QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades; i++)
                 Assert.AreEqual(expectedType, level3Quote.RecentlyTraded![i]!.GetType());
     }
 }

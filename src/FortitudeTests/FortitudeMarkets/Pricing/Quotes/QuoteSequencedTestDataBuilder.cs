@@ -19,6 +19,9 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 
 public class QuoteSequencedTestDataBuilder
 {
+    public const int GeneratedNumberOfLastTrades = 12;
+
+
     private decimal lastAskTop;
     private decimal lastBidTop;
 
@@ -75,7 +78,7 @@ public class QuoteSequencedTestDataBuilder
         var toggleGivenBool = false;
         var togglePaidBool  = true;
         if (pqLevel3Quote.RecentlyTraded == null || pqLevel3Quote.SourceTickerInfo?.LastTradedFlags == LastTradedFlags.None) return;
-        for (var i = 0; i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades; i++)
+        for (var i = 0; i < GeneratedNumberOfLastTrades; i++)
         {
             var tradePriceDelta  = 0.00001m * i;
             var tradeVolumeDelta = batchId * 10000 + 10000m * i;
@@ -214,12 +217,12 @@ public class QuoteSequencedTestDataBuilder
         level1Quote.Executable = true;
         var sequenceIdTimeSpan = TimeSpan.FromSeconds(batchId * 10);
 
-        level1Quote.SourceAskTime       = new DateTime(2017, 07, 16, 15, 49, 10).Add(sequenceIdTimeSpan);
-        level1Quote.SourceBidTime       = new DateTime(2017, 07, 16, 15, 49, 20).Add(sequenceIdTimeSpan);
-        level1Quote.AdapterReceivedTime = new DateTime(2017, 07, 16, 15, 49, 30).Add(sequenceIdTimeSpan);
-        level1Quote.AdapterSentTime     = new DateTime(2017, 07, 16, 15, 49, 40).Add(sequenceIdTimeSpan);
-        level1Quote.ValidFrom           = new DateTime(2017, 07, 16, 15, 49, 10).Add(sequenceIdTimeSpan);
-        level1Quote.ValidTo             = new DateTime(2017, 07, 16, 15, 49, 40).Add(sequenceIdTimeSpan);
+        level1Quote.SourceAskTime       = new DateTime(2017, 07, 16, 15, 49, 11).Add(sequenceIdTimeSpan);
+        level1Quote.SourceBidTime       = new DateTime(2017, 07, 16, 15, 49, 21).Add(sequenceIdTimeSpan);
+        level1Quote.AdapterReceivedTime = new DateTime(2017, 07, 16, 15, 49, 31).Add(sequenceIdTimeSpan);
+        level1Quote.AdapterSentTime     = new DateTime(2017, 07, 16, 15, 49, 41).Add(sequenceIdTimeSpan);
+        level1Quote.ValidFrom           = new DateTime(2017, 07, 16, 15, 49, 11).Add(sequenceIdTimeSpan);
+        level1Quote.ValidTo             = new DateTime(2017, 07, 16, 15, 49, 41).Add(sequenceIdTimeSpan);
         level1Quote.BidPriceTop         = 0.791905m + batchId * 0.00001m;
         level1Quote.AskPriceTop         = 0.791906m + batchId * 0.00001m;
 

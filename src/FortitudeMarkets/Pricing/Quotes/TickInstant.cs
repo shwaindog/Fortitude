@@ -13,6 +13,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.TimeSeries;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.TimeSeries;
 
 #endregion

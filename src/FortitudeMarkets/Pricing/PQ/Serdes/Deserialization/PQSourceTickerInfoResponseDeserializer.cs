@@ -9,6 +9,7 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

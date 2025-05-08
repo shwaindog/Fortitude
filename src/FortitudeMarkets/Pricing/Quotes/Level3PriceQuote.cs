@@ -10,6 +10,7 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Summaries;
 
 #endregion

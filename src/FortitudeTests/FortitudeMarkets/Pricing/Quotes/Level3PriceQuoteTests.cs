@@ -13,8 +13,10 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Summaries;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes.LastTraded;
+using FortitudeTests.FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 
@@ -682,7 +684,7 @@ public class Level3PriceQuoteTests
     private void AssertLastTradeTypeIsExpected(Type expectedType, params Level3PriceQuote[] quotesToCheck)
     {
         foreach (var level3Quote in quotesToCheck)
-            for (var i = 0; i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades; i++)
+            for (var i = 0; i < QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades; i++)
                 Assert.AreEqual(expectedType, level3Quote.RecentlyTraded![i]!.GetType());
     }
 }

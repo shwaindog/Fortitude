@@ -17,11 +17,12 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeTests.FortitudeIO.Transports.Network.Config;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 
 #endregion
 
@@ -65,6 +66,8 @@ public class PQQuoteSerializerTests
     private PQQuoteSerializer updateQuoteSerializer              = null!;
     private ISourceTickerInfo valueDateInfo                      = null!;
     private PQLevel2Quote     valueDateL2Quote                   = null!;
+
+    private int SingleQuoteBufferSize = 14000;
 
     [TestInitialize]
     public void SetUp()
@@ -137,12 +140,15 @@ public class PQQuoteSerializerTests
         quoteSequencedTestDataBuilder.InitializeQuote(trdrPdGvnVlmRcntlyTrdedL3Quote, 0);
 
         differingQuotes = new List<IPQTickInstant>
-        {
-            tickInstant, level1Quote, valueDateL2Quote, everyLayerL2Quote, simpleNoRecentlyTradedL3Quote
-          , srcNmSmplRctlyTrdedL3Quote, srcQtRefPdGvnVlmRcntlyTrdedL3Quote, trdrPdGvnVlmRcntlyTrdedL3Quote
-        };
+            {
+                tickInstant, level1Quote, valueDateL2Quote, everyLayerL2Quote, simpleNoRecentlyTradedL3Quote
+              , srcNmSmplRctlyTrdedL3Quote, srcQtRefPdGvnVlmRcntlyTrdedL3Quote, trdrPdGvnVlmRcntlyTrdedL3Quote
+            };
+            // {
+            //     srcNmSmplRctlyTrdedL3Quote
+            // };
 
-        readWriteBuffer = new CircularReadWriteBuffer(new byte[14000]) { ReadCursor = BufferReadWriteOffset };
+        readWriteBuffer = new CircularReadWriteBuffer(new byte[SingleQuoteBufferSize]) { ReadCursor = BufferReadWriteOffset };
 
         moqTimeContext = new Mock<ITimeContext>();
         frozenDateTime = new DateTime(2018, 1, 15, 19, 51, 1);
@@ -252,8 +258,8 @@ public class PQQuoteSerializerTests
     {
         foreach (var pqQuote in differingQuotes)
         {
-            readWriteBuffer      = new CircularReadWriteBuffer(new byte[14000]) { ReadCursor = BufferReadWriteOffset };
-            pqQuote.PQSequenceId = 0; 
+            readWriteBuffer      = new CircularReadWriteBuffer(new byte[SingleQuoteBufferSize]) { ReadCursor = BufferReadWriteOffset };
+            pqQuote.PQSequenceId = 0;
 
             readWriteBuffer.WriteCursor = BufferReadWriteOffset;
             var amtWritten = updateQuoteSerializer
@@ -282,7 +288,8 @@ public class PQQuoteSerializerTests
                 case IPQQuoteDeserializer<PQLevel1Quote> pq1BinaryDeserializer: clientSideQuote = pq1BinaryDeserializer.PublishedQuote; break;
                 case IPQQuoteDeserializer<PQLevel2Quote> pq2BinaryDeserializer: clientSideQuote = pq2BinaryDeserializer.PublishedQuote; break;
                 case IPQQuoteDeserializer<PQLevel3Quote> pq3BinaryDeserializer: clientSideQuote = pq3BinaryDeserializer.PublishedQuote; break;
-                default:                                                        Assert.Fail("Should not reach here"); break;
+
+                default: Assert.Fail("Should not reach here"); break;
             }
 
             try

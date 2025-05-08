@@ -7,11 +7,12 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeMarkets.Indicators.Pricing.PeriodSummaries;
 using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Summaries;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 using static FortitudeTests.FortitudeMarkets.Pricing.Summaries.PricePeriodSummaryTests;
 
 #endregion

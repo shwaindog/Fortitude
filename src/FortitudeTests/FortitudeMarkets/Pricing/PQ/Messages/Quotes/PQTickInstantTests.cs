@@ -20,11 +20,12 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.TimeSeries;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 
 #endregion
 

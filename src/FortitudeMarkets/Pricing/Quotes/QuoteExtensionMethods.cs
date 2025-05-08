@@ -8,6 +8,7 @@ using System.Text;
 using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
@@ -224,7 +225,7 @@ public static class QuoteExtensionMethods
               .Append($"q2.OrderBook={(q2OrderBook != null ? "not null" : "null")}\n");
         
         sb.AddIfDifferent(q1OrderBook, q2OrderBook, q => q.DailyTickUpdateCount);
-        sb.AddIfDifferent("OrderBook", q1OrderBook?.OpenInterest, q2OrderBook?.OpenInterest, !exactTypes);
+        sb.AddIfDifferent("OrderBook", q1OrderBook?.MarketAggregate, q2OrderBook?.MarketAggregate, !exactTypes);
 
         sb.AddIfDifferent("BidSide", q1OrderBook?.BidSide, q2OrderBook?.BidSide, exactTypes);
         sb.AddIfDifferent("AskSide", q1OrderBook?.AskSide, q2OrderBook?.AskSide, exactTypes);
@@ -242,7 +243,7 @@ public static class QuoteExtensionMethods
               .Append($"q2={(q2obs != null ? "not null" : "null")}\n");
         
         sb.AddIfDifferent(q1obs, q2obs, q => q.DailyTickUpdateCount);
-        sb.AddIfDifferent($"OrderBook.{side}", q1obs?.OpenInterestSide, q2obs?.OpenInterestSide, !exactTypes);
+        sb.AddIfDifferent($"OrderBook.{side}", q1obs?.MarketAggregateSide, q2obs?.MarketAggregateSide, !exactTypes);
         var maxLayers = Math.Max(q1obs?.Capacity ?? int.MinValue,
                                  q2obs?.Capacity ?? int.MinValue);
         for (var i = 0; i < maxLayers; i++)
@@ -366,7 +367,7 @@ public static class QuoteExtensionMethods
     }
 
     private static StringBuilder AddIfDifferent
-        (this StringBuilder sb, string pathPrefix, IOpenInterest? q1oi, IOpenInterest? q2oi, bool skipOnBothPublishDataSource)
+        (this StringBuilder sb, string pathPrefix, IMarketAggregate? q1oi, IMarketAggregate? q2oi, bool skipOnBothPublishDataSource)
     {
         if (q1oi == null && q2oi == null) return sb;
         if ((q1oi != null && q2oi == null) || q1oi == null) //not requiring && q2Value != null

@@ -11,11 +11,11 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 
 #endregion
 
@@ -42,9 +42,20 @@ public class PQOrderBookSideTests
     private const string  ExpectedCounterPartyBase     = "TestCounterPartyName_";
     private const string  ExpectedTraderNameBase       = "TestTraderName_";
 
+    private const MarketDataSource ExpectedDataSource = MarketDataSource.Venue;
+    private const decimal ExpectedOpenInterestVolume = ExpectedOrderVolume*100;
+    private const decimal ExpectedOpenInterestVwap = ExpectedPrice*2m;
+
+    private const uint ExpectedDailyTickCount = 2_582;
+
+    private static readonly PQMarketAggregate ExpectedSidedOpenInterest = 
+        new (ExpectedDataSource, ExpectedOpenInterestVolume, ExpectedOpenInterestVwap, new(2025, 5, 8, 12, 8, 59));
+
     private static readonly DateTime ExpectedValueDate        = new(2017, 12, 09, 14, 0, 0);
     private static readonly DateTime ExpectedOrderCreatedTime = new DateTime(2025, 4, 21, 6, 27, 23).AddMilliseconds(123).AddMicroseconds(456);
     private static readonly DateTime ExpectedOrderUpdatedTime = new DateTime(2025, 4, 21, 12, 8, 59).AddMilliseconds(789).AddMicroseconds(213);
+
+    private static readonly DateTime ExpectedOpenInterestUpdatedTime = new (2025, 5, 8, 12, 8, 59);
 
     private IPQOrderBookSide allFieldsFullyPopulatedOrderBookSide = null!;
 
@@ -146,16 +157,48 @@ public class PQOrderBookSideTests
             }
         }
 
-        simpleFullyPopulatedOrderBookSide      = new PQOrderBookSide(BookSide.BidBook, simpleLayers);
-        sourceFullyPopulatedOrderBookSide      = new PQOrderBookSide(BookSide.BidBook, sourceLayers);
-        sourceQtRefFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, sourceQtRefLayers);
-        ordersCountFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, ordersCountLayers);
-        ordersAnonFullyPopulatedOrderBookSide  = new PQOrderBookSide(BookSide.BidBook, ordersAnonLayers);
-        valueDateFullyPopulatedOrderBookSide   = new PQOrderBookSide(BookSide.BidBook, valueDateLayers);
+        simpleFullyPopulatedOrderBookSide      = new PQOrderBookSide(BookSide.BidBook, simpleLayers)
+        {
+            DailyTickUpdateCount = ExpectedDailyTickCount,
+            OpenInterestSide = ExpectedSidedOpenInterest
+        };
+        sourceFullyPopulatedOrderBookSide      = new PQOrderBookSide(BookSide.BidBook, sourceLayers)
+        {
+            DailyTickUpdateCount = ExpectedDailyTickCount,
+            OpenInterestSide     = ExpectedSidedOpenInterest
+        };
+        sourceQtRefFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, sourceQtRefLayers)
+        {
+            DailyTickUpdateCount = ExpectedDailyTickCount,
+            OpenInterestSide     = ExpectedSidedOpenInterest
+        };
+        ordersCountFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, ordersCountLayers)
+        {
+            DailyTickUpdateCount = ExpectedDailyTickCount,
+            OpenInterestSide     = ExpectedSidedOpenInterest
+        };
+        ordersAnonFullyPopulatedOrderBookSide  = new PQOrderBookSide(BookSide.BidBook, ordersAnonLayers)
+        {
+            DailyTickUpdateCount = ExpectedDailyTickCount,
+            OpenInterestSide     = ExpectedSidedOpenInterest
+        };
+        valueDateFullyPopulatedOrderBookSide   = new PQOrderBookSide(BookSide.BidBook, valueDateLayers)
+        {
+            DailyTickUpdateCount = ExpectedDailyTickCount,
+            OpenInterestSide     = ExpectedSidedOpenInterest
+        };
 
-        ordersCounterPartyFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, ordersCounterPartyLayers);
+        ordersCounterPartyFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, ordersCounterPartyLayers)
+        {
+            DailyTickUpdateCount = ExpectedDailyTickCount,
+            OpenInterestSide     = ExpectedSidedOpenInterest
+        };
 
-        allFieldsFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, allFieldsLayers);
+        allFieldsFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, allFieldsLayers)
+        {
+            DailyTickUpdateCount = ExpectedDailyTickCount,
+            OpenInterestSide     = ExpectedSidedOpenInterest
+        };
 
         allPopulatedOrderBooks = new List<IPQOrderBookSide>
         {
@@ -368,21 +411,6 @@ public class PQOrderBookSideTests
             }
     }
 
-    [TestMethod]
-    public void PopulatedOrderBook_SetAllLayers_ReplacesLayersWithNewSet()
-    {
-        foreach (var populatedOrderBook in allPopulatedOrderBooks)
-            for (var i = 0; i < allPopulatedLayers.Count; i++)
-            {
-                var originalLayers = populatedOrderBook.AllLayers;
-                var index          = (i + 2) % allPopulatedLayers.Count;
-
-                var newReplacementLayerList = allPopulatedLayers[index].ToList();
-                populatedOrderBook.AllLayers = newReplacementLayerList;
-                Assert.AreNotSame(originalLayers, populatedOrderBook.AllLayers);
-                Assert.AreSame(newReplacementLayerList, populatedOrderBook.AllLayers);
-            }
-    }
 
     [TestMethod]
     public void PopulatedOrderBook_Capacity_ShowMaxPossibleNumberOfLayersNotNull()
@@ -1103,7 +1131,8 @@ public class PQOrderBookSideTests
         cloneGensis.StateReset();
         var clonedEmptyLayers = new List<IPQPriceVolumeLayer>(MaxNumberOfLayers);
         for (var i = 0; i < MaxNumberOfLayers; i++) clonedEmptyLayers.Add(cloneGensis.Clone());
-        var newEmpty = new PQOrderBookSide(populatedOrderBookSide.BookSide, clonedEmptyLayers);
+        var newEmpty = new PQOrderBookSide(populatedOrderBookSide.BookSide, clonedEmptyLayers, 
+                                           populatedOrderBookSide.IsLadder, populatedOrderBookSide.NameIdLookup.Clone());
         return newEmpty;
     }
 

@@ -7,6 +7,7 @@ using FortitudeMarkets.Pricing.Generators.MidPrice;
 using FortitudeMarkets.Pricing.Generators.Summaries;
 using FortitudeMarkets.Pricing.PQ.Summaries;
 using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

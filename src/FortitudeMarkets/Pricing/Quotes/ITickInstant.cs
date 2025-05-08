@@ -9,6 +9,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.TimeSeries;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

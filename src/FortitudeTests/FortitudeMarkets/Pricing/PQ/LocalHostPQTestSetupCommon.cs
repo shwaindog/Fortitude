@@ -12,6 +12,7 @@ using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeTests.TestEnvironment;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 

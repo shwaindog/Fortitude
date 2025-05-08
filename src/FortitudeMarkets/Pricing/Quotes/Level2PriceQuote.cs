@@ -8,6 +8,7 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
@@ -20,7 +21,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
 
     public Level2PriceQuote()
     {
-        OrderBook = new OrderBook(numBookLayers: Quotes.SourceTickerInfo.DefaultMaximumPublishedLayers);
+        OrderBook = new OrderBook(numBookLayers: TickerInfo.SourceTickerInfo.DefaultMaximumPublishedLayers);
     }
 
     public Level2PriceQuote
@@ -60,7 +61,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
         }
         else
         {
-            OrderBook = new OrderBook(numBookLayers: Quotes.SourceTickerInfo.DefaultMaximumPublishedLayers);
+            OrderBook = new OrderBook(numBookLayers: TickerInfo.SourceTickerInfo.DefaultMaximumPublishedLayers);
         }
     }
 

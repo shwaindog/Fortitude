@@ -205,11 +205,12 @@
       , OrderCounterPartyNameId         = 213 // 0xD5
       , OrderTraderNameId               = 214 // 0xD6
 
-      , OpenInterestSource            = 216 // 0xD8
-      , OpenInterestUpdateDate        = 217 // 0xD9
-      , OpenInterestUpdateSub2MinTime = 218 // 0xDA
-      , OpenInterestVolume            = 219 // 0xDB
-      , OpenInterestVwap              = 220 // 0xDC
+        // Used by OpenInterest and Daily Traded Volume
+      , MarketAggregateSource            = 216 // 0xD8
+      , MarketAggregateUpdateDate        = 217 // 0xD9
+      , MarketAggregateUpdateSub2MinTime = 218 // 0xDA
+      , MarketAggregateVolume            = 219 // 0xDB
+      , MarketAggregateVwap              = 220 // 0xDC
 
       , LastTradedSummaryPeriod    = 221 // 0xDD
       , LastTradedTradeId          = 222 // 0xDE

@@ -6,6 +6,7 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 
@@ -14,7 +15,7 @@ namespace FortitudeMarkets.Pricing.Quotes.LayeredBook;
 public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 {
     private LayerFlags    layerFlags;
-    private IMutableOpenInterest? openInterest;
+    private IMutableMarketAggregate? openInterest;
     public OrderBook() : this(LayerType.PriceVolume) { }
 
     public OrderBook
@@ -37,7 +38,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         DailyTickUpdateCount = toClone.DailyTickUpdateCount;
         if (toClone.HasNonEmptyOpenInterest)
         {
-            openInterest = new OpenInterest(toClone.OpenInterest);
+            openInterest = new MarketAggregate(toClone.MarketAggregate);
         }
 
         AskSide = new OrderBookSide(toClone.AskSide);
@@ -125,10 +126,10 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         }
     }
 
-    IOpenInterest IOrderBook.OpenInterest => OpenInterest!;
+    IMarketAggregate IOrderBook.MarketAggregate => OpenInterest!;
 
 
-    public IMutableOpenInterest? OpenInterest
+    public IMutableMarketAggregate? OpenInterest
     {
         get
         {
@@ -141,7 +142,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
             var totalPriceVolume = totalVolume != 0
                 ? (bidOpenInterest.Volume * bidOpenInterest.Vwap + askOpenInterest.Volume * askOpenInterest.Vwap) / totalVolume
                 : 0m;
-            openInterest            ??= new OpenInterest();
+            openInterest            ??= new MarketAggregate();
             openInterest.DataSource =   MarketDataSource.Published;
             openInterest.UpdateTime =   DateTime.Now;
             openInterest.Volume     =   totalVolume;
@@ -153,7 +154,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         {
             if (value != null)
             {
-                openInterest ??= new OpenInterest();
+                openInterest ??= new MarketAggregate();
 
                 openInterest.DataSource = value.DataSource;
                 openInterest.UpdateTime = value.UpdateTime;
@@ -202,16 +203,12 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         var openInterestSame   = HasNonEmptyOpenInterest == other.HasNonEmptyOpenInterest;
         if (openInterestSame && other.HasNonEmptyOpenInterest && HasNonEmptyOpenInterest)
         {
-            openInterestSame = openInterest?.AreEquivalent(other.OpenInterest, exactTypes) ?? false;
+            openInterestSame = openInterest?.AreEquivalent(other.MarketAggregate, exactTypes) ?? false;
         }
         var askSideSame        = AskSide.AreEquivalent(other.AskSide, exactTypes);
         var bidSideSame        = BidSide.AreEquivalent(other.BidSide, exactTypes);
 
         var allSame = layerFlagsSame && maxDepthSame && dailyTickCountSame && askSideSame && bidSideSame && openInterestSame;
-        if (!allSame)
-        {
-            Console.Out.WriteLine("");
-        }
         return allSame;
     }
 
@@ -222,8 +219,8 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         LayerSupportedFlags           = source.LayerSupportedFlags;
         if (source.HasNonEmptyOpenInterest)
         {
-            openInterest ??= new OpenInterest();
-            openInterest.CopyFrom(source.OpenInterest, copyMergeFlags);
+            openInterest ??= new MarketAggregate();
+            openInterest.CopyFrom(source.MarketAggregate, copyMergeFlags);
         } else if (openInterest != null)
         {
             openInterest.IsEmpty = true;

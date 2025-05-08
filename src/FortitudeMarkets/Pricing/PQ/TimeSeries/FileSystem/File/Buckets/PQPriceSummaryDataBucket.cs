@@ -16,6 +16,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.PQ.Summaries;
 using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Summaries;
 
 #endregion

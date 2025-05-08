@@ -8,9 +8,10 @@ using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Summaries;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 
 #endregion
 

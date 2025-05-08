@@ -24,7 +24,7 @@ using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 using static FortitudeTests.TestEnvironment.TestMachineConfig;
 
 #endregion

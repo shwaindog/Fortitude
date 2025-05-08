@@ -10,6 +10,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
 {
@@ -33,7 +34,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
 
         bool IsDailyTickUpdateCountUpdated { get; set; }
 
-        new IPQOpenInterest? OpenInterest { get; set; }
+        new IPQMarketAggregate? OpenInterest { get; set; }
 
         new IPQOrderBook Clone();
     }
@@ -47,7 +48,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
 
         protected uint NumOfUpdates = uint.MaxValue;
 
-        private IPQOpenInterest? pqOpenInterest = null;
+        private IPQMarketAggregate? pqOpenInterest = null;
 
         protected OrderBookUpdatedFlags UpdatedFlags;
 
@@ -152,7 +153,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             nameIdLookupGenerator = SourceOtherExistingOrNewPQNameIdNameLookup(toClone);
             if (toClone.HasNonEmptyOpenInterest)
             {
-                pqOpenInterest = new PQOpenInterest(toClone.OpenInterest);
+                pqOpenInterest = new PQMarketAggregate(toClone.MarketAggregate);
             }
 
             AskSide = new PQOrderBookSide(toClone.AskSide, nameIdLookupGenerator);
@@ -299,14 +300,14 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             }
         }
 
-        IOpenInterest IOrderBook.OpenInterest => OpenInterest!;
-        IMutableOpenInterest? IMutableOrderBook.OpenInterest
+        IMarketAggregate IOrderBook.MarketAggregate => OpenInterest!;
+        IMutableMarketAggregate? IMutableOrderBook.OpenInterest
         {
             get => OpenInterest;
-            set => OpenInterest = (PQOpenInterest?)value;
+            set => OpenInterest = (PQMarketAggregate?)value;
         }
 
-        public IPQOpenInterest? OpenInterest
+        public IPQMarketAggregate? OpenInterest
         {
             get
             {
@@ -321,7 +322,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
 
                 var bidAskVwap = totalVolume > 0 ? totalVolPrice / totalVolume : 0m;
 
-                pqOpenInterest ??= new PQOpenInterest();
+                pqOpenInterest ??= new PQMarketAggregate();
 
                 pqOpenInterest.DataSource = MarketDataSource.Published;
                 pqOpenInterest.UpdateTime = DateTime.Now;
@@ -333,7 +334,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             {
                 if (value != null)
                 {
-                    pqOpenInterest ??= new PQOpenInterest();
+                    pqOpenInterest ??= new PQMarketAggregate();
 
                     pqOpenInterest.DataSource = value.DataSource;
                     pqOpenInterest.UpdateTime = value.UpdateTime;
@@ -394,7 +395,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             }
             if (pqFieldUpdate.Id == PQQuoteFields.OpenInterestTotal)
             {
-                pqOpenInterest ??= new PQOpenInterest();
+                pqOpenInterest ??= new PQMarketAggregate();
                 return pqOpenInterest.UpdateField(pqFieldUpdate);
             }
             // logger.Info("Received PQLevel2Quote Book pqFieldUpdate: {0}", pqFieldUpdate);
@@ -419,8 +420,8 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             MaxPublishDepth      = source.MaxPublishDepth;
             if (source.HasNonEmptyOpenInterest)
             {
-                pqOpenInterest ??= new PQOpenInterest();
-                pqOpenInterest.CopyFrom(source.OpenInterest, copyMergeFlags);
+                pqOpenInterest ??= new PQMarketAggregate();
+                pqOpenInterest.CopyFrom(source.MarketAggregate, copyMergeFlags);
             }
             else if (pqOpenInterest != null)
             {
@@ -492,7 +493,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             var openInterestSame   = HasNonEmptyOpenInterest == other.HasNonEmptyOpenInterest;
             if (openInterestSame && other.HasNonEmptyOpenInterest && HasNonEmptyOpenInterest)
             {
-                openInterestSame = pqOpenInterest?.AreEquivalent(other.OpenInterest, exactTypes) ?? false;
+                openInterestSame = pqOpenInterest?.AreEquivalent(other.MarketAggregate, exactTypes) ?? false;
             }
 
             var bidBooksSame       = BidSide.AreEquivalent(other.BidSide, exactTypes);
@@ -529,18 +530,15 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
 
         public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
         {
-            foreach (var pqFieldStringUpdate in BidSide.GetStringUpdates(snapShotTime, messageFlags)) yield return pqFieldStringUpdate;
-            foreach (var pqFieldStringUpdate in AskSide.GetStringUpdates(snapShotTime, messageFlags))
-            {
-                var updatedStringUpdate = pqFieldStringUpdate.SetIsAsk();
-                yield return updatedStringUpdate;
-            }
+            // Both bid and ask books share the same NameIdLookup as do their layers or should do anyway
+            return NameIdLookup.GetStringUpdates(snapShotTime, messageFlags);
         }
 
         public bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
         {
-            if (stringUpdate.Field.Id == PQQuoteFields.LayerNameDictionaryUpsertCommand) return NameIdLookup.UpdateFieldString(stringUpdate);
-            return false;
+            // Both bid and ask books share the same NameIdLookup as do their layers or should do anyway
+            if (stringUpdate.Field.Id != PQQuoteFields.LayerNameDictionaryUpsertCommand) return false;
+            return NameIdLookup.UpdateFieldString(stringUpdate);
         }
 
         private IPQNameIdLookupGenerator SourceOtherExistingOrNewPQNameIdNameLookup(IOrderBook? source)

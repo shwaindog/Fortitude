@@ -7,13 +7,13 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
-public class OpenInterest : ReusableObject<IOpenInterest>, IMutableOpenInterest
+public class MarketAggregate : ReusableObject<IMarketAggregate>, IMutableMarketAggregate
 {
-    public OpenInterest()
+    public MarketAggregate()
     {
     }
 
-    public OpenInterest(MarketDataSource dataSource, decimal volume, decimal vwap, DateTime? updateTime = null)
+    public MarketAggregate(MarketDataSource dataSource, decimal volume, decimal vwap, DateTime? updateTime = null)
     {
         DataSource = dataSource;
         UpdateTime = updateTime ?? DateTime.MinValue;
@@ -21,7 +21,7 @@ public class OpenInterest : ReusableObject<IOpenInterest>, IMutableOpenInterest
         Vwap       = vwap;
     }
 
-    public OpenInterest(IOpenInterest toClone)
+    public MarketAggregate(IMarketAggregate toClone)
     {
         DataSource = toClone.DataSource;
         UpdateTime = toClone.UpdateTime;
@@ -55,14 +55,14 @@ public class OpenInterest : ReusableObject<IOpenInterest>, IMutableOpenInterest
         base.StateReset();
     }
 
-    IMutableOpenInterest ICloneable<IMutableOpenInterest>.Clone() => Clone();
+    IMutableMarketAggregate ICloneable<IMutableMarketAggregate>.Clone() => Clone();
 
-    IMutableOpenInterest IMutableOpenInterest.Clone() => Clone();
+    IMutableMarketAggregate IMutableMarketAggregate.Clone() => Clone();
 
-    public override OpenInterest Clone() => 
-        Recycler?.Borrow<OpenInterest>().CopyFrom(this) ?? new OpenInterest(this);
+    public override MarketAggregate Clone() => 
+        Recycler?.Borrow<MarketAggregate>().CopyFrom(this) ?? new MarketAggregate(this);
 
-    public override OpenInterest CopyFrom(IOpenInterest source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override MarketAggregate CopyFrom(IMarketAggregate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         DataSource = source.DataSource;
         UpdateTime = source.UpdateTime;
@@ -71,7 +71,7 @@ public class OpenInterest : ReusableObject<IOpenInterest>, IMutableOpenInterest
         return this;
     }
 
-    public bool AreEquivalent(IOpenInterest? other, bool exactTypes = false)
+    public bool AreEquivalent(IMarketAggregate? other, bool exactTypes = false)
     {
         if (other == null) return false;
 
@@ -89,9 +89,9 @@ public class OpenInterest : ReusableObject<IOpenInterest>, IMutableOpenInterest
         return allSame;
     }
 
-    public bool AreEquivalent(IMutableOpenInterest? other, bool exactTypes = false) => AreEquivalent((IOpenInterest?)other, exactTypes);
+    public bool AreEquivalent(IMutableMarketAggregate? other, bool exactTypes = false) => AreEquivalent((IMarketAggregate?)other, exactTypes);
     
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IOpenInterest, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IMarketAggregate, true);
 
     public override int GetHashCode()
     {
@@ -107,5 +107,5 @@ public class OpenInterest : ReusableObject<IOpenInterest>, IMutableOpenInterest
 
     protected string OpenInterestToStringMembers =>$"{nameof(DataSource)}: {DataSource}, {nameof(UpdateTime)}: {UpdateTime}, {nameof(Volume)}: {Volume:N2}, {nameof(Vwap)}: {Vwap:N5}";
 
-    public override string ToString() => $"{nameof(OpenInterest)}{{{OpenInterestToStringMembers}}}";
+    public override string ToString() => $"{nameof(MarketAggregate)}{{{OpenInterestToStringMembers}}}";
 }

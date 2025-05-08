@@ -9,10 +9,10 @@ using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 
 [TestClass]
-public class PQOpenInterestTests
+public class PQMarketAggregateTests
 {
-    private PQOpenInterest emptyOpenInterest     = null!;
-    private PQOpenInterest populatedOpenInterest = null!;
+    private PQMarketAggregate emptyOpenInterest     = null!;
+    private PQMarketAggregate populatedOpenInterest = null!;
 
     private const decimal ExpectedVolume = 234_981m;
     private const decimal ExpectedVwap   = 23.1092m;
@@ -24,15 +24,15 @@ public class PQOpenInterestTests
     [TestInitialize]
     public void SetUp()
     {
-        emptyOpenInterest     = new PQOpenInterest();
+        emptyOpenInterest     = new PQMarketAggregate();
         testDateTime          = new DateTime(2017, 12, 17, 16, 11, 52);
-        populatedOpenInterest = new PQOpenInterest(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
+        populatedOpenInterest = new PQMarketAggregate(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
     }
 
     [TestMethod]
     public void NewOi_SetsPriceAndVolume_PropertiesInitializedAsExpected()
     {
-        var newOi = new PQOpenInterest(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
+        var newOi = new PQMarketAggregate(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
         Assert.AreEqual(MarketDataSource.Adapter, newOi.DataSource);
         Assert.AreEqual(ExpectedUpdateTime, newOi.UpdateTime);
         Assert.AreEqual(ExpectedVolume, newOi.Volume);
@@ -57,8 +57,8 @@ public class PQOpenInterestTests
     [TestMethod]
     public void NewOi_NewFromCloneInstance_PropertiesInitializedAsExpected()
     {
-        var newPopulatedOi = new PQOpenInterest(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
-        var fromPQInstance = new PQOpenInterest(newPopulatedOi);
+        var newPopulatedOi = new PQMarketAggregate(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
+        var fromPQInstance = new PQMarketAggregate(newPopulatedOi);
         Assert.AreEqual(MarketDataSource.Adapter, fromPQInstance.DataSource);
         Assert.AreEqual(ExpectedUpdateTime, fromPQInstance.UpdateTime);
         Assert.AreEqual(ExpectedVolume, fromPQInstance.Volume);
@@ -69,8 +69,8 @@ public class PQOpenInterestTests
         Assert.IsTrue(fromPQInstance.IsVolumeUpdated);
         Assert.IsTrue(fromPQInstance.IsVwapUpdated);
 
-        var nonPQOi           = new OpenInterest(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
-        var fromNonPqInstance = new PQOpenInterest(nonPQOi);
+        var nonPQOi           = new MarketAggregate(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
+        var fromNonPqInstance = new PQMarketAggregate(nonPQOi);
         Assert.AreEqual(MarketDataSource.Adapter, fromNonPqInstance.DataSource);
         Assert.AreEqual(ExpectedUpdateTime, fromNonPqInstance.UpdateTime);
         Assert.AreEqual(ExpectedVolume, fromNonPqInstance.Volume);
@@ -81,7 +81,7 @@ public class PQOpenInterestTests
         Assert.IsTrue(fromNonPqInstance.IsVolumeUpdated);
         Assert.IsTrue(fromNonPqInstance.IsVwapUpdated);
 
-        var newEmptyOi = new PQOpenInterest(emptyOpenInterest);
+        var newEmptyOi = new PQMarketAggregate(emptyOpenInterest);
         Assert.AreEqual(MarketDataSource.None, newEmptyOi.DataSource);
         Assert.AreEqual(DateTime.MinValue, newEmptyOi.UpdateTime);
         Assert.AreEqual(0m, newEmptyOi.Volume);
@@ -96,9 +96,9 @@ public class PQOpenInterestTests
     [TestMethod]
     public void NewOi_NewFromCloneInstance_WhenOneFieldNonDefaultIsNotUpdatedNewInstanceCopies()
     {
-        var newPopulatedOi = new PQOpenInterest(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime)
+        var newPopulatedOi = new PQMarketAggregate(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime)
             { IsDataSourceUpdated = false };
-        var fromPQInstance = new PQOpenInterest(newPopulatedOi);
+        var fromPQInstance = new PQMarketAggregate(newPopulatedOi);
         Assert.AreEqual(MarketDataSource.Adapter, fromPQInstance.DataSource);
         Assert.AreEqual(ExpectedUpdateTime, fromPQInstance.UpdateTime);
         Assert.AreEqual(ExpectedVolume, fromPQInstance.Volume);
@@ -109,9 +109,9 @@ public class PQOpenInterestTests
         Assert.IsTrue(fromPQInstance.IsVolumeUpdated);
         Assert.IsTrue(fromPQInstance.IsVwapUpdated);
 
-        newPopulatedOi = new PQOpenInterest(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime)
+        newPopulatedOi = new PQMarketAggregate(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime)
             { IsUpdatedDateUpdated = false };
-        fromPQInstance = new PQOpenInterest(newPopulatedOi);
+        fromPQInstance = new PQMarketAggregate(newPopulatedOi);
         Assert.AreEqual(MarketDataSource.Adapter, fromPQInstance.DataSource);
         Assert.AreEqual(ExpectedUpdateTime, fromPQInstance.UpdateTime);
         Assert.AreEqual(ExpectedVolume, fromPQInstance.Volume);
@@ -122,9 +122,9 @@ public class PQOpenInterestTests
         Assert.IsTrue(fromPQInstance.IsVolumeUpdated);
         Assert.IsTrue(fromPQInstance.IsVwapUpdated);
 
-        newPopulatedOi = new PQOpenInterest(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime)
+        newPopulatedOi = new PQMarketAggregate(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime)
             { IsUpdatedSub2MinTimeUpdated = false };
-        fromPQInstance = new PQOpenInterest(newPopulatedOi);
+        fromPQInstance = new PQMarketAggregate(newPopulatedOi);
         Assert.AreEqual(MarketDataSource.Adapter, fromPQInstance.DataSource);
         Assert.AreEqual(ExpectedUpdateTime, fromPQInstance.UpdateTime);
         Assert.AreEqual(ExpectedVolume, fromPQInstance.Volume);
@@ -135,9 +135,9 @@ public class PQOpenInterestTests
         Assert.IsTrue(fromPQInstance.IsVolumeUpdated);
         Assert.IsTrue(fromPQInstance.IsVwapUpdated);
 
-        newPopulatedOi = new PQOpenInterest(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime)
+        newPopulatedOi = new PQMarketAggregate(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime)
             { IsVolumeUpdated = false };
-        fromPQInstance = new PQOpenInterest(newPopulatedOi);
+        fromPQInstance = new PQMarketAggregate(newPopulatedOi);
         Assert.AreEqual(MarketDataSource.Adapter, fromPQInstance.DataSource);
         Assert.AreEqual(ExpectedUpdateTime, fromPQInstance.UpdateTime);
         Assert.AreEqual(ExpectedVolume, fromPQInstance.Volume);
@@ -148,9 +148,9 @@ public class PQOpenInterestTests
         Assert.IsFalse(fromPQInstance.IsVolumeUpdated);
         Assert.IsTrue(fromPQInstance.IsVwapUpdated);
 
-        newPopulatedOi = new PQOpenInterest(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime)
+        newPopulatedOi = new PQMarketAggregate(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime)
             { IsVwapUpdated = false };
-        fromPQInstance = new PQOpenInterest(newPopulatedOi);
+        fromPQInstance = new PQMarketAggregate(newPopulatedOi);
         Assert.AreEqual(MarketDataSource.Adapter, fromPQInstance.DataSource);
         Assert.AreEqual(ExpectedUpdateTime, fromPQInstance.UpdateTime);
         Assert.AreEqual(ExpectedVolume, fromPQInstance.Volume);
@@ -178,7 +178,7 @@ public class PQOpenInterestTests
         var sourceUpdates = emptyOpenInterest.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
-        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestSource, (uint)expectedDataSource);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateSource, (uint)expectedDataSource);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyOpenInterest.IsDataSourceUpdated = false;
@@ -193,16 +193,16 @@ public class PQOpenInterestTests
         Assert.AreEqual(nextExpectedDataSource, emptyOpenInterest.DataSource);
         sourceUpdates = emptyOpenInterest.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestSource, (uint)nextExpectedDataSource);
+        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateSource, (uint)nextExpectedDataSource);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         sourceUpdates = (from update in emptyOpenInterest.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.SubId == PQSubFieldKeys.OpenInterestSource
+            where update.SubId == PQSubFieldKeys.MarketAggregateSource
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
-        var newEmpty = new PQOpenInterest();
+        var newEmpty = new PQMarketAggregate();
         newEmpty.UpdateField(sourceUpdates[0]);
         Assert.AreEqual(nextExpectedDataSource, newEmpty.DataSource);
         Assert.IsTrue(newEmpty.IsDataSourceUpdated);
@@ -228,9 +228,9 @@ public class PQOpenInterestTests
         Assert.AreEqual(2, layerUpdates.Count);
         var hoursSinceUnixEpoch = expectedUpdateTime.Get2MinIntervalsFromUnixEpoch();
         var expectedDateLayerField
-            = new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestUpdateDate, hoursSinceUnixEpoch);
+            = new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateUpdateDate, hoursSinceUnixEpoch);
         var extended = expectedUpdateTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBottom);
-        var expectedSubHourLayerField = new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestUpdateSub2MinTime
+        var expectedSubHourLayerField = new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateUpdateSub2MinTime
                                                         , subHourBottom, extended);
         Assert.AreEqual(expectedDateLayerField, layerUpdates[0]);
         Assert.AreEqual(expectedSubHourLayerField, layerUpdates[1]);
@@ -244,7 +244,7 @@ public class PQOpenInterestTests
         emptyOpenInterest.IsUpdatedSub2MinTimeUpdated = true;
         var quoteUpdates =
             (from update in emptyOpenInterest.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-                where update.SubId is PQSubFieldKeys.OpenInterestUpdateDate or PQSubFieldKeys.OpenInterestUpdateSub2MinTime
+                where update.SubId is PQSubFieldKeys.MarketAggregateUpdateDate or PQSubFieldKeys.MarketAggregateUpdateSub2MinTime
                 select update).ToList();
         Assert.AreEqual(2, quoteUpdates.Count);
         Assert.AreEqual(expectedDateLayerField, quoteUpdates[0]);
@@ -253,7 +253,7 @@ public class PQOpenInterestTests
         emptyOpenInterest.UpdateTime = DateTime.UnixEpoch;
         emptyOpenInterest.HasUpdates = false;
 
-        var newEmpty = new PQOpenInterest();
+        var newEmpty = new PQMarketAggregate();
         newEmpty.UpdateField(quoteUpdates[0]);
         newEmpty.UpdateField(quoteUpdates[1]);
         Assert.AreEqual(expectedUpdateTime, newEmpty.UpdateTime);
@@ -278,7 +278,7 @@ public class PQOpenInterestTests
         var sourceUpdates = emptyOpenInterest.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
-        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestVolume, expectedVolume
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateVolume, expectedVolume
                                                   , (PQFieldFlags)6);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
@@ -294,17 +294,17 @@ public class PQOpenInterestTests
         Assert.AreEqual(nextExpectedVolume, emptyOpenInterest.Volume);
         sourceUpdates = emptyOpenInterest.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestVolume, nextExpectedVolume
+        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateVolume, nextExpectedVolume
                                               , (PQFieldFlags)6);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         sourceUpdates = (from update in emptyOpenInterest.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.SubId is PQSubFieldKeys.OpenInterestVolume
+            where update.SubId is PQSubFieldKeys.MarketAggregateVolume
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
-        var newEmpty = new PQOpenInterest();
+        var newEmpty = new PQMarketAggregate();
         newEmpty.UpdateField(sourceUpdates[0]);
         Assert.AreEqual(nextExpectedVolume, newEmpty.Volume);
         Assert.IsTrue(newEmpty.IsVolumeUpdated);
@@ -327,7 +327,7 @@ public class PQOpenInterestTests
         Assert.AreEqual(1, sourceUpdates.Count);
 
         var expectedFieldUpdate
-            = new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestVwap, expectedVwap, (PQFieldFlags)2);
+            = new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateVwap, expectedVwap, (PQFieldFlags)2);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyOpenInterest.IsVwapUpdated = false;
@@ -342,17 +342,17 @@ public class PQOpenInterestTests
         Assert.AreEqual(nextExpectedVwap, emptyOpenInterest.Vwap);
         sourceUpdates = emptyOpenInterest.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestVwap, nextExpectedVwap
+        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateVwap, nextExpectedVwap
                                               , (PQFieldFlags)2);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         sourceUpdates = (from update in emptyOpenInterest.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.SubId is PQSubFieldKeys.OpenInterestVwap
+            where update.SubId is PQSubFieldKeys.MarketAggregateVwap
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
-        var newEmpty = new PQOpenInterest();
+        var newEmpty = new PQMarketAggregate();
         newEmpty.UpdateField(sourceUpdates[0]);
         Assert.AreEqual(nextExpectedVwap, newEmpty.Vwap);
         Assert.IsTrue(newEmpty.IsVwapUpdated);
@@ -446,7 +446,7 @@ public class PQOpenInterestTests
             populatedOpenInterest.GetDeltaUpdateFields
                 (new DateTime(2017, 11, 04, 13, 33, 3)
                , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
-        var newEmpty = new PQOpenInterest();
+        var newEmpty = new PQMarketAggregate();
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         Assert.AreEqual(populatedOpenInterest, newEmpty);
     }
@@ -454,7 +454,7 @@ public class PQOpenInterestTests
     [TestMethod]
     public void FullyPopulatedPvl_CopyFromToEmptyPvl_PvlsEqualEachOther()
     {
-        var nonPQOpenInterest = new OpenInterest(populatedOpenInterest);
+        var nonPQOpenInterest = new MarketAggregate(populatedOpenInterest);
         emptyOpenInterest.CopyFrom(nonPQOpenInterest);
         Assert.AreEqual(populatedOpenInterest, emptyOpenInterest);
     }
@@ -462,7 +462,7 @@ public class PQOpenInterestTests
     [TestMethod]
     public void FullyPopulatedPvl_HasNoUpdatesCopyFrom_OnlyCopiesMinimalData()
     {
-        var emptyPriceVolumeLayer = new PQOpenInterest();
+        var emptyPriceVolumeLayer = new PQMarketAggregate();
         populatedOpenInterest.HasUpdates = false;
         emptyPriceVolumeLayer.CopyFrom(populatedOpenInterest);
         Assert.IsTrue(emptyPriceVolumeLayer.IsEmpty);
@@ -481,8 +481,8 @@ public class PQOpenInterestTests
     [TestMethod]
     public void NonPQPopulatedPvl_CopyFromToEmptyPvl_LayersEquivalentToEachOther()
     {
-        var nonPQOi  = new OpenInterest(populatedOpenInterest);
-        var newEmpty = new PQOpenInterest();
+        var nonPQOi  = new MarketAggregate(populatedOpenInterest);
+        var newEmpty = new PQMarketAggregate();
         newEmpty.CopyFrom(nonPQOi);
         Assert.IsTrue(populatedOpenInterest.AreEquivalent(newEmpty));
     }
@@ -490,12 +490,12 @@ public class PQOpenInterestTests
     [TestMethod]
     public void FullyPopulatedPvl_Clone_ClonedInstanceEqualsOriginal()
     {
-        var clonedPvl = ((ICloneable<IPQOpenInterest>)populatedOpenInterest).Clone();
+        var clonedPvl = ((ICloneable<IPQMarketAggregate>)populatedOpenInterest).Clone();
 
         Assert.AreNotSame(clonedPvl, populatedOpenInterest);
         Assert.AreEqual(populatedOpenInterest, clonedPvl);
 
-        var cloned2 = (PQOpenInterest)((ICloneable)populatedOpenInterest).Clone();
+        var cloned2 = (PQMarketAggregate)((ICloneable)populatedOpenInterest).Clone();
         Assert.AreNotSame(cloned2, populatedOpenInterest);
         Assert.AreEqual(populatedOpenInterest, cloned2);
     }
@@ -503,7 +503,7 @@ public class PQOpenInterestTests
     [TestMethod]
     public void FullyPopulatedPvlCloned_OneDifferenceAtATimeAreEquivalentExact_CorrectlyReturnsWhenDifferent()
     {
-        var fullyPopulatedClone = (PQOpenInterest)((ICloneable)populatedOpenInterest).Clone();
+        var fullyPopulatedClone = (PQMarketAggregate)((ICloneable)populatedOpenInterest).Clone();
         AssertAreEquivalentMeetsExpectedExactComparisonType
             (true, populatedOpenInterest, fullyPopulatedClone);
         AssertAreEquivalentMeetsExpectedExactComparisonType
@@ -515,7 +515,7 @@ public class PQOpenInterestTests
     {
         Assert.AreEqual(populatedOpenInterest, populatedOpenInterest);
         Assert.AreEqual(populatedOpenInterest, ((ICloneable)populatedOpenInterest).Clone());
-        Assert.AreEqual(populatedOpenInterest, ((ICloneable<IOpenInterest>)populatedOpenInterest).Clone());
+        Assert.AreEqual(populatedOpenInterest, ((ICloneable<IMarketAggregate>)populatedOpenInterest).Clone());
     }
 
     [TestMethod]
@@ -538,19 +538,19 @@ public class PQOpenInterestTests
     }
 
     public static void AssertContainsAllOpenInterestFields
-    (IList<PQFieldUpdate> checkFieldUpdates, IPQOpenInterest oi,
+    (IList<PQFieldUpdate> checkFieldUpdates, IPQMarketAggregate oi,
         PQFieldFlags priceScale = (PQFieldFlags)2, PQFieldFlags volumeScale = (PQFieldFlags)6)
     {
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestSource, (uint)oi.DataSource),
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateSource, (uint)oi.DataSource),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.OpenInterestTotal
-                                                                  , PQSubFieldKeys.OpenInterestSource),
+                                                                  , PQSubFieldKeys.MarketAggregateSource),
                         $"For {oi}  with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
         var orderUpdatedDate = oi.UpdateTime.Get2MinIntervalsFromUnixEpoch();
         var orderUpdatedDateFu
             = PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.OpenInterestTotal
-                                                        , PQSubFieldKeys.OpenInterestUpdateDate);
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestUpdateDate, orderUpdatedDate)
+                                                        , PQSubFieldKeys.MarketAggregateUpdateDate);
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateUpdateDate, orderUpdatedDate)
                       , orderUpdatedDateFu,
                         $"For {oi}  with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
@@ -558,26 +558,26 @@ public class PQOpenInterestTests
             = oi.UpdateTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var orderUpdatedSubHour);
         var orderUpdatedSubHourFu
             = PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.OpenInterestTotal
-                                                        , PQSubFieldKeys.OpenInterestUpdateSub2MinTime);
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestUpdateSub2MinTime, orderUpdatedSubHour, orderUpdatedSub2MinExtended)
+                                                        , PQSubFieldKeys.MarketAggregateUpdateSub2MinTime);
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateUpdateSub2MinTime, orderUpdatedSubHour, orderUpdatedSub2MinExtended)
                       , orderUpdatedSubHourFu,
                         $"For {oi}  with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
 
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestVolume, oi.Volume, volumeScale),
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateVolume, oi.Volume, volumeScale),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.OpenInterestTotal
-                                                                  , PQSubFieldKeys.OpenInterestVolume, volumeScale),
+                                                                  , PQSubFieldKeys.MarketAggregateVolume, volumeScale),
                         $"For {oi}  with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestVwap, oi.Vwap, priceScale),
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateVwap, oi.Vwap, priceScale),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.OpenInterestTotal
-                                                                  , PQSubFieldKeys.OpenInterestVwap, priceScale),
+                                                                  , PQSubFieldKeys.MarketAggregateVwap, priceScale),
                         $"For {oi}  with these fields\n{string.Join(",\n", checkFieldUpdates)}");
     }
 
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType
     (bool exactComparison,
-        IPQOpenInterest? original, IPQOpenInterest? changingOpenInterest,
+        IPQMarketAggregate? original, IPQMarketAggregate? changingOpenInterest,
         IOrderBookSide? originalOrderBook = null,
         IOrderBookSide? changingOrderBook = null,
         ILevel2Quote? originalQuote = null,
@@ -593,9 +593,9 @@ public class PQOpenInterestTests
             Assert.AreEqual(!exactComparison, original.AreEquivalent(
                                                                      changingOpenInterest, exactComparison));
 
-        if (original.GetType() == typeof(PQOpenInterest))
+        if (original.GetType() == typeof(PQMarketAggregate))
             Assert.AreEqual(!exactComparison,
-                            changingOpenInterest.AreEquivalent(new OpenInterest(original), exactComparison));
+                            changingOpenInterest.AreEquivalent(new MarketAggregate(original), exactComparison));
 
         // PriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType(exactComparison,
         //                                                                           original, changingOpenInterest, originalOrderBook

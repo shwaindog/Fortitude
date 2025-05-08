@@ -17,6 +17,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.TimeSeries;
 
 #endregion

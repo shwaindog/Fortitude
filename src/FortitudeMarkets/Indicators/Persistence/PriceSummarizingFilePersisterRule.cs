@@ -13,6 +13,7 @@ using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

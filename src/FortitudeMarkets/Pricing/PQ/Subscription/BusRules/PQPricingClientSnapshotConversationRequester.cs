@@ -29,6 +29,7 @@ using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Serdes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

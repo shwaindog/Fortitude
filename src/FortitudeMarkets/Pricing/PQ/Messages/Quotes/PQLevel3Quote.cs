@@ -17,6 +17,7 @@ using FortitudeMarkets.Pricing.PQ.Summaries;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
@@ -382,7 +383,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         if (found) return true;
         if (stringUpdate.Field.Id == PQQuoteFields.LastTradedDictionaryUpsertCommand)
         {
-            if (recentlyTraded == null) recentlyTraded = new PQRecentlyTraded();
+            recentlyTraded ??= new PQRecentlyTraded();
             return recentlyTraded.UpdateFieldString(stringUpdate);
         }
 

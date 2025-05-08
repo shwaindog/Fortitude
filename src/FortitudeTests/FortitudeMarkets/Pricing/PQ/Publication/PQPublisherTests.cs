@@ -9,10 +9,11 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Publication;
 using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 
 #endregion
 

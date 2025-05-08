@@ -9,6 +9,7 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Summaries;
 
 #endregion

@@ -5,6 +5,7 @@
 
 using FortitudeMarkets.Pricing.Generators.MidPrice;
 using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

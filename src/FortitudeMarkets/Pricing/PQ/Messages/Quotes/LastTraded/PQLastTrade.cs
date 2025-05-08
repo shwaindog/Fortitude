@@ -32,7 +32,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
 {
     protected uint     NumUpdatesSinceEmpty = uint.MaxValue;
     private   decimal  tradePrice;
-    private   DateTime tradeTime = DateTimeConstants.UnixEpoch;
+    private   DateTime tradeTime = DateTime.MinValue;
 
     protected LastTradeUpdated UpdatedFlags;
 
@@ -44,7 +44,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
 
     public PQLastTrade(decimal tradePrice = 0m, DateTime? tradeTime = null)
     {
-        TradeTime  = tradeTime ?? DateTimeConstants.UnixEpoch;
+        TradeTime  = tradeTime ?? DateTime.MinValue;
         TradePrice = tradePrice;
 
         if (GetType() == typeof(PQLastTrade)) NumUpdatesSinceEmpty = 0;
@@ -143,11 +143,11 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public virtual bool IsEmpty
     {
-        get => TradeTime == DateTimeConstants.UnixEpoch && TradePrice == 0m;
+        get => TradeTime == DateTime.MinValue && TradePrice == 0m;
         set
         {
             if (!value) return;
-            TradeTime  = DateTimeConstants.UnixEpoch;
+            TradeTime  = DateTime.MinValue;
             TradePrice = 0m;
 
             NumUpdatesSinceEmpty = 0;
@@ -164,7 +164,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
 
     public override void StateReset()
     {
-        TradeTime    = DateTimeConstants.UnixEpoch;
+        TradeTime    = DateTime.MinValue;
         TradePrice   = 0m;
         UpdatedFlags = LastTradeUpdated.None;
 
@@ -198,6 +198,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         {
             PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref tradeTime, pqFieldUpdate.Payload);
             IsTradeTimeDateUpdated = true;
+            if (tradeTime == DateTime.UnixEpoch) tradeTime = default;
             return 0;
         }
         if (pqFieldUpdate.SubId == PQSubFieldKeys.LastTradedTradeSub2MinTime)
@@ -205,6 +206,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
             PQFieldConverters.UpdateSub2MinComponent(ref tradeTime,
                                                      pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
             IsTradeTimeSub2MinUpdated = true;
+            if (tradeTime == DateTime.UnixEpoch) tradeTime = default;
             return 0;
         }
         if (pqFieldUpdate.SubId == PQSubFieldKeys.LastTradedAtPrice)

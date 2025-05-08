@@ -9,6 +9,7 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerSelector;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 
@@ -21,7 +22,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     private ushort maxPublishDepth;
 
     private LayerFlags            layerFlags = LayerFlagsExtensions.PriceVolumeLayerFlags;
-    private IMutableOpenInterest? openInterestSide;
+    private IMutableMarketAggregate? openInterestSide;
 
     public OrderBookSide()
     {
@@ -73,9 +74,10 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         LayerSupportedFlags =  toClone.LayerSupportedFlags;
         layerFlags               |= LayerSupportedType.SupportedLayerFlags();
         IsLadder                 =  toClone.IsLadder;
+        DailyTickUpdateCount = toClone.DailyTickUpdateCount;
         if (toClone.HasNonEmptyOpenInterest)
         {
-            openInterestSide = new OpenInterest(toClone.OpenInterestSide);
+            openInterestSide = new MarketAggregate(toClone.MarketAggregateSide);
         }
         bookLayers =
             toClone
@@ -138,21 +140,21 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         }
     }
 
-    IOpenInterest IOrderBookSide.OpenInterestSide => OpenInterestSideSide!;
-    IMutableOpenInterest? IMutableOrderBookSide.OpenInterestSide
+    IMarketAggregate IOrderBookSide.MarketAggregateSide => OpenInterestSideSide!;
+    IMutableMarketAggregate? IMutableOrderBookSide.OpenInterestSide
     {
         get => OpenInterestSideSide;
-        set => OpenInterestSideSide = (OpenInterest?)value;
+        set => OpenInterestSideSide = (MarketAggregate?)value;
     }
 
-    public IMutableOpenInterest? OpenInterestSideSide
+    public IMutableMarketAggregate? OpenInterestSideSide
     {
         get
         {
             if (HasNonEmptyOpenInterest && openInterestSide is not {DataSource: (MarketDataSource.Published or MarketDataSource.None)}) return openInterestSide;
             var vwapResult = this.CalculateVwap();
             
-            openInterestSide            ??= new OpenInterest();
+            openInterestSide            ??= new MarketAggregate();
             openInterestSide.DataSource =   MarketDataSource.Published;
             openInterestSide.UpdateTime =   DateTime.Now;
             openInterestSide.Volume     =   vwapResult.VolumeAchieved;
@@ -163,7 +165,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         {
             if (value != null)
             {
-                openInterestSide ??= new OpenInterest();
+                openInterestSide ??= new MarketAggregate();
 
                 openInterestSide.DataSource = value.DataSource;
                 openInterestSide.UpdateTime = value.UpdateTime;
@@ -256,7 +258,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         var openInterestSame = HasNonEmptyOpenInterest == other.HasNonEmptyOpenInterest;
         if (openInterestSame && other.HasNonEmptyOpenInterest && HasNonEmptyOpenInterest)
         {
-            openInterestSame = Equals(openInterestSide, other.OpenInterestSide);
+            openInterestSame = Equals(openInterestSide, other.MarketAggregateSide);
         }
         var bookLayersSame  = true;
         for (int i = 0; i < Count; i++)
@@ -287,8 +289,8 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         MaxPublishDepth          = source.MaxPublishDepth;
         if (source.HasNonEmptyOpenInterest)
         {
-            openInterestSide ??= new OpenInterest();
-            openInterestSide.CopyFrom(source.OpenInterestSide, copyMergeFlags);
+            openInterestSide ??= new MarketAggregate();
+            openInterestSide.CopyFrom(source.MarketAggregateSide, copyMergeFlags);
         } else if (openInterestSide != null)
         {
             openInterestSide.IsEmpty = true;

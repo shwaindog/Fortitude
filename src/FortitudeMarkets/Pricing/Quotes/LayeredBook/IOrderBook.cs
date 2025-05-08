@@ -28,7 +28,7 @@ public interface IOrderBook : IReusableObject<IOrderBook>, IInterfacesComparable
 
     bool          HasNonEmptyOpenInterest { get; }
 
-    IOpenInterest OpenInterest                          { get; }
+    IMarketAggregate MarketAggregate                          { get; }
 
     uint DailyTickUpdateCount { get; }
     bool IsLadder             { get; }
@@ -47,7 +47,7 @@ public interface IMutableOrderBook : IOrderBook, IInterfacesComparable<IMutableO
     new bool IsAskBookChanged        { get; set; }
     new bool HasNonEmptyOpenInterest { get; set; }
 
-    new IMutableOpenInterest? OpenInterest  { get; set; }
+    new IMutableMarketAggregate? OpenInterest  { get; set; }
 
     new uint DailyTickUpdateCount { get; set; }
     new bool IsLadder             { get; set; }

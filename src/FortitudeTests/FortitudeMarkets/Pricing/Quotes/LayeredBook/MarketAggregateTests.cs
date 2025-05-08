@@ -6,10 +6,10 @@ using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 namespace FortitudeTests.FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 [TestClass]
-public class OpenInterestTests
+public class MarketAggregateTests
 {
-    private OpenInterest emptyOpenInterest     = null!;
-    private OpenInterest populatedOpenInterest = null!;
+    private MarketAggregate emptyMarketAggregate     = null!;
+    private MarketAggregate populatedMarketAggregate = null!;
 
     private const decimal ExpectedVolume = 234_981m;
     private const decimal ExpectedVwap   = 23.1092m;
@@ -19,43 +19,43 @@ public class OpenInterestTests
     [TestInitialize]
     public void SetUp()
     {
-        emptyOpenInterest     = new OpenInterest();
-        populatedOpenInterest = new OpenInterest(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
+        emptyMarketAggregate     = new MarketAggregate();
+        populatedMarketAggregate = new MarketAggregate(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
     }
 
     [TestMethod]
     public void NewPvl_SetsPriceAndVolume_PropertiesInitializedAsExpected()
     {
-        var newOi = new OpenInterest(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
+        var newOi = new MarketAggregate(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
         Assert.AreEqual(MarketDataSource.Adapter, newOi.DataSource);
         Assert.AreEqual(ExpectedUpdateTime, newOi.UpdateTime);
         Assert.AreEqual(ExpectedVolume, newOi.Volume);
         Assert.AreEqual(ExpectedVwap, newOi.Vwap);
 
-        Assert.AreEqual(MarketDataSource.None, emptyOpenInterest.DataSource);
-        Assert.AreEqual(DateTime.MinValue, emptyOpenInterest.UpdateTime);
-        Assert.AreEqual(0m, emptyOpenInterest.Volume);
-        Assert.AreEqual(0m, emptyOpenInterest.Vwap);
+        Assert.AreEqual(MarketDataSource.None, emptyMarketAggregate.DataSource);
+        Assert.AreEqual(DateTime.MinValue, emptyMarketAggregate.UpdateTime);
+        Assert.AreEqual(0m, emptyMarketAggregate.Volume);
+        Assert.AreEqual(0m, emptyMarketAggregate.Vwap);
     }
 
     [TestMethod]
     public void NewOi_NewFromCloneInstance_PropertiesInitializedAsExpected()
     {
-        var newPopulatedOi = new PQOpenInterest(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
-        var fromPQInstance  = new OpenInterest(newPopulatedOi);
+        var newPopulatedOi = new PQMarketAggregate(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
+        var fromPQInstance  = new MarketAggregate(newPopulatedOi);
         Assert.AreEqual(MarketDataSource.Adapter, fromPQInstance.DataSource);
         Assert.AreEqual(ExpectedUpdateTime, fromPQInstance.UpdateTime);
         Assert.AreEqual(ExpectedVolume, fromPQInstance.Volume);
         Assert.AreEqual(ExpectedVwap, fromPQInstance.Vwap);
 
-        var nonPQOi           = new OpenInterest(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
-        var fromNonPqInstance = new OpenInterest(nonPQOi);
+        var nonPQOi           = new MarketAggregate(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
+        var fromNonPqInstance = new MarketAggregate(nonPQOi);
         Assert.AreEqual(MarketDataSource.Adapter, fromNonPqInstance.DataSource);
         Assert.AreEqual(ExpectedUpdateTime, fromNonPqInstance.UpdateTime);
         Assert.AreEqual(ExpectedVolume, fromNonPqInstance.Volume);
         Assert.AreEqual(ExpectedVwap, fromNonPqInstance.Vwap);
 
-        var newEmptyOi = new OpenInterest(emptyOpenInterest);
+        var newEmptyOi = new MarketAggregate(emptyMarketAggregate);
         Assert.AreEqual(MarketDataSource.None, newEmptyOi.DataSource);
         Assert.AreEqual(DateTime.MinValue, newEmptyOi.UpdateTime);
         Assert.AreEqual(0m, newEmptyOi.Volume);
@@ -65,90 +65,90 @@ public class OpenInterestTests
     [TestMethod]
     public void EmptyLayer_Mutate_UpdatesFields()
     {
-        emptyOpenInterest.DataSource = MarketDataSource.Adapter;
-        emptyOpenInterest.UpdateTime = ExpectedUpdateTime;
-        emptyOpenInterest.Volume     = ExpectedVolume;
-        emptyOpenInterest.Vwap     = ExpectedVwap;
+        emptyMarketAggregate.DataSource = MarketDataSource.Adapter;
+        emptyMarketAggregate.UpdateTime = ExpectedUpdateTime;
+        emptyMarketAggregate.Volume     = ExpectedVolume;
+        emptyMarketAggregate.Vwap     = ExpectedVwap;
         
-        Assert.AreEqual(MarketDataSource.Adapter, emptyOpenInterest.DataSource);
-        Assert.AreEqual(ExpectedUpdateTime, emptyOpenInterest.UpdateTime);
-        Assert.AreEqual(ExpectedVolume, emptyOpenInterest.Volume);
-        Assert.AreEqual(ExpectedVwap, emptyOpenInterest.Vwap);
+        Assert.AreEqual(MarketDataSource.Adapter, emptyMarketAggregate.DataSource);
+        Assert.AreEqual(ExpectedUpdateTime, emptyMarketAggregate.UpdateTime);
+        Assert.AreEqual(ExpectedVolume, emptyMarketAggregate.Volume);
+        Assert.AreEqual(ExpectedVwap, emptyMarketAggregate.Vwap);
     }
 
     [TestMethod]
     public void PopulatedPvl_Reset_ReturnsReturnsLayerToEmpty()
     {
-        Assert.IsFalse(populatedOpenInterest.IsEmpty);
-        Assert.AreEqual(MarketDataSource.Adapter, populatedOpenInterest.DataSource);
-        Assert.AreEqual(ExpectedUpdateTime, populatedOpenInterest.UpdateTime);
-        Assert.AreEqual(ExpectedVolume, populatedOpenInterest.Volume);
-        Assert.AreEqual(ExpectedVwap, populatedOpenInterest.Vwap);
-        populatedOpenInterest.StateReset();
-        Assert.IsTrue(populatedOpenInterest.IsEmpty);
-        Assert.AreEqual(MarketDataSource.None, populatedOpenInterest.DataSource);
-        Assert.AreEqual(DateTime.MinValue, populatedOpenInterest.UpdateTime);
-        Assert.AreEqual(0m, populatedOpenInterest.Volume);
-        Assert.AreEqual(0m, populatedOpenInterest.Vwap);
+        Assert.IsFalse(populatedMarketAggregate.IsEmpty);
+        Assert.AreEqual(MarketDataSource.Adapter, populatedMarketAggregate.DataSource);
+        Assert.AreEqual(ExpectedUpdateTime, populatedMarketAggregate.UpdateTime);
+        Assert.AreEqual(ExpectedVolume, populatedMarketAggregate.Volume);
+        Assert.AreEqual(ExpectedVwap, populatedMarketAggregate.Vwap);
+        populatedMarketAggregate.StateReset();
+        Assert.IsTrue(populatedMarketAggregate.IsEmpty);
+        Assert.AreEqual(MarketDataSource.None, populatedMarketAggregate.DataSource);
+        Assert.AreEqual(DateTime.MinValue, populatedMarketAggregate.UpdateTime);
+        Assert.AreEqual(0m, populatedMarketAggregate.Volume);
+        Assert.AreEqual(0m, populatedMarketAggregate.Vwap);
     }
 
     [TestMethod]
     public void FullyPopulatedPvl_CopyFromToEmptyPvl_PvlsEqualEachOther()
     {
-        emptyOpenInterest.CopyFrom(populatedOpenInterest);
-        Assert.AreEqual(populatedOpenInterest, emptyOpenInterest);
+        emptyMarketAggregate.CopyFrom(populatedMarketAggregate);
+        Assert.AreEqual(populatedMarketAggregate, emptyMarketAggregate);
     }
 
     [TestMethod]
     public void PQPvl_CopyFromToEmptyPvl_LayersEquivalentToEachOther()
     {
-        var pqPvl    = new PQOpenInterest(populatedOpenInterest);
-        var newEmpty = new OpenInterest();
+        var pqPvl    = new PQMarketAggregate(populatedMarketAggregate);
+        var newEmpty = new MarketAggregate();
         newEmpty.CopyFrom(pqPvl);
-        Assert.AreEqual(populatedOpenInterest, newEmpty);
+        Assert.AreEqual(populatedMarketAggregate, newEmpty);
     }
 
     [TestMethod]
     public void FromInterfacePopulatedNameLookupId_Cloned_ReturnsNewIdenticalCopy()
     {
-        IOpenInterest clone = populatedOpenInterest.Clone();
-        Assert.AreNotSame(clone, populatedOpenInterest);
-        Assert.AreEqual(populatedOpenInterest, clone);
-        clone = ((IOpenInterest)populatedOpenInterest).Clone();
-        Assert.AreNotSame(clone, populatedOpenInterest);
-        Assert.AreEqual(populatedOpenInterest, clone);
+        IMarketAggregate clone = populatedMarketAggregate.Clone();
+        Assert.AreNotSame(clone, populatedMarketAggregate);
+        Assert.AreEqual(populatedMarketAggregate, clone);
+        clone = ((IMarketAggregate)populatedMarketAggregate).Clone();
+        Assert.AreNotSame(clone, populatedMarketAggregate);
+        Assert.AreEqual(populatedMarketAggregate, clone);
     }
 
     [TestMethod]
     public void FullyPopulatedPvlCloned_OneDifferenceAtATimeAreEquivalentExact_CorrectlyReturnsWhenDifferent()
     {
-        var fullyPopulatedClone = (OpenInterest)((ICloneable)populatedOpenInterest).Clone();
+        var fullyPopulatedClone = (MarketAggregate)((ICloneable)populatedMarketAggregate).Clone();
         AssertAreEquivalentMeetsExpectedExactComparisonType
-            (false, populatedOpenInterest, fullyPopulatedClone);
+            (false, populatedMarketAggregate, fullyPopulatedClone);
     }
 
     [TestMethod]
     public void FullyPopulatedPvl_GetHashCode_ReturnNumberNoException()
     {
-        var hashCode = populatedOpenInterest.GetHashCode();
+        var hashCode = populatedMarketAggregate.GetHashCode();
         Assert.IsTrue(hashCode != 0);
     }
 
     [TestMethod]
     public void FullyPopulatedPvl_ToString_ReturnsNameAndValues()
     {
-        var toString = populatedOpenInterest.ToString();
+        var toString = populatedMarketAggregate.ToString();
 
-        Assert.IsTrue(toString.Contains(populatedOpenInterest.GetType().Name));
-        Assert.IsTrue(toString.Contains($"{nameof(populatedOpenInterest.DataSource)}: {populatedOpenInterest.DataSource}"));
-        Assert.IsTrue(toString.Contains($"{nameof(populatedOpenInterest.UpdateTime)}: {populatedOpenInterest.UpdateTime}"));
-        Assert.IsTrue(toString.Contains($"{nameof(populatedOpenInterest.Volume)}: {populatedOpenInterest.Volume:N2}"));
-        Assert.IsTrue(toString.Contains($"{nameof(populatedOpenInterest.Vwap)}: {populatedOpenInterest.Vwap:N5}"));
+        Assert.IsTrue(toString.Contains(populatedMarketAggregate.GetType().Name));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedMarketAggregate.DataSource)}: {populatedMarketAggregate.DataSource}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedMarketAggregate.UpdateTime)}: {populatedMarketAggregate.UpdateTime}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedMarketAggregate.Volume)}: {populatedMarketAggregate.Volume:N2}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedMarketAggregate.Vwap)}: {populatedMarketAggregate.Vwap:N5}"));
     }
 
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType
     (bool exactComparison,
-        IMutableOpenInterest? original, IMutableOpenInterest? changingOpenInterest,
+        IMutableMarketAggregate? original, IMutableMarketAggregate? changingOpenInterest,
         IOrderBookSide? originalOrderBookSide = null,
         IOrderBookSide? changingOrderBookSide = null,
         IMutableOrderBook? originalOrderBook = null,

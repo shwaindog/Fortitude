@@ -5,6 +5,8 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
+using FortitudeTests.FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 namespace FortitudeTests.FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
@@ -522,7 +524,7 @@ public class OrderBookTests
         Assert.IsTrue(commonCompareOrderBook.AreEquivalent(changingOrderBook));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
-        OpenInterestTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+        MarketAggregateTests.AssertAreEquivalentMeetsExpectedExactComparisonType
             (exactComparison, commonCompareOrderBook.OpenInterest, changingOrderBook.OpenInterest, 
              null, null, commonCompareOrderBook, changingOrderBook, originalQuote, changingQuote);
 

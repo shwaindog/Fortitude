@@ -5,6 +5,7 @@
 
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

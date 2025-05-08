@@ -11,6 +11,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
+using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -19,7 +20,7 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
 [TestClass]
 public class PQRecentlyTradedTests
 {
-    private const int MaxNumberOfEntries = PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades;
+    private const int MaxNumberOfEntries = QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades;
 
     private IList<PQRecentlyTraded>            allFullyPopulatedRecentlyTraded = null!;
     private List<IReadOnlyList<IPQLastTrade>>  allPopulatedEntries             = null!;
@@ -62,9 +63,9 @@ public class PQRecentlyTradedTests
             });
         }
 
-        simpleRecentlyTradedFullyPopulatedQuote                = new PQRecentlyTraded(simpleEntries!);
-        paidGivenVolumeRecentlyTradedFullyPopulatedQuote       = new PQRecentlyTraded(lastPaidGivenEntries);
-        traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote = new PQRecentlyTraded(lastTraderPaidGivenEntries);
+        simpleRecentlyTradedFullyPopulatedQuote                = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)simpleEntries);
+        paidGivenVolumeRecentlyTradedFullyPopulatedQuote       = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)lastPaidGivenEntries);
+        traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)lastTraderPaidGivenEntries);
 
         allFullyPopulatedRecentlyTraded = new List<PQRecentlyTraded>
         {
@@ -80,9 +81,9 @@ public class PQRecentlyTradedTests
         {
             var populatedRecentlyTraded = allFullyPopulatedRecentlyTraded[i];
             var populatedEntries        = allPopulatedEntries[i];
-            for (var j = 0; j < MaxNumberOfEntries; j++)
+            for (var j = 0; j < populatedEntries.Count; j++)
             {
-                Assert.AreEqual(MaxNumberOfEntries, populatedRecentlyTraded.Count);
+                Assert.AreEqual(populatedEntries.Count, populatedRecentlyTraded.Count);
                 Assert.AreNotSame(populatedEntries[j], populatedRecentlyTraded[j]);
             }
         }
@@ -586,9 +587,9 @@ public class PQRecentlyTradedTests
         return false;
     }
 
-    private static PQRecentlyTraded CreateNewEmpty(PQRecentlyTraded populatedOrderBook)
+    private static PQRecentlyTraded CreateNewEmpty(PQRecentlyTraded populatedRecentlyTraded)
     {
-        var cloneGensis = populatedOrderBook[0]!.Clone();
+        var cloneGensis = populatedRecentlyTraded[0]!.Clone();
         cloneGensis.StateReset();
         if (cloneGensis is IPQLastTraderPaidGivenTrade traderLastTrade)
             traderLastTrade.NameIdLookup = new PQNameIdLookupGenerator(PQQuoteFields.LastTradedDictionaryUpsertCommand);
@@ -603,7 +604,7 @@ public class PQRecentlyTradedTests
         IPQRecentlyTraded recentlyTraded, PQBooleanValues expectedBooleanFlags = PQBooleanValuesExtensions.AllFields
       ,  PQFieldFlags priceScale = (PQFieldFlags)1,  PQFieldFlags volumeScale = (PQFieldFlags)6)
     {
-        for (var i = 0; i < MaxNumberOfEntries; i++)
+        for (var i = 0; i < recentlyTraded.Count; i++)
         {
             var lastTrade = recentlyTraded[i]!;
             var depthId   = (PQDepthKey)i;

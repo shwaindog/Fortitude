@@ -5,7 +5,6 @@
 
 using System.Text.Json;
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
@@ -16,11 +15,12 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 
 #endregion
 
@@ -58,7 +58,6 @@ public class PQLevel2QuoteTests
     private PQLevel2Quote     sourceQuoteRefFullyPopulatedLevel2Quote = null!;
     private ISourceTickerInfo sourceRefSourceTickerInfo               = null!;
 
-    private DateTime          testDateTime;
     private PQLevel2Quote     valueDateEmptyLevel2Quote          = null!;
     private PQLevel2Quote     valueDateFullyPopulatedLevel2Quote = null!;
     private ISourceTickerInfo valueDateSourceTickerInfo          = null!;
@@ -117,8 +116,6 @@ public class PQLevel2QuoteTests
           , ordersCountEmptyLevel2Quote, ordersAnonEmptyLevel2Quote, ordersCounterPartyEmptyLevel2Quote, valueDateEmptyLevel2Quote
           , fullSupportEmptyLevel2Quote
         };
-
-        testDateTime = new DateTime(2017, 10, 08, 18, 33, 24);
     }
 
     [TestMethod]
@@ -137,7 +134,7 @@ public class PQLevel2QuoteTests
     }
 
     [TestMethod]
-    public void TooSmalMaxBookDepth_New_IncreaseBookDepthAtLeast1Level()
+    public void TooSmallMaxBookDepth_New_IncreaseBookDepthAtLeast1Level()
     {
         var tooLargeMaxDepth =
             new SourceTickerInfo
@@ -856,6 +853,23 @@ public class PQLevel2QuoteTests
     }
 
     [TestMethod]
+    public void AllFullyPopulatedQuotes_Reset_SameAsEmptyQuotes()
+    {
+        Assert.AreEqual(allFullyPopulatedQuotes.Count, allEmptyQuotes.Count);
+        for (var i = 0; i < allFullyPopulatedQuotes.Count; i++)
+        {
+            var popQuote   = allFullyPopulatedQuotes[i];
+            var emptyQuote = allEmptyQuotes[i];
+
+            Assert.IsFalse(popQuote.AreEquivalent(emptyQuote));
+
+            popQuote.ResetFields();
+
+            Assert.IsTrue(popQuote.AreEquivalent(emptyQuote));
+        }
+    }
+
+    [TestMethod]
     public void PopulatedQuoteWithAllUpdates_GetDeltaUpdateFieldsAsUpdate_ReturnsAllLevel2Fields()
     {
         foreach (var populatedL2Quote in allFullyPopulatedQuotes)
@@ -864,7 +878,7 @@ public class PQLevel2QuoteTests
             var pqFieldUpdates =
                 populatedL2Quote.GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Update, precisionSettings).ToList();
-            AssertContainsAllLevel2Fields(precisionSettings, pqFieldUpdates, populatedL2Quote, PQBooleanValuesExtensions.AllFields);
+            AssertContainsAllLevel2Fields(precisionSettings, pqFieldUpdates, populatedL2Quote);
         }
     }
 
@@ -877,7 +891,7 @@ public class PQLevel2QuoteTests
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Update).ToList();
         AssertContainsAllLevel2Fields
             ((PQSourceTickerInfo)ordersCountFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates
-           , ordersCountFullyPopulatedLevel2Quote, PQBooleanValuesExtensions.AllFields);
+           , ordersCountFullyPopulatedLevel2Quote);
     }
 
     [TestMethod]
@@ -988,16 +1002,7 @@ public class PQLevel2QuoteTests
                 = new PQSourceTickerInfo(populatedL2Quote.SourceTickerInfo!);
             var newEmpty = new PQLevel2Quote(emptyQuoteSourceTickerInfo);
             newEmpty.CopyFrom(populatedL2Quote);
-            try
-            {
-                Assert.AreEqual(populatedL2Quote, newEmpty, $"\n Differences are {populatedL2Quote.DiffQuotes(newEmpty)}");
-            }
-            catch
-            {
-                Thread.Sleep(100);
-                // throw;
-            }
-            Console.Out.WriteLine("");
+            Assert.AreEqual(populatedL2Quote, newEmpty, $"\n Differences are {populatedL2Quote.DiffQuotes(newEmpty)}");
         }
     }
 
@@ -1260,22 +1265,22 @@ public class PQLevel2QuoteTests
 
             Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.Price, bidDepthId, PQScaling.Scale(bidL2Pvl.Price, priceScale), priceScale)
                           , PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.Price, bidDepthId, priceScale)
-                          , $"For bidlayer {bidL2Pvl.GetType().Name} level {i}");
+                          , $"For BidLayer {bidL2Pvl.GetType().Name} level {i}");
             Assert.AreEqual
                 (new PQFieldUpdate(PQQuoteFields.Price, askDepthId, PQScaling.Scale(askL2Pvl.Price, priceScale), priceScale)
                , PQTickInstantTests.ExtractFieldUpdateWithId
                      (checkFieldUpdates, PQQuoteFields.Price, askDepthId, priceScale)
-               , $"For asklayer {bidL2Pvl.GetType().Name} level {i}");
+               , $"For AskLayer {bidL2Pvl.GetType().Name} level {i}");
             Assert.AreEqual
                 (new PQFieldUpdate
                      (PQQuoteFields.Volume, bidDepthId, PQScaling.Scale(bidL2Pvl.Volume, volumeScale), volumeScale)
                , PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.Volume, bidDepthId, volumeScale)
-               , $"For bidlayer {bidL2Pvl.GetType().Name} level {i}");
+               , $"For BidLayer {bidL2Pvl.GetType().Name} level {i}");
             Assert.AreEqual
                 (new PQFieldUpdate
                      (PQQuoteFields.Volume, askDepthId, PQScaling.Scale(askL2Pvl.Volume, volumeScale), volumeScale)
                , PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.Volume, askDepthId, volumeScale)
-               , $"For asklayer {bidL2Pvl.GetType().Name} level {i}");
+               , $"For AskLayer {bidL2Pvl.GetType().Name} level {i}");
 
             if (bidL2Pvl is IPQSourcePriceVolumeLayer pqBidL2Pvl &&
                 askL2Pvl is IPQSourcePriceVolumeLayer pqAskL2Pvl)
@@ -1330,23 +1335,23 @@ public class PQLevel2QuoteTests
                 Assert.AreEqual(expectedType, level2Quote.AskBook[i]!.GetType());
                 switch (level2Quote.BidBook[i])
                 {
-                    case PQFullSupportPriceVolumeLayer srcQtRefTrdrVlDtPvl:
+                    case PQFullSupportPriceVolumeLayer fullSupportPvl:
                         Assert.IsTrue
                             (ReferenceEquals
-                                (((IPQSourcePriceVolumeLayer)level2Quote.BidBook[0]!).NameIdLookup, srcQtRefTrdrVlDtPvl.NameIdLookup));
+                                (((IPQSourcePriceVolumeLayer)level2Quote.BidBook[0]!).NameIdLookup, fullSupportPvl.NameIdLookup));
                         Assert.IsTrue
                             (ReferenceEquals
-                                (((IPQOrdersPriceVolumeLayer)level2Quote.BidBook[0]!).NameIdLookup, srcQtRefTrdrVlDtPvl.NameIdLookup));
+                                (((IPQOrdersPriceVolumeLayer)level2Quote.BidBook[0]!).NameIdLookup, fullSupportPvl.NameIdLookup));
                         break;
                     case PQSourcePriceVolumeLayer sourcePriceVolumeLayer:
                         Assert.IsTrue
                             (ReferenceEquals
                                 (((IPQSourcePriceVolumeLayer)level2Quote.BidBook[0]!).NameIdLookup, sourcePriceVolumeLayer.NameIdLookup));
                         break;
-                    case PQOrdersPriceVolumeLayer traderPriceVolumeLayer:
+                    case PQOrdersPriceVolumeLayer ordersPriceVolumeLayer:
                         Assert.IsTrue
                             (ReferenceEquals
-                                (((IPQOrdersPriceVolumeLayer)level2Quote.BidBook[0]!).NameIdLookup, traderPriceVolumeLayer.NameIdLookup));
+                                (((IPQOrdersPriceVolumeLayer)level2Quote.BidBook[0]!).NameIdLookup, ordersPriceVolumeLayer.NameIdLookup));
                         break;
                 }
             }

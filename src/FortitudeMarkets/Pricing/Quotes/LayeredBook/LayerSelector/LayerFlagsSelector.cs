@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

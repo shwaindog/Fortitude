@@ -12,6 +12,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.PQ.Summaries;
 using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
@@ -927,7 +928,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 var originalAdapterSentTime = adapterSentTime;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref adapterSentTime,
                                                            pq1.AdapterSentTime.Get2MinIntervalsFromUnixEpoch());
-                IsAdapterSentTimeDateUpdated = originalAdapterSentTime != adapterSentTime;
+                IsAdapterSentTimeDateUpdated |= originalAdapterSentTime != adapterSentTime;
                 if (adapterSentTime == DateTime.UnixEpoch) adapterSentTime = default;
             }
             if (pq1.IsAdapterSentTimeSub2MinUpdated || isFullReplace)
@@ -935,7 +936,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 var originalAdapterSentTime = adapterSentTime;
                 PQFieldConverters.UpdateSub2MinComponent(ref adapterSentTime,
                                                          pq1.AdapterSentTime.GetSub2MinComponent());
-                IsAdapterSentTimeSub2MinUpdated = originalAdapterSentTime != adapterSentTime;
+                IsAdapterSentTimeSub2MinUpdated |= originalAdapterSentTime != adapterSentTime;
                 if (adapterSentTime == DateTime.UnixEpoch) adapterSentTime = default;
             }
             if (pq1.IsAdapterReceivedTimeDateUpdated || isFullReplace)
@@ -943,7 +944,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 var originalAdapterReceivedTime = adapterReceivedTime;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref adapterReceivedTime,
                                                            pq1.AdapterReceivedTime.Get2MinIntervalsFromUnixEpoch());
-                IsAdapterReceivedTimeDateUpdated = originalAdapterReceivedTime != adapterReceivedTime;
+                IsAdapterReceivedTimeDateUpdated |= originalAdapterReceivedTime != adapterReceivedTime;
                 if (adapterReceivedTime == DateTime.UnixEpoch) adapterReceivedTime = default;
             }
             if (pq1.IsAdapterReceivedTimeSub2MinUpdated || isFullReplace)
@@ -951,7 +952,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 var originalAdapterReceivedTime = adapterReceivedTime;
                 PQFieldConverters.UpdateSub2MinComponent(ref adapterReceivedTime,
                                                          pq1.AdapterReceivedTime.GetSub2MinComponent());
-                IsAdapterReceivedTimeSub2MinUpdated = originalAdapterReceivedTime != adapterReceivedTime;
+                IsAdapterReceivedTimeSub2MinUpdated |= originalAdapterReceivedTime != adapterReceivedTime;
                 if (adapterReceivedTime == DateTime.UnixEpoch) adapterReceivedTime = default;
             }
             if (pq1.IsSourceBidTimeDateUpdated || isFullReplace)
@@ -959,7 +960,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 var originalSourceBidTime = sourceBidTime;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref sourceBidTime,
                                                            pq1.SourceBidTime.Get2MinIntervalsFromUnixEpoch());
-                IsSourceBidTimeDateUpdated = originalSourceBidTime != sourceBidTime;
+                IsSourceBidTimeDateUpdated |= originalSourceBidTime != sourceBidTime;
                 if (sourceBidTime == DateTime.UnixEpoch) sourceBidTime = default;
             }
             if (pq1.IsSourceBidTimeSub2MinUpdated || isFullReplace)
@@ -967,7 +968,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 var originalSourceBidTime = sourceBidTime;
                 PQFieldConverters.UpdateSub2MinComponent(ref sourceBidTime,
                                                          pq1.SourceBidTime.GetSub2MinComponent());
-                IsSourceBidTimeSub2MinUpdated = originalSourceBidTime != sourceBidTime;
+                IsSourceBidTimeSub2MinUpdated |= originalSourceBidTime != sourceBidTime;
                 if (sourceBidTime == DateTime.UnixEpoch) sourceBidTime = default;
             }
             if (pq1.IsSourceAskTimeDateUpdated || isFullReplace)
@@ -975,7 +976,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 var originalSourceAskTime = sourceAskTime;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref sourceAskTime,
                                                            pq1.SourceAskTime.Get2MinIntervalsFromUnixEpoch());
-                IsSourceAskTimeDateUpdated = originalSourceAskTime != sourceAskTime;
+                IsSourceAskTimeDateUpdated |= originalSourceAskTime != sourceAskTime;
                 if (sourceAskTime == DateTime.UnixEpoch) sourceAskTime = default;
             }
             if (pq1.IsSourceAskTimeSub2MinUpdated || isFullReplace)
@@ -983,7 +984,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 var originalSourceAskTime = sourceAskTime;
                 PQFieldConverters.UpdateSub2MinComponent(ref sourceAskTime,
                                                          pq1.SourceAskTime.GetSub2MinComponent());
-                IsSourceAskTimeSub2MinUpdated = originalSourceAskTime != sourceAskTime;
+                IsSourceAskTimeSub2MinUpdated |= originalSourceAskTime != sourceAskTime;
                 if (sourceAskTime == DateTime.UnixEpoch) sourceAskTime = default;
             }
             if (pq1.IsValidFromTimeDateUpdated || isFullReplace)
@@ -991,7 +992,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 var originalValidFrom = validFromTime;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref validFromTime,
                                                            pq1.ValidFrom.Get2MinIntervalsFromUnixEpoch());
-                IsValidFromTimeDateUpdated = originalValidFrom != validFromTime;
+                IsValidFromTimeDateUpdated |= originalValidFrom != validFromTime;
                 if (validFromTime == DateTime.UnixEpoch) validFromTime = default;
             }
             if (pq1.IsValidFromTimeSub2MinUpdated || isFullReplace)
@@ -999,7 +1000,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 var originalValidFrom = validFromTime;
                 PQFieldConverters.UpdateSub2MinComponent(ref validFromTime,
                                                          pq1.ValidFrom.GetSub2MinComponent());
-                IsValidFromTimeSub2MinUpdated = originalValidFrom != validFromTime;
+                IsValidFromTimeSub2MinUpdated |= originalValidFrom != validFromTime;
                 if (validFromTime == DateTime.UnixEpoch) validFromTime = default;
             }
             if (pq1.IsValidToTimeDateUpdated || isFullReplace)
@@ -1007,7 +1008,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 var originalValidTo = validToTime;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref validToTime,
                                                            pq1.ValidTo.Get2MinIntervalsFromUnixEpoch());
-                IsValidToTimeDateUpdated = originalValidTo != validToTime;
+                IsValidToTimeDateUpdated |= originalValidTo != validToTime;
                 if (validToTime == DateTime.UnixEpoch) validToTime = default;
             }
             if (pq1.IsValidToTimeSub2MinUpdated || isFullReplace)
@@ -1015,7 +1016,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 var originalValidTo = validToTime;
                 PQFieldConverters.UpdateSub2MinComponent(ref validToTime,
                                                          pq1.ValidTo.GetSub2MinComponent());
-                IsValidToTimeSub2MinUpdated = originalValidTo != validToTime;
+                IsValidToTimeSub2MinUpdated |= originalValidTo != validToTime;
                 if (validToTime == DateTime.UnixEpoch) validToTime = default;
             }
             if (pq1 is not IPQLevel2Quote)

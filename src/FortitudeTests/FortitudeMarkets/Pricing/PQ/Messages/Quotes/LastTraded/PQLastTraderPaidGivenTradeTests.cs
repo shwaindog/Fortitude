@@ -64,7 +64,7 @@ public class PQLastTraderPaidGivenTradeTests
         Assert.IsTrue(newLt.IsTraderNameUpdated);
 
         Assert.AreEqual(0, emptyLt.TradePrice);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyLt.TradeTime);
+        Assert.AreEqual(DateTime.MinValue, emptyLt.TradeTime);
         Assert.AreEqual(0m, emptyLt.TradeVolume);
         Assert.IsFalse(emptyLt.WasGiven);
         Assert.IsFalse(emptyLt.WasPaid);
@@ -120,7 +120,7 @@ public class PQLastTraderPaidGivenTradeTests
 
         var newEmptyLt = new PQLastTraderPaidGivenTrade(emptyLt, emptyNameIdLookup);
         Assert.AreEqual(0, newEmptyLt.TradePrice);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, newEmptyLt.TradeTime);
+        Assert.AreEqual(DateTime.MinValue, newEmptyLt.TradeTime);
         Assert.AreEqual(0m, newEmptyLt.TradeVolume);
         Assert.IsFalse(newEmptyLt.WasGiven);
         Assert.IsFalse(newEmptyLt.WasPaid);
@@ -378,7 +378,7 @@ public class PQLastTraderPaidGivenTradeTests
     {
         Assert.IsFalse(populatedLt.IsEmpty);
         Assert.AreNotEqual(0m, populatedLt.TradePrice);
-        Assert.AreNotEqual(DateTimeConstants.UnixEpoch, populatedLt.TradeTime);
+        Assert.AreNotEqual(DateTime.MinValue, populatedLt.TradeTime);
         Assert.AreNotEqual(0m, populatedLt.TradeVolume);
         Assert.IsTrue(populatedLt.WasGiven);
         Assert.IsTrue(populatedLt.WasPaid);
@@ -392,7 +392,7 @@ public class PQLastTraderPaidGivenTradeTests
         populatedLt.StateReset();
         Assert.IsTrue(populatedLt.IsEmpty);
         Assert.AreEqual(0m, populatedLt.TradePrice);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, populatedLt.TradeTime);
+        Assert.AreEqual(DateTime.MinValue, populatedLt.TradeTime);
         Assert.AreEqual(0m, populatedLt.TradeVolume);
         Assert.IsFalse(populatedLt.WasGiven);
         Assert.IsFalse(populatedLt.WasPaid);
@@ -468,7 +468,7 @@ public class PQLastTraderPaidGivenTradeTests
         populatedLt.HasUpdates = false;
         emptyPriceVolumeLayer.CopyFrom(populatedLt);
         Assert.AreEqual(0m, emptyPriceVolumeLayer.TradePrice);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyPriceVolumeLayer.TradeTime);
+        Assert.AreEqual(DateTime.MinValue, emptyPriceVolumeLayer.TradeTime);
         Assert.AreEqual(0m, emptyPriceVolumeLayer.TradeVolume);
         Assert.IsFalse(emptyPriceVolumeLayer.WasGiven);
         Assert.IsFalse(emptyPriceVolumeLayer.WasPaid);

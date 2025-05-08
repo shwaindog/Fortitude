@@ -15,7 +15,7 @@ public enum MarketDataSource
   , Published = 4
 }
 
-public interface IOpenInterest : IReusableObject<IOpenInterest>, IInterfacesComparable<IOpenInterest>
+public interface IMarketAggregate : IReusableObject<IMarketAggregate>, IInterfacesComparable<IMarketAggregate>
 {
     MarketDataSource DataSource { get; }
 
@@ -26,7 +26,7 @@ public interface IOpenInterest : IReusableObject<IOpenInterest>, IInterfacesComp
     bool    IsEmpty { get; }
 }
 
-public interface IMutableOpenInterest : IOpenInterest, IInterfacesComparable<IMutableOpenInterest>, ICloneable<IMutableOpenInterest>
+public interface IMutableMarketAggregate : IMarketAggregate, IInterfacesComparable<IMutableMarketAggregate>, ICloneable<IMutableMarketAggregate>
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new MarketDataSource DataSource { get; set; }
@@ -43,5 +43,5 @@ public interface IMutableOpenInterest : IOpenInterest, IInterfacesComparable<IMu
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new bool IsEmpty { get; set; }
 
-    new IMutableOpenInterest Clone();
+    new IMutableMarketAggregate Clone();
 }

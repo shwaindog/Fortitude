@@ -7,7 +7,7 @@ using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
 {
-    public interface IPQOpenInterest : IMutableOpenInterest, IPQSupportsFieldUpdates<IPQOpenInterest>, ICloneable<IPQOpenInterest>
+    public interface IPQMarketAggregate : IMutableMarketAggregate, IPQSupportsFieldUpdates<IPQMarketAggregate>, ICloneable<IPQMarketAggregate>
     {
         bool IsDataSourceUpdated         { get; set; }
         bool IsVolumeUpdated             { get; set; }
@@ -15,11 +15,11 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
         bool IsUpdatedDateUpdated        { get; set; }
         bool IsUpdatedSub2MinTimeUpdated { get; set; }
 
-        new IPQOpenInterest Clone();
+        new IPQMarketAggregate Clone();
     }
 
     [Flags]
-    public enum PQOpenInterestUpdatedFlags : byte
+    public enum PQMarketAggregateUpdatedFlags : byte
     {
         None                        = 0
       , IsDataSourceUpdated         = 0x01
@@ -30,9 +30,9 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
     }
 
 
-    public class PQOpenInterest : ReusableObject<IOpenInterest>, IPQOpenInterest
+    public class PQMarketAggregate : ReusableObject<IMarketAggregate>, IPQMarketAggregate
     {
-        protected PQOpenInterestUpdatedFlags UpdatedFlags;
+        protected PQMarketAggregateUpdatedFlags UpdatedFlags;
 
         protected uint NumUpdatesSinceEmpty = uint.MaxValue;
 
@@ -42,22 +42,22 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
         private decimal  volume;
         private decimal  vwap;
 
-        public PQOpenInterest()
+        public PQMarketAggregate()
         {
-            if (GetType() == typeof(PQOpenInterest)) NumUpdatesSinceEmpty = 0;
+            if (GetType() == typeof(PQMarketAggregate)) NumUpdatesSinceEmpty = 0;
         }
 
-        public PQOpenInterest(MarketDataSource dataSource, decimal volume, decimal vwap, DateTime? updateTime = null)
+        public PQMarketAggregate(MarketDataSource dataSource, decimal volume, decimal vwap, DateTime? updateTime = null)
         {
             DataSource = dataSource;
             UpdateTime = updateTime ?? DateTime.MinValue;
             Volume     = volume;
             Vwap       = vwap;
 
-            if (GetType() == typeof(PQOpenInterest)) NumUpdatesSinceEmpty = 0;
+            if (GetType() == typeof(PQMarketAggregate)) NumUpdatesSinceEmpty = 0;
         }
 
-        public PQOpenInterest(IOpenInterest toClone)
+        public PQMarketAggregate(IMarketAggregate toClone)
         {
             DataSource = toClone.DataSource;
             UpdateTime = toClone.UpdateTime;
@@ -66,7 +66,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
 
             SetFlagsSame(toClone);
 
-            if (GetType() == typeof(PQOpenInterest)) NumUpdatesSinceEmpty = 0;
+            if (GetType() == typeof(PQMarketAggregate)) NumUpdatesSinceEmpty = 0;
         }
 
         public MarketDataSource DataSource
@@ -116,68 +116,68 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
 
         public bool IsDataSourceUpdated
         {
-            get => (UpdatedFlags & PQOpenInterestUpdatedFlags.IsDataSourceUpdated) > 0;
+            get => (UpdatedFlags & PQMarketAggregateUpdatedFlags.IsDataSourceUpdated) > 0;
             set
             {
                 if (value)
-                    UpdatedFlags |= PQOpenInterestUpdatedFlags.IsDataSourceUpdated;
+                    UpdatedFlags |= PQMarketAggregateUpdatedFlags.IsDataSourceUpdated;
 
-                else if (IsDataSourceUpdated) UpdatedFlags ^= PQOpenInterestUpdatedFlags.IsDataSourceUpdated;
+                else if (IsDataSourceUpdated) UpdatedFlags ^= PQMarketAggregateUpdatedFlags.IsDataSourceUpdated;
             }
         }
         public bool IsVolumeUpdated
         {
-            get => (UpdatedFlags & PQOpenInterestUpdatedFlags.IsVolumeUpdated) > 0;
+            get => (UpdatedFlags & PQMarketAggregateUpdatedFlags.IsVolumeUpdated) > 0;
             set
             {
                 if (value)
-                    UpdatedFlags |= PQOpenInterestUpdatedFlags.IsVolumeUpdated;
+                    UpdatedFlags |= PQMarketAggregateUpdatedFlags.IsVolumeUpdated;
 
-                else if (IsVolumeUpdated) UpdatedFlags ^= PQOpenInterestUpdatedFlags.IsVolumeUpdated;
+                else if (IsVolumeUpdated) UpdatedFlags ^= PQMarketAggregateUpdatedFlags.IsVolumeUpdated;
             }
         }
         public bool IsVwapUpdated
         {
-            get => (UpdatedFlags & PQOpenInterestUpdatedFlags.IsVwapUpdated) > 0;
+            get => (UpdatedFlags & PQMarketAggregateUpdatedFlags.IsVwapUpdated) > 0;
             set
             {
                 if (value)
-                    UpdatedFlags |= PQOpenInterestUpdatedFlags.IsVwapUpdated;
+                    UpdatedFlags |= PQMarketAggregateUpdatedFlags.IsVwapUpdated;
 
-                else if (IsVwapUpdated) UpdatedFlags ^= PQOpenInterestUpdatedFlags.IsVwapUpdated;
+                else if (IsVwapUpdated) UpdatedFlags ^= PQMarketAggregateUpdatedFlags.IsVwapUpdated;
             }
         }
         public bool IsUpdatedDateUpdated
         {
-            get => (UpdatedFlags & PQOpenInterestUpdatedFlags.IsUpdatedDateUpdated) > 0;
+            get => (UpdatedFlags & PQMarketAggregateUpdatedFlags.IsUpdatedDateUpdated) > 0;
             set
             {
                 if (value)
-                    UpdatedFlags |= PQOpenInterestUpdatedFlags.IsUpdatedDateUpdated;
+                    UpdatedFlags |= PQMarketAggregateUpdatedFlags.IsUpdatedDateUpdated;
 
-                else if (IsUpdatedDateUpdated) UpdatedFlags ^= PQOpenInterestUpdatedFlags.IsUpdatedDateUpdated;
+                else if (IsUpdatedDateUpdated) UpdatedFlags ^= PQMarketAggregateUpdatedFlags.IsUpdatedDateUpdated;
             }
         }
 
         public bool IsUpdatedSub2MinTimeUpdated
         {
-            get => (UpdatedFlags & PQOpenInterestUpdatedFlags.IsUpdatedSub2MinTimeUpdated) > 0;
+            get => (UpdatedFlags & PQMarketAggregateUpdatedFlags.IsUpdatedSub2MinTimeUpdated) > 0;
             set
             {
                 if (value)
-                    UpdatedFlags |= PQOpenInterestUpdatedFlags.IsUpdatedSub2MinTimeUpdated;
+                    UpdatedFlags |= PQMarketAggregateUpdatedFlags.IsUpdatedSub2MinTimeUpdated;
 
-                else if (IsUpdatedSub2MinTimeUpdated) UpdatedFlags ^= PQOpenInterestUpdatedFlags.IsUpdatedSub2MinTimeUpdated;
+                else if (IsUpdatedSub2MinTimeUpdated) UpdatedFlags ^= PQMarketAggregateUpdatedFlags.IsUpdatedSub2MinTimeUpdated;
             }
         }
 
         public bool HasUpdates
         {
-            get => UpdatedFlags != PQOpenInterestUpdatedFlags.None;
+            get => UpdatedFlags != PQMarketAggregateUpdatedFlags.None;
             set
             {
                 if (value) return;
-                UpdatedFlags         = PQOpenInterestUpdatedFlags.None;
+                UpdatedFlags         = PQMarketAggregateUpdatedFlags.None;
                 NumUpdatesSinceEmpty = 0;
             }
         }
@@ -210,26 +210,26 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
         {
             switch (fieldUpdate.SubId)
             {
-                case PQSubFieldKeys.OpenInterestSource:
+                case PQSubFieldKeys.MarketAggregateSource:
                     IsDataSourceUpdated = true;
                     DataSource          = (MarketDataSource)fieldUpdate.Payload;
                     return 0;
-                case PQSubFieldKeys.OpenInterestUpdateDate:
+                case PQSubFieldKeys.MarketAggregateUpdateDate:
                     IsUpdatedDateUpdated = true; // incase of reset and sending 0;
                     PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref updateTime, fieldUpdate.Payload);
                     if (updateTime == DateTime.UnixEpoch) updateTime = default;
                     return 0;
-                case PQSubFieldKeys.OpenInterestUpdateSub2MinTime:
+                case PQSubFieldKeys.MarketAggregateUpdateSub2MinTime:
                     IsUpdatedSub2MinTimeUpdated = true; // incase of reset and sending 0;
                     PQFieldConverters.UpdateSub2MinComponent
                         (ref updateTime, fieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(fieldUpdate.Payload));
                     if (updateTime == DateTime.UnixEpoch) updateTime = default;
                     return 0;
-                case PQSubFieldKeys.OpenInterestVolume:
+                case PQSubFieldKeys.MarketAggregateVolume:
                     IsVolumeUpdated = true; // incase of reset and sending 0;
                     Volume          = PQScaling.Unscale(fieldUpdate.Payload, fieldUpdate.Flag);
                     return 0;
-                case PQSubFieldKeys.OpenInterestVwap:
+                case PQSubFieldKeys.MarketAggregateVwap:
                     IsVwapUpdated = true; // incase of reset and sending 0;
                     Vwap          = PQScaling.Unscale(fieldUpdate.Payload, fieldUpdate.Flag);
                     return 0;
@@ -243,23 +243,23 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
         {
             var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
             if (!updatedOnly || IsDataSourceUpdated)
-                yield return new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestSource, (uint)DataSource);
+                yield return new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateSource, (uint)DataSource);
 
             if (!updatedOnly || IsUpdatedDateUpdated)
-                yield return new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestUpdateDate
+                yield return new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateUpdateDate
                                              , updateTime.Get2MinIntervalsFromUnixEpoch());
             if (!updatedOnly || IsUpdatedSub2MinTimeUpdated)
             {
                 var extended = updateTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-                yield return new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestUpdateSub2MinTime, value, extended);
+                yield return new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateUpdateSub2MinTime, value, extended);
             }
             if (!updatedOnly || IsVolumeUpdated)
-                yield return new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestVolume, Volume,
+                yield return new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateVolume, Volume,
                                                quotePublicationPrecisionSettings?.VolumeScalingPrecision ?? (PQFieldFlags)6);
 
             if (!updatedOnly || IsVwapUpdated)
             {
-                yield return new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.OpenInterestVwap, Vwap,
+                yield return new PQFieldUpdate(PQQuoteFields.OpenInterestTotal, PQSubFieldKeys.MarketAggregateVwap, Vwap,
                                                quotePublicationPrecisionSettings?.PriceScalingPrecision ?? (PQFieldFlags)2);
             }
         }
@@ -267,28 +267,28 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
         public override void StateReset()
         {
             IsEmpty      = true;
-            UpdatedFlags = PQOpenInterestUpdatedFlags.None;
+            UpdatedFlags = PQMarketAggregateUpdatedFlags.None;
             base.StateReset();
         }
 
-        IMutableOpenInterest ICloneable<IMutableOpenInterest>.Clone() => Clone();
+        IMutableMarketAggregate ICloneable<IMutableMarketAggregate>.Clone() => Clone();
 
-        IMutableOpenInterest IMutableOpenInterest.Clone() => Clone();
+        IMutableMarketAggregate IMutableMarketAggregate.Clone() => Clone();
 
-        IPQOpenInterest ICloneable<IPQOpenInterest>.Clone() => Clone();
+        IPQMarketAggregate ICloneable<IPQMarketAggregate>.Clone() => Clone();
 
-        IPQOpenInterest IPQOpenInterest.Clone() => Clone();
+        IPQMarketAggregate IPQMarketAggregate.Clone() => Clone();
 
-        public override PQOpenInterest Clone() => Recycler?.Borrow<PQOpenInterest>().CopyFrom(this) ?? new PQOpenInterest(this);
+        public override PQMarketAggregate Clone() => Recycler?.Borrow<PQMarketAggregate>().CopyFrom(this) ?? new PQMarketAggregate(this);
 
-        IPQOpenInterest ITransferState<IPQOpenInterest>.CopyFrom
-            (IPQOpenInterest source, CopyMergeFlags copyMergeFlags) =>
+        IPQMarketAggregate ITransferState<IPQMarketAggregate>.CopyFrom
+            (IPQMarketAggregate source, CopyMergeFlags copyMergeFlags) =>
             CopyFrom(source, copyMergeFlags);
 
 
-        public override PQOpenInterest CopyFrom(IOpenInterest source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+        public override PQMarketAggregate CopyFrom(IMarketAggregate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
         {
-            if (source is IPQOpenInterest pqSource)
+            if (source is IPQMarketAggregate pqSource)
             {
                 var hasFullReplace = copyMergeFlags.HasFullReplace();
 
@@ -336,7 +336,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             return this;
         }
 
-        public bool AreEquivalent(IOpenInterest? other, bool exactTypes = false)
+        public bool AreEquivalent(IMarketAggregate? other, bool exactTypes = false)
         {
             if (other == null) return false;
             if (exactTypes && other.GetType() != GetType()) return false;
@@ -353,7 +353,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             var flagsSame = true;
             if (exactTypes)
             {
-                var pqOpenInterest = other as PQOpenInterest;
+                var pqOpenInterest = other as PQMarketAggregate;
                 flagsSame = UpdatedFlags == pqOpenInterest?.UpdatedFlags;
             }
 
@@ -366,14 +366,14 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             return allSame;
         }
 
-        public bool AreEquivalent(IMutableOpenInterest? other, bool exactTypes = false) => AreEquivalent((IOpenInterest?)other, exactTypes);
+        public bool AreEquivalent(IMutableMarketAggregate? other, bool exactTypes = false) => AreEquivalent((IMarketAggregate?)other, exactTypes);
 
-        protected void SetFlagsSame(IOpenInterest toCopyFlags)
+        protected void SetFlagsSame(IMarketAggregate toCopyFlags)
         {
-            if (toCopyFlags is PQOpenInterest pqToClone) UpdatedFlags = pqToClone.UpdatedFlags;
+            if (toCopyFlags is PQMarketAggregate pqToClone) UpdatedFlags = pqToClone.UpdatedFlags;
         }
 
-        public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IOpenInterest, true);
+        public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IMarketAggregate, true);
 
         public override int GetHashCode()
         {
@@ -393,6 +393,6 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
             $"{nameof(DataSource)}: {DataSource}, {nameof(UpdateTime)}: {UpdateTime}, {nameof(Volume)}: {Volume:N2}, " +
             $"{nameof(Vwap)}: {Vwap:N5}, {nameof(UpdatedFlags)}: {UpdatedFlags}";
 
-        public override string ToString() => $"{nameof(PQOpenInterest)}{{{PQOpenInterestToStringMembers}}}";
+        public override string ToString() => $"{nameof(PQMarketAggregate)}{{{PQOpenInterestToStringMembers}}}";
     }
 }

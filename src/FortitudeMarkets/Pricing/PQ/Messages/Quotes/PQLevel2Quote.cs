@@ -13,6 +13,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
@@ -358,11 +359,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
         var found = base.UpdateFieldString(stringUpdate);
         if (found) return true;
 
-        if (stringUpdate.Field.Id == PQQuoteFields.LayerNameDictionaryUpsertCommand)
-            if (stringUpdate.IsBid())
-                return BidBook.UpdateFieldString(stringUpdate);
-            else
-                return AskBook.UpdateFieldString(stringUpdate);
+        if (stringUpdate.Field.Id == PQQuoteFields.LayerNameDictionaryUpsertCommand) orderBook.UpdateFieldString(stringUpdate);
 
         return false;
     }

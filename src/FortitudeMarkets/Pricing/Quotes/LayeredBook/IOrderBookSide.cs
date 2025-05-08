@@ -30,7 +30,7 @@ public interface IOrderBookSide : IEnumerable<IPriceVolumeLayer>, IReusableObjec
     uint DailyTickUpdateCount { get; }
     
     bool      HasNonEmptyOpenInterest { get; }
-    IOpenInterest OpenInterestSide               { get; }
+    IMarketAggregate MarketAggregateSide               { get; }
 
     int Capacity { get; }
     int Count    { get; }
@@ -50,7 +50,7 @@ public interface IMutableOrderBookSide : IOrderBookSide, ICloneable<IMutableOrde
 
     new uint  DailyTickUpdateCount    { get; set; }
 
-    new IMutableOpenInterest? OpenInterestSide        { get; set; }
+    new IMutableMarketAggregate? OpenInterestSide        { get; set; }
 
     new IMutablePriceVolumeLayer? this[int level] { get; set; }
     new IMutableOrderBookSide Clone();

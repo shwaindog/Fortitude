@@ -22,6 +22,8 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
+using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 
@@ -404,7 +406,7 @@ public class PQQuoteDeserializerBaseTests
         var toggleGivenBool = false;
         var togglePaidBool  = true;
         for (var i = 0; i < deepestPossibleLayerIndex; i++)
-            if (i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades &&
+            if (i < QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades &&
                 expectedL3Quote.RecentlyTraded![i] is PQLastTraderPaidGivenTrade lastTradeInfo)
             {
                 lastTradeInfo.TradePrice  = 0.76591m;
@@ -427,7 +429,7 @@ public class PQQuoteDeserializerBaseTests
         socketBufferReadContext.EncodedBuffer.ReadCursor = BufferReadWriteOffset + PQQuoteMessageHeader.HeaderSize;
         dummyTickInstantDeserializer.InvokeUpdateQuote(socketBufferReadContext, actualL3Quote, expectedSequenceId);
 
-        for (var i = 0; i < deepestPossibleLayerIndex && i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades; i++)
+        for (var i = 0; i < deepestPossibleLayerIndex && i < QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades; i++)
         {
             var expectedLastTradeInfo = expectedL3Quote.RecentlyTraded![i] as PQLastTraderPaidGivenTrade;
             Assert.IsNotNull(expectedLastTradeInfo);

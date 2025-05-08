@@ -210,5 +210,5 @@ public static class PQQuoteFieldsExtensions
 {
     public const byte   SingleByteFieldIdMaxBookDepth          = PQDepthKeyExtensions.SingleByteDepthMask + 1; // 63
     public const ushort TwoByteFieldIdMaxBookDepth             = (ushort)PQDepthKey.DepthMask + 1;             // 16,383
-    public const byte   SingleByteFieldIdMaxPossibleLastTrades = 10;
+    public const byte   SingleByteFieldIdMaxPossibleLastTrades = SingleByteFieldIdMaxBookDepth;
 }
