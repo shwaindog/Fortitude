@@ -1,7 +1,6 @@
 ﻿#region
 
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Authentication;

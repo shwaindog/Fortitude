@@ -3,17 +3,19 @@
 
 #region
 
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerSelector;
 
-public interface ILayerFlagsSelector<T, Tu> where T : class where Tu : ISourceTickerInfo
+public interface ILayerFlagsSelector<out T> where T : class
 {
     bool OriginalCanWhollyContain(LayerFlags copySourceRequiredFlags, LayerFlags copyDestinationSupportedFlags);
 
-    T FindForLayerFlags(Tu sourceTickerInfo);
+    T FindForLayerFlags(ISourceTickerInfo sourceTickerInfo);
+    T FindForLayerFlags(LayerFlags layerFlags);
 
     IPriceVolumeLayer CreateExpectedImplementation
     (LayerType desiredLayerType, IPriceVolumeLayer? copy = null,
@@ -24,29 +26,31 @@ public interface ILayerFlagsSelector<T, Tu> where T : class where Tu : ISourceTi
         IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 }
 
-public abstract class LayerFlagsSelector<T, Tu> : ILayerFlagsSelector<T, Tu>
-    where T : class
-    where Tu : ISourceTickerInfo
+public abstract class LayerFlagsSelector<T> : ILayerFlagsSelector<T> where T : class
 {
     protected static readonly List<Type> AllowedImplementations = new();
 
-    public T FindForLayerFlags(Tu sourceTickerInfo)
+    public T FindForLayerFlags(ISourceTickerInfo sourceTickerInfo)
     {
-        var layerFlags           = sourceTickerInfo.LayerFlags;
+        return FindForLayerFlags(sourceTickerInfo.LayerFlags);
+    }
+
+    public T FindForLayerFlags(LayerFlags layerFlags)
+    {
         var mostCompactLayerType = layerFlags.MostCompactLayerType();
         return mostCompactLayerType switch
                {
-                   LayerType.PriceVolume                => SelectSimplePriceVolumeLayer(sourceTickerInfo)
-                 , LayerType.SourcePriceVolume          => SelectSourcePriceVolumeLayer(sourceTickerInfo)
-                 , LayerType.SourceQuoteRefPriceVolume  => SelectSourceQuoteRefPriceVolumeLayer(sourceTickerInfo)
-                 , LayerType.ValueDatePriceVolume       => SelectValueDatePriceVolumeLayer(sourceTickerInfo)
-                 , LayerType.OrdersCountPriceVolume     => SelectOrdersCountPriceVolumeLayer(sourceTickerInfo)
-                 , LayerType.OrdersAnonymousPriceVolume => SelectAnonymousOrdersPriceVolumeLayer(sourceTickerInfo)
-                 , LayerType.OrdersFullPriceVolume      => SelectCounterPartyOrdersPriceVolumeLayer(sourceTickerInfo)
+                   LayerType.PriceVolume                => SelectSimplePriceVolumeLayer()
+                 , LayerType.SourcePriceVolume          => SelectSourcePriceVolumeLayer()
+                 , LayerType.SourceQuoteRefPriceVolume  => SelectSourceQuoteRefPriceVolumeLayer()
+                 , LayerType.ValueDatePriceVolume       => SelectValueDatePriceVolumeLayer()
+                 , LayerType.OrdersCountPriceVolume     => SelectOrdersCountPriceVolumeLayer()
+                 , LayerType.OrdersAnonymousPriceVolume => SelectAnonymousOrdersPriceVolumeLayer()
+                 , LayerType.OrdersFullPriceVolume      => SelectCounterPartyOrdersPriceVolumeLayer()
 
-                 , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(sourceTickerInfo)
+                 , LayerType.FullSupportPriceVolume => SelectSourceQuoteRefTraderValueDatePriceVolumeLayer()
 
-                 , _ => SelectSimplePriceVolumeLayer(sourceTickerInfo)
+                 , _ => SelectSimplePriceVolumeLayer()
                };
     }
 
@@ -83,12 +87,12 @@ public abstract class LayerFlagsSelector<T, Tu> : ILayerFlagsSelector<T, Tu>
     (LayerType desiredLayerType, IPriceVolumeLayer? copy = null,
         CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 
-    protected abstract T SelectSimplePriceVolumeLayer(Tu sourceTickerInfo);
-    protected abstract T SelectValueDatePriceVolumeLayer(Tu sourceTickerInfo);
-    protected abstract T SelectSourcePriceVolumeLayer(Tu sourceTickerInfo);
-    protected abstract T SelectSourceQuoteRefPriceVolumeLayer(Tu sourceTickerInfo);
-    protected abstract T SelectOrdersCountPriceVolumeLayer(Tu sourceTickerInfo);
-    protected abstract T SelectAnonymousOrdersPriceVolumeLayer(Tu sourceTickerInfo);
-    protected abstract T SelectCounterPartyOrdersPriceVolumeLayer(Tu sourceTickerInfo);
-    protected abstract T SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(Tu sourceTickerInfo);
+    protected abstract T SelectSimplePriceVolumeLayer();
+    protected abstract T SelectValueDatePriceVolumeLayer();
+    protected abstract T SelectSourcePriceVolumeLayer();
+    protected abstract T SelectSourceQuoteRefPriceVolumeLayer();
+    protected abstract T SelectOrdersCountPriceVolumeLayer();
+    protected abstract T SelectAnonymousOrdersPriceVolumeLayer();
+    protected abstract T SelectCounterPartyOrdersPriceVolumeLayer();
+    protected abstract T SelectSourceQuoteRefTraderValueDatePriceVolumeLayer();
 }

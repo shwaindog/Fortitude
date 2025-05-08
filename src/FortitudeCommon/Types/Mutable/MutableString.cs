@@ -1,4 +1,7 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
@@ -10,13 +13,15 @@ using FortitudeCommon.DataStructures.Memory;
 namespace FortitudeCommon.Types.Mutable;
 
 [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
-public sealed class MutableString : ReusableObject<IMutableString>, IMutableString, IStoreState<MutableString>
+public sealed class MutableString : ReusableObject<IMutableString>, IMutableString, ITransferState<MutableString>
 {
     private static readonly IPooledFactory<StringBuilderEnumerator> EnumeratorPool =
         new GarbageAndLockFreePooledFactory<StringBuilderEnumerator>(pool => new StringBuilderEnumerator(pool));
 
     private static readonly char[] WhiteSpaceChars = { ' ', '\t', '\r', '\n' };
+
     private readonly StringBuilder sb;
+
     public MutableString() => sb = new StringBuilder();
 
     public MutableString(IMutableString initialString)
@@ -63,8 +68,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     IMutableString IMutableStringBuilder<IMutableString>.Append(string value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(string value, int startIndex, int length) =>
-        Append(value, startIndex, length);
+    IMutableString IMutableStringBuilder<IMutableString>.Append(string value, int startIndex, int length) => Append(value, startIndex, length);
 
     IMutableString IMutableStringBuilder<IMutableString>.Append(ushort value) => Append(value);
 
@@ -106,7 +110,8 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, string value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, char[] value,
+    IMutableString IMutableStringBuilder<IMutableString>.Insert
+    (int atIndex, char[] value,
         int startIndex, int length) =>
         Insert(atIndex, value, startIndex, length);
 
@@ -118,21 +123,20 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     IMutableString IMutableStringBuilder<IMutableString>.Replace(char find, char replace) => Replace(find, replace);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Replace(char find, char replace,
-        int startIndex, int length) =>
+    IMutableString IMutableStringBuilder<IMutableString>.Replace
+        (char find, char replace, int startIndex, int length) =>
         Replace(find, replace, startIndex, length);
 
     IMutableString IMutableStringBuilder<IMutableString>.Replace(string find, string replace) => Replace(find, replace);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Replace(string find, string replace,
-        int startIndex, int length) =>
+    IMutableString IMutableStringBuilder<IMutableString>.Replace
+        (string find, string replace, int startIndex, int length) =>
         Replace(find, replace, startIndex, length);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Replace(IMutableString find, IMutableString replace) =>
-        Replace(find, replace);
+    IMutableString IMutableStringBuilder<IMutableString>.Replace(IMutableString find, IMutableString replace) => Replace(find, replace);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Replace(IMutableString find, IMutableString replace,
-        int startIndex, int length) =>
+    IMutableString IMutableStringBuilder<IMutableString>.Replace
+        (IMutableString find, IMutableString replace, int startIndex, int length) =>
         Replace(find, replace, startIndex, Length);
 
     public void CopyFrom(IMutableString source)
@@ -169,12 +173,12 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public int IndexOf(string subStr, int fromThisPos)
     {
-        var thisLen = Length;
+        var thisLen  = Length;
         var otherLen = subStr.Length;
         if (fromThisPos > thisLen) return -1;
-        var startPos = fromThisPos < 0 ? 0 : fromThisPos;
+        var startPos  = fromThisPos < 0 ? 0 : fromThisPos;
         var firstChar = subStr[0];
-        var max = thisLen - otherLen;
+        var max       = thisLen - otherLen;
         for (var i = startPos; i <= max; i++)
         {
             if (this[i] != firstChar)
@@ -184,7 +188,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
             if (i <= max)
             {
-                var j = i + 1;
+                var j   = i + 1;
                 var end = i + otherLen;
                 // ReSharper disable once EmptyEmbeddedStatement
                 for (var k = 1; j < end && this[j] == subStr[k]; j++, k++) ;
@@ -197,12 +201,12 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public int IndexOf(IMutableString subStr, int fromThisPos)
     {
-        var thisLen = Length;
+        var thisLen  = Length;
         var otherLen = subStr.Length;
         if (fromThisPos > thisLen) return -1;
-        var startPos = fromThisPos < 0 ? 0 : fromThisPos;
+        var startPos  = fromThisPos < 0 ? 0 : fromThisPos;
         var firstChar = subStr[0];
-        var max = thisLen - otherLen;
+        var max       = thisLen - otherLen;
         for (var i = startPos; i <= max; i++)
         {
             if (this[i] != firstChar)
@@ -212,7 +216,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
             if (i <= max)
             {
-                var j = i + 1;
+                var j   = i + 1;
                 var end = i + otherLen;
                 // ReSharper disable once EmptyEmbeddedStatement
                 for (var k = 1; j < end && this[j] == subStr[k]; j++, k++) ;
@@ -229,12 +233,12 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public int LastIndexOf(string subStr, int fromThisPos)
     {
-        var thisLen = Length;
+        var thisLen  = Length;
         var otherLen = subStr.Length;
         if (fromThisPos > thisLen) return -1;
         var firstChar = subStr[0];
-        var max = thisLen - otherLen;
-        var startPos = fromThisPos > max ? max : fromThisPos;
+        var max       = thisLen - otherLen;
+        var startPos  = fromThisPos > max ? max : fromThisPos;
         for (var i = startPos; i >= 0; i--)
         {
             if (this[i] != firstChar)
@@ -244,7 +248,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
             if (i <= max)
             {
-                var j = i + 1;
+                var j   = i + 1;
                 var end = i + otherLen;
                 // ReSharper disable once EmptyEmbeddedStatement
                 for (var k = 1; j < end && this[j] == subStr[k]; j++, k++) ;
@@ -257,12 +261,12 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public int LastIndexOf(IMutableString subStr, int fromThisPos)
     {
-        var thisLen = Length;
+        var thisLen  = Length;
         var otherLen = subStr.Length;
         if (fromThisPos > thisLen) return -1;
         var firstChar = subStr[0];
-        var max = thisLen - otherLen;
-        var startPos = fromThisPos > max ? max : fromThisPos;
+        var max       = thisLen - otherLen;
+        var startPos  = fromThisPos > max ? max : fromThisPos;
         for (var i = startPos; i >= 0; i--)
         {
             if (this[i] != firstChar)
@@ -272,7 +276,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
             if (i <= max)
             {
-                var j = i + 1;
+                var j   = i + 1;
                 var end = i + otherLen;
                 // ReSharper disable once EmptyEmbeddedStatement
                 for (var k = 1; j < end && this[j] == subStr[k]; j++, k++) ;
@@ -292,7 +296,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         destMutableString.Clear();
         for (var i = 0; i < sb.Length; i++)
         {
-            var oldChar = sb[i];
+            var oldChar   = sb[i];
             var upperChar = char.ToUpperInvariant(oldChar);
             destMutableString[i] = upperChar;
         }
@@ -305,7 +309,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         destMutableString.Clear();
         for (var i = 0; i < sb.Length; i++)
         {
-            var oldChar = sb[i];
+            var oldChar   = sb[i];
             var upperChar = char.ToLowerInvariant(oldChar);
             destMutableString[i] = upperChar;
         }
@@ -352,8 +356,11 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         }
 
         var result = new string[countDelimitersFound + 1];
+
         var nextStringInsertIndex = 0;
+
         var nextString = new char[Length];
+
         var nextStringCharIndex = 0;
         for (var i = 0; i < Length; i++)
         {
@@ -361,6 +368,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
             if (Array.IndexOf(delimiters, checkChar) > 0)
             {
                 result[nextStringInsertIndex++] = new string(nextString, 0, nextStringCharIndex);
+
                 nextStringCharIndex = 0;
             }
             else
@@ -394,9 +402,9 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public int CompareTo(string other)
     {
-        var thisLen = Length;
+        var thisLen  = Length;
         var otherLen = other.Length;
-        var minLen = Math.Min(thisLen, otherLen);
+        var minLen   = Math.Min(thisLen, otherLen);
         for (var i = 0; i < minLen; i++)
         {
             var cmp = sb[i] - other[i];
@@ -411,7 +419,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public int CompareTo(IMutableString other)
     {
-        var thisLen = Length;
+        var thisLen  = Length;
         var otherLen = other.Length;
         if (thisLen < otherLen) return -1;
         if (thisLen > otherLen) return 1;
@@ -734,23 +742,22 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         var fromIndex = startIndex;
         int indexOfFind;
         while ((indexOfFind = IndexOf(find, fromIndex)) >= 0
-               && fromIndex < startIndex + length)
+            && fromIndex < startIndex + length)
         {
-            var remainingIndexOf = 0;
+            var remainingIndexOf  = 0;
             var highestMatchIndex = indexOfFind;
             for (fromIndex = 0; fromIndex < indexOfFind + find.Length; fromIndex++)
                 if (remainingIndexOf < replace.Length)
                 {
                     highestMatchIndex = remainingIndexOf++;
-                    sb[fromIndex] = replace[highestMatchIndex];
+                    sb[fromIndex]     = replace[highestMatchIndex];
                 }
                 else
                 {
                     Remove(highestMatchIndex + 1);
                 }
 
-            for (; remainingIndexOf < replace.Length; fromIndex++)
-                sb.Insert(remainingIndexOf++, replace[highestMatchIndex]);
+            for (; remainingIndexOf < replace.Length; fromIndex++) sb.Insert(remainingIndexOf++, replace[highestMatchIndex]);
         }
 
         return this;
@@ -768,8 +775,9 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     {
         for (var i = 0; i < sb.Length; i++)
         {
-            var oldChar = sb[i];
+            var oldChar   = sb[i];
             var upperChar = char.ToUpperInvariant(oldChar);
+
             if (upperChar != oldChar) sb[i] = upperChar;
         }
 
@@ -780,8 +788,9 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     {
         for (var i = 0; i < sb.Length; i++)
         {
-            var oldChar = sb[i];
+            var oldChar   = sb[i];
             var upperChar = char.ToLowerInvariant(oldChar);
+
             if (upperChar != oldChar) sb[i] = upperChar;
         }
 
@@ -834,8 +843,9 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public override int GetHashCode()
     {
-        var len = sb.Length;
+        var len  = sb.Length;
         var hash = 0;
+
         for (var i = 0; i < len; i++) hash = (31 * hash) ^ sb[i];
         return hash;
     }
@@ -881,11 +891,12 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     private class StringBuilderEnumerator : IEnumerator<char>
     {
         private readonly IPooledFactory<StringBuilderEnumerator> enumeratorPool;
+
         private int currentPosition = -1;
+
         private StringBuilder? sb;
 
-        public StringBuilderEnumerator(IPooledFactory<StringBuilderEnumerator> enumeratorPool) =>
-            this.enumeratorPool = enumeratorPool;
+        public StringBuilderEnumerator(IPooledFactory<StringBuilderEnumerator> enumeratorPool) => this.enumeratorPool = enumeratorPool;
 
         public StringBuilder StringBuilder
         {

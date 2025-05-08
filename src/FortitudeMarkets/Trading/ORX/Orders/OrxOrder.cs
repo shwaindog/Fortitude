@@ -1,18 +1,20 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Text;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarkets.Trading.Counterparties;
 using FortitudeMarkets.Trading.Executions;
 using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Products;
-using FortitudeMarkets.Trading.Orders.Venues;
 using FortitudeMarkets.Trading.Orders.Products.General;
+using FortitudeMarkets.Trading.Orders.Venues;
 using FortitudeMarkets.Trading.ORX.CounterParties;
 using FortitudeMarkets.Trading.ORX.Executions;
 using FortitudeMarkets.Trading.ORX.Orders.Products;
@@ -23,7 +25,7 @@ using FortitudeMarkets.Trading.ORX.Orders.Venues;
 
 namespace FortitudeMarkets.Trading.ORX.Orders;
 
-public class OrxOrder : ReusableObject<IOrder>, IOrder, IStoreState<OrxOrder>
+public class OrxOrder : ReusableObject<IOrder>, IOrder, ITransferState<OrxOrder>
 {
     private static IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(OrxOrder));
 
@@ -34,55 +36,63 @@ public class OrxOrder : ReusableObject<IOrder>, IOrder, IStoreState<OrxOrder>
     {
         OrderId = new OrxOrderId();
         Parties = new OrxParties();
+
         VenueOrders = new OrxVenueOrders();
+
         Executions = new OrxExecutions();
     }
 
     public OrxOrder(IOrder toClone)
     {
-        OrderId = new OrxOrderId(toClone.OrderId);
-        TimeInForce = toClone.TimeInForce;
+        OrderId      = new OrxOrderId(toClone.OrderId);
+        TimeInForce  = toClone.TimeInForce;
         CreationTime = toClone.CreationTime;
-        Status = toClone.Status;
-        product = toClone.Product?.CreateNewOrxProductOrder();
-        SubmitTime = toClone.SubmitTime;
-        DoneTime = toClone.DoneTime;
-        Parties = toClone.Parties != null ? new OrxParties(toClone.Parties) : null;
+        Status       = toClone.Status;
+        product      = toClone.Product?.CreateNewOrxProductOrder();
+        SubmitTime   = toClone.SubmitTime;
+        DoneTime     = toClone.DoneTime;
+        Parties      = toClone.Parties != null ? new OrxParties(toClone.Parties) : null;
+
         OrderPublisher = toClone.OrderPublisher;
-        VenueSelectionCriteria = toClone.VenueSelectionCriteria != null ?
-            new OrxVenueCriteria(toClone.VenueSelectionCriteria) :
-            null;
+
+        VenueSelectionCriteria = toClone.VenueSelectionCriteria != null ? new OrxVenueCriteria(toClone.VenueSelectionCriteria) : null;
+
         VenueOrders = toClone.VenueOrders != null ? new OrxVenueOrders(toClone.VenueOrders) : null;
-        Executions = toClone.Executions != null ? new OrxExecutions(toClone.Executions) : null;
+        Executions  = toClone.Executions != null ? new OrxExecutions(toClone.Executions) : null;
     }
 
-    public OrxOrder(OrxOrderId orderId, TimeInForce timeInForce, DateTime creationTime, OrderStatus status
-        , OrxProductOrder product,
+    public OrxOrder
+    (OrxOrderId orderId, TimeInForce timeInForce, DateTime creationTime, OrderStatus status
+      , OrxProductOrder product,
         DateTime submitTime, OrxParties parties, DateTime doneTime,
         OrxVenueCriteria venueSelectionCriteria, OrxVenueOrders venueOrders, OrxExecutions executions,
         string message, IOrderPublisher orderPublisher)
         : this(orderId, timeInForce, creationTime, status, product, submitTime, parties, doneTime
-            , venueSelectionCriteria,
-            venueOrders, executions, (MutableString)message, orderPublisher) { }
+             , venueSelectionCriteria,
+               venueOrders, executions, (MutableString)message, orderPublisher) { }
 
-    public OrxOrder(OrxOrderId orderId, TimeInForce timeInForce, DateTime creationTime, OrderStatus status
-        , OrxProductOrder product,
+    public OrxOrder
+    (OrxOrderId orderId, TimeInForce timeInForce, DateTime creationTime, OrderStatus status
+      , OrxProductOrder product,
         DateTime submitTime, OrxParties parties, DateTime doneTime,
         OrxVenueCriteria venueSelectionCriteria, OrxVenueOrders venueOrders, OrxExecutions executions,
         MutableString message, IOrderPublisher orderPublisher)
     {
-        OrderId = orderId;
-        TimeInForce = timeInForce;
+        OrderId      = orderId;
+        TimeInForce  = timeInForce;
         CreationTime = creationTime;
-        Status = status;
+        Status       = status;
         this.product = product;
-        SubmitTime = submitTime;
-        DoneTime = doneTime;
-        Parties = parties;
+        SubmitTime   = submitTime;
+        DoneTime     = doneTime;
+        Parties      = parties;
+
         OrderPublisher = orderPublisher;
+
         VenueSelectionCriteria = venueSelectionCriteria;
+
         VenueOrders = venueOrders;
-        Executions = executions;
+        Executions  = executions;
     }
 
     [OrxMandatoryField(0)] public OrxOrderId OrderId { get; set; }
@@ -121,6 +131,7 @@ public class OrxOrder : ReusableObject<IOrder>, IOrder, IStoreState<OrxOrder>
     [OrxOptionalField(10)] public OrxExecutions? Executions { get; set; }
 
     [OrxOptionalField(11)] public MutableString Message { get; set; } = new();
+
     public bool AutoRecycledByProducer { get; set; }
 
     IOrderId IOrder.OrderId
@@ -188,13 +199,13 @@ public class OrxOrder : ReusableObject<IOrder>, IOrder, IStoreState<OrxOrder>
 
     public override void StateReset()
     {
-        TimeInForce = TimeInForce.None;
+        TimeInForce  = TimeInForce.None;
         CreationTime = DateTimeConstants.UnixEpoch;
-        Status = OrderStatus.Unknown;
+        Status       = OrderStatus.Unknown;
         Product?.DecrementRefCount();
-        Product = null;
+        Product    = null;
         SubmitTime = DateTimeConstants.UnixEpoch;
-        DoneTime = DateTimeConstants.UnixEpoch;
+        DoneTime   = DateTimeConstants.UnixEpoch;
         Parties?.DecrementRefCount();
         Parties = null;
         OrderPublisher?.DecrementRefCount();
@@ -212,19 +223,22 @@ public class OrxOrder : ReusableObject<IOrder>, IOrder, IStoreState<OrxOrder>
 
     public override IOrder CopyFrom(IOrder order, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        OrderId = order.OrderId.SyncOrRecycle(OrderId)!;
-        TimeInForce = order.TimeInForce;
+        OrderId      = order.OrderId.SyncOrRecycle(OrderId)!;
+        TimeInForce  = order.TimeInForce;
         CreationTime = order.CreationTime;
-        Status = order.Status;
-        Product = order.Product.CloneOrRecycle(Product) ?? ToOrxOrderProduct(order.Product);
-        SubmitTime = order.SubmitTime;
-        DoneTime = order.DoneTime;
-        Parties = order.Parties.SyncOrRecycle(Parties);
+        Status       = order.Status;
+        Product      = order.Product.CloneOrRecycle(Product) ?? ToOrxOrderProduct(order.Product);
+        SubmitTime   = order.SubmitTime;
+        DoneTime     = order.DoneTime;
+        Parties      = order.Parties.SyncOrRecycle(Parties);
+
         OrderPublisher = order.OrderPublisher;
+
         VenueSelectionCriteria = order.VenueSelectionCriteria.SyncOrRecycle(VenueSelectionCriteria);
+
         VenueOrders = order.VenueOrders.SyncOrRecycle(VenueOrders);
-        Executions = order.Executions.SyncOrRecycle(Executions);
-        Message = order.Message.SyncOrRecycle(Message)!;
+        Executions  = order.Executions.SyncOrRecycle(Executions);
+        Message     = order.Message.SyncOrRecycle(Message)!;
         return this;
     }
 
@@ -234,28 +248,31 @@ public class OrxOrder : ReusableObject<IOrder>, IOrder, IStoreState<OrxOrder>
     public OrxProductOrder? ToOrxOrderProduct(IProductOrder? orderProduct)
     {
         return orderProduct switch
-        {
-            SpotOrder order => new OrxSpotOrder(order), _ => orderProduct as OrxProductOrder
-        };
+               {
+                   SpotOrder order => new OrxSpotOrder(order)
+                 , _               => orderProduct as OrxProductOrder
+               };
     }
 
     protected bool Equals(OrxOrder other)
     {
-        var orderIdsSame = Equals(OrderId, other.OrderId);
-        var timeInForceSame = TimeInForce == other.TimeInForce;
+        var orderIdsSame     = Equals(OrderId, other.OrderId);
+        var timeInForceSame  = TimeInForce == other.TimeInForce;
         var creationTimeSame = Equals(CreationTime, other.CreationTime);
-        var statusSame = Status == other.Status;
-        var productSame = Equals(Product, other.Product);
-        var submitTimeSame = Equals(SubmitTime, other.SubmitTime);
-        var doneTimeSame = Equals(DoneTime, other.DoneTime);
-        var partiesSame = Equals(Parties, other.Parties);
+        var statusSame       = Status == other.Status;
+        var productSame      = Equals(Product, other.Product);
+        var submitTimeSame   = Equals(SubmitTime, other.SubmitTime);
+        var doneTimeSame     = Equals(DoneTime, other.DoneTime);
+        var partiesSame      = Equals(Parties, other.Parties);
+
         var venueCriteriaSame = Equals(VenueSelectionCriteria, other.VenueSelectionCriteria);
+
         var venueOrdersSame = Equals(VenueOrders, other.VenueOrders);
-        var executionsSame = Equals(Executions, other.Executions);
-        var messageSame = Equals(Message, other.Message);
+        var executionsSame  = Equals(Executions, other.Executions);
+        var messageSame     = Equals(Message, other.Message);
 
         return orderIdsSame && timeInForceSame && creationTimeSame && statusSame && productSame && submitTimeSame
-               && doneTimeSame && partiesSame && venueCriteriaSame && venueOrdersSame && executionsSame && messageSame;
+            && doneTimeSame && partiesSame && venueCriteriaSame && venueOrdersSame && executionsSame && messageSame;
     }
 
     public override bool Equals(object? obj)
@@ -301,13 +318,12 @@ public class OrxOrder : ReusableObject<IOrder>, IOrder, IStoreState<OrxOrder>
         if (DoneTime != DateTimeConstants.UnixEpoch) sb.Append("DoneTime: ").Append(DoneTime).Append(", ");
         if (Parties != null) sb.Append("Parties: ").Append(Parties).Append(", ");
         if (OrderPublisher != null) sb.Append("OrderPublisher: ").Append(OrderPublisher).Append(", ");
-        if (VenueSelectionCriteria != null)
-            sb.Append("VenueSelectionCriteria: ").Append(VenueSelectionCriteria).Append(", ");
+        if (VenueSelectionCriteria != null) sb.Append("VenueSelectionCriteria: ").Append(VenueSelectionCriteria).Append(", ");
         if (VenueOrders != null) sb.Append("VenueOrders: ").Append(VenueOrders).Append(", ");
         if (Executions != null) sb.Append("Executions: ").Append(Executions).Append(", ");
         if (sb[^2] == ',')
         {
-            sb[^2] = ')';
+            sb[^2]    =  ')';
             sb.Length -= 1;
         }
 

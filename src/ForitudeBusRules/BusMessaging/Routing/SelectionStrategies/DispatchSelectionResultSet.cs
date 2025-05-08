@@ -7,7 +7,7 @@ using System.Collections;
 using FortitudeBusRules.Messages;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -100,9 +100,7 @@ public class DispatchSelectionResultSet : ReusableObject<IDispatchSelectionResul
         base.StateReset();
     }
 
-    public override IDispatchSelectionResultSet CopyFrom
-    (IDispatchSelectionResultSet source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IDispatchSelectionResultSet CopyFrom(IDispatchSelectionResultSet source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is DispatchSelectionResultSet dispatchSelectionResultSet)
         {
@@ -117,6 +115,5 @@ public class DispatchSelectionResultSet : ReusableObject<IDispatchSelectionResul
     }
 
     public override IDispatchSelectionResultSet Clone() =>
-        Recycler?.Borrow<DispatchSelectionResultSet>().CopyFrom(this) ??
-        new DispatchSelectionResultSet().CopyFrom(this);
+        Recycler?.Borrow<DispatchSelectionResultSet>().CopyFrom(this) ?? new DispatchSelectionResultSet().CopyFrom(this);
 }

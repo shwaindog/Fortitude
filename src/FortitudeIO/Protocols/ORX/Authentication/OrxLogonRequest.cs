@@ -1,7 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Serdes;
@@ -12,14 +14,16 @@ namespace FortitudeIO.Protocols.ORX.Authentication;
 
 public sealed class OrxLogonRequest : OrxVersionedMessage
 {
-    public OrxLogonRequest(ILoginCredentials loginCredentials, MutableString account, MutableString clientVersion
-        , uint hbinterval)
+    public OrxLogonRequest
+    (ILoginCredentials loginCredentials, MutableString account, MutableString clientVersion
+      , uint hbinterval)
     {
-        Login = loginCredentials.LoginId;
+        Login    = loginCredentials.LoginId;
         Password = loginCredentials.Password;
-        Account = account;
+        Account  = account;
+
         ClientVersion = clientVersion;
-        HbInterval = hbinterval;
+        HbInterval    = hbinterval;
     }
 
     public OrxLogonRequest() { }
@@ -51,20 +55,23 @@ public sealed class OrxLogonRequest : OrxVersionedMessage
         Account = null;
         ClientVersion?.DecrementRefCount();
         ClientVersion = null;
-        HbInterval = 0;
+        HbInterval    = 0;
         base.StateReset();
     }
 
-    public override IVersionedMessage CopyFrom(IVersionedMessage source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IVersionedMessage CopyFrom
+    (IVersionedMessage source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is OrxLogonRequest logonRequest)
         {
-            Login = logonRequest.Login.SyncOrRecycle(Login);
+            Login    = logonRequest.Login.SyncOrRecycle(Login);
             Password = logonRequest.Password.SyncOrRecycle(Password);
-            Account = logonRequest.Account.SyncOrRecycle(Account);
+            Account  = logonRequest.Account.SyncOrRecycle(Account);
+
             ClientVersion = logonRequest.ClientVersion.SyncOrRecycle(ClientVersion);
+
             HbInterval = logonRequest.HbInterval;
         }
 

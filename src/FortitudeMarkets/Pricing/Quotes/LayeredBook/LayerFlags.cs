@@ -53,22 +53,42 @@ public static class LayerFlagsExtensions
     public const LayerFlags AdditionalFullSupportLayerFlags =
         AdditionalValueDateFlags | AdditionalSourceQuoteRefFlags | AdditionSourceLayerFlags;
 
+    public const LayerFlags FullSourceFlags =
+        AdditionSourceLayerFlags | PriceVolumeLayerFlags;
+
+    public const LayerFlags FullSourceQuoteRefFlags =
+        AdditionalSourceQuoteRefFlags | FullSourceFlags;
+
+    public const LayerFlags FullValueDateFlags =
+        AdditionalValueDateFlags | PriceVolumeLayerFlags;
+
+    public const LayerFlags FullOrdersCountFlags =
+        AdditionalOrdersCountFlags | PriceVolumeLayerFlags;
+
+    public const LayerFlags FullAnonymousOrderFlags =
+        AdditionalAnonymousOrderFlags | FullOrdersCountFlags;
+
+    public const LayerFlags FullCounterPartyOrdersFlags =
+        AdditionalCounterPartyOrderFlags | FullAnonymousOrderFlags;
+
     public const LayerFlags FullSupportLayerFlags =
-        AdditionalFullSupportLayerFlags | AdditionalCounterPartyOrderFlags | AdditionalOrdersCountFlags | PriceVolumeLayerFlags;
+        AdditionalFullSupportLayerFlags | FullCounterPartyOrdersFlags;
 
     public static LayerFlags SupportedLayerFlags(this LayerType layerType)
     {
         switch (layerType)
         {
-            case LayerType.PriceVolume: return PriceVolumeLayerFlags;
-            case LayerType.ValueDatePriceVolume: return AdditionalValueDateFlags | PriceVolumeLayerFlags;
-            case LayerType.SourcePriceVolume: return AdditionSourceLayerFlags | PriceVolumeLayerFlags;
-            case LayerType.SourceQuoteRefPriceVolume: return LayerFlags.SourceQuoteReference | AdditionSourceLayerFlags | PriceVolumeLayerFlags;
-            case LayerType.OrdersCountPriceVolume: return AdditionalOrdersCountFlags | PriceVolumeLayerFlags;
-            case LayerType.OrdersAnonymousPriceVolume: return AdditionalAnonymousOrderFlags | AdditionalOrdersCountFlags | PriceVolumeLayerFlags;
-            case LayerType.OrdersFullPriceVolume: return AdditionalCounterPartyOrderFlags | AdditionalOrdersCountFlags | PriceVolumeLayerFlags;
-            case LayerType.SourceQuoteRefOrdersValueDatePriceVolume: return FullSupportLayerFlags;
-            default: return LayerFlags.None;
+            case LayerType.PriceVolume:                              return PriceVolumeLayerFlags;
+            case LayerType.ValueDatePriceVolume:                     return FullValueDateFlags;
+            case LayerType.SourcePriceVolume:                        return FullSourceFlags;
+            case LayerType.SourceQuoteRefPriceVolume:                return FullSourceQuoteRefFlags;
+            case LayerType.OrdersCountPriceVolume:                   return FullOrdersCountFlags;
+            case LayerType.OrdersAnonymousPriceVolume:               return FullAnonymousOrderFlags;
+            case LayerType.OrdersFullPriceVolume:                    return FullCounterPartyOrdersFlags;
+
+            case LayerType.FullSupportPriceVolume: return FullSupportLayerFlags;
+
+            default:                                                 return LayerFlags.None;
         }
     }
 
@@ -88,6 +108,8 @@ public static class LayerFlagsExtensions
     public static bool HasOrderRemainingSize(this LayerFlags flags)    => (flags & LayerFlags.OrderRemainingSize) > 0;
     public static bool HasOrderCounterPartyName(this LayerFlags flags) => (flags & LayerFlags.OrderCounterPartyName) > 0;
     public static bool HasOrderTraderName(this LayerFlags flags)       => (flags & LayerFlags.OrderTraderName) > 0;
+
+    public static LayerFlags Unset(this LayerFlags flags, LayerFlags toUnset) => flags & ~toUnset;
 
     public static bool HasAllOf(this LayerFlags flags, LayerFlags checkAllFound)    => (flags & checkAllFound) == checkAllFound;
     public static bool HasNoneOf(this LayerFlags flags, LayerFlags checkNonAreSet)  => (flags & checkNonAreSet) == 0;

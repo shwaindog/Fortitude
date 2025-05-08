@@ -9,6 +9,7 @@ using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Pricing.PQ.Messages;
@@ -19,11 +20,12 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.TimeSeries;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 
 #endregion
 
@@ -39,7 +41,8 @@ public class PQTickInstantTests
     private PQTickInstant newlyPopulatedPQTickInstant = null!;
 
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = null!;
-    private PQSourceTickerInfo            sourceTickerInfo              = null!;
+
+    private PQSourceTickerInfo sourceTickerInfo = null!;
 
     private DateTime testDateTime;
 
@@ -69,7 +72,7 @@ public class PQTickInstantTests
     public void EmptyQuote_SourceTimeChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
     {
         Assert.IsFalse(emptyQuote.IsSourceTimeDateUpdated);
-        Assert.IsFalse(emptyQuote.IsSourceTimeSubHourUpdated);
+        Assert.IsFalse(emptyQuote.IsSourceTimeSub2MinUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.AreEqual(default, emptyQuote.SourceTime);
         Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
@@ -77,15 +80,15 @@ public class PQTickInstantTests
         var expectedSetTime = new DateTime(2017, 10, 14, 15, 10, 59).AddTicks(9879879);
         emptyQuote.SourceTime = expectedSetTime;
         Assert.IsTrue(emptyQuote.IsSourceTimeDateUpdated);
-        Assert.IsTrue(emptyQuote.IsSourceTimeSubHourUpdated);
+        Assert.IsTrue(emptyQuote.IsSourceTimeSub2MinUpdated);
         Assert.IsTrue(emptyQuote.HasUpdates);
         Assert.AreEqual(expectedSetTime, emptyQuote.SourceTime);
         var sourceUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(2, sourceUpdates.Count);
-        var hoursSinceUnixEpoch = expectedSetTime.GetHoursFromUnixEpoch();
-        var extended            = expectedSetTime.GetSubHourComponent().BreakLongToUShortAndUint(out var subHourComponent);
+        var hoursSinceUnixEpoch = expectedSetTime.Get2MinIntervalsFromUnixEpoch();
+        var extended            = expectedSetTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourComponent);
         var expectedHour        = new PQFieldUpdate(PQQuoteFields.SourceSentDateTime, hoursSinceUnixEpoch);
-        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.SourceSentSubHourTime, subHourComponent, extended);
+        var expectedSubHour     = new PQFieldUpdate(PQQuoteFields.SourceSentSub2MinTime, subHourComponent, extended);
         Assert.AreEqual(expectedHour, sourceUpdates[0]);
         Assert.AreEqual(expectedSubHour, sourceUpdates[1]);
 
@@ -95,13 +98,13 @@ public class PQTickInstantTests
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedSubHour, sourceUpdates[0]);
 
-        emptyQuote.IsSourceTimeSubHourUpdated = false;
-        Assert.IsFalse(emptyQuote.IsSourceTimeSubHourUpdated);
+        emptyQuote.IsSourceTimeSub2MinUpdated = false;
+        Assert.IsFalse(emptyQuote.IsSourceTimeSub2MinUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
         sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.Id >= PQQuoteFields.SourceSentDateTime && update.Id <= PQQuoteFields.SourceSentSubHourTime
+            where update.Id >= PQQuoteFields.SourceSentDateTime && update.Id <= PQQuoteFields.SourceSentSub2MinTime
             orderby update.Id
             select update).ToList();
         Assert.AreEqual(2, sourceUpdates.Count);
@@ -113,7 +116,7 @@ public class PQTickInstantTests
         newEmpty.UpdateField(sourceUpdates[1]);
         Assert.AreEqual(expectedSetTime, newEmpty.SourceTime);
         Assert.IsTrue(newEmpty.IsSourceTimeDateUpdated);
-        Assert.IsTrue(newEmpty.IsSourceTimeSubHourUpdated);
+        Assert.IsTrue(newEmpty.IsSourceTimeSub2MinUpdated);
     }
 
     [TestMethod]
@@ -121,10 +124,10 @@ public class PQTickInstantTests
     {
         Assert.IsFalse(emptyQuote.IsFeedSyncStatusUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.AreEqual(FeedSyncStatus.OutOfSync, emptyQuote.FeedSyncStatus);
+        Assert.AreEqual(FeedSyncStatus.Good, emptyQuote.FeedSyncStatus);
         Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
-        var expectedSyncStatus = FeedSyncStatus.Good;
+        var expectedSyncStatus = FeedSyncStatus.FeedDown;
         emptyQuote.FeedSyncStatus = expectedSyncStatus;
         Assert.IsTrue(emptyQuote.IsFeedSyncStatusUpdated);
         Assert.IsTrue(emptyQuote.HasUpdates);
@@ -245,7 +248,7 @@ public class PQTickInstantTests
 
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.AreEqual(false, emptyQuote.IsReplay);
-        Assert.AreEqual(FeedSyncStatus.OutOfSync, emptyQuote.FeedSyncStatus);
+        Assert.AreEqual(FeedSyncStatus.Good, emptyQuote.FeedSyncStatus);
         Assert.AreEqual(default, emptyQuote.SourceTime);
         Assert.AreEqual(0m, emptyQuote.SingleTickValue);
     }
@@ -285,15 +288,15 @@ public class PQTickInstantTests
         ((PQSourceTickerInfo)fullyPopulatedPQTickInstant.SourceTickerInfo!).HasUpdates = true;
 
         fullyPopulatedPQTickInstant.IsSourceTimeDateUpdated            = true;
-        fullyPopulatedPQTickInstant.IsSourceTimeSubHourUpdated         = true;
+        fullyPopulatedPQTickInstant.IsSourceTimeSub2MinUpdated         = true;
         fullyPopulatedPQTickInstant.IsSocketReceivedTimeDateUpdated    = true;
-        fullyPopulatedPQTickInstant.IsSocketReceivedTimeSubHourUpdated = true;
+        fullyPopulatedPQTickInstant.IsSocketReceivedTimeSub2MinUpdated = true;
         fullyPopulatedPQTickInstant.IsProcessedTimeDateUpdated         = true;
-        fullyPopulatedPQTickInstant.IsProcessedTimeSubHourUpdated      = true;
+        fullyPopulatedPQTickInstant.IsProcessedTimeSub2MinUpdated      = true;
         fullyPopulatedPQTickInstant.IsDispatchedTimeDateUpdated        = true;
-        fullyPopulatedPQTickInstant.IsDispatchedTimeSubHourUpdated     = true;
+        fullyPopulatedPQTickInstant.IsDispatchedTimeSub2MinUpdated     = true;
         fullyPopulatedPQTickInstant.IsClientReceivedTimeDateUpdated    = true;
-        fullyPopulatedPQTickInstant.IsClientReceivedTimeSubHourUpdated = true;
+        fullyPopulatedPQTickInstant.IsClientReceivedTimeSub2MinUpdated = true;
         fullyPopulatedPQTickInstant.IsReplayUpdated                    = true;
         fullyPopulatedPQTickInstant.IsSingleValueUpdated               = true;
         fullyPopulatedPQTickInstant.IsFeedSyncStatusUpdated            = true;
@@ -366,13 +369,12 @@ public class PQTickInstantTests
         Assert.AreEqual(fullyPopulatedPQTickInstant.PQSequenceId, emptyQuote.PQSequenceId);
         Assert.AreEqual(default, emptyQuote.SourceTime);
         Assert.AreEqual(default, emptyQuote.ClientReceivedTime);
-        Assert.IsTrue(
-                      fullyPopulatedPQTickInstant.SourceTickerInfo!.AreEquivalent(emptyQuote.SourceTickerInfo));
+        Assert.IsFalse(fullyPopulatedPQTickInstant.SourceTickerInfo!.AreEquivalent(emptyQuote.SourceTickerInfo));
         Assert.AreEqual(false, emptyQuote.IsReplay);
         Assert.AreEqual(0m, emptyQuote.SingleTickValue);
-        Assert.AreEqual(FeedSyncStatus.OutOfSync, emptyQuote.FeedSyncStatus);
+        Assert.AreEqual(FeedSyncStatus.Good, emptyQuote.FeedSyncStatus);
         Assert.IsFalse(emptyQuote.IsSourceTimeDateUpdated);
-        Assert.IsFalse(emptyQuote.IsSourceTimeSubHourUpdated);
+        Assert.IsFalse(emptyQuote.IsSourceTimeSub2MinUpdated);
         Assert.IsFalse(emptyQuote.IsReplayUpdated);
         Assert.IsFalse(emptyQuote.IsSingleValueUpdated);
         Assert.IsFalse(emptyQuote.IsFeedSyncStatusUpdated);
@@ -481,9 +483,10 @@ public class PQTickInstantTests
         changingTickInstant.PQSequenceId = original.PQSequenceId;
         Assert.IsTrue(original.AreEquivalent(changingTickInstant, exactComparison));
 
-        changingTickInstant.FeedSyncStatus = FeedSyncStatus.FeedDown;
+        changingTickInstant.FeedSyncStatus          = FeedSyncStatus.FeedDown;
         Assert.AreEqual(!exactComparison, original.AreEquivalent(changingTickInstant, exactComparison));
-        changingTickInstant.FeedSyncStatus = original.FeedSyncStatus;
+        changingTickInstant.FeedSyncStatus          = original.FeedSyncStatus;
+        changingTickInstant.IsFeedSyncStatusUpdated = original.IsFeedSyncStatusUpdated; // not enabled unless updated from default
         Assert.IsTrue(changingTickInstant.AreEquivalent(original, exactComparison));
 
         changingTickInstant.SocketReceivingTime = new DateTime(2017, 11, 06, 21, 24, 41);
@@ -518,20 +521,23 @@ public class PQTickInstantTests
     {
         var priceScale = precisionSettings.PriceScalingPrecision;
         PQSourceTickerInfoTests.AssertSourceTickerInfoContainsAllFields
-            (checkFieldUpdates, originalQuote.SourceTickerInfo!);
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PQSyncStatus, (uint)originalQuote.FeedSyncStatus),
-                        ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PQSyncStatus),
-                        $"For {originalQuote.GetType().Name} and {originalQuote.SourceTickerInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+            (checkFieldUpdates, (PQSourceTickerInfo)originalQuote.SourceTickerInfo!);
+        if (originalQuote.IsFeedSyncStatusUpdated)
+        {
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PQSyncStatus, (uint)originalQuote.FeedSyncStatus),
+                            ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PQSyncStatus),
+                            $"For {originalQuote.GetType().Name} and {originalQuote.SourceTickerInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+        }
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.SingleTickValue, PQScaling.Scale(originalQuote.SingleTickValue, priceScale), priceScale),
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SingleTickValue),
                         $"For {originalQuote.GetType().Name} and {originalQuote.SourceTickerInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         var sourceTime = NonPublicInvocator.GetInstanceField<DateTime>(originalQuote, "sourceTime");
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.SourceSentDateTime, sourceTime.GetHoursFromUnixEpoch()),
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.SourceSentDateTime, sourceTime.Get2MinIntervalsFromUnixEpoch()),
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceSentDateTime),
                         $"For {originalQuote.GetType().Name} and {originalQuote.SourceTickerInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
-        var flag = sourceTime.GetSubHourComponent().BreakLongToUShortAndUint(out var value);
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.SourceSentSubHourTime, value, flag),
-                        ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceSentSubHourTime),
+        var flag = sourceTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.SourceSentSub2MinTime, value, flag),
+                        ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceSentSub2MinTime),
                         $"For {originalQuote.GetType().Name} and {originalQuote.SourceTickerInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.QuoteBooleanFlags, (uint)expectedBooleanFlags),
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.QuoteBooleanFlags),
@@ -547,6 +553,12 @@ public class PQTickInstantTests
         (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQFieldFlags flagValue = PQFieldFlags.None)
     {
         return allUpdates.FirstOrDefault(fu => fu.Id == id);
+    }
+
+    public static PQFieldUpdate ExtractFieldUpdateWithId
+        (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQSubFieldKeys subId, PQFieldFlags flagValue = PQFieldFlags.None)
+    {
+        return allUpdates.FirstOrDefault(fu => fu.Id == id && fu.SubId == subId);
     }
 
     public static PQFieldUpdate ExtractFieldUpdateWithId
@@ -567,26 +579,26 @@ public class PQTickInstantTests
     }
 
     public static PQFieldUpdate ExtractFieldUpdateWithId
-        (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQDepthKey depthId, ushort extended, PQFieldFlags flag = PQFieldFlags.None)
+        (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQDepthKey depthId, PQSubFieldKeys subId, PQFieldFlags flag = PQFieldFlags.None)
     {
-        var useExtendedFlag = extended > 0 ? PQFieldFlags.IncludesExtendedPayLoad : PQFieldFlags.None;
+        var useSubId = subId > 0 ? PQFieldFlags.IncludesSubId : PQFieldFlags.None;
         var useDepthFlag    = depthId > 0 ? PQFieldFlags.IncludesDepth : PQFieldFlags.None;
-        var tryFlags        = flag | useDepthFlag | useExtendedFlag;
-        var tryGetValue = allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.ExtendedPayload == extended &&
+        var tryFlags        = flag | useDepthFlag | useSubId;
+        var tryGetValue = allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubId == subId &&
                                                           fu.Flag == tryFlags);
         var tryAgainValue = !Equals(tryGetValue, default(PQFieldUpdate))
             ? tryGetValue
-            : allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.ExtendedPayload == extended &&
+            : allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubId == subId &&
                                               fu.Flag == (flag | PQFieldFlags.IncludesDepth));
         var tryTryAgainValue = !Equals(tryAgainValue, default(PQFieldUpdate))
             ? tryGetValue
-            : allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.ExtendedPayload == extended && fu.Flag == flag);
+            : allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubId == subId && fu.Flag == flag);
         return tryTryAgainValue;
     }
 
     /// Created because when built Moq couldn't handle a property redefinition in interfaces and sets up only
     /// the most base form of the property leaving the redefined property unsetup.
-    internal class DummyPQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IStoreState<DummyPQTickInstant>
+    internal class DummyPQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, ITransferState<DummyPQTickInstant>
     {
         public uint MessageId    => (uint)PQMessageIds.Quote;
         public byte Version      => 1;
@@ -607,7 +619,14 @@ public class PQTickInstantTests
 
         public DateTime ClientReceivedTime => DateTime.Now;
 
-        public ISourceTickerInfo? SourceTickerInfo { get; set; }
+        ISourceTickerInfo? ITickInstant.SourceTickerInfo => SourceTickerInfo;
+        ISourceTickerInfo? IMutableTickInstant.SourceTickerInfo
+        {
+            get => SourceTickerInfo;
+            set => SourceTickerInfo = (IPQSourceTickerInfo?)value;
+        }
+
+        public IPQSourceTickerInfo? SourceTickerInfo { get; set; }
 
         public DateTime SocketReceivingTime { get; set; }
 
@@ -626,20 +645,27 @@ public class PQTickInstantTests
         public bool HasUpdates { get; set; }
 
         public bool IsSourceTimeDateUpdated            { get; set; }
-        public bool IsSourceTimeSubHourUpdated         { get; set; }
+        public bool IsSourceTimeSub2MinUpdated         { get; set; }
         public bool IsSocketReceivedTimeDateUpdated    { get; set; }
-        public bool IsSocketReceivedTimeSubHourUpdated { get; set; }
+        public bool IsSocketReceivedTimeSub2MinUpdated { get; set; }
         public bool IsProcessedTimeDateUpdated         { get; set; }
-        public bool IsProcessedTimeSubHourUpdated      { get; set; }
+        public bool IsProcessedTimeSub2MinUpdated      { get; set; }
         public bool IsDispatchedTimeDateUpdated        { get; set; }
-        public bool IsDispatchedTimeSubHourUpdated     { get; set; }
+        public bool IsDispatchedTimeSub2MinUpdated     { get; set; }
         public bool IsClientReceivedTimeDateUpdated    { get; set; }
-        public bool IsClientReceivedTimeSubHourUpdated { get; set; }
+        public bool IsClientReceivedTimeSub2MinUpdated { get; set; }
         public bool IsReplayUpdated                    { get; set; }
         public bool IsSingleValueUpdated               { get; set; }
         public bool IsFeedSyncStatusUpdated            { get; set; }
 
         public DateTime LastPublicationTime { get; set; }
+
+        public uint UpdateCount => 0;
+
+        public void UpdateComplete()
+        {
+            HasUpdates = false;
+        }
 
         IVersionedMessage ICloneable<IVersionedMessage>.Clone() => (IVersionedMessage)Clone();
 
@@ -690,7 +716,11 @@ public class PQTickInstantTests
 
         public bool AreEquivalent(ITickInstant? other, bool exactTypes = false) => false;
 
-        public DummyPQTickInstant CopyFrom(DummyPQTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
+        IPQTickInstant IPQTickInstant.CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags) => this;
+
+        public virtual DummyPQTickInstant CopyFrom(DummyPQTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
+
+        public IPQTickInstant CopyFrom(IPQTickInstant source, CopyMergeFlags copyMergeFlags) => this;
 
         public override ITickInstant Clone() => new PQLevel1QuoteTests.DummyLevel1Quote();
 

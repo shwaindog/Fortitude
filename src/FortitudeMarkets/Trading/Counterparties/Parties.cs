@@ -1,8 +1,10 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
-using FortitudeMarkets.Trading.Counterparties;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -14,17 +16,17 @@ public class Parties : ReusableObject<IParties>, IParties
 
     public Parties(IParties toClone)
     {
-        BuySide = toClone.BuySide?.Clone();
+        BuySide  = toClone.BuySide?.Clone();
         SellSide = toClone.SellSide?.Clone();
     }
 
     public Parties(IParty? buySide, IParty? sellSide)
     {
-        BuySide = buySide;
+        BuySide  = buySide;
         SellSide = sellSide;
     }
 
-    public IParty? BuySide { get; set; }
+    public IParty? BuySide  { get; set; }
     public IParty? SellSide { get; set; }
 
 
@@ -32,7 +34,7 @@ public class Parties : ReusableObject<IParties>, IParties
 
     public override IParties CopyFrom(IParties source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        BuySide = source.BuySide?.CopyOrClone(BuySide as Party);
+        BuySide  = source.BuySide?.CopyOrClone(BuySide as Party);
         SellSide = source.SellSide?.CopyOrClone(SellSide as Party);
         return this;
     }

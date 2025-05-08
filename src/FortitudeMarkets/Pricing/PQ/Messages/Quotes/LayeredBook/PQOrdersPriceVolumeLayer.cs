@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
@@ -55,7 +56,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
             {
                 LayerType.OrdersAnonymousPriceVolume => false
               , LayerType.OrdersFullPriceVolume => true
-              , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => true
+              , LayerType.FullSupportPriceVolume => true
               , _ => throw new ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {layerType}")
             };
 
@@ -75,7 +76,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
             {
                 LayerType.OrdersAnonymousPriceVolume => false
               , LayerType.OrdersFullPriceVolume => true
-              , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => true
+              , LayerType.FullSupportPriceVolume => true
               , _ => throw new ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {layerType}")
             };
 
@@ -94,7 +95,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
             {
                 LayerType.OrdersAnonymousPriceVolume => false
               , LayerType.OrdersFullPriceVolume => true
-              , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => true
+              , LayerType.FullSupportPriceVolume => true
               , _ => throw new ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {layerType}")
             };
         NameIdLookup = ipqNameIdLookupGenerator;
@@ -279,6 +280,12 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         }
     }
 
+    public override void UpdateComplete()
+    {
+        NameIdLookup.UpdateComplete();
+        base.UpdateComplete();
+    }
+
     public bool RemoveAt(int index)
     {
         orders?[index].StateReset();
@@ -346,7 +353,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the book has already forwarded this through to the correct layer
-        if (pqFieldUpdate.Id is >= PQQuoteFields.OrderId and <= PQQuoteFields.OrderTraderNameId)
+        if (pqFieldUpdate.Id is PQQuoteFields.LayerOrders)
         {
             var index          = pqFieldUpdate.AuxiliaryPayload;
             var orderLayerInfo = this[index]!;
@@ -363,9 +370,8 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         {
             var tli = orders?[i] as IPQCounterPartyOrderLayerInfo;
             if (tli is null or { IsEmpty: true, HasUpdates: false } || i + 1 == ushort.MaxValue) continue;
-            if (tli.HasUpdates)
-                foreach (var stringUpdate in tli.GetStringUpdates(snapShotTime, messageFlags))
-                    yield return stringUpdate.WithAuxiliary(i);
+            foreach (var stringUpdate in tli.GetStringUpdates(snapShotTime, messageFlags))
+                yield return stringUpdate.WithAuxiliary(i);
             if (i + 1 == numberOfTraderInfos) break;
         }
     }
@@ -374,30 +380,6 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
     {
         if (stringUpdate.Field.Id != PQQuoteFields.LayerNameDictionaryUpsertCommand) return false;
         return NameIdLookup.UpdateFieldString(stringUpdate);
-    }
-
-    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        var isFullReplace = copyMergeFlags.HasFullReplace();
-        var pqopvl        = source as IPQOrdersPriceVolumeLayer;
-        var opvl          = source as IOrdersPriceVolumeLayer;
-        if (pqopvl != null) NameIdLookup.CopyFrom(pqopvl.NameIdLookup, copyMergeFlags);
-        if (opvl != null)
-        {
-            for (var j = 0; j < opvl.Orders.Count; j++)
-            {
-                var sourceOrder = opvl[j];
-                var destOrder   = this[j];
-                destOrder!.CopyFrom(sourceOrder!, copyMergeFlags);
-            }
-            for (var i = opvl.Orders.Count; i < SafeOrdersLength; i++)
-                if (orders?[i] is { IsEmpty: false } makeEmpty)
-                    makeEmpty.IsEmpty = true;
-        }
-        base.CopyFrom(source, copyMergeFlags);
-        if (pqopvl != null && isFullReplace) SetFlagsSame(source);
-
-        return this;
     }
 
     IPQOrdersPriceVolumeLayer IPQOrdersPriceVolumeLayer.Clone() => Clone();
@@ -432,6 +414,30 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
             var entryToUpdate = this[indexToUpdate]!;
             entryToUpdate.CopyFrom(order, CopyMergeFlags.FullReplace);
         }
+    }
+
+    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        var isFullReplace = copyMergeFlags.HasFullReplace();
+        var pqopvl        = source as IPQOrdersPriceVolumeLayer;
+        var opvl          = source as IOrdersPriceVolumeLayer;
+        if (pqopvl != null && !copyMergeFlags.HasSkipReferenceLookups()) NameIdLookup.CopyFrom(pqopvl.NameIdLookup, copyMergeFlags);
+        if (opvl != null)
+        {
+            for (var j = 0; j < opvl.Orders.Count; j++)
+            {
+                var sourceOrder = opvl[j];
+                var destOrder   = this[j];
+                destOrder!.CopyFrom(sourceOrder!, copyMergeFlags);
+            }
+            for (var i = opvl.Orders.Count; i < SafeOrdersLength; i++)
+                if (orders?[i] is { IsEmpty: false } makeEmpty)
+                    makeEmpty.IsEmpty = true;
+        }
+        base.CopyFrom(source, copyMergeFlags);
+        if (pqopvl != null && isFullReplace) SetFlagsSame(source);
+
+        return this;
     }
 
     public override PQOrdersPriceVolumeLayer Clone() => new(this, LayerType, NameIdLookup);

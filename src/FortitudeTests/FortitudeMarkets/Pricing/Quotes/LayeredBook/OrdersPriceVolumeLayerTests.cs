@@ -663,6 +663,8 @@ public class OrdersPriceVolumeLayerTests
     (bool exactComparison,
         IMutableOrdersPriceVolumeLayer? original,
         IMutableOrdersPriceVolumeLayer? changingPriceVolumeLayer,
+        IOrderBookSide? originalOrderBookSide = null,
+        IOrderBookSide? changingOrderBookSide = null,
         IOrderBook? originalOrderBook = null,
         IOrderBook? changingOrderBook = null,
         ILevel2Quote? originalQuote = null,
@@ -673,18 +675,29 @@ public class OrdersPriceVolumeLayerTests
         Assert.IsNotNull(changingPriceVolumeLayer);
 
         OrdersCountPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-            (exactComparison, original, changingPriceVolumeLayer, originalOrderBook, changingOrderBook, originalQuote, changingQuote);
+            (exactComparison, original, changingPriceVolumeLayer, originalOrderBookSide, changingOrderBookSide, 
+             originalOrderBook, changingOrderBook, originalQuote, changingQuote);
 
         Assert.AreEqual(original.OrdersCount, changingPriceVolumeLayer.OrdersCount);
         for (var i = 0; i < original.OrdersCount; i++)
         {
-            var originalTraderInfo = original[i];
-            var changingTraderInfo = changingPriceVolumeLayer[i];
+            var originalOrderLayerInfo = original[i];
+            var changingOrderLayerInfo = changingPriceVolumeLayer[i];
 
-            Assert.AreEqual(originalTraderInfo != null, changingTraderInfo != null);
-            AnonymousOrderLayerInfoTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-                (exactComparison, originalTraderInfo, changingTraderInfo, original, changingPriceVolumeLayer
-               , originalOrderBook, changingOrderBook, originalQuote, changingQuote);
+            Assert.AreEqual(originalOrderLayerInfo != null, changingOrderLayerInfo != null);
+            if (originalOrderLayerInfo is ICounterPartyOrderLayerInfo || changingOrderLayerInfo is ICounterPartyOrderLayerInfo)
+            {
+                CounterPartyOrderLayerInfoTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+                    (exactComparison, originalOrderLayerInfo as IMutableCounterPartyOrderLayerInfo, 
+                     changingOrderLayerInfo as IMutableCounterPartyOrderLayerInfo, original, changingPriceVolumeLayer
+                   , originalOrderBookSide, changingOrderBookSide, originalQuote, changingQuote);
+            }
+            else
+            {
+                AnonymousOrderLayerInfoTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+                    (exactComparison, originalOrderLayerInfo, changingOrderLayerInfo, original, changingPriceVolumeLayer
+                   , originalOrderBookSide, changingOrderBookSide, originalQuote, changingQuote);
+            }
         }
     }
 }

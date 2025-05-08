@@ -13,10 +13,12 @@ namespace FortitudeMarkets.Pricing.Quotes;
 
 public interface ILevel2Quote : ILevel1Quote, ICloneable<ILevel2Quote>, IDoublyLinkedListNode<ILevel2Quote>
 {
-    IOrderBook BidBook          { get; }
-    bool       IsBidBookChanged { get; }
-    IOrderBook AskBook          { get; }
-    bool       IsAskBookChanged { get; }
+    IOrderBook OrderBook { get; }
+
+    IOrderBookSide BidBook { get; }
+
+    IOrderBookSide AskBook { get; }
+
 
     new ILevel2Quote? Next     { get; set; }
     new ILevel2Quote? Previous { get; set; }
@@ -26,11 +28,7 @@ public interface ILevel2Quote : ILevel1Quote, ICloneable<ILevel2Quote>, IDoublyL
 
 public interface IMutableLevel2Quote : ILevel2Quote, IMutableLevel1Quote
 {
-    new IMutableOrderBook BidBook { get; set; }
-    new IMutableOrderBook AskBook { get; set; }
-
-    new bool IsBidBookChanged { get; set; }
-    new bool IsAskBookChanged { get; set; }
+    new IMutableOrderBook OrderBook { get; set; }
 
     new IMutableLevel2Quote Clone();
 }

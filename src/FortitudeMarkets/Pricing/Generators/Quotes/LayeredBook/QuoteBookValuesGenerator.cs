@@ -69,8 +69,7 @@ public class QuoteBookValuesGenerator
     protected static readonly ConcurrentDictionary<int, string> CachedTraderNames       = new();
     protected static readonly ConcurrentDictionary<int, string> CachedCounterPartyNames = new();
 
-    protected static readonly NameIdLookupGenerator BidBookNameToId = new();
-    protected static readonly NameIdLookupGenerator AskBookNameToId = new();
+    protected static readonly NameIdLookupGenerator OrderBookNameToId = new();
 
     private readonly BookGenerationInfo                bookGenerationInfo;
     private readonly CurrentQuoteInstantValueGenerator quoteValueGenerator;
@@ -842,7 +841,7 @@ public class QuoteBookValuesGenerator
 
     protected virtual int AskIdFromName(string name)
     {
-        var value = AskBookNameToId.GetOrAddId(name);
+        var value = OrderBookNameToId.GetOrAddId(name);
         // Console.Out.WriteLine($"Set AskBookNameId[{value}] = {name}");
         return value;
         // BidIdFromName(name);
@@ -850,15 +849,15 @@ public class QuoteBookValuesGenerator
 
     protected virtual int BidIdFromName(string name)
     {
-        var value = BidBookNameToId.GetOrAddId(name);
+        var value = OrderBookNameToId.GetOrAddId(name);
         // Console.Out.WriteLine($"Set JointBookNameId[{value}] = {name}");
         // Console.Out.WriteLine($"Set BidBookNameId[{value}] = {name}");
         return value;
     }
 
-    protected virtual string AskNameFromId(int nameId) => AskBookNameToId[nameId]!;
+    protected virtual string AskNameFromId(int nameId) => OrderBookNameToId[nameId]!;
 
-    protected virtual string BidNameFromId(int nameId) => BidBookNameToId[nameId]!;
+    protected virtual string BidNameFromId(int nameId) => OrderBookNameToId[nameId]!;
 
     protected virtual string GenerateCounterPartyName(bool isBid)
     {

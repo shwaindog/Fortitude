@@ -1,6 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
 
-using FortitudeCommon.Types;
+#region
+
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -20,16 +23,15 @@ public abstract class RequestMessage : VersionedMessage, IRequestMessage
 
     protected RequestMessage(byte version) => Version = version;
 
+    public int RequestId { get; set; }
 
-    public override IVersionedMessage CopyFrom(IVersionedMessage source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+
+    public override IVersionedMessage CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source);
         if (source is IRequestMessage requestMessage) RequestId = requestMessage.RequestId;
         return this;
     }
-
-    public int RequestId { get; set; }
 
     public int NewRequestId()
     {

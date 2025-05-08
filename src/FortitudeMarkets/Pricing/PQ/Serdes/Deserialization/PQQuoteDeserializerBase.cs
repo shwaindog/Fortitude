@@ -16,6 +16,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 
@@ -80,14 +81,12 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
 
     public void OnSyncOk(IPQQuoteDeserializer quoteDeserializer)
     {
-        var onSyncOk = SyncOk;
-        onSyncOk?.Invoke(quoteDeserializer);
+        SyncOk?.Invoke(quoteDeserializer);
     }
 
     public void OnOutOfSync(IPQQuoteDeserializer quoteDeserializer)
     {
-        var onOutOfSync = OutOfSync;
-        onOutOfSync?.Invoke(quoteDeserializer);
+        OutOfSync?.Invoke(quoteDeserializer);
     }
 
     public virtual bool HasTimedOutAndNeedsSnapshot(DateTime utcNow) => false;
@@ -122,11 +121,12 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
 
     public unsafe int UpdateQuote(IMessageBufferContext readContext, T ent, uint sequenceId)
     {
+        ent.UpdateComplete();
         if (readContext is SocketBufferReadContext sockBuffContext)
         {
-            ent.ClientReceivedTime  = sockBuffContext?.DetectTimestamp ?? DateTime.MinValue;
-            ent.SocketReceivingTime = sockBuffContext?.ReceivingTimestamp ?? DateTime.MinValue;
-            ent.ProcessedTime       = sockBuffContext?.DeserializerTime ?? DateTime.Now;
+            ent.ClientReceivedTime  = sockBuffContext.DetectTimestamp;
+            ent.SocketReceivingTime = sockBuffContext.ReceivingTimestamp;
+            ent.ProcessedTime       = sockBuffContext.DeserializerTime;
         }
 
         using var fixedBuffer = readContext.EncodedBuffer!;
@@ -207,25 +207,27 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
                     depthKey = depthByte.ToDepthKey();
                 // depthKey = depthByte.IsTwoByteDepth() ? depthByte.ToDepthKey(*ptr++) : depthByte.ToDepthKey();
             }
+
+            PQSubFieldKeys subId = PQSubFieldKeys.None;
+
+            if (flags.HasSubIdFlag()) subId = (PQSubFieldKeys)(*ptr++);
+
             ushort auxiliaryPayload = 0;
 
             if (flags.HasAuxiliaryPayloadFlag()) auxiliaryPayload = StreamByteOps.ToUShort(ref ptr);
 
-            ushort extendedPayload = 0;
-
-            if (flags.HasExtendedPayloadFlag()) extendedPayload = StreamByteOps.ToUShort(ref ptr);
-            var payload                                         = StreamByteOps.ToUInt(ref ptr);
+            var payload = StreamByteOps.ToUInt(ref ptr);
 
             var pqFieldUpdate = hasDepth
-                ? new PQFieldUpdate(id, depthKey, payload, extendedPayload, auxiliaryPayload, flags)
-                : new PQFieldUpdate(id, payload, extendedPayload, auxiliaryPayload, flags);
+                ? new PQFieldUpdate(id, depthKey, subId, auxiliaryPayload, payload, flags)
+                : new PQFieldUpdate(id, subId, auxiliaryPayload, payload, flags);
             // logger.Info("de-{0}-{1}", sequenceId, pqFieldUpdate);
             var moreBytes = ent.UpdateField(pqFieldUpdate);
             if (moreBytes <= 0 || ptr + moreBytes + 4 > end) continue;
             var stringUpdate = new PQStringUpdate
             {
                 DictionaryId = StreamByteOps.ToInt(ref ptr), Value = StreamByteOps.ToString(ref ptr, moreBytes)
-              , Command      = (CrudCommand)pqFieldUpdate.ExtendedPayload
+              , Command      = (CrudCommand)pqFieldUpdate.SubId
             };
             var fieldStringUpdate = new PQFieldStringUpdate
             {

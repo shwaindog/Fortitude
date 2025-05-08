@@ -5,6 +5,7 @@
 
 using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
@@ -127,7 +128,12 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         }
         else if (pqSourcePvl != null)
         {
-            if (pqSourcePvl.IsSourceQuoteReferenceUpdated || isFullReplace) SourceQuoteReference = pqSourcePvl.SourceQuoteReference;
+            if (pqSourcePvl.IsSourceQuoteReferenceUpdated || isFullReplace)
+            {
+                IsSourceQuoteReferenceUpdated = true;
+
+                SourceQuoteReference = pqSourcePvl.SourceQuoteReference;
+            }
             if (isFullReplace) SetFlagsSame(pqSourcePvl);
         }
 

@@ -1,7 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Serdes;
@@ -42,8 +44,8 @@ public class OrxLoggedOutMessage : OrxVersionedMessage
         Reason = reason;
     }
 
-    public override IVersionedMessage CopyFrom(IVersionedMessage source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IVersionedMessage CopyFrom
+        (IVersionedMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is OrxLoggedOutMessage loggedOutMessage) Reason = loggedOutMessage.Reason.SyncOrRecycle(Reason);
         return this;

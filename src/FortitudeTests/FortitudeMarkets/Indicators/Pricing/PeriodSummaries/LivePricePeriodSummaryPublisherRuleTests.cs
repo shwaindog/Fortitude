@@ -19,6 +19,7 @@ using FortitudeMarkets.Indicators.Pricing.PeriodSummaries.Construction;
 using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.PQ.Subscription.BusRules;
 using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Summaries;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
 using FortitudeTests.FortitudeBusRules.Rules.Common.TimeSeries;
@@ -29,7 +30,7 @@ using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeTests.FortitudeMarkets.Pricing.Summaries.PricePeriodSummaryTests;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 
 #endregion
 

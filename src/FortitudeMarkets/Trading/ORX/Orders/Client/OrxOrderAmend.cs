@@ -1,7 +1,10 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarkets.Trading.Orders.Client;
 using FortitudeMarkets.Trading.Orders.Products;
@@ -17,17 +20,21 @@ public class OrxOrderAmend : ReusableObject<IOrderAmend>, IOrderAmend
     public OrxOrderAmend(IOrderAmend toClone)
     {
         NewDisplaySize = toClone.NewDisplaySize;
+
         NewQuantity = toClone.NewQuantity;
+
         NewPrice = toClone.NewPrice;
-        NewSide = toClone.NewSide;
+        NewSide  = toClone.NewSide;
     }
 
     public OrxOrderAmend(decimal newDisplaySize, decimal newQuantity, decimal newPrice, OrderSide newSide)
     {
         NewDisplaySize = newDisplaySize;
+
         NewQuantity = newQuantity;
+
         NewPrice = newPrice;
-        NewSide = newSide;
+        NewSide  = newSide;
     }
 
     [OrxOptionalField(1)] public decimal NewDisplaySize { get; set; }
@@ -42,18 +49,23 @@ public class OrxOrderAmend : ReusableObject<IOrderAmend>, IOrderAmend
     public override void StateReset()
     {
         NewDisplaySize = 0;
+
         NewQuantity = 0;
+
         NewPrice = 0;
-        NewSide = OrderSide.None;
+        NewSide  = OrderSide.None;
+
         base.StateReset();
     }
 
     public override IOrderAmend CopyFrom(IOrderAmend source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         NewDisplaySize = source.NewDisplaySize;
+
         NewQuantity = source.NewQuantity;
+
         NewPrice = source.NewPrice;
-        NewSide = source.NewSide;
+        NewSide  = source.NewSide;
         return this;
     }
 
@@ -62,9 +74,10 @@ public class OrxOrderAmend : ReusableObject<IOrderAmend>, IOrderAmend
     protected bool Equals(OrxOrderAmend other)
     {
         var displaySizeSame = NewDisplaySize == other.NewDisplaySize;
+
         var quantitySame = NewQuantity == other.NewQuantity;
-        var priceSame = NewPrice == other.NewPrice;
-        var sideSame = NewSide == other.NewSide;
+        var priceSame    = NewPrice == other.NewPrice;
+        var sideSame     = NewSide == other.NewSide;
 
         return displaySizeSame && quantitySame && priceSame && sideSame;
     }

@@ -7,7 +7,9 @@ using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.TimeSeries;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 
@@ -29,7 +31,8 @@ public interface ITickInstant : IReusableObject<ITickInstant>, IInterfacesCompar
 
     decimal SingleTickValue { get; }
 
-    new ITickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
+    new ITickInstant   CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
+    new ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 }
 
 public struct TickInstantValue : ITimeSeriesEntry

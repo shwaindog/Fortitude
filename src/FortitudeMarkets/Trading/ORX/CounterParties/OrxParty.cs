@@ -1,7 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarkets.Trading.Counterparties;
@@ -15,32 +17,43 @@ public class OrxParty : ReusableObject<IParty>, IParty
     public OrxParty()
     {
         PartyId = new MutableString();
-        Name = new MutableString();
+        Name    = new MutableString();
+
         ParentParty = null;
+
         ClientPartyId = new MutableString();
+
         Portfolio = new OrxBookingInfo();
     }
 
     public OrxParty(IParty toClone)
     {
         PartyId = new MutableString(toClone.PartyId);
-        Name = new MutableString(toClone.Name);
+        Name    = new MutableString(toClone.Name);
+
         ParentParty = toClone.ParentParty != null ? new OrxParty(toClone.ParentParty) : null;
+
         ClientPartyId = new MutableString(toClone.ClientPartyId);
+
         Portfolio = new OrxBookingInfo(toClone.Portfolio);
     }
 
-    public OrxParty(string partyId, string name, OrxParty? parentParty,
+    public OrxParty
+    (string partyId, string name, OrxParty? parentParty,
         string clientPartyId, OrxBookingInfo portfolio)
         : this((MutableString)partyId, name, parentParty, clientPartyId, portfolio) { }
 
-    public OrxParty(MutableString partyId, MutableString name, OrxParty? parentParty,
+    public OrxParty
+    (MutableString partyId, MutableString name, OrxParty? parentParty,
         MutableString clientPartyId, OrxBookingInfo portfolio)
     {
         PartyId = partyId;
-        Name = name;
+        Name    = name;
+
         ParentParty = parentParty;
+
         ClientPartyId = clientPartyId;
+
         Portfolio = portfolio;
     }
 
@@ -53,6 +66,7 @@ public class OrxParty : ReusableObject<IParty>, IParty
     [OrxOptionalField(3)] public MutableString ClientPartyId { get; set; }
 
     [OrxOptionalField(4)] public OrxBookingInfo Portfolio { get; set; }
+
     public bool AutoRecycledByProducer { get; set; }
 
     IMutableString IParty.PartyId
@@ -90,9 +104,12 @@ public class OrxParty : ReusableObject<IParty>, IParty
     public override IParty CopyFrom(IParty party, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         PartyId = party.PartyId.SyncOrRecycle(PartyId)!;
-        Name = party.Name.SyncOrRecycle(Name)!;
+        Name    = party.Name.SyncOrRecycle(Name)!;
+
         ParentParty = party.ParentParty.SyncOrRecycle(ParentParty);
+
         ClientPartyId = party.ClientPartyId.SyncOrRecycle(ClientPartyId)!;
+
         Portfolio = party.Portfolio.SyncOrRecycle(Portfolio)!;
         return this;
     }
@@ -100,10 +117,14 @@ public class OrxParty : ReusableObject<IParty>, IParty
     protected bool Equals(OrxParty other)
     {
         var partyIdSame = Equals(PartyId, other.PartyId);
-        var nameSame = Equals(Name, other.Name);
+        var nameSame    = Equals(Name, other.Name);
+
         var parentPartySame = Equals(ParentParty, other.ParentParty);
+
         var clientPartyIdSame = Equals(ClientPartyId, other.ClientPartyId);
+
         var portfolioSame = Equals(Portfolio, other.Portfolio);
+
         return partyIdSame && nameSame && parentPartySame && clientPartyIdSame && portfolioSame;
     }
 

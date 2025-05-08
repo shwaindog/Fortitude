@@ -1,7 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarkets.Trading.Counterparties;
@@ -16,7 +18,7 @@ public class OrxBookingInfo : ReusableObject<IBookingInfo>, IBookingInfo
 
     public OrxBookingInfo(IBookingInfo toClone)
     {
-        Portfolio = toClone.Portfolio != null ? new MutableString(toClone.Portfolio) : null;
+        Portfolio    = toClone.Portfolio != null ? new MutableString(toClone.Portfolio) : null;
         SubPortfolio = toClone.SubPortfolio != null ? new MutableString(toClone.SubPortfolio) : null;
     }
 
@@ -25,7 +27,7 @@ public class OrxBookingInfo : ReusableObject<IBookingInfo>, IBookingInfo
 
     public OrxBookingInfo(IMutableString portfolio, IMutableString subPortfolio)
     {
-        Portfolio = (MutableString)portfolio;
+        Portfolio    = (MutableString)portfolio;
         SubPortfolio = (MutableString)subPortfolio;
     }
 
@@ -47,17 +49,18 @@ public class OrxBookingInfo : ReusableObject<IBookingInfo>, IBookingInfo
 
     public override IBookingInfo Clone() => Recycler?.Borrow<OrxBookingInfo>().CopyFrom(this) ?? new OrxBookingInfo(this);
 
-    public override IBookingInfo CopyFrom(IBookingInfo bookingInfo
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IBookingInfo CopyFrom
+    (IBookingInfo bookingInfo
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        Portfolio = bookingInfo.Portfolio.SyncOrRecycle(Portfolio);
+        Portfolio    = bookingInfo.Portfolio.SyncOrRecycle(Portfolio);
         SubPortfolio = bookingInfo.SubPortfolio.SyncOrRecycle(SubPortfolio);
         return this;
     }
 
     protected bool Equals(OrxBookingInfo other)
     {
-        var portfolioSame = Equals(Portfolio, other.Portfolio);
+        var portfolioSame    = Equals(Portfolio, other.Portfolio);
         var subPortfolioSame = Equals(SubPortfolio, other.SubPortfolio);
 
         return portfolioSame && subPortfolioSame;

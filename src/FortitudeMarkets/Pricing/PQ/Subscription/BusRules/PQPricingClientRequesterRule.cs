@@ -17,6 +17,7 @@ using FortitudeMarkets.Configuration.ClientServerConfig;
 using FortitudeMarkets.Pricing.PQ.Converters;
 using FortitudeMarkets.Pricing.PQ.Subscription.BusRules.BusMessages;
 using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

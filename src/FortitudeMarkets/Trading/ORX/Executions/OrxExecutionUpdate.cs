@@ -1,7 +1,10 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarkets.Trading.Executions;
@@ -11,27 +14,34 @@ using FortitudeMarkets.Trading.ORX.Session;
 
 namespace FortitudeMarkets.Trading.ORX.Executions;
 
-public sealed class OrxExecutionUpdate : OrxTradingMessage, IExecutionUpdate, IStoreState<OrxExecutionUpdate>
+public sealed class OrxExecutionUpdate : OrxTradingMessage, IExecutionUpdate, ITransferState<OrxExecutionUpdate>
 {
     public OrxExecutionUpdate() { }
 
     public OrxExecutionUpdate(IExecutionUpdate toClone) : base(toClone)
     {
-        Execution = new OrxExecution(toClone.Execution!);
+        Execution           = new OrxExecution(toClone.Execution!);
         ExecutionUpdateType = toClone.ExecutionUpdateType;
+
         SocketReceivedTime = toClone.SocketReceivedTime;
+
         AdapterProcessedTime = toClone.AdapterProcessedTime;
+
         ClientReceivedTime = toClone.ClientReceivedTime;
     }
 
-    public OrxExecutionUpdate(OrxExecution execution, ExecutionUpdateType executionUpdateType
-        , DateTime socketReceivedTime,
+    public OrxExecutionUpdate
+    (OrxExecution execution, ExecutionUpdateType executionUpdateType
+      , DateTime socketReceivedTime,
         DateTime adapterProcessedTime, DateTime clientReceivedTime)
     {
         Execution = execution;
+
         ExecutionUpdateType = executionUpdateType;
-        SocketReceivedTime = socketReceivedTime;
+        SocketReceivedTime  = socketReceivedTime;
+
         AdapterProcessedTime = adapterProcessedTime;
+
         ClientReceivedTime = clientReceivedTime;
     }
 
@@ -53,23 +63,28 @@ public sealed class OrxExecutionUpdate : OrxTradingMessage, IExecutionUpdate, IS
 
     public DateTime ClientReceivedTime { get; set; }
 
-    public override IVersionedMessage CopyFrom(IVersionedMessage source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+    public override IVersionedMessage CopyFrom
+    (IVersionedMessage source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CopyFrom((IExecutionUpdate)source, copyMergeFlags);
 
     public override void StateReset()
     {
         Execution?.DecrementRefCount();
         Execution = null;
+
         ExecutionUpdateType = ExecutionUpdateType.Unknown;
-        SocketReceivedTime = DateTimeConstants.UnixEpoch;
+        SocketReceivedTime  = DateTimeConstants.UnixEpoch;
+
         AdapterProcessedTime = DateTimeConstants.UnixEpoch;
+
         ClientReceivedTime = DateTimeConstants.UnixEpoch;
         base.StateReset();
     }
 
-    public IExecutionUpdate CopyFrom(IExecutionUpdate executionUpdate
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public IExecutionUpdate CopyFrom
+    (IExecutionUpdate executionUpdate
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(executionUpdate, copyMergeFlags);
         if (executionUpdate.Execution != null)
@@ -80,14 +95,17 @@ public sealed class OrxExecutionUpdate : OrxTradingMessage, IExecutionUpdate, IS
         }
 
         ExecutionUpdateType = executionUpdate.ExecutionUpdateType;
-        SocketReceivedTime = executionUpdate.SocketReceivedTime;
+        SocketReceivedTime  = executionUpdate.SocketReceivedTime;
+
         AdapterProcessedTime = executionUpdate.AdapterProcessedTime;
+
         ClientReceivedTime = executionUpdate.ClientReceivedTime;
         return this;
     }
 
-    public OrxExecutionUpdate CopyFrom(OrxExecutionUpdate source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+    public OrxExecutionUpdate CopyFrom
+    (OrxExecutionUpdate source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         (OrxExecutionUpdate)CopyFrom((IVersionedMessage)source, copyMergeFlags);
 
 

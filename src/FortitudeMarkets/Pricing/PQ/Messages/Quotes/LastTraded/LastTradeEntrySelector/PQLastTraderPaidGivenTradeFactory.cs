@@ -14,7 +14,7 @@ public class PQLastTraderPaidGivenTradeFactory : IPQRecentlyTradedFactory
     public IPQNameIdLookupGenerator TraderNameIdLookup { get; set; }
     public Type EntryCreationType => typeof(PQLastTraderPaidGivenTrade);
 
-    public IPQLastTrade CreateNewLastTradeEntry() => new PQLastTraderPaidGivenTrade(TraderNameIdLookup, 0m, DateTimeConstants.UnixEpoch);
+    public IPQLastTrade CreateNewLastTradeEntry() => new PQLastTraderPaidGivenTrade(TraderNameIdLookup, 0m, DateTime.MinValue);
 
     public IPQLastTrade UpgradeLayer(IPQLastTrade original) => new PQLastTraderPaidGivenTrade(original, TraderNameIdLookup);
 }

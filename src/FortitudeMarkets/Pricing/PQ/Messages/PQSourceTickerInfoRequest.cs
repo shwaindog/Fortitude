@@ -1,6 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
 
-using FortitudeCommon.Types;
+#region
+
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 
 #endregion
@@ -19,8 +22,8 @@ public class PQSourceTickerInfoRequest : RequestMessage
 
     public override uint MessageId => (uint)PQMessageIds.SourceTickerInfoRequest;
 
-    public override IVersionedMessage CopyFrom(IVersionedMessage source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IVersionedMessage CopyFrom
+        (IVersionedMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         return this;

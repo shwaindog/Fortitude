@@ -7,9 +7,9 @@ using System.Text.Json.Serialization;
 
 #endregion
 
-namespace FortitudeCommon.Types;
+namespace FortitudeCommon.Types.Mutable;
 
-public interface ITracksChanges<T> : IStoreState<T> where T : class
+public interface ITracksChanges<T> : ITransferState<T>, IUpdatable where T : class
 {
     [JsonIgnore] bool HasUpdates { get; set; }
 }

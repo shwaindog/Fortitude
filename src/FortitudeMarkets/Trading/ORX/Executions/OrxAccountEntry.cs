@@ -1,7 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Authentication;
@@ -12,7 +14,7 @@ using FortitudeMarkets.Trading.ORX.Session;
 
 namespace FortitudeMarkets.Trading.ORX.Executions;
 
-public class OrxAccountEntry : OrxTradingMessage, IStoreState<OrxAccountEntry>
+public class OrxAccountEntry : OrxTradingMessage, ITransferState<OrxAccountEntry>
 {
     public OrxAccountEntry() { }
 
@@ -34,8 +36,9 @@ public class OrxAccountEntry : OrxTradingMessage, IStoreState<OrxAccountEntry>
     public OrxAccountEntry CopyFrom(OrxAccountEntry source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         (OrxAccountEntry)CopyFrom((IVersionedMessage)source, copyMergeFlags);
 
-    public override IVersionedMessage CopyFrom(IVersionedMessage source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IVersionedMessage CopyFrom
+    (IVersionedMessage source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
 

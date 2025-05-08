@@ -11,8 +11,9 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 
 #endregion
 
@@ -21,6 +22,194 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 [TestClass]
 public class PQSourceTickerInfoTests
 {
+    public static readonly PQSourceTickerInfo BaseL2PriceVolumeSti = 
+        new(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level2Quote, Unknown
+       , 20, 0.000001m, 0.0001m, 1m, 10_000_000m, 1000m
+       , layerFlags: LayerFlagsExtensions.PriceVolumeLayerFlags
+          , lastTradedFlags: LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags);
+
+    public static readonly PQSourceTickerInfo BaseL3PriceVolumeSti = 
+        new(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
+       , 20, 0.000001m, 0.0001m, 1m, 10_000_000m, 1000m
+       , layerFlags: LayerFlagsExtensions.PriceVolumeLayerFlags
+          , lastTradedFlags: LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags);
+
+    public static readonly PQSourceTickerInfo SimpleL2PriceVolumeSti = 
+        BaseL2PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.PriceVolumeLayerFlags);
+
+    public static readonly PQSourceTickerInfo SourceNameL2PriceVolumeSti = 
+        BaseL2PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSourceFlags);
+
+    public static readonly PQSourceTickerInfo SourceQuoteRefL2PriceVolumeSti = 
+        BaseL2PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSourceQuoteRefFlags);
+
+    public static readonly PQSourceTickerInfo OrdersCountL2PriceVolumeSti = 
+        BaseL2PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullOrdersCountFlags);
+
+    public static readonly PQSourceTickerInfo OrdersAnonL2PriceVolumeSti = 
+        BaseL2PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullAnonymousOrderFlags);
+
+    public static readonly PQSourceTickerInfo OrdersCounterPartyL2PriceVolumeSti = 
+        BaseL2PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullCounterPartyOrdersFlags);
+
+    public static readonly PQSourceTickerInfo ValueDateL2PriceVolumeSti = 
+        BaseL2PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullValueDateFlags);
+
+    public static readonly PQSourceTickerInfo FullSupportL2PriceVolumeSti = 
+        BaseL2PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSupportLayerFlags);
+
+    public static readonly PQSourceTickerInfo SimpleL3PriceVolumeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.PriceVolumeLayerFlags);
+
+    public static readonly PQSourceTickerInfo SimpleL3NoRecentlyTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.PriceVolumeLayerFlags)
+                            .WithLastTradedFlags(LastTradedFlags.None);
+
+    public static readonly PQSourceTickerInfo SimpleL3JustTradeTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.PriceVolumeLayerFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags);
+
+    public static readonly PQSourceTickerInfo SimpleL3PaidOrGivenTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.PriceVolumeLayerFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.FullPaidOrGivenFlags);
+
+    public static readonly PQSourceTickerInfo SimpleL3TraderNamePaidOrGivenSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.PriceVolumeLayerFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.FullTraderNamePaidOrGivenFlags);
+
+    public static readonly PQSourceTickerInfo SourceNameL3PriceVolumeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSourceFlags);
+
+    public static readonly PQSourceTickerInfo SourceNameL3NoRecentlyTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSourceFlags)
+                            .WithLastTradedFlags(LastTradedFlags.None);
+
+    public static readonly PQSourceTickerInfo SourceNameL3JustTradeTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSourceFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags);
+
+    public static readonly PQSourceTickerInfo SourceNameL3PaidOrGivenTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSourceFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.FullPaidOrGivenFlags);
+
+    public static readonly PQSourceTickerInfo SourceNameL3TraderNamePaidOrGivenSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSourceFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.FullTraderNamePaidOrGivenFlags);
+
+    public static readonly PQSourceTickerInfo SourceQuoteRefL3PriceVolumeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSourceQuoteRefFlags);
+
+    public static readonly PQSourceTickerInfo SourceQuoteRefL3NoRecentlyTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSourceQuoteRefFlags)
+                            .WithLastTradedFlags(LastTradedFlags.None);
+
+    public static readonly PQSourceTickerInfo SourceQuoteRefL3JustTradeTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSourceQuoteRefFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags);
+
+    public static readonly PQSourceTickerInfo SourceQuoteRefL3PaidOrGivenTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSourceQuoteRefFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.FullPaidOrGivenFlags);
+
+    public static readonly PQSourceTickerInfo SourceQuoteRefL3TraderNamePaidOrGivenSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSourceQuoteRefFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.FullTraderNamePaidOrGivenFlags);
+
+    public static readonly PQSourceTickerInfo OrdersCountL3PriceVolumeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullOrdersCountFlags);
+
+    public static readonly PQSourceTickerInfo  OrdersCountL3NoRecentlyTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullOrdersCountFlags)
+                            .WithLastTradedFlags(LastTradedFlags.None);
+
+    public static readonly PQSourceTickerInfo  OrdersCountL3JustTradeTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullOrdersCountFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags);
+
+    public static readonly PQSourceTickerInfo  OrdersCountL3PaidOrGivenTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullOrdersCountFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.FullPaidOrGivenFlags);
+
+    public static readonly PQSourceTickerInfo  OrdersCountL3TraderNamePaidOrGivenSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullOrdersCountFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.FullTraderNamePaidOrGivenFlags);
+
+    public static readonly PQSourceTickerInfo OrdersAnonL3PriceVolumeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullAnonymousOrderFlags);
+
+    public static readonly PQSourceTickerInfo  OrdersAnonL3NoRecentlyTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullAnonymousOrderFlags)
+                            .WithLastTradedFlags(LastTradedFlags.None);
+
+    public static readonly PQSourceTickerInfo OrdersAnonL3JustTradeTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullAnonymousOrderFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags);
+
+    public static readonly PQSourceTickerInfo  OrdersAnonL3PaidOrGivenTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullAnonymousOrderFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.FullPaidOrGivenFlags);
+
+    public static readonly PQSourceTickerInfo  OrdersAnonL3TraderNamePaidOrGivenSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullAnonymousOrderFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.FullTraderNamePaidOrGivenFlags);
+
+    public static readonly PQSourceTickerInfo OrdersCounterPartyL3PriceVolumeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullCounterPartyOrdersFlags);
+
+    public static readonly PQSourceTickerInfo OrdersCounterPartyL3NoRecentlyTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullCounterPartyOrdersFlags)
+                            .WithLastTradedFlags(LastTradedFlags.None);
+
+    public static readonly PQSourceTickerInfo OrdersCounterPartyL3JustTradeTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullCounterPartyOrdersFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags);
+
+    public static readonly PQSourceTickerInfo  OrdersCounterPartyL3PaidOrGivenTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullCounterPartyOrdersFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.FullPaidOrGivenFlags);
+
+    public static readonly PQSourceTickerInfo  OrdersCounterPartyL3TraderNamePaidOrGivenSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullCounterPartyOrdersFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.FullTraderNamePaidOrGivenFlags);
+
+    public static readonly PQSourceTickerInfo ValueDateL3PriceVolumeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullValueDateFlags);
+
+    public static readonly PQSourceTickerInfo ValueDateL3NoRecentlyTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullValueDateFlags)
+                            .WithLastTradedFlags(LastTradedFlags.None);
+
+    public static readonly PQSourceTickerInfo ValueDateL3JustTradeTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullValueDateFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags);
+
+    public static readonly PQSourceTickerInfo  ValueDateL3PaidOrGivenTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullValueDateFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.FullPaidOrGivenFlags);
+
+    public static readonly PQSourceTickerInfo  ValueDateL3TraderNamePaidOrGivenSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullValueDateFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.FullTraderNamePaidOrGivenFlags);
+
+    public static readonly PQSourceTickerInfo FullSupportL3PriceVolumeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSupportLayerFlags);
+
+    public static readonly PQSourceTickerInfo FullSupportL3NoRecentlyTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSupportLayerFlags)
+                            .WithLastTradedFlags(LastTradedFlags.None);
+
+    public static readonly PQSourceTickerInfo FullSupportL3JustTradeTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSupportLayerFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags);
+
+    public static readonly PQSourceTickerInfo  FullSupportL3PaidOrGivenTradeSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSupportLayerFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.FullPaidOrGivenFlags);
+
+    public static readonly PQSourceTickerInfo  FullSupportL3TraderNamePaidOrGivenSti = 
+        BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSupportLayerFlags)
+                            .WithLastTradedFlags(LastTradedFlagsExtensions.FullTraderNamePaidOrGivenFlags);
+
     private PQSourceTickerInfo emptySrcTkrInfo = null!;
 
     private PQSourceTickerInfo fullyPopulatedSrcTkrInfo = null!;
@@ -600,7 +789,7 @@ public class PQSourceTickerInfoTests
 
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType
     (bool exactComparison,
-        PQSourceTickerInfo original, PQSourceTickerInfo changingSrcTkrInfo)
+        IPQSourceTickerInfo original, IPQSourceTickerInfo changingSrcTkrInfo)
     {
         Assert.IsTrue(original.AreEquivalent(changingSrcTkrInfo));
         Assert.IsTrue(changingSrcTkrInfo.AreEquivalent(original));
@@ -613,36 +802,43 @@ public class PQSourceTickerInfoTests
         changingSrcTkrInfo.RoundingPrecision = 1.2345678m;
         Assert.IsFalse(original.AreEquivalent(changingSrcTkrInfo, exactComparison));
         changingSrcTkrInfo.RoundingPrecision = original.RoundingPrecision;
+        changingSrcTkrInfo.IsRoundingPrecisionUpdated = original.IsRoundingPrecisionUpdated;
         Assert.IsTrue(changingSrcTkrInfo.AreEquivalent(original, exactComparison));
 
         changingSrcTkrInfo.MinSubmitSize = 9.8765432m;
         Assert.IsFalse(changingSrcTkrInfo.AreEquivalent(original, exactComparison));
-        changingSrcTkrInfo.MinSubmitSize = original.MinSubmitSize;
+        changingSrcTkrInfo.MinSubmitSize              = original.MinSubmitSize;
+        changingSrcTkrInfo.IsMinSubmitSizeUpdated = original.IsMinSubmitSizeUpdated;
         Assert.IsTrue(original.AreEquivalent(changingSrcTkrInfo, exactComparison));
 
         changingSrcTkrInfo.MaxSubmitSize = 1.2345678m;
         Assert.IsFalse(original.AreEquivalent(changingSrcTkrInfo, exactComparison));
-        changingSrcTkrInfo.MaxSubmitSize = original.MaxSubmitSize;
+        changingSrcTkrInfo.MaxSubmitSize          = original.MaxSubmitSize;
+        changingSrcTkrInfo.IsMaxSubmitSizeUpdated = original.IsMaxSubmitSizeUpdated;
         Assert.IsTrue(changingSrcTkrInfo.AreEquivalent(original, exactComparison));
 
         changingSrcTkrInfo.IncrementSize = 9.8765432m;
         Assert.IsFalse(changingSrcTkrInfo.AreEquivalent(original, exactComparison));
-        changingSrcTkrInfo.IncrementSize = original.IncrementSize;
+        changingSrcTkrInfo.IncrementSize          = original.IncrementSize;
+        changingSrcTkrInfo.IsIncrementSizeUpdated = original.IsIncrementSizeUpdated;
         Assert.IsTrue(original.AreEquivalent(changingSrcTkrInfo, exactComparison));
 
         changingSrcTkrInfo.MinimumQuoteLife = 1000;
         Assert.IsFalse(original.AreEquivalent(changingSrcTkrInfo, exactComparison));
-        changingSrcTkrInfo.MinimumQuoteLife = original.MinimumQuoteLife;
+        changingSrcTkrInfo.MinimumQuoteLife       = original.MinimumQuoteLife;
+        changingSrcTkrInfo.IsMinimumQuoteLifeUpdated = original.IsMinimumQuoteLifeUpdated;
         Assert.IsTrue(changingSrcTkrInfo.AreEquivalent(original, exactComparison));
 
         changingSrcTkrInfo.LayerFlags ^= LayerFlags.Volume.AllFlags();
         Assert.IsFalse(changingSrcTkrInfo.AreEquivalent(original, exactComparison));
-        changingSrcTkrInfo.LayerFlags = original.LayerFlags;
+        changingSrcTkrInfo.LayerFlags                = original.LayerFlags;
+        changingSrcTkrInfo.IsLayerFlagsUpdated = original.IsLayerFlagsUpdated;
         Assert.IsTrue(original.AreEquivalent(changingSrcTkrInfo, exactComparison));
 
         changingSrcTkrInfo.MaximumPublishedLayers = 100;
         Assert.IsFalse(original.AreEquivalent(changingSrcTkrInfo, exactComparison));
         changingSrcTkrInfo.MaximumPublishedLayers = original.MaximumPublishedLayers;
+        changingSrcTkrInfo.IsMaximumPublishedLayersUpdated    = original.IsMaximumPublishedLayersUpdated;
         Assert.IsTrue(changingSrcTkrInfo.AreEquivalent(original, exactComparison));
 
         changingSrcTkrInfo.LastTradedFlags ^= changingSrcTkrInfo.LastTradedFlags.AllFlags();
@@ -654,43 +850,50 @@ public class PQSourceTickerInfoTests
 
     public static void AssertSourceTickerInfoContainsAllFields
     (IList<PQFieldUpdate> checkFieldUpdates,
-        ISourceTickerInfo srcTkrInfo)
+        IPQSourceTickerInfo srcTkrInfo)
     {
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.SourceTickerId, srcTkrInfo.SourceTickerId),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceTickerId));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.SourceTickerId),
+                        $"For {srcTkrInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         var decimalPlaces = BitConverter.GetBytes(decimal.GetBits(
                                                                   srcTkrInfo.RoundingPrecision)[3])[2];
         var roundingNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) *
                                        srcTkrInfo.RoundingPrecision);
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.PriceRoundingPrecision, roundingNoDecimal, (PQFieldFlags)decimalPlaces),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PriceRoundingPrecision));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.PriceRoundingPrecision),
+                        $"For {srcTkrInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         decimalPlaces = BitConverter.GetBytes(decimal.GetBits(srcTkrInfo.MinSubmitSize)[3])[2];
         var minSubmitNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) *
                                         srcTkrInfo.MinSubmitSize);
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.MinSubmitSize, minSubmitNoDecimal, (PQFieldFlags)decimalPlaces),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.MinSubmitSize));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.MinSubmitSize),
+                        $"For {srcTkrInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         decimalPlaces = BitConverter.GetBytes(decimal.GetBits(srcTkrInfo.MaxSubmitSize)[3])[2];
         var maxSubmitNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) *
                                         srcTkrInfo.MaxSubmitSize);
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.MaxSubmitSize, maxSubmitNoDecimal, (PQFieldFlags)decimalPlaces),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.MaxSubmitSize));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.MaxSubmitSize),
+                        $"For {srcTkrInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         decimalPlaces = BitConverter.GetBytes(decimal.GetBits(srcTkrInfo.IncrementSize)[3])[2];
         var incrementSizeNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) *
                                             srcTkrInfo.IncrementSize);
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.IncrementSize, incrementSizeNoDecimal, (PQFieldFlags)decimalPlaces),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.IncrementSize));
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.IncrementSize),
+                        $"For {srcTkrInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerFlags, (uint)srcTkrInfo.LayerFlags),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerFlags));
-        if (srcTkrInfo.LastTradedFlags != LastTradedFlags.None)
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerFlags),
+                        $"For {srcTkrInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+        if (srcTkrInfo.IsLastTradedFlagsUpdated)
             Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedFlags, (uint)srcTkrInfo.LastTradedFlags),
-                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedFlags));
+                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedFlags),
+                            $"For {srcTkrInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
     }
 
 
     public static PQFieldStringUpdate ExpectedSourceStringUpdate(string sourceValue) =>
         new()
         {
-            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, 0, (ushort)CrudCommand.Upsert), StringUpdate
+            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, CrudCommand.Upsert.ToPQSubFieldId(), 0), StringUpdate
                 = new PQStringUpdate
                 {
                     DictionaryId = 0, Value = sourceValue, Command = CrudCommand.Upsert
@@ -701,7 +904,7 @@ public class PQSourceTickerInfoTests
     public static PQFieldStringUpdate ExpectedTickerStringUpdate(string tickerValue) =>
         new()
         {
-            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, 0, (ushort)CrudCommand.Upsert), StringUpdate
+            Field = new PQFieldUpdate(PQQuoteFields.SourceTickerNames, CrudCommand.Upsert.ToPQSubFieldId(), 0), StringUpdate
                 = new PQStringUpdate
                 {
                     DictionaryId = 1, Value = tickerValue, Command = CrudCommand.Upsert

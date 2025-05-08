@@ -1,4 +1,4 @@
-// Licensed under the MIT license.
+﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
 #region
@@ -10,31 +10,47 @@ using FortitudeCommon.Types;
 
 namespace FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
-public enum BookSide
+public interface IOrderBook : IReusableObject<IOrderBook>, IInterfacesComparable<IOrderBook>
 {
-    Unknown
-  , BidBook
-  , AskBook
+    LayerType  LayersSupportedType { get; }
+    LayerFlags LayerSupportedFlags   { get; }
+
+    IOrderBookSide AskSide { get; }
+    IOrderBookSide BidSide { get; }
+
+    ushort MaxPublishDepth { get; }
+
+    bool IsBidBookChanged { get; }
+    
+    bool IsAskBookChanged { get; }
+
+    decimal? MidPrice { get; }
+
+    bool          HasNonEmptyOpenInterest { get; }
+
+    IMarketAggregate MarketAggregate                          { get; }
+
+    uint DailyTickUpdateCount { get; }
+    bool IsLadder             { get; }
 }
 
-public interface IOrderBook : IEnumerable<IPriceVolumeLayer>, IReusableObject<IOrderBook>,
-    IInterfacesComparable<IOrderBook>
+public interface IMutableOrderBook : IOrderBook, IInterfacesComparable<IMutableOrderBook>, ICloneable<IMutableOrderBook>
 {
-    LayerType  LayersOfType             { get; }
-    LayerFlags LayersSupportsLayerFlags { get; }
+    new LayerType  LayersSupportedType { get; set; }
+    new LayerFlags LayerSupportedFlags { get; set; }
 
-    bool     IsLadder { get; }
-    int      Capacity { get; }
-    int      Count    { get; }
-    BookSide BookSide { get; }
-    IPriceVolumeLayer? this[int level] { get; }
-}
+    new IMutableOrderBookSide AskSide { get; set; }
+    new IMutableOrderBookSide BidSide { get; set; }
 
-public interface IMutableOrderBook : IOrderBook, ICloneable<IMutableOrderBook>
-{
-    new int Capacity { get; set; }
-    new IMutablePriceVolumeLayer? this[int level] { get; set; }
+    new bool IsBidBookChanged { get; set; }
+    
+    new bool IsAskBookChanged        { get; set; }
+    new bool HasNonEmptyOpenInterest { get; set; }
+
+    new IMutableMarketAggregate? OpenInterest  { get; set; }
+
+    new uint DailyTickUpdateCount { get; set; }
+    new bool IsLadder             { get; set; }
+
     new IMutableOrderBook Clone();
-
-    int AppendEntryAtEnd();
 }

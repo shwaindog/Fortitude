@@ -1,7 +1,11 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Conversations;
 
 #endregion
@@ -13,7 +17,8 @@ public struct ConversationMessageNotification<TR>
     public ConversationMessageNotification(TR message, MessageHeader header, IConversation conversation)
     {
         Message = message;
-        Header = header;
+        Header  = header;
+
         Conversation = conversation;
     }
 
@@ -24,13 +29,14 @@ public struct ConversationMessageNotification<TR>
     public IConversation Conversation { get; }
 }
 
-public interface IReceiverListenContext : IStoreState<IReceiverListenContext>
+public interface IReceiverListenContext : ITransferState<IReceiverListenContext>
 {
     string Name { get; }
-    int UsageCount { get; set; }
+
+    int  UsageCount   { get; set; }
     Type ExpectedType { get; }
-    int IncrementUsage();
-    int DecrementUsage();
+    int  IncrementUsage();
+    int  DecrementUsage();
 }
 
 public interface IReceiverListenContext<TR> : IReceiverListenContext, ICloneable<IReceiverListenContext<TR>>
@@ -46,18 +52,21 @@ public abstract class ReceiverListenContext<TR> : IReceiverListenContext<TR>
     protected ReceiverListenContext(ReceiverListenContext<TR> toClone)
     {
         Name = toClone.Name;
+
         UsageCount = toClone.UsageCount;
     }
 
     public string Name { get; }
-    public int UsageCount { get; set; }
-    public int IncrementUsage() => ++UsageCount;
-    public int DecrementUsage() => --UsageCount;
-    public Type ExpectedType => typeof(TR);
+
+    public int  UsageCount       { get; set; }
+    public Type ExpectedType     => typeof(TR);
+    public int  IncrementUsage() => ++UsageCount;
+    public int  DecrementUsage() => --UsageCount;
+
     public abstract void SendToReceiver(ConversationMessageNotification<TR> conversationMessageNotification);
     public abstract void SendToReceiver(TR conversationMessageNotification);
 
-    public abstract IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags);
+    public abstract ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags);
 
     public abstract IReceiverListenContext CopyFrom(IReceiverListenContext source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 

@@ -1,7 +1,6 @@
 ﻿#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Serdes;
@@ -11,6 +10,7 @@ using FortitudeMarkets.Trading.Replay;
 using FortitudeMarkets.Trading.ORX.Executions;
 using FortitudeMarkets.Trading.ORX.Orders.Server;
 using FortitudeMarkets.Trading.ORX.Session;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 

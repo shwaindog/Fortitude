@@ -9,7 +9,7 @@ using FortitudeBusRules.Rules;
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.Publishing;
 using FortitudeIO.Transports.Network.Receiving;
@@ -114,7 +114,7 @@ public class Payload<T> : ReusableObject<Payload<T>>, IPayload<T>
 
 public delegate bool RuleFilter(IRule appliesToRule);
 
-public interface IBusMessage : IRecyclableObject, IStoreState<IBusMessage>, ICanCarrySocketSenderPayload, ICanCarrySocketReceiverPayload
+public interface IBusMessage : IRecyclableObject, ITransferState<IBusMessage>, ICanCarrySocketSenderPayload, ICanCarrySocketReceiverPayload
 {
     MessageType Type       { get; }
     IRule?      Sender     { get; }
@@ -314,7 +314,7 @@ public class BusMessage : RecyclableObject, IBusMessage
         return this;
     }
 
-    public IStoreState CopyFrom(IStoreState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         CopyFrom((IBusMessage)source, copyMergeFlags);
         return this;

@@ -8,15 +8,17 @@ using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Configuration.ClientServerConfig;
+using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
-namespace FortitudeMarkets.Pricing.Quotes;
+namespace FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 public interface ISourceTickerInfo : IPricingInstrumentId, IInterfacesComparable<ISourceTickerInfo>, IVersionedMessage
 {
@@ -32,6 +34,7 @@ public interface ISourceTickerInfo : IPricingInstrumentId, IInterfacesComparable
     [JsonIgnore] uint    DefaultMaxValidMs      { get; set; }
     [JsonIgnore] bool    SubscribeToPrices      { get; set; }
     [JsonIgnore] bool    TradingEnabled         { get; set; }
+
 
     LayerFlags LayerFlags { get; set; }
 
@@ -222,6 +225,9 @@ public class SourceTickerInfo : PricingInstrument, ISourceTickerInfo, ICloneable
         foreach (var instrumentFields in toClone.FilledAttributes) this[instrumentFields.Key] = instrumentFields.Value;
     }
 
+    public SourceTickerInfo(SourceTickerInfo toClone) : this((ISourceTickerInfo)toClone) { }
+    public SourceTickerInfo(PQSourceTickerInfo toClone) : this((ISourceTickerInfo)toClone) { }
+
     public override SourceTickerInfo Clone() =>
         Recycler?.Borrow<SourceTickerInfo>().CopyFrom(this) as SourceTickerInfo ?? new SourceTickerInfo((ISourceTickerInfo)this);
 
@@ -289,10 +295,10 @@ public class SourceTickerInfo : PricingInstrument, ISourceTickerInfo, ICloneable
     }
 
 
-    IVersionedMessage IStoreState<IVersionedMessage>.CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags) =>
+    IVersionedMessage ITransferState<IVersionedMessage>.CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((ISourceTickerInfo)source, copyMergeFlags);
 
-    IReusableObject<IVersionedMessage> IStoreState<IReusableObject<IVersionedMessage>>.CopyFrom
+    IReusableObject<IVersionedMessage> ITransferState<IReusableObject<IVersionedMessage>>.CopyFrom
     (IReusableObject<IVersionedMessage> source
       , CopyMergeFlags copyMergeFlags) =>
         CopyFrom((ISourceTickerInfo)source, copyMergeFlags);
@@ -304,7 +310,7 @@ public class SourceTickerInfo : PricingInstrument, ISourceTickerInfo, ICloneable
     IPricingInstrumentId IPricingInstrumentId.Clone() => Clone();
     ISourceTickerInfo ISourceTickerInfo.      Clone() => Clone();
 
-    ISourceTickerId IStoreState<ISourceTickerId>.CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags)
+    ISourceTickerId ITransferState<ISourceTickerId>.CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags)
     {
         if (source is ISourceTickerInfo srcTkrQuoteInfo) return CopyFrom(srcTkrQuoteInfo, copyMergeFlags);
         PublishedTickerDetailLevel = TickerDetailLevel.Level1Quote;
@@ -371,4 +377,46 @@ public class SourceTickerInfo : PricingInstrument, ISourceTickerInfo, ICloneable
         new(sourceTickerId, sourceTickerId.CoveringPeriod, sourceTickerId.InstrumentType);
 
     public static implicit operator SourceTickerIdentifier(SourceTickerInfo sourceTickerId) => new(sourceTickerId);
+}
+
+public static class SourceTickerInfoExtensions
+{
+    public static SourceTickerInfo WithRoundingPrecision(this SourceTickerInfo toCopy, decimal roundingPrecision) =>
+        new(toCopy) { RoundingPrecision = roundingPrecision };
+
+    public static SourceTickerInfo WithTickerDetailLevel(this SourceTickerInfo toCopy, TickerDetailLevel tickerDetailLevel) =>
+        new(toCopy) { PublishedTickerDetailLevel = tickerDetailLevel };
+
+    public static SourceTickerInfo WithPip(this SourceTickerInfo toCopy, decimal pip) =>
+        new(toCopy) { Pip = pip };
+
+    public static SourceTickerInfo WithDefaultMaxValidMs(this SourceTickerInfo toCopy, uint defaultMaxValidMs) =>
+        new(toCopy) { DefaultMaxValidMs = defaultMaxValidMs };
+
+    public static SourceTickerInfo WithSubscribeToPrices(this SourceTickerInfo toCopy, bool subscribeToPrice) =>
+        new(toCopy) { SubscribeToPrices = subscribeToPrice };
+
+    public static SourceTickerInfo WithTradingEnabled(this SourceTickerInfo toCopy, bool tradingEnabled) =>
+        new(toCopy) { TradingEnabled = tradingEnabled };
+
+    public static SourceTickerInfo WithMaximumPublishedLayers(this SourceTickerInfo toCopy, ushort maxPublishedLayers) =>
+        new(toCopy) { MaximumPublishedLayers = maxPublishedLayers };
+
+    public static SourceTickerInfo WithMinSubmitSize(this SourceTickerInfo toCopy, decimal minSubmitSize) =>
+        new(toCopy) { MinSubmitSize = minSubmitSize };
+
+    public static SourceTickerInfo WithMaxSubmitSize(this SourceTickerInfo toCopy, decimal maxSubmitSize) =>
+        new(toCopy) { MaxSubmitSize = maxSubmitSize };
+
+    public static SourceTickerInfo WithIncrementSize(this SourceTickerInfo toCopy, decimal incrementSize) =>
+        new(toCopy) { IncrementSize = incrementSize };
+
+    public static SourceTickerInfo WithMinimumQuoteLife(this SourceTickerInfo toCopy, ushort minQuoteLifeMs) =>
+        new(toCopy) { MinimumQuoteLife = minQuoteLifeMs };
+
+    public static SourceTickerInfo WithLayerFlags(this SourceTickerInfo toCopy, LayerFlags layerFlags) =>
+        new(toCopy) { LayerFlags = layerFlags };
+
+    public static SourceTickerInfo WithLastTradedFlags(this SourceTickerInfo toCopy, LastTradedFlags lastTradedFlags) =>
+        new(toCopy) { LastTradedFlags = lastTradedFlags };
 }

@@ -22,8 +22,9 @@ using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 using static FortitudeTests.FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.TestWeeklyDataGeneratorFixture;
 
 #endregion
@@ -236,6 +237,7 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
             if (!originalEntry.AreEquivalent(compareEntry))
             {
                 Logger.Warn("Entries at {0} differ test failed \noriginal {1}\n returned {2}", i, originalEntry, compareEntry);
+                Logger.Warn("Diff is {0}", originalEntry.DiffQuotes(compareEntry));
                 FLoggerFactory.WaitUntilDrained();
                 Assert.Fail($"Entries at {i} differ test failed \noriginal {originalEntry}\n returned {compareEntry}");
             }

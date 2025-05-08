@@ -8,7 +8,7 @@ using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
-namespace FortitudeMarkets.Pricing.Quotes;
+namespace FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 public enum TickerDetailLevel : byte
 {

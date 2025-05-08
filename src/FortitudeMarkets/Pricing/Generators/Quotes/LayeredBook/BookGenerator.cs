@@ -30,30 +30,30 @@ public class BookGenerator : IBookGenerator
 
         var maxLayersToGenerate = Math.Min(level2Quote.SourceTickerInfo!.MaximumPublishedLayers
                                          , QuoteBookGenerator.BookGenerationInfo.NumberOfBookLayers);
-        PopulateBook(level2Quote.BidBook, roundedTopBid, maxLayersToGenerate, midPriceTimePair);
-        PopulateBook(level2Quote.AskBook, roundedTopAsk, maxLayersToGenerate, midPriceTimePair);
+        PopulateBook(level2Quote.OrderBook.BidSide, roundedTopBid, maxLayersToGenerate, midPriceTimePair);
+        PopulateBook(level2Quote.OrderBook.AskSide, roundedTopAsk, maxLayersToGenerate, midPriceTimePair);
     }
 
-    public virtual void InitializeBook(IMutableOrderBook newBook) { }
+    public virtual void InitializeBook(IMutableOrderBookSide newBookSide) { }
 
     public void PopulateBook
-        (IMutableOrderBook newBook, decimal startingPrice, int maxLayersToGenerate, MidPriceTimePair midPriceTimePair)
+        (IMutableOrderBookSide newBookSide, decimal startingPrice, int maxLayersToGenerate, MidPriceTimePair midPriceTimePair)
     {
-        InitializeBook(newBook);
+        InitializeBook(newBookSide);
         var missedCount = 0;
 
         var layerIndex = 0;
         for (var i = 0; i < maxLayersToGenerate; i++)
         {
             decimal layerVol;
-            if (newBook.BookSide == BookSide.BidBook)
+            if (newBookSide.BookSide == BookSide.BidBook)
             {
                 layerVol = QuoteBookGenerator.BidVolumeAt(i);
                 if (layerVol > 0)
                 {
                     missedCount = 0;
-                    while (newBook.Capacity <= i) newBook.AppendEntryAtEnd();
-                    var entry = newBook[layerIndex++]!;
+                    while (newBookSide.Capacity <= i) newBookSide.AppendEntryAtEnd();
+                    var entry = newBookSide[layerIndex++]!;
                     entry.Price  = QuoteBookGenerator.BidPriceAt(i);
                     entry.Volume = layerVol;
                     SetBidLayerValues(entry, i, midPriceTimePair);
@@ -65,8 +65,8 @@ public class BookGenerator : IBookGenerator
                 if (layerVol > 0)
                 {
                     missedCount = 0;
-                    while (newBook.Capacity <= i) newBook.AppendEntryAtEnd();
-                    var entry = newBook[layerIndex++]!;
+                    while (newBookSide.Capacity <= i) newBookSide.AppendEntryAtEnd();
+                    var entry = newBookSide[layerIndex++]!;
                     entry.Price  = QuoteBookGenerator.AskPriceAt(i);
                     entry.Volume = layerVol;
                     SetAskLayerValues(entry, i, midPriceTimePair);
@@ -130,8 +130,8 @@ public class BookGenerator : IBookGenerator
             case LayerType.OrdersFullPriceVolume:
                 PopulateCounterPartyOrdersPriceVolume((IMutableOrdersPriceVolumeLayer)bookLayer, depth, side);
                 return;
-            case LayerType.SourceQuoteRefOrdersValueDatePriceVolume:
-                PopulateSourceQuoteRefTraderPriceVolume((IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer)bookLayer, depth, side);
+            case LayerType.FullSupportPriceVolume:
+                PopulateSourceQuoteRefTraderPriceVolume((IMutableFullSupportPriceVolumeLayer)bookLayer, depth, side);
                 return;
         }
     }
@@ -441,7 +441,7 @@ public class BookGenerator : IBookGenerator
 
     protected virtual void PopulateSourceQuoteRefTraderPriceVolume
     (
-        IMutableSourceQuoteRefOrdersValueDatePriceVolumeLayer srcQtRefTrdrVlDtPriceVolumeLayer
+        IMutableFullSupportPriceVolumeLayer srcQtRefTrdrVlDtPriceVolumeLayer
       , int depth
       , BookSide side
     )

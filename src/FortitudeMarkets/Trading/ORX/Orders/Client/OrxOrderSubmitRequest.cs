@@ -5,7 +5,6 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Serdes;

@@ -51,6 +51,7 @@ public class PricingClientServerPubSubscribeTests
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
         var pqServerL2QuoteServerSetup = new LocalHostPQServerLevel2QuoteTestSetup();
+        pqServerL2QuoteServerSetup.LayerDetails |= LayerFlags.Ladder;
         pqServerL2QuoteServerSetup.InitializeLevel2QuoteConfig();
 
         var pqServerL2QuoteServerConfig = pqServerL2QuoteServerSetup.DefaultServerMarketsConfig.ShiftPortsBy(20);
@@ -107,7 +108,7 @@ public class PricingClientServerPubSubscribeTests
         SetExpectedDiffFieldsToSame(destinationSnapshot, sourcePriceQuote);
         Logger.Info("First diff.");
         Logger.Info(sourcePriceQuote.DiffQuotes(destinationSnapshot));
-        FLoggerFactory.WaitUntilDrained();
+        Thread.Sleep(1_000);
         Assert.IsTrue(sourcePriceQuote.AreEquivalent(destinationSnapshot));
 
         updateNonEmpty = false;
@@ -145,9 +146,9 @@ public class PricingClientServerPubSubscribeTests
         NonPublicInvocator.SetAutoPropertyInstanceField
             (destinationSnapshot, (Level2PriceQuote pq) => pq.ClientReceivedTime, sourcePriceQuote.ClientReceivedTime);
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (destinationSnapshot, (Level2PriceQuote pq) => pq.IsAskPriceTopUpdated, sourcePriceQuote.IsAskPriceTopUpdated);
+            (destinationSnapshot, (Level2PriceQuote pq) => pq.IsAskPriceTopChanged, sourcePriceQuote.IsAskPriceTopChanged);
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (destinationSnapshot, (Level2PriceQuote pq) => pq.IsBidPriceTopUpdated, sourcePriceQuote.IsBidPriceTopUpdated);
+            (destinationSnapshot, (Level2PriceQuote pq) => pq.IsBidPriceTopChanged, sourcePriceQuote.IsBidPriceTopChanged);
     }
 
     [TestCategory("Integration")]
@@ -160,6 +161,7 @@ public class PricingClientServerPubSubscribeTests
               LastTradedFlags.LastTradedTime);
         // setup listener if listening before publishing the updates should be enough that no snapshot is required.
         var pqServerL3QuoteServerSetup = new LocalHostPQServerLevel3QuoteTestSetup();
+        pqServerL3QuoteServerSetup.LayerDetails |= LayerFlags.Ladder;
         pqServerL3QuoteServerSetup.InitializeLevel3QuoteConfig();
 
         var pricingServerConfig = pqServerL3QuoteServerSetup.DefaultServerMarketsConfig.ShiftPortsBy(2);
@@ -244,10 +246,10 @@ public class PricingClientServerPubSubscribeTests
 
     private static void ResetL2QuoteLayers(Level2PriceQuote level2PriceQuote)
     {
-        ((OrderBook)level2PriceQuote.BidBook).StateReset();
-        ((IMutableLevel2Quote)level2PriceQuote).IsBidBookChanged = true;
-        ((OrderBook)level2PriceQuote.AskBook).StateReset();
-        ((IMutableLevel2Quote)level2PriceQuote).IsAskBookChanged = true;
+        ((OrderBookSide)level2PriceQuote.BidBook).StateReset();
+        ((IMutableLevel2Quote)level2PriceQuote).OrderBook.IsBidBookChanged = true;
+        ((OrderBookSide)level2PriceQuote.AskBook).StateReset();
+        ((IMutableLevel2Quote)level2PriceQuote).OrderBook.IsAskBookChanged = true;
 
         level2PriceQuote.SingleTickValue = 0m;
     }

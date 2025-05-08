@@ -1,9 +1,10 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeMarkets.Trading.Orders.Venues;
 
 #endregion
 
@@ -13,13 +14,13 @@ public class VenueOrderId : ReusableObject<IVenueOrderId>, IVenueOrderId
 {
     public VenueOrderId()
     {
-        VenueClientOrderId = null!;
+        VenueClientOrderId   = null!;
         VenueOrderIdentifier = null!;
     }
 
     public VenueOrderId(IVenueOrderId toClone)
     {
-        VenueClientOrderId = toClone.VenueClientOrderId;
+        VenueClientOrderId   = toClone.VenueClientOrderId;
         VenueOrderIdentifier = toClone.VenueOrderIdentifier;
     }
 
@@ -28,11 +29,11 @@ public class VenueOrderId : ReusableObject<IVenueOrderId>, IVenueOrderId
 
     public VenueOrderId(IMutableString marketClientOrderId, IMutableString marketOrderIdentifier)
     {
-        VenueClientOrderId = marketClientOrderId;
+        VenueClientOrderId   = marketClientOrderId;
         VenueOrderIdentifier = marketOrderIdentifier;
     }
 
-    public IMutableString VenueClientOrderId { get; set; }
+    public IMutableString VenueClientOrderId   { get; set; }
     public IMutableString VenueOrderIdentifier { get; set; }
 
 
@@ -40,7 +41,7 @@ public class VenueOrderId : ReusableObject<IVenueOrderId>, IVenueOrderId
 
     public override IVenueOrderId CopyFrom(IVenueOrderId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        VenueClientOrderId = source.VenueClientOrderId;
+        VenueClientOrderId   = source.VenueClientOrderId;
         VenueOrderIdentifier = source.VenueOrderIdentifier;
         return this;
     }

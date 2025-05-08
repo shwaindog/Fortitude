@@ -3,13 +3,13 @@
 
 #region
 
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerSelector;
 
-public class OrderBookLayerFactorySelector : LayerFlagsSelector<IPriceVolumeLayer, ISourceTickerInfo>
+public class OrderBookLayerFactorySelector : LayerFlagsSelector<IPriceVolumeLayer>
 {
     static OrderBookLayerFactorySelector()
     {
@@ -20,27 +20,23 @@ public class OrderBookLayerFactorySelector : LayerFlagsSelector<IPriceVolumeLaye
         }
     }
 
-    protected override IPriceVolumeLayer SelectSimplePriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) => new PriceVolumeLayer();
+    protected override IPriceVolumeLayer SelectSimplePriceVolumeLayer() => new PriceVolumeLayer();
 
-    protected override IPriceVolumeLayer SelectValueDatePriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) => new ValueDatePriceVolumeLayer();
+    protected override IPriceVolumeLayer SelectValueDatePriceVolumeLayer() => new ValueDatePriceVolumeLayer();
 
-    protected override IPriceVolumeLayer SelectSourcePriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) => new SourcePriceVolumeLayer();
+    protected override IPriceVolumeLayer SelectSourcePriceVolumeLayer() => new SourcePriceVolumeLayer();
 
-    protected override IPriceVolumeLayer SelectSourceQuoteRefPriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) =>
+    protected override IPriceVolumeLayer SelectSourceQuoteRefPriceVolumeLayer() =>
         new SourceQuoteRefPriceVolumeLayer();
 
-    protected override IPriceVolumeLayer SelectOrdersCountPriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) => new OrdersCountPriceVolumeLayer();
+    protected override IPriceVolumeLayer SelectOrdersCountPriceVolumeLayer() => new OrdersCountPriceVolumeLayer();
 
-    protected override IPriceVolumeLayer SelectAnonymousOrdersPriceVolumeLayer
-        (ISourceTickerInfo sourceTickerInfo) =>
-        new OrdersPriceVolumeLayer(LayerType.OrdersAnonymousPriceVolume);
+    protected override IPriceVolumeLayer SelectAnonymousOrdersPriceVolumeLayer() => new OrdersPriceVolumeLayer(LayerType.OrdersAnonymousPriceVolume);
 
-    protected override IPriceVolumeLayer SelectCounterPartyOrdersPriceVolumeLayer
-        (ISourceTickerInfo sourceTickerInfo) =>
-        new OrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume);
+    protected override IPriceVolumeLayer SelectCounterPartyOrdersPriceVolumeLayer () => new OrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume);
 
-    protected override IPriceVolumeLayer SelectSourceQuoteRefTraderValueDatePriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) =>
-        new SourceQuoteRefOrdersValueDatePriceVolumeLayer();
+    protected override IPriceVolumeLayer SelectSourceQuoteRefTraderValueDatePriceVolumeLayer() =>
+        new FullSupportPriceVolumeLayer();
 
     public override IPriceVolumeLayer CreateExpectedImplementation
     (LayerType desiredLayerType, IPriceVolumeLayer? copy = null
@@ -64,7 +60,7 @@ public class OrderBookLayerFactorySelector : LayerFlagsSelector<IPriceVolumeLaye
               , LayerType.OrdersAnonymousPriceVolume => new OrdersPriceVolumeLayer(desiredLayerType)
               , LayerType.OrdersFullPriceVolume      => new OrdersPriceVolumeLayer(desiredLayerType)
 
-              , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => new SourceQuoteRefOrdersValueDatePriceVolumeLayer()
+              , LayerType.FullSupportPriceVolume => new FullSupportPriceVolumeLayer()
 
               , _ => new PriceVolumeLayer()
             };

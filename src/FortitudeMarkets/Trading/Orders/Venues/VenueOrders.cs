@@ -1,9 +1,11 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
-using FortitudeMarkets.Trading.Orders.Venues;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 

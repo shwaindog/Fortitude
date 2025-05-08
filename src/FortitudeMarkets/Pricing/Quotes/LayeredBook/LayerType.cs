@@ -21,7 +21,7 @@ public enum LayerType
   , OrdersCountPriceVolume
   , OrdersAnonymousPriceVolume
   , OrdersFullPriceVolume
-  , SourceQuoteRefOrdersValueDatePriceVolume
+  , FullSupportPriceVolume
   , None
 }
 
@@ -55,7 +55,7 @@ public static class LayerTypeExtensions
                  , _ when layerFlags.HasAnyOf(OrderCounterPartyName | OrderTraderName) &&
                           layerFlags.HasNoneOf(AdditionSourceLayerFlags | SourceQuoteReference | ValueDate) =>
                        LayerType.OrdersFullPriceVolume
-                 , _ => LayerType.SourceQuoteRefOrdersValueDatePriceVolume
+                 , _ => LayerType.FullSupportPriceVolume
                };
     }
 
@@ -69,7 +69,7 @@ public static class LayerTypeExtensions
 
     public static bool IsSourceQuoteRefOrdersValueDatePriceVolume
         (this LayerType layerType) =>
-        layerType == LayerType.SourceQuoteRefOrdersValueDatePriceVolume;
+        layerType == LayerType.FullSupportPriceVolume;
 
     public static bool SupportsSourcePriceVolume
         (this LayerType layerType) =>

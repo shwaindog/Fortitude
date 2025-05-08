@@ -6,7 +6,6 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
@@ -19,7 +18,7 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.Quotes.LastTraded;
 [TestClass]
 public class RecentlyTradedTests
 {
-    private const int MaxNumberOfEntries = PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades - 1;
+    private const int MaxNumberOfEntries = QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades - 1;
 
     private IList<RecentlyTraded> allFullyPopulatedRecentlyTraded = null!;
 

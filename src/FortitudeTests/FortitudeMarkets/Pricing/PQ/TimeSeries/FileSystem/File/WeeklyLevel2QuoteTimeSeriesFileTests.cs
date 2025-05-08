@@ -3,6 +3,7 @@
 
 #region
 
+using System.Diagnostics;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
@@ -22,8 +23,9 @@ using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 using static FortitudeTests.FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.TestWeeklyDataGeneratorFixture;
 
 #endregion
@@ -100,7 +102,7 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
                      ($"TestInstrumentName{layerType}",
                       $"TestSourceName_{Interlocked.Increment(ref testCounter)}", InstrumentType.Price
                     , new DiscreetTimePeriod(TimeBoundaryPeriod.Tick), instrumentFields, optionalInstrumentFields),
-                 TimeBoundaryPeriod.OneWeek, DateTime.UtcNow.Date, 7, fileFlags, 6);
+                 TimeBoundaryPeriod.OneWeek, DateTime.UtcNow.Date, 7, fileFlags, 16);
         var createPriceQuoteFile = new PriceTimeSeriesFileParameters(level2SrcTkrInfo, createTestCreateFileParameters);
         level2OneWeekFile   = new WeeklyLevel2QuoteTimeSeriesFile(createPriceQuoteFile);
         level2SessionWriter = level2OneWeekFile.GetWriterSession()!;
@@ -279,28 +281,28 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
     [TestMethod]
     public void CreateSourceQuoteRefTraderValueDatePriceVolumeQuote_TwoSmallPeriods_OriginalValuesAreReturned()
     {
-        CreateLevel2File(layerType: LayerType.SourceQuoteRefOrdersValueDatePriceVolume);
+        CreateLevel2File(layerType: LayerType.FullSupportPriceVolume);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned(level2QuoteGenerator, asLevel2PriceQuoteFactory);
     }
 
     [TestMethod]
     public void CreatePQSourceQuoteRefTraderValueDatePriceVolumeQuote_TwoSmallPeriods_OriginalValuesAreReturned()
     {
-        CreateLevel2File(layerType: LayerType.SourceQuoteRefOrdersValueDatePriceVolume);
+        CreateLevel2File(layerType: LayerType.FullSupportPriceVolume);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned(pqLevel2QuoteGenerator, asPQLevel2QuoteFactory);
     }
 
     [TestMethod]
     public void CreateSourceQuoteRefTraderValueDatePriceVolumeQuote_TwoSmallCompressedPeriods_OriginalValuesAreReturned()
     {
-        CreateLevel2File(FileFlags.WriteDataCompressed, LayerType.SourceQuoteRefOrdersValueDatePriceVolume);
+        CreateLevel2File(FileFlags.WriteDataCompressed, LayerType.FullSupportPriceVolume);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned(level2QuoteGenerator, asLevel2PriceQuoteFactory);
     }
 
     [TestMethod]
     public void CreatePQSourceQuoteRefTraderValueDatePriceVolumeQuote_TwoSmallCompressedPeriods_OriginalValuesAreReturned()
     {
-        CreateLevel2File(FileFlags.WriteDataCompressed, LayerType.SourceQuoteRefOrdersValueDatePriceVolume);
+        CreateLevel2File(FileFlags.WriteDataCompressed, LayerType.FullSupportPriceVolume);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned(pqLevel2QuoteGenerator, asPQLevel2QuoteFactory);
     }
 
@@ -318,6 +320,10 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         foreach (var firstPeriod in toPersistAndCheck)
         {
             var result = level2SessionWriter.AppendEntry(firstPeriod);
+            if (result.StorageAttemptResult == StorageAttemptResult.StorageSizeFailure)
+            {
+                Debugger.Break();
+            }
             Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         }
         level2OneWeekFile.AutoCloseOnZeroSessions = false;
@@ -388,7 +394,7 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
     [TestMethod]
     public void CreateNewPriceQuoteFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned()
     {
-        CreateLevel2File(layerType: LayerType.SourceQuoteRefOrdersValueDatePriceVolume, numberOfLayers: 12);
+        CreateLevel2File(layerType: LayerType.FullSupportPriceVolume, numberOfLayers: 12);
         NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned(level2QuoteGenerator, asLevel2PriceQuoteFactory);
     }
 

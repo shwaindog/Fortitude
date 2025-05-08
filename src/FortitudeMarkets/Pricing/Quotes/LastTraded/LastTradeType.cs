@@ -34,17 +34,4 @@ public static class LastTradeTypeExtensions
                  , _ => LastTradeType.PriceLastTraderPaidOrGivenVolume
                };
     }
-
-    public static LastTradedFlags SupportedLastTradedFlags(this LastTradeType lastTradedType)
-    {
-        switch (lastTradedType)
-        {
-            case LastTradeType.Price:                  return LastTradedPrice;
-            case LastTradeType.PricePaidOrGivenVolume: return PaidOrGiven | LastTradedPrice | LastTradedVolume | LastTradedPrice;
-            case LastTradeType.PriceLastTraderName:
-            case LastTradeType.PriceLastTraderPaidOrGivenVolume:
-                return TraderName | PaidOrGiven | LastTradedPrice | LastTradedVolume | LastTradedPrice;
-            default: return None;
-        }
-    }
 }

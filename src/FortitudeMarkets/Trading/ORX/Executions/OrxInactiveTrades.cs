@@ -1,7 +1,10 @@
+// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
 #region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serdes;
 
 #endregion
@@ -22,8 +25,9 @@ public class OrxInactiveTrades : ReusableObject<OrxInactiveTrades>
 
     [OrxMandatoryField(0)] public bool GetInactiveOrders { get; set; }
 
-    public override OrxInactiveTrades CopyFrom(OrxInactiveTrades source
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override OrxInactiveTrades CopyFrom
+    (OrxInactiveTrades source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         GetInactiveOrders = source.GetInactiveOrders;
         return this;

@@ -6,7 +6,7 @@
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -18,8 +18,9 @@ public interface ITimerCallBackRunInfo : IReusableObject<ITimerCallBackRunInfo>,
     DateTime? LastRunTime            { get; set; }
     DateTime  NextScheduleTime       { get; set; }
     TimeSpan  IntervalPeriodTimeSpan { get; set; }
-    int       CurrentNumberOfCalls   { get; set; }
-    int       MaxNumberOfCalls       { get; set; }
+
+    int CurrentNumberOfCalls { get; set; }
+    int MaxNumberOfCalls     { get; set; }
 
     bool IsPaused   { get; set; }
     bool IsFinished { get; }

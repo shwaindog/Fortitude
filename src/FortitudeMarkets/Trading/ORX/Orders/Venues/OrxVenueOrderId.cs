@@ -1,7 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarkets.Trading.Orders.Venues;
@@ -14,13 +16,13 @@ public class OrxVenueOrderId : ReusableObject<IVenueOrderId>, IVenueOrderId
 {
     public OrxVenueOrderId()
     {
-        VenueClientOrderId = new MutableString();
+        VenueClientOrderId   = new MutableString();
         VenueOrderIdentifier = new MutableString();
     }
 
     public OrxVenueOrderId(IVenueOrderId toClone)
     {
-        VenueClientOrderId = new MutableString(toClone.VenueClientOrderId);
+        VenueClientOrderId   = new MutableString(toClone.VenueClientOrderId);
         VenueOrderIdentifier = new MutableString(toClone.VenueOrderIdentifier);
     }
 
@@ -29,7 +31,7 @@ public class OrxVenueOrderId : ReusableObject<IVenueOrderId>, IVenueOrderId
 
     public OrxVenueOrderId(MutableString venueClientOrderId, MutableString venueOrderIdentifier)
     {
-        VenueClientOrderId = venueClientOrderId;
+        VenueClientOrderId   = venueClientOrderId;
         VenueOrderIdentifier = venueOrderIdentifier;
     }
 
@@ -51,10 +53,11 @@ public class OrxVenueOrderId : ReusableObject<IVenueOrderId>, IVenueOrderId
 
     public override IVenueOrderId Clone() => Recycler?.Borrow<OrxVenueOrderId>().CopyFrom(this) ?? new OrxVenueOrderId(this);
 
-    public override IVenueOrderId CopyFrom(IVenueOrderId venueOrderId
-        , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IVenueOrderId CopyFrom
+    (IVenueOrderId venueOrderId
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        VenueClientOrderId = venueOrderId.VenueClientOrderId.CopyOrClone(VenueClientOrderId)!;
+        VenueClientOrderId   = venueOrderId.VenueClientOrderId.CopyOrClone(VenueClientOrderId)!;
         VenueOrderIdentifier = venueOrderId.VenueOrderIdentifier.CopyOrClone(VenueOrderIdentifier)!;
         return this;
     }
@@ -62,7 +65,7 @@ public class OrxVenueOrderId : ReusableObject<IVenueOrderId>, IVenueOrderId
     protected bool Equals(OrxVenueOrderId other)
     {
         var clientIdSame = Equals(VenueClientOrderId, other.VenueClientOrderId);
-        var venueIdSame = Equals(VenueOrderIdentifier, other.VenueOrderIdentifier);
+        var venueIdSame  = Equals(VenueOrderIdentifier, other.VenueOrderIdentifier);
         return clientIdSame && venueIdSame;
     }
 

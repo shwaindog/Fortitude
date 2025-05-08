@@ -1,7 +1,9 @@
-﻿#region
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2024 all rights reserved
+
+#region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarkets.Trading.Orders.Venues;
@@ -17,6 +19,7 @@ public class OrxVenue : ReusableObject<IVenue>, IVenue
     public OrxVenue(IVenue toClone)
     {
         VenueId = toClone.VenueId;
+
         Name = new MutableString(toClone.Name);
     }
 
@@ -26,6 +29,7 @@ public class OrxVenue : ReusableObject<IVenue>, IVenue
     public OrxVenue(ushort venueId, MutableString name)
     {
         VenueId = venueId;
+
         Name = name;
     }
 
@@ -44,6 +48,7 @@ public class OrxVenue : ReusableObject<IVenue>, IVenue
     public override IVenue CopyFrom(IVenue venue, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         VenueId = venue.VenueId;
+
         Name = venue.Name.CopyOrClone(Name)!;
         return this;
     }
@@ -51,7 +56,9 @@ public class OrxVenue : ReusableObject<IVenue>, IVenue
     protected bool Equals(OrxVenue other)
     {
         var venueIdSame = VenueId == other.VenueId;
+
         var nameSame = Equals(Name, other.Name);
+
         return venueIdSame && nameSame;
     }
 

@@ -17,9 +17,10 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 
 #endregion
 
@@ -33,7 +34,7 @@ public class PQClientMessageStreamDecoderTests
     private const ushort ExpectedTickerId      = ushort.MaxValue;
     private const uint   ExpectedStreamId      = uint.MaxValue;
 
-    private const uint MessageSizeToQuoteSerializer = 166 + PQQuoteMessageHeader.HeaderSize;
+    private const uint MessageSizeToQuoteSerializer = 162 + PQQuoteMessageHeader.HeaderSize;
 
     private Mock<IPQClientQuoteDeserializerRepository> clientDeserializerRepo = null!;
 

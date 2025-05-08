@@ -14,6 +14,7 @@ using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 using FortitudeMarkets.Indicators.Persistence;
 using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Summaries;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
 using FortitudeTests.FortitudeMarkets.Indicators.Config;
@@ -21,7 +22,7 @@ using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeTests.FortitudeCommon.Extensions.DirectoryInfoExtensionsTests;
 using static FortitudeTests.FortitudeMarkets.Pricing.Summaries.PricePeriodSummaryTests;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 
 #endregion
 

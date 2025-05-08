@@ -8,7 +8,7 @@ public enum PQFieldFlags : byte
 {
     None                     = 0
   , IncludesDepth            = 0x80 // 128
-  , IncludesExtendedPayLoad  = 0x40 // 64
+  , IncludesSubId  = 0x40 // 64
   , IncludesAuxiliaryPayload = 0x20 // 32
   , NegativeAndScaleMask     = 0x1F // 31
   , NegativeBit              = 0x10 // 16 
@@ -26,10 +26,10 @@ public static class PQFieldFlagsExtensions
 
     public static bool HasBothExtendedPayloadBytesFlags
         (this PQFieldFlags flags) =>
-        flags.HasExtendedPayloadFlag() && flags.HasAuxiliaryPayloadFlag();
+        flags.HasSubIdFlag() && flags.HasAuxiliaryPayloadFlag();
 
-    public static bool HasExtendedPayloadFlag(this PQFieldFlags flags) =>
-        (flags & PQFieldFlags.IncludesExtendedPayLoad) == PQFieldFlags.IncludesExtendedPayLoad;
+    public static bool HasSubIdFlag(this PQFieldFlags flags) =>
+        (flags & PQFieldFlags.IncludesSubId) == PQFieldFlags.IncludesSubId;
 
     public static bool HasAuxiliaryPayloadFlag
         (this PQFieldFlags flags) =>

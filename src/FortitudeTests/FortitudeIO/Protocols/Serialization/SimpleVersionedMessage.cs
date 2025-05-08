@@ -6,7 +6,7 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 
@@ -29,8 +29,8 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
     public uint   MessageId { get; set; } = 2345;
     public byte   Version   { get; set; } = 2;
 
-    public override IVersionedMessage CopyFrom(IVersionedMessage source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IVersionedMessage CopyFrom
+        (IVersionedMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is SimpleVersionedMessage simpleVersionedMessage)
         {
@@ -93,8 +93,7 @@ public class SimpleVersionedMessage : ReusableObject<IVersionedMessage>, IVersio
 
         public void Serialize(SimpleVersionedMessage obj, ISerdeContext writeContext)
         {
-            if ((writeContext.Direction & ContextDirection.Write) == 0)
-                throw new ArgumentException("Expected readContext to support writing");
+            if ((writeContext.Direction & ContextDirection.Write) == 0) throw new ArgumentException("Expected readContext to support writing");
             if (writeContext is IBufferContext bufferContext)
             {
                 var writeLength = Serialize(bufferContext.EncodedBuffer!, obj);

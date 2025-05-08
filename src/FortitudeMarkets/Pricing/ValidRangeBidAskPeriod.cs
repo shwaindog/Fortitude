@@ -8,6 +8,7 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Summaries;
 
@@ -209,7 +210,7 @@ public class ValidRangeBidAskPeriod : BidAskInstant, IValidRangeBidAskPeriod, IC
 
     public DiscreetTimePeriod CoveringPeriod { get; protected set; }
 
-    IReusableObject<IValidRangeBidAskPeriod> IStoreState<IReusableObject<IValidRangeBidAskPeriod>>.CopyFrom
+    IReusableObject<IValidRangeBidAskPeriod> ITransferState<IReusableObject<IValidRangeBidAskPeriod>>.CopyFrom
         (IReusableObject<IValidRangeBidAskPeriod> source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IValidRangeBidAskPeriod)source, copyMergeFlags);
 

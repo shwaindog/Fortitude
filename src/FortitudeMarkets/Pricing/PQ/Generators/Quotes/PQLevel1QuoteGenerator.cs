@@ -18,8 +18,8 @@ public class PQLevel1QuoteGenerator(CurrentQuoteInstantValueGenerator generateQu
     {
         var toPopulate = new PQLevel1Quote(GenerateQuoteValues.GenerateQuoteInfo.SourceTickerInfo);
         PopulateQuote(toPopulate, midPriceTimePair);
-        toPopulate.IsAskPriceTopUpdatedChanged = (PreviousReturnedQuote?.IsAskPriceTopUpdated ?? false) != toPopulate.IsAskPriceTopUpdated;
-        toPopulate.IsBidPriceTopUpdatedChanged = (PreviousReturnedQuote?.IsBidPriceTopUpdated ?? false) != toPopulate.IsBidPriceTopUpdated;
+        toPopulate.IsAskPriceTopChangedUpdated = (PreviousReturnedQuote?.IsAskPriceTopChanged ?? false) != toPopulate.IsAskPriceTopChanged;
+        toPopulate.IsBidPriceTopChangedUpdated = (PreviousReturnedQuote?.IsBidPriceTopChanged ?? false) != toPopulate.IsBidPriceTopChanged;
 
         toPopulate.PQSequenceId = (uint)sequenceNumber;
         return toPopulate;

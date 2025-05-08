@@ -21,6 +21,8 @@ public interface IPQLastTradeTypeSelector : ILastTradeEntryFlagsSelector<IPQRece
     IPQLastTrade? SelectLastTradeEntry
     (IPQLastTrade? original, IPQNameIdLookupGenerator nameIdLookup, ILastTrade? desired
       , bool keepCloneState = false);
+
+    IPQLastTrade? ConvertToExpectedImplementation(ILastTrade? checkLastTrade, IPQNameIdLookupGenerator nameIdLookup, bool clone = false);
 }
 
 public class PQLastTradeEntrySelector : LastTradeEntryFlagsSelector<IPQRecentlyTradedFactory>,
@@ -65,7 +67,7 @@ public class PQLastTradeEntrySelector : LastTradeEntryFlagsSelector<IPQRecentlyT
         return original;
     }
 
-    public IMutableLastTrade? ConvertToExpectedImplementation(ILastTrade? checkLastTrade, IPQNameIdLookupGenerator nameIdLookup, bool clone = false)
+    public IPQLastTrade? ConvertToExpectedImplementation(ILastTrade? checkLastTrade, IPQNameIdLookupGenerator nameIdLookup, bool clone = false)
     {
         switch (checkLastTrade)
         {

@@ -13,6 +13,7 @@ using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.TimeSeries.FileSystem.File;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

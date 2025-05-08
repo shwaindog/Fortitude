@@ -5,10 +5,13 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 
 public static class PQScaling
 {
-    private const  byte FactorMask   = 0x0F;
-    internal const byte NegativeMask = 0x10;
+    private const  byte FactorMask   = (byte)PQFieldFlags.DecimalScaleBits;
+    internal const byte NegativeMask = (byte)PQFieldFlags.NegativeBit;
 
-    public const byte NegativeAndScaleMask = NegativeMask | FactorMask;
+    internal const ulong Max48BitsULong = 0xFFFF_FFFF_FFFF;
+    internal const ulong Max32BitsULong = 0xFFFF_FFFF;
+
+    public const byte NegativeAndScaleMask = (byte)PQFieldFlags.NegativeAndScaleMask;
 
     private static readonly decimal[] Factors =
     {
@@ -49,18 +52,44 @@ public static class PQScaling
 
     public static ulong ScaleToLong(decimal value, PQFieldFlags flag) => (ulong)(Math.Abs(value) * Factors[16 - ((byte)flag & FactorMask)]);
 
-    public static ulong ScaleDownLong(long value)
+    public static ulong ScaleDownLongTo48Bits(long value)
     {
-        var scaleFactor = FindVolumeScaleFactor(value);
+        var absValue = (ulong)Math.Abs(value);
+        if ((absValue & Max48BitsULong) == 0) return absValue;
+        var scaleFactor = FindVolumeScaleFactor48Bits(value);
         return (ulong)(Math.Abs(value) * Factors[16 - ((byte)scaleFactor & FactorMask)]);
     }
 
-    public static PQFieldFlags FindVolumeScaleFactor(long volumeWithMaybeTrailingZeros)
+    public static ulong ScaleDownLongTo32Bits(long value)
     {
-        if (volumeWithMaybeTrailingZeros == 0m) return (PQFieldFlags)8;
-        var currentScale = volumeWithMaybeTrailingZeros;
+        var absValue = (ulong)Math.Abs(value);
+        if ((absValue & Max32BitsULong) == 0) return absValue;
+        var scaleFactor = FindVolumeScaleFactor32Bits(value);
+        return (ulong)(Math.Abs(value) * Factors[16 - ((byte)scaleFactor & FactorMask)]);
+    }
+
+    public static PQFieldFlags FindVolumeScaleFactor48Bits(long value)
+    {
+        var absValue = (ulong)Math.Abs(value);
+        if (absValue == 0m) return (PQFieldFlags)8;
+        var currentScale = absValue;
         var count        = 0;
-        while (currentScale % 10 == 0)
+        while ((currentScale & Max48BitsULong) != 0)
+        {
+            count++;
+            currentScale /= 10;
+        }
+        if (count < 8) return (PQFieldFlags)(8 + count);
+        return (PQFieldFlags)15;
+    }
+
+    public static PQFieldFlags FindVolumeScaleFactor32Bits(long value)
+    {
+        var absValue = (ulong)Math.Abs(value);
+        if (absValue == 0m) return (PQFieldFlags)8;
+        var currentScale = absValue;
+        var count        = 0;
+        while ((currentScale & Max32BitsULong) != 0)
         {
             count++;
             currentScale /= 10;

@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
@@ -218,6 +219,12 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
         }
     }
 
+    public override void UpdateComplete()
+    {
+        NameIdLookup.UpdateComplete();
+        base.UpdateComplete();
+    }
+
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
     (DateTime snapShotTime, StorageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
@@ -227,21 +234,21 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
                                                                 quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
         if (!updatedOnly || IsCounterPartyNameUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.OrderCounterPartyNameId, (uint)OrderCounterPartyNameId);
+            yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderCounterPartyNameId, (uint)OrderCounterPartyNameId);
 
-        if (!updatedOnly || IsTraderNameUpdated) yield return new PQFieldUpdate(PQQuoteFields.OrderTraderNameId, (uint)OrderTraderNameId);
+        if (!updatedOnly || IsTraderNameUpdated) yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderTraderNameId, (uint)OrderTraderNameId);
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the book has already forwarded this through to the correct layer
-        if (pqFieldUpdate.Id == PQQuoteFields.OrderCounterPartyNameId)
+        if (pqFieldUpdate.SubId == PQSubFieldKeys.OrderCounterPartyNameId)
         {
             IsCounterPartyNameUpdated = true; // incase of reset and sending 0;
             OrderCounterPartyNameId   = (int)pqFieldUpdate.Payload;
             return 0;
         }
-        else if (pqFieldUpdate.Id == PQQuoteFields.OrderTraderNameId)
+        else if (pqFieldUpdate.SubId == PQSubFieldKeys.OrderTraderNameId)
         {
             IsTraderNameUpdated = true; // incase of reset and sending 0;
             OrderTraderNameId   = (int)pqFieldUpdate.Payload;
@@ -249,17 +256,6 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
         }
 
         return base.UpdateField(pqFieldUpdate);
-    }
-
-    public bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
-    {
-        if (stringUpdate.Field.Id != PQQuoteFields.LayerNameDictionaryUpsertCommand) return false;
-        return NameIdLookup.UpdateFieldString(stringUpdate);
-    }
-
-    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
-    {
-        foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate;
     }
 
     public override void StateReset()
@@ -276,9 +272,6 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
     public IReusableObject<ICounterPartyOrderLayerInfo> CopyFrom
     (IReusableObject<ICounterPartyOrderLayerInfo> source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        CopyFrom((IAnonymousOrderLayerInfo?)source, copyMergeFlags);
-
-    public IPQCounterPartyOrderLayerInfo CopyFrom(IPQCounterPartyOrderLayerInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CopyFrom((IAnonymousOrderLayerInfo?)source, copyMergeFlags);
 
 
@@ -310,6 +303,20 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
         return baseSame && traderNameSame && counterPartySame && updatedSame;
     }
 
+    public bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
+    {
+        if (stringUpdate.Field.Id != PQQuoteFields.LayerNameDictionaryUpsertCommand) return false;
+        return NameIdLookup.UpdateFieldString(stringUpdate);
+    }
+
+    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
+    {
+        foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate;
+    }
+
+    public IPQCounterPartyOrderLayerInfo CopyFrom(IPQCounterPartyOrderLayerInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        CopyFrom((IAnonymousOrderLayerInfo?)source, copyMergeFlags);
+
     public override PQCounterPartyOrderLayerInfo CopyFrom
         (IAnonymousOrderLayerInfo? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -320,8 +327,18 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
 
             var isFullReplace = copyMergeFlags.HasFullReplace();
 
-            if (pqCpOrderLyrInfo.IsCounterPartyNameUpdated || isFullReplace) OrderCounterPartyNameId = pqCpOrderLyrInfo.OrderCounterPartyNameId;
-            if (pqCpOrderLyrInfo.IsTraderNameUpdated || isFullReplace) OrderTraderNameId             = pqCpOrderLyrInfo.OrderTraderNameId;
+            if (pqCpOrderLyrInfo.IsCounterPartyNameUpdated || isFullReplace)
+            {
+                IsCounterPartyNameUpdated = true;
+
+                OrderCounterPartyNameId = pqCpOrderLyrInfo.OrderCounterPartyNameId;
+            }
+            if (pqCpOrderLyrInfo.IsTraderNameUpdated || isFullReplace)
+            {
+                IsTraderNameUpdated = true;
+
+                OrderTraderNameId             = pqCpOrderLyrInfo.OrderTraderNameId;
+            }
 
             if (isFullReplace && pqCpOrderLyrInfo is PQCounterPartyOrderLayerInfo pqCounterPartyOrder)
                 UpdatedFlags = pqCounterPartyOrder.UpdatedFlags;

@@ -10,6 +10,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Indicators;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeTests.FortitudeCommon.Types;
 
 #endregion

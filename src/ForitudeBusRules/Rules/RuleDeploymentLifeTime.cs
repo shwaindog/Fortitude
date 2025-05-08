@@ -5,6 +5,7 @@
 
 using FortitudeBusRules.Messages;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 

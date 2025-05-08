@@ -6,7 +6,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using static FortitudeCommon.Chronometry.Timers.UpdateableTimer;
 
 #endregion
@@ -65,7 +65,7 @@ public class TimerCallBackRunInfoTests
     public void CopyFromTest()
     {
         var fromCopy = new ConcreteTimerCallbackRunInfo();
-        fromCopy.CopyFrom((IStoreState)timerCallBackRunInfo, CopyMergeFlags.Default);
+        fromCopy.CopyFrom((ITransferState)timerCallBackRunInfo, CopyMergeFlags.Default);
 
         Assert.AreEqual(timerCallBackRunInfo.FirstScheduledTime, fromCopy.FirstScheduledTime);
         Assert.AreEqual(timerCallBackRunInfo.LastRunTime, fromCopy.LastRunTime);

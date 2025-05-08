@@ -18,7 +18,7 @@ public class PQPriceVolumeFactoryTestsBase
     protected PQPriceVolumeLayer                              SimplePvl                         = null!;
     protected PQSourcePriceVolumeLayer                        SourcePvl                         = null!;
     protected PQSourceQuoteRefPriceVolumeLayer                SourceQtRefPvl                    = null!;
-    protected PQSourceQuoteRefOrdersValueDatePriceVolumeLayer SrcQtRefTrdrVlDtPvl               = null!;
+    protected PQFullSupportPriceVolumeLayer SrcQtRefTrdrVlDtPvl               = null!;
     protected PQOrdersPriceVolumeLayer                        TraderPvl                         = null!;
     protected IPQNameIdLookupGenerator                        TraderSourceNameIdLookupGenerator = null!;
     protected PQValueDatePriceVolumeLayer                     VlDtPvl                           = null!;
@@ -39,7 +39,7 @@ public class PQPriceVolumeFactoryTestsBase
             [0] = new PQCounterPartyOrderLayerInfo(TraderSourceNameIdLookupGenerator, orderVolume: 1_000_000, traderName: "TestTraderName1")
           , [1] = new PQCounterPartyOrderLayerInfo(TraderSourceNameIdLookupGenerator, orderVolume: 2_000_000, traderName: "TestTraderName2")
         };
-        SrcQtRefTrdrVlDtPvl = new PQSourceQuoteRefOrdersValueDatePriceVolumeLayer(NameIdLookupGenerator.Clone(), 6.789012m, 8_000_000
+        SrcQtRefTrdrVlDtPvl = new PQFullSupportPriceVolumeLayer(NameIdLookupGenerator.Clone(), 6.789012m, 8_000_000
                                                                                 , new DateTime(2018, 1, 6, 15, 0, 0)
                                                                                 , "TestSourceNameForSrcQtRefTrdrVlDt", true, 123445);
     }

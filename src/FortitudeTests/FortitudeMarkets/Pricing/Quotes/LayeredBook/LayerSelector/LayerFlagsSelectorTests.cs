@@ -3,13 +3,14 @@
 
 #region
 
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerSelector;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 
 #endregion
 
@@ -278,36 +279,26 @@ public class LayerFlagsSelectorTests
     }
 
 
-    internal class DummyLayerFlagsSelectorTests : LayerFlagsSelector<string, ISourceTickerInfo>
+    internal class DummyLayerFlagsSelectorTests : LayerFlagsSelector<string>
     {
-        protected override string SelectSimplePriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) => nameof(SelectSimplePriceVolumeLayer);
+        protected override string SelectSimplePriceVolumeLayer() => nameof(SelectSimplePriceVolumeLayer);
 
-        protected override string SelectValueDatePriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) => nameof(SelectValueDatePriceVolumeLayer);
+        protected override string SelectValueDatePriceVolumeLayer() => nameof(SelectValueDatePriceVolumeLayer);
 
-        protected override string SelectSourcePriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) => nameof(SelectSourcePriceVolumeLayer);
+        protected override string SelectSourcePriceVolumeLayer() => nameof(SelectSourcePriceVolumeLayer);
 
+        protected override string SelectSourceQuoteRefPriceVolumeLayer() => nameof(SelectSourceQuoteRefPriceVolumeLayer);
 
-        protected override string SelectSourceQuoteRefPriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) =>
-            nameof(SelectSourceQuoteRefPriceVolumeLayer);
+        protected override string SelectOrdersCountPriceVolumeLayer() => nameof(SelectOrdersCountPriceVolumeLayer);
 
-        protected override string SelectOrdersCountPriceVolumeLayer(ISourceTickerInfo sourceTickerInfo) => nameof(SelectOrdersCountPriceVolumeLayer);
+        protected override string SelectAnonymousOrdersPriceVolumeLayer() => nameof(SelectAnonymousOrdersPriceVolumeLayer);
 
-        protected override string SelectAnonymousOrdersPriceVolumeLayer
-            (ISourceTickerInfo sourceTickerInfo) =>
-            nameof(SelectAnonymousOrdersPriceVolumeLayer);
+        protected override string SelectCounterPartyOrdersPriceVolumeLayer() => nameof(SelectCounterPartyOrdersPriceVolumeLayer);
 
-        protected override string SelectCounterPartyOrdersPriceVolumeLayer
-            (ISourceTickerInfo sourceTickerInfo) =>
-            nameof(SelectCounterPartyOrdersPriceVolumeLayer);
-
-        protected override string SelectSourceQuoteRefTraderValueDatePriceVolumeLayer
-        (
-            ISourceTickerInfo sourceTickerInfo) =>
-            nameof(SelectSourceQuoteRefTraderValueDatePriceVolumeLayer);
+        protected override string SelectSourceQuoteRefTraderValueDatePriceVolumeLayer() => nameof(SelectSourceQuoteRefTraderValueDatePriceVolumeLayer);
 
         public override IPriceVolumeLayer CreateExpectedImplementation
-        (LayerType desiredLayerType, IPriceVolumeLayer? copy = null,
-            CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        (LayerType desiredLayerType, IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
             throw new NotImplementedException();
     }
 }

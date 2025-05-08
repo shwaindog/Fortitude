@@ -12,6 +12,11 @@ public enum PQDepthKey : ushort
   , DepthMask = 0x3F_FF // 16,383
 }
 
+[Flags]
+public enum PQDepthPriceSummarySubFields : ushort
+{
+}
+
 public static class PQDepthKeyExtensions
 {
     public const byte   SingleByteIsTwoByteDepth = 0x80;    // 128

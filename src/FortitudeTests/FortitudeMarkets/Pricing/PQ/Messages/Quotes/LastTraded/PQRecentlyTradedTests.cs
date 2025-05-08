@@ -11,6 +11,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
+using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -19,7 +20,7 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
 [TestClass]
 public class PQRecentlyTradedTests
 {
-    private const int MaxNumberOfEntries = PQFieldKeys.SingleByteFieldIdMaxPossibleLastTrades;
+    private const int MaxNumberOfEntries = QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades;
 
     private IList<PQRecentlyTraded>            allFullyPopulatedRecentlyTraded = null!;
     private List<IReadOnlyList<IPQLastTrade>>  allPopulatedEntries             = null!;
@@ -62,9 +63,9 @@ public class PQRecentlyTradedTests
             });
         }
 
-        simpleRecentlyTradedFullyPopulatedQuote                = new PQRecentlyTraded(simpleEntries!);
-        paidGivenVolumeRecentlyTradedFullyPopulatedQuote       = new PQRecentlyTraded(lastPaidGivenEntries);
-        traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote = new PQRecentlyTraded(lastTraderPaidGivenEntries);
+        simpleRecentlyTradedFullyPopulatedQuote                = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)simpleEntries);
+        paidGivenVolumeRecentlyTradedFullyPopulatedQuote       = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)lastPaidGivenEntries);
+        traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)lastTraderPaidGivenEntries);
 
         allFullyPopulatedRecentlyTraded = new List<PQRecentlyTraded>
         {
@@ -80,9 +81,9 @@ public class PQRecentlyTradedTests
         {
             var populatedRecentlyTraded = allFullyPopulatedRecentlyTraded[i];
             var populatedEntries        = allPopulatedEntries[i];
-            for (var j = 0; j < MaxNumberOfEntries; j++)
+            for (var j = 0; j < populatedEntries.Count; j++)
             {
-                Assert.AreEqual(MaxNumberOfEntries, populatedRecentlyTraded.Count);
+                Assert.AreEqual(populatedEntries.Count, populatedRecentlyTraded.Count);
                 Assert.AreNotSame(populatedEntries[j], populatedRecentlyTraded[j]);
             }
         }
@@ -173,7 +174,7 @@ public class PQRecentlyTradedTests
                 lt.IsTradeTimeDateUpdated = false;
                 Assert.IsTrue(populatedRecentlyTraded.HasUpdates);
                 Assert.IsTrue(lt.HasUpdates);
-                lt.IsTradeTimeSubHourUpdated = false;
+                lt.IsTradeTimeSub2MinUpdated = false;
                 Assert.IsFalse(populatedRecentlyTraded.HasUpdates);
                 Assert.IsFalse(lt.HasUpdates);
                 if (lt is IPQLastPaidGivenTrade lastPaidGivenTrade)
@@ -397,7 +398,7 @@ public class PQRecentlyTradedTests
                 Assert.AreEqual(DateTimeConstants.UnixEpoch, pvl.TradeTime);
                 Assert.IsFalse(pvl.IsTradePriceUpdated);
                 Assert.IsFalse(pvl.IsTradeTimeDateUpdated);
-                Assert.IsFalse(pvl.IsTradeTimeSubHourUpdated);
+                Assert.IsFalse(pvl.IsTradeTimeSub2MinUpdated);
                 if (pvl is IPQLastPaidGivenTrade paidGivenTrade)
                 {
                     Assert.IsFalse(paidGivenTrade.WasGiven);
@@ -529,9 +530,8 @@ public class PQRecentlyTradedTests
             Assert.IsTrue(toString.Contains(q.GetType().Name));
 
             Assert.IsTrue(toString.Contains(
-                                            $"lastTrades: [{string.Join(",", (IEnumerable<ILastTrade>)populatedQuote)}]"));
+                                            $"LastTrades: [{string.Join(", ", (IEnumerable<ILastTrade>)populatedQuote)}]"));
             Assert.IsTrue(toString.Contains($"{nameof(q.Count)}: {q.Count}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.HasUpdates)}: {q.HasUpdates}"));
         }
     }
 
@@ -587,9 +587,9 @@ public class PQRecentlyTradedTests
         return false;
     }
 
-    private static PQRecentlyTraded CreateNewEmpty(PQRecentlyTraded populatedOrderBook)
+    private static PQRecentlyTraded CreateNewEmpty(PQRecentlyTraded populatedRecentlyTraded)
     {
-        var cloneGensis = populatedOrderBook[0]!.Clone();
+        var cloneGensis = populatedRecentlyTraded[0]!.Clone();
         cloneGensis.StateReset();
         if (cloneGensis is IPQLastTraderPaidGivenTrade traderLastTrade)
             traderLastTrade.NameIdLookup = new PQNameIdLookupGenerator(PQQuoteFields.LastTradedDictionaryUpsertCommand);
@@ -601,27 +601,30 @@ public class PQRecentlyTradedTests
 
     public static void AssertContainsAllLevelRecentlyTradedFields
     (IList<PQFieldUpdate> checkFieldUpdates,
-        PQRecentlyTraded recentlyTraded, uint expectedBooleanFlags = 3)
+        IPQRecentlyTraded recentlyTraded, PQBooleanValues expectedBooleanFlags = PQBooleanValuesExtensions.AllFields
+      ,  PQFieldFlags priceScale = (PQFieldFlags)1,  PQFieldFlags volumeScale = (PQFieldFlags)6)
     {
-        for (var i = 0; i < MaxNumberOfEntries; i++)
+        for (var i = 0; i < recentlyTraded.Count; i++)
         {
             var lastTrade = recentlyTraded[i]!;
             var depthId   = (PQDepthKey)i;
 
-            var priceScale = (PQFieldFlags)1;
 
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedAtPrice, depthId, lastTrade.TradePrice, priceScale),
-                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedAtPrice, depthId, priceScale),
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, depthId, PQSubFieldKeys.LastTradedAtPrice, lastTrade.TradePrice, priceScale),
+                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedTickTrades, depthId, 
+                                                                        PQSubFieldKeys.LastTradedAtPrice, priceScale),
                             $"For lastTradeType {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeDate, depthId, lastTrade.TradeTime.GetHoursFromUnixEpoch()),
-                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedTradeTimeDate, depthId),
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, depthId, PQSubFieldKeys.LastTradedTradeTimeDate,
+                                              lastTrade.TradeTime.Get2MinIntervalsFromUnixEpoch()),
+                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedTickTrades, depthId,
+                                                                        PQSubFieldKeys.LastTradedTradeTimeDate),
                             $"For bidlayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-            var extended = lastTrade.TradeTime.GetSubHourComponent().BreakLongToUShortAndUint(out var subHourBase);
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTradeTimeSubHour, depthId, subHourBase, extended)
-                          , PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                                                                        PQQuoteFields.LastTradedTradeTimeSubHour, depthId, extended),
+            var extended = lastTrade.TradeTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBase);
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, depthId, PQSubFieldKeys.LastTradedTradeSub2MinTime, subHourBase, extended)
+                          , PQTickInstantTests.ExtractFieldUpdateWithId
+                                (checkFieldUpdates, PQQuoteFields.LastTradedTickTrades, depthId, PQSubFieldKeys.LastTradedTradeSub2MinTime, extended),
                             $"For asklayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             if (lastTrade is IPQLastPaidGivenTrade pqPaidGivenTrade)
@@ -630,18 +633,18 @@ public class PQRecentlyTradedTests
                 lastTradedBoolFlags |= pqPaidGivenTrade.WasPaid ? LastTradeBooleanFlags.WasPaid : LastTradeBooleanFlags.None;
 
 
-                Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedBooleanFlags, depthId,
-                                                  (uint)lastTradedBoolFlags),
-                                PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates,
-                                                                            PQQuoteFields.LastTradedBooleanFlags, depthId),
+                Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, depthId, PQSubFieldKeys.LastTradedBooleanFlags, (uint)lastTradedBoolFlags),
+                                PQTickInstantTests.ExtractFieldUpdateWithId
+                                    (checkFieldUpdates, PQQuoteFields.LastTradedTickTrades, depthId, PQSubFieldKeys.LastTradedBooleanFlags),
                                 $"For asklayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
             }
 
             if (lastTrade is IPQLastTraderPaidGivenTrade pqTraderPaidGivenTrade)
             {
                 var lastTradedTraderId = (uint)pqTraderPaidGivenTrade.TraderId;
-                Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTraderId, depthId, lastTradedTraderId),
-                                PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedTraderId, depthId),
+                Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, depthId, PQSubFieldKeys.LastTradedTraderId, lastTradedTraderId),
+                                PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LastTradedTickTrades, depthId, 
+                                                                            PQSubFieldKeys.LastTradedTraderId),
                                 $"For asklayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
             }
         }

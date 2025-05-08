@@ -6,6 +6,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -51,7 +52,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
             {
                 LayerType.OrdersAnonymousPriceVolume => false
               , LayerType.OrdersFullPriceVolume => true
-              , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => true
+              , LayerType.FullSupportPriceVolume => true
               , _ => throw new ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {layerType}")
             };
 
@@ -68,7 +69,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
             {
                 LayerType.OrdersAnonymousPriceVolume => false
               , LayerType.OrdersFullPriceVolume => true
-              , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => true
+              , LayerType.FullSupportPriceVolume => true
               , _ => throw new ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {layerType}")
             };
         orders = layerOrders?.OfType<IMutableAnonymousOrderLayerInfo>().ToList() ?? new List<IMutableAnonymousOrderLayerInfo>();
@@ -83,7 +84,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
                 {
                     LayerType.OrdersAnonymousPriceVolume               => false
                   , LayerType.OrdersFullPriceVolume                    => true
-                  , LayerType.SourceQuoteRefOrdersValueDatePriceVolume => true
+                  , LayerType.FullSupportPriceVolume => true
                   , _ => throw new
                         ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {asLayerType}")
                 };

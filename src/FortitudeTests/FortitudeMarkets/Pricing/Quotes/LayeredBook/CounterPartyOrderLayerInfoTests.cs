@@ -16,14 +16,16 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.Quotes.LayeredBook;
 [TestClass]
 public class CounterPartyOrderLayerInfoTests
 {
-    private const    int             OrderNumber          = 80085;
-    private const    LayerOrderFlags OrderFlags           = LayerOrderFlags.CreatedFromSource | LayerOrderFlags.IsInternallyCreatedOrder;
-    private const    decimal         OrderVolume          = 100_000.50m;
-    private const    decimal         OrderRemainingVolume = 50_000.25m;
-    private const    string          CounterPartyName     = "TestCounterPartyName";
-    private const    string          TraderName           = "TestTraderName";
-    private readonly DateTime        CreatedTime          = new DateTime(2025, 4, 21, 6, 27, 23).AddMilliseconds(123).AddMicroseconds(456);
-    private readonly DateTime        UpdatedTime          = new DateTime(2025, 4, 21, 12, 8, 59).AddMilliseconds(789).AddMicroseconds(213);
+    private const LayerOrderFlags OrderFlags = LayerOrderFlags.CreatedFromSource | LayerOrderFlags.IsInternallyCreatedOrder;
+
+    private const int     OrderNumber          = 80085;
+    private const decimal OrderVolume          = 100_000.50m;
+    private const decimal OrderRemainingVolume = 50_000.25m;
+    private const string  CounterPartyName     = "TestCounterPartyName";
+    private const string  TraderName           = "TestTraderName";
+
+    private readonly DateTime CreatedTime = new DateTime(2025, 4, 21, 6, 27, 23).AddMilliseconds(123).AddMicroseconds(456);
+    private readonly DateTime UpdatedTime = new DateTime(2025, 4, 21, 12, 8, 59).AddMilliseconds(789).AddMicroseconds(213);
 
     private CounterPartyOrderLayerInfo emptyCpoli = null!;
 
@@ -216,8 +218,8 @@ public class CounterPartyOrderLayerInfoTests
         IMutableCounterPartyOrderLayerInfo? changingTraderLayerInfo,
         IOrdersPriceVolumeLayer? originalTraderPriceVolumeLayer = null,
         IOrdersPriceVolumeLayer? changingTraderPriceVolumeLayer = null,
-        IOrderBook? originalOrderBook = null,
-        IOrderBook? changingOrderBook = null,
+        IOrderBookSide? originalOrderBook = null,
+        IOrderBookSide? changingOrderBook = null,
         ILevel2Quote? originalQuote = null,
         ILevel2Quote? changingQuote = null)
     {

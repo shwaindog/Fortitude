@@ -28,6 +28,8 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
 
     protected int HighestIdSerialized;
 
+    protected uint NumOfUpdates = 0;
+
     public PQNameIdLookupGenerator(PQQuoteFields dictionaryFieldKey) => this.dictionaryFieldKey = dictionaryFieldKey;
 
     public PQNameIdLookupGenerator(INameIdLookup toClone, PQQuoteFields? dictionaryFieldKey = null) : base(toClone)
@@ -57,13 +59,24 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
         }
     }
 
+    public uint UpdateCount => NumOfUpdates;
+
+    public void UpdateComplete()
+    {
+        if (HasUpdates)
+        {
+            NumOfUpdates++;
+            HasUpdates = false;
+        }
+    }
+
     public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags) =>
         from kvp in this
         where (messageFlags & StorageFlags.Complete) > 0 || IsIdUpdated(kvp.Key) || kvp.Key > HighestIdSerialized
         let sideEffect = HighestIdSerialized = Math.Max(HighestIdSerialized, kvp.Key)
         select new PQFieldStringUpdate
         {
-            Field = new PQFieldUpdate(dictionaryFieldKey, ReservedForStringSerializedSize, (ushort)CrudCommand.Upsert)
+            Field = new PQFieldUpdate(dictionaryFieldKey, CrudCommand.Upsert.ToPQSubFieldId(), ReservedForStringSerializedSize)
           , StringUpdate = new PQStringUpdate
             {
                 DictionaryId = kvp.Key, Value = kvp.Value, Command = CrudCommand.Upsert

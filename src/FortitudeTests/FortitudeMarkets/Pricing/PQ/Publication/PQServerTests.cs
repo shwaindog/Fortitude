@@ -7,6 +7,7 @@ using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Transports.Network.Config;
@@ -15,6 +16,7 @@ using FortitudeMarkets.Configuration.ClientServerConfig;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Publication;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
@@ -22,7 +24,7 @@ using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
 using static FortitudeTests.TestEnvironment.TestMachineConfig;
 
 #endregion
@@ -59,9 +61,9 @@ public class PQServerTests
     private ITickerConfig        sourceTickerConfig2 = null!;
     private ITickerConfig        sourceTickerConfig3 = null!;
     private ISourceTickersConfig sourceTickerConfigs = null!;
-    private ISourceTickerInfo    sourceTickerInfo1   = null!;
-    private ISourceTickerInfo    sourceTickerInfo2   = null!;
-    private ISourceTickerInfo    sourceTickerInfo3   = null!;
+    private IPQSourceTickerInfo    sourceTickerInfo1   = null!;
+    private IPQSourceTickerInfo    sourceTickerInfo2   = null!;
+    private IPQSourceTickerInfo    sourceTickerInfo3   = null!;
 
     public void Setup(LayerFlags layerDetails, LastTradedFlags lastTradedFlags = LastTradedFlags.None)
     {
@@ -97,9 +99,9 @@ public class PQServerTests
                     , connectionAttributes: SocketConnectionAttributes.Multicast | SocketConnectionAttributes.Fast));
         marketConnectionConfig
             = new MarketConnectionConfig(ExchangeId, ExchangeName, MarketConnectionType.Pricing, sourceTickerConfigs, pricingServerConfig);
-        sourceTickerInfo1 = marketConnectionConfig.GetSourceTickerInfo(TestTicker1)!;
-        sourceTickerInfo2 = marketConnectionConfig.GetSourceTickerInfo(TestTicker2)!;
-        sourceTickerInfo3 = marketConnectionConfig.GetSourceTickerInfo(TestTicker3)!;
+        sourceTickerInfo1 = new PQSourceTickerInfo(marketConnectionConfig.GetSourceTickerInfo(TestTicker1)!);
+        sourceTickerInfo2 = new PQSourceTickerInfo(marketConnectionConfig.GetSourceTickerInfo(TestTicker2)!);
+        sourceTickerInfo3 = new PQSourceTickerInfo(marketConnectionConfig.GetSourceTickerInfo(TestTicker3)!);
 
         moqHeartBeatSender          = new Mock<IPQServerHeartBeatSender>();
         moqSocketDispatcherResolver = new Mock<ISocketDispatcherResolver>();

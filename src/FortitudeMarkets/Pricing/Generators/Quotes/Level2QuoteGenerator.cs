@@ -26,8 +26,8 @@ public abstract class Level2QuoteGeneratorBase<TQuote> : Level1QuoteGeneratorBas
     {
         base.PopulateQuote(populateQuote, midPriceTimePair);
         BookGenerator.PopulateBidAskBooks(populateQuote, midPriceTimePair);
-        populateQuote.IsAskPriceTopUpdated = (PreviousReturnedQuote?.AskPriceTop ?? 0) != populateQuote.AskPriceTop;
-        populateQuote.IsAskPriceTopUpdated = (PreviousReturnedQuote?.BidPriceTop ?? 0) != populateQuote.BidPriceTop;
+        populateQuote.IsAskPriceTopChanged = (PreviousReturnedQuote?.AskPriceTop ?? 0) != populateQuote.AskPriceTop;
+        populateQuote.IsAskPriceTopChanged = (PreviousReturnedQuote?.BidPriceTop ?? 0) != populateQuote.BidPriceTop;
     }
 }
 
