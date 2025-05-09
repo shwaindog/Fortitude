@@ -10,6 +10,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerOrders;
 
 #endregion
 

@@ -12,6 +12,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerOrders;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 
 #endregion
@@ -21,7 +22,7 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
 [TestClass]
 public class PQCounterPartyOrderLayerInfoTests
 {
-    private const LayerOrderFlags OrderFlags = LayerOrderFlags.CreatedFromSource | LayerOrderFlags.IsInternallyCreatedOrder;
+    private const LayerOrderFlags OrderFlags = LayerOrderFlags.ExplicitlyDefinedFromSource | LayerOrderFlags.IsInternallyCreatedOrder;
 
     private const int     OrderId              = 80085;
     private const decimal OrderVolume          = 100_000.50m;

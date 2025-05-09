@@ -8,6 +8,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerOrders;
 
 #endregion
 
@@ -16,7 +17,7 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.Quotes.LayeredBook;
 [TestClass]
 public class CounterPartyOrderLayerInfoTests
 {
-    private const LayerOrderFlags OrderFlags = LayerOrderFlags.CreatedFromSource | LayerOrderFlags.IsInternallyCreatedOrder;
+    private const LayerOrderFlags OrderFlags = LayerOrderFlags.ExplicitlyDefinedFromSource | LayerOrderFlags.IsInternallyCreatedOrder;
 
     private const int     OrderNumber          = 80085;
     private const decimal OrderVolume          = 100_000.50m;

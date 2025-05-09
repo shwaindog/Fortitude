@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerOrders;
 
 #endregion
 

@@ -6,6 +6,7 @@
 using System.Collections.Concurrent;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerOrders;
 using MathNet.Numerics.Distributions;
 
 #endregion

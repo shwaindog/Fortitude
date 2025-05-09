@@ -13,6 +13,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerOrders;
 using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Summaries;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes.LastTraded;
@@ -653,7 +654,7 @@ public class Level3PriceQuoteTests
 
                 if (traderLayer.OrdersCount <= j)
                 {
-                    traderLayer.Add(new CounterPartyOrderLayerInfo(j + 1, LayerOrderFlags.CreatedFromSource, DateTime.Now
+                    traderLayer.Add(new CounterPartyOrderLayerInfo(j + 1, LayerOrderFlags.ExplicitlyDefinedFromSource, DateTime.Now
                                                                  , currentVolume + j * deltaVolumePerLayer,
                                                                    traderName: traderName!));
                 }

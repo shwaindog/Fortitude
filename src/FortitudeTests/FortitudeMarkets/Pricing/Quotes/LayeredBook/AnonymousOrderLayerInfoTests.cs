@@ -6,6 +6,7 @@
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerOrders;
 
 #endregion
 
@@ -15,7 +16,7 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.Quotes.LayeredBook;
 public class AnonymousOrderLayerInfoTests
 {
     private const    int             OrderNumber          = 80085;
-    private const    LayerOrderFlags OrderFlags           = LayerOrderFlags.CreatedFromSource | LayerOrderFlags.IsInternallyCreatedOrder;
+    private const    LayerOrderFlags OrderFlags           = LayerOrderFlags.ExplicitlyDefinedFromSource | LayerOrderFlags.IsInternallyCreatedOrder;
     private const    decimal         OrderVolume          = 100_000.50m;
     private const    decimal         OrderRemainingVolume = 50_000.25m;
     private readonly DateTime        CreatedTime          = new DateTime(2025, 4, 21, 6, 27, 23).AddMilliseconds(123).AddMicroseconds(456);
@@ -202,7 +203,7 @@ public class AnonymousOrderLayerInfoTests
                 (originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
-        changingTraderLayerInfo.OrderFlags = LayerOrderFlags.CreatedFromAdapter | LayerOrderFlags.IsSyntheticTrackingOrder;
+        changingTraderLayerInfo.OrderFlags = LayerOrderFlags.ImpliedCreatedByAdapter | LayerOrderFlags.IsSyntheticTrackingOrder;
         Assert.IsFalse(original.AreEquivalent(changingTraderLayerInfo, exactComparison));
         if (originalTraderPriceVolumeLayer != null)
             Assert.IsFalse

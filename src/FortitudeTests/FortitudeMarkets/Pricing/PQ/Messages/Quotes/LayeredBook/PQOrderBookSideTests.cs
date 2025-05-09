@@ -14,6 +14,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerOrders;
 using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
@@ -36,7 +37,7 @@ public class PQOrderBookSideTests
     private const int     ExpectedOrdersCount    = 3; // not too many traders.
     private const decimal ExpectedInternalVolume = 20_000_000m;
 
-    private const LayerOrderFlags ExpectedOrderFlags = LayerOrderFlags.CreatedFromSource;
+    private const LayerOrderFlags ExpectedOrderFlags = LayerOrderFlags.ExplicitlyDefinedFromSource;
 
     private const int     ExpectedOrderId              = 250;
     private const decimal ExpectedOrderVolume          = 50.50m;
@@ -639,7 +640,7 @@ public class PQOrderBookSideTests
                         orderLayerInfo.IsOrderIdUpdated = false;
                         Assert.IsFalse(populatedOrderBook.HasUpdates);
 
-                        orderLayerInfo.OrderFlags = LayerOrderFlags.CreatedFromOrderFeed | LayerOrderFlags.NotSourceOrderId;
+                        orderLayerInfo.OrderFlags = LayerOrderFlags.CreatedFromByOrderFeed | LayerOrderFlags.HasExternalCounterPartyInfo;
                         Assert.IsTrue(populatedOrderBook.HasUpdates);
                         orderLayerInfo.IsOrderFlagsUpdated = false;
                         Assert.IsFalse(populatedOrderBook.HasUpdates);

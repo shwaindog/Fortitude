@@ -13,6 +13,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerOrders;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerSelector;
 using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
@@ -87,10 +88,10 @@ public class OrderBookSideTests
             for (var j = 0; j < MaxNumberOfTraders; j++)
             {
                 allFieldsPvL.Add(new CounterPartyOrderLayerInfo
-                                     (i, LayerOrderFlags.CreatedFromAdapter, new DateTime(2017, 12, 09, 14, 0, 0),
+                                     (i, LayerOrderFlags.ImpliedCreatedByAdapter, new DateTime(2017, 12, 09, 14, 0, 0),
                                       40_000_000m, traderName: "Trdr" + j));
                 traderPvL.Add(new CounterPartyOrderLayerInfo
-                                  (i, LayerOrderFlags.CreatedFromAdapter, new DateTime(2017, 12, 09, 14, 0, 0),
+                                  (i, LayerOrderFlags.ImpliedCreatedByAdapter, new DateTime(2017, 12, 09, 14, 0, 0),
                                    40_000_000m, traderName: "Trdr" + j));
             }
         }

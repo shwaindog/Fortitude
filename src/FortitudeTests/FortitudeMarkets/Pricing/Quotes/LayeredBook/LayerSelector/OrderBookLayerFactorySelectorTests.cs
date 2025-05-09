@@ -9,6 +9,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerOrders;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerSelector;
 using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
@@ -27,7 +28,7 @@ public class OrderBookLayerFactorySelectorTests
     private const uint            ExpectedOrdersCount          = 1;
     private const decimal         ExpectedInternalVolume       = 1_000_000;
     private const int             ExpectedOrderId              = 195_979;
-    private const LayerOrderFlags ExpectedOrderFlags           = LayerOrderFlags.CreatedFromOpenSnapshot | LayerOrderFlags.CalculatedAggregate;
+    private const LayerOrderFlags ExpectedOrderFlags           = LayerOrderFlags.EstimatedFromOpenSnapshot | LayerOrderFlags.CalculatedAggregate;
     private const decimal         ExpectedOrderVolume          = ExpectedVolume * 2;
     private const decimal         ExpectedOrderRemainingVolume = ExpectedVolume;
 

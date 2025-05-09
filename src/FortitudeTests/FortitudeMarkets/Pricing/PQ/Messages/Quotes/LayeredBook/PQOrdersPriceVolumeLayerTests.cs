@@ -13,6 +13,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerOrders;
 using Moq;
 
 #endregion
@@ -29,7 +30,7 @@ public class PQOrdersPriceVolumeLayerTests
     private const decimal InternalVolume = 50_000m;
 
     private const int             OrderId              = 250;
-    private const LayerOrderFlags OrderFlags           = LayerOrderFlags.CreatedFromSource;
+    private const LayerOrderFlags OrderFlags           = LayerOrderFlags.ExplicitlyDefinedFromSource;
     private const decimal         OrderVolume          = 50.50m;
     private const decimal         OrderRemainingVolume = 10.25m;
     private const string          CounterPartyBase     = "TestCounterPartyName";
@@ -531,7 +532,7 @@ public class PQOrdersPriceVolumeLayerTests
             Assert.AreEqual(LayerOrderFlags.None, orderLayerInfo.OrderFlags);
             Assert.AreEqual(0, emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
-            var expectedOrderFlags = LayerOrderFlags.CreatedFromSource | LayerOrderFlags.CancelRequested | LayerOrderFlags.NotExternalVolume;
+            var expectedOrderFlags = LayerOrderFlags.ExplicitlyDefinedFromSource | LayerOrderFlags.CancelRequested | LayerOrderFlags.NotExternalVolume;
             orderLayerInfo.OrderFlags = expectedOrderFlags;
             Assert.IsTrue(orderLayerInfo.IsOrderFlagsUpdated);
             Assert.IsTrue(emptyCounterPartyOrdersPvl.HasUpdates);

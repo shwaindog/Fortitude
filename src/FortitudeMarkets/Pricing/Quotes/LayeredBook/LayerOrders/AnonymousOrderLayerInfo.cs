@@ -5,6 +5,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerOrders;
 
 #endregion
 

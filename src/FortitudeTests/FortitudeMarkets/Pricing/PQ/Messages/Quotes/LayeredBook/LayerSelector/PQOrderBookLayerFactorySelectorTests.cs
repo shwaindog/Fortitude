@@ -11,6 +11,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerOrders;
 using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
@@ -32,7 +33,7 @@ public class PQOrderBookLayerFactorySelectorTests
     private const string  ExpectedOrderTraderName       = "IronMan";
 
     private const int             ExpectedOrderId              = 203_123;
-    private const LayerOrderFlags ExpectedOrderFlags           = LayerOrderFlags.CreatedFromSource | LayerOrderFlags.IsInternallyCreatedOrder;
+    private const LayerOrderFlags ExpectedOrderFlags           = LayerOrderFlags.ExplicitlyDefinedFromSource | LayerOrderFlags.IsInternallyCreatedOrder;
     private const decimal         ExpectedOrderVolume          = 1_345_123;
     private const decimal         ExpectedOrderRemainingVolume = 1_100_050;
 

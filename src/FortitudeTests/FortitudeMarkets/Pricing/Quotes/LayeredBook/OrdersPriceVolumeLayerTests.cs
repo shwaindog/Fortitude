@@ -11,6 +11,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerOrders;
 
 #endregion
 
@@ -26,7 +27,7 @@ public class OrdersPriceVolumeLayerTests
     private const decimal InternalVolume = 50_000m;
 
     private const int             OrderId              = 250;
-    private const LayerOrderFlags OrderFlags           = LayerOrderFlags.CreatedFromSource;
+    private const LayerOrderFlags OrderFlags           = LayerOrderFlags.ExplicitlyDefinedFromSource;
     private const decimal         OrderVolume          = 50.50m;
     private const decimal         OrderRemainingVolume = 10.25m;
     private const string          CounterPartyBase     = "TestCounterPartyName";
