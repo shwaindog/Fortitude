@@ -196,22 +196,22 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
                                                                    quotePublicationPrecisionSetting))
             yield return deltaUpdateField;
         if (!updatedOnly || IsBooleanFlagsChanged())
-            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags);
+            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags);
         if (!updatedOnly || IsTradeVolumeUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedOrderVolume, TradeVolume,
+            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedOrderVolume, TradeVolume,
                                            quotePublicationPrecisionSetting?.VolumeScalingPrecision ?? (PQFieldFlags)6);
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the recentlytraded has already forwarded this through to the correct lasttrade
-        if (pqFieldUpdate.SubId == PQSubFieldKeys.LastTradedBooleanFlags)
+        if (pqFieldUpdate.TradingSubId == PQTradingSubFieldKeys.LastTradedBooleanFlags)
         {
             WasGiven = ((LastTradeBooleanFlags)pqFieldUpdate.Payload & LastTradeBooleanFlags.WasGiven) == LastTradeBooleanFlags.WasGiven;
             WasPaid  = ((LastTradeBooleanFlags)pqFieldUpdate.Payload & LastTradeBooleanFlags.WasPaid) == LastTradeBooleanFlags.WasPaid;
             return 0;
         }
-        if (pqFieldUpdate.SubId == PQSubFieldKeys.LastTradedOrderVolume)
+        if (pqFieldUpdate.TradingSubId == PQTradingSubFieldKeys.LastTradedOrderVolume)
         {
             TradeVolume = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
             return 0;

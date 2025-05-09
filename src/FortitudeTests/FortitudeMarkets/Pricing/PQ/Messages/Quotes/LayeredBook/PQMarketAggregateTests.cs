@@ -182,7 +182,7 @@ public class PQMarketAggregateTests
         Assert.AreEqual(1, sourceUpdates.Count);
 
         var expectedFieldUpdate
-            = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateSource, (uint)expectedDataSource);
+            = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateSource, (uint)expectedDataSource);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyMarketAggregate.IsDataSourceUpdated = false;
@@ -198,11 +198,11 @@ public class PQMarketAggregateTests
         sourceUpdates = emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         expectedFieldUpdate
-            = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateSource, (uint)nextExpectedDataSource);
+            = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateSource, (uint)nextExpectedDataSource);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         sourceUpdates = (from update in emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.SubId == PQSubFieldKeys.MarketAggregateSource
+            where update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateSource
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -233,9 +233,9 @@ public class PQMarketAggregateTests
         Assert.AreEqual(2, layerUpdates.Count);
         var hoursSinceUnixEpoch = expectedUpdateTime.Get2MinIntervalsFromUnixEpoch();
         var expectedDateLayerField
-            = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateUpdateDate, hoursSinceUnixEpoch);
+            = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateUpdateDate, hoursSinceUnixEpoch);
         var extended = expectedUpdateTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBottom);
-        var expectedSubHourLayerField = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateUpdateSub2MinTime
+        var expectedSubHourLayerField = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime
                                                         , subHourBottom, extended);
         Assert.AreEqual(expectedDateLayerField, layerUpdates[0]);
         Assert.AreEqual(expectedSubHourLayerField, layerUpdates[1]);
@@ -249,7 +249,7 @@ public class PQMarketAggregateTests
         emptyMarketAggregate.IsUpdatedSub2MinTimeUpdated = true;
         var quoteUpdates =
             (from update in emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-                where update.SubId is PQSubFieldKeys.MarketAggregateUpdateDate or PQSubFieldKeys.MarketAggregateUpdateSub2MinTime
+                where update.PricingSubId is PQPricingSubFieldKeys.MarketAggregateUpdateDate or PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime
                 select update).ToList();
         Assert.AreEqual(2, quoteUpdates.Count);
         Assert.AreEqual(expectedDateLayerField, quoteUpdates[0]);
@@ -283,7 +283,7 @@ public class PQMarketAggregateTests
         var sourceUpdates = emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
-        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateVolume, expectedVolume
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateVolume, expectedVolume
                                                   , (PQFieldFlags)6);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
@@ -299,12 +299,12 @@ public class PQMarketAggregateTests
         Assert.AreEqual(nextExpectedVolume, emptyMarketAggregate.Volume);
         sourceUpdates = emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateVolume, nextExpectedVolume
+        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateVolume, nextExpectedVolume
                                               , (PQFieldFlags)6);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         sourceUpdates = (from update in emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.SubId is PQSubFieldKeys.MarketAggregateVolume
+            where update.PricingSubId is PQPricingSubFieldKeys.MarketAggregateVolume
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -332,7 +332,7 @@ public class PQMarketAggregateTests
         Assert.AreEqual(1, sourceUpdates.Count);
 
         var expectedFieldUpdate
-            = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateVwap, expectedVwap, (PQFieldFlags)2);
+            = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateVwap, expectedVwap, (PQFieldFlags)2);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyMarketAggregate.IsVwapUpdated = false;
@@ -347,12 +347,12 @@ public class PQMarketAggregateTests
         Assert.AreEqual(nextExpectedVwap, emptyMarketAggregate.Vwap);
         sourceUpdates = emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateVwap, nextExpectedVwap
+        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateVwap, nextExpectedVwap
                                               , (PQFieldFlags)2);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         sourceUpdates = (from update in emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.SubId is PQSubFieldKeys.MarketAggregateVwap
+            where update.PricingSubId is PQPricingSubFieldKeys.MarketAggregateVwap
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -496,7 +496,7 @@ public class PQMarketAggregateTests
 
         var mktAggQtField = PQQuoteFields.ParentContextRemapped;
         var bkSideQtField = PQQuoteFields.OpenInterestSided;
-        var bkQtField     = expectedFinalField != PQQuoteFields.DailyTradedTotal ? expectedFinalField : PQQuoteFields.DailyTradedTotal;
+        var bkQtField     = expectedFinalField != PQQuoteFields.DailyTradedAggregate ? expectedFinalField : PQQuoteFields.DailyTradedAggregate;
         var qtQtField     = bkQtField;
 
         testDateTime = testDateTime.AddHours(1).AddMinutes(1);
@@ -537,7 +537,7 @@ public class PQMarketAggregateTests
                             .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
         Assert.AreEqual(1, mktAggUpdates.Count);
         var expectedMktAgg
-            = new PQFieldUpdate(mktAggQtField, PQSubFieldKeys.MarketAggregateSource, (uint)marketAgg.DataSource);
+            = new PQFieldUpdate(mktAggQtField, PQPricingSubFieldKeys.MarketAggregateSource, (uint)marketAgg.DataSource);
         var expectedBookSide  = expectedMktAgg.WithFieldId(bkSideQtField);
         var expectedOrderBook = expectedBookSide.WithFieldId(bkQtField).WithDepth(sidedDepth);
         var expectedQuote     = expectedOrderBook.WithFieldId(qtQtField);
@@ -565,7 +565,7 @@ public class PQMarketAggregateTests
         {
             l2QUpdates =
                 (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
-                    where update.Id == qtQtField && update.SubId == PQSubFieldKeys.MarketAggregateSource
+                    where update.Id == qtQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateSource
                                                  && update.DepthId == sidedDepth
                     select update).ToList();
             Assert.AreEqual(1, l2QUpdates.Count);
@@ -581,7 +581,7 @@ public class PQMarketAggregateTests
                    , PQQuoteFields.OpenInterestSided => orderBookSide?.BookSide == BookSide.AskBook
                          ? newEmpty.OrderBook.AskSide.OpenInterestSide
                          : newEmpty.OrderBook.BidSide.OpenInterestSide
-                   , PQQuoteFields.DailyTradedTotal => newEmpty.OrderBook.OpenInterest
+                   , PQQuoteFields.DailyTradedAggregate => newEmpty.OrderBook.OpenInterest
                    , // Todo replace total daily traded when added
                      _ => throw new ArgumentException("Currently only supports OpenInterestTotal, OpenInterestSided and DailyTradedTotal")
                  })!;
@@ -594,7 +594,7 @@ public class PQMarketAggregateTests
         {
             bkUpdates =
                 (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
-                    where update.Id == bkQtField && update.SubId == PQSubFieldKeys.MarketAggregateSource
+                    where update.Id == bkQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateSource
                                                  && update.DepthId == sidedDepth
                     select update).ToList();
             Assert.AreEqual(1, bkUpdates.Count);
@@ -609,7 +609,7 @@ public class PQMarketAggregateTests
                    , PQQuoteFields.OpenInterestSided => orderBookSide?.BookSide == BookSide.AskBook
                          ? newEmpty.AskSide.OpenInterestSide
                          : newEmpty.BidSide.OpenInterestSide
-                   , PQQuoteFields.DailyTradedTotal => newEmpty.OpenInterest
+                   , PQQuoteFields.DailyTradedAggregate => newEmpty.OpenInterest
                    , // Todo replace total daily traded when added
                      _ => throw new ArgumentException("Currently only supports OpenInterestTotal, OpenInterestSided and DailyTradedTotal")
                  })!;
@@ -622,7 +622,7 @@ public class PQMarketAggregateTests
         {
             bsUpdates =
                 (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
-                    where update.Id == bkSideQtField && update.SubId == PQSubFieldKeys.MarketAggregateSource
+                    where update.Id == bkSideQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateSource
                     select update).ToList();
             Assert.AreEqual(1, bsUpdates.Count);
             Assert.AreEqual(expectedBookSide, bsUpdates[0]);
@@ -637,7 +637,7 @@ public class PQMarketAggregateTests
         }
         mktAggUpdates =
             (from update in marketAgg.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
-                where update.Id == mktAggQtField && update.SubId == PQSubFieldKeys.MarketAggregateSource
+                where update.Id == mktAggQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateSource
                 select update).ToList();
         Assert.AreEqual(1, mktAggUpdates.Count);
         Assert.AreEqual(expectedMktAgg, mktAggUpdates[0]);
@@ -678,7 +678,7 @@ public class PQMarketAggregateTests
 
         var mktAggQtField = PQQuoteFields.ParentContextRemapped;
         var bkSideQtField = PQQuoteFields.OpenInterestSided;
-        var bkQtField     = expectedFinalField != PQQuoteFields.DailyTradedTotal ? expectedFinalField : PQQuoteFields.DailyTradedTotal;
+        var bkQtField     = expectedFinalField != PQQuoteFields.DailyTradedAggregate ? expectedFinalField : PQQuoteFields.DailyTradedAggregate;
         var qtQtField     = bkQtField;
 
         testDateTime = testDateTime.AddHours(1).AddMinutes(1);
@@ -723,9 +723,9 @@ public class PQMarketAggregateTests
         Assert.AreEqual(2, orderInfoUpdates.Count);
         var hoursSinceUnixEpoch = expectedUpdateTime.Get2MinIntervalsFromUnixEpoch();
         var expectedMktAggDate
-            = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateUpdateDate, hoursSinceUnixEpoch);
+            = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateUpdateDate, hoursSinceUnixEpoch);
         var extended = expectedUpdateTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBottom);
-        var expectedMktAggTime = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateUpdateSub2MinTime, subHourBottom
+        var expectedMktAggTime = new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime, subHourBottom
                                                  , extended);
         var expectedBookSideDate  = expectedMktAggDate.WithFieldId(bkSideQtField);
         var expectedBookSideTime  = expectedMktAggTime.WithFieldId(bkSideQtField);
@@ -769,7 +769,7 @@ public class PQMarketAggregateTests
             l2QUpdates =
                 (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
                     where update.Id == bkQtField
-                       && update is { SubId: PQSubFieldKeys.MarketAggregateUpdateDate or PQSubFieldKeys.MarketAggregateUpdateSub2MinTime }
+                       && update is { PricingSubId: PQPricingSubFieldKeys.MarketAggregateUpdateDate or PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime }
                        && update.DepthId == sidedDepth
                     select update).ToList();
             Assert.AreEqual(2, l2QUpdates.Count);
@@ -785,7 +785,7 @@ public class PQMarketAggregateTests
                    , PQQuoteFields.OpenInterestSided => orderBookSide?.BookSide == BookSide.AskBook
                          ? newEmpty.OrderBook.AskSide.OpenInterestSide
                          : newEmpty.OrderBook.BidSide.OpenInterestSide
-                   , PQQuoteFields.DailyTradedTotal => newEmpty.OrderBook.OpenInterest
+                   , PQQuoteFields.DailyTradedAggregate => newEmpty.OrderBook.OpenInterest
                    , // Todo replace total daily traded when added
                      _ => throw new ArgumentException("Currently only supports OpenInterestTotal, OpenInterestSided and DailyTradedTotal")
                  })!;
@@ -804,7 +804,7 @@ public class PQMarketAggregateTests
             bkUpdates =
                 (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
                     where update.Id == bkQtField
-                       && update is { SubId: PQSubFieldKeys.MarketAggregateUpdateDate or PQSubFieldKeys.MarketAggregateUpdateSub2MinTime }
+                       && update is { PricingSubId: PQPricingSubFieldKeys.MarketAggregateUpdateDate or PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime }
                        && update.DepthId == sidedDepth
                     select update).ToList();
             Assert.AreEqual(2, bkUpdates.Count);
@@ -819,7 +819,7 @@ public class PQMarketAggregateTests
                    , PQQuoteFields.OpenInterestSided => orderBookSide?.BookSide == BookSide.AskBook
                          ? newEmpty.AskSide.OpenInterestSide
                          : newEmpty.BidSide.OpenInterestSide
-                   , PQQuoteFields.DailyTradedTotal => newEmpty.OpenInterest
+                   , PQQuoteFields.DailyTradedAggregate => newEmpty.OpenInterest
                    , // Todo replace total daily traded when added
                      _ => throw new ArgumentException("Currently only supports OpenInterestTotal, OpenInterestSided and DailyTradedTotal")
                  })!;
@@ -838,7 +838,7 @@ public class PQMarketAggregateTests
             bsUpdates =
                 (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
                     where update.Id == bkSideQtField
-                       && update is { SubId: PQSubFieldKeys.MarketAggregateUpdateDate or PQSubFieldKeys.MarketAggregateUpdateSub2MinTime }
+                       && update is { PricingSubId: PQPricingSubFieldKeys.MarketAggregateUpdateDate or PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime }
                     select update).ToList();
             Assert.AreEqual(2, bsUpdates.Count);
             Assert.AreEqual(expectedBookSideDate, bsUpdates[0]);
@@ -858,7 +858,7 @@ public class PQMarketAggregateTests
         }
         orderInfoUpdates =
             (from update in marketAgg.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
-                where update is { SubId: PQSubFieldKeys.MarketAggregateUpdateDate or PQSubFieldKeys.MarketAggregateUpdateSub2MinTime }
+                where update is { PricingSubId: PQPricingSubFieldKeys.MarketAggregateUpdateDate or PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime }
                 select update).ToList();
         Assert.AreEqual(2, orderInfoUpdates.Count);
         Assert.AreEqual(expectedMktAggDate, orderInfoUpdates[0]);
@@ -903,7 +903,7 @@ public class PQMarketAggregateTests
 
         var mktAggQtField = PQQuoteFields.ParentContextRemapped;
         var bkSideQtField = PQQuoteFields.OpenInterestSided;
-        var bkQtField     = expectedFinalField != PQQuoteFields.DailyTradedTotal ? expectedFinalField : PQQuoteFields.DailyTradedTotal;
+        var bkQtField     = expectedFinalField != PQQuoteFields.DailyTradedAggregate ? expectedFinalField : PQQuoteFields.DailyTradedAggregate;
         var qtQtField     = bkQtField;
 
         testDateTime = testDateTime.AddHours(1).AddMinutes(1);
@@ -944,7 +944,7 @@ public class PQMarketAggregateTests
                             .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
         Assert.AreEqual(1, mktAggUpdates.Count);
         var expectedMktAgg
-            = new PQFieldUpdate(mktAggQtField, PQSubFieldKeys.MarketAggregateVolume, expectedVolume, precisionSettings.VolumeScalingPrecision);
+            = new PQFieldUpdate(mktAggQtField, PQPricingSubFieldKeys.MarketAggregateVolume, expectedVolume, precisionSettings.VolumeScalingPrecision);
         var expectedBookSide  = expectedMktAgg.WithFieldId(bkSideQtField);
         var expectedOrderBook = expectedBookSide.WithFieldId(bkQtField).WithDepth(sidedDepth);
         var expectedQuote     = expectedOrderBook.WithFieldId(qtQtField);
@@ -972,7 +972,7 @@ public class PQMarketAggregateTests
         {
             l2QUpdates =
                 (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
-                    where update.Id == qtQtField && update.SubId == PQSubFieldKeys.MarketAggregateVolume
+                    where update.Id == qtQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateVolume
                                                  && update.DepthId == sidedDepth
                     select update).ToList();
             Assert.AreEqual(1, l2QUpdates.Count);
@@ -987,7 +987,7 @@ public class PQMarketAggregateTests
                    , PQQuoteFields.OpenInterestSided => orderBookSide?.BookSide == BookSide.AskBook
                          ? newEmpty.OrderBook.AskSide.OpenInterestSide
                          : newEmpty.OrderBook.BidSide.OpenInterestSide
-                   , PQQuoteFields.DailyTradedTotal => newEmpty.OrderBook.OpenInterest
+                   , PQQuoteFields.DailyTradedAggregate => newEmpty.OrderBook.OpenInterest
                    , // Todo replace total daily traded when added
                      _ => throw new ArgumentException("Currently only supports OpenInterestTotal, OpenInterestSided and DailyTradedTotal")
                  })!;
@@ -1003,7 +1003,7 @@ public class PQMarketAggregateTests
         {
             bkUpdates =
                 (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
-                    where update.Id == bkQtField && update.SubId == PQSubFieldKeys.MarketAggregateVolume
+                    where update.Id == bkQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateVolume
                                                  && update.DepthId == sidedDepth
                     select update).ToList();
             Assert.AreEqual(1, bkUpdates.Count);
@@ -1017,7 +1017,7 @@ public class PQMarketAggregateTests
                    , PQQuoteFields.OpenInterestSided => orderBookSide?.BookSide == BookSide.AskBook
                          ? newEmpty.AskSide.OpenInterestSide
                          : newEmpty.BidSide.OpenInterestSide
-                   , PQQuoteFields.DailyTradedTotal => newEmpty.OpenInterest
+                   , PQQuoteFields.DailyTradedAggregate => newEmpty.OpenInterest
                    , // Todo replace total daily traded when added
                      _ => throw new ArgumentException("Currently only supports OpenInterestTotal, OpenInterestSided and DailyTradedTotal")
                  })!;
@@ -1033,7 +1033,7 @@ public class PQMarketAggregateTests
         {
             bsUpdates =
                 (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
-                    where update.Id == bkSideQtField && update.SubId == PQSubFieldKeys.MarketAggregateVolume
+                    where update.Id == bkSideQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateVolume
                     select update).ToList();
             Assert.AreEqual(1, bsUpdates.Count);
             Assert.AreEqual(expectedBookSide, bsUpdates[0]);
@@ -1050,7 +1050,7 @@ public class PQMarketAggregateTests
         }
         mktAggUpdates =
             (from update in marketAgg.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
-                where update.Id == mktAggQtField && update.SubId == PQSubFieldKeys.MarketAggregateVolume
+                where update.Id == mktAggQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateVolume
                 select update).ToList();
         Assert.AreEqual(1, mktAggUpdates.Count);
         Assert.AreEqual(expectedMktAgg, mktAggUpdates[0]);
@@ -1092,7 +1092,7 @@ public class PQMarketAggregateTests
 
         var mktAggQtField = PQQuoteFields.ParentContextRemapped;
         var bkSideQtField = PQQuoteFields.OpenInterestSided;
-        var bkQtField     = expectedFinalField != PQQuoteFields.DailyTradedTotal ? expectedFinalField : PQQuoteFields.DailyTradedTotal;
+        var bkQtField     = expectedFinalField != PQQuoteFields.DailyTradedAggregate ? expectedFinalField : PQQuoteFields.DailyTradedAggregate;
         var qtQtField     = bkQtField;
 
         testDateTime = testDateTime.AddHours(1).AddMinutes(1);
@@ -1133,7 +1133,7 @@ public class PQMarketAggregateTests
                             .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
         Assert.AreEqual(1, mktAggUpdates.Count);
         var expectedMktAgg
-            = new PQFieldUpdate(mktAggQtField, PQSubFieldKeys.MarketAggregateVwap, expectedVwap, precisionSettings.PriceScalingPrecision);
+            = new PQFieldUpdate(mktAggQtField, PQPricingSubFieldKeys.MarketAggregateVwap, expectedVwap, precisionSettings.PriceScalingPrecision);
         var expectedBookSide  = expectedMktAgg.WithFieldId(bkSideQtField);
         var expectedOrderBook = expectedBookSide.WithFieldId(bkQtField).WithDepth(sidedDepth);
         var expectedQuote     = expectedOrderBook.WithFieldId(qtQtField);
@@ -1161,7 +1161,7 @@ public class PQMarketAggregateTests
         {
             l2QUpdates =
                 (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
-                    where update.Id == qtQtField && update.SubId == PQSubFieldKeys.MarketAggregateVwap
+                    where update.Id == qtQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateVwap
                                                  && update.DepthId == sidedDepth
                     select update).ToList();
             Assert.AreEqual(1, l2QUpdates.Count);
@@ -1175,7 +1175,7 @@ public class PQMarketAggregateTests
                    , PQQuoteFields.OpenInterestSided => orderBookSide?.BookSide == BookSide.AskBook
                          ? newEmpty.OrderBook.AskSide.OpenInterestSide
                          : newEmpty.OrderBook.BidSide.OpenInterestSide
-                   , PQQuoteFields.DailyTradedTotal => newEmpty.OrderBook.OpenInterest
+                   , PQQuoteFields.DailyTradedAggregate => newEmpty.OrderBook.OpenInterest
                    , // Todo replace total daily traded when added
                      _ => throw new ArgumentException("Currently only supports OpenInterestTotal, OpenInterestSided and DailyTradedTotal")
                  })!;
@@ -1192,7 +1192,7 @@ public class PQMarketAggregateTests
         {
             bkUpdates =
                 (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
-                    where update.Id == bkQtField && update.SubId == PQSubFieldKeys.MarketAggregateVwap
+                    where update.Id == bkQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateVwap
                                                  && update.DepthId == sidedDepth
                     select update).ToList();
             Assert.AreEqual(1, bkUpdates.Count);
@@ -1206,7 +1206,7 @@ public class PQMarketAggregateTests
                    , PQQuoteFields.OpenInterestSided => orderBookSide?.BookSide == BookSide.AskBook
                          ? newEmpty.AskSide.OpenInterestSide
                          : newEmpty.BidSide.OpenInterestSide
-                   , PQQuoteFields.DailyTradedTotal => newEmpty.OpenInterest
+                   , PQQuoteFields.DailyTradedAggregate => newEmpty.OpenInterest
                    , // Todo replace total daily traded when added
                      _ => throw new ArgumentException("Currently only supports OpenInterestTotal, OpenInterestSided and DailyTradedTotal")
                  })!;
@@ -1222,7 +1222,7 @@ public class PQMarketAggregateTests
         {
             bsUpdates =
                 (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
-                    where update.Id == bkSideQtField && update.SubId == PQSubFieldKeys.MarketAggregateVwap
+                    where update.Id == bkSideQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateVwap
                     select update).ToList();
             Assert.AreEqual(1, bsUpdates.Count);
             Assert.AreEqual(expectedBookSide, bsUpdates[0]);
@@ -1232,14 +1232,14 @@ public class PQMarketAggregateTests
             foundAgg.DataSource = MarketDataSource.Venue;  // required for book to stop generating from published layers
             foundAgg.HasUpdates = false;
             newEmpty.UpdateField(bsUpdates[0]);
-            Assert.AreEqual(expectedVwap, foundAgg!.Vwap);
+            Assert.AreEqual(expectedVwap, foundAgg.Vwap);
             Assert.IsTrue(foundAgg.IsVwapUpdated);
             Assert.IsTrue(foundAgg.HasUpdates);
             Assert.IsTrue(newEmpty.HasUpdates);
         }
         mktAggUpdates =
             (from update in marketAgg.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
-                where update.Id == mktAggQtField && update.SubId == PQSubFieldKeys.MarketAggregateVwap
+                where update.Id == mktAggQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateVwap
                 select update).ToList();
         Assert.AreEqual(1, mktAggUpdates.Count);
         Assert.AreEqual(expectedMktAgg, mktAggUpdates[0]);
@@ -1345,33 +1345,33 @@ public class PQMarketAggregateTests
     (IList<PQFieldUpdate> checkFieldUpdates, PQQuoteFields targetField, IPQMarketAggregate oi,
         PQFieldFlags priceScale = (PQFieldFlags)2, PQFieldFlags volumeScale = (PQFieldFlags)6)
     {
-        Assert.AreEqual(new PQFieldUpdate(targetField, PQSubFieldKeys.MarketAggregateSource, (uint)oi.DataSource),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, targetField, PQSubFieldKeys.MarketAggregateSource),
+        Assert.AreEqual(new PQFieldUpdate(targetField, PQPricingSubFieldKeys.MarketAggregateSource, (uint)oi.DataSource),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, targetField, PQPricingSubFieldKeys.MarketAggregateSource),
                         $"For {oi}  with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
         var orderUpdatedDate = oi.UpdateTime.Get2MinIntervalsFromUnixEpoch();
         var orderUpdatedDateFu
-            = PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, targetField, PQSubFieldKeys.MarketAggregateUpdateDate);
-        Assert.AreEqual(new PQFieldUpdate(targetField, PQSubFieldKeys.MarketAggregateUpdateDate, orderUpdatedDate)
+            = PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, targetField, PQPricingSubFieldKeys.MarketAggregateUpdateDate);
+        Assert.AreEqual(new PQFieldUpdate(targetField, PQPricingSubFieldKeys.MarketAggregateUpdateDate, orderUpdatedDate)
                       , orderUpdatedDateFu,
                         $"For {oi}  with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
         var orderUpdatedSub2MinExtended
             = oi.UpdateTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var orderUpdatedSubHour);
         var orderUpdatedSubHourFu
-            = PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, targetField, PQSubFieldKeys.MarketAggregateUpdateSub2MinTime);
-        Assert.AreEqual(new PQFieldUpdate(targetField, PQSubFieldKeys.MarketAggregateUpdateSub2MinTime, orderUpdatedSubHour, orderUpdatedSub2MinExtended)
+            = PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, targetField, PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime);
+        Assert.AreEqual(new PQFieldUpdate(targetField, PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime, orderUpdatedSubHour, orderUpdatedSub2MinExtended)
                       , orderUpdatedSubHourFu,
                         $"For {oi}  with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
 
-        Assert.AreEqual(new PQFieldUpdate(targetField, PQSubFieldKeys.MarketAggregateVolume, oi.Volume, volumeScale),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, targetField, PQSubFieldKeys.MarketAggregateVolume, volumeScale)
+        Assert.AreEqual(new PQFieldUpdate(targetField, PQPricingSubFieldKeys.MarketAggregateVolume, oi.Volume, volumeScale),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, targetField, PQPricingSubFieldKeys.MarketAggregateVolume, volumeScale)
                        ,
                         $"For {oi}  with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-        Assert.AreEqual(new PQFieldUpdate(targetField, PQSubFieldKeys.MarketAggregateVwap, oi.Vwap, priceScale),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, targetField, PQSubFieldKeys.MarketAggregateVwap, priceScale),
+        Assert.AreEqual(new PQFieldUpdate(targetField, PQPricingSubFieldKeys.MarketAggregateVwap, oi.Vwap, priceScale),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, targetField, PQPricingSubFieldKeys.MarketAggregateVwap, priceScale),
                         $"For {oi}  with these fields\n{string.Join(",\n", checkFieldUpdates)}");
     }
 

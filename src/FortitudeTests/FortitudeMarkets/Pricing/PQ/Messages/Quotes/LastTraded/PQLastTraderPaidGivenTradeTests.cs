@@ -294,7 +294,7 @@ public class PQLastTraderPaidGivenTradeTests
         var sourceUpdates = emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
-        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedTraderId, emptyLt.TraderId);
+        var expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTraderId, emptyLt.TraderId);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyLt.IsTraderNameUpdated = false;
@@ -314,7 +314,7 @@ public class PQLastTraderPaidGivenTradeTests
         var stringUpdates = emptyLt.GetStringUpdates(testDateTime, StorageFlags.Update)
                                    .ToList();
         Assert.AreEqual(1, stringUpdates.Count);
-        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedTraderId, emptyLt.TraderId);
+        expectedFieldUpdate = new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTraderId, emptyLt.TraderId);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
         var expectedStringUpdates = new PQFieldStringUpdate
         {
@@ -329,7 +329,7 @@ public class PQLastTraderPaidGivenTradeTests
 
         emptyLt.HasUpdates = false;
         sourceUpdates = (from update in emptyLt.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
-            where update.SubId == PQSubFieldKeys.LastTradedTraderId
+            where update.TradingSubId == PQTradingSubFieldKeys.LastTradedTraderId
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
@@ -533,9 +533,9 @@ public class PQLastTraderPaidGivenTradeTests
     {
         PQLastPaidGivenTradeTests.AssertContainsAllLtFields(checkFieldUpdates, lt);
 
-        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedTraderId, lt.TraderId),
+        Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTraderId, lt.TraderId),
                         PQTickInstantTests.ExtractFieldUpdateWithId
-                            (checkFieldUpdates, PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedTraderId), $"For asklayer {lt.GetType().Name}");
+                            (checkFieldUpdates, PQQuoteFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTraderId), $"For asklayer {lt.GetType().Name}");
     }
 
     [TestMethod]

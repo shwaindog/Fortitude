@@ -234,21 +234,21 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
                                                                 quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
         if (!updatedOnly || IsCounterPartyNameUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderCounterPartyNameId, (uint)OrderCounterPartyNameId);
+            yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQTradingSubFieldKeys.OrderCounterPartyNameId, (uint)OrderCounterPartyNameId);
 
-        if (!updatedOnly || IsTraderNameUpdated) yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderTraderNameId, (uint)OrderTraderNameId);
+        if (!updatedOnly || IsTraderNameUpdated) yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQTradingSubFieldKeys.OrderTraderNameId, (uint)OrderTraderNameId);
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the book has already forwarded this through to the correct layer
-        if (pqFieldUpdate.SubId == PQSubFieldKeys.OrderCounterPartyNameId)
+        if (pqFieldUpdate.TradingSubId == PQTradingSubFieldKeys.OrderCounterPartyNameId)
         {
             IsCounterPartyNameUpdated = true; // incase of reset and sending 0;
             OrderCounterPartyNameId   = (int)pqFieldUpdate.Payload;
             return 0;
         }
-        else if (pqFieldUpdate.SubId == PQSubFieldKeys.OrderTraderNameId)
+        else if (pqFieldUpdate.TradingSubId == PQTradingSubFieldKeys.OrderTraderNameId)
         {
             IsTraderNameUpdated = true; // incase of reset and sending 0;
             OrderTraderNameId   = (int)pqFieldUpdate.Payload;

@@ -335,43 +335,43 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
 
     public virtual int UpdateField(PQFieldUpdate fieldUpdate)
     {
-        switch (fieldUpdate.SubId)
+        switch (fieldUpdate.TradingSubId)
         {
-            case PQSubFieldKeys.OrderId:
+            case PQTradingSubFieldKeys.OrderId:
                 IsOrderIdUpdated = true; // incase of reset and sending 0;
                 OrderId          = (int)fieldUpdate.Payload;
                 return 0;
-            case PQSubFieldKeys.OrderFlags:
+            case PQTradingSubFieldKeys.OrderFlags:
                 IsOrderFlagsUpdated = true; // incase of reset and sending 0;
                 OrderFlags          = (LayerOrderFlags)fieldUpdate.Payload;
                 return 0;
-            case PQSubFieldKeys.OrderCreatedDate:
+            case PQTradingSubFieldKeys.OrderCreatedDate:
                 IsCreatedTimeDateUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref createdTime, fieldUpdate.Payload);
                 if (createdTime == DateTime.UnixEpoch) createdTime = default;
                 return 0;
-            case PQSubFieldKeys.OrderCreatedSub2MinTime:
+            case PQTradingSubFieldKeys.OrderCreatedSub2MinTime:
                 IsCreatedTimeSub2MinUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref createdTime, fieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(fieldUpdate.Payload));
                 if (createdTime == DateTime.UnixEpoch) createdTime = default;
                 return 0;
-            case PQSubFieldKeys.OrderUpdatedDate:
+            case PQTradingSubFieldKeys.OrderUpdatedDate:
                 IsUpdatedTimeDateUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref updatedTime, fieldUpdate.Payload);
                 if (updatedTime == DateTime.UnixEpoch) updatedTime = default;
                 return 0;
-            case PQSubFieldKeys.OrderUpdatedSub2MinTime:
+            case PQTradingSubFieldKeys.OrderUpdatedSub2MinTime:
                 IsUpdatedTimeSub2MinUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref updatedTime, fieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(fieldUpdate.Payload));
                 if (updatedTime == DateTime.UnixEpoch) updatedTime = default;
                 return 0;
-            case PQSubFieldKeys.OrderVolume:
+            case PQTradingSubFieldKeys.OrderVolume:
                 IsOrderVolumeUpdated = true; // incase of reset and sending 0;
                 OrderVolume          = PQScaling.Unscale(fieldUpdate.Payload, fieldUpdate.Flag);
                 return 0;
-            case PQSubFieldKeys.OrderRemainingVolume:
+            case PQTradingSubFieldKeys.OrderRemainingVolume:
                 IsOrderRemainingVolumeUpdated = true; // incase of reset and sending 0;
                 OrderRemainingVolume          = PQScaling.Unscale(fieldUpdate.Payload, fieldUpdate.Flag);
                 return 0;
@@ -384,29 +384,29 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
       , IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
-        if (!updatedOnly || IsOrderIdUpdated) yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderId,  (uint)OrderId);
-        if (!updatedOnly || IsOrderFlagsUpdated) yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderFlags, (uint)OrderFlags);
+        if (!updatedOnly || IsOrderIdUpdated) yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQTradingSubFieldKeys.OrderId,  (uint)OrderId);
+        if (!updatedOnly || IsOrderFlagsUpdated) yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQTradingSubFieldKeys.OrderFlags, (uint)OrderFlags);
 
         if (!updatedOnly || IsCreatedTimeDateUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderCreatedDate, createdTime.Get2MinIntervalsFromUnixEpoch());
+            yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQTradingSubFieldKeys.OrderCreatedDate, createdTime.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsCreatedTimeSub2MinUpdated)
         {
             var extended = createdTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderCreatedSub2MinTime, value, extended);
+            yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQTradingSubFieldKeys.OrderCreatedSub2MinTime, value, extended);
         }
         if (!updatedOnly || IsUpdatedTimeDateUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderUpdatedDate, updatedTime.Get2MinIntervalsFromUnixEpoch());
+            yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQTradingSubFieldKeys.OrderUpdatedDate, updatedTime.Get2MinIntervalsFromUnixEpoch());
 
         if (!updatedOnly || IsUpdatedTimeSub2MinUpdated)
         {
             var extended = updatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderUpdatedSub2MinTime, value, extended);
+            yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQTradingSubFieldKeys.OrderUpdatedSub2MinTime, value, extended);
         }
         if (!updatedOnly || IsOrderVolumeUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderVolume, OrderVolume,
+            yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQTradingSubFieldKeys.OrderVolume, OrderVolume,
                                            quotePublicationPrecisionSettings?.VolumeScalingPrecision ?? (PQFieldFlags)6);
         if (!updatedOnly || IsOrderRemainingVolumeUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQSubFieldKeys.OrderRemainingVolume, OrderRemainingVolume,
+            yield return new PQFieldUpdate(PQQuoteFields.LayerOrders, PQTradingSubFieldKeys.OrderRemainingVolume, OrderRemainingVolume,
                                            quotePublicationPrecisionSettings?.VolumeScalingPrecision ?? (PQFieldFlags)6);
     }
 

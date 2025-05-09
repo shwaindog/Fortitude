@@ -355,8 +355,8 @@ public class PQQuoteSerializerTests
             }
             if (flag.HasSubIdFlag())
             {
-                var subId = (PQSubFieldKeys)(*currPtr++);
-                Assert.AreEqual(fieldUpdate.SubId, subId);
+                var subId = (PQPricingSubFieldKeys)(*currPtr++);
+                Assert.AreEqual(fieldUpdate.PricingSubId, subId);
             }
             if (flag.HasAuxiliaryPayloadFlag())
             {
@@ -381,11 +381,11 @@ public class PQQuoteSerializerTests
                 var depthKey  = depthByte.IsTwoByteDepth() ? depthByte.ToDepthKey(*currPtr++) : depthByte.ToDepthKey();
                 Assert.AreEqual(stringUpdate.Field.DepthId, depthKey);
             }
-            PQSubFieldKeys subId = PQSubFieldKeys.None;
+            PQPricingSubFieldKeys subId = PQPricingSubFieldKeys.None;
             if (flag.HasSubIdFlag())
             {
-                subId = (PQSubFieldKeys)(*currPtr++);
-                Assert.AreEqual(stringUpdate.Field.SubId, subId);
+                subId = (PQPricingSubFieldKeys)(*currPtr++);
+                Assert.AreEqual(stringUpdate.Field.PricingSubId, subId);
             }
             if (flag.HasAuxiliaryPayloadFlag())
             {
@@ -404,7 +404,7 @@ public class PQQuoteSerializerTests
             var stringValue = StreamByteOps.ToString(ref currPtr, (int)fieldValue);
             Assert.AreEqual(stringUpdate.StringUpdate.Value, stringValue);
 
-            var command = subId == PQSubFieldKeys.CommandUpsert ? CrudCommand.Upsert : CrudCommand.Delete;
+            var command = subId == PQPricingSubFieldKeys.CommandUpsert ? CrudCommand.Upsert : CrudCommand.Delete;
             Assert.AreEqual(stringUpdate.StringUpdate.Command, command
                           , $"For stringUpdate {stringUpdate} got {command} when expected {stringUpdate.StringUpdate.Command}");
         }

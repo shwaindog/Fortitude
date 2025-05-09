@@ -182,13 +182,13 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         foreach (var deltaUpdateField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                    quotePublicationPrecisionSetting))
             yield return deltaUpdateField;
-        if (!updatedOnly || IsTraderNameUpdated) yield return new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedTraderId, (uint)traderId);
+        if (!updatedOnly || IsTraderNameUpdated) yield return new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTraderId, (uint)traderId);
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the recentlytraded has already forwarded this through to the correct lasttrade
-        if (pqFieldUpdate.SubId == PQSubFieldKeys.LastTradedTraderId)
+        if (pqFieldUpdate.TradingSubId == PQTradingSubFieldKeys.LastTradedTraderId)
         {
             var traderCountOrId = (int)pqFieldUpdate.Payload;
             TraderId = traderCountOrId;

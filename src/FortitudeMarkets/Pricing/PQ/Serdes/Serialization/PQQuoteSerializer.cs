@@ -202,7 +202,7 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQTickInstant>
                         *currentPtr++ = depthByte;
                     }
                 }
-                if (field.Flag.HasSubIdFlag()) *currentPtr++ = (byte)field.SubId;
+                if (field.Flag.HasSubIdFlag()) *currentPtr++ = field.SubIdByte;
                 if (field.Flag.HasAuxiliaryPayloadFlag()) StreamByteOps.ToBytes(ref currentPtr, field.AuxiliaryPayload);
 
                 StreamByteOps.ToBytes(ref currentPtr, field.Payload);
@@ -228,7 +228,7 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQTickInstant>
                     }
                 }
                 if (fieldStringUpdate.Field.Flag.HasSubIdFlag())
-                    *currentPtr++ = (byte)fieldStringUpdate.Field.SubId;
+                    *currentPtr++ = fieldStringUpdate.Field.SubIdByte;
                 if (fieldStringUpdate.Field.Flag.HasAuxiliaryPayloadFlag())
                     StreamByteOps.ToBytes(ref currentPtr, fieldStringUpdate.Field.AuxiliaryPayload);
                 var stringSizePtr = currentPtr;

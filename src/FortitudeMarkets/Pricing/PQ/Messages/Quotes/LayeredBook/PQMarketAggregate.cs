@@ -207,28 +207,28 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
 
         public int UpdateField(PQFieldUpdate fieldUpdate)
         {
-            switch (fieldUpdate.SubId)
+            switch (fieldUpdate.PricingSubId)
             {
-                case PQSubFieldKeys.MarketAggregateSource:
+                case PQPricingSubFieldKeys.MarketAggregateSource:
                     IsDataSourceUpdated = true;
                     DataSource          = (MarketDataSource)fieldUpdate.Payload;
                     return 0;
-                case PQSubFieldKeys.MarketAggregateUpdateDate:
+                case PQPricingSubFieldKeys.MarketAggregateUpdateDate:
                     IsUpdatedDateUpdated = true; // incase of reset and sending 0;
                     PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref updateTime, fieldUpdate.Payload);
                     if (updateTime == DateTime.UnixEpoch) updateTime = default;
                     return 0;
-                case PQSubFieldKeys.MarketAggregateUpdateSub2MinTime:
+                case PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime:
                     IsUpdatedSub2MinTimeUpdated = true; // incase of reset and sending 0;
                     PQFieldConverters.UpdateSub2MinComponent
                         (ref updateTime, fieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(fieldUpdate.Payload));
                     if (updateTime == DateTime.UnixEpoch) updateTime = default;
                     return 0;
-                case PQSubFieldKeys.MarketAggregateVolume:
+                case PQPricingSubFieldKeys.MarketAggregateVolume:
                     IsVolumeUpdated = true; // incase of reset and sending 0;
                     Volume          = PQScaling.Unscale(fieldUpdate.Payload, fieldUpdate.Flag);
                     return 0;
-                case PQSubFieldKeys.MarketAggregateVwap:
+                case PQPricingSubFieldKeys.MarketAggregateVwap:
                     IsVwapUpdated = true; // incase of reset and sending 0;
                     Vwap          = PQScaling.Unscale(fieldUpdate.Payload, fieldUpdate.Flag);
                     return 0;
@@ -242,23 +242,23 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook
         {
             var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
             if (!updatedOnly || IsDataSourceUpdated)
-                yield return new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateSource, (uint)DataSource);
+                yield return new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateSource, (uint)DataSource);
 
             if (!updatedOnly || IsUpdatedDateUpdated)
-                yield return new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateUpdateDate
+                yield return new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateUpdateDate
                                              , updateTime.Get2MinIntervalsFromUnixEpoch());
             if (!updatedOnly || IsUpdatedSub2MinTimeUpdated)
             {
                 var extended = updateTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-                yield return new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateUpdateSub2MinTime, value, extended);
+                yield return new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime, value, extended);
             }
             if (!updatedOnly || IsVolumeUpdated)
-                yield return new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateVolume, Volume,
+                yield return new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateVolume, Volume,
                                                quotePublicationPrecisionSettings?.VolumeScalingPrecision ?? (PQFieldFlags)6);
 
             if (!updatedOnly || IsVwapUpdated)
             {
-                yield return new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQSubFieldKeys.MarketAggregateVwap, Vwap,
+                yield return new PQFieldUpdate(PQQuoteFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateVwap, Vwap,
                                                quotePublicationPrecisionSettings?.PriceScalingPrecision ?? (PQFieldFlags)2);
             }
         }

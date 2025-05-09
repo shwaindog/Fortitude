@@ -317,11 +317,11 @@ public class PQLevel3QuoteTests
                 var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pqSrcTrkQtInfo).ToList();
                 Assert.AreEqual(1, lastTradeUpdates.Count);
                 var expectedLastTradeField
-                    = new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedAtPrice, PQScaling.Scale(expectedPrice, priceScale), priceScale);
+                    = new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedAtPrice, PQScaling.Scale(expectedPrice, priceScale), priceScale);
                 var depthKey = (PQDepthKey)i;
                 var expectedQuoteLastTradeField =
                     new PQFieldUpdate
-                        (PQQuoteFields.LastTradedTickTrades, depthKey, PQSubFieldKeys.LastTradedAtPrice, expectedLastTradeField.Payload, expectedLastTradeField.Flag);
+                        (PQQuoteFields.LastTradedTickTrades, depthKey, PQTradingSubFieldKeys.LastTradedAtPrice, expectedLastTradeField.Payload, expectedLastTradeField.Flag);
                 Assert.AreEqual(expectedLastTradeField, lastTradeUpdates[0]);
                 Assert.AreEqual(expectedQuoteLastTradeField, quoteUpdates[2]);
 
@@ -336,7 +336,7 @@ public class PQLevel3QuoteTests
                 lastTrade.IsTradePriceUpdated = true;
                 quoteUpdates =
                     (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-                        where update.SubId == PQSubFieldKeys.LastTradedAtPrice && update.DepthId == (PQDepthKey)i
+                        where update.TradingSubId == PQTradingSubFieldKeys.LastTradedAtPrice && update.DepthId == (PQDepthKey)i
                         select update).ToList();
                 Assert.AreEqual(1, quoteUpdates.Count);
                 Assert.AreEqual(expectedQuoteLastTradeField, quoteUpdates[0]);
@@ -395,16 +395,16 @@ public class PQLevel3QuoteTests
                 var flag           = expectedTradeTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBase);
 
                 var expectedLastTradeHoursField =
-                    new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedTradeTimeDate, hoursFromEpoch);
+                    new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTradeTimeDate, hoursFromEpoch);
                 var expectedLastTradeSubHoursField =
-                    new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedTradeSub2MinTime, subHourBase, flag);
+                    new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTradeSub2MinTime, subHourBase, flag);
                 Assert.AreEqual(expectedLastTradeHoursField, lastTradeUpdates[0]);
                 Assert.AreEqual(expectedLastTradeSubHoursField, lastTradeUpdates[1]);
                 var depthKey = (PQDepthKey)i;
                 var expectedQuoteLastTradeTimeHoursField =
-                    new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, depthKey, PQSubFieldKeys.LastTradedTradeTimeDate, hoursFromEpoch);
+                    new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, depthKey, PQTradingSubFieldKeys.LastTradedTradeTimeDate, hoursFromEpoch);
                 var expectedQuoteLastTradeTimeSubHoursField =
-                    new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, depthKey, PQSubFieldKeys.LastTradedTradeSub2MinTime, subHourBase, flag);
+                    new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, depthKey, PQTradingSubFieldKeys.LastTradedTradeSub2MinTime, subHourBase, flag);
                 Assert.AreEqual(expectedQuoteLastTradeTimeHoursField, quoteUpdates[2]);
                 Assert.AreEqual(expectedQuoteLastTradeTimeSubHoursField, quoteUpdates[3]);
 
@@ -432,8 +432,8 @@ public class PQLevel3QuoteTests
                 lastTrade.IsTradeTimeSub2MinUpdated = true;
                 quoteUpdates =
                     (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-                        where (update.SubId == PQSubFieldKeys.LastTradedTradeTimeDate && update.DepthId == (PQDepthKey)i) ||
-                              (update.SubId == PQSubFieldKeys.LastTradedTradeSub2MinTime && update.DepthId == (PQDepthKey)i)
+                        where (update.TradingSubId == PQTradingSubFieldKeys.LastTradedTradeTimeDate && update.DepthId == (PQDepthKey)i) ||
+                              (update.TradingSubId == PQTradingSubFieldKeys.LastTradedTradeSub2MinTime && update.DepthId == (PQDepthKey)i)
                         select update).ToList();
                 Assert.AreEqual(2, quoteUpdates.Count);
                 Assert.AreEqual(expectedQuoteLastTradeTimeHoursField, quoteUpdates[0]);
@@ -493,10 +493,10 @@ public class PQLevel3QuoteTests
                 var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pqSrcTrkQtInfo).ToList();
                 Assert.AreEqual(1, lastTradeUpdates.Count);
                 var expectedLastTradeField = new PQFieldUpdate
-                    (PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags.WasGiven);
+                    (PQQuoteFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags.WasGiven);
                 var depthKey = (PQDepthKey)i;
                 var expectedQuoteLastTradeField = new PQFieldUpdate
-                    (PQQuoteFields.LastTradedTickTrades, depthKey, PQSubFieldKeys.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags.WasGiven);
+                    (PQQuoteFields.LastTradedTickTrades, depthKey, PQTradingSubFieldKeys.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags.WasGiven);
                 Assert.AreEqual(expectedLastTradeField, lastTradeUpdates[0]);
                 Assert.AreEqual(expectedQuoteLastTradeField, quoteUpdates[2]);
 
@@ -511,7 +511,7 @@ public class PQLevel3QuoteTests
                 lastTrade.IsWasGivenUpdated = true;
                 quoteUpdates =
                     (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-                        where update.SubId == PQSubFieldKeys.LastTradedBooleanFlags && update.DepthId == (PQDepthKey)i
+                        where update.TradingSubId == PQTradingSubFieldKeys.LastTradedBooleanFlags && update.DepthId == (PQDepthKey)i
                         select update).ToList();
                 Assert.AreEqual(1, quoteUpdates.Count);
                 Assert.AreEqual(expectedQuoteLastTradeField, quoteUpdates[0]);
@@ -566,10 +566,10 @@ public class PQLevel3QuoteTests
                 var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pqSrcTrkQtInfo).ToList();
                 Assert.AreEqual(1, lastTradeUpdates.Count);
                 var expectedLastTradeField =
-                    new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags.WasPaid);
+                    new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags.WasPaid);
                 var depthKey = (PQDepthKey)i;
                 var expectedQuoteLastTradeField = new PQFieldUpdate
-                    (PQQuoteFields.LastTradedTickTrades, depthKey, PQSubFieldKeys.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags.WasPaid);
+                    (PQQuoteFields.LastTradedTickTrades, depthKey, PQTradingSubFieldKeys.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags.WasPaid);
                 Assert.AreEqual(expectedLastTradeField, lastTradeUpdates[0]);
                 Assert.AreEqual(expectedQuoteLastTradeField, quoteUpdates[2]);
 
@@ -584,7 +584,7 @@ public class PQLevel3QuoteTests
                 lastTrade.IsWasPaidUpdated = true;
                 quoteUpdates =
                     (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-                        where update.SubId == PQSubFieldKeys.LastTradedBooleanFlags && update.DepthId == (PQDepthKey)i
+                        where update.TradingSubId == PQTradingSubFieldKeys.LastTradedBooleanFlags && update.DepthId == (PQDepthKey)i
                         select update).ToList();
                 Assert.AreEqual(1, quoteUpdates.Count);
                 Assert.AreEqual(expectedQuoteLastTradeField, quoteUpdates[0]);

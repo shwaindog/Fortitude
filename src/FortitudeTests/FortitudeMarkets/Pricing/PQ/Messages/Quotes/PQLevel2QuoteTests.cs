@@ -1366,18 +1366,34 @@ public class PQLevel2QuoteTests
 
     public static PQFieldUpdate ExtractFieldUpdateWithId
     (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQDepthKey depthId,
-        PQSubFieldKeys subId, ushort auxiliaryPayload,
+        PQPricingSubFieldKeys subId, ushort auxiliaryPayload,
+        uint value, PQFieldFlags flag = 0)
+    {
+        return ExtractFieldUpdateWithId(allUpdates, id, depthId, (byte)subId, auxiliaryPayload, value, flag);
+    }
+
+    public static PQFieldUpdate ExtractFieldUpdateWithId
+    (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQDepthKey depthId,
+        PQTradingSubFieldKeys subId, ushort auxiliaryPayload,
+        uint value, PQFieldFlags flag = 0)
+    {
+        return ExtractFieldUpdateWithId(allUpdates, id, depthId, (byte)subId, auxiliaryPayload, value, flag);
+    }
+
+    public static PQFieldUpdate ExtractFieldUpdateWithId
+    (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQDepthKey depthId,
+        byte subId, ushort auxiliaryPayload,
         uint value, PQFieldFlags flag = 0)
     {
         var useExtendedFlag  = subId > 0 ? PQFieldFlags.IncludesSubId : PQFieldFlags.None;
         var useAuxiliaryFlag = auxiliaryPayload > 0 ? PQFieldFlags.IncludesAuxiliaryPayload : PQFieldFlags.None;
         var useDepthFlag     = depthId > 0 ? PQFieldFlags.IncludesDepth : PQFieldFlags.None;
         var tryFlags         = flag | useDepthFlag | useExtendedFlag | useAuxiliaryFlag;
-        var tryGetValue = allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubId == subId
+        var tryGetValue = allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubIdByte == subId
                                                        && fu.AuxiliaryPayload == auxiliaryPayload && fu.Payload == value && fu.Flag == tryFlags);
         var tryAgainValue = !Equals(tryGetValue, default(PQFieldUpdate))
             ? tryGetValue
-            : allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubId == subId &&
+            : allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubIdByte == subId &&
                                               fu.Flag == (flag | useDepthFlag | useExtendedFlag));
         var tryTryAgainValue = !Equals(tryAgainValue, default(PQFieldUpdate))
             ? tryAgainValue
@@ -1512,63 +1528,63 @@ public class PQLevel2QuoteTests
             var orderIndex         = (ushort)j;
 
             var orderId = (uint)anonOrderLayerInfo.OrderId;
-            var orderIdFu = ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerOrders, depthId, PQSubFieldKeys.OrderId, orderIndex
+            var orderIdFu = ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerOrders, depthId, PQTradingSubFieldKeys.OrderId, orderIndex
                                                    , orderId);
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQSubFieldKeys.OrderId, orderIndex, orderId), orderIdFu,
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQTradingSubFieldKeys.OrderId, orderIndex, orderId), orderIdFu,
                             $"For {ordersPvl.GetType().Name} at [{depthIndex}][{j}] with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             var orderFlags = (uint)anonOrderLayerInfo.OrderFlags;
-            var orderFlagsFu = ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerOrders, depthId, PQSubFieldKeys.OrderFlags,
+            var orderFlagsFu = ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerOrders, depthId, PQTradingSubFieldKeys.OrderFlags,
                                                         orderIndex, orderFlags);
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQSubFieldKeys.OrderFlags, orderIndex, orderFlags), orderFlagsFu,
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQTradingSubFieldKeys.OrderFlags, orderIndex, orderFlags), orderFlagsFu,
                             $"For {ordersPvl.GetType().Name} at [{depthIndex}][{j}] with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             var orderCreatedDate = anonOrderLayerInfo.CreatedTime.Get2MinIntervalsFromUnixEpoch();
             var orderCreatedDateFu
-                = ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerOrders, depthId, PQSubFieldKeys.OrderCreatedDate, orderIndex
+                = ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerOrders, depthId, PQTradingSubFieldKeys.OrderCreatedDate, orderIndex
                                          , orderCreatedDate);
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQSubFieldKeys.OrderCreatedDate, orderIndex, orderCreatedDate)
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQTradingSubFieldKeys.OrderCreatedDate, orderIndex, orderCreatedDate)
                           , orderCreatedDateFu,
                             $"For {ordersPvl.GetType().Name} at [{depthIndex}][{j}] with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             var orderCreatedSub2MinExtended
                 = anonOrderLayerInfo.CreatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var orderCreatedSubHour);
             var orderCreatedSubHourFu = ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerOrders, depthId
-                                                               , PQSubFieldKeys.OrderCreatedSub2MinTime, orderIndex, orderCreatedSubHour
+                                                               , PQTradingSubFieldKeys.OrderCreatedSub2MinTime, orderIndex, orderCreatedSubHour
                                                                , orderCreatedSub2MinExtended);
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQSubFieldKeys.OrderCreatedSub2MinTime, orderIndex, orderCreatedSubHour, orderCreatedSub2MinExtended)
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQTradingSubFieldKeys.OrderCreatedSub2MinTime, orderIndex, orderCreatedSubHour, orderCreatedSub2MinExtended)
                           , orderCreatedSubHourFu,
                             $"For {ordersPvl.GetType().Name} at [{depthIndex}][{j}] with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             var orderUpdatedDate = anonOrderLayerInfo.UpdatedTime.Get2MinIntervalsFromUnixEpoch();
             var orderUpdatedDateFu
-                = ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerOrders, depthId, PQSubFieldKeys.OrderUpdatedDate, orderIndex
+                = ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerOrders, depthId, PQTradingSubFieldKeys.OrderUpdatedDate, orderIndex
                                          , orderUpdatedDate);
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQSubFieldKeys.OrderUpdatedDate, orderIndex, orderUpdatedDate)
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQTradingSubFieldKeys.OrderUpdatedDate, orderIndex, orderUpdatedDate)
                           , orderUpdatedDateFu,
                             $"For {ordersPvl.GetType().Name} at [{depthIndex}][{j}] with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             var orderUpdatedSub2MinExtended
                 = anonOrderLayerInfo.UpdatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var orderUpdatedSubHour);
             var orderUpdatedSubHourFu = ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerOrders, depthId
-                                                               , PQSubFieldKeys.OrderUpdatedSub2MinTime, orderIndex, orderUpdatedSubHour
+                                                               , PQTradingSubFieldKeys.OrderUpdatedSub2MinTime, orderIndex, orderUpdatedSubHour
                                                                , orderUpdatedSub2MinExtended);
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQSubFieldKeys.OrderUpdatedSub2MinTime, orderIndex, orderUpdatedSubHour, orderUpdatedSub2MinExtended)
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQTradingSubFieldKeys.OrderUpdatedSub2MinTime, orderIndex, orderUpdatedSubHour, orderUpdatedSub2MinExtended)
                           , orderUpdatedSubHourFu,
                             $"For {ordersPvl.GetType().Name} at [{depthIndex}][{j}] with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             var orderVolume = PQScaling.Scale(anonOrderLayerInfo.OrderVolume, volumeScale);
             var orderVolumeFu
-                = ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerOrders, depthId, PQSubFieldKeys.OrderVolume, orderIndex, orderVolume
+                = ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerOrders, depthId, PQTradingSubFieldKeys.OrderVolume, orderIndex, orderVolume
                                          , volumeScale);
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQSubFieldKeys.OrderVolume, orderIndex, orderVolume, volumeScale)
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQTradingSubFieldKeys.OrderVolume, orderIndex, orderVolume, volumeScale)
                           , orderVolumeFu,
                             $"For {ordersPvl.GetType().Name} at [{depthIndex}][{j}] with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             var orderRemainingVolume = PQScaling.Scale(anonOrderLayerInfo.OrderRemainingVolume, volumeScale);
             var orderRemainingVolumeFu = ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerOrders, depthId
-                                                                , PQSubFieldKeys.OrderRemainingVolume, orderIndex, orderRemainingVolume, volumeScale);
-            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQSubFieldKeys.OrderRemainingVolume, orderIndex, orderRemainingVolume, volumeScale)
+                                                                , PQTradingSubFieldKeys.OrderRemainingVolume, orderIndex, orderRemainingVolume, volumeScale);
+            Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQTradingSubFieldKeys.OrderRemainingVolume, orderIndex, orderRemainingVolume, volumeScale)
                           , orderRemainingVolumeFu,
                             $"For {ordersPvl.GetType().Name} at [{depthIndex}][{j}] with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
@@ -1576,17 +1592,17 @@ public class PQLevel2QuoteTests
             {
                 var orderCpNameId = (uint)nameIdLookup[cpOrderLayerInfo.CounterPartyName];
                 var orderCpIdFu = ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerOrders, depthId
-                                                         , PQSubFieldKeys.OrderCounterPartyNameId
+                                                         , PQTradingSubFieldKeys.OrderCounterPartyNameId
                                                          , orderIndex, orderCpNameId);
-                Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQSubFieldKeys.OrderCounterPartyNameId, orderIndex, orderCpNameId)
+                Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQTradingSubFieldKeys.OrderCounterPartyNameId, orderIndex, orderCpNameId)
                               , orderCpIdFu,
                                 $"For {ordersPvl.GetType().Name} at [{depthIndex}][{j}] with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
                 var orderTraderId = (uint)nameIdLookup[cpOrderLayerInfo.TraderName];
                 var orderTraderIdFu
-                    = ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerOrders, depthId, PQSubFieldKeys.OrderTraderNameId, orderIndex
+                    = ExtractFieldUpdateWithId(checkFieldUpdates, PQQuoteFields.LayerOrders, depthId, PQTradingSubFieldKeys.OrderTraderNameId, orderIndex
                                              , orderTraderId);
-                Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQSubFieldKeys.OrderTraderNameId, orderIndex, orderTraderId)
+                Assert.AreEqual(new PQFieldUpdate(PQQuoteFields.LayerOrders, depthId, PQTradingSubFieldKeys.OrderTraderNameId, orderIndex, orderTraderId)
                               , orderTraderIdFu,
                                 $"For {ordersPvl.GetType().Name} at [{depthIndex}][{j}] with these fields\n{string.Join(",\n", checkFieldUpdates)}");
                 return;

@@ -556,9 +556,21 @@ public class PQTickInstantTests
     }
 
     public static PQFieldUpdate ExtractFieldUpdateWithId
-        (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQSubFieldKeys subId, PQFieldFlags flagValue = PQFieldFlags.None)
+        (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQPricingSubFieldKeys subId, PQFieldFlags flagValue = PQFieldFlags.None)
     {
-        return allUpdates.FirstOrDefault(fu => fu.Id == id && fu.SubId == subId);
+        return ExtractFieldUpdateWithId(allUpdates, id, (byte)subId, flagValue);
+    }
+
+    public static PQFieldUpdate ExtractFieldUpdateWithId
+        (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQTradingSubFieldKeys subId, PQFieldFlags flagValue = PQFieldFlags.None)
+    {
+        return ExtractFieldUpdateWithId(allUpdates, id, (byte)subId, flagValue);
+    }
+
+    public static PQFieldUpdate ExtractFieldUpdateWithId
+        (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, byte subId, PQFieldFlags flagValue = PQFieldFlags.None)
+    {
+        return allUpdates.FirstOrDefault(fu => fu.Id == id && fu.SubIdByte == subId);
     }
 
     public static PQFieldUpdate ExtractFieldUpdateWithId
@@ -579,20 +591,32 @@ public class PQTickInstantTests
     }
 
     public static PQFieldUpdate ExtractFieldUpdateWithId
-        (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQDepthKey depthId, PQSubFieldKeys subId, PQFieldFlags flag = PQFieldFlags.None)
+        (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQDepthKey depthId, PQPricingSubFieldKeys subId, PQFieldFlags flag = PQFieldFlags.None)
+    {
+        return ExtractFieldUpdateWithId(allUpdates, id, depthId, (byte)subId, flag);
+    }
+
+    public static PQFieldUpdate ExtractFieldUpdateWithId
+        (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQDepthKey depthId, PQTradingSubFieldKeys subId, PQFieldFlags flag = PQFieldFlags.None)
+    {
+        return ExtractFieldUpdateWithId(allUpdates, id, depthId, (byte)subId, flag);
+    }
+
+    public static PQFieldUpdate ExtractFieldUpdateWithId
+        (IList<PQFieldUpdate> allUpdates, PQQuoteFields id, PQDepthKey depthId, byte subId, PQFieldFlags flag = PQFieldFlags.None)
     {
         var useSubId = subId > 0 ? PQFieldFlags.IncludesSubId : PQFieldFlags.None;
         var useDepthFlag    = depthId > 0 ? PQFieldFlags.IncludesDepth : PQFieldFlags.None;
         var tryFlags        = flag | useDepthFlag | useSubId;
-        var tryGetValue = allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubId == subId &&
+        var tryGetValue = allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubIdByte == subId &&
                                                           fu.Flag == tryFlags);
         var tryAgainValue = !Equals(tryGetValue, default(PQFieldUpdate))
             ? tryGetValue
-            : allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubId == subId &&
+            : allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubIdByte == subId &&
                                               fu.Flag == (flag | PQFieldFlags.IncludesDepth));
         var tryTryAgainValue = !Equals(tryAgainValue, default(PQFieldUpdate))
             ? tryGetValue
-            : allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubId == subId && fu.Flag == flag);
+            : allUpdates.FirstOrDefault(fu => fu.Id == id && fu.DepthId == depthId && fu.SubIdByte == subId && fu.Flag == flag);
         return tryTryAgainValue;
     }
 

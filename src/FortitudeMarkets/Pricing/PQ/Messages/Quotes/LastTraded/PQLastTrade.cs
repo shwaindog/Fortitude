@@ -179,29 +179,29 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
         if (!updatedOnly || IsTradeTimeDateUpdated)
-            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedTradeTimeDate, TradeTime.Get2MinIntervalsFromUnixEpoch());
+            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTradeTimeDate, TradeTime.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsTradeTimeSub2MinUpdated)
         {
             var extended = TradeTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedTradeSub2MinTime,  value, extended);
+            yield return new PQFieldUpdate(PQQuoteFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTradeSub2MinTime,  value, extended);
         }
 
         if (!updatedOnly || IsTradePriceUpdated)
             yield return new PQFieldUpdate
-                (PQQuoteFields.LastTradedTickTrades, PQSubFieldKeys.LastTradedAtPrice, TradePrice, quotePublicationPrecisionSetting?.PriceScalingPrecision ?? (PQFieldFlags)1);
+                (PQQuoteFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedAtPrice, TradePrice, quotePublicationPrecisionSetting?.PriceScalingPrecision ?? (PQFieldFlags)1);
     }
 
     public virtual int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the recentlytraded has already forwarded this through to the correct lasttrade
-        if (pqFieldUpdate.SubId == PQSubFieldKeys.LastTradedTradeTimeDate)
+        if (pqFieldUpdate.TradingSubId == PQTradingSubFieldKeys.LastTradedTradeTimeDate)
         {
             PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref tradeTime, pqFieldUpdate.Payload);
             IsTradeTimeDateUpdated = true;
             if (tradeTime == DateTime.UnixEpoch) tradeTime = default;
             return 0;
         }
-        if (pqFieldUpdate.SubId == PQSubFieldKeys.LastTradedTradeSub2MinTime)
+        if (pqFieldUpdate.TradingSubId == PQTradingSubFieldKeys.LastTradedTradeSub2MinTime)
         {
             PQFieldConverters.UpdateSub2MinComponent(ref tradeTime,
                                                      pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
@@ -209,7 +209,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
             if (tradeTime == DateTime.UnixEpoch) tradeTime = default;
             return 0;
         }
-        if (pqFieldUpdate.SubId == PQSubFieldKeys.LastTradedAtPrice)
+        if (pqFieldUpdate.TradingSubId == PQTradingSubFieldKeys.LastTradedAtPrice)
         {
             TradePrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
             return 0;
