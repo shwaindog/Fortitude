@@ -22,7 +22,7 @@ public interface ITickerConfig : IInterfacesComparable<ITickerConfig>
     string  TickerDescription { get; set; }
 
     TickerAvailability? TickerAvailability   { get; set; }
-    TickerDetailLevel?  PublishedDetailLevel { get; set; }
+    TickerQuoteDetailLevel?  PublishedDetailLevel { get; set; }
 
     MarketClassificationConfig? MarketClassificationConfig { get; set; }
 
@@ -47,7 +47,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
     public TickerConfig() { }
 
     public TickerConfig
-    (ushort tickerId, string ticker, TickerAvailability? tickerAvailability = null, TickerDetailLevel? publishedQuoteLevel = null
+    (ushort tickerId, string ticker, TickerAvailability? tickerAvailability = null, TickerQuoteDetailLevel? publishedQuoteLevel = null
       , MarketClassification? marketClassification = null, decimal? roundingPrecision = null, decimal? pip = null, decimal? minSubmitSize = null
       , decimal? maxSubmitSize = null, decimal? incrementSize = null, ushort? minimumQuoteLife = null, uint? defaultMaxValidMs = null
       , LayerFlags? layerFlags = null, byte? maximumPublisherLayers = null, LastTradedFlags? lastTradedFlags = null)
@@ -175,12 +175,12 @@ public class TickerConfig : ConfigSection, ITickerConfig
         set => this[nameof(TickerAvailability)] = value.ToString();
     }
 
-    public TickerDetailLevel? PublishedDetailLevel
+    public TickerQuoteDetailLevel? PublishedDetailLevel
     {
         get
         {
             var checkValue = this[nameof(PublishedDetailLevel)];
-            return checkValue != null ? Enum.Parse<TickerDetailLevel>(checkValue) : null;
+            return checkValue != null ? Enum.Parse<TickerQuoteDetailLevel>(checkValue) : null;
         }
         set => this[nameof(PublishedDetailLevel)] = value.ToString();
     }

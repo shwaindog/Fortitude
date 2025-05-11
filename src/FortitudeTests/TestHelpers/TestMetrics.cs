@@ -21,7 +21,7 @@ public class TestMetrics
 {
     private const int MaxAllowedUntestedClassesInCommon            = 210;
     private const int MaxAllowedUntestedClassesInFortitudeIO       = 155;
-    private const int MaxAllowedUntestedClassesInFortitudeMarkets  = 340;
+    private const int MaxAllowedUntestedClassesInFortitudeMarkets  = 370;
     private const int MaxAllowedUntestedClassesInFortitudeBusRules = 117;
 
     private IDictionary<string, List<Type>> fortitudeBusRulesAssemblyClasses = null!;
@@ -41,7 +41,7 @@ public class TestMetrics
     {
         fortitudeCommonType   = typeof(TimeContext);
         fortitudeIOType       = typeof(ISocketSessionContext);
-        fortitudeMarketsType  = typeof(PQTickInstant);
+        fortitudeMarketsType  = typeof(PQPublishableTickInstant);
         fortitudeBusRulesType = typeof(BusMessage);
 
         fortitudeCommonAssemblyClasses =

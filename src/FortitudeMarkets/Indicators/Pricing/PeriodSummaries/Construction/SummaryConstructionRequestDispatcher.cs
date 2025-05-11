@@ -45,7 +45,7 @@ public class SubSummaryConstructionRequestDispatcher : SummaryConstructionReques
 }
 
 public class QuoteToSummaryConstructionRequestDispatcher<TQuote> : SummaryConstructionRequestDispatcher
-    where TQuote : class, ITimeSeriesEntry, ILevel1Quote, new()
+    where TQuote : class, ITimeSeriesEntry, IPublishableLevel1Quote, new()
 {
     public QuoteToSummaryConstructionRequestDispatcher(IHistoricalPricePeriodSummaryResolverRule constructingRule) : base(constructingRule) { }
 

@@ -36,10 +36,10 @@ public class PQPricingServerQuotePublisherRule : Rule
     private readonly int heartBeatPublishIntervalMs;
     private readonly int heartBeatPublishToleranceRangeMs;
 
-    private readonly IDoublyLinkedList<IPQTickInstant> heartbeatQuotes = new DoublyLinkedList<IPQTickInstant>();
+    private readonly IDoublyLinkedList<IPQPublishableTickInstant> heartbeatQuotes = new DoublyLinkedList<IPQPublishableTickInstant>();
 
     private readonly IPricingServerConfig          pricingServerConfig;
-    private readonly IMap<uint, PQTickInstant>     publishedQuotesMap = new ConcurrentMap<uint, PQTickInstant>();
+    private readonly IMap<uint, PQPublishableTickInstant>     publishedQuotesMap = new ConcurrentMap<uint, PQPublishableTickInstant>();
     private readonly INetworkTopicConnectionConfig updatesConnectionConfig;
 
     private ITimerUpdate? heartBestRunner;
@@ -62,13 +62,13 @@ public class PQPricingServerQuotePublisherRule : Rule
     {
         await AttemptStartUpdatePublisher();
         await this.RegisterListenerAsync<PublishQuoteEvent>(feedName.FeedTickerPublishAddress(), PublishReceivedTickerHandler);
-        await this.RegisterRequestListenerAsync<IList<uint>, IList<IPQTickInstant>>
+        await this.RegisterRequestListenerAsync<IList<uint>, IList<IPQPublishableTickInstant>>
             (feedName.FeedTickerLastPublishedQuotesRequestAddress(), ReceivedQuoteLastPublishedRequest);
     }
 
-    private IList<IPQTickInstant> ReceivedQuoteLastPublishedRequest(IBusRespondingMessage<IList<uint>, IList<IPQTickInstant>> arg)
+    private IList<IPQPublishableTickInstant> ReceivedQuoteLastPublishedRequest(IBusRespondingMessage<IList<uint>, IList<IPQPublishableTickInstant>> arg)
     {
-        var response           = Context.PooledRecycler.Borrow<ReusableList<IPQTickInstant>>();
+        var response           = Context.PooledRecycler.Borrow<ReusableList<IPQPublishableTickInstant>>();
         var quotesIdsToReturns = arg.Payload.Body();
         foreach (var quotesIdsToReturn in quotesIdsToReturns)
         {
@@ -98,7 +98,7 @@ public class PQPricingServerQuotePublisherRule : Rule
             sendToSerializer.Recycler                   = Context.PooledRecycler;
             sendToSerializer.CopyFrom(quoteToPublish);
             publishedQuotesMap.Add(tickerInfo.SourceTickerId, sendToSerializer);
-            if (quoteToPublish.TickerDetailLevel.LessThan(sendToSerializer!.TickerDetailLevel))
+            if (quoteToPublish.TickerQuoteDetailLevel.LessThan(sendToSerializer!.TickerQuoteDetailLevel))
             {
                 Logger.Warn("Received a quote lower than the published level.  This would result in unset fields and so wil NOT be published");
                 return;
@@ -111,7 +111,7 @@ public class PQPricingServerQuotePublisherRule : Rule
         }
         else
         {
-            if (quoteToPublish.TickerDetailLevel.LessThan(sendToSerializer!.TickerDetailLevel))
+            if (quoteToPublish.TickerQuoteDetailLevel.LessThan(sendToSerializer!.TickerQuoteDetailLevel))
             {
                 Logger.Warn("Received a quote lower than the published level.  This would result in unset fields and so wil NOT be published");
                 return;
@@ -126,7 +126,7 @@ public class PQPricingServerQuotePublisherRule : Rule
         }
     }
 
-    public void Publish(PQTickInstant toSerialize)
+    public void Publish(PQPublishableTickInstant toSerialize)
     {
         if (!toSerialize.HasUpdates) return;
         if (updatePublisher.IsStarted) updatePublisher.Send(toSerialize);
@@ -142,7 +142,7 @@ public class PQPricingServerQuotePublisherRule : Rule
 
         while (!heartbeatQuotes.IsEmpty)
         {
-            IPQTickInstant? pqTickInstant;
+            IPQPublishableTickInstant? pqTickInstant;
             if ((pqTickInstant = heartbeatQuotes.Head) == null
              || (TimeContext.UtcNow - pqTickInstant.LastPublicationTime).TotalMilliseconds <
                 heartBeatPublishIntervalMs - heartBeatPublishToleranceRangeMs)

@@ -36,7 +36,7 @@ public class PQUpdateClientRepositoryTests
 
     private Mock<IEndpointConfig> moqServerConnectionConfig = null!;
 
-    private Mock<INotifyingMessageDeserializer<PQTickInstant>> moqSocketBinaryDeserializer = null!;
+    private Mock<INotifyingMessageDeserializer<PQPublishableTickInstant>> moqSocketBinaryDeserializer = null!;
 
     private Mock<ISocketConnectivityChanged>    moqSocketConnectivityChanged   = null!;
     private Mock<ISocketDispatcherResolver>     moqSocketDispatcherResolver    = null!;
@@ -69,7 +69,7 @@ public class PQUpdateClientRepositoryTests
         moqSocketConnectivityChanged   = new Mock<ISocketConnectivityChanged>();
         moqServerConnectionConfig      = new Mock<IEndpointConfig>();
         moqPQQuoteSerializationRepo    = new Mock<IPQClientQuoteDeserializerRepository>();
-        moqSocketBinaryDeserializer    = new Mock<INotifyingMessageDeserializer<PQTickInstant>>();
+        moqSocketBinaryDeserializer    = new Mock<INotifyingMessageDeserializer<PQPublishableTickInstant>>();
         moqStreamControlsFactory       = new Mock<IStreamControlsFactory>();
 
         moqStreamControls  = new Mock<IStreamControls>();
@@ -98,7 +98,7 @@ public class PQUpdateClientRepositoryTests
 
         moqSocketBinaryDeserializer.SetupAllProperties();
 
-        moqPQQuoteSerializationRepo.Setup(pqqsf => pqqsf.GetDeserializer<PQTickInstant>(uint.MaxValue))
+        moqPQQuoteSerializationRepo.Setup(pqqsf => pqqsf.GetDeserializer<PQPublishableTickInstant>(uint.MaxValue))
                                    .Returns(moqSocketBinaryDeserializer.Object).Verifiable();
 
         pqUpdateClientRegFactory = new PQUpdateClientRepository(moqSocketDispatcherResolver.Object);

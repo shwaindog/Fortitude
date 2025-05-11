@@ -65,7 +65,7 @@ public class SubSummaryRequestResponseAttendant
 public class QuoteToSummaryRequestResponseAttendant<TQuote>
     (IHistoricalPricePeriodSummaryResolverRule constructingRule, HistoricalPeriodResponseRequest responseRequest)
     : RequestResponseAttendant(constructingRule, responseRequest), ISummaryRequestResponseAttendant
-    where TQuote : class, ITimeSeriesEntry, ILevel1Quote, new()
+    where TQuote : class, ITimeSeriesEntry, IPublishableLevel1Quote, new()
 {
     public override async ValueTask<List<PricePeriodSummary>> BuildFromParts(BoundedTimeRange requestRange)
     {

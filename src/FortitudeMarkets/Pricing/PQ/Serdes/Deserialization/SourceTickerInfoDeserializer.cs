@@ -53,7 +53,7 @@ internal class SourceTickerInfoDeserializer : MessageDeserializer<ISourceTickerI
 
     private static unsafe void DeserializeQuoteInfo(ISourceTickerInfo srcTkrInfo, ref byte* ptr)
     {
-        srcTkrInfo.PublishedTickerDetailLevel = (TickerDetailLevel)(*ptr++);
+        srcTkrInfo.PublishedTickerQuoteDetailLevel = (TickerQuoteDetailLevel)(*ptr++);
         srcTkrInfo.MaximumPublishedLayers     = StreamByteOps.ToUShort(ref ptr);
         srcTkrInfo.RoundingPrecision          = StreamByteOps.ToDecimal(ref ptr);
         srcTkrInfo.Pip                        = StreamByteOps.ToDecimal(ref ptr);

@@ -23,7 +23,7 @@ using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 
 public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQuoteDeserializer<T>
-    where T : class, IPQTickInstant
+    where T : class, IPQPublishableTickInstant
 {
     private const byte SupportFromVersion = 1;
     private const byte SupportToVersion   = 1;

@@ -14,7 +14,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public abstract class SyncStateBase<T> where T : PQTickInstant, new()
+public abstract class SyncStateBase<T> where T : PQPublishableTickInstant, new()
 {
     protected const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss.ffffff";
 

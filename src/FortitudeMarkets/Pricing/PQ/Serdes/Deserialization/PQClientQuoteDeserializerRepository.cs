@@ -25,7 +25,7 @@ public interface IPQClientQuoteDeserializerRepository : IConversationDeserializa
     new IPQClientMessageStreamDecoder Supply(string name);
 
     IPQQuoteDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig)
-        where T : PQTickInstant, new();
+        where T : PQPublishableTickInstant, new();
 
     IPQQuoteDeserializer? CreateQuoteDeserializer(ITickerPricingSubscriptionConfig streamPubConfig, Type pqLevelQuoteMessageType);
 
@@ -52,7 +52,7 @@ public sealed class PQClientQuoteDeserializerRepository
 
     public bool UnregisterDeserializer(ISourceTickerInfo identifier) => UnregisterDeserializer(identifier.SourceTickerId);
 
-    public IPQQuoteDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig) where T : PQTickInstant, new()
+    public IPQQuoteDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig) where T : PQPublishableTickInstant, new()
     {
         IPQQuoteDeserializer quoteDeserializer = new PQQuoteDeserializer<T>(streamPubConfig);
         RegisteredDeserializers.Add(streamPubConfig.SourceTickerInfo.SourceTickerId, quoteDeserializer);
@@ -63,10 +63,10 @@ public sealed class PQClientQuoteDeserializerRepository
     {
         return pqLevelQuoteMessageType switch
                {
-                   Type when pqLevelQuoteMessageType == typeof(PQTickInstant) => CreateQuoteDeserializer<PQTickInstant>(streamPubConfig)
-                 , Type when pqLevelQuoteMessageType == typeof(PQLevel1Quote) => CreateQuoteDeserializer<PQLevel1Quote>(streamPubConfig)
-                 , Type when pqLevelQuoteMessageType == typeof(PQLevel2Quote) => CreateQuoteDeserializer<PQLevel2Quote>(streamPubConfig)
-                 , Type when pqLevelQuoteMessageType == typeof(PQLevel3Quote) => CreateQuoteDeserializer<PQLevel3Quote>(streamPubConfig)
+                   Type when pqLevelQuoteMessageType == typeof(PQPublishableTickInstant) => CreateQuoteDeserializer<PQPublishableTickInstant>(streamPubConfig)
+                 , Type when pqLevelQuoteMessageType == typeof(PQPublishableLevel1Quote) => CreateQuoteDeserializer<PQPublishableLevel1Quote>(streamPubConfig)
+                 , Type when pqLevelQuoteMessageType == typeof(PQPublishableLevel2Quote) => CreateQuoteDeserializer<PQPublishableLevel2Quote>(streamPubConfig)
+                 , Type when pqLevelQuoteMessageType == typeof(PQPublishableLevel3Quote) => CreateQuoteDeserializer<PQPublishableLevel3Quote>(streamPubConfig)
 
                  , _ => null
                };

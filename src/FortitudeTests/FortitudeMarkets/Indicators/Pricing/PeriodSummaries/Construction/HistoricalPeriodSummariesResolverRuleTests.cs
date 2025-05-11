@@ -29,7 +29,7 @@ using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeTests.FortitudeMarkets.Pricing.Summaries.PricePeriodSummaryTests;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -67,13 +67,13 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
 
     private IndicatorServiceRegistryStubRule indicatorRegistryStubRule = null!;
 
-    private List<ILevel1Quote>       lastQuotesRetrieved    = new();
+    private List<IPublishableLevel1Quote>       lastQuotesRetrieved    = new();
     private List<PricePeriodSummary> lastSummariesRetrieved = new();
 
     private decimal mid1;
     private decimal mid2;
 
-    private List<ILevel1Quote> oneSecondLevel1Quotes = null!;
+    private List<IPublishableLevel1Quote> oneSecondLevel1Quotes = null!;
     private BoundedTimeRange   restrictedRetrievalRange;
 
     private decimal spread;
@@ -143,10 +143,10 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         historicalQuotesStartTime = testEpochTime + startOffsetTimeSpan;
         var entriesStartTime = historicalQuotesStartTime;
 
-        oneSecondLevel1Quotes = new List<ILevel1Quote>(numberToGenerate);
+        oneSecondLevel1Quotes = new List<IPublishableLevel1Quote>(numberToGenerate);
         for (var i = 0; i < numberToGenerate; i++)
             oneSecondLevel1Quotes.Add
-                (tickerId15SPeriod.CreateLevel1Quote(entriesStartTime = OneSecond.PeriodEnd(entriesStartTime), i % 2 == 0 ? mid1 : mid2, spread));
+                (tickerId15SPeriod.CreatePublishableLevel1Quote(entriesStartTime = OneSecond.PeriodEnd(entriesStartTime), i % 2 == 0 ? mid1 : mid2, spread));
     }
 
     private void Generate15SSummaries(int numberToGenerate = 5)
@@ -233,7 +233,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         return lastFileEntryInfoRetrieved;
     }
 
-    private IEnumerable<ITickInstant> GetStubQuotes(SourceTickerIdentifier srcTickerIdentifier, UnboundedTimeRange? requestTimeRange)
+    private IEnumerable<IPublishableTickInstant> GetStubQuotes(SourceTickerIdentifier srcTickerIdentifier, UnboundedTimeRange? requestTimeRange)
     {
         return lastQuotesRetrieved =
             oneSecondLevel1Quotes
@@ -289,7 +289,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         var test15SHistoricalPeriodClient = new TestHistoricalPeriodClient(FifteenSeconds, tickerId15SPeriod);
         await indicatorRegistryStubRule.DeployChildRuleAsync(test15SHistoricalPeriodClient);
 
-        var histResolver15SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(fifteenSecondsHistoricalPeriodParams);
+        var histResolver15SRule = new HistoricalPeriodSummariesResolverRule<PublishableLevel1PriceQuote>(fifteenSecondsHistoricalPeriodParams);
 
         await using var histResolverDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(histResolver15SRule);
 
@@ -318,14 +318,14 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         historical15SSummariesLatestTime = FifteenSeconds.ContainingPeriodBoundaryStart(stubTimeContext.UtcNow);
         var thirtySeconds15SPeriodHistoricalPeriodParams = new HistoricalPeriodParams
             (thirtySecondsHistoricalPeriodParams.SourceTickerIdentifier, FifteenSeconds, new TimeLength(TimeSpan.FromMinutes(1)));
-        var histResolver15SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySeconds15SPeriodHistoricalPeriodParams);
+        var histResolver15SRule = new HistoricalPeriodSummariesResolverRule<PublishableLevel1PriceQuote>(thirtySeconds15SPeriodHistoricalPeriodParams);
 
         await indicatorRegistryStubRule.RegisterAndDeployTickerPeriodService
             (thirtySecondsHistoricalPeriodParams.SourceTickerIdentifier, new DiscreetTimePeriod(FifteenSeconds)
            , ServiceType.HistoricalPricePeriodSummaryResolver, histResolver15SRule);
 
         historical30SSummariesLatestTime = ThirtySeconds.PreviousPeriodStart(testEpochTime);
-        var histResolver30SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySecondsHistoricalPeriodParams);
+        var histResolver30SRule = new HistoricalPeriodSummariesResolverRule<PublishableLevel1PriceQuote>(thirtySecondsHistoricalPeriodParams);
 
         await using var histResolverDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(histResolver30SRule);
         await test30SHistoricalPeriodClient.BlockUntilToPersistReaches(1);
@@ -350,7 +350,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
 
         historical30SSummariesLatestTime = testEpochTime;
         historical15SSummariesLatestTime = testEpochTime;
-        var histResolver30SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySecondsHistoricalPeriodParams);
+        var histResolver30SRule = new HistoricalPeriodSummariesResolverRule<PublishableLevel1PriceQuote>(thirtySecondsHistoricalPeriodParams);
 
         await using var histResolverDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(histResolver30SRule);
 
@@ -380,7 +380,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
 
         historical30SSummariesLatestTime = testEpochTime;
         historical15SSummariesLatestTime = testEpochTime;
-        var histResolver30SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySecondsHistoricalPeriodParams);
+        var histResolver30SRule = new HistoricalPeriodSummariesResolverRule<PublishableLevel1PriceQuote>(thirtySecondsHistoricalPeriodParams);
 
         await using var histResolverDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(histResolver30SRule);
 
@@ -404,7 +404,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
 
         await using var testClientDeployment = await indicatorRegistryStubRule.DeployChildRuleAsync(test15SHistoricalPeriodClient);
 
-        var histResolver15SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(fifteenSecondsHistoricalPeriodParams);
+        var histResolver15SRule = new HistoricalPeriodSummariesResolverRule<PublishableLevel1PriceQuote>(fifteenSecondsHistoricalPeriodParams);
         historical15SSummariesLatestTime = oneSecondLevel1Quotes.First().SourceTime.AddHours(-1);
         historicalQuotesStartTime        = historical15SSummariesLatestTime.AddHours(-1);
         historicalQuotesLatestTime       = historical15SSummariesLatestTime;
@@ -440,12 +440,12 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         historical15SSummariesLatestTime = testEpochTime;
         var thirtySeconds15SPeriodHistoricalPeriodParams = new HistoricalPeriodParams
             (thirtySecondsHistoricalPeriodParams.SourceTickerIdentifier, FifteenSeconds, new TimeLength(TimeSpan.FromMinutes(30)));
-        var histResolver15SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySeconds15SPeriodHistoricalPeriodParams);
+        var histResolver15SRule = new HistoricalPeriodSummariesResolverRule<PublishableLevel1PriceQuote>(thirtySeconds15SPeriodHistoricalPeriodParams);
         await indicatorRegistryStubRule.RegisterAndDeployTickerPeriodService
             (thirtySecondsHistoricalPeriodParams.SourceTickerIdentifier, new DiscreetTimePeriod(FifteenSeconds)
            , ServiceType.HistoricalPricePeriodSummaryResolver, histResolver15SRule);
 
-        var histResolver30SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySecondsHistoricalPeriodParams);
+        var histResolver30SRule = new HistoricalPeriodSummariesResolverRule<PublishableLevel1PriceQuote>(thirtySecondsHistoricalPeriodParams);
 
         historical15SSummariesLatestTime = testEpochTime.AddHours(-1);
         historical30SSummariesLatestTime = historical15SSummariesLatestTime.AddSeconds(-1);
@@ -486,12 +486,12 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
         historical15SSummariesLatestTime = testEpochTime;
         var thirtySeconds15SPeriodHistoricalPeriodParams = new HistoricalPeriodParams
             (thirtySecondsHistoricalPeriodParams.SourceTickerIdentifier, FifteenSeconds, new TimeLength(TimeSpan.FromMinutes(30)));
-        var histResolver15SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySeconds15SPeriodHistoricalPeriodParams);
+        var histResolver15SRule = new HistoricalPeriodSummariesResolverRule<PublishableLevel1PriceQuote>(thirtySeconds15SPeriodHistoricalPeriodParams);
         await indicatorRegistryStubRule.RegisterAndDeployTickerPeriodService
             (thirtySecondsHistoricalPeriodParams.SourceTickerIdentifier, new DiscreetTimePeriod(FifteenSeconds)
            , ServiceType.HistoricalPricePeriodSummaryResolver, histResolver15SRule);
 
-        var histResolver30SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(thirtySecondsHistoricalPeriodParams);
+        var histResolver30SRule = new HistoricalPeriodSummariesResolverRule<PublishableLevel1PriceQuote>(thirtySecondsHistoricalPeriodParams);
 
         historical15SSummariesLatestTime = testEpochTime.AddHours(-1);
         historical30SSummariesLatestTime = historical15SSummariesLatestTime.AddSeconds(-1);
@@ -527,7 +527,7 @@ public class HistoricalPeriodSummariesResolverRuleTests : OneOfEachMessageQueueT
 
         await using var testClientDeployment = await indicatorRegistryStubRule.DeployChildRuleAsync(test5SHistoricalPeriodClient);
 
-        var histResolver5SRule = new HistoricalPeriodSummariesResolverRule<Level1PriceQuote>(fiveSecondsHistoricalPeriodParams);
+        var histResolver5SRule = new HistoricalPeriodSummariesResolverRule<PublishableLevel1PriceQuote>(fiveSecondsHistoricalPeriodParams);
 
         await using var histResolverDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(histResolver5SRule);
 

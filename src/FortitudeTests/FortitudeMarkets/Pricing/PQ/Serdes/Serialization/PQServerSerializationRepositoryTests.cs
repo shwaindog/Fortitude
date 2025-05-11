@@ -26,7 +26,7 @@ public class PQServerSerializationRepositoryTests
     [TestMethod]
     public void NewSerializationFactory_GetSerializer_ReturnsAppropriateSerializerForMessageType()
     {
-        snapshotServerSerializationRepository.RegisterSerializer<PQTickInstant>();
+        snapshotServerSerializationRepository.RegisterSerializer<PQPublishableTickInstant>();
         var quoteSerializer = snapshotServerSerializationRepository.GetSerializer((uint)PQMessageIds.Quote);
         Assert.IsInstanceOfType(quoteSerializer, typeof(PQQuoteSerializer));
 

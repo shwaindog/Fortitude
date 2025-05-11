@@ -22,9 +22,9 @@ using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 namespace FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
 public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataBucket<TEntry, TBucket>, IPriceQuoteBucket<TEntry>
-    where TEntry : ITimeSeriesEntry, ITickInstant
+    where TEntry : ITimeSeriesEntry, IPublishableTickInstant
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPriceQuoteBucket<TEntry>
-    where TSerializeType : PQTickInstant, new()
+    where TSerializeType : PQPublishableTickInstant, new()
 {
     private IMessageBufferContext? bufferContext;
     private PQQuoteSerializer?     indexEntrySerializer;

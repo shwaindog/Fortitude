@@ -15,7 +15,7 @@ using FortitudeMarkets.Pricing.Quotes;
 namespace FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
 public abstract class PriceQuoteSubBucket<TEntry, TBucket, TSubBucket> : SubBucketOnlyBucket<TEntry, TBucket, TSubBucket>, IPriceBucket
-    where TEntry : ITimeSeriesEntry, ITickInstant
+    where TEntry : ITimeSeriesEntry, IPublishableTickInstant
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>, IPriceBucket
     where TSubBucket : class, IBucketNavigation<TSubBucket>, IMutableBucket<TEntry>, IPriceBucket
 {

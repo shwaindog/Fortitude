@@ -71,7 +71,7 @@ public class PQPricingServerClientSessionRule : Rule
     {
         var reusableList = Context.PooledRecycler.Borrow<ReusableList<uint>>();
         reusableList.AddRange(snapshotIdsRequestMsg.RequestSourceTickerIds);
-        var lastPublishedQuotesResponse = await this.RequestAsync<IList<uint>, IList<IPQTickInstant>>(
+        var lastPublishedQuotesResponse = await this.RequestAsync<IList<uint>, IList<IPQPublishableTickInstant>>(
              feedName.FeedTickerLastPublishedQuotesRequestAddress(), reusableList, new DispatchOptions());
         foreach (var pqTickInstant in lastPublishedQuotesResponse) snapshotResponderClient.Send(pqTickInstant);
     }

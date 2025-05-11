@@ -22,7 +22,7 @@ public sealed class PQServerSerializationRepository : FactorySerializationReposi
         : base(recycler, coalescingMessageSerializationRepository)
     {
         this.feedType = feedType;
-        RegisterSerializer<PQTickInstant>();
+        RegisterSerializer<PQPublishableTickInstant>();
         RegisterSerializer<PQHeartBeatQuotesMessage>();
         RegisterSerializer<PQSourceTickerInfoResponse>();
     }

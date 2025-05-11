@@ -14,7 +14,7 @@ using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -35,13 +35,13 @@ public class PQQuoteFeedDeserializerTests
 
     private IList<IPQQuoteDeserializer> deserializers = null!;
 
-    private PQTickInstant expectedFullyInitializedTickInstant = null!;
+    private PQPublishableTickInstant expectedFullyInitializedTickInstant = null!;
 
-    private PQLevel1Quote expectedL1FullyInitializedQuote = null!;
-    private PQLevel2Quote expectedL2FullyInitializedQuote = null!;
-    private PQLevel3Quote expectedL3FullyInitializedQuote = null!;
+    private PQPublishableLevel1Quote expectedL1FullyInitializedQuote = null!;
+    private PQPublishableLevel2Quote expectedL2FullyInitializedQuote = null!;
+    private PQPublishableLevel3Quote expectedL3FullyInitializedQuote = null!;
 
-    private IList<IPQTickInstant> expectedQuotes = null!;
+    private IList<IPQPublishableTickInstant> expectedQuotes = null!;
 
     private bool l1PublicationStateWasExpected;
     private bool l1QuoteIsInSync;
@@ -52,17 +52,17 @@ public class PQQuoteFeedDeserializerTests
 
     private Mock<IPerfLogger> moqDispatchPerfLogger = null!;
 
-    private Mock<IObserver<IPQLevel1Quote>> moqL1QObserver = null!;
-    private Mock<IObserver<IPQLevel2Quote>> moqL2QObserver = null!;
-    private Mock<IObserver<IPQLevel3Quote>> moqL3QObserver = null!;
+    private Mock<IObserver<IPQPublishableLevel1Quote>> moqL1QObserver = null!;
+    private Mock<IObserver<IPQPublishableLevel2Quote>> moqL2QObserver = null!;
+    private Mock<IObserver<IPQPublishableLevel3Quote>> moqL3QObserver = null!;
 
-    private Mock<IObserver<IPQTickInstant>> moqTickInstantObserver = null!;
+    private Mock<IObserver<IPQPublishableTickInstant>> moqTickInstantObserver = null!;
 
-    private PQQuoteFeedDeserializer<IPQLevel1Quote> pqLevel1QuoteDeserializer = null!;
-    private PQQuoteFeedDeserializer<IPQLevel2Quote> pqLevel2QuoteDeserializer = null!;
-    private PQQuoteFeedDeserializer<IPQLevel3Quote> pqLevel3QuoteDeserializer = null!;
+    private PQQuoteFeedDeserializer<IPQPublishableLevel1Quote> pqLevel1QuoteDeserializer = null!;
+    private PQQuoteFeedDeserializer<IPQPublishableLevel2Quote> pqLevel2QuoteDeserializer = null!;
+    private PQQuoteFeedDeserializer<IPQPublishableLevel3Quote> pqLevel3QuoteDeserializer = null!;
 
-    private PQQuoteFeedDeserializer<IPQTickInstant> pqTickInstantDeserializer = null!;
+    private PQQuoteFeedDeserializer<IPQPublishableTickInstant> pqTickInstantDeserializer = null!;
 
     private PQQuoteDeserializationSequencedTestDataBuilder quoteDeserializerSequencedTestDataBuilder = null!;
 
@@ -78,10 +78,10 @@ public class PQQuoteFeedDeserializerTests
     {
         sourceTickerInfo = BuildSourceTickerInfo(ushort.MaxValue, 0, "");
 
-        pqTickInstantDeserializer = new PQQuoteFeedDeserializer<IPQTickInstant>(sourceTickerInfo);
-        pqLevel1QuoteDeserializer = new PQQuoteFeedDeserializer<IPQLevel1Quote>(sourceTickerInfo);
-        pqLevel2QuoteDeserializer = new PQQuoteFeedDeserializer<IPQLevel2Quote>(sourceTickerInfo);
-        pqLevel3QuoteDeserializer = new PQQuoteFeedDeserializer<IPQLevel3Quote>(sourceTickerInfo);
+        pqTickInstantDeserializer = new PQQuoteFeedDeserializer<IPQPublishableTickInstant>(sourceTickerInfo);
+        pqLevel1QuoteDeserializer = new PQQuoteFeedDeserializer<IPQPublishableLevel1Quote>(sourceTickerInfo);
+        pqLevel2QuoteDeserializer = new PQQuoteFeedDeserializer<IPQPublishableLevel2Quote>(sourceTickerInfo);
+        pqLevel3QuoteDeserializer = new PQQuoteFeedDeserializer<IPQPublishableLevel3Quote>(sourceTickerInfo);
 
         SetupDefaultState();
 
@@ -242,7 +242,7 @@ public class PQQuoteFeedDeserializerTests
         l3PublicationStateWasExpected = false;
         moqTickInstantObserver
             .Setup(o => o.OnNext(pqTickInstantDeserializer.PublishedQuote))
-            .Callback<IPQTickInstant>
+            .Callback<IPQPublishableTickInstant>
                 (pq =>
                  {
                      countTickInstantSerializerPublishes++;
@@ -254,7 +254,7 @@ public class PQQuoteFeedDeserializerTests
                 ).Verifiable();
         moqL1QObserver
             .Setup(o => o.OnNext(pqLevel1QuoteDeserializer.PublishedQuote))
-            .Callback<IPQLevel1Quote>
+            .Callback<IPQPublishableLevel1Quote>
                 (pq =>
                  {
                      countLevel1SerializerPublishes++;
@@ -266,7 +266,7 @@ public class PQQuoteFeedDeserializerTests
                 ).Verifiable();
         moqL2QObserver
             .Setup(o => o.OnNext(pqLevel2QuoteDeserializer.PublishedQuote))
-            .Callback<IPQLevel2Quote>
+            .Callback<IPQPublishableLevel2Quote>
                 (pq =>
                  {
                      countLevel2SerializerPublishes++;
@@ -278,7 +278,7 @@ public class PQQuoteFeedDeserializerTests
                 ).Verifiable();
         moqL3QObserver
             .Setup(o => o.OnNext(pqLevel3QuoteDeserializer.PublishedQuote))
-            .Callback<IPQLevel3Quote>
+            .Callback<IPQPublishableLevel3Quote>
                 (pq =>
                  {
                      countLevel3SerializerPublishes++;
@@ -294,16 +294,16 @@ public class PQQuoteFeedDeserializerTests
     (ISourceTickerInfo publication,
         FeedSyncStatus expectedSyncStatus)
     {
-        expectedFullyInitializedTickInstant = new PQTickInstant(publication)
+        expectedFullyInitializedTickInstant = new PQPublishableTickInstant(publication)
             { FeedSyncStatus = expectedSyncStatus };
-        expectedL1FullyInitializedQuote = new PQLevel1Quote(publication)
+        expectedL1FullyInitializedQuote = new PQPublishableLevel1Quote(publication)
             { FeedSyncStatus = expectedSyncStatus };
-        expectedL2FullyInitializedQuote = new PQLevel2Quote(publication)
+        expectedL2FullyInitializedQuote = new PQPublishableLevel2Quote(publication)
             { FeedSyncStatus = expectedSyncStatus };
-        expectedL3FullyInitializedQuote = new PQLevel3Quote(publication)
+        expectedL3FullyInitializedQuote = new PQPublishableLevel3Quote(publication)
             { FeedSyncStatus = expectedSyncStatus };
 
-        expectedQuotes = new List<IPQTickInstant>
+        expectedQuotes = new List<IPQPublishableTickInstant>
         {
             expectedFullyInitializedTickInstant, expectedL1FullyInitializedQuote, expectedL2FullyInitializedQuote
           , expectedL3FullyInitializedQuote
@@ -359,11 +359,11 @@ public class PQQuoteFeedDeserializerTests
 
     private void SetupQuoteListeners()
     {
-        moqTickInstantObserver = new Mock<IObserver<IPQTickInstant>>();
+        moqTickInstantObserver = new Mock<IObserver<IPQPublishableTickInstant>>();
 
-        moqL1QObserver = new Mock<IObserver<IPQLevel1Quote>>();
-        moqL2QObserver = new Mock<IObserver<IPQLevel2Quote>>();
-        moqL3QObserver = new Mock<IObserver<IPQLevel3Quote>>();
+        moqL1QObserver = new Mock<IObserver<IPQPublishableLevel1Quote>>();
+        moqL2QObserver = new Mock<IObserver<IPQPublishableLevel2Quote>>();
+        moqL3QObserver = new Mock<IObserver<IPQPublishableLevel3Quote>>();
 
         pqTickInstantDeserializer.Subscribe(moqTickInstantObserver.Object);
         pqLevel1QuoteDeserializer.Subscribe(moqL1QObserver.Object);

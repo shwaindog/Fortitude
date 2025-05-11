@@ -18,7 +18,7 @@ public static class TestWeeklyDataGeneratorFixture
 {
     public static IEnumerable<TQuoteLevel> GenerateQuotesForEachDayAndHourOfCurrentWeek<TQuoteLevel, TEntry>
         (int start, int amount, ITickGenerator<TEntry> tickGenerator, DateTime? forWeekWithDate = null)
-        where TEntry : class, TQuoteLevel, IMutableTickInstant
+        where TEntry : class, TQuoteLevel, IMutablePublishableTickInstant
     {
         var dateToGenerate   = forWeekWithDate?.Date ?? DateTime.UtcNow.Date;
         var currentDayOfWeek = dateToGenerate.DayOfWeek;
@@ -37,7 +37,7 @@ public static class TestWeeklyDataGeneratorFixture
 
     public static IEnumerable<TQuoteLevel> GenerateRepeatableQuotes<TQuoteLevel, TEntry>
         (int start, int amount, int hour, DayOfWeek forDayOfWeek, ITickGenerator<TEntry> tickGenerator, DateTime? forWeekWithDate = null)
-        where TEntry : class, IMutableTickInstant, TQuoteLevel
+        where TEntry : class, IMutablePublishableTickInstant, TQuoteLevel
     {
         var dateToGenerate   = forWeekWithDate?.Date ?? DateTime.UtcNow.Date;
         var currentDayOfWeek = dateToGenerate.DayOfWeek;

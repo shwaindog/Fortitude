@@ -93,7 +93,7 @@ public struct LivePublishPricePeriodSummaryParams
     public ResponsePublishParams CompletePublishParams { get; set; }
 }
 
-public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote> where TQuote : class, ILevel1Quote
+public class LivePricePeriodSummaryPublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote> where TQuote : class, IPublishableLevel1Quote
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(LivePricePeriodSummaryPublisherRule<TQuote>));
 

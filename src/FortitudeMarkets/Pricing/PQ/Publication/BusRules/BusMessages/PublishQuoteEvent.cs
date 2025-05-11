@@ -13,7 +13,7 @@ namespace FortitudeMarkets.Pricing.PQ.Publication.BusRules.BusMessages;
 
 public class PublishQuoteEvent : RecyclableObject
 {
-    public ITickInstant PublishQuote { get; set; } = null!;
+    public IPublishableTickInstant PublishQuote { get; set; } = null!;
 
     public PQMessageFlags? MessageFlags { get; set; }
 

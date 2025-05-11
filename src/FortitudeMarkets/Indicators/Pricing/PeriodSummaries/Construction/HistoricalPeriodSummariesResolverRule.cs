@@ -59,7 +59,7 @@ public interface IHistoricalPricePeriodSummaryResolverRule : IListeningRule
 }
 
 public class HistoricalPeriodSummariesResolverRule<TQuote> : Rule, IHistoricalPricePeriodSummaryResolverRule
-    where TQuote : class, ITimeSeriesEntry, ILevel1Quote, new()
+    where TQuote : class, ITimeSeriesEntry, IPublishableLevel1Quote, new()
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(HistoricalPeriodSummariesResolverRule<TQuote>));
 

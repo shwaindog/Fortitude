@@ -18,6 +18,17 @@ public class PQTickInstantGenerator(CurrentQuoteInstantValueGenerator generateQu
     {
         var toPopulate = new PQTickInstant(GenerateQuoteValues.GenerateQuoteInfo.SourceTickerInfo);
         PopulateQuote(toPopulate, midPriceTimePair);
+        return toPopulate;
+    }
+}
+
+public class PQPublishableTickInstantGenerator(CurrentQuoteInstantValueGenerator generateQuoteValues)
+    : PublishableTickInstantGeneratorBase<PQPublishableTickInstant>(generateQuoteValues)
+{
+    public override PQPublishableTickInstant BuildQuote(MidPriceTimePair midPriceTimePair, int sequenceNumber)
+    {
+        var toPopulate = new PQPublishableTickInstant(GenerateQuoteValues.GenerateQuoteInfo.SourceTickerInfo);
+        PopulateQuote(toPopulate, midPriceTimePair);
         toPopulate.PQSequenceId = (uint)sequenceNumber;
         return toPopulate;
     }

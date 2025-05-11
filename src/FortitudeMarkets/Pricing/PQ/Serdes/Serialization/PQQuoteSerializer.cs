@@ -42,7 +42,7 @@ public enum StorageFlags
   , IncludesSequenceId   = 128
 }
 
-public sealed class PQQuoteSerializer : IMessageSerializer<PQTickInstant>
+public sealed class PQQuoteSerializer : IMessageSerializer<PQPublishableTickInstant>
 {
     private const    int                  FieldSize = 2 * sizeof(byte) + sizeof(uint);
     private readonly PQMessageFlags       messageFlags;
@@ -67,10 +67,10 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQTickInstant>
 
     void IMessageSerializer.Serialize(IVersionedMessage message, IBufferContext writeContext)
     {
-        Serialize((PQTickInstant)message, writeContext);
+        Serialize((PQPublishableTickInstant)message, writeContext);
     }
 
-    public void Serialize(PQTickInstant obj, ISerdeContext writeContext)
+    public void Serialize(PQPublishableTickInstant obj, ISerdeContext writeContext)
     {
         if ((writeContext.Direction & ContextDirection.Write) == 0) throw new ArgumentException("Expected readContext to support writing");
         if (writeContext is IBufferContext bufferContext)
@@ -88,7 +88,7 @@ public sealed class PQQuoteSerializer : IMessageSerializer<PQTickInstant>
 
     public unsafe int Serialize(IBuffer buffer, IVersionedMessage message)
     {
-        if (!(message is IPQTickInstant pqTickInstant)) return FinishProcessingMessageReturnValue(message, -1);
+        if (!(message is IPQPublishableTickInstant pqTickInstant)) return FinishProcessingMessageReturnValue(message, -1);
         var resolvedFlags = (StorageFlags)(byte)(pqTickInstant.OverrideSerializationFlags ?? messageFlags);
         resolvedFlags |= serializationFlags == PQSerializationFlags.ForStorageIncludeReceiverTimes
             ? StorageFlags.IncludeReceiverTimes

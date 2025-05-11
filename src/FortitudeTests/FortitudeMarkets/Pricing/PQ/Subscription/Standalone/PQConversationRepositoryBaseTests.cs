@@ -37,7 +37,7 @@ public class PQConversationRepositoryBaseTests
 
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
 
-    private Mock<INotifyingMessageDeserializer<PQTickInstant>> moqSocketBinaryDeserializer = null!;
+    private Mock<INotifyingMessageDeserializer<PQPublishableTickInstant>> moqSocketBinaryDeserializer = null!;
 
     private Mock<INetworkTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
 
@@ -56,7 +56,7 @@ public class PQConversationRepositoryBaseTests
 
         moqSocketTopicConnectionConfig  = new Mock<INetworkTopicConnectionConfig>();
         moqBinaryDeserializationFactory = new Mock<IMessageDeserializationRepository>();
-        moqSocketBinaryDeserializer     = new Mock<INotifyingMessageDeserializer<PQTickInstant>>();
+        moqSocketBinaryDeserializer     = new Mock<INotifyingMessageDeserializer<PQPublishableTickInstant>>();
 
         moqOsSocket = new Mock<IOSSocket>();
 
@@ -69,7 +69,7 @@ public class PQConversationRepositoryBaseTests
 
         moqBinaryDeserializationFactory
             .Setup(bdf => bdf
-                       .GetDeserializer<PQTickInstant>(uint.MaxValue))
+                       .GetDeserializer<PQPublishableTickInstant>(uint.MaxValue))
             .Returns(moqSocketBinaryDeserializer.Object)
             .Verifiable();
 
@@ -128,7 +128,7 @@ public class PQConversationRepositoryBaseTests
     {
         moqBinaryDeserializationFactory
             .Setup(bdf => bdf
-                       .GetDeserializer<PQTickInstant>(1u))
+                       .GetDeserializer<PQPublishableTickInstant>(1u))
             .Returns(moqSocketBinaryDeserializer.Object)
             .Verifiable();
 
@@ -148,7 +148,7 @@ public class PQConversationRepositoryBaseTests
 
         moqSocketBinaryDeserializer
             .Setup(sbd =>
-                       sbd.IsRegistered(It.IsAny<ConversationMessageReceivedHandler<PQTickInstant>>())).Returns(true)
+                       sbd.IsRegistered(It.IsAny<ConversationMessageReceivedHandler<PQPublishableTickInstant>>())).Returns(true)
             .Verifiable();
 
         dummySktSubRegFctryBs.RemoveConversation(moqSocketTopicConnectionConfig.Object);

@@ -83,7 +83,7 @@ public class SourceTickerInfoSerializer : IMessageSerializer<ISourceTickerInfo>
 
     private static unsafe void SerializeQuoteInfo(ISourceTickerInfo message, ref byte* ptr)
     {
-        *ptr++ = (byte)message.PublishedTickerDetailLevel;
+        *ptr++ = (byte)message.PublishedTickerQuoteDetailLevel;
         StreamByteOps.ToBytes(ref ptr, message.MaximumPublishedLayers);
         var booleanValues = message.GetSourceTickerInfoBooleanFlagsEnum();
         StreamByteOps.ToBytes(ref ptr, message.RoundingPrecision);

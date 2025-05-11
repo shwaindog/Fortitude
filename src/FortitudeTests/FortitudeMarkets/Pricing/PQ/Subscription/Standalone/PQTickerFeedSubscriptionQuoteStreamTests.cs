@@ -16,7 +16,7 @@ using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -26,14 +26,14 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Subscription.Standalone;
 public class PQTickerFeedSubscriptionQuoteStreamTests
 {
     private IPricingServerConfig feedConfig               = null!;
-    private Mock<IPQTickInstant> initializingQuote        = null!;
+    private Mock<IPQPublishableTickInstant> initializingQuote        = null!;
     private Mock<ISyncLock>      intializingQuoteSyncLock = null!;
-    private List<IPQTickInstant> list1ReceivedQuotes      = null!;
-    private List<IPQTickInstant> list2ReceivedQuotes      = null!;
+    private List<IPQPublishableTickInstant> list1ReceivedQuotes      = null!;
+    private List<IPQPublishableTickInstant> list2ReceivedQuotes      = null!;
 
-    private PQTickerFeedSubscriptionQuoteStream<IPQTickInstant> pqTickerFeedSubscription = null!;
+    private PQTickerFeedSubscriptionQuoteStream<IPQPublishableTickInstant> pqTickerFeedSubscription = null!;
 
-    private IPQTickInstant    publishingQuote  = null!;
+    private IPQPublishableTickInstant    publishingQuote  = null!;
     private ISourceTickerInfo sourceTickerInfo = null!;
 
     [TestInitialize]
@@ -61,17 +61,17 @@ public class PQTickerFeedSubscriptionQuoteStreamTests
            , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
                               LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
 
-        publishingQuote = new PQTickInstant(sourceTickerInfo);
+        publishingQuote = new PQPublishableTickInstant(sourceTickerInfo);
 
-        initializingQuote        = new Mock<IPQTickInstant>();
+        initializingQuote        = new Mock<IPQPublishableTickInstant>();
         intializingQuoteSyncLock = new Mock<ISyncLock>();
         initializingQuote.SetupGet(pqti => pqti.Lock).Returns(intializingQuoteSyncLock.Object);
 
-        pqTickerFeedSubscription = new PQTickerFeedSubscriptionQuoteStream<IPQTickInstant>
+        pqTickerFeedSubscription = new PQTickerFeedSubscriptionQuoteStream<IPQPublishableTickInstant>
             (feedConfig, sourceTickerInfo, initializingQuote.Object);
 
-        list1ReceivedQuotes = new List<IPQTickInstant>();
-        list2ReceivedQuotes = new List<IPQTickInstant>();
+        list1ReceivedQuotes = new List<IPQPublishableTickInstant>();
+        list2ReceivedQuotes = new List<IPQPublishableTickInstant>();
     }
 
     [TestMethod]
@@ -195,12 +195,12 @@ public class PQTickerFeedSubscriptionQuoteStreamTests
         intializingQuoteSyncLock.Setup(sl => sl.Release()).Callback(() => { insideSyncLock = false; });
 
         var hasRunCallback         = false;
-        var subscribedObserverMock = new Mock<IObserver<IPQTickInstant>>();
-        var observerCollectionMock = new Mock<IList<IObserver<IPQTickInstant>>>();
+        var subscribedObserverMock = new Mock<IObserver<IPQPublishableTickInstant>>();
+        var observerCollectionMock = new Mock<IList<IObserver<IPQPublishableTickInstant>>>();
 
         NonPublicInvocator.SetInstanceField(pqTickerFeedSubscription, "observers", observerCollectionMock.Object);
 
-        observerCollectionMock.Setup(l => l.Add(subscribedObserverMock.Object)).Callback<IObserver<IPQTickInstant>>(
+        observerCollectionMock.Setup(l => l.Add(subscribedObserverMock.Object)).Callback<IObserver<IPQPublishableTickInstant>>(
          sub =>
          {
              Assert.IsTrue(insideSyncLock);
@@ -221,12 +221,12 @@ public class PQTickerFeedSubscriptionQuoteStreamTests
         intializingQuoteSyncLock.Setup(sl => sl.Release()).Callback(() => { insideSyncLock = false; });
 
         var hasRunCallback         = false;
-        var subscribedObserverMock = new Mock<IObserver<IPQTickInstant>>();
-        var observerCollectionMock = new Mock<IList<IObserver<IPQTickInstant>>>();
+        var subscribedObserverMock = new Mock<IObserver<IPQPublishableTickInstant>>();
+        var observerCollectionMock = new Mock<IList<IObserver<IPQPublishableTickInstant>>>();
 
         NonPublicInvocator.SetInstanceField(pqTickerFeedSubscription, "observers", observerCollectionMock.Object);
 
-        observerCollectionMock.Setup(l => l.Remove(subscribedObserverMock.Object)).Callback<IObserver<IPQTickInstant>>(
+        observerCollectionMock.Setup(l => l.Remove(subscribedObserverMock.Object)).Callback<IObserver<IPQPublishableTickInstant>>(
          sub =>
          {
              Assert.IsTrue(insideSyncLock);

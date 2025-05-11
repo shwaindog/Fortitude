@@ -23,12 +23,12 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
 
     private readonly int BUFFER_SIZE = (int)(2 * Math.Pow(2, 20));
 
-    private readonly IList<IPQTickInstant>         expectedQuotes;
+    private readonly IList<IPQPublishableTickInstant>         expectedQuotes;
     private readonly IPerfLogger                   perfLogger;
     private readonly QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = new();
 
     public PQQuoteDeserializationSequencedTestDataBuilder
-    (IList<IPQTickInstant> expectedQuotes,
+    (IList<IPQPublishableTickInstant> expectedQuotes,
         IPerfLogger perfLogger)
     {
         this.expectedQuotes = expectedQuotes;
@@ -54,7 +54,7 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
 
     internal IList<SocketBufferReadContext> BuildSerializeContextForQuotes
     (
-        IList<IPQTickInstant> serializeQuotes, PQMessageFlags feedType, uint sequenceId)
+        IList<IPQPublishableTickInstant> serializeQuotes, PQMessageFlags feedType, uint sequenceId)
     {
         var deserializeContexts = new List<SocketBufferReadContext>(serializeQuotes.Count);
         var quoteSerializer = new PQQuoteSerializer(feedType);

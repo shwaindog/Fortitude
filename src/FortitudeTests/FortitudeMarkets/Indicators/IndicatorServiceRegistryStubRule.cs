@@ -67,13 +67,13 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
 
     public async ValueTask RegisterAndDeployTickerPeriodService
     (SourceTickerIdentifier sourceTickerIdentifier, DiscreetTimePeriod period, ServiceType service, IRule rule
-      , TickerDetailLevel tickerDetailLevel = TickerDetailLevel.Level1Quote, bool usePQQuote = false)
+      , TickerQuoteDetailLevel tickerQuoteDetailLevel = TickerQuoteDetailLevel.Level1Quote, bool usePQQuote = false)
     {
         try
         {
             var deployLifeTime = await this.DeployChildRuleAsync(rule);
             DeployedServices.Add(deployLifeTime);
-            var tickerPeriodServiceInfo = new TickerPeriodServiceInfo(service, sourceTickerIdentifier, period, tickerDetailLevel, usePQQuote);
+            var tickerPeriodServiceInfo = new TickerPeriodServiceInfo(service, sourceTickerIdentifier, period, tickerQuoteDetailLevel, usePQQuote);
             var serviceRunStateResponse = new ServiceRunStateResponse(rule, ServiceRunStatus.ServiceStarted);
             TickerPeriodServiceStateLookup.Add(tickerPeriodServiceInfo, new ServiceRuntimeState(serviceRunStateResponse));
         }
@@ -87,9 +87,9 @@ public class IndicatorServiceRegistryStubRule : IndicatorServiceRegistryRule
 
     public void RegisterTickerPeriodServiceStatus
     (SourceTickerIdentifier sourceTickerIdentifier, DiscreetTimePeriod period, ServiceType service, ServiceRunStatus setStatus
-      , TickerDetailLevel tickerDetailLevel = TickerDetailLevel.Level1Quote, bool usePQQuote = false)
+      , TickerQuoteDetailLevel tickerQuoteDetailLevel = TickerQuoteDetailLevel.Level1Quote, bool usePQQuote = false)
     {
-        var tickerPeriodServiceInfo = new TickerPeriodServiceInfo(service, sourceTickerIdentifier, period, tickerDetailLevel, usePQQuote);
+        var tickerPeriodServiceInfo = new TickerPeriodServiceInfo(service, sourceTickerIdentifier, period, tickerQuoteDetailLevel, usePQQuote);
         var serviceRunStateResponse = new ServiceRunStateResponse(setStatus);
         TickerPeriodServiceStateLookup.Add(tickerPeriodServiceInfo, new ServiceRuntimeState(serviceRunStateResponse));
     }

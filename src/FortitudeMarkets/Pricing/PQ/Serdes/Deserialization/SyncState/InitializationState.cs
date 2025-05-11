@@ -10,7 +10,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public class InitializationState<T> : SynchronisingState<T> where T : PQTickInstant, new()
+public class InitializationState<T> : SynchronisingState<T> where T : PQPublishableTickInstant, new()
 {
     public InitializationState(IPQQuotePublishingDeserializer<T> linkedDeserializer)
         : base(linkedDeserializer, QuoteSyncState.InitializationState) { }

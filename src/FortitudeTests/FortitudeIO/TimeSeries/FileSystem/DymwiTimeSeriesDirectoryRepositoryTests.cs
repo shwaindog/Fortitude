@@ -22,7 +22,7 @@ using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeTests.FortitudeCommon.Extensions;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -33,7 +33,7 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(DymwiTimeSeriesDirectoryRepositoryTests));
 
-    private readonly Func<ILevel3Quote> asPQLevel3QuoteFactory = () => new PQLevel3Quote();
+    private readonly Func<IPublishableLevel3Quote> asPQLevel3QuoteFactory = () => new PQPublishableLevel3Quote();
 
     private readonly string expectedFileNameFormat = "Price_tick_Spot_DymwiTest_RepoTest_{0:yyyy-MM-dd}_1W_Level3Quote.tsf";
 
@@ -47,9 +47,9 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
     private readonly string   week4ExpectedDirPath = "2020s/24/06-Jun/Week-2/FXMajor_Global/RepoTest";
 
     private SourceTickerInfo       level3SrcTkrInfo       = null!;
-    private PQLevel3QuoteGenerator pqLevel3QuoteGenerator = null!;
+    private PQPublishableLevel3QuoteGenerator pqLevel3QuoteGenerator = null!;
 
-    private IReaderSession<ILevel3Quote>? readerSession;
+    private IReaderSession<IPublishableLevel3Quote>? readerSession;
 
     private DymwiTimeSeriesDirectoryRepository repo = null!;
 
@@ -70,7 +70,7 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
         generateQuoteInfo.MidPriceGenerator!.StartTime  = week1.Date;
         generateQuoteInfo.MidPriceGenerator!.StartPrice = 1.332211m;
 
-        pqLevel3QuoteGenerator = new PQLevel3QuoteGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
+        pqLevel3QuoteGenerator = new PQPublishableLevel3QuoteGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
 
         repoRootDir = GenerateUniqueDirectoryName();
         repositoryLocationConfig
@@ -97,13 +97,13 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
         AssertFileNameDoesNotExistsFor(week2ExpectedDirPath, week2);
         AssertFileNameDoesNotExistsFor(week3ExpectedDirPath, week3);
         AssertFileNameDoesNotExistsFor(week4ExpectedDirPath, week4);
-        var toPersistAndCheck = TestWeeklyDataGeneratorFixture.GenerateRepeatableQuotes<ILevel3Quote, PQLevel3Quote>
+        var toPersistAndCheck = TestWeeklyDataGeneratorFixture.GenerateRepeatableQuotes<IPublishableLevel3Quote, PQPublishableLevel3Quote>
             (1, 10, 1, DayOfWeek.Wednesday, pqLevel3QuoteGenerator, week1).ToList();
         toPersistAndCheck.AddRange
-            (TestWeeklyDataGeneratorFixture.GenerateRepeatableQuotes<ILevel3Quote, PQLevel3Quote>
+            (TestWeeklyDataGeneratorFixture.GenerateRepeatableQuotes<IPublishableLevel3Quote, PQPublishableLevel3Quote>
                 (1, 10, 1, DayOfWeek.Thursday, pqLevel3QuoteGenerator, week3));
 
-        var repoWriter = repo.GetWriterSession<ILevel3Quote>(level3SrcTkrInfo);
+        var repoWriter = repo.GetWriterSession<IPublishableLevel3Quote>(level3SrcTkrInfo);
 
         Assert.IsNotNull(repoWriter);
         foreach (var firstPeriod in toPersistAndCheck)
@@ -117,7 +117,7 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
         AssertFileNameDoesNotExistsFor(week2ExpectedDirPath, week2);
         AssertFileNameExistsFor(week3ExpectedDirPath, week3);
         AssertFileNameDoesNotExistsFor(week4ExpectedDirPath, week4);
-        readerSession = repo.GetReaderSession<ILevel3Quote>(level3SrcTkrInfo)!;
+        readerSession = repo.GetReaderSession<IPublishableLevel3Quote>(level3SrcTkrInfo)!;
         var allEntriesReader = readerSession.AllChronologicalEntriesReader
             (new Recycler(), EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible, asPQLevel3QuoteFactory);
         var storedItems = allEntriesReader.ResultEnumerable.ToList();
@@ -125,7 +125,7 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
         Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
         CompareExpectedToExtracted(toPersistAndCheck, storedItems);
-        var newReaderSession = repo.GetReaderSession<ILevel3Quote>(level3SrcTkrInfo)!;
+        var newReaderSession = repo.GetReaderSession<IPublishableLevel3Quote>(level3SrcTkrInfo)!;
         Assert.AreNotSame(readerSession, newReaderSession);
         var newEntriesReader = newReaderSession.AllChronologicalEntriesReader
             (new Recycler(), EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible, asPQLevel3QuoteFactory);
@@ -139,7 +139,7 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
         newReaderSession.Close();
     }
 
-    private void CompareExpectedToExtracted(List<ILevel3Quote> originalList, List<ILevel3Quote> toCompareList)
+    private void CompareExpectedToExtracted(List<IPublishableLevel3Quote> originalList, List<IPublishableLevel3Quote> toCompareList)
     {
         for (var i = 0; i < originalList.Count; i++)
         {

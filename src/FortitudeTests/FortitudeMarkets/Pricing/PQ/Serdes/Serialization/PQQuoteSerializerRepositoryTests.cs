@@ -12,7 +12,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -54,7 +54,7 @@ public class PQClientQuoteSerializerRepositoryTests
     [TestMethod]
     public void NoEnteredDeserializer_GetSerializerNonSupportedType_ReturnsNull()
     {
-        var result = pqClientQuoteSerializerRepository.GetSerializer<PQTickInstant>(sourceTickerInfo.SourceTickerId);
+        var result = pqClientQuoteSerializerRepository.GetSerializer<PQPublishableTickInstant>(sourceTickerInfo.SourceTickerId);
         Assert.IsNull(result);
     }
 }

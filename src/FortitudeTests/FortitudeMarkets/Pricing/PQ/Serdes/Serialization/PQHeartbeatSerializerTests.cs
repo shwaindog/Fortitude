@@ -14,7 +14,7 @@ using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -29,18 +29,18 @@ public class PQHeartbeatSerializerTests
 
     private SourceTickerInfo firstInfo = null!;
 
-    private PQTickInstant    firstQuote  = null!;
+    private PQPublishableTickInstant    firstQuote  = null!;
     private SourceTickerInfo fourthInfo  = null!;
-    private PQLevel3Quote    fourthQuote = null!;
+    private PQPublishableLevel3Quote    fourthQuote = null!;
 
     private PQHeartbeatSerializer    pqHeartBeatSerializer = null!;
     private CircularReadWriteBuffer  readWriteBuffer       = null!;
     private PQHeartBeatQuotesMessage secondBatchOfQuotes   = null!;
 
     private SourceTickerInfo secondInfo  = null!;
-    private PQLevel1Quote    secondQuote = null!;
+    private PQPublishableLevel1Quote    secondQuote = null!;
     private SourceTickerInfo thirdInfo   = null!;
-    private PQLevel2Quote    thirdQuote  = null!;
+    private PQPublishableLevel2Quote    thirdQuote  = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -70,14 +70,14 @@ public class PQHeartbeatSerializerTests
            , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                               LastTradedFlags.LastTradedTime);
 
-        firstQuote  = new PQTickInstant(firstInfo);
-        secondQuote = new PQLevel1Quote(secondInfo);
-        thirdQuote  = new PQLevel2Quote(thirdInfo);
-        fourthQuote = new PQLevel3Quote(fourthInfo);
+        firstQuote  = new PQPublishableTickInstant(firstInfo);
+        secondQuote = new PQPublishableLevel1Quote(secondInfo);
+        thirdQuote  = new PQPublishableLevel2Quote(thirdInfo);
+        fourthQuote = new PQPublishableLevel3Quote(fourthInfo);
 
         firstBatchOfQuotes
-            = new PQHeartBeatQuotesMessage(new List<IPQTickInstant> { firstQuote, secondQuote, thirdQuote });
-        secondBatchOfQuotes = new PQHeartBeatQuotesMessage(new List<IPQTickInstant> { thirdQuote, fourthQuote });
+            = new PQHeartBeatQuotesMessage(new List<IPQPublishableTickInstant> { firstQuote, secondQuote, thirdQuote });
+        secondBatchOfQuotes = new PQHeartBeatQuotesMessage(new List<IPQPublishableTickInstant> { thirdQuote, fourthQuote });
 
         readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]) { ReadCursor = BufferReadWriteOffset };
 

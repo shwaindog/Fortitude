@@ -28,7 +28,7 @@ public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
 
     private PQPricingClientFeedRule pqPricingClientFeedRule = null!;
 
-    private PQPublisher<PQLevel3Quote> pqPublisher = null!;
+    private PQPublisher<PQPublishableLevel3Quote> pqPublisher = null!;
 
     private LocalHostPQServerLevel3QuoteTestSetup pqServerL3QuoteServerSetup = null!;
 
@@ -109,7 +109,7 @@ public class TestSubscribeToTickerRule : Rule
 
     public override async ValueTask StartAsync()
     {
-        tickerListenSubscription = await Context.MessageBus.RegisterListenerAsync<PQLevel3Quote>
+        tickerListenSubscription = await Context.MessageBus.RegisterListenerAsync<PQPublishableLevel3Quote>
             (this, feedTickerListenAddress, Handler);
         Logger.Info("Rule {0} has subscribed to address {1} on Thread Name {2}", FriendlyName, feedTickerListenAddress, Thread.CurrentThread.Name);
     }
@@ -119,7 +119,7 @@ public class TestSubscribeToTickerRule : Rule
         await tickerListenSubscription.NullSafeUnsubscribe();
     }
 
-    private void Handler(IBusMessage<PQLevel3Quote> priceQuote)
+    private void Handler(IBusMessage<PQPublishableLevel3Quote> priceQuote)
     {
         var pqL3Quote = priceQuote.Payload.Body();
         Logger.Info("Rule {0} listening on {1} received {2} with Sequence Number {3} on Thread Name {4}", FriendlyName, feedTickerListenAddress

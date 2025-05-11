@@ -25,7 +25,7 @@ using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 using static FortitudeTests.FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.TestWeeklyDataGeneratorFixture;
 
 #endregion
@@ -37,18 +37,18 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(WeeklyLevel2QuoteTimeSeriesFileTests));
 
-    private readonly Func<ILevel2Quote> asLevel2PriceQuoteFactory = () => new Level2PriceQuote();
-    private readonly Func<ILevel2Quote> asPQLevel2QuoteFactory    = () => new PQLevel2Quote();
+    private readonly Func<IPublishableLevel2Quote> asLevel2PriceQuoteFactory = () => new PublishableLevel2PriceQuote();
+    private readonly Func<IPublishableLevel2Quote> asPQLevel2QuoteFactory    = () => new PQPublishableLevel2Quote();
 
     private WeeklyLevel2QuoteTimeSeriesFile level2OneWeekFile = null!;
 
-    private Level2QuoteGenerator level2QuoteGenerator = null!;
+    private PublishableLevel2QuoteGenerator level2QuoteGenerator = null!;
 
-    private IReaderSession<ILevel2Quote>? level2SessionReader;
-    private IWriterSession<ILevel2Quote>  level2SessionWriter = null!;
+    private IReaderSession<IPublishableLevel2Quote>? level2SessionReader;
+    private IWriterSession<IPublishableLevel2Quote>  level2SessionWriter = null!;
 
     private SourceTickerInfo       level2SrcTkrInfo       = null!;
-    private PQLevel2QuoteGenerator pqLevel2QuoteGenerator = null!;
+    private PQPublishableLevel2QuoteGenerator pqLevel2QuoteGenerator = null!;
     private DateTime               startOfWeek;
     private int                    testCounter;
 
@@ -78,8 +78,8 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         generateQuoteInfo.MidPriceGenerator!.StartTime  = startOfWeek;
         generateQuoteInfo.MidPriceGenerator!.StartPrice = 1.332211m;
 
-        level2QuoteGenerator   = new Level2QuoteGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
-        pqLevel2QuoteGenerator = new PQLevel2QuoteGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
+        level2QuoteGenerator   = new PublishableLevel2QuoteGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
+        pqLevel2QuoteGenerator = new PQPublishableLevel2QuoteGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
 
         fileFlags |= FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader;
 
@@ -307,14 +307,14 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
     }
 
     public void CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned<TEntry>
-        (ITickGenerator<TEntry> tickGenerator, Func<ILevel2Quote> retrievalFactory)
-        where TEntry : class, IMutableLevel2Quote, ILevel2Quote
+        (ITickGenerator<TEntry> tickGenerator, Func<IPublishableLevel2Quote> retrievalFactory)
+        where TEntry : class, IMutablePublishableLevel2Quote, IPublishableLevel2Quote
     {
         var toPersistAndCheck
-            = GenerateRepeatableQuotes<ILevel2Quote, TEntry>
+            = GenerateRepeatableQuotes<IPublishableLevel2Quote, TEntry>
                 (1, 10, 1, DayOfWeek.Wednesday, tickGenerator).ToList();
         toPersistAndCheck.AddRange
-            (GenerateRepeatableQuotes<ILevel2Quote, TEntry>
+            (GenerateRepeatableQuotes<IPublishableLevel2Quote, TEntry>
                 (1, 10, 1, DayOfWeek.Thursday, tickGenerator));
 
         foreach (var firstPeriod in toPersistAndCheck)
@@ -355,14 +355,14 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
     }
 
     public void CreateNewTyped_TwoLargeCompressedPeriods_OriginalValuesAreReturned<TEntry>
-        (ITickGenerator<TEntry> tickGenerator, Func<ILevel2Quote> retrievalFactory)
-        where TEntry : class, IMutableLevel2Quote, ILevel2Quote
+        (ITickGenerator<TEntry> tickGenerator, Func<IPublishableLevel2Quote> retrievalFactory)
+        where TEntry : class, IMutablePublishableLevel2Quote, IPublishableLevel2Quote
     {
         var toPersistAndCheck
-            = GenerateRepeatableQuotes<ILevel2Quote, TEntry>
+            = GenerateRepeatableQuotes<IPublishableLevel2Quote, TEntry>
                 (1, 8000, 1, DayOfWeek.Wednesday, tickGenerator).ToList();
         toPersistAndCheck.AddRange
-            (GenerateRepeatableQuotes<ILevel2Quote, TEntry>
+            (GenerateRepeatableQuotes<IPublishableLevel2Quote, TEntry>
                 (1, 8000, 1, DayOfWeek.Thursday, tickGenerator));
 
         foreach (var firstPeriod in toPersistAndCheck)
@@ -413,11 +413,11 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
     }
 
     public void NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned<TEntry>
-        (ITickGenerator<TEntry> tickGenerator, Func<ILevel2Quote> retrievalFactory)
-        where TEntry : class, IMutableLevel2Quote, ILevel2Quote
+        (ITickGenerator<TEntry> tickGenerator, Func<IPublishableLevel2Quote> retrievalFactory)
+        where TEntry : class, IMutablePublishableLevel2Quote, IPublishableLevel2Quote
     {
         var toPersistAndCheck =
-            GenerateQuotesForEachDayAndHourOfCurrentWeek<ILevel2Quote, TEntry>
+            GenerateQuotesForEachDayAndHourOfCurrentWeek<IPublishableLevel2Quote, TEntry>
                 (0, 10, tickGenerator).ToList();
 
         foreach (var level2QuoteStruct in toPersistAndCheck)
@@ -451,7 +451,7 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         newReaderSession.Close();
     }
 
-    private void CompareExpectedToExtracted(List<ILevel2Quote> originalList, List<ILevel2Quote> toCompareList)
+    private void CompareExpectedToExtracted(List<IPublishableLevel2Quote> originalList, List<IPublishableLevel2Quote> toCompareList)
     {
         for (var i = 0; i < originalList.Count; i++)
         {
@@ -488,8 +488,8 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         Assert.AreEqual(TimeBoundaryPeriod.OneWeek, header.FilePeriod);
         Assert.AreEqual(TimeBoundaryPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
         Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
-        Assert.AreEqual(typeof(DailyToHourlyLevel2QuoteSubBuckets<ILevel2Quote>), header.BucketType);
-        Assert.AreEqual(typeof(ILevel2Quote), header.EntryType);
+        Assert.AreEqual(typeof(DailyToHourlyLevel2QuoteSubBuckets<IPublishableLevel2Quote>), header.BucketType);
+        Assert.AreEqual(typeof(IPublishableLevel2Quote), header.EntryType);
         Assert.AreEqual(typeof(WeeklyLevel2QuoteTimeSeriesFile), header.TimeSeriesFileType);
         level2OneWeekFile.Close();
         level2OneWeekFile = WeeklyLevel2QuoteTimeSeriesFile
@@ -504,8 +504,8 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         Assert.AreEqual(TimeBoundaryPeriod.OneWeek, header.FilePeriod);
         Assert.AreEqual(TimeBoundaryPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
         Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
-        Assert.AreEqual(typeof(DailyToHourlyLevel2QuoteSubBuckets<ILevel2Quote>), header.BucketType);
-        Assert.AreEqual(typeof(ILevel2Quote), header.EntryType);
+        Assert.AreEqual(typeof(DailyToHourlyLevel2QuoteSubBuckets<IPublishableLevel2Quote>), header.BucketType);
+        Assert.AreEqual(typeof(IPublishableLevel2Quote), header.EntryType);
         Assert.AreEqual(typeof(WeeklyLevel2QuoteTimeSeriesFile), header.TimeSeriesFileType);
     }
 
@@ -515,9 +515,9 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         CreateLevel2File();
         Assert.AreEqual(InstrumentType.Price, level2OneWeekFile.InstrumentType);
         var singleQuoteMiddleOfWeek
-            = GenerateRepeatableQuotes<ILevel2Quote, Level2PriceQuote>
+            = GenerateRepeatableQuotes<IPublishableLevel2Quote, PublishableLevel2PriceQuote>
                 (1, 1, 12, DayOfWeek.Wednesday, level2QuoteGenerator);
-        var nextWeekQuote = (IMutableLevel2Quote)singleQuoteMiddleOfWeek.First();
+        var nextWeekQuote = (IMutablePublishableLevel2Quote)singleQuoteMiddleOfWeek.First();
         nextWeekQuote.SourceTime = nextWeekQuote.SourceTime.AddDays(7);
         var result = level2SessionWriter.AppendEntry(nextWeekQuote);
         Assert.AreEqual(StorageAttemptResult.NextFilePeriod, result.StorageAttemptResult);
@@ -528,10 +528,10 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
     {
         CreateLevel2File();
         var wednesdayQuotes =
-            GenerateRepeatableQuotes<ILevel2Quote, Level2PriceQuote>
+            GenerateRepeatableQuotes<IPublishableLevel2Quote, PublishableLevel2PriceQuote>
                 (1, 1, 12, DayOfWeek.Wednesday, level2QuoteGenerator);
         var thursdayQuotes =
-            GenerateRepeatableQuotes<ILevel2Quote, Level2PriceQuote>
+            GenerateRepeatableQuotes<IPublishableLevel2Quote, PublishableLevel2PriceQuote>
                 (1, 1, 12, DayOfWeek.Thursday, level2QuoteGenerator);
         var wednesdayQuote = wednesdayQuotes.First();
         var thursdayQuote  = thursdayQuotes.First();

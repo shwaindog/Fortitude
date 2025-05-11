@@ -18,7 +18,7 @@ using FortitudeMarkets.Pricing.Summaries;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -62,7 +62,7 @@ public class PQPricePeriodSummaryTests
         Assert.IsFalse(emptySummary.IsStartTimeDateUpdated);
         Assert.IsFalse(emptySummary.IsStartTimeSubHourUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptySummary.PeriodStartTime);
+        Assert.AreEqual(DateTime.MinValue, emptySummary.PeriodStartTime);
         Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Update,
                                                              pricePrecisionSettings).Count());
 
@@ -118,7 +118,7 @@ public class PQPricePeriodSummaryTests
         Assert.IsFalse(emptySummary.IsEndTimeDateUpdated);
         Assert.IsFalse(emptySummary.IsEndTimeSubHourUpdated);
         Assert.IsFalse(emptySummary.HasUpdates);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptySummary.PeriodEndTime);
+        Assert.AreEqual(DateTime.MinValue, emptySummary.PeriodEndTime);
         Assert.AreEqual(0, emptySummary.GetDeltaUpdateFields(testDateTime, StorageFlags.Update,
                                                              pricePrecisionSettings).Count());
 
@@ -687,8 +687,8 @@ public class PQPricePeriodSummaryTests
         emptySummary                           = new PQPricePeriodSummary();
         fullyPopulatedPeriodSummary.HasUpdates = false;
         emptySummary.CopyFrom(fullyPopulatedPeriodSummary);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptySummary.PeriodStartTime);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptySummary.PeriodEndTime);
+        Assert.AreEqual(DateTime.MinValue, emptySummary.PeriodStartTime);
+        Assert.AreEqual(DateTime.MinValue, emptySummary.PeriodEndTime);
         Assert.AreEqual(0m, emptySummary.StartBidPrice);
         Assert.AreEqual(0m, emptySummary.StartAskPrice);
         Assert.AreEqual(0m, emptySummary.HighestBidPrice);
@@ -754,7 +754,7 @@ public class PQPricePeriodSummaryTests
     public void EmptyQuote_GetHashCode_ReturnNumberNoException()
     {
         var hashCode = emptySummary.GetHashCode();
-        Assert.IsTrue(hashCode != 0);
+        Assert.IsTrue(hashCode == 0);
         hashCode = fullyPopulatedPeriodSummary.GetHashCode();
         Assert.IsTrue(hashCode != 0);
         Assert.IsTrue(emptySummary.GetHashCode() != hashCode);

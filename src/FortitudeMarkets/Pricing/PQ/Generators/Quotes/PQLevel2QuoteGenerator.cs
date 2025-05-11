@@ -23,11 +23,30 @@ public class PQLevel2QuoteGenerator
         toPopulate.IsAskPriceTopChangedUpdated = (PreviousReturnedQuote?.IsAskPriceTopChanged ?? false) != toPopulate.IsAskPriceTopChanged;
         toPopulate.IsBidPriceTopChangedUpdated = (PreviousReturnedQuote?.IsBidPriceTopChanged ?? false) != toPopulate.IsBidPriceTopChanged;
 
+        return toPopulate;
+    }
+
+    protected override IBookGenerator CreateBookGenerator
+        (BookGenerationInfo bookGenerationInfo) =>
+        new PQBookGenerator(GenerateQuoteValues.BookGenerator, GenerateQuoteValues.GenerateQuoteInfo.SourceTickerInfo);
+}
+
+
+public class PQPublishableLevel2QuoteGenerator
+    (CurrentQuoteInstantValueGenerator generateQuoteValues) : PublishableLevel2QuoteGeneratorBase<PQPublishableLevel2Quote>(generateQuoteValues)
+{
+    public override PQPublishableLevel2Quote BuildQuote(MidPriceTimePair midPriceTimePair, int sequenceNumber)
+    {
+        var toPopulate = new PQPublishableLevel2Quote(GenerateQuoteValues.GenerateQuoteInfo.SourceTickerInfo);
+        PopulateQuote(toPopulate, midPriceTimePair);
+        toPopulate.IsAskPriceTopChangedUpdated = (PreviousReturnedQuote?.IsAskPriceTopChanged ?? false) != toPopulate.IsAskPriceTopChanged;
+        toPopulate.IsBidPriceTopChangedUpdated = (PreviousReturnedQuote?.IsBidPriceTopChanged ?? false) != toPopulate.IsBidPriceTopChanged;
+
         toPopulate.PQSequenceId = (uint)sequenceNumber;
         return toPopulate;
     }
 
     protected override IBookGenerator CreateBookGenerator
         (BookGenerationInfo bookGenerationInfo) =>
-        new PQBookGenerator(GenerateQuoteValues.BookGenerator);
+        new PQBookGenerator(GenerateQuoteValues.BookGenerator, GenerateQuoteValues.GenerateQuoteInfo.SourceTickerInfo);
 }

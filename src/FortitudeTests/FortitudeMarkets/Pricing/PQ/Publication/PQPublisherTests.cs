@@ -13,7 +13,7 @@ using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -23,21 +23,21 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Publication;
 public class PQPublisherTests
 {
     private Mock<IMarketConnectionConfig>   moqMarketConnectionConfig = null!;
-    private Mock<IPQLevel1Quote>            moqPQLevel1Quote          = null!;
-    private Mock<IPQServer<IPQLevel1Quote>> moqPqServer               = null!;
+    private Mock<IPQPublishableLevel1Quote>            moqPQLevel1Quote          = null!;
+    private Mock<IPQServer<IPQPublishableLevel1Quote>> moqPqServer               = null!;
     private Mock<ISourceTickerInfo>         moqSourceTickerInfo       = null!;
-    private PQPublisher<IPQLevel1Quote>     pqPublisher               = null!;
+    private PQPublisher<IPQPublishableLevel1Quote>     pqPublisher               = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        moqPqServer = new Mock<IPQServer<IPQLevel1Quote>>();
+        moqPqServer = new Mock<IPQServer<IPQPublishableLevel1Quote>>();
     }
 
     [TestMethod]
     public void NewPQPublisher_RegisterTickersWithServer_WaitsToServerStartToRegister()
     {
-        pqPublisher = new PQPublisher<IPQLevel1Quote>(moqPqServer.Object);
+        pqPublisher = new PQPublisher<IPQPublishableLevel1Quote>(moqPqServer.Object);
 
         moqPqServer.Verify(pqs => pqs.Register(It.IsAny<string>()), Times.Never);
 
@@ -81,8 +81,8 @@ public class PQPublisherTests
     {
         SetupTickerWithPublisher();
 
-        var moqTkInst = moqPQLevel1Quote.As<ITickInstant>();
-        moqTkInst.Setup(pql1q => pql1q.CopyFrom(It.IsAny<ITickInstant>(), CopyMergeFlags.Default))
+        var moqTkInst = moqPQLevel1Quote.As<IPublishableTickInstant>();
+        moqTkInst.Setup(pql1q => pql1q.CopyFrom(It.IsAny<IPublishableTickInstant>(), CopyMergeFlags.Default))
                  .Verifiable();
         moqPqServer.Setup(pqs => pqs.Publish(moqPQLevel1Quote.Object)).Verifiable();
 
@@ -118,7 +118,7 @@ public class PQPublisherTests
 
     private void SetupTickerWithPublisher()
     {
-        pqPublisher = new PQPublisher<IPQLevel1Quote>(moqPqServer.Object);
+        pqPublisher = new PQPublisher<IPQPublishableLevel1Quote>(moqPqServer.Object);
 
         moqSourceTickerInfo = new Mock<ISourceTickerInfo>();
         moqSourceTickerInfo.SetupGet(stpc => stpc.InstrumentName).Returns("MoqTicker");
@@ -129,7 +129,7 @@ public class PQPublisherTests
         moqMarketConnectionConfig.Setup(stpcr => stpcr.AllSourceTickerInfos)
                                  .Returns(new List<ISourceTickerInfo> { moqSourceTickerInfo.Object });
 
-        moqPQLevel1Quote = new Mock<IPQLevel1Quote>();
+        moqPQLevel1Quote = new Mock<IPQPublishableLevel1Quote>();
         moqPqServer.Setup(pqs => pqs.Register(It.IsAny<string>()))
                    .Returns(moqPQLevel1Quote.Object);
         pqPublisher.RegisterTickersWithServer(moqMarketConnectionConfig.Object);

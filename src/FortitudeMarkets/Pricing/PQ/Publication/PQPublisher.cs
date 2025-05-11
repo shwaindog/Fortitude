@@ -15,13 +15,13 @@ using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 namespace FortitudeMarkets.Pricing.PQ.Publication;
 
-public interface IQuotePublisher<in T> : IDisposable where T : ITickInstant
+public interface IQuotePublisher<in T> : IDisposable where T : IPublishableTickInstant
 {
     void PublishReset(string ticker, DateTime exchangeTs, DateTime exchangeSentTs, DateTime adapterRecvTs);
     void PublishQuoteUpdate(T quote);
 }
 
-public interface IPQPublisher : IQuotePublisher<ITickInstant>
+public interface IPQPublisher : IQuotePublisher<IPublishableTickInstant>
 {
     void RegisterTickersWithServer(IMarketConnectionConfig marketConnectionConfig);
 
@@ -29,10 +29,10 @@ public interface IPQPublisher : IQuotePublisher<ITickInstant>
 
     void SetNextSequenceNumberToFullUpdate(string ticker);
 
-    void PublishQuoteUpdateAs(ITickInstant quote, PQMessageFlags? withMessageFlags = null);
+    void PublishQuoteUpdateAs(IPublishableTickInstant quote, PQMessageFlags? withMessageFlags = null);
 }
 
-public class PQPublisher<T> : IPQPublisher where T : IPQTickInstant
+public class PQPublisher<T> : IPQPublisher where T : IPQPublishableTickInstant
 {
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPublisher<>));
 
@@ -75,7 +75,7 @@ public class PQPublisher<T> : IPQPublisher where T : IPQTickInstant
             picture.ResetFields();
             picture.SourceTime         = now;
             picture.ClientReceivedTime = now;
-            if (picture is IMutableLevel1Quote pq1) pq1.AdapterSentTime = now;
+            if (picture is IMutablePublishableLevel1Quote pq1) pq1.AdapterSentTime = now;
             pqServer.Publish(picture);
         }
 
@@ -89,12 +89,12 @@ public class PQPublisher<T> : IPQPublisher where T : IPQTickInstant
             pqPicture!.ResetFields();
             pqPicture.SourceTime         = exchangeTs;
             pqPicture.ClientReceivedTime = adapterRecvTs;
-            if (pqPicture is IMutableLevel1Quote pq1) pq1.AdapterSentTime = exchangeSentTs;
+            if (pqPicture is IMutablePublishableLevel1Quote pq1) pq1.AdapterSentTime = exchangeSentTs;
             pqServer.Publish(pqPicture);
         }
     }
 
-    public void PublishQuoteUpdateAs(ITickInstant quote, PQMessageFlags? withMessageFlags = null)
+    public void PublishQuoteUpdateAs(IPublishableTickInstant quote, PQMessageFlags? withMessageFlags = null)
     {
         if (pictures.TryGetValue(quote.SourceTickerInfo!.InstrumentName, out var pqPicture))
         {
@@ -106,7 +106,7 @@ public class PQPublisher<T> : IPQPublisher where T : IPQTickInstant
         }
     }
 
-    public void PublishQuoteUpdate(ITickInstant quote)
+    public void PublishQuoteUpdate(IPublishableTickInstant quote)
     {
         PublishQuoteUpdateAs(quote);
     }

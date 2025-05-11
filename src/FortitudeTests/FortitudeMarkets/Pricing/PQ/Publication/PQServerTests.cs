@@ -24,7 +24,7 @@ using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 using static FortitudeTests.TestEnvironment.TestMachineConfig;
 
 #endregion
@@ -128,7 +128,7 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<PQTickInstant>
+        var pqServer = new PQServer<PQPublishableTickInstant>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
@@ -145,7 +145,7 @@ public class PQServerTests
 
         moqHeartBeatSender.SetupSet(hbs => hbs.UpdateServer = moqUpdateService.Object).Verifiable();
 
-        var pqServer = new PQServer<PQLevel1Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
+        var pqServer = new PQServer<PQPublishableLevel1Quote>(marketConnectionConfig, moqHeartBeatSender.Object,
                                                    moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
@@ -156,25 +156,25 @@ public class PQServerTests
     [TestMethod]
     public void PQServerWithNullQuoteFactory_Register_CreateTickInstantReadyForPublish()
     {
-        TestLevelQuoteIsReturned<PQTickInstant>();
+        TestLevelQuoteIsReturned<PQPublishableTickInstant>();
     }
 
     [TestMethod]
     public void PQServerWithNullQuoteFactory_Register_CreateLevel1QuoteReadyForPublish()
     {
-        TestLevelQuoteIsReturned<PQLevel1Quote>();
+        TestLevelQuoteIsReturned<PQPublishableLevel1Quote>();
     }
 
     [TestMethod]
     public void PQServerWithNullQuoteFactory_Register_CreateLevel2QuoteReadyForPublish()
     {
-        TestLevelQuoteIsReturned<PQLevel2Quote>();
+        TestLevelQuoteIsReturned<PQPublishableLevel2Quote>();
     }
 
     [TestMethod]
     public void PQServerWithNullQuoteFactory_Register_CreateLevel3QuoteReadyForPublish()
     {
-        TestLevelQuoteIsReturned<PQLevel3Quote>();
+        TestLevelQuoteIsReturned<PQPublishableLevel3Quote>();
     }
 
     [TestMethod]
@@ -182,14 +182,14 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<PQLevel1Quote>
+        var pqServer = new PQServer<PQPublishableLevel1Quote>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
         pqServer.StartServices();
 
         moqUpdateService.SetupGet(us => us.IsStarted).Returns(true);
-        moqUpdateService.Setup(us => us.Send(It.IsAny<PQLevel1Quote>())).Verifiable();
+        moqUpdateService.Setup(us => us.Send(It.IsAny<PQPublishableLevel1Quote>())).Verifiable();
 
         pqServer.Register(TestTicker1);
 
@@ -201,7 +201,7 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<PQLevel1Quote>
+        var pqServer = new PQServer<PQPublishableLevel1Quote>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
@@ -212,7 +212,7 @@ public class PQServerTests
         pqServer.Register(TestTicker1);
 
         moqUpdateService.Verify();
-        moqUpdateService.Verify(us => us.Send(It.IsAny<PQLevel1Quote>()), Times.Never);
+        moqUpdateService.Verify(us => us.Send(It.IsAny<PQPublishableLevel1Quote>()), Times.Never);
     }
 
     [TestMethod]
@@ -220,7 +220,7 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<PQLevel1Quote>
+        var pqServer = new PQServer<PQPublishableLevel1Quote>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
@@ -240,7 +240,7 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<PQLevel1Quote>
+        var pqServer = new PQServer<PQPublishableLevel1Quote>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
@@ -258,7 +258,7 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<PQLevel1Quote>
+        var pqServer = new PQServer<PQPublishableLevel1Quote>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
@@ -274,17 +274,17 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQTickInstant>
+        var pqServer = new PQServer<IPQPublishableTickInstant>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
-           , info => new PQTickInstant(info));
+           , info => new PQPublishableTickInstant(info));
 
-        var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQTickInstant>();
+        var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQPublishableTickInstant>();
         var isInQuoteSyncLock           = false;
         var moqSyncLock                 = new Mock<ISyncLock>();
         moqSyncLock.Setup(sl => sl.Acquire()).Callback(() => { isInQuoteSyncLock = true; }).Verifiable();
 
-        var moqRegisteredPqTickInstant = new Mock<IPQTickInstant>();
+        var moqRegisteredPqTickInstant = new Mock<IPQPublishableTickInstant>();
         moqRegisteredPqTickInstant.SetupGet(ti => ti.Lock).Returns(moqSyncLock.Object).Verifiable();
         moqRegisteredPqTickInstant.SetupProperty(ti => ti.PQSequenceId, 10u);
 
@@ -293,7 +293,7 @@ public class PQServerTests
         {
             SourceTickerInfo = sourceTickerInfo1, HasUpdates = true
         };
-        moqRegisteredPqTickInstant.Setup(ti => ti.CopyFrom((ITickInstant)stubTickInstant, CopyMergeFlags.Default))
+        moqRegisteredPqTickInstant.Setup(ti => ti.CopyFrom((IPublishableTickInstant)stubTickInstant, CopyMergeFlags.Default))
                                   .Callback(() => { Assert.IsTrue(isInQuoteSyncLock); }).Returns(moqRegisteredPqTickInstant.Object)
                                   .Verifiable();
         moqRegisteredPqTickInstant.SetupSet(ti => ti.PQSequenceId = 10)
@@ -317,16 +317,16 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQTickInstant>
+        var pqServer = new PQServer<IPQPublishableTickInstant>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
-           , info => new PQTickInstant(info));
+           , info => new PQPublishableTickInstant(info));
 
-        var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQTickInstant>();
+        var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQPublishableTickInstant>();
         var isInHeartBeatSyncLock       = false;
         var moqQuoteSyncLock            = new Mock<ISyncLock>();
         moqQuoteSyncLock.Setup(sl => sl.Acquire());
-        var ticker1RegisteredPqTickInstant = new PQTickInstant(sourceTickerInfo1);
+        var ticker1RegisteredPqTickInstant = new PQPublishableTickInstant(sourceTickerInfo1);
 
         // can't use moq because of property hiding/redefinition not handled properly
         var stubLevel1Quote = new PQTickInstantTests.DummyPQTickInstant
@@ -346,7 +346,7 @@ public class PQServerTests
                             .Callback(() => { isInHeartBeatSyncLock = false; }).Verifiable();
         NonPublicInvocator.SetInstanceField(pqServer, "heartBeatSync", moqHeartBeatSyncLock.Object);
 
-        var heartBeatQuotes        = new DoublyLinkedList<IPQTickInstant>();
+        var heartBeatQuotes        = new DoublyLinkedList<IPQPublishableTickInstant>();
         var initialLastLvl1Quote   = new PQTickInstantTests.DummyPQTickInstant();
         var initialMiddleLvl1Quote = new PQTickInstantTests.DummyPQTickInstant();
         heartBeatQuotes.AddLast(initialLastLvl1Quote);
@@ -367,15 +367,15 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQTickInstant>
+        var pqServer = new PQServer<IPQPublishableTickInstant>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
-           , info => new PQTickInstant(info));
+           , info => new PQPublishableTickInstant(info));
 
-        var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQTickInstant>();
+        var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQPublishableTickInstant>();
         var moqQuoteSyncLock            = new Mock<ISyncLock>();
         moqQuoteSyncLock.Setup(sl => sl.Acquire());
-        var moqRegisteredPqTickInstant = new Mock<IPQTickInstant>();
+        var moqRegisteredPqTickInstant = new Mock<IPQPublishableTickInstant>();
         moqRegisteredPqTickInstant.SetupGet(ti => ti.Lock).Returns(moqQuoteSyncLock.Object).Verifiable();
         moqRegisteredPqTickInstant.SetupProperty(ti => ti.PQSequenceId, 10u);
 
@@ -384,7 +384,7 @@ public class PQServerTests
         {
             SourceTickerInfo = sourceTickerInfo1, HasUpdates = true
         };
-        moqRegisteredPqTickInstant.Setup(ti => ti.CopyFrom((ITickInstant)stubLevel1Quote, CopyMergeFlags.Default));
+        moqRegisteredPqTickInstant.Setup(ti => ti.CopyFrom((IPublishableTickInstant)stubLevel1Quote, CopyMergeFlags.Default));
         moqQuoteSyncLock.Setup(sl => sl.Release());
 
         replaceWithPQServerInstance.Add(sourceTickerInfo1.SourceTickerId, moqRegisteredPqTickInstant.Object);
@@ -400,7 +400,7 @@ public class PQServerTests
                                   .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
         NonPublicInvocator.SetInstanceField(pqServer, "heartBeatSync", moqHeartBeatSyncLock.Object);
 
-        var moqHeartBeatQuotes = new Mock<IDoublyLinkedList<IPQTickInstant>>();
+        var moqHeartBeatQuotes = new Mock<IDoublyLinkedList<IPQPublishableTickInstant>>();
         moqHeartBeatQuotes.Setup(hbq => hbq.Remove(moqRegisteredPqTickInstant.Object))
                           .Callback(() => { Assert.IsTrue(isInHeartBeatSyncLock); })
                           .Returns(moqRegisteredPqTickInstant.Object).Verifiable();
@@ -423,10 +423,10 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQTickInstant>
+        var pqServer = new PQServer<IPQPublishableTickInstant>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
-           , info => new PQTickInstant(info));
+           , info => new PQPublishableTickInstant(info));
 
 
         // can't use moq because of property hiding/redefinition not handled properly
@@ -444,18 +444,18 @@ public class PQServerTests
 
         moqUpdateService.SetupGet(us => us.IsStarted).Returns(false).Verifiable();
 
-        var pqServer = new PQServer<IPQTickInstant>
+        var pqServer = new PQServer<IPQPublishableTickInstant>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
-           , info => new PQTickInstant(info));
+           , info => new PQPublishableTickInstant(info));
 
         pqServer.StartServices();
 
-        var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQTickInstant>();
+        var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQPublishableTickInstant>();
         var moqSyncLock                 = new Mock<ISyncLock>();
         moqSyncLock.Setup(sl => sl.Acquire());
 
-        var moqRegisteredPqTickInstant = new Mock<IPQTickInstant>();
+        var moqRegisteredPqTickInstant = new Mock<IPQPublishableTickInstant>();
         moqRegisteredPqTickInstant.SetupGet(ti => ti.Lock).Returns(moqSyncLock.Object);
 
         // can't use moq because of property redefinition not handled properly
@@ -463,7 +463,7 @@ public class PQServerTests
         {
             SourceTickerInfo = sourceTickerInfo1, HasUpdates = true
         };
-        moqRegisteredPqTickInstant.Setup(ti => ti.CopyFrom((ITickInstant)stubLevel1Quote, CopyMergeFlags.Default));
+        moqRegisteredPqTickInstant.Setup(ti => ti.CopyFrom((IPublishableTickInstant)stubLevel1Quote, CopyMergeFlags.Default));
         moqRegisteredPqTickInstant.SetupProperty(ti => ti.PQSequenceId, 10u);
         moqRegisteredPqTickInstant.SetupProperty(ti => ti.HasUpdates, true);
         moqSyncLock.Setup(sl => sl.Release());
@@ -490,13 +490,13 @@ public class PQServerTests
         var moqConvoRequester = new Mock<IConversationRequester>();
 
         moqConvoRequester.Setup(ssc => ssc.Send(It.IsAny<IVersionedMessage>())).Verifiable();
-        var moqTickInstant = new Mock<PQTickInstant>();
+        var moqTickInstant = new Mock<PQPublishableTickInstant>();
 
         var moqConversationRequester = new Mock<IConversationRequester>();
         moqSnapshotService.SetupAdd(sss => sss.OnSnapshotRequest += (ssc, id) =>
                                         moqSnapshotService.Object.Send(moqConversationRequester.Object, moqTickInstant.Object));
 
-        var pqServer = new PQServer<PQLevel1Quote>
+        var pqServer = new PQServer<PQPublishableLevel1Quote>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
 
@@ -522,18 +522,18 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQLevel1Quote>
+        var pqServer = new PQServer<IPQPublishableLevel1Quote>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
-           , info => new PQLevel1Quote(info));
+           , info => new PQPublishableLevel1Quote(info));
 
         pqServer.StartServices();
 
-        var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQLevel1Quote>();
+        var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQPublishableLevel1Quote>();
         var moqSyncLock                 = new Mock<ISyncLock>();
         moqSyncLock.Setup(sl => sl.Acquire());
 
-        var moqRegisteredPqLevel1Quote = new Mock<IPQLevel1Quote>();
+        var moqRegisteredPqLevel1Quote = new Mock<IPQPublishableLevel1Quote>();
         moqRegisteredPqLevel1Quote.SetupGet(l1Q => l1Q.Lock).Returns(moqSyncLock.Object);
 
         // can't use moq because of property redefinition not handled properly
@@ -541,7 +541,7 @@ public class PQServerTests
         {
             SourceTickerInfo = sourceTickerInfo1, HasUpdates = true, SingleTickValue = 123, IsSingleValueUpdated = true
         };
-        moqRegisteredPqLevel1Quote.Setup(l1Q => l1Q.CopyFrom((ITickInstant)stubLevel1Quote, CopyMergeFlags.Default));
+        moqRegisteredPqLevel1Quote.Setup(l1Q => l1Q.CopyFrom((IPublishableTickInstant)stubLevel1Quote, CopyMergeFlags.Default));
         moqRegisteredPqLevel1Quote.SetupProperty(l1Q => l1Q.PQSequenceId, 10u);
         moqRegisteredPqLevel1Quote.SetupProperty(l1Q => l1Q.HasUpdates, true);
         moqSyncLock.Setup(sl => sl.Release());
@@ -551,7 +551,7 @@ public class PQServerTests
         NonPublicInvocator.SetInstanceField(pqServer, "entities", replaceWithPQServerInstance);
 
         moqUpdateService.SetupGet(us => us.IsStarted).Returns(true);
-        moqUpdateService.Setup(us => us.Send(It.IsAny<IPQLevel1Quote>())).Verifiable();
+        moqUpdateService.Setup(us => us.Send(It.IsAny<IPQPublishableLevel1Quote>())).Verifiable();
 
         pqServer.Unregister(stubLevel1Quote);
 
@@ -563,17 +563,17 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQLevel1Quote>
+        var pqServer = new PQServer<IPQPublishableLevel1Quote>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
-           , info => new PQLevel1Quote(info));
+           , info => new PQPublishableLevel1Quote(info));
 
         pqServer.StartServices();
 
         var moqSyncLock = new Mock<ISyncLock>();
         moqSyncLock.Setup(sl => sl.Acquire());
 
-        var moqRegisteredPqLevel1Quote = new Mock<IPQLevel1Quote>();
+        var moqRegisteredPqLevel1Quote = new Mock<IPQPublishableLevel1Quote>();
         moqRegisteredPqLevel1Quote.SetupGet(l1Q => l1Q.Lock).Returns(moqSyncLock.Object);
 
         // can't use moq because of property redefinition not handled properly
@@ -581,11 +581,11 @@ public class PQServerTests
         {
             SourceTickerInfo = sourceTickerInfo1, HasUpdates = true
         };
-        moqRegisteredPqLevel1Quote.Setup(l1Q => l1Q.CopyFrom((ITickInstant)stubLevel1Quote, CopyMergeFlags.Default));
+        moqRegisteredPqLevel1Quote.Setup(l1Q => l1Q.CopyFrom((IPublishableTickInstant)stubLevel1Quote, CopyMergeFlags.Default));
         moqRegisteredPqLevel1Quote.SetupProperty(l1Q => l1Q.PQSequenceId, 10u);
         moqSyncLock.Setup(sl => sl.Release());
 
-        var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQLevel1Quote>
+        var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQPublishableLevel1Quote>
         {
             { sourceTickerInfo1.SourceTickerId, moqRegisteredPqLevel1Quote.Object }
         };
@@ -600,28 +600,28 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQLevel1Quote>
+        var pqServer = new PQServer<IPQPublishableLevel1Quote>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
-           , info => new PQLevel1Quote(info));
+           , info => new PQPublishableLevel1Quote(info));
 
         pqServer.StartServices();
 
         var moqSyncLock = new Mock<ISyncLock>();
         moqSyncLock.Setup(sl => sl.Acquire());
 
-        var moqRegisteredPqLevel1Quote = new Mock<IPQLevel1Quote>();
+        var moqRegisteredPqLevel1Quote = new Mock<IPQPublishableLevel1Quote>();
         moqRegisteredPqLevel1Quote.SetupGet(l1Q => l1Q.Lock).Returns(moqSyncLock.Object);
         // can't use moq because of property redefinition not handled properly
         var stubLevel1Quote = new PQLevel1QuoteTests.DummyLevel1Quote
         {
             SourceTickerInfo = sourceTickerInfo1, HasUpdates = true
         };
-        moqRegisteredPqLevel1Quote.Setup(l1Q => l1Q.CopyFrom((ITickInstant)stubLevel1Quote, CopyMergeFlags.Default));
+        moqRegisteredPqLevel1Quote.Setup(l1Q => l1Q.CopyFrom((IPublishableTickInstant)stubLevel1Quote, CopyMergeFlags.Default));
         moqRegisteredPqLevel1Quote.SetupProperty(l1Q => l1Q.PQSequenceId, 10u);
         moqSyncLock.Setup(sl => sl.Release());
 
-        var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQLevel1Quote>
+        var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQPublishableLevel1Quote>
         {
             { sourceTickerInfo1.SourceTickerId, moqRegisteredPqLevel1Quote.Object }
         };
@@ -639,10 +639,10 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQLevel1Quote>
+        var pqServer = new PQServer<IPQPublishableLevel1Quote>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
-           , info => new PQLevel1Quote(info));
+           , info => new PQPublishableLevel1Quote(info));
 
         pqServer.StartServices();
         Assert.IsTrue(pqServer.IsStarted);
@@ -669,15 +669,15 @@ public class PQServerTests
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 
-        var pqServer = new PQServer<IPQLevel1Quote>
+        var pqServer = new PQServer<IPQPublishableLevel1Quote>
             (marketConnectionConfig, moqHeartBeatSender.Object,
              moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory
-           , info => new PQLevel1Quote(info));
+           , info => new PQPublishableLevel1Quote(info));
         pqServer.StartServices();
 
         var isInHeartBeatSyncLock = false;
         var moqHeartBeatSyncLock  = new Mock<ISyncLock>();
-        var moqHeartBeatQuotes    = new Mock<IDoublyLinkedList<IPQTickInstant>>();
+        var moqHeartBeatQuotes    = new Mock<IDoublyLinkedList<IPQPublishableTickInstant>>();
         moqHeartBeatSyncLock.Setup(sl => sl.Acquire())
                             .Callback(() => { isInHeartBeatSyncLock = true; }).Verifiable();
         moqHeartBeatSyncLock.Setup(sl => sl.Release())
@@ -696,7 +696,7 @@ public class PQServerTests
         moqHeartBeatSender.Verify();
     }
 
-    private void TestLevelQuoteIsReturned<T>() where T : class, IPQTickInstant
+    private void TestLevelQuoteIsReturned<T>() where T : class, IPQPublishableTickInstant
     {
         Setup(LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName);
 

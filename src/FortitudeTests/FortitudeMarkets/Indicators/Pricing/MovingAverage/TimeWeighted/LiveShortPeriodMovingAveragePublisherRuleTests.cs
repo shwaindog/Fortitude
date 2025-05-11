@@ -21,7 +21,6 @@ using FortitudeMarkets.Pricing.PQ.Converters;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Subscription.BusRules;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
 using FortitudeTests.FortitudeCommon.Chronometry;
@@ -31,7 +30,7 @@ using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using MathNet.Numerics;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -66,7 +65,7 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
 
     private StubTimeContext stubTimeContext = null!;
 
-    private List<PQLevel1Quote> tenMinBeforeEpoch = null!;
+    private List<PQPublishableLevel1Quote> tenMinBeforeEpoch = null!;
 
     private TestLiveShortPeriodMovingAverageClient testClient           = null!;
     private IRuleDeploymentLifeTime                testClientDeployment = null!;
@@ -112,18 +111,18 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
         return new StubTimerContextProvider();
     }
 
-    private List<PQLevel1Quote> GenerateQuotes
+    private List<PQPublishableLevel1Quote> GenerateQuotes
     (DateTime? startAt = null, TimeBoundaryPeriod quoteGap = TenSeconds, decimal? startAtMid = null,
         int numberToGenerate = 61, int? incrementQuoteEvery = null)
     {
         var quoteTime  = quoteGap.PreviousPeriodStart(startAt ?? quotesStart);
         var currentMid = startAtMid ?? midStart;
         var incAt      = incrementQuoteEvery ?? incrementEvery;
-        var quotes     = new List<PQLevel1Quote>(numberToGenerate);
+        var quotes     = new List<PQPublishableLevel1Quote>(numberToGenerate);
         for (var i = 1; i <= numberToGenerate; i++)
         {
             if (i % incAt == 0) currentMid += midIncrement;
-            quotes.Add(tickerInfo.CreateLevel1Quote(quoteTime = quoteGap.PeriodEnd(quoteTime), currentMid, spread).ToL1PQQuote());
+            quotes.Add(tickerInfo.CreatePublishableLevel1Quote(quoteTime = quoteGap.PeriodEnd(quoteTime), currentMid, spread).ToPublishableL1PQQuote());
         }
         lastGeneratedQuotesEndTime = quoteTime;
         return quotes;
@@ -190,7 +189,7 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
         Assert.AreEqual(expectedMovingAverage.AskPrice, movingAverage.AskPrice);
     }
 
-    public BidAskPair CalculatedMovingAverage(List<PQLevel1Quote> quotes, BoundedTimeRange matchingRange)
+    public BidAskPair CalculatedMovingAverage(List<PQPublishableLevel1Quote> quotes, BoundedTimeRange matchingRange)
     {
         var timeWeightedBidAskPair = CalculateValidTimeWeightedBidAsk(quotes, matchingRange);
         var average                = TimeWeightBidAskToAverage(timeWeightedBidAskPair, matchingRange.TimeSpan());
@@ -200,7 +199,7 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
         return average;
     }
 
-    public BidAskPair CalculateValidTimeWeightedBidAsk(List<PQLevel1Quote> quotes, BoundedTimeRange matchingRange)
+    public BidAskPair CalculateValidTimeWeightedBidAsk(List<PQPublishableLevel1Quote> quotes, BoundedTimeRange matchingRange)
     {
         var timeWeightedBidMs = 0m;
         var timeWeightedAskMs = 0m;
@@ -248,13 +247,13 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
 
     private struct PublishQuotesWithTimeProgress
     {
-        public PublishQuotesWithTimeProgress(List<PQLevel1Quote> toPublish, IUpdateTime timeUpdater)
+        public PublishQuotesWithTimeProgress(List<PQPublishableLevel1Quote> toPublish, IUpdateTime timeUpdater)
         {
             TimeUpdater = timeUpdater;
             ToPublish   = toPublish;
         }
 
-        public List<PQLevel1Quote> ToPublish { get; }
+        public List<PQPublishableLevel1Quote> ToPublish { get; }
 
         public IUpdateTime TimeUpdater { get; }
     }
@@ -273,7 +272,7 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
         private ISubscription? historicalQuoteRepoRequestSubscription;
         private ISubscription? historicalQuoteReturnResultsSubscription;
 
-        private List<PQLevel1Quote> historicalRepositoryQuotesToReturn = new();
+        private List<PQPublishableLevel1Quote> historicalRepositoryQuotesToReturn = new();
         private ISubscription?      listenForPublishPricesSubscription;
         private ISubscription?      live15SMovingAveragePublishSubscription;
 
@@ -285,14 +284,14 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
 
         private List<IndicatorValidRangeBidAskPeriodValue> ReceivedLive30SMovingAverageEvents { get; } = new();
 
-        public List<HistoricalQuotesRequest<PQLevel1Quote>> ReceivedQuoteHistoricalRequests { get; } = new();
+        public List<HistoricalQuotesRequest<PQPublishableLevel1Quote>> ReceivedQuoteHistoricalRequests { get; } = new();
 
-        public List<PQLevel1Quote> HistoricalRepositoryQuotesToReturn
+        public List<PQPublishableLevel1Quote> HistoricalRepositoryQuotesToReturn
         {
             get => historicalRepositoryQuotesToReturn;
             set
             {
-                historicalRepositoryQuotesToReturn = new List<PQLevel1Quote>(value);
+                historicalRepositoryQuotesToReturn = new List<PQPublishableLevel1Quote>(value);
                 historicalRepositoryQuotesToReturn.Reverse();
             }
         }
@@ -308,9 +307,9 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
             live30SMovingAveragePublishSubscription = await this.RegisterListenerAsync<IndicatorValidRangeBidAskPeriodValue>
                 (((SourceTickerIdentifier)instrumentSourceTickerIdentifier)
                  .MovingAverageTimeWeightedLiveShortPeriodPublish(new DiscreetTimePeriod(ThirtySeconds)), Received30SMovingAveragePeriod);
-            historicalQuoteRepoRequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel1Quote>, bool>
+            historicalQuoteRepoRequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQPublishableLevel1Quote>, bool>
                 (HistoricalQuoteTimeSeriesRepositoryConstants.PricingRepoRetrievePqL1QuoteRequest, HistoricalQuoteRepositoryRequest);
-            historicalQuoteReturnResultsSubscription = await this.RegisterListenerAsync<HistoricalQuotesRequest<PQLevel1Quote>>
+            historicalQuoteReturnResultsSubscription = await this.RegisterListenerAsync<HistoricalQuotesRequest<PQPublishableLevel1Quote>>
                 (LivePeriodTestClientReturnHistoricalQuotesAddress, ReturnHistoricalQuotes);
             await base.StartAsync();
         }
@@ -340,7 +339,7 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
             if (ReceivedLive30SMovingAverageEvents.Count >= waitNumberForPublish) awaitPublishSource.TrySetResult(0);
         }
 
-        private bool HistoricalQuoteRepositoryRequest(HistoricalQuotesRequest<PQLevel1Quote> historicalQuoteReq)
+        private bool HistoricalQuoteRepositoryRequest(HistoricalQuotesRequest<PQPublishableLevel1Quote> historicalQuoteReq)
         {
             if (HistoricalRepositoryQuotesToReturn.Any())
             {
@@ -351,7 +350,7 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
             return false;
         }
 
-        private async ValueTask ReturnHistoricalQuotes(HistoricalQuotesRequest<PQLevel1Quote> historicalQuoteReq)
+        private async ValueTask ReturnHistoricalQuotes(HistoricalQuotesRequest<PQPublishableLevel1Quote> historicalQuoteReq)
         {
             ReceivedQuoteHistoricalRequests.Add(historicalQuoteReq);
 
@@ -360,7 +359,7 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
             if (historicalQuoteReq.ChannelRequest.BatchSize > 1)
                 for (var i = 0; i < HistoricalRepositoryQuotesToReturn.Count; i += historicalQuoteReq.ChannelRequest.BatchSize)
                 {
-                    var reusableList = Context.PooledRecycler.Borrow<ReusableList<PQLevel1Quote>>();
+                    var reusableList = Context.PooledRecycler.Borrow<ReusableList<PQPublishableLevel1Quote>>();
                     for (var j = i; j < i + historicalQuoteReq.ChannelRequest.BatchSize && j < HistoricalRepositoryQuotesToReturn.Count; j++)
                         reusableList.Add(HistoricalRepositoryQuotesToReturn[j]);
                     sendMore = await channel.Publish(this, reusableList);
@@ -375,7 +374,7 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
             await channel.PublishComplete(this);
         }
 
-        public async ValueTask SendPricesToLivePeriodRule(List<PQLevel1Quote> publishPrices, IUpdateTime progressTime)
+        public async ValueTask SendPricesToLivePeriodRule(List<PQPublishableLevel1Quote> publishPrices, IUpdateTime progressTime)
         {
             await this.RequestAsync<PublishQuotesWithTimeProgress, ValueTask>
                 (LivePeriodTestClientPublishPricesAddress, new PublishQuotesWithTimeProgress(publishPrices, progressTime));

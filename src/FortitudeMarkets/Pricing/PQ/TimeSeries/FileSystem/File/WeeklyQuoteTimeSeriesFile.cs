@@ -18,7 +18,7 @@ using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 namespace FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File;
 
 public class WeeklyTickInstantTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyTickInstantTimeSeriesFile,
-    DailyToHourlyTickInstantSubBuckets<ITickInstant>, ITickInstant>
+    DailyToHourlyTickInstantSubBuckets<IPublishableTickInstant>, IPublishableTickInstant>
 {
     public WeeklyTickInstantTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
@@ -30,14 +30,14 @@ public class WeeklyTickInstantTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyTi
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<ITickInstant, DailyToHourlyTickInstantSubBuckets<ITickInstant>> CreateAppendContext() =>
-        new PQQuoteAppendContext<ITickInstant, DailyToHourlyTickInstantSubBuckets<ITickInstant>, PQTickInstant>();
+    public override ISessionAppendContext<IPublishableTickInstant, DailyToHourlyTickInstantSubBuckets<IPublishableTickInstant>> CreateAppendContext() =>
+        new PQQuoteAppendContext<IPublishableTickInstant, DailyToHourlyTickInstantSubBuckets<IPublishableTickInstant>, PQPublishableTickInstant>();
 
     public static WeeklyTickInstantTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
 
 public class WeeklyLevel1QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLevel1QuoteTimeSeriesFile,
-    DailyToHourlyLevel1QuoteSubBuckets<ILevel1Quote>, ILevel1Quote>
+    DailyToHourlyLevel1QuoteSubBuckets<IPublishableLevel1Quote>, IPublishableLevel1Quote>
 {
     public WeeklyLevel1QuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
@@ -49,15 +49,15 @@ public class WeeklyLevel1QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLe
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<ILevel1Quote, DailyToHourlyLevel1QuoteSubBuckets<ILevel1Quote>> CreateAppendContext() =>
-        new PQQuoteAppendContext<ILevel1Quote, DailyToHourlyLevel1QuoteSubBuckets<ILevel1Quote>, PQLevel1Quote>();
+    public override ISessionAppendContext<IPublishableLevel1Quote, DailyToHourlyLevel1QuoteSubBuckets<IPublishableLevel1Quote>> CreateAppendContext() =>
+        new PQQuoteAppendContext<IPublishableLevel1Quote, DailyToHourlyLevel1QuoteSubBuckets<IPublishableLevel1Quote>, PQPublishableLevel1Quote>();
 
 
     public static WeeklyLevel1QuoteTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
 
 public class WeeklyLevel2QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLevel2QuoteTimeSeriesFile,
-    DailyToHourlyLevel2QuoteSubBuckets<ILevel2Quote>, ILevel2Quote>
+    DailyToHourlyLevel2QuoteSubBuckets<IPublishableLevel2Quote>, IPublishableLevel2Quote>
 {
     public WeeklyLevel2QuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
@@ -69,14 +69,14 @@ public class WeeklyLevel2QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLe
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<ILevel2Quote, DailyToHourlyLevel2QuoteSubBuckets<ILevel2Quote>> CreateAppendContext() =>
-        new PQQuoteAppendContext<ILevel2Quote, DailyToHourlyLevel2QuoteSubBuckets<ILevel2Quote>, PQLevel2Quote>();
+    public override ISessionAppendContext<IPublishableLevel2Quote, DailyToHourlyLevel2QuoteSubBuckets<IPublishableLevel2Quote>> CreateAppendContext() =>
+        new PQQuoteAppendContext<IPublishableLevel2Quote, DailyToHourlyLevel2QuoteSubBuckets<IPublishableLevel2Quote>, PQPublishableLevel2Quote>();
 
     public static WeeklyLevel2QuoteTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }
 
 public class WeeklyLevel3QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLevel3QuoteTimeSeriesFile,
-    DailyToHourlyLevel3QuoteSubBuckets<ILevel3Quote>, ILevel3Quote>
+    DailyToHourlyLevel3QuoteSubBuckets<IPublishableLevel3Quote>, IPublishableLevel3Quote>
 {
     public WeeklyLevel3QuoteTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
@@ -88,8 +88,8 @@ public class WeeklyLevel3QuoteTimeSeriesFile : PriceQuoteTimeSeriesFile<WeeklyLe
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public override ISessionAppendContext<ILevel3Quote, DailyToHourlyLevel3QuoteSubBuckets<ILevel3Quote>> CreateAppendContext() =>
-        new PQQuoteAppendContext<ILevel3Quote, DailyToHourlyLevel3QuoteSubBuckets<ILevel3Quote>, PQLevel3Quote>();
+    public override ISessionAppendContext<IPublishableLevel3Quote, DailyToHourlyLevel3QuoteSubBuckets<IPublishableLevel3Quote>> CreateAppendContext() =>
+        new PQQuoteAppendContext<IPublishableLevel3Quote, DailyToHourlyLevel3QuoteSubBuckets<IPublishableLevel3Quote>, PQPublishableLevel3Quote>();
 
     public static WeeklyLevel3QuoteTimeSeriesFile OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }

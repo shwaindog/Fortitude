@@ -19,7 +19,7 @@ using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 
-internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T : class, IPQTickInstant
+internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T : class, IPQPublishableTickInstant
 {
     protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteFeedDeserializer<T>));
 
@@ -66,7 +66,7 @@ internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T :
     {
         int elapsed;
         if ((elapsed = (int)(utcNow - PublishedQuote.ClientReceivedTime).TotalMilliseconds) <=
-            InSyncState<PQTickInstant>.PQTimeoutMs && !feedIsStopped)
+            InSyncState<PQPublishableTickInstant>.PQTimeoutMs && !feedIsStopped)
             return false;
         feedIsStopped = true;
         Logger.Info("Stale detected on feed {0}, {1}ms elapsed with no update",

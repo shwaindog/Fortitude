@@ -91,7 +91,7 @@ public struct ValidRangeBidAskPeriodValue
         CoveringPeriod = toClone.CoveringPeriod;
     }
 
-    public ValidRangeBidAskPeriodValue(ILevel1Quote toCapture)
+    public ValidRangeBidAskPeriodValue(IPublishableLevel1Quote toCapture)
     {
         BidPrice  = toCapture.BidPriceTop;
         AskPrice  = toCapture.AskPriceTop;
@@ -657,7 +657,7 @@ public class ValidRangeBidAskPeriod : BidAskInstant, IValidRangeBidAskPeriod, IC
         if (toCopy is ValidRangeBidAskPeriod validRangeBidAskPeriod) booleanFlags = validRangeBidAskPeriod.booleanFlags;
     }
 
-    public override IValidRangeBidAskPeriod CopyFrom(ILevel1Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IValidRangeBidAskPeriod CopyFrom(IPublishableLevel1Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
 
@@ -695,7 +695,7 @@ public class ValidRangeBidAskPeriod : BidAskInstant, IValidRangeBidAskPeriod, IC
         ValidFrom = AtTime.Max(validFrom).Min(ValidTo);
     }
 
-    public ValidRangeBidAskPeriod(ILevel1Quote toCapture) : base(toCapture)
+    public ValidRangeBidAskPeriod(IPublishableLevel1Quote toCapture) : base(toCapture)
     {
         CoveringPeriod = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
 
@@ -814,7 +814,7 @@ public static class ValidRangeBidAskInstantExtensions
         return countRemoved;
     }
 
-    public static IValidRangeBidAskPeriod ToValidBidAskPeriod(this ILevel1Quote level1Quote, IRecycler? recycler = null)
+    public static IValidRangeBidAskPeriod ToValidBidAskPeriod(this IPublishableLevel1Quote level1Quote, IRecycler? recycler = null)
     {
         var bidAskPeriod = recycler?.Borrow<ValidRangeBidAskPeriod>().CopyFrom(level1Quote) ?? new ValidRangeBidAskPeriod(level1Quote);
         return bidAskPeriod;

@@ -55,7 +55,7 @@ public interface ISourceTickersConfig : IInterfacesComparable<ISourceTickersConf
     const LastTradedFlags DefaultLastTradedFlagsValue = LastTradedFlags.None;
 
     TickerAvailability DefaultTickerAvailability       { get; set; }
-    TickerDetailLevel  DefaultPublishTickerDetailLevel { get; set; }
+    TickerQuoteDetailLevel  DefaultPublishTickerQuoteDetailLevel { get; set; }
 
     MarketClassificationConfig DefaultMarketClassification { get; set; }
 
@@ -98,7 +98,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
 
     public SourceTickersConfig(ISourceTickersConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        DefaultPublishTickerDetailLevel = toClone.DefaultPublishTickerDetailLevel;
+        DefaultPublishTickerQuoteDetailLevel = toClone.DefaultPublishTickerQuoteDetailLevel;
         DefaultMaximumPublishedLayers   = toClone.DefaultMaximumPublishedLayers;
         DefaultMarketClassification     = toClone.DefaultMarketClassification;
 
@@ -170,14 +170,14 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         set => this[nameof(DefaultTickerAvailability)] = value.ToString();
     }
 
-    public TickerDetailLevel DefaultPublishTickerDetailLevel
+    public TickerQuoteDetailLevel DefaultPublishTickerQuoteDetailLevel
     {
         get
         {
-            var checkValue = this[nameof(DefaultPublishTickerDetailLevel)];
-            return checkValue != null ? Enum.Parse<TickerDetailLevel>(checkValue) : TickerDetailLevel.Level2Quote;
+            var checkValue = this[nameof(DefaultPublishTickerQuoteDetailLevel)];
+            return checkValue != null ? Enum.Parse<TickerQuoteDetailLevel>(checkValue) : TickerQuoteDetailLevel.Level2Quote;
         }
-        set => this[nameof(DefaultPublishTickerDetailLevel)] = value.ToString();
+        set => this[nameof(DefaultPublishTickerQuoteDetailLevel)] = value.ToString();
     }
 
     public MarketClassificationConfig DefaultMarketClassification
@@ -331,7 +331,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         var sourceTickerINfo =
             new SourceTickerInfo
                 (sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker!
-               , tickerConfig.PublishedDetailLevel ?? DefaultPublishTickerDetailLevel
+               , tickerConfig.PublishedDetailLevel ?? DefaultPublishTickerQuoteDetailLevel
                , tickerConfig.MarketClassificationConfig?.MarketClassification ?? DefaultMarketClassification.MarketClassification
                , tickerConfig.MaximumPublishedLayers ?? DefaultMaximumPublishedLayers
                , tickerConfig.RoundingPrecision ?? DefaultRoundingPrecision, tickerConfig.Pip ?? DefaultPip
@@ -352,7 +352,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
             var sourceTickerINfo =
                 new SourceTickerInfo
                     (sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker!
-                   , tickerConfig.PublishedDetailLevel ?? DefaultPublishTickerDetailLevel
+                   , tickerConfig.PublishedDetailLevel ?? DefaultPublishTickerQuoteDetailLevel
                    , tickerConfig.MarketClassificationConfig?.MarketClassification ?? DefaultMarketClassification.MarketClassification
                    , tickerConfig.MaximumPublishedLayers ?? DefaultMaximumPublishedLayers
                    , tickerConfig.RoundingPrecision ?? DefaultRoundingPrecision, tickerConfig.Pip ?? DefaultPip
@@ -374,7 +374,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
                 var sourceTickerINfo =
                     new SourceTickerInfo
                         (sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker!
-                       , tickerConfig.PublishedDetailLevel ?? DefaultPublishTickerDetailLevel
+                       , tickerConfig.PublishedDetailLevel ?? DefaultPublishTickerQuoteDetailLevel
                        , tickerConfig.MarketClassificationConfig?.MarketClassification ?? DefaultMarketClassification.MarketClassification
                        , tickerConfig.MaximumPublishedLayers ?? DefaultMaximumPublishedLayers
                        , tickerConfig.RoundingPrecision ?? DefaultRoundingPrecision, tickerConfig.Pip ?? DefaultPip
@@ -396,7 +396,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
                 var sourceTickerINfo =
                     new SourceTickerInfo
                         (sourceId, sourceName, tickerConfig.TickerId, tickerConfig.Ticker!
-                       , tickerConfig.PublishedDetailLevel ?? DefaultPublishTickerDetailLevel
+                       , tickerConfig.PublishedDetailLevel ?? DefaultPublishTickerQuoteDetailLevel
                        , tickerConfig.MarketClassificationConfig?.MarketClassification ?? DefaultMarketClassification.MarketClassification
                        , tickerConfig.MaximumPublishedLayers ?? DefaultMaximumPublishedLayers
                        , tickerConfig.RoundingPrecision ?? DefaultRoundingPrecision, tickerConfig.Pip ?? DefaultPip
@@ -413,7 +413,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
     public bool AreEquivalent(ISourceTickersConfig? other, bool exactTypes = false)
     {
         var availabilitySame         = DefaultTickerAvailability == other?.DefaultTickerAvailability;
-        var quoteLevelSame           = DefaultPublishTickerDetailLevel == other?.DefaultPublishTickerDetailLevel;
+        var quoteLevelSame           = DefaultPublishTickerQuoteDetailLevel == other?.DefaultPublishTickerQuoteDetailLevel;
         var marketClassificationSame = Equals(DefaultMarketClassification, other?.DefaultMarketClassification);
         var roundingSame             = DefaultRoundingPrecision == other?.DefaultRoundingPrecision;
         var pipSame                  = DefaultPip == other?.DefaultPip;
@@ -445,7 +445,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
     public override int GetHashCode()
     {
         var hashCode = new HashCode();
-        hashCode.Add(DefaultPublishTickerDetailLevel);
+        hashCode.Add(DefaultPublishTickerQuoteDetailLevel);
         hashCode.Add(DefaultTickerAvailability);
         hashCode.Add(DefaultMarketClassification);
         hashCode.Add(DefaultRoundingPrecision);
@@ -464,7 +464,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
 
     public override string ToString() =>
         $"{nameof(SourceTickersConfig)}({nameof(DefaultTickerAvailability)}: {DefaultTickerAvailability}, " +
-        $"{nameof(DefaultPublishTickerDetailLevel)}: {DefaultPublishTickerDetailLevel}, {nameof(DefaultMarketClassification)}: {DefaultMarketClassification}, " +
+        $"{nameof(DefaultPublishTickerQuoteDetailLevel)}: {DefaultPublishTickerQuoteDetailLevel}, {nameof(DefaultMarketClassification)}: {DefaultMarketClassification}, " +
         $"{nameof(DefaultRoundingPrecision)}: {DefaultRoundingPrecision}, {nameof(DefaultPip)}: {DefaultPip}, {nameof(DefaultMaximumPublishedLayers)}: {DefaultMaximumPublishedLayers}, " +
         $"{nameof(DefaultMinSubmitSize)}: {DefaultMinSubmitSize}, {nameof(DefaultMaxSubmitSize)}: {DefaultMaxSubmitSize}, {nameof(DefaultIncrementSize)}: {DefaultIncrementSize}, " +
         $"{nameof(DefaultMinimumQuoteLifeMs)}: {DefaultMinimumQuoteLifeMs}, {nameof(DefaultMaxValidMs)}: {DefaultMaxValidMs}, {nameof(DefaultLayerFlags)}: {DefaultLayerFlags}, " +

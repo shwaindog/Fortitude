@@ -28,7 +28,7 @@ public interface ITimeWeightedMovingAveragePublisherRule : IListeningRule
     bool RemovePublishRequest(MovingAverageTimeWeightedPublishRequestState toRemove);
 }
 
-public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorRule<PQLevel1Quote>, ITimeWeightedMovingAveragePublisherRule
+public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorRule<PQPublishableLevel1Quote>, ITimeWeightedMovingAveragePublisherRule
 {
     private readonly CalculateMovingAverageOptions defaultCalculateMovingAverageOptions;
 
@@ -51,7 +51,7 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
 
     private TimeSpan currentTicksValidTimeSpan = TimeSpan.Zero;
 
-    private IChannelLimitedEventFactory<PQLevel1Quote>? historicalQuotesChannel;
+    private IChannelLimitedEventFactory<PQPublishableLevel1Quote>? historicalQuotesChannel;
 
     private TimeSpan liveTicksTimeSpan;
 
@@ -164,13 +164,13 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
         var earliestTick = periodTopOfBookChain.Head?.AtTime;
         if (earliestTick == null || earliestTick > movingAverageRequiredTicksTime.Add(TimeSpan.FromSeconds(10)))
         {
-            historicalQuotesChannel = this.CreateChannelFactory<PQLevel1Quote>
+            historicalQuotesChannel = this.CreateChannelFactory<PQPublishableLevel1Quote>
                 (ReceiveHistoricalQuote, new LimitedBlockingRecycler(200, Context.PooledRecycler));
             var channelRequest = historicalQuotesChannel.ToChannelPublishRequest(-1, 200);
             var request = channelRequest.ToHistoricalQuotesRequest
                 (indicatorSourceTickerId, null, true);
             quotesRetrieved = new TaskCompletionSource<int>();
-            var shouldWait = await this.RequestAsync<HistoricalQuotesRequest<PQLevel1Quote>, bool>(request.RequestAddress, request);
+            var shouldWait = await this.RequestAsync<HistoricalQuotesRequest<PQPublishableLevel1Quote>, bool>(request.RequestAddress, request);
             if (shouldWait) await quotesRetrieved.Task;
         }
     }
@@ -254,7 +254,7 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
             }
     }
 
-    private bool ReceiveHistoricalQuote(ChannelEvent<PQLevel1Quote> channelEvent)
+    private bool ReceiveHistoricalQuote(ChannelEvent<PQPublishableLevel1Quote> channelEvent)
     {
         if (channelEvent.IsLastEvent)
         {
@@ -287,7 +287,7 @@ public class LiveShortPeriodMovingAveragePublisherRule : PriceListenerIndicatorR
         retrievingHistoricalPrices = false;
     }
 
-    protected override async ValueTask ReceiveQuoteHandler(PQLevel1Quote l1Quote)
+    protected override async ValueTask ReceiveQuoteHandler(PQPublishableLevel1Quote l1Quote)
     {
         var bidAsk = l1Quote.ToValidRangeBidAskPeriod(Context.PooledRecycler);
         if (retrievingHistoricalPrices)

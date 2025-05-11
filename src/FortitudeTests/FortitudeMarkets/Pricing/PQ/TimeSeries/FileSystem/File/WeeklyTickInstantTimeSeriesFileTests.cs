@@ -24,7 +24,7 @@ using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 using static FortitudeTests.FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.TestWeeklyDataGeneratorFixture;
 
 #endregion
@@ -36,17 +36,17 @@ public class WeeklyTickInstantTimeSeriesFileTests
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(WeeklyTickInstantTimeSeriesFileTests));
 
-    private readonly Func<ITickInstant> asPQTickInstantFactory = () => new PQTickInstant();
-    private readonly Func<ITickInstant> asTickInstantFactory   = () => new TickInstant();
+    private readonly Func<IPublishableTickInstant> asPQTickInstantFactory = () => new PQPublishableTickInstant();
+    private readonly Func<IPublishableTickInstant> asTickInstantFactory   = () => new PublishableTickInstant();
 
-    private PQTickInstantGenerator pqTickInstantGenerator = null!;
+    private PQPublishableTickInstantGenerator pqTickInstantGenerator = null!;
 
-    private TickInstantGenerator tickInstantGenerator = null!;
+    private PublishableTickInstantGenerator tickInstantGenerator = null!;
 
     private WeeklyTickInstantTimeSeriesFile tickInstantOneWeekFile = null!;
 
-    private IReaderSession<ITickInstant>? tickInstantSessionReader;
-    private IWriterSession<ITickInstant>  tickInstantSessionWriter = null!;
+    private IReaderSession<IPublishableTickInstant>? tickInstantSessionReader;
+    private IWriterSession<IPublishableTickInstant>  tickInstantSessionWriter = null!;
 
     private SourceTickerInfo tickInstantSrcTkrInfo = null!;
 
@@ -69,8 +69,8 @@ public class WeeklyTickInstantTimeSeriesFileTests
         generateQuoteInfo.MidPriceGenerator!.StartTime  = startOfWeek;
         generateQuoteInfo.MidPriceGenerator!.StartPrice = 1.332211m;
 
-        tickInstantGenerator   = new TickInstantGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
-        pqTickInstantGenerator = new PQTickInstantGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
+        tickInstantGenerator   = new PublishableTickInstantGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
+        pqTickInstantGenerator = new PQPublishableTickInstantGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
     }
 
     private void CreateTickInstantFile(FileFlags fileFlags = FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader)
@@ -130,14 +130,14 @@ public class WeeklyTickInstantTimeSeriesFileTests
     }
 
     public void CreateNewTyped_TwoLargeCompressedPeriods_OriginalValuesAreReturned<TEntry>
-        (ITickGenerator<TEntry> tickGenerator, Func<ITickInstant> retrievalFactory)
-        where TEntry : class, IMutableTickInstant, ITickInstant
+        (ITickGenerator<TEntry> tickGenerator, Func<IPublishableTickInstant> retrievalFactory)
+        where TEntry : class, IMutablePublishableTickInstant, IPublishableTickInstant
     {
         var toPersistAndCheck
-            = GenerateRepeatableQuotes<ITickInstant, TEntry>
+            = GenerateRepeatableQuotes<IPublishableTickInstant, TEntry>
                 (1, 8000, 1, DayOfWeek.Wednesday, tickGenerator).ToList();
         toPersistAndCheck.AddRange
-            (GenerateRepeatableQuotes<ITickInstant, TEntry>
+            (GenerateRepeatableQuotes<IPublishableTickInstant, TEntry>
                 (1, 8000, 1, DayOfWeek.Thursday, tickGenerator));
 
         foreach (var firstPeriod in toPersistAndCheck)
@@ -188,11 +188,11 @@ public class WeeklyTickInstantTimeSeriesFileTests
     }
 
     public void NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned<TEntry>
-        (ITickGenerator<TEntry> tickGenerator, Func<ITickInstant> retrievalFactory)
-        where TEntry : class, IMutableTickInstant, ITickInstant
+        (ITickGenerator<TEntry> tickGenerator, Func<IPublishableTickInstant> retrievalFactory)
+        where TEntry : class, IMutablePublishableTickInstant, IPublishableTickInstant
     {
         var toPersistAndCheck =
-            GenerateQuotesForEachDayAndHourOfCurrentWeek<ITickInstant, TEntry>
+            GenerateQuotesForEachDayAndHourOfCurrentWeek<IPublishableTickInstant, TEntry>
                 (0, 10, tickGenerator).ToList();
 
         foreach (var level1QuoteStruct in toPersistAndCheck)
@@ -228,10 +228,10 @@ public class WeeklyTickInstantTimeSeriesFileTests
 
     public void NewFile_SavesEntriesCloseAndReopen_ReadInReverseOriginalValuesAreReturned<TEntry>
         (ITickGenerator<TEntry> tickGenerator)
-        where TEntry : class, IMutableTickInstant, ITickInstant
+        where TEntry : class, IMutablePublishableTickInstant, IPublishableTickInstant
     {
         var toPersistAndCheck =
-            GenerateQuotesForEachDayAndHourOfCurrentWeek<ITickInstant, TEntry>
+            GenerateQuotesForEachDayAndHourOfCurrentWeek<IPublishableTickInstant, TEntry>
                 (0, 10, tickGenerator).ToList();
 
         foreach (var level1QuoteStruct in toPersistAndCheck)
@@ -244,7 +244,7 @@ public class WeeklyTickInstantTimeSeriesFileTests
         Assert.AreEqual((uint)toPersistAndCheck.Count, tickInstantOneWeekFile.Header.TotalEntries);
 
         tickInstantSessionReader = tickInstantOneWeekFile.GetReaderSession();
-        var allEntriesReader = tickInstantSessionReader.AllReverseChronologicalEntriesReader<TickInstant>(new Recycler());
+        var allEntriesReader = tickInstantSessionReader.AllReverseChronologicalEntriesReader<PublishableTickInstant>(new Recycler());
         var storedItems      = allEntriesReader.ResultEnumerable.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
@@ -253,7 +253,7 @@ public class WeeklyTickInstantTimeSeriesFileTests
         CompareExpectedToExtracted(toPersistAndCheck, storedItems);
         var newReaderSession = tickInstantOneWeekFile.GetReaderSession();
         Assert.AreNotSame(tickInstantSessionReader, newReaderSession);
-        var newEntriesReader = tickInstantSessionReader.AllReverseChronologicalEntriesReader<TickInstant>(new Recycler());
+        var newEntriesReader = tickInstantSessionReader.AllReverseChronologicalEntriesReader<PublishableTickInstant>(new Recycler());
         newEntriesReader.ResultPublishFlags = ResultFlags.CopyToList;
         newEntriesReader.RunReader();
         var listResults = newEntriesReader.ResultList;
@@ -264,7 +264,7 @@ public class WeeklyTickInstantTimeSeriesFileTests
         newReaderSession.Close();
     }
 
-    private void CompareExpectedToExtracted(List<ITickInstant> originalList, List<ITickInstant> toCompareList)
+    private void CompareExpectedToExtracted(List<IPublishableTickInstant> originalList, List<IPublishableTickInstant> toCompareList)
     {
         for (var i = 0; i < originalList.Count; i++)
         {
@@ -301,8 +301,8 @@ public class WeeklyTickInstantTimeSeriesFileTests
         Assert.AreEqual(TimeBoundaryPeriod.OneWeek, header.FilePeriod);
         Assert.AreEqual(TimeBoundaryPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
         Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
-        Assert.AreEqual(typeof(DailyToHourlyTickInstantSubBuckets<ITickInstant>), header.BucketType);
-        Assert.AreEqual(typeof(ITickInstant), header.EntryType);
+        Assert.AreEqual(typeof(DailyToHourlyTickInstantSubBuckets<IPublishableTickInstant>), header.BucketType);
+        Assert.AreEqual(typeof(IPublishableTickInstant), header.EntryType);
         Assert.AreEqual(typeof(WeeklyTickInstantTimeSeriesFile), header.TimeSeriesFileType);
         tickInstantOneWeekFile.Close();
         tickInstantOneWeekFile = WeeklyTickInstantTimeSeriesFile
@@ -317,8 +317,8 @@ public class WeeklyTickInstantTimeSeriesFileTests
         Assert.AreEqual(TimeBoundaryPeriod.OneWeek, header.FilePeriod);
         Assert.AreEqual(TimeBoundaryPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
         Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
-        Assert.AreEqual(typeof(DailyToHourlyTickInstantSubBuckets<ITickInstant>), header.BucketType);
-        Assert.AreEqual(typeof(ITickInstant), header.EntryType);
+        Assert.AreEqual(typeof(DailyToHourlyTickInstantSubBuckets<IPublishableTickInstant>), header.BucketType);
+        Assert.AreEqual(typeof(IPublishableTickInstant), header.EntryType);
         Assert.AreEqual(typeof(WeeklyTickInstantTimeSeriesFile), header.TimeSeriesFileType);
     }
 
@@ -328,9 +328,9 @@ public class WeeklyTickInstantTimeSeriesFileTests
         CreateTickInstantFile();
         Assert.AreEqual(InstrumentType.Price, tickInstantOneWeekFile.InstrumentType);
         var singleQuoteMiddleOfWeek
-            = GenerateRepeatableQuotes<ITickInstant, TickInstant>
+            = GenerateRepeatableQuotes<IPublishableTickInstant, PublishableTickInstant>
                 (1, 1, 12, DayOfWeek.Wednesday, tickInstantGenerator);
-        var nextWeekQuote = (IMutableTickInstant)singleQuoteMiddleOfWeek.First();
+        var nextWeekQuote = (IMutablePublishableTickInstant)singleQuoteMiddleOfWeek.First();
         nextWeekQuote.SourceTime = nextWeekQuote.SourceTime.AddDays(7);
         var result = tickInstantSessionWriter.AppendEntry(nextWeekQuote);
         Assert.AreEqual(StorageAttemptResult.NextFilePeriod, result.StorageAttemptResult);
@@ -341,10 +341,10 @@ public class WeeklyTickInstantTimeSeriesFileTests
     {
         CreateTickInstantFile();
         var wednesdayQuotes =
-            GenerateRepeatableQuotes<ITickInstant, TickInstant>
+            GenerateRepeatableQuotes<IPublishableTickInstant, PublishableTickInstant>
                 (1, 1, 12, DayOfWeek.Wednesday, tickInstantGenerator);
         var thursdayQuotes =
-            GenerateRepeatableQuotes<ITickInstant, TickInstant>
+            GenerateRepeatableQuotes<IPublishableTickInstant, PublishableTickInstant>
                 (1, 1, 12, DayOfWeek.Thursday, tickInstantGenerator);
         var wednesdayQuote = wednesdayQuotes.First();
         var thursdayQuote  = thursdayQuotes.First();

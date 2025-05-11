@@ -9,7 +9,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-internal class ReplayState<T> : SyncStateBase<T> where T : PQTickInstant, new()
+internal class ReplayState<T> : SyncStateBase<T> where T : PQPublishableTickInstant, new()
 {
     public ReplayState(IPQQuotePublishingDeserializer<T> linkedDeserializer)
         : base(linkedDeserializer, QuoteSyncState.Replay) { }

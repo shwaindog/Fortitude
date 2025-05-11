@@ -31,7 +31,7 @@ public class PQSnapshotClientRepositoryTests
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
 
     private Mock<IPQClientQuoteDeserializerRepository>         moqPQQuoteDeserializationFactory = null!;
-    private Mock<INotifyingMessageDeserializer<PQTickInstant>> moqSocketBinaryDeserializer      = null!;
+    private Mock<INotifyingMessageDeserializer<PQPublishableTickInstant>> moqSocketBinaryDeserializer      = null!;
 
     private Mock<IEndpointConfig>               moqSocketConnectionConfig      = null!;
     private Mock<ISocketDispatcherResolver>     moqSocketDispatcherResolver    = null!;
@@ -60,7 +60,7 @@ public class PQSnapshotClientRepositoryTests
         moqEndpointEnumerator            = new Mock<IEnumerator<IEndpointConfig>>();
         moqSocketConnectionConfig        = new Mock<IEndpointConfig>();
         moqPQQuoteDeserializationFactory = new Mock<IPQClientQuoteDeserializerRepository>();
-        moqSocketBinaryDeserializer      = new Mock<INotifyingMessageDeserializer<PQTickInstant>>();
+        moqSocketBinaryDeserializer      = new Mock<INotifyingMessageDeserializer<PQPublishableTickInstant>>();
         moqOsSocket                      = new Mock<IOSSocket>();
 
         testHostName = "TestHostname";
@@ -76,7 +76,7 @@ public class PQSnapshotClientRepositoryTests
         moqSocketBinaryDeserializer.SetupAllProperties();
 
         moqPQQuoteDeserializationFactory
-            .Setup(pqqsf => pqqsf.GetDeserializer<PQTickInstant>(uint.MaxValue))
+            .Setup(pqqsf => pqqsf.GetDeserializer<PQPublishableTickInstant>(uint.MaxValue))
             .Returns(moqSocketBinaryDeserializer.Object).Verifiable();
 
         pqSnapshotClientRegRepo = new PQSnapshotClientRepository(moqSocketDispatcherResolver.Object);
