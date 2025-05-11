@@ -17,9 +17,9 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Publication;
 [NoMatchingProductionClass]
 public class LocalHostPQServerLevel2QuoteTestSetup : LocalHostPQServerTestSetupBase
 {
-    public Level2PriceQuote           Level2PriceQuote = null!;
-    public PQPublisher<PQLevel2Quote> PqPublisher      = null!;
-    public PQServer<PQLevel2Quote>    PqServer         = null!;
+    public PublishableLevel2PriceQuote           Level2PriceQuote = null!;
+    public PQPublisher<PQPublishableLevel2Quote> PqPublisher      = null!;
+    public PQServer<PQPublishableLevel2Quote>    PqServer         = null!;
 
     [TestInitialize]
     public void SetupPQServer()
@@ -33,13 +33,13 @@ public class LocalHostPQServerLevel2QuoteTestSetup : LocalHostPQServerTestSetupB
         InitializeServerPrereqs();
     }
 
-    public PQPublisher<PQLevel2Quote> CreatePQPublisher(IMarketConnectionConfig? overrideMarketConnectionConfig = null)
+    public PQPublisher<PQPublishableLevel2Quote> CreatePQPublisher(IMarketConnectionConfig? overrideMarketConnectionConfig = null)
     {
         InitializeServerPrereqs();
         var useMarketConnectionConfig = overrideMarketConnectionConfig ?? DefaultServerMarketConnectionConfig;
-        PqServer = new PQServer<PQLevel2Quote>
+        PqServer = new PQServer<PQPublishableLevel2Quote>
             (useMarketConnectionConfig, HeartBeatSender, ServerDispatcherResolver, PqSnapshotFactory, PqUpdateFactory);
-        PqPublisher = new PQPublisher<PQLevel2Quote>(PqServer);
+        PqPublisher = new PQPublisher<PQPublishableLevel2Quote>(PqServer);
         PqPublisher.RegisterTickersWithServer(useMarketConnectionConfig);
         Logger.Info("Started PQServer");
         Level2PriceQuote = Level2PriceQuoteTests.GenerateL2QuoteWithSourceNameLayer(FirstTickerInfo);

@@ -34,7 +34,7 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
     private readonly IDoublyLinkedList<IPQQuoteDeserializer> syncKo = new DoublyLinkedList<IPQQuoteDeserializer>();
     private readonly IDoublyLinkedList<IPQQuoteDeserializer> syncOk = new DoublyLinkedList<IPQQuoteDeserializer>();
 
-    private DateTime lastReceivedTickTime = DateTimeConstants.UnixEpoch;
+    private DateTime lastReceivedTickTime = DateTime.MinValue;
 
     public PQPricingClientFeedSyncMonitorRule(string feedName, IMessageDeserializationRepository sharedFeedDeserializationRepo)
         : base("PQClientFeedSyncMonitor" + feedName)

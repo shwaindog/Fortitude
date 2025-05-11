@@ -115,7 +115,7 @@ public class PQClient : IDisposable
 
     public IPQTickerFeedSubscriptionQuoteStream<T>? GetQuoteStream<T>
     (
-        ISourceTickerInfo sourceTickerInfo, uint syncRetryMsOverride = 60000) where T : PQTickInstant, new()
+        ISourceTickerInfo sourceTickerInfo, uint syncRetryMsOverride = 60000) where T : PQPublishableTickInstant, new()
     {
         PQSourceSubscriptionsContext? sourceSubscriptionsContext;
         lock (sourceSubscriptions)
@@ -153,7 +153,7 @@ public class PQClient : IDisposable
     }
 
     private PQTickerFeedSubscriptionQuoteStream<T>? CreateQuoteStream<T>
-        (ISourceTickerInfo sourceTickerInfo, IMarketConnectionConfig? marketConnectionConfig) where T : PQTickInstant, new()
+        (ISourceTickerInfo sourceTickerInfo, IMarketConnectionConfig? marketConnectionConfig) where T : PQPublishableTickInstant, new()
     {
         PQTickerFeedSubscriptionQuoteStream<T>? pqTickerFeedSubscriptionQuoteStream = null;
 

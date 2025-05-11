@@ -66,7 +66,7 @@ public readonly struct IndicatorValidRangeBidAskPeriodValue // not inheriting fr
         ValidFrom = AtTime.Max(toClone.ValidFrom).Min(ValidTo);
     }
 
-    public IndicatorValidRangeBidAskPeriodValue(long indicatorSourceTickerId, ILevel1Quote toCapture)
+    public IndicatorValidRangeBidAskPeriodValue(long indicatorSourceTickerId, IPublishableLevel1Quote toCapture)
     {
         IndicatorSourceTickerId = indicatorSourceTickerId;
 
@@ -81,7 +81,7 @@ public readonly struct IndicatorValidRangeBidAskPeriodValue // not inheriting fr
     }
 
     public IndicatorValidRangeBidAskPeriodValue
-        (PricingIndicatorId indicatorSourceTickerId, ILevel1Quote toCapture)
+        (PricingIndicatorId indicatorSourceTickerId, IPublishableLevel1Quote toCapture)
         : this(indicatorSourceTickerId.IndicatorSourceTickerId, toCapture) { }
 
     public IndicatorValidRangeBidAskPeriodValue
@@ -254,7 +254,7 @@ public class IndicatorValidRangeBidAskPeriod : ValidRangeBidAskPeriod, IIndicato
     }
 
     public IndicatorValidRangeBidAskPeriod
-        (long indicatorSourceTickerId, ILevel1Quote toCapture) : base(toCapture) =>
+        (long indicatorSourceTickerId, IPublishableLevel1Quote toCapture) : base(toCapture) =>
         IndicatorSourceTickerId = indicatorSourceTickerId;
 
     public IndicatorValidRangeBidAskPeriod
@@ -345,7 +345,7 @@ public class IndicatorValidRangeBidAskPeriod : ValidRangeBidAskPeriod, IIndicato
         CoveringPeriod = indicatorBidAskInstant.CoveringPeriod;
     }
 
-    public void Configure(long indicatorSourceTickerId, ILevel1Quote toCapture)
+    public void Configure(long indicatorSourceTickerId, IPublishableLevel1Quote toCapture)
     {
         base.Configure(toCapture);
 

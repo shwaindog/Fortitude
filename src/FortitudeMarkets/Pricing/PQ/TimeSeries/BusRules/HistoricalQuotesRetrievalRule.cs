@@ -51,13 +51,13 @@ public struct HistoricalQuotesRequest<TEntry> where TEntry : class, ITimeSeriesE
     {
         var typeOfTEntry = typeof(TEntry);
         if (typeOfTEntry == typeof(TickInstant)) return PricingRepoRetrieveTickInstantRequest;
-        if (typeOfTEntry == typeof(Level1PriceQuote)) return PricingRepoRetrieveL1QuoteRequest;
-        if (typeOfTEntry == typeof(Level2PriceQuote)) return PricingRepoRetrieveL2QuoteRequest;
-        if (typeOfTEntry == typeof(Level3PriceQuote)) return PricingRepoRetrieveL3QuoteRequest;
-        if (typeOfTEntry == typeof(PQTickInstant)) return PricingRepoRetrievePqTickInstantRequest;
-        if (typeOfTEntry == typeof(PQLevel1Quote)) return PricingRepoRetrievePqL1QuoteRequest;
-        if (typeOfTEntry == typeof(PQLevel2Quote)) return PricingRepoRetrievePqL2QuoteRequest;
-        if (typeOfTEntry == typeof(PQLevel3Quote)) return PricingRepoRetrievePqL3QuoteRequest;
+        if (typeOfTEntry == typeof(PublishableLevel1PriceQuote)) return PricingRepoRetrieveL1QuoteRequest;
+        if (typeOfTEntry == typeof(PublishableLevel2PriceQuote)) return PricingRepoRetrieveL2QuoteRequest;
+        if (typeOfTEntry == typeof(PublishableLevel3PriceQuote)) return PricingRepoRetrieveL3QuoteRequest;
+        if (typeOfTEntry == typeof(PQPublishableTickInstant)) return PricingRepoRetrievePqTickInstantRequest;
+        if (typeOfTEntry == typeof(PQPublishableLevel1Quote)) return PricingRepoRetrievePqL1QuoteRequest;
+        if (typeOfTEntry == typeof(PQPublishableLevel2Quote)) return PricingRepoRetrievePqL2QuoteRequest;
+        if (typeOfTEntry == typeof(PQPublishableLevel3Quote)) return PricingRepoRetrievePqL3QuoteRequest;
         throw new Exception("Unexpected Quote type received");
     }
 }
@@ -89,19 +89,19 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
         await base.StartAsync();
         tickInstantRequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<TickInstant>, bool>
             (PricingRepoRetrieveTickInstantRequest, HandleTickInstantHistoricalPriceRequest);
-        l1RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level1PriceQuote>, bool>
+        l1RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PublishableLevel1PriceQuote>, bool>
             (PricingRepoRetrieveL1QuoteRequest, HandleL1HistoricalPriceRequest);
-        l2RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level2PriceQuote>, bool>
+        l2RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PublishableLevel2PriceQuote>, bool>
             (PricingRepoRetrieveL2QuoteRequest, HandleL2HistoricalPriceRequest);
-        l3RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<Level3PriceQuote>, bool>
+        l3RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PublishableLevel3PriceQuote>, bool>
             (PricingRepoRetrieveL3QuoteRequest, HandleL3HistoricalPriceRequest);
-        pqTickInstantRequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQTickInstant>, bool>
+        pqTickInstantRequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQPublishableTickInstant>, bool>
             (PricingRepoRetrievePqTickInstantRequest, HandlePqTickInstantHistoricalPriceRequest);
-        pql1RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel1Quote>, bool>
+        pql1RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQPublishableLevel1Quote>, bool>
             (PricingRepoRetrievePqL1QuoteRequest, HandlePqL1HistoricalPriceRequest);
-        pql2RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel2Quote>, bool>
+        pql2RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQPublishableLevel2Quote>, bool>
             (PricingRepoRetrievePqL2QuoteRequest, HandlePqL2HistoricalPriceRequest);
-        pql3RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQLevel3Quote>, bool>
+        pql3RequestSubscription = await this.RegisterRequestListenerAsync<HistoricalQuotesRequest<PQPublishableLevel3Quote>, bool>
             (PricingRepoRetrievePqL3QuoteRequest, HandlePqL3HistoricalPriceRequest);
         Logger.Info("Started {0} ", nameof(HistoricalQuotesRetrievalRule));
     }
@@ -136,44 +136,44 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
         return MakeTimeSeriesRepoCallReturnExpectResults(quoteRequest);
     }
 
-    private bool HandleL1HistoricalPriceRequest(IBusRespondingMessage<HistoricalQuotesRequest<Level1PriceQuote>, bool> historicalQuotesRequestMessage)
+    private bool HandleL1HistoricalPriceRequest(IBusRespondingMessage<HistoricalQuotesRequest<PublishableLevel1PriceQuote>, bool> historicalQuotesRequestMessage)
     {
         var quoteRequest = historicalQuotesRequestMessage.Payload.Body();
         return MakeTimeSeriesRepoCallReturnExpectResults(quoteRequest);
     }
 
-    private bool HandleL2HistoricalPriceRequest(IBusRespondingMessage<HistoricalQuotesRequest<Level2PriceQuote>, bool> historicalQuotesRequestMessage)
+    private bool HandleL2HistoricalPriceRequest(IBusRespondingMessage<HistoricalQuotesRequest<PublishableLevel2PriceQuote>, bool> historicalQuotesRequestMessage)
     {
         var quoteRequest = historicalQuotesRequestMessage.Payload.Body();
         return MakeTimeSeriesRepoCallReturnExpectResults(quoteRequest);
     }
 
-    private bool HandleL3HistoricalPriceRequest(IBusRespondingMessage<HistoricalQuotesRequest<Level3PriceQuote>, bool> historicalQuotesRequestMessage)
+    private bool HandleL3HistoricalPriceRequest(IBusRespondingMessage<HistoricalQuotesRequest<PublishableLevel3PriceQuote>, bool> historicalQuotesRequestMessage)
     {
         var quoteRequest = historicalQuotesRequestMessage.Payload.Body();
         return MakeTimeSeriesRepoCallReturnExpectResults(quoteRequest);
     }
 
     private bool HandlePqTickInstantHistoricalPriceRequest
-        (IBusRespondingMessage<HistoricalQuotesRequest<PQTickInstant>, bool> historicalQuotesRequestMessage)
+        (IBusRespondingMessage<HistoricalQuotesRequest<PQPublishableTickInstant>, bool> historicalQuotesRequestMessage)
     {
         var quoteRequest = historicalQuotesRequestMessage.Payload.Body();
         return MakeTimeSeriesRepoCallReturnExpectResults(quoteRequest);
     }
 
-    private bool HandlePqL1HistoricalPriceRequest(IBusRespondingMessage<HistoricalQuotesRequest<PQLevel1Quote>, bool> historicalQuotesRequestMessage)
+    private bool HandlePqL1HistoricalPriceRequest(IBusRespondingMessage<HistoricalQuotesRequest<PQPublishableLevel1Quote>, bool> historicalQuotesRequestMessage)
     {
         var quoteRequest = historicalQuotesRequestMessage.Payload.Body();
         return MakeTimeSeriesRepoCallReturnExpectResults(quoteRequest);
     }
 
-    private bool HandlePqL2HistoricalPriceRequest(IBusRespondingMessage<HistoricalQuotesRequest<PQLevel2Quote>, bool> historicalQuotesRequestMessage)
+    private bool HandlePqL2HistoricalPriceRequest(IBusRespondingMessage<HistoricalQuotesRequest<PQPublishableLevel2Quote>, bool> historicalQuotesRequestMessage)
     {
         var quoteRequest = historicalQuotesRequestMessage.Payload.Body();
         return MakeTimeSeriesRepoCallReturnExpectResults(quoteRequest);
     }
 
-    private bool HandlePqL3HistoricalPriceRequest(IBusRespondingMessage<HistoricalQuotesRequest<PQLevel3Quote>, bool> historicalQuotesRequestMessage)
+    private bool HandlePqL3HistoricalPriceRequest(IBusRespondingMessage<HistoricalQuotesRequest<PQPublishableLevel3Quote>, bool> historicalQuotesRequestMessage)
     {
         var quoteRequest = historicalQuotesRequestMessage.Payload.Body();
         return MakeTimeSeriesRepoCallReturnExpectResults(quoteRequest);

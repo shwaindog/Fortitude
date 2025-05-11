@@ -32,7 +32,7 @@ using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeTests.FortitudeCommon.Chronometry;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -64,7 +64,7 @@ public class PQStandaloneSnapshotClientTests
     private Mock<IPQClientQuoteDeserializerRepository> moqPQQuoteDeserializationRepo = null!;
     private Mock<IMap<uint, IMessageDeserializer>>     moqSerializerCache            = null!;
 
-    private Mock<INotifyingMessageDeserializer<PQTickInstant>> moqSocketBinaryDeserializer = null!;
+    private Mock<INotifyingMessageDeserializer<PQPublishableTickInstant>> moqSocketBinaryDeserializer = null!;
 
     private Mock<ISocketConnection>             moqSocketConnection            = null!;
     private Mock<IEndpointConfig>               moqSocketConnectionConfig      = null!;
@@ -117,7 +117,7 @@ public class PQStandaloneSnapshotClientTests
         sessionDescription             = "TestSocketDescription PQSnapshotClient";
         moqPQQuoteDeserializationRepo  = new Mock<IPQClientQuoteDeserializerRepository>();
         moqClientMessageStreamDecoder  = new Mock<IPQClientMessageStreamDecoder>();
-        moqSocketBinaryDeserializer    = new Mock<INotifyingMessageDeserializer<PQTickInstant>>();
+        moqSocketBinaryDeserializer    = new Mock<INotifyingMessageDeserializer<PQPublishableTickInstant>>();
 
         moqOsSocket          = new Mock<IOSSocket>();
         stubContext          = new StubTimeContext();
@@ -186,7 +186,7 @@ public class PQStandaloneSnapshotClientTests
         moqSocketBinaryDeserializer.SetupAllProperties();
 
         moqPQQuoteDeserializationRepo
-            .Setup(pqqsf => pqqsf.GetDeserializer<PQTickInstant>(uint.MaxValue))
+            .Setup(pqqsf => pqqsf.GetDeserializer<PQPublishableTickInstant>(uint.MaxValue))
             .Returns(moqSocketBinaryDeserializer.Object).Verifiable();
 
         pqStandaloneSnapshotClient = new PQStandaloneSnapshotClient(moqSocketSessionContext.Object, moqStreamControls.Object);

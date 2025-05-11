@@ -23,7 +23,7 @@ using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 
 public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQuoteDeserializer<T>
-    where T : class, IPQTickInstant
+    where T : class, IPQPublishableTickInstant
 {
     private const byte SupportFromVersion = 1;
     private const byte SupportToVersion   = 1;
@@ -208,9 +208,9 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
                 // depthKey = depthByte.IsTwoByteDepth() ? depthByte.ToDepthKey(*ptr++) : depthByte.ToDepthKey();
             }
 
-            PQSubFieldKeys subId = PQSubFieldKeys.None;
+            PQPricingSubFieldKeys subId = PQPricingSubFieldKeys.None;
 
-            if (flags.HasSubIdFlag()) subId = (PQSubFieldKeys)(*ptr++);
+            if (flags.HasSubIdFlag()) subId = (PQPricingSubFieldKeys)(*ptr++);
 
             ushort auxiliaryPayload = 0;
 
@@ -227,7 +227,7 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
             var stringUpdate = new PQStringUpdate
             {
                 DictionaryId = StreamByteOps.ToInt(ref ptr), Value = StreamByteOps.ToString(ref ptr, moreBytes)
-              , Command      = (CrudCommand)pqFieldUpdate.SubId
+              , Command      = (CrudCommand)pqFieldUpdate.SubIdByte
             };
             var fieldStringUpdate = new PQFieldStringUpdate
             {

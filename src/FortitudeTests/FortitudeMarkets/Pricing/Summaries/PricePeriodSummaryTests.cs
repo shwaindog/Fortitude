@@ -63,8 +63,8 @@ public class PricePeriodSummaryTests
     public void EmptyPeriodSummary_New_InitializesFieldsAsExpected()
     {
         Assert.AreEqual(TimeBoundaryPeriod.Tick, emptyPricePeriodSummary.TimeBoundaryPeriod);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyPricePeriodSummary.PeriodStartTime);
-        Assert.AreEqual(DateTimeConstants.UnixEpoch, emptyPricePeriodSummary.PeriodEndTime);
+        Assert.AreEqual(DateTime.MinValue, emptyPricePeriodSummary.PeriodStartTime);
+        Assert.AreEqual(DateTime.MinValue, emptyPricePeriodSummary.PeriodEndTime);
 
         Assert.AreEqual(0m, emptyPricePeriodSummary.StartBidPrice);
         Assert.AreEqual(0m, emptyPricePeriodSummary.StartAskPrice);

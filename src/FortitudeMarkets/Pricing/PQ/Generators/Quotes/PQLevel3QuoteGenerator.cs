@@ -25,12 +25,32 @@ public class PQLevel3QuoteGenerator(CurrentQuoteInstantValueGenerator generateQu
         toPopulate.IsAskPriceTopChangedUpdated = (PreviousReturnedQuote?.IsAskPriceTopChanged ?? false) != toPopulate.IsAskPriceTopChanged;
         toPopulate.IsBidPriceTopChangedUpdated = (PreviousReturnedQuote?.IsBidPriceTopChanged ?? false) != toPopulate.IsBidPriceTopChanged;
 
+        return toPopulate;
+    }
+
+    protected override IBookGenerator CreateBookGenerator(BookGenerationInfo bookGenerationInfo) =>
+        new PQBookGenerator(GenerateQuoteValues.BookGenerator, GenerateQuoteValues.GenerateQuoteInfo.SourceTickerInfo);
+
+    protected override ILastTradedGenerator CreateLastTradedGenerator(GenerateLastTradeInfo generateLastTradeInfo) =>
+        new PQLastTradedGenerator(generateLastTradeInfo);
+}
+
+public class PQPublishableLevel3QuoteGenerator(CurrentQuoteInstantValueGenerator generateQuoteValues)
+    : PublishableLevel3QuoteGeneratorBase<PQPublishableLevel3Quote>(generateQuoteValues)
+{
+    public override PQPublishableLevel3Quote BuildQuote(MidPriceTimePair midPriceTimePair, int sequenceNumber)
+    {
+        var toPopulate = new PQPublishableLevel3Quote(GenerateQuoteValues.GenerateQuoteInfo.SourceTickerInfo);
+        PopulateQuote(toPopulate, midPriceTimePair);
+        toPopulate.IsAskPriceTopChangedUpdated = (PreviousReturnedQuote?.IsAskPriceTopChanged ?? false) != toPopulate.IsAskPriceTopChanged;
+        toPopulate.IsBidPriceTopChangedUpdated = (PreviousReturnedQuote?.IsBidPriceTopChanged ?? false) != toPopulate.IsBidPriceTopChanged;
+
         toPopulate.PQSequenceId = (uint)sequenceNumber;
         return toPopulate;
     }
 
     protected override IBookGenerator CreateBookGenerator(BookGenerationInfo bookGenerationInfo) =>
-        new PQBookGenerator(GenerateQuoteValues.BookGenerator);
+        new PQBookGenerator(GenerateQuoteValues.BookGenerator, GenerateQuoteValues.GenerateQuoteInfo.SourceTickerInfo);
 
     protected override ILastTradedGenerator CreateLastTradedGenerator(GenerateLastTradeInfo generateLastTradeInfo) =>
         new PQLastTradedGenerator(generateLastTradeInfo);

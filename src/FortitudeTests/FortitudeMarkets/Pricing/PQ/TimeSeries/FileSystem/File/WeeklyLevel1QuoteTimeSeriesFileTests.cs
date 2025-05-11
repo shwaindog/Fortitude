@@ -24,7 +24,7 @@ using FortitudeMarkets.Pricing.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 using static FortitudeTests.FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.TestWeeklyDataGeneratorFixture;
 
 #endregion
@@ -36,18 +36,18 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(WeeklyLevel1QuoteTimeSeriesFileTests));
 
-    private readonly Func<ILevel1Quote> asLevel1PriceQuoteFactory = () => new Level1PriceQuote();
-    private readonly Func<ILevel1Quote> asPQLevel1QuoteFactory    = () => new PQLevel1Quote();
+    private readonly Func<IPublishableLevel1Quote> asLevel1PriceQuoteFactory = () => new PublishableLevel1PriceQuote();
+    private readonly Func<IPublishableLevel1Quote> asPQLevel1QuoteFactory    = () => new PQPublishableLevel1Quote();
 
     private WeeklyLevel1QuoteTimeSeriesFile level1OneWeekFile = null!;
 
-    private Level1QuoteGenerator level1QuoteGenerator = null!;
+    private PublishableLevel1QuoteGenerator level1QuoteGenerator = null!;
 
-    private IReaderSession<ILevel1Quote>? level1SessionReader;
-    private IWriterSession<ILevel1Quote>  level1SessionWriter = null!;
+    private IReaderSession<IPublishableLevel1Quote>? level1SessionReader;
+    private IWriterSession<IPublishableLevel1Quote>  level1SessionWriter = null!;
 
     private SourceTickerInfo       level1SrcTkrInfo       = null!;
-    private PQLevel1QuoteGenerator pqLevel1QuoteGenerator = null!;
+    private PQPublishableLevel1QuoteGenerator pqLevel1QuoteGenerator = null!;
 
     [TestInitialize]
     public void Setup()
@@ -69,8 +69,8 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
         generateQuoteInfo.MidPriceGenerator!.StartTime  = startOfWeek;
         generateQuoteInfo.MidPriceGenerator!.StartPrice = 1.332211m;
 
-        level1QuoteGenerator   = new Level1QuoteGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
-        pqLevel1QuoteGenerator = new PQLevel1QuoteGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
+        level1QuoteGenerator   = new PublishableLevel1QuoteGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
+        pqLevel1QuoteGenerator = new PQPublishableLevel1QuoteGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
     }
 
     private void CreateLevel1File(FileFlags fileFlags = FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader)
@@ -132,14 +132,14 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
     }
 
     public void CreateNewTyped_TwoLargeCompressedPeriods_OriginalValuesAreReturned<TEntry>
-        (ITickGenerator<TEntry> tickGenerator, Func<ILevel1Quote> retrievalFactory)
-        where TEntry : class, IMutableLevel1Quote, ILevel1Quote
+        (ITickGenerator<TEntry> tickGenerator, Func<IPublishableLevel1Quote> retrievalFactory)
+        where TEntry : class, IMutablePublishableLevel1Quote, IPublishableLevel1Quote
     {
         var toPersistAndCheck
-            = GenerateRepeatableQuotes<ILevel1Quote, TEntry>
+            = GenerateRepeatableQuotes<IPublishableLevel1Quote, TEntry>
                 (1, 8000, 1, DayOfWeek.Wednesday, tickGenerator).ToList();
         toPersistAndCheck.AddRange
-            (GenerateRepeatableQuotes<ILevel1Quote, TEntry>
+            (GenerateRepeatableQuotes<IPublishableLevel1Quote, TEntry>
                 (1, 8000, 1, DayOfWeek.Thursday, tickGenerator));
 
         foreach (var firstPeriod in toPersistAndCheck)
@@ -190,11 +190,11 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
     }
 
     public void NewFile_SavesEntriesCloseAndReopen_OriginalValuesAreReturned<TEntry>
-        (ITickGenerator<TEntry> tickGenerator, Func<ILevel1Quote> retrievalFactory)
-        where TEntry : class, IMutableLevel1Quote, ILevel1Quote
+        (ITickGenerator<TEntry> tickGenerator, Func<IPublishableLevel1Quote> retrievalFactory)
+        where TEntry : class, IMutablePublishableLevel1Quote, IPublishableLevel1Quote
     {
         var toPersistAndCheck =
-            GenerateQuotesForEachDayAndHourOfCurrentWeek<ILevel1Quote, TEntry>
+            GenerateQuotesForEachDayAndHourOfCurrentWeek<IPublishableLevel1Quote, TEntry>
                 (0, 10, tickGenerator).ToList();
 
         foreach (var level1QuoteStruct in toPersistAndCheck)
@@ -228,7 +228,7 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
         newReaderSession.Close();
     }
 
-    private void CompareExpectedToExtracted(List<ILevel1Quote> originalList, List<ILevel1Quote> toCompareList)
+    private void CompareExpectedToExtracted(List<IPublishableLevel1Quote> originalList, List<IPublishableLevel1Quote> toCompareList)
     {
         for (var i = 0; i < originalList.Count; i++)
         {
@@ -266,8 +266,8 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
         Assert.AreEqual(TimeBoundaryPeriod.OneWeek, header.FilePeriod);
         Assert.AreEqual(TimeBoundaryPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
         Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
-        Assert.AreEqual(typeof(DailyToHourlyLevel1QuoteSubBuckets<ILevel1Quote>), header.BucketType);
-        Assert.AreEqual(typeof(ILevel1Quote), header.EntryType);
+        Assert.AreEqual(typeof(DailyToHourlyLevel1QuoteSubBuckets<IPublishableLevel1Quote>), header.BucketType);
+        Assert.AreEqual(typeof(IPublishableLevel1Quote), header.EntryType);
         Assert.AreEqual(typeof(WeeklyLevel1QuoteTimeSeriesFile), header.TimeSeriesFileType);
         level1OneWeekFile.Close();
         level1OneWeekFile = WeeklyLevel1QuoteTimeSeriesFile
@@ -282,8 +282,8 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
         Assert.AreEqual(TimeBoundaryPeriod.OneWeek, header.FilePeriod);
         Assert.AreEqual(TimeBoundaryPeriod.OneWeek.ContainingPeriodBoundaryStart(DateTime.UtcNow.Date), header.FileStartPeriod);
         Assert.AreEqual(InstrumentType.Price, header.InstrumentType);
-        Assert.AreEqual(typeof(DailyToHourlyLevel1QuoteSubBuckets<ILevel1Quote>), header.BucketType);
-        Assert.AreEqual(typeof(ILevel1Quote), header.EntryType);
+        Assert.AreEqual(typeof(DailyToHourlyLevel1QuoteSubBuckets<IPublishableLevel1Quote>), header.BucketType);
+        Assert.AreEqual(typeof(IPublishableLevel1Quote), header.EntryType);
         Assert.AreEqual(typeof(WeeklyLevel1QuoteTimeSeriesFile), header.TimeSeriesFileType);
     }
 
@@ -293,9 +293,9 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
         CreateLevel1File();
         Assert.AreEqual(InstrumentType.Price, level1OneWeekFile.InstrumentType);
         var singleQuoteMiddleOfWeek
-            = GenerateRepeatableQuotes<ILevel1Quote, Level1PriceQuote>
+            = GenerateRepeatableQuotes<IPublishableLevel1Quote, PublishableLevel1PriceQuote>
                 (1, 1, 12, DayOfWeek.Wednesday, level1QuoteGenerator);
-        var nextWeekQuote = (IMutableLevel1Quote)singleQuoteMiddleOfWeek.First();
+        var nextWeekQuote = (IMutablePublishableLevel1Quote)singleQuoteMiddleOfWeek.First();
         nextWeekQuote.SourceTime = nextWeekQuote.SourceTime.AddDays(7);
         var result = level1SessionWriter.AppendEntry(nextWeekQuote);
         Assert.AreEqual(StorageAttemptResult.NextFilePeriod, result.StorageAttemptResult);
@@ -306,10 +306,10 @@ public class WeeklyLevel1QuoteTimeSeriesFileTests
     {
         CreateLevel1File();
         var wednesdayQuotes =
-            GenerateRepeatableQuotes<ILevel1Quote, Level1PriceQuote>
+            GenerateRepeatableQuotes<IPublishableLevel1Quote, PublishableLevel1PriceQuote>
                 (1, 1, 12, DayOfWeek.Wednesday, level1QuoteGenerator);
         var thursdayQuotes =
-            GenerateRepeatableQuotes<ILevel1Quote, Level1PriceQuote>
+            GenerateRepeatableQuotes<IPublishableLevel1Quote, PublishableLevel1PriceQuote>
                 (1, 1, 12, DayOfWeek.Thursday, level1QuoteGenerator);
         var wednesdayQuote = wednesdayQuotes.First();
         var thursdayQuote  = thursdayQuotes.First();

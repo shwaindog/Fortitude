@@ -15,7 +15,7 @@ namespace FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
 public class DailyToHourlyTickInstantSubBuckets<TEntry> : PriceQuoteSubBucket<TEntry, DailyToHourlyTickInstantSubBuckets<TEntry>,
     HourlyTickInstantDataBucket<TEntry>>
-    where TEntry : ITimeSeriesEntry, ITickInstant
+    where TEntry : ITimeSeriesEntry, IPublishableTickInstant
 {
     public DailyToHourlyTickInstantSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -28,7 +28,7 @@ public class DailyToHourlyTickInstantSubBuckets<TEntry> : PriceQuoteSubBucket<TE
 
 public class DailyToHourlyLevel1QuoteSubBuckets<TEntry> : PriceQuoteSubBucket<TEntry, DailyToHourlyLevel1QuoteSubBuckets<TEntry>,
     HourlyLevel1QuoteDataBucket<TEntry>>
-    where TEntry : ITimeSeriesEntry, ILevel1Quote
+    where TEntry : ITimeSeriesEntry, IPublishableLevel1Quote
 {
     public DailyToHourlyLevel1QuoteSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -41,7 +41,7 @@ public class DailyToHourlyLevel1QuoteSubBuckets<TEntry> : PriceQuoteSubBucket<TE
 
 public class DailyToHourlyLevel2QuoteSubBuckets<TEntry> : PriceQuoteSubBucket<TEntry, DailyToHourlyLevel2QuoteSubBuckets<TEntry>,
     HourlyLevel2QuoteDataBucket<TEntry>>
-    where TEntry : ITimeSeriesEntry, ILevel2Quote
+    where TEntry : ITimeSeriesEntry, IPublishableLevel2Quote
 {
     public DailyToHourlyLevel2QuoteSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -54,7 +54,7 @@ public class DailyToHourlyLevel2QuoteSubBuckets<TEntry> : PriceQuoteSubBucket<TE
 
 public class DailyToHourlyLevel3QuoteSubBuckets<TEntry> : PriceQuoteSubBucket<TEntry, DailyToHourlyLevel3QuoteSubBuckets<TEntry>,
     HourlyLevel3QuoteDataBucket<TEntry>>
-    where TEntry : ITimeSeriesEntry, ILevel3Quote
+    where TEntry : ITimeSeriesEntry, IPublishableLevel3Quote
 {
     public DailyToHourlyLevel3QuoteSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,

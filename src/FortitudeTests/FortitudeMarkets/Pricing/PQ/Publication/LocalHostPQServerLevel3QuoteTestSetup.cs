@@ -19,9 +19,9 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Publication;
 [NoMatchingProductionClass]
 public class LocalHostPQServerLevel3QuoteTestSetup : LocalHostPQServerTestSetupBase
 {
-    public Level3PriceQuote           Level3PriceQuote = null!;
-    public PQPublisher<PQLevel3Quote> PqPublisher      = null!;
-    public PQServer<PQLevel3Quote>    PqServer         = null!;
+    public PublishableLevel3PriceQuote           Level3PriceQuote = null!;
+    public PQPublisher<PQPublishableLevel3Quote> PqPublisher      = null!;
+    public PQServer<PQPublishableLevel3Quote>    PqServer         = null!;
 
     public string Ticker = TestTicker;
 
@@ -46,16 +46,16 @@ public class LocalHostPQServerLevel3QuoteTestSetup : LocalHostPQServerTestSetupB
         InitializeServerPrereqs();
     }
 
-    public PQPublisher<PQLevel3Quote> CreatePQPublisher(IMarketConnectionConfig? overrideMarketConnectionConfig = null)
+    public PQPublisher<PQPublishableLevel3Quote> CreatePQPublisher(IMarketConnectionConfig? overrideMarketConnectionConfig = null)
     {
         LayerDetails = LayerFlags.Price | LayerFlags.Volume | LayerFlags.OrderTraderName | LayerFlags.OrderSize;
         LastTradedFlags =
             LastTradedFlags.TraderName | LastTradedFlags.LastTradedPrice | LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedTime;
         InitializeServerPrereqs();
         var useConnectionConfig = overrideMarketConnectionConfig ?? DefaultServerMarketConnectionConfig;
-        PqServer = new PQServer<PQLevel3Quote>
+        PqServer = new PQServer<PQPublishableLevel3Quote>
             (useConnectionConfig, HeartBeatSender, ServerDispatcherResolver, PqSnapshotFactory, PqUpdateFactory);
-        PqPublisher = new PQPublisher<PQLevel3Quote>(PqServer);
+        PqPublisher = new PQPublisher<PQPublishableLevel3Quote>(PqServer);
         PqPublisher.RegisterTickersWithServer(useConnectionConfig);
         Logger.Info("Started PQServer");
         Level3PriceQuote = Level3PriceQuoteTests.GenerateL3QuoteWithTraderLayerAndLastTrade(FirstTickerInfo);

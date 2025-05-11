@@ -20,7 +20,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 
-public class PQQuoteDeserializer<T> : PQQuoteDeserializerBase<T>, IPQQuotePublishingDeserializer<T> where T : PQTickInstant, new()
+public class PQQuoteDeserializer<T> : PQQuoteDeserializerBase<T>, IPQQuotePublishingDeserializer<T> where T : PQPublishableTickInstant, new()
 {
     public const int MaxBufferedUpdates = 128;
 
@@ -110,7 +110,7 @@ public class PQQuoteDeserializer<T> : PQQuoteDeserializerBase<T>, IPQQuotePublis
                     continue;
                 }
 
-                PublishedQuote.CopyFrom((ITickInstant)ent);
+                PublishedQuote.CopyFrom((IPublishableTickInstant)ent);
                 PublishedQuote.ClientReceivedTime = ent.ClientReceivedTime;
                 PublishedQuote.ProcessedTime      = ent.ProcessedTime;
             }

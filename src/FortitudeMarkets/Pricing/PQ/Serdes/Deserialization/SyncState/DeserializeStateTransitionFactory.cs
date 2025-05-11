@@ -10,13 +10,13 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public interface IDeserializeStateTransitionFactory<T> where T : PQTickInstant, new()
+public interface IDeserializeStateTransitionFactory<T> where T : PQPublishableTickInstant, new()
 {
     SyncStateBase<T> TransitionToState(QuoteSyncState desiredState, SyncStateBase<T> currentState);
 }
 
 internal class DeserializeStateTransitionFactory<T> : IDeserializeStateTransitionFactory<T>
-    where T : PQTickInstant, new()
+    where T : PQPublishableTickInstant, new()
 {
     private SyncStateBase<T>? inSyncState;
     private SyncStateBase<T>? replay;

@@ -12,7 +12,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public class InSyncState<T> : SyncStateBase<T> where T : PQTickInstant, new()
+public class InSyncState<T> : SyncStateBase<T> where T : PQPublishableTickInstant, new()
 {
     internal const uint PQTimeoutMs = 2000;
 

@@ -37,7 +37,7 @@ public readonly struct BidAskInstantPair // not inheriting from IBidAskInstantPa
         AtTime   = toClone.AtTime;
     }
 
-    public BidAskInstantPair(ILevel1Quote toCapture)
+    public BidAskInstantPair(IPublishableLevel1Quote toCapture)
     {
         BidPrice = toCapture.BidPriceTop;
         AskPrice = toCapture.AskPriceTop;
@@ -88,7 +88,7 @@ public class BidAskInstant : ReusableObject<IBidAskInstant>, IMutableBidAskInsta
 
     public BidAskInstant(BidAskInstant bidAskInstant) => BidAskInstantPairState = bidAskInstant.BidAskInstantPairState;
 
-    public BidAskInstant(ILevel1Quote toCapture) => BidAskInstantPairState = new BidAskInstantPair(toCapture);
+    public BidAskInstant(IPublishableLevel1Quote toCapture) => BidAskInstantPairState = new BidAskInstantPair(toCapture);
 
     public BidAskInstant(decimal bidPrice, decimal askPrice, DateTime? atTime = null)
     {
@@ -150,7 +150,7 @@ public class BidAskInstant : ReusableObject<IBidAskInstant>, IMutableBidAskInsta
 
     public void Configure(BidAskInstant bidAskInstant) => BidAskInstantPairState = bidAskInstant.BidAskInstantPairState;
 
-    public void Configure(ILevel1Quote toCapture) => BidAskInstantPairState = new BidAskInstantPair(toCapture);
+    public void Configure(IPublishableLevel1Quote toCapture) => BidAskInstantPairState = new BidAskInstantPair(toCapture);
 
     public void Configure(decimal bidPrice, decimal askPrice, DateTime? atTime = null)
     {
@@ -159,7 +159,7 @@ public class BidAskInstant : ReusableObject<IBidAskInstant>, IMutableBidAskInsta
         AtTime   = atTime ?? DateTime.UtcNow;
     }
 
-    public virtual IBidAskInstant CopyFrom(ILevel1Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public virtual IBidAskInstant CopyFrom(IPublishableLevel1Quote source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         BidPrice = source.BidPriceTop;
         AskPrice = source.AskPriceTop;

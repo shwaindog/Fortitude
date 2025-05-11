@@ -14,8 +14,8 @@ using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public class HourlyTickInstantDataBucket<TEntry> : PQQuoteDataBucket<TEntry, HourlyTickInstantDataBucket<TEntry>, PQTickInstant>
-    where TEntry : ITimeSeriesEntry, ITickInstant
+public class HourlyTickInstantDataBucket<TEntry> : PQQuoteDataBucket<TEntry, HourlyTickInstantDataBucket<TEntry>, PQPublishableTickInstant>
+    where TEntry : ITimeSeriesEntry, IPublishableTickInstant
 {
     public HourlyTickInstantDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
@@ -25,8 +25,8 @@ public class HourlyTickInstantDataBucket<TEntry> : PQQuoteDataBucket<TEntry, Hou
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneHour;
 }
 
-public class HourlyLevel1QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, HourlyLevel1QuoteDataBucket<TEntry>, PQLevel1Quote>
-    where TEntry : ITimeSeriesEntry, ILevel1Quote
+public class HourlyLevel1QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, HourlyLevel1QuoteDataBucket<TEntry>, PQPublishableLevel1Quote>
+    where TEntry : ITimeSeriesEntry, IPublishableLevel1Quote
 {
     public HourlyLevel1QuoteDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
@@ -36,8 +36,8 @@ public class HourlyLevel1QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, Hou
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneHour;
 }
 
-public class HourlyLevel2QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, HourlyLevel2QuoteDataBucket<TEntry>, PQLevel2Quote>
-    where TEntry : ITimeSeriesEntry, ILevel2Quote
+public class HourlyLevel2QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, HourlyLevel2QuoteDataBucket<TEntry>, PQPublishableLevel2Quote>
+    where TEntry : ITimeSeriesEntry, IPublishableLevel2Quote
 {
     public HourlyLevel2QuoteDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
@@ -47,8 +47,8 @@ public class HourlyLevel2QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, Hou
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneHour;
 }
 
-public class HourlyLevel3QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, HourlyLevel3QuoteDataBucket<TEntry>, PQLevel3Quote>
-    where TEntry : ITimeSeriesEntry, ILevel3Quote
+public class HourlyLevel3QuoteDataBucket<TEntry> : PQQuoteDataBucket<TEntry, HourlyLevel3QuoteDataBucket<TEntry>, PQPublishableLevel3Quote>
+    where TEntry : ITimeSeriesEntry, IPublishableLevel3Quote
 {
     public HourlyLevel3QuoteDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,

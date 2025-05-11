@@ -129,7 +129,7 @@ public class PQUpdatePublisherTests
         Assert.AreEqual(2, registeredSerializers.MessageSerializationRepository.RegisteredMessageIds.Count());
 
         Assert.IsNotNull(registeredSerializers);
-        var pqMessageSerializer = registeredSerializers.MessageSerializationRepository.RegisterSerializer<PQTickInstant>();
+        var pqMessageSerializer = registeredSerializers.MessageSerializationRepository.RegisterSerializer<PQPublishableTickInstant>();
 
         Assert.IsNotNull(pqMessageSerializer);
         var pqHeartBeatSerializer

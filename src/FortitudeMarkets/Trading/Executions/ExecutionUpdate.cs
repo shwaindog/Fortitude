@@ -28,11 +28,11 @@ public class ExecutionUpdate : TradingMessage, IExecutionUpdate
         , DateTime? socketReceivedTime = null,
         DateTime? adapterProcessedTime = null, DateTime? clientReceivedTime = null)
     {
-        Execution = execution;
-        ExecutionUpdateType = executionUpdateType;
-        SocketReceivedTime = socketReceivedTime ?? DateTimeConstants.UnixEpoch;
-        AdapterProcessedTime = adapterProcessedTime ?? DateTimeConstants.UnixEpoch;
-        ClientReceivedTime = clientReceivedTime ?? DateTimeConstants.UnixEpoch;
+        Execution            = execution;
+        ExecutionUpdateType  = executionUpdateType;
+        SocketReceivedTime   = socketReceivedTime ?? DateTime.MinValue;
+        AdapterProcessedTime = adapterProcessedTime ?? DateTime.MinValue;
+        ClientReceivedTime   = clientReceivedTime ?? DateTime.MinValue;
     }
 
     public override uint MessageId => (uint)TradingMessageIds.ExecutionUpdate;

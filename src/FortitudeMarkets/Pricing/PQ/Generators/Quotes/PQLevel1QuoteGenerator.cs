@@ -21,6 +21,21 @@ public class PQLevel1QuoteGenerator(CurrentQuoteInstantValueGenerator generateQu
         toPopulate.IsAskPriceTopChangedUpdated = (PreviousReturnedQuote?.IsAskPriceTopChanged ?? false) != toPopulate.IsAskPriceTopChanged;
         toPopulate.IsBidPriceTopChangedUpdated = (PreviousReturnedQuote?.IsBidPriceTopChanged ?? false) != toPopulate.IsBidPriceTopChanged;
 
+        return toPopulate;
+    }
+}
+
+
+public class PQPublishableLevel1QuoteGenerator(CurrentQuoteInstantValueGenerator generateQuoteValues)
+    : PublishableLevel1QuoteGeneratorBase<PQPublishableLevel1Quote>(generateQuoteValues)
+{
+    public override PQPublishableLevel1Quote BuildQuote(MidPriceTimePair midPriceTimePair, int sequenceNumber)
+    {
+        var toPopulate = new PQPublishableLevel1Quote(GenerateQuoteValues.GenerateQuoteInfo.SourceTickerInfo);
+        PopulateQuote(toPopulate, midPriceTimePair);
+        toPopulate.IsAskPriceTopChangedUpdated = (PreviousReturnedQuote?.IsAskPriceTopChanged ?? false) != toPopulate.IsAskPriceTopChanged;
+        toPopulate.IsBidPriceTopChangedUpdated = (PreviousReturnedQuote?.IsBidPriceTopChanged ?? false) != toPopulate.IsBidPriceTopChanged;
+
         toPopulate.PQSequenceId = (uint)sequenceNumber;
         return toPopulate;
     }

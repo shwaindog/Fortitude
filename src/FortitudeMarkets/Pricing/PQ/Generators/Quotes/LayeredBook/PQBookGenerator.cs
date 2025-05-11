@@ -8,7 +8,10 @@ using FortitudeMarkets.Pricing.Generators.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook.LayerOrders;
 using FortitudeMarkets.Pricing.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerOrders;
+using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 
@@ -19,7 +22,7 @@ public class PQBookGenerator : BookGenerator
     private readonly IPQNameIdLookupGenerator
         consistentOrderBookNameIdGenerator = new PQNameIdLookupGenerator(PQQuoteFields.LayerNameDictionaryUpsertCommand);
 
-    public PQBookGenerator(QuoteBookValuesGenerator quoteBookGenerator) : base(quoteBookGenerator) { }
+    public PQBookGenerator(QuoteBookValuesGenerator quoteBookGenerator, ISourceTickerInfo sourceTickerInfo) : base(quoteBookGenerator, sourceTickerInfo) { }
 
     public override void InitializeBook(IMutableOrderBookSide newBookSide)
     {

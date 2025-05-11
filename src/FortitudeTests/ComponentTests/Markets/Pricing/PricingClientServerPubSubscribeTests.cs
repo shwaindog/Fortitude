@@ -66,7 +66,7 @@ public class PricingClientServerPubSubscribeTests
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
 
         // setup listener after publish means first message will be missed and snapshot will be required.
-        ILevel2Quote? alwaysUpdatedQuote = null;
+        IPublishableLevel2Quote? alwaysUpdatedQuote = null;
 
         var pqClient = pqClientSetup.CreatePQClient(pricingClientConfig);
 
@@ -79,14 +79,14 @@ public class PricingClientServerPubSubscribeTests
                 autoResetEvent.Set();
         };
         autoResetEvent.WaitOne(3_000);
-        var streamSubscription = pqClient.GetQuoteStream<PQLevel2Quote>(pqServerL2QuoteServerSetup.FirstTickerInfo, 0);
+        var streamSubscription = pqClient.GetQuoteStream<PQPublishableLevel2Quote>(pqServerL2QuoteServerSetup.FirstTickerInfo, 0);
         var updateNonEmpty     = true;
         streamSubscription!.Subscribe
             (pQuote =>
             {
                 // Logger.Info("Client Received pQuote {0}", pQuote);
                 if (updateNonEmpty || pQuote.SingleTickValue == 0)
-                    alwaysUpdatedQuote = pQuote.ToL2PriceQuote();
+                    alwaysUpdatedQuote = pQuote.ToPublishableL2PriceQuote();
                 else
                     Logger.Info("Skipping non-empty");
                 if (pQuote.PQSequenceId > 0) autoResetEvent.Set();
@@ -115,7 +115,7 @@ public class PricingClientServerPubSubscribeTests
         ResetL2QuoteLayers(sourcePriceQuote);
 
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (sourcePriceQuote, (Level2PriceQuote pq) => pq.AdapterSentTime, new DateTime(2015, 08, 15, 11, 36, 13));
+            (sourcePriceQuote, (PublishableLevel2PriceQuote pq) => pq.AdapterSentTime, new DateTime(2015, 08, 15, 11, 36, 13));
         // adapter becomes sourceTime on Send
         Logger.Info("About to publish second empty quote. {0}", sourcePriceQuote);
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
@@ -139,16 +139,17 @@ public class PricingClientServerPubSubscribeTests
         pqServerL2QuoteServerSetup.TearDown();
     }
 
-    private static void SetExpectedDiffFieldsToSame(ILevel2Quote destinationSnapshot, ILevel2Quote sourcePriceQuote)
+    private static void SetExpectedDiffFieldsToSame(IPublishableLevel2Quote destinationSnapshot, IPublishableLevel2Quote sourcePriceQuote)
     {
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (destinationSnapshot, (Level2PriceQuote pq) => pq.AdapterSentTime, sourcePriceQuote.AdapterSentTime);
+            (destinationSnapshot, (PublishableLevel2PriceQuote pq) => pq.AdapterSentTime, sourcePriceQuote.AdapterSentTime);
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (destinationSnapshot, (Level2PriceQuote pq) => pq.ClientReceivedTime, sourcePriceQuote.ClientReceivedTime);
+            (destinationSnapshot, (PublishableLevel2PriceQuote pq) => pq.ClientReceivedTime, sourcePriceQuote.ClientReceivedTime);
+        var nonPubQuote = destinationSnapshot.AsNonPublishable;
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (destinationSnapshot, (Level2PriceQuote pq) => pq.IsAskPriceTopChanged, sourcePriceQuote.IsAskPriceTopChanged);
+            (nonPubQuote, (Level2PriceQuote pq) => pq.IsAskPriceTopChanged, sourcePriceQuote.IsAskPriceTopChanged);
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (destinationSnapshot, (Level2PriceQuote pq) => pq.IsBidPriceTopChanged, sourcePriceQuote.IsBidPriceTopChanged);
+            (nonPubQuote, (Level2PriceQuote pq) => pq.IsBidPriceTopChanged, sourcePriceQuote.IsBidPriceTopChanged);
     }
 
     [TestCategory("Integration")]
@@ -168,7 +169,7 @@ public class PricingClientServerPubSubscribeTests
         var pricingClientConfig = pricingServerConfig.ToggleProtocolDirection("PQClient_Level3");
         var autoResetEvent      = new AutoResetEvent(false);
 
-        ILevel3Quote? alwaysUpdatedQuote = null;
+        IPublishableLevel3Quote? alwaysUpdatedQuote = null;
 
         var clientConnectionConfig = pricingClientConfig.Find(LocalHostPQTestSetupCommon.ExchangeName);
 
@@ -188,14 +189,14 @@ public class PricingClientServerPubSubscribeTests
                 autoResetEvent.Set();
         };
 
-        var streamSubscription = pqClient.GetQuoteStream<PQLevel3Quote>(pqServerL3QuoteServerSetup.FirstTickerInfo, 0);
+        var streamSubscription = pqClient.GetQuoteStream<PQPublishableLevel3Quote>(pqServerL3QuoteServerSetup.FirstTickerInfo, 0);
         var updateNonEmpty     = true;
         streamSubscription!.Subscribe
             (pQuote =>
             {
                 Logger.Info("Client Received pQuote {0}", pQuote);
                 if (updateNonEmpty || pQuote.SingleTickValue == 0)
-                    alwaysUpdatedQuote = pQuote.ToL3PriceQuote();
+                    alwaysUpdatedQuote = pQuote.ToPublishableL3PriceQuote();
                 else
                     Logger.Info("Skipping non-empty");
                 if (pQuote.PQSequenceId > 0) autoResetEvent.Set();
@@ -244,12 +245,12 @@ public class PricingClientServerPubSubscribeTests
         pqServerL3QuoteServerSetup.TearDown();
     }
 
-    private static void ResetL2QuoteLayers(Level2PriceQuote level2PriceQuote)
+    private static void ResetL2QuoteLayers(PublishableLevel2PriceQuote level2PriceQuote)
     {
         ((OrderBookSide)level2PriceQuote.BidBook).StateReset();
-        ((IMutableLevel2Quote)level2PriceQuote).OrderBook.IsBidBookChanged = true;
+        ((IMutablePublishableLevel2Quote)level2PriceQuote).OrderBook.IsBidBookChanged = true;
         ((OrderBookSide)level2PriceQuote.AskBook).StateReset();
-        ((IMutableLevel2Quote)level2PriceQuote).OrderBook.IsAskBookChanged = true;
+        ((IMutablePublishableLevel2Quote)level2PriceQuote).OrderBook.IsAskBookChanged = true;
 
         level2PriceQuote.SingleTickValue = 0m;
     }

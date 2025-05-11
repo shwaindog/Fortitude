@@ -87,7 +87,7 @@ public class PQPriceStoragePeriodSummaryDeserializer : IPQPriceStoragePeriodSumm
             ent.AverageAskPrice = 0m;
             ent.PeriodVolume    = 0;
             ent.TickCount       = 0;
-            ent.PeriodEndTime   = DateTimeConstants.UnixEpoch;
+            ent.PeriodEndTime   = DateTime.MinValue;
 
             ent.TimeBoundaryPeriod = (TimeBoundaryPeriod)StreamByteOps.ToUShort(ref ptr);
             ent.PeriodStartTime    = StreamByteOps.ToLong(ref ptr).CappedTicksToDateTime();

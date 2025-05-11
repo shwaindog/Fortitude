@@ -44,13 +44,13 @@ public class PQOneWeekQuoteRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFac
     {
         return EntryType switch
                {
-                   _ when EntryType == typeof(ITickInstant) => (ITimeSeriesEntryFile<TEntry>)WeeklyTickInstantTimeSeriesFile
+                   _ when EntryType == typeof(IPublishableTickInstant) => (ITimeSeriesEntryFile<TEntry>)WeeklyTickInstantTimeSeriesFile
                        .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(ILevel1Quote) => (ITimeSeriesEntryFile<TEntry>)WeeklyLevel1QuoteTimeSeriesFile
+                 , _ when EntryType == typeof(IPublishableLevel1Quote) => (ITimeSeriesEntryFile<TEntry>)WeeklyLevel1QuoteTimeSeriesFile
                        .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(ILevel2Quote) => (ITimeSeriesEntryFile<TEntry>)WeeklyLevel2QuoteTimeSeriesFile
+                 , _ when EntryType == typeof(IPublishableLevel2Quote) => (ITimeSeriesEntryFile<TEntry>)WeeklyLevel2QuoteTimeSeriesFile
                        .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(ILevel3Quote) => (ITimeSeriesEntryFile<TEntry>)WeeklyLevel3QuoteTimeSeriesFile
+                 , _ when EntryType == typeof(IPublishableLevel3Quote) => (ITimeSeriesEntryFile<TEntry>)WeeklyLevel3QuoteTimeSeriesFile
                        .OpenExistingTimeSeriesFile(fileInfo)
                  , _ => throw new Exception("Expected entry type to be ILevel#Quote type")
                };
@@ -61,14 +61,14 @@ public class PQOneWeekQuoteRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFac
     public override bool IsBestFactoryFor(IInstrument instrument)
     {
         var srcTickerInfo = instrument as ISourceTickerInfo;
-        var category      = srcTickerInfo?.PublishedTickerDetailLevel.ToString() ?? instrument[nameof(RepositoryPathName.Category)];
+        var category      = srcTickerInfo?.PublishedTickerQuoteDetailLevel.ToString() ?? instrument[nameof(RepositoryPathName.Category)];
         var entryType     = typeof(TEntry);
         return instrument.InstrumentType == InstrumentType.Price
             && category switch
                {
-                   nameof(TickerDetailLevel.SingleValue) => !entryType.ImplementsInterface<ILevel1Quote>()
-                 , nameof(TickerDetailLevel.Level1Quote) => !entryType.ImplementsInterface<ILevel2Quote>()
-                 , nameof(TickerDetailLevel.Level2Quote) => !entryType.ImplementsInterface<ILevel3Quote>()
+                   nameof(TickerQuoteDetailLevel.SingleValue) => !entryType.ImplementsInterface<IPublishableLevel1Quote>()
+                 , nameof(TickerQuoteDetailLevel.Level1Quote) => !entryType.ImplementsInterface<IPublishableLevel2Quote>()
+                 , nameof(TickerQuoteDetailLevel.Level2Quote) => !entryType.ImplementsInterface<IPublishableLevel3Quote>()
                  , _                                     => true
                };
     }
@@ -79,11 +79,11 @@ public class PQOneWeekQuoteRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFac
         var priceQuoteFileParams = CreatePriceQuoteTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);
         return EntryType switch
                {
-                   _ when EntryType == typeof(ITickInstant) =>
+                   _ when EntryType == typeof(IPublishableTickInstant) =>
                        (ITimeSeriesEntryFile<TEntry>)new WeeklyTickInstantTimeSeriesFile(priceQuoteFileParams)
-                 , _ when EntryType == typeof(ILevel1Quote) => (ITimeSeriesEntryFile<TEntry>)new WeeklyLevel1QuoteTimeSeriesFile(priceQuoteFileParams)
-                 , _ when EntryType == typeof(ILevel2Quote) => (ITimeSeriesEntryFile<TEntry>)new WeeklyLevel2QuoteTimeSeriesFile(priceQuoteFileParams)
-                 , _ when EntryType == typeof(ILevel3Quote) => (ITimeSeriesEntryFile<TEntry>)new WeeklyLevel3QuoteTimeSeriesFile(priceQuoteFileParams)
+                 , _ when EntryType == typeof(IPublishableLevel1Quote) => (ITimeSeriesEntryFile<TEntry>)new WeeklyLevel1QuoteTimeSeriesFile(priceQuoteFileParams)
+                 , _ when EntryType == typeof(IPublishableLevel2Quote) => (ITimeSeriesEntryFile<TEntry>)new WeeklyLevel2QuoteTimeSeriesFile(priceQuoteFileParams)
+                 , _ when EntryType == typeof(IPublishableLevel3Quote) => (ITimeSeriesEntryFile<TEntry>)new WeeklyLevel3QuoteTimeSeriesFile(priceQuoteFileParams)
                  , _                                        => throw new Exception("Expected entry type to be ILevel#Quote type")
                };
     }

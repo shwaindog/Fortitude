@@ -22,7 +22,7 @@ using FortitudeTests.FortitudeIO.Transports.Network.Config;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -37,13 +37,13 @@ public class PQQuoteSerializerTests
     private readonly uint retryWaitMs  = 2000;
 
     private PQClientQuoteDeserializerRepository deserializerRepository = null!;
-    private IReadOnlyList<IPQTickInstant>       differingQuotes        = null!;
+    private IReadOnlyList<IPQPublishableTickInstant>       differingQuotes        = null!;
 
     private ISourceTickerInfo  everyLayerInfo    = null!;
-    private PQLevel2Quote      everyLayerL2Quote = null!;
+    private PQPublishableLevel2Quote      everyLayerL2Quote = null!;
     private DateTime           frozenDateTime;
     private ISourceTickerInfo  level1Info     = null!;
-    private PQLevel1Quote      level1Quote    = null!;
+    private PQPublishableLevel1Quote      level1Quote    = null!;
     private Mock<ITimeContext> moqTimeContext = null!;
 
     private PQClientMessageStreamDecoder  pqClientMessageStreamDecoder  = null!;
@@ -52,20 +52,20 @@ public class PQQuoteSerializerTests
     private CircularReadWriteBuffer readWriteBuffer = null!;
 
     private ISourceTickerInfo simpleNoRecentlyTradedInfo         = null!;
-    private PQLevel3Quote     simpleNoRecentlyTradedL3Quote      = null!;
+    private PQPublishableLevel3Quote     simpleNoRecentlyTradedL3Quote      = null!;
     private PQQuoteSerializer snapshotQuoteSerializer            = null!;
     private ISourceTickerInfo srcNmLstTrdInfo                    = null!;
-    private PQLevel3Quote     srcNmSmplRctlyTrdedL3Quote         = null!;
-    private PQLevel3Quote     srcQtRefPdGvnVlmRcntlyTrdedL3Quote = null!;
+    private PQPublishableLevel3Quote     srcNmSmplRctlyTrdedL3Quote         = null!;
+    private PQPublishableLevel3Quote     srcQtRefPdGvnVlmRcntlyTrdedL3Quote = null!;
     private ISourceTickerInfo srcQtRfPdGvnVlmInfo                = null!;
     private byte[]            testBuffer                         = null!;
-    private PQTickInstant     tickInstant                        = null!;
+    private PQPublishableTickInstant     tickInstant                        = null!;
     private ISourceTickerInfo tickInstantInfo                    = null!;
     private ISourceTickerInfo trdrLyrTrdrPdGvnVlmDtlsInfo        = null!;
-    private PQLevel3Quote     trdrPdGvnVlmRcntlyTrdedL3Quote     = null!;
+    private PQPublishableLevel3Quote     trdrPdGvnVlmRcntlyTrdedL3Quote     = null!;
     private PQQuoteSerializer updateQuoteSerializer              = null!;
     private ISourceTickerInfo valueDateInfo                      = null!;
-    private PQLevel2Quote     valueDateL2Quote                   = null!;
+    private PQPublishableLevel2Quote     valueDateL2Quote                   = null!;
 
     private int SingleQuoteBufferSize = 14000;
 
@@ -119,16 +119,16 @@ public class PQQuoteSerializerTests
                , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1
                , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
                , lastTradedFlags: LastTradedFlags.TraderName);
-        tickInstant       = new PQTickInstant(tickInstantInfo);
-        level1Quote       = new PQLevel1Quote(level1Info);
-        valueDateL2Quote  = new PQLevel2Quote(valueDateInfo);
-        everyLayerL2Quote = new PQLevel2Quote(everyLayerInfo);
+        tickInstant       = new PQPublishableTickInstant(tickInstantInfo);
+        level1Quote       = new PQPublishableLevel1Quote(level1Info);
+        valueDateL2Quote  = new PQPublishableLevel2Quote(valueDateInfo);
+        everyLayerL2Quote = new PQPublishableLevel2Quote(everyLayerInfo);
 
-        simpleNoRecentlyTradedL3Quote = new PQLevel3Quote(simpleNoRecentlyTradedInfo);
-        srcNmSmplRctlyTrdedL3Quote    = new PQLevel3Quote(srcNmLstTrdInfo);
+        simpleNoRecentlyTradedL3Quote = new PQPublishableLevel3Quote(simpleNoRecentlyTradedInfo);
+        srcNmSmplRctlyTrdedL3Quote    = new PQPublishableLevel3Quote(srcNmLstTrdInfo);
 
-        srcQtRefPdGvnVlmRcntlyTrdedL3Quote = new PQLevel3Quote(srcQtRfPdGvnVlmInfo);
-        trdrPdGvnVlmRcntlyTrdedL3Quote     = new PQLevel3Quote(trdrLyrTrdrPdGvnVlmDtlsInfo);
+        srcQtRefPdGvnVlmRcntlyTrdedL3Quote = new PQPublishableLevel3Quote(srcQtRfPdGvnVlmInfo);
+        trdrPdGvnVlmRcntlyTrdedL3Quote     = new PQPublishableLevel3Quote(trdrLyrTrdrPdGvnVlmDtlsInfo);
 
         quoteSequencedTestDataBuilder.InitializeQuote(tickInstant, 0);
         quoteSequencedTestDataBuilder.InitializeQuote(level1Quote, 0);
@@ -139,7 +139,7 @@ public class PQQuoteSerializerTests
         quoteSequencedTestDataBuilder.InitializeQuote(srcQtRefPdGvnVlmRcntlyTrdedL3Quote, 0);
         quoteSequencedTestDataBuilder.InitializeQuote(trdrPdGvnVlmRcntlyTrdedL3Quote, 0);
 
-        differingQuotes = new List<IPQTickInstant>
+        differingQuotes = new List<IPQPublishableTickInstant>
             {
                 tickInstant, level1Quote, valueDateL2Quote, everyLayerL2Quote, simpleNoRecentlyTradedL3Quote
               , srcNmSmplRctlyTrdedL3Quote, srcQtRefPdGvnVlmRcntlyTrdedL3Quote, trdrPdGvnVlmRcntlyTrdedL3Quote
@@ -165,34 +165,34 @@ public class PQQuoteSerializerTests
         deserializerRepository = new PQClientQuoteDeserializerRepository("PQClientTest1", new Recycler());
         deserializerRepository.RegisterDeserializer
             (tickInstantInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQTickInstant>
+             new PQQuoteDeserializer<PQPublishableTickInstant>
                  (new TickerPricingSubscriptionConfig(tickInstantInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (level1Info.SourceTickerId
-           , new PQQuoteDeserializer<PQLevel1Quote>(new TickerPricingSubscriptionConfig(level1Info, pricingServerConfig)));
+           , new PQQuoteDeserializer<PQPublishableLevel1Quote>(new TickerPricingSubscriptionConfig(level1Info, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (valueDateInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQLevel2Quote>
+             new PQQuoteDeserializer<PQPublishableLevel2Quote>
                  (new TickerPricingSubscriptionConfig(valueDateInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (everyLayerInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQLevel2Quote>
+             new PQQuoteDeserializer<PQPublishableLevel2Quote>
                  (new TickerPricingSubscriptionConfig(everyLayerInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (simpleNoRecentlyTradedInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQLevel3Quote>
+             new PQQuoteDeserializer<PQPublishableLevel3Quote>
                  (new TickerPricingSubscriptionConfig(simpleNoRecentlyTradedInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (srcNmLstTrdInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQLevel3Quote>
+             new PQQuoteDeserializer<PQPublishableLevel3Quote>
                  (new TickerPricingSubscriptionConfig(srcNmLstTrdInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (srcQtRfPdGvnVlmInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQLevel3Quote>
+             new PQQuoteDeserializer<PQPublishableLevel3Quote>
                  (new TickerPricingSubscriptionConfig(srcQtRfPdGvnVlmInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (trdrLyrTrdrPdGvnVlmDtlsInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQLevel3Quote>
+             new PQQuoteDeserializer<PQPublishableLevel3Quote>
                  (new TickerPricingSubscriptionConfig(trdrLyrTrdrPdGvnVlmDtlsInfo, pricingServerConfig)));
 
         pqClientMessageStreamDecoder = new PQClientMessageStreamDecoder(deserializerRepository);
@@ -281,13 +281,13 @@ public class PQQuoteSerializerTests
             var deserializedQuote = deserializerRepository.GetDeserializer(pqQuote.SourceTickerInfo!.SourceTickerId);
 
             Assert.IsNotNull(deserializedQuote);
-            IPQTickInstant? clientSideQuote = null;
+            IPQPublishableTickInstant? clientSideQuote = null;
             switch (deserializedQuote)
             {
-                case IPQQuoteDeserializer<PQTickInstant> pq0BinaryDeserializer: clientSideQuote = pq0BinaryDeserializer.PublishedQuote; break;
-                case IPQQuoteDeserializer<PQLevel1Quote> pq1BinaryDeserializer: clientSideQuote = pq1BinaryDeserializer.PublishedQuote; break;
-                case IPQQuoteDeserializer<PQLevel2Quote> pq2BinaryDeserializer: clientSideQuote = pq2BinaryDeserializer.PublishedQuote; break;
-                case IPQQuoteDeserializer<PQLevel3Quote> pq3BinaryDeserializer: clientSideQuote = pq3BinaryDeserializer.PublishedQuote; break;
+                case IPQQuoteDeserializer<PQPublishableTickInstant> pq0BinaryDeserializer: clientSideQuote = pq0BinaryDeserializer.PublishedQuote; break;
+                case IPQQuoteDeserializer<PQPublishableLevel1Quote> pq1BinaryDeserializer: clientSideQuote = pq1BinaryDeserializer.PublishedQuote; break;
+                case IPQQuoteDeserializer<PQPublishableLevel2Quote> pq2BinaryDeserializer: clientSideQuote = pq2BinaryDeserializer.PublishedQuote; break;
+                case IPQQuoteDeserializer<PQPublishableLevel3Quote> pq3BinaryDeserializer: clientSideQuote = pq3BinaryDeserializer.PublishedQuote; break;
 
                 default: Assert.Fail("Should not reach here"); break;
             }
@@ -320,7 +320,7 @@ public class PQQuoteSerializerTests
 
     private unsafe void AssertExpectedBytesWriten
     (int amtWritten, bool isSnapshot, List<PQFieldUpdate> expectedFieldUpdates, List<PQFieldStringUpdate> expectedStringUpdates
-      , IPQTickInstant originalQuote)
+      , IPQPublishableTickInstant originalQuote)
     {
         using var fixedBuffer = readWriteBuffer;
 
@@ -355,8 +355,8 @@ public class PQQuoteSerializerTests
             }
             if (flag.HasSubIdFlag())
             {
-                var subId = (PQSubFieldKeys)(*currPtr++);
-                Assert.AreEqual(fieldUpdate.SubId, subId);
+                var subId = (PQPricingSubFieldKeys)(*currPtr++);
+                Assert.AreEqual(fieldUpdate.PricingSubId, subId);
             }
             if (flag.HasAuxiliaryPayloadFlag())
             {
@@ -381,11 +381,11 @@ public class PQQuoteSerializerTests
                 var depthKey  = depthByte.IsTwoByteDepth() ? depthByte.ToDepthKey(*currPtr++) : depthByte.ToDepthKey();
                 Assert.AreEqual(stringUpdate.Field.DepthId, depthKey);
             }
-            PQSubFieldKeys subId = PQSubFieldKeys.None;
+            PQPricingSubFieldKeys subId = PQPricingSubFieldKeys.None;
             if (flag.HasSubIdFlag())
             {
-                subId = (PQSubFieldKeys)(*currPtr++);
-                Assert.AreEqual(stringUpdate.Field.SubId, subId);
+                subId = (PQPricingSubFieldKeys)(*currPtr++);
+                Assert.AreEqual(stringUpdate.Field.PricingSubId, subId);
             }
             if (flag.HasAuxiliaryPayloadFlag())
             {
@@ -404,7 +404,7 @@ public class PQQuoteSerializerTests
             var stringValue = StreamByteOps.ToString(ref currPtr, (int)fieldValue);
             Assert.AreEqual(stringUpdate.StringUpdate.Value, stringValue);
 
-            var command = subId == PQSubFieldKeys.CommandUpsert ? CrudCommand.Upsert : CrudCommand.Delete;
+            var command = subId == PQPricingSubFieldKeys.CommandUpsert ? CrudCommand.Upsert : CrudCommand.Delete;
             Assert.AreEqual(stringUpdate.StringUpdate.Command, command
                           , $"For stringUpdate {stringUpdate} got {command} when expected {stringUpdate.StringUpdate.Command}");
         }

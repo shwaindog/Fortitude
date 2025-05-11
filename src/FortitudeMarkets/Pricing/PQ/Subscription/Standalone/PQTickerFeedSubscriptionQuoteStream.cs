@@ -15,10 +15,10 @@ using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 namespace FortitudeMarkets.Pricing.PQ.Subscription.Standalone;
 
 public interface IPQTickerFeedSubscriptionQuoteStream<out T> : IPQTickerFeedSubscription, IObservable<T>
-    where T : class, ITickInstant { }
+    where T : class, IPublishableTickInstant { }
 
 public class PQTickerFeedSubscriptionQuoteStream<T> : PQTickerFeedSubscription, IObserver<T>,
-    IPQTickerFeedSubscriptionQuoteStream<T> where T : class, IPQTickInstant
+    IPQTickerFeedSubscriptionQuoteStream<T> where T : class, IPQPublishableTickInstant
 {
     private readonly ISyncLock quoteLockLight;
 

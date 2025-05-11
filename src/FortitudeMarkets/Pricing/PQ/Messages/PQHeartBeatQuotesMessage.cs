@@ -15,25 +15,25 @@ namespace FortitudeMarkets.Pricing.PQ.Messages;
 
 public interface IPQHeartBeatQuotesMessage : IVersionedMessage
 {
-    List<IPQTickInstant> QuotesToSendHeartBeats { get; set; }
+    List<IPQPublishableTickInstant> QuotesToSendHeartBeats { get; set; }
 }
 
 public class PQHeartBeatQuotesMessage : ReusableObject<IVersionedMessage>, IPQHeartBeatQuotesMessage
-  , IEnumerable<IPQTickInstant>
+  , IEnumerable<IPQPublishableTickInstant>
 {
-    public PQHeartBeatQuotesMessage() => QuotesToSendHeartBeats = new List<IPQTickInstant>();
+    public PQHeartBeatQuotesMessage() => QuotesToSendHeartBeats = new List<IPQPublishableTickInstant>();
 
-    public PQHeartBeatQuotesMessage(List<IPQTickInstant> quotesToSendHeartBeats) => QuotesToSendHeartBeats = quotesToSendHeartBeats;
+    public PQHeartBeatQuotesMessage(List<IPQPublishableTickInstant> quotesToSendHeartBeats) => QuotesToSendHeartBeats = quotesToSendHeartBeats;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<IPQTickInstant> GetEnumerator() => QuotesToSendHeartBeats.GetEnumerator();
+    public IEnumerator<IPQPublishableTickInstant> GetEnumerator() => QuotesToSendHeartBeats.GetEnumerator();
 
     public uint MessageId => (uint)PQMessageIds.HeartBeat;
 
     public byte Version => 1;
 
-    public List<IPQTickInstant> QuotesToSendHeartBeats { get; set; }
+    public List<IPQPublishableTickInstant> QuotesToSendHeartBeats { get; set; }
 
     public override IVersionedMessage CopyFrom
     (IVersionedMessage source

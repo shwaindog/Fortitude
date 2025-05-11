@@ -12,7 +12,7 @@ using FortitudeMarkets.Pricing.Summaries;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 using static FortitudeTests.FortitudeMarkets.Pricing.Summaries.PricePeriodSummaryTests;
 
 #endregion
@@ -26,7 +26,7 @@ public class PeriodSummaryStateTests
         (1, "SourceName", 1, "TickerName", Level1Quote, Unknown
        , 1, 0.001m, 10m, 100m, 10m);
 
-    private List<ILevel1Quote> alternatingLevel1Quotes = null!;
+    private List<IPublishableLevel1Quote> alternatingLevel1Quotes = null!;
 
     private List<IPricePeriodSummary> alternatingPeriodSummaries = null!;
 
@@ -66,9 +66,9 @@ public class PeriodSummaryStateTests
         tsp  = OneMinute;
         time = tsp.PreviousPeriodStart(seedDateTime);
 
-        alternatingLevel1Quotes = new List<ILevel1Quote>();
+        alternatingLevel1Quotes = new List<IPublishableLevel1Quote>();
         for (var i = 0; i < alternatingPeriodSummaries.Count * 5 + 15; i++)
-            alternatingLevel1Quotes.Add(tickerInfo.CreateLevel1Quote(time = tsp.PeriodEnd(time), i % 2 == 0 ? mid1 : mid2, spread));
+            alternatingLevel1Quotes.Add(tickerInfo.CreatePublishableLevel1Quote(time = tsp.PeriodEnd(time), i % 2 == 0 ? mid1 : mid2, spread));
     }
 
     [TestMethod]

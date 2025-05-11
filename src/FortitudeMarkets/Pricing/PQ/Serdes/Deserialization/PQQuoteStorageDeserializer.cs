@@ -18,7 +18,7 @@ using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 
-internal class PQQuoteStorageDeserializer<T> : PQQuoteDeserializerBase<T> where T : class, IPQTickInstant
+internal class PQQuoteStorageDeserializer<T> : PQQuoteDeserializerBase<T> where T : class, IPQPublishableTickInstant
 {
     protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteFeedDeserializer<T>));
 

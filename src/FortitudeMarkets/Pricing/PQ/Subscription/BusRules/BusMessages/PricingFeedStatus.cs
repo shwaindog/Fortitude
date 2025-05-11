@@ -45,7 +45,7 @@ public class PricingFeedStatusResponse : RecyclableObject
         FeedName  = null!;
         StartTime = DateTime.MaxValue;
 
-        LastTickerRefreshTime = DateTimeConstants.UnixEpoch;
+        LastTickerRefreshTime = DateTime.MinValue;
         AvailableTickersTickers.Clear();
         HealthySubscribedTickers.Clear();
         UnhealthySubscribedTickers.Clear();

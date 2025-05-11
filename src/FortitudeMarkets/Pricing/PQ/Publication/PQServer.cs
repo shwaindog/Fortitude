@@ -25,7 +25,7 @@ using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 namespace FortitudeMarkets.Pricing.PQ.Publication;
 
-public interface IPQServer<T> : IDisposable where T : IPQTickInstant
+public interface IPQServer<T> : IDisposable where T : IPQPublishableTickInstant
 {
     bool IsStarted { get; }
     void StartServices();
@@ -36,13 +36,13 @@ public interface IPQServer<T> : IDisposable where T : IPQTickInstant
     void SetNextSequenceNumberToFullUpdate(string ticker);
 }
 
-public class PQServer<T> : IPQServer<T> where T : class, IPQTickInstant
+public class PQServer<T> : IPQServer<T> where T : class, IPQPublishableTickInstant
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQServer<T>));
 
     private readonly ISocketDispatcherResolver         dispatcherResolver;
     private readonly IMap<uint, T>                     entities        = new ConcurrentMap<uint, T>();
-    private readonly IDoublyLinkedList<IPQTickInstant> heartbeatQuotes = new DoublyLinkedList<IPQTickInstant>();
+    private readonly IDoublyLinkedList<IPQPublishableTickInstant> heartbeatQuotes = new DoublyLinkedList<IPQPublishableTickInstant>();
     private readonly ISyncLock                         heartBeatSync   = new YieldLockLight();
 
     private readonly IMarketConnectionConfig    marketConnectionConfig;

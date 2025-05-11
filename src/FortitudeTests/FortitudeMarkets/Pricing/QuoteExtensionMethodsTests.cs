@@ -11,7 +11,7 @@ using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.Summaries;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -39,13 +39,13 @@ public class QuoteExtensionMethodsTests
         new(1, OriginalQuoteExchangeName, 1, OriginalQuoteTickerName, Level3Quote, Unknown
           , 20, 0.0001m, 1m, 1000000m, 1m);
 
-    private ILevel3Quote originalQuote = null!;
+    private IPublishableLevel3Quote originalQuote = null!;
 
     [TestInitialize]
     public void TestSetup()
     {
         originalQuote =
-            new Level3PriceQuote
+            new PublishableLevel3PriceQuote
                 (originalSourceTickerInfo, originalQuoteExchangeTime, false, FeedSyncStatus.Good, 1.1124m, originalQuoteClientReceiveTime
                , originalQuoteAdapterTime, originalQuoteAdapterTime, originalQuoteBidDateTime
                , true, originalQuoteAskDateTime, originalQuoteExchangeTime, originalQuoteExchangeTime.AddSeconds(2)
@@ -68,7 +68,7 @@ public class QuoteExtensionMethodsTests
     [TestMethod]
     public void OneOrBothQuotesNull_Diff_ReturnsOneIsNullString()
     {
-        var q2 = (Level3PriceQuote)null!;
+        var q2 = (PublishableLevel3PriceQuote)null!;
         // ReSharper disable ExpressionIsAlwaysNull
         var differences = originalQuote.DiffQuotes(q2);
         Assert.AreEqual("q2 is null", differences);
@@ -97,7 +97,7 @@ public class QuoteExtensionMethodsTests
             (1, newExchangerName, 1, OriginalQuoteTickerName, Level3Quote, Unknown
            , 20, 0.0001m, 1m, 1000000m, 1m);
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (q2, (Level3PriceQuote pq) => pq.SourceTickerInfo, newSourceTickerInfo);
+            (q2, (PublishableLevel3PriceQuote pq) => pq.SourceTickerInfo, newSourceTickerInfo);
         var differences = originalQuote.DiffQuotes(q2);
         Console.Out.Write(differences);
         Assert.IsTrue(differences.Contains(nameof(q2.SourceTickerInfo))
@@ -120,7 +120,7 @@ public class QuoteExtensionMethodsTests
             (1, OriginalQuoteExchangeName, 1, newTickerName, Level3Quote, Unknown
            , 20, 0.0001m, 1m, 1000000m, 1m);
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (q2, (Level3PriceQuote pq) => pq.SourceTickerInfo, newSourceTickerInfo);
+            (q2, (PublishableLevel3PriceQuote pq) => pq.SourceTickerInfo, newSourceTickerInfo);
         var differences = originalQuote.DiffQuotes(q2);
         Console.Out.Write(differences);
         Assert.IsTrue(differences.Contains(nameof(q2.SourceTickerInfo))
@@ -140,7 +140,8 @@ public class QuoteExtensionMethodsTests
         var q2 = originalQuote.Clone();
 
         var newExchangeDateTime = originalQuoteExchangeTime.AddMilliseconds(100);
-        NonPublicInvocator.SetAutoPropertyInstanceField(q2, (Level3PriceQuote q) => q.SourceTime, newExchangeDateTime);
+        var nonPubQuote         = q2.AsNonPublishable;
+        NonPublicInvocator.SetAutoPropertyInstanceField(nonPubQuote, (Level3PriceQuote q) => q.SourceTime, newExchangeDateTime);
         var differences = originalQuote.DiffQuotes(q2);
         Console.Out.WriteLine(differences);
         Assert.IsTrue
@@ -158,7 +159,7 @@ public class QuoteExtensionMethodsTests
 
         var newAdapterDateTime = originalQuoteAdapterTime.AddMilliseconds(123);
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (q2, (Level3PriceQuote pq) => pq.AdapterSentTime, newAdapterDateTime);
+            (q2, (PublishableLevel3PriceQuote pq) => pq.AdapterSentTime, newAdapterDateTime);
         var differences = originalQuote.DiffQuotes(q2);
         Console.Out.WriteLine(differences);
         Assert.IsTrue
@@ -176,7 +177,7 @@ public class QuoteExtensionMethodsTests
 
         var newClientReceivedDateTime = originalQuoteClientReceiveTime.AddMilliseconds(123);
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (q2, (Level3PriceQuote pq) => pq.ClientReceivedTime, newClientReceivedDateTime);
+            (q2, (PublishableLevel3PriceQuote pq) => pq.ClientReceivedTime, newClientReceivedDateTime);
         var differences = originalQuote.DiffQuotes(q2, true);
         Console.Out.WriteLine(differences);
         Assert.IsTrue

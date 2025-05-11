@@ -259,7 +259,7 @@ public class SubSummaryStreamRequestAttendant : StreamRequestAttendant, ISummary
 }
 
 public class QuoteToSummaryStreamRequestAttendant<TQuote> : StreamRequestAttendant, ISummaryStreamRequestAttendant
-    where TQuote : class, ITimeSeriesEntry, ILevel1Quote, new()
+    where TQuote : class, ITimeSeriesEntry, IPublishableLevel1Quote, new()
 {
     public QuoteToSummaryStreamRequestAttendant
         (IHistoricalPricePeriodSummaryResolverRule constructingRule, HistoricalPeriodStreamRequest streamRequest)

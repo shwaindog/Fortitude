@@ -30,7 +30,7 @@ using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeTests.FortitudeMarkets.Pricing.Summaries.PricePeriodSummaryTests;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerDetailLevel;
+using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -75,7 +75,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
 
     private LivePublishPricePeriodSummaryParams oneMinuteLivePeriodParams;
 
-    private List<Level1PriceQuote> oneSecondLevel1Quotes = null!;
+    private List<PublishableLevel1PriceQuote> oneSecondLevel1Quotes = null!;
 
     private decimal spread;
 
@@ -208,10 +208,10 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
     {
         var entriesStartTime = OneSecond.PreviousPeriodStart(testEpochTime);
 
-        oneSecondLevel1Quotes = new List<Level1PriceQuote>(numberToGenerate);
+        oneSecondLevel1Quotes = new List<PublishableLevel1PriceQuote>(numberToGenerate);
         for (var i = 0; i < numberToGenerate; i++)
             oneSecondLevel1Quotes.Add
-                (tickerId15SPeriod.CreateLevel1Quote(entriesStartTime = OneSecond.PeriodEnd(entriesStartTime), i % 2 == 0 ? mid1 : mid2, spread));
+                (tickerId15SPeriod.CreatePublishableLevel1Quote(entriesStartTime = OneSecond.PeriodEnd(entriesStartTime), i % 2 == 0 ? mid1 : mid2, spread));
     }
 
     private void Generate15SSummaries(int numberToGenerate = 8)
@@ -254,7 +254,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
                , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, new DiscreetTimePeriod(FiveSeconds))));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
 
-        var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
+        var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<PublishableLevel1PriceQuote>(fiveSecondsLivePeriodParams);
 
         await using var histResolverDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(liveResolver5SRule);
 
@@ -275,7 +275,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
                , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, new DiscreetTimePeriod(FiveSeconds))));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
 
-        var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
+        var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<PublishableLevel1PriceQuote>(fiveSecondsLivePeriodParams);
 
         await using var live5SDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(liveResolver5SRule);
 
@@ -303,7 +303,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
                , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, new DiscreetTimePeriod(FiveSeconds))));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
 
-        var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
+        var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<PublishableLevel1PriceQuote>(fiveSecondsLivePeriodParams);
 
         await using var live5SDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(liveResolver5SRule);
 
@@ -314,12 +314,12 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
         };
         var quotesToSend = oneSecondLevel1Quotes.Skip(1).Take(6).ToList();
         await test5SLivePeriodClient.SendPricesToLivePeriodRule
-            (new List<Level1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
+            (new List<PublishableLevel1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
         for (var i = 0; i < quotesToSend.Count; i++)
         {
             var quote = quotesToSend[i];
             test5SLivePeriodClient.CreateNewWait();
-            await test5SLivePeriodClient.SendPricesToLivePeriodRule(new List<Level1PriceQuote> { quote }, stubTimeContext);
+            await test5SLivePeriodClient.SendPricesToLivePeriodRule(new List<PublishableLevel1PriceQuote> { quote }, stubTimeContext);
             var receivedLivePeriods = await test5SLivePeriodClient.GetPopulatedLiveResults(i + 1);
             Assert.AreEqual(i + 1, receivedLivePeriods.Count, $"For Loop {i} ");
         }
@@ -345,7 +345,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
            , () => new ValueTask<List<PricePeriodSummary>>(thirtySecondPeriodSummaries.Take(1).ToList()));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test1MLivePeriodClient);
 
-        var live1MRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(oneMinuteLivePeriodParams);
+        var live1MRule = new LivePricePeriodSummaryPublisherRule<PublishableLevel1PriceQuote>(oneMinuteLivePeriodParams);
 
         await using var live1MDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(live1MRule);
 
@@ -357,12 +357,12 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
 
         var quotesToSend = oneSecondLevel1Quotes.Skip(46).Take(14).ToList();
         await test1MLivePeriodClient.SendPricesToLivePeriodRule
-            (new List<Level1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
+            (new List<PublishableLevel1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
         for (var i = 0; i < quotesToSend.Count; i++)
         {
             var quote = quotesToSend[i];
             test1MLivePeriodClient.CreateNewWait();
-            await test1MLivePeriodClient.SendPricesToLivePeriodRule(new List<Level1PriceQuote> { quote }, stubTimeContext);
+            await test1MLivePeriodClient.SendPricesToLivePeriodRule(new List<PublishableLevel1PriceQuote> { quote }, stubTimeContext);
             var receivedLivePeriods = await test1MLivePeriodClient.GetPopulatedLiveResults(i + 1);
             Assert.AreEqual(i + 1, receivedLivePeriods.Count);
         }
@@ -392,7 +392,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
              });
         await indicatorRegistryStubRule.DeployChildRuleAsync(test30SLivePeriodClient);
 
-        var live30SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(thirtySecondsLivePeriodParams);
+        var live30SRule = new LivePricePeriodSummaryPublisherRule<PublishableLevel1PriceQuote>(thirtySecondsLivePeriodParams);
 
         await using var live30SDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(live30SRule);
 
@@ -404,12 +404,12 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
 
         var quotesToSend = oneSecondLevel1Quotes.Skip(16).Take(17).ToList();
         await test30SLivePeriodClient.SendPricesToLivePeriodRule
-            (new List<Level1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
+            (new List<PublishableLevel1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
         for (var i = 0; i < quotesToSend.Count; i++)
         {
             var quote = quotesToSend[i];
             test30SLivePeriodClient.CreateNewWait();
-            await test30SLivePeriodClient.SendPricesToLivePeriodRule(new List<Level1PriceQuote> { quote }, stubTimeContext);
+            await test30SLivePeriodClient.SendPricesToLivePeriodRule(new List<PublishableLevel1PriceQuote> { quote }, stubTimeContext);
             var receivedLivePeriods = await test30SLivePeriodClient.GetPopulatedLiveResults(i + 1);
             Assert.AreEqual(i + 1, receivedLivePeriods.Count);
         }
@@ -434,7 +434,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
             (FifteenSeconds, () => new ValueTask<List<PricePeriodSummary>>(new List<PricePeriodSummary>()));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test30SLivePeriodClient);
 
-        var live30SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(thirtySecondsLivePeriodParams);
+        var live30SRule = new LivePricePeriodSummaryPublisherRule<PublishableLevel1PriceQuote>(thirtySecondsLivePeriodParams);
 
         await using var live30SDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(live30SRule);
 
@@ -446,12 +446,12 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
 
         var quotesToSend = oneSecondLevel1Quotes.Skip(16).Take(17).ToList();
         await test30SLivePeriodClient.SendPricesToLivePeriodRule
-            (new List<Level1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
+            (new List<PublishableLevel1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
         for (var i = 0; i < quotesToSend.Count; i++)
         {
             var quote = quotesToSend[i];
             test30SLivePeriodClient.CreateNewWait();
-            await test30SLivePeriodClient.SendPricesToLivePeriodRule(new List<Level1PriceQuote> { quote }, stubTimeContext);
+            await test30SLivePeriodClient.SendPricesToLivePeriodRule(new List<PublishableLevel1PriceQuote> { quote }, stubTimeContext);
             var receivedLivePeriods = await test30SLivePeriodClient.GetPopulatedLiveResults(i + 1);
             Assert.AreEqual(i + 1, receivedLivePeriods.Count);
         }
@@ -472,7 +472,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
                , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, new DiscreetTimePeriod(FiveSeconds))));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
 
-        var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
+        var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<PublishableLevel1PriceQuote>(fiveSecondsLivePeriodParams);
 
         await using var live5SDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(liveResolver5SRule);
 
@@ -494,7 +494,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
                , new PeriodInstrumentTypePair(InstrumentType.PriceSummaryPeriod, new DiscreetTimePeriod(FiveSeconds))));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
 
-        var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<Level1PriceQuote>(fiveSecondsLivePeriodParams);
+        var liveResolver5SRule = new LivePricePeriodSummaryPublisherRule<PublishableLevel1PriceQuote>(fiveSecondsLivePeriodParams);
 
         await using var live5SDeploy = await indicatorRegistryStubRule.DeployChildRuleAsync(liveResolver5SRule);
 
@@ -512,12 +512,12 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
 
         var quotesToSend = oneSecondLevel1Quotes.Skip(22).Take(7).ToList();
         await test5SLivePeriodClient.SendPricesToLivePeriodRule
-            (new List<Level1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
+            (new List<PublishableLevel1PriceQuote> { quotesToSend.First() }, stubTimeContext.ProgressTimeWithoutEvents);
         for (var i = 0; i < quotesToSend.Count; i++)
         {
             var quote = quotesToSend[i];
             test5SLivePeriodClient.CreateNewWait();
-            await test5SLivePeriodClient.SendPricesToLivePeriodRule(new List<Level1PriceQuote> { quote }, stubTimeContext);
+            await test5SLivePeriodClient.SendPricesToLivePeriodRule(new List<PublishableLevel1PriceQuote> { quote }, stubTimeContext);
             receivedLivePeriods = await test5SLivePeriodClient.GetPopulatedLiveResults(i + 1);
             Assert.AreEqual(i + 1, receivedLivePeriods.Count);
         }
@@ -530,13 +530,13 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
 
     private struct PublishQuotesWithTimeProgress
     {
-        public PublishQuotesWithTimeProgress(List<Level1PriceQuote> toPublish, IUpdateTime timeUpdater)
+        public PublishQuotesWithTimeProgress(List<PublishableLevel1PriceQuote> toPublish, IUpdateTime timeUpdater)
         {
             TimeUpdater = timeUpdater;
             ToPublish   = toPublish;
         }
 
-        public List<Level1PriceQuote> ToPublish { get; }
+        public List<PublishableLevel1PriceQuote> ToPublish { get; }
 
         public IUpdateTime TimeUpdater { get; }
     }
@@ -665,7 +665,7 @@ public class LivePricePeriodSummaryPublisherRuleTests : OneOfEachMessageQueueTyp
             historicalSubPeriodResponseCallbacks.Add(subPeriod, returnedResults);
         }
 
-        public async ValueTask SendPricesToLivePeriodRule(List<Level1PriceQuote> publishPrices, IUpdateTime progressTime)
+        public async ValueTask SendPricesToLivePeriodRule(List<PublishableLevel1PriceQuote> publishPrices, IUpdateTime progressTime)
         {
             await this.RequestAsync<PublishQuotesWithTimeProgress, ValueTask>
                 (LivePeriodTestClientPublishPricesAddress, new PublishQuotesWithTimeProgress(publishPrices, progressTime));

@@ -48,7 +48,7 @@ public class LocalHostPQTestSetupCommon
         SourceTickersConfig ??=
             new SourceTickersConfig
                 (new TickerConfig
-                    (TickerId, TestTicker, TickerAvailability.PricingAndTradingEnabled, TickerDetailLevel.Level3Quote, Unknown
+                    (TickerId, TestTicker, TickerAvailability.PricingAndTradingEnabled, TickerQuoteDetailLevel.Level3Quote, Unknown
                    , 0.000001m, 0.0001m, 0.1m, 100, 0.1m
                    , 250, 10_000, LayerDetails, 20, LastTradedFlags));
         FirstTickerInfo ??= SourceTickersConfig.GetSourceTickerInfo(ExchangeId, ExchangeName, TestTicker)!;
