@@ -10,19 +10,21 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeTests.FortitudeIO.Transports.Network.Config;
+using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
+using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -344,7 +346,7 @@ public class PQQuoteSerializerTests
         {
             var flag = (PQFieldFlags)(*currPtr++);
             Assert.AreEqual(fieldUpdate.Flag, flag);
-            var fieldId = (PQQuoteFields)(*currPtr++);
+            var fieldId = (PQFeedFields)(*currPtr++);
             Assert.AreEqual(fieldUpdate.Id, fieldId);
 
             if (flag.HasDepthKeyFlag())
@@ -373,7 +375,7 @@ public class PQQuoteSerializerTests
             var flag = (PQFieldFlags)(*currPtr++);
             Assert.AreEqual(stringUpdate.Field.Flag, flag);
             Assert.AreNotEqual(0, stringUpdate.Field.Flag);
-            var fieldId = (PQQuoteFields)(*currPtr++);
+            var fieldId = (PQFeedFields)(*currPtr++);
             Assert.AreEqual(stringUpdate.Field.Id, fieldId);
             if (flag.HasDepthKeyFlag())
             {

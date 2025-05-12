@@ -15,7 +15,7 @@ public enum InstrumentType : byte
   , Unknown
   , Any
   , Custom
-  , PriceSummaryPeriod
+  , Candle
   , Indicator
   , AlgoState
   , AlgoSignal

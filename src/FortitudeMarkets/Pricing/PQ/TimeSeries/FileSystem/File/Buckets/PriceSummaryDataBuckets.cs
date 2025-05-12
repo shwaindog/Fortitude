@@ -7,16 +7,16 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
-using FortitudeMarkets.Pricing.Summaries;
+using FortitudeMarkets.Pricing.FeedEvents.Candles;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public class HourlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<HourlyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class HourlyCandleDataBucket<TEntry> : PQCandleDataBucket<HourlyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public HourlyPriceSummaryDataBucket
+    public HourlyCandleDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
         bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
@@ -24,10 +24,10 @@ public class HourlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<Hou
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneHour;
 }
 
-public class FourHourlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<FourHourlyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class FourHourlyCandleDataBucket<TEntry> : PQCandleDataBucket<FourHourlyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public FourHourlyPriceSummaryDataBucket
+    public FourHourlyCandleDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
         bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
@@ -35,10 +35,10 @@ public class FourHourlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.FourHours;
 }
 
-public class DailyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<DailyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class DailyCandleDataBucket<TEntry> : PQCandleDataBucket<DailyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public DailyPriceSummaryDataBucket
+    public DailyCandleDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
         bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
@@ -46,10 +46,10 @@ public class DailyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<Dail
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneDay;
 }
 
-public class WeeklyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<WeeklyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class WeeklyCandleDataBucket<TEntry> : PQCandleDataBucket<WeeklyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public WeeklyPriceSummaryDataBucket
+    public WeeklyCandleDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
         bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
@@ -57,10 +57,10 @@ public class WeeklyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<Wee
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneWeek;
 }
 
-public class MonthlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<MonthlyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class MonthlyCandleDataBucket<TEntry> : PQCandleDataBucket<MonthlyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public MonthlyPriceSummaryDataBucket
+    public MonthlyCandleDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
         bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
@@ -68,10 +68,10 @@ public class MonthlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<Mo
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneMonth;
 }
 
-public class YearlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<YearlyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class YearlyCandleDataBucket<TEntry> : PQCandleDataBucket<YearlyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public YearlyPriceSummaryDataBucket
+    public YearlyCandleDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
         bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
@@ -79,10 +79,10 @@ public class YearlyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<Yea
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneYear;
 }
 
-public class DecenniallyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<DecenniallyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class DecenniallyCandleDataBucket<TEntry> : PQCandleDataBucket<DecenniallyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public DecenniallyPriceSummaryDataBucket
+    public DecenniallyCandleDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
         bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
@@ -90,10 +90,10 @@ public class DecenniallyPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucke
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneDecade;
 }
 
-public class UnlimitedPriceSummaryDataBucket<TEntry> : PQPriceSummaryDataBucket<UnlimitedPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class UnlimitedCandleDataBucket<TEntry> : PQCandleDataBucket<UnlimitedCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public UnlimitedPriceSummaryDataBucket
+    public UnlimitedCandleDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset,
         bool writable, ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }

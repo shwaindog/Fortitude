@@ -7,9 +7,8 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

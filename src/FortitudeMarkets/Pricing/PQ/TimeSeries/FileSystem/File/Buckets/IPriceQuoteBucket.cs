@@ -6,8 +6,8 @@
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Summaries;
+using FortitudeMarkets.Pricing.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 
 #endregion
 
@@ -21,5 +21,5 @@ public interface IPriceBucket
 public interface IPriceQuoteBucket<TEntry> : IPriceBucket, IMutableBucket<TEntry>
     where TEntry : ITimeSeriesEntry, IPublishableTickInstant { }
 
-public interface IPricePeriodSummaryBucket<TEntry> : IPriceBucket, IMutableBucket<TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary { }
+public interface ICandleBucket<TEntry> : IPriceBucket, IMutableBucket<TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle { }

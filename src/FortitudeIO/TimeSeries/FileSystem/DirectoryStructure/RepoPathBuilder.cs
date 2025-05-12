@@ -27,7 +27,7 @@ public interface IRepoPathBuilder
     IPathFile IndicatorStateFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null);
     IPathFile IndicatorSignalFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null);
     IPathFile IndicatorFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null);
-    IPathFile PriceSummaryFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null);
+    IPathFile CandleFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null);
     IPathFile PriceFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null);
 
     IPathFile CreateTimeSeriesFile
@@ -61,8 +61,8 @@ public class RepoPathBuilder : IRepoPathBuilder
     public virtual IPathFile IndicatorFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null) =>
         CreateTimeSeriesFile("_Indicator." + TimeSeriesFileExtension, InstrumentType.Indicator, from, to);
 
-    public virtual IPathFile PriceSummaryFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null) =>
-        CreateTimeSeriesFile("_Summary." + TimeSeriesFileExtension, InstrumentType.PriceSummaryPeriod, from, to);
+    public virtual IPathFile CandleFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null) =>
+        CreateTimeSeriesFile("_Summary." + TimeSeriesFileExtension, InstrumentType.Candle, from, to);
 
     public virtual IPathFile PriceFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null) =>
         CreateTimeSeriesFile(TimeSeriesFileExtension, InstrumentType.Price, from, to);

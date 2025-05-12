@@ -6,10 +6,9 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.Configuration;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
+using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using Microsoft.Extensions.Configuration;
 
 #endregion

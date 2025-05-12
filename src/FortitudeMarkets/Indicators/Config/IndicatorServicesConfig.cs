@@ -19,7 +19,7 @@ public interface IIndicatorServicesConfig
 
 
     TimeSpan DefaultCachePricesTimeSpan               { get; set; }
-    TimeSpan DefaultCacheSummaryPeriodsPricesTimeSpan { get; set; }
+    TimeSpan DefaultCacheCandlesTimeSpan { get; set; }
 
     IPersistenceConfig PersistenceConfig { get; set; }
 }
@@ -73,14 +73,14 @@ public class IndicatorServicesConfig : ConfigSection, IIndicatorServicesConfig
         set => this[nameof(DefaultCachePricesTimeSpan)] = value.ToString();
     }
 
-    public TimeSpan DefaultCacheSummaryPeriodsPricesTimeSpan
+    public TimeSpan DefaultCacheCandlesTimeSpan
     {
         get
         {
-            var checkValue = this[nameof(DefaultCacheSummaryPeriodsPricesTimeSpan)];
+            var checkValue = this[nameof(DefaultCacheCandlesTimeSpan)];
             return checkValue != null ? TimeSpan.Parse(checkValue) : TimeSpan.FromHours(1);
         }
-        set => this[nameof(DefaultCacheSummaryPeriodsPricesTimeSpan)] = value.ToString();
+        set => this[nameof(DefaultCacheCandlesTimeSpan)] = value.ToString();
     }
 
     public IPersistenceConfig PersistenceConfig

@@ -15,6 +15,6 @@ public static class HistoricalQuoteTimeSeriesRepositoryConstants
     public const string PricingRepoRetrievePqL2QuoteRequest     = $"{PricingRepoBase}.Retrieve.PQLevel2Quote.Request";
     public const string PricingRepoRetrievePqL3QuoteRequest     = $"{PricingRepoBase}.Retrieve.PQLevel3Quote.Request";
 
-    public const string PricePeriodSummaryRepoStreamRequest   = $"{PricingRepoBase}.Retrieve.PeriodSummary.Stream.Request";
-    public const string PricePeriodSummaryRepoRequestResponse = $"{PricingRepoBase}.Retrieve.PeriodSummary.RequestResponse";
+    public const string CandleRepoStreamRequest   = $"{PricingRepoBase}.Retrieve.Candles.Stream.Request";
+    public const string CandleRepoRequestResponse = $"{PricingRepoBase}.Retrieve.Candles.RequestResponse";
 }

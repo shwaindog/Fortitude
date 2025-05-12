@@ -13,15 +13,15 @@ using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
 using FortitudeMarkets.Indicators.Persistence;
 using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
-using FortitudeMarkets.Pricing.Summaries;
+using FortitudeMarkets.Pricing.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
 using FortitudeTests.FortitudeMarkets.Indicators.Config;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeTests.FortitudeCommon.Extensions.DirectoryInfoExtensionsTests;
-using static FortitudeTests.FortitudeMarkets.Pricing.Summaries.PricePeriodSummaryTests;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
+using static FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Candles.CandleTests;
+using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -34,7 +34,7 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
 
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(CyclingInstrumentChainingEntryPersisterRuleTests));
 
-    private static readonly string FullDrainRequestAddress = CyclingInstrumentChainingEntryPersisterRule<PricePeriodSummary>.FullDrainRequestAddress;
+    private static readonly string FullDrainRequestAddress = CyclingInstrumentChainingEntryPersisterRule<Candle>.FullDrainRequestAddress;
 
     private static DateTime testEpoch = new(2024, 7, 12);
 
@@ -57,7 +57,7 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
        , 1, 0.001m, 10m, 100m, 10m);
 
     private CyclingInstrumentChainingEntryPersisterParams                    cyclingPersisterParams;
-    private CyclingInstrumentChainingEntryPersisterRule<PricePeriodSummary>? cyclingPersisterRule;
+    private CyclingInstrumentChainingEntryPersisterRule<Candle>? cyclingPersisterRule;
 
     private decimal highLowSpread;
 
@@ -105,13 +105,13 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
         foreach (var sourceTickerInfo in instruments)
         {
             sourceTickerInfo.Register();
-            sourceTickerInfo.InstrumentType = InstrumentType.PriceSummaryPeriod;
+            sourceTickerInfo.InstrumentType = InstrumentType.Candle;
         }
 
         periods = new[] { FifteenSeconds, ThirtySeconds, OneMinute, FiveMinutes, FifteenMinutes, ThirtyMinutes };
     }
 
-    private IEnumerable<ChainableInstrumentPayload<PricePeriodSummary>> GenerateAlternatingInstrumentSummaries(int numberToGenerate = 200)
+    private IEnumerable<ChainableInstrumentPayload<Candle>> GenerateAlternatingInstrumentSummaries(int numberToGenerate = 200)
     {
         for (var i = 0; i < numberToGenerate; i++)
         {
@@ -121,23 +121,23 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
             var selectPeriodIndex = random.Next(periods.Length);
             var period            = periods[selectPeriodIndex];
             var maxTickerCluster  = Math.Max(1, Math.Min(remainingItems, Math.Min(numberToGenerate / 20, random.Next(remainingItems))));
-            foreach (var pricePeriodSummary in GenerateSummaries(period, maxTickerCluster))
+            foreach (var candle in GenerateCandles(period, maxTickerCluster))
             {
                 var instrument = ticker.Clone();
-                instrument.CoveringPeriod = new DiscreetTimePeriod(pricePeriodSummary.TimeBoundaryPeriod);
-                instrument.InstrumentType = InstrumentType.PriceSummaryPeriod;
-                yield return new ChainableInstrumentPayload<PricePeriodSummary>(instrument, pricePeriodSummary);
+                instrument.CoveringPeriod = new DiscreetTimePeriod(candle.TimeBoundaryPeriod);
+                instrument.InstrumentType = InstrumentType.Candle;
+                yield return new ChainableInstrumentPayload<Candle>(instrument, candle);
             }
             i += maxTickerCluster - 1;
         }
     }
 
-    private IEnumerable<PricePeriodSummary> GenerateSummaries(TimeBoundaryPeriod timeBoundaryPeriod, int numberToGenerate = 4)
+    private IEnumerable<Candle> GenerateCandles(TimeBoundaryPeriod timeBoundaryPeriod, int numberToGenerate = 4)
     {
         runningTime = timeBoundaryPeriod.ContainingPeriodEnd(runningTime);
 
         for (var i = 0; i < numberToGenerate; i++)
-            yield return CreatePricePeriodSummary
+            yield return CreateCandle
                 (timeBoundaryPeriod, runningTime = timeBoundaryPeriod.PeriodEnd(runningTime), i % 2 == 0 ? mid1 : mid2, spread, highLowSpread);
     }
 
@@ -153,7 +153,7 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
     [Timeout(60_000)]
     public async Task NewRepository_SendEntriesToPersister_CanRetrieveEntriesFromRepository()
     {
-        cyclingPersisterRule = new CyclingInstrumentChainingEntryPersisterRule<PricePeriodSummary>(cyclingPersisterParams);
+        cyclingPersisterRule = new CyclingInstrumentChainingEntryPersisterRule<Candle>(cyclingPersisterParams);
         await using var ruleDeployment = await CustomQueue1.LaunchRuleAsync(cyclingPersisterRule, cyclingPersisterRule, CustomQueue1SelectionResult);
 
         var toCheck = GenerateAlternatingInstrumentSummaries().ToList();
@@ -172,7 +172,7 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
                                        .Where(cip => Equals(cip.PricingInstrumentId, pricingInstrumentId))
                                        .Select(cip =>
                                        {
-                                           cip.Entry.PeriodSummaryFlags |= PricePeriodSummaryFlags.FromStorage;
+                                           cip.Entry.CandleFlags |= CandleFlags.FromStorage;
                                            return cip.Entry;
                                        })
                                        .ToList();
@@ -182,22 +182,22 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
 
             var fileInfo = timeSeriesRepository.GetInstrumentFileEntryInfo(instrument);
             Assert.IsTrue(fileInfo.HasInstrument);
-            using var reader = timeSeriesRepository.GetReaderSession<PricePeriodSummary>(instrument);
+            using var reader = timeSeriesRepository.GetReaderSession<Candle>(instrument);
 
             var entryReader = reader!.AllChronologicalEntriesReader
-                (new Recycler(), EntryResultSourcing.NewEachEntryUnlimited, ReaderOptions.ReadFastAsPossible, () => new PricePeriodSummary());
+                (new Recycler(), EntryResultSourcing.NewEachEntryUnlimited, ReaderOptions.ReadFastAsPossible, () => new Candle());
             var readEntries = entryReader.ResultEnumerable.ToList();
 
             Console.Out.WriteLine($"Read for  {pricingInstrumentId} it has {readEntries.Count} instruments");
             Assert.AreEqual(entriesForInstrument.Count, readEntries.Count);
 
-            foreach (var pricePeriodSummary in readEntries) entriesForInstrument.Remove(pricePeriodSummary);
+            foreach (var candle in readEntries) entriesForInstrument.Remove(candle);
             if (entriesForInstrument.Any())
             {
-                foreach (var pricePeriodSummary in readEntries) Console.Out.WriteLine($"pricePeriodSummary {pricePeriodSummary} returned");
+                foreach (var candle in readEntries) Console.Out.WriteLine($"candle {candle} returned");
                 Console.Out.WriteLine("");
                 Console.Out.WriteLine("");
-                foreach (var pricePeriodSummary in entriesForInstrument) Console.Out.WriteLine($"pricePeriodSummary {pricePeriodSummary} not found");
+                foreach (var candle in entriesForInstrument) Console.Out.WriteLine($"candle {candle} not found");
             }
             Assert.AreEqual(0, entriesForInstrument.Count);
         }

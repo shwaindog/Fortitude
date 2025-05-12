@@ -7,10 +7,11 @@ using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Summaries;
+using FortitudeMarkets.Pricing.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
-using FortitudeMarkets.Pricing.PQ.Summaries;
 
 #endregion
 
@@ -31,19 +32,19 @@ public class PQQuoteAppendContext<TEntry, TBucket, TSerializeType> : AppendConte
     public TSerializeType SerializeEntry { get; } = new();
 }
 
-public interface IPQPricePeriodSummaryAppendContext<TEntry> : IAppendContext<TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public interface IPQCandleAppendContext<TEntry> : IAppendContext<TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    IPQPriceStoragePeriodSummary SerializeEntry { get; }
+    IPQStorageCandle SerializeEntry { get; }
 }
 
-public class PQPricePeriodSummaryAppendContext<TEntry, TBucket> : AppendContext<TEntry, TBucket>, IPQPricePeriodSummaryAppendContext<TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class PQCandleAppendContext<TEntry, TBucket> : AppendContext<TEntry, TBucket>, IPQCandleAppendContext<TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
-    public PQPricePeriodSummaryAppendContext
+    public PQCandleAppendContext
         (IPricingInstrumentId pricingInstrumentId) =>
-        SerializeEntry = new PQPriceStoragePeriodSummary();
+        SerializeEntry = new PQStorageCandle();
 
-    public IPQPriceStoragePeriodSummary SerializeEntry { get; }
+    public IPQStorageCandle SerializeEntry { get; }
 }

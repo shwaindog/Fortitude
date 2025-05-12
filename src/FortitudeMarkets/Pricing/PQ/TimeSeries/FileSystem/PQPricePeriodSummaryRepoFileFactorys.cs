@@ -7,16 +7,16 @@ using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.File;
-using FortitudeMarkets.Pricing.PQ.Summaries;
+using FortitudeMarkets.Pricing.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File;
-using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem;
 
-public class PQOneWeekPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class PQOneWeekCandleRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 
 {
     protected override TimeSeriesFileParameters CreateTimeSeriesFileParameters
@@ -42,17 +42,17 @@ public class PQOneWeekPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepo
     {
         return EntryType switch
                {
-                   _ when EntryType == typeof(IPricePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)WeeklyDailyHourlyPriceSummaryTimeSeriesFile<
-                           IPricePeriodSummary>
+                   _ when EntryType == typeof(ICandle) => (ITimeSeriesEntryFile<TEntry>)WeeklyDailyHourlyCandleTimeSeriesFile<
+                           ICandle>
                        .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(PricePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)WeeklyDailyHourlyPriceSummaryTimeSeriesFile<
-                           PricePeriodSummary>
+                 , _ when EntryType == typeof(Candle) => (ITimeSeriesEntryFile<TEntry>)WeeklyDailyHourlyCandleTimeSeriesFile<
+                           Candle>
                        .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(PQPricePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)WeeklyDailyHourlyPriceSummaryTimeSeriesFile<
-                           PQPricePeriodSummary>
+                 , _ when EntryType == typeof(PQCandle) => (ITimeSeriesEntryFile<TEntry>)WeeklyDailyHourlyCandleTimeSeriesFile<
+                           PQCandle>
                        .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(PQPriceStoragePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)
-                       WeeklyDailyHourlyPriceSummaryTimeSeriesFile<PQPriceStoragePeriodSummary>
+                 , _ when EntryType == typeof(PQStorageCandle) => (ITimeSeriesEntryFile<TEntry>)
+                       WeeklyDailyHourlyCandleTimeSeriesFile<PQStorageCandle>
                            .OpenExistingTimeSeriesFile(fileInfo)
                  , _ => throw new Exception("Expected entry type to be ILevel#Quote type")
                };
@@ -63,7 +63,7 @@ public class PQOneWeekPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepo
     public override bool IsBestFactoryFor(IInstrument instrument)
     {
         var coveringPeriod = instrument.CoveringPeriod;
-        return instrument.InstrumentType == InstrumentType.PriceSummaryPeriod &&
+        return instrument.InstrumentType == InstrumentType.Candle &&
                coveringPeriod.Period is >= TimeBoundaryPeriod.FifteenSeconds and <= TimeBoundaryPeriod.FiveMinutes;
     }
 
@@ -73,22 +73,22 @@ public class PQOneWeekPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepo
         var priceQuoteFileParams = CreatePriceQuoteTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);
         return EntryType switch
                {
-                   _ when EntryType == typeof(IPricePeriodSummary) =>
-                       (ITimeSeriesEntryFile<TEntry>)new WeeklyDailyHourlyPriceSummaryTimeSeriesFile<IPricePeriodSummary>(priceQuoteFileParams)
-                 , _ when EntryType == typeof(PricePeriodSummary) =>
-                       (ITimeSeriesEntryFile<TEntry>)new WeeklyDailyHourlyPriceSummaryTimeSeriesFile<PricePeriodSummary>(priceQuoteFileParams)
-                 , _ when EntryType == typeof(PQPricePeriodSummary) =>
-                       (ITimeSeriesEntryFile<TEntry>)new WeeklyDailyHourlyPriceSummaryTimeSeriesFile<PQPricePeriodSummary>(priceQuoteFileParams)
-                 , _ when EntryType == typeof(PQPriceStoragePeriodSummary) =>
+                   _ when EntryType == typeof(ICandle) =>
+                       (ITimeSeriesEntryFile<TEntry>)new WeeklyDailyHourlyCandleTimeSeriesFile<ICandle>(priceQuoteFileParams)
+                 , _ when EntryType == typeof(Candle) =>
+                       (ITimeSeriesEntryFile<TEntry>)new WeeklyDailyHourlyCandleTimeSeriesFile<Candle>(priceQuoteFileParams)
+                 , _ when EntryType == typeof(PQCandle) =>
+                       (ITimeSeriesEntryFile<TEntry>)new WeeklyDailyHourlyCandleTimeSeriesFile<PQCandle>(priceQuoteFileParams)
+                 , _ when EntryType == typeof(PQStorageCandle) =>
                        (ITimeSeriesEntryFile<TEntry>)
-                       new WeeklyDailyHourlyPriceSummaryTimeSeriesFile<PQPriceStoragePeriodSummary>(priceQuoteFileParams)
+                       new WeeklyDailyHourlyCandleTimeSeriesFile<PQStorageCandle>(priceQuoteFileParams)
                  , _ => throw new Exception("Expected entry type to be ILevel#Quote type")
                };
     }
 }
 
-public class PQOneMonthPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class PQOneMonthCandleRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 
 {
     protected override TimeSeriesFileParameters CreateTimeSeriesFileParameters
@@ -114,17 +114,17 @@ public class PQOneMonthPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRep
     {
         return EntryType switch
                {
-                   _ when EntryType == typeof(IPricePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)MonthlyDailyHourlyPriceSummaryTimeSeriesFile<
-                           IPricePeriodSummary>
+                   _ when EntryType == typeof(ICandle) => (ITimeSeriesEntryFile<TEntry>)MonthlyDailyHourlyCandleTimeSeriesFile<
+                           ICandle>
                        .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(PricePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)MonthlyDailyHourlyPriceSummaryTimeSeriesFile<
-                           PricePeriodSummary>
+                 , _ when EntryType == typeof(Candle) => (ITimeSeriesEntryFile<TEntry>)MonthlyDailyHourlyCandleTimeSeriesFile<
+                           Candle>
                        .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(PQPricePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)MonthlyDailyHourlyPriceSummaryTimeSeriesFile<
-                           PQPricePeriodSummary>
+                 , _ when EntryType == typeof(PQCandle) => (ITimeSeriesEntryFile<TEntry>)MonthlyDailyHourlyCandleTimeSeriesFile<
+                           PQCandle>
                        .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(PQPriceStoragePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)
-                       MonthlyDailyHourlyPriceSummaryTimeSeriesFile<PQPriceStoragePeriodSummary>
+                 , _ when EntryType == typeof(PQStorageCandle) => (ITimeSeriesEntryFile<TEntry>)
+                       MonthlyDailyHourlyCandleTimeSeriesFile<PQStorageCandle>
                            .OpenExistingTimeSeriesFile(fileInfo)
                  , _ => throw new Exception("Expected entry type to be ILevel#Quote type")
                };
@@ -134,9 +134,9 @@ public class PQOneMonthPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRep
 
     public override bool IsBestFactoryFor(IInstrument instrument)
     {
-        var summaryPeriod = instrument.CoveringPeriod;
-        return instrument.InstrumentType == InstrumentType.PriceSummaryPeriod &&
-               summaryPeriod.Period is >= TimeBoundaryPeriod.TenMinutes and <= TimeBoundaryPeriod.OneHour;
+        var candlePeriod = instrument.CoveringPeriod;
+        return instrument.InstrumentType == InstrumentType.Candle &&
+               candlePeriod.Period is >= TimeBoundaryPeriod.TenMinutes and <= TimeBoundaryPeriod.OneHour;
     }
 
     public override ITimeSeriesEntryFile<TEntry> OpenOrCreate
@@ -145,22 +145,22 @@ public class PQOneMonthPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRep
         var priceQuoteFileParams = CreatePriceQuoteTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);
         return EntryType switch
                {
-                   _ when EntryType == typeof(IPricePeriodSummary) =>
-                       (ITimeSeriesEntryFile<TEntry>)new MonthlyDailyHourlyPriceSummaryTimeSeriesFile<IPricePeriodSummary>(priceQuoteFileParams)
-                 , _ when EntryType == typeof(PricePeriodSummary) =>
-                       (ITimeSeriesEntryFile<TEntry>)new MonthlyDailyHourlyPriceSummaryTimeSeriesFile<PricePeriodSummary>(priceQuoteFileParams)
-                 , _ when EntryType == typeof(PQPricePeriodSummary) =>
-                       (ITimeSeriesEntryFile<TEntry>)new MonthlyDailyHourlyPriceSummaryTimeSeriesFile<PQPricePeriodSummary>(priceQuoteFileParams)
-                 , _ when EntryType == typeof(PQPriceStoragePeriodSummary) =>
+                   _ when EntryType == typeof(ICandle) =>
+                       (ITimeSeriesEntryFile<TEntry>)new MonthlyDailyHourlyCandleTimeSeriesFile<ICandle>(priceQuoteFileParams)
+                 , _ when EntryType == typeof(Candle) =>
+                       (ITimeSeriesEntryFile<TEntry>)new MonthlyDailyHourlyCandleTimeSeriesFile<Candle>(priceQuoteFileParams)
+                 , _ when EntryType == typeof(PQCandle) =>
+                       (ITimeSeriesEntryFile<TEntry>)new MonthlyDailyHourlyCandleTimeSeriesFile<PQCandle>(priceQuoteFileParams)
+                 , _ when EntryType == typeof(PQStorageCandle) =>
                        (ITimeSeriesEntryFile<TEntry>)
-                       new MonthlyDailyHourlyPriceSummaryTimeSeriesFile<PQPriceStoragePeriodSummary>(priceQuoteFileParams)
+                       new MonthlyDailyHourlyCandleTimeSeriesFile<PQStorageCandle>(priceQuoteFileParams)
                  , _ => throw new Exception("Expected entry type to be ILevel#Quote type")
                };
     }
 }
 
-public class PQOneYearPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class PQOneYearPriceCandleRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 
 {
     protected override TimeSeriesFileParameters CreateTimeSeriesFileParameters
@@ -186,17 +186,17 @@ public class PQOneYearPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepo
     {
         return EntryType switch
                {
-                   _ when EntryType == typeof(IPricePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile<
-                           IPricePeriodSummary>
+                   _ when EntryType == typeof(ICandle) => (ITimeSeriesEntryFile<TEntry>)YearlyMonthlyWeeklyCandleTimeSeriesFile<
+                           ICandle>
                        .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(PricePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile<
-                           PricePeriodSummary>
+                 , _ when EntryType == typeof(Candle) => (ITimeSeriesEntryFile<TEntry>)YearlyMonthlyWeeklyCandleTimeSeriesFile<
+                           Candle>
                        .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(PQPricePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile<
-                           PQPricePeriodSummary>
+                 , _ when EntryType == typeof(PQCandle) => (ITimeSeriesEntryFile<TEntry>)YearlyMonthlyWeeklyCandleTimeSeriesFile<
+                           PQCandle>
                        .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(PQPriceStoragePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)
-                       YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile<PQPriceStoragePeriodSummary>
+                 , _ when EntryType == typeof(PQStorageCandle) => (ITimeSeriesEntryFile<TEntry>)
+                       YearlyMonthlyWeeklyCandleTimeSeriesFile<PQStorageCandle>
                            .OpenExistingTimeSeriesFile(fileInfo)
                  , _ => throw new Exception("Expected entry type to be ILevel#Quote type")
                };
@@ -206,9 +206,9 @@ public class PQOneYearPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepo
 
     public override bool IsBestFactoryFor(IInstrument instrument)
     {
-        var summaryPeriod = instrument.CoveringPeriod;
-        return instrument.InstrumentType == InstrumentType.PriceSummaryPeriod &&
-               summaryPeriod == TimeBoundaryPeriod.FourHours;
+        var candlePeriod = instrument.CoveringPeriod;
+        return instrument.InstrumentType == InstrumentType.Candle &&
+               candlePeriod == TimeBoundaryPeriod.FourHours;
     }
 
     public override ITimeSeriesEntryFile<TEntry> OpenOrCreate
@@ -217,22 +217,22 @@ public class PQOneYearPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepo
         var priceQuoteFileParams = CreatePriceQuoteTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);
         return EntryType switch
                {
-                   _ when EntryType == typeof(IPricePeriodSummary) =>
-                       (ITimeSeriesEntryFile<TEntry>)new YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile<IPricePeriodSummary>(priceQuoteFileParams)
-                 , _ when EntryType == typeof(PricePeriodSummary) =>
-                       (ITimeSeriesEntryFile<TEntry>)new YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile<PricePeriodSummary>(priceQuoteFileParams)
-                 , _ when EntryType == typeof(PQPricePeriodSummary) =>
-                       (ITimeSeriesEntryFile<TEntry>)new YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile<PQPricePeriodSummary>(priceQuoteFileParams)
-                 , _ when EntryType == typeof(PQPriceStoragePeriodSummary) =>
+                   _ when EntryType == typeof(ICandle) =>
+                       (ITimeSeriesEntryFile<TEntry>)new YearlyMonthlyWeeklyCandleTimeSeriesFile<ICandle>(priceQuoteFileParams)
+                 , _ when EntryType == typeof(Candle) =>
+                       (ITimeSeriesEntryFile<TEntry>)new YearlyMonthlyWeeklyCandleTimeSeriesFile<Candle>(priceQuoteFileParams)
+                 , _ when EntryType == typeof(PQCandle) =>
+                       (ITimeSeriesEntryFile<TEntry>)new YearlyMonthlyWeeklyCandleTimeSeriesFile<PQCandle>(priceQuoteFileParams)
+                 , _ when EntryType == typeof(PQStorageCandle) =>
                        (ITimeSeriesEntryFile<TEntry>)
-                       new YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile<PQPriceStoragePeriodSummary>(priceQuoteFileParams)
+                       new YearlyMonthlyWeeklyCandleTimeSeriesFile<PQStorageCandle>(priceQuoteFileParams)
                  , _ => throw new Exception("Expected entry type to be ILevel#Quote type")
                };
     }
 }
 
-public class PQDecenniallyPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class PQDecenniallyCandleRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 
 {
     protected override TimeSeriesFileParameters CreateTimeSeriesFileParameters
@@ -258,20 +258,20 @@ public class PQDecenniallyPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeries
     {
         return EntryType switch
                {
-                   _ when EntryType == typeof(IPricePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)
-                       UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<
-                               IPricePeriodSummary>
+                   _ when EntryType == typeof(ICandle) => (ITimeSeriesEntryFile<TEntry>)
+                       UnlimitedDecenniallyYearlyCandleTimeSeriesFile<
+                               ICandle>
                            .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(PricePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)
-                       UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<
-                               PricePeriodSummary>
+                 , _ when EntryType == typeof(Candle) => (ITimeSeriesEntryFile<TEntry>)
+                       UnlimitedDecenniallyYearlyCandleTimeSeriesFile<
+                               Candle>
                            .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(PQPricePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)
-                       UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<
-                               PQPricePeriodSummary>
+                 , _ when EntryType == typeof(PQCandle) => (ITimeSeriesEntryFile<TEntry>)
+                       UnlimitedDecenniallyYearlyCandleTimeSeriesFile<
+                               PQCandle>
                            .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(PQPriceStoragePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)
-                       UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<PQPriceStoragePeriodSummary>
+                 , _ when EntryType == typeof(PQStorageCandle) => (ITimeSeriesEntryFile<TEntry>)
+                       UnlimitedDecenniallyYearlyCandleTimeSeriesFile<PQStorageCandle>
                            .OpenExistingTimeSeriesFile(fileInfo)
                  , _ => throw new Exception("Expected entry type to be ILevel#Quote type")
                };
@@ -281,9 +281,9 @@ public class PQDecenniallyPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeries
 
     public override bool IsBestFactoryFor(IInstrument instrument)
     {
-        var summaryPeriod = instrument.CoveringPeriod;
-        return instrument.InstrumentType == InstrumentType.PriceSummaryPeriod &&
-               summaryPeriod.Period is >= TimeBoundaryPeriod.OneWeek and <= TimeBoundaryPeriod.OneMonth;
+        var candlePeriod = instrument.CoveringPeriod;
+        return instrument.InstrumentType == InstrumentType.Candle &&
+               candlePeriod.Period is >= TimeBoundaryPeriod.OneWeek and <= TimeBoundaryPeriod.OneMonth;
     }
 
     public override ITimeSeriesEntryFile<TEntry> OpenOrCreate
@@ -292,25 +292,25 @@ public class PQDecenniallyPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeries
         var priceQuoteFileParams = CreatePriceQuoteTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);
         return EntryType switch
                {
-                   _ when EntryType == typeof(IPricePeriodSummary) =>
+                   _ when EntryType == typeof(ICandle) =>
                        (ITimeSeriesEntryFile<TEntry>)
-                       new UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<IPricePeriodSummary>(priceQuoteFileParams)
-                 , _ when EntryType == typeof(PricePeriodSummary) =>
+                       new UnlimitedDecenniallyYearlyCandleTimeSeriesFile<ICandle>(priceQuoteFileParams)
+                 , _ when EntryType == typeof(Candle) =>
                        (ITimeSeriesEntryFile<TEntry>)
-                       new UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<PricePeriodSummary>(priceQuoteFileParams)
-                 , _ when EntryType == typeof(PQPricePeriodSummary) =>
+                       new UnlimitedDecenniallyYearlyCandleTimeSeriesFile<Candle>(priceQuoteFileParams)
+                 , _ when EntryType == typeof(PQCandle) =>
                        (ITimeSeriesEntryFile<TEntry>)
-                       new UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<PQPricePeriodSummary>(priceQuoteFileParams)
-                 , _ when EntryType == typeof(PQPriceStoragePeriodSummary) =>
+                       new UnlimitedDecenniallyYearlyCandleTimeSeriesFile<PQCandle>(priceQuoteFileParams)
+                 , _ when EntryType == typeof(PQStorageCandle) =>
                        (ITimeSeriesEntryFile<TEntry>)
-                       new UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<PQPriceStoragePeriodSummary>(priceQuoteFileParams)
+                       new UnlimitedDecenniallyYearlyCandleTimeSeriesFile<PQStorageCandle>(priceQuoteFileParams)
                  , _ => throw new Exception("Expected entry type to be ILevel#Quote type")
                };
     }
 }
 
-public class PQUnlimitedPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class PQUnlimitedCandleRepoFileFactory<TEntry> : TimeSeriesRepositoryFileFactory<TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 
 {
     protected override TimeSeriesFileParameters CreateTimeSeriesFileParameters
@@ -335,17 +335,17 @@ public class PQUnlimitedPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRe
     {
         return EntryType switch
                {
-                   _ when EntryType == typeof(IPricePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)UnlimitedPriceSummaryTimeSeriesFile<
-                           IPricePeriodSummary>
+                   _ when EntryType == typeof(ICandle) => (ITimeSeriesEntryFile<TEntry>)UnlimitedCandleTimeSeriesFile<
+                           ICandle>
                        .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(PricePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)UnlimitedPriceSummaryTimeSeriesFile<
-                           PricePeriodSummary>
+                 , _ when EntryType == typeof(Candle) => (ITimeSeriesEntryFile<TEntry>)UnlimitedCandleTimeSeriesFile<
+                           Candle>
                        .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(PQPricePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)UnlimitedPriceSummaryTimeSeriesFile<
-                           PQPricePeriodSummary>
+                 , _ when EntryType == typeof(PQCandle) => (ITimeSeriesEntryFile<TEntry>)UnlimitedCandleTimeSeriesFile<
+                           PQCandle>
                        .OpenExistingTimeSeriesFile(fileInfo)
-                 , _ when EntryType == typeof(PQPriceStoragePeriodSummary) => (ITimeSeriesEntryFile<TEntry>)
-                       UnlimitedPriceSummaryTimeSeriesFile<PQPriceStoragePeriodSummary>
+                 , _ when EntryType == typeof(PQStorageCandle) => (ITimeSeriesEntryFile<TEntry>)
+                       UnlimitedCandleTimeSeriesFile<PQStorageCandle>
                            .OpenExistingTimeSeriesFile(fileInfo)
                  , _ => throw new Exception("Expected entry type to be ILevel#Quote type")
                };
@@ -356,7 +356,7 @@ public class PQUnlimitedPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRe
     public override bool IsBestFactoryFor(IInstrument instrument)
     {
         var coveringPeriod = instrument.CoveringPeriod;
-        return instrument.InstrumentType == InstrumentType.PriceSummaryPeriod &&
+        return instrument.InstrumentType == InstrumentType.Candle &&
                coveringPeriod.Period is >= TimeBoundaryPeriod.OneWeek and <= TimeBoundaryPeriod.OneMonth;
     }
 
@@ -366,15 +366,15 @@ public class PQUnlimitedPricePeriodSummaryRepoFileFactory<TEntry> : TimeSeriesRe
         var priceQuoteFileParams = CreatePriceQuoteTimeSeriesFileParameters(fileInfo, instrument, filePeriod, filePeriodTime);
         return EntryType switch
                {
-                   _ when EntryType == typeof(IPricePeriodSummary) =>
-                       (ITimeSeriesEntryFile<TEntry>)new UnlimitedPriceSummaryTimeSeriesFile<IPricePeriodSummary>(priceQuoteFileParams)
-                 , _ when EntryType == typeof(PricePeriodSummary) =>
-                       (ITimeSeriesEntryFile<TEntry>)new UnlimitedPriceSummaryTimeSeriesFile<PricePeriodSummary>(priceQuoteFileParams)
-                 , _ when EntryType == typeof(PQPricePeriodSummary) =>
-                       (ITimeSeriesEntryFile<TEntry>)new UnlimitedPriceSummaryTimeSeriesFile<PQPricePeriodSummary>(priceQuoteFileParams)
-                 , _ when EntryType == typeof(PQPriceStoragePeriodSummary) =>
+                   _ when EntryType == typeof(ICandle) =>
+                       (ITimeSeriesEntryFile<TEntry>)new UnlimitedCandleTimeSeriesFile<ICandle>(priceQuoteFileParams)
+                 , _ when EntryType == typeof(Candle) =>
+                       (ITimeSeriesEntryFile<TEntry>)new UnlimitedCandleTimeSeriesFile<Candle>(priceQuoteFileParams)
+                 , _ when EntryType == typeof(PQCandle) =>
+                       (ITimeSeriesEntryFile<TEntry>)new UnlimitedCandleTimeSeriesFile<PQCandle>(priceQuoteFileParams)
+                 , _ when EntryType == typeof(PQStorageCandle) =>
                        (ITimeSeriesEntryFile<TEntry>)
-                       new UnlimitedPriceSummaryTimeSeriesFile<PQPriceStoragePeriodSummary>(priceQuoteFileParams)
+                       new UnlimitedCandleTimeSeriesFile<PQStorageCandle>(priceQuoteFileParams)
                  , _ => throw new Exception("Expected entry type to be ILevel#Quote type")
                };
     }

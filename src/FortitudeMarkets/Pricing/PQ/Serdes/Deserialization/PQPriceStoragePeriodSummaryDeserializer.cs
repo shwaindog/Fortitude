@@ -8,37 +8,37 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
-using FortitudeMarkets.Pricing.PQ.Summaries;
-using FortitudeMarkets.Pricing.Summaries;
-using static FortitudeMarkets.Pricing.PQ.Summaries.PQPriceStorageSummaryFlags;
+using FortitudeMarkets.Pricing.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
+using static FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles.PQStorageCandleFlags;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 
-public interface IPQPriceStoragePeriodSummaryDeserializer : IDeserializer<IPricePeriodSummary>
+public interface IPQStorageCandleDeserializer : IDeserializer<ICandle>
 {
-    IPQPriceStoragePeriodSummary DeserializedPriceSummary { get; }
+    IPQStorageCandle DeserializedCandle { get; }
 }
 
-public class PQPriceStoragePeriodSummaryDeserializer : IPQPriceStoragePeriodSummaryDeserializer
+public class PQStorageCandleDeserializer : IPQStorageCandleDeserializer
 {
     private const byte NextByteBitShift      = 7;
     private const byte Lowest7BitsInByteMask = 0x7F;
     private const byte HighestBitInByteMask  = 0x80;
 
-    public PQPriceStoragePeriodSummaryDeserializer() => DeserializedPriceSummary = new PQPriceStoragePeriodSummary();
+    public PQStorageCandleDeserializer() => DeserializedCandle = new PQStorageCandle();
 
-    public PQPriceStoragePeriodSummaryDeserializer
+    public PQStorageCandleDeserializer
         (IPQPriceVolumePublicationPrecisionSettings precisionSettings) =>
-        DeserializedPriceSummary = new PQPriceStoragePeriodSummary();
+        DeserializedCandle = new PQStorageCandle();
 
-    public IPQPriceStoragePeriodSummary DeserializedPriceSummary { get; }
+    public IPQStorageCandle DeserializedCandle { get; }
 
     public MarshalType MarshalType => MarshalType.Binary;
 
-    public IPricePeriodSummary? Deserialize(ISerdeContext readContext)
+    public ICandle? Deserialize(ISerdeContext readContext)
     {
         if ((readContext.Direction & ContextDirection.Read) == 0) throw new ArgumentException("Expected readContext to allow reading");
         if ((readContext.MarshalType & MarshalType.Binary) == 0) throw new ArgumentException("Expected readContext to be a binary buffer context");
@@ -46,14 +46,14 @@ public class PQPriceStoragePeriodSummaryDeserializer : IPQPriceStoragePeriodSumm
         {
             using var fixedBuffer = bufferContext.EncodedBuffer!;
 
-            var bytesRead = Deserialize(fixedBuffer, DeserializedPriceSummary);
+            var bytesRead = Deserialize(fixedBuffer, DeserializedCandle);
             bufferContext.LastReadLength = bytesRead;
             if (bytesRead > 0)
             {
                 fixedBuffer.ReadCursor += bytesRead;
 
-                DeserializedPriceSummary.HasUpdates = false;
-                return DeserializedPriceSummary;
+                DeserializedCandle.HasUpdates = false;
+                return DeserializedCandle;
             }
             return null;
         }
@@ -61,13 +61,13 @@ public class PQPriceStoragePeriodSummaryDeserializer : IPQPriceStoragePeriodSumm
         throw new ArgumentException("Expected readContext to be of type IBufferContext");
     }
 
-    private unsafe int Deserialize(IBuffer buffer, IPQPriceStoragePeriodSummary ent)
+    private unsafe int Deserialize(IBuffer buffer, IPQStorageCandle ent)
     {
         using var fixedBuffer = buffer;
 
         var readStart   = fixedBuffer.ReadBuffer + buffer.BufferRelativeReadCursor;
         var ptr         = readStart;
-        var flags       = (PQPriceStorageSummaryFlags)StreamByteOps.ToUInt(ref ptr);
+        var flags       = (PQStorageCandleFlags)StreamByteOps.ToUInt(ref ptr);
         var priceScale  = (PQFieldFlags)(((uint)(flags & PriceScaleMask) >> 24) & 0x0F);
         var volumeScale = (PQFieldFlags)(((uint)(flags & VolumeScaleMask) >> 28) & 0x0F);
 
@@ -91,7 +91,7 @@ public class PQPriceStoragePeriodSummaryDeserializer : IPQPriceStoragePeriodSumm
 
             ent.TimeBoundaryPeriod = (TimeBoundaryPeriod)StreamByteOps.ToUShort(ref ptr);
             ent.PeriodStartTime    = StreamByteOps.ToLong(ref ptr).CappedTicksToDateTime();
-            ent.PeriodSummaryFlags = (PricePeriodSummaryFlags)StreamByteOps.ToUInt(ref ptr);
+            ent.CandleFlags = (CandleFlags)StreamByteOps.ToUInt(ref ptr);
         }
         else
         {
@@ -108,14 +108,14 @@ public class PQPriceStoragePeriodSummaryDeserializer : IPQPriceStoragePeriodSumm
             }
             if (flags.HasFlag(HasSummaryFlagsChanges))
             {
-                var existingSummaryFlagsUpperBytes = (uint)ent.PeriodSummaryFlags >> 16;
+                var existingSummaryFlagsUpperBytes = (uint)ent.CandleFlags >> 16;
                 var deltaUpperBytes = Deserialize7BitDeltaUint(ref ptr);
                 var newUpper = (flags.HasFlag(NegateDeltaSummaryFlagsUpperByte) ? -1 : 1) * deltaUpperBytes + existingSummaryFlagsUpperBytes;
-                var existingSummaryFlagsLowerBytes = (ushort)ent.PeriodSummaryFlags;
+                var existingSummaryFlagsLowerBytes = (ushort)ent.CandleFlags;
                 var deltaLowerBytes = Deserialize7BitDeltaUint(ref ptr);
                 var newLower = (flags.HasFlag(NegateDeltaSummaryFlagsLowerByte) ? -1 : 1) * deltaLowerBytes + existingSummaryFlagsLowerBytes;
-                var currentFlags = (PricePeriodSummaryFlags)((newUpper << 16) | newLower);
-                ent.PeriodSummaryFlags = currentFlags;
+                var currentFlags = (CandleFlags)((newUpper << 16) | newLower);
+                ent.CandleFlags = currentFlags;
             }
         }
         if (isSnapshot)

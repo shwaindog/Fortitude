@@ -5,7 +5,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries;
-using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using static FortitudeMarkets.Pricing.TimeSeries.QuoteTimeSeriesStorageType;
 
 #endregion

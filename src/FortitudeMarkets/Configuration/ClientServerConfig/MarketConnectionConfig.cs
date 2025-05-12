@@ -8,8 +8,7 @@ using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarkets.Configuration.ClientServerConfig.TradingConfig;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using Microsoft.Extensions.Configuration;
 
 #endregion

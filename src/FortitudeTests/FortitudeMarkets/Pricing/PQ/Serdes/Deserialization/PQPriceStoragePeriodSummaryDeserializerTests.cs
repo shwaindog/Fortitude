@@ -6,10 +6,10 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
+using FortitudeMarkets.Pricing.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
-using FortitudeMarkets.Pricing.PQ.Summaries;
-using FortitudeMarkets.Pricing.Summaries;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 
 #endregion
@@ -17,19 +17,19 @@ using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 
 [TestClass]
-public class PQPriceStoragePeriodSummaryDeserializerTests
+public class PQStorageCandleDeserializerTests
 {
     private BufferContext bufferContext = null!;
 
-    private PQPriceStoragePeriodSummaryDeserializer deserializer = new();
+    private PQStorageCandleDeserializer deserializer = new();
 
-    private List<IPricePeriodSummary> originalSummaries = null!;
+    private List<ICandle> originalSummaries = null!;
 
-    private PQPriceStoragePeriodSummary pqPriceStoragePeriodSummary = null!;
+    private PQStorageCandle pqStorageCandle = null!;
     private CircularReadWriteBuffer     readWriteBuffer             = null!;
 
-    private PQPriceStoragePeriodSummarySerializer snapshotSerializer = new(StorageFlags.Snapshot);
-    private PQPriceStoragePeriodSummarySerializer updateSerializer   = new(StorageFlags.Update);
+    private PQStorageCandleSerializer snapshotSerializer = new(StorageFlags.Snapshot);
+    private PQStorageCandleSerializer updateSerializer   = new(StorageFlags.Update);
 
 
     [TestInitialize]
@@ -38,38 +38,38 @@ public class PQPriceStoragePeriodSummaryDeserializerTests
         readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]);
         bufferContext   = new BufferContext(readWriteBuffer);
 
-        pqPriceStoragePeriodSummary = new PQPriceStoragePeriodSummary();
+        pqStorageCandle = new PQStorageCandle();
 
-        snapshotSerializer = new PQPriceStoragePeriodSummarySerializer(StorageFlags.Snapshot);
-        updateSerializer   = new PQPriceStoragePeriodSummarySerializer(StorageFlags.Update);
+        snapshotSerializer = new PQStorageCandleSerializer(StorageFlags.Snapshot);
+        updateSerializer   = new PQStorageCandleSerializer(StorageFlags.Update);
 
-        originalSummaries = new List<IPricePeriodSummary>(6);
+        originalSummaries = new List<ICandle>(6);
         var startDateTime = new DateTime(2024, 6, 17, 16, 0, 0);
         originalSummaries.Add
-            (CreatePeriodSummary(startDateTime, OneMinute, 1.234m, 0.0002m, 1.2361m, 0.048m, 60, 30_000));
+            (CreateCandle(startDateTime, OneMinute, 1.234m, 0.0002m, 1.2361m, 0.048m, 60, 30_000));
         startDateTime = startDateTime.AddMinutes(1);
         originalSummaries.Add
-            (CreatePeriodSummary(startDateTime, OneMinute, 1.2361m, 0.0002m, 1.234m, 0.089m, 20, 2_000_000));
+            (CreateCandle(startDateTime, OneMinute, 1.2361m, 0.0002m, 1.234m, 0.089m, 20, 2_000_000));
         startDateTime = startDateTime.AddMinutes(1);
         originalSummaries.Add
-            (CreatePeriodSummary(startDateTime, OneMinute, 1.234m, 0.0002m, 1.2311m, 0.022m, 20, 50));
+            (CreateCandle(startDateTime, OneMinute, 1.234m, 0.0002m, 1.2311m, 0.022m, 20, 50));
         startDateTime = startDateTime.AddMinutes(1);
         originalSummaries.Add
-            (CreatePeriodSummary(startDateTime, OneMinute, 1.2320m, 0.0002m, 1.2366m, 0.030m, 2_000_000, 30));
+            (CreateCandle(startDateTime, OneMinute, 1.2320m, 0.0002m, 1.2366m, 0.030m, 2_000_000, 30));
         startDateTime = startDateTime.AddMinutes(1);
         originalSummaries.Add
-            (CreatePeriodSummary(startDateTime, OneMinute, 1.2366m, 0.0002m, 1.2361m, 0.010m, 60, 30_000));
+            (CreateCandle(startDateTime, OneMinute, 1.2366m, 0.0002m, 1.2361m, 0.010m, 60, 30_000));
         startDateTime = startDateTime.AddMinutes(1);
         originalSummaries.Add
-            (CreatePeriodSummary(startDateTime, OneMinute, 1.2361m, 0.0002m, 1.234m, 0.048m, 60, 200_000));
+            (CreateCandle(startDateTime, OneMinute, 1.2361m, 0.0002m, 1.234m, 0.048m, 60, 200_000));
     }
 
 
     [TestMethod]
-    public void SerializeAllSummaries_Deserialize_ReturnsSameValues()
+    public void SerializeAllCandles_Deserialize_ReturnsSameValues()
     {
-        SerializeSummary(originalSummaries[0], snapshotSerializer);
-        foreach (var pricePeriodSummary in originalSummaries.Skip(1)) SerializeSummary(pricePeriodSummary, updateSerializer);
+        SerializeCandle(originalSummaries[0], snapshotSerializer);
+        foreach (var candle in originalSummaries.Skip(1)) SerializeCandle(candle, updateSerializer);
         for (var i = 0; i < originalSummaries.Count; i++)
         {
             var original     = originalSummaries[i];
@@ -84,8 +84,8 @@ public class PQPriceStoragePeriodSummaryDeserializerTests
     public void SerializeWithMissingPeriod_Deserialize_ReturnsSameValues()
     {
         originalSummaries.RemoveAt(1);
-        SerializeSummary(originalSummaries[0], snapshotSerializer);
-        foreach (var pricePeriodSummary in originalSummaries.Skip(1)) SerializeSummary(pricePeriodSummary, updateSerializer);
+        SerializeCandle(originalSummaries[0], snapshotSerializer);
+        foreach (var candle in originalSummaries.Skip(1)) SerializeCandle(candle, updateSerializer);
         for (var i = 0; i < originalSummaries.Count; i++)
         {
             var original     = originalSummaries[i];
@@ -95,17 +95,17 @@ public class PQPriceStoragePeriodSummaryDeserializerTests
         }
     }
 
-    private void SerializeSummary(IPricePeriodSummary priceSummary, ISerializer<IPQPriceStoragePeriodSummary> serializer)
+    private void SerializeCandle(ICandle candle, ISerializer<IPQStorageCandle> serializer)
     {
-        pqPriceStoragePeriodSummary.HasUpdates = false;
-        pqPriceStoragePeriodSummary.CopyFrom(priceSummary);
-        Assert.IsTrue(pqPriceStoragePeriodSummary.AreEquivalent(priceSummary));
-        serializer.Serialize(pqPriceStoragePeriodSummary, bufferContext);
+        pqStorageCandle.HasUpdates = false;
+        pqStorageCandle.CopyFrom(candle);
+        Assert.IsTrue(pqStorageCandle.AreEquivalent(candle));
+        serializer.Serialize(pqStorageCandle, bufferContext);
         var bytesSerialized = bufferContext.LastWriteLength;
         Assert.IsTrue(bytesSerialized > 0);
     }
 
-    private IPricePeriodSummary CreatePeriodSummary
+    private ICandle CreateCandle
     (
         DateTime startTime, TimeBoundaryPeriod period, decimal startMid,
         decimal bidAskSpread, decimal endMid, decimal highLowSpread, uint tickCount, long volume)
@@ -115,7 +115,7 @@ public class PQPriceStoragePeriodSummaryDeserializerTests
         var halfHighLowSpread  = highLowSpread / 2;
 
         var result =
-            new PricePeriodSummary
+            new Candle
                 (period, startTime, period.PeriodEnd(startTime), startMid - halfBidAskSpread, startMid + halfBidAskSpread
                , averageStartEndMid + halfHighLowSpread - halfBidAskSpread, averageStartEndMid + halfHighLowSpread + halfBidAskSpread
                , averageStartEndMid - halfHighLowSpread - halfBidAskSpread, averageStartEndMid - halfHighLowSpread + halfBidAskSpread,

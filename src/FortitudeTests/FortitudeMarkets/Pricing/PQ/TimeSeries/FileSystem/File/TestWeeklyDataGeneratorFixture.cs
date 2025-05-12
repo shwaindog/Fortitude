@@ -4,10 +4,10 @@
 #region
 
 using FortitudeCommon.Chronometry;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Summaries;
+using FortitudeMarkets.Pricing.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.FeedEvents.Generators.Candles;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.Generators.Quotes;
-using FortitudeMarkets.Pricing.Generators.Summaries;
 using FortitudeTests.FortitudeCommon.Extensions;
 
 #endregion
@@ -53,8 +53,8 @@ public static class TestWeeklyDataGeneratorFixture
         }
     }
 
-    public static IEnumerable<IPricePeriodSummary> GeneratePriceSummaryForEachDayAndHourOfCurrentWeek
-    (int start, int amount, TimeBoundaryPeriod summaryPeriod, IPricePeriodSummaryGenerator<IMutablePricePeriodSummary> quoteGenerator
+    public static IEnumerable<ICandle> GenerateCandlesForEachDayAndHourOfCurrentWeek
+    (int start, int amount, TimeBoundaryPeriod candlePeriod, ICandleGenerator<IMutableCandle> quoteGenerator
       , DateTime? forWeekWithDate = null)
     {
         var dateToGenerate   = forWeekWithDate?.Date ?? DateTime.UtcNow.Date;
@@ -66,15 +66,15 @@ public static class TestWeeklyDataGeneratorFixture
         {
             for (var j = 0; j < 24; j++)
                 foreach (var l1QuoteStruct in GenerateRepeatablePriceSummaries
-                             (start, amount, j, currentDay.DayOfWeek, summaryPeriod, quoteGenerator))
+                             (start, amount, j, currentDay.DayOfWeek, candlePeriod, quoteGenerator))
                     yield return l1QuoteStruct;
             currentDay = currentDay.AddDays(1);
         }
     }
 
-    public static IEnumerable<IPricePeriodSummary> GenerateRepeatablePriceSummaries
-    (int start, int amount, int hour, DayOfWeek forDayOfWeek, TimeBoundaryPeriod summaryPeriod
-      , IPricePeriodSummaryGenerator<IMutablePricePeriodSummary> quoteGenerator
+    public static IEnumerable<ICandle> GenerateRepeatablePriceSummaries
+    (int start, int amount, int hour, DayOfWeek forDayOfWeek, TimeBoundaryPeriod candlePeriod
+      , ICandleGenerator<IMutableCandle> quoteGenerator
       , DateTime? forWeekWithDate = null)
     {
         var dateToGenerate   = forWeekWithDate?.Date ?? DateTime.UtcNow.Date;
@@ -87,7 +87,7 @@ public static class TestWeeklyDataGeneratorFixture
         for (var i = start; i < start + amount; i++)
         {
             var startTime = generateDateHour + TimeSpan.FromSeconds(i);
-            yield return quoteGenerator.PriceSummaries(startTime, TimeBoundaryPeriod.OneSecond, 1).First();
+            yield return quoteGenerator.Candles(startTime, TimeBoundaryPeriod.OneSecond, 1).First();
         }
     }
 

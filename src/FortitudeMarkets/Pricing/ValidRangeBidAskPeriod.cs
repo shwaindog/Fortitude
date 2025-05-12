@@ -9,8 +9,9 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Summaries;
+using FortitudeMarkets.Pricing.FeedEvents;
+using FortitudeMarkets.Pricing.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 
 #endregion
 
@@ -820,12 +821,12 @@ public static class ValidRangeBidAskInstantExtensions
         return bidAskPeriod;
     }
 
-    public static IValidRangeBidAskPeriod AverageToValidRangeBidAskPeriod(this IPricePeriodSummary pricePeriodSummary, IRecycler? recycler = null)
+    public static IValidRangeBidAskPeriod AverageToValidRangeBidAskPeriod(this ICandle candle, IRecycler? recycler = null)
     {
         var bidAskPeriod = recycler?.Borrow<ValidRangeBidAskPeriod>() ?? new ValidRangeBidAskPeriod();
 
         var missingStartIndex   = 0;
-        var missingPeriodsFlags = (uint)pricePeriodSummary.PeriodSummaryFlags >> 16;
+        var missingPeriodsFlags = (uint)candle.CandleFlags >> 16;
         for (var i = 1; i <= 16; i++)
         {
             var isMissing = (missingPeriodsFlags & 1) > 0;
@@ -835,7 +836,7 @@ public static class ValidRangeBidAskInstantExtensions
             else
                 break;
         }
-        missingPeriodsFlags = (uint)pricePeriodSummary.PeriodSummaryFlags >> 16;
+        missingPeriodsFlags = (uint)candle.CandleFlags >> 16;
         var missingEndIndex = 0;
         for (var i = 1; i <= 16; i++)
         {
@@ -851,26 +852,26 @@ public static class ValidRangeBidAskInstantExtensions
         switch (missingStartIndex)
         {
             case 0 when missingEndIndex == 0:
-                validFrom = pricePeriodSummary.PeriodStartTime;
-                validTo   = pricePeriodSummary.PeriodEndTime;
+                validFrom = candle.PeriodStartTime;
+                validTo   = candle.PeriodEndTime;
                 break;
             case 16 when missingEndIndex == 16:
-                validFrom = pricePeriodSummary.PeriodStartTime;
-                validTo   = pricePeriodSummary.PeriodStartTime;
+                validFrom = candle.PeriodStartTime;
+                validTo   = candle.PeriodStartTime;
                 break;
             default:
             {
-                var totalTimeSpan = pricePeriodSummary.PeriodEndTime - pricePeriodSummary.PeriodStartTime;
+                var totalTimeSpan = candle.PeriodEndTime - candle.PeriodStartTime;
                 var oneSixteenth  = totalTimeSpan / 16;
 
-                validFrom = pricePeriodSummary.PeriodStartTime + oneSixteenth * missingStartIndex;
-                validTo   = pricePeriodSummary.PeriodEndTime - oneSixteenth * missingEndIndex;
+                validFrom = candle.PeriodStartTime + oneSixteenth * missingStartIndex;
+                validTo   = candle.PeriodEndTime - oneSixteenth * missingEndIndex;
                 break;
             }
         }
 
-        bidAskPeriod.Configure(pricePeriodSummary.AverageBidAsk, pricePeriodSummary.PeriodStartTime, validTo
-                             , validFrom, new DiscreetTimePeriod(pricePeriodSummary.TimeBoundaryPeriod));
+        bidAskPeriod.Configure(candle.AverageBidAsk, candle.PeriodStartTime, validTo
+                             , validFrom, new DiscreetTimePeriod(candle.TimeBoundaryPeriod));
         return bidAskPeriod;
     }
 }

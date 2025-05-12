@@ -7,6 +7,7 @@ using FortitudeMarkets.Pricing.Generators.MidPrice;
 using FortitudeMarkets.Pricing.Generators.Quotes;
 using FortitudeMarkets.Pricing.Generators.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Generators.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 #endregion

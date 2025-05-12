@@ -6,8 +6,7 @@
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 #endregion
 
