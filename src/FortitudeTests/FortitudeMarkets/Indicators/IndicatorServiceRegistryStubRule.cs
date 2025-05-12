@@ -8,9 +8,8 @@ using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes;
 using FortitudeMarkets.Indicators;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeTests.FortitudeCommon.Types;
 
 #endregion

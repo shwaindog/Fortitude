@@ -15,7 +15,7 @@ using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
-using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeCommon.Extensions;
 using static FortitudeIO.TimeSeries.InstrumentType;
 

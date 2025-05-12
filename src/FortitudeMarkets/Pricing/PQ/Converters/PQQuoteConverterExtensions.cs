@@ -8,10 +8,11 @@ using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.TimeSeries;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

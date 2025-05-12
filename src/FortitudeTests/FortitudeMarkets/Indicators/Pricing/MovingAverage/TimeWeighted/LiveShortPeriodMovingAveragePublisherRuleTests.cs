@@ -17,20 +17,22 @@ using FortitudeMarkets.Indicators.Pricing.MovingAverage;
 using FortitudeMarkets.Indicators.Pricing.MovingAverage.TimeWeighted;
 using FortitudeMarkets.Indicators.Pricing.Parameters;
 using FortitudeMarkets.Pricing;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Converters;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Subscription.BusRules;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
 using FortitudeTests.FortitudeCommon.Chronometry;
 using FortitudeTests.FortitudeCommon.Chronometry.Timers;
 using FortitudeTests.FortitudeMarkets.Indicators.Config;
+using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using MathNet.Numerics;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
+using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 

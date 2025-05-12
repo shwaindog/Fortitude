@@ -16,8 +16,9 @@ using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
-using FortitudeMarkets.Pricing.Quotes;
 using static FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules.HistoricalQuoteTimeSeriesRepositoryConstants;
 
 #endregion

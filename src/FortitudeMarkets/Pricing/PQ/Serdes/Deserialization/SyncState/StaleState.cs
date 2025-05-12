@@ -5,7 +5,8 @@
 
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 #endregion

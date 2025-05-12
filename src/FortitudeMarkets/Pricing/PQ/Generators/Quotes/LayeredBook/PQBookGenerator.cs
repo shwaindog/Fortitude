@@ -4,14 +4,16 @@
 #region
 
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.Generators.Quotes.LayeredBook;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LayeredBook.LayerOrders;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook.LayerOrders;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 
 #endregion
 
@@ -20,7 +22,7 @@ namespace FortitudeMarkets.Pricing.PQ.Generators.Quotes.LayeredBook;
 public class PQBookGenerator : BookGenerator
 {
     private readonly IPQNameIdLookupGenerator
-        consistentOrderBookNameIdGenerator = new PQNameIdLookupGenerator(PQQuoteFields.LayerNameDictionaryUpsertCommand);
+        consistentOrderBookNameIdGenerator = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates);
 
     public PQBookGenerator(QuoteBookValuesGenerator quoteBookGenerator, ISourceTickerInfo sourceTickerInfo) : base(quoteBookGenerator, sourceTickerInfo) { }
 

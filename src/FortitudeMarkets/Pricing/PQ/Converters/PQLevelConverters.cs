@@ -5,6 +5,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 #endregion

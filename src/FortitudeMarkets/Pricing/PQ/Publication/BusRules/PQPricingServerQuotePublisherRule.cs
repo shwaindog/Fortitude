@@ -17,11 +17,11 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Publication.BusRules.BusMessages;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

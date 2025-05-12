@@ -12,6 +12,7 @@ using FortitudeIO.Transports.Network.Construction;
 using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.State;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Subscription.Standalone;

@@ -25,11 +25,10 @@ using FortitudeIO.Transports.Network.Conversations;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarkets.Configuration.ClientServerConfig;
-using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Serdes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

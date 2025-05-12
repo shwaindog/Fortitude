@@ -14,10 +14,9 @@ using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Subscription.BusRules.BusMessages;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

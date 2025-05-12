@@ -11,9 +11,8 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Configuration.ClientServerConfig;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

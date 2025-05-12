@@ -8,7 +8,7 @@ using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 
 #endregion
 

@@ -12,10 +12,9 @@ using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Configuration.ClientServerConfig;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Subscription.Standalone;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using Moq;
 
 #endregion

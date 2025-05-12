@@ -12,7 +12,8 @@ using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 

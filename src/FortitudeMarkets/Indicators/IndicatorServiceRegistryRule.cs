@@ -13,16 +13,17 @@ using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Indicators.Config;
 using FortitudeMarkets.Indicators.Persistence;
 using FortitudeMarkets.Indicators.Pricing;
+using FortitudeMarkets.Indicators.Pricing.Candles;
+using FortitudeMarkets.Indicators.Pricing.Candles.Construction;
 using FortitudeMarkets.Indicators.Pricing.MovingAverage.TimeWeighted;
 using FortitudeMarkets.Indicators.Pricing.Parameters;
-using FortitudeMarkets.Indicators.Pricing.PeriodSummaries;
-using FortitudeMarkets.Indicators.Pricing.PeriodSummaries.Construction;
 using FortitudeMarkets.Pricing;
+using FortitudeMarkets.Pricing.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
-using FortitudeMarkets.Pricing.Summaries;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 
 #endregion
@@ -36,10 +37,10 @@ public enum ServiceType
   , HistoricalQuotesRetriever
   , LiveQuote
   , HistoricalQuoteResolver
-  , LivePricePeriodSummary
-  , HistoricalPricePeriodSummaryRetriever
-  , HistoricalPricePeriodSummaryResolver
-  , PricePeriodSummaryFilePersister
+  , LiveCandle
+  , HistoricalCandlesRetriever
+  , HistoricalCandlesResolver
+  , CandleFilePersister
   , LiveMovingAverage
   , HistoricalMovingAverageResolver
 }
@@ -284,14 +285,14 @@ public class IndicatorServiceRegistryRule : Rule
             { ServiceType.ServiceRegistry, SimpleGlobalServiceLookup }
           , { ServiceType.TimeSeriesFileRepositoryInfo, SimpleGlobalServiceLookup }
           , { ServiceType.HistoricalQuotesRetriever, SimpleGlobalServiceLookup }
-          , { ServiceType.HistoricalPricePeriodSummaryRetriever, SimpleGlobalServiceLookup }
-          , { ServiceType.PricePeriodSummaryFilePersister, SimpleGlobalServiceLookup }
+          , { ServiceType.HistoricalCandlesRetriever, SimpleGlobalServiceLookup }
+          , { ServiceType.CandleFilePersister, SimpleGlobalServiceLookup }
         };
         TickerServiceFactoryLookup = new Dictionary<ServiceType, Func<TickerPeriodServiceRequest, ServiceRuntimeState>>
         {
-            { ServiceType.LivePricePeriodSummary, LivePriceSummaryFactory }
+            { ServiceType.LiveCandle, LiveCandleFactory }
           , { ServiceType.LiveMovingAverage, LiveMovingAverageFactory }
-          , { ServiceType.HistoricalPricePeriodSummaryResolver, HistoricalPricePeriodSummaryResolverFactory }
+          , { ServiceType.HistoricalCandlesResolver, HistoricalCandlesResolverFactory }
         };
 
         foreach (var kvp in indicatorServiceParams.GlobalServiceFactoryOverrides) GlobalServiceFactoryLookup[kvp.Key]       = kvp.Value;
@@ -312,7 +313,7 @@ public class IndicatorServiceRegistryRule : Rule
         {
             await LaunchGlobalService(ServiceType.TimeSeriesFileRepositoryInfo);
             await LaunchGlobalService(ServiceType.HistoricalQuotesRetriever);
-            await LaunchGlobalService(ServiceType.HistoricalPricePeriodSummaryRetriever);
+            await LaunchGlobalService(ServiceType.HistoricalCandlesRetriever);
         }
         await base.StartAsync();
     }
@@ -345,23 +346,23 @@ public class IndicatorServiceRegistryRule : Rule
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
                         (new HistoricalQuotesRetrievalRule(config.TimeSeriesFileRepositoryConfig!), ServiceRunStatus.NotStarted));
-            case ServiceType.HistoricalPricePeriodSummaryRetriever:
+            case ServiceType.HistoricalCandlesRetriever:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
-                        (new HistoricalPricePeriodSummaryRetrievalRule(config.TimeSeriesFileRepositoryConfig!), ServiceRunStatus.NotStarted));
-            case ServiceType.PricePeriodSummaryFilePersister:
+                        (new HistoricalCandlesRetrievalRule(config.TimeSeriesFileRepositoryConfig!), ServiceRunStatus.NotStarted));
+            case ServiceType.CandleFilePersister:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
-                        (new CyclingInstrumentChainingEntryPersisterRule<PricePeriodSummary>
+                        (new CyclingInstrumentChainingEntryPersisterRule<Candle>
                              (new CyclingInstrumentChainingEntryPersisterParams
                                  (new TimeSeriesRepositoryParams(config.TimeSeriesFileRepositoryConfig!)
-                                , PricePeriodSummaryConstants.PersistAppendPeriodSummaryPublish()))
+                                , CandleConstants.PersistAppendCandlePublish()))
                        , ServiceRunStatus.NotStarted));
         }
         return new ServiceRuntimeState();
     }
 
-    protected ServiceRuntimeState LivePriceSummaryFactory(TickerPeriodServiceRequest tickerPeriodServiceRequest)
+    protected ServiceRuntimeState LiveCandleFactory(TickerPeriodServiceRequest tickerPeriodServiceRequest)
     {
         var tickerServiceInfo = tickerPeriodServiceRequest.TickerPeriodServiceInfo;
         if (tickerServiceInfo.PricingInstrumentId.CoveringPeriod < Tick || tickerServiceInfo.PricingInstrumentId.CoveringPeriod > OneYear)
@@ -371,44 +372,44 @@ public class IndicatorServiceRegistryRule : Rule
             case TickerQuoteDetailLevel.Level1Quote when tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
-                        (new LivePricePeriodSummaryPublisherRule<PQPublishableLevel1Quote>
-                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.PricingInstrumentId))
+                        (new LiveCandlePublisherRule<PQPublishableLevel1Quote>
+                             (new LivePublishCandleParams(tickerServiceInfo.PricingInstrumentId))
                        , ServiceRunStatus.NotStarted));
             case TickerQuoteDetailLevel.Level1Quote when !tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
-                        (new LivePricePeriodSummaryPublisherRule<PublishableLevel1PriceQuote>
-                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.PricingInstrumentId))
+                        (new LiveCandlePublisherRule<PublishableLevel1PriceQuote>
+                             (new LivePublishCandleParams(tickerServiceInfo.PricingInstrumentId))
                        , ServiceRunStatus.NotStarted));
             case TickerQuoteDetailLevel.Level2Quote when tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
-                        (new LivePricePeriodSummaryPublisherRule<PQPublishableLevel2Quote>
-                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.PricingInstrumentId))
+                        (new LiveCandlePublisherRule<PQPublishableLevel2Quote>
+                             (new LivePublishCandleParams(tickerServiceInfo.PricingInstrumentId))
                        , ServiceRunStatus.NotStarted));
             case TickerQuoteDetailLevel.Level2Quote when !tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
-                        (new LivePricePeriodSummaryPublisherRule<PublishableLevel2PriceQuote>
-                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.PricingInstrumentId))
+                        (new LiveCandlePublisherRule<PublishableLevel2PriceQuote>
+                             (new LivePublishCandleParams(tickerServiceInfo.PricingInstrumentId))
                        , ServiceRunStatus.NotStarted));
             case TickerQuoteDetailLevel.Level3Quote when tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
-                        (new LivePricePeriodSummaryPublisherRule<PQPublishableLevel3Quote>
-                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.PricingInstrumentId))
+                        (new LiveCandlePublisherRule<PQPublishableLevel3Quote>
+                             (new LivePublishCandleParams(tickerServiceInfo.PricingInstrumentId))
                        , ServiceRunStatus.NotStarted));
             case TickerQuoteDetailLevel.Level3Quote when !tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
-                        (new LivePricePeriodSummaryPublisherRule<PublishableLevel3PriceQuote>
-                             (new LivePublishPricePeriodSummaryParams(tickerServiceInfo.PricingInstrumentId))
+                        (new LiveCandlePublisherRule<PublishableLevel3PriceQuote>
+                             (new LivePublishCandleParams(tickerServiceInfo.PricingInstrumentId))
                        , ServiceRunStatus.NotStarted));
         }
         return new ServiceRuntimeState();
     }
 
-    protected ServiceRuntimeState HistoricalPricePeriodSummaryResolverFactory(TickerPeriodServiceRequest tickerPeriodServiceRequest)
+    protected ServiceRuntimeState HistoricalCandlesResolverFactory(TickerPeriodServiceRequest tickerPeriodServiceRequest)
     {
         var tickerServiceInfo = tickerPeriodServiceRequest.TickerPeriodServiceInfo;
         if (tickerServiceInfo.PricingInstrumentId.CoveringPeriod == Tick) return new ServiceRuntimeState();
@@ -417,50 +418,50 @@ public class IndicatorServiceRegistryRule : Rule
             case TickerQuoteDetailLevel.Level1Quote when tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
-                        (new HistoricalPeriodSummariesResolverRule<PQPublishableLevel1Quote>
-                             (new HistoricalPeriodParams
+                        (new HistoricalCandlesResolverRule<PQPublishableLevel1Quote>
+                             (new HistoricalCandleParams
                                  (tickerServiceInfo.PricingInstrumentId
-                                , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
+                                , new TimeLength(config.DefaultCacheCandlesTimeSpan)))
                        , ServiceRunStatus.NotStarted));
             case TickerQuoteDetailLevel.Level1Quote when !tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
-                        (new HistoricalPeriodSummariesResolverRule<PublishableLevel1PriceQuote>
-                             (new HistoricalPeriodParams
+                        (new HistoricalCandlesResolverRule<PublishableLevel1PriceQuote>
+                             (new HistoricalCandleParams
                                  (tickerServiceInfo.PricingInstrumentId
-                                , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
+                                , new TimeLength(config.DefaultCacheCandlesTimeSpan)))
                        , ServiceRunStatus.NotStarted));
             case TickerQuoteDetailLevel.Level2Quote when tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
-                        (new HistoricalPeriodSummariesResolverRule<PQPublishableLevel2Quote>
-                             (new HistoricalPeriodParams
+                        (new HistoricalCandlesResolverRule<PQPublishableLevel2Quote>
+                             (new HistoricalCandleParams
                                  (tickerServiceInfo.PricingInstrumentId
-                                , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
+                                , new TimeLength(config.DefaultCacheCandlesTimeSpan)))
                        , ServiceRunStatus.NotStarted));
             case TickerQuoteDetailLevel.Level2Quote when !tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
-                        (new HistoricalPeriodSummariesResolverRule<PublishableLevel2PriceQuote>
-                             (new HistoricalPeriodParams
+                        (new HistoricalCandlesResolverRule<PublishableLevel2PriceQuote>
+                             (new HistoricalCandleParams
                                  (tickerServiceInfo.PricingInstrumentId
-                                , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
+                                , new TimeLength(config.DefaultCacheCandlesTimeSpan)))
                        , ServiceRunStatus.NotStarted));
             case TickerQuoteDetailLevel.Level3Quote when tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
-                        (new HistoricalPeriodSummariesResolverRule<PQPublishableLevel3Quote>
-                             (new HistoricalPeriodParams
+                        (new HistoricalCandlesResolverRule<PQPublishableLevel3Quote>
+                             (new HistoricalCandleParams
                                  (tickerServiceInfo.PricingInstrumentId
-                                , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
+                                , new TimeLength(config.DefaultCacheCandlesTimeSpan)))
                        , ServiceRunStatus.NotStarted));
             case TickerQuoteDetailLevel.Level3Quote when !tickerServiceInfo.UsePqQuote:
                 return new ServiceRuntimeState
                     (new ServiceRunStateResponse
-                        (new HistoricalPeriodSummariesResolverRule<PublishableLevel3PriceQuote>
-                             (new HistoricalPeriodParams
+                        (new HistoricalCandlesResolverRule<PublishableLevel3PriceQuote>
+                             (new HistoricalCandleParams
                                  (tickerServiceInfo.PricingInstrumentId
-                                , new TimeLength(config.DefaultCacheSummaryPeriodsPricesTimeSpan)))
+                                , new TimeLength(config.DefaultCacheCandlesTimeSpan)))
                        , ServiceRunStatus.NotStarted));
         }
         return new ServiceRuntimeState();

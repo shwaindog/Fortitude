@@ -20,7 +20,7 @@ public static class IndicatorConstants
     public const ushort PriceLevel3QuotesId = 4;
 
     // price period summaries as indicator
-    public const ushort PricePeriodSummariesId = 5;
+    public const ushort CandlesId = 5;
 
     // Moving Average
     public const ushort MovingAverageTimeWeightedMidId    = 6;
@@ -32,7 +32,7 @@ public static class IndicatorConstants
     public const string PriceLevel2Quotes = nameof(PriceLevel2Quotes);
     public const string PriceLevel3Quotes = nameof(PriceLevel3Quotes);
 
-    public const string PricePeriodSummaries = nameof(PricePeriodSummaries);
+    public const string Candles = nameof(Candles);
 
     public const string MovingAverageTimeWeightedMid    = nameof(MovingAverageTimeWeightedMid);
     public const string MovingAverageTimeWeightedBidAsk = nameof(MovingAverageTimeWeightedBidAsk);
@@ -46,7 +46,7 @@ public static class IndicatorConstants
     public const string PriceLevel3QuotesDescription
         = "Raw source multi-layer book bid and ask layers with last trade information.  Last trade can contain paid and given, trader name and side";
 
-    public const string PricePeriodSummariesDescription
+    public const string CandlesDescription
         = "Summaries are candles that contain start, highest, lowest and end bid ask prices as well as the average bid ask for the period";
 
     public const string MovingAverageTimeWeightedMidDescription    = "Contains a single mid point time weighted moving average.";
@@ -57,7 +57,7 @@ public static class IndicatorConstants
         indicatorId switch
         {
             >= MidPriceQuotesId and <= PriceLevel3QuotesId => IndicatorType.MarketPrice
-          , PricePeriodSummariesId => IndicatorType.MarketPriceSummary
+          , CandlesId => IndicatorType.MarketCandle
           , >= MovingAverageTimeWeightedMidId and <= MovingAverageTimeWeightedBidAskId => IndicatorType.Averaging
           , _ => throw new ArgumentException("Indicator Id has no known Indicator Type")
         };
@@ -80,9 +80,9 @@ public static class IndicatorConstants
             case PriceLevel3QuotesId:
                 return new Indicator(PriceLevel3QuotesId, PriceLevel3Quotes, sourceTickerId.Source, IndicatorType.MarketPrice
                                    , coveringPeriod, PriceLevel3QuotesDescription);
-            case PricePeriodSummariesId:
-                return new Indicator(PricePeriodSummariesId, PricePeriodSummaries, sourceTickerId.Source, IndicatorType.MarketPrice
-                                   , coveringPeriod, PricePeriodSummariesDescription);
+            case CandlesId:
+                return new Indicator(CandlesId, Candles, sourceTickerId.Source, IndicatorType.MarketPrice
+                                   , coveringPeriod, CandlesDescription);
             case MovingAverageTimeWeightedMidId:
                 return new Indicator(MovingAverageTimeWeightedMidId, MovingAverageTimeWeightedMid, sourceTickerId.Source, IndicatorType.MarketPrice
                                    , coveringPeriod, MovingAverageTimeWeightedMidDescription);

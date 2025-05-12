@@ -4,12 +4,14 @@
 #region
 
 using FortitudeMarkets.Configuration.ClientServerConfig;
+using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Publication;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeTests.FortitudeCommon.Types;
+using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 
 #endregion

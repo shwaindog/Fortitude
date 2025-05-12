@@ -15,17 +15,18 @@ using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
+using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.Generators.Quotes;
 using FortitudeMarkets.Pricing.PQ.Generators.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
+using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 using static FortitudeTests.FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.TestWeeklyDataGeneratorFixture;
 
 #endregion

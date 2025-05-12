@@ -7,17 +7,17 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
-using FortitudeMarkets.Pricing.Summaries;
+using FortitudeMarkets.Pricing.FeedEvents.Candles;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
-public class DailyToHourlyPriceSummarySubBuckets<TEntry> :
-    PriceSummarySubBucket<DailyToHourlyPriceSummarySubBuckets<TEntry>, HourlyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class DailyToHourlyCandleSubBuckets<TEntry> :
+    CandleSubBucket<DailyToHourlyCandleSubBuckets<TEntry>, HourlyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public DailyToHourlyPriceSummarySubBuckets
+    public DailyToHourlyCandleSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
@@ -26,11 +26,11 @@ public class DailyToHourlyPriceSummarySubBuckets<TEntry> :
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneDay;
 }
 
-public class WeeklyToDailyPriceSummarySubBuckets<TEntry> :
-    PriceSummarySubBucket<WeeklyToDailyPriceSummarySubBuckets<TEntry>, DailyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class WeeklyToDailyCandleSubBuckets<TEntry> :
+    CandleSubBucket<WeeklyToDailyCandleSubBuckets<TEntry>, DailyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public WeeklyToDailyPriceSummarySubBuckets
+    public WeeklyToDailyCandleSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
@@ -39,11 +39,11 @@ public class WeeklyToDailyPriceSummarySubBuckets<TEntry> :
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneWeek;
 }
 
-public class WeeklyToFourHourlyPriceSummarySubBuckets<TEntry> :
-    PriceSummarySubBucket<WeeklyToFourHourlyPriceSummarySubBuckets<TEntry>, FourHourlyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class WeeklyToFourHourlyCandleSubBuckets<TEntry> :
+    CandleSubBucket<WeeklyToFourHourlyCandleSubBuckets<TEntry>, FourHourlyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public WeeklyToFourHourlyPriceSummarySubBuckets
+    public WeeklyToFourHourlyCandleSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
@@ -52,11 +52,11 @@ public class WeeklyToFourHourlyPriceSummarySubBuckets<TEntry> :
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneWeek;
 }
 
-public class MonthlyToFourHourlyPriceSummarySubBuckets<TEntry> :
-    PriceSummarySubBucket<MonthlyToFourHourlyPriceSummarySubBuckets<TEntry>, FourHourlyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class MonthlyToFourHourlyCandleSubBuckets<TEntry> :
+    CandleSubBucket<MonthlyToFourHourlyCandleSubBuckets<TEntry>, FourHourlyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public MonthlyToFourHourlyPriceSummarySubBuckets
+    public MonthlyToFourHourlyCandleSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
@@ -65,11 +65,11 @@ public class MonthlyToFourHourlyPriceSummarySubBuckets<TEntry> :
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneMonth;
 }
 
-public class MonthlyToDailyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<MonthlyToDailyPriceSummarySubBuckets<TEntry>,
-    DailyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class MonthlyToDailyCandleSubBuckets<TEntry> : CandleSubBucket<MonthlyToDailyCandleSubBuckets<TEntry>,
+    DailyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public MonthlyToDailyPriceSummarySubBuckets
+    public MonthlyToDailyCandleSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
@@ -78,11 +78,11 @@ public class MonthlyToDailyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucke
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneMonth;
 }
 
-public class MonthlyToWeeklyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<MonthlyToWeeklyPriceSummarySubBuckets<TEntry>,
-    WeeklyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class MonthlyToWeeklyCandleSubBuckets<TEntry> : CandleSubBucket<MonthlyToWeeklyCandleSubBuckets<TEntry>,
+    WeeklyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public MonthlyToWeeklyPriceSummarySubBuckets
+    public MonthlyToWeeklyCandleSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
@@ -91,11 +91,11 @@ public class MonthlyToWeeklyPriceSummarySubBuckets<TEntry> : PriceSummarySubBuck
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneMonth;
 }
 
-public class YearlyToWeeklyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<YearlyToWeeklyPriceSummarySubBuckets<TEntry>,
-    WeeklyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class YearlyToWeeklyCandleSubBuckets<TEntry> : CandleSubBucket<YearlyToWeeklyCandleSubBuckets<TEntry>,
+    WeeklyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public YearlyToWeeklyPriceSummarySubBuckets
+    public YearlyToWeeklyCandleSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
@@ -104,11 +104,11 @@ public class YearlyToWeeklyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucke
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneYear;
 }
 
-public class YearlyToMonthlyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<YearlyToMonthlyPriceSummarySubBuckets<TEntry>,
-    MonthlyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class YearlyToMonthlyCandleSubBuckets<TEntry> : CandleSubBucket<YearlyToMonthlyCandleSubBuckets<TEntry>,
+    MonthlyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public YearlyToMonthlyPriceSummarySubBuckets
+    public YearlyToMonthlyCandleSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
@@ -117,11 +117,11 @@ public class YearlyToMonthlyPriceSummarySubBuckets<TEntry> : PriceSummarySubBuck
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneYear;
 }
 
-public class YearlyToDailyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<YearlyToDailyPriceSummarySubBuckets<TEntry>,
-    DailyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class YearlyToDailyCandleSubBuckets<TEntry> : CandleSubBucket<YearlyToDailyCandleSubBuckets<TEntry>,
+    DailyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public YearlyToDailyPriceSummarySubBuckets
+    public YearlyToDailyCandleSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
@@ -130,11 +130,11 @@ public class YearlyToDailyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneYear;
 }
 
-public class DecenniallyToWeeklyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<DecenniallyToWeeklyPriceSummarySubBuckets<TEntry>,
-    WeeklyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class DecenniallyToWeeklyCandleSubBuckets<TEntry> : CandleSubBucket<DecenniallyToWeeklyCandleSubBuckets<TEntry>,
+    WeeklyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public DecenniallyToWeeklyPriceSummarySubBuckets
+    public DecenniallyToWeeklyCandleSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
@@ -143,11 +143,11 @@ public class DecenniallyToWeeklyPriceSummarySubBuckets<TEntry> : PriceSummarySub
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneDecade;
 }
 
-public class DecenniallyToMonthlyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<DecenniallyToMonthlyPriceSummarySubBuckets<TEntry>,
-    MonthlyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class DecenniallyToMonthlyCandleSubBuckets<TEntry> : CandleSubBucket<DecenniallyToMonthlyCandleSubBuckets<TEntry>,
+    MonthlyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public DecenniallyToMonthlyPriceSummarySubBuckets
+    public DecenniallyToMonthlyCandleSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
@@ -156,11 +156,11 @@ public class DecenniallyToMonthlyPriceSummarySubBuckets<TEntry> : PriceSummarySu
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneDecade;
 }
 
-public class DecenniallyToYearlyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<DecenniallyToYearlyPriceSummarySubBuckets<TEntry>,
-    YearlyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class DecenniallyToYearlyCandleSubBuckets<TEntry> : CandleSubBucket<DecenniallyToYearlyCandleSubBuckets<TEntry>,
+    YearlyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public DecenniallyToYearlyPriceSummarySubBuckets
+    public DecenniallyToYearlyCandleSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
@@ -169,11 +169,11 @@ public class DecenniallyToYearlyPriceSummarySubBuckets<TEntry> : PriceSummarySub
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneDecade;
 }
 
-public class UnlimitedToYearlyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<UnlimitedToYearlyPriceSummarySubBuckets<TEntry>,
-    YearlyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class UnlimitedToYearlyCandleSubBuckets<TEntry> : CandleSubBucket<UnlimitedToYearlyCandleSubBuckets<TEntry>,
+    YearlyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public UnlimitedToYearlyPriceSummarySubBuckets
+    public UnlimitedToYearlyCandleSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>
@@ -182,11 +182,11 @@ public class UnlimitedToYearlyPriceSummarySubBuckets<TEntry> : PriceSummarySubBu
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.Tick;
 }
 
-public class UnlimitedToDecenniallyPriceSummarySubBuckets<TEntry> : PriceSummarySubBucket<UnlimitedToDecenniallyPriceSummarySubBuckets<TEntry>
-  , DecenniallyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class UnlimitedToDecenniallyCandleSubBuckets<TEntry> : CandleSubBucket<UnlimitedToDecenniallyCandleSubBuckets<TEntry>
+  , DecenniallyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public UnlimitedToDecenniallyPriceSummarySubBuckets
+    public UnlimitedToDecenniallyCandleSubBuckets
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) =>

@@ -7,12 +7,13 @@ using FortitudeBusRules.Messages;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Transports.Network.Construction;
 using FortitudeMarkets.Configuration.ClientServerConfig;
+using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Publication.BusRules;
 using FortitudeMarkets.Pricing.PQ.Publication.BusRules.BusMessages;
 using FortitudeMarkets.Pricing.PQ.Subscription.BusRules;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
+using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Subscription.BusRules;
 using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 

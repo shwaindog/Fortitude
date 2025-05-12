@@ -14,17 +14,18 @@ using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeMarkets.Configuration.ClientServerConfig;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Publication;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
-using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.Quotes;
+using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
+using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 using static FortitudeTests.TestEnvironment.TestMachineConfig;
 
 #endregion

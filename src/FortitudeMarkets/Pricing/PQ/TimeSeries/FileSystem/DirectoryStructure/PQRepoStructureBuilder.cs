@@ -6,10 +6,11 @@
 using FortitudeCommon.Chronometry;
 using FortitudeIO.TimeSeries.FileSystem.Config;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
+using FortitudeMarkets.Pricing.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
-using FortitudeMarkets.Pricing.PQ.Summaries;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
 
@@ -58,67 +59,67 @@ public class PQRepoPathBuilder : RepoPathBuilder
         return priceFileStructure;
     }
 
-    public override IPathFile PriceSummaryFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null)
+    public override IPathFile CandleFile(DiscreetTimePeriod? from = null, DiscreetTimePeriod? to = null)
     {
-        var priceFileStructure = base.PriceSummaryFile(from, to);
+        var priceFileStructure = base.CandleFile(from, to);
         if (from == null || to == null) return priceFileStructure;
         var timeSpan = from.Value.TimeSpan;
         if (timeSpan >= TimeBoundaryPeriod.FifteenSeconds.AveragePeriodTimeSpan() &&
             timeSpan <= TimeBoundaryPeriod.FiveMinutes.AveragePeriodTimeSpan())
         {
-            priceFileStructure.FileEntryFactoryRegistry[typeof(IPricePeriodSummary)]
-                = new PQOneWeekPricePeriodSummaryRepoFileFactory<IPricePeriodSummary>();
-            priceFileStructure.FileEntryFactoryRegistry[typeof(PricePeriodSummary)]
-                = new PQOneWeekPricePeriodSummaryRepoFileFactory<PricePeriodSummary>();
-            priceFileStructure.FileEntryFactoryRegistry[typeof(PQPricePeriodSummary)]
-                = new PQOneWeekPricePeriodSummaryRepoFileFactory<PQPricePeriodSummary>();
-            priceFileStructure.FileEntryFactoryRegistry[typeof(PQPriceStoragePeriodSummary)]
-                = new PQOneWeekPricePeriodSummaryRepoFileFactory<PQPriceStoragePeriodSummary>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(ICandle)]
+                = new PQOneWeekCandleRepoFileFactory<ICandle>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(Candle)]
+                = new PQOneWeekCandleRepoFileFactory<Candle>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(PQCandle)]
+                = new PQOneWeekCandleRepoFileFactory<PQCandle>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(PQStorageCandle)]
+                = new PQOneWeekCandleRepoFileFactory<PQStorageCandle>();
         }
         else if (timeSpan >= TimeBoundaryPeriod.TenMinutes.AveragePeriodTimeSpan() &&
                  timeSpan <= TimeBoundaryPeriod.OneHour.AveragePeriodTimeSpan())
         {
-            priceFileStructure.FileEntryFactoryRegistry[typeof(IPricePeriodSummary)]
-                = new PQOneMonthPricePeriodSummaryRepoFileFactory<IPricePeriodSummary>();
-            priceFileStructure.FileEntryFactoryRegistry[typeof(PricePeriodSummary)]
-                = new PQOneMonthPricePeriodSummaryRepoFileFactory<PricePeriodSummary>();
-            priceFileStructure.FileEntryFactoryRegistry[typeof(PQPricePeriodSummary)]
-                = new PQOneMonthPricePeriodSummaryRepoFileFactory<PQPricePeriodSummary>();
-            priceFileStructure.FileEntryFactoryRegistry[typeof(PQPriceStoragePeriodSummary)]
-                = new PQOneMonthPricePeriodSummaryRepoFileFactory<PQPriceStoragePeriodSummary>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(ICandle)]
+                = new PQOneMonthCandleRepoFileFactory<ICandle>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(Candle)]
+                = new PQOneMonthCandleRepoFileFactory<Candle>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(PQCandle)]
+                = new PQOneMonthCandleRepoFileFactory<PQCandle>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(PQStorageCandle)]
+                = new PQOneMonthCandleRepoFileFactory<PQStorageCandle>();
         }
         else if (timeSpan >= TimeBoundaryPeriod.FourHours.AveragePeriodTimeSpan() && timeSpan < TimeBoundaryPeriod.OneWeek.AveragePeriodTimeSpan())
         {
-            priceFileStructure.FileEntryFactoryRegistry[typeof(IPricePeriodSummary)]
-                = new PQOneYearPricePeriodSummaryRepoFileFactory<IPricePeriodSummary>();
-            priceFileStructure.FileEntryFactoryRegistry[typeof(PricePeriodSummary)]
-                = new PQOneYearPricePeriodSummaryRepoFileFactory<PricePeriodSummary>();
-            priceFileStructure.FileEntryFactoryRegistry[typeof(PQPricePeriodSummary)]
-                = new PQOneYearPricePeriodSummaryRepoFileFactory<PQPricePeriodSummary>();
-            priceFileStructure.FileEntryFactoryRegistry[typeof(PQPriceStoragePeriodSummary)]
-                = new PQOneYearPricePeriodSummaryRepoFileFactory<PQPriceStoragePeriodSummary>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(ICandle)]
+                = new PQOneYearPriceCandleRepoFileFactory<ICandle>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(Candle)]
+                = new PQOneYearPriceCandleRepoFileFactory<Candle>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(PQCandle)]
+                = new PQOneYearPriceCandleRepoFileFactory<PQCandle>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(PQStorageCandle)]
+                = new PQOneYearPriceCandleRepoFileFactory<PQStorageCandle>();
         }
         else if (timeSpan >= TimeBoundaryPeriod.OneWeek.AveragePeriodTimeSpan() && timeSpan <= TimeBoundaryPeriod.OneMonth.AveragePeriodTimeSpan())
         {
-            priceFileStructure.FileEntryFactoryRegistry[typeof(IPricePeriodSummary)]
-                = new PQDecenniallyPricePeriodSummaryRepoFileFactory<IPricePeriodSummary>();
-            priceFileStructure.FileEntryFactoryRegistry[typeof(PricePeriodSummary)]
-                = new PQDecenniallyPricePeriodSummaryRepoFileFactory<PricePeriodSummary>();
-            priceFileStructure.FileEntryFactoryRegistry[typeof(PQPricePeriodSummary)]
-                = new PQDecenniallyPricePeriodSummaryRepoFileFactory<PQPricePeriodSummary>();
-            priceFileStructure.FileEntryFactoryRegistry[typeof(PQPriceStoragePeriodSummary)]
-                = new PQDecenniallyPricePeriodSummaryRepoFileFactory<PQPriceStoragePeriodSummary>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(ICandle)]
+                = new PQDecenniallyCandleRepoFileFactory<ICandle>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(Candle)]
+                = new PQDecenniallyCandleRepoFileFactory<Candle>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(PQCandle)]
+                = new PQDecenniallyCandleRepoFileFactory<PQCandle>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(PQStorageCandle)]
+                = new PQDecenniallyCandleRepoFileFactory<PQStorageCandle>();
         }
         else if (timeSpan >= TimeBoundaryPeriod.OneYear.AveragePeriodTimeSpan())
         {
-            priceFileStructure.FileEntryFactoryRegistry[typeof(IPricePeriodSummary)]
-                = new PQUnlimitedPricePeriodSummaryRepoFileFactory<IPricePeriodSummary>();
-            priceFileStructure.FileEntryFactoryRegistry[typeof(PricePeriodSummary)]
-                = new PQUnlimitedPricePeriodSummaryRepoFileFactory<PricePeriodSummary>();
-            priceFileStructure.FileEntryFactoryRegistry[typeof(PQPricePeriodSummary)]
-                = new PQUnlimitedPricePeriodSummaryRepoFileFactory<PQPricePeriodSummary>();
-            priceFileStructure.FileEntryFactoryRegistry[typeof(PQPriceStoragePeriodSummary)]
-                = new PQUnlimitedPricePeriodSummaryRepoFileFactory<PQPriceStoragePeriodSummary>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(ICandle)]
+                = new PQUnlimitedCandleRepoFileFactory<ICandle>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(Candle)]
+                = new PQUnlimitedCandleRepoFileFactory<Candle>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(PQCandle)]
+                = new PQUnlimitedCandleRepoFileFactory<PQCandle>();
+            priceFileStructure.FileEntryFactoryRegistry[typeof(PQStorageCandle)]
+                = new PQUnlimitedCandleRepoFileFactory<PQStorageCandle>();
         }
 
         return priceFileStructure;

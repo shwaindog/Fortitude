@@ -15,7 +15,7 @@ public enum IndicatorType : byte
 {
     Unknown
   , MarketPrice
-  , MarketPriceSummary
+  , MarketCandle
   , Oscillator
   , Averaging
   , Momentum
@@ -176,7 +176,7 @@ public readonly struct IndicatorIdentifierValue
             return IndicatorType switch
                    {
                        IndicatorType.MarketPrice        => InstrumentType.Price
-                     , IndicatorType.MarketPriceSummary => InstrumentType.PriceSummaryPeriod
+                     , IndicatorType.MarketCandle => InstrumentType.Candle
                      , _                                => InstrumentType.Indicator
                    };
         }

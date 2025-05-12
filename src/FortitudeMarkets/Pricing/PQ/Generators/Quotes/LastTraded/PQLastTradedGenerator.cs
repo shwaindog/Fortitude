@@ -3,11 +3,11 @@
 
 #region
 
+using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.Generators.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DictionaryCompression;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes.LastTraded;
-using FortitudeMarkets.Pricing.Quotes.LastTraded;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
 #endregion
 
@@ -16,7 +16,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.Generators.LastTraded;
 public class PQLastTradedGenerator : LastTradedGenerator
 {
     private readonly IPQNameIdLookupGenerator consistentNameIdLookupGenerator
-        = new PQNameIdLookupGenerator(PQQuoteFields.LastTradedDictionaryUpsertCommand);
+        = new PQNameIdLookupGenerator(PQFeedFields.LastTradedStringUpdates);
 
     public PQLastTradedGenerator(GenerateLastTradeInfo generateLastTradeInfo)
         : base(generateLastTradeInfo) { }

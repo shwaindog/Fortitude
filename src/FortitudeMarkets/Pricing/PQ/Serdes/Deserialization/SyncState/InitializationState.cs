@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Serdes.Binary;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 #endregion

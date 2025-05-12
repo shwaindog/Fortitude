@@ -4,9 +4,8 @@
 #region
 
 using FortitudeCommon.AsyncProcessing.Tasks;
-using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

@@ -6,12 +6,14 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.LayeredBook;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
-using FortitudeMarkets.Pricing.Summaries;
+using FortitudeMarkets.Pricing.FeedEvents;
+using FortitudeMarkets.Pricing.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
+using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -49,7 +51,7 @@ public class QuoteExtensionMethodsTests
                 (originalSourceTickerInfo, originalQuoteExchangeTime, false, FeedSyncStatus.Good, 1.1124m, originalQuoteClientReceiveTime
                , originalQuoteAdapterTime, originalQuoteAdapterTime, originalQuoteBidDateTime
                , true, originalQuoteAskDateTime, originalQuoteExchangeTime, originalQuoteExchangeTime.AddSeconds(2)
-               , true, true, new PricePeriodSummary()
+               , true, true, new Candle()
                , new OrderBook
                      (new OrderBookSide
                           (BookSide.BidBook, new[]

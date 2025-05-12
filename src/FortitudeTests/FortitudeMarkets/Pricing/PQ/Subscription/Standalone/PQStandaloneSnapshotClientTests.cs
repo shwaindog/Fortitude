@@ -22,17 +22,17 @@ using FortitudeIO.Transports.Network.Publishing;
 using FortitudeIO.Transports.Network.Receiving;
 using FortitudeIO.Transports.Network.Sockets;
 using FortitudeIO.Transports.Network.State;
-using FortitudeMarkets.Pricing.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Subscription.Standalone;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 using FortitudeTests.FortitudeCommon.Chronometry;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.Quotes.TickerInfo.TickerQuoteDetailLevel;
+using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 

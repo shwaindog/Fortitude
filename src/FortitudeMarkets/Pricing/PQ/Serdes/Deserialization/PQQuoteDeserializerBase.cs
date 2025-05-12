@@ -12,11 +12,12 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
+using FortitudeMarkets.Pricing.FeedEvents;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 
@@ -193,7 +194,7 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
         while (ptr < end)
         {
             var flags = (PQFieldFlags)(*ptr++);
-            var id    = (PQQuoteFields)(*ptr++);
+            var id    = (PQFeedFields)(*ptr++);
 
             var hasDepth = false;
             var depthKey = PQDepthKey.None;

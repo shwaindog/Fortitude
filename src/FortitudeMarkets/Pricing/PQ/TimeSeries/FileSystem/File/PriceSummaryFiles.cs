@@ -8,269 +8,269 @@ using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Header;
+using FortitudeMarkets.Pricing.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
-using FortitudeMarkets.Pricing.Summaries;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File;
 
-public class WeeklyDailyHourlyPriceSummaryTimeSeriesFile<TEntry> :
-    PriceSummaryTimeSeriesFile<WeeklyDailyHourlyPriceSummaryTimeSeriesFile<TEntry>, DailyToHourlyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class WeeklyDailyHourlyCandleTimeSeriesFile<TEntry> :
+    CandleTimeSeriesFile<WeeklyDailyHourlyCandleTimeSeriesFile<TEntry>, DailyToHourlyCandleSubBuckets<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public WeeklyDailyHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public WeeklyDailyHourlyCandleTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public WeeklyDailyHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public WeeklyDailyHourlyCandleTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneWeek)
-                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Candle)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(7)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public static WeeklyDailyHourlyPriceSummaryTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile
+    public static WeeklyDailyHourlyCandleTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile
         (FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class WeeklyFourHourlyPriceSummaryTimeSeriesFile<TEntry> :
-    PriceSummaryTimeSeriesFile<WeeklyFourHourlyPriceSummaryTimeSeriesFile<TEntry>, FourHourlyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class WeeklyFourHourlyCandleTimeSeriesFile<TEntry> :
+    CandleTimeSeriesFile<WeeklyFourHourlyCandleTimeSeriesFile<TEntry>, FourHourlyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public WeeklyFourHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public WeeklyFourHourlyCandleTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public WeeklyFourHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public WeeklyFourHourlyCandleTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneWeek)
-                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Candle)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(42)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public static WeeklyFourHourlyPriceSummaryTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile
+    public static WeeklyFourHourlyCandleTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile
         (FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class MonthlyFourHourlyPriceSummaryTimeSeriesFile<TEntry> :
-    PriceSummaryTimeSeriesFile<MonthlyFourHourlyPriceSummaryTimeSeriesFile<TEntry>, FourHourlyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class MonthlyFourHourlyCandleTimeSeriesFile<TEntry> :
+    CandleTimeSeriesFile<MonthlyFourHourlyCandleTimeSeriesFile<TEntry>, FourHourlyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public MonthlyFourHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public MonthlyFourHourlyCandleTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public MonthlyFourHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public MonthlyFourHourlyCandleTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneMonth)
-                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Candle)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(186)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public static MonthlyFourHourlyPriceSummaryTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile
+    public static MonthlyFourHourlyCandleTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile
         (FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class MonthlyDailyHourlyPriceSummaryTimeSeriesFile<TEntry> :
-    PriceSummaryTimeSeriesFile<MonthlyDailyHourlyPriceSummaryTimeSeriesFile<TEntry>, DailyToHourlyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class MonthlyDailyHourlyCandleTimeSeriesFile<TEntry> :
+    CandleTimeSeriesFile<MonthlyDailyHourlyCandleTimeSeriesFile<TEntry>, DailyToHourlyCandleSubBuckets<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public MonthlyDailyHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public MonthlyDailyHourlyCandleTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public MonthlyDailyHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public MonthlyDailyHourlyCandleTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneMonth)
-                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Candle)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(31)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public static MonthlyDailyHourlyPriceSummaryTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile
+    public static MonthlyDailyHourlyCandleTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile
         (FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile<TEntry> :
-    PriceSummaryTimeSeriesFile<MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile<TEntry>, WeeklyToFourHourlyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class MonthlyWeeklyFourHourlyCandleTimeSeriesFile<TEntry> :
+    CandleTimeSeriesFile<MonthlyWeeklyFourHourlyCandleTimeSeriesFile<TEntry>, WeeklyToFourHourlyCandleSubBuckets<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public MonthlyWeeklyFourHourlyCandleTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public MonthlyWeeklyFourHourlyCandleTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneMonth)
-                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Candle)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(4)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public static MonthlyWeeklyFourHourlyPriceSummaryTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile
+    public static MonthlyWeeklyFourHourlyCandleTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile
         (FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class MonthlyWeeklyDailyPriceSummaryTimeSeriesFile<TEntry> :
-    PriceSummaryTimeSeriesFile<MonthlyWeeklyDailyPriceSummaryTimeSeriesFile<TEntry>, WeeklyToDailyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class MonthlyWeeklyDailyCandleTimeSeriesFile<TEntry> :
+    CandleTimeSeriesFile<MonthlyWeeklyDailyCandleTimeSeriesFile<TEntry>, WeeklyToDailyCandleSubBuckets<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public MonthlyWeeklyDailyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public MonthlyWeeklyDailyCandleTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public MonthlyWeeklyDailyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public MonthlyWeeklyDailyCandleTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneMonth)
-                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Candle)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(4)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public static MonthlyWeeklyDailyPriceSummaryTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile
+    public static MonthlyWeeklyDailyCandleTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile
         (FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile<TEntry> :
-    PriceSummaryTimeSeriesFile<YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile<TEntry>, MonthlyToFourHourlyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class YearlyMonthlyFourHourlyCandleTimeSeriesFile<TEntry> :
+    CandleTimeSeriesFile<YearlyMonthlyFourHourlyCandleTimeSeriesFile<TEntry>, MonthlyToFourHourlyCandleSubBuckets<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public YearlyMonthlyFourHourlyCandleTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public YearlyMonthlyFourHourlyCandleTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneYear)
-                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Candle)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(12)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public static YearlyMonthlyFourHourlyPriceSummaryTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile
+    public static YearlyMonthlyFourHourlyCandleTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile
         (FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class YearlyWeeklyDailyPriceSummaryTimeSeriesFile<TEntry> :
-    PriceSummaryTimeSeriesFile<YearlyWeeklyDailyPriceSummaryTimeSeriesFile<TEntry>, WeeklyToDailyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class YearlyWeeklyDailyCandleTimeSeriesFile<TEntry> :
+    CandleTimeSeriesFile<YearlyWeeklyDailyCandleTimeSeriesFile<TEntry>, WeeklyToDailyCandleSubBuckets<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public YearlyWeeklyDailyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public YearlyWeeklyDailyCandleTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public YearlyWeeklyDailyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public YearlyWeeklyDailyCandleTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneYear)
-                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Candle)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(53)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public static YearlyWeeklyDailyPriceSummaryTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile
+    public static YearlyWeeklyDailyCandleTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile
         (FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile<TEntry> :
-    PriceSummaryTimeSeriesFile<YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile<TEntry>, MonthlyToWeeklyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class YearlyMonthlyWeeklyCandleTimeSeriesFile<TEntry> :
+    CandleTimeSeriesFile<YearlyMonthlyWeeklyCandleTimeSeriesFile<TEntry>, MonthlyToWeeklyCandleSubBuckets<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public YearlyMonthlyWeeklyCandleTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public YearlyMonthlyWeeklyCandleTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneYear)
-                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Candle)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(12)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public static YearlyMonthlyWeeklyPriceSummaryTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile(FileInfo file) =>
+    public static YearlyMonthlyWeeklyCandleTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile(FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile<TEntry> :
-    PriceSummaryTimeSeriesFile<DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile<TEntry>, MonthlyToWeeklyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class DecenniallyMonthlyWeeklyCandleTimeSeriesFile<TEntry> :
+    CandleTimeSeriesFile<DecenniallyMonthlyWeeklyCandleTimeSeriesFile<TEntry>, MonthlyToWeeklyCandleSubBuckets<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public DecenniallyMonthlyWeeklyCandleTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public DecenniallyMonthlyWeeklyCandleTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneDecade)
-                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Candle)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(120)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public static DecenniallyMonthlyWeeklyPriceSummaryTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile(FileInfo file) =>
+    public static DecenniallyMonthlyWeeklyCandleTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile(FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile<TEntry> :
-    PriceSummaryTimeSeriesFile<DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile<TEntry>, YearlyToMonthlyPriceSummarySubBuckets<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class DecenniallyYearlyMonthlyCandleTimeSeriesFile<TEntry> :
+    CandleTimeSeriesFile<DecenniallyYearlyMonthlyCandleTimeSeriesFile<TEntry>, YearlyToMonthlyCandleSubBuckets<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public DecenniallyYearlyMonthlyCandleTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public DecenniallyYearlyMonthlyCandleTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.OneDecade)
-                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Candle)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(10)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public static DecenniallyYearlyMonthlyPriceSummaryTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile(FileInfo file) =>
+    public static DecenniallyYearlyMonthlyCandleTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile(FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<TEntry> :
-    PriceSummaryTimeSeriesFile<UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<TEntry>, DecenniallyToYearlyPriceSummarySubBuckets<TEntry>,
+public class UnlimitedDecenniallyYearlyCandleTimeSeriesFile<TEntry> :
+    CandleTimeSeriesFile<UnlimitedDecenniallyYearlyCandleTimeSeriesFile<TEntry>, DecenniallyToYearlyCandleSubBuckets<TEntry>,
         TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public UnlimitedDecenniallyYearlyCandleTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public UnlimitedDecenniallyYearlyCandleTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.Tick)
-                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Candle)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(10)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public static UnlimitedDecenniallyYearlyPriceSummaryTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile(FileInfo file) =>
+    public static UnlimitedDecenniallyYearlyCandleTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile(FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class UnlimitedDecenniallyPriceSummaryTimeSeriesFile<TEntry> :
-    PriceSummaryTimeSeriesFile<UnlimitedDecenniallyPriceSummaryTimeSeriesFile<TEntry>, DecenniallyPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class UnlimitedDecenniallyCandleTimeSeriesFile<TEntry> :
+    CandleTimeSeriesFile<UnlimitedDecenniallyCandleTimeSeriesFile<TEntry>, DecenniallyCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public UnlimitedDecenniallyPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public UnlimitedDecenniallyCandleTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public UnlimitedDecenniallyPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public UnlimitedDecenniallyCandleTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.Tick)
-                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Candle)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(50)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public static UnlimitedDecenniallyPriceSummaryTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile(FileInfo file) =>
+    public static UnlimitedDecenniallyCandleTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile(FileInfo file) =>
         OpenExistingTimeSeriesFile(file.FullName);
 }
 
-public class UnlimitedPriceSummaryTimeSeriesFile<TEntry> :
-    PriceSummaryTimeSeriesFile<UnlimitedPriceSummaryTimeSeriesFile<TEntry>, UnlimitedPriceSummaryDataBucket<TEntry>, TEntry>
-    where TEntry : ITimeSeriesEntry, IPricePeriodSummary
+public class UnlimitedCandleTimeSeriesFile<TEntry> :
+    CandleTimeSeriesFile<UnlimitedCandleTimeSeriesFile<TEntry>, UnlimitedCandleDataBucket<TEntry>, TEntry>
+    where TEntry : ITimeSeriesEntry, ICandle
 {
-    public UnlimitedPriceSummaryTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
+    public UnlimitedCandleTimeSeriesFile(PagedMemoryMappedFile pagedMemoryMappedFile, IMutableTimeSeriesFileHeader header)
         : base(pagedMemoryMappedFile, header) { }
 
-    public UnlimitedPriceSummaryTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
+    public UnlimitedCandleTimeSeriesFile(PriceTimeSeriesFileParameters sourceTickerTimeSeriesFileParams)
         : base(sourceTickerTimeSeriesFileParams.SetFilePeriod(TimeBoundaryPeriod.Tick)
-                                               .AssertTimeSeriesEntryType(InstrumentType.PriceSummaryPeriod)
+                                               .AssertTimeSeriesEntryType(InstrumentType.Candle)
                                                .SetFileFlags(FileFlags.HasSubFileHeader)
                                                .SetInternalIndexSize(1)
                                                .SetInitialFileSize(512 * 1024)) { }
 
-    public static UnlimitedPriceSummaryTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
+    public static UnlimitedCandleTimeSeriesFile<TEntry> OpenExistingTimeSeriesFile(FileInfo file) => OpenExistingTimeSeriesFile(file.FullName);
 }

@@ -7,9 +7,10 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeMarkets.Configuration.ClientServerConfig;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

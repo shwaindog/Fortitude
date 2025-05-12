@@ -8,10 +8,10 @@ using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes.TickerInfo;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
 
 #endregion
 

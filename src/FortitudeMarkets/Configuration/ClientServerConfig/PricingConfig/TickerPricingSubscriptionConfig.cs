@@ -3,8 +3,7 @@
 
 #region
 
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 #endregion
 

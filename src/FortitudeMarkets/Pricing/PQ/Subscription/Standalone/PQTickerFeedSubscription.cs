@@ -4,8 +4,7 @@
 #region
 
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarkets.Pricing.Quotes;
-using FortitudeMarkets.Pricing.Quotes.TickerInfo;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 #endregion
 
