@@ -9,7 +9,6 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
@@ -28,13 +27,13 @@ public class PQRecentlyTradedTests
     private IList<IPQLastPaidGivenTrade>       lastPaidGivenEntries            = null!;
     private IList<IPQLastTraderPaidGivenTrade> lastTraderPaidGivenEntries      = null!;
 
-    private PQRecentlyTraded paidGivenVolumeRecentlyTradedFullyPopulatedQuote = null!;
+    private PQRecentlyTraded paidGivenVolumeRecentlyTradedFullyPopulatedLastTrades = null!;
 
     private IList<IPQLastTrade> simpleEntries = null!;
 
-    private PQRecentlyTraded        simpleRecentlyTradedFullyPopulatedQuote                = null!;
+    private PQRecentlyTraded        simpleRecentlyTradedFullyPopulatedLastTrades                = null!;
     private PQNameIdLookupGenerator traderNameIdLookupGenerator                            = null!;
-    private PQRecentlyTraded        traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote = null!;
+    private PQRecentlyTraded        fullSupportRecentlyTradedFullyPopulatedLastTrades = null!;
     // test being less than max.
 
     [TestInitialize]
@@ -64,14 +63,14 @@ public class PQRecentlyTradedTests
             });
         }
 
-        simpleRecentlyTradedFullyPopulatedQuote                = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)simpleEntries);
-        paidGivenVolumeRecentlyTradedFullyPopulatedQuote       = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)lastPaidGivenEntries);
-        traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)lastTraderPaidGivenEntries);
+        simpleRecentlyTradedFullyPopulatedLastTrades                = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)simpleEntries);
+        paidGivenVolumeRecentlyTradedFullyPopulatedLastTrades       = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)lastPaidGivenEntries);
+        fullSupportRecentlyTradedFullyPopulatedLastTrades = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)lastTraderPaidGivenEntries);
 
         allFullyPopulatedRecentlyTraded = new List<PQRecentlyTraded>
         {
-            simpleRecentlyTradedFullyPopulatedQuote, paidGivenVolumeRecentlyTradedFullyPopulatedQuote
-          , traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote
+            simpleRecentlyTradedFullyPopulatedLastTrades, paidGivenVolumeRecentlyTradedFullyPopulatedLastTrades
+          , fullSupportRecentlyTradedFullyPopulatedLastTrades
         };
     }
 
@@ -95,31 +94,31 @@ public class PQRecentlyTradedTests
     {
         for (var i = 0; i < allFullyPopulatedRecentlyTraded.Count; i++)
         {
-            IRecentlyTraded populatedOrderBook = allFullyPopulatedRecentlyTraded[i];
-            var             clonedOrderBook    = new PQRecentlyTraded(populatedOrderBook);
+            IRecentlyTraded populatedRecentlyTraded = allFullyPopulatedRecentlyTraded[i];
+            var             clonedRecentlyTraded    = new PQRecentlyTraded(populatedRecentlyTraded);
             for (var j = 0; j < MaxNumberOfEntries; j++)
             {
-                Assert.AreEqual(MaxNumberOfEntries, clonedOrderBook.Count);
-                Assert.AreNotSame(populatedOrderBook[j], clonedOrderBook[j]);
+                Assert.AreEqual(MaxNumberOfEntries, clonedRecentlyTraded.Count);
+                Assert.AreNotSame(populatedRecentlyTraded[j], clonedRecentlyTraded[j]);
             }
         }
     }
 
     [TestMethod]
-    public void PopulatedRecentlyTraded_AccessIndexerVariousInterfaces_GetsAndSetsLayerRemovesLastEntryIfNull()
+    public void PopulatedRecentlyTraded_AccessIndexerVariousInterfaces_GetsAndSetsLastTradeRemovesLastEntryIfNull()
     {
-        foreach (var populatedOrderBook in allFullyPopulatedRecentlyTraded)
+        foreach (var populatedRecentlyTraded in allFullyPopulatedRecentlyTraded)
             for (var i = 0; i < MaxNumberOfEntries; i++)
             {
-                var layer       = ((IRecentlyTraded)populatedOrderBook)[i];
-                var clonedLayer = (IPQLastTrade)layer!.Clone();
-                populatedOrderBook[i] = clonedLayer;
-                Assert.AreNotSame(layer, ((IMutableRecentlyTraded)populatedOrderBook)[i]);
-                Assert.AreSame(clonedLayer, populatedOrderBook[i]);
-                if (i == populatedOrderBook.Count - 1)
+                var lastTrade       = ((IRecentlyTraded)populatedRecentlyTraded)[i];
+                var clonedLastTrade = (IPQLastTrade)lastTrade!.Clone();
+                populatedRecentlyTraded[i] = clonedLastTrade;
+                Assert.AreNotSame(lastTrade, ((IMutableRecentlyTraded)populatedRecentlyTraded)[i]);
+                Assert.AreSame(clonedLastTrade, populatedRecentlyTraded[i]);
+                if (i == populatedRecentlyTraded.Count - 1)
                 {
-                    ((IMutableRecentlyTraded)populatedOrderBook)[i] = null;
-                    Assert.AreEqual(MaxNumberOfEntries - 1, populatedOrderBook.Count);
+                    ((IMutableRecentlyTraded)populatedRecentlyTraded)[i] = null;
+                    Assert.AreEqual(MaxNumberOfEntries - 1, populatedRecentlyTraded.Count);
                 }
             }
     }
@@ -271,14 +270,14 @@ public class PQRecentlyTradedTests
     [TestMethod]
     public void PopulatedRecentlyTradedWithNoUpdates_GetDeltaUpdateFieldsAsUpdate_ReturnsNoUpdates()
     {
-        foreach (var populatedL3Quote in allFullyPopulatedRecentlyTraded)
+        foreach (var populatedRecentlyTraded in allFullyPopulatedRecentlyTraded)
         {
-            populatedL3Quote.HasUpdates = false;
+            populatedRecentlyTraded.HasUpdates = false;
             var pqFieldUpdates =
-                populatedL3Quote.GetDeltaUpdateFields
+                populatedRecentlyTraded.GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
             var pqStringUpdates =
-                populatedL3Quote.GetStringUpdates
+                populatedRecentlyTraded.GetStringUpdates
                     (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
             Assert.AreEqual(0, pqFieldUpdates.Count);
             Assert.AreEqual(0, pqStringUpdates.Count);
@@ -320,37 +319,37 @@ public class PQRecentlyTradedTests
     [TestMethod]
     public void FullyPopulatedRecentlyTraded_CopyFromSubTypes_SubTypeSaysIsEquivalent()
     {
-        foreach (var populatedOrderBook in allFullyPopulatedRecentlyTraded)
-        foreach (var subType in allFullyPopulatedRecentlyTraded.Where(ob => !ReferenceEquals(ob, populatedOrderBook)))
+        foreach (var populatedRecentlyTraded in allFullyPopulatedRecentlyTraded)
+        foreach (var subType in allFullyPopulatedRecentlyTraded.Where(ob => !ReferenceEquals(ob, populatedRecentlyTraded)))
         {
-            if (!WholeyContainedBy(subType[0]!.GetType(), populatedOrderBook[0]!.GetType())) continue;
-            var newEmpty = new PQRecentlyTraded((IRecentlyTraded)populatedOrderBook);
+            if (!WholeyContainedBy(subType[0]!.GetType(), populatedRecentlyTraded[0]!.GetType())) continue;
+            var newEmpty = new PQRecentlyTraded((IRecentlyTraded)populatedRecentlyTraded);
             newEmpty.StateReset();
-            Assert.AreNotEqual(populatedOrderBook, newEmpty);
+            Assert.AreNotEqual(populatedRecentlyTraded, newEmpty);
             newEmpty.CopyFrom(subType);
             Assert.IsTrue(subType.AreEquivalent(newEmpty));
         }
     }
 
     [TestMethod]
-    public void FullyPopulatedRecentlyTraded_CopyFromLessLayers_ReplicatesMissingValues()
+    public void FullyPopulatedRecentlyTraded_CopyFromLessLastTrade_ReplicatesMissingValues()
     {
-        var clonePopulated = simpleRecentlyTradedFullyPopulatedQuote.Clone();
+        var clonePopulated = simpleRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(MaxNumberOfEntries, clonePopulated.Count);
-        clonePopulated[clonePopulated.Count - 1] = null;
-        clonePopulated[clonePopulated.Count - 1] = null;
-        clonePopulated[clonePopulated.Count - 1] = null;
+        clonePopulated[^1] = null;
+        clonePopulated[^1] = null;
+        clonePopulated[^1] = null;
         Assert.AreEqual(MaxNumberOfEntries - 3, clonePopulated.Count);
-        var notEmpty = new PQRecentlyTraded((IRecentlyTraded)simpleRecentlyTradedFullyPopulatedQuote);
+        var notEmpty = new PQRecentlyTraded((IRecentlyTraded)simpleRecentlyTradedFullyPopulatedLastTrades);
         Assert.AreEqual(MaxNumberOfEntries, notEmpty.Count);
         notEmpty.CopyFrom(clonePopulated);
         Assert.AreEqual(MaxNumberOfEntries - 3, notEmpty.Count);
     }
 
     [TestMethod]
-    public void FullyPopulatedOrderBook_CopyFromWithNull_ReplicatesGapAsEmpty()
+    public void FullyPopulatedRecentlyTraded_CopyFromWithNull_ReplicatesGapAsEmpty()
     {
-        var clonePopulated = simpleRecentlyTradedFullyPopulatedQuote.Clone();
+        var clonePopulated = simpleRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(MaxNumberOfEntries, clonePopulated.Count);
 
         clonePopulated[clonePopulated.Count - 1] = null;
@@ -358,7 +357,7 @@ public class PQRecentlyTradedTests
 
         clonePopulated[5] = null;
         Assert.AreEqual(MaxNumberOfEntries - 2, clonePopulated.Count);
-        var notEmpty = new PQRecentlyTraded((IRecentlyTraded)simpleRecentlyTradedFullyPopulatedQuote);
+        var notEmpty = new PQRecentlyTraded((IRecentlyTraded)simpleRecentlyTradedFullyPopulatedLastTrades);
         Assert.AreEqual(MaxNumberOfEntries, notEmpty.Count);
         notEmpty.CopyFrom(clonePopulated);
         Assert.AreEqual(new PQLastTrade(), notEmpty[5]);
@@ -366,16 +365,16 @@ public class PQRecentlyTradedTests
     }
 
     [TestMethod]
-    public void FullyPopulatedOrderBook_CopyFromAlreadyContainsNull_FillsGap()
+    public void FullyPopulatedRecentlyTraded_CopyFromAlreadyContainsNull_FillsGap()
     {
-        var clonePopulated = simpleRecentlyTradedFullyPopulatedQuote.Clone();
+        var clonePopulated = simpleRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(MaxNumberOfEntries, clonePopulated.Count);
 
         clonePopulated[MaxNumberOfEntries - 1] = null;
         clonePopulated[MaxNumberOfEntries - 2] = null;
 
         Assert.AreEqual(MaxNumberOfEntries - 2, clonePopulated.Count);
-        var notEmpty = new PQRecentlyTraded((IRecentlyTraded)simpleRecentlyTradedFullyPopulatedQuote)
+        var notEmpty = new PQRecentlyTraded((IRecentlyTraded)simpleRecentlyTradedFullyPopulatedLastTrades)
         {
             [5] = null
         };
@@ -424,9 +423,9 @@ public class PQRecentlyTradedTests
     {
         foreach (var populatedRecentlyTraded in allFullyPopulatedRecentlyTraded)
         {
-            var nonPQOrderBook = new RecentlyTraded(populatedRecentlyTraded);
+            var nonPQRecentlyTraded = new RecentlyTraded(populatedRecentlyTraded);
             var newEmpty       = CreateNewEmpty(populatedRecentlyTraded);
-            newEmpty.CopyFrom(nonPQOrderBook);
+            newEmpty.CopyFrom(nonPQRecentlyTraded);
             Assert.AreEqual(populatedRecentlyTraded, newEmpty);
         }
     }
@@ -438,11 +437,11 @@ public class PQRecentlyTradedTests
         foreach (var otherRecentlyTraded in allFullyPopulatedRecentlyTraded
                      .Where(ob => !ReferenceEquals(ob, originalRecentlyTraded)))
         {
-            var emptyOriginalTypeOrderBook = CreateNewEmpty(originalRecentlyTraded);
-            AssertAllLayersAreOfTypeAndEquivalentTo(emptyOriginalTypeOrderBook, originalRecentlyTraded,
+            var emptyOriginalTypeRecentlyTraded = CreateNewEmpty(originalRecentlyTraded);
+            AssertAllLastTradesAreOfTypeAndEquivalentTo(emptyOriginalTypeRecentlyTraded, originalRecentlyTraded,
                                                     originalRecentlyTraded[0]!.GetType(), false);
-            emptyOriginalTypeOrderBook.CopyFrom(otherRecentlyTraded);
-            AssertAllLayersAreOfTypeAndEquivalentTo(emptyOriginalTypeOrderBook, otherRecentlyTraded,
+            emptyOriginalTypeRecentlyTraded.CopyFrom(otherRecentlyTraded);
+            AssertAllLastTradesAreOfTypeAndEquivalentTo(emptyOriginalTypeRecentlyTraded, otherRecentlyTraded,
                                                     GetExpectedType(originalRecentlyTraded[0]!.GetType(),
                                                                     otherRecentlyTraded[0]!.GetType()));
         }
@@ -455,14 +454,14 @@ public class PQRecentlyTradedTests
         foreach (var otherRecentlyTraded in allFullyPopulatedRecentlyTraded
                      .Where(ob => !ReferenceEquals(ob, originalRecentlyTraded)))
         {
-            var clonedPopulatedOrderBook = (PQRecentlyTraded)originalRecentlyTraded.Clone();
-            AssertAllLayersAreOfTypeAndEquivalentTo(clonedPopulatedOrderBook, originalRecentlyTraded,
+            var clonedPopulatedRecentlyTraded = (PQRecentlyTraded)originalRecentlyTraded.Clone();
+            AssertAllLastTradesAreOfTypeAndEquivalentTo(clonedPopulatedRecentlyTraded, originalRecentlyTraded,
                                                     originalRecentlyTraded[0]!.GetType(), false);
-            clonedPopulatedOrderBook.CopyFrom(otherRecentlyTraded);
-            AssertAllLayersAreOfTypeAndEquivalentTo(clonedPopulatedOrderBook, otherRecentlyTraded,
+            clonedPopulatedRecentlyTraded.CopyFrom(otherRecentlyTraded);
+            AssertAllLastTradesAreOfTypeAndEquivalentTo(clonedPopulatedRecentlyTraded, otherRecentlyTraded,
                                                     GetExpectedType(originalRecentlyTraded[0]!.GetType(),
                                                                     otherRecentlyTraded[0]!.GetType()));
-            AssertAllLayersAreOfTypeAndEquivalentTo(clonedPopulatedOrderBook, originalRecentlyTraded,
+            AssertAllLastTradesAreOfTypeAndEquivalentTo(clonedPopulatedRecentlyTraded, originalRecentlyTraded,
                                                     GetExpectedType(originalRecentlyTraded[0]!.GetType(),
                                                                     otherRecentlyTraded[0]!.GetType()));
         }
@@ -473,9 +472,9 @@ public class PQRecentlyTradedTests
     {
         foreach (var populatedRecentlyTraded in allFullyPopulatedRecentlyTraded)
         {
-            var clonedOrderBook = ((ICloneable<IRecentlyTraded>)populatedRecentlyTraded).Clone();
-            Assert.AreNotSame(clonedOrderBook, populatedRecentlyTraded);
-            Assert.AreEqual(populatedRecentlyTraded, clonedOrderBook);
+            var clonedRecentlyTraded = ((ICloneable<IRecentlyTraded>)populatedRecentlyTraded).Clone();
+            Assert.AreNotSame(clonedRecentlyTraded, populatedRecentlyTraded);
+            Assert.AreEqual(populatedRecentlyTraded, clonedRecentlyTraded);
 
             var cloned2 = (IPQRecentlyTraded)((ICloneable)populatedRecentlyTraded).Clone();
             Assert.AreNotSame(cloned2, populatedRecentlyTraded);
@@ -520,18 +519,18 @@ public class PQRecentlyTradedTests
     }
 
     [TestMethod]
-    public void FullyPopulatedQuote_ToString_ReturnsNameAndValues()
+    public void FullyPopulatedRecentlyTraded_ToString_ReturnsNameAndValues()
     {
-        foreach (var populatedQuote in allFullyPopulatedRecentlyTraded)
+        foreach (var populatedRecentlyTraded in allFullyPopulatedRecentlyTraded)
         {
-            var q = populatedQuote;
+            var q = populatedRecentlyTraded;
 
             var toString = q.ToString();
 
             Assert.IsTrue(toString.Contains(q.GetType().Name));
 
             Assert.IsTrue(toString.Contains(
-                                            $"LastTrades: [{string.Join(", ", (IEnumerable<ILastTrade>)populatedQuote)}]"));
+                                            $"LastTrades: [{string.Join(", ", (IEnumerable<ILastTrade>)populatedRecentlyTraded)}]"));
             Assert.IsTrue(toString.Contains($"{nameof(q.Count)}: {q.Count}"));
         }
     }
@@ -539,7 +538,7 @@ public class PQRecentlyTradedTests
     [TestMethod]
     public void FullyPopulatedPvlVariousInterfaces_GetEnumerator_OnlyGetsNonEmptyEntries()
     {
-        var rt = traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote;
+        var rt = fullSupportRecentlyTradedFullyPopulatedLastTrades;
         Assert.AreEqual(MaxNumberOfEntries, rt.Count);
         Assert.AreEqual(MaxNumberOfEntries, ((IEnumerable<IPQLastTrade>)rt).Count());
         Assert.AreEqual(MaxNumberOfEntries, ((IEnumerable<ILastTrade>)rt).Count());
@@ -560,18 +559,18 @@ public class PQRecentlyTradedTests
         return typeof(PQLastTraderPaidGivenTrade);
     }
 
-    private void AssertAllLayersAreOfTypeAndEquivalentTo
+    private void AssertAllLastTradesAreOfTypeAndEquivalentTo
     (PQRecentlyTraded upgradedRecentlyTraded,
         PQRecentlyTraded equivalentTo, Type expectedType, bool compareForEquivalence = true,
         bool exactlyEquals = false)
     {
         for (var i = 0; i < upgradedRecentlyTraded.Capacity; i++)
         {
-            var upgradedLayer = upgradedRecentlyTraded[i];
-            var copyFromLayer = equivalentTo[i];
+            var upgradedLastTrade = upgradedRecentlyTraded[i];
+            var copyFromLastTrade = equivalentTo[i];
 
-            Assert.IsInstanceOfType(upgradedLayer, expectedType);
-            if (compareForEquivalence) Assert.IsTrue(copyFromLayer!.AreEquivalent(upgradedLayer, exactlyEquals));
+            Assert.IsInstanceOfType(upgradedLastTrade, expectedType);
+            if (compareForEquivalence) Assert.IsTrue(copyFromLastTrade!.AreEquivalent(upgradedLastTrade, exactlyEquals));
         }
     }
 
@@ -620,13 +619,13 @@ public class PQRecentlyTradedTests
                                               lastTrade.TradeTime.Get2MinIntervalsFromUnixEpoch()),
                             PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.LastTradedTickTrades, depthId,
                                                                         PQTradingSubFieldKeys.LastTradedTradeTimeDate),
-                            $"For bidlayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+                            $"For lastTradeType {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             var extended = lastTrade.TradeTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBase);
             Assert.AreEqual(new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, depthId, PQTradingSubFieldKeys.LastTradedTradeSub2MinTime, subHourBase, extended)
                           , PQTickInstantTests.ExtractFieldUpdateWithId
                                 (checkFieldUpdates, PQFeedFields.LastTradedTickTrades, depthId, PQTradingSubFieldKeys.LastTradedTradeSub2MinTime, extended),
-                            $"For asklayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+                            $"For lastTradeType {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             if (lastTrade is IPQLastPaidGivenTrade pqPaidGivenTrade)
             {
@@ -637,7 +636,7 @@ public class PQRecentlyTradedTests
                 Assert.AreEqual(new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, depthId, PQTradingSubFieldKeys.LastTradedBooleanFlags, (uint)lastTradedBoolFlags),
                                 PQTickInstantTests.ExtractFieldUpdateWithId
                                     (checkFieldUpdates, PQFeedFields.LastTradedTickTrades, depthId, PQTradingSubFieldKeys.LastTradedBooleanFlags),
-                                $"For asklayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+                                $"For lastTradeType {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
             }
 
             if (lastTrade is IPQLastTraderPaidGivenTrade pqTraderPaidGivenTrade)
@@ -646,7 +645,7 @@ public class PQRecentlyTradedTests
                 Assert.AreEqual(new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, depthId, PQTradingSubFieldKeys.LastTradedTraderNameId, lastTradedTraderId),
                                 PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.LastTradedTickTrades, depthId, 
                                                                             PQTradingSubFieldKeys.LastTradedTraderNameId),
-                                $"For asklayer {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+                                $"For lastTradeType {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
             }
         }
     }

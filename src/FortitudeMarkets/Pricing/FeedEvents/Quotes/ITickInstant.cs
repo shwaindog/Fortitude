@@ -85,7 +85,5 @@ public interface IMutablePublishableTickInstant : IPublishableTickInstant, IMuta
     
     new IMutableTickInstant AsNonPublishable { get; }
 
-    void IncrementTimeBy(TimeSpan toChangeBy);
-
     new IMutablePublishableTickInstant Clone();
 }

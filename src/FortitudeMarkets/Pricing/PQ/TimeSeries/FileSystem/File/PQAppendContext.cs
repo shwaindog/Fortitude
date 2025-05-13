@@ -6,12 +6,10 @@
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
-using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 #endregion
 

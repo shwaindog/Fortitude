@@ -6,11 +6,9 @@
 using FortitudeMarkets.Configuration.ClientServerConfig;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Publication;
 using FortitudeTests.FortitudeCommon.Types;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
-using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 

@@ -14,6 +14,7 @@ using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
+using FortitudeMarkets.Pricing.FeedEvents.Generators.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
@@ -21,7 +22,6 @@ using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.Generators.Quotes;
 using FortitudeMarkets.Pricing.PQ.Generators.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
@@ -58,17 +58,20 @@ public class WeeklyTickInstantTimeSeriesFileTests
         tickInstantSrcTkrInfo =
             new SourceTickerInfo
                 (19, "WeeklyTickInstantTimeSeriesFileTests", 79, "PersistTest", SingleValue, Unknown
-               , 1, layerFlags: LayerFlags.None, lastTradedFlags: LastTradedFlags.None, roundingPrecision: 0.000001m);
+               , layerFlags: LayerFlags.None, lastTradedFlags: LastTradedFlags.None, roundingPrecision: 0.000001m);
 
         var dateToGenerate = DateTime.UtcNow.Date.TruncToMonthBoundary().AddDays(15);
-        ;
         var currentDayOfWeek = dateToGenerate.DayOfWeek;
         var dayDiff          = DayOfWeek.Sunday - currentDayOfWeek;
         var startOfWeek      = dateToGenerate.AddDays(dayDiff);
 
-        var generateQuoteInfo = new GenerateQuoteInfo(tickInstantSrcTkrInfo);
-        generateQuoteInfo.MidPriceGenerator!.StartTime  = startOfWeek;
-        generateQuoteInfo.MidPriceGenerator!.StartPrice = 1.332211m;
+        var generateQuoteInfo = new GenerateQuoteInfo(tickInstantSrcTkrInfo)
+        {
+            MidPriceGenerator =
+            {
+                StartTime = startOfWeek, StartPrice = 1.332211m
+            }
+        };
 
         tickInstantGenerator   = new PublishableTickInstantGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
         pqTickInstantGenerator = new PQPublishableTickInstantGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));

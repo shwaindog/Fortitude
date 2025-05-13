@@ -9,7 +9,6 @@ using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
@@ -395,8 +394,8 @@ public class PQLastTradeTests
 
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType
     (bool exactComparison, PQLastTrade? original,
-        PQLastTrade changingLastTrade, PQRecentlyTraded? originalRecentlyTraded = null
-      , PQRecentlyTraded? changingRecentlyTraded = null,
+        PQLastTrade changingLastTrade, PQLastTradedList? originalRecentlyTraded = null
+      , PQLastTradedList? changingRecentlyTraded = null,
         PQPublishableLevel3Quote? originalQuote = null, PQPublishableLevel3Quote? changingQuote = null)
     {
         if (original == null) return;

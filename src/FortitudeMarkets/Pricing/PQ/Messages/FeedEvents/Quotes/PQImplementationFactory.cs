@@ -4,7 +4,6 @@
 #region
 
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 #endregion
 

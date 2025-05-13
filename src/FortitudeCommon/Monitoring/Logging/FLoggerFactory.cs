@@ -20,7 +20,7 @@ public class FLoggerFactory : IFLoggerFactory
     private static readonly EnumerableBatchPollingRing<FLogEvent>? Ring;
 
     private static readonly FLogEventPoller? RingPoller;
-    private static readonly object           syncLock = new();
+    private static readonly object           SyncLock = new();
     private static volatile IFLoggerFactory? instance;
 
     static FLoggerFactory()
@@ -54,8 +54,8 @@ public class FLoggerFactory : IFLoggerFactory
         RingPoller = new FLogEventPoller(Ring, configContext["TimeoutMs"]?.ToUInt() ?? 500);
         RingPoller.Start();
 
-        AppDomain.CurrentDomain.DomainUnload += (s, e) => { RingPoller.Dispose(); };
-        ///AppDomain.CurrentDomain.ProcessExit += (s, e) => { RingPoller.Dispose(); };
+        AppDomain.CurrentDomain.DomainUnload += (_, _) => { RingPoller.Dispose(); };
+        //AppDomain.CurrentDomain.ProcessExit += (s, e) => { RingPoller.Dispose(); };
     }
 
     public static IFLoggerFactory Instance
@@ -63,9 +63,13 @@ public class FLoggerFactory : IFLoggerFactory
         get
         {
             if (instance != null) return instance;
-            lock (syncLock)
+            lock (SyncLock)
             {
-                instance ??= new FLoggerFactory();
+                // ReSharper disable once ConvertIfStatementToNullCoalescingAssignment
+                if (instance == null)
+                {
+                    instance = new FLoggerFactory();
+                }
             }
 
             return instance;
@@ -86,7 +90,7 @@ public class FLoggerFactory : IFLoggerFactory
                     Loggers.Add(loggerName, logger = new AsyncFLogger(Ring, LoggerFactory.GetLogger(loggerName)));
             }
 
-            HierarchicalLoggingConfigurator<IFLogger>.Register(logger!);
+            HierarchicalLoggingConfigurator<IFLogger>.Register(logger);
         }
 
         return logger;
@@ -96,11 +100,11 @@ public class FLoggerFactory : IFLoggerFactory
 
     public static void GracefullyTerminateProcessLogging()
     {
-        RingPoller.Dispose();
+        RingPoller?.Dispose();
     }
 
     public static void WaitUntilDrained()
     {
-        RingPoller.WaitUntilDrained();
+        RingPoller?.WaitUntilDrained();
     }
 }

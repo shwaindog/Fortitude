@@ -11,7 +11,6 @@ using FortitudeBusRules.Rules;
 using FortitudeMarkets.Configuration.ClientServerConfig;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Publication.BusRules.BusMessages;
 using FortitudeMarkets.Pricing.PQ.Subscription.BusRules.BusMessages;
 

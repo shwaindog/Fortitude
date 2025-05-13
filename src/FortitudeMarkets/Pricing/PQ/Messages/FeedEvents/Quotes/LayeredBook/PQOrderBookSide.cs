@@ -148,7 +148,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
         if (toClone.HasNonEmptyOpenInterest)
         {
-            pqOpenInterestSide = new PQMarketAggregate(toClone.MarketAggregateSide);
+            pqOpenInterestSide = new PQMarketAggregate(toClone.OpenInterestSide);
         }
 
         MaxPublishDepth       = toClone.MaxPublishDepth;
@@ -322,7 +322,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         }
     }
 
-    IMarketAggregate IOrderBookSide.MarketAggregateSide => OpenInterestSide!;
+    IMarketAggregate IOrderBookSide.OpenInterestSide => OpenInterestSide!;
     IMutableMarketAggregate? IMutableOrderBookSide.OpenInterestSide
     {
         get => OpenInterestSide;
@@ -466,7 +466,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         if (source.HasNonEmptyOpenInterest)
         {
             pqOpenInterestSide ??= new PQMarketAggregate();
-            pqOpenInterestSide.CopyFrom(source.MarketAggregateSide, copyMergeFlags);
+            pqOpenInterestSide.CopyFrom(source.OpenInterestSide, copyMergeFlags);
         }
         else if (pqOpenInterestSide != null)
         {
@@ -542,7 +542,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         var openInterestSame  = HasNonEmptyOpenInterest == other.HasNonEmptyOpenInterest;
         if (openInterestSame && other.HasNonEmptyOpenInterest && HasNonEmptyOpenInterest)
         {
-            openInterestSame = pqOpenInterestSide?.AreEquivalent(other.MarketAggregateSide, exactTypes) ?? false;
+            openInterestSame = pqOpenInterestSide?.AreEquivalent(other.OpenInterestSide, exactTypes) ?? false;
         }
         var bookLayersSame = true;
         for (int i = 0; i < Count; i++)

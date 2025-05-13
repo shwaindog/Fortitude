@@ -58,7 +58,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     {
         BookSide = bookSide;
 
-        LayerSupportedFlags = bookLayers?.FirstOrDefault()?.SupportsLayerFlags ?? LayerFlagsExtensions.PriceVolumeLayerFlags;
+        LayerSupportedFlags = bookLayers.FirstOrDefault()?.SupportsLayerFlags ?? LayerFlagsExtensions.PriceVolumeLayerFlags;
         MaxPublishDepth          = (ushort)bookLayers.Count();
         this.bookLayers =
             bookLayers
@@ -78,7 +78,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         DailyTickUpdateCount = toClone.DailyTickUpdateCount;
         if (toClone.HasNonEmptyOpenInterest)
         {
-            openInterestSide = new MarketAggregate(toClone.MarketAggregateSide);
+            openInterestSide = new MarketAggregate(toClone.OpenInterestSide);
         }
         bookLayers =
             toClone
@@ -141,7 +141,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         }
     }
 
-    IMarketAggregate IOrderBookSide.MarketAggregateSide => OpenInterestSideSide!;
+    IMarketAggregate IOrderBookSide.OpenInterestSide => OpenInterestSideSide!;
     IMutableMarketAggregate? IMutableOrderBookSide.OpenInterestSide
     {
         get => OpenInterestSideSide;
@@ -259,7 +259,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         var openInterestSame = HasNonEmptyOpenInterest == other.HasNonEmptyOpenInterest;
         if (openInterestSame && other.HasNonEmptyOpenInterest && HasNonEmptyOpenInterest)
         {
-            openInterestSame = Equals(openInterestSide, other.MarketAggregateSide);
+            openInterestSame = Equals(openInterestSide, other.OpenInterestSide);
         }
         var bookLayersSame  = true;
         for (int i = 0; i < Count; i++)
@@ -291,7 +291,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         if (source.HasNonEmptyOpenInterest)
         {
             openInterestSide ??= new MarketAggregate();
-            openInterestSide.CopyFrom(source.MarketAggregateSide, copyMergeFlags);
+            openInterestSide.CopyFrom(source.OpenInterestSide, copyMergeFlags);
         } else if (openInterestSide != null)
         {
             openInterestSide.IsEmpty = true;

@@ -67,7 +67,7 @@ public class LastTradedGenerator : ILastTradedGenerator
                                  + normalDist.Sample() * GenerateLastTradeInfo.TradeCountStdDeviation)));
         if (numberOfLastTrades == 0) return;
 
-        var lastTradeType = level3Quote.RecentlyTraded!.LastTradesOfType;
+        var lastTradeType = level3Quote.OnTickLastTraded!.LastTradesOfType;
 
         switch (lastTradeType)
         {
@@ -85,7 +85,7 @@ public class LastTradedGenerator : ILastTradedGenerator
     protected virtual void PopulateLastTrades
         (IMutableLevel3Quote level3Quote, int numberOfTrades, MidPriceTimePair midPriceTimePair)
     {
-        var recentlyTraded = level3Quote.RecentlyTraded!;
+        var recentlyTraded = level3Quote.OnTickLastTraded!;
         InitializeRecentlyTraded(recentlyTraded);
 
         for (var i = 0; i < numberOfTrades && i < GenerateLastTradeInfo.MaxNumberOfLastTrade; i++)
@@ -99,7 +99,7 @@ public class LastTradedGenerator : ILastTradedGenerator
         }
     }
 
-    protected virtual void InitializeRecentlyTraded(IRecentlyTraded recentlyTraded) { }
+    protected virtual void InitializeRecentlyTraded(IOnTickLastTraded onTickLastTraded) { }
 
     protected virtual void PopulateLastTradePriceAndTime
         (IMutableLastTrade lastTrade, bool isBidTrade, IMutableLevel3Quote level3Quote, MidPriceTimePair midPriceTimePair)
@@ -127,7 +127,7 @@ public class LastTradedGenerator : ILastTradedGenerator
     protected virtual void PopulateLastPaidGivenTrades
         (IMutableLevel3Quote level3Quote, int numberOfTrades, MidPriceTimePair midPriceTimePair)
     {
-        var recentlyTraded = level3Quote.RecentlyTraded!;
+        var recentlyTraded = level3Quote.OnTickLastTraded!;
 
         for (var i = 0; i < numberOfTrades && i < GenerateLastTradeInfo.MaxNumberOfLastTrade; i++)
         {
@@ -172,7 +172,7 @@ public class LastTradedGenerator : ILastTradedGenerator
     protected virtual void PopulateLastTraderPaidGivenTrades
         (IMutableLevel3Quote level3Quote, int numberOfTrades, MidPriceTimePair midPriceTimePair)
     {
-        var recentlyTraded = level3Quote.RecentlyTraded!;
+        var recentlyTraded = level3Quote.OnTickLastTraded!;
 
         for (var i = 0; i < numberOfTrades && i < GenerateLastTradeInfo.MaxNumberOfLastTrade; i++)
         {

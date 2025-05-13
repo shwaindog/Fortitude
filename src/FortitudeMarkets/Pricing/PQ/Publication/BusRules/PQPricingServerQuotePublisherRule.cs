@@ -20,7 +20,6 @@ using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Publication.BusRules.BusMessages;
 
 #endregion

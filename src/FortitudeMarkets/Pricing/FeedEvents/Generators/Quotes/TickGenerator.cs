@@ -5,12 +5,12 @@
 
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.Generators.MidPrice;
+using FortitudeMarkets.Pricing.Generators.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 #endregion
 
-namespace FortitudeMarkets.Pricing.Generators.Quotes;
+namespace FortitudeMarkets.Pricing.FeedEvents.Generators.Quotes;
 
 public interface ITickGenerator<out TDetailLevel> where TDetailLevel : IMutableTickInstant
 {

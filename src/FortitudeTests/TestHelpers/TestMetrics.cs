@@ -9,7 +9,6 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.State;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeTests.FortitudeCommon.Types;
 
 #endregion

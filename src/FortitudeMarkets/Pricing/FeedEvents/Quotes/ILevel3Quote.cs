@@ -14,7 +14,7 @@ namespace FortitudeMarkets.Pricing.FeedEvents.Quotes;
 public interface ILevel3Quote : ILevel2Quote, ICloneable<ILevel3Quote>
 {
     // ILastTradedList? TickLastTraded { get; }
-    IRecentlyTraded? RecentlyTraded { get; }
+    IOnTickLastTraded? OnTickLastTraded { get; }
 
     uint     BatchId              { get; }
     uint     SourceQuoteReference { get; }
@@ -33,7 +33,7 @@ public interface IMutableLevel3Quote : ILevel3Quote, IMutableLevel2Quote
 
     new DateTime ValueDate { get; set; }
 
-    new IMutableRecentlyTraded? RecentlyTraded { get; set; }
+    new IMutableOnTickLastTraded? OnTickLastTraded { get; set; }
 
     new bool                    AreEquivalent(ITickInstant? other, bool exactTypes = false);
 

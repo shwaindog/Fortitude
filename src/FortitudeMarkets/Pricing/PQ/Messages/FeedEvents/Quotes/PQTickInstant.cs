@@ -18,7 +18,6 @@ using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.TimeSeries;
 
@@ -376,7 +375,7 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
         var pqTickInstant     = other as PQTickInstant;
         if (exactTypes)
         {
-            updatedFlagsSame  = UpdatedFlags == pqTickInstant.UpdatedFlags;
+            updatedFlagsSame  = UpdatedFlags == pqTickInstant!.UpdatedFlags;
             booleanFieldsSame = BooleanFields == pqTickInstant.BooleanFields;
         }
 

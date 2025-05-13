@@ -11,7 +11,6 @@ using FortitudeIO.TimeSeries.FileSystem.File.Header;
 using FortitudeIO.TimeSeries.FileSystem.File.Session;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
 
 #endregion

@@ -13,7 +13,6 @@ using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Subscription.Standalone;
 using Moq;
 

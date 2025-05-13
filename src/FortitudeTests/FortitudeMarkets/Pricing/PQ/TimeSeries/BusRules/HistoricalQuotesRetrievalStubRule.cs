@@ -13,7 +13,6 @@ using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules;
 using FortitudeTests.FortitudeCommon.Types;
 using static FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules.HistoricalQuoteTimeSeriesRepositoryConstants;

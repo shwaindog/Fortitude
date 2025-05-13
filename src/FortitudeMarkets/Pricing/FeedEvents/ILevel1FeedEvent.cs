@@ -17,7 +17,6 @@ using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.FeedEvents.TrackingTimes;
 using FortitudeMarkets.Pricing.FeedEvents.TradingConversions;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 namespace FortitudeMarkets.Pricing.FeedEvents;
 

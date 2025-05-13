@@ -12,7 +12,6 @@ using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Publication;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using Moq;
