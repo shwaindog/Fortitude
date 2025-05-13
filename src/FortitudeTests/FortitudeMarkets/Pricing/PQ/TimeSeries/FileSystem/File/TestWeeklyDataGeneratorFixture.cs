@@ -6,8 +6,8 @@
 using FortitudeCommon.Chronometry;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.FeedEvents.Generators.Candles;
+using FortitudeMarkets.Pricing.FeedEvents.Generators.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.Generators.Quotes;
 using FortitudeTests.FortitudeCommon.Extensions;
 
 #endregion

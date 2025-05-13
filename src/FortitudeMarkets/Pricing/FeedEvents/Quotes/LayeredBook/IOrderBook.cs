@@ -28,7 +28,7 @@ public interface IOrderBook : IReusableObject<IOrderBook>, IInterfacesComparable
 
     bool          HasNonEmptyOpenInterest { get; }
 
-    IMarketAggregate MarketAggregate                          { get; }
+    IMarketAggregate OpenInterest                          { get; }
 
     uint DailyTickUpdateCount { get; }
     bool IsLadder             { get; }

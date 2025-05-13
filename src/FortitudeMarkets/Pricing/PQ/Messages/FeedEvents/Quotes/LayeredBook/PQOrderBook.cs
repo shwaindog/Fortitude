@@ -154,7 +154,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             nameIdLookupGenerator = SourceOtherExistingOrNewPQNameIdNameLookup(toClone);
             if (toClone.HasNonEmptyOpenInterest)
             {
-                pqOpenInterest = new PQMarketAggregate(toClone.MarketAggregate);
+                pqOpenInterest = new PQMarketAggregate(toClone.OpenInterest);
             }
 
             AskSide = new PQOrderBookSide(toClone.AskSide, nameIdLookupGenerator);
@@ -304,7 +304,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             }
         }
 
-        IMarketAggregate IOrderBook.MarketAggregate => OpenInterest!;
+        IMarketAggregate IOrderBook.OpenInterest => OpenInterest!;
         IMutableMarketAggregate? IMutableOrderBook.OpenInterest
         {
             get => OpenInterest;
@@ -425,7 +425,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             if (source.HasNonEmptyOpenInterest)
             {
                 pqOpenInterest ??= new PQMarketAggregate();
-                pqOpenInterest.CopyFrom(source.MarketAggregate, copyMergeFlags);
+                pqOpenInterest.CopyFrom(source.OpenInterest, copyMergeFlags);
             }
             else if (pqOpenInterest != null)
             {
@@ -497,7 +497,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             var openInterestSame   = HasNonEmptyOpenInterest == other.HasNonEmptyOpenInterest;
             if (openInterestSame && other.HasNonEmptyOpenInterest && HasNonEmptyOpenInterest)
             {
-                openInterestSame = pqOpenInterest?.AreEquivalent(other.MarketAggregate, exactTypes) ?? false;
+                openInterestSame = pqOpenInterest?.AreEquivalent(other.OpenInterest, exactTypes) ?? false;
             }
 
             var bidBooksSame       = BidSide.AreEquivalent(other.BidSide, exactTypes);

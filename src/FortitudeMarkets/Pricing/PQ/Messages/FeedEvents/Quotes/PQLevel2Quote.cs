@@ -16,7 +16,6 @@ using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 #endregion
@@ -268,9 +267,10 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
         }
     }
 
-    public virtual void EnsureRelatedItemsAreConfigured(ISourceTickerInfo? item)
+    public override void EnsureRelatedItemsAreConfigured(ISourceTickerInfo? item)
     {
         orderBook.EnsureRelatedItemsAreConfigured(item, null);
+        base.EnsureRelatedItemsAreConfigured(item);
     }
 
     public override bool AreEquivalent(ITickInstant? other, bool exactTypes = false)
@@ -600,9 +600,10 @@ public class PQPublishableLevel2Quote : PQPublishableLevel1Quote, IPQPublishable
         }
     }
 
-    public void EnsureRelatedItemsAreConfigured(ISourceTickerInfo? item)
+    public override void EnsureRelatedItemsAreConfigured(ISourceTickerInfo? item)
     {
         AsNonPublishable.EnsureRelatedItemsAreConfigured(item);
+        base.EnsureRelatedItemsAreConfigured(item);
     }
 
     public virtual void EnsureOrderBookRelatedItemsAreConfigured(ISourceTickerInfo? sourceTickerInfo)

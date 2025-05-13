@@ -11,7 +11,6 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
@@ -206,7 +205,6 @@ public class PQOrderBookTests
     [TestMethod]
     public void NonPQOrderBooks_New_ConvertsToOrderBook()
     {
-        var expectedSingleValue    = 1.23456m;
         var expectedBidPriceTop    = 2.34567m;
         var expectedAskPriceTop    = 3.45678m;
         var expectedDailyTickCount = 10u;

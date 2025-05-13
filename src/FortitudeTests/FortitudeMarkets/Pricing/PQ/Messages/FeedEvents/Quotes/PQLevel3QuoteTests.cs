@@ -17,7 +17,6 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
@@ -35,150 +34,150 @@ public class PQLevel3QuoteTests
     private IList<PQPublishableLevel3Quote> allEmptyQuotes          = null!;
     private IList<PQPublishableLevel3Quote> allFullyPopulatedQuotes = null!;
 
-    private PQPublishableLevel3Quote noRecentlyTradedEmptyQuote          = null!;
-    private PQPublishableLevel3Quote noRecentlyTradedFullyPopulatedQuote = null!;
+    private PQPublishableLevel3Quote noOnTickLastTradedEmptyQuote          = null!;
+    private PQPublishableLevel3Quote noOnTickLastTradedFullyPopulatedQuote = null!;
 
-    private ISourceTickerInfo noRecentlyTradedSrcTkrInfo = null!;
+    private ISourceTickerInfo noOnTickLastTradedSrcTkrInfo = null!;
 
-    private PQPublishableLevel3Quote paidGivenVolumeRecentlyTradedEmptyQuote          = null!;
-    private PQPublishableLevel3Quote paidGivenVolumeRecentlyTradedFullyPopulatedQuote = null!;
+    private PQPublishableLevel3Quote paidGivenVolumeOnTickLastTradedEmptyQuote          = null!;
+    private PQPublishableLevel3Quote paidGivenVolumeOnTickLastTradedFullyPopulatedQuote = null!;
 
-    private ISourceTickerInfo             paidGivenVolumeRecentlyTradedSrcTkrInfo = null!;
+    private ISourceTickerInfo             paidGivenVolumeOnTickLastTradedSrcTkrInfo = null!;
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder           = null!;
 
-    private PQPublishableLevel3Quote simpleRecentlyTradedEmptyQuote          = null!;
-    private PQPublishableLevel3Quote simpleRecentlyTradedFullyPopulatedQuote = null!;
+    private PQPublishableLevel3Quote simpleOnTickLastTradedEmptyQuote          = null!;
+    private PQPublishableLevel3Quote simpleOnTickLastTradedFullyPopulatedQuote = null!;
 
-    private ISourceTickerInfo simpleRecentlyTradedSrcTkrInfo = null!;
+    private ISourceTickerInfo simpleOnTickLastTradedSrcTkrInfo = null!;
 
     private DateTime      testDateTime;
-    private PQPublishableLevel3Quote traderPaidGivenVolumeRecentlyTradedEmptyQuote          = null!;
-    private PQPublishableLevel3Quote traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote = null!;
+    private PQPublishableLevel3Quote fullSupportOnTickLastTradedEmptyQuote          = null!;
+    private PQPublishableLevel3Quote fullSupportOnTickLastTradedFullyPopulatedQuote = null!;
 
-    private ISourceTickerInfo traderPaidGivenVolumeRecentlyTradedSrcTkrInfo = null!;
+    private ISourceTickerInfo fullSupportOnTickLastTradedSrcTkrInfo = null!;
 
     [TestInitialize]
     public void SetUp()
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
-        noRecentlyTradedSrcTkrInfo                    = PQSourceTickerInfoTests.FullSupportL3NoRecentlyTradeSti;
-        simpleRecentlyTradedSrcTkrInfo                = PQSourceTickerInfoTests.OrdersAnonL3JustTradeTradeSti;
-        paidGivenVolumeRecentlyTradedSrcTkrInfo       = PQSourceTickerInfoTests.FullSupportL3PaidOrGivenTradeSti;
-        traderPaidGivenVolumeRecentlyTradedSrcTkrInfo = PQSourceTickerInfoTests.FullSupportL3TraderNamePaidOrGivenSti;
-        noRecentlyTradedEmptyQuote                    = new PQPublishableLevel3Quote(noRecentlyTradedSrcTkrInfo.Clone()) { HasUpdates = false };
-        noRecentlyTradedFullyPopulatedQuote           = new PQPublishableLevel3Quote(noRecentlyTradedSrcTkrInfo.Clone());
-        quoteSequencedTestDataBuilder.InitializeQuote(noRecentlyTradedFullyPopulatedQuote, 9);
-        simpleRecentlyTradedEmptyQuote = new PQPublishableLevel3Quote(simpleRecentlyTradedSrcTkrInfo.Clone())
+        noOnTickLastTradedSrcTkrInfo                    = PQSourceTickerInfoTests.FullSupportL3NoOnTickLastTradedSti;
+        simpleOnTickLastTradedSrcTkrInfo                = PQSourceTickerInfoTests.OrdersAnonL3JustTradeTradeSti;
+        paidGivenVolumeOnTickLastTradedSrcTkrInfo       = PQSourceTickerInfoTests.FullSupportL3PaidOrGivenTradeSti;
+        fullSupportOnTickLastTradedSrcTkrInfo = PQSourceTickerInfoTests.FullSupportL3TraderNamePaidOrGivenSti;
+        noOnTickLastTradedEmptyQuote                    = new PQPublishableLevel3Quote(noOnTickLastTradedSrcTkrInfo.Clone()) { HasUpdates = false };
+        noOnTickLastTradedFullyPopulatedQuote           = new PQPublishableLevel3Quote(noOnTickLastTradedSrcTkrInfo.Clone());
+        quoteSequencedTestDataBuilder.InitializeQuote(noOnTickLastTradedFullyPopulatedQuote, 9);
+        simpleOnTickLastTradedEmptyQuote = new PQPublishableLevel3Quote(simpleOnTickLastTradedSrcTkrInfo.Clone())
         {
             HasUpdates = false
         };
-        simpleRecentlyTradedFullyPopulatedQuote = new PQPublishableLevel3Quote(simpleRecentlyTradedSrcTkrInfo.Clone());
-        quoteSequencedTestDataBuilder.InitializeQuote(simpleRecentlyTradedFullyPopulatedQuote, 10);
-        paidGivenVolumeRecentlyTradedEmptyQuote = new PQPublishableLevel3Quote(paidGivenVolumeRecentlyTradedSrcTkrInfo.Clone())
+        simpleOnTickLastTradedFullyPopulatedQuote = new PQPublishableLevel3Quote(simpleOnTickLastTradedSrcTkrInfo.Clone());
+        quoteSequencedTestDataBuilder.InitializeQuote(simpleOnTickLastTradedFullyPopulatedQuote, 10);
+        paidGivenVolumeOnTickLastTradedEmptyQuote = new PQPublishableLevel3Quote(paidGivenVolumeOnTickLastTradedSrcTkrInfo.Clone())
         {
             HasUpdates = false
         };
-        paidGivenVolumeRecentlyTradedFullyPopulatedQuote =
-            new PQPublishableLevel3Quote(paidGivenVolumeRecentlyTradedSrcTkrInfo.Clone());
-        quoteSequencedTestDataBuilder.InitializeQuote(paidGivenVolumeRecentlyTradedFullyPopulatedQuote, 10);
-        traderPaidGivenVolumeRecentlyTradedEmptyQuote =
-            new PQPublishableLevel3Quote(traderPaidGivenVolumeRecentlyTradedSrcTkrInfo.Clone()) { HasUpdates = false };
-        traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote =
-            new PQPublishableLevel3Quote(traderPaidGivenVolumeRecentlyTradedSrcTkrInfo.Clone());
+        paidGivenVolumeOnTickLastTradedFullyPopulatedQuote =
+            new PQPublishableLevel3Quote(paidGivenVolumeOnTickLastTradedSrcTkrInfo.Clone());
+        quoteSequencedTestDataBuilder.InitializeQuote(paidGivenVolumeOnTickLastTradedFullyPopulatedQuote, 10);
+        fullSupportOnTickLastTradedEmptyQuote =
+            new PQPublishableLevel3Quote(fullSupportOnTickLastTradedSrcTkrInfo.Clone()) { HasUpdates = false };
+        fullSupportOnTickLastTradedFullyPopulatedQuote =
+            new PQPublishableLevel3Quote(fullSupportOnTickLastTradedSrcTkrInfo.Clone());
         quoteSequencedTestDataBuilder
-            .InitializeQuote(traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote, 10);
+            .InitializeQuote(fullSupportOnTickLastTradedFullyPopulatedQuote, 10);
 
 
         allFullyPopulatedQuotes = new List<PQPublishableLevel3Quote>
         {
-            noRecentlyTradedFullyPopulatedQuote, simpleRecentlyTradedFullyPopulatedQuote
-          , paidGivenVolumeRecentlyTradedFullyPopulatedQuote, traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote
+            noOnTickLastTradedFullyPopulatedQuote, simpleOnTickLastTradedFullyPopulatedQuote
+          , paidGivenVolumeOnTickLastTradedFullyPopulatedQuote, fullSupportOnTickLastTradedFullyPopulatedQuote
         };
         // {
-        //     simpleRecentlyTradedFullyPopulatedQuote
+        //     simpleOnTickLastTradedFullyPopulatedQuote
         // };
         allEmptyQuotes = new List<PQPublishableLevel3Quote>
         {
-            noRecentlyTradedEmptyQuote, simpleRecentlyTradedEmptyQuote, paidGivenVolumeRecentlyTradedEmptyQuote
-          , traderPaidGivenVolumeRecentlyTradedEmptyQuote
+            noOnTickLastTradedEmptyQuote, simpleOnTickLastTradedEmptyQuote, paidGivenVolumeOnTickLastTradedEmptyQuote
+          , fullSupportOnTickLastTradedEmptyQuote
         };
 
         testDateTime = new DateTime(2017, 10, 08, 18, 33, 24);
     }
 
     [TestMethod]
-    public void NoRecentlyTradedLevel3Quote_New_BuildsOnlyPriceVolumeLayeredBook()
+    public void NoOnTickLastTradedLevel3Quote_New_BuildsOnlyPriceVolumeLayeredBook()
     {
-        Assert.IsNull(noRecentlyTradedEmptyQuote.RecentlyTraded);
-        Assert.IsNull(noRecentlyTradedFullyPopulatedQuote.RecentlyTraded);
+        Assert.IsNull(noOnTickLastTradedEmptyQuote.OnTickLastTraded);
+        Assert.IsNull(noOnTickLastTradedFullyPopulatedQuote.OnTickLastTraded);
     }
 
     [TestMethod]
     public void SimpleLevel3Quote_New_BuildsOnlySimpleLastTradeEntries()
     {
         AssertLastTradeTypeIsExpected
-            (typeof(PQLastTrade), simpleRecentlyTradedEmptyQuote, simpleRecentlyTradedFullyPopulatedQuote);
+            (typeof(PQLastTrade), simpleOnTickLastTradedEmptyQuote, simpleOnTickLastTradedFullyPopulatedQuote);
     }
 
     [TestMethod]
     public void PaidGivenVolumeLevel3Quote_New_BuildsOnlyPaidGivenTradeEntries()
     {
         AssertLastTradeTypeIsExpected
-            (typeof(PQLastPaidGivenTrade), paidGivenVolumeRecentlyTradedEmptyQuote, paidGivenVolumeRecentlyTradedFullyPopulatedQuote);
+            (typeof(PQLastPaidGivenTrade), paidGivenVolumeOnTickLastTradedEmptyQuote, paidGivenVolumeOnTickLastTradedFullyPopulatedQuote);
     }
 
     [TestMethod]
     public void TraderPaidGivenVolumeLevel3Quote_New_BuildsLastTraderPaidGivenEntries()
     {
         AssertLastTradeTypeIsExpected
-            (typeof(PQLastTraderPaidGivenTrade), traderPaidGivenVolumeRecentlyTradedEmptyQuote
-           , traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote);
+            (typeof(PQLastTraderPaidGivenTrade), fullSupportOnTickLastTradedEmptyQuote
+           , fullSupportOnTickLastTradedFullyPopulatedQuote);
     }
 
     [TestMethod]
     public void EmptyLevel3Quote_BatchIdChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
     {
-        Assert.IsFalse(noRecentlyTradedEmptyQuote.IsBatchIdUpdated);
-        Assert.IsFalse(noRecentlyTradedEmptyQuote.HasUpdates);
+        Assert.IsFalse(noOnTickLastTradedEmptyQuote.IsBatchIdUpdated);
+        Assert.IsFalse(noOnTickLastTradedEmptyQuote.HasUpdates);
 
-        noRecentlyTradedEmptyQuote.Executable          = false;
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.HasUpdates);
-        noRecentlyTradedEmptyQuote.UpdateComplete();
-        noRecentlyTradedEmptyQuote.Executable          = true;
-        noRecentlyTradedEmptyQuote.IsExecutableUpdated = false;
-        noRecentlyTradedEmptyQuote.HasUpdates          = false;
+        noOnTickLastTradedEmptyQuote.Executable          = false;
+        Assert.IsTrue(noOnTickLastTradedEmptyQuote.HasUpdates);
+        noOnTickLastTradedEmptyQuote.UpdateComplete();
+        noOnTickLastTradedEmptyQuote.Executable          = true;
+        noOnTickLastTradedEmptyQuote.IsExecutableUpdated = false;
+        noOnTickLastTradedEmptyQuote.HasUpdates          = false;
 
-        Assert.AreEqual(0u, noRecentlyTradedEmptyQuote.BatchId);
-        Assert.AreEqual(2, noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0u, noOnTickLastTradedEmptyQuote.BatchId);
+        Assert.AreEqual(2, noOnTickLastTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
         var expectedBatchId = 4_111_222_333;
-        noRecentlyTradedEmptyQuote.BatchId = expectedBatchId;
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.IsBatchIdUpdated);
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.HasUpdates);
-        Assert.AreEqual(expectedBatchId, noRecentlyTradedEmptyQuote.BatchId);
+        noOnTickLastTradedEmptyQuote.BatchId = expectedBatchId;
+        Assert.IsTrue(noOnTickLastTradedEmptyQuote.IsBatchIdUpdated);
+        Assert.IsTrue(noOnTickLastTradedEmptyQuote.HasUpdates);
+        Assert.AreEqual(expectedBatchId, noOnTickLastTradedEmptyQuote.BatchId);
         var level3QuoteUpdates =
-            noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+            noOnTickLastTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(3, level3QuoteUpdates.Count);
         var expectedLayerField = new PQFieldUpdate(PQFeedFields.QuoteBatchId, expectedBatchId);
         Assert.AreEqual(expectedLayerField, level3QuoteUpdates[2]);
 
-        noRecentlyTradedEmptyQuote.IsBatchIdUpdated = false;
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.HasUpdates);
-        noRecentlyTradedEmptyQuote.IsAdapterSentTimeDateUpdated    = false;
-        noRecentlyTradedEmptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
-        Assert.IsFalse(noRecentlyTradedEmptyQuote.HasUpdates);
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
+        noOnTickLastTradedEmptyQuote.IsBatchIdUpdated = false;
+        Assert.IsTrue(noOnTickLastTradedEmptyQuote.HasUpdates);
+        noOnTickLastTradedEmptyQuote.IsAdapterSentTimeDateUpdated    = false;
+        noOnTickLastTradedEmptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
+        Assert.IsFalse(noOnTickLastTradedEmptyQuote.HasUpdates);
+        Assert.IsTrue(noOnTickLastTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
-        noRecentlyTradedEmptyQuote.IsBatchIdUpdated = true;
+        noOnTickLastTradedEmptyQuote.IsBatchIdUpdated = true;
         level3QuoteUpdates =
-            (from update in noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
+            (from update in noOnTickLastTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
                 where update.Id == PQFeedFields.QuoteBatchId
                 select update).ToList();
         Assert.AreEqual(1, level3QuoteUpdates.Count);
         Assert.AreEqual(expectedLayerField, level3QuoteUpdates[0]);
 
-        var newEmpty = new PQPublishableLevel3Quote(noRecentlyTradedSrcTkrInfo);
+        var newEmpty = new PQPublishableLevel3Quote(noOnTickLastTradedSrcTkrInfo);
         newEmpty.UpdateField(level3QuoteUpdates[0]);
         Assert.AreEqual(expectedBatchId, newEmpty.BatchId);
         Assert.IsTrue(newEmpty.HasUpdates);
@@ -188,45 +187,45 @@ public class PQLevel3QuoteTests
     [TestMethod]
     public void EmptyLevel3Quote_SourceQuoteRefChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
     {
-        Assert.IsFalse(noRecentlyTradedEmptyQuote.IsSourceQuoteReferenceUpdated);
-        Assert.IsFalse(noRecentlyTradedEmptyQuote.HasUpdates);
+        Assert.IsFalse(noOnTickLastTradedEmptyQuote.IsSourceQuoteReferenceUpdated);
+        Assert.IsFalse(noOnTickLastTradedEmptyQuote.HasUpdates);
 
-        noRecentlyTradedEmptyQuote.Executable          = false;
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.HasUpdates);
-        noRecentlyTradedEmptyQuote.UpdateComplete();
-        noRecentlyTradedEmptyQuote.Executable          = true;
-        noRecentlyTradedEmptyQuote.IsExecutableUpdated = false;
-        noRecentlyTradedEmptyQuote.HasUpdates          = false;
+        noOnTickLastTradedEmptyQuote.Executable          = false;
+        Assert.IsTrue(noOnTickLastTradedEmptyQuote.HasUpdates);
+        noOnTickLastTradedEmptyQuote.UpdateComplete();
+        noOnTickLastTradedEmptyQuote.Executable          = true;
+        noOnTickLastTradedEmptyQuote.IsExecutableUpdated = false;
+        noOnTickLastTradedEmptyQuote.HasUpdates          = false;
 
-        Assert.AreEqual(0u, noRecentlyTradedEmptyQuote.SourceQuoteReference);
-        Assert.AreEqual(2, noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0u, noOnTickLastTradedEmptyQuote.SourceQuoteReference);
+        Assert.AreEqual(2, noOnTickLastTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
         var expectedSourceQuoteReference = 4_111_222_333;
-        noRecentlyTradedEmptyQuote.SourceQuoteReference = expectedSourceQuoteReference;
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.IsSourceQuoteReferenceUpdated);
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.HasUpdates);
-        Assert.AreEqual(expectedSourceQuoteReference, noRecentlyTradedEmptyQuote.SourceQuoteReference);
-        var level3QuoteUpdates = noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+        noOnTickLastTradedEmptyQuote.SourceQuoteReference = expectedSourceQuoteReference;
+        Assert.IsTrue(noOnTickLastTradedEmptyQuote.IsSourceQuoteReferenceUpdated);
+        Assert.IsTrue(noOnTickLastTradedEmptyQuote.HasUpdates);
+        Assert.AreEqual(expectedSourceQuoteReference, noOnTickLastTradedEmptyQuote.SourceQuoteReference);
+        var level3QuoteUpdates = noOnTickLastTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(3, level3QuoteUpdates.Count);
         var expectedLayerField = new PQFieldUpdate(PQFeedFields.QuoteSourceQuoteRef, expectedSourceQuoteReference);
         Assert.AreEqual(expectedLayerField, level3QuoteUpdates[2]);
 
-        noRecentlyTradedEmptyQuote.IsSourceQuoteReferenceUpdated = false;
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.HasUpdates);
-        noRecentlyTradedEmptyQuote.IsAdapterSentTimeDateUpdated    = false;
-        noRecentlyTradedEmptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
-        Assert.IsFalse(noRecentlyTradedEmptyQuote.HasUpdates);
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
+        noOnTickLastTradedEmptyQuote.IsSourceQuoteReferenceUpdated = false;
+        Assert.IsTrue(noOnTickLastTradedEmptyQuote.HasUpdates);
+        noOnTickLastTradedEmptyQuote.IsAdapterSentTimeDateUpdated    = false;
+        noOnTickLastTradedEmptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
+        Assert.IsFalse(noOnTickLastTradedEmptyQuote.HasUpdates);
+        Assert.IsTrue(noOnTickLastTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
-        noRecentlyTradedEmptyQuote.IsSourceQuoteReferenceUpdated = true;
+        noOnTickLastTradedEmptyQuote.IsSourceQuoteReferenceUpdated = true;
         level3QuoteUpdates =
-            (from update in noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
+            (from update in noOnTickLastTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
                 where update.Id == PQFeedFields.QuoteSourceQuoteRef
                 select update).ToList();
         Assert.AreEqual(1, level3QuoteUpdates.Count);
         Assert.AreEqual(expectedLayerField, level3QuoteUpdates[0]);
 
-        var newEmpty = new PQPublishableLevel3Quote(noRecentlyTradedSrcTkrInfo);
+        var newEmpty = new PQPublishableLevel3Quote(noOnTickLastTradedSrcTkrInfo);
         newEmpty.UpdateField(level3QuoteUpdates[0]);
         Assert.AreEqual(expectedSourceQuoteReference, newEmpty.SourceQuoteReference);
         Assert.IsTrue(newEmpty.HasUpdates);
@@ -236,45 +235,45 @@ public class PQLevel3QuoteTests
     [TestMethod]
     public void EmptyLevel3Quote_ValueDateChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
     {
-        Assert.IsFalse(noRecentlyTradedEmptyQuote.IsValueDateUpdated);
-        Assert.IsFalse(noRecentlyTradedEmptyQuote.HasUpdates);
+        Assert.IsFalse(noOnTickLastTradedEmptyQuote.IsValueDateUpdated);
+        Assert.IsFalse(noOnTickLastTradedEmptyQuote.HasUpdates);
 
-        noRecentlyTradedEmptyQuote.Executable          = false;
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.HasUpdates);
-        noRecentlyTradedEmptyQuote.UpdateComplete();
-        noRecentlyTradedEmptyQuote.Executable          = true;
-        noRecentlyTradedEmptyQuote.IsExecutableUpdated = false;
-        noRecentlyTradedEmptyQuote.HasUpdates          = false;
+        noOnTickLastTradedEmptyQuote.Executable          = false;
+        Assert.IsTrue(noOnTickLastTradedEmptyQuote.HasUpdates);
+        noOnTickLastTradedEmptyQuote.UpdateComplete();
+        noOnTickLastTradedEmptyQuote.Executable          = true;
+        noOnTickLastTradedEmptyQuote.IsExecutableUpdated = false;
+        noOnTickLastTradedEmptyQuote.HasUpdates          = false;
 
-        Assert.AreEqual(default, noRecentlyTradedEmptyQuote.ValueDate);
-        Assert.AreEqual(2, noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        Assert.AreEqual(default, noOnTickLastTradedEmptyQuote.ValueDate);
+        Assert.AreEqual(2, noOnTickLastTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
         var expectedValueDate = new DateTime(2017, 12, 31, 0, 0, 0);
-        noRecentlyTradedEmptyQuote.ValueDate = expectedValueDate;
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.IsValueDateUpdated);
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.HasUpdates);
-        Assert.AreEqual(expectedValueDate, noRecentlyTradedEmptyQuote.ValueDate);
-        var level3QuoteUpdates = noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+        noOnTickLastTradedEmptyQuote.ValueDate = expectedValueDate;
+        Assert.IsTrue(noOnTickLastTradedEmptyQuote.IsValueDateUpdated);
+        Assert.IsTrue(noOnTickLastTradedEmptyQuote.HasUpdates);
+        Assert.AreEqual(expectedValueDate, noOnTickLastTradedEmptyQuote.ValueDate);
+        var level3QuoteUpdates = noOnTickLastTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(3, level3QuoteUpdates.Count);
         var expectedLayerField = new PQFieldUpdate(PQFeedFields.QuoteValueDate, expectedValueDate.Get2MinIntervalsFromUnixEpoch());
         Assert.AreEqual(expectedLayerField, level3QuoteUpdates[2]);
 
-        noRecentlyTradedEmptyQuote.IsValueDateUpdated = false;
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.HasUpdates);
-        noRecentlyTradedEmptyQuote.IsAdapterSentTimeDateUpdated    = false;
-        noRecentlyTradedEmptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
-        Assert.IsFalse(noRecentlyTradedEmptyQuote.HasUpdates);
-        Assert.IsTrue(noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
+        noOnTickLastTradedEmptyQuote.IsValueDateUpdated = false;
+        Assert.IsTrue(noOnTickLastTradedEmptyQuote.HasUpdates);
+        noOnTickLastTradedEmptyQuote.IsAdapterSentTimeDateUpdated    = false;
+        noOnTickLastTradedEmptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
+        Assert.IsFalse(noOnTickLastTradedEmptyQuote.HasUpdates);
+        Assert.IsTrue(noOnTickLastTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
-        noRecentlyTradedEmptyQuote.IsValueDateUpdated = true;
+        noOnTickLastTradedEmptyQuote.IsValueDateUpdated = true;
         level3QuoteUpdates =
-            (from update in noRecentlyTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
+            (from update in noOnTickLastTradedEmptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
                 where update.Id == PQFeedFields.QuoteValueDate
                 select update).ToList();
         Assert.AreEqual(1, level3QuoteUpdates.Count);
         Assert.AreEqual(expectedLayerField, level3QuoteUpdates[0]);
 
-        var newEmpty = new PQPublishableLevel3Quote(noRecentlyTradedSrcTkrInfo);
+        var newEmpty = new PQPublishableLevel3Quote(noOnTickLastTradedSrcTkrInfo);
         newEmpty.UpdateField(level3QuoteUpdates[0]);
         Assert.AreEqual(expectedValueDate, newEmpty.ValueDate);
         Assert.IsTrue(newEmpty.HasUpdates);
@@ -286,12 +285,12 @@ public class PQLevel3QuoteTests
     {
         foreach (var emptyQuote in allEmptyQuotes)
         {
-            if (emptyQuote.RecentlyTraded == null) continue;
+            if (emptyQuote.OnTickLastTraded == null) continue;
             for (var i = 0; i < QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades; i++)
             {
                 testDateTime = testDateTime.AddHours(1).AddSeconds(1);
 
-                var lastTrade = emptyQuote.RecentlyTraded[i]!;
+                var lastTrade = emptyQuote.OnTickLastTraded[i]!;
 
                 emptyQuote.Executable = false;
                 lastTrade.TradePrice       = 22m;
@@ -348,7 +347,7 @@ public class PQLevel3QuoteTests
 
                 var newEmpty = new PQPublishableLevel3Quote(emptyQuote.SourceTickerInfo!);
                 newEmpty.UpdateField(quoteUpdates[0]);
-                var foundLayer = newEmpty.RecentlyTraded![i]!;
+                var foundLayer = newEmpty.OnTickLastTraded![i]!;
                 Assert.AreEqual(expectedPrice, foundLayer.TradePrice);
                 Assert.IsTrue(newEmpty.HasUpdates);
                 Assert.IsTrue(foundLayer.IsTradePriceUpdated);
@@ -361,12 +360,12 @@ public class PQLevel3QuoteTests
     {
         foreach (var emptyQuote in allEmptyQuotes)
         {
-            if (emptyQuote.RecentlyTraded == null) continue;
+            if (emptyQuote.OnTickLastTraded == null) continue;
             for (var i = 0; i < QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades; i++)
             {
                 testDateTime = testDateTime.AddHours(1).AddSeconds(1);
 
-                var lastTrade = emptyQuote.RecentlyTraded[i]!;
+                var lastTrade = emptyQuote.OnTickLastTraded[i]!;
 
                 emptyQuote.Executable = false;
                 lastTrade.TradePrice  = 22m;
@@ -448,7 +447,7 @@ public class PQLevel3QuoteTests
                 var newEmpty = new PQPublishableLevel3Quote(emptyQuote.SourceTickerInfo!);
                 newEmpty.UpdateField(quoteUpdates[0]);
                 newEmpty.UpdateField(quoteUpdates[1]);
-                var foundLayer = newEmpty.RecentlyTraded![i]!;
+                var foundLayer = newEmpty.OnTickLastTraded![i]!;
                 Assert.AreEqual(expectedTradeTime, foundLayer.TradeTime);
                 Assert.IsTrue(newEmpty.HasUpdates);
                 Assert.IsTrue(foundLayer.IsTradeTimeDateUpdated);
@@ -462,12 +461,12 @@ public class PQLevel3QuoteTests
     {
         foreach (var emptyQuote in allEmptyQuotes)
         {
-            if (!(emptyQuote.RecentlyTraded?[0] is IPQLastPaidGivenTrade)) continue;
+            if (!(emptyQuote.OnTickLastTraded?[0] is IPQLastPaidGivenTrade)) continue;
             for (var i = 0; i < QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades; i++)
             {
                 testDateTime = testDateTime.AddHours(1).AddSeconds(1);
 
-                var lastTrade = (IPQLastPaidGivenTrade)emptyQuote.RecentlyTraded[i]!;
+                var lastTrade = (IPQLastPaidGivenTrade)emptyQuote.OnTickLastTraded[i]!;
 
                 emptyQuote.Executable = false;
                 lastTrade.TradePrice  = 22m;
@@ -523,7 +522,7 @@ public class PQLevel3QuoteTests
 
                 var newEmpty = new PQPublishableLevel3Quote(emptyQuote.SourceTickerInfo!);
                 newEmpty.UpdateField(quoteUpdates[0]);
-                var foundLayer = (IPQLastPaidGivenTrade)newEmpty.RecentlyTraded![i]!;
+                var foundLayer = (IPQLastPaidGivenTrade)newEmpty.OnTickLastTraded![i]!;
                 Assert.AreEqual(expectedWasGiven, foundLayer.WasGiven);
                 Assert.IsTrue(newEmpty.HasUpdates);
                 Assert.IsTrue(foundLayer.IsWasGivenUpdated);
@@ -536,12 +535,12 @@ public class PQLevel3QuoteTests
     {
         foreach (var emptyQuote in allEmptyQuotes)
         {
-            if (!(emptyQuote.RecentlyTraded?[0] is IPQLastPaidGivenTrade)) continue;
+            if (!(emptyQuote.OnTickLastTraded?[0] is IPQLastPaidGivenTrade)) continue;
             for (var i = 0; i < QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades; i++)
             {
                 testDateTime = testDateTime.AddHours(1).AddSeconds(1);
 
-                var lastTrade = (IPQLastPaidGivenTrade)emptyQuote.RecentlyTraded[i]!;
+                var lastTrade = (IPQLastPaidGivenTrade)emptyQuote.OnTickLastTraded[i]!;
 
                 emptyQuote.Executable = false;
                 lastTrade.TradePrice  = 22m;
@@ -596,7 +595,7 @@ public class PQLevel3QuoteTests
 
                 var newEmpty = new PQPublishableLevel3Quote(emptyQuote.SourceTickerInfo!);
                 newEmpty.UpdateField(quoteUpdates[0]);
-                var foundLayer = (IPQLastPaidGivenTrade)newEmpty.RecentlyTraded![i]!;
+                var foundLayer = (IPQLastPaidGivenTrade)newEmpty.OnTickLastTraded![i]!;
                 Assert.AreEqual(expectedWasPaid, foundLayer.WasPaid);
                 Assert.IsTrue(newEmpty.HasUpdates);
                 Assert.IsTrue(foundLayer.IsWasPaidUpdated);
@@ -941,12 +940,12 @@ public class PQLevel3QuoteTests
     {
         foreach (var populatedQuote in allFullyPopulatedQuotes)
         {
-            if (populatedQuote.RecentlyTraded == null) continue;
-            foreach (var lastTrade in populatedQuote.RecentlyTraded) Assert.IsTrue(lastTrade.HasUpdates);
+            if (populatedQuote.OnTickLastTraded == null) continue;
+            foreach (var lastTrade in populatedQuote.OnTickLastTraded) Assert.IsTrue(lastTrade.HasUpdates);
 
             populatedQuote.HasUpdates = false;
 
-            foreach (var lastTrade in populatedQuote.RecentlyTraded) Assert.IsFalse(lastTrade.HasUpdates);
+            foreach (var lastTrade in populatedQuote.OnTickLastTraded) Assert.IsFalse(lastTrade.HasUpdates);
         }
     }
 
@@ -1105,8 +1104,8 @@ public class PQLevel3QuoteTests
             Assert.IsFalse(emptyQuote.IsExecutableUpdated);
             foreach (var pvl in emptyQuote.BidBook) PQLevel2QuoteTests.AssertAreDefaultValues(pvl);
             foreach (var pvl in emptyQuote.AskBook) PQLevel2QuoteTests.AssertAreDefaultValues(pvl);
-            if (emptyQuote.RecentlyTraded == null) continue;
-            foreach (var lastTraded in emptyQuote.RecentlyTraded) AssertAreDefaultValues(lastTraded);
+            if (emptyQuote.OnTickLastTraded == null) continue;
+            foreach (var lastTraded in emptyQuote.OnTickLastTraded) AssertAreDefaultValues(lastTraded);
         }
     }
 
@@ -1183,49 +1182,49 @@ public class PQLevel3QuoteTests
 
 
     [TestMethod]
-    public void NoRecentlyTradedFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    public void NoOnTickLastTradedFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
     {
         var so = new JsonSerializerOptions()
         {
             WriteIndented = true
         };
-        var q      = noRecentlyTradedFullyPopulatedQuote;
+        var q      = noOnTickLastTradedFullyPopulatedQuote;
         var toJson = JsonSerializer.Serialize(q, so);
         Console.Out.WriteLine(toJson);
     }
 
     [TestMethod]
-    public void SimpleRecentlyTradedFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    public void SimpleOnTickLastTradedFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
     {
         var so = new JsonSerializerOptions()
         {
             WriteIndented = true
         };
-        var q      = simpleRecentlyTradedFullyPopulatedQuote;
+        var q      = simpleOnTickLastTradedFullyPopulatedQuote;
         var toJson = JsonSerializer.Serialize(q, so);
         Console.Out.WriteLine(toJson);
     }
 
     [TestMethod]
-    public void PaidGivenRecentlyTradedFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    public void PaidGivenOnTickLastTradedFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
     {
         var so = new JsonSerializerOptions()
         {
             WriteIndented = true
         };
-        var q      = paidGivenVolumeRecentlyTradedFullyPopulatedQuote;
+        var q      = paidGivenVolumeOnTickLastTradedFullyPopulatedQuote;
         var toJson = JsonSerializer.Serialize(q, so);
         Console.Out.WriteLine(toJson);
     }
 
     [TestMethod]
-    public void TraderPaidGivenRecentlyFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
+    public void FullSupportOnTickLastTradedFullyPopulatedQuote_JsonSerialize_ReturnsExpectedJsonString()
     {
         var so = new JsonSerializerOptions()
         {
             WriteIndented = true
         };
-        var q      = traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote;
+        var q      = fullSupportOnTickLastTradedFullyPopulatedQuote;
         var toJson = JsonSerializer.Serialize(q, so);
         Console.Out.WriteLine(toJson);
     }
@@ -1254,11 +1253,11 @@ public class PQLevel3QuoteTests
         changingLevel3Quote.ValueDate = original.ValueDate;
         Assert.IsTrue(changingLevel3Quote.AreEquivalent(original, exactComparison));
 
-        Assert.IsTrue((original.RecentlyTraded != null && changingLevel3Quote.RecentlyTraded != null) ||
-                      (original.RecentlyTraded == null && changingLevel3Quote.RecentlyTraded == null));
-        if (original.RecentlyTraded != null)
-            PQRecentlyTradedTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-                (exactComparison, (PQRecentlyTraded)original.RecentlyTraded, (PQRecentlyTraded)changingLevel3Quote.RecentlyTraded!,
+        Assert.IsTrue((original.OnTickLastTraded != null && changingLevel3Quote.OnTickLastTraded != null) ||
+                      (original.OnTickLastTraded == null && changingLevel3Quote.OnTickLastTraded == null));
+        if (original.OnTickLastTraded != null)
+            PQOnTickLastTradedTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+                (exactComparison, (PQOnTickLastTraded)original.OnTickLastTraded, (PQOnTickLastTraded)changingLevel3Quote.OnTickLastTraded!,
                  original, changingLevel3Quote);
     }
 
@@ -1274,11 +1273,11 @@ public class PQLevel3QuoteTests
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteSourceQuoteRef));
         Assert.AreEqual(new PQFieldUpdate(PQFeedFields.QuoteValueDate, l3Q.ValueDate.Get2MinIntervalsFromUnixEpoch()),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteValueDate));
-        if (l3Q.RecentlyTraded == null) return;
+        if (l3Q.OnTickLastTraded == null) return;
         var pqSrcTkrInfo = l3Q.SourceTickerInfo!;
 
-        PQRecentlyTradedTests.AssertContainsAllLevelRecentlyTradedFields
-            (checkFieldUpdates, l3Q.RecentlyTraded, expectedBooleanFlags, 
+        PQOnTickLastTradedTests.AssertContainsAllLevelOnTickLastTradedFields
+            (checkFieldUpdates, l3Q.OnTickLastTraded, 
              pqSrcTkrInfo.PriceScalingPrecision, pqSrcTkrInfo.VolumeScalingPrecision );
     }
 
@@ -1310,6 +1309,6 @@ public class PQLevel3QuoteTests
     {
         foreach (var level3Quote in quotesToCheck)
             for (var i = 0; i < QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades; i++)
-                Assert.AreEqual(expectedType, level3Quote.RecentlyTraded![i]!.GetType());
+                Assert.AreEqual(expectedType, level3Quote.OnTickLastTraded![i]!.GetType());
     }
 }

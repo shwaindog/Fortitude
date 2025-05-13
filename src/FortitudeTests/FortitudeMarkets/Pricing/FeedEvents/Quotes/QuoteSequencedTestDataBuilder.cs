@@ -15,7 +15,6 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 #endregion
 
@@ -81,13 +80,13 @@ public class QuoteSequencedTestDataBuilder
 
         var toggleGivenBool = false;
         var togglePaidBool  = true;
-        if (pqLevel3Quote.RecentlyTraded == null || pqLevel3Quote is IPublishableLevel3Quote {SourceTickerInfo.LastTradedFlags: not LastTradedFlags.None}) return;
+        if (pqLevel3Quote.OnTickLastTraded == null || pqLevel3Quote is IPublishableLevel3Quote {SourceTickerInfo.LastTradedFlags: not LastTradedFlags.None}) return;
         for (var i = 0; i < GeneratedNumberOfLastTrades; i++)
         {
             var tradePriceDelta  = 0.00001m * i;
             var tradeVolumeDelta = batchId * 10000 + 10000m * i;
 
-            var lastTradedInfo = pqLevel3Quote.RecentlyTraded[i]!;
+            var lastTradedInfo = pqLevel3Quote.OnTickLastTraded[i]!;
             // lastTradedInfo.StateReset();
             lastTradedInfo!.TradePrice = 0.76591m + batchId * 0.00001m + tradePriceDelta;
             lastTradedInfo!.TradeTime  = new DateTime(2017, 07, 02, 13, 40, 11);

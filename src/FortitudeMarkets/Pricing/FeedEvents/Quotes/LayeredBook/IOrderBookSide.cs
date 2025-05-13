@@ -30,7 +30,7 @@ public interface IOrderBookSide : IEnumerable<IPriceVolumeLayer>, IReusableObjec
     uint DailyTickUpdateCount { get; }
     
     bool      HasNonEmptyOpenInterest { get; }
-    IMarketAggregate MarketAggregateSide               { get; }
+    IMarketAggregate OpenInterestSide               { get; }
 
     int Capacity { get; }
     int Count    { get; }

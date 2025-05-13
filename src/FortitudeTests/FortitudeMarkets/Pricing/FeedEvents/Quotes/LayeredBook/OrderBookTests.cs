@@ -180,7 +180,6 @@ public class OrderBookTests
     [TestMethod]
     public void NonOrderBooks_New_ConvertsToOrderBook()
     {
-        var expectedSingleValue    = 1.23456m;
         var expectedBidPriceTop    = 2.34567m;
         var expectedAskPriceTop    = 3.45678m;
         var expectedDailyTickCount = 10u;
