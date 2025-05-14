@@ -169,7 +169,7 @@ public class PQClient : IDisposable
                                     " already exists");
             quoteDeserializer = deserializationRepository.CreateQuoteDeserializer<T>(tickerPricingSubscriptionConfig);
 
-            if (quoteDeserializer is IPQQuoteDeserializer<T> pqQuoteDeserializer)
+            if (quoteDeserializer is IPQMessageDeserializer<T> pqQuoteDeserializer)
             {
                 pqTickerFeedSubscriptionQuoteStream = new PQTickerFeedSubscriptionQuoteStream<T>(pricingServerConfig,
                                                                                                  sourceTickerInfo

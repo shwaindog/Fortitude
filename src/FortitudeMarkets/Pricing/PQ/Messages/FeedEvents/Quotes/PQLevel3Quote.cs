@@ -667,6 +667,18 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
         }
     }
 
+    // must include this event though it looks like it does the same as default inherited.  It ensures that subtypes forward to the next level
+    // down and not it's immediate parent
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+    (DateTime snapShotTime, StorageFlags messageFlags,
+        IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
+    {
+        foreach (var level2QuoteUpdates in base.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSettings))
+        {
+            yield return level2QuoteUpdates;
+        }
+    }
+
     IPublishableLevel3Quote ICloneable<IPublishableLevel3Quote>.Clone() => Clone();
 
     IPublishableLevel3Quote IPublishableLevel3Quote.Clone() => Clone();

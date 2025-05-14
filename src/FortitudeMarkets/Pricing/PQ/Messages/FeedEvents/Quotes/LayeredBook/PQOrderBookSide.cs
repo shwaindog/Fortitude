@@ -24,7 +24,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 
-public interface IPQOrderBookSide : IMutableOrderBookSide, IPQSupportsFieldUpdates<IOrderBookSide>,
+public interface IPQOrderBookSide : IMutableOrderBookSide, IPQSupportsNumberPrecisionFieldUpdates<IOrderBookSide>,
     IPQSupportsStringUpdates<IOrderBookSide>, IEnumerable<IPQPriceVolumeLayer>, ICloneable<IPQOrderBookSide>,
     IRelatedItems<LayerFlags, ushort>, IRelatedItems<INameIdLookupGenerator>,
     ISupportsPQNameIdLookupGenerator

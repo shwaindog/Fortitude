@@ -24,7 +24,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.Publication;
 
-public interface IPQServer<T> : IDisposable where T : IPQPublishableTickInstant
+public interface IPQServer<T> : IDisposable where T : IPQMutableMessage
 {
     bool IsStarted { get; }
     void StartServices();
@@ -35,14 +35,14 @@ public interface IPQServer<T> : IDisposable where T : IPQPublishableTickInstant
     void SetNextSequenceNumberToFullUpdate(string ticker);
 }
 
-public class PQServer<T> : IPQServer<T> where T : class, IPQPublishableTickInstant
+public class PQServer<T> : IPQServer<T> where T : class, IPQMutableMessage
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQServer<T>));
 
-    private readonly ISocketDispatcherResolver         dispatcherResolver;
-    private readonly IMap<uint, T>                     entities        = new ConcurrentMap<uint, T>();
-    private readonly IDoublyLinkedList<IPQPublishableTickInstant> heartbeatQuotes = new DoublyLinkedList<IPQPublishableTickInstant>();
-    private readonly ISyncLock                         heartBeatSync   = new YieldLockLight();
+    private readonly ISocketDispatcherResolver            dispatcherResolver;
+    private readonly IMap<uint, T>                        entities        = new ConcurrentMap<uint, T>();
+    private readonly IDoublyLinkedList<IPQMutableMessage> heartbeatQuotes = new DoublyLinkedList<IPQMutableMessage>();
+    private readonly ISyncLock                            heartBeatSync   = new YieldLockLight();
 
     private readonly IMarketConnectionConfig    marketConnectionConfig;
     private readonly IPricingServerConfig       pricingServerConfig;
@@ -111,12 +111,12 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQPublishableTickInsta
 
     public void Unregister(T quote)
     {
-        if (entities.TryGetValue(quote.SourceTickerInfo!.SourceTickerId, out var ent))
+        if (entities.TryGetValue(quote.StreamId, out var ent))
         {
             quote.ResetFields();
             quote.HasUpdates = true;
             Publish(quote);
-            entities.Remove(quote.SourceTickerInfo.SourceTickerId);
+            entities.Remove(quote.StreamId);
             heartBeatSync.Acquire();
             try
             {
@@ -136,13 +136,13 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQPublishableTickInsta
     public void Publish(T quote)
     {
         if (!quote.HasUpdates) return;
-        if (entities.TryGetValue(quote.SourceTickerInfo!.SourceTickerId, out var ent))
+        if (entities.TryGetValue(quote.StreamId, out var ent))
         {
             ent!.Lock.Acquire();
             try
             {
                 var seqId = ent.PQSequenceId;
-                ent.CopyFrom(quote, CopyMergeFlags.Default);
+                ent.CopyFrom(quote);
                 quote.UpdateComplete();
                 ent.PQSequenceId = seqId;
             }

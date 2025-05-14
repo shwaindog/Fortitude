@@ -20,7 +20,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles;
 
-public interface IPQCandle : IMutableCandle, IPQSupportsFieldUpdates<ICandle>
+public interface IPQCandle : IMutableCandle, IPQSupportsNumberPrecisionFieldUpdates<ICandle>
   , IDoublyLinkedListNode<IPQCandle>
 {
     [JsonIgnore] bool IsCandlePeriodUpdated    { get; set; }

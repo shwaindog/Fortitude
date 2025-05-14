@@ -33,7 +33,7 @@ public interface IDeserializedNotifier : ITransferState<IDeserializedNotifier>, 
 }
 
 public interface IDeserializedNotifier<TM, TR> : IDeserializedNotifier, IEnumerable<IReceiverListenContext<TR>>
-    where TM : class, IVersionedMessage
+    where TM : IVersionedMessage
 {
     bool Add(IReceiverListenContext<TR> receiverListenContext);
     void AddRequestExpected(int requestId, IReusableAsyncResponseSource<TR> responseValueTaskSource);

@@ -45,7 +45,7 @@ public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, IC
     public virtual decimal  SingleTickValue { get; set; }
     public         bool     IsReplay        { get; set; }
     public virtual DateTime SourceTime      { get; set; }
-    
+
 
     public DateTime StorageTime(IStorageTimeResolver? resolver)
     {
@@ -97,7 +97,7 @@ public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, IC
     public override string ToString() => $"{nameof(TickInstant)} {{{QuoteToStringMembers}}}";
 }
 
-public class PublishableTickInstant : ReusableObject<IPublishableTickInstant>, IMutablePublishableTickInstant, ICloneable<PublishableTickInstant>
+public class PublishableTickInstant : ReusableObject<IFeedEventStatusUpdate>, IMutablePublishableTickInstant, ICloneable<PublishableTickInstant>
   , IDoublyLinkedListNode<PublishableTickInstant>
 {
     protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PublishableTickInstant));
@@ -248,8 +248,31 @@ public class PublishableTickInstant : ReusableObject<IPublishableTickInstant>, I
         return this;
     }
 
+    ITransferState IPublishableTickInstant.CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags)
+    {
+        if (source is IPublishableTickInstant publishableTickInstant)
+        {
+            CopyFrom(publishableTickInstant, copyMergeFlags);
+        }
+        else
+        {
+            QuoteContainer.CopyFrom(source, copyMergeFlags);
+        }
+        return this;
+    }
 
-    public override PublishableTickInstant CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    IReusableObject<IPublishableTickInstant> ITransferState<IReusableObject<IPublishableTickInstant>>.CopyFrom
+        (IReusableObject<IPublishableTickInstant> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPublishableTickInstant)source, copyMergeFlags);
+
+    IPublishableTickInstant ITransferState<IPublishableTickInstant>.CopyFrom
+        (IPublishableTickInstant source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom(source, copyMergeFlags);
+
+    IPublishableTickInstant IPublishableTickInstant.CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom(source, copyMergeFlags);
+
+    public virtual PublishableTickInstant CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         QuoteContainer.CopyFrom(source, copyMergeFlags);
         ClientReceivedTime = source.ClientReceivedTime;
@@ -262,6 +285,16 @@ public class PublishableTickInstant : ReusableObject<IPublishableTickInstant>, I
             SourceTickerInfo.CopyFrom(source.SourceTickerInfo!, copyMergeFlags);
 
         FeedSyncStatus = source.FeedSyncStatus;
+        return this;
+    }
+
+
+    public override PublishableTickInstant CopyFrom(IFeedEventStatusUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if (source is IPublishableTickInstant pubTickInstant)
+        {
+            CopyFrom(pubTickInstant, copyMergeFlags);
+        }
         return this;
     }
 
@@ -300,6 +333,9 @@ public class PublishableTickInstant : ReusableObject<IPublishableTickInstant>, I
         if (!allEquivalent) Debugger.Break();
         return allEquivalent;
     }
+
+    bool IInterfacesComparable<IFeedEventStatusUpdate>.AreEquivalent(IFeedEventStatusUpdate? other, bool exactTypes) => 
+        AreEquivalent(other as IPublishableLevel1Quote, exactTypes);
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IPublishableTickInstant, true);
 

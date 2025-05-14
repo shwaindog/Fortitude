@@ -23,12 +23,12 @@ public interface IPQClientQuoteDeserializerRepository : IConversationDeserializa
 {
     new IPQClientMessageStreamDecoder Supply(string name);
 
-    IPQQuoteDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig)
-        where T : PQPublishableTickInstant, new();
+    IPQMessageDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig)
+        where T : class, IPQMutableMessage;
 
-    IPQQuoteDeserializer? CreateQuoteDeserializer(ITickerPricingSubscriptionConfig streamPubConfig, Type pqLevelQuoteMessageType);
+    IPQMessageDeserializer? CreateQuoteDeserializer(ITickerPricingSubscriptionConfig streamPubConfig, Type pqLevelQuoteMessageType);
 
-    IPQQuoteDeserializer? GetDeserializer(ISourceTickerInfo identifier);
+    IPQMessageDeserializer? GetDeserializer(ISourceTickerInfo identifier);
 
     bool UnregisterDeserializer(ISourceTickerInfo identifier);
 }
@@ -44,21 +44,21 @@ public sealed class PQClientQuoteDeserializerRepository
 
     IMessageStreamDecoder IMessageStreamDecoderFactory.Supply(string name) => Supply(name);
 
-    public IPQQuoteDeserializer? GetDeserializer(ISourceTickerInfo identifier) =>
+    public IPQMessageDeserializer? GetDeserializer(ISourceTickerInfo identifier) =>
         TryGetDeserializer(identifier.SourceTickerId, out var quoteDeserializer)
-            ? quoteDeserializer as IPQQuoteDeserializer
-            : CascadingFallbackDeserializationRepo?.GetDeserializer(identifier.SourceTickerId) as IPQQuoteDeserializer;
+            ? quoteDeserializer as IPQMessageDeserializer
+            : CascadingFallbackDeserializationRepo?.GetDeserializer(identifier.SourceTickerId) as IPQMessageDeserializer;
 
     public bool UnregisterDeserializer(ISourceTickerInfo identifier) => UnregisterDeserializer(identifier.SourceTickerId);
 
-    public IPQQuoteDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig) where T : PQPublishableTickInstant, new()
+    public IPQMessageDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig) where T : class, IPQMutableMessage
     {
-        IPQQuoteDeserializer quoteDeserializer = new PQQuoteDeserializer<T>(streamPubConfig);
+        IPQMessageDeserializer quoteDeserializer = new PQMessageDeserializer<T>(streamPubConfig);
         RegisteredDeserializers.Add(streamPubConfig.SourceTickerInfo.SourceTickerId, quoteDeserializer);
         return quoteDeserializer;
     }
 
-    public IPQQuoteDeserializer? CreateQuoteDeserializer(ITickerPricingSubscriptionConfig streamPubConfig, Type pqLevelQuoteMessageType)
+    public IPQMessageDeserializer? CreateQuoteDeserializer(ITickerPricingSubscriptionConfig streamPubConfig, Type pqLevelQuoteMessageType)
     {
         return pqLevelQuoteMessageType switch
                {

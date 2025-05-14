@@ -21,7 +21,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
       , IsDailyTickCountUpdated          = 1
     }
 
-    public interface IPQOrderBook : IMutableOrderBook, IPQSupportsFieldUpdates<IOrderBook>, IPQSupportsStringUpdates<IOrderBook>
+    public interface IPQOrderBook : IMutableOrderBook, IPQSupportsNumberPrecisionFieldUpdates<IOrderBook>, IPQSupportsStringUpdates<IOrderBook>
       , IRelatedItems<ISourceTickerInfo, IOrderBook>, ICloneable<IPQOrderBook>
       , ISupportsPQNameIdLookupGenerator
     {

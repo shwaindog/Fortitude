@@ -11,20 +11,20 @@ using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
-using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 
-internal class PQQuoteStorageDeserializer<T> : PQQuoteDeserializerBase<T> where T : class, IPQPublishableTickInstant
+internal class PQMessageStorageDeserializer<T> : PQMessageDeserializerBase<T> where T : class, IPQMutableMessage
 {
-    protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteFeedDeserializer<T>));
+    protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQMessageFeedDeserializer<T>));
 
-    private uint lastSequenceId = 0;
+    private uint lastSequenceId;
 
-    public PQQuoteStorageDeserializer
+    public PQMessageStorageDeserializer
     (ISourceTickerInfo identifier,
         PQSerializationFlags serializationFlags = PQSerializationFlags.ForStorage,
         byte storageVersion = 1)
@@ -34,7 +34,7 @@ internal class PQQuoteStorageDeserializer<T> : PQQuoteDeserializerBase<T> where 
         StorageVersion = storageVersion;
     }
 
-    public PQQuoteStorageDeserializer(PQQuoteStorageDeserializer<T> toClone) : base(toClone) => StorageVersion = toClone.StorageVersion;
+    public PQMessageStorageDeserializer(PQMessageStorageDeserializer<T> toClone) : base(toClone) => StorageVersion = toClone.StorageVersion;
 
     protected override bool ShouldPublish => true;
 
@@ -49,7 +49,7 @@ internal class PQQuoteStorageDeserializer<T> : PQQuoteDeserializerBase<T> where 
             if (sockBuffContext != null) sockBuffContext.DeserializerTime = TimeContext.UtcNow;
 
             var sequenceId = lastSequenceId + 1;
-            var read       = UpdateQuote(bufferContext, PublishedQuote, sequenceId);
+            var read       = UpdateEntity(bufferContext, PublishedQuote, sequenceId);
 
             bufferContext.LastReadLength            =  read;
             bufferContext.EncodedBuffer!.ReadCursor += read;
@@ -65,5 +65,5 @@ internal class PQQuoteStorageDeserializer<T> : PQQuoteDeserializerBase<T> where 
 
     public override bool HasTimedOutAndNeedsSnapshot(DateTime utcNow) => false;
 
-    public override IMessageDeserializer Clone() => new PQQuoteStorageDeserializer<T>(this);
+    public override IMessageDeserializer Clone() => new PQMessageStorageDeserializer<T>(this);
 }

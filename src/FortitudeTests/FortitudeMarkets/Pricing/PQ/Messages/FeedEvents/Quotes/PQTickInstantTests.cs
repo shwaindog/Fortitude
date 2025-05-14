@@ -385,7 +385,7 @@ public class PQTickInstantTests
     public void NonPQPopulatedQuote_CopyFromToEmptyQuote_QuotesEquivalentToEachOther()
     {
         var nonPQTickInstant = new PublishableTickInstant(fullyPopulatedPQTickInstant);
-        emptyQuote.CopyFrom(nonPQTickInstant);
+        emptyQuote.CopyFrom(nonPQTickInstant, CopyMergeFlags.Default);
         Assert.IsTrue(fullyPopulatedPQTickInstant.AreEquivalent(emptyQuote));
     }
 
@@ -485,7 +485,7 @@ public class PQTickInstantTests
         Assert.IsTrue(original.AreEquivalent(changingTickInstant, exactComparison));
 
         changingTickInstant.FeedSyncStatus = FeedSyncStatus.FeedDown;
-        Assert.AreEqual(!exactComparison, original.AreEquivalent(changingTickInstant, exactComparison));
+        Assert.IsFalse(original.AreEquivalent(changingTickInstant, exactComparison));
         changingTickInstant.FeedSyncStatus          = original.FeedSyncStatus;
         changingTickInstant.IsFeedSyncStatusUpdated = original.IsFeedSyncStatusUpdated; // not enabled unless updated from default
         Assert.IsTrue(changingTickInstant.AreEquivalent(original, exactComparison));
@@ -533,7 +533,7 @@ public class PQTickInstantTests
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.SingleTickValue),
                         $"For {originalQuote.GetType().Name} and {originalQuote.SourceTickerInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         var quoteContainer = originalQuote.AsNonPublishable;
-        var sourceTime = NonPublicInvocator.GetInstanceField<DateTime>(quoteContainer, "sourceTime");
+        var sourceTime     = NonPublicInvocator.GetInstanceField<DateTime>(quoteContainer, "sourceTime");
         Assert.AreEqual(new PQFieldUpdate(PQFeedFields.SourceQuoteSentDateTime, sourceTime.Get2MinIntervalsFromUnixEpoch()),
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.SourceQuoteSentDateTime),
                         $"For {originalQuote.GetType().Name} and {originalQuote.SourceTickerInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
@@ -643,7 +643,7 @@ public class PQTickInstantTests
 
         public DateTime SourceTime => DateTime.Now;
 
-        public DateTime ClientReceivedTime => DateTime.Now;
+        public DateTime ClientReceivedTime { get; set; }
 
         ISourceTickerInfo? IPublishableTickInstant.SourceTickerInfo => SourceTickerInfo;
         ISourceTickerInfo? IMutablePublishableTickInstant.SourceTickerInfo
@@ -686,32 +686,20 @@ public class PQTickInstantTests
 
         public DateTime LastPublicationTime { get; set; }
 
-        public void EnsureRelatedItemsAreConfigured(ISourceTickerInfo? item)
-        {
-        }
 
-        public IReusableObject<ITickInstant> CopyFrom
-            (IReusableObject<ITickInstant> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
+        public bool IsEmpty { get; set; }
 
-        ITickInstant ICloneable<ITickInstant>.Clone() => Clone();
-
-        ITickInstant ITransferState<ITickInstant>.CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags) => this;
-
-        public bool AreEquivalent(ITickInstant? other, bool exactTypes = false) => false;
+        public uint StreamId => SourceTickerInfo?.SourceTickerId ?? throw new ArgumentException("Expected SourceTickerInfo to be set");
 
         public string QuoteToStringMembers => "";
 
-        IMutableTickInstant IMutableTickInstant.Clone() => this;
+        public void EnsureRelatedItemsAreConfigured(ISourceTickerInfo? item) { }
+        public void EnsureRelatedItemsAreConfigured(ITickInstant? item)      { }
+        public void EnsureRelatedItemsAreConfigured(IPQMessage? item)        { }
 
-        public void EnsureRelatedItemsAreConfigured(ITickInstant? item)
-        { }
-
-        IPQTickInstant IPQTickInstant.CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags) => this;
-
-        IPQTickInstant IPQTickInstant.                     Clone()          => this;
         ITickInstant IPublishableTickInstant.              AsNonPublishable => AsNonPublishable;
         IMutableTickInstant IMutablePublishableTickInstant.AsNonPublishable => AsNonPublishable;
-        public virtual IPQTickInstant                              AsNonPublishable => this;
+        public virtual IPQTickInstant                      AsNonPublishable => this;
 
         public uint UpdateCount => 0;
 
@@ -720,44 +708,52 @@ public class PQTickInstantTests
             HasUpdates = false;
         }
 
+        ITickInstant ICloneable<ITickInstant>.Clone() => Clone();
+
+        IPQMessage ICloneable<IPQMessage>.Clone() => this;
+
+        IPQMessage IPQMessage.Clone() => this;
+
+        IPQMutableMessage IPQMutableMessage.    Clone() => this;
+        IPQTickInstant IPQTickInstant.          Clone() => this;
+        IMutableTickInstant IMutableTickInstant.Clone() => this;
+
         IVersionedMessage ICloneable<IVersionedMessage>.Clone() => (IVersionedMessage)Clone();
 
         IPublishableTickInstant ICloneable<IPublishableTickInstant>.  Clone() => Clone();
         IMutablePublishableTickInstant IMutablePublishableTickInstant.Clone() => (IMutablePublishableTickInstant)Clone();
 
         IPQPublishableTickInstant IPQPublishableTickInstant.Clone() => (IPQPublishableTickInstant)Clone();
+        public override IPublishableTickInstant             Clone() => new PQLevel1QuoteTests.DummyLevel1Quote();
 
         IPublishableTickInstant? IDoublyLinkedListNode<IPublishableTickInstant>.Previous { get; set; }
         IPublishableTickInstant? IDoublyLinkedListNode<IPublishableTickInstant>.Next     { get; set; }
 
-        public void IncrementTimeBy(TimeSpan toChangeBy) { }
+        IPQMessage? IDoublyLinkedListNode<IPQMessage>.              Previous { get; set; }
+        IPQMessage? IDoublyLinkedListNode<IPQMessage>.              Next     { get; set; }
+        IPQMutableMessage? IDoublyLinkedListNode<IPQMutableMessage>.Previous { get; set; }
+        IPQMutableMessage? IDoublyLinkedListNode<IPQMutableMessage>.Next     { get; set; }
+        IPQMutableMessage? IPQMutableMessage.                       Previous { get; set; }
+        IPQMutableMessage? IPQMutableMessage.                       Next     { get; set; }
 
-        public IVersionedMessage CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-            throw new NotImplementedException();
+        public void IncrementTimeBy(TimeSpan toChangeBy) { }
 
         public int UpdateField(PQFieldUpdate updates) => -1;
 
         public bool UpdateFieldString(PQFieldStringUpdate stringUpdate) => false;
 
-        public override IPublishableTickInstant CopyFrom
-            (IPublishableTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-            this;
 
-        public IReusableObject<IVersionedMessage> CopyFrom
-            (IReusableObject<IVersionedMessage> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-            this;
+        IEnumerable<PQFieldUpdate> IPQSupportsNumberPrecisionFieldUpdates<IPQTickInstant>.GetDeltaUpdateFields
+            (DateTime snapShotTime, StorageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings) =>
+            [];
 
-        public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-        (DateTime snapShotTime, StorageFlags messageFlags,
-            IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
-        {
-            yield break;
-        }
+        IEnumerable<PQFieldUpdate> IPQPublishableTickInstant.GetDeltaUpdateFields
+            (DateTime snapShotTime, StorageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings) =>
+            [];
 
-        public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
-        {
-            yield break;
-        }
+        public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags) => [];
+
+        public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags) => [];
 
         public void ResetFields() { }
 
@@ -767,19 +763,49 @@ public class PQTickInstantTests
             return QuoteStorageTimeResolver.Instance.ResolveStorageTime(this);
         }
 
-        public void EnsureRelatedItemsAreConfigured(IPublishableTickInstant? referenceInstance) { }
+        public bool AreEquivalent(ITickInstant? other, bool exactTypes = false)                 => false;
 
         public bool AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false) => false;
+
+        public bool AreEquivalent(IFeedEventStatusUpdate? other, bool exactTypes = false) => false;
+
+
+        public bool AreEquivalent(IPQMutableMessage? other, bool exactTypes = false) => false;
+
+        public IFeedEventStatusUpdate CopyFrom
+            (IFeedEventStatusUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+            this;
+
+        public IVersionedMessage CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
+
+        ITickInstant ITransferState<ITickInstant>.CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags) => this;
+
+        IPQTickInstant IPQTickInstant.CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags) => this;
+
+        public override IPublishableTickInstant CopyFrom
+            (IPublishableTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+            this;
+
+        public IReusableObject<IVersionedMessage> CopyFrom
+            (IReusableObject<IVersionedMessage> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+            this;
+
+        public IPQTickInstant CopyFrom(IPQTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
+
+        public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
+
+        public IPQMessage CopyFrom(IPQMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
+
+        public IPQMutableMessage CopyFrom(IPQMutableMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
+
+        public IReusableObject<ITickInstant> CopyFrom
+            (IReusableObject<ITickInstant> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+            this;
 
         IPQPublishableTickInstant IPQPublishableTickInstant.CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags) => this;
 
         public virtual DummyPQTickInstant CopyFrom(DummyPQTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => this;
 
         public IPQPublishableTickInstant CopyFrom(IPQPublishableTickInstant source, CopyMergeFlags copyMergeFlags) => this;
-
-        public override IPublishableTickInstant Clone() => new PQLevel1QuoteTests.DummyLevel1Quote();
-
-        public void SetPricePrecision(decimal precision)  { }
-        public void SetVolumePrecision(decimal precision) { }
     }
 }

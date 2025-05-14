@@ -19,9 +19,9 @@ public abstract class ReusableObject<T> : RecyclableObject, IReusableObject<T> w
 {
     protected readonly int InstanceNum = InstanceCounter<T>.NextInstanceNum;
 
-    public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags) => (ITransferState)CopyFrom((T)source, copyMergeFlags);
+    ITransferState ITransferState.CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags) => (ITransferState)CopyFrom((T)source, copyMergeFlags);
 
-    public IReusableObject<T> CopyFrom(IReusableObject<T> source, CopyMergeFlags copyMergeFlags) =>
+    IReusableObject<T> ITransferState<IReusableObject<T>>.CopyFrom(IReusableObject<T> source, CopyMergeFlags copyMergeFlags) =>
         (IReusableObject<T>)CopyFrom((T)source, copyMergeFlags);
 
     object ICloneable.Clone() => Clone();

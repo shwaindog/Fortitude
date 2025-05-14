@@ -1336,10 +1336,10 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
 
     IReusableObject<IBidAskInstant> ITransferState<IReusableObject<IBidAskInstant>>.CopyFrom
         (IReusableObject<IBidAskInstant> source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom((IPublishableLevel1Quote)source, copyMergeFlags);
+        CopyFrom((IPublishableTickInstant)source, copyMergeFlags);
 
     IBidAskInstant ITransferState<IBidAskInstant>.CopyFrom(IBidAskInstant source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom((IPublishableLevel1Quote)source, copyMergeFlags);
+        CopyFrom((IPublishableTickInstant)source, copyMergeFlags);
 
     IPublishableLevel1Quote ICloneable<IPublishableLevel1Quote>.Clone() => Clone();
 
@@ -1356,7 +1356,7 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
 
     public override bool AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false)
     {
-        if (!(other is IPublishableLevel1Quote otherL1)) return false;
+        if (other is not IPublishableLevel1Quote otherL1) return false;
         var baseSame            = base.AreEquivalent(otherL1, exactTypes);
         var adapterSentSame     = adapterSentTime.Equals(otherL1.AdapterSentTime);
         var adapterReceivedSame = adapterReceivedTime.Equals(otherL1.AdapterReceivedTime);
@@ -1368,13 +1368,9 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
         return allAreSame;
     }
 
-    IPQPublishableLevel1Quote IPQPublishableLevel1Quote.CopyFrom
-        (IPublishableTickInstant source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom(source, copyMergeFlags);
-
     IPQLevel1Quote IPQLevel1Quote.CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags)
     {
-        if (source is IPublishableTickInstant pubTickInstant)
+        if (source is IPQMessage pubTickInstant)
         {
             CopyFrom(pubTickInstant, copyMergeFlags);
         }
@@ -1385,7 +1381,10 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
         return this;
     }
 
-    public override PQPublishableLevel1Quote CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    IPQPublishableLevel1Quote IPQPublishableLevel1Quote.CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags) => 
+        CopyFrom(source, copyMergeFlags);
+
+    public override PQPublishableLevel1Quote CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags)
     {
         base.CopyFrom(source, copyMergeFlags);
 

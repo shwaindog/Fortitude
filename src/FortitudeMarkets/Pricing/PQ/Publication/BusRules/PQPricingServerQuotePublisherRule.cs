@@ -15,8 +15,10 @@ using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
@@ -95,7 +97,7 @@ public class PQPricingServerQuotePublisherRule : Rule
             sendToSerializer.OverrideSerializationFlags = quotePublishEvent.MessageFlags;
             sendToSerializer.AutoRecycleAtRefCountZero  = false;
             sendToSerializer.Recycler                   = Context.PooledRecycler;
-            sendToSerializer.CopyFrom(quoteToPublish);
+            sendToSerializer.CopyFrom(quoteToPublish, CopyMergeFlags.Default);
             publishedQuotesMap.Add(tickerInfo.SourceTickerId, sendToSerializer);
             if (quoteToPublish.TickerQuoteDetailLevel.LessThan(sendToSerializer!.TickerQuoteDetailLevel))
             {
@@ -116,7 +118,7 @@ public class PQPricingServerQuotePublisherRule : Rule
                 return;
             }
 
-            sendToSerializer!.CopyFrom(quoteToPublish);
+            sendToSerializer!.CopyFrom(quoteToPublish, CopyMergeFlags.Default);
             if (overrideSequenceNumber != null) sendToSerializer.PQSequenceId = overrideSequenceNumber.Value;
             sendToSerializer.OverrideSerializationFlags = overrideMessageFlags;
 
@@ -157,7 +159,7 @@ public class PQPricingServerQuotePublisherRule : Rule
         {
             Logger.Info("Publishing heartbeats for [{0}]"
                       , heartBeatQuotesMessage.QuotesToSendHeartBeats
-                                              .Select(q => $"MessageId: {q.SourceTickerInfo!.SourceTickerId}, PQSequenceId {q.PQSequenceId}")
+                                              .Select(q => $"MessageId: {q.StreamId}, PQSequenceId {q.PQSequenceId}")
                                               .JoinToString());
             updatePublisher.Send(heartBeatQuotesMessage);
         }

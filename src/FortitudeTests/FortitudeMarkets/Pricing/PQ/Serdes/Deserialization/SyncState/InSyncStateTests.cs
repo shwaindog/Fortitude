@@ -19,7 +19,7 @@ public class InSyncStateTests : SyncStateBaseTests
 
     protected override void BuildSyncState()
     {
-        syncState = new InSyncState<PQPublishableTickInstant>(pqQuoteStreamDeserializer);
+        syncState = new InSyncState<PQPublishableTickInstant>(PQMessageStreamDeserializer);
     }
 
     [TestMethod]

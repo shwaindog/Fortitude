@@ -75,8 +75,8 @@ public class PQHeartbeatSerializerTests
         fourthQuote = new PQPublishableLevel3Quote(fourthInfo);
 
         firstBatchOfQuotes
-            = new PQHeartBeatQuotesMessage(new List<IPQPublishableTickInstant> { firstQuote, secondQuote, thirdQuote });
-        secondBatchOfQuotes = new PQHeartBeatQuotesMessage(new List<IPQPublishableTickInstant> { thirdQuote, fourthQuote });
+            = new PQHeartBeatQuotesMessage([firstQuote, secondQuote, thirdQuote]);
+        secondBatchOfQuotes = new PQHeartBeatQuotesMessage([thirdQuote, fourthQuote]);
 
         readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]) { ReadCursor = BufferReadWriteOffset };
 
@@ -103,7 +103,7 @@ public class PQHeartbeatSerializerTests
             var messageFlags = *currPtr++;
             Assert.AreEqual((byte)PQMessageFlags.None, messageFlags);
             var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
-            Assert.AreEqual(sourceTickerId, firstBatchOfQuote.SourceTickerInfo!.SourceTickerId);
+            Assert.AreEqual(sourceTickerId, firstBatchOfQuote.StreamId);
             var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
             Assert.AreEqual(messagesTotalSize, (uint)PQQuoteMessageHeader.HeaderSize + sizeof(uint));
             var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);
@@ -127,7 +127,7 @@ public class PQHeartbeatSerializerTests
             var messageFlags = *currPtr++;
             Assert.AreEqual((byte)PQMessageFlags.None, messageFlags);
             var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
-            Assert.AreEqual(sourceTickerId, firstBatchOfQuote.SourceTickerInfo!.SourceTickerId);
+            Assert.AreEqual(sourceTickerId, firstBatchOfQuote.StreamId);
             var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
             Assert.AreEqual(messagesTotalSize, (uint)PQQuoteMessageHeader.HeaderSize + sizeof(uint));
             var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);

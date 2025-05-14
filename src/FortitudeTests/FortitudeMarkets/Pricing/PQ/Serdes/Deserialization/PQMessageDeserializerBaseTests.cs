@@ -31,16 +31,16 @@ using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificat
 namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 
 [TestClass]
-public class PQQuoteDeserializerBaseTests
+public class PQMessageDeserializerBaseTests
 {
     private const int MessageHeaderByteSize = PQQuoteMessageHeader.HeaderSize;
     private const int BufferReadWriteOffset = 6;
 
-    private DummyPQQuoteDeserializerBase<IPQPublishableLevel1Quote> dummyLevel1QuoteDeserializer = null!;
-    private DummyPQQuoteDeserializerBase<IPQPublishableLevel2Quote> dummyLevel2QuoteDeserializer = null!;
-    private DummyPQQuoteDeserializerBase<IPQPublishableLevel3Quote> dummyLevel3QuoteDeserializer = null!;
+    private DummyPQMessageDeserializerBase<IPQPublishableLevel1Quote> dummyLevel1MessageDeserializer = null!;
+    private DummyPQMessageDeserializerBase<IPQPublishableLevel2Quote> dummyLevel2MessageDeserializer = null!;
+    private DummyPQMessageDeserializerBase<IPQPublishableLevel3Quote> dummyLevel3MessageDeserializer = null!;
 
-    private DummyPQQuoteDeserializerBase<IPQPublishableTickInstant> dummyTickInstantDeserializer = null!;
+    private DummyPQMessageDeserializerBase<IPQPublishableTickInstant> dummyTickInstantDeserializer = null!;
 
     private bool haveCalledAcquire;
 
@@ -54,7 +54,7 @@ public class PQQuoteDeserializerBaseTests
 
     private Mock<IPerfLogger>          moqPerfLogger        = null!;
     private Mock<IPerfLoggerPool>      moqPerfLoggerPool    = null!;
-    private Mock<IPQQuoteDeserializer> moqQuoteDeserializer = null!;
+    private Mock<IPQMessageDeserializer> moqQuoteDeserializer = null!;
     private Mock<ISyncLock>            moqSyncLock          = null!;
 
     private Mock<IObserver<IPQPublishableTickInstant>> moqTickInstantObserver = null!;
@@ -77,11 +77,11 @@ public class PQQuoteDeserializerBaseTests
     {
         moqUniqueSrcTkrId = new Mock<ISourceTickerInfo>();
         moqUniqueSrcTkrId.SetupGet(stqi => stqi.FilledAttributes).Returns([]);
-        dummyTickInstantDeserializer = new DummyPQQuoteDeserializerBase<IPQPublishableTickInstant>(moqUniqueSrcTkrId.Object);
-        dummyLevel1QuoteDeserializer = new DummyPQQuoteDeserializerBase<IPQPublishableLevel1Quote>(moqUniqueSrcTkrId.Object);
-        dummyLevel2QuoteDeserializer = new DummyPQQuoteDeserializerBase<IPQPublishableLevel2Quote>(moqUniqueSrcTkrId.Object);
-        dummyLevel3QuoteDeserializer = new DummyPQQuoteDeserializerBase<IPQPublishableLevel3Quote>(moqUniqueSrcTkrId.Object);
-        moqQuoteDeserializer         = new Mock<IPQQuoteDeserializer>();
+        dummyTickInstantDeserializer = new DummyPQMessageDeserializerBase<IPQPublishableTickInstant>(moqUniqueSrcTkrId.Object);
+        dummyLevel1MessageDeserializer = new DummyPQMessageDeserializerBase<IPQPublishableLevel1Quote>(moqUniqueSrcTkrId.Object);
+        dummyLevel2MessageDeserializer = new DummyPQMessageDeserializerBase<IPQPublishableLevel2Quote>(moqUniqueSrcTkrId.Object);
+        dummyLevel3MessageDeserializer = new DummyPQMessageDeserializerBase<IPQPublishableLevel3Quote>(moqUniqueSrcTkrId.Object);
+        moqQuoteDeserializer         = new Mock<IPQMessageDeserializer>();
 
         readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]);
         socketBufferReadContext = new SocketBufferReadContext
@@ -107,11 +107,11 @@ public class PQQuoteDeserializerBaseTests
         NonPublicInvocator.SetStaticField
             (dummyTickInstantDeserializer, "PublishPQQuoteDeserializerLatencyTraceLoggerPool", moqPerfLoggerPool.Object);
         NonPublicInvocator.SetStaticField
-            (dummyLevel1QuoteDeserializer, "PublishPQQuoteDeserializerLatencyTraceLoggerPool", moqPerfLoggerPool.Object);
+            (dummyLevel1MessageDeserializer, "PublishPQQuoteDeserializerLatencyTraceLoggerPool", moqPerfLoggerPool.Object);
         NonPublicInvocator.SetStaticField
-            (dummyLevel2QuoteDeserializer, "PublishPQQuoteDeserializerLatencyTraceLoggerPool", moqPerfLoggerPool.Object);
+            (dummyLevel2MessageDeserializer, "PublishPQQuoteDeserializerLatencyTraceLoggerPool", moqPerfLoggerPool.Object);
         NonPublicInvocator.SetStaticField
-            (dummyLevel3QuoteDeserializer, "PublishPQQuoteDeserializerLatencyTraceLoggerPool", moqPerfLoggerPool.Object);
+            (dummyLevel3MessageDeserializer, "PublishPQQuoteDeserializerLatencyTraceLoggerPool", moqPerfLoggerPool.Object);
 
         moqPerfLogger = new Mock<IPerfLogger>();
         moqPerfLoggerPool.Setup(plp => plp.StartNewTrace())
@@ -131,20 +131,20 @@ public class PQQuoteDeserializerBaseTests
         NonPublicInvocator.SetStaticField
             (dummyTickInstantDeserializer, "PublishPQQuoteDeserializerLatencyTraceLoggerPool", realInstance);
         NonPublicInvocator.SetStaticField
-            (dummyLevel1QuoteDeserializer, "PublishPQQuoteDeserializerLatencyTraceLoggerPool", realInstance);
+            (dummyLevel1MessageDeserializer, "PublishPQQuoteDeserializerLatencyTraceLoggerPool", realInstance);
         NonPublicInvocator.SetStaticField
-            (dummyLevel2QuoteDeserializer, "PublishPQQuoteDeserializerLatencyTraceLoggerPool", realInstance);
+            (dummyLevel2MessageDeserializer, "PublishPQQuoteDeserializerLatencyTraceLoggerPool", realInstance);
         NonPublicInvocator.SetStaticField
-            (dummyLevel3QuoteDeserializer, "PublishPQQuoteDeserializerLatencyTraceLoggerPool", realInstance);
+            (dummyLevel3MessageDeserializer, "PublishPQQuoteDeserializerLatencyTraceLoggerPool", realInstance);
     }
 
     [TestMethod]
     public void NewPQQuoteDeserializer_New_SetsSourceTickerIdentifier()
     {
         Assert.IsNotNull(dummyTickInstantDeserializer.PublishedQuote);
-        Assert.IsNotNull(dummyLevel1QuoteDeserializer.PublishedQuote);
-        Assert.IsNotNull(dummyLevel2QuoteDeserializer.PublishedQuote);
-        Assert.IsNotNull(dummyLevel3QuoteDeserializer.PublishedQuote);
+        Assert.IsNotNull(dummyLevel1MessageDeserializer.PublishedQuote);
+        Assert.IsNotNull(dummyLevel2MessageDeserializer.PublishedQuote);
+        Assert.IsNotNull(dummyLevel3MessageDeserializer.PublishedQuote);
     }
 
     [TestMethod]
@@ -156,14 +156,14 @@ public class PQQuoteDeserializerBaseTests
         var haveCalledPQLevel3QuoteCallback = false;
 
         dummyTickInstantDeserializer.ReceivedUpdate += _ => { haveCalledPQTickInstantCallback = true; };
-        dummyLevel1QuoteDeserializer.ReceivedUpdate += _ => { haveCalledPQLevel1QuoteCallback = true; };
-        dummyLevel2QuoteDeserializer.ReceivedUpdate += _ => { haveCalledPQLevel2QuoteCallback = true; };
-        dummyLevel3QuoteDeserializer.ReceivedUpdate += _ => { haveCalledPQLevel3QuoteCallback = true; };
+        dummyLevel1MessageDeserializer.ReceivedUpdate += _ => { haveCalledPQLevel1QuoteCallback = true; };
+        dummyLevel2MessageDeserializer.ReceivedUpdate += _ => { haveCalledPQLevel2QuoteCallback = true; };
+        dummyLevel3MessageDeserializer.ReceivedUpdate += _ => { haveCalledPQLevel3QuoteCallback = true; };
 
         dummyTickInstantDeserializer.InvokeOnReceivedUpdate(moqQuoteDeserializer.Object);
-        dummyLevel1QuoteDeserializer.InvokeOnReceivedUpdate(moqQuoteDeserializer.Object);
-        dummyLevel2QuoteDeserializer.InvokeOnReceivedUpdate(moqQuoteDeserializer.Object);
-        dummyLevel3QuoteDeserializer.InvokeOnReceivedUpdate(moqQuoteDeserializer.Object);
+        dummyLevel1MessageDeserializer.InvokeOnReceivedUpdate(moqQuoteDeserializer.Object);
+        dummyLevel2MessageDeserializer.InvokeOnReceivedUpdate(moqQuoteDeserializer.Object);
+        dummyLevel3MessageDeserializer.InvokeOnReceivedUpdate(moqQuoteDeserializer.Object);
 
         Assert.IsTrue(haveCalledPQTickInstantCallback);
         Assert.IsTrue(haveCalledPQLevel1QuoteCallback);
@@ -180,14 +180,14 @@ public class PQQuoteDeserializerBaseTests
         var haveCalledPQLevel3QuoteCallback = false;
 
         dummyTickInstantDeserializer.SyncOk += _ => { haveCalledPQTickInstantCallback = true; };
-        dummyLevel1QuoteDeserializer.SyncOk += _ => { haveCalledPQLevel1QuoteCallback = true; };
-        dummyLevel2QuoteDeserializer.SyncOk += _ => { haveCalledPQLevel2QuoteCallback = true; };
-        dummyLevel3QuoteDeserializer.SyncOk += _ => { haveCalledPQLevel3QuoteCallback = true; };
+        dummyLevel1MessageDeserializer.SyncOk += _ => { haveCalledPQLevel1QuoteCallback = true; };
+        dummyLevel2MessageDeserializer.SyncOk += _ => { haveCalledPQLevel2QuoteCallback = true; };
+        dummyLevel3MessageDeserializer.SyncOk += _ => { haveCalledPQLevel3QuoteCallback = true; };
 
         dummyTickInstantDeserializer.InvokeOnSyncOk(moqQuoteDeserializer.Object);
-        dummyLevel1QuoteDeserializer.InvokeOnSyncOk(moqQuoteDeserializer.Object);
-        dummyLevel2QuoteDeserializer.InvokeOnSyncOk(moqQuoteDeserializer.Object);
-        dummyLevel3QuoteDeserializer.InvokeOnSyncOk(moqQuoteDeserializer.Object);
+        dummyLevel1MessageDeserializer.InvokeOnSyncOk(moqQuoteDeserializer.Object);
+        dummyLevel2MessageDeserializer.InvokeOnSyncOk(moqQuoteDeserializer.Object);
+        dummyLevel3MessageDeserializer.InvokeOnSyncOk(moqQuoteDeserializer.Object);
 
         Assert.IsTrue(haveCalledPQTickInstantCallback);
         Assert.IsTrue(haveCalledPQLevel1QuoteCallback);
@@ -204,14 +204,14 @@ public class PQQuoteDeserializerBaseTests
         var haveCalledPQLevel3QuoteCallback = false;
 
         dummyTickInstantDeserializer.OutOfSync += _ => { haveCalledPQTickInstantCallback = true; };
-        dummyLevel1QuoteDeserializer.OutOfSync += _ => { haveCalledPQLevel1QuoteCallback = true; };
-        dummyLevel2QuoteDeserializer.OutOfSync += _ => { haveCalledPQLevel2QuoteCallback = true; };
-        dummyLevel3QuoteDeserializer.OutOfSync += _ => { haveCalledPQLevel3QuoteCallback = true; };
+        dummyLevel1MessageDeserializer.OutOfSync += _ => { haveCalledPQLevel1QuoteCallback = true; };
+        dummyLevel2MessageDeserializer.OutOfSync += _ => { haveCalledPQLevel2QuoteCallback = true; };
+        dummyLevel3MessageDeserializer.OutOfSync += _ => { haveCalledPQLevel3QuoteCallback = true; };
 
         dummyTickInstantDeserializer.InvokeOnOutOfSync(moqQuoteDeserializer.Object);
-        dummyLevel1QuoteDeserializer.InvokeOnOutOfSync(moqQuoteDeserializer.Object);
-        dummyLevel2QuoteDeserializer.InvokeOnOutOfSync(moqQuoteDeserializer.Object);
-        dummyLevel3QuoteDeserializer.InvokeOnOutOfSync(moqQuoteDeserializer.Object);
+        dummyLevel1MessageDeserializer.InvokeOnOutOfSync(moqQuoteDeserializer.Object);
+        dummyLevel2MessageDeserializer.InvokeOnOutOfSync(moqQuoteDeserializer.Object);
+        dummyLevel3MessageDeserializer.InvokeOnOutOfSync(moqQuoteDeserializer.Object);
 
         Assert.IsTrue(haveCalledPQTickInstantCallback);
         Assert.IsTrue(haveCalledPQLevel1QuoteCallback);
@@ -238,17 +238,17 @@ public class PQQuoteDeserializerBaseTests
         NonPublicInvocator.SetInstanceField
             (dummyTickInstantDeserializer, "Subscribers", moqTickInstantSubscribers.Object);
         NonPublicInvocator.SetInstanceField
-            (dummyLevel1QuoteDeserializer, "Subscribers", moqLevel1Subscribers.Object);
+            (dummyLevel1MessageDeserializer, "Subscribers", moqLevel1Subscribers.Object);
         NonPublicInvocator.SetInstanceField
-            (dummyLevel2QuoteDeserializer, "Subscribers", moqLevel2Subscribers.Object);
+            (dummyLevel2MessageDeserializer, "Subscribers", moqLevel2Subscribers.Object);
         NonPublicInvocator.SetInstanceField
-            (dummyLevel3QuoteDeserializer, "Subscribers", moqLevel3Subscribers.Object);
+            (dummyLevel3MessageDeserializer, "Subscribers", moqLevel3Subscribers.Object);
 
         subscribedTickInstantObserver = dummyTickInstantDeserializer.Subscribe(moqTickInstantObserver.Object);
 
-        subscribedL1Observer = dummyLevel1QuoteDeserializer.Subscribe(moqL1QObserver.Object);
-        subscribedL2Observer = dummyLevel2QuoteDeserializer.Subscribe(moqL2QObserver.Object);
-        subscribedL3Observer = dummyLevel3QuoteDeserializer.Subscribe(moqL3QObserver.Object);
+        subscribedL1Observer = dummyLevel1MessageDeserializer.Subscribe(moqL1QObserver.Object);
+        subscribedL2Observer = dummyLevel2MessageDeserializer.Subscribe(moqL2QObserver.Object);
+        subscribedL3Observer = dummyLevel3MessageDeserializer.Subscribe(moqL3QObserver.Object);
 
         moqTickInstantSubscribers.Verify();
         moqLevel1Subscribers.Verify();
@@ -473,7 +473,7 @@ public class PQQuoteDeserializerBaseTests
                      }
                     ).Verifiable();
             moqL1QObserver
-                .Setup(o => o.OnNext(dummyLevel1QuoteDeserializer.PublishedQuote))
+                .Setup(o => o.OnNext(dummyLevel1MessageDeserializer.PublishedQuote))
                 .Callback<IPQPublishableLevel1Quote>
                     (pq =>
                      {
@@ -484,7 +484,7 @@ public class PQQuoteDeserializerBaseTests
                      }
                     ).Verifiable();
             moqL2QObserver
-                .Setup(o => o.OnNext(dummyLevel2QuoteDeserializer.PublishedQuote))
+                .Setup(o => o.OnNext(dummyLevel2MessageDeserializer.PublishedQuote))
                 .Callback<IPQPublishableLevel2Quote>
                     (pq =>
                      {
@@ -495,7 +495,7 @@ public class PQQuoteDeserializerBaseTests
                      }
                     ).Verifiable();
             moqL3QObserver
-                .Setup(o => o.OnNext(dummyLevel3QuoteDeserializer.PublishedQuote))
+                .Setup(o => o.OnNext(dummyLevel3MessageDeserializer.PublishedQuote))
                 .Callback<IPQPublishableLevel3Quote>
                     (pq =>
                      {
@@ -516,14 +516,14 @@ public class PQQuoteDeserializerBaseTests
 
             subscribedTickInstantObserver = dummyTickInstantDeserializer.Subscribe(moqTickInstantObserver.Object);
 
-            subscribedL1Observer = dummyLevel1QuoteDeserializer.Subscribe(moqL1QObserver.Object);
-            subscribedL2Observer = dummyLevel2QuoteDeserializer.Subscribe(moqL2QObserver.Object);
-            subscribedL3Observer = dummyLevel3QuoteDeserializer.Subscribe(moqL3QObserver.Object);
+            subscribedL1Observer = dummyLevel1MessageDeserializer.Subscribe(moqL1QObserver.Object);
+            subscribedL2Observer = dummyLevel2MessageDeserializer.Subscribe(moqL2QObserver.Object);
+            subscribedL3Observer = dummyLevel3MessageDeserializer.Subscribe(moqL3QObserver.Object);
 
             dummyTickInstantDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
-            dummyLevel1QuoteDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
-            dummyLevel2QuoteDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
-            dummyLevel3QuoteDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
+            dummyLevel1MessageDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
+            dummyLevel2MessageDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
+            dummyLevel3MessageDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
 
 
             moqPerfLogger.Verify(pl => pl.Enabled, Times.AtLeast(8));
@@ -546,11 +546,11 @@ public class PQQuoteDeserializerBaseTests
 
             dummyTickInstantDeserializer.InvokePushQuoteToSubscribers
                 (expectedPublicationStatus, moqDispatchPerfLogger.Object);
-            dummyLevel1QuoteDeserializer.InvokePushQuoteToSubscribers
+            dummyLevel1MessageDeserializer.InvokePushQuoteToSubscribers
                 (expectedPublicationStatus, moqDispatchPerfLogger.Object);
-            dummyLevel2QuoteDeserializer.InvokePushQuoteToSubscribers
+            dummyLevel2MessageDeserializer.InvokePushQuoteToSubscribers
                 (expectedPublicationStatus, moqDispatchPerfLogger.Object);
-            dummyLevel3QuoteDeserializer.InvokePushQuoteToSubscribers
+            dummyLevel3MessageDeserializer.InvokePushQuoteToSubscribers
                 (expectedPublicationStatus, moqDispatchPerfLogger.Object);
 
             moqDispatchPerfLogger.Verify(pl => pl.Add(SocketDataLatencyLogger.BeforePublish), Times.Exactly(4));
@@ -571,9 +571,9 @@ public class PQQuoteDeserializerBaseTests
         var expectedPublicationStatus = FeedSyncStatus.Good;
 
         dummyTickInstantDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
-        dummyLevel1QuoteDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
-        dummyLevel2QuoteDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
-        dummyLevel3QuoteDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
+        dummyLevel1MessageDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
+        dummyLevel2MessageDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
+        dummyLevel3MessageDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
     }
 
     [TestMethod]
@@ -585,11 +585,11 @@ public class PQQuoteDeserializerBaseTests
 
         moqTickInstantObserver.Setup(o => o.OnNext(dummyTickInstantDeserializer.PublishedQuote))
                               .Callback(() => { Assert.Fail("Should Never Get Here"); });
-        moqL1QObserver.Setup(o => o.OnNext(dummyLevel1QuoteDeserializer.PublishedQuote))
+        moqL1QObserver.Setup(o => o.OnNext(dummyLevel1MessageDeserializer.PublishedQuote))
                       .Callback(() => { Assert.Fail("Should Never Get Here"); });
-        moqL2QObserver.Setup(o => o.OnNext(dummyLevel2QuoteDeserializer.PublishedQuote))
+        moqL2QObserver.Setup(o => o.OnNext(dummyLevel2MessageDeserializer.PublishedQuote))
                       .Callback(() => { Assert.Fail("Should Never Get Here"); });
-        moqL3QObserver.Setup(o => o.OnNext(dummyLevel3QuoteDeserializer.PublishedQuote))
+        moqL3QObserver.Setup(o => o.OnNext(dummyLevel3MessageDeserializer.PublishedQuote))
                       .Callback(() => { Assert.Fail("Should Never Get Here"); });
 
         const string expectedTicker = "TestTicker";
@@ -600,21 +600,21 @@ public class PQQuoteDeserializerBaseTests
 
         subscribedTickInstantObserver = dummyTickInstantDeserializer.Subscribe(moqTickInstantObserver.Object);
 
-        subscribedL1Observer = dummyLevel1QuoteDeserializer.Subscribe(moqL1QObserver.Object);
-        subscribedL2Observer = dummyLevel2QuoteDeserializer.Subscribe(moqL2QObserver.Object);
-        subscribedL3Observer = dummyLevel3QuoteDeserializer.Subscribe(moqL3QObserver.Object);
+        subscribedL1Observer = dummyLevel1MessageDeserializer.Subscribe(moqL1QObserver.Object);
+        subscribedL2Observer = dummyLevel2MessageDeserializer.Subscribe(moqL2QObserver.Object);
+        subscribedL3Observer = dummyLevel3MessageDeserializer.Subscribe(moqL3QObserver.Object);
 
         dummyTickInstantDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
-        dummyLevel1QuoteDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
-        dummyLevel2QuoteDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
-        dummyLevel3QuoteDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
+        dummyLevel1MessageDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
+        dummyLevel2MessageDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
+        dummyLevel3MessageDeserializer.InvokePushQuoteToSubscribers(expectedPublicationStatus);
 
         moqPerfLoggerPool.Verify(plp => plp.StartNewTrace(), Times.Exactly(4));
         moqPerfLoggerPool.Verify(plp => plp.StartNewTrace(), Times.Exactly(4));
         Assert.AreEqual(expectedPublicationStatus, dummyTickInstantDeserializer.PublishedQuote.FeedSyncStatus);
-        Assert.AreEqual(expectedPublicationStatus, dummyLevel1QuoteDeserializer.PublishedQuote.FeedSyncStatus);
-        Assert.AreEqual(expectedPublicationStatus, dummyLevel2QuoteDeserializer.PublishedQuote.FeedSyncStatus);
-        Assert.AreEqual(expectedPublicationStatus, dummyLevel3QuoteDeserializer.PublishedQuote.FeedSyncStatus);
+        Assert.AreEqual(expectedPublicationStatus, dummyLevel1MessageDeserializer.PublishedQuote.FeedSyncStatus);
+        Assert.AreEqual(expectedPublicationStatus, dummyLevel2MessageDeserializer.PublishedQuote.FeedSyncStatus);
+        Assert.AreEqual(expectedPublicationStatus, dummyLevel3MessageDeserializer.PublishedQuote.FeedSyncStatus);
     }
 
     private void SetupObserversAndSyncLock()
@@ -627,11 +627,11 @@ public class PQQuoteDeserializerBaseTests
         NonPublicInvocator.SetInstanceField
             (dummyTickInstantDeserializer.PublishedQuote, "SyncLock", moqSyncLock.Object);
         NonPublicInvocator.SetInstanceField
-            (dummyLevel1QuoteDeserializer.PublishedQuote, "SyncLock", moqSyncLock.Object);
+            (dummyLevel1MessageDeserializer.PublishedQuote, "SyncLock", moqSyncLock.Object);
         NonPublicInvocator.SetInstanceField
-            (dummyLevel2QuoteDeserializer.PublishedQuote, "SyncLock", moqSyncLock.Object);
+            (dummyLevel2MessageDeserializer.PublishedQuote, "SyncLock", moqSyncLock.Object);
         NonPublicInvocator.SetInstanceField
-            (dummyLevel3QuoteDeserializer.PublishedQuote, "SyncLock", moqSyncLock.Object);
+            (dummyLevel3MessageDeserializer.PublishedQuote, "SyncLock", moqSyncLock.Object);
 
         moqTickInstantObserver = new Mock<IObserver<IPQPublishableTickInstant>>();
 
@@ -643,34 +643,34 @@ public class PQQuoteDeserializerBaseTests
     private void SetupQuoteChanges(DateTime newDateTime)
     {
         dummyTickInstantDeserializer.PublishedQuote.SourceTime = newDateTime;
-        dummyLevel1QuoteDeserializer.PublishedQuote.SourceTime = newDateTime;
-        dummyLevel2QuoteDeserializer.PublishedQuote.SourceTime = newDateTime;
-        dummyLevel3QuoteDeserializer.PublishedQuote.SourceTime = newDateTime;
+        dummyLevel1MessageDeserializer.PublishedQuote.SourceTime = newDateTime;
+        dummyLevel2MessageDeserializer.PublishedQuote.SourceTime = newDateTime;
+        dummyLevel3MessageDeserializer.PublishedQuote.SourceTime = newDateTime;
     }
 
-    private class DummyPQQuoteDeserializerBase<T>(ISourceTickerInfo identifier) : PQQuoteDeserializerBase<T>(identifier)
+    private class DummyPQMessageDeserializerBase<T>(ISourceTickerInfo identifier) : PQMessageDeserializerBase<T>(identifier)
         where T : class, IPQPublishableTickInstant
     {
         public override T Deserialize(ISerdeContext readContext) => throw new NotImplementedException();
 
-        public void InvokeOnReceivedUpdate(IPQQuoteDeserializer quoteDeserializer)
+        public void InvokeOnReceivedUpdate(IPQMessageDeserializer quoteDeserializer)
         {
             OnReceivedUpdate(quoteDeserializer);
         }
 
-        public void InvokeOnSyncOk(IPQQuoteDeserializer quoteDeserializer)
+        public void InvokeOnSyncOk(IPQMessageDeserializer quoteDeserializer)
         {
             OnSyncOk(quoteDeserializer);
         }
 
-        public void InvokeOnOutOfSync(IPQQuoteDeserializer quoteDeserializer)
+        public void InvokeOnOutOfSync(IPQMessageDeserializer quoteDeserializer)
         {
             OnOutOfSync(quoteDeserializer);
         }
 
         public void InvokeUpdateQuote(SocketBufferReadContext socketBufferReadContext, T ent, uint sequenceId)
         {
-            UpdateQuote(socketBufferReadContext, ent, sequenceId);
+            UpdateEntity(socketBufferReadContext, ent, sequenceId);
         }
 
         public void InvokePushQuoteToSubscribers(FeedSyncStatus syncStatus, IPerfLogger? detectionToPublishLatencyTraceLogger = null)

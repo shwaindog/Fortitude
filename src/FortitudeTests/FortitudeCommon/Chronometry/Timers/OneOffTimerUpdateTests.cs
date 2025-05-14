@@ -71,7 +71,7 @@ public class OneOffTimerUpdateTests
     public void CopyFromTest()
     {
         var fromCopy = new OneOffTimerUpdate();
-        fromCopy.CopyFrom((ITransferState)oneOffTimerUpdate, CopyMergeFlags.Default);
+        fromCopy.CopyFrom(oneOffTimerUpdate);
 
         Assert.AreEqual(oneOffTimerUpdate.CallBackRunInfo, fromCopy.CallBackRunInfo);
         Assert.AreEqual(oneOffTimerUpdate.UpdateableTimer, fromCopy.UpdateableTimer);

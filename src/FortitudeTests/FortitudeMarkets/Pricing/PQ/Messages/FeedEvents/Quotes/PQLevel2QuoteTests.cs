@@ -5,6 +5,7 @@
 
 using System.Text.Json;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
@@ -1127,7 +1128,7 @@ public class PQLevel2QuoteTests
             var emptyQuoteSourceTickerInfo
                 = new PQSourceTickerInfo(populatedL2Quote.SourceTickerInfo!);
             var newEmpty = new PQPublishableLevel2Quote(emptyQuoteSourceTickerInfo);
-            newEmpty.CopyFrom(nonPQLevel2Quote);
+            newEmpty.CopyFrom(nonPQLevel2Quote, CopyMergeFlags.Default);
             Assert.IsTrue(populatedL2Quote.AreEquivalent(newEmpty));
         }
     }

@@ -5,6 +5,7 @@
 
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
+using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 #endregion
@@ -15,7 +16,7 @@ public interface IPQServerHeartBeatSender
 {
     bool HasStarted { get; }
 
-    IDoublyLinkedList<IPQPublishableTickInstant>? ServerLinkedQuotes { get; set; }
+    IDoublyLinkedList<IPQMutableMessage>? ServerLinkedQuotes { get; set; }
 
     ISyncLock?       ServerLinkedLock { get; set; }
     IPQUpdateServer? UpdateServer     { get; set; }

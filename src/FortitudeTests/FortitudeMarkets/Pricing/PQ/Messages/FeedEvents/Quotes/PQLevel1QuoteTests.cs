@@ -643,7 +643,7 @@ public class PQLevel1QuoteTests
     public void NonPQPopulatedQuote_CopyFromToEmptyQuote_QuotesEquivalentToEachOther()
     {
         var nonPQLevel1Quote = new PublishableLevel1PriceQuote(fullyPopulatedPqLevel1Quote);
-        emptyQuote.CopyFrom(nonPQLevel1Quote);
+        emptyQuote.CopyFrom(nonPQLevel1Quote, CopyMergeFlags.Default);
         Assert.IsTrue(fullyPopulatedPqLevel1Quote.AreEquivalent(emptyQuote));
     }
 

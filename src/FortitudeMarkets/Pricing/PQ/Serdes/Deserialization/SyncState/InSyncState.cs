@@ -6,22 +6,23 @@
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarkets.Pricing.FeedEvents;
+using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public class InSyncState<T> : SyncStateBase<T> where T : PQPublishableTickInstant, new()
+public class InSyncState<T> : SyncStateBase<T> where T : IPQMutableMessage
 {
     internal const uint PQTimeoutMs = 2000;
 
     protected long LastSuccessfulUpdateSequienceId = -1;
 
-    public InSyncState(IPQQuotePublishingDeserializer<T> linkedDeserializer)
+    public InSyncState(IPQMessagePublishingDeserializer<T> linkedDeserializer)
         : base(linkedDeserializer, QuoteSyncState.InSync) { }
 
-    protected InSyncState(IPQQuotePublishingDeserializer<T> linkedDeserializer, QuoteSyncState state)
+    protected InSyncState(IPQMessagePublishingDeserializer<T> linkedDeserializer, QuoteSyncState state)
         : base(linkedDeserializer, state) { }
 
     protected override void ProcessUpdate(IMessageBufferContext bufferContext)

@@ -1,6 +1,6 @@
 ﻿namespace FortitudeCommon.EventProcessing.Disruption.Rings;
 
-public class StaticRing<T> : LoopingArray<T> where T : class, new()
+public class StaticRing<T> : LoopingArray<T>
 {
     public StaticRing(int size, Func<T> dataFactory, bool allowOverwrite) : base(size, allowOverwrite)
     {

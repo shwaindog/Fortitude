@@ -6,20 +6,21 @@
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarkets.Pricing.FeedEvents;
+using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public class StaleState<T> : InSyncState<T> where T : PQPublishableTickInstant, new()
+public class StaleState<T> : InSyncState<T> where T : IPQMutableMessage
 {
-    public StaleState(IPQQuotePublishingDeserializer<T> linkedDeserializer)
+    public StaleState(IPQMessagePublishingDeserializer<T> linkedDeserializer)
         : base(linkedDeserializer, QuoteSyncState.Stale) { }
 
     protected override void ProcessNextExpectedUpdate(IMessageBufferContext bufferContext, uint sequenceId)
     {
-        LinkedDeserializer.UpdateQuote(bufferContext, LinkedDeserializer.PublishedQuote, sequenceId);
+        LinkedDeserializer.UpdateEntity(bufferContext, LinkedDeserializer.PublishedQuote, sequenceId);
         Logger.Info("Stream {0} recovered after timeout, RecvSeqID={1}", LinkedDeserializer.Identifier,
                     sequenceId);
         SwitchState(QuoteSyncState.InSync);

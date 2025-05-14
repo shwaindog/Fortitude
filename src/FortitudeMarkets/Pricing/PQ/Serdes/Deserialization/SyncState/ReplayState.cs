@@ -3,14 +3,14 @@
 
 #region
 
-using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-internal class ReplayState<T> : SyncStateBase<T> where T : PQPublishableTickInstant, new()
+internal class ReplayState<T> : SyncStateBase<T> where T : IPQMutableMessage
 {
-    public ReplayState(IPQQuotePublishingDeserializer<T> linkedDeserializer)
+    public ReplayState(IPQMessagePublishingDeserializer<T> linkedDeserializer)
         : base(linkedDeserializer, QuoteSyncState.Replay) { }
 }

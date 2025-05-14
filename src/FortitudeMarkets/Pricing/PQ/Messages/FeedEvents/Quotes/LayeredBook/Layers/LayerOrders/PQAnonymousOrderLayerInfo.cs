@@ -33,7 +33,7 @@ public enum OrderLayerInfoUpdatedFlags : ushort
   , CounterPartyNameIdUpdatedFlag = 0x02_00
 }
 
-public interface IPQAnonymousOrderLayerInfo : IMutableAnonymousOrderLayerInfo, IPQSupportsFieldUpdates<IAnonymousOrderLayerInfo>
+public interface IPQAnonymousOrderLayerInfo : IMutableAnonymousOrderLayerInfo, IPQSupportsNumberPrecisionFieldUpdates<IAnonymousOrderLayerInfo>
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     bool IsOrderIdUpdated { get; set; }

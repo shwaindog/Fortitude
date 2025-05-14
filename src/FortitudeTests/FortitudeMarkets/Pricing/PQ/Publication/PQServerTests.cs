@@ -285,7 +285,8 @@ public class PQServerTests
         moqSyncLock.Setup(sl => sl.Acquire()).Callback(() => { isInQuoteSyncLock = true; }).Verifiable();
 
         var moqRegisteredPqTickInstant = new Mock<IPQPublishableTickInstant>();
-        moqRegisteredPqTickInstant.SetupGet(ti => ti.Lock).Returns(moqSyncLock.Object).Verifiable();
+        var moqTickInstantAsPqMutMessage        = moqRegisteredPqTickInstant.As<IPQMutableMessage>();
+        moqTickInstantAsPqMutMessage.SetupGet(l1Q => l1Q.Lock).Returns(moqSyncLock.Object);
         moqRegisteredPqTickInstant.SetupProperty(ti => ti.PQSequenceId, 10u);
 
         // can't use moq because of property redefinition not handled properly
@@ -293,11 +294,11 @@ public class PQServerTests
         {
             SourceTickerInfo = sourceTickerInfo1, HasUpdates = true
         };
-        moqRegisteredPqTickInstant.Setup(ti => ti.CopyFrom((IPublishableTickInstant)stubTickInstant, CopyMergeFlags.Default))
-                                  .Callback(() => { Assert.IsTrue(isInQuoteSyncLock); }).Returns(moqRegisteredPqTickInstant.Object)
-                                  .Verifiable();
-        moqRegisteredPqTickInstant.SetupSet(ti => ti.PQSequenceId = 10)
-                                  .Callback(() => { Assert.IsTrue(isInQuoteSyncLock); }).Verifiable();
+        moqTickInstantAsPqMutMessage.Setup(ti => ti.CopyFrom(stubTickInstant, CopyMergeFlags.Default))
+                                    .Callback(() => { Assert.IsTrue(isInQuoteSyncLock); }).Returns(moqRegisteredPqTickInstant.Object)
+                                    .Verifiable();
+        moqTickInstantAsPqMutMessage.SetupSet(ti => ti.PQSequenceId = 10)
+                                    .Callback(() => { Assert.IsTrue(isInQuoteSyncLock); }).Verifiable();
         moqSyncLock.Setup(sl => sl.Release()).Callback(() => { isInQuoteSyncLock = false; }).Verifiable();
 
         replaceWithPQServerInstance.Add(sourceTickerInfo1.SourceTickerId, moqRegisteredPqTickInstant.Object);
@@ -346,7 +347,7 @@ public class PQServerTests
                             .Callback(() => { isInHeartBeatSyncLock = false; }).Verifiable();
         NonPublicInvocator.SetInstanceField(pqServer, "heartBeatSync", moqHeartBeatSyncLock.Object);
 
-        var heartBeatQuotes        = new DoublyLinkedList<IPQPublishableTickInstant>();
+        var heartBeatQuotes        = new DoublyLinkedList<IPQMutableMessage>();
         var initialLastLvl1Quote   = new PQTickInstantTests.DummyPQTickInstant();
         var initialMiddleLvl1Quote = new PQTickInstantTests.DummyPQTickInstant();
         heartBeatQuotes.AddLast(initialLastLvl1Quote);
@@ -375,8 +376,9 @@ public class PQServerTests
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQPublishableTickInstant>();
         var moqQuoteSyncLock            = new Mock<ISyncLock>();
         moqQuoteSyncLock.Setup(sl => sl.Acquire());
-        var moqRegisteredPqTickInstant = new Mock<IPQPublishableTickInstant>();
-        moqRegisteredPqTickInstant.SetupGet(ti => ti.Lock).Returns(moqQuoteSyncLock.Object).Verifiable();
+        var moqRegisteredPqTickInstant   = new Mock<IPQPublishableTickInstant>();
+        var moqTickInstantAsPqMutMessage = moqRegisteredPqTickInstant.As<IPQMutableMessage>();
+        moqTickInstantAsPqMutMessage.SetupGet(l1Q => l1Q.Lock).Returns(moqQuoteSyncLock.Object).Verifiable();
         moqRegisteredPqTickInstant.SetupProperty(ti => ti.PQSequenceId, 10u);
 
         // can't use moq because of property hiding/redefinition not handled properly
@@ -396,11 +398,11 @@ public class PQServerTests
                             .Callback(() => { isInHeartBeatSyncLock = true; }).Verifiable();
         moqHeartBeatSyncLock.Setup(sl => sl.Release())
                             .Callback(() => { isInHeartBeatSyncLock = false; }).Verifiable();
-        moqRegisteredPqTickInstant.SetupSet(ti => ti.LastPublicationTime = It.IsAny<DateTime>())
-                                  .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
+        moqTickInstantAsPqMutMessage.SetupSet(ti => ti.LastPublicationTime = It.IsAny<DateTime>())
+                                    .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
         NonPublicInvocator.SetInstanceField(pqServer, "heartBeatSync", moqHeartBeatSyncLock.Object);
 
-        var moqHeartBeatQuotes = new Mock<IDoublyLinkedList<IPQPublishableTickInstant>>();
+        var moqHeartBeatQuotes = new Mock<IDoublyLinkedList<IPQMutableMessage>>();
         moqHeartBeatQuotes.Setup(hbq => hbq.Remove(moqRegisteredPqTickInstant.Object))
                           .Callback(() => { Assert.IsTrue(isInHeartBeatSyncLock); })
                           .Returns(moqRegisteredPqTickInstant.Object).Verifiable();
@@ -455,8 +457,9 @@ public class PQServerTests
         var moqSyncLock                 = new Mock<ISyncLock>();
         moqSyncLock.Setup(sl => sl.Acquire());
 
-        var moqRegisteredPqTickInstant = new Mock<IPQPublishableTickInstant>();
-        moqRegisteredPqTickInstant.SetupGet(ti => ti.Lock).Returns(moqSyncLock.Object);
+        var moqRegisteredPqTickInstant   = new Mock<IPQPublishableTickInstant>();
+        var moqTickInstantAsPqMutMessage = moqRegisteredPqTickInstant.As<IPQMutableMessage>();
+        moqTickInstantAsPqMutMessage.SetupGet(l1Q => l1Q.Lock).Returns(moqSyncLock.Object);
 
         // can't use moq because of property redefinition not handled properly
         var stubLevel1Quote = new PQTickInstantTests.DummyPQTickInstant
@@ -534,7 +537,8 @@ public class PQServerTests
         moqSyncLock.Setup(sl => sl.Acquire());
 
         var moqRegisteredPqLevel1Quote = new Mock<IPQPublishableLevel1Quote>();
-        moqRegisteredPqLevel1Quote.SetupGet(l1Q => l1Q.Lock).Returns(moqSyncLock.Object);
+        var moqL1AsPqMutMessage        = moqRegisteredPqLevel1Quote.As<IPQMutableMessage>();
+        moqL1AsPqMutMessage.SetupGet(l1Q => l1Q.Lock).Returns(moqSyncLock.Object);
 
         // can't use moq because of property redefinition not handled properly
         var stubLevel1Quote = new PQLevel1QuoteTests.DummyLevel1Quote
@@ -574,7 +578,8 @@ public class PQServerTests
         moqSyncLock.Setup(sl => sl.Acquire());
 
         var moqRegisteredPqLevel1Quote = new Mock<IPQPublishableLevel1Quote>();
-        moqRegisteredPqLevel1Quote.SetupGet(l1Q => l1Q.Lock).Returns(moqSyncLock.Object);
+        var moqL1AsPqMutMessage        = moqRegisteredPqLevel1Quote.As<IPQMutableMessage>();
+        moqL1AsPqMutMessage.SetupGet(l1Q => l1Q.Lock).Returns(moqSyncLock.Object);
 
         // can't use moq because of property redefinition not handled properly
         var stubLevel1Quote = new PQLevel1QuoteTests.DummyLevel1Quote
@@ -611,7 +616,8 @@ public class PQServerTests
         moqSyncLock.Setup(sl => sl.Acquire());
 
         var moqRegisteredPqLevel1Quote = new Mock<IPQPublishableLevel1Quote>();
-        moqRegisteredPqLevel1Quote.SetupGet(l1Q => l1Q.Lock).Returns(moqSyncLock.Object);
+        var moqL1AsPqMutMessage        = moqRegisteredPqLevel1Quote.As<IPQMutableMessage>();
+        moqL1AsPqMutMessage.SetupGet(l1Q => l1Q.Lock).Returns(moqSyncLock.Object);
         // can't use moq because of property redefinition not handled properly
         var stubLevel1Quote = new PQLevel1QuoteTests.DummyLevel1Quote
         {
@@ -677,7 +683,7 @@ public class PQServerTests
 
         var isInHeartBeatSyncLock = false;
         var moqHeartBeatSyncLock  = new Mock<ISyncLock>();
-        var moqHeartBeatQuotes    = new Mock<IDoublyLinkedList<IPQPublishableTickInstant>>();
+        var moqHeartBeatQuotes    = new Mock<IDoublyLinkedList<IPQMutableMessage>>();
         moqHeartBeatSyncLock.Setup(sl => sl.Acquire())
                             .Callback(() => { isInHeartBeatSyncLock = true; }).Verifiable();
         moqHeartBeatSyncLock.Setup(sl => sl.Release())

@@ -4,15 +4,16 @@
 #region
 
 using FortitudeCommon.Serdes.Binary;
+using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public class InitializationState<T> : SynchronisingState<T> where T : PQPublishableTickInstant, new()
+public class InitializationState<T> : SynchronisingState<T> where T : IPQMutableMessage
 {
-    public InitializationState(IPQQuotePublishingDeserializer<T> linkedDeserializer)
+    public InitializationState(IPQMessagePublishingDeserializer<T> linkedDeserializer)
         : base(linkedDeserializer, QuoteSyncState.InitializationState) { }
 
     protected override void ProcessUnsyncedUpdateMessage(IMessageBufferContext bufferContext, uint sequenceId)

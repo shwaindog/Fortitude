@@ -52,7 +52,7 @@ internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuot
         var ptr          = fixedBuffer.WriteBuffer + fixedBuffer.BufferRelativeWriteCursor;
         var messageStart = ptr;
         var end          = ptr + buffer.RemainingStorage;
-        if (message is IEnumerable<IPQPublishableTickInstant> quotes)
+        if (message is IEnumerable<IPQMutableMessage> quotes)
             foreach (var quote in quotes)
             {
                 byte* messageSize = null;
@@ -60,7 +60,7 @@ internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuot
                 {
                     *ptr++ = message.Version;
                     *ptr++ = (byte)PQMessageFlags.None;
-                    StreamByteOps.ToBytes(ref ptr, quote.SourceTickerInfo!.SourceTickerId);
+                    StreamByteOps.ToBytes(ref ptr, quote.StreamId);
                     messageSize = ptr;
 
                     ptr += sizeof(uint);

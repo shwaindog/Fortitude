@@ -51,14 +51,14 @@ public class PQClientTests
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory   = null!;
     private Mock<IPQClientSyncMonitoring>      moqPQClientSyncMonitoring      = null!;
 
-    private Mock<IPQQuoteDeserializer<PQPublishableLevel1Quote>>  moqPQLvl1QuoteDeserializer = null!;
-    private Mock<IPQQuoteDeserializer<PQPublishableLevel2Quote>>  moqPQLvl2QuoteDeserializer = null!;
-    private Mock<IPQQuoteDeserializer<PQPublishableLevel3Quote>>  moqPQLvl3QuoteDeserializer = null!;
+    private Mock<IPQMessageDeserializer<PQPublishableLevel1Quote>>  moqPQLvl1QuoteDeserializer = null!;
+    private Mock<IPQMessageDeserializer<PQPublishableLevel2Quote>>  moqPQLvl2QuoteDeserializer = null!;
+    private Mock<IPQMessageDeserializer<PQPublishableLevel3Quote>>  moqPQLvl3QuoteDeserializer = null!;
     private Mock<IPQClientQuoteDeserializerRepository> moqPQQuoteDeserializerRepo = null!;
 
-    private Mock<IPQQuoteDeserializer> moqPQQuoteSerializer = null!;
+    private Mock<IPQMessageDeserializer> moqPQQuoteSerializer = null!;
 
-    private Mock<IPQQuoteDeserializer<PQPublishableTickInstant>> moqPQTickInstantDeserializer    = null!;
+    private Mock<IPQMessageDeserializer<PQPublishableTickInstant>> moqPQTickInstantDeserializer    = null!;
     private Mock<IMarketConnectionConfig>             moqSecondMarketConnectionConfig = null!;
     private Mock<IPricingServerConfig>                moqSecondPricingServerConfig    = null!;
     private Mock<ISourceTickerInfo>                   moqSecondTestSourceTickerInfo   = null!;
@@ -183,7 +183,7 @@ public class PQClientTests
     private void PrepareGetQuoteStreamMocks()
     {
         moqPQClientSyncMonitoring = new Mock<IPQClientSyncMonitoring>();
-        moqPQClientSyncMonitoring.Setup(csm => csm.RegisterNewDeserializer(It.IsAny<IPQQuoteDeserializer>()))
+        moqPQClientSyncMonitoring.Setup(csm => csm.RegisterNewDeserializer(It.IsAny<IPQMessageDeserializer>()))
                                  .Verifiable();
         moqPQClientSyncMonitoring.Setup(csm => csm.CheckStartMonitoring()).Verifiable();
 
@@ -214,11 +214,11 @@ public class PQClientTests
         dummyLevel2Quote = new PQPublishableLevel2Quote(moqFirstTestSourceTickerInfo.Object);
         dummyLevel3Quote = new PQPublishableLevel3Quote(moqFirstTestSourceTickerInfo.Object);
 
-        moqPQQuoteSerializer         = new Mock<IPQQuoteDeserializer>();
-        moqPQTickInstantDeserializer = moqPQQuoteSerializer.As<IPQQuoteDeserializer<PQPublishableTickInstant>>();
-        moqPQLvl1QuoteDeserializer   = moqPQQuoteSerializer.As<IPQQuoteDeserializer<PQPublishableLevel1Quote>>();
-        moqPQLvl2QuoteDeserializer   = moqPQQuoteSerializer.As<IPQQuoteDeserializer<PQPublishableLevel2Quote>>();
-        moqPQLvl3QuoteDeserializer   = moqPQQuoteSerializer.As<IPQQuoteDeserializer<PQPublishableLevel3Quote>>();
+        moqPQQuoteSerializer         = new Mock<IPQMessageDeserializer>();
+        moqPQTickInstantDeserializer = moqPQQuoteSerializer.As<IPQMessageDeserializer<PQPublishableTickInstant>>();
+        moqPQLvl1QuoteDeserializer   = moqPQQuoteSerializer.As<IPQMessageDeserializer<PQPublishableLevel1Quote>>();
+        moqPQLvl2QuoteDeserializer   = moqPQQuoteSerializer.As<IPQMessageDeserializer<PQPublishableLevel2Quote>>();
+        moqPQLvl3QuoteDeserializer   = moqPQQuoteSerializer.As<IPQMessageDeserializer<PQPublishableLevel3Quote>>();
         moqDeserializerSubscription  = new Mock<IDisposable>();
         moqPQTickInstantDeserializer.Setup(pqti =>
                                                pqti.Subscribe(It.IsAny<PQTickerFeedSubscriptionQuoteStream<PQPublishableTickInstant>>()))
@@ -349,7 +349,7 @@ public class PQClientTests
                               .Verifiable();
         moqSnapshotClientFactory.Setup(cr => cr.RemoveConversation(It.IsAny<INetworkTopicConnectionConfig>()))
                                 .Verifiable();
-        moqPQClientSyncMonitoring.Setup(cr => cr.UnregisterSerializer(It.IsAny<IPQQuoteDeserializer>()))
+        moqPQClientSyncMonitoring.Setup(cr => cr.UnregisterSerializer(It.IsAny<IPQMessageDeserializer>()))
                                  .Verifiable();
         moqPQClientSyncMonitoring.Setup(csm => csm.CheckStopMonitoring()).Verifiable();
         moqPQQuoteDeserializerRepo.SetupGet(qdr => qdr.RegisteredMessageIds).Returns(Array.Empty<uint>()).Verifiable();
@@ -411,7 +411,7 @@ public class PQClientTests
                               .Verifiable();
         moqSnapshotClientFactory.Setup(cr => cr.RemoveConversation(It.IsAny<INetworkTopicConnectionConfig>()))
                                 .Verifiable();
-        moqPQClientSyncMonitoring.Setup(csm => csm.UnregisterSerializer(It.IsAny<IPQQuoteDeserializer>()))
+        moqPQClientSyncMonitoring.Setup(csm => csm.UnregisterSerializer(It.IsAny<IPQMessageDeserializer>()))
                                  .Verifiable();
         moqPQQuoteDeserializerRepo.SetupGet(qdr => qdr.RegisteredMessageIds).Returns(new uint[] { 1 }).Verifiable();
 

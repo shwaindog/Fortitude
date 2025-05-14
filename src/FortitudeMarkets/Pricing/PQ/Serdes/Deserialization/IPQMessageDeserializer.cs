@@ -9,38 +9,38 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
-using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 
-public interface IPQQuoteDeserializer : INotifyingMessageDeserializer,
-    IDoublyLinkedListNode<IPQQuoteDeserializer>
+public interface IPQMessageDeserializer : INotifyingMessageDeserializer,
+    IDoublyLinkedListNode<IPQMessageDeserializer>
 {
     ISourceTickerInfo Identifier { get; }
 
-    event Action<IPQQuoteDeserializer> ReceivedUpdate;
-    event Action<IPQQuoteDeserializer> SyncOk;
-    event Action<IPQQuoteDeserializer> OutOfSync;
+    event Action<IPQMessageDeserializer> ReceivedUpdate;
+    event Action<IPQMessageDeserializer> SyncOk;
+    event Action<IPQMessageDeserializer> OutOfSync;
 
-    void OnReceivedUpdate(IPQQuoteDeserializer quoteDeserializer);
-    void OnSyncOk(IPQQuoteDeserializer quoteDeserializer);
-    void OnOutOfSync(IPQQuoteDeserializer quoteDeserializer);
+    void OnReceivedUpdate(IPQMessageDeserializer quoteDeserializer);
+    void OnSyncOk(IPQMessageDeserializer quoteDeserializer);
+    void OnOutOfSync(IPQMessageDeserializer quoteDeserializer);
     bool HasTimedOutAndNeedsSnapshot(DateTime utcNow);
     bool CheckResync(DateTime utcNow);
 }
 
-public interface IPQQuoteDeserializer<T> : IPQQuoteDeserializer, INotifyingMessageDeserializer<T>, IObservable<T>
-    where T : class, IPQPublishableTickInstant
+public interface IPQMessageDeserializer<T> : IPQMessageDeserializer, INotifyingMessageDeserializer<T>, IObservable<T>
+    where T : IPQMutableMessage
 {
     T   PublishedQuote { get; }
-    int UpdateQuote(IMessageBufferContext readContext, T ent, uint sequenceId);
+    int UpdateEntity(IMessageBufferContext readContext, T ent, uint sequenceId);
 }
 
-public interface IPQQuotePublishingDeserializer<T> : IPQQuoteDeserializer<T>
-    where T : class, IPQPublishableTickInstant
+public interface IPQMessagePublishingDeserializer<T> : IPQMessageDeserializer<T>
+    where T : IPQMutableMessage
 {
     bool AllowUpdatesCatchup { get; }
 

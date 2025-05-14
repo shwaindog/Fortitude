@@ -8,13 +8,14 @@ using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarkets.Pricing.FeedEvents;
+using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public abstract class SyncStateBase<T> where T : PQPublishableTickInstant, new()
+public abstract class SyncStateBase<T> where T : IPQMutableMessage
 {
     protected const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss.ffffff";
 
@@ -22,14 +23,14 @@ public abstract class SyncStateBase<T> where T : PQPublishableTickInstant, new()
 
     protected int LogCounter;
 
-    internal SyncStateBase(IPQQuotePublishingDeserializer<T> linkedDeserializer, QuoteSyncState state)
+    internal SyncStateBase(IPQMessagePublishingDeserializer<T> linkedDeserializer, QuoteSyncState state)
     {
         LinkedDeserializer = linkedDeserializer;
 
         State = state;
     }
 
-    public IPQQuotePublishingDeserializer<T> LinkedDeserializer { get; }
+    public IPQMessagePublishingDeserializer<T> LinkedDeserializer { get; }
 
     public QuoteSyncState State { get; protected set; }
 
@@ -66,7 +67,7 @@ public abstract class SyncStateBase<T> where T : PQPublishableTickInstant, new()
         {
             Logger.Info("Received snapshot for {0} with sequence id {1} that is infront of update stream {2}",
                         LinkedDeserializer.Identifier, sequenceId, LinkedDeserializer.PublishedQuote.PQSequenceId);
-            LinkedDeserializer.UpdateQuote(bufferContext, LinkedDeserializer.PublishedQuote, sequenceId);
+            LinkedDeserializer.UpdateEntity(bufferContext, LinkedDeserializer.PublishedQuote, sequenceId);
         }
         else
         {
@@ -77,7 +78,7 @@ public abstract class SyncStateBase<T> where T : PQPublishableTickInstant, new()
 
     protected virtual void ProcessNextExpectedUpdate(IMessageBufferContext bufferContext, uint sequenceId)
     {
-        LinkedDeserializer.UpdateQuote(bufferContext, LinkedDeserializer.PublishedQuote, sequenceId);
+        LinkedDeserializer.UpdateEntity(bufferContext, LinkedDeserializer.PublishedQuote, sequenceId);
     }
 
     protected virtual void ProcessUnsyncedUpdateMessage(IMessageBufferContext bufferContext, uint sequenceId)
@@ -104,7 +105,7 @@ public abstract class SyncStateBase<T> where T : PQPublishableTickInstant, new()
 
     protected void PublishQuoteRunAction
     (FeedSyncStatus syncStatus, IPerfLogger? dispatchLatencyLogger,
-        Action<IPQQuoteDeserializer> syncStateAction)
+        Action<IPQMessageDeserializer> syncStateAction)
     {
         LinkedDeserializer.PushQuoteToSubscribers(syncStatus, dispatchLatencyLogger);
         syncStateAction?.Invoke(LinkedDeserializer);
@@ -119,6 +120,6 @@ public abstract class SyncStateBase<T> where T : PQPublishableTickInstant, new()
     {
         var ent = LinkedDeserializer.ClaimSyncSlotEntry();
         ent.HasUpdates = false;
-        LinkedDeserializer.UpdateQuote(bufferContext, ent, sequenceId);
+        LinkedDeserializer.UpdateEntity(bufferContext, ent, sequenceId);
     }
 }

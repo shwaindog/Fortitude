@@ -7,6 +7,7 @@ using FortitudeBusRules.BusMessaging.Routing.Channel;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
@@ -433,7 +434,7 @@ public static class PQQuoteConverterExtensions
         if (recycler != null)
         {
             var borrowed = recycler.Borrow<PQPublishableTickInstant>();
-            borrowed.CopyFrom(vanillaQuote);
+            borrowed.CopyFrom(vanillaQuote, CopyMergeFlags.Default);
             return borrowed;
         }
 
@@ -457,7 +458,7 @@ public static class PQQuoteConverterExtensions
         if (recycler != null)
         {
             var borrowed = recycler.Borrow<PQPublishableLevel1Quote>();
-            borrowed.CopyFrom(vanillaQuote);
+            borrowed.CopyFrom(vanillaQuote, CopyMergeFlags.Default);
             return borrowed;
         }
 
@@ -481,7 +482,7 @@ public static class PQQuoteConverterExtensions
         if (recycler != null)
         {
             var borrowed = recycler.Borrow<PQPublishableLevel2Quote>();
-            borrowed.CopyFrom(vanillaQuote);
+            borrowed.CopyFrom(vanillaQuote, CopyMergeFlags.Default);
             return borrowed;
         }
 

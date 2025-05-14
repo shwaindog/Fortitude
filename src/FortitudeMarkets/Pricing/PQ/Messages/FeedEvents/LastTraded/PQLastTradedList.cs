@@ -17,7 +17,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
 public interface IPQLastTradedList : IMutableLastTradedList,
-    IPQSupportsFieldUpdates<ILastTradedList>, IPQSupportsStringUpdates<ILastTradedList>,
+    IPQSupportsNumberPrecisionFieldUpdates<ILastTradedList>, IPQSupportsStringUpdates<ILastTradedList>,
     IEnumerable<IPQLastTrade>, IRelatedItems<IPQNameIdLookupGenerator>, IRelatedItems<ISourceTickerInfo>
   , ISupportsPQNameIdLookupGenerator
 {

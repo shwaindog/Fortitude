@@ -57,9 +57,7 @@ internal class ActionStateTimerCallBackRunInfo<T> : TimerCallBackRunInfo where T
 
     public T? State { get; set; }
 
-    public override ITimerCallBackRunInfo CopyFrom
-    (ITimerCallBackRunInfo source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ITimerCallBackRunInfo CopyFrom (ITimerCallBackRunInfo source , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is ActionStateTimerCallBackRunInfo<T> actionTimerCallBackRunInfo)
         {
