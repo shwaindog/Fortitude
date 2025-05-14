@@ -16,12 +16,10 @@ using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeIO.Transports.Network.Config;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
-using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
@@ -167,34 +165,34 @@ public class PQQuoteSerializerTests
         deserializerRepository = new PQClientQuoteDeserializerRepository("PQClientTest1", new Recycler());
         deserializerRepository.RegisterDeserializer
             (tickInstantInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQPublishableTickInstant>
+             new PQMessageDeserializer<PQPublishableTickInstant>
                  (new TickerPricingSubscriptionConfig(tickInstantInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (level1Info.SourceTickerId
-           , new PQQuoteDeserializer<PQPublishableLevel1Quote>(new TickerPricingSubscriptionConfig(level1Info, pricingServerConfig)));
+           , new PQMessageDeserializer<PQPublishableLevel1Quote>(new TickerPricingSubscriptionConfig(level1Info, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (valueDateInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQPublishableLevel2Quote>
+             new PQMessageDeserializer<PQPublishableLevel2Quote>
                  (new TickerPricingSubscriptionConfig(valueDateInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (everyLayerInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQPublishableLevel2Quote>
+             new PQMessageDeserializer<PQPublishableLevel2Quote>
                  (new TickerPricingSubscriptionConfig(everyLayerInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (simpleNoRecentlyTradedInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQPublishableLevel3Quote>
+             new PQMessageDeserializer<PQPublishableLevel3Quote>
                  (new TickerPricingSubscriptionConfig(simpleNoRecentlyTradedInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (srcNmLstTrdInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQPublishableLevel3Quote>
+             new PQMessageDeserializer<PQPublishableLevel3Quote>
                  (new TickerPricingSubscriptionConfig(srcNmLstTrdInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (srcQtRfPdGvnVlmInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQPublishableLevel3Quote>
+             new PQMessageDeserializer<PQPublishableLevel3Quote>
                  (new TickerPricingSubscriptionConfig(srcQtRfPdGvnVlmInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (trdrLyrTrdrPdGvnVlmDtlsInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQPublishableLevel3Quote>
+             new PQMessageDeserializer<PQPublishableLevel3Quote>
                  (new TickerPricingSubscriptionConfig(trdrLyrTrdrPdGvnVlmDtlsInfo, pricingServerConfig)));
 
         pqClientMessageStreamDecoder = new PQClientMessageStreamDecoder(deserializerRepository);
@@ -286,10 +284,10 @@ public class PQQuoteSerializerTests
             IPQPublishableTickInstant? clientSideQuote = null;
             switch (deserializedQuote)
             {
-                case IPQQuoteDeserializer<PQPublishableTickInstant> pq0BinaryDeserializer: clientSideQuote = pq0BinaryDeserializer.PublishedQuote; break;
-                case IPQQuoteDeserializer<PQPublishableLevel1Quote> pq1BinaryDeserializer: clientSideQuote = pq1BinaryDeserializer.PublishedQuote; break;
-                case IPQQuoteDeserializer<PQPublishableLevel2Quote> pq2BinaryDeserializer: clientSideQuote = pq2BinaryDeserializer.PublishedQuote; break;
-                case IPQQuoteDeserializer<PQPublishableLevel3Quote> pq3BinaryDeserializer: clientSideQuote = pq3BinaryDeserializer.PublishedQuote; break;
+                case IPQMessageDeserializer<PQPublishableTickInstant> pq0BinaryDeserializer: clientSideQuote = pq0BinaryDeserializer.PublishedQuote; break;
+                case IPQMessageDeserializer<PQPublishableLevel1Quote> pq1BinaryDeserializer: clientSideQuote = pq1BinaryDeserializer.PublishedQuote; break;
+                case IPQMessageDeserializer<PQPublishableLevel2Quote> pq2BinaryDeserializer: clientSideQuote = pq2BinaryDeserializer.PublishedQuote; break;
+                case IPQMessageDeserializer<PQPublishableLevel3Quote> pq3BinaryDeserializer: clientSideQuote = pq3BinaryDeserializer.PublishedQuote; break;
 
                 default: Assert.Fail("Should not reach here"); break;
             }

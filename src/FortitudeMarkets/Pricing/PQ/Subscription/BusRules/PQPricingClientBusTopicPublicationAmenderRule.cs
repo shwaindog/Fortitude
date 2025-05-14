@@ -64,7 +64,7 @@ public class PQPricingClientBusTopicPublicationAmenderRule : RemoteMessageBusTop
     protected override void MessageDeserializerRegistered(IMessageDeserializer newlyRegisteredMessageDeserializer)
     {
         logger.Info("New Deserializer registered {0}", newlyRegisteredMessageDeserializer.InstanceNumber);
-        if (newlyRegisteredMessageDeserializer is IPQQuoteDeserializer)
+        if (newlyRegisteredMessageDeserializer is IPQMessageDeserializer)
         {
             var foundTicker
                 = feedSourceTickerInfos.FirstOrDefault(stqi => stqi.SourceTickerId == newlyRegisteredMessageDeserializer.RegisteredForMessageId);

@@ -31,8 +31,8 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
 
     private readonly IMessageDeserializationRepository sharedFeedDeserializationRepo;
 
-    private readonly IDoublyLinkedList<IPQQuoteDeserializer> syncKo = new DoublyLinkedList<IPQQuoteDeserializer>();
-    private readonly IDoublyLinkedList<IPQQuoteDeserializer> syncOk = new DoublyLinkedList<IPQQuoteDeserializer>();
+    private readonly IDoublyLinkedList<IPQMessageDeserializer> syncKo = new DoublyLinkedList<IPQMessageDeserializer>();
+    private readonly IDoublyLinkedList<IPQMessageDeserializer> syncOk = new DoublyLinkedList<IPQMessageDeserializer>();
 
     private DateTime lastReceivedTickTime = DateTime.MinValue;
 
@@ -80,13 +80,13 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
 
     private void NewDeserializerRegistered(IMessageDeserializer addedMessageDeserializer)
     {
-        if (addedMessageDeserializer is IPQQuoteDeserializer pqDeserializer)
+        if (addedMessageDeserializer is IPQMessageDeserializer pqDeserializer)
         {
             var deserializerRegistration = new DeserializerEventRegistrations
             {
-                SyncOk         = SingleParamActionWrapper<IPQQuoteDeserializer>.WrapAndAttach(OnInSync)
-              , ReceivedUpdate = SingleParamActionWrapper<IPQQuoteDeserializer>.WrapAndAttach(OnReceivedUpdate)
-              , OutOfSync      = SingleParamActionWrapper<IPQQuoteDeserializer>.WrapAndAttach(OnOutOfSync)
+                SyncOk         = SingleParamActionWrapper<IPQMessageDeserializer>.WrapAndAttach(OnInSync)
+              , ReceivedUpdate = SingleParamActionWrapper<IPQMessageDeserializer>.WrapAndAttach(OnReceivedUpdate)
+              , OutOfSync      = SingleParamActionWrapper<IPQMessageDeserializer>.WrapAndAttach(OnOutOfSync)
             };
             registeredDeserializers[pqDeserializer.Identifier.SourceTickerId] = deserializerRegistration;
 
@@ -100,7 +100,7 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
 
     private void ExistingDeserializerUnregistered(IMessageDeserializer removedMessageDeserializer)
     {
-        if (removedMessageDeserializer is IPQQuoteDeserializer pqDeserializer)
+        if (removedMessageDeserializer is IPQMessageDeserializer pqDeserializer)
         {
             if (registeredDeserializers.TryGetValue(pqDeserializer.Identifier.SourceTickerId, out var deserializerRegistration))
             {
@@ -143,12 +143,12 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
 
     private void FindAndSnapshotKnockedOutTickersReadyForSnapshot()
     {
-        IPQQuoteDeserializer? firstToResync = null;
+        IPQMessageDeserializer? firstToResync = null;
 
         var requestList = Context.PooledRecycler.Borrow<FeedSourceTickerInfoUpdate>();
         for (var count = 0; count < MaxSnapshotBatch; count++)
         {
-            IPQQuoteDeserializer? pqMd;
+            IPQMessageDeserializer? pqMd;
             bool                  resync;
             if ((pqMd = syncKo.Head) == null) break;
             if (firstToResync == null)
@@ -173,20 +173,20 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
             deserializersInNeedOfSnapshots.DecrementRefCount();
     }
 
-    private void OnReceivedUpdate(IPQQuoteDeserializer quoteDeserializer)
+    private void OnReceivedUpdate(IPQMessageDeserializer quoteDeserializer)
     {
         lastReceivedTickTime = TimeContext.UtcNow;
         syncOk.Remove(quoteDeserializer);
         syncOk.AddLast(quoteDeserializer);
     }
 
-    private void OnInSync(IPQQuoteDeserializer quoteDeserializer)
+    private void OnInSync(IPQMessageDeserializer quoteDeserializer)
     {
         syncKo.Remove(quoteDeserializer);
         syncOk.AddLast(quoteDeserializer);
     }
 
-    private void OnOutOfSync(IPQQuoteDeserializer quoteDeserializer)
+    private void OnOutOfSync(IPQMessageDeserializer quoteDeserializer)
     {
         syncOk.Remove(quoteDeserializer);
         syncKo.AddFirst(quoteDeserializer);
@@ -195,8 +195,8 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
 
     private class DeserializerEventRegistrations
     {
-        public Action<IPQQuoteDeserializer> OutOfSync      = null!;
-        public Action<IPQQuoteDeserializer> ReceivedUpdate = null!;
-        public Action<IPQQuoteDeserializer> SyncOk         = null!;
+        public Action<IPQMessageDeserializer> OutOfSync      = null!;
+        public Action<IPQMessageDeserializer> ReceivedUpdate = null!;
+        public Action<IPQMessageDeserializer> SyncOk         = null!;
     }
 }

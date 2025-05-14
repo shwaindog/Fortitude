@@ -10,6 +10,7 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
+using FortitudeMarkets.Pricing.PQ.Messages;
 
 #endregion
 
@@ -25,15 +26,11 @@ public interface ITickInstant : IReusableObject<ITickInstant>, IInterfacesCompar
 }
 
 public interface IPublishableTickInstant : IReusableObject<IPublishableTickInstant>, ITickInstant,
-    IInterfacesComparable<IPublishableTickInstant>, IDoublyLinkedListNode<IPublishableTickInstant>
+    IInterfacesComparable<IPublishableTickInstant>, IDoublyLinkedListNode<IPublishableTickInstant>, IFeedEventStatusUpdate
 {
     [JsonIgnore] TickerQuoteDetailLevel TickerQuoteDetailLevel { get; }
-    [JsonIgnore] DateTime ClientReceivedTime { get; }
 
     public ITickInstant AsNonPublishable { get; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    FeedSyncStatus FeedSyncStatus { get; }
 
     [JsonIgnore] ISourceTickerInfo? SourceTickerInfo { get; }
 
@@ -84,8 +81,6 @@ public interface IMutablePublishableTickInstant : IPublishableTickInstant, IMuta
     new ISourceTickerInfo? SourceTickerInfo { get; set; }
     
     new IMutableTickInstant AsNonPublishable { get; }
-
-    void IncrementTimeBy(TimeSpan toChangeBy);
 
     new IMutablePublishableTickInstant Clone();
 }

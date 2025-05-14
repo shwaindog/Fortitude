@@ -14,7 +14,6 @@ using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
@@ -174,7 +173,7 @@ public class PQClientMessageStreamDecoderTests
             SingleTickValue = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00), IsReplay = true
         };
 
-        var listOfHeartBeatsToUpdate = new PQHeartBeatQuotesMessage(new List<IPQPublishableTickInstant>(2) { expectedTickInstant });
+        var listOfHeartBeatsToUpdate = new PQHeartBeatQuotesMessage(new List<IPQMutableMessage>(2) { expectedTickInstant });
 
         var heartBeatSerializer = new PQHeartbeatSerializer();
         var amtWritten          = heartBeatSerializer.Serialize(readWriteBuffer, listOfHeartBeatsToUpdate);
@@ -246,7 +245,7 @@ public class PQClientMessageStreamDecoderTests
             .Returns(null!)
             .Verifiable();
 
-        var listOfHeartBeatsToUpdate = new PQHeartBeatQuotesMessage(new List<IPQPublishableTickInstant>(2) { expectedTickInstant });
+        var listOfHeartBeatsToUpdate = new PQHeartBeatQuotesMessage(new List<IPQMutableMessage>(2) { expectedTickInstant });
 
         var heartBeatSerializer = new PQHeartbeatSerializer();
         amtWritten                  =  heartBeatSerializer.Serialize(readWriteBuffer, listOfHeartBeatsToUpdate);

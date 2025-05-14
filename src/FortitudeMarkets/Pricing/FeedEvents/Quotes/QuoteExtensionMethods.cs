@@ -90,7 +90,7 @@ public static class QuoteExtensionMethods
         }
         else if (l3q1 != null) //no need for && l3q2 != null
         {
-            sb.AddIfDifferent(l3q1, l3q2, q => q.RecentlyTraded!);
+            sb.AddIfDifferent(l3q1, l3q2, q => q.OnTickLastTraded!);
             sb.AddIfDifferent(l3q1, l3q2, q => q.BatchId);
             sb.AddIfDifferent(l3q1, l3q2, q => q.SourceQuoteReference);
         }
@@ -226,7 +226,7 @@ public static class QuoteExtensionMethods
               .Append($"q2.OrderBook={(q2OrderBook != null ? "not null" : "null")}\n");
         
         sb.AddIfDifferent(q1OrderBook, q2OrderBook, q => q.DailyTickUpdateCount);
-        sb.AddIfDifferent("OrderBook", q1OrderBook?.MarketAggregate, q2OrderBook?.MarketAggregate, !exactTypes);
+        sb.AddIfDifferent("OrderBook", q1OrderBook?.OpenInterest, q2OrderBook?.OpenInterest, !exactTypes);
 
         sb.AddIfDifferent("BidSide", q1OrderBook?.BidSide, q2OrderBook?.BidSide, exactTypes);
         sb.AddIfDifferent("AskSide", q1OrderBook?.AskSide, q2OrderBook?.AskSide, exactTypes);
@@ -244,7 +244,7 @@ public static class QuoteExtensionMethods
               .Append($"q2={(q2obs != null ? "not null" : "null")}\n");
         
         sb.AddIfDifferent(q1obs, q2obs, q => q.DailyTickUpdateCount);
-        sb.AddIfDifferent($"OrderBook.{side}", q1obs?.MarketAggregateSide, q2obs?.MarketAggregateSide, !exactTypes);
+        sb.AddIfDifferent($"OrderBook.{side}", q1obs?.OpenInterestSide, q2obs?.OpenInterestSide, !exactTypes);
         var maxLayers = Math.Max(q1obs?.Capacity ?? int.MinValue,
                                  q2obs?.Capacity ?? int.MinValue);
         for (var i = 0; i < maxLayers; i++)
@@ -279,7 +279,7 @@ public static class QuoteExtensionMethods
     }
 
     private static StringBuilder AddIfDifferent
-        (this StringBuilder sb, IPublishableLevel3Quote? q1, IPublishableLevel3Quote? q2, Expression<Func<IPublishableLevel3Quote, IRecentlyTraded>> property)
+        (this StringBuilder sb, IPublishableLevel3Quote? q1, IPublishableLevel3Quote? q2, Expression<Func<IPublishableLevel3Quote, IOnTickLastTraded>> property)
     {
         var evaluator    = property.Compile();
         var q1Value      = q1 != null ? evaluator(q1) : null;
@@ -359,7 +359,7 @@ public static class QuoteExtensionMethods
               .Append($"q2={(q2obs != null ? "not null" : "null")}\n");
         if (q1Value != q2Value)
         {
-            var propertyName = $"{q1obs.BookSide}.OrderBookSide.{property.GetPropertyName()}";
+            var propertyName = $"{q1obs!.BookSide}.OrderBookSide.{property.GetPropertyName()}";
             sb.Append($"{propertyName,PropertyNamePadding}:q1={q1Value}\n")
               .Insert(sb.Length, " ", secondLinePadding).Append($" q2={q2Value}\n");
         }

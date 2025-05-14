@@ -61,7 +61,7 @@ public class WaitCallbackTimerCallBackRunInfoTests
     public void CopyFromTest()
     {
         var fromCopy = new WaitCallbackTimerCallBackRunInfo();
-        fromCopy.CopyFrom((ITransferState)timerCallBackRunInfo, CopyMergeFlags.Default);
+        fromCopy.CopyFrom(timerCallBackRunInfo);
 
         Assert.AreEqual(timerCallBackRunInfo.WaitCallback, fromCopy.WaitCallback);
         Assert.AreEqual(timerCallBackRunInfo.FirstScheduledTime, fromCopy.FirstScheduledTime);

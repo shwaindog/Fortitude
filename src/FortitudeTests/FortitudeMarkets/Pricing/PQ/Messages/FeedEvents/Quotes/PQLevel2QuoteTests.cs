@@ -5,6 +5,7 @@
 
 using System.Text.Json;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
@@ -18,7 +19,6 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
@@ -1128,7 +1128,7 @@ public class PQLevel2QuoteTests
             var emptyQuoteSourceTickerInfo
                 = new PQSourceTickerInfo(populatedL2Quote.SourceTickerInfo!);
             var newEmpty = new PQPublishableLevel2Quote(emptyQuoteSourceTickerInfo);
-            newEmpty.CopyFrom(nonPQLevel2Quote);
+            newEmpty.CopyFrom(nonPQLevel2Quote, CopyMergeFlags.Default);
             Assert.IsTrue(populatedL2Quote.AreEquivalent(newEmpty));
         }
     }

@@ -4,7 +4,6 @@
 #region
 
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 using Moq;
 
@@ -19,7 +18,7 @@ public class InitializationStateTests : SynchronisingStateTests
 
     protected override void BuildSyncState()
     {
-        syncState = new InitializationState<PQPublishableTickInstant>(pqQuoteStreamDeserializer);
+        syncState = new InitializationState<PQPublishableTickInstant>(PQMessageStreamDeserializer);
     }
 
     [TestMethod]

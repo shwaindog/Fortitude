@@ -4,7 +4,6 @@
 #region
 
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 using Moq;
 
@@ -19,7 +18,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
 
     protected override void BuildSyncState()
     {
-        syncState = new SynchronisingState<PQPublishableTickInstant>(pqQuoteStreamDeserializer);
+        syncState = new SynchronisingState<PQPublishableTickInstant>(PQMessageStreamDeserializer);
     }
 
     [TestMethod]
@@ -97,7 +96,7 @@ public class SynchronisingStateTests : SyncStateBaseTests
     [TestMethod]
     public override void NewSyncState_ProcessSnapshot_CallsExpectedBehaviour()
     {
-        pqQuoteStreamDeserializer.PublishedQuote.PQSequenceId = 0;
+        PQMessageStreamDeserializer.PublishedQuote.PQSequenceId = 0;
         var deserializeInputList = QuoteSequencedTestDataBuilder.BuildSerializeContextForQuotes
             (ExpectedQuotes, PQMessageFlags.Snapshot, 2);
         var sockBuffContext = deserializeInputList.First();

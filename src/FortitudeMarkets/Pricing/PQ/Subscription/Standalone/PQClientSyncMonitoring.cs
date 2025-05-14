@@ -20,8 +20,8 @@ namespace FortitudeMarkets.Pricing.PQ.Subscription.Standalone;
 
 public interface IPQClientSyncMonitoring
 {
-    void RegisterNewDeserializer(IPQQuoteDeserializer quoteDeserializer);
-    void UnregisterSerializer(IPQQuoteDeserializer quoteDeserializer);
+    void RegisterNewDeserializer(IPQMessageDeserializer quoteDeserializer);
+    void UnregisterSerializer(IPQMessageDeserializer quoteDeserializer);
     void CheckStartMonitoring();
     void CheckStopMonitoring();
 }
@@ -45,8 +45,8 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
 
     private readonly IIntraOSThreadSignal stopSignal;
 
-    private readonly IDoublyLinkedList<IPQQuoteDeserializer> syncKo = new DoublyLinkedList<IPQQuoteDeserializer>();
-    private readonly IDoublyLinkedList<IPQQuoteDeserializer> syncOk = new DoublyLinkedList<IPQQuoteDeserializer>();
+    private readonly IDoublyLinkedList<IPQMessageDeserializer> syncKo = new DoublyLinkedList<IPQMessageDeserializer>();
+    private readonly IDoublyLinkedList<IPQMessageDeserializer> syncOk = new DoublyLinkedList<IPQMessageDeserializer>();
 
     private volatile bool tasksActive;
 
@@ -63,7 +63,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
         this.snapShotRequestAction = snapShotRequestAction;
     }
 
-    public void RegisterNewDeserializer(IPQQuoteDeserializer quoteDeserializer)
+    public void RegisterNewDeserializer(IPQMessageDeserializer quoteDeserializer)
     {
         quoteDeserializer.SyncOk         += OnInSync;
         quoteDeserializer.ReceivedUpdate += OnReceivedUpdate;
@@ -81,7 +81,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
         }
     }
 
-    public void UnregisterSerializer(IPQQuoteDeserializer quoteDeserializer)
+    public void UnregisterSerializer(IPQMessageDeserializer quoteDeserializer)
     {
         if (syncOk.SafeContains(quoteDeserializer))
         {
@@ -134,7 +134,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
         }
     }
 
-    private void OnReceivedUpdate(IPQQuoteDeserializer quoteDeserializer)
+    private void OnReceivedUpdate(IPQMessageDeserializer quoteDeserializer)
     {
         var seq = pqSeq.Claim();
         try
@@ -149,7 +149,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
         }
     }
 
-    private void OnInSync(IPQQuoteDeserializer quoteDeserializer)
+    private void OnInSync(IPQMessageDeserializer quoteDeserializer)
     {
         var seq = pqSeq.Claim();
         try
@@ -164,7 +164,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
         }
     }
 
-    private void OnOutOfSync(IPQQuoteDeserializer quoteDeserializer)
+    private void OnOutOfSync(IPQMessageDeserializer quoteDeserializer)
     {
         var seq = pqSeq.Claim();
         try
@@ -210,7 +210,7 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
             try
             {
                 pqSeq.Serialize(seq);
-                IPQQuoteDeserializer? pu;
+                IPQMessageDeserializer? pu;
                 if ((pu = syncOk.Head) == null || !pu.HasTimedOutAndNeedsSnapshot(TimeContext.UtcNow)) break;
                 syncOk.Remove(pu);
                 syncKo.AddFirst(pu);
@@ -224,11 +224,11 @@ public class PQClientSyncMonitoring : IPQClientSyncMonitoring
 
     private void FindAndSnapshotKnockedOutTickersReadyForSnapshot()
     {
-        IPQQuoteDeserializer? firstToResync                  = null;
+        IPQMessageDeserializer? firstToResync                  = null;
         var                   deserializersInNeedOfSnapshots = new Dictionary<string, List<ISourceTickerInfo>>();
         for (var count = 0; tasksActive && count < MaxSnapshotBatch; count++)
         {
-            IPQQuoteDeserializer? pu;
+            IPQMessageDeserializer? pu;
 
             bool resync;
             var  seq = pqSeq.Claim();

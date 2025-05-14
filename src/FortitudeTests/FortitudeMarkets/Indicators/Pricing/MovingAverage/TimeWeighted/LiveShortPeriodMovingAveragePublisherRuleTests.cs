@@ -20,7 +20,6 @@ using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Converters;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Subscription.BusRules;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
@@ -28,7 +27,6 @@ using FortitudeTests.FortitudeCommon.Chronometry;
 using FortitudeTests.FortitudeCommon.Chronometry.Timers;
 using FortitudeTests.FortitudeMarkets.Indicators.Config;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
-using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using MathNet.Numerics;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
@@ -157,7 +155,7 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
 
         await stubTimeContext.AddSecondsAsync(1);
 
-        var generatedMovingAverage = await testClient.GetPublished8SMovingAveragePeriods(1);
+        var generatedMovingAverage = await testClient.GetPublished8SMovingAveragePeriods();
 
         Assert.IsNotNull(generatedMovingAverage);
         Assert.AreEqual(1, generatedMovingAverage.Count);

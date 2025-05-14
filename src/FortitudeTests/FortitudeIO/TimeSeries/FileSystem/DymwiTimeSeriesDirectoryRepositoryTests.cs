@@ -18,7 +18,6 @@ using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.Generators.Quotes;
 using FortitudeMarkets.Pricing.PQ.Generators.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeTests.FortitudeCommon.Extensions;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File;

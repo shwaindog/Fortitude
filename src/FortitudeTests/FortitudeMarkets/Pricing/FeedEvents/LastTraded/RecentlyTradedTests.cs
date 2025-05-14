@@ -11,7 +11,6 @@ using FortitudeMarkets.Pricing.FeedEvents.LastTraded.EntrySelector;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
-using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 
@@ -29,13 +28,13 @@ public class RecentlyTradedTests
 
     private IList<IMutableLastTraderPaidGivenTrade> lastTraderPaidGivenEntries = null!;
 
-    private RecentlyTraded paidGivenVolumeRecentlyTradedFullyPopulatedQuote = null!;
+    private RecentlyTraded paidGivenVolumeFullyPopulatedRecentlyTraded = null!;
 
     private IList<IMutableLastTrade> simpleEntries = null!;
 
-    private RecentlyTraded simpleRecentlyTradedFullyPopulatedQuote = null!;
+    private RecentlyTraded simpleFullyPopulatedRecentlyTraded = null!;
 
-    private RecentlyTraded traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote = null!;
+    private RecentlyTraded fullSupportLastTradesFullyPopulatedRecentlyTraded = null!;
     // test being less than max.
 
     [TestInitialize]
@@ -46,11 +45,11 @@ public class RecentlyTradedTests
 
         lastTraderPaidGivenEntries = new List<IMutableLastTraderPaidGivenTrade>(MaxNumberOfEntries);
 
-        allPopulatedEntries = new List<IReadOnlyList<ILastTrade>>
-        {
+        allPopulatedEntries =
+        [
             (IReadOnlyList<ILastTrade>)simpleEntries, (IReadOnlyList<ILastTrade>)lastPaidGivenEntries
           , (IReadOnlyList<ILastTrade>)lastTraderPaidGivenEntries
-        };
+        ];
 
         for (var i = 0; i < MaxNumberOfEntries; i++)
         {
@@ -64,15 +63,15 @@ public class RecentlyTradedTests
                    , true, true, "TestTraderName"));
         }
 
-        simpleRecentlyTradedFullyPopulatedQuote          = new RecentlyTraded(simpleEntries);
-        paidGivenVolumeRecentlyTradedFullyPopulatedQuote = new RecentlyTraded(lastPaidGivenEntries);
+        simpleFullyPopulatedRecentlyTraded          = new RecentlyTraded(simpleEntries);
+        paidGivenVolumeFullyPopulatedRecentlyTraded = new RecentlyTraded(lastPaidGivenEntries);
 
-        traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote = new RecentlyTraded(lastTraderPaidGivenEntries);
+        fullSupportLastTradesFullyPopulatedRecentlyTraded = new RecentlyTraded(lastTraderPaidGivenEntries);
 
         allFullyPopulatedRecentlyTraded = new List<RecentlyTraded>
         {
-            simpleRecentlyTradedFullyPopulatedQuote, paidGivenVolumeRecentlyTradedFullyPopulatedQuote
-          , traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote
+            simpleFullyPopulatedRecentlyTraded, paidGivenVolumeFullyPopulatedRecentlyTraded
+          , fullSupportLastTradesFullyPopulatedRecentlyTraded
         };
     }
 
@@ -109,16 +108,16 @@ public class RecentlyTradedTests
     }
 
     [TestMethod]
-    public void PopulatedRecentlyTraded_AccessIndexerVariousInterfaces_GetsAndSetsLayerRemovesLastEntryIfNull()
+    public void PopulatedRecentlyTraded_AccessIndexerVariousInterfaces_GetsAndSetsLastTradeRemovesLastEntryIfNull()
     {
         foreach (var populatedOrderBook in allFullyPopulatedRecentlyTraded)
             for (var i = 0; i < MaxNumberOfEntries; i++)
             {
-                var layer       = ((IRecentlyTraded)populatedOrderBook)[i];
-                var clonedLayer = layer?.Clone() as IMutableLastTrade;
-                populatedOrderBook[i] = clonedLayer;
-                Assert.AreNotSame(layer, ((IMutableRecentlyTraded)populatedOrderBook)[i]);
-                Assert.AreSame(clonedLayer, populatedOrderBook[i]);
+                var lastTrade       = ((IRecentlyTraded)populatedOrderBook)[i];
+                var clonedLastTrade = lastTrade?.Clone() as IMutableLastTrade;
+                populatedOrderBook[i] = clonedLastTrade;
+                Assert.AreNotSame(lastTrade, ((IMutableRecentlyTraded)populatedOrderBook)[i]);
+                Assert.AreSame(clonedLastTrade, populatedOrderBook[i]);
                 if (i == populatedOrderBook.Count - 1)
                 {
                     ((IMutableRecentlyTraded)populatedOrderBook)[i] = null;
@@ -156,10 +155,10 @@ public class RecentlyTradedTests
     }
 
     [TestMethod]
-    public void StaticDefault_EntryConverter_IsPQLastTradeEntySelector()
+    public void StaticDefault_EntryConverter_IsPQLastTradeEntrySelector()
     {
         Assert.IsInstanceOfType
-            (RecentlyTraded.LastTradeEntrySelector, typeof(RecentlyTradedLastTradeEntrySelector));
+            (LastTradedList.LastTradeEntrySelector, typeof(LastTradedLastTradeEntrySelector));
     }
 
     [TestMethod]
@@ -207,7 +206,7 @@ public class RecentlyTradedTests
         foreach (var populatedOrderBook in allFullyPopulatedRecentlyTraded)
         foreach (var subType in allFullyPopulatedRecentlyTraded.Where(ob => !ReferenceEquals(ob, populatedOrderBook)))
         {
-            if (!WholeyContainedBy(subType[0]!.GetType(), populatedOrderBook[0]!.GetType())) continue;
+            if (!WhollyContainedBy(subType[0]!.GetType(), populatedOrderBook[0]!.GetType())) continue;
             var newEmpty = new RecentlyTraded(populatedOrderBook);
             newEmpty.StateReset();
             Assert.AreNotEqual(populatedOrderBook, newEmpty);
@@ -217,15 +216,15 @@ public class RecentlyTradedTests
     }
 
     [TestMethod]
-    public void FullyPopulatedRecentlyTraded_CopyFromLessLayers_ReplicatesMissingValues()
+    public void FullyPopulatedRecentlyTraded_CopyFromLessLastTrade_ReplicatesMissingValues()
     {
-        var clonePopulated = simpleRecentlyTradedFullyPopulatedQuote.Clone();
+        var clonePopulated = simpleFullyPopulatedRecentlyTraded.Clone();
         Assert.AreEqual(MaxNumberOfEntries, clonePopulated.Count);
         clonePopulated[^1] = null;
         clonePopulated[^1] = null;
         clonePopulated[^1] = null;
         Assert.AreEqual(MaxNumberOfEntries - 3, clonePopulated.Count);
-        var notEmpty = new RecentlyTraded(simpleRecentlyTradedFullyPopulatedQuote);
+        var notEmpty = new RecentlyTraded(simpleFullyPopulatedRecentlyTraded);
         Assert.AreEqual(MaxNumberOfEntries, notEmpty.Count);
         notEmpty.CopyFrom(clonePopulated);
         Assert.AreEqual(MaxNumberOfEntries - 3, notEmpty.Count);
@@ -234,13 +233,13 @@ public class RecentlyTradedTests
     [TestMethod]
     public void FullyPopulatedOrderBook_CopyFromWithNull_ReplicatesGap()
     {
-        var clonePopulated = simpleRecentlyTradedFullyPopulatedQuote.Clone();
+        var clonePopulated = simpleFullyPopulatedRecentlyTraded.Clone();
         Assert.AreEqual(MaxNumberOfEntries, clonePopulated.Count);
         clonePopulated[^1] = null;
         clonePopulated[^1] = null;
         clonePopulated[5]  = null;
         Assert.AreEqual(MaxNumberOfEntries - 2, clonePopulated.Count);
-        var notEmpty = new RecentlyTraded(simpleRecentlyTradedFullyPopulatedQuote);
+        var notEmpty = new RecentlyTraded(simpleFullyPopulatedRecentlyTraded);
         Assert.AreEqual(MaxNumberOfEntries, notEmpty.Count);
         notEmpty.CopyFrom(clonePopulated);
         Assert.AreEqual(notEmpty[5], clonePopulated[5]);
@@ -250,12 +249,12 @@ public class RecentlyTradedTests
     [TestMethod]
     public void FullyPopulatedOrderBook_CopyFromAlreadyContainsNull_FillsGap()
     {
-        var clonePopulated = simpleRecentlyTradedFullyPopulatedQuote.Clone();
+        var clonePopulated = simpleFullyPopulatedRecentlyTraded.Clone();
         Assert.AreEqual(MaxNumberOfEntries, clonePopulated.Count);
         clonePopulated[^1] = null;
         clonePopulated[^1] = null;
         Assert.AreEqual(MaxNumberOfEntries - 2, clonePopulated.Count);
-        var notEmpty = new RecentlyTraded(simpleRecentlyTradedFullyPopulatedQuote) { [5] = null };
+        var notEmpty = new RecentlyTraded(simpleFullyPopulatedRecentlyTraded) { [5] = null };
         Assert.AreEqual(MaxNumberOfEntries, notEmpty.Count);
         notEmpty.CopyFrom(clonePopulated);
         Assert.AreEqual(notEmpty[5], clonePopulated[5]);
@@ -331,16 +330,16 @@ public class RecentlyTradedTests
     }
 
     [TestMethod]
-    public void FullyPopulatedQuote_ToString_ReturnsNameAndValues()
+    public void FullyPopulatedRecentlyTrade_ToString_ReturnsNameAndValues()
     {
-        foreach (var populatedQuote in allFullyPopulatedRecentlyTraded)
+        foreach (var populatedRecentlyTraded in allFullyPopulatedRecentlyTraded)
         {
-            var q        = populatedQuote;
+            var q        = populatedRecentlyTraded;
             var toString = q.ToString();
 
             Assert.IsTrue(toString.Contains(q.GetType().Name));
 
-            Assert.IsTrue(toString.Contains($"LastTrades: [{string.Join(",", populatedQuote)}]"));
+            Assert.IsTrue(toString.Contains($"LastTrades: [{string.Join(",", (IEnumerable<ILastTrade>)populatedRecentlyTraded)}]"));
             Assert.IsTrue(toString.Contains($"{nameof(q.Count)}: {q.Count}"));
         }
     }
@@ -349,7 +348,7 @@ public class RecentlyTradedTests
     [SuppressMessage("ReSharper", "RedundantCast")]
     public void FullyPopulatedPvlVariousInterfaces_GetEnumerator_OnlyGetsNonEmptyEntries()
     {
-        var rt = traderPaidGivenVolumeRecentlyTradedFullyPopulatedQuote;
+        var rt = fullSupportLastTradesFullyPopulatedRecentlyTraded;
         Assert.AreEqual(MaxNumberOfEntries, rt.Count);
         Assert.AreEqual(MaxNumberOfEntries, ((IEnumerable<ILastTrade>)rt).Count());
         Assert.AreEqual(MaxNumberOfEntries, ((IEnumerable)rt).OfType<ILastTrade>().Count());
@@ -357,21 +356,21 @@ public class RecentlyTradedTests
         rt.StateReset();
 
         Assert.AreEqual(0, rt.Count);
-        Assert.AreEqual(0, rt.Count());
+        Assert.AreEqual(0, ((IEnumerable<IMutableLastTrade>)rt).Count());
         Assert.AreEqual(0, rt.OfType<ILastTrade>().Count());
     }
 
     private static RecentlyTraded CreateNewEmpty(RecentlyTraded populatedOrderBook)
     {
-        var cloneGensis = populatedOrderBook[0]!.Clone();
-        cloneGensis.StateReset();
+        var cloneGenesis = populatedOrderBook[0]!.Clone();
+        cloneGenesis.StateReset();
         var clonedEmptyEntries = new List<ILastTrade>(MaxNumberOfEntries);
-        for (var i = 0; i < MaxNumberOfEntries; i++) clonedEmptyEntries.Add(cloneGensis.Clone());
+        for (var i = 0; i < MaxNumberOfEntries; i++) clonedEmptyEntries.Add(cloneGenesis.Clone());
         var newEmpty = new RecentlyTraded(clonedEmptyEntries);
         return newEmpty;
     }
 
-    private bool WholeyContainedBy(Type copySourceType, Type copyDestinationType)
+    private bool WhollyContainedBy(Type copySourceType, Type copyDestinationType)
     {
         if (copySourceType == typeof(LastTrade)) return true;
         if (copySourceType == typeof(LastPaidGivenTrade))
@@ -401,13 +400,13 @@ public class RecentlyTradedTests
             var changingEntry = changingRecentlyTraded[i];
             LastTradeTests.AssertAreEquivalentMeetsExpectedExactComparisonType
                 (exactComparison, originalEntry, changingEntry, original, changingRecentlyTraded, originalQuote, changingQuote);
-            if (originalEntry is IMutableLastPaidGivenTrade)
+            if (originalEntry is IMutableLastPaidGivenTrade trade)
                 LastPaidGivenTradeTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-                    (exactComparison, (IMutableLastPaidGivenTrade)originalEntry
+                    (exactComparison, trade
                    , (IMutableLastPaidGivenTrade)changingEntry!, original, changingRecentlyTraded, originalQuote, changingQuote);
-            if (originalEntry is IMutableLastTraderPaidGivenTrade)
+            if (originalEntry is IMutableLastTraderPaidGivenTrade paidGivenTrade)
                 LastTraderPaidGivenTradeTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-                    (exactComparison, (IMutableLastTraderPaidGivenTrade)originalEntry!, (IMutableLastTraderPaidGivenTrade)changingEntry!
+                    (exactComparison, paidGivenTrade, (IMutableLastTraderPaidGivenTrade)changingEntry!
                    , original, changingRecentlyTraded, originalQuote, changingQuote);
         }
     }

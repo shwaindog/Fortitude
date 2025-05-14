@@ -5,7 +5,6 @@
 
 using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 using Moq;
 
@@ -20,7 +19,7 @@ public class InSyncStateTests : SyncStateBaseTests
 
     protected override void BuildSyncState()
     {
-        syncState = new InSyncState<PQPublishableTickInstant>(pqQuoteStreamDeserializer);
+        syncState = new InSyncState<PQPublishableTickInstant>(PQMessageStreamDeserializer);
     }
 
     [TestMethod]

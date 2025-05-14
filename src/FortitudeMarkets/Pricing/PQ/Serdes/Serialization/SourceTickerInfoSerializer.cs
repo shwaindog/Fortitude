@@ -11,7 +11,6 @@ using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 #endregion
 

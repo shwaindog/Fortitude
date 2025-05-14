@@ -21,7 +21,6 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.TimeSeries;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
@@ -644,7 +643,7 @@ public class PQLevel1QuoteTests
     public void NonPQPopulatedQuote_CopyFromToEmptyQuote_QuotesEquivalentToEachOther()
     {
         var nonPQLevel1Quote = new PublishableLevel1PriceQuote(fullyPopulatedPqLevel1Quote);
-        emptyQuote.CopyFrom(nonPQLevel1Quote);
+        emptyQuote.CopyFrom(nonPQLevel1Quote, CopyMergeFlags.Default);
         Assert.IsTrue(fullyPopulatedPqLevel1Quote.AreEquivalent(emptyQuote));
     }
 

@@ -14,6 +14,13 @@ public interface IPQSupportsFieldUpdates<T> : ITracksChanges<T> where T : class
 {
     int UpdateField(PQFieldUpdate fieldUpdate);
 
+    IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags);
+}
+
+public interface IPQSupportsNumberPrecisionFieldUpdates<T> : ITracksChanges<T> where T : class
+{
+    int UpdateField(PQFieldUpdate fieldUpdate);
+
     IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
     (DateTime snapShotTime, StorageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null);

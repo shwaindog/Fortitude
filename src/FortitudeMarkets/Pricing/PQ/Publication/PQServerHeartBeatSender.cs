@@ -11,7 +11,6 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 #endregion
 
@@ -36,7 +35,7 @@ public class PQServerHeartBeatSender : IPQServerHeartBeatSender
 
     public IPQUpdateServer? UpdateServer { get; set; }
 
-    public IDoublyLinkedList<IPQPublishableTickInstant>? ServerLinkedQuotes { get; set; }
+    public IDoublyLinkedList<IPQMutableMessage>? ServerLinkedQuotes { get; set; }
 
     public ISyncLock? ServerLinkedLock { get; set; }
 
@@ -60,7 +59,7 @@ public class PQServerHeartBeatSender : IPQServerHeartBeatSender
     internal void CheckPublishHeartbeats()
     {
         var lastRun = TimeContext.UtcNow;
-        var hbs     = new List<IPQPublishableTickInstant>();
+        var hbs     = new List<IPQMutableMessage>();
         var hbm     = new PQHeartBeatQuotesMessage(hbs);
         while (HasStarted)
             try
@@ -73,7 +72,7 @@ public class PQServerHeartBeatSender : IPQServerHeartBeatSender
                     hbs.Clear();
                     while (!ServerLinkedQuotes!.IsEmpty)
                     {
-                        IPQPublishableTickInstant? tickInstant;
+                        IPQMutableMessage? tickInstant;
                         ServerLinkedLock!.Acquire();
                         try
                         {

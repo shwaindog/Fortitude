@@ -29,7 +29,8 @@ public class PQSourceTickerInfoRequest : RequestMessage
         return this;
     }
 
-    public override IVersionedMessage Clone() => Recycler?.Borrow<PQSourceTickerInfoRequest>().CopyFrom(this) ?? new PQSourceTickerInfoRequest(this);
+    public override IVersionedMessage Clone() => Recycler?.Borrow<PQSourceTickerInfoRequest>().CopyFrom(this) 
+                                              ?? new PQSourceTickerInfoRequest(this);
 
     protected bool Equals(IPQSnapshotIdsRequest other) => true;
 

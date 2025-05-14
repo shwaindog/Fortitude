@@ -5,7 +5,6 @@ using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 
@@ -677,11 +676,9 @@ public class PQMarketAggregateTests
         var l2QNotNull = l2Quote != null;
         var sidedDepth = orderBookSide?.BookSide != BookSide.AskBook ? PQDepthKey.None : PQDepthKey.AskSide;
 
-        var mktAggQtField = PQFeedFields.ParentContextRemapped;
         var bkSideQtField = PQFeedFields.QuoteOpenInterestSided;
         var bkQtField     = expectedFinalField != PQFeedFields.QuoteDailyTradedAggregate ? expectedFinalField : PQFeedFields.QuoteDailyTradedAggregate;
-        var qtQtField     = bkQtField;
-
+        
         testDateTime = testDateTime.AddHours(1).AddMinutes(1);
 
         Assert.IsFalse(marketAgg.IsUpdatedDateUpdated);
@@ -1040,11 +1037,11 @@ public class PQMarketAggregateTests
             Assert.AreEqual(expectedBookSide, bsUpdates[0]);
 
             var newEmpty = new PQOrderBookSide(orderBookSide.BookSide, l2Quote?.SourceTickerInfo ?? precisionSettings);
-            var foundAgg = newEmpty.OpenInterestSide;
+            var foundAgg = newEmpty.OpenInterestSide!;
             foundAgg.DataSource = MarketDataSource.Venue; // required for book to stop generating from published layers
             foundAgg.HasUpdates = false;
             newEmpty.UpdateField(bsUpdates[0]);
-            Assert.AreEqual(expectedVolume, foundAgg!.Volume);
+            Assert.AreEqual(expectedVolume, foundAgg.Volume);
             Assert.IsTrue(foundAgg.IsVolumeUpdated);
             Assert.IsTrue(foundAgg.HasUpdates);
             Assert.IsTrue(newEmpty.HasUpdates);
@@ -1229,7 +1226,7 @@ public class PQMarketAggregateTests
             Assert.AreEqual(expectedBookSide, bsUpdates[0]);
 
             var newEmpty = new PQOrderBookSide(orderBookSide.BookSide, l2Quote?.SourceTickerInfo ?? precisionSettings);
-            var foundAgg = newEmpty.OpenInterestSide;
+            var foundAgg = newEmpty.OpenInterestSide!;
             foundAgg.DataSource = MarketDataSource.Venue;  // required for book to stop generating from published layers
             foundAgg.HasUpdates = false;
             newEmpty.UpdateField(bsUpdates[0]);

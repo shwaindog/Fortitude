@@ -7,7 +7,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
 {
-    public interface IPQMarketAggregate : IMutableMarketAggregate, IPQSupportsFieldUpdates<IPQMarketAggregate>, ICloneable<IPQMarketAggregate>
+    public interface IPQMarketAggregate : IMutableMarketAggregate, IPQSupportsNumberPrecisionFieldUpdates<IPQMarketAggregate>, ICloneable<IPQMarketAggregate>
     {
         bool IsDataSourceUpdated         { get; set; }
         bool IsVolumeUpdated             { get; set; }

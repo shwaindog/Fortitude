@@ -22,11 +22,18 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
         LastTrades = lastTrades.Select(lt => LastTradeEntrySelector.ConvertToExpectedImplementation(lt)).ToList();
     }
 
-    public LastTradedList(IRecentlyTraded toClone)
+    public LastTradedList(IEnumerable<IMutableLastTrade> lastTrades)
+    {
+        LastTrades = lastTrades.Select(lt => LastTradeEntrySelector.ConvertToExpectedImplementation(lt)).ToList();
+    }
+
+    public LastTradedList(ILastTradedList toClone)
     {
         LastTrades = new List<IMutableLastTrade?>();
         for (var i = 0; i < toClone.Count; i++) LastTrades.Add(LastTradeEntrySelector.ConvertToExpectedImplementation(toClone[i], true));
     }
+
+    public LastTradedList(LastTradedList toClone) : this((ILastTradedList)toClone) { }
 
     public LastTradedList(ISourceTickerInfo sourceTickerInfo)
     {
@@ -38,7 +45,7 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
     }
 
     public static ILastTradeEntryFlagsSelector<IMutableLastTrade>
-        LastTradeEntrySelector { get; set; } = new RecentlyTradedLastTradeEntrySelector();
+        LastTradeEntrySelector { get; set; } = new LastTradedLastTradeEntrySelector();
 
     public LastTradeType LastTradesOfType { get; }
 
@@ -176,11 +183,13 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    IEnumerator<ILastTrade> IEnumerable<ILastTrade>.GetEnumerator() => GetEnumerator();
+    IEnumerator<ILastTrade> IEnumerable<ILastTrade>. GetEnumerator() => GetEnumerator();
+
+    IEnumerator<IMutableLastTrade> IMutableLastTradedList.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<IMutableLastTrade> GetEnumerator() => LastTrades.GetEnumerator()!;
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IRecentlyTraded, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ILastTradedList, true);
 
     public override int GetHashCode() => LastTrades?.GetHashCode() ?? 0;
 

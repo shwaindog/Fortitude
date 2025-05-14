@@ -31,13 +31,13 @@ public interface IMessageDeserializer : ITransferState<IMessageDeserializer>, IC
 }
 
 public interface IMessageDeserializer<out TM> : IMessageDeserializer, IDeserializer<TM>
-    where TM : class, IVersionedMessage
+    where TM : IVersionedMessage
 {
     new TM? Deserialize(IBufferContext bufferContext);
 }
 
 public abstract class BinaryMessageDeserializer<TM> : IMessageDeserializer<TM>
-    where TM : class, IVersionedMessage
+    where TM : IVersionedMessage
 {
     private static int lastInstanceNumber;
 
@@ -65,10 +65,10 @@ public abstract class BinaryMessageDeserializer<TM> : IMessageDeserializer<TM>
 }
 
 public delegate void ConversationMessageReceivedHandler<in TM>(TM deserializedMessage, MessageHeader header, IConversation conversation)
-    where TM : class, IVersionedMessage;
+    where TM : IVersionedMessage;
 
 public delegate void MessageDeserializedHandler<in TM>(TM deserializedMessage, int deserializedCount, IMessageDeserializer deserializer)
-    where TM : class, IVersionedMessage;
+    where TM : IVersionedMessage;
 
 public interface INotifyingMessageDeserializer : IMessageDeserializer
 {
@@ -86,7 +86,7 @@ public interface INotifyingMessageDeserializer : IMessageDeserializer
 
 public interface INotifyingMessageDeserializer<TM> : IMessageDeserializer<TM>, INotifyingMessageDeserializer
   , ITransferState<INotifyingMessageDeserializer<TM>>
-    where TM : class, IVersionedMessage
+    where TM : IVersionedMessage
 {
     new event ConversationMessageReceivedHandler<TM>? ConversationMessageDeserialized;
     new event MessageDeserializedHandler<TM>?         MessageDeserialized;
@@ -98,7 +98,7 @@ public interface INotifyingMessageDeserializer<TM> : IMessageDeserializer<TM>, I
 }
 
 public abstract class MessageDeserializer<TM> : BinaryMessageDeserializer<TM>, INotifyingMessageDeserializer<TM>
-    where TM : class, IVersionedMessage
+    where TM : IVersionedMessage
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MessageDeserializer<TM>));
 

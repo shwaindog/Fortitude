@@ -23,7 +23,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Lay
 [JsonDerivedType(typeof(PQValueDatePriceVolumeLayer))]
 [JsonDerivedType(typeof(PQOrdersCountPriceVolumeLayer))]
 [JsonDerivedType(typeof(PQOrdersPriceVolumeLayer))]
-public interface IPQPriceVolumeLayer : IMutablePriceVolumeLayer, IPQSupportsFieldUpdates<IPriceVolumeLayer>
+public interface IPQPriceVolumeLayer : IMutablePriceVolumeLayer, IPQSupportsNumberPrecisionFieldUpdates<IPriceVolumeLayer>
 {
     [JsonIgnore] bool IsPriceUpdated  { get; set; }
     [JsonIgnore] bool IsVolumeUpdated { get; set; }

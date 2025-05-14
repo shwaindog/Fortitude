@@ -65,7 +65,7 @@ public class TimerCallBackRunInfoTests
     public void CopyFromTest()
     {
         var fromCopy = new ConcreteTimerCallbackRunInfo();
-        fromCopy.CopyFrom((ITransferState)timerCallBackRunInfo, CopyMergeFlags.Default);
+        fromCopy.CopyFrom(timerCallBackRunInfo);
 
         Assert.AreEqual(timerCallBackRunInfo.FirstScheduledTime, fromCopy.FirstScheduledTime);
         Assert.AreEqual(timerCallBackRunInfo.LastRunTime, fromCopy.LastRunTime);

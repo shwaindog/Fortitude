@@ -11,7 +11,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
 #endregion
 
-namespace FortitudeMarkets.Pricing.PQ.Messages.Quotes.Generators.LastTraded;
+namespace FortitudeMarkets.Pricing.PQ.Generators.Quotes.LastTraded;
 
 public class PQLastTradedGenerator : LastTradedGenerator
 {
@@ -22,9 +22,9 @@ public class PQLastTradedGenerator : LastTradedGenerator
         : base(generateLastTradeInfo) { }
 
 
-    protected override void InitializeRecentlyTraded(IRecentlyTraded recentlyTraded)
+    protected override void InitializeRecentlyTraded(IOnTickLastTraded recentlyTraded)
     {
-        if (recentlyTraded is IPQRecentlyTraded pqRecentlyTraded) pqRecentlyTraded.NameIdLookup.CopyFrom(consistentNameIdLookupGenerator);
+        if (recentlyTraded is IPQOnTickLastTraded pqOnTickLastTraded) pqOnTickLastTraded.NameIdLookup.CopyFrom(consistentNameIdLookupGenerator);
     }
 
     protected override void SetTraderName(IMutableLastTraderPaidGivenTrade lastTraderPaidGivenTrade, string traderName)

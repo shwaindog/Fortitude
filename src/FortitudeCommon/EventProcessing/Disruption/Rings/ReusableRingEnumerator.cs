@@ -6,7 +6,7 @@ using System.Collections;
 
 namespace FortitudeCommon.EventProcessing.Disruption.Rings;
 
-public class ReusableRingEnumerator<T> : IEnumerator<T?> where T : class, new()
+public class ReusableRingEnumerator<T> : IEnumerator<T?>
 {
     private readonly LoopingArray<T> theRing;
     private long enumeratorCurrentPosition;
@@ -15,7 +15,7 @@ public class ReusableRingEnumerator<T> : IEnumerator<T?> where T : class, new()
     {
         this.theRing = theRing;
         enumeratorCurrentPosition = theRing.ConsumerCursor;
-        Current = null;
+        Current = default;
     }
 
     public void Dispose() { }

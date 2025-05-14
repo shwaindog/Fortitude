@@ -226,13 +226,13 @@ public class LastTraderPaidGivenTradeTests
         bool exactComparison,
         IMutableLastTraderPaidGivenTrade original,
         IMutableLastTraderPaidGivenTrade changingLastTraderPaidGivenTrade,
-        IMutableRecentlyTraded? originalRecentlyTraded = null,
-        IMutableRecentlyTraded? changingRecentlyTraded = null,
+        IMutableLastTradedList? originalLastTradedList = null,
+        IMutableLastTradedList? changingLastTradedList = null,
         IMutablePublishableLevel3Quote? originalQuote = null,
         IMutablePublishableLevel3Quote? changingQuote = null)
     {
         LastPaidGivenTradeTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-            (exactComparison, original, changingLastTraderPaidGivenTrade, originalRecentlyTraded, changingRecentlyTraded, originalQuote
+            (exactComparison, original, changingLastTraderPaidGivenTrade, originalLastTradedList, changingLastTradedList, originalQuote
            , changingQuote);
 
         if (original.GetType() == typeof(LastTraderPaidGivenTrade))
@@ -241,15 +241,15 @@ public class LastTraderPaidGivenTradeTests
 
         changingLastTraderPaidGivenTrade.TraderName = "Changed Trader Name";
         Assert.IsFalse(original.AreEquivalent(changingLastTraderPaidGivenTrade, exactComparison));
-        if (originalRecentlyTraded != null)
+        if (originalLastTradedList != null)
             Assert.IsFalse
-                (originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                (originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingLastTraderPaidGivenTrade.TraderName = original.TraderName;
         Assert.IsTrue(changingLastTraderPaidGivenTrade.AreEquivalent(original, exactComparison));
-        if (originalRecentlyTraded != null)
+        if (originalLastTradedList != null)
             Assert.IsTrue
-                (originalRecentlyTraded.AreEquivalent(changingRecentlyTraded, exactComparison));
+                (originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
     }
 }
