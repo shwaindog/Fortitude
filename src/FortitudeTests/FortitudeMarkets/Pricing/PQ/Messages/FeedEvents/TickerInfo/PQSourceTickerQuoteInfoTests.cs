@@ -194,7 +194,7 @@ public class PQSourceTickerInfoTests
     public static readonly PQSourceTickerInfo FullSupportL3PriceVolumeSti = 
         BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSupportLayerFlags);
 
-    public static readonly PQSourceTickerInfo FullSupportL3NoRecentlyTradeSti = 
+    public static readonly PQSourceTickerInfo FullSupportL3NoOnTickLastTradedSti = 
         BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullSupportLayerFlags)
                             .WithLastTradedFlags(LastTradedFlags.None);
 

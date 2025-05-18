@@ -23,20 +23,20 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ICloneabl
     public Level3PriceQuote
     (ISourceTickerInfo sourceTickerInfo, decimal singlePrice = 0m, bool isReplay = false, DateTime? sourceTime = null,  DateTime? sourceBidTime = null
       , bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null, DateTime? validFrom = null, DateTime? validTo = null
-      , bool isAskPriceTopChanged = false, bool executable = false, IOrderBook? orderBook = null, IRecentlyTraded? recentlyTraded = null, 
+      , bool isAskPriceTopChanged = false, bool executable = false, IOrderBook? orderBook = null, IOnTickLastTraded? onTickLastTraded = null, 
         uint batchId = 0u, uint sourceQuoteRef = 0u, DateTime? valueDate = null)
         : base(sourceTickerInfo, singlePrice, isReplay, sourceTime, sourceBidTime, isBidPriceTopChanged, sourceAskTime, 
                validFrom, validTo, isAskPriceTopChanged, executable
               ,
                orderBook ?? new OrderBook(sourceTickerInfo))
     {
-        if (recentlyTraded is RecentlyTraded mutableRecentlyTraded)
-            RecentlyTraded = mutableRecentlyTraded;
+        if (onTickLastTraded is OnTickLastTraded mutableOnTickLastTraded)
+            OnTickLastTraded = mutableOnTickLastTraded;
 
-        else if (recentlyTraded != null)
-            RecentlyTraded = new RecentlyTraded(recentlyTraded);
+        else if (onTickLastTraded != null)
+            OnTickLastTraded = new OnTickLastTraded(onTickLastTraded);
 
-        else if (sourceTickerInfo.LastTradedFlags != LastTradedFlags.None) RecentlyTraded = new RecentlyTraded(sourceTickerInfo);
+        else if (sourceTickerInfo.LastTradedFlags != LastTradedFlags.None) OnTickLastTraded = new OnTickLastTraded(sourceTickerInfo);
 
         BatchId              = batchId;
         SourceQuoteReference = sourceQuoteRef;
@@ -47,9 +47,9 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ICloneabl
     {
         if (toClone is ILevel3Quote level3ToClone)
         {
-            if (level3ToClone.RecentlyTraded is RecentlyTraded pqRecentlyTraded)
-                RecentlyTraded                                            = pqRecentlyTraded.Clone();
-            else if (level3ToClone.RecentlyTraded != null) RecentlyTraded = new RecentlyTraded(level3ToClone.RecentlyTraded);
+            if (level3ToClone.OnTickLastTraded is OnTickLastTraded pqOnTickLast)
+                OnTickLastTraded                                              = pqOnTickLast.Clone();
+            else if (level3ToClone.OnTickLastTraded != null) OnTickLastTraded = new OnTickLastTraded(level3ToClone.OnTickLastTraded);
 
             BatchId              = level3ToClone.BatchId;
             SourceQuoteReference = level3ToClone.SourceQuoteReference;
@@ -67,9 +67,9 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ICloneabl
 
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public IMutableRecentlyTraded? RecentlyTraded { get; set; }
+    public IMutableOnTickLastTraded? OnTickLastTraded { get; set; }
 
-    [JsonIgnore] IRecentlyTraded? ILevel3Quote.RecentlyTraded => RecentlyTraded;
+    [JsonIgnore] IOnTickLastTraded? ILevel3Quote.OnTickLastTraded => OnTickLastTraded;
 
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -89,16 +89,16 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ICloneabl
 
         if (source is ILevel3Quote level3Quote)
         {
-            if (level3Quote.RecentlyTraded != null)
+            if (level3Quote.OnTickLastTraded != null)
             {
-                if (RecentlyTraded != null)
-                    RecentlyTraded.CopyFrom(level3Quote.RecentlyTraded);
+                if (OnTickLastTraded != null)
+                    OnTickLastTraded.CopyFrom(level3Quote.OnTickLastTraded);
                 else
-                    RecentlyTraded = new RecentlyTraded(level3Quote.RecentlyTraded);
+                    OnTickLastTraded = new OnTickLastTraded(level3Quote.OnTickLastTraded);
             }
-            else if (RecentlyTraded != null)
+            else if (OnTickLastTraded != null)
             {
-                RecentlyTraded = null;
+                OnTickLastTraded = null;
             }
 
             BatchId              = level3Quote.BatchId;
@@ -115,8 +115,8 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ICloneabl
         var baseIsSame = base.AreEquivalent(otherL3, exactTypes);
 
         var lastTradesSame = exactTypes
-            ? Equals(RecentlyTraded, otherL3.RecentlyTraded)
-            : RecentlyTraded?.AreEquivalent(otherL3.RecentlyTraded) ?? otherL3.RecentlyTraded == null;
+            ? Equals(OnTickLastTraded, otherL3.OnTickLastTraded)
+            : OnTickLastTraded?.AreEquivalent(otherL3.OnTickLastTraded) ?? otherL3.OnTickLastTraded == null;
         var batchIdSame          = BatchId == otherL3.BatchId;
         var sourceSequenceIdSame = SourceQuoteReference == otherL3.SourceQuoteReference;
         var valueDateSame        = ValueDate == otherL3.ValueDate;
@@ -131,7 +131,7 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ICloneabl
         unchecked
         {
             var hashCode = base.GetHashCode();
-            hashCode = (hashCode * 397) ^ (RecentlyTraded?.GetHashCode() ?? 0);
+            hashCode = (hashCode * 397) ^ (OnTickLastTraded?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ BatchId.GetHashCode();
             hashCode = (hashCode * 397) ^ (int)SourceQuoteReference;
             hashCode = (hashCode * 397) ^ ValueDate.GetHashCode();
@@ -140,7 +140,7 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ICloneabl
     }
 
     public override string QuoteToStringMembers =>
-        $"{base.QuoteToStringMembers}, {nameof(RecentlyTraded)}: {RecentlyTraded}, {nameof(BatchId)}: {BatchId}, " +
+        $"{base.QuoteToStringMembers}, {nameof(OnTickLastTraded)}: {OnTickLastTraded}, {nameof(BatchId)}: {BatchId}, " +
         $"{nameof(SourceQuoteReference)}: {SourceQuoteReference}, {nameof(ValueDate)}: {ValueDate:u}";
 
     public override string ToString() => $"{nameof(Level3PriceQuote)}{{{QuoteToStringMembers}}}";
@@ -158,10 +158,10 @@ public class PublishableLevel3PriceQuote : PublishableLevel2PriceQuote, IMutable
       , bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null, DateTime? validFrom = null, DateTime? validTo = null
       , bool isAskPriceTopChanged = false
       , bool executable = false, ICandle? conflationTicksCandle = null, IOrderBook? orderBook = null,
-        IRecentlyTraded? recentlyTraded = null, uint batchId = 0u, uint sourceQuoteRef = 0u
+        IOnTickLastTraded? onTickLastTraded = null, uint batchId = 0u, uint sourceQuoteRef = 0u
       , DateTime? valueDate = null)
         : this(new Level3PriceQuote(sourceTickerInfo, singlePrice, isReplay, sourceTime, sourceBidTime, isBidPriceTopChanged, sourceAskTime, validFrom, validTo, 
-                                    isAskPriceTopChanged, executable, orderBook, recentlyTraded, batchId, sourceQuoteRef, valueDate )
+                                    isAskPriceTopChanged, executable, orderBook, onTickLastTraded, batchId, sourceQuoteRef, valueDate )
              , sourceTickerInfo, feedSyncStatus, clientReceivedTime, adapterReceivedTime, adapterSentTime, conflationTicksCandle)
     {
     }
@@ -246,13 +246,13 @@ public class PublishableLevel3PriceQuote : PublishableLevel2PriceQuote, IMutable
 
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public IMutableRecentlyTraded? RecentlyTraded
+    public IMutableOnTickLastTraded? OnTickLastTraded
     {
-        get => AsNonPublishable.RecentlyTraded;
-        set => AsNonPublishable.RecentlyTraded = value;
+        get => AsNonPublishable.OnTickLastTraded;
+        set => AsNonPublishable.OnTickLastTraded = value;
     }
 
-    [JsonIgnore] IRecentlyTraded? ILevel3Quote.RecentlyTraded => AsNonPublishable.RecentlyTraded;
+    [JsonIgnore] IOnTickLastTraded? ILevel3Quote.OnTickLastTraded => AsNonPublishable.OnTickLastTraded;
 
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -309,7 +309,7 @@ public class PublishableLevel3PriceQuote : PublishableLevel2PriceQuote, IMutable
         unchecked
         {
             var hashCode = base.GetHashCode();
-            hashCode = (hashCode * 397) ^ (RecentlyTraded?.GetHashCode() ?? 0);
+            hashCode = (hashCode * 397) ^ (OnTickLastTraded?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ BatchId.GetHashCode();
             hashCode = (hashCode * 397) ^ (int)SourceQuoteReference;
             hashCode = (hashCode * 397) ^ ValueDate.GetHashCode();

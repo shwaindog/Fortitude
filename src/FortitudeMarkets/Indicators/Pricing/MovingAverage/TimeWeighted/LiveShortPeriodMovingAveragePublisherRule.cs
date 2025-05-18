@@ -17,7 +17,6 @@ using FortitudeMarkets.Indicators.Pricing.Parameters;
 using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.PQ.Converters;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules;
 
 #endregion

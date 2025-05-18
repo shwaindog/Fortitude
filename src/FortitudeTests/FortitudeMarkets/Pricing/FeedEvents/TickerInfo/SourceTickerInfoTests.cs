@@ -142,7 +142,7 @@ public class SourceTickerInfoTests
     public static readonly SourceTickerInfo OrdersCounterPartyL3PriceVolumeSti = 
         BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullCounterPartyOrdersFlags);
 
-    public static readonly SourceTickerInfo OrdersCounterPartyL3NoRecentlyTradeSti = 
+    public static readonly SourceTickerInfo OrdersCounterPartyL3NoOnTickLastTradedSti = 
         BaseL3PriceVolumeSti.WithLayerFlags(LayerFlagsExtensions.FullCounterPartyOrdersFlags)
                             .WithLastTradedFlags(LastTradedFlags.None);
 

@@ -28,6 +28,8 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
     public PQRecentlyTraded(IEnumerable<IPQLastTrade?> lastTrades) : base(lastTrades) { }
     public PQRecentlyTraded(IList<IPQLastTrade?> lastTrades) : base(lastTrades) { }
     public PQRecentlyTraded(IRecentlyTraded toClone) : base(toClone) { }
+    public PQRecentlyTraded(IPQRecentlyTraded toClone) : this((IRecentlyTraded)toClone) { }
+    public PQRecentlyTraded(PQRecentlyTraded toClone) : this((IRecentlyTraded)toClone) { }
 
     bool IInterfacesComparable<IRecentlyTraded>.AreEquivalent(IRecentlyTraded? other, bool exactTypes) => AreEquivalent(other, exactTypes);
 
@@ -56,5 +58,6 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
         }
         return this;
     }
+
     public override string ToString() => $"{nameof(PQRecentlyTraded)}{{{PQLastTradedListToStringMembers}, {nameof(DuringPeriod)}: {DuringPeriod}}}";
 }

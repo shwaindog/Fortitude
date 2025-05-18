@@ -4,9 +4,7 @@
 #region
 
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.Quotes;
 
 #endregion
 

@@ -18,7 +18,7 @@ public interface ILastTradedList : IReusableObject<ILastTradedList>, IEnumerable
     ILastTrade? this[int i] { get; }
 }
 
-public interface IMutableLastTradedList : ILastTradedList
+public interface IMutableLastTradedList : ILastTradedList, IEnumerable<IMutableLastTrade>
 {
     new int Capacity { get; set; }
     new IMutableLastTrade? this[int i] { get; set; }

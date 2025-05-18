@@ -17,12 +17,12 @@ using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLev
 namespace FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.LastTraded.EntrySelector;
 
 [TestClass]
-public class RecentlyTradedLastTradeEntrySelectorTests
+public class LastTradedLastTradeEntrySelectorTests
 {
     private const decimal ExpectedTradePrice  = 2.3456m;
     private const decimal ExpectedTradeVolume = 42_000_111m;
 
-    private readonly RecentlyTradedLastTradeEntrySelector entrySelector = new();
+    private readonly LastTradedLastTradeEntrySelector entrySelector = new();
 
     private readonly bool expectedWasGiven = true;
     private readonly bool expectedWasPaid  = true;

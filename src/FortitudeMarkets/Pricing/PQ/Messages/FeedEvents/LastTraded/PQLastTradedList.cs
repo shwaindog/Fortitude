@@ -85,7 +85,7 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         if (GetType() == typeof(PQLastTradedList)) NumUpdates = 0;
     }
 
-    public PQLastTradedList(IRecentlyTraded toClone)
+    public PQLastTradedList(ILastTradedList toClone)
     {
         LastTradesSupportFlags = toClone.LastTradesSupportFlags;
         LastTradesOfType       = toClone.LastTradesOfType;
@@ -331,6 +331,8 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
 
     IMutableLastTradedList IMutableLastTradedList.Clone() => Clone();
 
+    IEnumerator<IMutableLastTrade> IEnumerable<IMutableLastTrade>.GetEnumerator() => GetEnumerator();
+
     public bool AreEquivalent(ILastTradedList? other, bool exactTypes = false)
     {
         if (other == null) return false;
@@ -373,8 +375,8 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
 
     private IPQNameIdLookupGenerator SourcePopulatedNameIdGeneratorFrom(IEnumerable<ILastTrade?> existing)
     {
-        if (existing is IPQRecentlyTraded pqRecentlyTraded)
-            return new PQNameIdLookupGenerator(pqRecentlyTraded.NameIdLookup, PQFeedFields.LastTradedStringUpdates);
+        if (existing is IPQLastTradedList pqLastTradedList)
+            return new PQNameIdLookupGenerator(pqLastTradedList.NameIdLookup, PQFeedFields.LastTradedStringUpdates);
         return existing.OfType<ISupportsPQNameIdLookupGenerator>().Any()
             ? new PQNameIdLookupGenerator(existing.OfType<ISupportsPQNameIdLookupGenerator>().Select(snilg => snilg.NameIdLookup).First())
             : new PQNameIdLookupGenerator(PQFeedFields.LastTradedStringUpdates);
@@ -382,7 +384,7 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
 
     public override PQLastTradedList Clone() =>
         Recycler?.Borrow<PQLastTradedList>().CopyFrom(this) ??
-        new PQLastTradedList((IRecentlyTraded)this);
+        new PQLastTradedList((ILastTradedList)this);
     
     protected string PQLastTradedListToStringMembers => $"LastTrades: [{string.Join(", ", lastTrades.Take(Count))}], {nameof(Count)}: {Count}";
 

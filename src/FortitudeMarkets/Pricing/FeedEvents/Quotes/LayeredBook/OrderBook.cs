@@ -38,7 +38,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         DailyTickUpdateCount = toClone.DailyTickUpdateCount;
         if (toClone.HasNonEmptyOpenInterest)
         {
-            openInterest = new MarketAggregate(toClone.MarketAggregate);
+            openInterest = new MarketAggregate(toClone.OpenInterest);
         }
 
         AskSide = new OrderBookSide(toClone.AskSide);
@@ -126,7 +126,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         }
     }
 
-    IMarketAggregate IOrderBook.MarketAggregate => OpenInterest!;
+    IMarketAggregate IOrderBook.OpenInterest => OpenInterest!;
 
 
     public IMutableMarketAggregate? OpenInterest
@@ -138,9 +138,10 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
             var bidOpenInterest = BidSide.OpenInterestSide;
             var askOpenInterest = AskSide.OpenInterestSide;
 
-            var totalVolume = bidOpenInterest.Volume + askOpenInterest.Volume;
+            var totalVolume = (bidOpenInterest?.Volume + askOpenInterest?.Volume) ?? 0;
             var totalPriceVolume = totalVolume != 0
-                ? (bidOpenInterest.Volume * bidOpenInterest.Vwap + askOpenInterest.Volume * askOpenInterest.Vwap) / totalVolume
+                ? ((bidOpenInterest?.Volume ?? 0) * (bidOpenInterest?.Vwap ?? 0) 
+                 + (askOpenInterest?.Volume ?? 0) * (askOpenInterest?.Vwap ?? 0)) / totalVolume
                 : 0m;
             openInterest            ??= new MarketAggregate();
             openInterest.DataSource =   MarketDataSource.Published;
@@ -203,7 +204,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         var openInterestSame   = HasNonEmptyOpenInterest == other.HasNonEmptyOpenInterest;
         if (openInterestSame && other.HasNonEmptyOpenInterest && HasNonEmptyOpenInterest)
         {
-            openInterestSame = openInterest?.AreEquivalent(other.MarketAggregate, exactTypes) ?? false;
+            openInterestSame = openInterest?.AreEquivalent(other.OpenInterest, exactTypes) ?? false;
         }
         var askSideSame        = AskSide.AreEquivalent(other.AskSide, exactTypes);
         var bidSideSame        = BidSide.AreEquivalent(other.BidSide, exactTypes);
@@ -220,7 +221,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         if (source.HasNonEmptyOpenInterest)
         {
             openInterest ??= new MarketAggregate();
-            openInterest.CopyFrom(source.MarketAggregate, copyMergeFlags);
+            openInterest.CopyFrom(source.OpenInterest, copyMergeFlags);
         } else if (openInterest != null)
         {
             openInterest.IsEmpty = true;
