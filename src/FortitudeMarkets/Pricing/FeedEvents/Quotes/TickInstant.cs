@@ -26,26 +26,22 @@ public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, IC
     public TickInstant() { }
 
     public TickInstant
-        (decimal singlePrice = 0m, bool isReplay = false, DateTime? sourceTime = null)
+        (decimal singlePrice = 0m, DateTime? sourceTime = null)
     {
         SourceTime      = sourceTime ?? DateTime.MinValue;
         SingleTickValue = singlePrice;
-        IsReplay        = isReplay;
     }
 
     public TickInstant(ITickInstant toClone)
     {
-        SourceTime      = toClone.SourceTime;
-        SingleTickValue = toClone.SingleTickValue;
-        IsReplay        = toClone.IsReplay;
+        SourceTime          = toClone.SourceTime;
+        SingleTickValue     = toClone.SingleTickValue;
     }
 
     public override TickInstant Clone() => Recycler?.Borrow<TickInstant>().CopyFrom(this) ?? new TickInstant(this);
 
     public virtual decimal  SingleTickValue { get; set; }
-    public         bool     IsReplay        { get; set; }
     public virtual DateTime SourceTime      { get; set; }
-
 
     public DateTime StorageTime(IStorageTimeResolver? resolver)
     {
@@ -55,13 +51,12 @@ public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, IC
 
     public virtual void IncrementTimeBy(TimeSpan toChangeBy)
     {
-        SourceTime += toChangeBy;
+        SourceTime += toChangeBy; 
     }
 
     public override TickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         SingleTickValue = source.SingleTickValue;
-        IsReplay        = source.IsReplay;
         SourceTime      = source.SourceTime;
         return this;
     }
@@ -70,6 +65,12 @@ public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, IC
 
     IMutableTickInstant IMutableTickInstant.Clone() => Clone();
 
+    public virtual IMutableTickInstant ResetWithTracking()
+    {
+        SingleTickValue = 0m;
+        SourceTime      = DateTime.MinValue;
+        return this;
+    }
 
     public virtual bool AreEquivalent(ITickInstant? other, bool exactTypes = false)
     {
@@ -77,9 +78,8 @@ public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, IC
         if (exactTypes && other.GetType() != GetType()) return false;
 
         var singlePriceSame  = SingleTickValue == other.SingleTickValue;
-        var isReplaySame     = IsReplay == other.IsReplay;
         var isSourceTimeSame = SourceTime == other.SourceTime;
-        return singlePriceSame && isReplaySame && isSourceTimeSame;
+        return singlePriceSame && isSourceTimeSame;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ITickInstant, true);
@@ -91,13 +91,12 @@ public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, IC
     }
 
     public virtual string QuoteToStringMembers =>
-        $"{nameof(SourceTime)}: {SourceTime:O}, {nameof(SingleTickValue)}: {SingleTickValue:N5}, " +
-        $"{nameof(IsReplay)}: {IsReplay}";
+        $"{nameof(SourceTime)}: {SourceTime:O}, {nameof(SingleTickValue)}: {SingleTickValue:N5}";
 
     public override string ToString() => $"{nameof(TickInstant)} {{{QuoteToStringMembers}}}";
 }
 
-public class PublishableTickInstant : ReusableObject<IFeedEventStatusUpdate>, IMutablePublishableTickInstant, ICloneable<PublishableTickInstant>
+public class PublishableTickInstant : FeedEventStatusUpdate, IMutablePublishableTickInstant, ICloneable<PublishableTickInstant>
   , IDoublyLinkedListNode<PublishableTickInstant>
 {
     protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PublishableTickInstant));
@@ -110,30 +109,28 @@ public class PublishableTickInstant : ReusableObject<IFeedEventStatusUpdate>, IM
     }
 
     public PublishableTickInstant
-    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null,
-        bool isReplay = false, FeedSyncStatus syncStatus = FeedSyncStatus.Good, decimal singlePrice = 0m, DateTime? clientReceivedTime = null)
-        : this(new TickInstant(singlePrice, isReplay, sourceTime), sourceTickerInfo, syncStatus, clientReceivedTime) { }
+    (ISourceTickerInfo sourceTickerInfo, decimal singlePrice = 0m, DateTime? sourceTime = null, FeedSyncStatus syncStatus = FeedSyncStatus.Good, 
+        FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None)
+        : this(new TickInstant(singlePrice, sourceTime), sourceTickerInfo, syncStatus, feedConnectivityStatus) { }
 
 
     [SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
     protected PublishableTickInstant
     (IMutableTickInstant? initialisedQuoteContainer, ISourceTickerInfo sourceTickerInfo,
-        FeedSyncStatus syncStatus = FeedSyncStatus.Good, DateTime? clientReceivedTime = null)
+        FeedSyncStatus syncStatus = FeedSyncStatus.Good, FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None)
+    : base(syncStatus, feedConnectivityStatus)
     {
         QuoteContainer = initialisedQuoteContainer ?? CreateQuoteContainerFromTickerInfo(sourceTickerInfo);
 
         SourceTickerInfo = sourceTickerInfo is SourceTickerInfo
             ? sourceTickerInfo
             : new SourceTickerInfo(sourceTickerInfo);
-        FeedSyncStatus = syncStatus;
-
-        ClientReceivedTime = clientReceivedTime ?? DateTime.MinValue;
     }
 
     public PublishableTickInstant(IPublishableTickInstant toClone) : this(toClone, null) { }
 
     [SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
-    protected PublishableTickInstant(IPublishableTickInstant toClone, IMutableTickInstant? initialisedQuoteContainer)
+    protected PublishableTickInstant(IPublishableTickInstant toClone, IMutableTickInstant? initialisedQuoteContainer) : base(toClone)
     {
         if (toClone is PublishableTickInstant pubTickInstant)
         {
@@ -147,9 +144,6 @@ public class PublishableTickInstant : ReusableObject<IFeedEventStatusUpdate>, IM
         SourceTickerInfo = toClone.SourceTickerInfo is SourceTickerInfo
             ? toClone.SourceTickerInfo
             : new SourceTickerInfo(toClone.SourceTickerInfo!);
-        FeedSyncStatus = toClone.FeedSyncStatus;
-
-        ClientReceivedTime = toClone.ClientReceivedTime;
     }
 
     protected virtual IMutableTickInstant CreateEmptyQuoteContainerInstant() => new TickInstant();
@@ -182,11 +176,6 @@ public class PublishableTickInstant : ReusableObject<IFeedEventStatusUpdate>, IM
 
     public ISourceTickerInfo? SourceTickerInfo { get; set; }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public FeedSyncStatus FeedSyncStatus { get; set; }
-
-    public DateTime ClientReceivedTime { get; set; }
-
     ITickInstant IPublishableTickInstant.AsNonPublishable => AsNonPublishable;
     public virtual IMutableTickInstant   AsNonPublishable => QuoteContainer;
 
@@ -202,22 +191,34 @@ public class PublishableTickInstant : ReusableObject<IFeedEventStatusUpdate>, IM
         set => QuoteContainer.SingleTickValue = value;
     }
 
-    public bool IsReplay
-    {
-        get => QuoteContainer.IsReplay;
-        set => QuoteContainer.IsReplay = value;
-    }
-
     public virtual void IncrementTimeBy(TimeSpan toChangeBy)
     {
         QuoteContainer.IncrementTimeBy(toChangeBy);
+        
+        AdapterReceivedTime += toChangeBy;
+        AdapterSentTime     += toChangeBy;
+        ClientReceivedTime  += toChangeBy;
+    }
 
-        ClientReceivedTime += toChangeBy;
+    IMutableTickInstant ITrackableReset<IMutableTickInstant>.ResetWithTracking() => ResetWithTracking();
+
+    IMutablePublishableTickInstant ITrackableReset<IMutablePublishableTickInstant>.ResetWithTracking() => ResetWithTracking();
+
+    IMutablePublishableTickInstant IMutablePublishableTickInstant.                 ResetWithTracking() => ResetWithTracking();
+
+    public virtual PublishableTickInstant ResetWithTracking()
+    {
+        QuoteContainer.ResetWithTracking();
+        ClientReceivedTime = DateTime.MinValue;
+        FeedSyncStatus     = FeedSyncStatus.Good;
+        base.StateReset();
+        return this;
     }
 
     public DateTime StorageTime(IStorageTimeResolver? resolver)
     {
-        if (resolver is IStorageTimeResolver<IPublishableTickInstant> quoteStorageResolver) return quoteStorageResolver.ResolveStorageTime(this);
+        if (resolver is IStorageTimeResolver<IPublishableTickInstant> quoteStorageResolver) 
+            return quoteStorageResolver.ResolveStorageTime(this);
         return QuoteStorageTimeResolver.Instance.ResolveStorageTime(this);
     }
 
@@ -274,8 +275,8 @@ public class PublishableTickInstant : ReusableObject<IFeedEventStatusUpdate>, IM
 
     public virtual PublishableTickInstant CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
+        base.CopyFrom(source, copyMergeFlags);
         QuoteContainer.CopyFrom(source, copyMergeFlags);
-        ClientReceivedTime = source.ClientReceivedTime;
 
         if (SourceTickerInfo == null)
             SourceTickerInfo = source.SourceTickerInfo is SourceTickerInfo
@@ -283,11 +284,8 @@ public class PublishableTickInstant : ReusableObject<IFeedEventStatusUpdate>, IM
                 : new SourceTickerInfo(source.SourceTickerInfo!);
         else
             SourceTickerInfo.CopyFrom(source.SourceTickerInfo!, copyMergeFlags);
-
-        FeedSyncStatus = source.FeedSyncStatus;
         return this;
     }
-
 
     public override PublishableTickInstant CopyFrom(IFeedEventStatusUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -297,7 +295,6 @@ public class PublishableTickInstant : ReusableObject<IFeedEventStatusUpdate>, IM
         }
         return this;
     }
-
 
     IPublishableTickInstant ICloneable<IPublishableTickInstant>.Clone() => Clone();
 
@@ -320,6 +317,7 @@ public class PublishableTickInstant : ReusableObject<IFeedEventStatusUpdate>, IM
         if (other is null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
 
+        var baseSame        = base.AreEquivalent(other, exactTypes);
         var quoteValuesSame = QuoteContainer.AreEquivalent((ITickInstant?)(other as PublishableTickInstant)?.QuoteContainer ?? other, exactTypes);
         var srcTickersAreEquivalent =
             SourceTickerInfo?.AreEquivalent(other.SourceTickerInfo, exactTypes)
@@ -329,7 +327,7 @@ public class PublishableTickInstant : ReusableObject<IFeedEventStatusUpdate>, IM
         var clientReceivedTimeSame = ClientReceivedTime.Equals(other.ClientReceivedTime);
 
         var allEquivalent = srcTickersAreEquivalent && staleIsSame && quoteValuesSame &&
-                            clientReceivedTimeSame;
+                            clientReceivedTimeSame && baseSame;
         if (!allEquivalent) Debugger.Break();
         return allEquivalent;
     }
@@ -344,6 +342,7 @@ public class PublishableTickInstant : ReusableObject<IFeedEventStatusUpdate>, IM
         unchecked
         {
             var hashCode = SourceTickerInfo != null ? SourceTickerInfo.GetHashCode() : 0;
+            hashCode = (hashCode * 397) ^ base.GetHashCode();
             hashCode = (hashCode * 397) ^ QuoteContainer.GetHashCode();
             hashCode = (hashCode * 397) ^ FeedSyncStatus.GetHashCode();
             hashCode = (hashCode * 397) ^ SingleTickValue.GetHashCode();
@@ -354,7 +353,7 @@ public class PublishableTickInstant : ReusableObject<IFeedEventStatusUpdate>, IM
 
     public virtual string QuoteToStringMembers =>
         $"{nameof(SourceTickerInfo)}: {SourceTickerInfo}, {nameof(FeedSyncStatus)}: {FeedSyncStatus}, " +
-        $"{nameof(ClientReceivedTime)}: {ClientReceivedTime:O}";
+        $"{nameof(ClientReceivedTime)}: {ClientReceivedTime:O}, {AllFeedEventStatusToStringMembers}";
 
     public override string ToString() => $"{nameof(PublishableTickInstant)} {{{QuoteToStringMembers}, {QuoteContainer.QuoteToStringMembers}}}";
 }

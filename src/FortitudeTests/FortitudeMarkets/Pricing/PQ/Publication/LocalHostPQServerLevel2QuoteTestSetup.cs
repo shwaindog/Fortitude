@@ -40,7 +40,7 @@ public class LocalHostPQServerLevel2QuoteTestSetup : LocalHostPQServerTestSetupB
         PqServer = new PQServer<PQPublishableLevel2Quote>
             (useMarketConnectionConfig, HeartBeatSender, ServerDispatcherResolver, PqSnapshotFactory, PqUpdateFactory);
         PqPublisher = new PQPublisher<PQPublishableLevel2Quote>(PqServer);
-        PqPublisher.RegisterTickersWithServer(useMarketConnectionConfig);
+        PqPublisher.RegisterStreamWithServer(useMarketConnectionConfig);
         Logger.Info("Started PQServer");
         Level2PriceQuote = Level2PriceQuoteTests.GenerateL2QuoteWithSourceNameLayer(FirstTickerInfo);
         return PqPublisher;

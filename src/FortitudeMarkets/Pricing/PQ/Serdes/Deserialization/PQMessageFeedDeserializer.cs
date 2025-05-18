@@ -20,7 +20,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 
-internal class PQMessageFeedDeserializer<T> : PQMessageDeserializerBase<T> where T : class, IPQMutableMessage
+internal class PQMessageFeedDeserializer<T> : PQMessageDeserializerBase<T> where T : class, IPQMessage
 {
     protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQMessageFeedDeserializer<T>));
 

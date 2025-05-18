@@ -5,8 +5,3 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace FortitudeCommon.Types.Mutable;
-
-public interface IStateResetable
-{
-    void ResetFields();
-}

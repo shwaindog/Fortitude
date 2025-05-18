@@ -46,6 +46,13 @@ public class LastTraderPaidGivenTrade : LastPaidGivenTrade, IMutableLastTraderPa
         }
     }
 
+    public override LastTraderPaidGivenTrade ResetWithTracking()
+    {
+        TraderName = null;
+
+        return this;
+    }
+
     public override void StateReset()
     {
         TraderName = null;

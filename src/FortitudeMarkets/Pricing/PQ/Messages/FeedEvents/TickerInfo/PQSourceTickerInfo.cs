@@ -52,6 +52,8 @@ public interface IPQSourceTickerInfo : ISourceTickerInfo, IPQPricingInstrumentId
 
     new IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags);
 
+    new IPQSourceTickerInfo CopyFrom(ISourceTickerInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
+
     new bool UpdateFieldString(PQFieldStringUpdate updates);
     new int  UpdateField(PQFieldUpdate fieldUpdate);
 
@@ -663,6 +665,9 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
 
     IPQSourceTickerInfo ITransferState<IPQSourceTickerInfo>.CopyFrom(IPQSourceTickerInfo source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((ISourceTickerId)source, copyMergeFlags);
+
+    IPQSourceTickerInfo IPQSourceTickerInfo.CopyFrom(ISourceTickerInfo source, CopyMergeFlags copyMergeFlags) => 
+       CopyFrom(source, copyMergeFlags);
 
     public override PQSourceTickerInfo CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {

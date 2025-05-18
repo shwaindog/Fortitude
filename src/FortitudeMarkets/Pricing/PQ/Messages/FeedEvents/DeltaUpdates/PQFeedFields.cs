@@ -30,16 +30,16 @@ public enum PQFeedFields : byte
   , QuoteLayerFlags          = 15 // 0x0F
   , LastTradedFlags          = 16 // 0x10
   , ExecutionUpdateFlags     = 17 // 0x11
-
-  , SourceFeedUpdateSentDateTime    = 19 // 0x13
-  , SourceFeedUpdateSentSub2MinTime = 20 // 0x14
-  , SourceSequenceId                = 21 // 0x15
-  , AdapterSequenceId               = 22 // 0x16
-  , ClientSequenceId                = 23 // 0x17
-  , FeedSequenceId                  = 24 // 0x18
-  , FeedPublishUpdateFlags          = 25 // 0x19
-  , FeedMarketConnectivityStatus    = 26 // 0x1A
-  , PQSyncStatus                    = 27 // 0x1B
+        
+  , PQSyncStatus                    = 19 // 0x13
+  , FeedMarketConnectivityStatus    = 20 // 0x14
+  , SourceFeedUpdateSentDateTime    = 21 // 0x15
+  , SourceFeedUpdateSentSub2MinTime = 22 // 0x16
+  , SourceSequenceId                = 23 // 0x17
+  , AdapterSequenceId               = 24 // 0x18
+  , ClientSequenceId                = 25 // 0x19
+  , FeedSequenceId                  = 26 // 0x1A
+  , FeedPublishUpdateFlags          = 27 // 0x1B
   , AdapterSentDateTime             = 28 // 0x1C
   , AdapterSentSub2MinTime          = 29 // 0x1D
   , AdapterReceivedDateTime         = 30 // 0x1E

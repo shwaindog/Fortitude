@@ -21,15 +21,26 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
 
     public TimeBoundaryPeriod DuringPeriod { get; set; }
 
+    IMutableRecentlyTraded ITrackableReset<IMutableRecentlyTraded>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableRecentlyTraded IMutableRecentlyTraded.ResetWithTracking() => ResetWithTracking();
+
+    public override RecentlyTraded ResetWithTracking()
+    {
+        DuringPeriod = TimeBoundaryPeriod.Tick;
+        base.ResetWithTracking();
+        return this;
+    }
+
     bool IInterfacesComparable<IRecentlyTraded>.AreEquivalent(IRecentlyTraded? other, bool exactTypes) => AreEquivalent(other, exactTypes);
 
     IRecentlyTraded IRecentlyTraded.Clone() => Clone();
 
     IMutableRecentlyTraded IMutableRecentlyTraded.Clone() => Clone();
-    
+
 
     public override RecentlyTraded CopyFrom
-    (ILastTradedList source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+        (ILastTradedList source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is IRecentlyTraded recentlyTraded)
@@ -41,10 +52,9 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
 
     IRecentlyTraded ICloneable<IRecentlyTraded>.Clone() => Clone();
 
-    public override RecentlyTraded Clone() =>
-        Recycler?.Borrow<RecentlyTraded>().CopyFrom(this) ?? new RecentlyTraded(this);
+    public override RecentlyTraded Clone() => Recycler?.Borrow<RecentlyTraded>().CopyFrom(this) ?? new RecentlyTraded(this);
 
-    
+
     public override bool AreEquivalent(ILastTradedList? other, bool exactTypes = false)
     {
         if (other == null) return false;

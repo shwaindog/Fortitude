@@ -65,6 +65,15 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
         }
     }
 
+    public override LastPaidGivenTrade ResetWithTracking()
+    {
+        TradeVolume = 0;
+        WasPaid     = WasGiven = false;
+        base.ResetWithTracking();
+
+        return this;
+    }
+
     public override void StateReset()
     {
         TradeVolume = 0;

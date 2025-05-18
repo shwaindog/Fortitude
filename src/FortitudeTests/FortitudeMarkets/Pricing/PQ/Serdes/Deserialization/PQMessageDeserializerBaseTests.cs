@@ -294,8 +294,9 @@ public class PQMessageDeserializerBaseTests
         var expectedSequenceId = 101u;
         var expectedTickInstant = new PQPublishableTickInstant(sourceTickerInfo)
         {
-            SingleTickValue = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00), IsReplay = true
-          , PQSequenceId    = expectedSequenceId
+            SingleTickValue              = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00)
+          , FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay
+          , PQSequenceId                 = expectedSequenceId
         };
 
         var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
@@ -310,12 +311,12 @@ public class PQMessageDeserializerBaseTests
         dummyTickInstantDeserializer.InvokeUpdateQuote(socketBufferReadContext, actualTickInstant, expectedSequenceId);
 
         Assert.AreEqual(socketBufferReadContext.DetectTimestamp, actualTickInstant.ClientReceivedTime);
-        Assert.AreEqual(socketBufferReadContext.ReceivingTimestamp, actualTickInstant.SocketReceivingTime);
-        Assert.AreEqual(socketBufferReadContext.DeserializerTime, actualTickInstant.ProcessedTime);
+        Assert.AreEqual(socketBufferReadContext.ReceivingTimestamp, actualTickInstant.InboundSocketReceivingTime);
+        Assert.AreEqual(socketBufferReadContext.DeserializerTime, actualTickInstant.InboundProcessedTime);
         Assert.AreEqual(expectedSequenceId, actualTickInstant.PQSequenceId);
         Assert.AreEqual(expectedTickInstant.SingleTickValue, actualTickInstant.SingleTickValue);
         Assert.AreEqual(expectedTickInstant.SourceTime, actualTickInstant.SourceTime);
-        Assert.AreEqual(expectedTickInstant.IsReplay, actualTickInstant.IsReplay);
+        Assert.AreEqual(expectedTickInstant.FeedMarketConnectivityStatus, actualTickInstant.FeedMarketConnectivityStatus);
     }
 
     [TestMethod]
@@ -323,12 +324,12 @@ public class PQMessageDeserializerBaseTests
     {
         var expectedL1Quote = new PQPublishableLevel1Quote(sourceTickerInfo)
         {
-            IsReplay            = true
-          , Executable          = true
-          , SourceAskTime       = new DateTime(2017, 07, 01, 21, 25, 30)
-          , SourceBidTime       = new DateTime(2017, 07, 01, 19, 27, 00)
-          , AdapterReceivedTime = new DateTime(2017, 07, 01, 19, 27, 30)
-          , AdapterSentTime     = new DateTime(2017, 07, 01, 19, 27, 39), BidPriceTop = 0.79324m, AskPriceTop = 0.79326m
+            FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay
+          , Executable                   = true
+          , SourceAskTime                = new DateTime(2017, 07, 01, 21, 25, 30)
+          , SourceBidTime                = new DateTime(2017, 07, 01, 19, 27, 00)
+          , AdapterReceivedTime          = new DateTime(2017, 07, 01, 19, 27, 30)
+          , AdapterSentTime              = new DateTime(2017, 07, 01, 19, 27, 39), BidPriceTop = 0.79324m, AskPriceTop = 0.79326m
         };
 
         var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
@@ -468,7 +469,7 @@ public class PQMessageDeserializerBaseTests
                      {
                          Assert.IsTrue(haveCalledAcquire);
                          Assert.IsTrue(pq.HasUpdates);
-                         Assert.AreEqual(expectedDateTime, pq.DispatchedTime);
+                         Assert.AreEqual(expectedDateTime, pq.SubscriberDispatchedTime);
                          Assert.AreEqual(expectedPublicationStatus, pq.FeedSyncStatus);
                      }
                     ).Verifiable();
@@ -479,7 +480,7 @@ public class PQMessageDeserializerBaseTests
                      {
                          Assert.IsTrue(haveCalledAcquire);
                          Assert.IsTrue(pq.HasUpdates);
-                         Assert.AreEqual(expectedDateTime, pq.DispatchedTime);
+                         Assert.AreEqual(expectedDateTime, pq.SubscriberDispatchedTime);
                          Assert.AreEqual(expectedPublicationStatus, pq.FeedSyncStatus);
                      }
                     ).Verifiable();
@@ -490,7 +491,7 @@ public class PQMessageDeserializerBaseTests
                      {
                          Assert.IsTrue(haveCalledAcquire);
                          Assert.IsTrue(pq.HasUpdates);
-                         Assert.AreEqual(expectedDateTime, pq.DispatchedTime);
+                         Assert.AreEqual(expectedDateTime, pq.SubscriberDispatchedTime);
                          Assert.AreEqual(expectedPublicationStatus, pq.FeedSyncStatus);
                      }
                     ).Verifiable();
@@ -501,7 +502,7 @@ public class PQMessageDeserializerBaseTests
                      {
                          Assert.IsTrue(haveCalledAcquire);
                          Assert.IsTrue(pq.HasUpdates);
-                         Assert.AreEqual(expectedDateTime, pq.DispatchedTime);
+                         Assert.AreEqual(expectedDateTime, pq.SubscriberDispatchedTime);
                          Assert.AreEqual(expectedPublicationStatus, pq.FeedSyncStatus);
                      }
                     ).Verifiable();

@@ -22,7 +22,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
-public interface IPQLevel2Quote : IPQLevel1Quote, IMutableLevel2Quote
+public interface IPQLevel2Quote : IPQLevel1Quote, IMutableLevel2Quote, ITrackableReset<IPQLevel2Quote>
 {
     new IPQOrderBook OrderBook { get; set; }
 
@@ -34,10 +34,11 @@ public interface IPQLevel2Quote : IPQLevel1Quote, IMutableLevel2Quote
     new bool AreEquivalent(ITickInstant source, bool exactTypes);
 
     new IPQLevel2Quote Clone();
+    new IPQLevel2Quote ResetWithTracking();
 }
 
 public interface IPQPublishableLevel2Quote : IPQPublishableLevel1Quote, IMutablePublishableLevel2Quote, IPQLevel2Quote
-  , IDoublyLinkedListNode<IPQPublishableLevel2Quote>
+  , IDoublyLinkedListNode<IPQPublishableLevel2Quote>, ITrackableReset<IPQPublishableLevel2Quote>
 {
     new IPQOrderBook OrderBook { get; set; }
 
@@ -53,6 +54,7 @@ public interface IPQPublishableLevel2Quote : IPQPublishableLevel1Quote, IMutable
     new bool                      AreEquivalent(IPublishableTickInstant source, bool exactTypes);
 
     new IPQPublishableLevel2Quote Clone();
+    new IPQPublishableLevel2Quote ResetWithTracking();
 }
 
 public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Quote>
@@ -72,11 +74,11 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
     public PQLevel2Quote(ISourceTickerInfo sourceTickerInfo) : this(sourceTickerInfo, singlePrice: 0m) { }
 
     public PQLevel2Quote
-    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, bool isReplay = false,
-        decimal singlePrice = 0m, DateTime? sourceBidTime = null, bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null,
-        DateTime? validFrom = null, DateTime? validTo = null, bool isAskPriceTopChanged = false, bool executable = true, IOrderBook? orderBook = null)
-        : base(sourceTickerInfo, sourceTime, isReplay, singlePrice, sourceBidTime, isBidPriceTopChanged, sourceAskTime,
-               validFrom, validTo, isAskPriceTopChanged, executable)
+    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, IOrderBook? orderBook = null
+       , bool isBidPriceTopChanged = false, bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null,
+        DateTime? validFrom = null, DateTime? validTo = null, bool executable = true,  decimal singlePrice = 0m)
+        : base(sourceTickerInfo, sourceTime, 0m, 0m, isBidPriceTopChanged, isAskPriceTopChanged, sourceBidTime, sourceAskTime,
+               validFrom, validTo,  executable,  singlePrice)
     {
         if (orderBook is IPQOrderBook pqOrderBook)
         {
@@ -212,11 +214,21 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
         base.UpdateComplete();
     }
 
-    public override void ResetFields()
-    {
-        orderBook.StateReset();
+    IMutableLevel2Quote ITrackableReset<IMutableLevel2Quote>.ResetWithTracking() => ResetWithTracking();
 
-        base.ResetFields();
+    IMutableLevel2Quote IMutableLevel2Quote.ResetWithTracking() => ResetWithTracking();
+
+    IPQLevel2Quote ITrackableReset<IPQLevel2Quote>.ResetWithTracking() => ResetWithTracking();
+
+    IPQLevel2Quote IPQLevel2Quote.ResetWithTracking() => ResetWithTracking();
+
+    public override PQLevel2Quote ResetWithTracking()
+    {
+        orderBook.ResetWithTracking();
+
+        base.ResetWithTracking();
+
+        return this;
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
@@ -389,22 +401,18 @@ public class PQPublishableLevel2Quote : PQPublishableLevel1Quote, IPQPublishable
     public PQPublishableLevel2Quote(ISourceTickerInfo sourceTickerInfo) : this(sourceTickerInfo, singlePrice: 0m) { }
 
     public PQPublishableLevel2Quote
-    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, bool isReplay = false
-      , FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good, decimal singlePrice = 0m, DateTime? clientReceivedTime = null
-      , DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null, DateTime? sourceBidTime = null
-      , bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null, DateTime? validFrom = null
-      , DateTime? validTo = null, bool isAskPriceTopChanged = false, bool executable = true, ICandle? conflationTicksCandle = null
-      , IOrderBook? orderBook = null)
-        : this(new PQLevel2Quote(sourceTickerInfo, sourceTime, isReplay, singlePrice, sourceBidTime, isBidPriceTopChanged,
-                                 sourceAskTime, validFrom, validTo, isAskPriceTopChanged, executable, orderBook),
-               sourceTickerInfo, feedSyncStatus, clientReceivedTime, adapterReceivedTime, adapterSentTime, conflationTicksCandle) { }
+    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, IOrderBook? orderBook = null
+      , bool isBidPriceTopChanged = false, bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null, DateTime? validFrom = null
+      , DateTime? validTo = null, bool executable = true, FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good
+      , FeedConnectivityStatusFlags feedStatus = FeedConnectivityStatusFlags.None, decimal singlePrice = 0m, ICandle? conflationTicksCandle = null)
+        : this(new PQLevel2Quote(sourceTickerInfo, sourceTime, orderBook, isBidPriceTopChanged, isAskPriceTopChanged, 
+                                 sourceBidTime, sourceAskTime, validFrom, validTo, executable, singlePrice),
+               sourceTickerInfo, feedSyncStatus, feedStatus, conflationTicksCandle) { }
 
     protected PQPublishableLevel2Quote
-    (IPQTickInstant? initializedQuoteContainer, ISourceTickerInfo sourceTickerInfo
-      , FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good, DateTime? clientReceivedTime = null, DateTime? adapterReceivedTime = null,
-        DateTime? adapterSentTime = null, ICandle? conflationTicksCandle = null)
-        : base(initializedQuoteContainer, sourceTickerInfo, feedSyncStatus, clientReceivedTime, adapterReceivedTime,
-               adapterSentTime, conflationTicksCandle)
+    (IPQTickInstant? initializedQuoteContainer, ISourceTickerInfo sourceTickerInfo, FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good 
+      , FeedConnectivityStatusFlags feedStatus = FeedConnectivityStatusFlags.None, ICandle? conflationTicksCandle = null)
+        : base(initializedQuoteContainer, sourceTickerInfo, feedSyncStatus, feedStatus, conflationTicksCandle)
     {
         OrderBook.EnsureRelatedItemsAreConfigured(SourceTickerInfo, null);
 
@@ -554,7 +562,7 @@ public class PQPublishableLevel2Quote : PQPublishableLevel1Quote, IPQPublishable
         set
         {
             AsNonPublishable.OrderBook.BidSide = value;
-            EnsureRelatedItemsAreConfigured((IPQTickInstant)this);
+            EnsureRelatedItemsAreConfigured(this);
         }
     }
 
@@ -564,7 +572,7 @@ public class PQPublishableLevel2Quote : PQPublishableLevel1Quote, IPQPublishable
         set
         {
             AsNonPublishable.OrderBook.AskSide = value;
-            EnsureRelatedItemsAreConfigured((IPQTickInstant)this);
+            EnsureRelatedItemsAreConfigured(this);
         }
     }
 
@@ -572,6 +580,29 @@ public class PQPublishableLevel2Quote : PQPublishableLevel1Quote, IPQPublishable
     {
         OrderBook.UpdateComplete();
         base.UpdateComplete();
+    }
+
+    IMutableLevel2Quote ITrackableReset<IMutableLevel2Quote>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableLevel2Quote IMutableLevel2Quote.ResetWithTracking() => ResetWithTracking();
+
+    IMutablePublishableLevel2Quote ITrackableReset<IMutablePublishableLevel2Quote>.ResetWithTracking() => ResetWithTracking();
+
+    IMutablePublishableLevel2Quote IMutablePublishableLevel2Quote.ResetWithTracking() => ResetWithTracking();
+
+    IPQLevel2Quote ITrackableReset<IPQLevel2Quote>.ResetWithTracking() => ResetWithTracking();
+
+    IPQLevel2Quote IPQLevel2Quote.ResetWithTracking() => ResetWithTracking();
+
+    IPQPublishableLevel2Quote ITrackableReset<IPQPublishableLevel2Quote>.ResetWithTracking() => ResetWithTracking();
+
+    IPQPublishableLevel2Quote IPQPublishableLevel2Quote.ResetWithTracking() => ResetWithTracking();
+
+    public override PQPublishableLevel2Quote ResetWithTracking()
+    {
+        base.ResetWithTracking();
+
+        return this;
     }
 
     IPublishableLevel2Quote ICloneable<IPublishableLevel2Quote>.Clone() => Clone();
@@ -608,11 +639,10 @@ public class PQPublishableLevel2Quote : PQPublishableLevel1Quote, IPQPublishable
 
     public override bool AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false)
     {
-        if (other is not IPublishableLevel2Quote otherL2) return false;
+        if (other is not IPublishableLevel2Quote) return false;
         var baseSame      = base.AreEquivalent(other, exactTypes);
-        var orderBookSame = OrderBook.AreEquivalent(otherL2.OrderBook, exactTypes);
 
-        var allAreSame = baseSame && orderBookSame;
+        var allAreSame = baseSame;
         return allAreSame;
     }
 

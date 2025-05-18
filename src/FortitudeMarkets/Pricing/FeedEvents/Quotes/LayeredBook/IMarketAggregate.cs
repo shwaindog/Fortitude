@@ -4,6 +4,7 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 
@@ -27,6 +28,7 @@ public interface IMarketAggregate : IReusableObject<IMarketAggregate>, IInterfac
 }
 
 public interface IMutableMarketAggregate : IMarketAggregate, IInterfacesComparable<IMutableMarketAggregate>, ICloneable<IMutableMarketAggregate>
+  , ITrackableReset<IMutableMarketAggregate>
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new MarketDataSource DataSource { get; set; }

@@ -33,14 +33,14 @@ public interface IPQMessageDeserializer : INotifyingMessageDeserializer,
 }
 
 public interface IPQMessageDeserializer<T> : IPQMessageDeserializer, INotifyingMessageDeserializer<T>, IObservable<T>
-    where T : IPQMutableMessage
+    where T : IPQMessage
 {
     T   PublishedQuote { get; }
     int UpdateEntity(IMessageBufferContext readContext, T ent, uint sequenceId);
 }
 
 public interface IPQMessagePublishingDeserializer<T> : IPQMessageDeserializer<T>
-    where T : IPQMutableMessage
+    where T : IPQMessage
 {
     bool AllowUpdatesCatchup { get; }
 

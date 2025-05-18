@@ -14,25 +14,25 @@ namespace FortitudeMarkets.Pricing.PQ.Messages;
 
 public interface IPQHeartBeatQuotesMessage : IVersionedMessage
 {
-    List<IPQMutableMessage> QuotesToSendHeartBeats { get; set; }
+    List<IPQMessage> QuotesToSendHeartBeats { get; set; }
 }
 
 public class PQHeartBeatQuotesMessage : ReusableObject<IVersionedMessage>, IPQHeartBeatQuotesMessage
-  , IEnumerable<IPQMutableMessage>
+  , IEnumerable<IPQMessage>
 {
-    public PQHeartBeatQuotesMessage() => QuotesToSendHeartBeats = new List<IPQMutableMessage>();
+    public PQHeartBeatQuotesMessage() => QuotesToSendHeartBeats = new List<IPQMessage>();
 
-    public PQHeartBeatQuotesMessage(List<IPQMutableMessage> quotesToSendHeartBeats) => QuotesToSendHeartBeats = quotesToSendHeartBeats;
+    public PQHeartBeatQuotesMessage(List<IPQMessage> quotesToSendHeartBeats) => QuotesToSendHeartBeats = quotesToSendHeartBeats;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<IPQMutableMessage> GetEnumerator() => QuotesToSendHeartBeats.GetEnumerator();
+    public IEnumerator<IPQMessage> GetEnumerator() => QuotesToSendHeartBeats.GetEnumerator();
 
     public uint MessageId => (uint)PQMessageIds.HeartBeat;
 
     public byte Version => 1;
 
-    public List<IPQMutableMessage> QuotesToSendHeartBeats { get; set; }
+    public List<IPQMessage> QuotesToSendHeartBeats { get; set; }
 
     public override IVersionedMessage CopyFrom
     (IVersionedMessage source

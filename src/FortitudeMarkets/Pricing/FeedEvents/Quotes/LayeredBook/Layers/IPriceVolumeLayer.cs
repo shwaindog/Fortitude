@@ -6,6 +6,7 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 
 #endregion
@@ -40,7 +41,7 @@ public interface IPriceVolumeLayer : IReusableObject<IPriceVolumeLayer>, IInterf
     bool IsEmpty { get; }
 }
 
-public interface IMutablePriceVolumeLayer : IPriceVolumeLayer
+public interface IMutablePriceVolumeLayer : IPriceVolumeLayer, ITrackableReset<IMutablePriceVolumeLayer>
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new decimal Price { get; set; }

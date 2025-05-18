@@ -54,6 +54,16 @@ public class LastTrade : ReusableObject<ILastTrade>, IMutableLastTrade
         }
     }
 
+    IMutableLastTrade ITrackableReset<IMutableLastTrade>.ResetWithTracking() => ResetWithTracking();
+
+    public virtual LastTrade ResetWithTracking()
+    {
+        TradeTime  = default;
+        TradePrice = 0m;
+
+        return this;
+    }
+
     public override void StateReset()
     {
         TradeTime  = default;

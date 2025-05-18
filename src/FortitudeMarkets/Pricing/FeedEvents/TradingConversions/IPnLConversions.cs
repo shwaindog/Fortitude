@@ -1,5 +1,6 @@
 ﻿using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.TradingConversions;
 
@@ -7,6 +8,6 @@ public interface IPnLConversions : IReusableObject<IPnLConversions>, IInterfaces
 {
 }
 
-public interface IMutablePnLConversions : IPnLConversions
+public interface IMutablePnLConversions : IPnLConversions, ITrackableReset<IMutablePnLConversions>, IEmptyable
 {
 }

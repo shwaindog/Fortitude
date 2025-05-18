@@ -15,7 +15,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public abstract class SyncStateBase<T> where T : IPQMutableMessage
+public abstract class SyncStateBase<T> where T : IPQMessage
 {
     protected const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss.ffffff";
 

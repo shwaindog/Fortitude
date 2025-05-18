@@ -13,3 +13,8 @@ public interface ITracksChanges<T> : ITransferState<T>, IUpdatable where T : cla
 {
     [JsonIgnore] bool HasUpdates { get; set; }
 }
+
+public interface ITrackableReset<T> where T : ITrackableReset<T>
+{
+    T ResetWithTracking();
+}

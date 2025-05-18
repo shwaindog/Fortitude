@@ -24,7 +24,7 @@ public interface IPQClientQuoteDeserializerRepository : IConversationDeserializa
     new IPQClientMessageStreamDecoder Supply(string name);
 
     IPQMessageDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig)
-        where T : class, IPQMutableMessage;
+        where T : class, IPQMessage;
 
     IPQMessageDeserializer? CreateQuoteDeserializer(ITickerPricingSubscriptionConfig streamPubConfig, Type pqLevelQuoteMessageType);
 
@@ -51,7 +51,7 @@ public sealed class PQClientQuoteDeserializerRepository
 
     public bool UnregisterDeserializer(ISourceTickerInfo identifier) => UnregisterDeserializer(identifier.SourceTickerId);
 
-    public IPQMessageDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig) where T : class, IPQMutableMessage
+    public IPQMessageDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig) where T : class, IPQMessage
     {
         IPQMessageDeserializer quoteDeserializer = new PQMessageDeserializer<T>(streamPubConfig);
         RegisteredDeserializers.Add(streamPubConfig.SourceTickerInfo.SourceTickerId, quoteDeserializer);

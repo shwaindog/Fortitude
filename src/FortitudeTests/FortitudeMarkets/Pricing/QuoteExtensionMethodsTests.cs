@@ -30,6 +30,8 @@ public class QuoteExtensionMethodsTests
     private const decimal OriginalBidTopVolume = 100000;
     private const decimal OriginalAskTopVolume = 30000;
 
+    private const FeedConnectivityStatusFlags OriginalFeedConnectivityStatusFlags =  FeedConnectivityStatusFlags.FromSourceSnapshot;
+
     private readonly DateTime originalQuoteAdapterTime = new(2015, 08, 09, 22, 07, 24);
     private readonly DateTime originalQuoteAskDateTime = new(2015, 10, 16, 16, 44, 12);
     private readonly DateTime originalQuoteBidDateTime = new(2015, 10, 16, 16, 44, 11);
@@ -48,23 +50,26 @@ public class QuoteExtensionMethodsTests
     {
         originalQuote =
             new PublishableLevel3PriceQuote
-                (originalSourceTickerInfo, originalQuoteExchangeTime, false, FeedSyncStatus.Good, 1.1124m, originalQuoteClientReceiveTime
-               , originalQuoteAdapterTime, originalQuoteAdapterTime, originalQuoteBidDateTime
-               , true, originalQuoteAskDateTime, originalQuoteExchangeTime, originalQuoteExchangeTime.AddSeconds(2)
-               , true, true, new Candle()
+                (originalSourceTickerInfo, originalQuoteExchangeTime
                , new OrderBook
                      (new OrderBookSide
-                          (BookSide.BidBook, new[]
-                          {
+                          (BookSide.BidBook, [
                               new PriceVolumeLayer(OriginalBidTopPrice, OriginalBidTopVolume), new PriceVolumeLayer(1.1122m, 20000)
-                          })
+                          ])
                     , new OrderBookSide
-                          (BookSide.AskBook, new[]
-                          {
+                          (BookSide.AskBook, [
                               new PriceVolumeLayer(OriginalAskTopPrice, OriginalAskTopVolume), new PriceVolumeLayer(1.1126m, 40000)
-                          })
+                          ])
                      )
-               , null, 0, 0, new DateTime(2017, 12, 29, 21, 0, 0));
+               , null, 0, 0, new DateTime(2017, 12, 29, 21, 0, 0)
+               , true, true, originalQuoteBidDateTime, originalQuoteAskDateTime
+               , originalQuoteExchangeTime, originalQuoteExchangeTime.AddSeconds(2), true
+               , FeedSyncStatus.Good, OriginalFeedConnectivityStatusFlags, 1.1124m, new Candle())
+                {
+                    ClientReceivedTime = originalQuoteClientReceiveTime,
+                    AdapterReceivedTime = originalQuoteAdapterTime,
+                    AdapterSentTime = originalQuoteAdapterTime
+                };
     }
 
     [TestMethod]

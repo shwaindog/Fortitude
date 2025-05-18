@@ -27,7 +27,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 public interface IPQOrderBookSide : IMutableOrderBookSide, IPQSupportsNumberPrecisionFieldUpdates<IOrderBookSide>,
     IPQSupportsStringUpdates<IOrderBookSide>, IEnumerable<IPQPriceVolumeLayer>, ICloneable<IPQOrderBookSide>,
     IRelatedItems<LayerFlags, ushort>, IRelatedItems<INameIdLookupGenerator>,
-    ISupportsPQNameIdLookupGenerator
+    ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQOrderBookSide>
 
 {
     new IPQPriceVolumeLayer? this[int level] { get; set; }
@@ -42,6 +42,7 @@ public interface IPQOrderBookSide : IMutableOrderBookSide, IPQSupportsNumberPrec
     bool IsDailyTickUpdateCountUpdated { get; set; }
 
     new IPQOrderBookSide Clone();
+    new IPQOrderBookSide ResetWithTracking();
 
     new IEnumerator<IPQPriceVolumeLayer> GetEnumerator();
 }
@@ -567,6 +568,21 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     IEnumerator<IPriceVolumeLayer> IEnumerable<IPriceVolumeLayer>.GetEnumerator() => GetEnumerator();
+
+    IMutableOrderBookSide ITrackableReset<IMutableOrderBookSide>.ResetWithTracking() => ResetWithTracking();
+
+    IPQOrderBookSide ITrackableReset<IPQOrderBookSide>.ResetWithTracking() => ResetWithTracking();
+
+    IPQOrderBookSide IPQOrderBookSide.                 ResetWithTracking() => ResetWithTracking();
+
+    public PQOrderBookSide ResetWithTracking()
+    {
+        for (var i = 0; i < AllLayers.Count; i++) AllLayers[i].ResetWithTracking();
+        pqOpenInterestSide?.ResetWithTracking();
+        DailyTickUpdateCount = 0;
+
+        return this;
+    }
 
     public override void StateReset()
     {

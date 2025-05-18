@@ -8,7 +8,9 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.TimeSeries;
+using FortitudeMarkets.Pricing.FeedEvents.AdapterExecutionDetails;
 
 #endregion
 
@@ -35,7 +37,7 @@ public interface ICandle : IReusableObject<ICandle>, IInterfacesComparable<ICand
     new ICandle Clone();
 }
 
-public interface IMutableCandle : ICandle
+public interface IMutableCandle : ICandle, ITrackableReset<IMutableCandle> 
 {
     new TimeBoundaryPeriod TimeBoundaryPeriod { get; set; }
 

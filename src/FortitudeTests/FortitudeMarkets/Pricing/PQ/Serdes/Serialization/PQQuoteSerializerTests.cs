@@ -271,7 +271,7 @@ public class PQQuoteSerializerTests
                 EncodedBuffer         = readWriteBuffer
               , DispatchLatencyLogger = new PerfLogger("test", TimeSpan.FromSeconds(2), "")
               , DetectTimestamp       = pqQuote.ClientReceivedTime
-              , ReceivingTimestamp    = pqQuote.SocketReceivingTime
+              , ReceivingTimestamp    = pqQuote.InboundSocketReceivingTime
               , DeserializerTime      = frozenDateTime
             };
             var bytesConsumed = pqClientMessageStreamDecoder.Process(sockBuffContext);
@@ -295,12 +295,12 @@ public class PQQuoteSerializerTests
             try
             {
                 pqQuote.PQSequenceId   -= 1;
-                pqQuote.ProcessedTime  =  frozenDateTime; //set original to expected time
-                pqQuote.DispatchedTime =  frozenDateTime; //set original to expected time
+                pqQuote.InboundProcessedTime  =  frozenDateTime; //set original to expected time
+                pqQuote.SubscriberDispatchedTime =  frozenDateTime; //set original to expected time
 
                 clientSideQuote.HasUpdates          = false;
                 clientSideQuote.LastPublicationTime = pqQuote.LastPublicationTime; //not sent via serialization
-                clientSideQuote.DispatchedTime      = pqQuote.DispatchedTime;      //set original to expected time
+                clientSideQuote.SubscriberDispatchedTime      = pqQuote.SubscriberDispatchedTime;      //set original to expected time
 
                 clientSideQuote.IsDispatchedTimeDateUpdated    = pqQuote.IsDispatchedTimeDateUpdated;
                 clientSideQuote.IsDispatchedTimeSub2MinUpdated = pqQuote.IsDispatchedTimeSub2MinUpdated;

@@ -928,7 +928,7 @@ public class PQLevel2QuoteTests
 
             Assert.IsFalse(popQuote.AreEquivalent(emptyQuote));
 
-            popQuote.ResetFields();
+            popQuote.ResetWithTracking();
 
             Assert.IsTrue(popQuote.AreEquivalent(emptyQuote));
         }
@@ -970,7 +970,8 @@ public class PQLevel2QuoteTests
                     .GetDeltaUpdateFields
                         (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
             AssertContainsAllLevel2Fields
-                ((PQSourceTickerInfo)populatedL2Quote.SourceTickerInfo!, pqFieldUpdates, populatedL2Quote);
+                ((PQSourceTickerInfo)populatedL2Quote.SourceTickerInfo!, pqFieldUpdates, populatedL2Quote
+               , PQQuoteBooleanValuesExtensions.ExpectedL1QuoteSnapshotBooleanValues);
         }
     }
 
@@ -983,7 +984,8 @@ public class PQLevel2QuoteTests
                 .GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
         AssertContainsAllLevel2Fields
-            ((PQSourceTickerInfo)ordersCountFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates, ordersCountFullyPopulatedLevel2Quote);
+            ((PQSourceTickerInfo)ordersCountFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates, ordersCountFullyPopulatedLevel2Quote
+            , PQQuoteBooleanValuesExtensions.ExpectedL1QuoteSnapshotBooleanValues);
     }
 
     [TestMethod]
@@ -995,7 +997,8 @@ public class PQLevel2QuoteTests
                 .GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
         AssertContainsAllLevel2Fields
-            ((PQSourceTickerInfo)ordersAnonFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates, ordersAnonFullyPopulatedLevel2Quote);
+            ((PQSourceTickerInfo)ordersAnonFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates, ordersAnonFullyPopulatedLevel2Quote
+           , PQQuoteBooleanValuesExtensions.ExpectedL1QuoteSnapshotBooleanValues);
     }
 
     [TestMethod]
@@ -1007,7 +1010,8 @@ public class PQLevel2QuoteTests
                 .GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
         AssertContainsAllLevel2Fields
-            ((PQSourceTickerInfo)ordersCountFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates, ordersCountFullyPopulatedLevel2Quote);
+            ((PQSourceTickerInfo)ordersCountFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates, ordersCountFullyPopulatedLevel2Quote
+            , PQQuoteBooleanValuesExtensions.ExpectedL1QuoteSnapshotBooleanValues);
     }
 
     [TestMethod]
@@ -1015,7 +1019,7 @@ public class PQLevel2QuoteTests
     {
         foreach (var populatedL2Quote in allFullyPopulatedQuotes)
         {
-            populatedL2Quote.IsReplay   = true;
+            populatedL2Quote.FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay;
             populatedL2Quote.HasUpdates = false;
             var pqFieldUpdates =
                 populatedL2Quote.GetDeltaUpdateFields
@@ -1084,7 +1088,7 @@ public class PQLevel2QuoteTests
             Assert.AreEqual(populatedL2Quote.PQSequenceId, emptyQuote.PQSequenceId);
             Assert.AreEqual(default, emptyQuote.SourceTime);
             Assert.IsTrue(populatedL2Quote.SourceTickerInfo!.AreEquivalent(emptyQuote.SourceTickerInfo));
-            Assert.AreEqual(false, emptyQuote.IsReplay);
+            Assert.AreEqual(FeedConnectivityStatusFlags.None, emptyQuote.FeedMarketConnectivityStatus);
             Assert.AreEqual(0m, emptyQuote.SingleTickValue);
             Assert.AreEqual(FeedSyncStatus.Good, emptyQuote.FeedSyncStatus);
             Assert.AreEqual(default, emptyQuote.SourceBidTime);
@@ -1092,15 +1096,15 @@ public class PQLevel2QuoteTests
             Assert.AreEqual(default, emptyQuote.AdapterReceivedTime);
             Assert.AreEqual(default, emptyQuote.AdapterSentTime);
             Assert.AreEqual(default, emptyQuote.ClientReceivedTime);
-            Assert.AreEqual(default, emptyQuote.ProcessedTime);
-            Assert.AreEqual(default, emptyQuote.DispatchedTime);
-            Assert.AreEqual(default, emptyQuote.SocketReceivingTime);
+            Assert.AreEqual(default, emptyQuote.InboundProcessedTime);
+            Assert.AreEqual(default, emptyQuote.SubscriberDispatchedTime);
+            Assert.AreEqual(default, emptyQuote.InboundSocketReceivingTime);
             Assert.AreEqual(0m, emptyQuote.BidPriceTop);
             Assert.AreEqual(0m, emptyQuote.AskPriceTop);
             Assert.IsTrue(emptyQuote.Executable);
             Assert.IsFalse(emptyQuote.IsSourceTimeDateUpdated);
             Assert.IsFalse(emptyQuote.IsSourceTimeSub2MinUpdated);
-            Assert.IsFalse(emptyQuote.IsReplayUpdated);
+            Assert.IsFalse(emptyQuote.IsFeedConnectivityStatusUpdated);
             Assert.IsFalse(emptyQuote.IsSingleValueUpdated);
             Assert.IsFalse(emptyQuote.IsFeedSyncStatusUpdated);
             Assert.IsFalse(emptyQuote.IsSourceBidTimeDateUpdated);
@@ -1157,7 +1161,7 @@ public class PQLevel2QuoteTests
     {
         foreach (var populatedL2Quote in allFullyPopulatedQuotes)
         {
-            populatedL2Quote.IsReplay = true;
+            populatedL2Quote.FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay;
             var fullyPopulatedClone = (PQPublishableLevel2Quote)((ICloneable)populatedL2Quote).Clone();
             // by default SourceTickerInfo is shared
             fullyPopulatedClone.SourceTickerInfo
@@ -1311,9 +1315,9 @@ public class PQLevel2QuoteTests
 
     public static void AssertContainsAllLevel2Fields
     (IPQPriceVolumePublicationPrecisionSettings precisionSettings, IList<PQFieldUpdate> checkFieldUpdates,
-        PQPublishableLevel2Quote l2Q, PQBooleanValues expectedBooleanFlags = PQBooleanValuesExtensions.AllFields)
+        PQPublishableLevel2Quote l2Q, PQQuoteBooleanValues expectedQuoteBooleanFlags = PQQuoteBooleanValuesExtensions.LivePricingFieldsSetNoReplayOrSnapshots)
     {
-        PQLevel1QuoteTests.AssertContainsAllLevel1Fields(precisionSettings, checkFieldUpdates, l2Q, expectedBooleanFlags);
+        PQLevel1QuoteTests.AssertContainsAllLevel1Fields(precisionSettings, checkFieldUpdates, l2Q, expectedQuoteBooleanFlags);
 
         var priceScale  = precisionSettings.PriceScalingPrecision;
         var volumeScale = precisionSettings.VolumeScalingPrecision;

@@ -10,7 +10,6 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
-using FortitudeMarkets.Pricing.PQ.Messages;
 
 #endregion
 
@@ -19,8 +18,7 @@ namespace FortitudeMarkets.Pricing.FeedEvents.Quotes;
 public interface ITickInstant : IReusableObject<ITickInstant>, IInterfacesComparable<ITickInstant>, ITimeSeriesEntry
 {
     DateTime SourceTime      { get; }
-    decimal               SingleTickValue { get; }
-    bool     IsReplay           { get; }
+    decimal  SingleTickValue { get; }
 
     public string QuoteToStringMembers { get; }
 }
@@ -34,30 +32,30 @@ public interface IPublishableTickInstant : IReusableObject<IPublishableTickInsta
 
     [JsonIgnore] ISourceTickerInfo? SourceTickerInfo { get; }
 
-    new IPublishableTickInstant   CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
-    new ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
+    new IPublishableTickInstant CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
+    new ITransferState          CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 
     new IPublishableTickInstant Clone();
 }
 
 public struct TickInstantValue : ITimeSeriesEntry
 {
-    public TickInstantValue(DateTime sourceTime, decimal singleTickValue, DateTime clientReceivedTime, bool isReplay = false)
+    public TickInstantValue(DateTime sourceTime, decimal singleTickValue, DateTime clientReceivedTime, bool isSourceReplay = false)
     {
-        IsReplay           = isReplay;
+        IsSourceReplay     = isSourceReplay;
         SourceTime         = sourceTime;
         ClientReceivedTime = clientReceivedTime;
         SingleTickValue    = singleTickValue;
     }
 
-    public bool     IsReplay;
+    public bool     IsSourceReplay;
     public DateTime SourceTime;
     public DateTime ClientReceivedTime;
     public decimal  SingleTickValue;
     public DateTime StorageTime(IStorageTimeResolver? resolver = null) => SourceTime;
 }
 
-public interface IMutableTickInstant : ITickInstant
+public interface IMutableTickInstant : ITickInstant, ITrackableReset<IMutableTickInstant>
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new DateTime SourceTime { get; set; }
@@ -65,22 +63,17 @@ public interface IMutableTickInstant : ITickInstant
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new decimal SingleTickValue { get; set; }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    new bool IsReplay { get; set; }
-
     void IncrementTimeBy(TimeSpan toChangeBy);
 
     new IMutableTickInstant Clone();
 }
 
-public interface IMutablePublishableTickInstant : IPublishableTickInstant, IMutableTickInstant
+public interface IMutablePublishableTickInstant : IPublishableTickInstant, IMutableTickInstant, IMutableFeedEventStatusUpdate, ITrackableReset<IMutablePublishableTickInstant>
 {
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    new DateTime ClientReceivedTime { get; set; }
-
     new ISourceTickerInfo? SourceTickerInfo { get; set; }
-    
+
     new IMutableTickInstant AsNonPublishable { get; }
 
     new IMutablePublishableTickInstant Clone();
+    new IMutablePublishableTickInstant ResetWithTracking();
 }

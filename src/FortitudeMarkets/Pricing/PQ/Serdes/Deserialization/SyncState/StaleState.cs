@@ -13,7 +13,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public class StaleState<T> : InSyncState<T> where T : IPQMutableMessage
+public class StaleState<T> : InSyncState<T> where T : IPQMessage
 {
     public StaleState(IPQMessagePublishingDeserializer<T> linkedDeserializer)
         : base(linkedDeserializer, QuoteSyncState.Stale) { }

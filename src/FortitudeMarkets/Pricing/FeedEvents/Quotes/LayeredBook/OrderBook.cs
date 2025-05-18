@@ -177,6 +177,19 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         set => LayerSupportedFlags = value ? LayerFlags.Ladder : LayerFlags.None;
     }
 
+    IMutableOrderBook ITrackableReset<IMutableOrderBook>.ResetWithTracking() => ResetWithTracking();
+
+    public OrderBook ResetWithTracking()
+    {
+        DailyTickUpdateCount = 0;
+        openInterest?.ResetWithTracking();
+        BidSide?.ResetWithTracking();
+        AskSide?.ResetWithTracking();
+        IsAskBookChanged = false;
+        IsBidBookChanged = false;
+
+        return this;
+    }
 
     public override void StateReset()
     {

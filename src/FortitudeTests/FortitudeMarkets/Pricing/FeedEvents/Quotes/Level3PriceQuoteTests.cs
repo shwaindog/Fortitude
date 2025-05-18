@@ -102,7 +102,7 @@ public class Level3PriceQuoteTests
         foreach (var emptyL3Quote in allEmptyQuotes)
         {
             Assert.AreEqual(DateTime.MinValue, emptyL3Quote.SourceTime);
-            Assert.AreEqual(false, emptyL3Quote.IsReplay);
+            Assert.AreEqual(FeedConnectivityStatusFlags.None, emptyL3Quote.FeedMarketConnectivityStatus);
             Assert.AreEqual(0m, emptyL3Quote.SingleTickValue);
             Assert.AreEqual(DateTime.MinValue, emptyL3Quote.ClientReceivedTime);
             Assert.AreEqual(DateTime.MinValue, emptyL3Quote.AdapterReceivedTime);
@@ -159,15 +159,19 @@ public class Level3PriceQuoteTests
 
         var fromConstructor =
             new PublishableLevel3PriceQuote
-                (simpleOnTickLastTradedSrcTkrInfo, expectedSourceTime, true, FeedSyncStatus.Good, expectedSingleValue, expectedClientReceivedTime
-               , expectedAdapterReceiveTime, expectedAdapterSentTime, expectedSourceBidTime, true
-               , expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2), true, true, 
-                 expectedCandle, new OrderBook(expectedBidBook, expectedAskBook), expectedOnTickLastTraded, expectedBatchId ,
-                 expectedSourceQuoteRef, expectedValueDate);
+                (simpleOnTickLastTradedSrcTkrInfo, expectedSourceTime, new OrderBook(expectedBidBook, expectedAskBook)
+               , expectedOnTickLastTraded, expectedBatchId, expectedSourceQuoteRef, expectedValueDate, true, true
+               , expectedSourceBidTime, expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2), true
+               , FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay,  expectedSingleValue, expectedCandle)
+                {
+                    ClientReceivedTime = expectedClientReceivedTime,
+                    AdapterReceivedTime = expectedAdapterReceiveTime,
+                    AdapterSentTime = expectedAdapterSentTime
+                };
 
         Assert.AreSame(simpleOnTickLastTradedSrcTkrInfo, fromConstructor.SourceTickerInfo);
         Assert.AreEqual(expectedSourceTime, fromConstructor.SourceTime);
-        Assert.AreEqual(true, fromConstructor.IsReplay);
+        Assert.AreEqual(FeedConnectivityStatusFlags.IsAdapterReplay, fromConstructor.FeedMarketConnectivityStatus);
         Assert.AreEqual(expectedSingleValue, fromConstructor.SingleTickValue);
         Assert.AreEqual(expectedClientReceivedTime, fromConstructor.ClientReceivedTime);
         Assert.AreEqual(expectedAdapterReceiveTime, fromConstructor.AdapterReceivedTime);
@@ -225,11 +229,15 @@ public class Level3PriceQuoteTests
 
         var fromConstructor =
             new PublishableLevel3PriceQuote
-                (simpleOnTickLastTradedSrcTkrInfo, expectedSourceTime, true, FeedSyncStatus.Good, expectedSingleValue, expectedClientReceivedTime
-               , expectedAdapterReceiveTime, expectedAdapterSentTime, expectedSourceBidTime, true
-               , expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2), true, true
-               , expectedCandle, new OrderBook(expectedBidBook, expectedAskBook), convertedOnTickLastTraded
-               , expectedBatchId, expectedSourceQuoteRef, expectedValueDate);
+                (simpleOnTickLastTradedSrcTkrInfo, expectedSourceTime, new OrderBook(expectedBidBook, expectedAskBook), convertedOnTickLastTraded
+               , expectedBatchId, expectedSourceQuoteRef, expectedValueDate, true, true, expectedSourceBidTime
+               , expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2), true
+               , FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay,  expectedSingleValue, expectedCandle)
+                {
+                    ClientReceivedTime = expectedClientReceivedTime,
+                    AdapterReceivedTime = expectedAdapterReceiveTime,
+                    AdapterSentTime = expectedAdapterSentTime,
+                };
 
         Assert.IsInstanceOfType(fromConstructor.OnTickLastTraded, typeof(OnTickLastTraded));
         Assert.AreEqual(expectedOnTickLastTraded, fromConstructor.OnTickLastTraded);
@@ -325,31 +333,31 @@ public class Level3PriceQuoteTests
             var expectedOnTickLastTraded                                              = emptyQuote.OnTickLastTraded;
             if (expectedOnTickLastTraded != null) expectedOnTickLastTraded[0]!.TradePrice = 12345m;
 
-            emptyQuote.SourceTime                 = expectedSourceTime;
-            emptyQuote.IsReplay                   = true;
-            emptyQuote.SingleTickValue            = expectedSingleValue;
-            emptyQuote.ClientReceivedTime         = expectedClientReceivedTime;
-            emptyQuote.AdapterReceivedTime        = expectedAdapterReceiveTime;
-            emptyQuote.AdapterSentTime            = expectedAdapterSentTime;
-            emptyQuote.SourceBidTime              = expectedSourceBidTime;
-            emptyQuote.BidPriceTop                = expectedBidPriceTop;
-            emptyQuote.IsBidPriceTopChanged       = true;
-            emptyQuote.SourceAskTime              = expectedSourceAskTime;
-            emptyQuote.AskPriceTop                = expectedAskPriceTop;
-            emptyQuote.IsAskPriceTopChanged       = true;
-            emptyQuote.Executable                 = true;
-            emptyQuote.ConflatedTicksCandle       = expectedCandle;
-            emptyQuote.OrderBook.BidSide          = expectedBidOrderBook;
-            emptyQuote.OrderBook.IsBidBookChanged = true;
-            emptyQuote.OrderBook.AskSide          = expectedAskOrderBook;
-            emptyQuote.OrderBook.IsAskBookChanged = true;
-            emptyQuote.OnTickLastTraded           = expectedOnTickLastTraded;
-            emptyQuote.BatchId                    = expectedBatchId;
-            emptyQuote.SourceQuoteReference       = expectedSourceQuoteRef;
-            emptyQuote.ValueDate                  = expectedValueDate;
+            emptyQuote.SourceTime                   = expectedSourceTime;
+            emptyQuote.FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay;
+            emptyQuote.SingleTickValue              = expectedSingleValue;
+            emptyQuote.ClientReceivedTime           = expectedClientReceivedTime;
+            emptyQuote.AdapterReceivedTime          = expectedAdapterReceiveTime;
+            emptyQuote.AdapterSentTime              = expectedAdapterSentTime;
+            emptyQuote.SourceBidTime                = expectedSourceBidTime;
+            emptyQuote.BidPriceTop                  = expectedBidPriceTop;
+            emptyQuote.IsBidPriceTopChanged         = true;
+            emptyQuote.SourceAskTime                = expectedSourceAskTime;
+            emptyQuote.AskPriceTop                  = expectedAskPriceTop;
+            emptyQuote.IsAskPriceTopChanged         = true;
+            emptyQuote.Executable                   = true;
+            emptyQuote.ConflatedTicksCandle         = expectedCandle;
+            emptyQuote.OrderBook.BidSide            = expectedBidOrderBook;
+            emptyQuote.OrderBook.IsBidBookChanged   = true;
+            emptyQuote.OrderBook.AskSide            = expectedAskOrderBook;
+            emptyQuote.OrderBook.IsAskBookChanged   = true;
+            emptyQuote.OnTickLastTraded             = expectedOnTickLastTraded;
+            emptyQuote.BatchId                      = expectedBatchId;
+            emptyQuote.SourceQuoteReference         = expectedSourceQuoteRef;
+            emptyQuote.ValueDate                    = expectedValueDate;
 
             Assert.AreEqual(expectedSourceTime, emptyQuote.SourceTime);
-            Assert.AreEqual(true, emptyQuote.IsReplay);
+            Assert.AreEqual(FeedConnectivityStatusFlags.IsAdapterReplay, emptyQuote.FeedMarketConnectivityStatus);
             Assert.AreEqual(expectedSingleValue, emptyQuote.SingleTickValue);
             Assert.AreEqual(expectedClientReceivedTime, emptyQuote.ClientReceivedTime);
             Assert.AreEqual(expectedAdapterReceiveTime, emptyQuote.AdapterReceivedTime);
@@ -532,7 +540,7 @@ public class Level3PriceQuoteTests
 
             Assert.IsTrue(toString.Contains($"{nameof(q.SourceTickerInfo)}: {q.SourceTickerInfo}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.SourceTime)}: {q.SourceTime:O}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.IsReplay)}: {q.IsReplay}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.FeedMarketConnectivityStatus)}: {q.FeedMarketConnectivityStatus}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.SingleTickValue)}: {q.SingleTickValue:N5}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.ClientReceivedTime)}: {q.ClientReceivedTime:O}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.AdapterReceivedTime)}: {q.AdapterReceivedTime:O}"));
@@ -587,17 +595,14 @@ public class Level3PriceQuoteTests
         // setup source quote
         return new PublishableLevel3PriceQuote
             (sourceTickerInfo, new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(123 + i)
-           , false, FeedSyncStatus.Good, 1.234538m + priceDiff
+           , new OrderBook(sourceBidBook, sourceAskBook)
+           , onTickLastTraded, 1008 + (uint)i, 43749887 + (uint)i
+           , new DateTime(2017, 12, 29, 21, 0, 0).AddMilliseconds(i), false, true
            , new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(234 + 1)
            , new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(345 + 1)
            , DateTime.Parse("2015-08-06 22:07:23.123")
            , new DateTime(2015, 08, 06, 22, 07, 22).AddMilliseconds(i)
-           , true, new DateTime(2015, 08, 06, 22, 07, 22).AddMilliseconds(i)
-           , new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(123 + i)
-           , new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(2_123 + i)
-           , false, true, new Candle(), new OrderBook(sourceBidBook, sourceAskBook)
-           , onTickLastTraded, 1008 + (uint)i, 43749887 + (uint)i
-           , new DateTime(2017, 12, 29, 21, 0, 0).AddMilliseconds(i));
+           , true, FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay, 1.234538m + priceDiff, new Candle());
     }
 
     private static OrderBookSide GenerateBook<T>

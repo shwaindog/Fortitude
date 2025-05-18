@@ -27,7 +27,7 @@ using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
-using static FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates.PQBooleanValues;
+using static FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.PQQuoteBooleanValues;
 
 #endregion
 
@@ -214,7 +214,7 @@ public class PQLevel1QuoteTests
 
         var expectedSetTime = new DateTime(2017, 10, 14, 15, 10, 59).AddTicks(9879879);
         emptyQuote.AdapterSentTime = expectedSetTime;
-        emptyQuote.IsReplay        = true;
+        emptyQuote.WithIsAdapterReplay(true);
         Assert.IsTrue(emptyQuote.IsAdapterSentTimeDateUpdated);
         Assert.IsTrue(emptyQuote.IsAdapterSentTimeSub2MinUpdated);
         Assert.IsTrue(emptyQuote.HasUpdates);
@@ -226,21 +226,22 @@ public class PQLevel1QuoteTests
         var expectedHour        = new PQFieldUpdate(PQFeedFields.AdapterSentDateTime, hoursSinceUnixEpoch);
         var expectedSub2Min = new PQFieldUpdate
             (PQFeedFields.AdapterSentSub2MinTime, lowerBytes, subHourComponent);
-        Assert.AreEqual(expectedHour, adapterSentUpdates[0]);
-        Assert.AreEqual(expectedSub2Min, adapterSentUpdates[1]);
+        Assert.AreEqual(expectedHour, adapterSentUpdates[1]);
+        Assert.AreEqual(expectedSub2Min, adapterSentUpdates[2]);
 
         emptyQuote.IsAdapterSentTimeDateUpdated = false;
         Assert.IsTrue(emptyQuote.HasUpdates);
         adapterSentUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
         Assert.AreEqual(2, adapterSentUpdates.Count);
-        Assert.AreEqual(expectedSub2Min, adapterSentUpdates[0]);
+        Assert.AreEqual(expectedSub2Min, adapterSentUpdates[1]);
 
         emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
         Assert.IsFalse(emptyQuote.IsAdapterSentTimeSub2MinUpdated);
-        emptyQuote.IsReplay        = false;
-        emptyQuote.IsReplayUpdated = false;
+        emptyQuote.IsFeedConnectivityStatusUpdated = false;
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
+        emptyQuote.WithIsAdapterReplay(false);
+        emptyQuote.IsFeedConnectivityStatusUpdated = false;
 
         adapterSentUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
             where update.Id is >= PQFeedFields.AdapterSentDateTime and <= PQFeedFields.AdapterSentSub2MinTime
@@ -334,7 +335,7 @@ public class PQLevel1QuoteTests
         emptyQuote.HasUpdates           = false;
         Assert.AreEqual(0m, emptyQuote.BidPriceTop);
         var checkDeltaUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
-        Assert.AreEqual(2, checkDeltaUpdates.Count());
+        Assert.AreEqual(2, checkDeltaUpdates.Count);
 
         var expectedBidPriceTop = 1.2345678m;
         var priceScale          = sourceTickerInfo.PriceScalingPrecision;
@@ -481,7 +482,7 @@ public class PQLevel1QuoteTests
             (PQFeedFields.QuoteBooleanFlags, (uint)(IsExecutableUpdatedFlag | IsExecutableSetFlag));
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
         expectedFieldUpdate = new PQFieldUpdate
-            (PQFeedFields.QuoteBooleanFlags, (uint)(IsExecutableUpdatedFlag | IsExecutableSetFlag | PQBooleanValuesExtensions.AllUpdated));
+            (PQFeedFields.QuoteBooleanFlags, (uint)(IsExecutableUpdatedFlag | IsExecutableSetFlag | PQQuoteBooleanValuesExtensions.AllUpdated));
 
         sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
             where update.Id == PQFeedFields.QuoteBooleanFlags
@@ -501,17 +502,17 @@ public class PQLevel1QuoteTests
     [TestMethod]
     public void EmptyQuote_FieldsSetThenResetFields_SameEmptyQuoteEquivalent()
     {
-        Assert.IsFalse(emptyQuote.IsReplayUpdated);
+        Assert.IsFalse(emptyQuote.IsFeedConnectivityStatusUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
         emptyQuote.SourceTime = DateTime.Now;
         Assert.IsTrue(emptyQuote.HasUpdates);
         emptyQuote.UpdateComplete();
         emptyQuote.SourceTime = DateTime.MinValue;
         emptyQuote.HasUpdates = false;
-        Assert.AreEqual(false, emptyQuote.IsReplay);
+        Assert.AreEqual(FeedConnectivityStatusFlags.None, emptyQuote.FeedMarketConnectivityStatus);
         Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
-        emptyQuote.IsReplay       = true;
+        emptyQuote.FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.ClosingSoon;
         emptyQuote.FeedSyncStatus = FeedSyncStatus.Good;
         var expectedSetTime = new DateTime(2017, 10, 14, 15, 10, 59).AddTicks(9879879);
         emptyQuote.SourceTime = expectedSetTime;
@@ -528,10 +529,10 @@ public class PQLevel1QuoteTests
         emptyQuote.Executable  = false;
         Assert.IsTrue(emptyQuote.HasUpdates);
 
-        emptyQuote.ResetFields();
+        emptyQuote.ResetWithTracking();
 
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.AreEqual(false, emptyQuote.IsReplay);
+        Assert.AreEqual(FeedConnectivityStatusFlags.None, emptyQuote.FeedMarketConnectivityStatus);
         Assert.AreEqual(FeedSyncStatus.Good, emptyQuote.FeedSyncStatus);
         Assert.AreEqual(default, emptyQuote.SourceTime);
         Assert.AreEqual(0m, emptyQuote.SingleTickValue);
@@ -566,7 +567,7 @@ public class PQLevel1QuoteTests
     [TestMethod]
     public void PopulatedQuoteWithNoUpdates_GetDeltaUpdateFieldsAsUpdate_ReturnsNoUpdates()
     {
-        fullyPopulatedPqLevel1Quote.IsReplay   = true;
+        fullyPopulatedPqLevel1Quote.FeedMarketConnectivityStatus   = FeedConnectivityStatusFlags.IsAdapterReplay;
         fullyPopulatedPqLevel1Quote.HasUpdates = false;
         var pqFieldUpdates = fullyPopulatedPqLevel1Quote.GetDeltaUpdateFields
             (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
@@ -607,7 +608,7 @@ public class PQLevel1QuoteTests
         Assert.AreEqual(default, emptyQuote.SourceTime);
         Assert.IsFalse
             (fullyPopulatedPqLevel1Quote.SourceTickerInfo!.AreEquivalent(emptyQuote.SourceTickerInfo));
-        Assert.AreEqual(false, emptyQuote.IsReplay);
+        Assert.AreEqual(FeedConnectivityStatusFlags.None, emptyQuote.FeedMarketConnectivityStatus);
         Assert.AreEqual(0m, emptyQuote.SingleTickValue);
         Assert.AreEqual(FeedSyncStatus.Good, emptyQuote.FeedSyncStatus);
         Assert.AreEqual(default, emptyQuote.SourceBidTime);
@@ -615,15 +616,15 @@ public class PQLevel1QuoteTests
         Assert.AreEqual(default, emptyQuote.AdapterReceivedTime);
         Assert.AreEqual(default, emptyQuote.AdapterSentTime);
         Assert.AreEqual(default, emptyQuote.ClientReceivedTime);
-        Assert.AreEqual(default, emptyQuote.DispatchedTime);
-        Assert.AreEqual(default, emptyQuote.ProcessedTime);
-        Assert.AreEqual(default, emptyQuote.SocketReceivingTime);
+        Assert.AreEqual(default, emptyQuote.SubscriberDispatchedTime);
+        Assert.AreEqual(default, emptyQuote.InboundProcessedTime);
+        Assert.AreEqual(default, emptyQuote.InboundSocketReceivingTime);
         Assert.AreEqual(0m, emptyQuote.BidPriceTop);
         Assert.AreEqual(0m, emptyQuote.AskPriceTop);
         Assert.IsTrue(emptyQuote.Executable);
         Assert.IsFalse(emptyQuote.IsSourceTimeDateUpdated);
         Assert.IsFalse(emptyQuote.IsSourceTimeSub2MinUpdated);
-        Assert.IsFalse(emptyQuote.IsReplayUpdated);
+        Assert.IsFalse(emptyQuote.IsFeedConnectivityStatusUpdated);
         Assert.IsFalse(emptyQuote.IsSingleValueUpdated);
         Assert.IsFalse(emptyQuote.IsFeedSyncStatusUpdated);
         Assert.IsFalse(emptyQuote.IsSourceBidTimeDateUpdated);
@@ -728,12 +729,12 @@ public class PQLevel1QuoteTests
         Assert.IsTrue(original.AreEquivalent(changingLevel1Quote, exactComparison));
 
         changingLevel1Quote.AdapterReceivedTime = new DateTime(2017, 11, 06, 11, 51, 07);
-        Assert.IsFalse(original.AreEquivalent(changingLevel1Quote, exactComparison));
+        Assert.AreEqual(!exactComparison, original.AreEquivalent(changingLevel1Quote, exactComparison));
         changingLevel1Quote.AdapterReceivedTime = original.AdapterReceivedTime;
         Assert.IsTrue(changingLevel1Quote.AreEquivalent(original, exactComparison));
 
         changingLevel1Quote.AdapterSentTime = new DateTime(2017, 11, 06, 11, 51, 07);
-        Assert.IsFalse(changingLevel1Quote.AreEquivalent(original, exactComparison));
+        Assert.AreEqual(!exactComparison, changingLevel1Quote.AreEquivalent(original, exactComparison));
         changingLevel1Quote.AdapterSentTime = original.AdapterSentTime;
         Assert.IsTrue(original.AreEquivalent(changingLevel1Quote, exactComparison));
 
@@ -773,13 +774,16 @@ public class PQLevel1QuoteTests
 
     public static void AssertContainsAllLevel1Fields
     (IPQPriceVolumePublicationPrecisionSettings precisionSettings, IList<PQFieldUpdate> checkFieldUpdates, PQPublishableLevel1Quote l1Q
-      , PQBooleanValues expectedBooleanFlags = PQBooleanValuesExtensions.AllFields)
+      , PQQuoteBooleanValues expectedQuoteBooleanFlags = PQQuoteBooleanValuesExtensions.LivePricingFieldsSetNoReplayOrSnapshots)
     {
         var priceScale = precisionSettings.PriceScalingPrecision;
         PQCandleTests.AssertCandleContainsAllFields(precisionSettings, checkFieldUpdates, l1Q.ConflatedTicksCandle!
                                                                      , PQFeedFields.CandleConflationSummary);
-
-        PQTickInstantTests.AssertContainsAllTickInstantFields(precisionSettings, checkFieldUpdates, l1Q, expectedBooleanFlags);
+        
+        Assert.AreEqual(new PQFieldUpdate(PQFeedFields.QuoteBooleanFlags, (uint)expectedQuoteBooleanFlags),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteBooleanFlags),
+                        $"For {l1Q.GetType().Name} and {l1Q.SourceTickerInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
+        PQTickInstantTests.AssertContainsAllTickInstantFields(precisionSettings, checkFieldUpdates, l1Q, expectedQuoteBooleanFlags);
         Assert.AreEqual(new PQFieldUpdate(PQFeedFields.SourceQuoteBidDateTime, l1Q.SourceBidTime.Get2MinIntervalsFromUnixEpoch()),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.SourceQuoteBidDateTime));
         var flag = l1Q.SourceBidTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
@@ -822,18 +826,11 @@ public class PQLevel1QuoteTests
             set => ConflatedTicksCandle = value as IPQCandle;
         }
 
-        public DateTime AdapterReceivedTime
-        {
-            get => DateTime.Now;
-            set { }
-        }
-
         ICandle? IPublishableLevel1Quote.ConflatedTicksCandle => ConflatedTicksCandle;
         public IPQCandle?                ConflatedTicksCandle { get; set; }
 
         public BidAskPair BidAskTop => new(BidPriceTop, AskPriceTop);
 
-        public DateTime AdapterSentTime { get; set; }
         public DateTime SourceBidTime   { get; set; }
         public decimal  BidPriceTop     { get; set; }
         public DateTime SourceAskTime   { get; set; }
@@ -847,11 +844,6 @@ public class PQLevel1QuoteTests
         public bool IsSourceAskTimeSub2MinUpdated { get; set; }
         public bool IsSourceBidTimeDateUpdated    { get; set; }
         public bool IsSourceBidTimeSub2MinUpdated { get; set; }
-        public bool IsAdapterSentTimeDateUpdated  { get; set; }
-
-        public bool IsAdapterSentTimeSub2MinUpdated     { get; set; }
-        public bool IsAdapterReceivedTimeDateUpdated    { get; set; }
-        public bool IsAdapterReceivedTimeSub2MinUpdated { get; set; }
 
         public bool IsBidPriceTopUpdated { get; set; }
         public bool IsAskPriceTopUpdated { get; set; }
@@ -873,6 +865,22 @@ public class PQLevel1QuoteTests
         ILevel1Quote ILevel1Quote.                                    Clone() => this;
         IMutableLevel1Quote IMutableLevel1Quote.                      Clone() => this;
         IPQLevel1Quote IPQLevel1Quote.                                Clone() => this;
+
+        IMutableLevel1Quote ITrackableReset<IMutableLevel1Quote>.                      ResetWithTracking() => this;
+                                                                                                              
+        IMutableLevel1Quote IMutableLevel1Quote.                                       ResetWithTracking() => this;
+                                                                                                              
+        IMutablePublishableLevel1Quote ITrackableReset<IMutablePublishableLevel1Quote>.ResetWithTracking() => this;
+
+        IMutablePublishableLevel1Quote IMutablePublishableLevel1Quote.       ResetWithTracking() => this;
+                                                                                                    
+        IPQLevel1Quote ITrackableReset<IPQLevel1Quote>.                      ResetWithTracking() => this;
+                                                                                                    
+        IPQLevel1Quote IPQLevel1Quote.                                       ResetWithTracking() => this;
+                                                                                                    
+        IPQPublishableLevel1Quote ITrackableReset<IPQPublishableLevel1Quote>.ResetWithTracking() => this;
+                                                                                                    
+        IPQPublishableLevel1Quote IPQPublishableLevel1Quote.                 ResetWithTracking() => this;
 
         IMutableLevel1Quote IMutablePublishableLevel1Quote.AsNonPublishable => AsNonPublishable;
         ILevel1Quote IPublishableLevel1Quote.              AsNonPublishable => AsNonPublishable;

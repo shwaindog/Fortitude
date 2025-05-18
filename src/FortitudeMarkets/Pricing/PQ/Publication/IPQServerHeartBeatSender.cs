@@ -16,7 +16,7 @@ public interface IPQServerHeartBeatSender
 {
     bool HasStarted { get; }
 
-    IDoublyLinkedList<IPQMutableMessage>? ServerLinkedQuotes { get; set; }
+    IDoublyLinkedList<IPQMessage>? ServerLinkedQuotes { get; set; }
 
     ISyncLock?       ServerLinkedLock { get; set; }
     IPQUpdateServer? UpdateServer     { get; set; }

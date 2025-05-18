@@ -265,19 +265,19 @@ public class QuoteSequencedTestDataBuilder
     {
         tickInstant.SingleTickValue    = 0.785681m + batchId * 0.00001m;
         tickInstant.SourceTime         = new DateTime(2017, 07, 16, 15, 46, 00).Add(TimeSpan.FromSeconds(batchId * 10));
-        tickInstant.IsReplay           = true;
         if (tickInstant is IMutablePublishableTickInstant pubTickInstant)
         {
-            pubTickInstant.ClientReceivedTime = tickInstant.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 10));
+            pubTickInstant.FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay;
+            pubTickInstant.ClientReceivedTime           = tickInstant.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 10));
         }
         if (tickInstant is IPQPublishableTickInstant pqTickInstant)
         {
             pqTickInstant.FeedSyncStatus = FeedSyncStatus.Good;
             pqTickInstant.PQSequenceId   = batchId;
-            pqTickInstant.DispatchedTime = pqTickInstant.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 11));
-            pqTickInstant.SocketReceivingTime =
+            pqTickInstant.SubscriberDispatchedTime = pqTickInstant.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 11));
+            pqTickInstant.InboundSocketReceivingTime =
                 pqTickInstant.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 12));
-            pqTickInstant.ProcessedTime = pqTickInstant.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 13));
+            pqTickInstant.InboundProcessedTime = pqTickInstant.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 13));
             pqTickInstant.LastPublicationTime =
                 pqTickInstant.SourceTime.Add(TimeSpan.FromMilliseconds(batchId * 14));
         }

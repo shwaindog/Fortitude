@@ -5,6 +5,7 @@
 
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 
 #endregion
@@ -25,7 +26,7 @@ public interface ILevel3Quote : ILevel2Quote, ICloneable<ILevel3Quote>
     new ILevel3Quote Clone();
 }
 
-public interface IMutableLevel3Quote : ILevel3Quote, IMutableLevel2Quote
+public interface IMutableLevel3Quote : ILevel3Quote, IMutableLevel2Quote, ITrackableReset<IMutableLevel3Quote>
 {
     new uint BatchId { get; set; }
 
@@ -34,6 +35,9 @@ public interface IMutableLevel3Quote : ILevel3Quote, IMutableLevel2Quote
     new DateTime ValueDate { get; set; }
 
     new IMutableOnTickLastTraded? OnTickLastTraded { get; set; }
+
+    
+    new IMutableLevel3Quote ResetWithTracking();
 
     new bool                    AreEquivalent(ITickInstant? other, bool exactTypes = false);
 
@@ -51,10 +55,12 @@ public interface IPublishableLevel3Quote : IPublishableLevel2Quote, ILevel3Quote
     new IPublishableLevel3Quote Clone();
 }
 
-public interface IMutablePublishableLevel3Quote : IPublishableLevel3Quote, IMutableLevel3Quote, IMutablePublishableLevel2Quote
+public interface IMutablePublishableLevel3Quote : IPublishableLevel3Quote, IMutableLevel3Quote, IMutablePublishableLevel2Quote, 
+    ITrackableReset<IMutablePublishableLevel3Quote>
 {
     new IMutablePublishableLevel3Quote Clone();
-
+    
+    new IMutablePublishableLevel3Quote ResetWithTracking();
     
     new bool AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false);
 }

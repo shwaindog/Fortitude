@@ -16,7 +16,5 @@ public enum FeedSyncStatus : byte
   , OutOfSync = 1
   , Stale     = 2
   , FeedDown  = 4
-  , OutOfHours  = 5
-  , ClosingSoon  = 6
-  , PreOpen  = 7
+  , NotStarted = 5
 }

@@ -3,7 +3,13 @@
 
 namespace FortitudeCommon.Types.Mutable;
 
-public interface IEmptyaable
+public interface IShowsEmpty
 {
-    bool IsEmpty { get; set; }
+    bool IsEmpty { get; }
+}
+
+
+public interface IEmptyable : IShowsEmpty
+{
+    new bool IsEmpty { get; set; }
 }

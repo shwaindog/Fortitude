@@ -5,15 +5,16 @@ using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
-
-public interface IPQOnTickLastTraded : IPQLastTradedList, IMutableOnTickLastTraded
+public interface IPQOnTickLastTraded : IPQLastTradedList, IMutableOnTickLastTraded, ITrackableReset<IPQOnTickLastTraded>
 {
     new IPQLastTrade? this[int index] { get; set; }
     new IPQOnTickLastTraded       Clone();
     new IEnumerator<IPQLastTrade> GetEnumerator();
+
+    new IPQOnTickLastTraded ResetWithTracking();
 }
 
-public class PQOnTickLastTraded: PQLastTradedList, IPQOnTickLastTraded
+public class PQOnTickLastTraded : PQLastTradedList, IPQOnTickLastTraded
 {
     public PQOnTickLastTraded() { }
     public PQOnTickLastTraded(ISourceTickerInfo sourceTickerInfo) : base(sourceTickerInfo) { }
@@ -22,6 +23,21 @@ public class PQOnTickLastTraded: PQLastTradedList, IPQOnTickLastTraded
     public PQOnTickLastTraded(IOnTickLastTraded toClone) : base(toClone) { }
     public PQOnTickLastTraded(IPQOnTickLastTraded toClone) : this((IOnTickLastTraded)toClone) { }
     public PQOnTickLastTraded(PQOnTickLastTraded toClone) : this((IOnTickLastTraded)toClone) { }
+
+
+    IMutableOnTickLastTraded ITrackableReset<IMutableOnTickLastTraded>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableOnTickLastTraded IMutableOnTickLastTraded.ResetWithTracking() => ResetWithTracking();
+
+    IPQOnTickLastTraded ITrackableReset<IPQOnTickLastTraded>.ResetWithTracking() => ResetWithTracking();
+
+    IPQOnTickLastTraded IPQOnTickLastTraded.ResetWithTracking() => ResetWithTracking();
+
+    public override PQOnTickLastTraded ResetWithTracking()
+    {
+        base.ResetWithTracking();
+        return this;
+    }
 
     bool IInterfacesComparable<IOnTickLastTraded>.AreEquivalent(IOnTickLastTraded? other, bool exactTypes) => AreEquivalent(other, exactTypes);
 
@@ -36,7 +52,7 @@ public class PQOnTickLastTraded: PQLastTradedList, IPQOnTickLastTraded
 
     IMutableOnTickLastTraded ICloneable<IMutableOnTickLastTraded>.Clone() => Clone();
 
-    public override PQOnTickLastTraded Clone() => 
+    public override PQOnTickLastTraded Clone() =>
         Recycler?.Borrow<PQOnTickLastTraded>().CopyFrom(this) ??
         new PQOnTickLastTraded((IOnTickLastTraded)this);
 

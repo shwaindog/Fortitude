@@ -9,6 +9,7 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
+using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
@@ -33,7 +34,7 @@ public class PQClientMessageStreamDecoderTests
     private const ushort ExpectedTickerId      = ushort.MaxValue;
     private const uint   ExpectedStreamId      = uint.MaxValue;
 
-    private const uint MessageSizeToQuoteSerializer = 162 + PQQuoteMessageHeader.HeaderSize;
+    private const uint MessageSizeToQuoteSerializer = 186 + PQQuoteMessageHeader.HeaderSize;
 
     private Mock<IPQClientQuoteDeserializerRepository> clientDeserializerRepo = null!;
 
@@ -127,7 +128,8 @@ public class PQClientMessageStreamDecoderTests
             .Returns(null!).Verifiable();
         var expectedTickInstant = new PQPublishableTickInstant(sourceTickerInfo)
         {
-            SingleTickValue = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00), IsReplay = true
+            SingleTickValue = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00)
+          , FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay
         };
 
         var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
@@ -170,10 +172,11 @@ public class PQClientMessageStreamDecoderTests
             .Returns(null!).Verifiable();
         var expectedTickInstant = new PQPublishableTickInstant(sourceTickerInfo)
         {
-            SingleTickValue = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00), IsReplay = true
+            SingleTickValue = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00)
+          , FeedMarketConnectivityStatus =  FeedConnectivityStatusFlags.IsAdapterReplay
         };
 
-        var listOfHeartBeatsToUpdate = new PQHeartBeatQuotesMessage(new List<IPQMutableMessage>(2) { expectedTickInstant });
+        var listOfHeartBeatsToUpdate = new PQHeartBeatQuotesMessage(new List<IPQMessage>(2) { expectedTickInstant });
 
         var heartBeatSerializer = new PQHeartbeatSerializer();
         var amtWritten          = heartBeatSerializer.Serialize(readWriteBuffer, listOfHeartBeatsToUpdate);
@@ -219,7 +222,8 @@ public class PQClientMessageStreamDecoderTests
 
         var expectedTickInstant = new PQPublishableTickInstant(sourceTickerInfo)
         {
-            SingleTickValue = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00), IsReplay = true
+            SingleTickValue = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00)
+          , FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay
         };
         var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
         var amtWritten      = quoteSerializer.Serialize(readWriteBuffer, expectedTickInstant);
@@ -245,7 +249,7 @@ public class PQClientMessageStreamDecoderTests
             .Returns(null!)
             .Verifiable();
 
-        var listOfHeartBeatsToUpdate = new PQHeartBeatQuotesMessage(new List<IPQMutableMessage>(2) { expectedTickInstant });
+        var listOfHeartBeatsToUpdate = new PQHeartBeatQuotesMessage(new List<IPQMessage>(2) { expectedTickInstant });
 
         var heartBeatSerializer = new PQHeartbeatSerializer();
         amtWritten                  =  heartBeatSerializer.Serialize(readWriteBuffer, listOfHeartBeatsToUpdate);

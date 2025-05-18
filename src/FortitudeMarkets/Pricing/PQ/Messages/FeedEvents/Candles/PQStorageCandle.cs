@@ -56,7 +56,7 @@ public static class PQStorageCandleFlagsExtensions
         (flags & checkNegative) > 0 ? -1 : 1;
 }
 
-public interface IPQStorageCandle : IMutableCandle, ITracksChanges<IPQStorageCandle>
+public interface IPQStorageCandle : IMutableCandle, ITracksChanges<IPQStorageCandle>, ITrackableReset<IPQStorageCandle>
 {
     PQStorageCandleFlags CandleStorageFlags { get; }
 
@@ -83,6 +83,7 @@ public interface IPQStorageCandle : IMutableCandle, ITracksChanges<IPQStorageCan
     void CalculateAllFromNewDeltas();
 
     new IPQStorageCandle Clone();
+    new IPQStorageCandle ResetWithTracking();
 }
 
 public class PQStorageCandle : ReusableObject<ICandle>, IPQStorageCandle, ICloneable<PQStorageCandle>
@@ -482,6 +483,41 @@ public class PQStorageCandle : ReusableObject<ICandle>, IPQStorageCandle, IClone
             CandleStorageFlags |= Snapshot;
         else
             CandleStorageFlags &= SnapshotClearMask;
+
+        return this;
+    }
+
+    IMutableCandle ITrackableReset<IMutableCandle>.ResetWithTracking() => ResetWithTracking();
+
+    IPQStorageCandle ITrackableReset<IPQStorageCandle>.ResetWithTracking() => ResetWithTracking();
+
+    IPQStorageCandle IPQStorageCandle.                 ResetWithTracking() => ResetWithTracking();
+
+    public PQStorageCandle ResetWithTracking()
+    {
+        CandleFlags        = CandleFlags.None;
+        TimeBoundaryPeriod = TimeBoundaryPeriod.Tick;
+        PeriodStartTime    = DateTime.MinValue;
+        PeriodEndTime      = DateTime.MinValue;
+
+        StartBidPrice   = 0m;
+        StartAskPrice   = 0m;
+        HighestBidPrice = 0m;
+        HighestAskPrice = 0m;
+        LowestBidPrice  = 0m;
+        LowestAskPrice  = 0m;
+        EndBidPrice     = 0m;
+        EndAskPrice     = 0m;
+        AverageBidPrice = 0m;
+        AverageAskPrice = 0m;
+        TickCount       = 0;
+        PeriodVolume    = 0;
+        
+
+        DeltaStartBidPrice         = DeltaStartAskPrice         = DeltaHighestBidPrice = DeltaHighestAskPrice = 0;
+        DeltaLowestBidPrice        = DeltaLowestAskPrice        = DeltaEndBidPrice     = DeltaEndAskPrice     = 0;
+        DeltaTickCount             = DeltaPeriodVolume          = DeltaAverageBidPrice = DeltaAverageAskPrice = 0;
+        DeltaCandleFlagsLowerBytes = DeltaCandleFlagsUpperBytes = 0;
 
         return this;
     }

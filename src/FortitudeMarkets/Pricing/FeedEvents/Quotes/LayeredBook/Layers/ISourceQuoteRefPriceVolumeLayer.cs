@@ -5,6 +5,7 @@
 
 using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -19,10 +20,11 @@ public interface ISourceQuoteRefPriceVolumeLayer : ISourcePriceVolumeLayer,
 }
 
 public interface IMutableSourceQuoteRefPriceVolumeLayer : IMutableSourcePriceVolumeLayer,
-    ISourceQuoteRefPriceVolumeLayer, ICloneable<IMutableSourceQuoteRefPriceVolumeLayer>
+    ISourceQuoteRefPriceVolumeLayer, ICloneable<IMutableSourceQuoteRefPriceVolumeLayer>, ITrackableReset<IMutableSourceQuoteRefPriceVolumeLayer>
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new uint SourceQuoteReference { get; set; }
 
     new IMutableSourceQuoteRefPriceVolumeLayer Clone();
+    new IMutableSourceQuoteRefPriceVolumeLayer ResetWithTracking();
 }

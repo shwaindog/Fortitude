@@ -13,7 +13,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public class InSyncState<T> : SyncStateBase<T> where T : IPQMutableMessage
+public class InSyncState<T> : SyncStateBase<T> where T : IPQMessage
 {
     internal const uint PQTimeoutMs = 2000;
 

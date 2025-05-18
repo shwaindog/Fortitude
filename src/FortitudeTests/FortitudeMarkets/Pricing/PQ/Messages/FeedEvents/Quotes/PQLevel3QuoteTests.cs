@@ -960,7 +960,7 @@ public class PQLevel3QuoteTests
 
             Assert.IsFalse(popQuote.AreEquivalent(emptyQuote));
 
-            popQuote.ResetFields();
+            popQuote.ResetWithTracking();
 
             Assert.IsTrue(popQuote.AreEquivalent(emptyQuote));
         }
@@ -989,7 +989,8 @@ public class PQLevel3QuoteTests
             var pqFieldUpdates =
                 populatedL3Quote.GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot, precisionSettings).ToList();
-            AssertContainsAllLevel3Fields(precisionSettings, pqFieldUpdates, populatedL3Quote);
+            AssertContainsAllLevel3Fields(precisionSettings, pqFieldUpdates, populatedL3Quote
+                                        , PQQuoteBooleanValuesExtensions.ExpectedL1QuoteSnapshotBooleanValues);
         }
     }
 
@@ -998,7 +999,7 @@ public class PQLevel3QuoteTests
     {
         foreach (var populatedL3Quote in allFullyPopulatedQuotes)
         {
-            populatedL3Quote.IsReplay   = true;
+            populatedL3Quote.FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay;
             populatedL3Quote.HasUpdates = false;
             var pqFieldUpdates =
                 populatedL3Quote.GetDeltaUpdateFields
@@ -1069,7 +1070,7 @@ public class PQLevel3QuoteTests
             Assert.AreEqual(pqLevel3Quote.PQSequenceId, emptyQuote.PQSequenceId);
             Assert.AreEqual(default, emptyQuote.SourceTime);
             Assert.IsTrue(pqLevel3Quote.SourceTickerInfo!.AreEquivalent(emptyQuote.SourceTickerInfo));
-            Assert.AreEqual(false, emptyQuote.IsReplay);
+            Assert.AreEqual(FeedConnectivityStatusFlags.None, emptyQuote.FeedMarketConnectivityStatus);
             Assert.AreEqual(0m, emptyQuote.SingleTickValue);
             Assert.AreEqual(FeedSyncStatus.Good, emptyQuote.FeedSyncStatus);
             Assert.AreEqual(default, emptyQuote.SourceBidTime);
@@ -1077,9 +1078,9 @@ public class PQLevel3QuoteTests
             Assert.AreEqual(default, emptyQuote.AdapterReceivedTime);
             Assert.AreEqual(default, emptyQuote.AdapterSentTime);
             Assert.AreEqual(default, emptyQuote.ClientReceivedTime);
-            Assert.AreEqual(default, emptyQuote.ProcessedTime);
-            Assert.AreEqual(default, emptyQuote.DispatchedTime);
-            Assert.AreEqual(default, emptyQuote.SocketReceivingTime);
+            Assert.AreEqual(default, emptyQuote.InboundProcessedTime);
+            Assert.AreEqual(default, emptyQuote.SubscriberDispatchedTime);
+            Assert.AreEqual(default, emptyQuote.InboundSocketReceivingTime);
             Assert.AreEqual(0m, emptyQuote.BidPriceTop);
             Assert.AreEqual(0m, emptyQuote.AskPriceTop);
             Assert.IsTrue(emptyQuote.Executable);
@@ -1088,7 +1089,7 @@ public class PQLevel3QuoteTests
             Assert.IsFalse(emptyQuote.IsValueDateUpdated);
             Assert.IsFalse(emptyQuote.IsSourceTimeDateUpdated);
             Assert.IsFalse(emptyQuote.IsSourceTimeSub2MinUpdated);
-            Assert.IsFalse(emptyQuote.IsReplayUpdated);
+            Assert.IsFalse(emptyQuote.IsFeedConnectivityStatusUpdated);
             Assert.IsFalse(emptyQuote.IsSingleValueUpdated);
             Assert.IsFalse(emptyQuote.IsFeedSyncStatusUpdated);
             Assert.IsFalse(emptyQuote.IsSourceBidTimeDateUpdated);
@@ -1263,9 +1264,9 @@ public class PQLevel3QuoteTests
 
     public static void AssertContainsAllLevel3Fields
     (IPQPriceVolumePublicationPrecisionSettings precisionSettings, IList<PQFieldUpdate> checkFieldUpdates,
-        PQPublishableLevel3Quote l3Q, PQBooleanValues expectedBooleanFlags = PQBooleanValuesExtensions.AllFields)
+        PQPublishableLevel3Quote l3Q, PQQuoteBooleanValues expectedQuoteBooleanFlags = PQQuoteBooleanValuesExtensions.LivePricingFieldsSetNoReplayOrSnapshots)
     {
-        PQLevel2QuoteTests.AssertContainsAllLevel2Fields(precisionSettings, checkFieldUpdates, l3Q, expectedBooleanFlags);
+        PQLevel2QuoteTests.AssertContainsAllLevel2Fields(precisionSettings, checkFieldUpdates, l3Q, expectedQuoteBooleanFlags);
 
         Assert.AreEqual(new PQFieldUpdate(PQFeedFields.QuoteBatchId, l3Q.BatchId),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteBatchId));

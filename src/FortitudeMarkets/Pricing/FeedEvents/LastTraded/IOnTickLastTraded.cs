@@ -9,9 +9,11 @@ public interface IOnTickLastTraded : ILastTradedList, IInterfacesComparable<IOnT
     new IOnTickLastTraded Clone();
 }
 
-public interface IMutableOnTickLastTraded : IOnTickLastTraded, IMutableLastTradedList, ICloneable<IMutableOnTickLastTraded>
+public interface IMutableOnTickLastTraded : IOnTickLastTraded, IMutableLastTradedList, ICloneable<IMutableOnTickLastTraded>, ITrackableReset<IMutableOnTickLastTraded>
 {
     new IMutableOnTickLastTraded Clone();
+
+    new IMutableOnTickLastTraded ResetWithTracking();
 }
 
 public class OnTickLastTraded : LastTradedList, IMutableOnTickLastTraded
@@ -21,6 +23,16 @@ public class OnTickLastTraded : LastTradedList, IMutableOnTickLastTraded
     public OnTickLastTraded(IOnTickLastTraded toClone) : base(toClone) { }
     public OnTickLastTraded(ISourceTickerInfo sourceTickerInfo) : base(sourceTickerInfo) { }
 
+
+    IMutableOnTickLastTraded ITrackableReset<IMutableOnTickLastTraded>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableOnTickLastTraded IMutableOnTickLastTraded.ResetWithTracking() => ResetWithTracking();
+
+    public override OnTickLastTraded ResetWithTracking()
+    {
+        base.ResetWithTracking();
+        return this;
+    }
 
     bool IInterfacesComparable<IOnTickLastTraded>.AreEquivalent(IOnTickLastTraded? other, bool exactTypes) => AreEquivalent(other, exactTypes);
 

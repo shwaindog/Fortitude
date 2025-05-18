@@ -19,23 +19,21 @@ public interface IQuoteStorageTimeResolver : IStorageTimeResolver<IPublishableTi
 
 public class QuoteStorageTimeResolver : IQuoteStorageTimeResolver
 {
-    private static DateTime unixEpoch       = DateTime.MinValue;
-    private static DateTime defaultDateTime = default;
+    private static readonly DateTime DefaultDateTime = default;
 
     public static IQuoteStorageTimeResolver Instance = new QuoteStorageTimeResolver();
 
-    public List<QuoteTimeSeriesStorageType> StorageTypePreferences { get; set; } = new()
-    {
-        SourceTime, ClientReceivedTime, AdapterReceivedTime, AdapterSentTime, SourceBidTime, SourceAskTime
-    };
-
+    public List<QuoteTimeSeriesStorageType> StorageTypePreferences { get; set; } =
+        [SourceTime, ClientReceivedTime, AdapterReceivedTime, AdapterSentTime, SourceBidTime, SourceAskTime];
+    
+    
     public DateTime ResolveStorageTime(ITickInstant quoteToStore)
     {
-        var currentDateTime = unixEpoch;
-        foreach (var extractTimeType in StorageTypePreferences)
+        var currentDateTime = DefaultDateTime;
+        currentDateTime = quoteToStore.SourceTime;
+        if (currentDateTime == DefaultDateTime)
         {
-            currentDateTime = quoteToStore.SourceTime;
-            if (currentDateTime != defaultDateTime && currentDateTime != unixEpoch) return currentDateTime;
+            throw new ArgumentException("Attempting to store a Quote with no valid time");
         }
 
         return currentDateTime;
@@ -43,7 +41,7 @@ public class QuoteStorageTimeResolver : IQuoteStorageTimeResolver
 
     public DateTime ResolveStorageTime(IPublishableTickInstant quoteToStore)
     {
-        var currentDateTime = unixEpoch;
+        var currentDateTime = DefaultDateTime;
         foreach (var extractTimeType in StorageTypePreferences)
         {
             currentDateTime =
@@ -52,13 +50,17 @@ public class QuoteStorageTimeResolver : IQuoteStorageTimeResolver
                 {
                     SourceTime          => quoteToStore.SourceTime
                   , ClientReceivedTime  => quoteToStore.ClientReceivedTime
-                  , AdapterReceivedTime => quoteToStore is IPublishableLevel1Quote l1Quote ? l1Quote.AdapterReceivedTime : defaultDateTime
-                  , AdapterSentTime     => quoteToStore is IPublishableLevel1Quote l1Quote ? l1Quote.AdapterSentTime : defaultDateTime
-                  , SourceBidTime       => quoteToStore is IPublishableLevel1Quote l1Quote ? l1Quote.SourceBidTime : defaultDateTime
-                  , SourceAskTime       => quoteToStore is IPublishableLevel1Quote l1Quote ? l1Quote.SourceAskTime : defaultDateTime
+                  , AdapterReceivedTime => quoteToStore is IPublishableLevel1Quote l1Quote ? l1Quote.AdapterReceivedTime : DefaultDateTime
+                  , AdapterSentTime     => quoteToStore is IPublishableLevel1Quote l1Quote ? l1Quote.AdapterSentTime : DefaultDateTime
+                  , SourceBidTime       => quoteToStore is IPublishableLevel1Quote l1Quote ? l1Quote.SourceBidTime : DefaultDateTime
+                  , SourceAskTime       => quoteToStore is IPublishableLevel1Quote l1Quote ? l1Quote.SourceAskTime : DefaultDateTime
                   , _                   => quoteToStore.SourceTime
                 };
-            if (currentDateTime != defaultDateTime && currentDateTime != unixEpoch) return currentDateTime;
+            if (currentDateTime != DefaultDateTime) return currentDateTime;
+        }
+        if (currentDateTime == DefaultDateTime)
+        {
+            throw new ArgumentException("Attempting to store a Quote with no valid time");
         }
 
         return currentDateTime;

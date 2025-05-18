@@ -24,7 +24,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 
 public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQMessageDeserializer<T>
-    where T : class, IPQMutableMessage
+    where T : class, IPQMessage
 {
     private const byte SupportFromVersion = 1;
     private const byte SupportToVersion   = 1;
@@ -126,8 +126,8 @@ public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQ
         if (readContext is SocketBufferReadContext sockBuffContext)
         {
             ent.ClientReceivedTime  = sockBuffContext.DetectTimestamp;
-            ent.SocketReceivingTime = sockBuffContext.ReceivingTimestamp;
-            ent.ProcessedTime       = sockBuffContext.DeserializerTime;
+            ent.InboundSocketReceivingTime = sockBuffContext.ReceivingTimestamp;
+            ent.InboundProcessedTime       = sockBuffContext.DeserializerTime;
         }
 
         using var fixedBuffer = readContext.EncodedBuffer!;
@@ -253,7 +253,7 @@ public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQ
         {
             PublishedQuote.FeedSyncStatus = syncStatus;
             if (!ShouldPublish) return;
-            PublishedQuote.DispatchedTime = TimeContext.UtcNow;
+            PublishedQuote.SubscriberDispatchedTime = TimeContext.UtcNow;
             if (tl.Enabled) tl.Add("Ticker", Identifier.InstrumentName);
             detectionToPublishLatencyTraceLogger?.Add(SocketDataLatencyLogger.BeforePublish);
             // ReSharper disable once ForCanBeConvertedToForeach

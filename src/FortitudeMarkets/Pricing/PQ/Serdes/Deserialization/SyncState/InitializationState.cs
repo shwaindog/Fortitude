@@ -11,7 +11,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public class InitializationState<T> : SynchronisingState<T> where T : IPQMutableMessage
+public class InitializationState<T> : SynchronisingState<T> where T : IPQMessage
 {
     public InitializationState(IPQMessagePublishingDeserializer<T> linkedDeserializer)
         : base(linkedDeserializer, QuoteSyncState.InitializationState) { }

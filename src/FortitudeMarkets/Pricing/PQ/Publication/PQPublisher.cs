@@ -9,6 +9,7 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeMarkets.Configuration.ClientServerConfig;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
+using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 #endregion
@@ -21,18 +22,24 @@ public interface IQuotePublisher<in T> : IDisposable where T : IPublishableTickI
     void PublishQuoteUpdate(T quote);
 }
 
-public interface IPQPublisher : IQuotePublisher<IPublishableTickInstant>
+public interface IPQPublisher : IQuotePublisher<IPQPublishableTickInstant>
 {
-    void RegisterTickersWithServer(IMarketConnectionConfig marketConnectionConfig);
+    void RegisterStreamWithServer(IMarketConnectionConfig marketConnectionConfig);
 
     void SetNextSequenceNumberToZero(string ticker);
 
     void SetNextSequenceNumberToFullUpdate(string ticker);
 
-    void PublishQuoteUpdateAs(IPublishableTickInstant quote, PQMessageFlags? withMessageFlags = null);
+    void PublishQuoteUpdateAs(IPQPublishableTickInstant quote, PQMessageFlags? withMessageFlags = null);
 }
 
-public class PQPublisher<T> : IPQPublisher where T : IPQPublishableTickInstant
+public interface IPQMessagePublisher
+{
+    void PublishMessageUpdateAs(IPQMessage quote, PQMessageFlags? withMessageFlags = null);
+    void PublishMessageUpdate(IPQMessage quote);
+}
+
+public class PQPublisher<T> : IPQPublisher where T : IPQMessage
 {
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPublisher<>));
 
@@ -42,7 +49,7 @@ public class PQPublisher<T> : IPQPublisher where T : IPQPublishableTickInstant
 
     public PQPublisher(IPQServer<T> pqServer) => this.pqServer = pqServer;
 
-    public void RegisterTickersWithServer(IMarketConnectionConfig marketConnectionConfig)
+    public void RegisterStreamWithServer(IMarketConnectionConfig marketConnectionConfig)
     {
         pqServer.StartServices();
 
@@ -72,8 +79,8 @@ public class PQPublisher<T> : IPQPublisher where T : IPQPublishableTickInstant
         {
             var now     = TimeContext.UtcNow;
             var picture = pictureKvp.Value;
-            picture.ResetFields();
-            picture.SourceTime         = now;
+            picture.ResetWithTracking();
+            picture.SetPublisherStateToConnectivityStatus(PublisherStates.DisconnectionImmanent, now);
             picture.ClientReceivedTime = now;
             if (picture is IMutablePublishableLevel1Quote pq1) pq1.AdapterSentTime = now;
             pqServer.Publish(picture);
@@ -86,11 +93,28 @@ public class PQPublisher<T> : IPQPublisher where T : IPQPublishableTickInstant
     {
         if (pictures.TryGetValue(ticker, out var pqPicture))
         {
-            pqPicture!.ResetFields();
-            pqPicture.SourceTime         = exchangeTs;
+            pqPicture!.ResetWithTracking();
+            pqPicture.SetPublisherStateToConnectivityStatus(PublisherStates.DisconnectionImmanent, exchangeTs);
             pqPicture.ClientReceivedTime = adapterRecvTs;
             if (pqPicture is IMutablePublishableLevel1Quote pq1) pq1.AdapterSentTime = exchangeSentTs;
             pqServer.Publish(pqPicture);
+        }
+    }
+
+    public void PublishQuoteUpdate(IPublishableTickInstant quote)
+    {
+        PublishQuoteUpdateAs(quote);
+    }
+
+    public void PublishMessageUpdateAs(IPQMessage quote, PQMessageFlags? withMessageFlags = null)
+    {
+        if (pictures.TryGetValue(quote.StreamName, out var pqPicture))
+        {
+            // logger.Info("About to publish quote: {0}", quote);
+            pqPicture!.CopyFrom(quote);
+            pqPicture.OverrideSerializationFlags = withMessageFlags;
+            pqServer.Publish(pqPicture);
+            pqPicture.OverrideSerializationFlags = null;
         }
     }
 
@@ -106,9 +130,26 @@ public class PQPublisher<T> : IPQPublisher where T : IPQPublishableTickInstant
         }
     }
 
-    public void PublishQuoteUpdate(IPublishableTickInstant quote)
+    public void PublishQuoteUpdate(IPQPublishableTickInstant quote)
     {
         PublishQuoteUpdateAs(quote);
+    }
+
+    public void PublishQuoteUpdateAs(IPQPublishableTickInstant quote, PQMessageFlags? withMessageFlags = null)
+    {
+        if (pictures.TryGetValue(quote.SourceTickerInfo!.InstrumentName, out var pqPicture))
+        {
+            // logger.Info("About to publish quote: {0}", quote);
+            pqPicture!.CopyFrom(quote);
+            pqPicture.OverrideSerializationFlags = withMessageFlags;
+            pqServer.Publish(pqPicture);
+            pqPicture.OverrideSerializationFlags = null;
+        }
+    }
+
+    public void PublishMessageUpdate(IPQMessage quote)
+    {
+        PublishMessageUpdateAs(quote);
     }
 
     public void RegisterTickersWithServer(ISourceTickerInfo sourceTickerInfo)

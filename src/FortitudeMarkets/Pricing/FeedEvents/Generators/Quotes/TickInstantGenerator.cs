@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.Generators.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.Generators.MidPrice;
@@ -23,7 +24,6 @@ public abstract class TickInstantGeneratorBase<TDetailLevel> : TickGenerator<TDe
         populateQuote.SourceTime = sourceTime;
         populateQuote.SingleTickValue = decimal.Round(midPriceTimePair.CurrentMid.Mid,
                                                       GenerateQuoteValues.GenerateQuoteInfo.BookGenerationInfo.PriceRoundingDp);
-        populateQuote.IsReplay           = GenerateQuoteValues.IsReplay;
     }
 }
 
@@ -52,10 +52,12 @@ public abstract class PublishableTickInstantGeneratorBase<TDetailLevel> : TickGe
         populateQuote.SourceTime       = sourceTime;
         populateQuote.SingleTickValue = decimal.Round(midPriceTimePair.CurrentMid.Mid,
                                                       GenerateQuoteValues.GenerateQuoteInfo.BookGenerationInfo.PriceRoundingDp);
-        AdapterReceivedDateTime          = GenerateQuoteValues.AdapterReceivedTime;
-        AdapterSentDateTime              = GenerateQuoteValues.AdapterSentTime;
-        populateQuote.ClientReceivedTime = GenerateQuoteValues.ClientReceivedTime;
-        populateQuote.IsReplay           = GenerateQuoteValues.IsReplay;
+        AdapterReceivedDateTime                    = GenerateQuoteValues.AdapterReceivedTime;
+        AdapterSentDateTime                        = GenerateQuoteValues.AdapterSentTime;
+        populateQuote.ClientReceivedTime           = GenerateQuoteValues.ClientReceivedTime;
+
+        // this is required by the WeeklyLevel*QuoteTimeSeriesFileTests to stop AdapterSent time from being updated
+        populateQuote.FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay;
     }
 }
 

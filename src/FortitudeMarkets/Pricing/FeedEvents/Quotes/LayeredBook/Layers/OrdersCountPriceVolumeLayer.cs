@@ -11,23 +11,6 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 
-public interface IOrdersCountPriceVolumeLayer : IPriceVolumeLayer,
-    ICloneable<IOrdersCountPriceVolumeLayer>
-{
-    uint    OrdersCount    { get; }
-    decimal InternalVolume { get; }
-    decimal ExternalVolume { get; }
-
-    new IOrdersCountPriceVolumeLayer Clone();
-}
-
-public interface IMutableOrdersCountPriceVolumeLayer : IOrdersCountPriceVolumeLayer, IMutablePriceVolumeLayer
-{
-    new uint    OrdersCount    { get; set; }
-    new decimal InternalVolume { get; set; }
-
-    new IMutableOrdersCountPriceVolumeLayer Clone();
-}
 
 public class OrdersCountPriceVolumeLayer : PriceVolumeLayer, IMutableOrdersCountPriceVolumeLayer
 {
@@ -81,6 +64,18 @@ public class OrdersCountPriceVolumeLayer : PriceVolumeLayer, IMutableOrdersCount
     IOrdersCountPriceVolumeLayer IOrdersCountPriceVolumeLayer.Clone() => Clone();
 
     public override IMutableOrdersCountPriceVolumeLayer Clone() => new OrdersCountPriceVolumeLayer(this);
+
+    IMutableOrdersCountPriceVolumeLayer ITrackableReset<IMutableOrdersCountPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableOrdersCountPriceVolumeLayer IMutableOrdersCountPriceVolumeLayer.                 ResetWithTracking() => ResetWithTracking();
+
+    public override OrdersCountPriceVolumeLayer ResetWithTracking()
+    {
+        OrdersCount    = 0;
+        InternalVolume = 0;
+        base.ResetWithTracking();
+        return this;
+    }
 
     public override void StateReset()
     {

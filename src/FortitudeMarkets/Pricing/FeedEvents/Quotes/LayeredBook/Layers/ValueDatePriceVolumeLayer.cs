@@ -52,6 +52,17 @@ public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePric
         }
     }
 
+    IMutableValueDatePriceVolumeLayer ITrackableReset<IMutableValueDatePriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableValueDatePriceVolumeLayer IMutableValueDatePriceVolumeLayer.                 ResetWithTracking() => ResetWithTracking();
+
+    public override ValueDatePriceVolumeLayer ResetWithTracking()
+    {
+        ValueDate = DateTime.MinValue;
+        base.ResetWithTracking();
+        return this;
+    }
+
     public override void StateReset()
     {
         base.StateReset();

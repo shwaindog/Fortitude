@@ -13,7 +13,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public class SynchronisingState<T> : SyncStateBase<T> where T : IPQMutableMessage
+public class SynchronisingState<T> : SyncStateBase<T> where T : IPQMessage
 {
     private DateTime lastSyncAttempt;
 

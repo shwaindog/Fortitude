@@ -24,7 +24,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.Publication;
 
-public interface IPQServer<T> : IDisposable where T : IPQMutableMessage
+public interface IPQServer<T> : IDisposable where T : IPQMessage
 {
     bool IsStarted { get; }
     void StartServices();
@@ -35,13 +35,13 @@ public interface IPQServer<T> : IDisposable where T : IPQMutableMessage
     void SetNextSequenceNumberToFullUpdate(string ticker);
 }
 
-public class PQServer<T> : IPQServer<T> where T : class, IPQMutableMessage
+public class PQServer<T> : IPQServer<T> where T : class, IPQMessage
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQServer<T>));
 
     private readonly ISocketDispatcherResolver            dispatcherResolver;
     private readonly IMap<uint, T>                        entities        = new ConcurrentMap<uint, T>();
-    private readonly IDoublyLinkedList<IPQMutableMessage> heartbeatQuotes = new DoublyLinkedList<IPQMutableMessage>();
+    private readonly IDoublyLinkedList<IPQMessage> heartbeatQuotes = new DoublyLinkedList<IPQMessage>();
     private readonly ISyncLock                            heartBeatSync   = new YieldLockLight();
 
     private readonly IMarketConnectionConfig    marketConnectionConfig;
@@ -113,7 +113,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQMutableMessage
     {
         if (entities.TryGetValue(quote.StreamId, out var ent))
         {
-            quote.ResetFields();
+            quote.ResetWithTracking();
             quote.HasUpdates = true;
             Publish(quote);
             entities.Remove(quote.StreamId);
