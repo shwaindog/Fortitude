@@ -14,6 +14,7 @@ using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
+using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
@@ -22,8 +23,8 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 
-public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQuoteDeserializer<T>
-    where T : class, IPQPublishableTickInstant
+public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQMessageDeserializer<T>
+    where T : class, IPQMessage
 {
     private const byte SupportFromVersion = 1;
     private const byte SupportToVersion   = 1;
@@ -34,7 +35,7 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
 
     protected Func<ISourceTickerInfo, T> QuoteFactory;
 
-    protected PQQuoteDeserializerBase
+    protected PQMessageDeserializerBase
     (ISourceTickerInfo tickerPricingSubscriptionConfig,
         PQSerializationFlags serializationFlags = PQSerializationFlags.ForSocketPublish)
     {
@@ -44,7 +45,7 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
         PublishedQuote          = ConcreteFinder.GetConcreteMapping<T>(tickerPricingSubscriptionConfig);
     }
 
-    protected PQQuoteDeserializerBase(PQQuoteDeserializerBase<T> toClone) : base(toClone)
+    protected PQMessageDeserializerBase(PQMessageDeserializerBase<T> toClone) : base(toClone)
     {
         serializationFlags = toClone.serializationFlags;
         Identifier         = toClone.Identifier;
@@ -64,27 +65,27 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
     public T PublishedQuote { get; protected set; }
 
     public ISourceTickerInfo     Identifier { get; }
-    public IPQQuoteDeserializer? Previous   { get; set; }
-    public IPQQuoteDeserializer? Next       { get; set; }
+    public IPQMessageDeserializer? Previous   { get; set; }
+    public IPQMessageDeserializer? Next       { get; set; }
 
 
-    public event Action<IPQQuoteDeserializer>? ReceivedUpdate;
-    public event Action<IPQQuoteDeserializer>? SyncOk;
-    public event Action<IPQQuoteDeserializer>? OutOfSync;
+    public event Action<IPQMessageDeserializer>? ReceivedUpdate;
+    public event Action<IPQMessageDeserializer>? SyncOk;
+    public event Action<IPQMessageDeserializer>? OutOfSync;
 
 
-    public void OnReceivedUpdate(IPQQuoteDeserializer quoteDeserializer)
+    public void OnReceivedUpdate(IPQMessageDeserializer quoteDeserializer)
     {
         var onReceivedUpdate = ReceivedUpdate;
         onReceivedUpdate?.Invoke(quoteDeserializer);
     }
 
-    public void OnSyncOk(IPQQuoteDeserializer quoteDeserializer)
+    public void OnSyncOk(IPQMessageDeserializer quoteDeserializer)
     {
         SyncOk?.Invoke(quoteDeserializer);
     }
 
-    public void OnOutOfSync(IPQQuoteDeserializer quoteDeserializer)
+    public void OnOutOfSync(IPQMessageDeserializer quoteDeserializer)
     {
         OutOfSync?.Invoke(quoteDeserializer);
     }
@@ -119,14 +120,14 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
         });
     }
 
-    public unsafe int UpdateQuote(IMessageBufferContext readContext, T ent, uint sequenceId)
+    public unsafe int UpdateEntity(IMessageBufferContext readContext, T ent, uint sequenceId)
     {
         ent.UpdateComplete();
         if (readContext is SocketBufferReadContext sockBuffContext)
         {
             ent.ClientReceivedTime  = sockBuffContext.DetectTimestamp;
-            ent.SocketReceivingTime = sockBuffContext.ReceivingTimestamp;
-            ent.ProcessedTime       = sockBuffContext.DeserializerTime;
+            ent.InboundSocketReceivingTime = sockBuffContext.ReceivingTimestamp;
+            ent.InboundProcessedTime       = sockBuffContext.DeserializerTime;
         }
 
         using var fixedBuffer = readContext.EncodedBuffer!;
@@ -252,7 +253,7 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
         {
             PublishedQuote.FeedSyncStatus = syncStatus;
             if (!ShouldPublish) return;
-            PublishedQuote.DispatchedTime = TimeContext.UtcNow;
+            PublishedQuote.SubscriberDispatchedTime = TimeContext.UtcNow;
             if (tl.Enabled) tl.Add("Ticker", Identifier.InstrumentName);
             detectionToPublishLatencyTraceLogger?.Add(SocketDataLatencyLogger.BeforePublish);
             // ReSharper disable once ForCanBeConvertedToForeach
@@ -275,7 +276,7 @@ public abstract class PQQuoteDeserializerBase<T> : MessageDeserializer<T>, IPQQu
     // ReSharper disable FieldCanBeMadeReadOnly.Local
     // ReSharper disable StaticMemberInGenericType
     // ReSharper disable InconsistentNaming
-    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteDeserializerBase<>));
+    private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQMessageDeserializerBase<>));
 
     private static IPerfLoggerPool PublishPQQuoteDeserializerLatencyTraceLoggerPool =
         PerfLoggingPoolFactory.Instance.GetLatencyTracingLoggerPool("clientCallback",

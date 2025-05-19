@@ -165,34 +165,34 @@ public class PQQuoteSerializerTests
         deserializerRepository = new PQClientQuoteDeserializerRepository("PQClientTest1", new Recycler());
         deserializerRepository.RegisterDeserializer
             (tickInstantInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQPublishableTickInstant>
+             new PQMessageDeserializer<PQPublishableTickInstant>
                  (new TickerPricingSubscriptionConfig(tickInstantInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (level1Info.SourceTickerId
-           , new PQQuoteDeserializer<PQPublishableLevel1Quote>(new TickerPricingSubscriptionConfig(level1Info, pricingServerConfig)));
+           , new PQMessageDeserializer<PQPublishableLevel1Quote>(new TickerPricingSubscriptionConfig(level1Info, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (valueDateInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQPublishableLevel2Quote>
+             new PQMessageDeserializer<PQPublishableLevel2Quote>
                  (new TickerPricingSubscriptionConfig(valueDateInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (everyLayerInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQPublishableLevel2Quote>
+             new PQMessageDeserializer<PQPublishableLevel2Quote>
                  (new TickerPricingSubscriptionConfig(everyLayerInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (simpleNoRecentlyTradedInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQPublishableLevel3Quote>
+             new PQMessageDeserializer<PQPublishableLevel3Quote>
                  (new TickerPricingSubscriptionConfig(simpleNoRecentlyTradedInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (srcNmLstTrdInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQPublishableLevel3Quote>
+             new PQMessageDeserializer<PQPublishableLevel3Quote>
                  (new TickerPricingSubscriptionConfig(srcNmLstTrdInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (srcQtRfPdGvnVlmInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQPublishableLevel3Quote>
+             new PQMessageDeserializer<PQPublishableLevel3Quote>
                  (new TickerPricingSubscriptionConfig(srcQtRfPdGvnVlmInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
             (trdrLyrTrdrPdGvnVlmDtlsInfo.SourceTickerId,
-             new PQQuoteDeserializer<PQPublishableLevel3Quote>
+             new PQMessageDeserializer<PQPublishableLevel3Quote>
                  (new TickerPricingSubscriptionConfig(trdrLyrTrdrPdGvnVlmDtlsInfo, pricingServerConfig)));
 
         pqClientMessageStreamDecoder = new PQClientMessageStreamDecoder(deserializerRepository);
@@ -271,7 +271,7 @@ public class PQQuoteSerializerTests
                 EncodedBuffer         = readWriteBuffer
               , DispatchLatencyLogger = new PerfLogger("test", TimeSpan.FromSeconds(2), "")
               , DetectTimestamp       = pqQuote.ClientReceivedTime
-              , ReceivingTimestamp    = pqQuote.SocketReceivingTime
+              , ReceivingTimestamp    = pqQuote.InboundSocketReceivingTime
               , DeserializerTime      = frozenDateTime
             };
             var bytesConsumed = pqClientMessageStreamDecoder.Process(sockBuffContext);
@@ -284,10 +284,10 @@ public class PQQuoteSerializerTests
             IPQPublishableTickInstant? clientSideQuote = null;
             switch (deserializedQuote)
             {
-                case IPQQuoteDeserializer<PQPublishableTickInstant> pq0BinaryDeserializer: clientSideQuote = pq0BinaryDeserializer.PublishedQuote; break;
-                case IPQQuoteDeserializer<PQPublishableLevel1Quote> pq1BinaryDeserializer: clientSideQuote = pq1BinaryDeserializer.PublishedQuote; break;
-                case IPQQuoteDeserializer<PQPublishableLevel2Quote> pq2BinaryDeserializer: clientSideQuote = pq2BinaryDeserializer.PublishedQuote; break;
-                case IPQQuoteDeserializer<PQPublishableLevel3Quote> pq3BinaryDeserializer: clientSideQuote = pq3BinaryDeserializer.PublishedQuote; break;
+                case IPQMessageDeserializer<PQPublishableTickInstant> pq0BinaryDeserializer: clientSideQuote = pq0BinaryDeserializer.PublishedQuote; break;
+                case IPQMessageDeserializer<PQPublishableLevel1Quote> pq1BinaryDeserializer: clientSideQuote = pq1BinaryDeserializer.PublishedQuote; break;
+                case IPQMessageDeserializer<PQPublishableLevel2Quote> pq2BinaryDeserializer: clientSideQuote = pq2BinaryDeserializer.PublishedQuote; break;
+                case IPQMessageDeserializer<PQPublishableLevel3Quote> pq3BinaryDeserializer: clientSideQuote = pq3BinaryDeserializer.PublishedQuote; break;
 
                 default: Assert.Fail("Should not reach here"); break;
             }
@@ -295,12 +295,12 @@ public class PQQuoteSerializerTests
             try
             {
                 pqQuote.PQSequenceId   -= 1;
-                pqQuote.ProcessedTime  =  frozenDateTime; //set original to expected time
-                pqQuote.DispatchedTime =  frozenDateTime; //set original to expected time
+                pqQuote.InboundProcessedTime  =  frozenDateTime; //set original to expected time
+                pqQuote.SubscriberDispatchedTime =  frozenDateTime; //set original to expected time
 
                 clientSideQuote.HasUpdates          = false;
                 clientSideQuote.LastPublicationTime = pqQuote.LastPublicationTime; //not sent via serialization
-                clientSideQuote.DispatchedTime      = pqQuote.DispatchedTime;      //set original to expected time
+                clientSideQuote.SubscriberDispatchedTime      = pqQuote.SubscriberDispatchedTime;      //set original to expected time
 
                 clientSideQuote.IsDispatchedTimeDateUpdated    = pqQuote.IsDispatchedTimeDateUpdated;
                 clientSideQuote.IsDispatchedTimeSub2MinUpdated = pqQuote.IsDispatchedTimeSub2MinUpdated;

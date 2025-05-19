@@ -12,19 +12,18 @@ using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
-using FortitudeMarkets.Pricing.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 
-public class PQQuoteDeserializer<T> : PQQuoteDeserializerBase<T>, IPQQuotePublishingDeserializer<T> where T : PQPublishableTickInstant, new()
+public class PQMessageDeserializer<T> : PQMessageDeserializerBase<T>, IPQMessagePublishingDeserializer<T> where T : class, IPQMessage
 {
     public const int MaxBufferedUpdates = 128;
 
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteDeserializer<T>));
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQMessageDeserializer<T>));
 
     private readonly DeserializeStateTransitionFactory<T> stateTransitionFactory;
 
@@ -32,7 +31,7 @@ public class PQQuoteDeserializer<T> : PQQuoteDeserializerBase<T>, IPQQuotePublis
 
     private SyncStateBase<T> currentSyncState;
 
-    public PQQuoteDeserializer(ITickerPricingSubscriptionConfig tickerPricingSubscriptionConfig)
+    public PQMessageDeserializer(ITickerPricingSubscriptionConfig tickerPricingSubscriptionConfig)
         : base(tickerPricingSubscriptionConfig.SourceTickerInfo)
     {
         SyncRetryMs            = tickerPricingSubscriptionConfig.PricingServerConfig.SyncRetryIntervalMs;
@@ -47,8 +46,7 @@ public class PQQuoteDeserializer<T> : PQQuoteDeserializerBase<T>, IPQQuotePublis
         }, true);
     }
 
-
-    public PQQuoteDeserializer(PQQuoteDeserializer<T> toClone) : base(toClone)
+    public PQMessageDeserializer(PQMessageDeserializer<T> toClone) : base(toClone)
     {
         SyncRetryMs            = toClone.SyncRetryMs;
         currentSyncState       = new InitializationState<T>(this);
@@ -68,10 +66,10 @@ public class PQQuoteDeserializer<T> : PQQuoteDeserializerBase<T>, IPQQuotePublis
     {
         if (readContext is IMessageBufferContext bufferContext)
         {
-            if (bufferContext is SocketBufferReadContext dispachContext)
+            if (bufferContext is SocketBufferReadContext dispatchContext)
             {
-                dispachContext.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
-                dispachContext.DeserializerTime = TimeContext.UtcNow;
+                dispatchContext.DispatchLatencyLogger?.Add(SocketDataLatencyLogger.EnterDeserializer);
+                dispatchContext.DeserializerTime = TimeContext.UtcNow;
             }
 
             currentSyncState.ProcessInState(bufferContext);
@@ -110,9 +108,9 @@ public class PQQuoteDeserializer<T> : PQQuoteDeserializerBase<T>, IPQQuotePublis
                     continue;
                 }
 
-                PublishedQuote.CopyFrom((IPublishableTickInstant)ent);
+                PublishedQuote.CopyFrom(ent);
                 PublishedQuote.ClientReceivedTime = ent.ClientReceivedTime;
-                PublishedQuote.ProcessedTime      = ent.ProcessedTime;
+                PublishedQuote.InboundProcessedTime      = ent.InboundProcessedTime;
             }
 
             syncRing.Clear(1);
@@ -127,5 +125,5 @@ public class PQQuoteDeserializer<T> : PQQuoteDeserializerBase<T>, IPQQuotePublis
 
     public override bool CheckResync(DateTime utcNow) => currentSyncState.EligibleForResync(utcNow);
 
-    public override IMessageDeserializer Clone() => new PQQuoteDeserializer<T>(this);
+    public override IMessageDeserializer Clone() => new PQMessageDeserializer<T>(this);
 }

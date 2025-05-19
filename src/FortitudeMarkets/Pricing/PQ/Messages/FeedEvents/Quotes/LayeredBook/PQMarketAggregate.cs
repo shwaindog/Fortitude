@@ -7,7 +7,8 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
 {
-    public interface IPQMarketAggregate : IMutableMarketAggregate, IPQSupportsFieldUpdates<IPQMarketAggregate>, ICloneable<IPQMarketAggregate>
+    public interface IPQMarketAggregate : IMutableMarketAggregate, IPQSupportsNumberPrecisionFieldUpdates<IPQMarketAggregate>
+      , ICloneable<IPQMarketAggregate>, ITrackableReset<IPQMarketAggregate>
     {
         bool IsDataSourceUpdated         { get; set; }
         bool IsVolumeUpdated             { get; set; }
@@ -16,6 +17,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
         bool IsUpdatedSub2MinTimeUpdated { get; set; }
 
         new IPQMarketAggregate Clone();
+        new IPQMarketAggregate ResetWithTracking();
     }
 
     [Flags]
@@ -261,6 +263,18 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
                 yield return new PQFieldUpdate(PQFeedFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateVwap, Vwap,
                                                quotePublicationPrecisionSettings?.PriceScalingPrecision ?? (PQFieldFlags)2);
             }
+        }
+
+        IMutableMarketAggregate ITrackableReset<IMutableMarketAggregate>.ResetWithTracking() => ResetWithTracking();
+
+        IPQMarketAggregate ITrackableReset<IPQMarketAggregate>.ResetWithTracking() => ResetWithTracking();
+
+        IPQMarketAggregate IPQMarketAggregate.                 ResetWithTracking() => ResetWithTracking();
+
+        public PQMarketAggregate ResetWithTracking()
+        {
+            IsEmpty = true;
+            return this;
         }
 
         public override void StateReset()

@@ -6,20 +6,21 @@
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarkets.Pricing.FeedEvents;
+using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public class SynchronisingState<T> : SyncStateBase<T> where T : PQPublishableTickInstant, new()
+public class SynchronisingState<T> : SyncStateBase<T> where T : IPQMessage
 {
     private DateTime lastSyncAttempt;
 
-    protected SynchronisingState(IPQQuotePublishingDeserializer<T> linkedDeserializer, QuoteSyncState state)
+    protected SynchronisingState(IPQMessagePublishingDeserializer<T> linkedDeserializer, QuoteSyncState state)
         : base(linkedDeserializer, state) { }
 
-    public SynchronisingState(IPQQuotePublishingDeserializer<T> linkedDeserializer)
+    public SynchronisingState(IPQMessagePublishingDeserializer<T> linkedDeserializer)
         : base(linkedDeserializer, QuoteSyncState.Synchronising) { }
 
     protected override void ProcessNextExpectedUpdate(IMessageBufferContext bufferContext, uint sequenceId)
@@ -59,7 +60,7 @@ public class SynchronisingState<T> : SyncStateBase<T> where T : PQPublishableTic
     {
         var prevSeqId = LinkedDeserializer.PublishedQuote.PQSequenceId;
         var currSeqId = bufferContext.ReadCurrentMessageSequenceId();
-        LinkedDeserializer.UpdateQuote(bufferContext, LinkedDeserializer.PublishedQuote,
+        LinkedDeserializer.UpdateEntity(bufferContext, LinkedDeserializer.PublishedQuote,
                                        currSeqId);
         uint mismatchedSeqId;
         if (!LinkedDeserializer.Synchronize(out mismatchedSeqId))

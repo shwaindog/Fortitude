@@ -5,6 +5,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 
 #endregion
@@ -40,7 +41,7 @@ public interface IOrderBookSide : IEnumerable<IPriceVolumeLayer>, IReusableObjec
     IPriceVolumeLayer? this[int level] { get; }
 }
 
-public interface IMutableOrderBookSide : IOrderBookSide, ICloneable<IMutableOrderBookSide>
+public interface IMutableOrderBookSide : IOrderBookSide, ICloneable<IMutableOrderBookSide>, ITrackableReset<IMutableOrderBookSide>
 {
     new int Capacity { get; set; }
     

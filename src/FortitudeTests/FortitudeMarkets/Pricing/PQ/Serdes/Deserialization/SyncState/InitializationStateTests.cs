@@ -18,7 +18,7 @@ public class InitializationStateTests : SynchronisingStateTests
 
     protected override void BuildSyncState()
     {
-        syncState = new InitializationState<PQPublishableTickInstant>(pqQuoteStreamDeserializer);
+        syncState = new InitializationState<PQPublishableTickInstant>(PQMessageStreamDeserializer);
     }
 
     [TestMethod]

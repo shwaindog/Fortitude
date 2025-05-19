@@ -16,8 +16,8 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 
-public interface IPQSourceTickerId : ISourceTickerId, IReusableObject<IPQSourceTickerId>
-  , IHasNameIdLookup, IPQSupportsFieldUpdates<IPQSourceTickerId>, IPQSupportsStringUpdates<IPQSourceTickerId>
+public interface IPQSourceTickerId : ISourceTickerId
+  , IHasNameIdLookup, IPQSupportsNumberPrecisionFieldUpdates<IPQSourceTickerId>, IPQSupportsStringUpdates<IPQSourceTickerId>
 {
     new ushort SourceId       { get; set; }
     new ushort InstrumentId   { get; set; }
@@ -33,7 +33,7 @@ public interface IPQSourceTickerId : ISourceTickerId, IReusableObject<IPQSourceT
     new IPQSourceTickerId Clone();
 }
 
-public class PQSourceTickerId : ReusableObject<IPQSourceTickerId>, IPQSourceTickerId
+public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTickerId
 {
     protected uint NumUpdates = uint.MaxValue;
 
@@ -264,12 +264,15 @@ public class PQSourceTickerId : ReusableObject<IPQSourceTickerId>, IPQSourceTick
         return -1;
     }
 
-    public override IPQSourceTickerId CopyFrom(IPQSourceTickerId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override PQSourceTickerId CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        if (copyMergeFlags == CopyMergeFlags.JustDifferences)
+        if (source is IPQSourceTickerInfo pqSrcTkrInfo)
         {
-            if (source.IsSourceUpdated) SourceName     = source.SourceName;
-            if (source.IsTickerUpdated) InstrumentName = source.InstrumentName;
+            if (copyMergeFlags == CopyMergeFlags.JustDifferences)
+            {
+                if (pqSrcTkrInfo.IsSourceUpdated) SourceName     = source.SourceName;
+                if (pqSrcTkrInfo.IsTickerUpdated) InstrumentName = source.InstrumentName;
+            }
         }
         else
         {
@@ -283,11 +286,15 @@ public class PQSourceTickerId : ReusableObject<IPQSourceTickerId>, IPQSourceTick
 
     public override IPQSourceTickerId Clone() => Recycler?.Borrow<PQSourceTickerId>().CopyFrom(this) ?? new PQSourceTickerId(this);
 
-    IReusableObject<ISourceTickerId> ITransferState<IReusableObject<ISourceTickerId>>.CopyFrom
-        (IReusableObject<ISourceTickerId> source, CopyMergeFlags copyMergeFlags) =>
-        (IPQSourceTickerId)CopyFrom((ISourceTickerId)source, copyMergeFlags);
 
     ISourceTickerId ICloneable<ISourceTickerId>.Clone() => Clone();
+    
+    IReusableObject<ISourceTickerId> ITransferState<IReusableObject<ISourceTickerId>>.CopyFrom
+        (IReusableObject<ISourceTickerId> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((ISourceTickerId)source, copyMergeFlags);
+
+    public IPQSourceTickerId CopyFrom(IPQSourceTickerId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => 
+        CopyFrom((ISourceTickerId)source, copyMergeFlags);
 
     ISourceTickerId ITransferState<ISourceTickerId>.CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags)
     {

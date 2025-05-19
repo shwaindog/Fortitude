@@ -5,13 +5,8 @@
 
 using System.Text.Json;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
-using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
-using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
 
@@ -26,19 +21,12 @@ public class TickInstantTests
 
     private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder = null!;
 
-    private ISourceTickerInfo sourceTickerInfo = null!;
 
     [TestInitialize]
     public void SetUp()
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
-        sourceTickerInfo = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", SingleValue, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
-           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
-           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
-                              LastTradedFlags.LastTradedTime);
         emptyQuote                = new TickInstant();
         fullyPopulatedTickInstant = new TickInstant();
         quoteSequencedTestDataBuilder.InitializeQuote(fullyPopulatedTickInstant, 1);
@@ -50,22 +38,19 @@ public class TickInstantTests
     public void EmptyQuote_New_InitializesFieldsAsExpected()
     {
         Assert.AreEqual(DateTime.MinValue, emptyQuote.SourceTime);
-        Assert.AreEqual(false, emptyQuote.IsReplay);
         Assert.AreEqual(0m, emptyQuote.SingleTickValue);
     }
 
     [TestMethod]
-    public void IntializedFromConstructor_New_InitializesFieldsAsExpected()
+    public void InitializedFromConstructor_New_InitializesFieldsAsExpected()
     {
         var expectedSourceTime         = new DateTime(2018, 02, 04, 18, 56, 9);
-        var expectedClientReceivedTime = new DateTime(2018, 02, 04, 19, 56, 9);
 
         var expectedSinglePrice = 1.23456m;
 
-        var fromConstructor = new TickInstant( expectedSinglePrice, true, expectedSourceTime);
+        var fromConstructor = new TickInstant( expectedSinglePrice, expectedSourceTime);
 
         Assert.AreEqual(expectedSourceTime, fromConstructor.SourceTime);
-        Assert.AreEqual(true, fromConstructor.IsReplay);
         Assert.AreEqual(expectedSinglePrice, fromConstructor.SingleTickValue);
     }
 
@@ -86,12 +71,10 @@ public class TickInstantTests
 
         var expectedSingleValue = 1.23456m;
 
-        emptyQuote.IsReplay           = true;
         emptyQuote.SourceTime         = expectedSourceTime;
         emptyQuote.SingleTickValue    = expectedSingleValue;
 
         Assert.AreEqual(expectedSourceTime, emptyQuote.SourceTime);
-        Assert.AreEqual(true, emptyQuote.IsReplay);
         Assert.AreEqual(expectedSingleValue, emptyQuote.SingleTickValue);
     }
 
@@ -151,7 +134,6 @@ public class TickInstantTests
         Assert.IsTrue(toString.Contains(q.GetType().Name));
 
         Assert.IsTrue(toString.Contains($"{nameof(q.SourceTime)}: {q.SourceTime:O}"));
-        Assert.IsTrue(toString.Contains($"{nameof(q.IsReplay)}: {q.IsReplay}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.SingleTickValue)}: {q.SingleTickValue:N5}"));
     }
 
@@ -174,11 +156,6 @@ public class TickInstantTests
         changingQuote.SourceTime = DateTime.Now;
         Assert.IsFalse(commonCompareQuote.AreEquivalent(changingQuote));
         changingQuote.SourceTime = commonCompareQuote.SourceTime;
-        Assert.IsTrue(commonCompareQuote.AreEquivalent(changingQuote));
-
-        changingQuote.IsReplay = !commonCompareQuote.IsReplay;
-        Assert.IsFalse(commonCompareQuote.AreEquivalent(changingQuote));
-        changingQuote.IsReplay = commonCompareQuote.IsReplay;
         Assert.IsTrue(commonCompareQuote.AreEquivalent(changingQuote));
 
         changingQuote.SingleTickValue = 3.4567m;

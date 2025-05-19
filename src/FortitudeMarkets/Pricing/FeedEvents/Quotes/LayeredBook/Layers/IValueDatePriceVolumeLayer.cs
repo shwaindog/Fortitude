@@ -5,6 +5,7 @@
 
 using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -17,10 +18,11 @@ public interface IValueDatePriceVolumeLayer : IPriceVolumeLayer, ICloneable<IVal
 }
 
 public interface IMutableValueDatePriceVolumeLayer : IMutablePriceVolumeLayer, IValueDatePriceVolumeLayer,
-    ICloneable<IMutableValueDatePriceVolumeLayer>
+    ICloneable<IMutableValueDatePriceVolumeLayer>, ITrackableReset<IMutableValueDatePriceVolumeLayer>
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new DateTime ValueDate { get; set; }
 
     new IMutableValueDatePriceVolumeLayer Clone();
+    new IMutableValueDatePriceVolumeLayer ResetWithTracking();
 }

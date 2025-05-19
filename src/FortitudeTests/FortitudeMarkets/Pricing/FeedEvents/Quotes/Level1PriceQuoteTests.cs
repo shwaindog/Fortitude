@@ -50,7 +50,6 @@ public class Level1PriceQuoteTests
     public void EmptyQuote_New_InitializesFieldsAsExpected()
     {
         Assert.AreEqual(DateTime.MinValue, emptyQuote.SourceTime);
-        Assert.AreEqual(false, emptyQuote.IsReplay);
         Assert.AreEqual(0m, emptyQuote.SingleTickValue);
         Assert.AreEqual(DateTime.MinValue, emptyQuote.SourceBidTime);
         Assert.AreEqual(0m, emptyQuote.BidPriceTop);
@@ -75,14 +74,18 @@ public class Level1PriceQuoteTests
 
         var fromConstructor =
             new PublishableLevel1PriceQuote
-                (sourceTickerInfo, expectedSourceTime, true, FeedSyncStatus.Good, expectedSingleValue, expectedClientReceivedTime
-               , expectedAdapterReceiveTime, expectedAdapterSentTime, expectedSourceBidTime
-               , expectedSourceTime, expectedSourceTime.AddSeconds(2), expectedBidPriceTop, true, expectedSourceAskTime, expectedAskPriceTop
-               , true, true, expectedCandle);
+                (sourceTickerInfo, expectedSourceTime, expectedBidPriceTop, expectedAskPriceTop
+               ,true, true, expectedSourceBidTime, expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2), true
+               , FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay, expectedSingleValue, expectedCandle)
+                {
+                    ClientReceivedTime = expectedClientReceivedTime,
+                    AdapterReceivedTime = expectedAdapterReceiveTime,
+                    AdapterSentTime = expectedAdapterSentTime
+                };
 
         Assert.AreSame(sourceTickerInfo, fromConstructor.SourceTickerInfo);
         Assert.AreEqual(expectedSourceTime, fromConstructor.SourceTime);
-        Assert.AreEqual(true, fromConstructor.IsReplay);
+        Assert.AreEqual(FeedConnectivityStatusFlags.IsAdapterReplay, fromConstructor.FeedMarketConnectivityStatus);
         Assert.AreEqual(expectedSingleValue, fromConstructor.SingleTickValue);
         Assert.AreEqual(expectedClientReceivedTime, fromConstructor.ClientReceivedTime);
         Assert.AreEqual(expectedAdapterReceiveTime, fromConstructor.AdapterReceivedTime);
@@ -104,9 +107,8 @@ public class Level1PriceQuoteTests
 
         var nonSourceTickerInfoL1Quote =
             new PublishableLevel1PriceQuote
-                (sourceTickerInfo, DateTime.Now, true, FeedSyncStatus.Good, 1m, DateTime.Now, DateTime.Now
-               , DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now.AddSeconds(2), 1m, true, DateTime.Now
-               , 1m, true, true, pqCandle);
+                (sourceTickerInfo, DateTime.Now, 1m, 1m, true, true, DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now.AddSeconds(2), true
+               , FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay, 1m, pqCandle);
 
         Assert.IsInstanceOfType(nonSourceTickerInfoL1Quote.ConflatedTicksCandle, typeof(Candle));
     }
@@ -151,7 +153,6 @@ public class Level1PriceQuoteTests
         var expectedAskPriceTop        = 3.45678m;
 
         emptyQuote.SourceTime           = expectedSourceTime;
-        emptyQuote.IsReplay             = true;
         emptyQuote.SingleTickValue      = expectedSingleValue;
         emptyQuote.SourceBidTime        = expectedSourceBidTime;
         emptyQuote.BidPriceTop          = expectedBidPriceTop;
@@ -162,7 +163,6 @@ public class Level1PriceQuoteTests
         emptyQuote.Executable           = true;
 
         Assert.AreEqual(expectedSourceTime, emptyQuote.SourceTime);
-        Assert.AreEqual(true, emptyQuote.IsReplay);
         Assert.AreEqual(expectedSingleValue, emptyQuote.SingleTickValue);
         Assert.AreEqual(expectedSourceBidTime, emptyQuote.SourceBidTime);
         Assert.AreEqual(expectedBidPriceTop, emptyQuote.BidPriceTop);
@@ -230,7 +230,7 @@ public class Level1PriceQuoteTests
     public void OneDifferenceAtATime_AreEquivalent_ReturnsExpected()
     {
         AssertAreEquivalentMeetsExpectedExactComparisonType
-            (false, fullyPopulatedLevel1Quote, (IMutableLevel1Quote)fullyPopulatedLevel1Quote.Clone());
+            (false, fullyPopulatedLevel1Quote, fullyPopulatedLevel1Quote.Clone());
     }
 
     [TestMethod]
@@ -260,7 +260,6 @@ public class Level1PriceQuoteTests
         Assert.IsTrue(toString.Contains(q.GetType().Name));
 
         Assert.IsTrue(toString.Contains($"{nameof(q.SourceTime)}: {q.SourceTime:O}"));
-        Assert.IsTrue(toString.Contains($"{nameof(q.IsReplay)}: {q.IsReplay}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.SingleTickValue)}: {q.SingleTickValue:N5}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.SourceBidTime)}: {q.SourceBidTime:O}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.BidPriceTop)}: {q.BidPriceTop:N5}"));
@@ -324,8 +323,6 @@ public static class Level1PriceQuoteTestExtensions
 
         var bid1 = mid - halfSpread;
         var ask1 = mid + halfSpread;
-        return new Level1PriceQuote(0m, false, sourceTime, sourceTime, sourceTime, sourceTime
-           , bid1, false, sourceTime
-           , ask1, false, true);
+        return new Level1PriceQuote(sourceTime, bid1, ask1, false, false, sourceTime, sourceTime, sourceTime, sourceTime);
     }
 }

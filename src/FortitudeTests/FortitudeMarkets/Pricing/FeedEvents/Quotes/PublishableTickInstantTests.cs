@@ -53,7 +53,7 @@ public class PublishableTickInstantTests
     {
         Assert.AreSame(sourceTickerInfo, emptyQuote.SourceTickerInfo);
         Assert.AreEqual(DateTime.MinValue, emptyQuote.SourceTime);
-        Assert.AreEqual(false, emptyQuote.IsReplay);
+        Assert.AreEqual(FeedConnectivityStatusFlags.None, emptyQuote.FeedMarketConnectivityStatus);
         Assert.AreEqual(0m, emptyQuote.SingleTickValue);
         Assert.AreEqual(DateTime.MinValue, emptyQuote.ClientReceivedTime);
     }
@@ -67,11 +67,14 @@ public class PublishableTickInstantTests
         var expectedSinglePrice = 1.23456m;
 
         var fromConstructor = new PublishableTickInstant
-            (sourceTickerInfo, expectedSourceTime, true, FeedSyncStatus.Good, expectedSinglePrice, expectedClientReceivedTime);
+            (sourceTickerInfo,  expectedSinglePrice, expectedSourceTime, FeedSyncStatus.Good)
+            {
+                ClientReceivedTime = expectedClientReceivedTime
+            };
 
         Assert.AreSame(sourceTickerInfo, fromConstructor.SourceTickerInfo);
         Assert.AreEqual(expectedSourceTime, fromConstructor.SourceTime);
-        Assert.AreEqual(true, fromConstructor.IsReplay);
+        Assert.AreEqual(FeedSyncStatus.Good, fromConstructor.FeedSyncStatus);
         Assert.AreEqual(expectedSinglePrice, fromConstructor.SingleTickValue);
         Assert.AreEqual(expectedClientReceivedTime, fromConstructor.ClientReceivedTime);
     }
@@ -113,14 +116,14 @@ public class PublishableTickInstantTests
 
         var expectedSingleValue = 1.23456m;
 
-        emptyQuote.IsReplay           = true;
-        emptyQuote.SourceTime         = expectedSourceTime;
-        emptyQuote.ClientReceivedTime = expectedClientReceivedTime;
-        emptyQuote.SingleTickValue    = expectedSingleValue;
+        emptyQuote.FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay;
+        emptyQuote.SourceTime                   = expectedSourceTime;
+        emptyQuote.ClientReceivedTime           = expectedClientReceivedTime;
+        emptyQuote.SingleTickValue              = expectedSingleValue;
 
         Assert.AreSame(sourceTickerInfo, emptyQuote.SourceTickerInfo);
         Assert.AreEqual(expectedSourceTime, emptyQuote.SourceTime);
-        Assert.AreEqual(true, emptyQuote.IsReplay);
+        Assert.AreEqual(FeedConnectivityStatusFlags.IsAdapterReplay, emptyQuote.FeedMarketConnectivityStatus);
         Assert.AreEqual(expectedSingleValue, emptyQuote.SingleTickValue);
         Assert.AreEqual(expectedClientReceivedTime, emptyQuote.ClientReceivedTime);
     }
@@ -182,7 +185,7 @@ public class PublishableTickInstantTests
 
         Assert.IsTrue(toString.Contains($"{nameof(q.SourceTickerInfo)}: {q.SourceTickerInfo}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.SourceTime)}: {q.SourceTime:O}"));
-        Assert.IsTrue(toString.Contains($"{nameof(q.IsReplay)}: {q.IsReplay}"));
+        Assert.IsTrue(toString.Contains($"{nameof(q.FeedMarketConnectivityStatus)}: {q.FeedMarketConnectivityStatus}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.SingleTickValue)}: {q.SingleTickValue:N5}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.ClientReceivedTime)}: {q.ClientReceivedTime:O}"));
     }
@@ -215,9 +218,9 @@ public class PublishableTickInstantTests
         changingQuote.SourceTime = commonCompareQuote.SourceTime;
         Assert.IsTrue(commonCompareQuote.AreEquivalent(changingQuote));
 
-        changingQuote.IsReplay = !commonCompareQuote.IsReplay;
+        changingQuote.FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.FromSourceSnapshot;
         Assert.IsFalse(commonCompareQuote.AreEquivalent(changingQuote));
-        changingQuote.IsReplay = commonCompareQuote.IsReplay;
+        changingQuote.FeedMarketConnectivityStatus = commonCompareQuote.FeedMarketConnectivityStatus;
         Assert.IsTrue(commonCompareQuote.AreEquivalent(changingQuote));
 
         changingQuote.SingleTickValue = 3.4567m;

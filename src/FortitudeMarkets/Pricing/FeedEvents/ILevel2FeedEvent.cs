@@ -3,7 +3,7 @@
 namespace FortitudeMarkets.Pricing.FeedEvents;
 
 
-public interface ILevel2FeedEvent : IPricedFeedEventUpdate<ILevel2Quote>, ILevel1FeedEvent
+public interface ILevel2FeedEvent : IPricedQuoteFeedEventUpdate<ILevel2Quote>, ILevel1FeedEvent
 {
     new ILevel2Quote Quote { get; set; }
 

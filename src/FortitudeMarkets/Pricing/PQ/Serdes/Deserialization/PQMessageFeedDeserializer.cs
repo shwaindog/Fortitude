@@ -12,6 +12,7 @@ using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
+using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
@@ -19,18 +20,18 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 
-internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T : class, IPQPublishableTickInstant
+internal class PQMessageFeedDeserializer<T> : PQMessageDeserializerBase<T> where T : class, IPQMessage
 {
-    protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQQuoteFeedDeserializer<T>));
+    protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQMessageFeedDeserializer<T>));
 
     private bool feedIsStopped = true;
 
-    public PQQuoteFeedDeserializer(ISourceTickerInfo identifier) : base(identifier)
+    public PQMessageFeedDeserializer(ISourceTickerInfo identifier) : base(identifier)
     {
         if (!string.IsNullOrEmpty(identifier.InstrumentName)) throw new ArgumentException("Expected no ticker to be specified.");
     }
 
-    public PQQuoteFeedDeserializer(PQQuoteFeedDeserializer<T> toClone) : base(toClone) { }
+    public PQMessageFeedDeserializer(PQMessageFeedDeserializer<T> toClone) : base(toClone) { }
 
     protected override bool ShouldPublish => true;
 
@@ -49,7 +50,7 @@ internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T :
 
             var ptr        = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
             var sequenceId = StreamByteOps.ToUInt(ref ptr);
-            UpdateQuote(bufferContext, PublishedQuote, sequenceId);
+            UpdateEntity(bufferContext, PublishedQuote, sequenceId);
             PushQuoteToSubscribers(FeedSyncStatus.Good, sockBuffContext?.DispatchLatencyLogger);
             if (feedIsStopped)
                 OnSyncOk(this);
@@ -75,5 +76,5 @@ internal class PQQuoteFeedDeserializer<T> : PQQuoteDeserializerBase<T> where T :
         return true;
     }
 
-    public override IMessageDeserializer Clone() => new PQQuoteFeedDeserializer<T>(this);
+    public override IMessageDeserializer Clone() => new PQMessageFeedDeserializer<T>(this);
 }

@@ -1,5 +1,6 @@
 ﻿using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.Accounts;
 
@@ -7,6 +8,6 @@ public interface IPublishedAccounts : IReusableObject<IPublishedAccounts>, IInte
 {
 }
 
-public interface IMutablePublishedAccounts : IPublishedAccounts
+public interface IMutablePublishedAccounts : IPublishedAccounts, ITrackableReset<IMutablePublishedAccounts>, IEmptyable 
 {
 }

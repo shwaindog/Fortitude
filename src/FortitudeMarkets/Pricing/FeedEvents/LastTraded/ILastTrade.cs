@@ -6,6 +6,7 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
 #endregion
@@ -18,7 +19,7 @@ namespace FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 [JsonDerivedType(typeof(PQLastTrade))]
 [JsonDerivedType(typeof(PQLastPaidGivenTrade))]
 [JsonDerivedType(typeof(PQLastTraderPaidGivenTrade))]
-public interface ILastTrade : IReusableObject<ILastTrade>, IInterfacesComparable<ILastTrade>
+public interface ILastTrade : IReusableObject<ILastTrade>, IInterfacesComparable<ILastTrade>, IShowsEmpty
 {
     [JsonIgnore] LastTradeType   LastTradeType           { get; }
     [JsonIgnore] LastTradedFlags SupportsLastTradedFlags { get; }
@@ -29,16 +30,12 @@ public interface ILastTrade : IReusableObject<ILastTrade>, IInterfacesComparable
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     decimal TradePrice { get; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    bool IsEmpty { get; }
 }
 
-public interface IMutableLastTrade : ILastTrade
+public interface IMutableLastTrade : ILastTrade, ITrackableReset<IMutableLastTrade>, IEmptyable
 {
     new DateTime TradeTime  { get; set; }
     new decimal  TradePrice { get; set; }
-    new bool     IsEmpty    { get; set; }
 
     new IMutableLastTrade Clone();
 }

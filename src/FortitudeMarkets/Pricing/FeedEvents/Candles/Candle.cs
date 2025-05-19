@@ -18,8 +18,8 @@ namespace FortitudeMarkets.Pricing.FeedEvents.Candles;
 
 public struct CandleValue
 {
-    public TimeBoundaryPeriod      CandlePeriod;
-    public CandleFlags CandleFlags;
+    public TimeBoundaryPeriod CandlePeriod;
+    public CandleFlags        CandleFlags;
 
     public DateTime SummaryStartTime;
     public DateTime SummaryEndTime;
@@ -70,7 +70,7 @@ public class Candle : ReusableObject<ICandle>, IMutableCandle, IDoublyLinkedList
         EndAskPrice        = endAskPrice;
         TickCount          = tickCount;
         PeriodVolume       = periodVolume;
-        CandleFlags = candleFlags;
+        CandleFlags        = candleFlags;
         AverageBidPrice    = averageBidPrice;
         AverageAskPrice    = averageAskPrice;
     }
@@ -90,13 +90,12 @@ public class Candle : ReusableObject<ICandle>, IMutableCandle, IDoublyLinkedList
         EndAskPrice        = toClone.EndBidAsk.AskPrice;
         TickCount          = toClone.TickCount;
         PeriodVolume       = toClone.PeriodVolume;
-        CandleFlags = toClone.CandleFlags;
+        CandleFlags        = toClone.CandleFlags;
         AverageBidPrice    = toClone.AverageBidAsk.BidPrice;
         AverageAskPrice    = toClone.AverageBidAsk.AskPrice;
     }
 
-    public override Candle Clone() =>
-        Recycler?.Borrow<Candle>().CopyFrom(this) as Candle ?? new Candle(this);
+    public override Candle Clone() => Recycler?.Borrow<Candle>().CopyFrom(this) as Candle ?? new Candle(this);
 
     [JsonIgnore]
     public Candle? Previous
@@ -124,7 +123,7 @@ public class Candle : ReusableObject<ICandle>, IMutableCandle, IDoublyLinkedList
                                    EndBidPrice == decimal.Zero && EndAskPrice == decimal.Zero &&
                                    AverageBidPrice == decimal.Zero && AverageAskPrice == decimal.Zero;
             var tickCountAndVolumeZero = TickCount == 0 && PeriodVolume == 0;
-            var candlePeriodNone      = TimeBoundaryPeriod == TimeBoundaryPeriod.Tick;
+            var candlePeriodNone       = TimeBoundaryPeriod == TimeBoundaryPeriod.Tick;
             var summaryFlagsNone       = CandleFlags == CandleFlags.None;
             var startEndTimeUnixEpoch  = PeriodStartTime == DateTime.MinValue && PeriodEndTime == DateTime.MinValue;
             return pricesAreAllZero && tickCountAndVolumeZero && candlePeriodNone && startEndTimeUnixEpoch && summaryFlagsNone;
@@ -137,7 +136,7 @@ public class Candle : ReusableObject<ICandle>, IMutableCandle, IDoublyLinkedList
             TickCount          = 0;
             PeriodVolume       = 0;
             TimeBoundaryPeriod = TimeBoundaryPeriod.Tick;
-            CandleFlags = CandleFlags.None;
+            CandleFlags        = CandleFlags.None;
             PeriodStartTime    = PeriodEndTime = DateTime.MinValue;
         }
     }
@@ -159,8 +158,8 @@ public class Candle : ReusableObject<ICandle>, IMutableCandle, IDoublyLinkedList
         return totalCompletePercentage;
     }
 
-    public CandleFlags CandleFlags { get; set; }
-    public TimeBoundaryPeriod      TimeBoundaryPeriod { get; set; }
+    public CandleFlags        CandleFlags        { get; set; }
+    public TimeBoundaryPeriod TimeBoundaryPeriod { get; set; }
 
     public DateTime PeriodStartTime { get; set; }
     public DateTime PeriodEndTime   { get; set; }
@@ -197,8 +196,7 @@ public class Candle : ReusableObject<ICandle>, IMutableCandle, IDoublyLinkedList
         return PeriodEndTime;
     }
 
-    ICandle ITransferState<ICandle>.CopyFrom(ICandle source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom((IMutableCandle)source, copyMergeFlags);
+    ICandle ITransferState<ICandle>.CopyFrom(ICandle source, CopyMergeFlags copyMergeFlags) => CopyFrom((IMutableCandle)source, copyMergeFlags);
 
     IReusableObject<ICandle> ITransferState<IReusableObject<ICandle>>.CopyFrom
         (IReusableObject<ICandle> source, CopyMergeFlags copyMergeFlags) =>
@@ -214,28 +212,53 @@ public class Candle : ReusableObject<ICandle>, IMutableCandle, IDoublyLinkedList
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
-        var timeFrameSame          = TimeBoundaryPeriod == other.TimeBoundaryPeriod;
-        var startTimeSame          = PeriodStartTime.Equals(other.PeriodStartTime);
-        var endTimeSame            = PeriodEndTime.Equals(other.PeriodEndTime);
-        var startBidPriceSame      = StartBidPrice == other.StartBidAsk.BidPrice;
-        var startAskPriceSame      = StartAskPrice == other.StartBidAsk.AskPrice;
-        var highestBidPriceSame    = HighestBidPrice == other.HighestBidAsk.BidPrice;
-        var highestAskPriceSame    = HighestAskPrice == other.HighestBidAsk.AskPrice;
-        var lowestBidPriceSame     = LowestBidPrice == other.LowestBidAsk.BidPrice;
-        var lowestAskPriceSame     = LowestAskPrice == other.LowestBidAsk.AskPrice;
-        var endBidPriceSame        = EndBidPrice == other.EndBidAsk.BidPrice;
-        var endAskPriceSame        = EndAskPrice == other.EndBidAsk.AskPrice;
-        var tickCountSame          = TickCount == other.TickCount;
-        var periodVolumeSame       = PeriodVolume == other.PeriodVolume;
-        var candleFlagsSame = CandleFlags == other.CandleFlags;
-        var averageBidPriceSame    = AverageBidPrice == other.AverageBidAsk.BidPrice;
-        var averageAskPriceSame    = AverageAskPrice == other.AverageBidAsk.AskPrice;
+        var timeFrameSame       = TimeBoundaryPeriod == other.TimeBoundaryPeriod;
+        var startTimeSame       = PeriodStartTime.Equals(other.PeriodStartTime);
+        var endTimeSame         = PeriodEndTime.Equals(other.PeriodEndTime);
+        var startBidPriceSame   = StartBidPrice == other.StartBidAsk.BidPrice;
+        var startAskPriceSame   = StartAskPrice == other.StartBidAsk.AskPrice;
+        var highestBidPriceSame = HighestBidPrice == other.HighestBidAsk.BidPrice;
+        var highestAskPriceSame = HighestAskPrice == other.HighestBidAsk.AskPrice;
+        var lowestBidPriceSame  = LowestBidPrice == other.LowestBidAsk.BidPrice;
+        var lowestAskPriceSame  = LowestAskPrice == other.LowestBidAsk.AskPrice;
+        var endBidPriceSame     = EndBidPrice == other.EndBidAsk.BidPrice;
+        var endAskPriceSame     = EndAskPrice == other.EndBidAsk.AskPrice;
+        var tickCountSame       = TickCount == other.TickCount;
+        var periodVolumeSame    = PeriodVolume == other.PeriodVolume;
+        var candleFlagsSame     = CandleFlags == other.CandleFlags;
+        var averageBidPriceSame = AverageBidPrice == other.AverageBidAsk.BidPrice;
+        var averageAskPriceSame = AverageAskPrice == other.AverageBidAsk.AskPrice;
 
         var allAreSame = timeFrameSame && startTimeSame && endTimeSame && startBidPriceSame && startAskPriceSame
                       && highestBidPriceSame && highestAskPriceSame && lowestBidPriceSame && lowestAskPriceSame && endBidPriceSame
                       && endAskPriceSame && tickCountSame && periodVolumeSame && candleFlagsSame && averageBidPriceSame
                       && averageAskPriceSame;
         return allAreSame;
+    }
+
+    IMutableCandle ITrackableReset<IMutableCandle>.ResetWithTracking() => ResetWithTracking();
+
+    public Candle ResetWithTracking()
+    {
+        CandleFlags        = CandleFlags.None;
+        TimeBoundaryPeriod = TimeBoundaryPeriod.Tick;
+        PeriodStartTime    = DateTime.MinValue;
+        PeriodEndTime      = DateTime.MinValue;
+
+        StartBidPrice   = 0m;
+        StartAskPrice   = 0m;
+        HighestBidPrice = 0m;
+        HighestAskPrice = 0m;
+        LowestBidPrice  = 0m;
+        LowestAskPrice  = 0m;
+        EndBidPrice     = 0m;
+        EndAskPrice     = 0m;
+        AverageBidPrice = 0m;
+        AverageAskPrice = 0m;
+        TickCount    = 0;
+        PeriodVolume = 0;
+
+        return this;
     }
 
     public override void StateReset()
@@ -265,7 +288,7 @@ public class Candle : ReusableObject<ICandle>, IMutableCandle, IDoublyLinkedList
         EndAskPrice        = endAskPrice;
         TickCount          = tickCount;
         PeriodVolume       = periodVolume;
-        CandleFlags = candleFlags;
+        CandleFlags        = candleFlags;
         AverageBidPrice    = averageBidPrice;
         AverageAskPrice    = averageAskPrice;
     }
@@ -285,7 +308,7 @@ public class Candle : ReusableObject<ICandle>, IMutableCandle, IDoublyLinkedList
         EndAskPrice        = toClone.EndBidAsk.AskPrice;
         TickCount          = toClone.TickCount;
         PeriodVolume       = toClone.PeriodVolume;
-        CandleFlags = toClone.CandleFlags;
+        CandleFlags        = toClone.CandleFlags;
         AverageBidPrice    = toClone.AverageBidAsk.BidPrice;
         AverageAskPrice    = toClone.AverageBidAsk.AskPrice;
     }
@@ -305,7 +328,7 @@ public class Candle : ReusableObject<ICandle>, IMutableCandle, IDoublyLinkedList
         EndAskPrice        = source.EndBidAsk.AskPrice;
         TickCount          = source.TickCount;
         PeriodVolume       = source.PeriodVolume;
-        CandleFlags = source.CandleFlags;
+        CandleFlags        = source.CandleFlags;
         AverageBidPrice    = source.AverageBidAsk.BidPrice;
         AverageAskPrice    = source.AverageBidAsk.AskPrice;
         return this;

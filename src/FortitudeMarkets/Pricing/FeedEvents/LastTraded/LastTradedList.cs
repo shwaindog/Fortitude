@@ -116,6 +116,17 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
         return index;
     }
 
+    IMutableLastTradedList ITrackableReset<IMutableLastTradedList>.ResetWithTracking() => ResetWithTracking();
+
+    public virtual LastTradedList ResetWithTracking()
+    {
+        foreach (var mutableLastTrade in LastTrades)
+        {
+            mutableLastTrade?.ResetWithTracking();
+        }
+        return this;
+    }
+
     public override void StateReset()
     {
         LastTrades.Clear();

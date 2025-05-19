@@ -20,10 +20,10 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles;
 
-public interface IPQCandle : IMutableCandle, IPQSupportsFieldUpdates<ICandle>
-  , IDoublyLinkedListNode<IPQCandle>
+public interface IPQCandle : IMutableCandle, IPQSupportsNumberPrecisionFieldUpdates<ICandle>
+  , IDoublyLinkedListNode<IPQCandle>, ITrackableReset<IPQCandle>
 {
-    [JsonIgnore] bool IsCandlePeriodUpdated    { get; set; }
+    [JsonIgnore] bool IsCandlePeriodUpdated     { get; set; }
     [JsonIgnore] bool IsStartTimeDateUpdated    { get; set; }
     [JsonIgnore] bool IsStartTimeSub2MinUpdated { get; set; }
     [JsonIgnore] bool IsEndTimeDateUpdated      { get; set; }
@@ -38,15 +38,16 @@ public interface IPQCandle : IMutableCandle, IPQSupportsFieldUpdates<ICandle>
     [JsonIgnore] bool IsEndAskPriceUpdated      { get; set; }
     [JsonIgnore] bool IsTickCountUpdated        { get; set; }
 
-    [JsonIgnore] bool IsPeriodVolumeUpdated            { get; set; }
-    [JsonIgnore] bool IsCandleFlagsUpdated { get; set; }
-    [JsonIgnore] bool IsAverageBidPriceUpdated         { get; set; }
-    [JsonIgnore] bool IsAverageAskPriceUpdated         { get; set; }
+    [JsonIgnore] bool IsPeriodVolumeUpdated    { get; set; }
+    [JsonIgnore] bool IsCandleFlagsUpdated     { get; set; }
+    [JsonIgnore] bool IsAverageBidPriceUpdated { get; set; }
+    [JsonIgnore] bool IsAverageAskPriceUpdated { get; set; }
 
     [JsonIgnore] new IPQCandle? Previous { get; set; }
     [JsonIgnore] new IPQCandle? Next     { get; set; }
 
     new IPQCandle Clone();
+    new IPQCandle ResetWithTracking();
 }
 
 public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
@@ -70,7 +71,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
     private DateTime startTime = DateTime.MinValue;
     private uint     tickCount;
 
-    private TimeBoundaryPeriod        timeBoundaryPeriod;
+    private TimeBoundaryPeriod timeBoundaryPeriod;
     private CandleUpdatedFlags updatedFlags;
 
     public PQCandle()
@@ -93,15 +94,14 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         EndAskPrice        = toClone.EndBidAsk.AskPrice;
         TickCount          = toClone.TickCount;
         PeriodVolume       = toClone.PeriodVolume;
-        CandleFlags = toClone.CandleFlags;
+        CandleFlags        = toClone.CandleFlags;
         AverageBidPrice    = toClone.AverageBidAsk.BidPrice;
         AverageAskPrice    = toClone.AverageBidAsk.AskPrice;
 
         if (GetType() == typeof(PQCandle)) NumUpdatesSinceEmpty = 0;
     }
 
-    public override PQCandle Clone() =>
-        Recycler?.Borrow<PQCandle>().CopyFrom(this) as PQCandle ?? new PQCandle(this);
+    public override PQCandle Clone() => Recycler?.Borrow<PQCandle>().CopyFrom(this) as PQCandle ?? new PQCandle(this);
 
 
     public TimeBoundaryPeriod TimeBoundaryPeriod
@@ -110,7 +110,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         set
         {
             IsCandlePeriodUpdated = timeBoundaryPeriod != value || NumUpdatesSinceEmpty == 0;
-            timeBoundaryPeriod     = value;
+            timeBoundaryPeriod    = value;
         }
     }
 
@@ -124,7 +124,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
                                    EndBidPrice == decimal.Zero && EndAskPrice == decimal.Zero &&
                                    AverageBidPrice == decimal.Zero && AverageAskPrice == decimal.Zero;
             var tickCountAndVolumeZero = TickCount == 0 && PeriodVolume == 0;
-            var candlePeriodNone      = TimeBoundaryPeriod == TimeBoundaryPeriod.Tick;
+            var candlePeriodNone       = TimeBoundaryPeriod == TimeBoundaryPeriod.Tick;
             var summaryFlagsNone       = CandleFlags == CandleFlags.None;
             var startEndTimeUnixEpoch  = PeriodStartTime == DateTime.MinValue && PeriodEndTime == DateTime.MinValue;
             return pricesAreAllZero && tickCountAndVolumeZero && candlePeriodNone && startEndTimeUnixEpoch && summaryFlagsNone;
@@ -137,7 +137,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
             TickCount          = 0;
             PeriodVolume       = 0;
             TimeBoundaryPeriod = TimeBoundaryPeriod.Tick;
-            CandleFlags = CandleFlags.None;
+            CandleFlags        = CandleFlags.None;
             PeriodStartTime    = PeriodEndTime = DateTime.MinValue;
 
             NumUpdatesSinceEmpty = 0;
@@ -169,7 +169,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         set
         {
             IsCandleFlagsUpdated = candleFlags != value || NumUpdatesSinceEmpty == 0;
-            candleFlags               = value;
+            candleFlags          = value;
         }
     }
 
@@ -615,16 +615,20 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Update) > 0;
-        if (!updatedOnly || IsCandlePeriodUpdated) yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQPricingSubFieldKeys.CandlePeriod, (uint)timeBoundaryPeriod);
+        if (!updatedOnly || IsCandlePeriodUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQPricingSubFieldKeys.CandlePeriod, (uint)timeBoundaryPeriod);
         if (!updatedOnly || IsStartTimeDateUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQPricingSubFieldKeys.CandleStartDateTime, startTime.Get2MinIntervalsFromUnixEpoch());
+            yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQPricingSubFieldKeys.CandleStartDateTime
+                                         , startTime.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsStartTimeSub2MinUpdated)
         {
             var fifthByte = startTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerFourBytes);
             yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQPricingSubFieldKeys.CandleStartSub2MinTime, lowerFourBytes, fifthByte);
         }
 
-        if (!updatedOnly || IsEndTimeDateUpdated) yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQPricingSubFieldKeys.CandleEndDateTime, endTime.Get2MinIntervalsFromUnixEpoch());
+        if (!updatedOnly || IsEndTimeDateUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQPricingSubFieldKeys.CandleEndDateTime
+                                         , endTime.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsEndTimeSub2MinUpdated)
         {
             var fifthByte = endTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lowerFourBytes);
@@ -635,13 +639,14 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
             yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQPricingSubFieldKeys.CandleStartPrice, StartBidPrice,
                                            quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsStartAskPriceUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQDepthKey.AskSide, PQPricingSubFieldKeys.CandleStartPrice,  StartAskPrice
+            yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQDepthKey.AskSide, PQPricingSubFieldKeys.CandleStartPrice, StartAskPrice
                                          , quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsHighestBidPriceUpdated)
             yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQPricingSubFieldKeys.CandleHighestPrice, HighestBidPrice,
                                            quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsHighestAskPriceUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQDepthKey.AskSide, PQPricingSubFieldKeys.CandleHighestPrice, HighestAskPrice
+            yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQDepthKey.AskSide, PQPricingSubFieldKeys.CandleHighestPrice
+                                         , HighestAskPrice
                                          , quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsLowestBidPriceUpdated)
             yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQPricingSubFieldKeys.CandleLowestPrice, LowestBidPrice,
@@ -655,8 +660,10 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         if (!updatedOnly || IsEndAskPriceUpdated)
             yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQDepthKey.AskSide, PQPricingSubFieldKeys.CandleEndPrice, EndAskPrice
                                          , quotePublicationPrecisionSettings!.PriceScalingPrecision);
-        if (!updatedOnly || IsTickCountUpdated) yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQPricingSubFieldKeys.CandleTickCount, TickCount);
-        if (!updatedOnly || IsPeriodVolumeUpdated) yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQPricingSubFieldKeys.CandleVolume, PeriodVolume);
+        if (!updatedOnly || IsTickCountUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQPricingSubFieldKeys.CandleTickCount, TickCount);
+        if (!updatedOnly || IsPeriodVolumeUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQPricingSubFieldKeys.CandleVolume, PeriodVolume);
 
         if (!updatedOnly || IsCandleFlagsUpdated)
         {
@@ -668,7 +675,8 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
             yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQPricingSubFieldKeys.CandleAveragePrice, AverageBidPrice,
                                            quotePublicationPrecisionSettings!.PriceScalingPrecision);
         if (!updatedOnly || IsAverageAskPriceUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQDepthKey.AskSide, PQPricingSubFieldKeys.CandleAveragePrice,  AverageAskPrice
+            yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQDepthKey.AskSide, PQPricingSubFieldKeys.CandleAveragePrice
+                                         , AverageAskPrice
                                          , quotePublicationPrecisionSettings!.PriceScalingPrecision);
     }
 
@@ -677,30 +685,30 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         switch (pqFieldUpdate.PricingSubId)
         {
             case PQPricingSubFieldKeys.CandlePeriod:
-                TimeBoundaryPeriod     = (TimeBoundaryPeriod)pqFieldUpdate.Payload;
+                TimeBoundaryPeriod    = (TimeBoundaryPeriod)pqFieldUpdate.Payload;
                 IsCandlePeriodUpdated = true;
                 return 0;
             case PQPricingSubFieldKeys.CandleStartDateTime:
                 IsStartTimeDateUpdated = true;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref startTime, pqFieldUpdate.Payload);
-                if(startTime == DateTime.UnixEpoch) startTime = DateTime.MinValue;
+                if (startTime == DateTime.UnixEpoch) startTime = DateTime.MinValue;
                 return 0;
             case PQPricingSubFieldKeys.CandleStartSub2MinTime:
                 IsStartTimeSub2MinUpdated = true;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref startTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
-                if(startTime == DateTime.UnixEpoch) startTime = DateTime.MinValue;
+                if (startTime == DateTime.UnixEpoch) startTime = DateTime.MinValue;
                 return 0;
             case PQPricingSubFieldKeys.CandleEndDateTime:
                 IsEndTimeDateUpdated = true;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref endTime, pqFieldUpdate.Payload);
-                if(endTime == DateTime.UnixEpoch) endTime = DateTime.MinValue;
+                if (endTime == DateTime.UnixEpoch) endTime = DateTime.MinValue;
                 return 0;
             case PQPricingSubFieldKeys.CandleEndSub2MinTime:
                 IsEndTimeSub2MinUpdated = true;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref endTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
-                if(endTime == DateTime.UnixEpoch) endTime = DateTime.MinValue;
+                if (endTime == DateTime.UnixEpoch) endTime = DateTime.MinValue;
                 return 0;
             case PQPricingSubFieldKeys.CandleStartPrice:
                 if (pqFieldUpdate.IsBid())
@@ -710,14 +718,14 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
                 }
                 else
                 {
-                    StartAskPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
+                    StartAskPrice          = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                     IsStartAskPriceUpdated = true;
                 }
                 return 0;
             case PQPricingSubFieldKeys.CandleHighestPrice:
                 if (pqFieldUpdate.IsBid())
                 {
-                    HighestBidPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
+                    HighestBidPrice          = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                     IsHighestBidPriceUpdated = true;
                 }
                 else
@@ -734,14 +742,14 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
                 }
                 else
                 {
-                    LowestAskPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
+                    LowestAskPrice          = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                     IsLowestAskPriceUpdated = true;
                 }
                 return 0;
             case PQPricingSubFieldKeys.CandleEndPrice:
                 if (pqFieldUpdate.IsBid())
                 {
-                    EndBidPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
+                    EndBidPrice          = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                     IsEndBidPriceUpdated = true;
                 }
                 else
@@ -759,13 +767,13 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
                 IsPeriodVolumeUpdated = true;
                 return 0;
             case PQPricingSubFieldKeys.CandleSummaryFlags:
-                CandleFlags               = (CandleFlags)pqFieldUpdate.Payload;
+                CandleFlags          = (CandleFlags)pqFieldUpdate.Payload;
                 IsCandleFlagsUpdated = true;
                 return 0;
             case PQPricingSubFieldKeys.CandleAveragePrice:
                 if (pqFieldUpdate.IsBid())
                 {
-                    AverageBidPrice = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
+                    AverageBidPrice          = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                     IsAverageBidPriceUpdated = true;
                 }
                 else
@@ -799,7 +807,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
             EndAskPrice        = ps.EndBidAsk.AskPrice;
             TickCount          = ps.TickCount;
             PeriodVolume       = ps.PeriodVolume;
-            CandleFlags = ps.CandleFlags;
+            CandleFlags        = ps.CandleFlags;
             AverageBidPrice    = ps.AverageBidAsk.BidPrice;
             AverageAskPrice    = ps.AverageBidAsk.AskPrice;
         }
@@ -808,14 +816,14 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
             // between types only copy the changed parts not everything.
             if (pqPs.IsCandlePeriodUpdated)
             {
-                TimeBoundaryPeriod     = pqPs.TimeBoundaryPeriod;
+                TimeBoundaryPeriod    = pqPs.TimeBoundaryPeriod;
                 IsCandlePeriodUpdated = true;
             }
             if (pqPs.IsStartTimeDateUpdated)
             {
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref startTime,
                                                                       pqPs.PeriodStartTime.Get2MinIntervalsFromUnixEpoch());
-                
+
                 IsStartTimeDateUpdated = true;
                 if (startTime == DateTime.UnixEpoch) startTime = DateTime.MinValue;
             }
@@ -823,7 +831,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
             {
                 PQFieldConverters.UpdateSub2MinComponent(ref startTime,
                                                          pqPs.PeriodStartTime.GetSub2MinComponent());
-                
+
                 IsStartTimeSub2MinUpdated = true;
                 if (startTime == DateTime.UnixEpoch) startTime = DateTime.MinValue;
             }
@@ -831,7 +839,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
             {
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref endTime,
                                                                       pqPs.PeriodEndTime.Get2MinIntervalsFromUnixEpoch());
-                
+
                 IsEndTimeDateUpdated = true;
                 if (endTime == DateTime.UnixEpoch) endTime = DateTime.MinValue;
             }
@@ -855,12 +863,12 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
             }
             if (pqPs.IsHighestBidPriceUpdated)
             {
-                HighestBidPrice = pqPs.HighestBidPrice;
+                HighestBidPrice          = pqPs.HighestBidPrice;
                 IsHighestBidPriceUpdated = true;
             }
             if (pqPs.IsHighestAskPriceUpdated)
             {
-                HighestAskPrice = pqPs.HighestAskPrice;
+                HighestAskPrice          = pqPs.HighestAskPrice;
                 IsHighestAskPriceUpdated = true;
             }
             if (pqPs.IsLowestBidPriceUpdated)
@@ -875,37 +883,37 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
             }
             if (pqPs.IsEndBidPriceUpdated)
             {
-                EndBidPrice         = pqPs.EndBidPrice;
+                EndBidPrice          = pqPs.EndBidPrice;
                 IsEndBidPriceUpdated = true;
             }
             if (pqPs.IsEndAskPriceUpdated)
             {
-                EndAskPrice         = pqPs.EndAskPrice;
+                EndAskPrice          = pqPs.EndAskPrice;
                 IsEndAskPriceUpdated = true;
             }
             if (pqPs.IsTickCountUpdated)
             {
-                TickCount             = pqPs.TickCount;
+                TickCount          = pqPs.TickCount;
                 IsTickCountUpdated = true;
             }
             if (pqPs.IsPeriodVolumeUpdated)
             {
-                PeriodVolume       = pqPs.PeriodVolume;
+                PeriodVolume          = pqPs.PeriodVolume;
                 IsPeriodVolumeUpdated = true;
             }
             if (pqPs.IsCandleFlagsUpdated)
             {
-                CandleFlags = pqPs.CandleFlags;
+                CandleFlags          = pqPs.CandleFlags;
                 IsCandleFlagsUpdated = true;
             }
             if (pqPs.IsAverageBidPriceUpdated)
             {
-                AverageBidPrice = pqPs.AverageBidPrice;
+                AverageBidPrice          = pqPs.AverageBidPrice;
                 IsAverageBidPriceUpdated = true;
             }
             if (pqPs.IsAverageAskPriceUpdated)
             {
-                AverageAskPrice = pqPs.AverageAskPrice;
+                AverageAskPrice          = pqPs.AverageAskPrice;
                 IsAverageAskPriceUpdated = true;
             }
 
@@ -927,6 +935,36 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
 
     ICandle ICloneable<ICandle>.Clone() => Clone();
 
+    IMutableCandle ITrackableReset<IMutableCandle>.ResetWithTracking() => ResetWithTracking();
+
+    IPQCandle ITrackableReset<IPQCandle>.ResetWithTracking() => ResetWithTracking();
+
+    IPQCandle IPQCandle.ResetWithTracking() => ResetWithTracking();
+
+    public PQCandle ResetWithTracking()
+    {
+        CandleFlags        = CandleFlags.None;
+        TimeBoundaryPeriod = TimeBoundaryPeriod.Tick;
+        PeriodStartTime    = DateTime.MinValue;
+        PeriodEndTime      = DateTime.MinValue;
+
+        StartBidPrice   = 0m;
+        StartAskPrice   = 0m;
+        HighestBidPrice = 0m;
+        HighestAskPrice = 0m;
+        LowestBidPrice  = 0m;
+        LowestAskPrice  = 0m;
+        EndBidPrice     = 0m;
+        EndAskPrice     = 0m;
+        AverageBidPrice = 0m;
+        AverageAskPrice = 0m;
+        TickCount       = 0;
+        PeriodVolume    = 0;
+
+
+        return this;
+    }
+
     public override void StateReset()
     {
         Next       = Previous = null;
@@ -942,22 +980,22 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
 
-        var timeFrameSame          = TimeBoundaryPeriod == other.TimeBoundaryPeriod;
-        var startTimeSame          = PeriodStartTime.Equals(other.PeriodStartTime);
-        var endTimeSame            = PeriodEndTime.Equals(other.PeriodEndTime);
-        var startBidPriceSame      = StartBidPrice == other.StartBidAsk.BidPrice;
-        var startAskPriceSame      = StartAskPrice == other.StartBidAsk.AskPrice;
-        var highestBidPriceSame    = HighestBidPrice == other.HighestBidAsk.BidPrice;
-        var highestAskPriceSame    = HighestAskPrice == other.HighestBidAsk.AskPrice;
-        var lowestBidPriceSame     = LowestBidPrice == other.LowestBidAsk.BidPrice;
-        var lowestAskPriceSame     = LowestAskPrice == other.LowestBidAsk.AskPrice;
-        var endBidPriceSame        = EndBidPrice == other.EndBidAsk.BidPrice;
-        var endAskPriceSame        = EndAskPrice == other.EndBidAsk.AskPrice;
-        var tickCountSame          = TickCount == other.TickCount;
-        var periodVolumeSame       = PeriodVolume == other.PeriodVolume;
-        var candleFlagsSame = CandleFlags == other.CandleFlags;
-        var averageBidSame         = AverageBidPrice == other.AverageBidAsk.BidPrice;
-        var averageAskSame         = AverageAskPrice == other.AverageBidAsk.AskPrice;
+        var timeFrameSame       = TimeBoundaryPeriod == other.TimeBoundaryPeriod;
+        var startTimeSame       = PeriodStartTime.Equals(other.PeriodStartTime);
+        var endTimeSame         = PeriodEndTime.Equals(other.PeriodEndTime);
+        var startBidPriceSame   = StartBidPrice == other.StartBidAsk.BidPrice;
+        var startAskPriceSame   = StartAskPrice == other.StartBidAsk.AskPrice;
+        var highestBidPriceSame = HighestBidPrice == other.HighestBidAsk.BidPrice;
+        var highestAskPriceSame = HighestAskPrice == other.HighestBidAsk.AskPrice;
+        var lowestBidPriceSame  = LowestBidPrice == other.LowestBidAsk.BidPrice;
+        var lowestAskPriceSame  = LowestAskPrice == other.LowestBidAsk.AskPrice;
+        var endBidPriceSame     = EndBidPrice == other.EndBidAsk.BidPrice;
+        var endAskPriceSame     = EndAskPrice == other.EndBidAsk.AskPrice;
+        var tickCountSame       = TickCount == other.TickCount;
+        var periodVolumeSame    = PeriodVolume == other.PeriodVolume;
+        var candleFlagsSame     = CandleFlags == other.CandleFlags;
+        var averageBidSame      = AverageBidPrice == other.AverageBidAsk.BidPrice;
+        var averageAskSame      = AverageAskPrice == other.AverageBidAsk.AskPrice;
 
         var updateFlagsSame = true;
         if (exactTypes)

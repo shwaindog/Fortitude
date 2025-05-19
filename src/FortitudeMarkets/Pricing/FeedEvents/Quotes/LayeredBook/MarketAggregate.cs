@@ -48,6 +48,13 @@ public class MarketAggregate : ReusableObject<IMarketAggregate>, IMutableMarketA
             Vwap       = 0m;
         }
     }
+    IMutableMarketAggregate ITrackableReset<IMutableMarketAggregate>.ResetWithTracking() => ResetWithTracking();
+
+    public MarketAggregate ResetWithTracking()
+    {
+        IsEmpty = true;
+        return this;
+    }
 
     public override void StateReset()
     {

@@ -51,7 +51,7 @@ public class PublishableLevel1PriceQuoteTests
     {
         Assert.AreSame(sourceTickerInfo, emptyQuote.SourceTickerInfo);
         Assert.AreEqual(DateTime.MinValue, emptyQuote.SourceTime);
-        Assert.AreEqual(false, emptyQuote.IsReplay);
+        Assert.AreEqual(FeedConnectivityStatusFlags.None, emptyQuote.FeedMarketConnectivityStatus);
         Assert.AreEqual(0m, emptyQuote.SingleTickValue);
         Assert.AreEqual(DateTime.MinValue, emptyQuote.ClientReceivedTime);
         Assert.AreEqual(DateTime.MinValue, emptyQuote.AdapterReceivedTime);
@@ -80,14 +80,19 @@ public class PublishableLevel1PriceQuoteTests
 
         var fromConstructor =
             new PublishableLevel1PriceQuote
-                (sourceTickerInfo, expectedSourceTime, true, FeedSyncStatus.Good, expectedSingleValue, expectedClientReceivedTime
-               , expectedAdapterReceiveTime, expectedAdapterSentTime, expectedSourceBidTime
-               , expectedSourceTime, expectedSourceTime.AddSeconds(2), expectedBidPriceTop, true, expectedSourceAskTime, expectedAskPriceTop
-               , true, true, expectedCandle);
+                (sourceTickerInfo, expectedSourceTime, expectedBidPriceTop, expectedAskPriceTop
+               , true, true, expectedSourceBidTime , expectedSourceAskTime , expectedSourceTime
+               , expectedSourceTime.AddSeconds(2), true, FeedSyncStatus.Good, FeedConnectivityStatusFlags.AboutToRestart
+               , expectedSingleValue, expectedCandle)
+                {
+                    ClientReceivedTime = expectedClientReceivedTime,
+                    AdapterReceivedTime = expectedAdapterReceiveTime,
+                    AdapterSentTime = expectedAdapterSentTime
+                };
 
         Assert.AreSame(sourceTickerInfo, fromConstructor.SourceTickerInfo);
         Assert.AreEqual(expectedSourceTime, fromConstructor.SourceTime);
-        Assert.AreEqual(true, fromConstructor.IsReplay);
+        Assert.AreEqual(FeedConnectivityStatusFlags.AboutToRestart, fromConstructor.FeedMarketConnectivityStatus);
         Assert.AreEqual(expectedSingleValue, fromConstructor.SingleTickValue);
         Assert.AreEqual(expectedClientReceivedTime, fromConstructor.ClientReceivedTime);
         Assert.AreEqual(expectedAdapterReceiveTime, fromConstructor.AdapterReceivedTime);
@@ -109,9 +114,9 @@ public class PublishableLevel1PriceQuoteTests
 
         var nonSourceTickerInfoL1Quote =
             new PublishableLevel1PriceQuote
-                (sourceTickerInfo, DateTime.Now, true, FeedSyncStatus.Good, 1m, DateTime.Now, DateTime.Now
-               , DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now.AddSeconds(2), 1m, true, DateTime.Now
-               , 1m, true, true, pqCandle);
+                (sourceTickerInfo, DateTime.Now, 1m, 1m, true, true, DateTime.Now, DateTime.Now
+               , DateTime.Now, DateTime.Now.AddSeconds(2), true, FeedSyncStatus.Good
+               , FeedConnectivityStatusFlags.None, 1m, pqCandle);
 
         Assert.IsInstanceOfType(nonSourceTickerInfoL1Quote.ConflatedTicksCandle, typeof(Candle));
     }
@@ -170,24 +175,24 @@ public class PublishableLevel1PriceQuoteTests
         var expectedAskPriceTop        = 3.45678m;
         var expectedCandle      = new Candle();
 
-        emptyQuote.SourceTime           = expectedSourceTime;
-        emptyQuote.IsReplay             = true;
-        emptyQuote.SingleTickValue      = expectedSingleValue;
-        emptyQuote.ClientReceivedTime   = expectedClientReceivedTime;
-        emptyQuote.AdapterReceivedTime  = expectedAdapterReceiveTime;
-        emptyQuote.AdapterSentTime      = expectedAdapterSentTime;
-        emptyQuote.SourceBidTime        = expectedSourceBidTime;
-        emptyQuote.BidPriceTop          = expectedBidPriceTop;
-        emptyQuote.IsBidPriceTopChanged = true;
-        emptyQuote.SourceAskTime        = expectedSourceAskTime;
-        emptyQuote.AskPriceTop          = expectedAskPriceTop;
-        emptyQuote.IsAskPriceTopChanged = true;
-        emptyQuote.Executable           = true;
-        emptyQuote.ConflatedTicksCandle        = expectedCandle;
+        emptyQuote.SourceTime                   = expectedSourceTime;
+        emptyQuote.FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay;
+        emptyQuote.SingleTickValue              = expectedSingleValue;
+        emptyQuote.ClientReceivedTime           = expectedClientReceivedTime;
+        emptyQuote.AdapterReceivedTime          = expectedAdapterReceiveTime;
+        emptyQuote.AdapterSentTime              = expectedAdapterSentTime;
+        emptyQuote.SourceBidTime                = expectedSourceBidTime;
+        emptyQuote.BidPriceTop                  = expectedBidPriceTop;
+        emptyQuote.IsBidPriceTopChanged         = true;
+        emptyQuote.SourceAskTime                = expectedSourceAskTime;
+        emptyQuote.AskPriceTop                  = expectedAskPriceTop;
+        emptyQuote.IsAskPriceTopChanged         = true;
+        emptyQuote.Executable                   = true;
+        emptyQuote.ConflatedTicksCandle         = expectedCandle;
 
         Assert.AreSame(sourceTickerInfo, emptyQuote.SourceTickerInfo);
         Assert.AreEqual(expectedSourceTime, emptyQuote.SourceTime);
-        Assert.AreEqual(true, emptyQuote.IsReplay);
+        Assert.AreEqual(FeedConnectivityStatusFlags.IsAdapterReplay, emptyQuote.FeedMarketConnectivityStatus);
         Assert.AreEqual(expectedSingleValue, emptyQuote.SingleTickValue);
         Assert.AreEqual(expectedClientReceivedTime, emptyQuote.ClientReceivedTime);
         Assert.AreEqual(expectedAdapterReceiveTime, emptyQuote.AdapterReceivedTime);
@@ -259,7 +264,7 @@ public class PublishableLevel1PriceQuoteTests
     public void OneDifferenceAtATime_AreEquivalent_ReturnsExpected()
     {
         AssertAreEquivalentMeetsExpectedExactComparisonType
-            (false, fullyPopulatedLevel1Quote, (IMutablePublishableLevel1Quote)fullyPopulatedLevel1Quote.Clone());
+            (false, fullyPopulatedLevel1Quote, fullyPopulatedLevel1Quote.Clone());
     }
 
     [TestMethod]
@@ -290,7 +295,7 @@ public class PublishableLevel1PriceQuoteTests
 
         Assert.IsTrue(toString.Contains($"{nameof(q.SourceTickerInfo)}: {q.SourceTickerInfo}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.SourceTime)}: {q.SourceTime:O}"));
-        Assert.IsTrue(toString.Contains($"{nameof(q.IsReplay)}: {q.IsReplay}"));
+        Assert.IsTrue(toString.Contains($"{nameof(q.FeedMarketConnectivityStatus)}: {q.FeedMarketConnectivityStatus}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.SingleTickValue)}: {q.SingleTickValue:N5}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.ClientReceivedTime)}: {q.ClientReceivedTime:O}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.AdapterReceivedTime)}: {q.AdapterReceivedTime:O}"));
@@ -319,12 +324,12 @@ public class PublishableLevel1PriceQuoteTests
         Assert.IsTrue(commonCompareQuote.AreEquivalent(changingQuote));
 
         changingQuote.AdapterReceivedTime = DateTime.Now;
-        Assert.IsFalse(commonCompareQuote.AreEquivalent(changingQuote));
+        Assert.AreEqual(!exactComparison, commonCompareQuote.AreEquivalent(changingQuote, exactComparison));
         changingQuote.AdapterReceivedTime = commonCompareQuote.AdapterReceivedTime;
         Assert.IsTrue(commonCompareQuote.AreEquivalent(changingQuote));
 
         changingQuote.AdapterSentTime = DateTime.Now;
-        Assert.IsFalse(commonCompareQuote.AreEquivalent(changingQuote));
+        Assert.AreEqual(!exactComparison, commonCompareQuote.AreEquivalent(changingQuote, exactComparison));
         changingQuote.AdapterSentTime = commonCompareQuote.AdapterSentTime;
         Assert.IsTrue(commonCompareQuote.AreEquivalent(changingQuote));
 
@@ -375,8 +380,7 @@ public static class PublishableLevel1PriceQuoteTestExtensions
         var bid1 = mid - halfSpread;
         var ask1 = mid + halfSpread;
         return new PublishableLevel1PriceQuote
-            (tickerId, sourceTime, false, FeedSyncStatus.Good, 0m, sourceTime, sourceTime, sourceTime
-           , sourceTime, sourceTime, sourceTime.AddSeconds(10), bid1, false, sourceTime
-           , ask1, false, true);
+            (tickerId, sourceTime, bid1, ask1, false, false, sourceTime, sourceTime, sourceTime
+           , sourceTime.AddSeconds(10));
     }
 }

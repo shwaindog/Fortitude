@@ -11,5 +11,5 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 public interface IPQImplementationFactory
 {
-    T GetConcreteMapping<T>(ISourceTickerInfo info) where T : IPQPublishableTickInstant;
+    T GetConcreteMapping<T>(ISourceTickerInfo info) where T : IPQMessage;
 }

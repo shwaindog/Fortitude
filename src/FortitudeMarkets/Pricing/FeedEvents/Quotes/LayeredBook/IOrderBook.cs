@@ -5,6 +5,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -34,7 +35,7 @@ public interface IOrderBook : IReusableObject<IOrderBook>, IInterfacesComparable
     bool IsLadder             { get; }
 }
 
-public interface IMutableOrderBook : IOrderBook, IInterfacesComparable<IMutableOrderBook>, ICloneable<IMutableOrderBook>
+public interface IMutableOrderBook : IOrderBook, IInterfacesComparable<IMutableOrderBook>, ICloneable<IMutableOrderBook>, ITrackableReset<IMutableOrderBook>
 {
     new LayerType  LayersSupportedType { get; set; }
     new LayerFlags LayerSupportedFlags { get; set; }

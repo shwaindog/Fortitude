@@ -16,13 +16,15 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
 public interface IPQLastTraderPaidGivenTrade : IPQLastPaidGivenTrade, IMutableLastTraderPaidGivenTrade,
-    IPQSupportsStringUpdates<ILastTrade>, ISupportsPQNameIdLookupGenerator
+    IPQSupportsStringUpdates<ILastTrade>, ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQLastTraderPaidGivenTrade>
 {
     int  TraderId            { get; set; }
     bool IsTraderNameUpdated { get; set; }
 
     new IPQNameIdLookupGenerator    NameIdLookup { get; set; }
     new IPQLastTraderPaidGivenTrade Clone();
+
+    new IPQLastTraderPaidGivenTrade ResetWithTracking();
 }
 
 public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPaidGivenTrade
@@ -167,6 +169,23 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         base.UpdateComplete();
     }
 
+    IMutableLastTrade ITrackableReset<IMutableLastTrade>.ResetWithTracking() => ResetWithTracking();
+
+    IPQLastTrade ITrackableReset<IPQLastTrade>.ResetWithTracking() => ResetWithTracking();
+
+    IPQLastTrade IPQLastTrade.ResetWithTracking() => ResetWithTracking();
+
+    IPQLastTraderPaidGivenTrade ITrackableReset<IPQLastTraderPaidGivenTrade>.ResetWithTracking() => ResetWithTracking();
+
+    IPQLastTraderPaidGivenTrade IPQLastTraderPaidGivenTrade.ResetWithTracking() => ResetWithTracking();
+
+    public override PQLastTraderPaidGivenTrade ResetWithTracking()
+    {
+        traderId = 0;
+        base.ResetWithTracking();
+        return this;
+    }
+
     public override void StateReset()
     {
         traderId = 0;
@@ -181,7 +200,8 @@ public class PQLastTraderPaidGivenTrade : PQLastPaidGivenTrade, IPQLastTraderPai
         foreach (var deltaUpdateField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                    quotePublicationPrecisionSetting))
             yield return deltaUpdateField;
-        if (!updatedOnly || IsTraderNameUpdated) yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTraderNameId, (uint)traderId);
+        if (!updatedOnly || IsTraderNameUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTraderNameId, (uint)traderId);
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)

@@ -22,7 +22,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 
 public interface IPQOrdersPriceVolumeLayer : IMutableOrdersPriceVolumeLayer, IPQOrdersCountPriceVolumeLayer
-  , IPQSupportsStringUpdates<IPriceVolumeLayer>, ISupportsPQNameIdLookupGenerator
+  , IPQSupportsStringUpdates<IPriceVolumeLayer>, ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQOrdersPriceVolumeLayer>
 {
     new IPQAnonymousOrderLayerInfo? this[int index] { get; set; }
     new IPQNameIdLookupGenerator                  NameIdLookup { get; set; }
@@ -35,6 +35,7 @@ public interface IPQOrdersPriceVolumeLayer : IMutableOrdersPriceVolumeLayer, IPQ
     bool IsOrdersShiftedUpdated { get; set; }
 
     new IPQOrdersPriceVolumeLayer Clone();
+    new IPQOrdersPriceVolumeLayer ResetWithTracking();
 }
 
 public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrdersPriceVolumeLayer
@@ -326,6 +327,22 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
             }
     }
 
+    IMutableOrdersPriceVolumeLayer ITrackableReset<IMutableOrdersPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableOrdersPriceVolumeLayer IMutableOrdersPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    IPQOrdersPriceVolumeLayer ITrackableReset<IPQOrdersPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IPQOrdersPriceVolumeLayer IPQOrdersPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    public override PQOrdersPriceVolumeLayer ResetWithTracking()
+    {
+        ordersShifted = 0;
+        foreach (var pqTraderLayerInfo in Orders) pqTraderLayerInfo.StateReset();
+        base.ResetWithTracking();
+        return this;
+    }
+
     public override void StateReset()
     {
         ordersShifted = 0;
@@ -373,8 +390,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         {
             var tli = orders?[i] as IPQCounterPartyOrderLayerInfo;
             if (tli is null or { IsEmpty: true, HasUpdates: false } || i + 1 == ushort.MaxValue) continue;
-            foreach (var stringUpdate in tli.GetStringUpdates(snapShotTime, messageFlags))
-                yield return stringUpdate.WithAuxiliary(i);
+            foreach (var stringUpdate in tli.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate.WithAuxiliary(i);
             if (i + 1 == numberOfTraderInfos) break;
         }
     }

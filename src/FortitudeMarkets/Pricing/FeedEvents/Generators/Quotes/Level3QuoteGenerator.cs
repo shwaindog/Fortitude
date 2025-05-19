@@ -42,7 +42,7 @@ public class Level3QuoteGenerator(CurrentQuoteInstantValueGenerator generateQuot
     }
 }
 
-public abstract class PublishableLevel3QuoteGeneratorBase<TQuote> : Level2QuoteGeneratorBase<TQuote> where TQuote : IMutablePublishableLevel3Quote
+public abstract class PublishableLevel3QuoteGeneratorBase<TQuote> : PublishableLevel2QuoteGeneratorBase<TQuote> where TQuote : IMutablePublishableLevel3Quote
 {
     protected readonly ILastTradedGenerator LastTradedGenerator;
 
@@ -63,7 +63,7 @@ public abstract class PublishableLevel3QuoteGeneratorBase<TQuote> : Level2QuoteG
 }
 
 public class PublishableLevel3QuoteGenerator(CurrentQuoteInstantValueGenerator generateQuoteValues)
-    : Level3QuoteGeneratorBase<PublishableLevel3PriceQuote>(generateQuoteValues)
+    : PublishableLevel3QuoteGeneratorBase<PublishableLevel3PriceQuote>(generateQuoteValues)
 {
     public override PublishableLevel3PriceQuote BuildQuote(MidPriceTimePair midPriceTimePair, int sequenceNumber)
     {

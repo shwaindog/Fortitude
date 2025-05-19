@@ -5,6 +5,7 @@
 
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 
 #endregion
@@ -19,39 +20,46 @@ public interface ILevel2Quote : ILevel1Quote, ICloneable<ILevel2Quote>
 
     IOrderBookSide AskBook { get; }
 
-    new bool       AreEquivalent(ITickInstant? other, bool exactTypes = false);
+    new bool AreEquivalent(ITickInstant? other, bool exactTypes = false);
 
     new ILevel2Quote Clone();
 }
 
-public interface IMutableLevel2Quote : ILevel2Quote, IMutableLevel1Quote
+public interface IMutableLevel2Quote : ILevel2Quote, IMutableLevel1Quote, ITrackableReset<IMutableLevel2Quote>
 {
     new IMutableOrderBook OrderBook { get; set; }
+
+    new bool AreEquivalent(ITickInstant? other, bool exactTypes = false);
+
     
-    new bool                AreEquivalent(ITickInstant? other, bool exactTypes = false);
+    new IMutableLevel2Quote ResetWithTracking();
 
     new IMutableLevel2Quote Clone();
 }
 
-public interface IPublishableLevel2Quote : IPublishableLevel1Quote, ILevel2Quote, ICloneable<IPublishableLevel2Quote>, IDoublyLinkedListNode<IPublishableLevel2Quote>
+public interface IPublishableLevel2Quote : IPublishableLevel1Quote, ILevel2Quote,
+    ICloneable<IPublishableLevel2Quote>, IDoublyLinkedListNode<IPublishableLevel2Quote>
 {
     new IPublishableLevel2Quote? Next     { get; set; }
     new IPublishableLevel2Quote? Previous { get; set; }
 
     new ILevel2Quote AsNonPublishable { get; }
 
-    new bool         AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false);
+    new bool AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false);
 
     new IPublishableLevel2Quote Clone();
 }
 
-public interface IMutablePublishableLevel2Quote : IPublishableLevel2Quote, IMutableLevel2Quote, IMutablePublishableLevel1Quote
+public interface IMutablePublishableLevel2Quote : IPublishableLevel2Quote, IMutableLevel2Quote, IMutablePublishableLevel1Quote,
+    ITrackableReset<IMutablePublishableLevel2Quote>
 {
     new IMutableOrderBook OrderBook { get; set; }
 
     new IMutableLevel2Quote AsNonPublishable { get; }
     
-    new bool         AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false);
+    new IMutablePublishableLevel2Quote ResetWithTracking();
+
+    new bool AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false);
 
     new IMutablePublishableLevel2Quote Clone();
 }

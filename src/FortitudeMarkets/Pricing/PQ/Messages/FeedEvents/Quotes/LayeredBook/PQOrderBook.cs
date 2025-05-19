@@ -17,13 +17,13 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
     [Flags]
     public enum OrderBookUpdatedFlags : byte
     {
-        None                             = 0
-      , IsDailyTickCountUpdated          = 1
+        None                    = 0
+      , IsDailyTickCountUpdated = 1
     }
 
-    public interface IPQOrderBook : IMutableOrderBook, IPQSupportsFieldUpdates<IOrderBook>, IPQSupportsStringUpdates<IOrderBook>
+    public interface IPQOrderBook : IMutableOrderBook, IPQSupportsNumberPrecisionFieldUpdates<IOrderBook>, IPQSupportsStringUpdates<IOrderBook>
       , IRelatedItems<ISourceTickerInfo, IOrderBook>, ICloneable<IPQOrderBook>
-      , ISupportsPQNameIdLookupGenerator
+      , ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQOrderBook>
     {
         new IPQOrderBookSide BidSide { get; set; }
         new IPQOrderBookSide AskSide { get; set; }
@@ -37,6 +37,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
         new IPQMarketAggregate? OpenInterest { get; set; }
 
         new IPQOrderBook Clone();
+        new IPQOrderBook ResetWithTracking();
     }
 
     public class PQOrderBook : ReusableObject<IOrderBook>, IPQOrderBook
@@ -112,7 +113,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
 
         public PQOrderBook(IOrderBookSide bidSide, IOrderBookSide askBookSide, uint dailyTickCount = 0, bool isLadder = false)
         {
-            DailyTickUpdateCount  = dailyTickCount;
+            DailyTickUpdateCount = dailyTickCount;
             nameIdLookupGenerator ??= bidSide is IPQOrderBookSide pqBookSide
                 ? InitializeNewIdLookupGenerator(pqBookSide.NameIdLookup)
                 : InitializeNewIdLookupGenerator();
@@ -280,8 +281,8 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
               && pqOpenInterest is { DataSource: not (MarketDataSource.None or MarketDataSource.Published), HasUpdates: true });
             set
             {
-                BidSide.HasUpdates        = value;
-                AskSide.HasUpdates        = value;
+                BidSide.HasUpdates = value;
+                AskSide.HasUpdates = value;
                 if (pqOpenInterest != null)
                 {
                     pqOpenInterest.HasUpdates = value;
@@ -315,7 +316,8 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
         {
             get
             {
-                if (HasNonEmptyOpenInterest && pqOpenInterest is not { DataSource: MarketDataSource.Published or MarketDataSource.None}) return pqOpenInterest;
+                if (HasNonEmptyOpenInterest && pqOpenInterest is not { DataSource: MarketDataSource.Published or MarketDataSource.None })
+                    return pqOpenInterest;
 
                 var bidVwapResult = BidSide.CalculateVwap();
                 var askVwapResult = AskSide.CalculateVwap();
@@ -371,7 +373,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
         (DateTime snapShotTime, StorageFlags messageFlags,
             IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
         {
-            var updatedOnly       = (messageFlags & StorageFlags.Complete) == 0;
+            var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
             if (!updatedOnly || IsDailyTickUpdateCountUpdated)
             {
                 yield return new PQFieldUpdate(PQFeedFields.QuoteDailyTotalTickCount, DailyTickUpdateCount);
@@ -394,7 +396,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             {
                 IsDailyTickUpdateCountUpdated = true;
 
-                DailyTickUpdateCount          = pqFieldUpdate.Payload;
+                DailyTickUpdateCount = pqFieldUpdate.Payload;
                 return 0;
             }
             if (pqFieldUpdate.Id == PQFeedFields.QuoteOpenInterestTotal)
@@ -420,8 +422,8 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
 
         public override PQOrderBook CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
         {
-            LayerSupportedFlags  = source.LayerSupportedFlags;
-            MaxPublishDepth      = source.MaxPublishDepth;
+            LayerSupportedFlags = source.LayerSupportedFlags;
+            MaxPublishDepth     = source.MaxPublishDepth;
             if (source.HasNonEmptyOpenInterest)
             {
                 pqOpenInterest ??= new PQMarketAggregate();
@@ -445,7 +447,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
                     DailyTickUpdateCount          = pqOrderBook.DailyTickUpdateCount;
                 }
 
-                if(hasFullReplace) SetFlagsSame(pqOrderBook);
+                if (hasFullReplace) SetFlagsSame(pqOrderBook);
             }
             else
             {
@@ -510,9 +512,25 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
                 askBookChangedSame = IsAskBookChanged == other.IsAskBookChanged;
             }
 
-            var allSame = layerTypesSame && isLadderSame && maxDepthSame && dailyTickCountSame && openInterestSame 
+            var allSame = layerTypesSame && isLadderSame && maxDepthSame && dailyTickCountSame && openInterestSame
                        && bidBooksSame && askBookSame && bidBookChangedSame && askBookChangedSame;
             return allSame;
+        }
+
+        IMutableOrderBook ITrackableReset<IMutableOrderBook>.ResetWithTracking() => ResetWithTracking();
+
+        IPQOrderBook ITrackableReset<IPQOrderBook>.ResetWithTracking() => ResetWithTracking();
+
+        IPQOrderBook IPQOrderBook.ResetWithTracking() => ResetWithTracking();
+
+        public PQOrderBook ResetWithTracking()
+        {
+            pqOpenInterest?.ResetWithTracking();
+            BidSide.ResetWithTracking();
+            AskSide.ResetWithTracking();
+            DailyTickUpdateCount = 0;
+
+            return this;
         }
 
         public override void StateReset()

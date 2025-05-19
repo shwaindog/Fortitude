@@ -34,7 +34,7 @@ public static class QuoteExtensionMethods
         var sb = new StringBuilder(50);
 
         sb.AddIfDifferent(ti1, ti2, q => q.SourceTickerInfo!);
-        sb.AddIfDifferent(ti1, ti2, q => q.IsReplay);
+        sb.AddIfDifferent(ti1, ti2, q => q.FeedMarketConnectivityStatus);
         sb.AddIfDifferent(ti1, ti2, q => q.SingleTickValue);
         sb.AddIfDifferent(ti1, ti2, q => q.SourceTime);
         sb.AddIfDifferent(ti1, ti2, q => q.ClientReceivedTime, exactValues);
@@ -166,6 +166,24 @@ public static class QuoteExtensionMethods
     }
 
     private static StringBuilder AddIfDifferent<T>
+        (this StringBuilder sb, T? q1, T? q2, Expression<Func<T, FeedConnectivityStatusFlags>> property, bool makeThisCheck = true)
+        where T : IPublishableTickInstant
+    {
+        var evaluator = property.Compile();
+
+        FeedConnectivityStatusFlags q1Value = q1 != null ? evaluator(q1) : FeedConnectivityStatusFlags.None;
+        FeedConnectivityStatusFlags q2Value = q2 != null ? evaluator(q2) : FeedConnectivityStatusFlags.None;
+        if (makeThisCheck && q1Value != q2Value)
+        {
+            var propertyName = property.GetPropertyName();
+            sb.Append($"{propertyName,PropertyNamePadding}:q1={q1Value}\n")
+              .Insert(sb.Length, " ", secondLinePadding).Append($" q2={q2Value}\n");
+        }
+
+        return sb;
+    }
+
+    private static StringBuilder AddIfDifferent<T>
         (this StringBuilder sb, T? q1, T? q2, Expression<Func<T, ISourceTickerInfo>> property, bool exactValue = false)
         where T : IPublishableTickInstant
     {
@@ -204,7 +222,7 @@ public static class QuoteExtensionMethods
               .Append($"q2={(q2Value != null ? "not null" : "null")}\n");
         var areSame = false;
         if (q1Value is IInterfacesComparable<ICandle> comparableQ1)
-            areSame                                                                          = comparableQ1.AreEquivalent(q2Value, exactValue);
+            areSame                                                              = comparableQ1.AreEquivalent(q2Value, exactValue);
         else if (q2Value is IInterfacesComparable<ICandle> comparableQ2) areSame = comparableQ2.AreEquivalent(q1Value, exactValue);
         if (!areSame)
             sb.Append($"{propertyName,PropertyNamePadding}:q1=").Append(q1Value).Append("\n")
@@ -213,18 +231,19 @@ public static class QuoteExtensionMethods
     }
 
     private static StringBuilder AddIfDifferent
-        (this StringBuilder sb, IPublishableLevel2Quote? q1, IPublishableLevel2Quote? q2, Expression<Func<IPublishableLevel2Quote, IOrderBook>> property, bool exactTypes = true)
+    (this StringBuilder sb, IPublishableLevel2Quote? q1, IPublishableLevel2Quote? q2
+      , Expression<Func<IPublishableLevel2Quote, IOrderBook>> property, bool exactTypes = true)
     {
         var evaluator    = property.Compile();
-        var q1OrderBook      = q1 != null ? evaluator(q1) : null;
-        var q2OrderBook      = q2 != null ? evaluator(q2) : null;
+        var q1OrderBook  = q1 != null ? evaluator(q1) : null;
+        var q2OrderBook  = q2 != null ? evaluator(q2) : null;
         var propertyName = property.GetPropertyName();
         if (q1OrderBook == null && q2OrderBook == null) return sb;
         if ((q1OrderBook != null && q2OrderBook == null) || q1OrderBook == null) //not requiring && q2Value != null
             sb.Append($"{propertyName,PropertyNamePadding}:q1.OrderBook={(q1OrderBook != null ? "not null" : "null")}\n")
               .Insert(sb.Length, " ", secondLinePadding)
               .Append($"q2.OrderBook={(q2OrderBook != null ? "not null" : "null")}\n");
-        
+
         sb.AddIfDifferent(q1OrderBook, q2OrderBook, q => q.DailyTickUpdateCount);
         sb.AddIfDifferent("OrderBook", q1OrderBook?.OpenInterest, q2OrderBook?.OpenInterest, !exactTypes);
 
@@ -242,7 +261,7 @@ public static class QuoteExtensionMethods
             sb.Append($"{side,PropertyNamePadding}:q1={(q1obs != null ? "not null" : "null")}\n")
               .Insert(sb.Length, " ", secondLinePadding)
               .Append($"q2={(q2obs != null ? "not null" : "null")}\n");
-        
+
         sb.AddIfDifferent(q1obs, q2obs, q => q.DailyTickUpdateCount);
         sb.AddIfDifferent($"OrderBook.{side}", q1obs?.OpenInterestSide, q2obs?.OpenInterestSide, !exactTypes);
         var maxLayers = Math.Max(q1obs?.Capacity ?? int.MinValue,
@@ -279,7 +298,8 @@ public static class QuoteExtensionMethods
     }
 
     private static StringBuilder AddIfDifferent
-        (this StringBuilder sb, IPublishableLevel3Quote? q1, IPublishableLevel3Quote? q2, Expression<Func<IPublishableLevel3Quote, IOnTickLastTraded>> property)
+    (this StringBuilder sb, IPublishableLevel3Quote? q1, IPublishableLevel3Quote? q2
+      , Expression<Func<IPublishableLevel3Quote, IOnTickLastTraded>> property)
     {
         var evaluator    = property.Compile();
         var q1Value      = q1 != null ? evaluator(q1) : null;
@@ -354,7 +374,7 @@ public static class QuoteExtensionMethods
         uint? q2Value   = q2obs != null ? evaluator(q2obs) : null;
         if (q1obs == null && q2obs == null) return sb;
         if ((q1obs != null && q2obs == null) || q1obs == null) //not requiring && q2Value != null
-            sb.Append($"{ "OrderBookSide",PropertyNamePadding}:q1={(q1obs != null ? "not null" : "null")}\n")
+            sb.Append($"{"OrderBookSide",PropertyNamePadding}:q1={(q1obs != null ? "not null" : "null")}\n")
               .Insert(sb.Length, " ", secondLinePadding)
               .Append($"q2={(q2obs != null ? "not null" : "null")}\n");
         if (q1Value != q2Value)
@@ -372,10 +392,11 @@ public static class QuoteExtensionMethods
     {
         if (q1oi == null && q2oi == null) return sb;
         if ((q1oi != null && q2oi == null) || q1oi == null) //not requiring && q2Value != null
-            sb.Append($"{ $"{pathPrefix}.OpenInterest",PropertyNamePadding}:q1={(q1oi != null ? "not null" : "null")}\n")
+            sb.Append($"{$"{pathPrefix}.OpenInterest",PropertyNamePadding}:q1={(q1oi != null ? "not null" : "null")}\n")
               .Insert(sb.Length, " ", secondLinePadding)
               .Append($"q2={(q2oi != null ? "not null" : "null")}\n");
-        if (skipOnBothPublishDataSource && q1oi!.DataSource == MarketDataSource.Published && q2oi!.DataSource == MarketDataSource.Published) return sb;
+        if (skipOnBothPublishDataSource && q1oi!.DataSource == MarketDataSource.Published && q2oi!.DataSource == MarketDataSource.Published)
+            return sb;
         if (q1oi!.DataSource != q2oi!.DataSource)
         {
             var propertyName = $"{pathPrefix}.OpenInterest.DataSource";

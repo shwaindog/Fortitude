@@ -15,11 +15,12 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 
-public interface IPQValueDatePriceVolumeLayer : IMutableValueDatePriceVolumeLayer, IPQPriceVolumeLayer
+public interface IPQValueDatePriceVolumeLayer : IMutableValueDatePriceVolumeLayer, IPQPriceVolumeLayer, ITrackableReset<IPQValueDatePriceVolumeLayer>
 {
     bool IsValueDateUpdated { get; set; }
 
     new IPQValueDatePriceVolumeLayer Clone();
+    new IPQValueDatePriceVolumeLayer ResetWithTracking();
 }
 
 public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePriceVolumeLayer
@@ -83,6 +84,23 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
             base.IsEmpty = true;
         }
     }
+    
+
+    IMutableValueDatePriceVolumeLayer ITrackableReset<IMutableValueDatePriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableValueDatePriceVolumeLayer IMutableValueDatePriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    IPQValueDatePriceVolumeLayer ITrackableReset<IPQValueDatePriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IPQValueDatePriceVolumeLayer IPQValueDatePriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    public override PQValueDatePriceVolumeLayer ResetWithTracking()
+    {
+        ValueDate = DateTime.MinValue;
+        base.ResetWithTracking();
+        return this;
+    }
+
 
     public override void StateReset()
     {
@@ -114,7 +132,7 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override PQValueDatePriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         var pqValueDate   = source as IPQValueDatePriceVolumeLayer;

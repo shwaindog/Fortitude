@@ -3,6 +3,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 
@@ -18,7 +19,7 @@ public interface ILastTradedList : IReusableObject<ILastTradedList>, IEnumerable
     ILastTrade? this[int i] { get; }
 }
 
-public interface IMutableLastTradedList : ILastTradedList, IEnumerable<IMutableLastTrade>
+public interface IMutableLastTradedList : ILastTradedList, IEnumerable<IMutableLastTrade>, ITrackableReset<IMutableLastTradedList>
 {
     new int Capacity { get; set; }
     new IMutableLastTrade? this[int i] { get; set; }

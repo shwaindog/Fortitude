@@ -8,7 +8,7 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeCommon.EventProcessing.Disruption.Rings;
 
-public class LoopingArray<T> : IEnumerable<T?> where T : class, new()
+public class LoopingArray<T> : IEnumerable<T?> 
 {
     protected readonly bool AllowOverwrite;
     internal readonly T[] Cells;
@@ -60,7 +60,7 @@ public class LoopingArray<T> : IEnumerable<T?> where T : class, new()
 
     public T? Peek()
     {
-        if (PublisherCursor == ConsumerCursor) return null;
+        if (PublisherCursor == ConsumerCursor) return default;
         return Cells[(int)ConsumerCursor & RingMask];
     }
 }

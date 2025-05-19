@@ -63,7 +63,7 @@ public class ActionStateTimerCallBackRunInfoTests
     public void CopyFromTest()
     {
         var fromCopy = new ActionTimerCallBackRunInfo();
-        fromCopy.CopyFrom((ITransferState)timerCallBackRunInfo, CopyMergeFlags.Default);
+        fromCopy.CopyFrom(timerCallBackRunInfo);
 
         Assert.AreEqual(timerCallBackRunInfo.Action, fromCopy.Action);
         Assert.AreEqual(timerCallBackRunInfo.FirstScheduledTime, fromCopy.FirstScheduledTime);

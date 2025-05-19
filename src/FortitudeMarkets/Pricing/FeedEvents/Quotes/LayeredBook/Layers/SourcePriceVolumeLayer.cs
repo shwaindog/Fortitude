@@ -59,6 +59,18 @@ public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolum
         }
     }
 
+    IMutableSourcePriceVolumeLayer ITrackableReset<IMutableSourcePriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableSourcePriceVolumeLayer IMutableSourcePriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    public override SourcePriceVolumeLayer ResetWithTracking()
+    {
+        SourceName = null;
+        Executable = false;
+        base.ResetWithTracking();
+        return this;
+    }
+
     public override void StateReset()
     {
         base.StateReset();

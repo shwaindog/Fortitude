@@ -22,6 +22,7 @@ public interface IOrdersPriceVolumeLayer : IOrdersCountPriceVolumeLayer,
 }
 
 public interface IMutableOrdersPriceVolumeLayer : IOrdersPriceVolumeLayer, IMutableOrdersCountPriceVolumeLayer
+  , ITrackableReset<IMutableOrdersPriceVolumeLayer>
 {
     new IMutableAnonymousOrderLayerInfo? this[int i] { get; set; }
 
@@ -35,6 +36,7 @@ public interface IMutableOrdersPriceVolumeLayer : IOrdersPriceVolumeLayer, IMuta
     void ShiftOrders(int offset);
 
     new IMutableOrdersPriceVolumeLayer Clone();
+    new IMutableOrdersPriceVolumeLayer ResetWithTracking();
 }
 
 public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrdersPriceVolumeLayer
@@ -83,9 +85,9 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
             isCounterPartyOrders =
                 asLayerType switch
                 {
-                    LayerType.OrdersAnonymousPriceVolume               => false
-                  , LayerType.OrdersFullPriceVolume                    => true
-                  , LayerType.FullSupportPriceVolume => true
+                    LayerType.OrdersAnonymousPriceVolume => false
+                  , LayerType.OrdersFullPriceVolume      => true
+                  , LayerType.FullSupportPriceVolume     => true
                   , _ => throw new
                         ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {asLayerType}")
                 };
@@ -242,6 +244,17 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
                 toResetAtEnd.StateReset();
                 orders.Add(toResetAtEnd);
             }
+    }
+
+    IMutableOrdersPriceVolumeLayer ITrackableReset<IMutableOrdersPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableOrdersPriceVolumeLayer IMutableOrdersPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    public override OrdersPriceVolumeLayer ResetWithTracking()
+    {
+        foreach (var orderLayerInfo in Orders) orderLayerInfo.StateReset();
+        base.ResetWithTracking();
+        return this;
     }
 
     public override void StateReset()

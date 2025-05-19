@@ -18,14 +18,14 @@ public class DeserializeStateTransitionFactoryTests
 {
     private DeserializeStateTransitionFactory<PQPublishableTickInstant> deserializeStateTransitionFactory = null!;
 
-    private Mock<IPQQuotePublishingDeserializer<PQPublishableTickInstant>> deserialzer = null!;
+    private Mock<IPQMessagePublishingDeserializer<PQPublishableTickInstant>> deserialzer = null!;
 
     private InitializationState<PQPublishableTickInstant> initializationState = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        deserialzer         = new Mock<IPQQuotePublishingDeserializer<PQPublishableTickInstant>>();
+        deserialzer         = new Mock<IPQMessagePublishingDeserializer<PQPublishableTickInstant>>();
         initializationState = new InitializationState<PQPublishableTickInstant>(deserialzer.Object);
 
         deserializeStateTransitionFactory = new DeserializeStateTransitionFactory<PQPublishableTickInstant>();

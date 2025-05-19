@@ -18,10 +18,10 @@ public static class PQQuoteExtensions
         switch (quoteLevel)
         {
             case TickerQuoteDetailLevel.SingleValue:
-                return recycler?.Borrow<PQPublishableTickInstant>()?.SetSourceTickerInfo(srcTickerInfo) ??
+                return recycler?.Borrow<PQPublishableTickInstant>().SetSourceTickerInfo(srcTickerInfo) ??
                        new PQPublishableTickInstant(srcTickerInfo);
             case TickerQuoteDetailLevel.Level1Quote:
-                return recycler?.Borrow<PQPublishableLevel1Quote>()?.SetSourceTickerInfo(srcTickerInfo) ?? new PQPublishableLevel1Quote(srcTickerInfo);
+                return recycler?.Borrow<PQPublishableLevel1Quote>().SetSourceTickerInfo(srcTickerInfo) ?? new PQPublishableLevel1Quote(srcTickerInfo);
             case TickerQuoteDetailLevel.Level2Quote: return new PQPublishableLevel2Quote(srcTickerInfo);
 
             default: return new PQPublishableLevel3Quote(srcTickerInfo);

@@ -4,19 +4,19 @@
 #region
 
 using System.ComponentModel;
-using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 
-public interface IDeserializeStateTransitionFactory<T> where T : PQPublishableTickInstant, new()
+public interface IDeserializeStateTransitionFactory<T> where T : IPQMessage
 {
     SyncStateBase<T> TransitionToState(QuoteSyncState desiredState, SyncStateBase<T> currentState);
 }
 
 internal class DeserializeStateTransitionFactory<T> : IDeserializeStateTransitionFactory<T>
-    where T : PQPublishableTickInstant, new()
+    where T : IPQMessage
 {
     private SyncStateBase<T>? inSyncState;
     private SyncStateBase<T>? replay;

@@ -16,7 +16,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 
-public interface IPQOrdersCountPriceVolumeLayer : IMutableOrdersCountPriceVolumeLayer, IPQPriceVolumeLayer
+public interface IPQOrdersCountPriceVolumeLayer : IMutableOrdersCountPriceVolumeLayer, IPQPriceVolumeLayer, ITrackableReset<IPQOrdersCountPriceVolumeLayer>
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     bool IsOrdersCountUpdated { get; set; }
@@ -25,6 +25,7 @@ public interface IPQOrdersCountPriceVolumeLayer : IMutableOrdersCountPriceVolume
     bool IsInternalVolumeUpdated { get; set; }
 
     new IPQOrdersCountPriceVolumeLayer Clone();
+    new IPQOrdersCountPriceVolumeLayer ResetWithTracking();
 }
 
 public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountPriceVolumeLayer
@@ -62,7 +63,7 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
         $"{PQPriceVolumeLayerToStringMembers}, {nameof(OrdersCount)}: {OrdersCount}, {nameof(InternalVolume)}: {InternalVolume:N2}";
 
 
-    IOrdersCountPriceVolumeLayer ICloneable<IOrdersCountPriceVolumeLayer>.Clone() => (IOrdersCountPriceVolumeLayer)Clone();
+    IOrdersCountPriceVolumeLayer ICloneable<IOrdersCountPriceVolumeLayer>.Clone() => Clone();
 
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -131,6 +132,23 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
             OrdersCount    = 0;
             InternalVolume = 0m;
         }
+    }
+    
+
+    IMutableOrdersCountPriceVolumeLayer ITrackableReset<IMutableOrdersCountPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableOrdersCountPriceVolumeLayer IMutableOrdersCountPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    IPQOrdersCountPriceVolumeLayer ITrackableReset<IPQOrdersCountPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IPQOrdersCountPriceVolumeLayer IPQOrdersCountPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    public override PQOrdersCountPriceVolumeLayer ResetWithTracking()
+    {
+        OrdersCount    = 0;
+        InternalVolume = 0m;
+        base.ResetWithTracking();
+        return this;
     }
 
     public override void StateReset()

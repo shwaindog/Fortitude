@@ -277,6 +277,17 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
     public IEnumerator<IPriceVolumeLayer> GetEnumerator() => bookLayers.Take(Count).GetEnumerator()!;
 
+    
+    public OrderBookSide ResetWithTracking()
+    {
+        for (var i = 0; i < bookLayers.Count; i++) (bookLayers[i] as IMutablePriceVolumeLayer)?.ResetWithTracking();
+        openInterestSide?.ResetWithTracking();
+
+        return this;
+    }
+    
+    IMutableOrderBookSide ITrackableReset<IMutableOrderBookSide>.ResetWithTracking() => ResetWithTracking();
+
     public override void StateReset()
     {
         for (var i = 0; i < bookLayers.Count; i++) (bookLayers[i] as IMutablePriceVolumeLayer)?.StateReset();
@@ -284,7 +295,8 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         base.StateReset();
     }
 
-    public override IOrderBookSide CopyFrom(IOrderBookSide source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+
+    public override OrderBookSide CopyFrom(IOrderBookSide source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         LayerSupportedFlags = source.LayerSupportedFlags;
         MaxPublishDepth          = source.MaxPublishDepth;

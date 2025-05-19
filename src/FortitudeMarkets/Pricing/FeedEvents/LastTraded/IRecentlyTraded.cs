@@ -5,6 +5,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -18,8 +19,10 @@ public interface IRecentlyTraded : ILastTradedList, IInterfacesComparable<IRecen
     new IRecentlyTraded Clone();
 }
 
-public interface IMutableRecentlyTraded : IRecentlyTraded, IMutableLastTradedList
+public interface IMutableRecentlyTraded : IRecentlyTraded, IMutableLastTradedList, ITrackableReset<IMutableRecentlyTraded>
 {
     new TimeBoundaryPeriod     DuringPeriod { get; set; }
     new IMutableRecentlyTraded Clone();
+
+    new IMutableRecentlyTraded ResetWithTracking();
 }

@@ -1,0 +1,34 @@
+﻿using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
+
+namespace FortitudeMarkets.Pricing.FeedEvents;
+
+public interface IFeedEventStatusUpdate : IReusableObject<IFeedEventStatusUpdate>, IInterfacesComparable<IFeedEventStatusUpdate>
+{
+    FeedConnectivityStatusFlags FeedMarketConnectivityStatus { get; }
+
+    FeedSyncStatus FeedSyncStatus { get; }
+
+    DateTime ClientReceivedTime         { get; }
+    DateTime InboundSocketReceivingTime { get; }
+    DateTime InboundProcessedTime       { get; }
+    DateTime SubscriberDispatchedTime   { get; }
+    DateTime AdapterSentTime            { get; }
+    DateTime AdapterReceivedTime        { get; }
+}
+
+public interface IMutableFeedEventStatusUpdate : IFeedEventStatusUpdate, ICloneable<IMutableFeedEventStatusUpdate>
+{
+    new FeedConnectivityStatusFlags FeedMarketConnectivityStatus { get; set; }
+
+    new FeedSyncStatus FeedSyncStatus { get; set; }
+
+    new DateTime ClientReceivedTime         { get; set; }
+    new DateTime InboundSocketReceivingTime { get; set; }
+    new DateTime InboundProcessedTime       { get; set; }
+    new DateTime SubscriberDispatchedTime   { get; set; }
+    new DateTime AdapterSentTime            { get; set; }
+    new DateTime AdapterReceivedTime        { get; set; }
+
+    new IMutableFeedEventStatusUpdate Clone();
+}

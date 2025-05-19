@@ -50,6 +50,17 @@ public class SourceQuoteRefPriceVolumeLayer : SourcePriceVolumeLayer, IMutableSo
         }
     }
 
+    IMutableSourceQuoteRefPriceVolumeLayer ITrackableReset<IMutableSourceQuoteRefPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableSourceQuoteRefPriceVolumeLayer IMutableSourceQuoteRefPriceVolumeLayer.                 ResetWithTracking() => ResetWithTracking();
+
+    public override SourceQuoteRefPriceVolumeLayer ResetWithTracking()
+    {
+        SourceQuoteReference = 0;
+        base.ResetWithTracking();
+        return this;
+    }
+
     public override void StateReset()
     {
         base.StateReset();

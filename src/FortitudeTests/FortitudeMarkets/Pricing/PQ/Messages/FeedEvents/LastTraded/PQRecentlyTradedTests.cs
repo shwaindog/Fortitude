@@ -601,7 +601,7 @@ public class PQRecentlyTradedTests
 
     public static void AssertContainsAllLevelRecentlyTradedFields
     (IList<PQFieldUpdate> checkFieldUpdates,
-        IPQRecentlyTraded recentlyTraded, PQBooleanValues expectedBooleanFlags = PQBooleanValuesExtensions.AllFields
+        IPQRecentlyTraded recentlyTraded, PQQuoteBooleanValues expectedQuoteBooleanFlags = PQQuoteBooleanValuesExtensions.LivePricingFieldsSetNoReplayOrSnapshots
       ,  PQFieldFlags priceScale = (PQFieldFlags)1,  PQFieldFlags volumeScale = (PQFieldFlags)6)
     {
         for (var i = 0; i < recentlyTraded.Count; i++)

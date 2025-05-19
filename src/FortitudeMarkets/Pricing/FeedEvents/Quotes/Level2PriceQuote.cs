@@ -26,11 +26,11 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
     }
 
     public Level2PriceQuote
-    (ISourceTickerInfo sourceTickerInfo, decimal singlePrice = 0m, bool isReplay = false, DateTime? sourceTime = null
-      , DateTime? sourceBidTime = null, bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null, DateTime? validFrom = null
-      , DateTime? validTo = null, bool isAskPriceTopChanged = false, bool executable = false, IOrderBook? orderBookParam = null) :
-        base(singlePrice, isReplay, sourceTime, sourceBidTime, validFrom, validTo, 0m, isBidPriceTopChanged, sourceAskTime, 0m,
-             isAskPriceTopChanged, executable)
+    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, IOrderBook? orderBookParam = null 
+      , bool isBidPriceTopChanged = false, bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null, DateTime? validFrom = null
+      , DateTime? validTo = null, bool executable = false, decimal singlePrice = 0m) :
+        base( sourceTime, 0m, 0m, isBidPriceTopChanged, isAskPriceTopChanged, sourceBidTime, 
+             sourceAskTime, validFrom, validTo, executable, singlePrice)
     {
         if (orderBookParam is OrderBook mutOrderBook)
         {
@@ -95,6 +95,18 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
         set { AskBook[0]!.Price = value; }
     }
 
+    IMutableLevel2Quote ITrackableReset<IMutableLevel2Quote>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableLevel2Quote IMutableLevel2Quote.                 ResetWithTracking() => ResetWithTracking();
+
+    public override Level2PriceQuote ResetWithTracking()
+    {
+        OrderBook.ResetWithTracking();
+
+        base.ResetWithTracking();
+        return this;
+    }
+
     public override Level2PriceQuote CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
@@ -151,31 +163,24 @@ public class PublishableLevel2PriceQuote : PublishableLevel1PriceQuote, IMutable
     }
 
     public PublishableLevel2PriceQuote
-    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, bool isReplay = false, FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good
-      , decimal singlePrice = 0m, DateTime? clientReceivedTime = null, DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null
-      , DateTime? sourceBidTime = null, bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null, DateTime? validFrom = null
-      , DateTime? validTo = null, bool isAskPriceTopChanged = false, bool executable = false, ICandle? conflationTicksCandle = null
-      , IOrderBook? orderBook = null) :
-        this(new Level2PriceQuote(sourceTickerInfo, singlePrice, isReplay, sourceTime, sourceBidTime, isBidPriceTopChanged, sourceAskTime, validFrom, 
-                                  validTo, isAskPriceTopChanged, executable, orderBook), sourceTickerInfo,  
-             feedSyncStatus, clientReceivedTime, adapterReceivedTime, adapterSentTime,  conflationTicksCandle)
-    {
-    }
+    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, IOrderBook? orderBook = null
+      , bool isBidPriceTopChanged = false, bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null, DateTime? validFrom = null
+      , DateTime? validTo = null, bool executable = false, FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good
+      , FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None, decimal singlePrice = 0m, ICandle? conflationTicksCandle = null) :
+        this(new Level2PriceQuote(sourceTickerInfo,  sourceTime, orderBook, isBidPriceTopChanged, isAskPriceTopChanged, 
+                                  sourceBidTime, sourceAskTime, validFrom, validTo, executable,  singlePrice), sourceTickerInfo,
+             feedSyncStatus, feedConnectivityStatus, conflationTicksCandle) { }
 
     protected PublishableLevel2PriceQuote
     (IMutableTickInstant? initialisedQuoteContainer, ISourceTickerInfo sourceTickerInfo,
-        FeedSyncStatus syncStatus = FeedSyncStatus.Good, DateTime? clientReceivedTime = null,
-        DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null, ICandle? conflationTicksCandle = null)
-        : base(initialisedQuoteContainer, sourceTickerInfo, syncStatus, clientReceivedTime,
-               adapterReceivedTime, adapterSentTime, conflationTicksCandle)
-    {
-    }
+        FeedSyncStatus syncStatus = FeedSyncStatus.Good, FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None
+      , ICandle? conflationTicksCandle = null)
+        : base(initialisedQuoteContainer, sourceTickerInfo, syncStatus, feedConnectivityStatus, conflationTicksCandle) { }
 
-    public PublishableLevel2PriceQuote(IPublishableTickInstant toClone) : this(toClone, null)
-    {
-    }
+    public PublishableLevel2PriceQuote(IPublishableTickInstant toClone) : this(toClone, null) { }
 
-    protected PublishableLevel2PriceQuote(IPublishableTickInstant toClone, IMutableTickInstant? initializedQuoteContainer) : base(toClone, initializedQuoteContainer)
+    protected PublishableLevel2PriceQuote
+        (IPublishableTickInstant toClone, IMutableTickInstant? initializedQuoteContainer) : base(toClone, initializedQuoteContainer)
     {
         if (toClone is not IPublishableLevel2Quote && toClone.SourceTickerInfo != null)
         {
@@ -285,7 +290,7 @@ public class PublishableLevel2PriceQuote : PublishableLevel1PriceQuote, IMutable
             }
             else
             {
-                AsNonPublishable.OrderBook.BidSide[0]        = OrderBookSide.LayerSelector.FindForLayerFlags(SourceTickerInfo!) as IMutablePriceVolumeLayer;
+                AsNonPublishable.OrderBook.BidSide[0] = OrderBookSide.LayerSelector.FindForLayerFlags(SourceTickerInfo!) as IMutablePriceVolumeLayer;
                 AsNonPublishable.OrderBook.BidSide[0]!.Price = value;
             }
         }
@@ -303,10 +308,24 @@ public class PublishableLevel2PriceQuote : PublishableLevel1PriceQuote, IMutable
             }
             else
             {
-                AsNonPublishable.OrderBook.AskSide[0]        = OrderBookSide.LayerSelector.FindForLayerFlags(SourceTickerInfo!) as IMutablePriceVolumeLayer;
+                AsNonPublishable.OrderBook.AskSide[0] = OrderBookSide.LayerSelector.FindForLayerFlags(SourceTickerInfo!) as IMutablePriceVolumeLayer;
                 AsNonPublishable.OrderBook.AskSide[0]!.Price = value;
             }
         }
+    }
+
+    IMutableLevel2Quote ITrackableReset<IMutableLevel2Quote>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableLevel2Quote IMutableLevel2Quote.ResetWithTracking() => ResetWithTracking();
+
+    IMutablePublishableLevel2Quote ITrackableReset<IMutablePublishableLevel2Quote>.ResetWithTracking() => ResetWithTracking();
+
+    IMutablePublishableLevel2Quote IMutablePublishableLevel2Quote.ResetWithTracking() => ResetWithTracking();
+
+    public override PublishableLevel2PriceQuote ResetWithTracking()
+    {
+        base.ResetWithTracking();
+        return this;
     }
 
     public override PublishableLevel2PriceQuote CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

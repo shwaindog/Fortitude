@@ -40,7 +40,7 @@ public class PQClientSyncMonitoringTests
 
     private List<ISourceTickerInfo>       lastUniqueSourceTickerIdentifiers   = null!;
     private ThreadStart                   monitorAction                       = null!;
-    private Mock<IPQQuoteDeserializer>    moqFirstQuoteDeserializer           = null!;
+    private Mock<IPQMessageDeserializer>    moqFirstQuoteDeserializer           = null!;
     private Mock<ISourceTickerInfo>       moqFirstQuoteDeserializerIdentifier = null!;
     private Mock<IFLogger>                moqLogger                           = null!;
     private Mock<IMarketConnectionConfig> moqMarketConnectionConfig           = null!;
@@ -49,7 +49,7 @@ public class PQClientSyncMonitoringTests
 
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
 
-    private Mock<IPQQuoteDeserializer> moqSecondQuoteDeserializer           = null!;
+    private Mock<IPQMessageDeserializer> moqSecondQuoteDeserializer           = null!;
     private Mock<ISourceTickerInfo>    moqSecondQuoteDeserializerIdentifier = null!;
     private Mock<ISequencer>           moqSequencer                         = null!;
 
@@ -58,8 +58,8 @@ public class PQClientSyncMonitoringTests
     private Mock<IPricingServerConfig> moqSnapshotUpdatePricingServerConfig = null!;
     private Mock<IIntraOSThreadSignal> moqStopSignal                        = null!;
 
-    private Mock<IDoublyLinkedList<IPQQuoteDeserializer>> moqSyncKo = null!;
-    private Mock<IDoublyLinkedList<IPQQuoteDeserializer>> moqSyncOk = null!;
+    private Mock<IDoublyLinkedList<IPQMessageDeserializer>> moqSyncKo = null!;
+    private Mock<IDoublyLinkedList<IPQMessageDeserializer>> moqSyncOk = null!;
 
     private Mock<ITimeContext>     moqTimeContext                  = null!;
     private Mock<IEndpointConfig>  moqUpdateServerConnectionConfig = null!;
@@ -108,9 +108,9 @@ public class PQClientSyncMonitoringTests
         };
         pqClientSyncMonitoring = new PQClientSyncMonitoring(getSourceServerConfigFunc, snapShotRequestActionFunc);
 
-        moqSyncKo = new Mock<IDoublyLinkedList<IPQQuoteDeserializer>>();
+        moqSyncKo = new Mock<IDoublyLinkedList<IPQMessageDeserializer>>();
         moqSyncKo.SetupAllProperties();
-        moqSyncOk = new Mock<IDoublyLinkedList<IPQQuoteDeserializer>>();
+        moqSyncOk = new Mock<IDoublyLinkedList<IPQMessageDeserializer>>();
         moqSyncOk.SetupAllProperties();
 
         NonPublicInvocator.SetInstanceField(pqClientSyncMonitoring, "syncKo", moqSyncKo.Object);
@@ -122,9 +122,9 @@ public class PQClientSyncMonitoringTests
         moqParallelController.Setup(pc => pc.CreateNewOSThread(It.IsAny<ThreadStart>())).Returns(moqOsThread.Object)
                              .Callback<ThreadStart>(ts => { monitorAction = ts; }).Verifiable();
 
-        moqFirstQuoteDeserializer = new Mock<IPQQuoteDeserializer>();
+        moqFirstQuoteDeserializer = new Mock<IPQMessageDeserializer>();
         moqFirstQuoteDeserializer.SetupAllProperties();
-        moqSecondQuoteDeserializer = new Mock<IPQQuoteDeserializer>();
+        moqSecondQuoteDeserializer = new Mock<IPQMessageDeserializer>();
         moqSecondQuoteDeserializer.SetupAllProperties();
 
         sequencerSequence = 1;
@@ -334,8 +334,8 @@ public class PQClientSyncMonitoringTests
                  .Returns(moqFirstQuoteDeserializer.Object).Returns(moqSecondQuoteDeserializer.Object)
                  .Returns(moqFirstQuoteDeserializer.Object);
         moqSyncOk.SetupSequence(sok => sok.Head).Returns(moqFirstQuoteDeserializer.Object)
-                 .Returns(null as IPQQuoteDeserializer)
-                 .Returns(moqFirstQuoteDeserializer.Object).Returns(null as IPQQuoteDeserializer);
+                 .Returns(null as IPQMessageDeserializer)
+                 .Returns(moqFirstQuoteDeserializer.Object).Returns(null as IPQMessageDeserializer);
         var count = 0;
         moqSnapshotUpdatePricingServerConfig
             .SetupGet(supsc => supsc.SnapshotConnectionConfig)
@@ -518,7 +518,7 @@ public class PQClientSyncMonitoringTests
         moqStopSignal.Setup(iosts => iosts.WaitOne(It.IsAny<int>())).Returns(false).Verifiable();
         moqSyncOk.SetupSequence(sok => sok.Head)
                  .Returns(moqFirstQuoteDeserializer.Object)
-                 .Returns(null as IPQQuoteDeserializer);
+                 .Returns(null as IPQMessageDeserializer);
         moqFirstQuoteDeserializer.Setup(qu => qu.HasTimedOutAndNeedsSnapshot(It.IsAny<DateTime>()))
                                  .Returns(true)
                                  .Verifiable();
@@ -552,5 +552,5 @@ public class PQClientSyncMonitoringTests
         moqSecondQuoteDeserializerIdentifier.SetupGet(usti => usti.SourceName).Returns("TestSecondSource");
     }
 
-    private void NoOp(IPQQuoteDeserializer obj) { }
+    private void NoOp(IPQMessageDeserializer obj) { }
 }

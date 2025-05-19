@@ -23,12 +23,14 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Lay
 [JsonDerivedType(typeof(PQValueDatePriceVolumeLayer))]
 [JsonDerivedType(typeof(PQOrdersCountPriceVolumeLayer))]
 [JsonDerivedType(typeof(PQOrdersPriceVolumeLayer))]
-public interface IPQPriceVolumeLayer : IMutablePriceVolumeLayer, IPQSupportsFieldUpdates<IPriceVolumeLayer>
+public interface IPQPriceVolumeLayer : IMutablePriceVolumeLayer, IPQSupportsNumberPrecisionFieldUpdates<IPriceVolumeLayer>
+  , ITrackableReset<IPQPriceVolumeLayer>
 {
     [JsonIgnore] bool IsPriceUpdated  { get; set; }
     [JsonIgnore] bool IsVolumeUpdated { get; set; }
 
     new IPQPriceVolumeLayer Clone();
+    new IPQPriceVolumeLayer ResetWithTracking();
 }
 
 public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVolumeLayer
@@ -154,6 +156,19 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
     {
         if (HasUpdates && !IsEmpty) NumUpdatesSinceEmpty++;
         HasUpdates = false;
+    }
+
+    IMutablePriceVolumeLayer ITrackableReset<IMutablePriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IPQPriceVolumeLayer ITrackableReset<IPQPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IPQPriceVolumeLayer IPQPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    public virtual PQPriceVolumeLayer ResetWithTracking()
+    {
+        Price  = 0m;
+        Volume = 0m;
+        return this;
     }
 
     public override void StateReset()

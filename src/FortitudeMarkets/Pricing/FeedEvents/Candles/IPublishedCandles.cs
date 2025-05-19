@@ -1,5 +1,6 @@
 ﻿using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.Candles;
 
@@ -7,6 +8,6 @@ public interface IPublishedCandles: IReusableObject<IPublishedCandles>, IInterfa
 {
 }
 
-public interface IMutablePublishedCandles : IPublishedCandles
+public interface IMutablePublishedCandles : IPublishedCandles, ITrackableReset<IMutablePublishedCandles> 
 {
 }

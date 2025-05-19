@@ -21,14 +21,12 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ICloneabl
     public Level3PriceQuote() { }
 
     public Level3PriceQuote
-    (ISourceTickerInfo sourceTickerInfo, decimal singlePrice = 0m, bool isReplay = false, DateTime? sourceTime = null,  DateTime? sourceBidTime = null
-      , bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null, DateTime? validFrom = null, DateTime? validTo = null
-      , bool isAskPriceTopChanged = false, bool executable = false, IOrderBook? orderBook = null, IOnTickLastTraded? onTickLastTraded = null, 
-        uint batchId = 0u, uint sourceQuoteRef = 0u, DateTime? valueDate = null)
-        : base(sourceTickerInfo, singlePrice, isReplay, sourceTime, sourceBidTime, isBidPriceTopChanged, sourceAskTime, 
-               validFrom, validTo, isAskPriceTopChanged, executable
-              ,
-               orderBook ?? new OrderBook(sourceTickerInfo))
+    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, IOrderBook? orderBook = null, IOnTickLastTraded? onTickLastTraded = null
+      , uint batchId = 0u, uint sourceQuoteRef = 0u, DateTime? valueDate = null,  bool isBidPriceTopChanged = false, bool isAskPriceTopChanged = false, 
+        DateTime? sourceBidTime = null ,DateTime? sourceAskTime = null, DateTime? validFrom = null, DateTime? validTo = null
+      , bool executable = false, decimal singlePrice = 0m)
+        : base(sourceTickerInfo,  sourceTime, orderBook, isBidPriceTopChanged, isAskPriceTopChanged, sourceBidTime, sourceAskTime,
+               validFrom, validTo, executable, singlePrice )
     {
         if (onTickLastTraded is OnTickLastTraded mutableOnTickLastTraded)
             OnTickLastTraded = mutableOnTickLastTraded;
@@ -82,6 +80,23 @@ public class Level3PriceQuote : Level2PriceQuote, IMutableLevel3Quote, ICloneabl
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public DateTime ValueDate { get; set; }
+
+
+    IMutableLevel3Quote ITrackableReset<IMutableLevel3Quote>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableLevel3Quote IMutableLevel3Quote.ResetWithTracking() => ResetWithTracking();
+
+
+    public override Level3PriceQuote ResetWithTracking()
+    {
+        OnTickLastTraded?.ResetWithTracking();
+        BatchId              = 0;
+        SourceQuoteReference = 0;
+        ValueDate            = DateTime.MinValue;
+
+        base.ResetWithTracking();
+        return this;
+    }
 
     public override Level3PriceQuote CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -152,35 +167,25 @@ public class PublishableLevel3PriceQuote : PublishableLevel2PriceQuote, IMutable
     public PublishableLevel3PriceQuote() { }
 
     public PublishableLevel3PriceQuote
-    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, bool isReplay = false, FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good
-      , decimal singlePrice = 0m
-      , DateTime? clientReceivedTime = null, DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null, DateTime? sourceBidTime = null
-      , bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null, DateTime? validFrom = null, DateTime? validTo = null
-      , bool isAskPriceTopChanged = false
-      , bool executable = false, ICandle? conflationTicksCandle = null, IOrderBook? orderBook = null,
-        IOnTickLastTraded? onTickLastTraded = null, uint batchId = 0u, uint sourceQuoteRef = 0u
-      , DateTime? valueDate = null)
-        : this(new Level3PriceQuote(sourceTickerInfo, singlePrice, isReplay, sourceTime, sourceBidTime, isBidPriceTopChanged, sourceAskTime, validFrom, validTo, 
-                                    isAskPriceTopChanged, executable, orderBook, onTickLastTraded, batchId, sourceQuoteRef, valueDate )
-             , sourceTickerInfo, feedSyncStatus, clientReceivedTime, adapterReceivedTime, adapterSentTime, conflationTicksCandle)
-    {
-    }
+    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, IOrderBook? orderBook = null, IOnTickLastTraded? onTickLastTraded = null
+      , uint batchId = 0u, uint sourceQuoteRef = 0u, DateTime? valueDate = null, bool isBidPriceTopChanged = false, bool isAskPriceTopChanged = false
+      , DateTime? sourceBidTime = null, DateTime? sourceAskTime = null, DateTime? validFrom = null, DateTime? validTo = null , bool executable = false
+      , FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good, FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None
+      , decimal singlePrice = 0m, ICandle? conflationTicksCandle = null)
+        : this(new Level3PriceQuote(sourceTickerInfo, sourceTime,  orderBook, onTickLastTraded, batchId, sourceQuoteRef, valueDate, isBidPriceTopChanged, isAskPriceTopChanged
+                                  , sourceBidTime, sourceAskTime, validFrom , validTo, executable, singlePrice)
+             , sourceTickerInfo, feedSyncStatus, feedConnectivityStatus, conflationTicksCandle) { }
 
     protected PublishableLevel3PriceQuote
     (IMutableTickInstant? initialisedQuoteContainer, ISourceTickerInfo sourceTickerInfo
-      , FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good, DateTime? clientReceivedTime = null, DateTime? adapterReceivedTime = null
-      , DateTime? adapterSentTime = null, ICandle? conflationTicksCandle = null)
-        : base(initialisedQuoteContainer, sourceTickerInfo, feedSyncStatus, clientReceivedTime, adapterReceivedTime,
-               adapterSentTime, conflationTicksCandle)
-    {
-    }
+      , FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good, FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None
+      , ICandle? conflationTicksCandle = null)
+        : base(initialisedQuoteContainer, sourceTickerInfo, feedSyncStatus, feedConnectivityStatus, conflationTicksCandle) { }
 
     public PublishableLevel3PriceQuote(IPublishableTickInstant toClone) : this(toClone, null) { }
 
     protected PublishableLevel3PriceQuote(IPublishableTickInstant toClone, IMutableTickInstant? initializedQuoteContainer)
-        : base(toClone, initializedQuoteContainer)
-    {
-    }
+        : base(toClone, initializedQuoteContainer) { }
 
     protected override IMutableLevel3Quote CreateEmptyQuoteContainerInstant() => new Level3PriceQuote();
 
@@ -276,6 +281,20 @@ public class PublishableLevel3PriceQuote : PublishableLevel2PriceQuote, IMutable
     {
         get => AsNonPublishable.ValueDate;
         set => AsNonPublishable.ValueDate = value;
+    }
+
+    IMutableLevel3Quote ITrackableReset<IMutableLevel3Quote>.                      ResetWithTracking() => ResetWithTracking();
+
+    IMutableLevel3Quote IMutableLevel3Quote.                                       ResetWithTracking() => ResetWithTracking();
+
+    IMutablePublishableLevel3Quote ITrackableReset<IMutablePublishableLevel3Quote>.ResetWithTracking() => ResetWithTracking();
+
+    IMutablePublishableLevel3Quote IMutablePublishableLevel3Quote.                 ResetWithTracking() => ResetWithTracking();
+
+    public override PublishableLevel3PriceQuote ResetWithTracking()
+    {
+        base.ResetWithTracking();
+        return this;
     }
 
     public override PublishableLevel3PriceQuote CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

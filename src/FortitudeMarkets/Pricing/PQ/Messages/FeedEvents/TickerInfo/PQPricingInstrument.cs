@@ -272,29 +272,36 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
         return base.UpdateField(fieldUpdate);
     }
 
-    public override IPQSourceTickerId CopyFrom(IPQSourceTickerId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override PQPricingInstrument CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        if (source is IPQPricingInstrumentId pqPricingInstrumentId) return (IPQSourceTickerId)CopyFrom(pqPricingInstrumentId, copyMergeFlags);
-        return base.CopyFrom(source, copyMergeFlags);
-    }
-
-    public IPricingInstrumentId CopyFrom(IPricingInstrumentId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        ((IPQSourceTickerId)this).CopyFrom(source, copyMergeFlags);
-        if (source is IPQPricingInstrumentId pqPricingInstrumentId && copyMergeFlags == CopyMergeFlags.JustDifferences)
+        base.CopyFrom(source, copyMergeFlags);
+        if (source is IPQPricingInstrumentId pqPricingInstrumentId)
         {
-            if (pqPricingInstrumentId.IsMarketClassificationUpdated) MarketClassification = pqPricingInstrumentId.MarketClassification;
+            if (copyMergeFlags == CopyMergeFlags.JustDifferences)
+            {
+                if (pqPricingInstrumentId.IsMarketClassificationUpdated) MarketClassification = pqPricingInstrumentId.MarketClassification;
+            }
+            else
+            {
+                CoveringPeriod = pqPricingInstrumentId.CoveringPeriod;
+                InstrumentType = pqPricingInstrumentId.InstrumentType;
+                foreach (var instrumentFields in pqPricingInstrumentId.FilledAttributes) this[instrumentFields.Key] = instrumentFields.Value;
+            }
         }
-        else
+        else if(source is IPricingInstrumentId pricingInstrumentId)
         {
-            CoveringPeriod       = source.CoveringPeriod;
-            MarketClassification = source.MarketClassification;
-            InstrumentType       = source.InstrumentType;
+            CoveringPeriod       = pricingInstrumentId.CoveringPeriod;
+            MarketClassification = pricingInstrumentId.MarketClassification;
+            InstrumentType       = pricingInstrumentId.InstrumentType;
+            foreach (var instrumentFields in pricingInstrumentId.FilledAttributes) 
+                this[instrumentFields.Key] = instrumentFields.Value;
         }
-        foreach (var instrumentFields in source.FilledAttributes) this[instrumentFields.Key] = instrumentFields.Value;
-
         return this;
     }
+
+    IPricingInstrumentId ITransferState<IPricingInstrumentId>.CopyFrom(IPricingInstrumentId source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom(source, copyMergeFlags);
+
 
     IPricingInstrumentId ICloneable<IPricingInstrumentId>.Clone() => Clone();
 
@@ -305,7 +312,7 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
 
     IReusableObject<IPricingInstrumentId> ITransferState<IReusableObject<IPricingInstrumentId>>.CopyFrom
         (IReusableObject<IPricingInstrumentId> source, CopyMergeFlags copyMergeFlags) =>
-        (IPQPricingInstrumentId)CopyFrom(source, copyMergeFlags);
+        CopyFrom((ISourceTickerId)source, copyMergeFlags);
 
     public override bool AreEquivalent(ISourceTickerInfo? other, bool exactTypes = false)
     {

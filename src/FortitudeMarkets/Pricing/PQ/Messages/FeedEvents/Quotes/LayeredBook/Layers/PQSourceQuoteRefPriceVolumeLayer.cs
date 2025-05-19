@@ -17,12 +17,13 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 
 public interface IPQSourceQuoteRefPriceVolumeLayer : IMutableSourceQuoteRefPriceVolumeLayer,
-    IPQSourcePriceVolumeLayer
+    IPQSourcePriceVolumeLayer, ITrackableReset<IPQSourceQuoteRefPriceVolumeLayer>
 
 {
     bool IsSourceQuoteReferenceUpdated { get; set; }
 
     new IPQSourceQuoteRefPriceVolumeLayer Clone();
+    new IPQSourceQuoteRefPriceVolumeLayer ResetWithTracking();
 }
 
 public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSourceQuoteRefPriceVolumeLayer
@@ -89,6 +90,21 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         }
     }
 
+    IMutableSourceQuoteRefPriceVolumeLayer ITrackableReset<IMutableSourceQuoteRefPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableSourceQuoteRefPriceVolumeLayer IMutableSourceQuoteRefPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    IPQSourceQuoteRefPriceVolumeLayer ITrackableReset<IPQSourceQuoteRefPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IPQSourceQuoteRefPriceVolumeLayer IPQSourceQuoteRefPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    public override PQSourceQuoteRefPriceVolumeLayer ResetWithTracking()
+    {
+        SourceQuoteReference = 0;
+        base.ResetWithTracking();
+        return this;
+    }
+
     public override void StateReset()
     {
         SourceQuoteReference = 0;
@@ -115,10 +131,11 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                 quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
-        if (!updatedOnly || IsSourceQuoteReferenceUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteLayerSourceQuoteRef, SourceQuoteReference);
+        if (!updatedOnly || IsSourceQuoteReferenceUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerSourceQuoteRef, SourceQuoteReference);
     }
 
-    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override PQSourceQuoteRefPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         var pqSourcePvl   = source as IPQSourceQuoteRefPriceVolumeLayer;

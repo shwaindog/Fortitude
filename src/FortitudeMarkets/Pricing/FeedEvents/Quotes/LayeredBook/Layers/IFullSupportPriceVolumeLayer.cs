@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -17,7 +18,8 @@ public interface IFullSupportPriceVolumeLayer : ISourceQuoteRefPriceVolumeLayer,
 
 public interface IMutableFullSupportPriceVolumeLayer : IFullSupportPriceVolumeLayer,
     IMutableSourceQuoteRefPriceVolumeLayer, IMutableValueDatePriceVolumeLayer, IMutableOrdersPriceVolumeLayer,
-    ICloneable<IMutableFullSupportPriceVolumeLayer>
+    ICloneable<IMutableFullSupportPriceVolumeLayer>, ITrackableReset<IMutableFullSupportPriceVolumeLayer>
 {
     new IMutableFullSupportPriceVolumeLayer Clone();
+    new IMutableFullSupportPriceVolumeLayer ResetWithTracking();
 }

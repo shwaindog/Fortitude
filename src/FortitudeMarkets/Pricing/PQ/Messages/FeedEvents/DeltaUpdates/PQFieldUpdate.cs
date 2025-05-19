@@ -299,6 +299,14 @@ public static class PQFieldUpdateExtensions
         new(fieldUpdate.Id, fieldUpdate.DepthId | atDepth,
             fieldUpdate.SubIdByte, fieldUpdate.AuxiliaryPayload, fieldUpdate.Payload, fieldUpdate.Flag);
 
+    public static PQFieldUpdate WithNewPayload(this PQFieldUpdate fieldUpdate, uint newPayload) =>
+        new(fieldUpdate.Id, fieldUpdate.DepthId,
+            fieldUpdate.SubIdByte, fieldUpdate.AuxiliaryPayload, newPayload, fieldUpdate.Flag);
+
+    public static PQFieldUpdate MergePayloadFlagsWith(this PQFieldUpdate fieldUpdate, uint toBitMergeWithExisting) =>
+        new(fieldUpdate.Id, fieldUpdate.DepthId,
+            fieldUpdate.SubIdByte, fieldUpdate.AuxiliaryPayload, fieldUpdate.Payload | toBitMergeWithExisting, fieldUpdate.Flag);
+
     public static PQFieldUpdate WithFieldId(this PQFieldUpdate fieldUpdate, PQFeedFields newField) =>
         new(newField, fieldUpdate.DepthId,
             fieldUpdate.SubIdByte, fieldUpdate.AuxiliaryPayload, fieldUpdate.Payload, fieldUpdate.Flag);

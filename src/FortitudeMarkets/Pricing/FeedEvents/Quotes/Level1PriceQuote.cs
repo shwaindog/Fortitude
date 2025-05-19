@@ -20,10 +20,10 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
     public Level1PriceQuote() { }
 
     public Level1PriceQuote
-    (decimal singlePrice = 0m, bool isReplay = false, DateTime? sourceTime = null, DateTime? sourceBidTime = null, DateTime? validFrom = null,
-        DateTime? validTo = null, decimal bidPriceTop = 0m, bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null,
-        decimal askPriceTop = 0m, bool isAskPriceTopChanged = false, bool executable = false)
-        : base(singlePrice, isReplay, sourceTime)
+    (DateTime? sourceTime = null, decimal bidPriceTop = 0m,  decimal askPriceTop = 0m, bool isBidPriceTopChanged = false, 
+        bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null, DateTime? validFrom = null
+      , DateTime? validTo = null, bool executable = false, decimal singlePrice = 0m)
+        : base(singlePrice, sourceTime)
     {
         ValidFrom            = validFrom ?? DateTime.MinValue;
         ValidTo              = validTo ?? DateTime.MinValue;
@@ -154,6 +154,27 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
         return this;
     }
 
+    IMutableLevel1Quote ITrackableReset<IMutableLevel1Quote>.ResetWithTracking() => ResetWithTracking();
+
+    public override IMutableLevel1Quote ResetWithTracking()
+    {
+        BidPriceTop   = 0m;
+        AskPriceTop   = 0m;
+        SourceBidTime = DateTime.MinValue;
+        SourceAskTime = DateTime.MinValue;
+
+        ValidFrom = DateTime.MinValue;
+        ValidTo   = DateTime.MinValue;
+
+        IsAskPriceTopChanged = false;
+        IsBidPriceTopChanged = false;
+
+        Executable = true;
+
+        base.ResetWithTracking();
+        return this;
+    }
+
     bool IInterfacesComparable<IBidAskInstant>.AreEquivalent(IBidAskInstant? other, bool exactTypes)
     {
         if (other == null) return false;
@@ -222,23 +243,20 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
     public PublishableLevel1PriceQuote() { }
 
     public PublishableLevel1PriceQuote
-    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null,
-        bool isReplay = false, FeedSyncStatus syncStatus = FeedSyncStatus.Good, decimal singlePrice = 0m, DateTime? clientReceivedTime = null,
-        DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null, DateTime? sourceBidTime = null, DateTime? validFrom = null,
-        DateTime? validTo = null, decimal bidPriceTop = 0m, bool isBidPriceTopChanged = false, DateTime? sourceAskTime = null,
-        decimal askPriceTop = 0m, bool isAskPriceTopChanged = false, bool executable = false, ICandle? conflationTicksCandle = null)
-        : this(new Level1PriceQuote(singlePrice, isReplay, sourceTime, sourceBidTime, validFrom, validTo, bidPriceTop, isBidPriceTopChanged,
-                                    sourceAskTime, askPriceTop, isAskPriceTopChanged, executable),
-               sourceTickerInfo, syncStatus, clientReceivedTime, adapterReceivedTime, adapterSentTime, conflationTicksCandle) { }
+    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, decimal bidPriceTop = 0m, decimal askPriceTop = 0m, bool isBidPriceTopChanged = false
+      , bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null, DateTime? validFrom = null, DateTime? validTo = null
+      , bool executable = false, FeedSyncStatus syncStatus = FeedSyncStatus.Good, FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None
+      , decimal singlePrice = 0m, ICandle? conflationTicksCandle = null)
+        : this(new Level1PriceQuote( sourceTime, bidPriceTop, askPriceTop, isBidPriceTopChanged, isAskPriceTopChanged, 
+                                    sourceBidTime, sourceAskTime, validFrom, validTo,  executable, singlePrice),
+               sourceTickerInfo, syncStatus, feedConnectivityStatus, conflationTicksCandle) { }
 
     protected PublishableLevel1PriceQuote
     (IMutableTickInstant? initialisedQuoteContainer, ISourceTickerInfo sourceTickerInfo,
-        FeedSyncStatus syncStatus = FeedSyncStatus.Good, DateTime? clientReceivedTime = null,
-        DateTime? adapterReceivedTime = null, DateTime? adapterSentTime = null, ICandle? conflationTicksCandle = null)
-        : base(initialisedQuoteContainer, sourceTickerInfo, syncStatus, clientReceivedTime)
+        FeedSyncStatus syncStatus = FeedSyncStatus.Good, FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None
+      , ICandle? conflationTicksCandle = null)
+        : base(initialisedQuoteContainer, sourceTickerInfo, syncStatus, feedConnectivityStatus)
     {
-        AdapterReceivedTime = adapterReceivedTime ?? DateTime.MinValue;
-        AdapterSentTime     = adapterSentTime ?? DateTime.MinValue;
         if (conflationTicksCandle is not null) ConflatedTicksCandle = new Candle(conflationTicksCandle);
     }
 
@@ -249,8 +267,6 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
     {
         if (toClone is IPublishableLevel1Quote lvl1Quote)
         {
-            AdapterReceivedTime = lvl1Quote.AdapterReceivedTime;
-            AdapterSentTime     = lvl1Quote.AdapterSentTime;
             if (lvl1Quote.ConflatedTicksCandle is { IsEmpty: false }) ConflatedTicksCandle = new Candle(lvl1Quote.ConflatedTicksCandle);
         }
     }
@@ -338,12 +354,6 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
 
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTime AdapterReceivedTime { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTime AdapterSentTime { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public DateTime SourceAskTime
     {
         get => AsNonPublishable.SourceAskTime;
@@ -416,13 +426,20 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
     ICandle? IPublishableLevel1Quote.ConflatedTicksCandle => ConflatedTicksCandle;
 
 
-    public override void IncrementTimeBy(TimeSpan toChangeBy)
+    IMutableLevel1Quote ITrackableReset<IMutableLevel1Quote>.ResetWithTracking() => throw new NotImplementedException();
+
+    IMutableLevel1Quote IMutableLevel1Quote.ResetWithTracking() => throw new NotImplementedException();
+
+    IMutablePublishableLevel1Quote ITrackableReset<IMutablePublishableLevel1Quote>.ResetWithTracking() => throw new NotImplementedException();
+
+    IMutablePublishableLevel1Quote IMutablePublishableLevel1Quote.ResetWithTracking() => throw new NotImplementedException();
+
+    public override PublishableLevel1PriceQuote ResetWithTracking()
     {
-        base.IncrementTimeBy(toChangeBy);
-        AdapterReceivedTime += toChangeBy;
-        AdapterSentTime     += toChangeBy;
-        AsNonPublishable.IncrementTimeBy(toChangeBy);
+        base.ResetWithTracking();
+        return this;
     }
+
 
     IReusableObject<IBidAskInstant> ITransferState<IReusableObject<IBidAskInstant>>.CopyFrom
         (IReusableObject<IBidAskInstant> source, CopyMergeFlags copyMergeFlags)
@@ -457,8 +474,6 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
 
         if (source is IPublishableLevel1Quote level1Quote)
         {
-            AdapterReceivedTime = level1Quote.AdapterReceivedTime;
-            AdapterSentTime     = level1Quote.AdapterSentTime;
             if (level1Quote.ConflatedTicksCandle is { IsEmpty: false })
             {
                 ConflatedTicksCandle ??= new Candle();
@@ -482,22 +497,19 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
     bool IInterfacesComparable<IBidAskInstant>.AreEquivalent(IBidAskInstant? other, bool exactTypes) =>
         AreEquivalent(other as IPublishableLevel1Quote, exactTypes);
 
-    bool IMutableLevel1Quote.AreEquivalent(ITickInstant? other, bool exactTypes) =>
-        AreEquivalent(other as IPublishableLevel1Quote, exactTypes);
+    bool IMutableLevel1Quote.AreEquivalent(ITickInstant? other, bool exactTypes) => AreEquivalent(other as IPublishableLevel1Quote, exactTypes);
 
     public override bool AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false)
     {
         if (other is not IPublishableLevel1Quote otherL1) return false;
         var baseIsSame = base.AreEquivalent(otherL1, exactTypes);
-
-        var adapterReceivedTimeSame = AdapterReceivedTime.Equals(otherL1.AdapterReceivedTime);
-        var adapterSentTimeSame     = AdapterSentTime.Equals(otherL1.AdapterSentTime);
         var conflationTicksCandleSame
-            = ((ConflatedTicksCandle == null || ConflatedTicksCandle.IsEmpty) && (otherL1.ConflatedTicksCandle == null || otherL1.ConflatedTicksCandle.IsEmpty)) ||
+            = ((ConflatedTicksCandle == null || ConflatedTicksCandle.IsEmpty) &&
+               (otherL1.ConflatedTicksCandle == null || otherL1.ConflatedTicksCandle.IsEmpty)) ||
               (ConflatedTicksCandle?.AreEquivalent(otherL1.ConflatedTicksCandle, exactTypes) ?? otherL1.ConflatedTicksCandle == null);
 
 
-        var isEquivalent = baseIsSame && adapterReceivedTimeSame && adapterSentTimeSame && conflationTicksCandleSame;
+        var isEquivalent = baseIsSame && conflationTicksCandleSame;
         return isEquivalent;
     }
 
@@ -508,8 +520,6 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
         unchecked
         {
             var hashCode = base.GetHashCode();
-            hashCode = (hashCode * 397) ^ AdapterReceivedTime.GetHashCode();
-            hashCode = (hashCode * 397) ^ AdapterSentTime.GetHashCode();
             hashCode = (hashCode * 397) ^ SourceBidTime.GetHashCode();
             hashCode = (hashCode * 397) ^ ValidFrom.GetHashCode();
             hashCode = (hashCode * 397) ^ ValidTo.GetHashCode();
@@ -525,8 +535,7 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
     }
 
     public override string QuoteToStringMembers =>
-        $"{base.QuoteToStringMembers}, {nameof(AdapterReceivedTime)}: {AdapterReceivedTime:O}, {nameof(AdapterSentTime)}: {AdapterSentTime:O}, " +
-        $"{nameof(ConflatedTicksCandle)}: {ConflatedTicksCandle}";
+        $"{base.QuoteToStringMembers}, {nameof(ConflatedTicksCandle)}: {ConflatedTicksCandle}";
 
 
     public override string ToString() => $"{nameof(PublishableLevel1PriceQuote)}{{{QuoteToStringMembers}, {AsNonPublishable.QuoteToStringMembers}}}";

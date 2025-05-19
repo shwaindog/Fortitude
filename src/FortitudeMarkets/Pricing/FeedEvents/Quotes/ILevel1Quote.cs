@@ -6,6 +6,7 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;
 
@@ -36,9 +37,6 @@ public interface ILevel1Quote : ITickInstant, IBidAskInstant, ICloneable<ILevel1
 public interface IPublishableLevel1Quote : IPublishableTickInstant, ILevel1Quote, ICloneable<IPublishableLevel1Quote>
   , IDoublyLinkedListNode<IPublishableLevel1Quote>
 {
-    DateTime AdapterReceivedTime { get; }
-    DateTime AdapterSentTime     { get; }
-
     new IPublishableLevel1Quote? Next     { get; set; }
     new IPublishableLevel1Quote? Previous { get; set; }
 
@@ -54,7 +52,7 @@ public interface IPublishableLevel1Quote : IPublishableTickInstant, ILevel1Quote
     new IPublishableLevel1Quote Clone();
 }
 
-public interface IMutableLevel1Quote : ILevel1Quote, IMutableTickInstant
+public interface IMutableLevel1Quote : ILevel1Quote, IMutableTickInstant, ITrackableReset<IMutableLevel1Quote>
 {
     new DateTime SourceBidTime        { get; set; }
     new decimal  BidPriceTop          { get; set; }
@@ -68,21 +66,21 @@ public interface IMutableLevel1Quote : ILevel1Quote, IMutableTickInstant
 
     new bool AreEquivalent(ITickInstant? other, bool exactTypes = false);
 
+    new IMutableLevel1Quote ResetWithTracking();
+
     new IMutableLevel1Quote Clone();
 }
 
-public interface IMutablePublishableLevel1Quote : IPublishableLevel1Quote, IMutableLevel1Quote, IMutablePublishableTickInstant
+public interface IMutablePublishableLevel1Quote : IPublishableLevel1Quote, 
+    IMutableLevel1Quote, IMutablePublishableTickInstant, ITrackableReset<IMutablePublishableLevel1Quote>
 {
-    new DateTime AdapterSentTime     { get; set; }
-    new DateTime AdapterReceivedTime { get; set; }
-
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     new IMutableCandle? ConflatedTicksCandle { get; set; }
 
-
     new bool AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false);
 
-    new IMutableLevel1Quote AsNonPublishable { get; }
+    new IMutableLevel1Quote            AsNonPublishable { get; }
+    new IMutablePublishableLevel1Quote ResetWithTracking();
 
     new IMutablePublishableLevel1Quote Clone();
 }

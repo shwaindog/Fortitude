@@ -16,7 +16,7 @@ public class PQImplementationFactory : IPQImplementationFactory
     private readonly Type lvl3QuoteInterface   = typeof(IPQPublishableLevel3Quote);
     private readonly Type tickInstantInterface = typeof(IPQPublishableTickInstant);
 
-    public virtual T GetConcreteMapping<T>(ISourceTickerInfo info) where T : IPQPublishableTickInstant
+    public virtual T GetConcreteMapping<T>(ISourceTickerInfo info) where T : IPQMessage
     {
         var interfaceType = typeof(T);
         if (interfaceType == tickInstantInterface || interfaceType == typeof(PQPublishableTickInstant)) return (T)(object)new PQPublishableTickInstant(info);

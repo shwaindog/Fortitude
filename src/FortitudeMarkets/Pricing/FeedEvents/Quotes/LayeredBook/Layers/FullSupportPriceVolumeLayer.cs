@@ -101,6 +101,33 @@ public class FullSupportPriceVolumeLayer : OrdersPriceVolumeLayer, IMutableFullS
         }
     }
 
+    IMutableFullSupportPriceVolumeLayer ITrackableReset<IMutableFullSupportPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableFullSupportPriceVolumeLayer IMutableFullSupportPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    IMutableSourcePriceVolumeLayer ITrackableReset<IMutableSourcePriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableSourcePriceVolumeLayer IMutableSourcePriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    IMutableSourceQuoteRefPriceVolumeLayer ITrackableReset<IMutableSourceQuoteRefPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableSourceQuoteRefPriceVolumeLayer IMutableSourceQuoteRefPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    IMutableValueDatePriceVolumeLayer ITrackableReset<IMutableValueDatePriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableValueDatePriceVolumeLayer IMutableValueDatePriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    public override FullSupportPriceVolumeLayer ResetWithTracking()
+    {
+        SourceName = null;
+        Executable = false;
+        ValueDate  = DateTime.MinValue;
+
+        SourceQuoteReference = 0;
+        base.ResetWithTracking();
+        return this;
+    }
+
     public override void StateReset()
     {
         base.StateReset();
@@ -161,8 +188,7 @@ public class FullSupportPriceVolumeLayer : OrdersPriceVolumeLayer, IMutableFullS
     }
 
     public override FullSupportPriceVolumeLayer CopyFrom
-    (IPriceVolumeLayer source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    (IPriceVolumeLayer source , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is IFullSupportPriceVolumeLayer fullSupportPriceVolumeLayer)

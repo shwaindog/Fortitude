@@ -19,7 +19,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 
 public interface IPQSourcePriceVolumeLayer : IMutableSourcePriceVolumeLayer, IPQPriceVolumeLayer,
-    IPQSupportsStringUpdates<IPriceVolumeLayer>, ISupportsPQNameIdLookupGenerator
+    IPQSupportsStringUpdates<IPriceVolumeLayer>, ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQSourcePriceVolumeLayer>
 {
     ushort SourceId            { get; set; }
     bool   IsSourceNameUpdated { get; set; }
@@ -28,6 +28,7 @@ public interface IPQSourcePriceVolumeLayer : IMutableSourcePriceVolumeLayer, IPQ
     new IPQNameIdLookupGenerator NameIdLookup { get; set; }
 
     new IPQSourcePriceVolumeLayer Clone();
+    new IPQSourcePriceVolumeLayer ResetWithTracking();
 }
 
 public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolumeLayer
@@ -185,6 +186,22 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
     {
         NameIdLookup.UpdateComplete();
         base.UpdateComplete();
+    }
+
+    IMutableSourcePriceVolumeLayer ITrackableReset<IMutableSourcePriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableSourcePriceVolumeLayer IMutableSourcePriceVolumeLayer.       ResetWithTracking() => ResetWithTracking();
+
+    IPQSourcePriceVolumeLayer ITrackableReset<IPQSourcePriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IPQSourcePriceVolumeLayer IPQSourcePriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    public override PQSourcePriceVolumeLayer ResetWithTracking()
+    {
+        SourceId   = 0;
+        Executable = false;
+        base.ResetWithTracking();
+        return this;
     }
 
     public override void StateReset()

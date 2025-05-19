@@ -5,6 +5,7 @@
 
 using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 #endregion
 
@@ -19,9 +20,10 @@ public interface ISourcePriceVolumeLayer : IPriceVolumeLayer, ICloneable<ISource
     bool Executable { get; }
 
     new ISourcePriceVolumeLayer Clone();
+
 }
 
-public interface IMutableSourcePriceVolumeLayer : ISourcePriceVolumeLayer, IMutablePriceVolumeLayer
+public interface IMutableSourcePriceVolumeLayer : ISourcePriceVolumeLayer, IMutablePriceVolumeLayer, ITrackableReset<IMutableSourcePriceVolumeLayer>
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     new string? SourceName { get; set; }
@@ -30,4 +32,5 @@ public interface IMutableSourcePriceVolumeLayer : ISourcePriceVolumeLayer, IMuta
     new bool Executable { get; set; }
 
     new IMutableSourcePriceVolumeLayer Clone();
+    new IMutableSourcePriceVolumeLayer ResetWithTracking();
 }

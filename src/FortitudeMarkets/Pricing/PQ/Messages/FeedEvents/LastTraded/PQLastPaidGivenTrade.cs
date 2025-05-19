@@ -13,13 +13,15 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
-public interface IPQLastPaidGivenTrade : IPQLastTrade, IMutableLastPaidGivenTrade
+public interface IPQLastPaidGivenTrade : IPQLastTrade, IMutableLastPaidGivenTrade, ITrackableReset<IPQLastPaidGivenTrade>
 {
     bool IsWasPaidUpdated     { get; set; }
     bool IsWasGivenUpdated    { get; set; }
     bool IsTradeVolumeUpdated { get; set; }
 
     new IPQLastPaidGivenTrade Clone();
+
+    new IPQLastPaidGivenTrade ResetWithTracking();
 }
 
 [Flags]
@@ -180,6 +182,24 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         }
     }
 
+    IMutableLastTrade ITrackableReset<IMutableLastTrade>.ResetWithTracking() => ResetWithTracking();
+
+    IPQLastTrade ITrackableReset<IPQLastTrade>.ResetWithTracking() => ResetWithTracking();
+
+
+    IPQLastPaidGivenTrade ITrackableReset<IPQLastPaidGivenTrade>.ResetWithTracking() => ResetWithTracking();
+
+    IPQLastPaidGivenTrade IPQLastPaidGivenTrade.ResetWithTracking() => ResetWithTracking();
+
+    public override PQLastPaidGivenTrade ResetWithTracking()
+    {
+        WasGiven    = WasPaid = false;
+        TradeVolume = 0m;
+
+        base.ResetWithTracking();
+        return this;
+    }
+
     public override void StateReset()
     {
         WasGiven    = WasPaid = false;
@@ -196,7 +216,8 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
                                                                    quotePublicationPrecisionSetting))
             yield return deltaUpdateField;
         if (!updatedOnly || IsBooleanFlagsChanged())
-            yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedBooleanFlags, (uint)LastTradeBooleanFlags);
+            yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedBooleanFlags
+                                         , (uint)LastTradeBooleanFlags);
         if (!updatedOnly || IsTradeVolumeUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedOrderVolume, TradeVolume,
                                            quotePublicationPrecisionSetting?.VolumeScalingPrecision ?? (PQFieldFlags)6);

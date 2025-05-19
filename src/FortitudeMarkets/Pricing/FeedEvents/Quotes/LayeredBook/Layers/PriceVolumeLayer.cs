@@ -52,6 +52,14 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
 
     [JsonIgnore] public virtual LayerFlags SupportsLayerFlags => LayerFlagsExtensions.PriceVolumeLayerFlags;
 
+    IMutablePriceVolumeLayer ITrackableReset<IMutablePriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    public virtual PriceVolumeLayer ResetWithTracking()
+    {
+        Price = Volume = 0m;
+        return this;
+    }
+
     public override void StateReset()
     {
         Price = Volume = 0m;

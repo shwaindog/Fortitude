@@ -29,7 +29,7 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
     private IMessageBufferContext? bufferContext;
     private PQQuoteSerializer?     indexEntrySerializer;
 
-    private IPQQuoteDeserializer<TSerializeType>? messageDeserializer;
+    private IPQMessageDeserializer<TSerializeType>? messageDeserializer;
 
     private PQQuoteSerializer? repeatedEntrySerializer;
 
@@ -38,14 +38,14 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
         ShiftableMemoryMappedFileView? alternativeFileView = null)
         : base(bucketContainer, bucketFileCursorOffset, writable, alternativeFileView) { }
 
-    public IPQQuoteDeserializer<TSerializeType> DefaultMessageDeserializer
+    public IPQMessageDeserializer<TSerializeType> DefaultMessageDeserializer
     {
         get
         {
             if (messageDeserializer == null)
             {
                 var srcTkrInfo = PricingInstrumentId as ISourceTickerInfo ?? new SourceTickerInfo(PricingInstrumentId);
-                messageDeserializer = new PQQuoteStorageDeserializer<TSerializeType>(srcTkrInfo);
+                messageDeserializer = new PQMessageStorageDeserializer<TSerializeType>(srcTkrInfo);
             }
 
             return messageDeserializer;
@@ -87,22 +87,22 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
         lastEntryQuote.HasUpdates = false;
         if (writeBuffer.WriteCursor == 0)
         {
-            lastEntryQuote.ResetFields();
+            lastEntryQuote.ResetWithTracking();
             lastEntryQuote.CopyFrom(entry, CopyMergeFlags.FullReplace);
             messageSerializer = IndexEntryMessageSerializer;
         }
         else
         {
-            lastEntryQuote.CopyFrom(entry);
+            lastEntryQuote.CopyFrom(entry, CopyMergeFlags.Default);
         }
         return AppendEntry(bufferContext, lastEntryQuote, messageSerializer, appendResult);
     }
 
     public virtual IEnumerable<TEntry> ReadEntries
-        (IMessageBufferContext buffer, IReaderContext<TEntry> readerContext, IPQQuoteDeserializer<TSerializeType> bufferDeserializer)
+        (IMessageBufferContext buffer, IReaderContext<TEntry> readerContext, IPQMessageDeserializer<TSerializeType> bufferDeserializer)
     {
         var entryCount = 0;
-        DefaultMessageDeserializer.PublishedQuote.ResetFields();
+        DefaultMessageDeserializer.PublishedQuote.ResetWithTracking();
         while (readerContext.ContinueSearching && buffer.EncodedBuffer!.ReadCursor < buffer.EncodedBuffer.WriteCursor)
         {
             entryCount++;
