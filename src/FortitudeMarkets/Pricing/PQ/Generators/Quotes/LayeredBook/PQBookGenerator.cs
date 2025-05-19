@@ -106,7 +106,7 @@ public class PQBookGenerator : BookGenerator
     protected override void SetOrderFlags
         (BookSide side, IMutableAnonymousOrderLayerInfo orderLayerInfo, int pos, LayerOrderFlags orderFlags, LayerOrderFlags? prevOrderFlags)
     {
-        if (orderLayerInfo is IPQAnonymousOrderLayerInfo pqAnonOrderLyrInfo) pqAnonOrderLyrInfo.IsOrderFlagsUpdated = orderFlags != prevOrderFlags;
+        if (orderLayerInfo is IPQAnonymousOrderLayerInfo pqAnonOrderLyrInfo) pqAnonOrderLyrInfo.IsOrderLayerFlagsUpdated = orderFlags != prevOrderFlags;
         base.SetOrderFlags(side, orderLayerInfo, pos, orderFlags, prevOrderFlags);
     }
 
@@ -126,8 +126,8 @@ public class PQBookGenerator : BookGenerator
     {
         if (orderLayerInfo is IPQAnonymousOrderLayerInfo pqAnonOrderLyrInfo)
         {
-            pqAnonOrderLyrInfo.IsUpdatedTimeDateUpdated = orderUpdatedTime.Get2MinIntervalsFromUnixEpoch() != prevOrderUpdatedTime?.Get2MinIntervalsFromUnixEpoch();
-            pqAnonOrderLyrInfo.IsUpdatedTimeSub2MinUpdated = orderUpdatedTime.GetSub2MinComponent() != prevOrderUpdatedTime?.GetSub2MinComponent();
+            pqAnonOrderLyrInfo.IsUpdateTimeDateUpdated = orderUpdatedTime.Get2MinIntervalsFromUnixEpoch() != prevOrderUpdatedTime?.Get2MinIntervalsFromUnixEpoch();
+            pqAnonOrderLyrInfo.IsUpdateTimeSub2MinUpdated = orderUpdatedTime.GetSub2MinComponent() != prevOrderUpdatedTime?.GetSub2MinComponent();
         }
         base.SetOrderUpdatedTime(side, orderLayerInfo, pos, orderUpdatedTime, prevOrderUpdatedTime);
     }
@@ -148,23 +148,23 @@ public class PQBookGenerator : BookGenerator
     }
 
     protected override void SetOrderCounterPartyName
-    (BookSide side, IMutableCounterPartyOrderLayerInfo orderLayerInfo, int pos, string counterPartyName,
+    (BookSide side, IMutableExternalCounterPartyOrderLayerInfo orderLayerInfo, int pos, string counterPartyName,
         int counterPartyId, int? prevCounterPartyNameId)
     {
         consistentOrderBookNameIdGenerator.SetIdToName(counterPartyId, counterPartyName);
         if (orderLayerInfo is IPQCounterPartyOrderLayerInfo pqBidCpOrderLyrInfo)
             pqBidCpOrderLyrInfo.NameIdLookup.CopyFrom(consistentOrderBookNameIdGenerator);
-        if (orderLayerInfo is IPQCounterPartyOrderLayerInfo pqCpOrdLyrInfo) pqCpOrdLyrInfo.IsCounterPartyNameUpdated = true;
+        if (orderLayerInfo is IPQCounterPartyOrderLayerInfo pqCpOrdLyrInfo) pqCpOrdLyrInfo.IsExternalCounterPartyNameUpdated = true;
         base.SetOrderCounterPartyName(side, orderLayerInfo, pos, counterPartyName, counterPartyId, prevCounterPartyNameId);
     }
 
     protected override void SetOrderTraderName
-        (BookSide side, IMutableCounterPartyOrderLayerInfo orderLayerInfo, int pos, string traderName, int traderNameId, int? prevTraderNameId)
+        (BookSide side, IMutableExternalCounterPartyOrderLayerInfo orderLayerInfo, int pos, string traderName, int traderNameId, int? prevTraderNameId)
     {
         consistentOrderBookNameIdGenerator.SetIdToName(traderNameId, traderName);
         if (orderLayerInfo is IPQCounterPartyOrderLayerInfo pqAskCpOrderLyrInfo)
             pqAskCpOrderLyrInfo.NameIdLookup.CopyFrom(consistentOrderBookNameIdGenerator);
-        if (orderLayerInfo is IPQCounterPartyOrderLayerInfo pqCpOrdLyrInfo) pqCpOrdLyrInfo.IsTraderNameUpdated = true;
+        if (orderLayerInfo is IPQCounterPartyOrderLayerInfo pqCpOrdLyrInfo) pqCpOrdLyrInfo.IsExternalTraderNameUpdated = true;
         base.SetOrderTraderName(side, orderLayerInfo, pos, traderName, traderNameId, prevTraderNameId);
     }
 }

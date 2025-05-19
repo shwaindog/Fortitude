@@ -5,9 +5,9 @@
 
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
@@ -17,7 +17,8 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 
-public interface IPQCounterPartyOrderLayerInfo : IPQAnonymousOrderLayerInfo, IMutableCounterPartyOrderLayerInfo, ISupportsPQNameIdLookupGenerator
+public interface IPQCounterPartyOrderLayerInfo : IPQAnonymousOrderLayerInfo, IMutableExternalCounterPartyOrderLayerInfo
+  , ISupportsPQNameIdLookupGenerator
   , IPQSupportsStringUpdates<IPQCounterPartyOrderLayerInfo>
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -25,11 +26,19 @@ public interface IPQCounterPartyOrderLayerInfo : IPQAnonymousOrderLayerInfo, IMu
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     int ExternalTraderNameId { get; set; }
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    bool IsCounterPartyNameUpdated { get; set; }
+
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    bool IsTraderNameUpdated { get; set; }
+    bool IsExternalCounterPartyNameUpdated { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    bool IsExternalTraderNameUpdated { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    bool IsExternalCounterPartyIdUpdated { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    bool IsExternalTraderIdUpdated { get; set; }
 
     new bool HasUpdates { get; set; }
 
@@ -43,6 +52,8 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
     private IPQNameIdLookupGenerator nameIdLookup = null!;
 
     private int traderNameId;
+    private int externalCounterPartyId;
+    private int externalTraderId;
 
     public PQCounterPartyOrderLayerInfo()
     {
@@ -57,13 +68,16 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
     }
 
     public PQCounterPartyOrderLayerInfo
-    (IPQNameIdLookupGenerator lookupDict, int orderId = 0, LayerOrderFlags orderFlags = LayerOrderFlags.None, DateTime createdTime = default,
-        decimal orderVolume = 0m, DateTime? updatedTime = null, decimal? remainingVolume = null, string? counterPartyName = null
-      , string? traderName = null)
-        : base(orderId, orderFlags, createdTime, orderVolume, updatedTime, remainingVolume)
+    (IPQNameIdLookupGenerator lookupDict, int orderId = 0, DateTime createdTime = default, decimal orderVolume = 0m
+      , LayerOrderFlags orderFlags = LayerOrderFlags.None, OrderType orderType = OrderType.None, OrderFlags typeFlags = OrderFlags.None
+      , OrderLifeCycleState orderLifeCycleState = OrderLifeCycleState.None, string? counterPartyName = null, string? traderName = null
+      , int counterPartyId = 0, int traderId = 0, DateTime? updatedTime = null, decimal? remainingVolume = null, uint trackingId = 0)
+        : base(orderId,createdTime, orderVolume,  orderFlags, orderType, typeFlags, orderLifeCycleState, updatedTime, remainingVolume, trackingId)
     {
-        NameIdLookup     = lookupDict;
+        NameIdLookup             = lookupDict;
+        ExternalCounterPartyId   = counterPartyId;
         ExternalCounterPartyName = counterPartyName;
+        ExternalTraderId         = traderId;
         ExternalTraderName       = traderName;
         if (GetType() == typeof(PQCounterPartyOrderLayerInfo)) NumUpdatesSinceEmpty = 0;
     }
@@ -71,9 +85,11 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
     public PQCounterPartyOrderLayerInfo(IAnonymousOrderLayerInfo toClone, IPQNameIdLookupGenerator pqNameIdLookupGenerator) : base(toClone)
     {
         NameIdLookup = pqNameIdLookupGenerator;
-        if (toClone is ICounterPartyOrderLayerInfo counterPartyOrderLayerInfo)
+        if (toClone is IExternalCounterPartyOrderLayerInfo counterPartyOrderLayerInfo)
         {
+            ExternalCounterPartyId   = counterPartyOrderLayerInfo.ExternalCounterPartyId;
             ExternalCounterPartyName = counterPartyOrderLayerInfo.ExternalCounterPartyName;
+            ExternalTraderId         = counterPartyOrderLayerInfo.ExternalTraderId;
             ExternalTraderName       = counterPartyOrderLayerInfo.ExternalTraderName;
         }
 
@@ -83,13 +99,19 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
     }
 
     protected string PQCounterPartyOrderLayerInfoToStringMembers =>
-        $"{PQAnonymousOrderLayerInfoToStringMembers}, {nameof(ExternalTraderName)}: {ExternalTraderName}, {nameof(ExternalCounterPartyName)}: {ExternalCounterPartyName}";
+        $"{PQAnonymousOrderLayerInfoToStringMembers}, {nameof(ExternalCounterPartyId)}: {ExternalCounterPartyId}, " +
+        $"{nameof(ExternalCounterPartyName)}: {ExternalCounterPartyName}, {nameof(ExternalTraderId)}: {ExternalTraderId}, " +
+        $"{nameof(ExternalTraderName)}: {ExternalTraderName}";
 
 
-    public uint ExternalCounterPartyId
+    public int ExternalCounterPartyId
     {
-        get => throw new NotImplementedException();
-        set => throw new NotImplementedException();
+        get => externalCounterPartyId;
+        set
+        {
+            IsExternalCounterPartyIdUpdated |= value != externalCounterPartyId || NumUpdatesSinceEmpty == 0;
+            externalCounterPartyId          =  value;
+        }
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -113,15 +135,19 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
         get => counterPartyNameId;
         set
         {
-            IsCounterPartyNameUpdated |= value != counterPartyNameId || NumUpdatesSinceEmpty == 0;
-            counterPartyNameId        =  value;
+            IsExternalCounterPartyNameUpdated |= value != counterPartyNameId || NumUpdatesSinceEmpty == 0;
+            counterPartyNameId                =  value;
         }
     }
 
-    public uint ExternalTraderId
+    public int ExternalTraderId
     {
-        get => throw new NotImplementedException();
-        set => throw new NotImplementedException();
+        get => externalTraderId;
+        set
+        {
+            IsExternalTraderIdUpdated |= value != externalTraderId || NumUpdatesSinceEmpty == 0;
+            externalTraderId          =  value;
+        }
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -144,31 +170,54 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
         get => traderNameId;
         set
         {
-            IsTraderNameUpdated |= traderNameId != value || NumUpdatesSinceEmpty == 0;
-            traderNameId        =  value;
+            IsExternalTraderNameUpdated |= traderNameId != value || NumUpdatesSinceEmpty == 0;
+            traderNameId                =  value;
         }
     }
 
-    public bool IsTraderNameUpdated
+    public bool IsExternalTraderNameUpdated
     {
-        get => (UpdatedFlags & OrderLayerInfoUpdatedFlags.TraderNameIdUpdatedFlag) > 0;
+        get => (UpdatedFlags & OrderLayerInfoUpdatedFlags.ExternalTraderNameIdUpdatedFlag) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= OrderLayerInfoUpdatedFlags.TraderNameIdUpdatedFlag;
+                UpdatedFlags |= OrderLayerInfoUpdatedFlags.ExternalTraderNameIdUpdatedFlag;
 
-            else if (IsTraderNameUpdated) UpdatedFlags ^= OrderLayerInfoUpdatedFlags.TraderNameIdUpdatedFlag;
+            else if (IsExternalTraderNameUpdated) UpdatedFlags ^= OrderLayerInfoUpdatedFlags.ExternalTraderNameIdUpdatedFlag;
         }
     }
-    public bool IsCounterPartyNameUpdated
+    public bool IsExternalCounterPartyNameUpdated
     {
-        get => (UpdatedFlags & OrderLayerInfoUpdatedFlags.CounterPartyNameIdUpdatedFlag) > 0;
+        get => (UpdatedFlags & OrderLayerInfoUpdatedFlags.ExternalCounterPartyNameIdUpdatedFlag) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= OrderLayerInfoUpdatedFlags.CounterPartyNameIdUpdatedFlag;
+                UpdatedFlags |= OrderLayerInfoUpdatedFlags.ExternalCounterPartyNameIdUpdatedFlag;
 
-            else if (IsCounterPartyNameUpdated) UpdatedFlags ^= OrderLayerInfoUpdatedFlags.CounterPartyNameIdUpdatedFlag;
+            else if (IsExternalCounterPartyNameUpdated) UpdatedFlags ^= OrderLayerInfoUpdatedFlags.ExternalCounterPartyNameIdUpdatedFlag;
+        }
+    }
+
+    public bool IsExternalCounterPartyIdUpdated
+    {
+        get => (UpdatedFlags & OrderLayerInfoUpdatedFlags.ExternalCounterPartyIdUpdatedFlag) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= OrderLayerInfoUpdatedFlags.ExternalCounterPartyIdUpdatedFlag;
+
+            else if (IsExternalCounterPartyIdUpdated) UpdatedFlags ^= OrderLayerInfoUpdatedFlags.ExternalCounterPartyIdUpdatedFlag;
+        }
+    }
+    public bool IsExternalTraderIdUpdated
+    {
+        get => (UpdatedFlags & OrderLayerInfoUpdatedFlags.ExternalTraderIdUpdatedFlag) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= OrderLayerInfoUpdatedFlags.ExternalTraderIdUpdatedFlag;
+
+            else if (IsExternalTraderIdUpdated) UpdatedFlags ^= OrderLayerInfoUpdatedFlags.ExternalTraderIdUpdatedFlag;
         }
     }
 
@@ -210,13 +259,15 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
-        get => traderNameId == 0 && counterPartyNameId == 0 && base.IsEmpty;
+        get => base.IsEmpty && externalCounterPartyId == 0 && counterPartyNameId == 0 && externalTraderId == 0 && traderNameId == 0;
         set
         {
             base.IsEmpty = value;
             if (!value) return;
-            ExternalTraderNameId       = 0;
+            ExternalCounterPartyId     = 0;
             ExternalCounterPartyNameId = 0;
+            ExternalTraderId           = 0;
+            ExternalTraderNameId       = 0;
         }
     }
 
@@ -246,26 +297,40 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                 quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
-        if (!updatedOnly || IsCounterPartyNameUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQTradingSubFieldKeys.OrderExternalCounterPartyNameId, (uint)ExternalCounterPartyNameId);
+        if (!updatedOnly || IsExternalCounterPartyIdUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderExternalCounterPartyId
+                                         , (uint)ExternalCounterPartyId);
+        if (!updatedOnly || IsExternalCounterPartyNameUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderExternalCounterPartyNameId
+                                         , (uint)ExternalCounterPartyNameId);
 
-        if (!updatedOnly || IsTraderNameUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQTradingSubFieldKeys.OrderExternalTraderNameId, (uint)ExternalTraderNameId);
+        if (!updatedOnly || IsExternalTraderNameUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderExternalTraderNameId, (uint)ExternalTraderNameId);
+        if (!updatedOnly || IsExternalTraderIdUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderExternalTraderId, (uint)ExternalTraderId);
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the book has already forwarded this through to the correct layer
-        if (pqFieldUpdate.TradingSubId == PQTradingSubFieldKeys.OrderExternalCounterPartyNameId)
+        switch (pqFieldUpdate.OrdersSubId)
         {
-            IsCounterPartyNameUpdated = true; // incase of reset and sending 0;
-            ExternalCounterPartyNameId   = (int)pqFieldUpdate.Payload;
-            return 0;
-        }
-        else if (pqFieldUpdate.TradingSubId == PQTradingSubFieldKeys.OrderExternalTraderNameId)
-        {
-            IsTraderNameUpdated = true; // incase of reset and sending 0;
-            ExternalTraderNameId   = (int)pqFieldUpdate.Payload;
-            return 0;
+            case PQOrdersSubFieldKeys.OrderExternalCounterPartyId:
+                IsExternalCounterPartyIdUpdated = true; // incase of reset and sending 0;
+                ExternalCounterPartyId          = (int)pqFieldUpdate.Payload;
+                return 0;
+            case PQOrdersSubFieldKeys.OrderExternalCounterPartyNameId:
+                IsExternalCounterPartyNameUpdated = true; // incase of reset and sending 0;
+                ExternalCounterPartyNameId        = (int)pqFieldUpdate.Payload;
+                return 0;
+            case PQOrdersSubFieldKeys.OrderExternalTraderId:
+                IsExternalTraderIdUpdated = true; // incase of reset and sending 0;
+                ExternalTraderId          = (int)pqFieldUpdate.Payload;
+                return 0;
+            case PQOrdersSubFieldKeys.OrderExternalTraderNameId:
+                IsExternalTraderNameUpdated = true; // incase of reset and sending 0;
+                ExternalTraderNameId        = (int)pqFieldUpdate.Payload;
+                return 0;
         }
 
         return base.UpdateField(pqFieldUpdate);
@@ -273,8 +338,10 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
 
     public override void StateReset()
     {
-        traderNameId       = 0;
-        counterPartyNameId = 0;
+        externalCounterPartyId = 0;
+        counterPartyNameId     = 0;
+        externalTraderId       = 0;
+        traderNameId           = 0;
         base.StateReset();
     }
 
@@ -282,38 +349,32 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
 
     IPQAnonymousOrderLayerInfo IPQAnonymousOrderLayerInfo.Clone() => Clone();
 
-    public IReusableObject<ICounterPartyOrderLayerInfo> CopyFrom
-    (IReusableObject<ICounterPartyOrderLayerInfo> source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        CopyFrom((IAnonymousOrderLayerInfo?)source, copyMergeFlags);
 
+    IMutableExternalCounterPartyOrderLayerInfo IMutableExternalCounterPartyOrderLayerInfo.Clone() => Clone();
 
-    public ICounterPartyOrderLayerInfo CopyFrom(ICounterPartyOrderLayerInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        CopyFrom((IAnonymousOrderLayerInfo?)source, copyMergeFlags);
+    IExternalCounterPartyOrderLayerInfo ICloneable<IExternalCounterPartyOrderLayerInfo>.Clone() => Clone();
 
-    IMutableCounterPartyOrderLayerInfo IMutableCounterPartyOrderLayerInfo.Clone() => Clone();
-
-    ICounterPartyOrderLayerInfo ICloneable<ICounterPartyOrderLayerInfo>.Clone() => Clone();
-
-    ICounterPartyOrderLayerInfo ICounterPartyOrderLayerInfo.Clone() => Clone();
+    IExternalCounterPartyOrderLayerInfo IExternalCounterPartyOrderLayerInfo.Clone() => Clone();
 
     IPQCounterPartyOrderLayerInfo IPQCounterPartyOrderLayerInfo.Clone() => Clone();
 
-    public bool AreEquivalent(ICounterPartyOrderLayerInfo? other, bool exactTypes = false) =>
+    public bool AreEquivalent(IExternalCounterPartyOrderLayerInfo? other, bool exactTypes = false) =>
         AreEquivalent(other as IAnonymousOrderLayerInfo, exactTypes);
 
     public override bool AreEquivalent(IAnonymousOrderLayerInfo? other, bool exactTypes = false)
     {
-        if (!(other is ICounterPartyOrderLayerInfo counterPartyOther)) return false;
+        if (!(other is IExternalCounterPartyOrderLayerInfo counterPartyOther)) return false;
         var baseSame         = base.AreEquivalent(other, exactTypes);
-        var traderNameSame   = ExternalTraderName == counterPartyOther.ExternalTraderName;
+        var counterPartyIdSame = ExternalCounterPartyId == counterPartyOther.ExternalCounterPartyId;
         var counterPartySame = ExternalCounterPartyName == counterPartyOther.ExternalCounterPartyName;
+        var traderIdSame   = ExternalTraderId == counterPartyOther.ExternalTraderId;
+        var traderNameSame   = ExternalTraderName == counterPartyOther.ExternalTraderName;
 
         var updatedSame = true;
         if (exactTypes)
             updatedSame = counterPartyOther is PQCounterPartyOrderLayerInfo pqCounterPartyOther && UpdatedFlags == pqCounterPartyOther.UpdatedFlags;
 
-        return baseSame && traderNameSame && counterPartySame && updatedSame;
+        return baseSame && counterPartyIdSame && counterPartySame && traderIdSame && traderNameSame && updatedSame;
     }
 
     public bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
@@ -327,8 +388,9 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
         foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate;
     }
 
-    public IPQCounterPartyOrderLayerInfo CopyFrom(IPQCounterPartyOrderLayerInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        CopyFrom((IAnonymousOrderLayerInfo?)source, copyMergeFlags);
+    IPQCounterPartyOrderLayerInfo ITransferState<IPQCounterPartyOrderLayerInfo>.CopyFrom
+        (IPQCounterPartyOrderLayerInfo source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom(source, copyMergeFlags);
 
     public override PQCounterPartyOrderLayerInfo CopyFrom
         (IAnonymousOrderLayerInfo? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
@@ -340,44 +402,62 @@ public class PQCounterPartyOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQCounte
 
             var isFullReplace = copyMergeFlags.HasFullReplace();
 
-            if (pqCpOrderLyrInfo.IsCounterPartyNameUpdated || isFullReplace)
+            if (pqCpOrderLyrInfo.IsExternalCounterPartyIdUpdated || isFullReplace)
             {
-                IsCounterPartyNameUpdated = true;
+                IsExternalCounterPartyIdUpdated = true;
+
+                ExternalCounterPartyId = pqCpOrderLyrInfo.ExternalCounterPartyId;
+            }
+            if (pqCpOrderLyrInfo.IsExternalCounterPartyNameUpdated || isFullReplace)
+            {
+                IsExternalCounterPartyNameUpdated = true;
 
                 ExternalCounterPartyNameId = pqCpOrderLyrInfo.ExternalCounterPartyNameId;
             }
-            if (pqCpOrderLyrInfo.IsTraderNameUpdated || isFullReplace)
+            if (pqCpOrderLyrInfo.IsExternalTraderIdUpdated || isFullReplace)
             {
-                IsTraderNameUpdated = true;
+                IsExternalTraderIdUpdated = true;
 
-                ExternalTraderNameId             = pqCpOrderLyrInfo.ExternalTraderNameId;
+                ExternalTraderId = pqCpOrderLyrInfo.ExternalTraderId;
+            }
+            if (pqCpOrderLyrInfo.IsExternalTraderNameUpdated || isFullReplace)
+            {
+                IsExternalTraderNameUpdated = true;
+
+                ExternalTraderNameId = pqCpOrderLyrInfo.ExternalTraderNameId;
             }
 
             if (isFullReplace && pqCpOrderLyrInfo is PQCounterPartyOrderLayerInfo pqCounterPartyOrder)
                 UpdatedFlags = pqCounterPartyOrder.UpdatedFlags;
         }
-        else if (source is ICounterPartyOrderLayerInfo counterPartyOrderLayerInfo)
+        else if (source is IExternalCounterPartyOrderLayerInfo counterPartyOrderLayerInfo)
         {
+            ExternalCounterPartyId = counterPartyOrderLayerInfo.ExternalCounterPartyId;
             ExternalCounterPartyName = counterPartyOrderLayerInfo.ExternalCounterPartyName;
+            ExternalTraderId       = counterPartyOrderLayerInfo.ExternalTraderId;
             ExternalTraderName       = counterPartyOrderLayerInfo.ExternalTraderName;
         }
 
         return this;
     }
 
+    IMutableExternalCounterPartyOrderLayerInfo ICloneable<IMutableExternalCounterPartyOrderLayerInfo>.Clone() => Clone();
+
     public override PQCounterPartyOrderLayerInfo Clone() =>
-        Recycler?.Borrow<PQCounterPartyOrderLayerInfo>().CopyFrom(this) as PQCounterPartyOrderLayerInfo ??
+        Recycler?.Borrow<PQCounterPartyOrderLayerInfo>().CopyFrom(this) ??
         new PQCounterPartyOrderLayerInfo(this, NameIdLookup);
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((ICounterPartyOrderLayerInfo?)obj, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IExternalCounterPartyOrderLayerInfo?)obj, true);
 
     public override int GetHashCode()
     {
         unchecked
         {
             var hash = base.GetHashCode();
-            hash = (traderNameId * 397) ^ hash;
+            hash = (externalCounterPartyId * 397) ^ hash;
             hash = (counterPartyNameId * 397) ^ hash;
+            hash = (externalTraderId * 397) ^ hash;
+            hash = (traderNameId * 397) ^ hash;
             return hash;
         }
     }

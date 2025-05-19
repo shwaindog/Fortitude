@@ -310,7 +310,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
     public IMutableAnonymousOrderLayerInfo ConvertToBookLayer(IAnonymousOrderLayerInfo toAdd)
     {
         if (LayerType.SupportsOrdersFullPriceVolume())
-            return new CounterPartyOrderLayerInfo(toAdd)
+            return new ExternalCounterPartyOrderLayerInfo(toAdd)
             {
                 Recycler = Recycler
             };
@@ -323,7 +323,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
     public IMutableAnonymousOrderLayerInfo CreateNewBookOrderLayer()
     {
         if (LayerType.SupportsOrdersFullPriceVolume())
-            return new CounterPartyOrderLayerInfo
+            return new ExternalCounterPartyOrderLayerInfo
             {
                 Recycler = Recycler
             };
@@ -361,9 +361,9 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
     {
         return orders
                ?.Where(aoli =>
-                           aoli.OrderFlags.HasIsInternallyCreatedOrder()
-                        && !aoli.OrderFlags.HasNotLayerVolume()
-                        && !aoli.OrderFlags.HasIsSyntheticTrackingOrder())
+                           aoli.OrderLayerFlags.HasIsInternallyCreatedOrder()
+                        && !aoli.OrderLayerFlags.HasNotLayerVolume()
+                        && !aoli.OrderLayerFlags.HasIsSyntheticTrackingOrder())
                .Sum(aoli => aoli.OrderRemainingVolume) ?? 0m;
     }
 }

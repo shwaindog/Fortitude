@@ -6,6 +6,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
@@ -189,12 +190,12 @@ public class QuoteSequencedTestDataBuilder
             var updateTimeSpan     = TimeSpan.FromMinutes(batchId * 10);
             var anonOrderLayer     = layer[i]!;
             anonOrderLayer.StateReset();
-            anonOrderLayer.OrderId              = (int)(batchId * 10 + i * 1000 + batchId);
-            anonOrderLayer.OrderFlags           = ((uint)(batchId * 10 + i * 1000 + batchId)).ToLayerOrderFlags();
-            anonOrderLayer.CreatedTime          = new DateTime(2017, 07, 16, 15, 49, 20).Add(sequenceIdTimeSpan);
-            anonOrderLayer.UpdatedTime          = new DateTime(2017, 07, 16, 15, 49, 20).Add(updateTimeSpan);
-            anonOrderLayer.OrderVolume          = batchId * 25600 + (i + 1) * 100;
-            anonOrderLayer.OrderRemainingVolume = batchId * 25600 + (i + 1) * 100;
+            anonOrderLayer.OrderId                  = (int)(batchId * 10 + i * 1000 + batchId);
+            anonOrderLayer.OrderLayerFlags          = ((uint)(batchId * 10 + i * 1000 + batchId)).ToLayerOrderFlags();
+            anonOrderLayer.CreatedTime              = new DateTime(2017, 07, 16, 15, 49, 20).Add(sequenceIdTimeSpan);
+            anonOrderLayer.UpdateTime              = new DateTime(2017, 07, 16, 15, 49, 20).Add(updateTimeSpan);
+            anonOrderLayer.OrderDisplayVolume = batchId * 25600 + (i + 1) * 100;
+            anonOrderLayer.OrderRemainingVolume     = batchId * 25600 + (i + 1) * 100;
         }
     }
 
@@ -205,9 +206,9 @@ public class QuoteSequencedTestDataBuilder
             pqOrdersPriceVolumeLayer.NameIdLookup = pqOrderBook.NameIdLookup;
         for (var i = 0; i < 2; i++)
         {
-            ((IMutableCounterPartyOrderLayerInfo)layer[i]!).ExternalCounterPartyName
+            ((IMutableExternalCounterPartyOrderLayerInfo)layer[i]!).ExternalCounterPartyName
                 = (orderBookSide.BookSide == BookSide.BidBook ? "B" : "A") + "CPN" + (batchId * 20 + i);
-            ((IMutableCounterPartyOrderLayerInfo)layer[i]!).ExternalTraderName
+            ((IMutableExternalCounterPartyOrderLayerInfo)layer[i]!).ExternalTraderName
                 = (orderBookSide.BookSide == BookSide.BidBook ? "B" : "A") + "TN" + (batchId * 5 + i);
         }
     }

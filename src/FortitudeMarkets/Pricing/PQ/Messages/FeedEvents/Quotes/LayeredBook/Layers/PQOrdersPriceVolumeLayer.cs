@@ -440,7 +440,8 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         var isFullReplace = copyMergeFlags.HasFullReplace();
         var pqopvl        = source as IPQOrdersPriceVolumeLayer;
         var opvl          = source as IOrdersPriceVolumeLayer;
-        if (pqopvl != null && !copyMergeFlags.HasSkipReferenceLookups()) NameIdLookup.CopyFrom(pqopvl.NameIdLookup, copyMergeFlags);
+
+        if (source is ISupportsPQNameIdLookupGenerator pqNameIdLookupGenerator && !copyMergeFlags.HasSkipReferenceLookups()) NameIdLookup.CopyFrom(pqNameIdLookupGenerator.NameIdLookup, copyMergeFlags);
         if (opvl != null)
         {
             for (var j = 0; j < opvl.Orders.Count; j++)
@@ -530,9 +531,9 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
     {
         return Orders
                .Where(aoli =>
-                          aoli.OrderFlags.HasIsInternallyCreatedOrder()
-                       && !aoli.OrderFlags.HasNotLayerVolume()
-                       && !aoli.OrderFlags.HasIsSyntheticTrackingOrder())
+                          aoli.OrderLayerFlags.HasIsInternallyCreatedOrder()
+                       && !aoli.OrderLayerFlags.HasNotLayerVolume()
+                       && !aoli.OrderLayerFlags.HasIsSyntheticTrackingOrder())
                .Sum(aoli => aoli.OrderRemainingVolume);
     }
 }

@@ -6,6 +6,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Types;
+using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
@@ -23,18 +24,26 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.Quotes.LayeredBook;
 [TestClass]
 public class OrdersPriceVolumeLayerTests
 {
-    private const decimal Price          = 1.3456m;
-    private const decimal Volume         = 100_000m;
-    private const uint    OrdersCount    = 3;
-    private const int     NumOfOrders    = 3;
-    private const decimal InternalVolume = 50_000m;
+    private const decimal Price            = 1.3456m;
+    private const decimal Volume           = 100_000m;
+    private const uint    OrdersCount      = 3;
+    private const int     NumOfOrders      = 3;
+    private const decimal InternalVolume   = 50_000m;
+    private const int     OrderId          = 250;
+    private const decimal OrderVolume      = 50.50m;
+    private const string  CounterPartyBase = "TestCounterPartyName";
+    private const string  TraderNameBase   = "TestTraderName";
 
-    private const int             OrderId              = 250;
-    private const LayerOrderFlags OrderFlags           = LayerOrderFlags.ExplicitlyDefinedFromSource;
-    private const decimal         OrderVolume          = 50.50m;
-    private const decimal         OrderRemainingVolume = 10.25m;
-    private const string          CounterPartyBase     = "TestCounterPartyName";
-    private const string          TraderNameBase       = "TestTraderName";
+    private const decimal OrderRemainingVolume = 10.25m;
+
+    private const int ExpectedTraderId       = 2;
+    private const int ExpectedCounterPartyId = 1;
+
+    private const OrderFlags      ExpectedTypeFlags  = OrderFlags.FromAdapter;
+    private const OrderType       ExpectedOrderType  = OrderType.PassiveLimit;
+    private const LayerOrderFlags ExpectedLayerFlags = LayerOrderFlags.ExplicitlyDefinedFromSource;
+
+    private const OrderLifeCycleState ExpectedLifecycleState = OrderLifeCycleState.SourceActiveOnMarket;
 
     private static readonly DateTime CreatedTime = new DateTime(2025, 4, 21, 6, 27, 23).AddMilliseconds(123).AddMicroseconds(456);
     private static readonly DateTime UpdatedTime = new DateTime(2025, 4, 21, 12, 8, 59).AddMilliseconds(789).AddMicroseconds(213);
@@ -42,11 +51,12 @@ public class OrdersPriceVolumeLayerTests
     private OrdersPriceVolumeLayer emptyAnonymousOrdersPvl    = null!;
     private OrdersPriceVolumeLayer emptyCounterPartyOrdersPvl = null!;
 
-    private AnonymousOrderLayerInfo    exampleAnonymousOrderLayer     = null!;
-    private CounterPartyOrderLayerInfo exampleCounterPartyOrderLayer  = null!;
-    private IPQNameIdLookupGenerator   nameIdLookupGenerator          = null!;
-    private OrdersPriceVolumeLayer     populatedAnonymousOrdersPvl    = null!;
-    private OrdersPriceVolumeLayer     populatedCounterPartyOrdersPvl = null!;
+    private AnonymousOrderLayerInfo  exampleAnonymousOrderLayer     = null!;
+    private IPQNameIdLookupGenerator nameIdLookupGenerator          = null!;
+    private OrdersPriceVolumeLayer   populatedAnonymousOrdersPvl    = null!;
+    private OrdersPriceVolumeLayer   populatedCounterPartyOrdersPvl = null!;
+
+    private ExternalCounterPartyOrderLayerInfo exampleCounterPartyOrderLayer = null!;
 
     [TestInitialize]
     public void SetUp()
@@ -54,9 +64,14 @@ public class OrdersPriceVolumeLayerTests
         nameIdLookupGenerator
             = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates);
 
-        exampleAnonymousOrderLayer = new AnonymousOrderLayerInfo(OrderId, OrderFlags, CreatedTime, OrderVolume, UpdatedTime, OrderRemainingVolume);
-        exampleCounterPartyOrderLayer = new CounterPartyOrderLayerInfo(OrderId, OrderFlags, CreatedTime, OrderVolume,
-                                                                       UpdatedTime, OrderRemainingVolume, CounterPartyBase, TraderNameBase);
+        exampleAnonymousOrderLayer =
+            new AnonymousOrderLayerInfo
+                (OrderId, CreatedTime, OrderVolume, ExpectedLayerFlags, ExpectedOrderType
+               , ExpectedTypeFlags, ExpectedLifecycleState, UpdatedTime, OrderRemainingVolume);
+        exampleCounterPartyOrderLayer =
+            new ExternalCounterPartyOrderLayerInfo
+                (OrderId, CreatedTime, OrderVolume, ExpectedLayerFlags, ExpectedOrderType, ExpectedTypeFlags, ExpectedLifecycleState
+               , CounterPartyBase, TraderNameBase, ExpectedCounterPartyId, ExpectedTraderId, UpdatedTime, OrderRemainingVolume);
 
         emptyAnonymousOrdersPvl     = new OrdersPriceVolumeLayer();
         emptyCounterPartyOrdersPvl  = new OrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume);
@@ -168,10 +183,10 @@ public class OrdersPriceVolumeLayerTests
         Assert.AreEqual(4u, newEmpty.OrdersCount);
         var orderLayer = newEmpty[3]!;
         Assert.AreEqual(OrderId, orderLayer.OrderId);
-        Assert.AreEqual(OrderFlags, orderLayer.OrderFlags);
+        Assert.AreEqual(ExpectedLayerFlags, orderLayer.OrderLayerFlags);
         Assert.AreEqual(CreatedTime, orderLayer.CreatedTime);
-        Assert.AreEqual(UpdatedTime, orderLayer.UpdatedTime);
-        Assert.AreEqual(OrderVolume, orderLayer.OrderVolume);
+        Assert.AreEqual(UpdatedTime, orderLayer.UpdateTime);
+        Assert.AreEqual(OrderVolume, ((IPublishedOrder)orderLayer).OrderDisplayVolume);
         Assert.AreEqual(OrderRemainingVolume, orderLayer.OrderRemainingVolume);
 
         Assert.IsNotNull(((IOrdersPriceVolumeLayer)newEmpty)[255]);
@@ -182,22 +197,22 @@ public class OrdersPriceVolumeLayerTests
         newEmpty[255] = exampleAnonymousOrderLayer.Clone();
         orderLayer    = newEmpty[255]!;
         Assert.AreEqual(OrderId, orderLayer.OrderId);
-        Assert.AreEqual(OrderFlags, orderLayer.OrderFlags);
+        Assert.AreEqual(ExpectedLayerFlags, orderLayer.OrderLayerFlags);
         Assert.AreEqual(CreatedTime, orderLayer.CreatedTime);
-        Assert.AreEqual(UpdatedTime, orderLayer.UpdatedTime);
-        Assert.AreEqual(OrderVolume, orderLayer.OrderVolume);
+        Assert.AreEqual(UpdatedTime, orderLayer.UpdateTime);
+        Assert.AreEqual(OrderVolume, ((IPublishedOrder)orderLayer).OrderDisplayVolume);
         Assert.AreEqual(OrderRemainingVolume, orderLayer.OrderRemainingVolume);
 
         newEmpty = emptyCounterPartyOrdersPvl.Clone();
         Assert.AreEqual(0u, newEmpty.OrdersCount);
         newEmpty[3] = exampleCounterPartyOrderLayer.Clone();
         Assert.AreEqual(4u, newEmpty.OrdersCount);
-        var counterPartyOrderLayer = (ICounterPartyOrderLayerInfo)newEmpty[3]!;
+        var counterPartyOrderLayer = (IExternalCounterPartyOrderLayerInfo)newEmpty[3]!;
         Assert.AreEqual(OrderId, counterPartyOrderLayer.OrderId);
-        Assert.AreEqual(OrderFlags, counterPartyOrderLayer.OrderFlags);
+        Assert.AreEqual(ExpectedLayerFlags, counterPartyOrderLayer.OrderLayerFlags);
         Assert.AreEqual(CreatedTime, counterPartyOrderLayer.CreatedTime);
-        Assert.AreEqual(UpdatedTime, counterPartyOrderLayer.UpdatedTime);
-        Assert.AreEqual(OrderVolume, counterPartyOrderLayer.OrderVolume);
+        Assert.AreEqual(UpdatedTime, counterPartyOrderLayer.UpdateTime);
+        Assert.AreEqual(OrderVolume, counterPartyOrderLayer.OrderDisplayVolume);
         Assert.AreEqual(OrderRemainingVolume, counterPartyOrderLayer.OrderRemainingVolume);
         Assert.AreEqual(CounterPartyBase, counterPartyOrderLayer.ExternalCounterPartyName);
         Assert.AreEqual(TraderNameBase, counterPartyOrderLayer.ExternalTraderName);
@@ -208,12 +223,12 @@ public class OrdersPriceVolumeLayerTests
         Assert.AreEqual(256u, newEmpty.OrdersCount);
 
         newEmpty[255]          = exampleCounterPartyOrderLayer.Clone();
-        counterPartyOrderLayer = (ICounterPartyOrderLayerInfo)newEmpty[255]!;
+        counterPartyOrderLayer = (IExternalCounterPartyOrderLayerInfo)newEmpty[255]!;
         Assert.AreEqual(OrderId, orderLayer.OrderId);
-        Assert.AreEqual(OrderFlags, orderLayer.OrderFlags);
+        Assert.AreEqual(ExpectedLayerFlags, orderLayer.OrderLayerFlags);
         Assert.AreEqual(CreatedTime, orderLayer.CreatedTime);
-        Assert.AreEqual(UpdatedTime, orderLayer.UpdatedTime);
-        Assert.AreEqual(OrderVolume, orderLayer.OrderVolume);
+        Assert.AreEqual(UpdatedTime, orderLayer.UpdateTime);
+        Assert.AreEqual(OrderVolume, ((IPublishedOrder)orderLayer).OrderDisplayVolume);
         Assert.AreEqual(OrderRemainingVolume, orderLayer.OrderRemainingVolume);
         Assert.AreEqual(OrderRemainingVolume, counterPartyOrderLayer.OrderRemainingVolume);
         Assert.AreEqual(CounterPartyBase, counterPartyOrderLayer.ExternalCounterPartyName);
@@ -356,10 +371,10 @@ public class OrdersPriceVolumeLayerTests
         {
             var checkOrderLayer = populatedAnonymousOrdersPvl[i]!;
             Assert.AreNotEqual(0, checkOrderLayer.OrderId);
-            Assert.AreNotEqual(LayerOrderFlags.None, checkOrderLayer.OrderFlags);
+            Assert.AreNotEqual(LayerOrderFlags.None, checkOrderLayer.OrderLayerFlags);
             Assert.AreNotEqual(DateTime.MinValue, checkOrderLayer.CreatedTime);
-            Assert.AreNotEqual(DateTime.MinValue, checkOrderLayer.UpdatedTime);
-            Assert.AreNotEqual(0m, checkOrderLayer.OrderVolume);
+            Assert.AreNotEqual(DateTime.MinValue, checkOrderLayer.UpdateTime);
+            Assert.AreNotEqual(0m, ((IPublishedOrder)checkOrderLayer).OrderDisplayVolume);
             Assert.AreNotEqual(0m, checkOrderLayer.OrderRemainingVolume);
             Assert.IsFalse(checkOrderLayer.IsEmpty);
         }
@@ -374,10 +389,10 @@ public class OrdersPriceVolumeLayerTests
         {
             var checkOrderLayer = populatedAnonymousOrdersPvl[i]!;
             Assert.AreEqual(0, checkOrderLayer.OrderId);
-            Assert.AreEqual(LayerOrderFlags.None, checkOrderLayer.OrderFlags);
+            Assert.AreEqual(LayerOrderFlags.None, checkOrderLayer.OrderLayerFlags);
             Assert.AreEqual(DateTime.MinValue, checkOrderLayer.CreatedTime);
-            Assert.AreEqual(DateTime.MinValue, checkOrderLayer.UpdatedTime);
-            Assert.AreEqual(0m, checkOrderLayer.OrderVolume);
+            Assert.AreEqual(DateTime.MinValue, checkOrderLayer.UpdateTime);
+            Assert.AreEqual(0m, ((IPublishedOrder)checkOrderLayer).OrderDisplayVolume);
             Assert.AreEqual(0m, checkOrderLayer.OrderRemainingVolume);
             Assert.IsTrue(checkOrderLayer.IsEmpty);
         }
@@ -391,16 +406,16 @@ public class OrdersPriceVolumeLayerTests
         {
             var checkOrderLayer = populatedCounterPartyOrdersPvl[i]!;
             Assert.AreNotEqual(0, checkOrderLayer.OrderId);
-            Assert.AreNotEqual(LayerOrderFlags.None, checkOrderLayer.OrderFlags);
+            Assert.AreNotEqual(LayerOrderFlags.None, checkOrderLayer.OrderLayerFlags);
             Assert.AreNotEqual(DateTime.MinValue, checkOrderLayer.CreatedTime);
-            Assert.AreNotEqual(DateTime.MinValue, checkOrderLayer.UpdatedTime);
-            Assert.AreNotEqual(0m, checkOrderLayer.OrderVolume);
+            Assert.AreNotEqual(DateTime.MinValue, checkOrderLayer.UpdateTime);
+            Assert.AreNotEqual(0m, ((IPublishedOrder)checkOrderLayer).OrderDisplayVolume);
             Assert.AreNotEqual(0m, checkOrderLayer.OrderRemainingVolume);
             Assert.IsFalse(checkOrderLayer.IsEmpty);
-            if (checkOrderLayer is IMutableCounterPartyOrderLayerInfo checkCounterPartyLayer)
+            if (checkOrderLayer is IMutableExternalCounterPartyOrderLayerInfo checkCounterPartyLayer)
             {
                 Assert.IsNotNull(checkCounterPartyLayer.ExternalCounterPartyName);
-                Assert.IsNotNull(checkCounterPartyLayer.ExternalTraderName);
+                Assert.IsNotNull(((IExternalCounterPartyInfoOrder)checkCounterPartyLayer).ExternalTraderName);
             }
         }
 
@@ -414,16 +429,16 @@ public class OrdersPriceVolumeLayerTests
         {
             var checkOrderLayer = populatedCounterPartyOrdersPvl[i]!;
             Assert.AreEqual(0, checkOrderLayer.OrderId);
-            Assert.AreEqual(LayerOrderFlags.None, checkOrderLayer.OrderFlags);
+            Assert.AreEqual(LayerOrderFlags.None, checkOrderLayer.OrderLayerFlags);
             Assert.AreEqual(DateTime.MinValue, checkOrderLayer.CreatedTime);
-            Assert.AreEqual(DateTime.MinValue, checkOrderLayer.UpdatedTime);
-            Assert.AreEqual(0m, checkOrderLayer.OrderVolume);
+            Assert.AreEqual(DateTime.MinValue, checkOrderLayer.UpdateTime);
+            Assert.AreEqual(0m, ((IPublishedOrder)checkOrderLayer).OrderDisplayVolume);
             Assert.AreEqual(0m, checkOrderLayer.OrderRemainingVolume);
             Assert.IsTrue(checkOrderLayer.IsEmpty);
-            if (checkOrderLayer is IMutableCounterPartyOrderLayerInfo checkCounterPartyLayer)
+            if (checkOrderLayer is IMutableExternalCounterPartyOrderLayerInfo checkCounterPartyLayer)
             {
                 Assert.IsNull(checkCounterPartyLayer.ExternalCounterPartyName);
-                Assert.IsNull(checkCounterPartyLayer.ExternalTraderName);
+                Assert.IsNull(((IExternalCounterPartyInfoOrder)checkCounterPartyLayer).ExternalTraderName);
             }
         }
     }
@@ -547,27 +562,27 @@ public class OrdersPriceVolumeLayerTests
         Assert.AreEqual(OrdersCount, populatedAnonymousOrdersPvl.OrdersCount);
         Assert.AreEqual(NumOfOrders, ((IEnumerable<IAnonymousOrderLayerInfo>)populatedAnonymousOrdersPvl.Orders).Count());
         Assert.AreEqual(NumOfOrders, ((IEnumerable<IMutableAnonymousOrderLayerInfo>)populatedAnonymousOrdersPvl.Orders).Count());
-        Assert.AreEqual(0, ((IEnumerable)populatedAnonymousOrdersPvl.Orders).OfType<ICounterPartyOrderLayerInfo>().Count());
+        Assert.AreEqual(0, ((IEnumerable)populatedAnonymousOrdersPvl.Orders).OfType<IExternalCounterPartyOrderLayerInfo>().Count());
 
         populatedAnonymousOrdersPvl.StateReset();
 
         Assert.AreEqual(0u, populatedAnonymousOrdersPvl.OrdersCount);
         Assert.AreEqual(0, ((IEnumerable<IAnonymousOrderLayerInfo>)populatedAnonymousOrdersPvl.Orders).Count(tli => !tli.IsEmpty));
         Assert.AreEqual(0, ((IEnumerable<IMutableAnonymousOrderLayerInfo>)populatedAnonymousOrdersPvl.Orders).Count(tli => !tli.IsEmpty));
-        Assert.AreEqual(0, ((IEnumerable)populatedAnonymousOrdersPvl.Orders).OfType<ICounterPartyOrderLayerInfo>().Count(tli => !tli.IsEmpty));
+        Assert.AreEqual(0, ((IEnumerable)populatedAnonymousOrdersPvl.Orders).OfType<IExternalCounterPartyOrderLayerInfo>().Count(tli => !tli.IsEmpty));
 
 
         Assert.AreEqual(OrdersCount, populatedCounterPartyOrdersPvl.OrdersCount);
         Assert.AreEqual(NumOfOrders, ((IEnumerable<IAnonymousOrderLayerInfo>)populatedCounterPartyOrdersPvl.Orders).Count());
         Assert.AreEqual(NumOfOrders, ((IEnumerable<IMutableAnonymousOrderLayerInfo>)populatedCounterPartyOrdersPvl.Orders).Count());
-        Assert.AreEqual(NumOfOrders, ((IEnumerable)populatedCounterPartyOrdersPvl.Orders).OfType<ICounterPartyOrderLayerInfo>().Count());
+        Assert.AreEqual(NumOfOrders, ((IEnumerable)populatedCounterPartyOrdersPvl.Orders).OfType<IExternalCounterPartyOrderLayerInfo>().Count());
 
         populatedCounterPartyOrdersPvl.StateReset();
 
         Assert.AreEqual(0u, populatedCounterPartyOrdersPvl.OrdersCount);
         Assert.AreEqual(0, ((IEnumerable<IAnonymousOrderLayerInfo>)populatedCounterPartyOrdersPvl.Orders).Count(tli => !tli.IsEmpty));
         Assert.AreEqual(0, ((IEnumerable<IMutableAnonymousOrderLayerInfo>)populatedCounterPartyOrdersPvl.Orders).Count(tli => !tli.IsEmpty));
-        Assert.AreEqual(0, ((IEnumerable)populatedCounterPartyOrdersPvl.Orders).OfType<ICounterPartyOrderLayerInfo>().Count(tli => !tli.IsEmpty));
+        Assert.AreEqual(0, ((IEnumerable)populatedCounterPartyOrdersPvl.Orders).OfType<IExternalCounterPartyOrderLayerInfo>().Count(tli => !tli.IsEmpty));
         // ReSharper restore RedundantCast
     }
 
@@ -579,12 +594,12 @@ public class OrdersPriceVolumeLayerTests
         for (var i = 0; i < numOrdersToCreate; i++)
         {
             var anonOrderLayer = addOrdersLayers[i]!;
-            anonOrderLayer.OrderId              = OrderId + i;
-            anonOrderLayer.OrderFlags           = OrderFlags;
-            anonOrderLayer.CreatedTime          = createdTime.AddMinutes(5 * i);
-            anonOrderLayer.UpdatedTime          = updatedTime.AddMinutes(10 * i);
-            anonOrderLayer.OrderVolume          = OrderVolume + i * 100;
-            anonOrderLayer.OrderRemainingVolume = OrderVolume / 2;
+            anonOrderLayer.OrderId                               = OrderId + i;
+            anonOrderLayer.OrderLayerFlags                       = ExpectedLayerFlags;
+            anonOrderLayer.CreatedTime                           = createdTime.AddMinutes(5 * i);
+            anonOrderLayer.UpdateTime                           = updatedTime.AddMinutes(10 * i);
+            anonOrderLayer.OrderDisplayVolume = OrderVolume + i * 100;
+            anonOrderLayer.OrderRemainingVolume                  = OrderVolume / 2;
         }
     }
 
@@ -597,16 +612,16 @@ public class OrdersPriceVolumeLayerTests
         for (var i = 0; i < numOrdersToCreate; i++)
         {
             var anonOrderLayer = addOrdersLayers[i]!;
-            anonOrderLayer.OrderId              = OrderId + i;
-            anonOrderLayer.OrderFlags           = OrderFlags;
-            anonOrderLayer.CreatedTime          = createdTime.AddMinutes(5 * i);
-            anonOrderLayer.UpdatedTime          = updatedTime.AddMinutes(10 * i);
-            anonOrderLayer.OrderVolume          = OrderVolume + i * 100;
-            anonOrderLayer.OrderRemainingVolume = OrderVolume / 2;
-            if (anonOrderLayer is IMutableCounterPartyOrderLayerInfo counterPartyLayer)
+            anonOrderLayer.OrderId                               = OrderId + i;
+            anonOrderLayer.OrderLayerFlags                       = ExpectedLayerFlags;
+            anonOrderLayer.CreatedTime                           = createdTime.AddMinutes(5 * i);
+            anonOrderLayer.UpdateTime                           = updatedTime.AddMinutes(10 * i);
+            anonOrderLayer.OrderDisplayVolume = OrderVolume + i * 100;
+            anonOrderLayer.OrderRemainingVolume                  = OrderVolume / 2;
+            if (anonOrderLayer is IMutableExternalCounterPartyOrderLayerInfo counterPartyLayer)
             {
-                counterPartyLayer.ExternalCounterPartyName = $"{CounterPartyBase}_{i}";
-                counterPartyLayer.ExternalTraderName       = $"{TraderNameBase}_{i}";
+                counterPartyLayer.ExternalCounterPartyName                             = $"{CounterPartyBase}_{i}";
+                counterPartyLayer.ExternalTraderName = $"{TraderNameBase}_{i}";
             }
         }
     }
@@ -623,7 +638,7 @@ public class OrdersPriceVolumeLayerTests
             if (expectPopulated == null || expectPopulated[i])
             {
                 var expectedOrderId              = OrderId + i;
-                var expectedOrderFlags           = OrderFlags;
+                var expectedOrderFlags           = ExpectedLayerFlags;
                 var expectedCreatedTime          = createdTime.AddMinutes(5 * i);
                 var expectedUpdatedTime          = updatedTime.AddMinutes(10 * i);
                 var expectedOrderVolume          = OrderVolume + i * 100;
@@ -635,30 +650,30 @@ public class OrdersPriceVolumeLayerTests
                 var checkOrderLayer = checkOrdersLayers[i]!;
 
                 Assert.AreEqual(expectedOrderId, checkOrderLayer.OrderId);
-                Assert.AreEqual(expectedOrderFlags, checkOrderLayer.OrderFlags);
+                Assert.AreEqual(expectedOrderFlags, checkOrderLayer.OrderLayerFlags);
                 Assert.AreEqual(expectedCreatedTime, checkOrderLayer.CreatedTime);
-                Assert.AreEqual(expectedUpdatedTime, checkOrderLayer.UpdatedTime);
-                Assert.AreEqual(expectedOrderVolume, checkOrderLayer.OrderVolume);
+                Assert.AreEqual(expectedUpdatedTime, checkOrderLayer.UpdateTime);
+                Assert.AreEqual(expectedOrderVolume, checkOrderLayer.OrderDisplayVolume);
                 Assert.AreEqual(expectedOrderRemainingVolume, checkOrderLayer.OrderRemainingVolume);
-                if (checkOrderLayer is IMutableCounterPartyOrderLayerInfo checkCounterPartyLayer)
+                if (checkOrderLayer is IMutableExternalCounterPartyOrderLayerInfo checkCounterPartyLayer)
                 {
                     Assert.AreEqual(expectedCounterPartyName, checkCounterPartyLayer.ExternalCounterPartyName);
-                    Assert.AreEqual(expectedTraderName, checkCounterPartyLayer.ExternalTraderName);
+                    Assert.AreEqual(expectedTraderName, ((IExternalCounterPartyInfoOrder)checkCounterPartyLayer).ExternalTraderName);
                 }
             }
             else
             {
                 var checkOrderLayer = checkOrdersLayers[i]!;
                 Assert.AreEqual(0, checkOrderLayer.OrderId);
-                Assert.AreEqual(LayerOrderFlags.None, checkOrderLayer.OrderFlags);
+                Assert.AreEqual(LayerOrderFlags.None, checkOrderLayer.OrderLayerFlags);
                 Assert.AreEqual(DateTime.MinValue, checkOrderLayer.CreatedTime);
-                Assert.AreEqual(DateTime.MinValue, checkOrderLayer.UpdatedTime);
-                Assert.AreEqual(0m, checkOrderLayer.OrderVolume);
+                Assert.AreEqual(DateTime.MinValue, checkOrderLayer.UpdateTime);
+                Assert.AreEqual(0m, checkOrderLayer.OrderDisplayVolume);
                 Assert.AreEqual(0m, checkOrderLayer.OrderRemainingVolume);
-                if (checkOrderLayer is IMutableCounterPartyOrderLayerInfo checkCounterPartyLayer)
+                if (checkOrderLayer is IMutableExternalCounterPartyOrderLayerInfo checkCounterPartyLayer)
                 {
                     Assert.IsNull(checkCounterPartyLayer.ExternalCounterPartyName);
-                    Assert.IsNull(checkCounterPartyLayer.ExternalTraderName);
+                    Assert.IsNull(((IExternalCounterPartyInfoOrder)checkCounterPartyLayer).ExternalTraderName);
                 }
             }
     }
@@ -679,7 +694,7 @@ public class OrdersPriceVolumeLayerTests
         Assert.IsNotNull(changingPriceVolumeLayer);
 
         OrdersCountPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-            (exactComparison, original, changingPriceVolumeLayer, originalOrderBookSide, changingOrderBookSide, 
+            (exactComparison, original, changingPriceVolumeLayer, originalOrderBookSide, changingOrderBookSide,
              originalOrderBook, changingOrderBook, originalQuote, changingQuote);
 
         Assert.AreEqual(original.OrdersCount, changingPriceVolumeLayer.OrdersCount);
@@ -689,11 +704,11 @@ public class OrdersPriceVolumeLayerTests
             var changingOrderLayerInfo = changingPriceVolumeLayer[i];
 
             Assert.AreEqual(originalOrderLayerInfo != null, changingOrderLayerInfo != null);
-            if (originalOrderLayerInfo is ICounterPartyOrderLayerInfo || changingOrderLayerInfo is ICounterPartyOrderLayerInfo)
+            if (originalOrderLayerInfo is IExternalCounterPartyOrderLayerInfo || changingOrderLayerInfo is IExternalCounterPartyOrderLayerInfo)
             {
-                CounterPartyOrderLayerInfoTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-                    (exactComparison, originalOrderLayerInfo as IMutableCounterPartyOrderLayerInfo, 
-                     changingOrderLayerInfo as IMutableCounterPartyOrderLayerInfo, original, changingPriceVolumeLayer
+                ExternalCounterPartyOrderLayerInfoTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+                    (exactComparison, originalOrderLayerInfo as IMutableExternalCounterPartyOrderLayerInfo,
+                     changingOrderLayerInfo as IMutableExternalCounterPartyOrderLayerInfo, original, changingPriceVolumeLayer
                    , originalOrderBookSide, changingOrderBookSide, originalQuote, changingQuote);
             }
             else

@@ -276,6 +276,11 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         ;
     }
 
+    public ElementShift CalculateShift<T>(IReadOnlyList<T> previousCollection, IReadOnlyList<T> updatedCollection)
+    {
+        throw new NotImplementedException();
+    }
+
     public override PQLastTradedList CopyFrom(ILastTradedList source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is PQLastTradedList sourceRecentlyTraded) NameIdLookup.CopyFrom(sourceRecentlyTraded.NameIdLookup, copyMergeFlags);

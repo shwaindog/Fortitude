@@ -3,137 +3,128 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 
-public class AnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo>, IMutableAnonymousOrderLayerInfo
+public class AnonymousOrderLayerInfo : PublishedOrder, IMutableAnonymousOrderLayerInfo
 {
     public AnonymousOrderLayerInfo() { }
 
     public AnonymousOrderLayerInfo
-    (int orderId, LayerOrderFlags orderFlags, DateTime createdTime, decimal orderVolume, DateTime? updatedTime = null
-      , decimal? remainingVolume = null)
+    (int orderId, DateTime createdTime, decimal orderDisplayVolume, LayerOrderFlags orderLayerFlags = LayerOrderFlags.None
+      , OrderType orderType = OrderType.None, OrderFlags typeFlags = OrderFlags.None
+      , OrderLifeCycleState lifeCycleState = OrderLifeCycleState.None
+      , DateTime? updatedTime = null, decimal? remainingVolume = null, uint trackingId = 0)
+        : base(orderId, createdTime, orderDisplayVolume, orderType, typeFlags, lifeCycleState, updatedTime, remainingVolume, trackingId)
     {
-        OrderId              = orderId;
-        OrderFlags           = orderFlags;
-        CreatedTime          = createdTime;
-        OrderVolume          = orderVolume;
-        OrderRemainingVolume = remainingVolume ?? orderVolume;
-        UpdatedTime          = updatedTime ?? createdTime;
+        OrderLayerFlags = orderLayerFlags;
     }
 
     public AnonymousOrderLayerInfo(IAnonymousOrderLayerInfo toClone)
     {
         OrderId              = toClone.OrderId;
-        OrderFlags           = toClone.OrderFlags;
+        OrderLayerFlags      = toClone.OrderLayerFlags;
+        OrderType            = toClone.OrderType;
+        TypeFlags            = toClone.TypeFlags;
+        OrderLifeCycleState  = toClone.OrderLifeCycleState;
         CreatedTime          = toClone.CreatedTime;
-        OrderVolume          = toClone.OrderVolume;
+        OrderDisplayVolume   = toClone.OrderDisplayVolume;
         OrderRemainingVolume = toClone.OrderRemainingVolume;
-        UpdatedTime          = toClone.UpdatedTime;
+        UpdateTime           = toClone.UpdateTime;
+        TrackingId = toClone.TrackingId;
     }
 
-    public int             OrderId     { get; set; }
-    public LayerOrderFlags OrderFlags  { get; set; }
-    public DateTime        CreatedTime { get; set; }
-    public DateTime        UpdatedTime { get; set; }
+    public LayerOrderFlags OrderLayerFlags { get; set; }
 
-    public uint TrackingId { get; set; }
-
-    public decimal OrderVolume { get; set; }
-
-    public decimal OrderRemainingVolume { get; set; }
-
-    public virtual bool IsEmpty
+    public override bool IsEmpty
     {
-        get =>
-            OrderId == 0 && OrderFlags == LayerOrderFlags.None && CreatedTime == default && UpdatedTime == default && OrderVolume == 0m &&
-            OrderRemainingVolume == 0m;
+        get => base.IsEmpty && OrderLayerFlags == LayerOrderFlags.None;
         set
         {
+            base.IsEmpty = value;
             if (!value) return;
-            OrderId     = 0;
-            OrderFlags  = LayerOrderFlags.None;
-            CreatedTime = default;
-            UpdatedTime = default;
-            OrderVolume = 0m;
-
-            OrderRemainingVolume = 0m;
+            OrderLayerFlags = LayerOrderFlags.None;
         }
     }
 
     public override void StateReset()
     {
-        OrderId     = 0;
-        OrderFlags  = LayerOrderFlags.None;
-        CreatedTime = default;
-        UpdatedTime = default;
-        OrderVolume = 0m;
-
-        OrderRemainingVolume = 0m;
+        OrderLayerFlags = LayerOrderFlags.None;
+        base.StateReset();
     }
 
-    public override IAnonymousOrderLayerInfo CopyFrom
-    (IAnonymousOrderLayerInfo source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override AnonymousOrderLayerInfo CopyFrom(IPublishedOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        OrderId     = source.OrderId;
-        OrderFlags  = source.OrderFlags;
-        CreatedTime = source.CreatedTime;
-        UpdatedTime = source.UpdatedTime;
-        OrderVolume = source.OrderVolume;
-
-        OrderRemainingVolume = source.OrderRemainingVolume;
+        base.CopyFrom(source, copyMergeFlags);
+        if (source is IAnonymousOrderLayerInfo anonymousOrderLayer)
+        {
+            OrderLayerFlags = anonymousOrderLayer.OrderLayerFlags;
+        }
         return this;
     }
+
+    IInternalPassiveOrderLayerInfo? IAnonymousOrderLayerInfo.ToInternalOrder() => ToInternalOrder();
+
+    IMutableInternalPassiveOrderLayerInfo? IMutableAnonymousOrderLayerInfo.ToInternalOrder() => ToInternalOrder();
+
+    public override InternalPassiveOrderLayerInfo? ToInternalOrder() =>
+        this is InternalPassiveOrderLayerInfo internalOrder && TypeFlags.IsInternalOrder() && TypeFlags.HasInternalOrderInfo()
+            ? internalOrder
+            : null;
+
+    IExternalCounterPartyOrderLayerInfo? IAnonymousOrderLayerInfo.ToExternalCounterPartyInfoOrder() => ToExternalCounterPartyInfoOrder();
+
+    IMutableExternalCounterPartyOrderLayerInfo? IMutableAnonymousOrderLayerInfo.ToExternalCounterPartyInfoOrder() =>
+        ToExternalCounterPartyInfoOrder();
+
+    public override ExternalCounterPartyOrderLayerInfo? ToExternalCounterPartyInfoOrder() =>
+        this is ExternalCounterPartyOrderLayerInfo externalCounterPartyOrder && TypeFlags.IsExternalOrder() && TypeFlags.HasExternalCounterPartyInfo()
+            ? externalCounterPartyOrder
+            : null;
 
     object ICloneable.Clone() => Clone();
 
     IMutableAnonymousOrderLayerInfo IMutableAnonymousOrderLayerInfo.Clone() => Clone();
 
+    IAnonymousOrderLayerInfo IAnonymousOrderLayerInfo.Clone() => Clone();
+
+    public override AnonymousOrderLayerInfo Clone() =>
+        Recycler?.Borrow<AnonymousOrderLayerInfo>().CopyFrom(this) ?? new AnonymousOrderLayerInfo(this);
+
     public bool AreEquivalent(IMutableAnonymousOrderLayerInfo? other, bool exactTypes = false) =>
         AreEquivalent((IAnonymousOrderLayerInfo?)other, exactTypes);
 
-    public virtual bool AreEquivalent(IAnonymousOrderLayerInfo? other, bool exactTypes = false)
+    public bool AreEquivalent(IAnonymousOrderLayerInfo? other, bool exactTypes = false) => AreEquivalent(other as IPublishedOrder, exactTypes);
+
+    public override bool AreEquivalent(IPublishedOrder? other, bool exactTypes = false)
     {
         if (other == null) return false;
-        if (exactTypes && other.GetType() != GetType()) return false;
+        if (other is not IAnonymousOrderLayerInfo anonymousOrder) return false;
 
-        var orderIdsSame   = OrderId == other.OrderId;
-        var orderFlagsSame = OrderFlags == other.OrderFlags;
-        var createdSame    = CreatedTime == other.CreatedTime;
-        var updatedSame    = UpdatedTime == other.UpdatedTime;
-        var volumeSame     = OrderVolume == other.OrderVolume;
+        var baseSame       = base.AreEquivalent(anonymousOrder, exactTypes);
+        var orderFlagsSame = OrderLayerFlags == anonymousOrder.OrderLayerFlags;
 
-        var remainingVolumeSame = OrderRemainingVolume == other.OrderRemainingVolume;
-
-        return orderIdsSame && orderFlagsSame && createdSame && updatedSame && volumeSame && remainingVolumeSame;
+        return orderFlagsSame && baseSame;
     }
 
-    public override AnonymousOrderLayerInfo Clone() =>
-        Recycler?.Borrow<AnonymousOrderLayerInfo>().CopyFrom(this) as AnonymousOrderLayerInfo ?? new AnonymousOrderLayerInfo(this);
-
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IAnonymousOrderLayerInfo?)obj, true);
+
 
     public override int GetHashCode()
     {
         unchecked
         {
-            var hashCode = OrderId;
-            hashCode = ((int)OrderFlags * 397) ^ hashCode;
-            hashCode = (CreatedTime.GetHashCode() * 397) ^ hashCode;
-            hashCode = (UpdatedTime.GetHashCode() * 397) ^ hashCode;
-            hashCode = (OrderVolume.GetHashCode() * 397) ^ hashCode;
-            hashCode = (OrderRemainingVolume.GetHashCode() * 397) ^ hashCode;
+            var hashCode = base.GetHashCode();
+            hashCode = ((int)OrderLayerFlags * 397) ^ hashCode;
             return hashCode;
         }
     }
 
-    public override string ToString() =>
-        $"{nameof(AnonymousOrderLayerInfo)}{{{nameof(OrderId)}: {OrderId}, {nameof(OrderFlags)}: {OrderFlags}, " +
-        $"{nameof(CreatedTime)}: {CreatedTime}, {nameof(UpdatedTime)}: {UpdatedTime}, {nameof(OrderVolume)}: {OrderVolume:N2}, " +
-        $"{nameof(OrderRemainingVolume)}: {OrderRemainingVolume:N2}}}";
+    protected string AnonymousOrderLayerInfoToStringMembers => $"{PublishedOrderToStringMembers}, {nameof(OrderLayerFlags)}: {OrderLayerFlags}";
+
+    public override string ToString() => $"{GetType().Name}{{{AnonymousOrderLayerInfoToStringMembers}}}";
 }

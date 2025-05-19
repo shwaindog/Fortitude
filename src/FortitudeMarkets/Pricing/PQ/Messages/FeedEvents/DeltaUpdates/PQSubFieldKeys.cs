@@ -43,9 +43,9 @@
       , ConversionRateUpdatedDate        = 38 // 0x26
       , ConversionRateUpdatedSub2MinTime = 39 // 0x27
 
-      , PnLReportedCurrency               = 45 // 0x2D
-      , PnLVolumeConversionConversionRate = 46 // 0x2E
-      , PnLPriceConversionRate            = 47 // 0x2F
+      , PnLConversionReportedCurrency               = 45 // 0x2D
+      , PnLConversionVolumeConversionConversionRate = 46 // 0x2E
+      , PnLConversionPriceConversionRate            = 47 // 0x2F
 
       , MarginTotal                        = 50 // 0x32
       , MarginVolumeConversionRate         = 51 // 0x33
@@ -76,7 +76,7 @@
       , ContinuousPriceAdjustmentDeltaIssued             = 83 // 0x53
       , ContinuousPriceAdjustmentLifeTimeTotalIssued     = 84 // 0x54
 
-      , CandlePeriod    = 90  // 0x5A
+      , CandlePeriod           = 90  // 0x5A
       , CandleStartDateTime    = 91  // 0x5B
       , CandleStartSub2MinTime = 92  // 0x5C
       , CandleStartPrice       = 93  // 0x5D
@@ -184,7 +184,78 @@
       , MarketAggregateVwap              = 234 // 0xEA
     }
 
-    public enum PQTradingSubFieldKeys : byte
+
+    public enum PQOrdersSubFieldKeys : byte
+    {
+        None = 0
+
+        // Aligns with CrudCommand enum values
+      , CommandInsert        = 1 // Create
+      , CommandRead          = 2 // Read
+      , CommandUpdate        = 3 // Update
+      , CommandDelete        = 4 // Delete or remove element
+      , CommandUpsert        = 5 // Create or Update
+      , CommandReset         = 6 // Clear/Wipe keep position
+      , CommandElementsShift = 7 // Similar to bit shift but for list elements
+        // ( to include a list virtual fix/drop index and will shift above or below the point)
+
+
+      , OrderId                                = 10 // 0x0A
+      , OrderType                              = 11 // 0x0B
+      , OrderFlags                             = 12 // 0x0C
+      , OrderLifecycleStateFlags               = 13 // 0x0D
+      , OrderLayerFlags                        = 14 // 0x0E
+      , OrderUpdateReasonFlags                 = 15 // 0x1F
+      , OrderCreatedDate                       = 16 // 0x10
+      , OrderCreatedSub2MinTime                = 17 // 0x11
+      , OrderUpdatedDate                       = 18 // 0x12
+      , OrderUpdatedSub2MinTime                = 19 // 0x13
+      , OrderTrackingId                        = 20 // 0x14
+      , OrderDisplayVolume                     = 21 // 0x15 // Negative sell, positive buy
+      , OrderRemainingVolume                   = 22 // 0x16
+      , OrderInternalTotalVolume               = 23 // 0x17
+      , OrderInternalSequenceId                = 24 // 0x18
+      , OrderInternalSourceStateFlags          = 25 // 0x19
+      , OrderInternalPositionAdjustmentFlags   = 26 // 0x1B
+      , OrderInternalTimeInForce               = 27 // 0x1A
+      , OrderInternalClientOrderId             = 28 // 0x1C
+      , OrderInternalSubmittedPrice            = 29 // 0x1D
+      , OrderInternalSubmittedTakeProfitPrice  = 30 // 0x1E
+      , OrderInternalSubmittedStopLossPrice    = 31 // 0x1F
+      , OrderInternalTargetPrice               = 32 // 0x20
+      , OrderInternalOnCreateTargetTakeProfit  = 33 // 0x21
+      , OrderInternalOnCreateTargetStopLoss    = 34 // 0x22
+      , OrderInternalTakeProfitOrderId         = 35 // 0x23
+      , OrderInternalStopLossOrderId           = 36 // 0x24
+      , OrderInternalCurrentTargetTakeProfit   = 37 // 0x25
+      , OrderInternalCurrentTargetStopLoss     = 38 // 0x26
+      , OrderInternalParentOrderId             = 39 // 0x27
+      , OrderInternalClosingOrderId            = 40 // 0x28
+      , OrderInternalClosingOrderOpenPrice     = 41 // 0x29
+      , OrderInternalDecisionCreateDate        = 42 // 0x2A
+      , OrderInternalDecisionCreateSub2MinTime = 43 // 0x2B
+      , OrderInternalDecisionAmendDate         = 44 // 0x2C
+      , OrderInternalDecisionAmendSub2MinTime  = 45 // 0x2D
+      , OrderInternalDivisionId                = 46 // 0x2E
+      , OrderInternalDivisionNameId            = 47 // 0x2F
+      , OrderInternalDeskId                    = 48 // 0x30
+      , OrderInternalDeskNameId                = 49 // 0x31
+      , OrderInternalStrategyId                = 50 // 0x32
+      , OrderInternalStrategyNameId            = 51 // 0x33
+      , OrderInternalStrategyDecisionId        = 52 // 0x34
+      , OrderInternalStrategyDecisionNameId    = 53 // 0x35
+      , OrderInternalPortfolioId               = 54 // 0x36
+      , OrderInternalPortfolioNameId           = 55 // 0x37
+      , OrderInternalTraderId                  = 56 // 0x38
+      , OrderInternalTraderNameId              = 57 // 0x39
+      , OrderInternalMarginConsumed            = 58 // 0x3A
+      , OrderExternalCounterPartyId            = 59 // 0x3B
+      , OrderExternalCounterPartyNameId        = 60 // 0x3C
+      , OrderExternalTraderId                  = 61 // 0x3D
+      , OrderExternalTraderNameId              = 62 // 0x3E
+    }
+
+    public enum PQDecisionsSubFieldKeys : byte
     {
         None = 0
 
@@ -226,197 +297,206 @@
       , SignalStateDecisionDescriptionTextId = 35 // 0x23
       , SignalStateDecisionReasonTextId      = 36 // 0x24
 
-      , StrategyDecisionId                          = 49 // 0x31
-      , StrategyId                                  = 50 // 0x32
-      , StrategyNameId                              = 51 // 0x33
-      , StrategyDecisionIntentType                  = 52 // 0x34
-      , StrategyDecisionIntentNameId                = 53 // 0x35
-      , StrategyDecisionFinalType                   = 54 // 0x36
-      , StrategyDecisionFinalNameId                 = 55 // 0x37
-      , StrategyDecisionFinalReasonTextId           = 56 // 0x38
-      , StrategyStateType                           = 57 // 0x39
-      , StrategyStateDescriptionTextId              = 58 // 0x3A
-      , StrategyDecisionDate                        = 59 // 0x3B
-      , StrategyDecisionSub2MinTime                 = 60 // 0x3C
-      , StrategyDecisionOrderId                     = 61 // 0x3D
-      , StrategyDecisionIntentSignalValue           = 62 // 0x3E
-      , StrategyDecisionIntentSignalThreshold       = 63 // 0x3F
-      , StrategyDecisionIntentSourceNameId          = 64 // 0x40
-      , StrategyDecisionIntentStrength              = 65 // 0x41
-      , StrategyDecisionIntentAccuracyConfidence    = 66 // 0x42
-      , StrategyDecisionIntentDirection             = 67 // 0x43
-      , StrategyDecisionIntentTargetPrice           = 68 // 0x44
-      , StrategyDecisionIntentTargetPriceBoundaryId = 69 // 0x45
-      , StrategyDecisionEstimatedTimeToLive         = 70 // 0x46
-      , StrategyDecisionKillPrice                   = 71 // 0x47
-      , StrategyDecisionKillPriceBoundaryId         = 73 // 0x48
-      , StrategyDecisionOutcome                     = 74 // 0x49
-      , StrategyDecisionOutcomeAtDate               = 75 // 0x4A
-      , StrategyDecisionOutcomeAtSub2MinTime        = 76 // 0x4B
-      , StrategyDecisionOutcomeSuccessRating        = 77 // 0x4C
+      , StrategyDecisionId                          = 130 // 0x32
+      , StrategyId                                  = 131 // 0x33
+      , StrategyNameId                              = 132 // 0x34
+      , StrategyDecisionIntentType                  = 133 // 0x35
+      , StrategyDecisionIntentNameId                = 134 // 0x36
+      , StrategyDecisionFinalType                   = 135 // 0x37
+      , StrategyDecisionFinalNameId                 = 136 // 0x38
+      , StrategyDecisionFinalReasonTextId           = 137 // 0x39
+      , StrategyStateType                           = 138 // 0x3A
+      , StrategyStateDescriptionTextId              = 139 // 0x3B
+      , StrategyDecisionDate                        = 140 // 0x3C
+      , StrategyDecisionSub2MinTime                 = 141 // 0x3D
+      , StrategyDecisionOrderId                     = 142 // 0x3E
+      , StrategyDecisionIntentSignalValue           = 143 // 0x3F
+      , StrategyDecisionIntentSignalThreshold       = 144 // 0x40
+      , StrategyDecisionIntentSourceNameId          = 145 // 0x41
+      , StrategyDecisionIntentStrength              = 146 // 0x42
+      , StrategyDecisionIntentAccuracyConfidence    = 147 // 0x43
+      , StrategyDecisionIntentDirection             = 148 // 0x44
+      , StrategyDecisionIntentTargetPrice           = 149 // 0x45
+      , StrategyDecisionIntentTargetPriceBoundaryId = 140 // 0x46
+      , StrategyDecisionEstimatedTimeToLive         = 151 // 0x47
+      , StrategyDecisionKillPrice                   = 153 // 0x48
+      , StrategyDecisionKillPriceBoundaryId         = 154 // 0x49
+      , StrategyDecisionOutcome                     = 155 // 0x4A
+      , StrategyDecisionOutcomeAtDate               = 156 // 0x4B
+      , StrategyDecisionOutcomeAtSub2MinTime        = 157 // 0x4C
+      , StrategyDecisionOutcomeSuccessRating        = 158 // 0x4D
+    }
 
-      , ExecutionSummaryPeriod                 = 90  // 0x5A
-      , ExecutionPeriodStartDateTime           = 91  // 0x5B
-      , ExecutionPeriodStartSub2MinTime        = 92  // 0x5C
-      , ExecutionPeriodSlippageDelta           = 93  // 0x5D
-      , ExecutionPeriodInternalOrderFillCount  = 94  // 0x5E
-      , ExecutionPeriodSourceTradeCount        = 95  // 0x5F
-      , ExecutionPeriodSourcePaidCount         = 96  // 0x60
-      , ExecutionPeriodSourceGivenCount        = 97  // 0x61
-      , ExecutionPeriodAdapterTradeCount       = 98  // 0x62
-      , ExecutionPeriodInternalFillRatio       = 99  // 0x63
-      , ExecutionPeriodInternalFillPriceDelta  = 100 // 0x64
-      , ExecutionPeriodTargetToActualDelta     = 101 // 0x65
-      , ExecutionPeriodPlacedConfirmTimeUs     = 102 // 0x66
-      , ExecutionPeriodAvgAggressiveFillTimeMs = 103 // 0x67
-      , ExecutionPeriodEffectivePriceDelta     = 104 // 0x68
+    public enum PQTradingSubFieldKeys : byte
+    {
+        None = 0
+
+        // Aligns with CrudCommand enum values
+      , CommandInsert        = 1 // Create
+      , CommandRead          = 2 // Read
+      , CommandUpdate        = 3 // Update
+      , CommandDelete        = 4 // Delete or remove element
+      , CommandUpsert        = 5 // Create or Update
+      , CommandReset         = 6 // Clear/Wipe keep position
+      , CommandElementsShift = 7 // Similar to bit shift but for list elements
+        // ( to include a list virtual fix/drop index and will shift above or below the point)
+
+      , ExecutionSummaryPeriod                 = 10 // 0x0A
+      , ExecutionPeriodStartDateTime           = 11 // 0x0B
+      , ExecutionPeriodStartSub2MinTime        = 12 // 0x0C
+      , ExecutionPeriodSlippageDelta           = 13 // 0x0D
+      , ExecutionPeriodInternalOrderFillCount  = 14 // 0x0E
+      , ExecutionPeriodSourceTradeCount        = 15 // 0x0F
+      , ExecutionPeriodSourcePaidCount         = 16 // 0x10
+      , ExecutionPeriodSourceGivenCount        = 17 // 0x11
+      , ExecutionPeriodAdapterTradeCount       = 18 // 0x12
+      , ExecutionPeriodInternalFillRatio       = 19 // 0x13
+      , ExecutionPeriodInternalFillPriceDelta  = 20 // 0x14
+      , ExecutionPeriodTargetToActualDelta     = 21 // 0x15
+      , ExecutionPeriodPlacedConfirmTimeUs     = 22 // 0x16
+      , ExecutionPeriodAvgAggressiveFillTimeMs = 23 // 0x17
+      , ExecutionPeriodEffectivePriceDelta     = 24 // 0x18
 
 
-      , LimitNameId                    = 111 // 0x6F
-      , LimitType                      = 112 // 0x70
-      , LimitCategory                  = 113 // 0x71
-      , LimitPortfolioId               = 114 // 0x72
-      , LimitStrategyId                = 115 // 0x73
-      , LimitTraderId                  = 116 // 0x74
-      , LimitAppliedToNameId           = 117 // 0x75
-      , LimitLastUpdateDate            = 118 // 0x76
-      , LimitLastUpdateSub2MinTime     = 119 // 0x77
-      , LimitApplyPeriod               = 120 // 0x78
-      , LimitCurrentValue              = 121 // 0x79
-      , LimitBreachThreshold           = 122 // 0x7A
-      , LimitAlertApproachingThreshold = 123 // 0x7B
-      , LimitStatus                    = 124 // 0x7C
+      , LimitNameId                    = 40 // 0x28
+      , LimitType                      = 41 // 0x29
+      , LimitCategory                  = 42 // 0x2A
+      , LimitPortfolioId               = 43 // 0x2B
+      , LimitStrategyId                = 44 // 0x2C
+      , LimitTraderId                  = 45 // 0x2D
+      , LimitAppliedToNameId           = 46 // 0x2E
+      , LimitLastUpdateDate            = 47 // 0x2F
+      , LimitLastUpdateSub2MinTime     = 48 // 0x30
+      , LimitApplyPeriod               = 49 // 0x31
+      , LimitCurrentValue              = 50 // 0x32
+      , LimitBreachThreshold           = 51 // 0x33
+      , LimitAlertApproachingThreshold = 52 // 0x34
+      , LimitStatus                    = 53 // 0x35
 
 
-      , TradingAccountId                           = 130 // 0x82
-      , TradingAccountNameId                       = 131 // 0x83
-      , TradingAccountType                         = 132 // 0x84
-      , TradingAccountTradingStatus                = 133 // 0x85
-      , TradingAccountTickerNetOpenDirection       = 134 // 0x86
-      , TradingAccountTickerNetOpenMarketAggregate = 135 // 0x87
-      , TradingAccountTickerNetOpenPnl             = 136 // 0x88
-      , TradingAccountTickerClosedDailyPnl         = 137 // 0x89
+      , TradingAccountId                                   = 70 // 0x46
+      , TradingAccountNameId                               = 71 // 0x47
+      , TradingAccountType                                 = 72 // 0x48
+      , TradingAccountSubType                              = 73 // 0x49
+      , TradingAccountPeriod                               = 74 // 0x4A
+      , TradingAccountPeriodStartDate                      = 75 // 0x4B  // Negative Positive indicates Short or Long respectively
+      , TradingAccountTradingStatus                        = 76 // 0x4C  // Negative Positive indicates Short or Long respectively
+      , TradingAccountTickerNetOpenPosition                = 77 // 0x4D
+      , TradingAccountTickerThisPeriodNewDeltaOpenPosition = 78 // 0x4E
+      , TradingAccountTickerNetOpenPnl                     = 79 // 0x4F
+      , TradingAccountTickerThisPeriodNewDeltaNetOpenPnl   = 80 // 0x50
+      , TradingAccountTickerRealisedPnl                    = 81 // 0x51
 
-      , LimitBreachPublishId               = 144 // 0x90
-      , LimitBreachType                    = 145 // 0x91
-      , LimitBreachNameId                  = 146 // 0x92
-      , LimitBreachState                   = 147 // 0x93
-      , LimitBreachOutcome                 = 148 // 0x94
-      , LimitBreachTradingState            = 149 // 0x95
-      , LimitBreachExpectedRecoveryDate    = 150 // 0x96
-      , LimitBreachExpectedRecoverySub2Min = 151 // 0x97
-      , LimitBreachStateAsOfDate           = 152 // 0x98
-      , LimitBreachStateAsOfSub2MinTime    = 153 // 0x99
-      , LimitBreachCurrentValue            = 154 // 0x9A
-      , LimitBreachAttemptedValue          = 155 // 0x9B
-      , LimitBreachAttemptedOrderId        = 156 // 0x9C
+      , LimitBreachPublishId               = 100 // 0x64
+      , LimitBreachType                    = 101 // 0x65
+      , LimitBreachNameId                  = 102 // 0x66
+      , LimitBreachState                   = 103 // 0x67
+      , LimitBreachOutcome                 = 104 // 0x68
+      , LimitBreachTradingState            = 105 // 0x69
+      , LimitBreachExpectedRecoveryDate    = 106 // 0x6A
+      , LimitBreachExpectedRecoverySub2Min = 107 // 0x6B
+      , LimitBreachStateAsOfDate           = 108 // 0x6C
+      , LimitBreachStateAsOfSub2MinTime    = 109 // 0x6D
+      , LimitBreachCurrentValue            = 110 // 0x6E
+      , LimitBreachAttemptedValue          = 111 // 0x6F
+      , LimitBreachAttemptedOrderId        = 112 // 0x70
 
-      , OrderId                                = 160 // 0xA0
-      , OrderSequenceId                        = 161 // 0xA1
-      , OrderType                              = 162 // 0xA2
-      , OrderFlags                             = 163 // 0xA3
-      , OrderCreatedDate                       = 164 // 0xA4
-      , OrderCreatedSub2MinTime                = 165 // 0xA5
-      , OrderSubmitPrice                       = 166 // 0xA6
-      , OrderUpdatedDate                       = 167 // 0xA7
-      , OrderUpdatedSub2MinTime                = 168 // 0xA8
-      , OrderTrackingId                        = 169 // 0xA9
-      , OrderVolume                            = 170 // 0xAA
-      , OrderRemainingVolume                   = 171 // 0xAB
-      , OrderInternalTargetPrice               = 172 // 0xAC
-      , OrderInternalParentOrderId             = 173 // 0xAD
-      , OrderInternalClosingOrderId            = 174 // 0xAE
-      , OrderInternalClosingOrderOpenPrice     = 175 // 0xAF
-      , OrderInternalDecisionCreateDate        = 176 // 0xB0
-      , OrderInternalDecisionCreateSub2MinTime = 177 // 0xB1
-      , OrderInternalDecisionAmendDate         = 178 // 0xB2
-      , OrderInternalDecisionAmendSub2MinTime  = 179 // 0xB3
-      , OrderInternalDivisionId                = 180 // 0xB4
-      , OrderInternalDivisionNameId            = 181 // 0xB5
-      , OrderInternalDeskId                    = 182 // 0xB6
-      , OrderInternalDeskNameId                = 183 // 0xB7
-      , OrderInternalStrategyId                = 184 // 0xB8
-      , OrderInternalStrategyNameId            = 185 // 0xB9
-      , OrderInternalStrategyDecisionId        = 186 // 0xBA
-      , OrderInternalStrategyDecisionNameId    = 187 // 0xBB
-      , OrderInternalPortfolioId               = 188 // 0xBC
-      , OrderInternalPortfolioNameId           = 189 // 0xBD
-      , OrderInternalTraderId                  = 190 // 0xBE
-      , OrderInternalTraderNameId              = 191 // 0xBF
-      , OrderInternalMarginConsumed            = 192 // 0xC0
-      , OrderExternalCounterPartyId            = 193 // 0xC1
-      , OrderExternalCounterPartyNameId        = 194 // 0xC2
-      , OrderExternalTraderId                  = 195 // 0xC3
-      , OrderExternalTraderNameId              = 196 // 0xC4
+      , LastTradedSummaryPeriod                            = 140 // 0x8C
+      , LastTradedTradeId                                  = 141 // 0x8D
+      , LastTradedOrderId                                  = 142 // 0x8E
+      , LastTradedBatchId                                  = 143 // 0x8F
+      , LastTradedActionCommand                            = 144 // 0x90
+      , LastTradedAtPrice                                  = 145 // 0x91
+      , LastTradedTradeTimeDate                            = 146 // 0x92
+      , LastTradedTradeSub2MinTime                         = 147 // 0x93
+      , LastTradedOrderVolume                              = 148 // 0x94
+      , LastTradedBooleanFlags                             = 149 // 0x95
+      , LastTradedInternalTargetPrice                      = 150 // 0x96
+      , LastTradedInternalSubmitPrice                      = 151 // 0x97
+      , LastTradedInternalTradeFillRefId                   = 152 // 0x98
+      , LastTradedInternalRemainingOrderVolume             = 153 // 0x99
+      , LastTradedInternalLinkedClosingOrderId             = 154 // 0x9A
+      , LastTradedInternalDivisionId                       = 155 // 0x9B
+      , LastTradedInternalDivisionNameId                   = 156 // 0x9C
+      , LastTradedInternalDeskId                           = 157 // 0x9D
+      , LastTradedInternalDeskNameId                       = 158 // 0x9E
+      , LastTradedInternalStrategyId                       = 159 // 0x9F
+      , LastTradedInternalStrategyNameId                   = 160 // 0xA0
+      , LastTradedInternalPortfolioId                      = 161 // 0xA1
+      , LastTradedInternalPortfolioNameId                  = 162 // 0xA2
+      , LastTradedInternalTraderId                         = 163 // 0xA3
+      , LastTradedInternalTraderNameId                     = 164 // 0xA4
+      , LastTradedInternalNetOpenPositionDeltaPnl          = 165 // 0xA5
+      , LastTradedInternalPortfolioNetOpenPositionDeltaPnl = 166 // 0xA6
+      , LastTradedInternalStrategyNetOpenPositionDeltaPnl  = 167 // 0xA7
+      , LastTradedInternalTraderNetOpenPositionDeltaPnl    = 168 // 0xA8
+      , LastTradedInternalSimulatorNetOpenPositionDeltaPnl = 169 // 0xA9
+      , LastTradedInternalTargetPricePnl                   = 170 // 0xAA
+      , LastTradedInternalClosingOrderPnl                  = 171 // 0xAB
+      , LastTradedInternalClosingOrderDeltaMarginReleased  = 172 // 0xAC
+      , LastTradedInternalTotalDeltaMarginReleased         = 173 // 0xAD
+      , LastTradedCounterPartyId                           = 174 // 0xAE
+      , LastTradedCounterPartyNameId                       = 175 // 0xAF
+      , LastTradedTraderId                                 = 176 // 0xB0
+      , LastTradedTraderNameId                             = 177 // 0xB1
+    }
 
-      , LastTradedSummaryPeriod                            = 210 // 0xD2
-      , LastTradedTradeId                                  = 211 // 0xD3
-      , LastTradedOrderId                                  = 212 // 0xD4
-      , LastTradedBatchId                                  = 213 // 0xD5
-      , LastTradedActionCommand                            = 214 // 0xD6
-      , LastTradedAtPrice                                  = 215 // 0xD7
-      , LastTradedTradeTimeDate                            = 216 // 0xD8
-      , LastTradedTradeSub2MinTime                         = 217 // 0xD9
-      , LastTradedOrderVolume                              = 218 // 0xDA
-      , LastTradedBooleanFlags                             = 219 // 0xDB
-      , LastTradedInternalTargetPrice                      = 220 // 0xDC
-      , LastTradedInternalSubmitPrice                      = 221 // 0xDD
-      , LastTradedInternalTradeFillRefId                   = 222 // 0xDE
-      , LastTradedInternalRemainingOrderVolume             = 223 // 0xDF
-      , LastTradedInternalLinkedClosingOrderId             = 224 // 0xC0
-      , LastTradedInternalDivisionId                       = 225 // 0xC1
-      , LastTradedInternalDivisionNameId                   = 226 // 0xC2
-      , LastTradedInternalDeskId                           = 227 // 0xC3
-      , LastTradedInternalDeskNameId                       = 228 // 0xC4
-      , LastTradedInternalStrategyId                       = 229 // 0xC5
-      , LastTradedInternalStrategyNameId                   = 230 // 0xC6
-      , LastTradedInternalPortfolioId                      = 231 // 0xC7
-      , LastTradedInternalPortfolioNameId                  = 232 // 0xC8
-      , LastTradedInternalTraderId                         = 233 // 0xC9
-      , LastTradedInternalTraderNameId                     = 234 // 0xCA
-      , LastTradedInternalNetOpenPositionDeltaPnl          = 235 // 0xCB
-      , LastTradedInternalPortfolioNetOpenPositionDeltaPnl = 236 // 0xCC
-      , LastTradedInternalStrategyNetOpenPositionDeltaPnl  = 237 // 0xCD
-      , LastTradedInternalTraderNetOpenPositionDeltaPnl    = 238 // 0xCE
-      , LastTradedInternalSimulatorNetOpenPositionDeltaPnl = 239 // 0xCF
-      , LastTradedInternalTargetPricePnl                   = 240 // 0xD0
-      , LastTradedInternalClosingOrderPnl                  = 241 // 0xD1
-      , LastTradedInternalClosingOrderDeltaMarginReleased  = 242 // 0xD2
-      , LastTradedInternalTotalDeltaMarginReleased         = 243 // 0xD3
-      , LastTradedCounterPartyId                           = 244 // 0xD4
-      , LastTradedCounterPartyNameId                       = 245 // 0xD5
-      , LastTradedTraderId                                 = 246 // 0xD6
-      , LastTradedTraderNameId                             = 247 // 0xD7
+    public enum SubKeyType
+    {
+        PricingSubKey   = 0
+      , DecisionsSubKey = 1
+      , OrdersSubKey    = 2
+      , TradingSubKey   = 3
     }
 
     public static class PQSubFieldKeyExtensions
     {
         public static string ToSubIdString(this byte subId, PQFeedFields parentId)
         {
-            return parentId.IsPricingSubKey() switch
+            return parentId.GetSubKeyType() switch
                    {
-                       true  => ((PQPricingSubFieldKeys)subId).ToString()
-                     , false => ((PQTradingSubFieldKeys)subId).ToString()
+                       SubKeyType.PricingSubKey   => ((PQPricingSubFieldKeys)subId).ToString()
+                     , SubKeyType.DecisionsSubKey => ((PQDecisionsSubFieldKeys)subId).ToString()
+                     , SubKeyType.OrdersSubKey    => ((PQOrdersSubFieldKeys)subId).ToString()
+                     , SubKeyType.TradingSubKey   => ((PQTradingSubFieldKeys)subId).ToString()
+                   };
+        }
+
+        public static SubKeyType GetSubKeyType(this PQFeedFields parentId)
+        {
+            return parentId switch
+                   {
+                       _ when parentId <= PQFeedFields.MarketEventsUpcoming                 => SubKeyType.PricingSubKey
+                     , _ when parentId <= PQFeedFields.StrategyDecisionsWithActivePositions => SubKeyType.DecisionsSubKey
+                     , _ when parentId <= PQFeedFields.PortfolioLimitApproachingAlert       => SubKeyType.TradingSubKey
+                     , _ when parentId <= PQFeedFields.QuoteLayerOrdersCount                => SubKeyType.PricingSubKey
+                     , _ when parentId <= PQFeedFields.QuoteLayerOrders                     => SubKeyType.OrdersSubKey
+                     , _ when parentId <= PQFeedFields.QuoteLayersRangeEnd                  => SubKeyType.PricingSubKey
+                     , _ when parentId <= PQFeedFields.LastTradedMarketDailyAggregate       => SubKeyType.TradingSubKey
+                     , _ when parentId <= PQFeedFields.AdapterInternalOrdersSimulatorOpen   => SubKeyType.OrdersSubKey
+                     , _ when parentId <= PQFeedFields.QuoteExpiryDate                      => SubKeyType.PricingSubKey
+                     , _                                                                    => SubKeyType.PricingSubKey
                    };
         }
 
         public static bool IsPricingSubKey(this PQFeedFields parentId)
         {
-            return parentId switch
-                   {
-                       _ when parentId <= PQFeedFields.MarketEventsUpcoming           => true
-                     , _ when parentId <= PQFeedFields.PortfolioLimitApproachingAlert => false
-                     , _ when parentId <= PQFeedFields.QuoteLayerOrdersCount          => true
-                     , _ when parentId <= PQFeedFields.QuoteLayerOrders               => false
-                     , _ when parentId <= PQFeedFields.QuoteLayersRangeEnd            => true
-                     , _ when parentId <= PQFeedFields.QuoteExpiryDate                => false
-                     , _                                                              => true
-                   };
+            return parentId.GetSubKeyType() == SubKeyType.PricingSubKey;
+        }
+
+        public static bool IsOrdersSubKey(this PQFeedFields parentId)
+        {
+            return parentId.GetSubKeyType() == SubKeyType.OrdersSubKey;
+        }
+
+        public static bool IsDecisionSubKey(this PQFeedFields parentId)
+        {
+            return parentId.GetSubKeyType() == SubKeyType.DecisionsSubKey;
         }
 
         public static bool IsTradingSubKey(this PQFeedFields parentId)
         {
-            return !parentId.IsPricingSubKey();
+            return parentId.GetSubKeyType() == SubKeyType.TradingSubKey;
         }
     }
 }

@@ -4,8 +4,9 @@
 #region
 
 using System.Text.Json.Serialization;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 
 #endregion
@@ -104,110 +105,51 @@ public static class LayerOrderFlagsExtensions
 }
 
 [JsonDerivedType(typeof(AnonymousOrderLayerInfo))]
-[JsonDerivedType(typeof(CounterPartyOrderLayerInfo))]
+[JsonDerivedType(typeof(ExternalCounterPartyOrderLayerInfo))]
 [JsonDerivedType(typeof(PQAnonymousOrderLayerInfo))]
 [JsonDerivedType(typeof(PQCounterPartyOrderLayerInfo))]
-public interface IAnonymousOrderLayerInfo : IReusableObject<IAnonymousOrderLayerInfo>, IInterfacesComparable<IAnonymousOrderLayerInfo>
+public interface IAnonymousOrderLayerInfo : IPublishedOrder, IInterfacesComparable<IAnonymousOrderLayerInfo>, IShowsEmpty
 {
-    int             OrderId              { get; }
-    LayerOrderFlags OrderFlags           { get; }
-    DateTime        CreatedTime          { get; }
-    DateTime        UpdatedTime          { get; }
-    uint            TrackingId           { get; }
-    decimal         OrderVolume          { get; }
-    decimal         OrderRemainingVolume { get; }
-    bool            IsEmpty              { get; }
+    LayerOrderFlags OrderLayerFlags      { get; }
+
+    new IInternalPassiveOrderLayerInfo?      ToInternalOrder();
+    new IExternalCounterPartyOrderLayerInfo? ToExternalCounterPartyInfoOrder();
+
+    new IAnonymousOrderLayerInfo Clone();
 }
 
-public interface IMutableAnonymousOrderLayerInfo : IAnonymousOrderLayerInfo, IInterfacesComparable<IMutableAnonymousOrderLayerInfo>
+public interface IMutableAnonymousOrderLayerInfo : IAnonymousOrderLayerInfo, IMutablePublishedOrder, IInterfacesComparable<IMutableAnonymousOrderLayerInfo>, IEmptyable
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    new int OrderId { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    new LayerOrderFlags OrderFlags { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    new DateTime CreatedTime { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    new DateTime UpdatedTime { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    new uint TrackingId { get;          set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    new decimal OrderVolume { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    new decimal OrderRemainingVolume { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    new bool IsEmpty { get; set; }
-
-    new IMutableAnonymousOrderLayerInfo Clone();
-}
-
-public interface IExternalCounterPartyOrderInfo : IReusableObject<IExternalCounterPartyOrderInfo>
-  , IInterfacesComparable<IExternalCounterPartyOrderInfo>
-  , IAnonymousOrderLayerInfo
-{
-    string? CounterPartyName { get; }
-    string? TraderName       { get; }
-
-    new ICounterPartyOrderLayerInfo Clone();
-}
-
-public interface IInternalPartyOrderInfo : IReusableObject<IInternalPartyOrderInfo>, IInterfacesComparable<IInternalPartyOrderInfo>
-  , IAnonymousOrderLayerInfo
-{
-    decimal  TargetPrice                 { get; }
-    DateTime CreateDecisionTime          { get; }
-    DateTime LastAmendDecisionTime       { get; }
-    uint     ParentOrderId               { get; }
-    uint     ClosingOrderId              { get; }
-    decimal  ClosingOrderOpenPrice       { get; }
-    uint     DivisionId                  { get; }
-    string?  DivisionName                { get; }
-    uint     DeskId                      { get; }
-    string?  DeskName                    { get; }
-    uint     StrategyId                  { get; }
-    string   StrategyName                { get; }
-    uint     StrategyDecisionId          { get; }
-    string?  StrategyDecisionDescription { get; }
-    uint     PortfolioId                 { get; }
-    string?  PortfolioName               { get; }
-    uint     InternalTraderId            { get; }
-    string?  InternalTraderName          { get; }
-    decimal  MarginConsumed              { get; }
-
-    new ICounterPartyOrderLayerInfo Clone();
-}
-
-public interface ICounterPartyOrderLayerInfo : IReusableObject<ICounterPartyOrderLayerInfo>, IInterfacesComparable<ICounterPartyOrderLayerInfo>
-  , IAnonymousOrderLayerInfo
-{
-    uint ExternalCounterPartyId { get; }
-    string? ExternalCounterPartyName { get; }
-    uint ExternalTraderId       { get; }
-    string? ExternalTraderName       { get; }
-
-    new ICounterPartyOrderLayerInfo Clone();
-}
-
-public interface IMutableCounterPartyOrderLayerInfo : ICounterPartyOrderLayerInfo, IMutableAnonymousOrderLayerInfo
-{
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    new uint ExternalCounterPartyId { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    new string? ExternalCounterPartyName { get; set; }
+    new LayerOrderFlags OrderLayerFlags { get; set; }
     
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    new uint ExternalTraderId { get;      set; }
+    new IMutableInternalPassiveOrderLayerInfo?      ToInternalOrder();
+    new IMutableExternalCounterPartyOrderLayerInfo? ToExternalCounterPartyInfoOrder();
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    new string? ExternalTraderName { get; set; }
+    new IMutableAnonymousOrderLayerInfo      Clone();
+}
 
-    new IMutableCounterPartyOrderLayerInfo Clone();
+public interface IInternalPassiveOrderLayerInfo : IInternalPassiveOrder, IInterfacesComparable<IInternalPassiveOrderLayerInfo>
+  , IAnonymousOrderLayerInfo, ICloneable<IInternalPassiveOrderLayerInfo>
+{
+    new IInternalPassiveOrderLayerInfo Clone();
+}
+
+public interface IMutableInternalPassiveOrderLayerInfo : IInternalPassiveOrderLayerInfo, IMutableInternalPassiveOrder
+  , IInterfacesComparable<IMutableInternalPassiveOrderLayerInfo>, ICloneable<IMutableInternalPassiveOrderLayerInfo>
+{
+    new IMutableInternalPassiveOrderLayerInfo Clone();
+}
+
+public interface IExternalCounterPartyOrderLayerInfo : IExternalCounterPartyInfoOrder, ICloneable<IExternalCounterPartyOrderLayerInfo>,
+    IInterfacesComparable<IExternalCounterPartyOrderLayerInfo>, IAnonymousOrderLayerInfo
+{
+    new IExternalCounterPartyOrderLayerInfo Clone();
+}
+
+
+public interface IMutableExternalCounterPartyOrderLayerInfo : IExternalCounterPartyOrderLayerInfo, ICloneable<IMutableExternalCounterPartyOrderLayerInfo>,
+    IMutableExternalCounterPartyInfoOrder, IMutableAnonymousOrderLayerInfo
+{
+    new IMutableExternalCounterPartyOrderLayerInfo Clone();
 }

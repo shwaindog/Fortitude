@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
@@ -364,7 +365,7 @@ public class BookGenerator : IBookGenerator
         if (ordersCountOnLayer == 0) return;
         for (var i = 0; i < ordersCountOnLayer; i++)
         {
-            var orderLayer = (IMutableCounterPartyOrderLayerInfo)ordersPriceVolumeLayer[i]!;
+            var orderLayer = (IMutableExternalCounterPartyOrderLayerInfo)ordersPriceVolumeLayer[i]!;
             SetAnonymousOrderValues(depth, side, i, orderLayer);
 
             switch (side)
@@ -407,7 +408,7 @@ public class BookGenerator : IBookGenerator
     protected virtual void SetOrderFlags
         (BookSide side, IMutableAnonymousOrderLayerInfo orderLayerInfo, int pos, LayerOrderFlags orderFlags, LayerOrderFlags? prevOrderFlags)
     {
-        orderLayerInfo.OrderFlags = orderFlags;
+        orderLayerInfo.OrderLayerFlags = orderFlags;
     }
 
     protected virtual void SetOrderCreatedTime
@@ -419,13 +420,13 @@ public class BookGenerator : IBookGenerator
     protected virtual void SetOrderUpdatedTime
         (BookSide side, IMutableAnonymousOrderLayerInfo orderLayerInfo, int pos, DateTime orderUpdatedTime, DateTime? prevOrderUpdatedTime)
     {
-        orderLayerInfo.UpdatedTime = orderUpdatedTime;
+        orderLayerInfo.UpdateTime = orderUpdatedTime;
     }
 
     protected virtual void SetOrderVolume
         (BookSide side, IMutableAnonymousOrderLayerInfo orderLayerInfo, int pos, decimal orderVolume, decimal? prevOrderVolume)
     {
-        orderLayerInfo.OrderVolume = orderVolume;
+        orderLayerInfo.OrderDisplayVolume = orderVolume;
     }
 
     protected virtual void SetOrderRemainingVolume
@@ -435,14 +436,14 @@ public class BookGenerator : IBookGenerator
     }
 
     protected virtual void SetOrderCounterPartyName
-    (BookSide side, IMutableCounterPartyOrderLayerInfo orderLayerInfo, int pos, string counterPartyName, int counterPartyId
+    (BookSide side, IMutableExternalCounterPartyOrderLayerInfo orderLayerInfo, int pos, string counterPartyName, int counterPartyId
       , int? prevCounterPartyNameId)
     {
         orderLayerInfo.ExternalCounterPartyName = counterPartyName;
     }
 
     protected virtual void SetOrderTraderName
-        (BookSide side, IMutableCounterPartyOrderLayerInfo orderLayerInfo, int pos, string traderName, int traderNameId, int? prevTraderNameId)
+        (BookSide side, IMutableExternalCounterPartyOrderLayerInfo orderLayerInfo, int pos, string traderName, int traderNameId, int? prevTraderNameId)
     {
         orderLayerInfo.ExternalTraderName = traderName;
     }

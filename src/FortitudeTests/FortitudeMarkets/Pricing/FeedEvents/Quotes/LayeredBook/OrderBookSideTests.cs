@@ -30,12 +30,13 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 [TestClass]
 public class OrderBookSideTests
 {
-    private const int           MaxNumberOfLayers                    = 19; // test being less than max.
-    private const int           MaxNumberOfTraders                   = 3;  // not too many traders.
-    private       OrderBookSide allFieldsFullyPopulatedOrderBookSide = null!;
+    private const int MaxNumberOfLayers  = 19; // test being less than max.
+    private const int MaxNumberOfTraders = 3;  // not too many traders.
 
-    private IList<IFullSupportPriceVolumeLayer> allFieldsLayers    = null!;
-    private List<IReadOnlyList<IPriceVolumeLayer>>                allPopulatedLayers = null!;
+    private OrderBookSide allFieldsFullyPopulatedOrderBookSide = null!;
+
+    private IList<IFullSupportPriceVolumeLayer>    allFieldsLayers    = null!;
+    private List<IReadOnlyList<IPriceVolumeLayer>> allPopulatedLayers = null!;
 
     private List<OrderBookSide> allPopulatedOrderBooks = null!;
 
@@ -91,12 +92,12 @@ public class OrderBookSideTests
             traderLayers.Add(traderPvL);
             for (var j = 0; j < MaxNumberOfTraders; j++)
             {
-                allFieldsPvL.Add(new CounterPartyOrderLayerInfo
-                                     (i, LayerOrderFlags.TrackedOnAdapter, new DateTime(2017, 12, 09, 14, 0, 0),
-                                      40_000_000m, traderName: "Trdr" + j));
-                traderPvL.Add(new CounterPartyOrderLayerInfo
-                                  (i, LayerOrderFlags.TrackedOnAdapter, new DateTime(2017, 12, 09, 14, 0, 0),
-                                   40_000_000m, traderName: "Trdr" + j));
+                allFieldsPvL.Add(new ExternalCounterPartyOrderLayerInfo
+                                     (i, new DateTime(2017, 12, 09, 14, 0, 0),
+                                      40_000_000m, LayerOrderFlags.TrackedOnAdapter, traderName: "Trdr" + j));
+                traderPvL.Add(new ExternalCounterPartyOrderLayerInfo
+                                  (i, new DateTime(2017, 12, 09, 14, 0, 0),
+                                   40_000_000m, LayerOrderFlags.TrackedOnAdapter, traderName: "Trdr" + j));
             }
         }
 
@@ -496,8 +497,7 @@ public class OrderBookSideTests
         if (copySourceType == typeof(OrdersPriceVolumeLayer))
             return copyDestinationType == typeof(OrdersPriceVolumeLayer) ||
                    copyDestinationType == typeof(FullSupportPriceVolumeLayer);
-        if (copySourceType == typeof(FullSupportPriceVolumeLayer))
-            return copyDestinationType == typeof(FullSupportPriceVolumeLayer);
+        if (copySourceType == typeof(FullSupportPriceVolumeLayer)) return copyDestinationType == typeof(FullSupportPriceVolumeLayer);
         return false;
     }
 
@@ -505,7 +505,7 @@ public class OrderBookSideTests
     {
         for (var i = 0; i < MaxNumberOfLayers; i++) Assert.IsInstanceOfType(orderBookSide[i], expectedType);
     }
-    
+
     internal static OrderBookSide GenerateBookSide<T>
     (BookSide bookSide, int numberOfLayers, decimal startingPrice, decimal deltaPricePerLayer,
         decimal startingVolume, decimal deltaVolumePerLayer, Func<decimal, decimal, T> genNewLayerObj)
@@ -557,7 +557,7 @@ public class OrderBookSideTests
                , commonOrderBookSide[i] as IMutableSourcePriceVolumeLayer,
                  changingOrderBookSide[i] as IMutableSourcePriceVolumeLayer
                , commonOrderBookSide,
-                 changingOrderBookSide,  originalOrderBook, changingOrderBook, originalQuote, changingQuote
+                 changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote, changingQuote
                 );
             SourceQuoteRefPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
                 (
@@ -567,7 +567,7 @@ public class OrderBookSideTests
                  changingOrderBookSide[i] as
                      IMutableSourceQuoteRefPriceVolumeLayer
                , commonOrderBookSide,
-                 changingOrderBookSide,  originalOrderBook, changingOrderBook, originalQuote, changingQuote
+                 changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote, changingQuote
                 );
             ValueDatePriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
                 (
@@ -575,7 +575,7 @@ public class OrderBookSideTests
                , commonOrderBookSide[i] as IMutableValueDatePriceVolumeLayer,
                  changingOrderBookSide[i] as IMutableValueDatePriceVolumeLayer
                , commonOrderBookSide,
-                 changingOrderBookSide,  originalOrderBook, changingOrderBook, originalQuote, changingQuote
+                 changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote, changingQuote
                 );
             OrdersCountPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
                 (
@@ -583,7 +583,7 @@ public class OrderBookSideTests
                , commonOrderBookSide[i] as IMutableOrdersCountPriceVolumeLayer,
                  changingOrderBookSide[i] as IMutableOrdersCountPriceVolumeLayer
                , commonOrderBookSide,
-                 changingOrderBookSide,  originalOrderBook, changingOrderBook, originalQuote, changingQuote
+                 changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote, changingQuote
                 );
             OrdersPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
                 (
@@ -591,12 +591,17 @@ public class OrderBookSideTests
                , commonOrderBookSide[i] as IMutableOrdersPriceVolumeLayer,
                  changingOrderBookSide[i] as IMutableOrdersPriceVolumeLayer
                , commonOrderBookSide,
-                 changingOrderBookSide,  originalOrderBook, changingOrderBook, originalQuote, changingQuote
+                 changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote, changingQuote
                 );
             FullSupportPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType(
-             exactComparison, commonOrderBookSide[i] as IMutableFullSupportPriceVolumeLayer,
-             changingOrderBookSide[i] as IMutableFullSupportPriceVolumeLayer, commonOrderBookSide,
-             changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote, changingQuote);
+                                                                                                 exactComparison
+                                                                                               , commonOrderBookSide[i] as
+                                                                                                     IMutableFullSupportPriceVolumeLayer,
+                                                                                                 changingOrderBookSide[i] as
+                                                                                                     IMutableFullSupportPriceVolumeLayer
+                                                                                               , commonOrderBookSide,
+                                                                                                 changingOrderBookSide, originalOrderBook
+                                                                                               , changingOrderBook, originalQuote, changingQuote);
         }
     }
 }
