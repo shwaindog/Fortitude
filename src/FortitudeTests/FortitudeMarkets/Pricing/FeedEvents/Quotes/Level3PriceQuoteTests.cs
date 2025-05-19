@@ -7,6 +7,7 @@ using System.Text.Json;
 using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
@@ -39,7 +40,7 @@ public class Level3PriceQuoteTests
     private PublishableLevel3PriceQuote paidGivenVolumeOnTickLastTradedFullyPopulatedQuote = null!;
 
     private ISourceTickerInfo             paidGivenVolumeOnTickLastTradedSrcTkrInfo = null!;
-    private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder           = null!;
+    private QuoteSequencedTestDataBuilder quoteSequencedTestDataBuilder             = null!;
 
     private PublishableLevel3PriceQuote simpleOnTickLastTradedEmptyQuote          = null!;
     private PublishableLevel3PriceQuote simpleOnTickLastTradedFullyPopulatedQuote = null!;
@@ -56,12 +57,12 @@ public class Level3PriceQuoteTests
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
-        noOnTickLastTradedSrcTkrInfo                    = SourceTickerInfoTests.OrdersCounterPartyL3NoOnTickLastTradedSti;
-        simpleOnTickLastTradedSrcTkrInfo                = SourceTickerInfoTests.OrdersCounterPartyL3JustTradeTradeSti;
-        paidGivenVolumeOnTickLastTradedSrcTkrInfo       = SourceTickerInfoTests.FullSupportL3PaidOrGivenTradeSti;
-        fullSupportOnTickLastTradedSrcTkrInfo = SourceTickerInfoTests.FullSupportL3TraderNamePaidOrGivenSti;
-        noOnTickLastTradedEmptyQuote          = new PublishableLevel3PriceQuote(noOnTickLastTradedSrcTkrInfo);
-        noOnTickLastTradedFullyPopulatedQuote = new PublishableLevel3PriceQuote(noOnTickLastTradedSrcTkrInfo);
+        noOnTickLastTradedSrcTkrInfo              = SourceTickerInfoTests.OrdersCounterPartyL3NoOnTickLastTradedSti;
+        simpleOnTickLastTradedSrcTkrInfo          = SourceTickerInfoTests.OrdersCounterPartyL3JustTradeTradeSti;
+        paidGivenVolumeOnTickLastTradedSrcTkrInfo = SourceTickerInfoTests.FullSupportL3PaidOrGivenTradeSti;
+        fullSupportOnTickLastTradedSrcTkrInfo     = SourceTickerInfoTests.FullSupportL3TraderNamePaidOrGivenSti;
+        noOnTickLastTradedEmptyQuote              = new PublishableLevel3PriceQuote(noOnTickLastTradedSrcTkrInfo);
+        noOnTickLastTradedFullyPopulatedQuote     = new PublishableLevel3PriceQuote(noOnTickLastTradedSrcTkrInfo);
         quoteSequencedTestDataBuilder.InitializeQuote(noOnTickLastTradedFullyPopulatedQuote, 9);
         simpleOnTickLastTradedEmptyQuote          = new PublishableLevel3PriceQuote(simpleOnTickLastTradedSrcTkrInfo);
         simpleOnTickLastTradedFullyPopulatedQuote = new PublishableLevel3PriceQuote(simpleOnTickLastTradedSrcTkrInfo);
@@ -137,7 +138,7 @@ public class Level3PriceQuoteTests
         var expectedBidPriceTop        = 2.34567m;
         var expectedSourceAskTime      = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop        = 3.45678m;
-        var expectedCandle      = new Candle();
+        var expectedCandle             = new Candle();
         var expectedBidBook =
             new OrderBookSide(BookSide.BidBook, simpleOnTickLastTradedSrcTkrInfo)
             {
@@ -162,11 +163,10 @@ public class Level3PriceQuoteTests
                 (simpleOnTickLastTradedSrcTkrInfo, expectedSourceTime, new OrderBook(expectedBidBook, expectedAskBook)
                , expectedOnTickLastTraded, expectedBatchId, expectedSourceQuoteRef, expectedValueDate, true, true
                , expectedSourceBidTime, expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2), true
-               , FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay,  expectedSingleValue, expectedCandle)
+               , FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay, expectedSingleValue, expectedCandle)
                 {
-                    ClientReceivedTime = expectedClientReceivedTime,
-                    AdapterReceivedTime = expectedAdapterReceiveTime,
-                    AdapterSentTime = expectedAdapterSentTime
+                    ClientReceivedTime = expectedClientReceivedTime, AdapterReceivedTime = expectedAdapterReceiveTime
+                  , AdapterSentTime    = expectedAdapterSentTime
                 };
 
         Assert.AreSame(simpleOnTickLastTradedSrcTkrInfo, fromConstructor.SourceTickerInfo);
@@ -206,7 +206,7 @@ public class Level3PriceQuoteTests
         var expectedBidPriceTop        = 2.34567m;
         var expectedSourceAskTime      = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop        = 3.45678m;
-        var expectedCandle      = new Candle();
+        var expectedCandle             = new Candle();
         var expectedBidBook =
             new OrderBookSide(BookSide.BidBook, simpleOnTickLastTradedSrcTkrInfo)
             {
@@ -232,11 +232,10 @@ public class Level3PriceQuoteTests
                 (simpleOnTickLastTradedSrcTkrInfo, expectedSourceTime, new OrderBook(expectedBidBook, expectedAskBook), convertedOnTickLastTraded
                , expectedBatchId, expectedSourceQuoteRef, expectedValueDate, true, true, expectedSourceBidTime
                , expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2), true
-               , FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay,  expectedSingleValue, expectedCandle)
+               , FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay, expectedSingleValue, expectedCandle)
                 {
-                    ClientReceivedTime = expectedClientReceivedTime,
-                    AdapterReceivedTime = expectedAdapterReceiveTime,
-                    AdapterSentTime = expectedAdapterSentTime,
+                    ClientReceivedTime = expectedClientReceivedTime, AdapterReceivedTime = expectedAdapterReceiveTime
+                  , AdapterSentTime    = expectedAdapterSentTime,
                 };
 
         Assert.IsInstanceOfType(fromConstructor.OnTickLastTraded, typeof(OnTickLastTraded));
@@ -319,7 +318,7 @@ public class Level3PriceQuoteTests
         var expectedBidPriceTop        = 2.34567m;
         var expectedSourceAskTime      = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop        = 3.45678m;
-        var expectedCandle      = new Candle();
+        var expectedCandle             = new Candle();
         var expectedBatchId            = 23456u;
         var expectedSourceQuoteRef     = 56789u;
         var expectedValueDate          = new DateTime(2018, 03, 03, 17, 33, 6);
@@ -330,7 +329,7 @@ public class Level3PriceQuoteTests
             expectedBidOrderBook[0]!.Price = expectedBidPriceTop;
             var expectedAskOrderBook = emptyQuote.AskBook.Clone();
             expectedAskOrderBook[0]!.Price = expectedAskPriceTop;
-            var expectedOnTickLastTraded                                              = emptyQuote.OnTickLastTraded;
+            var expectedOnTickLastTraded                                                  = emptyQuote.OnTickLastTraded;
             if (expectedOnTickLastTraded != null) expectedOnTickLastTraded[0]!.TradePrice = 12345m;
 
             emptyQuote.SourceTime                   = expectedSourceTime;
@@ -659,15 +658,16 @@ public class Level3PriceQuoteTests
 
                 if (traderLayer.OrdersCount <= j)
                 {
-                    traderLayer.Add(new CounterPartyOrderLayerInfo(j + 1, LayerOrderFlags.ExplicitlyDefinedFromSource, DateTime.Now
-                                                                 , currentVolume + j * deltaVolumePerLayer,
-                                                                   traderName: traderName!));
+                    traderLayer.Add
+                        (new ExternalCounterPartyOrderLayerInfo
+                            (j + 1, DateTime.Now
+                           , currentVolume + j * deltaVolumePerLayer, LayerOrderFlags.ExplicitlyDefinedFromSource, traderName: traderName!));
                 }
                 else
                 {
-                    var traderLayerInfo = (IMutableCounterPartyOrderLayerInfo)traderLayer[j]!;
-                    traderLayerInfo.ExternalTraderName  = traderName;
-                    traderLayerInfo.OrderVolume = currentVolume + j * deltaVolumePerLayer;
+                    var traderLayerInfo = (IMutableExternalCounterPartyOrderLayerInfo)traderLayer[j]!;
+                    traderLayerInfo.ExternalTraderName = traderName;
+                    traderLayerInfo.OrderDisplayVolume = currentVolume + j * deltaVolumePerLayer;
                 }
             }
 

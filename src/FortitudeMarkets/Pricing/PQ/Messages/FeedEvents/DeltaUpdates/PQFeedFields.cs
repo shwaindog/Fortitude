@@ -30,7 +30,7 @@ public enum PQFeedFields : byte
   , QuoteLayerFlags          = 15 // 0x0F
   , LastTradedFlags          = 16 // 0x10
   , ExecutionUpdateFlags     = 17 // 0x11
-        
+
   , PQSyncStatus                    = 19 // 0x13
   , FeedMarketConnectivityStatus    = 20 // 0x14
   , SourceFeedUpdateSentDateTime    = 21 // 0x15
@@ -72,11 +72,11 @@ public enum PQFeedFields : byte
   , QuoteValidToSub2MinTime   = 53 // 0x35
     // Best Bid Ask Price Sent a Depth 0 from Level 2 Quote Field "QuoteLayerPrice" below
 
-  , FeedStringUpdates            = 54 // 0x37
-  , TrackingDownStream           = 55 // 0x38
-  , TickerRegionDetails          = 56 // 0x39 
-  , TickerPnLConversionDetails   = 57 // 0x39 
-  , TickerMarginDetails          = 58 // 0x3A
+  , FeedStringUpdates          = 54 // 0x37
+  , TrackingDownStream         = 55 // 0x38
+  , TickerRegionDetails        = 56 // 0x39 
+  , TickerPnLConversionDetails = 57 // 0x39 
+  , TickerMarginDetails        = 58 // 0x3A
 
   , ContinuousPriceAdjustmentOriginalAtPublish    = 63 // 0x3F
   , ContinuousPriceAdjustmentTargetReplayOverride = 64 // 0x40 
@@ -138,9 +138,9 @@ public enum PQFeedFields : byte
 
   , StrategyStringUpdates = 111 // 0x6F
 
-  , StrategyDecisionsOnTick      = 112 // 0x70
-  , StrategyDecisionsRecent      = 113 // 0x71
-  , StrategyDecisionActiveOrders = 114 // 0x72
+  , StrategyDecisionsOnTick              = 112 // 0x70
+  , StrategyDecisionsRecent              = 113 // 0x71
+  , StrategyDecisionsWithActivePositions = 114 // 0x72
 
   , ExecutionStatsCurrent  = 117 // 0x75
   , ExecutionStatsRecent   = 118 // 0x76
@@ -162,40 +162,39 @@ public enum PQFeedFields : byte
   , LimitMarginCurrency       = 133 // 0x85
   , LimitMarginConversionRate = 134 // 0x86
 
-  , AccountStringUpdates   = 136 // 0x88
-  , SimulatorStringUpdates = 137 // 0x89
+  , AccountStringUpdates   = 135 // 0x87
+  , SimulatorStringUpdates = 136 // 0x88
 
-  , NetOpenDirection      = 138 // 0x8A
-  , NetOpenMarketPosition = 139 // 0x8B
-  , NetOpenPnl            = 140 // 0x8C
-  , NetRealisedDailyPnl   = 141 // 0x8D
+  , SimulatorBacktestOriginalPosition           = 140 // 0x8C  // Includes Aggregate, Daily and Open PnL
+  , SimulatorBacktestOriginalComparisonPosition = 141 // 0x8D
+  , SimulatorBacktestSimNoLimitsPosition        = 142 // 0x8E
+  , SimulatorBacktestSimOnlyLimitsPosition      = 143 // 0x8F
+  , SimulatorBacktestSimAllLimitsPosition       = 144 // 0x90
+  , SimulatorBacktestSimEstimatedTotalPosition  = 145 // 0x91
 
-  , SimulatorNetOpenDirection    = 144 // 0x90
-  , SimulatorNetOpenPosition     = 145 // 0x91
-  , SimulatorNetOpenPnl          = 146 // 0x92
-  , SimulatorNetRealisedDailyPnl = 147 // 0x93
+  , PositionsSource                 = 148 // 0x94       // , NetOpenAccountPosition     = 137 // 0x89
+  , PositionsAdapterTicker          = 149 // 0x95       // , NetOpenAccountPnl          = 138 // 0x8A
+  , PositionsPortfolio              = 150 // 0x96       // , NetRealisedAccountDailyPnl = 139 // 0x8B
+  , PositionsStrategy               = 151 // 0x97
+  , PositionsTrader                 = 152 // 0x98
+  , PositionsSimulatorNoLimits      = 153 // 0x99
+  , PositionsSimulatorSimLimitsOnly = 154 // 0x9A
+  , PositionsSimulatorAllLimited    = 155 // 0x9B
 
-  , PositionsSource        = 150 // 0x99
-  , PositionsAdapterTicker = 151 // 0x9A
-  , PositionsPortfolio     = 152 // 0x9B
-  , PositionsStrategy      = 153 // 0x9C
-  , PositionsTrader        = 154 // 0x9D
-  , PositionsSimulator     = 155 // 0x9E
+  , LimitBreachesCurrent   = 157 // 0x9D
+  , LimitBreachRecent      = 158 // 0x9E
+  , LimitApproachingAlerts = 159 // 0x9F
 
-  , LimitBreachesCurrent   = 157 // 0x9F
-  , LimitBreachRecent      = 158 // 0xA0
-  , LimitApproachingAlerts = 159 // 0xA1
-
-  , PortfolioLimitBreachCurrent    = 160 // 0xA2
-  , PortfolioLimitBreachRecent     = 161 // 0xA3
-  , PortfolioLimitApproachingAlert = 162 // 0xA4
+  , PortfolioLimitBreachCurrent    = 160 // 0xA0
+  , PortfolioLimitBreachRecent     = 161 // 0xA1
+  , PortfolioLimitApproachingAlert = 162 // 0xA2
 
     // Level 2 Quote Fields
-  , QuoteOpenInterestTotal    = 163 // 0xA5
-  , QuoteOpenInterestSided    = 164 // 0xA6
-  , QuoteDailyTotalTickCount  = 165 // 0xA7
-  , QuoteDailySidedTickCount  = 166 // 0xA8
-  , QuoteDailyTradedAggregate = 167 // 0xA9
+  , QuoteOpenInterestTotal    = 163 // 0xA3
+  , QuoteOpenInterestSided    = 164 // 0xA4
+  , QuoteDailyTotalTickCount  = 165 // 0xA5
+  , QuoteDailySidedTickCount  = 166 // 0xA6
+  , QuoteDailyTradedAggregate = 167 // 0xA7
 
     // Level 2 Quote Layer Fields
   , QuoteLayerStringUpdates = 168 // 0xA8  StringFieldUpdate
@@ -234,27 +233,37 @@ public enum PQFeedFields : byte
   , QuoteLayersRangeEnd = 209 // 0xD1
 
     // Level 3 Quote Layer Fields
-  , LastTradedStringUpdates          = 210 // 0xD2
-  , LastTradedTickTrades             = 211 // 0xD3
-  , LastTradedRecently               = 213 // 0xD5
-  , LastTradedInternalDailyAggregate = 214 // 0xD6
-  , LastTradedMarketDailyAggregate   = 215 // 0xD7
+  , LastTradedStringUpdates                   = 210 // 0xD2
+  , LastTradedTickTrades                      = 211 // 0xD3
+  , LastTradedRecentlyByPeriod                = 213 // 0xD5
+  , LastTradedRecentlyByTradeCount            = 214 // 0xD6
+  , LastTradedInternalDailyAggregate          = 215 // 0xD7
+  , LastTradedSimulatorTickTrades             = 217 // 0xD9 
+  , LastTradedSimulatorRecentlyByPeriod       = 218 // 0xDA
+  , LastTradedSimulatorRecentlyByTradeCount   = 219 // 0xDB
+  , LastTradedSimulatorInternalDailyAggregate = 220 // 0xDC
+  , LastTradedMarketDailyAggregate            = 221 // 0xDD
 
-  , AdapterInternalOrdersStringUpdates = 216 // 0xD8
-  , AdapterInternalOrdersTick          = 217 // 0xD9
-  , AdapterInternalOrdersOpen          = 218 // 0xDA
-  , AdapterInternalOrdersRecent        = 219 // 0xDB
+  , AdapterInternalOrdersStringUpdates           = 222 // 0xDE
+  , AdapterInternalOrdersTick                    = 223 // 0xDF
+  , AdapterInternalOrdersRecentByPeriod          = 224 // 0xE0
+  , AdapterInternalOrdersRecentByCount           = 225 // 0xE1
+  , AdapterInternalOrdersOpen                    = 226 // 0xE2
+  , AdapterInternalOrdersSimulatorTick           = 227 // 0xE3
+  , AdapterInternalOrdersSimulatorRecentByPeriod = 228 // 0xE4
+  , AdapterInternalOrdersSimulatorRecentByCount  = 229 // 0xE5
+  , AdapterInternalOrdersSimulatorOpen           = 230 // 0xE6
 
-  , QuoteBatchId            = 225 // 0xE1
-  , QuoteSourceQuoteRef     = 226 // 0xE2
-  , QuoteValueDate          = 227 // 0xE3
-  , QuoteNearDate           = 228 // 0xE4
-  , QuoteNearForwardType    = 229 // 0xE5
-  , QuoteFarDate            = 230 // 0xE6
-  , QuoteFarForwardType     = 231 // 0xE7
-  , QuoteUnderlyingTickerId = 232 // 0xE8
-  , QuoteContractType       = 233 // 0xE9
-  , QuoteExpiryDate         = 234 // 0xEA
+  , QuoteBatchId            = 238 // 0xEE
+  , QuoteSourceQuoteRef     = 239 // 0xEF
+  , QuoteValueDate          = 240 // 0xF0
+  , QuoteNearDate           = 241 // 0xF1
+  , QuoteNearForwardType    = 242 // 0xF2
+  , QuoteFarDate            = 243 // 0xF3
+  , QuoteFarForwardType     = 244 // 0xF4
+  , QuoteUnderlyingTickerId = 245 // 0xF5
+  , QuoteContractType       = 246 // 0xF6
+  , QuoteExpiryDate         = 247 // 0xF7
 
   , ParentContextRemapped = 255 // 0xFF
 }

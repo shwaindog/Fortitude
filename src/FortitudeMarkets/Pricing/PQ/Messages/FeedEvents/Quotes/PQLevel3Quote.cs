@@ -293,7 +293,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
     {
         if (pqFieldUpdate.Id == PQFeedFields.LastTradedStringUpdates) return (int)pqFieldUpdate.Payload;
         if (onTickLastTraded != null
-         && pqFieldUpdate.Id is >= PQFeedFields.LastTradedTickTrades and <= PQFeedFields.LastTradedRecently)
+         && pqFieldUpdate.Id is >= PQFeedFields.LastTradedTickTrades and <= PQFeedFields.LastTradedRecentlyByPeriod)
             return onTickLastTraded!.UpdateField(pqFieldUpdate);
         if (pqFieldUpdate.Id == PQFeedFields.QuoteBatchId)
         {

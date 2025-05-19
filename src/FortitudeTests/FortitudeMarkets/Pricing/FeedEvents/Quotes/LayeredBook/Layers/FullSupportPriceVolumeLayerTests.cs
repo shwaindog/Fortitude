@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Types;
+using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
@@ -218,9 +219,9 @@ public class FullSupportPriceVolumeLayerTests
         for (var i = 0; i < NumOfOrders; i++)
         {
             var anonOrderLayerInfo = populatedPvl[i]!;
-            Assert.AreNotEqual(0m, anonOrderLayerInfo.OrderVolume);
+            Assert.AreNotEqual(0m, ((IPublishedOrder)anonOrderLayerInfo).OrderDisplayVolume);
             Assert.IsFalse(anonOrderLayerInfo.IsEmpty);
-            if (anonOrderLayerInfo is ICounterPartyOrderLayerInfo counterPartyOrderLayerInfo)
+            if (anonOrderLayerInfo is IExternalCounterPartyOrderLayerInfo counterPartyOrderLayerInfo)
             {
                 Assert.AreNotEqual(null, counterPartyOrderLayerInfo.ExternalCounterPartyName);
                 Assert.AreNotEqual(null, counterPartyOrderLayerInfo.ExternalTraderName);
@@ -238,9 +239,9 @@ public class FullSupportPriceVolumeLayerTests
         for (var i = 0; i < NumOfOrders; i++)
         {
             var anonOrderLayerInfo = populatedPvl[i]!;
-            Assert.AreEqual(0m, anonOrderLayerInfo.OrderVolume);
+            Assert.AreEqual(0m, ((IPublishedOrder)anonOrderLayerInfo).OrderDisplayVolume);
             Assert.IsTrue(anonOrderLayerInfo.IsEmpty);
-            if (anonOrderLayerInfo is ICounterPartyOrderLayerInfo counterPartyOrderLayerInfo)
+            if (anonOrderLayerInfo is IExternalCounterPartyOrderLayerInfo counterPartyOrderLayerInfo)
                 Assert.AreEqual(null, counterPartyOrderLayerInfo.ExternalTraderName);
         }
     }

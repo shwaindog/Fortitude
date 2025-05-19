@@ -5,6 +5,7 @@
 
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
+using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
@@ -40,7 +41,15 @@ public class PQOrderBookSideTests
     private const int     ExpectedOrdersCount    = 3; // not too many traders.
     private const decimal ExpectedInternalVolume = 20_000_000m;
 
-    private const LayerOrderFlags ExpectedOrderFlags = LayerOrderFlags.ExplicitlyDefinedFromSource;
+    private const OrderFlags      ExpectedTypeFlags  = OrderFlags.FromAdapter;
+    private const OrderType       ExpectedOrderType  = OrderType.PassiveLimit;
+    private const LayerOrderFlags ExpectedLayerFlags = LayerOrderFlags.ExplicitlyDefinedFromSource;
+
+    private const OrderLifeCycleState ExpectedLifecycleState = OrderLifeCycleState.SourceActiveOnMarket;
+
+    private const uint    ExpectedTrackingId = 12467u;
+    private const uint    ExpectedCounterPartyId = 1u;
+    private const uint    ExpectedTraderId = 2u;
 
     private const int     ExpectedOrderId              = 250;
     private const decimal ExpectedOrderVolume          = 50.50m;
@@ -49,6 +58,7 @@ public class PQOrderBookSideTests
     private const string  ExpectedTraderNameBase       = "TestTraderName_";
 
     private const MarketDataSource ExpectedDataSource         = MarketDataSource.Venue;
+
     private const decimal          ExpectedOpenInterestVolume = ExpectedOrderVolume * 100;
     private const decimal          ExpectedOpenInterestVwap   = ExpectedPrice * 2m;
 
@@ -149,17 +159,18 @@ public class PQOrderBookSideTests
             {
                 allFieldsPvL.Add
                     (new PQCounterPartyOrderLayerInfo
-                        (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderFlags, ExpectedOrderCreatedTime, ExpectedOrderVolume
-                       , ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedCounterPartyBase + i
-                       , ExpectedTraderNameBase + i));
+                        (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedLayerFlags, ExpectedOrderType
+                       , ExpectedTypeFlags, ExpectedLifecycleState, ExpectedCounterPartyBase + i
+                       , ExpectedTraderNameBase + i, i + 1, i+1,ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId));
                 anonOrdersPvL.Add
                     (new PQAnonymousOrderLayerInfo
-                        (ExpectedOrderId, ExpectedOrderFlags, ExpectedOrderCreatedTime, ExpectedOrderVolume
-                       , ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume));
+                        (ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedLayerFlags, ExpectedOrderType, ExpectedTypeFlags
+                       , ExpectedLifecycleState, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId));
                 counterPartyOrdersPvL.Add
                     (new PQCounterPartyOrderLayerInfo
-                        (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderFlags, ExpectedOrderCreatedTime, ExpectedOrderVolume,
-                         ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedCounterPartyBase + i, ExpectedTraderNameBase + i));
+                        (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedLayerFlags, ExpectedOrderType
+                       , ExpectedTypeFlags, ExpectedLifecycleState, ExpectedCounterPartyBase + i, ExpectedTraderNameBase + i
+                       , i + 1, i+ 1, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId));
             }
         }
 
@@ -204,9 +215,9 @@ public class PQOrderBookSideTests
           , valueDateFullyPopulatedOrderBookSide, ordersCountFullyPopulatedOrderBookSide, ordersAnonFullyPopulatedOrderBookSide
           , ordersCounterPartyFullyPopulatedOrderBookSide, allFieldsFullyPopulatedOrderBookSide
         ];
-        // {
-        //     ordersAnonFullyPopulatedOrderBook
-        // };
+        // [
+        //     ordersAnonFullyPopulatedOrderBookSide
+        // ];
         publicationPrecisionSettings =
             new PQSourceTickerInfo
                 (new SourceTickerInfo
@@ -633,9 +644,9 @@ public class PQOrderBookSideTests
                         orderLayerInfo.IsOrderIdUpdated = false;
                         Assert.IsFalse(populatedOrderBook.HasUpdates);
 
-                        orderLayerInfo.OrderFlags = LayerOrderFlags.ExplicitlyDefinedFromSource | LayerOrderFlags.HasExternalCounterPartyInfo;
+                        orderLayerInfo.OrderLayerFlags = LayerOrderFlags.ExplicitlyDefinedFromSource | LayerOrderFlags.HasExternalCounterPartyInfo;
                         Assert.IsTrue(populatedOrderBook.HasUpdates);
-                        orderLayerInfo.IsOrderFlagsUpdated = false;
+                        orderLayerInfo.IsOrderLayerFlagsUpdated = false;
                         Assert.IsFalse(populatedOrderBook.HasUpdates);
 
                         orderLayerInfo.CreatedTime = new DateTime(2025, 4, 25, 19, 18, 23);
@@ -644,13 +655,13 @@ public class PQOrderBookSideTests
                         orderLayerInfo.IsCreatedTimeSub2MinUpdated = false;
                         Assert.IsFalse(populatedOrderBook.HasUpdates);
 
-                        orderLayerInfo.UpdatedTime = new DateTime(2025, 4, 25, 19, 18, 23);
+                        orderLayerInfo.UpdateTime = new DateTime(2025, 4, 25, 19, 18, 23);
                         Assert.IsTrue(populatedOrderBook.HasUpdates);
-                        orderLayerInfo.IsUpdatedTimeDateUpdated    = false;
-                        orderLayerInfo.IsUpdatedTimeSub2MinUpdated = false;
+                        orderLayerInfo.IsUpdateTimeDateUpdated    = false;
+                        orderLayerInfo.IsUpdateTimeSub2MinUpdated = false;
                         Assert.IsFalse(populatedOrderBook.HasUpdates);
 
-                        orderLayerInfo.OrderVolume = 3_000m;
+                        orderLayerInfo.OrderDisplayVolume = 3_000m;
                         Assert.IsTrue(populatedOrderBook.HasUpdates);
                         orderLayerInfo.IsOrderVolumeUpdated = false;
                         Assert.IsFalse(populatedOrderBook.HasUpdates);
@@ -664,11 +675,11 @@ public class PQOrderBookSideTests
                         {
                             pqCounterPartyOrder.ExternalCounterPartyName = "NewCounterPartyName_" + i;
                             Assert.IsTrue(pqCounterPartyOrder.HasUpdates);
-                            pqCounterPartyOrder.IsCounterPartyNameUpdated = false;
+                            pqCounterPartyOrder.IsExternalCounterPartyNameUpdated = false;
 
                             pqCounterPartyOrder.ExternalTraderName = "NewTraderName_" + i;
                             Assert.IsTrue(pqCounterPartyOrder.HasUpdates);
-                            pqCounterPartyOrder.IsTraderNameUpdated = false;
+                            pqCounterPartyOrder.IsExternalTraderNameUpdated = false;
 
                             pqCounterPartyOrder.NameIdLookup.HasUpdates = false;
                             Assert.IsFalse(pqCounterPartyOrder.HasUpdates);

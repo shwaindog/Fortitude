@@ -19,8 +19,10 @@ public struct PQFieldUpdate
     public ushort AuxiliaryPayload;
     public uint   Payload;
 
-    public PQPricingSubFieldKeys PricingSubId => (PQPricingSubFieldKeys)SubIdByte;
-    public PQTradingSubFieldKeys TradingSubId => (PQTradingSubFieldKeys)SubIdByte;
+    public PQPricingSubFieldKeys   PricingSubId  => (PQPricingSubFieldKeys)SubIdByte;
+    public PQOrdersSubFieldKeys    OrdersSubId   => (PQOrdersSubFieldKeys)SubIdByte;
+    public PQDecisionsSubFieldKeys DecisionSubId => (PQDecisionsSubFieldKeys)SubIdByte;
+    public PQTradingSubFieldKeys   TradingSubId  => (PQTradingSubFieldKeys)SubIdByte;
 
     public PQFieldUpdate(PQFeedFields id, uint payload, PQFieldFlags flag = 0)
         : this(id, PQDepthKey.None, (byte)0, (ushort)0, payload, flag) { }
@@ -46,6 +48,18 @@ public struct PQFieldUpdate
     public PQFieldUpdate(PQFeedFields id, PQTradingSubFieldKeys subId, int payload, PQFieldFlags flag = 0)
         : this(id, PQDepthKey.None, subId, (uint)payload, flag) { }
 
+    public PQFieldUpdate(PQFeedFields id, PQOrdersSubFieldKeys subId, uint payload, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, (byte)subId, 0, payload, flag) { }
+
+    public PQFieldUpdate(PQFeedFields id, PQOrdersSubFieldKeys subId, int payload, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, subId, payload, flag) { }
+
+    public PQFieldUpdate(PQFeedFields id, PQDecisionsSubFieldKeys subId, uint payload, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, (byte)subId, 0, payload, flag) { }
+
+    public PQFieldUpdate(PQFeedFields id, PQDecisionsSubFieldKeys subId, int payload, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, subId, payload, flag) { }
+
     public PQFieldUpdate(PQFeedFields id, PQDepthKey depthId, PQPricingSubFieldKeys subId, uint payload, PQFieldFlags flag = 0)
         : this(id, depthId, (byte)subId, 0, payload, flag) { }
 
@@ -57,6 +71,18 @@ public struct PQFieldUpdate
 
     public PQFieldUpdate(PQFeedFields id, PQDepthKey depthId, PQTradingSubFieldKeys subId, int payload, PQFieldFlags flag = 0)
         : this(id, depthId, (byte)subId, 0, (uint)payload, flag) { }
+
+    public PQFieldUpdate(PQFeedFields id, PQDepthKey depthId, PQOrdersSubFieldKeys subId, uint payload, PQFieldFlags flag = 0)
+        : this(id, depthId, (byte)subId, 0, payload, flag) { }
+
+    public PQFieldUpdate(PQFeedFields id, PQDepthKey depthId, PQOrdersSubFieldKeys subId, int payload, PQFieldFlags flag = 0)
+        : this(id, depthId, (byte)subId, 0, payload, flag) { }
+
+    public PQFieldUpdate(PQFeedFields id, PQDepthKey depthId, PQDecisionsSubFieldKeys subId, uint payload, PQFieldFlags flag = 0)
+        : this(id, depthId, (byte)subId, 0, payload, flag) { }
+
+    public PQFieldUpdate(PQFeedFields id, PQDepthKey depthId, PQDecisionsSubFieldKeys subId, int payload, PQFieldFlags flag = 0)
+        : this(id, depthId, (byte)subId, 0, payload, flag) { }
     
     public PQFieldUpdate
         (PQFeedFields id, ushort auxiliaryPayload, int payload, PQFieldFlags flag = 0)
@@ -91,6 +117,22 @@ public struct PQFieldUpdate
         : this(id, PQDepthKey.None, (byte)subId, auxiliaryPayload, (uint)payload, flag) { }
 
     public PQFieldUpdate
+        (PQFeedFields id, PQOrdersSubFieldKeys subId, ushort auxiliaryPayload, uint payload, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, (byte)subId, auxiliaryPayload, payload, flag) { }
+
+    public PQFieldUpdate
+        (PQFeedFields id, PQOrdersSubFieldKeys subId, ushort auxiliaryPayload, int payload, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, (byte)subId, auxiliaryPayload, (uint)payload, flag) { }
+
+    public PQFieldUpdate
+        (PQFeedFields id, PQDecisionsSubFieldKeys subId, ushort auxiliaryPayload, uint payload, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, (byte)subId, auxiliaryPayload, payload, flag) { }
+
+    public PQFieldUpdate
+        (PQFeedFields id, PQDecisionsSubFieldKeys subId, ushort auxiliaryPayload, int payload, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, (byte)subId, auxiliaryPayload, (uint)payload, flag) { }
+
+    public PQFieldUpdate
         (PQFeedFields id, PQDepthKey depthId, PQPricingSubFieldKeys subId, ushort auxiliaryPayload, int payload, PQFieldFlags flag = 0)
         : this(id, depthId, (byte)subId, auxiliaryPayload, (uint)payload, flag) { }
 
@@ -104,6 +146,22 @@ public struct PQFieldUpdate
 
     public PQFieldUpdate
         (PQFeedFields id, PQDepthKey depthId, PQTradingSubFieldKeys subId, ushort auxiliaryPayload, uint payload, PQFieldFlags flag = 0)
+        : this(id, depthId, (byte)subId, auxiliaryPayload, payload, flag) { }
+
+    public PQFieldUpdate
+        (PQFeedFields id, PQDepthKey depthId, PQOrdersSubFieldKeys subId, ushort auxiliaryPayload, int payload, PQFieldFlags flag = 0)
+        : this(id, depthId, (byte)subId, auxiliaryPayload, (uint)payload, flag) { }
+
+    public PQFieldUpdate
+        (PQFeedFields id, PQDepthKey depthId, PQOrdersSubFieldKeys subId, ushort auxiliaryPayload, uint payload, PQFieldFlags flag = 0)
+        : this(id, depthId, (byte)subId, auxiliaryPayload, payload, flag) { }
+
+    public PQFieldUpdate
+        (PQFeedFields id, PQDepthKey depthId, PQDecisionsSubFieldKeys subId, ushort auxiliaryPayload, int payload, PQFieldFlags flag = 0)
+        : this(id, depthId, (byte)subId, auxiliaryPayload, (uint)payload, flag) { }
+
+    public PQFieldUpdate
+        (PQFeedFields id, PQDepthKey depthId, PQDecisionsSubFieldKeys subId, ushort auxiliaryPayload, uint payload, PQFieldFlags flag = 0)
         : this(id, depthId, (byte)subId, auxiliaryPayload, payload, flag) { }
 
     public PQFieldUpdate
@@ -149,6 +207,12 @@ public struct PQFieldUpdate
     public PQFieldUpdate(PQFeedFields id, PQTradingSubFieldKeys subId, long value, PQFieldFlags flag = 0)
         : this(id, PQDepthKey.None, (byte)subId,  value, flag) { }
 
+    public PQFieldUpdate(PQFeedFields id, PQOrdersSubFieldKeys subId, long value, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, (byte)subId,  value, flag) { }
+
+    public PQFieldUpdate(PQFeedFields id, PQDecisionsSubFieldKeys subId, long value, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, (byte)subId,  value, flag) { }
+
     public PQFieldUpdate(PQFeedFields id, PQDepthKey depthId, byte subId, long value, PQFieldFlags flag = 0)
     {
         Id         = id;
@@ -180,6 +244,12 @@ public struct PQFieldUpdate
     public PQFieldUpdate(PQFeedFields id, PQTradingSubFieldKeys subId, ushort auxiliaryPayload, long value, PQFieldFlags flag = 0)
         : this(id, PQDepthKey.None, (byte)subId, auxiliaryPayload, value, flag) { }
 
+    public PQFieldUpdate(PQFeedFields id, PQOrdersSubFieldKeys subId, ushort auxiliaryPayload, long value, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, (byte)subId, auxiliaryPayload, value, flag) { }
+
+    public PQFieldUpdate(PQFeedFields id, PQDecisionsSubFieldKeys subId, ushort auxiliaryPayload, long value, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, (byte)subId, auxiliaryPayload, value, flag) { }
+
     public PQFieldUpdate(PQFeedFields id, PQDepthKey depthId, byte subId, ushort auxiliaryPayload, long value, PQFieldFlags flag = 0)
     {
         Id         = id;
@@ -207,10 +277,22 @@ public struct PQFieldUpdate
     public PQFieldUpdate(PQFeedFields id, PQTradingSubFieldKeys subId, decimal value, PQFieldFlags flag = 0)
         : this(id, PQDepthKey.None, (byte)subId, 0, value, flag) { }
 
+    public PQFieldUpdate(PQFeedFields id, PQOrdersSubFieldKeys subId, decimal value, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, (byte)subId, 0, value, flag) { }
+
+    public PQFieldUpdate(PQFeedFields id, PQDecisionsSubFieldKeys subId, decimal value, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, (byte)subId, 0, value, flag) { }
+
     public PQFieldUpdate(PQFeedFields id, PQDepthKey depthId, PQPricingSubFieldKeys subId, decimal value, PQFieldFlags flag = 0)
         : this(id, depthId, (byte)subId, 0, value, flag) { }
 
     public PQFieldUpdate(PQFeedFields id, PQDepthKey depthId, PQTradingSubFieldKeys subId, decimal value, PQFieldFlags flag = 0)
+        : this(id, depthId, (byte)subId, 0, value, flag) { }
+
+    public PQFieldUpdate(PQFeedFields id, PQDepthKey depthId, PQOrdersSubFieldKeys subId, decimal value, PQFieldFlags flag = 0)
+        : this(id, depthId, (byte)subId, 0, value, flag) { }
+
+    public PQFieldUpdate(PQFeedFields id, PQDepthKey depthId, PQDecisionsSubFieldKeys subId, decimal value, PQFieldFlags flag = 0)
         : this(id, depthId, (byte)subId, 0, value, flag) { }
 
     public PQFieldUpdate(PQFeedFields id, ushort auxiliaryPayload, decimal value, PQFieldFlags flag = 0)
@@ -220,6 +302,12 @@ public struct PQFieldUpdate
         : this(id, PQDepthKey.None, (byte)subId, auxiliaryPayload, value, flag) { }
 
     public PQFieldUpdate(PQFeedFields id, PQTradingSubFieldKeys subId, ushort auxiliaryPayload, decimal value, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, (byte)subId, auxiliaryPayload, value, flag) { }
+
+    public PQFieldUpdate(PQFeedFields id, PQOrdersSubFieldKeys subId, ushort auxiliaryPayload, decimal value, PQFieldFlags flag = 0)
+        : this(id, PQDepthKey.None, (byte)subId, auxiliaryPayload, value, flag) { }
+
+    public PQFieldUpdate(PQFeedFields id, PQDecisionsSubFieldKeys subId, ushort auxiliaryPayload, decimal value, PQFieldFlags flag = 0)
         : this(id, PQDepthKey.None, (byte)subId, auxiliaryPayload, value, flag) { }
 
     public PQFieldUpdate(PQFeedFields id, PQDepthKey depthId, decimal value, PQFieldFlags flag = 0)

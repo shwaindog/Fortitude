@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
@@ -33,10 +34,18 @@ public class PQOrderBookLayerFactorySelectorTests
     private const string  ExpectedOrderCounterPartyName = "ChromoCon";
     private const string  ExpectedOrderTraderName       = "IronMan";
 
-    private const int             ExpectedOrderId              = 203_123;
-    private const LayerOrderFlags ExpectedOrderFlags           = LayerOrderFlags.ExplicitlyDefinedFromSource | LayerOrderFlags.IsInternallyCreatedOrder;
-    private const decimal         ExpectedOrderVolume          = 1_345_123;
-    private const decimal         ExpectedOrderRemainingVolume = 1_100_050;
+    private const int     ExpectedOrderId              = 203_123;
+    private const decimal ExpectedOrderVolume          = 1_345_123;
+    private const decimal ExpectedOrderRemainingVolume = 1_100_050;
+
+    private const int ExpectedTraderId       = 2;
+    private const int ExpectedCounterPartyId = 1;
+
+    private const OrderFlags      ExpectedTypeFlags  = OrderFlags.FromAdapter;
+    private const OrderType       ExpectedOrderType  = OrderType.PassiveLimit;
+    private const LayerOrderFlags ExpectedLayerFlags = LayerOrderFlags.IsInternallyCreatedOrder;
+
+    private const OrderLifeCycleState ExpectedLifecycleState = OrderLifeCycleState.SourceActiveOnMarket;
 
     private static readonly DateTime ExpectedOrderCreatedTime = new(2025, 4, 24, 7, 7, 23);
     private static readonly DateTime ExpectedOrderUpdatedTime = new(2025, 4, 24, 9, 12, 18);
@@ -139,22 +148,26 @@ public class PQOrderBookLayerFactorySelectorTests
         ordersCountPriceVolumeLayer = new OrdersCountPriceVolumeLayer(ExpectedPrice, ExpectedVolume, ExpectedOrdersCount, ExpectedInternalVolume);
         ordersAnonPriceVolumeLayer = new OrdersPriceVolumeLayer(price: ExpectedPrice, volume: ExpectedVolume)
         {
-            [0] = new AnonymousOrderLayerInfo(ExpectedOrderId,
-                                              ExpectedOrderFlags, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderUpdatedTime
-                                            , ExpectedOrderRemainingVolume)
+            [0] = new AnonymousOrderLayerInfo
+                (ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedLayerFlags, ExpectedOrderType, ExpectedTypeFlags
+               , ExpectedLifecycleState
+               , ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume)
         };
         ordersCounterPartyPriceVolumeLayer = new OrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, ExpectedPrice, ExpectedVolume)
         {
-            [0] = new CounterPartyOrderLayerInfo(ExpectedOrderId, ExpectedOrderFlags, ExpectedOrderCreatedTime,
-                                                 ExpectedOrderVolume, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume,
-                                                 ExpectedOrderCounterPartyName, ExpectedOrderTraderName)
+            [0] = new ExternalCounterPartyOrderLayerInfo
+                (ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedLayerFlags, ExpectedOrderType, ExpectedTypeFlags
+               , ExpectedLifecycleState
+               , ExpectedOrderCounterPartyName, ExpectedOrderTraderName, ExpectedCounterPartyId, ExpectedTraderId, ExpectedOrderUpdatedTime
+               , ExpectedOrderRemainingVolume)
         };
         srcQtRefTrdrVlDtPvl = new FullSupportPriceVolumeLayer(ExpectedPrice, ExpectedVolume,
-                                                                                expectedValueDate, ExpectedSourceName, true, ExpectedQuoteRef)
+                                                              expectedValueDate, ExpectedSourceName, true, ExpectedQuoteRef)
         {
-            [0] = new CounterPartyOrderLayerInfo(ExpectedOrderId, ExpectedOrderFlags, ExpectedOrderCreatedTime,
-                                                 ExpectedOrderVolume, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume,
-                                                 ExpectedOrderCounterPartyName, ExpectedOrderTraderName)
+            [0] = new ExternalCounterPartyOrderLayerInfo
+                (ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedLayerFlags, ExpectedOrderType, ExpectedTypeFlags
+               , ExpectedLifecycleState, ExpectedOrderCounterPartyName, ExpectedOrderTraderName, ExpectedCounterPartyId, ExpectedTraderId, ExpectedOrderUpdatedTime
+               , ExpectedOrderRemainingVolume)
         };
 
         pqPriceVolumeLayer = new PQPriceVolumeLayer(ExpectedPrice, ExpectedVolume);
@@ -167,22 +180,25 @@ public class PQOrderBookLayerFactorySelectorTests
         pqOrdersAnonPriceVolumeLayer
             = new PQOrdersPriceVolumeLayer(nameIdGenerator.Clone(), LayerType.OrdersAnonymousPriceVolume, ExpectedPrice, ExpectedVolume)
             {
-                [0] = new PQAnonymousOrderLayerInfo(ExpectedOrderId, ExpectedOrderFlags, ExpectedOrderCreatedTime,
-                                                    ExpectedOrderVolume, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume)
+                [0] = new PQAnonymousOrderLayerInfo
+                    (ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedLayerFlags, ExpectedOrderType, ExpectedTypeFlags, ExpectedLifecycleState
+                   , ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume)
             };
         pqOrdersCounterPartyPriceVolumeLayer
             = new PQOrdersPriceVolumeLayer(nameIdGenerator.Clone(), LayerType.OrdersFullPriceVolume, ExpectedPrice, ExpectedVolume)
             {
-                [0] = new PQCounterPartyOrderLayerInfo(nameIdGenerator.Clone(), ExpectedOrderId, ExpectedOrderFlags, ExpectedOrderCreatedTime,
-                                                       ExpectedOrderVolume, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume,
-                                                       ExpectedOrderCounterPartyName, ExpectedOrderTraderName)
+                [0] = new PQCounterPartyOrderLayerInfo
+                    (nameIdGenerator.Clone(), ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedLayerFlags
+                   , ExpectedOrderType, ExpectedTypeFlags, ExpectedLifecycleState, ExpectedOrderCounterPartyName, ExpectedOrderTraderName
+                   , ExpectedCounterPartyId, ExpectedTraderId, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume )
             };
         pqSrcQtRefTrdrVlDtPvl = new PQFullSupportPriceVolumeLayer(nameIdGenerator, ExpectedPrice, ExpectedVolume,
-                                                                                    expectedValueDate, ExpectedSourceName, true, ExpectedQuoteRef)
+                                                                  expectedValueDate, ExpectedSourceName, true, ExpectedQuoteRef)
         {
-            [0] = new PQCounterPartyOrderLayerInfo(nameIdGenerator.Clone(), ExpectedOrderId, ExpectedOrderFlags, ExpectedOrderCreatedTime,
-                                                   ExpectedOrderVolume, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume,
-                                                   ExpectedOrderCounterPartyName, ExpectedOrderTraderName)
+            [0] = new PQCounterPartyOrderLayerInfo
+                (nameIdGenerator.Clone(), ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedLayerFlags, ExpectedOrderType
+               , ExpectedTypeFlags, ExpectedLifecycleState, ExpectedOrderCounterPartyName, ExpectedOrderTraderName, ExpectedCounterPartyId, ExpectedTraderId
+               , ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume)
         };
 
 
@@ -457,10 +473,10 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(ExpectedOrdersCount, pqOrdersAnonPvl.OrdersCount);
         Assert.AreEqual(ExpectedInternalVolume, pqOrdersAnonPvl.InternalVolume);
         Assert.AreEqual(ExpectedOrderId, pqOrdersAnonPvl[0]!.OrderId);
-        Assert.AreEqual(ExpectedOrderFlags, pqOrdersAnonPvl[0]!.OrderFlags);
+        Assert.AreEqual(ExpectedLayerFlags, pqOrdersAnonPvl[0]!.OrderLayerFlags);
         Assert.AreEqual(ExpectedOrderCreatedTime, pqOrdersAnonPvl[0]!.CreatedTime);
-        Assert.AreEqual(ExpectedOrderUpdatedTime, pqOrdersAnonPvl[0]!.UpdatedTime);
-        Assert.AreEqual(ExpectedOrderVolume, pqOrdersAnonPvl[0]!.OrderVolume);
+        Assert.AreEqual(ExpectedOrderUpdatedTime, pqOrdersAnonPvl[0]!.UpdateTime);
+        Assert.AreEqual(ExpectedOrderVolume, ((IPublishedOrder)pqOrdersAnonPvl[0]!).OrderDisplayVolume);
         Assert.AreEqual(ExpectedOrderRemainingVolume, pqOrdersAnonPvl[0]!.OrderRemainingVolume);
 
         pqPvl = layerSelector.UpgradeExistingLayer(ordersCounterPartyPriceVolumeLayer, ordersCounterPartyPriceVolumeLayerType
@@ -472,13 +488,13 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(ExpectedOrdersCount, pqOrdersCntrPtyPvl.OrdersCount);
         Assert.AreEqual(ExpectedInternalVolume, pqOrdersCntrPtyPvl.InternalVolume);
         Assert.AreEqual(ExpectedOrderId, pqOrdersCntrPtyPvl[0]!.OrderId);
-        Assert.AreEqual(ExpectedOrderFlags, pqOrdersCntrPtyPvl[0]!.OrderFlags);
+        Assert.AreEqual(ExpectedLayerFlags, pqOrdersCntrPtyPvl[0]!.OrderLayerFlags);
         Assert.AreEqual(ExpectedOrderCreatedTime, pqOrdersCntrPtyPvl[0]!.CreatedTime);
-        Assert.AreEqual(ExpectedOrderUpdatedTime, pqOrdersCntrPtyPvl[0]!.UpdatedTime);
-        Assert.AreEqual(ExpectedOrderVolume, pqOrdersCntrPtyPvl[0]!.OrderVolume);
+        Assert.AreEqual(ExpectedOrderUpdatedTime, pqOrdersCntrPtyPvl[0]!.UpdateTime);
+        Assert.AreEqual(ExpectedOrderVolume, ((IPublishedOrder)pqOrdersCntrPtyPvl[0]!).OrderDisplayVolume);
         Assert.AreEqual(ExpectedOrderRemainingVolume, pqOrdersCntrPtyPvl[0]!.OrderRemainingVolume);
-        Assert.AreEqual(ExpectedOrderCounterPartyName, ((ICounterPartyOrderLayerInfo)pqOrdersCntrPtyPvl[0]!).ExternalCounterPartyName);
-        Assert.AreEqual(ExpectedOrderTraderName, ((ICounterPartyOrderLayerInfo)pqOrdersCntrPtyPvl[0]!).ExternalTraderName);
+        Assert.AreEqual(ExpectedOrderCounterPartyName, ((IExternalCounterPartyOrderLayerInfo)pqOrdersCntrPtyPvl[0]!).ExternalCounterPartyName);
+        Assert.AreEqual(ExpectedOrderTraderName, ((IExternalCounterPartyOrderLayerInfo)pqOrdersCntrPtyPvl[0]!).ExternalTraderName);
 
         pqPvl = layerSelector.UpgradeExistingLayer(srcQtRefTrdrVlDtPvl, srcQtRefTrdrVlDtPvlType, srcQtRefTrdrVlDtPvl);
         var convertedPqSrcQtRefTrdrVlDtPvl = pqPvl as PQFullSupportPriceVolumeLayer;
@@ -492,13 +508,13 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(ExpectedOrdersCount, convertedPqSrcQtRefTrdrVlDtPvl.OrdersCount);
         Assert.AreEqual(ExpectedInternalVolume, convertedPqSrcQtRefTrdrVlDtPvl.InternalVolume);
         Assert.AreEqual(ExpectedOrderId, convertedPqSrcQtRefTrdrVlDtPvl[0]!.OrderId);
-        Assert.AreEqual(ExpectedOrderFlags, convertedPqSrcQtRefTrdrVlDtPvl[0]!.OrderFlags);
+        Assert.AreEqual(ExpectedLayerFlags, convertedPqSrcQtRefTrdrVlDtPvl[0]!.OrderLayerFlags);
         Assert.AreEqual(ExpectedOrderCreatedTime, convertedPqSrcQtRefTrdrVlDtPvl[0]!.CreatedTime);
-        Assert.AreEqual(ExpectedOrderUpdatedTime, convertedPqSrcQtRefTrdrVlDtPvl[0]!.UpdatedTime);
-        Assert.AreEqual(ExpectedOrderVolume, convertedPqSrcQtRefTrdrVlDtPvl[0]!.OrderVolume);
+        Assert.AreEqual(ExpectedOrderUpdatedTime, convertedPqSrcQtRefTrdrVlDtPvl[0]!.UpdateTime);
+        Assert.AreEqual(ExpectedOrderVolume, ((IPublishedOrder)convertedPqSrcQtRefTrdrVlDtPvl[0]!).OrderDisplayVolume);
         Assert.AreEqual(ExpectedOrderRemainingVolume, convertedPqSrcQtRefTrdrVlDtPvl[0]!.OrderRemainingVolume);
-        Assert.AreEqual(ExpectedOrderCounterPartyName, ((ICounterPartyOrderLayerInfo)convertedPqSrcQtRefTrdrVlDtPvl[0]!).ExternalCounterPartyName);
-        Assert.AreEqual(ExpectedOrderTraderName, ((ICounterPartyOrderLayerInfo)convertedPqSrcQtRefTrdrVlDtPvl[0]!).ExternalTraderName);
+        Assert.AreEqual(ExpectedOrderCounterPartyName, ((IExternalCounterPartyOrderLayerInfo)convertedPqSrcQtRefTrdrVlDtPvl[0]!).ExternalCounterPartyName);
+        Assert.AreEqual(ExpectedOrderTraderName, ((IExternalCounterPartyOrderLayerInfo)convertedPqSrcQtRefTrdrVlDtPvl[0]!).ExternalTraderName);
     }
 
     [TestMethod]
@@ -554,10 +570,10 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(ExpectedOrdersCount, pqOrdersAnonPvl.OrdersCount);
         Assert.AreEqual(ExpectedInternalVolume, pqOrdersAnonPvl.InternalVolume);
         Assert.AreEqual(ExpectedOrderId, pqOrdersAnonPvl[0]!.OrderId);
-        Assert.AreEqual(ExpectedOrderFlags, pqOrdersAnonPvl[0]!.OrderFlags);
+        Assert.AreEqual(ExpectedLayerFlags, pqOrdersAnonPvl[0]!.OrderLayerFlags);
         Assert.AreEqual(ExpectedOrderCreatedTime, pqOrdersAnonPvl[0]!.CreatedTime);
-        Assert.AreEqual(ExpectedOrderUpdatedTime, pqOrdersAnonPvl[0]!.UpdatedTime);
-        Assert.AreEqual(ExpectedOrderVolume, pqOrdersAnonPvl[0]!.OrderVolume);
+        Assert.AreEqual(ExpectedOrderUpdatedTime, pqOrdersAnonPvl[0]!.UpdateTime);
+        Assert.AreEqual(ExpectedOrderVolume, ((IPublishedOrder)pqOrdersAnonPvl[0]!).OrderDisplayVolume);
         Assert.AreEqual(ExpectedOrderRemainingVolume, pqOrdersAnonPvl[0]!.OrderRemainingVolume);
 
         pqPvl = layerSelector.CreateExpectedImplementation(ordersCounterPartyPriceVolumeLayerType, nameIdGenerator)
@@ -569,13 +585,13 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(ExpectedOrdersCount, pqOrdersCntrPtyPvl.OrdersCount);
         Assert.AreEqual(ExpectedInternalVolume, pqOrdersCntrPtyPvl.InternalVolume);
         Assert.AreEqual(ExpectedOrderId, pqOrdersCntrPtyPvl[0]!.OrderId);
-        Assert.AreEqual(ExpectedOrderFlags, pqOrdersCntrPtyPvl[0]!.OrderFlags);
+        Assert.AreEqual(ExpectedLayerFlags, pqOrdersCntrPtyPvl[0]!.OrderLayerFlags);
         Assert.AreEqual(ExpectedOrderCreatedTime, pqOrdersCntrPtyPvl[0]!.CreatedTime);
-        Assert.AreEqual(ExpectedOrderUpdatedTime, pqOrdersCntrPtyPvl[0]!.UpdatedTime);
-        Assert.AreEqual(ExpectedOrderVolume, pqOrdersCntrPtyPvl[0]!.OrderVolume);
+        Assert.AreEqual(ExpectedOrderUpdatedTime, pqOrdersCntrPtyPvl[0]!.UpdateTime);
+        Assert.AreEqual(ExpectedOrderVolume, ((IPublishedOrder)pqOrdersCntrPtyPvl[0]!).OrderDisplayVolume);
         Assert.AreEqual(ExpectedOrderRemainingVolume, pqOrdersCntrPtyPvl[0]!.OrderRemainingVolume);
-        Assert.AreEqual(ExpectedOrderCounterPartyName, ((ICounterPartyOrderLayerInfo)pqOrdersCntrPtyPvl[0]!).ExternalCounterPartyName);
-        Assert.AreEqual(ExpectedOrderTraderName, ((ICounterPartyOrderLayerInfo)pqOrdersCntrPtyPvl[0]!).ExternalTraderName);
+        Assert.AreEqual(ExpectedOrderCounterPartyName, ((IExternalCounterPartyOrderLayerInfo)pqOrdersCntrPtyPvl[0]!).ExternalCounterPartyName);
+        Assert.AreEqual(ExpectedOrderTraderName, ((IExternalCounterPartyOrderLayerInfo)pqOrdersCntrPtyPvl[0]!).ExternalTraderName);
 
         pqPvl = layerSelector.CreateExpectedImplementation(srcQtRefTrdrVlDtPvlType, nameIdGenerator).CopyFrom(pqSrcQtRefTrdrVlDtPvl);
         var convertedPqSrcQtRefTrdrVlDtPvl = pqPvl as PQFullSupportPriceVolumeLayer;
@@ -591,13 +607,13 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(ExpectedOrdersCount, convertedPqSrcQtRefTrdrVlDtPvl.OrdersCount);
         Assert.AreEqual(ExpectedInternalVolume, convertedPqSrcQtRefTrdrVlDtPvl.InternalVolume);
         Assert.AreEqual(ExpectedOrderId, convertedPqSrcQtRefTrdrVlDtPvl[0]!.OrderId);
-        Assert.AreEqual(ExpectedOrderFlags, convertedPqSrcQtRefTrdrVlDtPvl[0]!.OrderFlags);
+        Assert.AreEqual(ExpectedLayerFlags, convertedPqSrcQtRefTrdrVlDtPvl[0]!.OrderLayerFlags);
         Assert.AreEqual(ExpectedOrderCreatedTime, convertedPqSrcQtRefTrdrVlDtPvl[0]!.CreatedTime);
-        Assert.AreEqual(ExpectedOrderUpdatedTime, convertedPqSrcQtRefTrdrVlDtPvl[0]!.UpdatedTime);
-        Assert.AreEqual(ExpectedOrderVolume, convertedPqSrcQtRefTrdrVlDtPvl[0]!.OrderVolume);
+        Assert.AreEqual(ExpectedOrderUpdatedTime, convertedPqSrcQtRefTrdrVlDtPvl[0]!.UpdateTime);
+        Assert.AreEqual(ExpectedOrderVolume, ((IPublishedOrder)convertedPqSrcQtRefTrdrVlDtPvl[0]!).OrderDisplayVolume);
         Assert.AreEqual(ExpectedOrderRemainingVolume, convertedPqSrcQtRefTrdrVlDtPvl[0]!.OrderRemainingVolume);
-        Assert.AreEqual(ExpectedOrderCounterPartyName, ((ICounterPartyOrderLayerInfo)convertedPqSrcQtRefTrdrVlDtPvl[0]!).ExternalCounterPartyName);
-        Assert.AreEqual(ExpectedOrderTraderName, ((ICounterPartyOrderLayerInfo)convertedPqSrcQtRefTrdrVlDtPvl[0]!).ExternalTraderName);
+        Assert.AreEqual(ExpectedOrderCounterPartyName, ((IExternalCounterPartyOrderLayerInfo)convertedPqSrcQtRefTrdrVlDtPvl[0]!).ExternalCounterPartyName);
+        Assert.AreEqual(ExpectedOrderTraderName, ((IExternalCounterPartyOrderLayerInfo)convertedPqSrcQtRefTrdrVlDtPvl[0]!).ExternalTraderName);
     }
 
     [TestMethod]

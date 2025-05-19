@@ -7,9 +7,11 @@ using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using FortitudeMarkets.Trading.Orders;
 
 #endregion
 
@@ -18,19 +20,26 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Lay
 [Flags]
 public enum OrderLayerInfoUpdatedFlags : ushort
 {
-    None                   = 0x00_00
-  , OrderIdFlag            = 0x00_01
-  , OrderFlagsFlag         = 0x00_02
-  , CreatedTimeDateFlag    = 0x00_04
-  , CreatedTimeSub2MinFlag = 0x00_08
-  , UpdatedTimeDateFlag    = 0x00_10
-  , UpdatedTimeSub2MinFlag = 0x00_20
-  , OrderVolumeFlag        = 0x00_40
+    None                    = 0x00_00
+  , OrderIdFlag             = 0x00_01
+  , TypeFlagsFlag           = 0x00_02
+  , OrderTypeFlag           = 0x00_04
+  , OrderLifecycleStateFlag = 0x00_08
+  , OrderLayerFlagsFlag     = 0x00_10
+  , CreatedTimeDateFlag     = 0x00_20
+  , CreatedTimeSub2MinFlag  = 0x00_40
+  , UpdatedTimeDateFlag     = 0x00_80
+  , UpdatedTimeSub2MinFlag  = 0x01_00
+  , OrderVolumeFlag         = 0x02_00
 
-  , OrderRemainingVolumeFlag = 0x00_80
-  , TraderNameIdUpdatedFlag  = 0x01_00
+  , OrderRemainingVolumeFlag = 0x04_00
+  , TrackingIdFlag           = 0x08_00
 
-  , CounterPartyNameIdUpdatedFlag = 0x02_00
+  , ExternalTraderIdUpdatedFlag     = 0x10_00
+  , ExternalTraderNameIdUpdatedFlag = 0x20_00
+
+  , ExternalCounterPartyIdUpdatedFlag     = 0x40_00
+  , ExternalCounterPartyNameIdUpdatedFlag = 0x80_00
 }
 
 public interface IPQAnonymousOrderLayerInfo : IMutableAnonymousOrderLayerInfo, IPQSupportsNumberPrecisionFieldUpdates<IAnonymousOrderLayerInfo>
@@ -39,7 +48,16 @@ public interface IPQAnonymousOrderLayerInfo : IMutableAnonymousOrderLayerInfo, I
     bool IsOrderIdUpdated { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    bool IsOrderFlagsUpdated { get; set; }
+    bool IsTypeFlagsUpdated { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    bool IsOrderTypeUpdated { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    bool IsOrderLifecycleStateUpdated { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    bool IsOrderLayerFlagsUpdated { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     bool IsCreatedTimeDateUpdated { get; set; }
@@ -48,10 +66,10 @@ public interface IPQAnonymousOrderLayerInfo : IMutableAnonymousOrderLayerInfo, I
     bool IsCreatedTimeSub2MinUpdated { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    bool IsUpdatedTimeDateUpdated { get; set; }
+    bool IsUpdateTimeDateUpdated { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    bool IsUpdatedTimeSub2MinUpdated { get; set; }
+    bool IsUpdateTimeSub2MinUpdated { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     bool IsOrderVolumeUpdated { get; set; }
@@ -59,22 +77,29 @@ public interface IPQAnonymousOrderLayerInfo : IMutableAnonymousOrderLayerInfo, I
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     bool IsOrderRemainingVolumeUpdated { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    bool IsTrackingIdUpdated { get; set; }
+
     new IPQAnonymousOrderLayerInfo Clone();
 }
 
 public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo>, IPQAnonymousOrderLayerInfo
 {
-    private   DateTime        createdTime;
-    protected int             NumUpdatesSinceEmpty = -1;
-    private   LayerOrderFlags orderFlags;
-
-    private int     orderId;
-    private decimal orderVolume;
-    private decimal remainingOrderVolume;
+    protected int NumUpdatesSinceEmpty = -1;
 
     protected OrderLayerInfoUpdatedFlags UpdatedFlags;
 
-    private DateTime updatedTime;
+    private int        orderId;
+    private decimal    orderVolume;
+    private decimal    remainingOrderVolume;
+    private DateTime   updateTime;
+    private DateTime   createdTime;
+    private OrderType  orderType;
+    private OrderFlags typeFlags;
+    private uint       trackingId;
+
+    private LayerOrderFlags     orderFlags;
+    private OrderLifeCycleState orderLifeCycleState;
 
     public PQAnonymousOrderLayerInfo()
     {
@@ -82,40 +107,41 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
     }
 
     public PQAnonymousOrderLayerInfo
-    (int orderId = 0, LayerOrderFlags orderFlags = LayerOrderFlags.None, DateTime createdTime = default, decimal orderVolume = 0m
-      , DateTime? updatedTime = null
-      , decimal? remainingVolume = null)
+    (int orderId = 0, DateTime createdTime = default, decimal orderVolume = 0m, LayerOrderFlags orderFlags = LayerOrderFlags.None
+      , OrderType orderType = OrderType.None, OrderFlags typeFlags = OrderFlags.None, OrderLifeCycleState orderLifeCycleState = OrderLifeCycleState.None
+      , DateTime? updatedTime = null, decimal? remainingVolume = null, uint trackingId = 0)
     {
-        OrderId     = orderId;
-        OrderFlags  = orderFlags;
-        CreatedTime = createdTime;
-        UpdatedTime = updatedTime ?? createdTime;
-        OrderVolume = orderVolume;
+        OrderId         = orderId;
+        OrderType       = orderType;
+        TypeFlags       = typeFlags;
+        OrderLayerFlags = orderFlags;
+        CreatedTime     = createdTime;
+        UpdateTime      = updatedTime ?? createdTime;
+        TrackingId      = trackingId;
 
+        OrderLifeCycleState  = orderLifeCycleState;
+        OrderDisplayVolume   = orderVolume;
         OrderRemainingVolume = remainingVolume ?? orderVolume;
         if (GetType() == typeof(PQAnonymousOrderLayerInfo)) NumUpdatesSinceEmpty = 0;
     }
 
     public PQAnonymousOrderLayerInfo(IAnonymousOrderLayerInfo toClone)
     {
-        OrderId     = toClone.OrderId;
-        OrderFlags  = toClone.OrderFlags;
-        CreatedTime = toClone.CreatedTime;
-        UpdatedTime = toClone.UpdatedTime;
-        OrderVolume = toClone.OrderVolume;
+        OrderId         = toClone.OrderId;
+        OrderType       = toClone.OrderType;
+        TypeFlags       = toClone.TypeFlags;
+        OrderLayerFlags = toClone.OrderLayerFlags;
+        CreatedTime     = toClone.CreatedTime;
+        UpdateTime      = toClone.UpdateTime;
+        TrackingId      = toClone.TrackingId;
 
+        OrderLifeCycleState  = toClone.OrderLifeCycleState;
+        OrderDisplayVolume   = toClone.OrderDisplayVolume;
         OrderRemainingVolume = toClone.OrderRemainingVolume;
 
         SetFlagsSame(toClone);
         if (GetType() == typeof(PQAnonymousOrderLayerInfo)) NumUpdatesSinceEmpty = 0;
     }
-
-    protected string PQAnonymousOrderLayerInfoToStringMembers =>
-        $"{nameof(OrderId)}: {OrderId}, {nameof(OrderFlags)}: {OrderFlags}, " +
-        $"{nameof(CreatedTime)}: {CreatedTime}, {nameof(UpdatedTime)}: {UpdatedTime}, {nameof(OrderVolume)}: {OrderVolume:N2}, " +
-        $"{nameof(OrderRemainingVolume)}: {OrderRemainingVolume:N2}";
-
-    protected string UpdatedFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int OrderId
@@ -128,14 +154,44 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
         }
     }
 
+
+    public OrderType OrderType
+    {
+        get => orderType;
+        set
+        {
+            IsOrderTypeUpdated |= orderType != value || NumUpdatesSinceEmpty == 0;
+            orderType          =  value;
+        }
+    }
+    public OrderLifeCycleState OrderLifeCycleState
+    {
+        get => orderLifeCycleState;
+        set
+        {
+            IsOrderLifecycleStateUpdated |= orderLifeCycleState != value || NumUpdatesSinceEmpty == 0;
+            orderLifeCycleState          =  value;
+        }
+    }
+    public OrderFlags TypeFlags
+    {
+        get => typeFlags;
+        set
+        {
+            IsTypeFlagsUpdated |= typeFlags != value || NumUpdatesSinceEmpty == 0;
+            typeFlags          =  value;
+        }
+    }
+
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public LayerOrderFlags OrderFlags
+    public LayerOrderFlags OrderLayerFlags
     {
         get => orderFlags;
         set
         {
-            IsOrderFlagsUpdated |= orderFlags != value || NumUpdatesSinceEmpty == 0;
-            orderFlags          =  value;
+            IsOrderLayerFlagsUpdated |= orderFlags != value || NumUpdatesSinceEmpty == 0;
+            orderFlags               =  value;
         }
     }
 
@@ -145,32 +201,35 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
         get => createdTime;
         set
         {
-            IsCreatedTimeDateUpdated    |= createdTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
+            IsCreatedTimeDateUpdated |= createdTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() ||
+                                        NumUpdatesSinceEmpty == 0;
             IsCreatedTimeSub2MinUpdated |= createdTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
             createdTime                 =  value;
         }
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTime UpdatedTime
+    public DateTime UpdateTime
     {
-        get => updatedTime;
+        get => updateTime;
         set
         {
-            IsUpdatedTimeDateUpdated    |= updatedTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
-            IsUpdatedTimeSub2MinUpdated |= updatedTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
-            updatedTime                 =  value;
+            IsUpdateTimeDateUpdated
+                |= updateTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
+            IsUpdateTimeSub2MinUpdated |= updateTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
+            updateTime                 =  value;
         }
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public decimal OrderVolume
+    public decimal OrderDisplayVolume
     {
         get => orderVolume;
         set
         {
             IsOrderVolumeUpdated |= orderVolume != value || NumUpdatesSinceEmpty == 0;
-            orderVolume          =  value;
+
+            orderVolume = value;
         }
     }
 
@@ -181,7 +240,19 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
         set
         {
             IsOrderRemainingVolumeUpdated |= remainingOrderVolume != value || NumUpdatesSinceEmpty == 0;
-            remainingOrderVolume          =  value;
+
+            remainingOrderVolume = value;
+        }
+    }
+
+    public uint TrackingId
+    {
+        get => trackingId;
+        set
+        {
+            IsTrackingIdUpdated |= trackingId != value || NumUpdatesSinceEmpty == 0;
+
+            trackingId = value;
         }
     }
 
@@ -197,16 +268,50 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
         }
     }
 
-
-    public bool IsOrderFlagsUpdated
+    public bool IsTypeFlagsUpdated
     {
-        get => (UpdatedFlags & OrderLayerInfoUpdatedFlags.OrderFlagsFlag) > 0;
+        get => (UpdatedFlags & OrderLayerInfoUpdatedFlags.TypeFlagsFlag) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= OrderLayerInfoUpdatedFlags.OrderFlagsFlag;
+                UpdatedFlags |= OrderLayerInfoUpdatedFlags.TypeFlagsFlag;
 
-            else if (IsOrderFlagsUpdated) UpdatedFlags ^= OrderLayerInfoUpdatedFlags.OrderFlagsFlag;
+            else if (IsTypeFlagsUpdated) UpdatedFlags ^= OrderLayerInfoUpdatedFlags.TypeFlagsFlag;
+        }
+    }
+    public bool IsOrderTypeUpdated
+    {
+        get => (UpdatedFlags & OrderLayerInfoUpdatedFlags.OrderTypeFlag) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= OrderLayerInfoUpdatedFlags.OrderTypeFlag;
+
+            else if (IsOrderTypeUpdated) UpdatedFlags ^= OrderLayerInfoUpdatedFlags.OrderTypeFlag;
+        }
+    }
+    public bool IsOrderLifecycleStateUpdated
+    {
+        get => (UpdatedFlags & OrderLayerInfoUpdatedFlags.OrderLifecycleStateFlag) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= OrderLayerInfoUpdatedFlags.OrderLifecycleStateFlag;
+
+            else if (IsOrderLifecycleStateUpdated) UpdatedFlags ^= OrderLayerInfoUpdatedFlags.OrderLifecycleStateFlag;
+        }
+    }
+
+
+    public bool IsOrderLayerFlagsUpdated
+    {
+        get => (UpdatedFlags & OrderLayerInfoUpdatedFlags.OrderLayerFlagsFlag) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= OrderLayerInfoUpdatedFlags.OrderLayerFlagsFlag;
+
+            else if (IsOrderLayerFlagsUpdated) UpdatedFlags ^= OrderLayerInfoUpdatedFlags.OrderLayerFlagsFlag;
         }
     }
 
@@ -235,7 +340,7 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
     }
 
 
-    public bool IsUpdatedTimeSub2MinUpdated
+    public bool IsUpdateTimeSub2MinUpdated
     {
         get => (UpdatedFlags & OrderLayerInfoUpdatedFlags.UpdatedTimeSub2MinFlag) > 0;
         set
@@ -243,11 +348,11 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
             if (value)
                 UpdatedFlags |= OrderLayerInfoUpdatedFlags.UpdatedTimeSub2MinFlag;
 
-            else if (IsUpdatedTimeSub2MinUpdated) UpdatedFlags ^= OrderLayerInfoUpdatedFlags.UpdatedTimeSub2MinFlag;
+            else if (IsUpdateTimeSub2MinUpdated) UpdatedFlags ^= OrderLayerInfoUpdatedFlags.UpdatedTimeSub2MinFlag;
         }
     }
 
-    public bool IsUpdatedTimeDateUpdated
+    public bool IsUpdateTimeDateUpdated
     {
         get => (UpdatedFlags & OrderLayerInfoUpdatedFlags.UpdatedTimeDateFlag) > 0;
         set
@@ -255,14 +360,8 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
             if (value)
                 UpdatedFlags |= OrderLayerInfoUpdatedFlags.UpdatedTimeDateFlag;
 
-            else if (IsUpdatedTimeDateUpdated) UpdatedFlags ^= OrderLayerInfoUpdatedFlags.UpdatedTimeDateFlag;
+            else if (IsUpdateTimeDateUpdated) UpdatedFlags ^= OrderLayerInfoUpdatedFlags.UpdatedTimeDateFlag;
         }
-    }
-
-    public uint TrackingId
-    {
-        get;
-        set;
     }
 
 
@@ -291,6 +390,18 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
         }
     }
 
+    public bool IsTrackingIdUpdated
+    {
+        get => (UpdatedFlags & OrderLayerInfoUpdatedFlags.TrackingIdFlag) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= OrderLayerInfoUpdatedFlags.TrackingIdFlag;
+
+            else if (IsTrackingIdUpdated) UpdatedFlags ^= OrderLayerInfoUpdatedFlags.TrackingIdFlag;
+        }
+    }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public virtual bool HasUpdates
     {
@@ -300,7 +411,6 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
             if (value)
             {
                 UpdatedFlags = UpdatedFlags.AllFlags();
-                return;
             }
             else
             {
@@ -313,18 +423,30 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
     public virtual bool IsEmpty
     {
         get =>
-            OrderId == 0 && OrderFlags == LayerOrderFlags.None && CreatedTime == default && UpdatedTime == default && OrderVolume == 0m &&
-            OrderRemainingVolume == 0m;
+            OrderId == 0
+         && OrderLayerFlags == LayerOrderFlags.None
+         && CreatedTime == default
+         && OrderType == OrderType.None
+         && TypeFlags == OrderFlags.None
+         && OrderLifeCycleState == OrderLifeCycleState.None
+         && UpdateTime == default
+         && OrderDisplayVolume == 0m
+         && OrderRemainingVolume == 0m
+         && TrackingId == 0;
         set
         {
             if (!value) return;
-            OrderId     = 0;
-            OrderFlags  = LayerOrderFlags.None;
-            CreatedTime = default;
-            UpdatedTime = default;
-            UpdatedTime = default;
-            OrderVolume = 0m;
+            OrderId         = 0;
+            OrderLayerFlags = LayerOrderFlags.None;
+            CreatedTime     = default;
+            UpdateTime      = default;
+            UpdateTime      = default;
+            OrderType       = OrderType.None;
+            TypeFlags       = OrderFlags.None;
+            TrackingId      = 0;
 
+            OrderLifeCycleState  = OrderLifeCycleState.None;
+            OrderDisplayVolume   = 0m;
             OrderRemainingVolume = 0m;
 
             NumUpdatesSinceEmpty = 0;
@@ -339,47 +461,88 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
         HasUpdates = false;
     }
 
+
+    IInternalPassiveOrderLayerInfo? IAnonymousOrderLayerInfo.ToInternalOrder() => ToInternalOrder();
+
+    IMutableInternalPassiveOrderLayerInfo? IMutableAnonymousOrderLayerInfo.ToInternalOrder() => ToInternalOrder();
+
+    IInternalPassiveOrder? IPublishedOrder.ToInternalOrder() => ToInternalOrder();
+
+    public virtual IMutableInternalPassiveOrderLayerInfo? ToInternalOrder() =>
+        this is PQInternalPassiveOrderLayerInfo internalOrder && TypeFlags.IsInternalOrder() && TypeFlags.HasInternalOrderInfo()
+            ? internalOrder
+            : null;
+
+
+    IExternalCounterPartyOrderLayerInfo? IAnonymousOrderLayerInfo.ToExternalCounterPartyInfoOrder() => ToExternalCounterPartyInfoOrder();
+
+    IMutableExternalCounterPartyOrderLayerInfo? IMutableAnonymousOrderLayerInfo.ToExternalCounterPartyInfoOrder() =>
+        ToExternalCounterPartyInfoOrder();
+
+    IExternalCounterPartyInfoOrder? IPublishedOrder.ToExternalCounterPartyInfoOrder() => ToExternalCounterPartyInfoOrder();
+
+    public virtual IMutableExternalCounterPartyOrderLayerInfo? ToExternalCounterPartyInfoOrder() =>
+        this is PQCounterPartyOrderLayerInfo externalCounterPartyOrder && TypeFlags.IsExternalOrder() && TypeFlags.HasExternalCounterPartyInfo()
+            ? externalCounterPartyOrder
+            : null;
+
     public virtual int UpdateField(PQFieldUpdate fieldUpdate)
     {
-        switch (fieldUpdate.TradingSubId)
+        switch (fieldUpdate.OrdersSubId)
         {
-            case PQTradingSubFieldKeys.OrderId:
+            case PQOrdersSubFieldKeys.OrderId:
                 IsOrderIdUpdated = true; // incase of reset and sending 0;
                 OrderId          = (int)fieldUpdate.Payload;
                 return 0;
-            case PQTradingSubFieldKeys.OrderFlags:
-                IsOrderFlagsUpdated = true; // incase of reset and sending 0;
-                OrderFlags          = (LayerOrderFlags)fieldUpdate.Payload;
+            case PQOrdersSubFieldKeys.OrderType:
+                IsOrderTypeUpdated = true; // incase of reset and sending 0;
+                OrderType          = (OrderType)fieldUpdate.Payload;
                 return 0;
-            case PQTradingSubFieldKeys.OrderCreatedDate:
+            case PQOrdersSubFieldKeys.OrderFlags:
+                IsTypeFlagsUpdated = true; // incase of reset and sending 0;
+                TypeFlags          = (OrderFlags)fieldUpdate.Payload;
+                return 0;
+            case PQOrdersSubFieldKeys.OrderLayerFlags:
+                IsOrderLayerFlagsUpdated = true; // incase of reset and sending 0;
+                OrderLayerFlags          = (LayerOrderFlags)fieldUpdate.Payload;
+                return 0;
+            case PQOrdersSubFieldKeys.OrderLifecycleStateFlags:
+                IsOrderLifecycleStateUpdated = true; // incase of reset and sending 0;
+                OrderLifeCycleState          = (OrderLifeCycleState)fieldUpdate.Payload;
+                return 0;
+            case PQOrdersSubFieldKeys.OrderCreatedDate:
                 IsCreatedTimeDateUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref createdTime, fieldUpdate.Payload);
                 if (createdTime == DateTime.UnixEpoch) createdTime = default;
                 return 0;
-            case PQTradingSubFieldKeys.OrderCreatedSub2MinTime:
+            case PQOrdersSubFieldKeys.OrderCreatedSub2MinTime:
                 IsCreatedTimeSub2MinUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref createdTime, fieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(fieldUpdate.Payload));
                 if (createdTime == DateTime.UnixEpoch) createdTime = default;
                 return 0;
-            case PQTradingSubFieldKeys.OrderUpdatedDate:
-                IsUpdatedTimeDateUpdated = true; // incase of reset and sending 0;
-                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref updatedTime, fieldUpdate.Payload);
-                if (updatedTime == DateTime.UnixEpoch) updatedTime = default;
+            case PQOrdersSubFieldKeys.OrderUpdatedDate:
+                IsUpdateTimeDateUpdated = true; // incase of reset and sending 0;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref updateTime, fieldUpdate.Payload);
+                if (updateTime == DateTime.UnixEpoch) updateTime = default;
                 return 0;
-            case PQTradingSubFieldKeys.OrderUpdatedSub2MinTime:
-                IsUpdatedTimeSub2MinUpdated = true; // incase of reset and sending 0;
+            case PQOrdersSubFieldKeys.OrderUpdatedSub2MinTime:
+                IsUpdateTimeSub2MinUpdated = true; // incase of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
-                    (ref updatedTime, fieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(fieldUpdate.Payload));
-                if (updatedTime == DateTime.UnixEpoch) updatedTime = default;
+                    (ref updateTime, fieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(fieldUpdate.Payload));
+                if (updateTime == DateTime.UnixEpoch) updateTime = default;
                 return 0;
-            case PQTradingSubFieldKeys.OrderVolume:
+            case PQOrdersSubFieldKeys.OrderDisplayVolume:
                 IsOrderVolumeUpdated = true; // incase of reset and sending 0;
-                OrderVolume          = PQScaling.Unscale(fieldUpdate.Payload, fieldUpdate.Flag);
+                OrderDisplayVolume   = PQScaling.Unscale(fieldUpdate.Payload, fieldUpdate.Flag);
                 return 0;
-            case PQTradingSubFieldKeys.OrderRemainingVolume:
+            case PQOrdersSubFieldKeys.OrderRemainingVolume:
                 IsOrderRemainingVolumeUpdated = true; // incase of reset and sending 0;
                 OrderRemainingVolume          = PQScaling.Unscale(fieldUpdate.Payload, fieldUpdate.Flag);
+                return 0;
+            case PQOrdersSubFieldKeys.OrderTrackingId:
+                IsTrackingIdUpdated = true; // incase of reset and sending 0;
+                TrackingId          = fieldUpdate.Payload;
                 return 0;
         }
         return -1;
@@ -390,43 +553,60 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
       , IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
-        if (!updatedOnly || IsOrderIdUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQTradingSubFieldKeys.OrderId,  (uint)OrderId);
-        if (!updatedOnly || IsOrderFlagsUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQTradingSubFieldKeys.OrderFlags, (uint)OrderFlags);
+        if (!updatedOnly || IsOrderIdUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderId, (uint)OrderId);
+        if (!updatedOnly || IsOrderTypeUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderType, (uint)OrderType);
+        if (!updatedOnly || IsTypeFlagsUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderFlags, (uint)TypeFlags);
+        if (!updatedOnly || IsOrderLifecycleStateUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderLifecycleStateFlags, (uint)OrderLifeCycleState);
+        if (!updatedOnly || IsOrderLayerFlagsUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderLayerFlags, (uint)OrderLayerFlags);
 
         if (!updatedOnly || IsCreatedTimeDateUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQTradingSubFieldKeys.OrderCreatedDate, createdTime.Get2MinIntervalsFromUnixEpoch());
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderCreatedDate
+                                         , createdTime.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsCreatedTimeSub2MinUpdated)
         {
             var extended = createdTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQTradingSubFieldKeys.OrderCreatedSub2MinTime, value, extended);
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderCreatedSub2MinTime, value, extended);
         }
-        if (!updatedOnly || IsUpdatedTimeDateUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQTradingSubFieldKeys.OrderUpdatedDate, updatedTime.Get2MinIntervalsFromUnixEpoch());
+        if (!updatedOnly || IsUpdateTimeDateUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderUpdatedDate
+                                         , updateTime.Get2MinIntervalsFromUnixEpoch());
 
-        if (!updatedOnly || IsUpdatedTimeSub2MinUpdated)
+        if (!updatedOnly || IsUpdateTimeSub2MinUpdated)
         {
-            var extended = updatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQTradingSubFieldKeys.OrderUpdatedSub2MinTime, value, extended);
+            var extended = updateTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderUpdatedSub2MinTime, value, extended);
         }
         if (!updatedOnly || IsOrderVolumeUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQTradingSubFieldKeys.OrderVolume, OrderVolume,
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderDisplayVolume, OrderDisplayVolume,
                                            quotePublicationPrecisionSettings?.VolumeScalingPrecision ?? (PQFieldFlags)6);
         if (!updatedOnly || IsOrderRemainingVolumeUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQTradingSubFieldKeys.OrderRemainingVolume, OrderRemainingVolume,
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderRemainingVolume, OrderRemainingVolume,
                                            quotePublicationPrecisionSettings?.VolumeScalingPrecision ?? (PQFieldFlags)6);
+        if (!updatedOnly || IsTrackingIdUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderTrackingId, TrackingId);
     }
 
     public override void StateReset()
     {
-        OrderId     = 0;
-        OrderFlags  = LayerOrderFlags.None;
-        CreatedTime = default;
-        UpdatedTime = default;
-        OrderVolume = 0m;
+        OrderId         = 0;
+        OrderLayerFlags = LayerOrderFlags.None;
+        OrderType       = OrderType.None;
+        TypeFlags       = OrderFlags.None;
+        CreatedTime     = default;
+        UpdateTime      = default;
+        TrackingId      = 0;
 
+        OrderDisplayVolume   = 0m;
         OrderRemainingVolume = 0m;
-        UpdatedFlags         = OrderLayerInfoUpdatedFlags.None;
+        OrderLifeCycleState  = OrderLifeCycleState.None;
         NumUpdatesSinceEmpty = 0;
+
+        UpdatedFlags = OrderLayerInfoUpdatedFlags.None;
         base.StateReset();
     }
 
@@ -439,15 +619,23 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
     public bool AreEquivalent(IMutableAnonymousOrderLayerInfo? other, bool exactTypes = false) =>
         AreEquivalent((IAnonymousOrderLayerInfo?)other, exactTypes);
 
+    bool IInterfacesComparable<IPublishedOrder>.AreEquivalent
+        (IPublishedOrder? other, bool exactTypes) =>
+        AreEquivalent((IAnonymousOrderLayerInfo?)other, exactTypes);
+
     public virtual bool AreEquivalent(IAnonymousOrderLayerInfo? other, bool exactTypes = false)
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
-        var orderIdsSame    = OrderId == other.OrderId;
-        var orderFlagsSame  = OrderFlags == other.OrderFlags;
-        var createdSame     = CreatedTime == other.CreatedTime;
-        var updatedTimeSame = UpdatedTime == other.UpdatedTime;
-        var volumeSame      = OrderVolume == other.OrderVolume;
+        var orderIdsSame        = OrderId == other.OrderId;
+        var orderLayerFlagsSame = OrderLayerFlags == other.OrderLayerFlags;
+        var createdSame         = CreatedTime == other.CreatedTime;
+        var orderTypeSame       = OrderType == other.OrderType;
+        var typeFlagsSame       = TypeFlags == other.TypeFlags;
+        var lifecycleSame       = OrderLifeCycleState == other.OrderLifeCycleState;
+        var updatedTimeSame     = UpdateTime == other.UpdateTime;
+        var volumeSame          = OrderDisplayVolume == other.OrderDisplayVolume;
+        var trackingIdSame      = TrackingId == other.TrackingId;
 
         var remainingVolumeSame = OrderRemainingVolume == other.OrderRemainingVolume;
 
@@ -458,7 +646,8 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
             updatedSame = UpdatedFlags == pqTraderLayerInfo.UpdatedFlags;
         }
 
-        return orderIdsSame && orderFlagsSame && createdSame && updatedTimeSame && volumeSame && remainingVolumeSame && updatedSame;
+        return orderIdsSame && orderLayerFlagsSame && createdSame && orderTypeSame && typeFlagsSame && lifecycleSame && updatedTimeSame
+            && volumeSame && remainingVolumeSame && updatedSame && trackingIdSame;
     }
 
     protected void SetFlagsSame(IAnonymousOrderLayerInfo toCopyFlags)
@@ -466,17 +655,28 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
         if (toCopyFlags is PQAnonymousOrderLayerInfo pqToClone) UpdatedFlags = pqToClone.UpdatedFlags;
     }
 
+    IReusableObject<IPublishedOrder> ITransferState<IReusableObject<IPublishedOrder>>.CopyFrom
+        (IReusableObject<IPublishedOrder> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IAnonymousOrderLayerInfo?)source!, copyMergeFlags);
+
+    IPublishedOrder ITransferState<IPublishedOrder>.CopyFrom(IPublishedOrder source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IAnonymousOrderLayerInfo?)source!, copyMergeFlags);
+
     public override PQAnonymousOrderLayerInfo CopyFrom(IAnonymousOrderLayerInfo? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is null) return this;
         if (source is not IPQAnonymousOrderLayerInfo pqAnonOrderLyrInfo)
         {
-            OrderId     = source.OrderId;
-            OrderFlags  = source.OrderFlags;
-            CreatedTime = source.CreatedTime;
-            UpdatedTime = source.UpdatedTime;
-            OrderVolume = source.OrderVolume;
+            OrderId         = source.OrderId;
+            OrderType       = source.OrderType;
+            TypeFlags       = source.TypeFlags;
+            OrderLayerFlags = source.OrderLayerFlags;
+            CreatedTime     = source.CreatedTime;
+            UpdateTime      = source.UpdateTime;
+            TrackingId      = source.TrackingId;
 
+            OrderLifeCycleState  = source.OrderLifeCycleState;
+            OrderDisplayVolume   = source.OrderDisplayVolume;
             OrderRemainingVolume = source.OrderRemainingVolume;
         }
         else
@@ -487,13 +687,31 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
             {
                 IsOrderIdUpdated = true;
 
-                OrderId       = pqAnonOrderLyrInfo.OrderId;
+                OrderId = pqAnonOrderLyrInfo.OrderId;
             }
-            if (pqAnonOrderLyrInfo.IsOrderFlagsUpdated || isFullReplace)
+            if (pqAnonOrderLyrInfo.IsOrderTypeUpdated || isFullReplace)
             {
-                IsOrderFlagsUpdated = true;
+                IsOrderTypeUpdated = true;
 
-                OrderFlags = pqAnonOrderLyrInfo.OrderFlags;
+                OrderType = pqAnonOrderLyrInfo.OrderType;
+            }
+            if (pqAnonOrderLyrInfo.IsTypeFlagsUpdated || isFullReplace)
+            {
+                IsTypeFlagsUpdated = true;
+
+                TypeFlags = pqAnonOrderLyrInfo.TypeFlags;
+            }
+            if (pqAnonOrderLyrInfo.IsOrderLifecycleStateUpdated || isFullReplace)
+            {
+                IsOrderLifecycleStateUpdated = true;
+
+                OrderLifeCycleState = pqAnonOrderLyrInfo.OrderLifeCycleState;
+            }
+            if (pqAnonOrderLyrInfo.IsOrderLayerFlagsUpdated || isFullReplace)
+            {
+                IsOrderLayerFlagsUpdated = true;
+
+                OrderLayerFlags = pqAnonOrderLyrInfo.OrderLayerFlags;
             }
             if (pqAnonOrderLyrInfo.IsCreatedTimeDateUpdated || isFullReplace)
             {
@@ -507,23 +725,23 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
 
                 CreatedTime = pqAnonOrderLyrInfo.CreatedTime;
             }
-            if (pqAnonOrderLyrInfo.IsUpdatedTimeDateUpdated || isFullReplace)
+            if (pqAnonOrderLyrInfo.IsUpdateTimeDateUpdated || isFullReplace)
             {
-                IsUpdatedTimeDateUpdated = true;
+                IsUpdateTimeDateUpdated = true;
 
-                UpdatedTime = pqAnonOrderLyrInfo.UpdatedTime;
+                UpdateTime = pqAnonOrderLyrInfo.UpdateTime;
             }
-            if (pqAnonOrderLyrInfo.IsUpdatedTimeSub2MinUpdated || isFullReplace)
+            if (pqAnonOrderLyrInfo.IsUpdateTimeSub2MinUpdated || isFullReplace)
             {
-                IsUpdatedTimeSub2MinUpdated = true;
+                IsUpdateTimeSub2MinUpdated = true;
 
-                UpdatedTime = pqAnonOrderLyrInfo.UpdatedTime;
+                UpdateTime = pqAnonOrderLyrInfo.UpdateTime;
             }
             if (pqAnonOrderLyrInfo.IsOrderVolumeUpdated || isFullReplace)
             {
                 IsOrderVolumeUpdated = true;
 
-                OrderVolume = pqAnonOrderLyrInfo.OrderVolume;
+                OrderDisplayVolume = ((IPublishedOrder)pqAnonOrderLyrInfo).OrderDisplayVolume;
             }
 
             if (pqAnonOrderLyrInfo.IsOrderRemainingVolumeUpdated || isFullReplace)
@@ -533,11 +751,20 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
                 OrderRemainingVolume = pqAnonOrderLyrInfo.OrderRemainingVolume;
             }
 
+            if (pqAnonOrderLyrInfo.IsTrackingIdUpdated || isFullReplace)
+            {
+                IsTrackingIdUpdated = true;
+
+                TrackingId = pqAnonOrderLyrInfo.TrackingId;
+            }
+
             if (isFullReplace) UpdatedFlags = (source as PQAnonymousOrderLayerInfo)?.UpdatedFlags ?? UpdatedFlags;
         }
 
         return this;
     }
+
+    IPublishedOrder ICloneable<IPublishedOrder>.Clone() => Clone();
 
     public override PQAnonymousOrderLayerInfo Clone() =>
         Recycler?.Borrow<PQAnonymousOrderLayerInfo>().CopyFrom(this) ?? new PQAnonymousOrderLayerInfo(this);
@@ -549,14 +776,25 @@ public class PQAnonymousOrderLayerInfo : ReusableObject<IAnonymousOrderLayerInfo
         unchecked
         {
             var hashCode = OrderId;
-            hashCode = ((int)OrderFlags * 397) ^ hashCode;
+            hashCode = ((int)OrderType * 397) ^ hashCode;
+            hashCode = ((int)TypeFlags * 397) ^ hashCode;
+            hashCode = ((int)OrderLifeCycleState * 397) ^ hashCode;
+            hashCode = ((int)OrderLayerFlags * 397) ^ hashCode;
             hashCode = (CreatedTime.GetHashCode() * 397) ^ hashCode;
-            hashCode = (UpdatedTime.GetHashCode() * 397) ^ hashCode;
-            hashCode = (OrderVolume.GetHashCode() * 397) ^ hashCode;
+            hashCode = (UpdateTime.GetHashCode() * 397) ^ hashCode;
+            hashCode = (OrderDisplayVolume.GetHashCode() * 397) ^ hashCode;
             hashCode = (OrderRemainingVolume.GetHashCode() * 397) ^ hashCode;
+            hashCode = ((int)TrackingId * 397) ^ hashCode;
             return hashCode;
         }
     }
+
+    protected string PQAnonymousOrderLayerInfoToStringMembers =>
+        $"{nameof(OrderId)}: {OrderId}, {nameof(OrderType)}: {OrderType}, {nameof(TypeFlags)}: {TypeFlags} , {nameof(OrderLayerFlags)}: {OrderLayerFlags}, " +
+        $"{nameof(CreatedTime)}: {CreatedTime}, {nameof(OrderLifeCycleState)}: {OrderLifeCycleState}, {nameof(UpdateTime)}: {UpdateTime}, " +
+        $"{nameof(OrderDisplayVolume)}: {OrderDisplayVolume:N2}, {nameof(OrderRemainingVolume)}: {OrderRemainingVolume:N2}, {nameof(TrackingId)}: {TrackingId}";
+
+    protected string UpdatedFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
 
     public override string ToString() => $"{nameof(PQAnonymousOrderLayerInfo)}{{{PQAnonymousOrderLayerInfoToStringMembers}, {UpdatedFlagsToString}}}";
 }
