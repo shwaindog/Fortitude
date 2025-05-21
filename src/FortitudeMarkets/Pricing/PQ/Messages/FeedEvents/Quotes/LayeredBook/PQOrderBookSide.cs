@@ -187,10 +187,6 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     private IPQOrderBookLayerFactorySelector LayerSelector { get; set; }
 
-    protected string PQOrderBookSideToStringMembers =>
-        $"{nameof(Capacity)}: {Capacity}, {nameof(Count)}: {Count}, {nameof(IsLadder)}: {IsLadder}, " +
-        $"{nameof(OpenInterestSide)}: {OpenInterestSide}, {nameof(DailyTickUpdateCount)}: {DailyTickUpdateCount}, " +
-        $"{nameof(AllLayers)}:[{string.Join(", ", AllLayers.Take(Count))}]";
 
     INameIdLookup IHasNameIdLookup.NameIdLookup => NameIdLookup;
 
@@ -556,7 +552,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
         var deepestPossibleSame = true;
 
-        if (other is IMutableOrderBookSide mutableOrderBook) deepestPossibleSame = Capacity == mutableOrderBook.Capacity;
+        // if (other is IMutableOrderBookSide mutableOrderBook) deepestPossibleSame = Capacity == mutableOrderBook.Capacity;
 
         var allAreSame = layerFlagsSame && deepestPossibleSame && deepestPricedSame
                       && maxPubDepthSame && bookLayersSame && openInterestSame;
@@ -637,6 +633,11 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IOrderBookSide, true);
 
     public override int GetHashCode() => AllLayers.GetHashCode();
+    
+    protected string PQOrderBookSideToStringMembers =>
+        $"{nameof(Capacity)}: {Capacity}, {nameof(MaxPublishDepth)}: {MaxPublishDepth}, {nameof(Count)}: {Count}, {nameof(IsLadder)}: {IsLadder}, " +
+        $"{nameof(OpenInterestSide)}: {OpenInterestSide}, {nameof(DailyTickUpdateCount)}: {DailyTickUpdateCount}, " +
+        $"{nameof(AllLayers)}:[{string.Join(", ", AllLayers.Take(Count))}]";
 
     public override string ToString() => $"{GetType().Name}({PQOrderBookSideToStringMembers})";
 }

@@ -336,9 +336,11 @@ public class PQServerHeartBeatSenderTests
                          .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Returns(tickInstant1).Verifiable();
 
             Assert.IsFalse(pqServerHeartBeatSender.HasStarted);
+            Assert.AreNotSame(OSParallelControllerFactory.Instance, moqOsParallelController);
             pqServerHeartBeatSender.StartSendingHeartBeats();
             Assert.IsTrue(pqServerHeartBeatSender.HasStarted);
 
+            Assert.AreNotSame(OSParallelControllerFactory.Instance, moqOsParallelController);
             pqServerHeartBeatSender.CheckPublishHeartbeats();
             moqQuotesList.Verify();
             moqTickInstantQuote.Verify();

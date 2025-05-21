@@ -7,13 +7,12 @@ using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.Generators.MidPrice;
 
 #endregion
 
-namespace FortitudeMarkets.Pricing.Generators.Quotes.LayeredBook;
+namespace FortitudeMarkets.Pricing.FeedEvents.Generators.Quotes.LayeredBook;
 
 public interface IBookGenerator
 {
@@ -302,22 +301,22 @@ public class BookGenerator : IBookGenerator
         }
     }
 
-    protected virtual void SetAnonymousOrderValues(int depth, BookSide side, int i, IMutableAnonymousOrderLayerInfo orderLayer)
+    protected virtual void SetAnonymousOrderValues(int depth, BookSide side, int i, IMutableAnonymousOrder orderLayer)
     {
         switch (side)
         {
             case BookSide.AskBook:
                 var askPrice                = QuoteBookGenerator.AskPriceAt(depth);
                 var askOrderId              = QuoteBookGenerator.AskOrderIdAt(depth, i);
-                var askOrderFlags           = QuoteBookGenerator.AskOrderFlagsAt(depth, askOrderId, i);
+                var askOrderFlags           = QuoteBookGenerator.AskOrderGenesisFlagsAt(depth, askOrderId, i);
                 var askOrderCreatedTime     = QuoteBookGenerator.AskOrderCreatedTimeAt(depth, askOrderId, i);
                 var askOrderUpdatedTime     = QuoteBookGenerator.AskOrderUpdatedTimeAt(depth, askOrderId, i);
                 var askOrderVolume          = QuoteBookGenerator.AskOrderVolumeAt(depth, i);
                 var askOrderRemainingVolume = QuoteBookGenerator.AskOrderRemainingVolumeAt(depth, i);
                 SetOrderId(side, orderLayer, i, askOrderId
                          , QuoteBookGenerator.PreviousAskOrderIdAt(askPrice, i));
-                SetOrderFlags(side, orderLayer, i, askOrderFlags
-                            , QuoteBookGenerator.PreviousAskOrderFlagsAt(askPrice, askOrderId, depth));
+                SetOrderGenesisFlags(side, orderLayer, i, askOrderFlags
+                            , QuoteBookGenerator.PreviousAskOrderGenesisFlagsAt(askPrice, askOrderId, depth));
                 SetOrderCreatedTime(side, orderLayer, i, askOrderCreatedTime
                                   , QuoteBookGenerator.PreviousAskOrderCreatedTimeAt(askPrice, askOrderId, depth));
                 SetOrderUpdatedTime(side, orderLayer, i, askOrderUpdatedTime
@@ -330,15 +329,15 @@ public class BookGenerator : IBookGenerator
             case BookSide.BidBook:
                 var bidPrice                = QuoteBookGenerator.BidPriceAt(depth);
                 var bidOrderId              = QuoteBookGenerator.BidOrderIdAt(depth, i);
-                var bidOrderFlags           = QuoteBookGenerator.BidOrderFlagsAt(depth, bidOrderId, i);
+                var bidOrderFlags           = QuoteBookGenerator.BidOrderGenesisFlagsAt(depth, bidOrderId, i);
                 var bidOrderCreatedTime     = QuoteBookGenerator.BidOrderCreatedTimeAt(depth, bidOrderId, i);
                 var bidOrderUpdatedTime     = QuoteBookGenerator.BidOrderUpdatedTimeAt(depth, bidOrderId, i);
                 var bidOrderVolume          = QuoteBookGenerator.BidOrderVolumeAt(depth, i);
                 var bidOrderRemainingVolume = QuoteBookGenerator.BidOrderRemainingVolumeAt(depth, i);
                 SetOrderId(side, orderLayer, i, bidOrderId
                          , QuoteBookGenerator.PreviousBidOrderIdAt(bidPrice, i));
-                SetOrderFlags(side, orderLayer, i, bidOrderFlags
-                            , QuoteBookGenerator.PreviousBidOrderFlagsAt(bidPrice, bidOrderId, depth));
+                SetOrderGenesisFlags(side, orderLayer, i, bidOrderFlags
+                            , QuoteBookGenerator.PreviousBidOrderGenesisFlagsAt(bidPrice, bidOrderId, depth));
                 SetOrderCreatedTime(side, orderLayer, i, bidOrderCreatedTime
                                   , QuoteBookGenerator.PreviousBidOrderCreatedTimeAt(bidPrice, bidOrderId, depth));
                 SetOrderUpdatedTime(side, orderLayer, i, bidOrderUpdatedTime
@@ -365,7 +364,7 @@ public class BookGenerator : IBookGenerator
         if (ordersCountOnLayer == 0) return;
         for (var i = 0; i < ordersCountOnLayer; i++)
         {
-            var orderLayer = (IMutableExternalCounterPartyOrderLayerInfo)ordersPriceVolumeLayer[i]!;
+            var orderLayer = (IMutableExternalCounterPartyOrder)ordersPriceVolumeLayer[i]!;
             SetAnonymousOrderValues(depth, side, i, orderLayer);
 
             switch (side)
@@ -400,51 +399,53 @@ public class BookGenerator : IBookGenerator
     }
 
     protected virtual void SetOrderId
-        (BookSide side, IMutableAnonymousOrderLayerInfo orderLayerInfo, int pos, int orderId, int? prevOrderId)
+        (BookSide side, IMutableAnonymousOrder orderLayerInfo, int pos, int orderId, int? prevOrderId)
     {
         orderLayerInfo.OrderId = orderId;
     }
 
-    protected virtual void SetOrderFlags
-        (BookSide side, IMutableAnonymousOrderLayerInfo orderLayerInfo, int pos, LayerOrderFlags orderFlags, LayerOrderFlags? prevOrderFlags)
+    protected virtual void SetOrderGenesisFlags
+        (BookSide side, IMutableAnonymousOrder orderLayerInfo, int pos, OrderGenesisFlags genesisFlags, OrderGenesisFlags? prevOrderGenFlags)
     {
-        orderLayerInfo.OrderLayerFlags = orderFlags;
+        orderLayerInfo.GenesisFlags = genesisFlags;
     }
 
     protected virtual void SetOrderCreatedTime
-        (BookSide side, IMutableAnonymousOrderLayerInfo orderLayerInfo, int pos, DateTime orderCreatedTime, DateTime? prevOrderCreatedTime)
+        (BookSide side, IMutableAnonymousOrder orderLayerInfo, int pos, DateTime orderCreatedTime, DateTime? prevOrderCreatedTime)
     {
         orderLayerInfo.CreatedTime = orderCreatedTime;
     }
 
     protected virtual void SetOrderUpdatedTime
-        (BookSide side, IMutableAnonymousOrderLayerInfo orderLayerInfo, int pos, DateTime orderUpdatedTime, DateTime? prevOrderUpdatedTime)
+        (BookSide side, IMutableAnonymousOrder orderLayerInfo, int pos, DateTime orderUpdatedTime, DateTime? prevOrderUpdatedTime)
     {
         orderLayerInfo.UpdateTime = orderUpdatedTime;
     }
 
     protected virtual void SetOrderVolume
-        (BookSide side, IMutableAnonymousOrderLayerInfo orderLayerInfo, int pos, decimal orderVolume, decimal? prevOrderVolume)
+        (BookSide side, IMutableAnonymousOrder orderLayerInfo, int pos, decimal orderVolume, decimal? prevOrderVolume)
     {
         orderLayerInfo.OrderDisplayVolume = orderVolume;
     }
 
     protected virtual void SetOrderRemainingVolume
-        (BookSide side, IMutableAnonymousOrderLayerInfo orderLayerInfo, int pos, decimal orderRemainingVolume, decimal? prevOrderRemainingVolume)
+        (BookSide side, IMutableAnonymousOrder orderLayerInfo, int pos, decimal orderRemainingVolume, decimal? prevOrderRemainingVolume)
     {
         orderLayerInfo.OrderRemainingVolume = orderRemainingVolume;
     }
 
     protected virtual void SetOrderCounterPartyName
-    (BookSide side, IMutableExternalCounterPartyOrderLayerInfo orderLayerInfo, int pos, string counterPartyName, int counterPartyId
+    (BookSide side, IMutableExternalCounterPartyOrder orderLayerInfo, int pos, string counterPartyName, int counterPartyId
       , int? prevCounterPartyNameId)
     {
+        orderLayerInfo.ExternalCounterPartyId   = counterPartyId;  // just using this id but would be some other db or reference id
         orderLayerInfo.ExternalCounterPartyName = counterPartyName;
     }
 
     protected virtual void SetOrderTraderName
-        (BookSide side, IMutableExternalCounterPartyOrderLayerInfo orderLayerInfo, int pos, string traderName, int traderNameId, int? prevTraderNameId)
+        (BookSide side, IMutableExternalCounterPartyOrder orderLayerInfo, int pos, string traderName, int traderNameId, int? prevTraderNameId)
     {
+        orderLayerInfo.ExternalTraderId   = traderNameId;  // just using this id but would be some other db or reference id
         orderLayerInfo.ExternalTraderName = traderName;
     }
 

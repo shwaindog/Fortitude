@@ -338,7 +338,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     public override int GetHashCode() => bookLayers?.GetHashCode() ?? 0;
 
     protected string OrderBookSideToStringMembers =>
-        $"{nameof(Capacity)}: {Capacity}, {nameof(Count)}: {Count},, {nameof(LayerSupportedFlags)}: {LayerSupportedFlags}, " +
+        $"{nameof(Capacity)}: {Capacity}, {nameof(MaxPublishDepth)}: {MaxPublishDepth}, {nameof(Count)}: {Count}, {nameof(LayerSupportedFlags)}: {LayerSupportedFlags}, " +
         $"{nameof(OpenInterestSideSide)}: {OpenInterestSideSide},  {nameof(bookLayers)}:[{string.Join(", ", bookLayers.Take(Count))}]";
 
     public override string ToString() =>

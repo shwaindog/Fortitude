@@ -15,7 +15,6 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeTests.FortitudeIO.Transports.Network.Config;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
-using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;

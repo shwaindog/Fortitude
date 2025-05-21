@@ -6,11 +6,11 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Types;
+using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.LayerSelector;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
@@ -19,7 +19,6 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeTests.FortitudeMarkets.Pricing.Quotes.LayeredBook;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
@@ -66,12 +65,12 @@ public class OrderBookSideTests
         traderLayers      = new List<IOrdersPriceVolumeLayer>(MaxNumberOfLayers);
         allFieldsLayers   = new List<IFullSupportPriceVolumeLayer>(MaxNumberOfLayers);
 
-        allPopulatedLayers = new List<IReadOnlyList<IPriceVolumeLayer>>
-        {
+        allPopulatedLayers =
+        [
             (IReadOnlyList<IPriceVolumeLayer>)simpleLayers, (IReadOnlyList<IPriceVolumeLayer>)sourceLayers
           , (IReadOnlyList<IPriceVolumeLayer>)sourceQtRefLayers, (IReadOnlyList<IPriceVolumeLayer>)valueDateLayers
           , (IReadOnlyList<IPriceVolumeLayer>)traderLayers, (IReadOnlyList<IPriceVolumeLayer>)allFieldsLayers
-        };
+        ];
 
         for (var i = 0; i < MaxNumberOfLayers; i++)
         {
@@ -88,16 +87,22 @@ public class OrderBookSideTests
                 (1.234567m, 40_000_000m, new DateTime(2017, 12, 09, 14, 0, 0)
                , "TestSourceName", true, 12345678u);
             allFieldsLayers.Add(allFieldsPvL);
-            var traderPvL = new OrdersPriceVolumeLayer(price: 1.234567m, volume: 40_000_000m);
+            var traderPvL = new OrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, price: 1.234567m, volume: 40_000_000m);
             traderLayers.Add(traderPvL);
             for (var j = 0; j < MaxNumberOfTraders; j++)
             {
-                allFieldsPvL.Add(new ExternalCounterPartyOrderLayerInfo
-                                     (i, new DateTime(2017, 12, 09, 14, 0, 0),
-                                      40_000_000m, LayerOrderFlags.TrackedOnAdapter, traderName: "Trdr" + j));
-                traderPvL.Add(new ExternalCounterPartyOrderLayerInfo
-                                  (i, new DateTime(2017, 12, 09, 14, 0, 0),
-                                   40_000_000m, LayerOrderFlags.TrackedOnAdapter, traderName: "Trdr" + j));
+                allFieldsPvL.Add(new ExternalCounterPartyOrder
+                                     (new AnonymousOrder(i, new DateTime(2017, 12, 09, 14, 0, 0),
+                                      40_000_000m)
+                                     {
+                                         ExternalCounterPartyOrderInfo = new AdditionalExternalCounterPartyInfo(externalTraderName: "Trdr" + j)
+                                     }));
+                traderPvL.Add(new ExternalCounterPartyOrder
+                                  (new AnonymousOrder(i, new DateTime(2017, 12, 09, 14, 0, 0),
+                                                      40_000_000m)
+                                  {
+                                      ExternalCounterPartyOrderInfo = new AdditionalExternalCounterPartyInfo(externalTraderName: "Trdr" + j)
+                                  }));
             }
         }
 
@@ -109,11 +114,11 @@ public class OrderBookSideTests
 
         allFieldsFullyPopulatedOrderBookSide = new OrderBookSide(BookSide.BidBook, allFieldsLayers.Cast<IPriceVolumeLayer>().ToList());
 
-        allPopulatedOrderBooks = new List<OrderBookSide>
-        {
+        allPopulatedOrderBooks =
+        [
             simpleFullyPopulatedOrderBookSide, sourceFullyPopulatedOrderBookSide, sourceQtRefFullyPopulatedOrderBookSide
           , valueDateFullyPopulatedOrderBookSide, traderFullyPopulatedOrderBookSide, allFieldsFullyPopulatedOrderBookSide
-        };
+        ];
         publicationPrecisionSettings = new SourceTickerInfo
             (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
            , 20, 0.00001m, 30000m, 50000000m, 1000m, 1

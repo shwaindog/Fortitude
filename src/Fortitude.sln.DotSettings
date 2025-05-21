@@ -179,6 +179,7 @@
 	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=C829790F78CAEB48B12D5931110E1D0A/Text/@EntryValue">private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof($ContainingType$));</s:String>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Algo/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Amender/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=Aoli/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Attrbs/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Backtest/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Chronometry/@EntryIndexedValue">True</s:Boolean>

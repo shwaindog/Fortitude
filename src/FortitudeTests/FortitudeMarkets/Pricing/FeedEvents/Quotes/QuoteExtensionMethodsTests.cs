@@ -17,7 +17,7 @@ using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLev
 
 #endregion
 
-namespace FortitudeTests.FortitudeMarkets.Pricing;
+namespace FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 
 [TestClass]
 public class QuoteExtensionMethodsTests

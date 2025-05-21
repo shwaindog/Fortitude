@@ -11,7 +11,6 @@ using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
@@ -111,7 +110,7 @@ public class QuoteSequencedTestDataBuilder
 
     public void SetupOrderBook(IMutableOrderBook orderBook, uint batchId)
     {
-        var numLayers             = orderBook.MaxPublishDepth;
+        var numLayers             = Math.Min((ushort)3, orderBook.MaxPublishDepth);
         var totalOpenInterest = orderBook.OpenInterest!;
         totalOpenInterest.DataSource = batchId % 2 == 0 ? MarketDataSource.Adapter : MarketDataSource.Venue;
         totalOpenInterest.UpdateTime  = new DateTime(2017, 5, 7, 9, 40, 11).AddSeconds(batchId);
@@ -190,12 +189,12 @@ public class QuoteSequencedTestDataBuilder
             var updateTimeSpan     = TimeSpan.FromMinutes(batchId * 10);
             var anonOrderLayer     = layer[i]!;
             anonOrderLayer.StateReset();
-            anonOrderLayer.OrderId                  = (int)(batchId * 10 + i * 1000 + batchId);
-            anonOrderLayer.OrderLayerFlags          = ((uint)(batchId * 10 + i * 1000 + batchId)).ToLayerOrderFlags();
-            anonOrderLayer.CreatedTime              = new DateTime(2017, 07, 16, 15, 49, 20).Add(sequenceIdTimeSpan);
-            anonOrderLayer.UpdateTime              = new DateTime(2017, 07, 16, 15, 49, 20).Add(updateTimeSpan);
-            anonOrderLayer.OrderDisplayVolume = batchId * 25600 + (i + 1) * 100;
-            anonOrderLayer.OrderRemainingVolume     = batchId * 25600 + (i + 1) * 100;
+            anonOrderLayer.OrderId              = (int)(batchId * 10 + i * 1000 + batchId);
+            anonOrderLayer.GenesisFlags         = ((uint)(batchId * 10 + i * 1000 + batchId)).ToOrderGenesisFlags() & (~(IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags | IInternalPassiveOrder.HasInternalOrderInfo));
+            anonOrderLayer.CreatedTime          = new DateTime(2017, 07, 16, 15, 49, 20).Add(sequenceIdTimeSpan);
+            anonOrderLayer.UpdateTime           = new DateTime(2017, 07, 16, 15, 49, 20).Add(updateTimeSpan);
+            anonOrderLayer.OrderDisplayVolume   = batchId * 25600 + (i + 1) * 100;
+            anonOrderLayer.OrderRemainingVolume = batchId * 25600 + (i + 1) * 100;
         }
     }
 
@@ -206,9 +205,13 @@ public class QuoteSequencedTestDataBuilder
             pqOrdersPriceVolumeLayer.NameIdLookup = pqOrderBook.NameIdLookup;
         for (var i = 0; i < 2; i++)
         {
-            ((IMutableExternalCounterPartyOrderLayerInfo)layer[i]!).ExternalCounterPartyName
+            var mutableExternalCounterPartyOrder = ((IMutableExternalCounterPartyOrder)layer[i]!);
+            mutableExternalCounterPartyOrder.GenesisFlags           |= IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags;
+            mutableExternalCounterPartyOrder.ExternalCounterPartyId =  i + 10;
+            mutableExternalCounterPartyOrder.ExternalCounterPartyName
                 = (orderBookSide.BookSide == BookSide.BidBook ? "B" : "A") + "CPN" + (batchId * 20 + i);
-            ((IMutableExternalCounterPartyOrderLayerInfo)layer[i]!).ExternalTraderName
+            mutableExternalCounterPartyOrder.ExternalTraderId = i + 50;
+            mutableExternalCounterPartyOrder.ExternalTraderName
                 = (orderBookSide.BookSide == BookSide.BidBook ? "B" : "A") + "TN" + (batchId * 5 + i);
         }
     }

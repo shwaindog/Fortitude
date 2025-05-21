@@ -67,7 +67,7 @@ public class PQQuoteSerializerTests
     private ISourceTickerInfo valueDateInfo                      = null!;
     private PQPublishableLevel2Quote     valueDateL2Quote                   = null!;
 
-    private int SingleQuoteBufferSize = 17000;
+    private const int SingleQuoteBufferSize = 17000;
 
     [TestInitialize]
     public void SetUp()

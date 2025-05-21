@@ -7,53 +7,51 @@ using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
-using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;
 
 #endregion
 
-namespace FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
+namespace FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 
 [TestClass]
-public class AnonymousOrderLayerInfoTests
+public class AnonymousOrderTests
 {
     private const    int             OrderNumber          = 80085;
     private const    decimal         OrderVolume          = 100_000.50m;
     private const    decimal         OrderRemainingVolume = 50_000.25m;
 
-    private const OrderFlags      ExpectedTypeFlags  = OrderFlags.FromAdapter;
-    private const OrderType       ExpectedOrderType  = OrderType.PassiveLimit;
-    private const LayerOrderFlags ExpectedLayerFlags = LayerOrderFlags.ExplicitlyDefinedFromSource | LayerOrderFlags.IsInternallyCreatedOrder;
+    private const OrderGenesisFlags ExpectedGenesisFlags = OrderGenesisFlags.FromAdapter | OrderGenesisFlags.IsInternal;
+    private const OrderType         ExpectedOrderType    = OrderType.PassiveLimit;
 
-    private const OrderLifeCycleState ExpectedLifecycleState = OrderLifeCycleState.SourceActiveOnMarket;
+    private const OrderLifeCycleState ExpectedLifecycleState = OrderLifeCycleState.ConfirmedActiveOnMarket;
 
     private static readonly DateTime        CreatedTime          = new DateTime(2025, 4, 21, 6, 27, 23).AddMilliseconds(123).AddMicroseconds(456);
     private static readonly DateTime        UpdatedTime          = new DateTime(2025, 4, 21, 12, 8, 59).AddMilliseconds(789).AddMicroseconds(213);
 
-    private AnonymousOrderLayerInfo emptyAoli     = null!;
-    private AnonymousOrderLayerInfo populatedAoli = null!;
+    private AnonymousOrder emptyAoli     = null!;
+    private AnonymousOrder populatedAoli = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        emptyAoli     = new AnonymousOrderLayerInfo();
-        populatedAoli = new AnonymousOrderLayerInfo(OrderNumber, CreatedTime, OrderVolume, ExpectedLayerFlags, ExpectedOrderType, ExpectedTypeFlags
+        emptyAoli     = new AnonymousOrder();
+        populatedAoli = new AnonymousOrder(OrderNumber, CreatedTime, OrderVolume, ExpectedOrderType, ExpectedGenesisFlags
                                                   , ExpectedLifecycleState, UpdatedTime, OrderRemainingVolume);
     }
 
     [TestMethod]
     public void NewAoli_SetsValues_PropertiesInitializedAsExpected()
     {
-        var newAoli = new AnonymousOrderLayerInfo(OrderNumber, CreatedTime, OrderVolume, ExpectedLayerFlags);
+        var newAoli = new AnonymousOrder(OrderNumber, CreatedTime, OrderVolume, ExpectedOrderType, ExpectedGenesisFlags);
         Assert.AreEqual(OrderNumber, newAoli.OrderId);
-        Assert.AreEqual(ExpectedLayerFlags, newAoli.OrderLayerFlags);
+        Assert.AreEqual(ExpectedGenesisFlags, newAoli.GenesisFlags);
         Assert.AreEqual(CreatedTime, newAoli.CreatedTime);
         Assert.AreEqual(CreatedTime, newAoli.UpdateTime);
         Assert.AreEqual(OrderVolume, newAoli.OrderDisplayVolume);
         Assert.AreEqual(OrderVolume, newAoli.OrderRemainingVolume);
 
         Assert.AreEqual(0, emptyAoli.OrderId);
-        Assert.AreEqual(LayerOrderFlags.None, emptyAoli.OrderLayerFlags);
+        Assert.AreEqual(OrderGenesisFlags.None, emptyAoli.GenesisFlags);
         Assert.AreEqual(DateTime.MinValue, emptyAoli.CreatedTime);
         Assert.AreEqual(DateTime.MinValue, emptyAoli.UpdateTime);
         Assert.AreEqual(0m, emptyAoli.OrderDisplayVolume);
@@ -63,35 +61,35 @@ public class AnonymousOrderLayerInfoTests
     [TestMethod]
     public void NewAoli_NewFromCloneInstance_PropertiesInitializedAsExpected()
     {
-        var fromInstance = new AnonymousOrderLayerInfo(populatedAoli);
+        var fromInstance = new AnonymousOrder(populatedAoli);
         Assert.AreEqual(populatedAoli.OrderId, fromInstance.OrderId);
-        Assert.AreEqual(populatedAoli.OrderLayerFlags, fromInstance.OrderLayerFlags);
+        Assert.AreEqual(populatedAoli.GenesisFlags, fromInstance.GenesisFlags);
         Assert.AreEqual(populatedAoli.CreatedTime, fromInstance.CreatedTime);
         Assert.AreEqual(populatedAoli.UpdateTime, fromInstance.UpdateTime);
         Assert.AreEqual(populatedAoli.OrderDisplayVolume, fromInstance.OrderDisplayVolume);
         Assert.AreEqual(populatedAoli.OrderRemainingVolume, fromInstance.OrderRemainingVolume);
 
-        var fromEmptyAoli = new AnonymousOrderLayerInfo(emptyAoli);
+        var fromEmptyAoli = new AnonymousOrder(emptyAoli);
         Assert.AreEqual(0, fromEmptyAoli.OrderId);
-        Assert.AreEqual(LayerOrderFlags.None, fromEmptyAoli.OrderLayerFlags);
+        Assert.AreEqual(OrderGenesisFlags.None, fromEmptyAoli.GenesisFlags);
         Assert.AreEqual(DateTime.MinValue, fromEmptyAoli.CreatedTime);
         Assert.AreEqual(DateTime.MinValue, fromEmptyAoli.UpdateTime);
         Assert.AreEqual(0m, fromEmptyAoli.OrderDisplayVolume);
         Assert.AreEqual(0m, fromEmptyAoli.OrderRemainingVolume);
 
-        var pqInstance     = new PQAnonymousOrderLayerInfo(populatedAoli);
-        var fromPQInstance = new PQAnonymousOrderLayerInfo(pqInstance);
+        var pqInstance     = new PQAnonymousOrder(populatedAoli);
+        var fromPQInstance = new PQAnonymousOrder(pqInstance);
         Assert.AreEqual(populatedAoli.OrderId, fromPQInstance.OrderId);
-        Assert.AreEqual(populatedAoli.OrderLayerFlags, fromPQInstance.OrderLayerFlags);
+        Assert.AreEqual(populatedAoli.GenesisFlags, fromPQInstance.GenesisFlags);
         Assert.AreEqual(populatedAoli.CreatedTime, fromPQInstance.CreatedTime);
         Assert.AreEqual(populatedAoli.UpdateTime, fromPQInstance.UpdateTime);
         Assert.AreEqual(populatedAoli.OrderDisplayVolume, fromPQInstance.OrderDisplayVolume);
         Assert.AreEqual(populatedAoli.OrderRemainingVolume, fromPQInstance.OrderRemainingVolume);
 
-        var newPqEmptyAoli  = new PQAnonymousOrderLayerInfo(emptyAoli);
-        var fromPqEmptyAoli = new PQAnonymousOrderLayerInfo(newPqEmptyAoli);
+        var newPqEmptyAoli  = new PQAnonymousOrder(emptyAoli);
+        var fromPqEmptyAoli = new PQAnonymousOrder(newPqEmptyAoli);
         Assert.AreEqual(0, fromPqEmptyAoli.OrderId);
-        Assert.AreEqual(LayerOrderFlags.None, fromPqEmptyAoli.OrderLayerFlags);
+        Assert.AreEqual(OrderGenesisFlags.None, fromPqEmptyAoli.GenesisFlags);
         Assert.AreEqual(DateTime.MinValue, fromPqEmptyAoli.CreatedTime);
         Assert.AreEqual(DateTime.MinValue, fromPqEmptyAoli.UpdateTime);
         Assert.AreEqual(0m, fromPqEmptyAoli.OrderDisplayVolume);
@@ -110,7 +108,7 @@ public class AnonymousOrderLayerInfoTests
     {
         Assert.IsFalse(populatedAoli.IsEmpty);
         Assert.AreNotEqual(0, populatedAoli.OrderId);
-        Assert.AreNotEqual(LayerOrderFlags.None, populatedAoli.OrderLayerFlags);
+        Assert.AreNotEqual(OrderGenesisFlags.None, populatedAoli.GenesisFlags);
         Assert.AreNotEqual(DateTime.MinValue, populatedAoli.CreatedTime);
         Assert.AreNotEqual(DateTime.MinValue, populatedAoli.UpdateTime);
         Assert.AreNotEqual(0m, populatedAoli.OrderDisplayVolume);
@@ -118,7 +116,7 @@ public class AnonymousOrderLayerInfoTests
         Assert.IsFalse(populatedAoli.IsEmpty);
         populatedAoli.StateReset();
         Assert.AreEqual(0, populatedAoli.OrderId);
-        Assert.AreEqual(LayerOrderFlags.None, populatedAoli.OrderLayerFlags);
+        Assert.AreEqual(OrderGenesisFlags.None, populatedAoli.GenesisFlags);
         Assert.AreEqual(DateTime.MinValue, populatedAoli.CreatedTime);
         Assert.AreEqual(DateTime.MinValue, populatedAoli.UpdateTime);
         Assert.AreEqual(0m, populatedAoli.OrderDisplayVolume);
@@ -130,8 +128,8 @@ public class AnonymousOrderLayerInfoTests
     {
         emptyAoli.CopyFrom(populatedAoli);
         Assert.AreEqual(populatedAoli, emptyAoli);
-        emptyAoli = new AnonymousOrderLayerInfo();
-        var nonPqInstance = new AnonymousOrderLayerInfo(populatedAoli);
+        emptyAoli = new AnonymousOrder();
+        var nonPqInstance = new AnonymousOrder(populatedAoli);
         Assert.AreEqual(populatedAoli, nonPqInstance);
     }
 
@@ -141,10 +139,10 @@ public class AnonymousOrderLayerInfoTests
         var clone = ((ICloneable)populatedAoli).Clone();
         Assert.AreNotSame(clone, populatedAoli);
         Assert.AreEqual(populatedAoli, clone);
-        clone = ((IMutableAnonymousOrderLayerInfo)populatedAoli).Clone();
+        clone = ((IMutableAnonymousOrder)populatedAoli).Clone();
         Assert.AreNotSame(clone, populatedAoli);
         Assert.AreEqual(populatedAoli, clone);
-        clone = ((IAnonymousOrderLayerInfo)populatedAoli).Clone();
+        clone = ((IAnonymousOrder)populatedAoli).Clone();
         Assert.AreNotSame(clone, populatedAoli);
         Assert.AreEqual(populatedAoli, clone);
     }
@@ -152,7 +150,7 @@ public class AnonymousOrderLayerInfoTests
     [TestMethod]
     public void FullyPopulatedAoliCloned_OneDifferenceAtATimeAreEquivalentExact_CorrectlyReturnsWhenDifferent()
     {
-        var fullyPopulatedClone = ((IMutableAnonymousOrderLayerInfo)populatedAoli).Clone();
+        var fullyPopulatedClone = ((IMutableAnonymousOrder)populatedAoli).Clone();
         AssertAreEquivalentMeetsExpectedExactComparisonType
             (false, populatedAoli, fullyPopulatedClone);
     }
@@ -171,7 +169,7 @@ public class AnonymousOrderLayerInfoTests
 
         Assert.IsTrue(toString.Contains(populatedAoli.GetType().Name));
         Assert.IsTrue(toString.Contains($"{nameof(populatedAoli.OrderId)}: {populatedAoli.OrderId}"));
-        Assert.IsTrue(toString.Contains($"{nameof(populatedAoli.OrderLayerFlags)}: {populatedAoli.OrderLayerFlags}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedAoli.GenesisFlags)}: {populatedAoli.GenesisFlags}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedAoli.CreatedTime)}: {populatedAoli.CreatedTime}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedAoli.UpdateTime)}: {populatedAoli.UpdateTime}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedAoli.OrderDisplayVolume)}: {populatedAoli.OrderDisplayVolume:N2}"));
@@ -180,8 +178,8 @@ public class AnonymousOrderLayerInfoTests
 
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType
     (bool exactComparison,
-        IMutableAnonymousOrderLayerInfo? original,
-        IMutableAnonymousOrderLayerInfo? changingTraderLayerInfo,
+        IMutableAnonymousOrder? original,
+        IMutableAnonymousOrder? changingTraderLayerInfo,
         IOrdersPriceVolumeLayer? originalTraderPriceVolumeLayer = null,
         IOrdersPriceVolumeLayer? changingTraderPriceVolumeLayer = null,
         IOrderBookSide? originalOrderBook = null,
@@ -212,7 +210,7 @@ public class AnonymousOrderLayerInfoTests
                 (originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
-        changingTraderLayerInfo.OrderLayerFlags = LayerOrderFlags.TrackedOnAdapter | LayerOrderFlags.IsSyntheticTrackingOrder;
+        changingTraderLayerInfo.GenesisFlags = OrderGenesisFlags.IsSynthetic;
         Assert.IsFalse(original.AreEquivalent(changingTraderLayerInfo, exactComparison));
         if (originalTraderPriceVolumeLayer != null)
             Assert.IsFalse
@@ -221,7 +219,7 @@ public class AnonymousOrderLayerInfoTests
             Assert.IsFalse
                 (originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
-        changingTraderLayerInfo.OrderLayerFlags = original.OrderLayerFlags;
+        changingTraderLayerInfo.GenesisFlags = original.GenesisFlags;
         Assert.IsTrue(original.AreEquivalent(changingTraderLayerInfo, exactComparison));
         if (originalTraderPriceVolumeLayer != null)
             Assert.IsTrue

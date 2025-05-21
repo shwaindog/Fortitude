@@ -6,8 +6,8 @@
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 
 #endregion
 
@@ -37,8 +37,16 @@ public class PQPriceVolumeFactoryTestsBase
         VlDtPvl = new PQValueDatePriceVolumeLayer(4.567890m, 6_000_000, new DateTime(2018, 1, 7, 18, 0, 0));
         TraderPvl = new PQOrdersPriceVolumeLayer(TraderSourceNameIdLookupGenerator, LayerType.OrdersFullPriceVolume, 5.678901m, 7_000_000)
         {
-            [0] = new PQCounterPartyOrderLayerInfo(TraderSourceNameIdLookupGenerator, orderVolume: 1_000_000, traderName: "TestTraderName1")
-          , [1] = new PQCounterPartyOrderLayerInfo(TraderSourceNameIdLookupGenerator, orderVolume: 2_000_000, traderName: "TestTraderName2")
+            [0] = new PQExternalCounterPartyOrder(new PQAnonymousOrder(TraderSourceNameIdLookupGenerator)
+            {
+                OrderDisplayVolume = 1_000_000,
+                ExternalCounterPartyOrderInfo = new PQAdditionalExternalCounterPartyInfo(TraderSourceNameIdLookupGenerator, traderName: "TestTraderName1")
+            }, TraderSourceNameIdLookupGenerator)
+          , [1] = new PQExternalCounterPartyOrder(new PQAnonymousOrder(TraderSourceNameIdLookupGenerator)
+            {
+                OrderDisplayVolume = 2_000_000,
+                ExternalCounterPartyOrderInfo = new PQAdditionalExternalCounterPartyInfo(TraderSourceNameIdLookupGenerator, traderName: "TestTraderName2")
+            }, TraderSourceNameIdLookupGenerator)
         };
         SrcQtRefTrdrVlDtPvl = new PQFullSupportPriceVolumeLayer(NameIdLookupGenerator.Clone(), 6.789012m, 8_000_000
                                                                                 , new DateTime(2018, 1, 6, 15, 0, 0)

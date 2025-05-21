@@ -10,7 +10,6 @@ using FortitudeMarkets.Pricing.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
-using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;

@@ -328,7 +328,6 @@ public class PublishableTickInstant : FeedEventStatusUpdate, IMutablePublishable
 
         var allEquivalent = srcTickersAreEquivalent && staleIsSame && quoteValuesSame &&
                             clientReceivedTimeSame && baseSame;
-        if (!allEquivalent) Debugger.Break();
         return allEquivalent;
     }
 
