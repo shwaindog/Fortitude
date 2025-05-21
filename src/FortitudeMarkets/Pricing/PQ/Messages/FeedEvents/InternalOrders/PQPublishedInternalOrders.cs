@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
 using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 
@@ -11,8 +9,4 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;
 public interface IPQPublishedInternalOrders : IMutablePublishedInternalOrders, IPQSupportsNumberPrecisionFieldUpdates<IPublishedInternalOrders>, IPQSupportsStringUpdates<IPublishedInternalOrders>
 {
 
-}
-
-public class PQPublishedInternalOrders
-{
 }

@@ -1,95 +1,50 @@
-﻿using FortitudeCommon.Types;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 
-namespace FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
+namespace FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 
-public class InternalPassiveOrderLayerInfo : AnonymousOrderLayerInfo, IMutableInternalPassiveOrderLayerInfo
+public class AdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalInternalPassiveOrderInfo>, IMutableAdditionalInternalPassiveOrderInfo
 {
-    public InternalPassiveOrderLayerInfo() { }
+    public AdditionalInternalPassiveOrderInfo() { }
 
-    public InternalPassiveOrderLayerInfo
-    (int orderId, DateTime createdTime, decimal orderDisplayVolume, LayerOrderFlags orderLayerFlags = LayerOrderFlags.None
-      , OrderType orderType = OrderType.None, OrderFlags typeFlags = OrderFlags.None
+    public AdditionalInternalPassiveOrderInfo
+    (int orderId, DateTime createdTime, decimal orderDisplayVolume
+      , OrderType orderType = OrderType.None, OrderGenesisFlags genesisFlags = OrderGenesisFlags.None
       , OrderLifeCycleState lifeCycleState = OrderLifeCycleState.None
       , uint orderSequenceId = 0, DateTime? updatedTime = null, decimal? remainingVolume = null, uint trackingId = 0)
-        : base(orderId, createdTime, orderDisplayVolume, orderLayerFlags, orderType, typeFlags, lifeCycleState, updatedTime, remainingVolume, trackingId)
+        // : base(orderId, createdTime, orderDisplayVolume, orderType, genesisFlags, lifeCycleState, updatedTime, remainingVolume, trackingId)
     {
         OrderSequenceId = orderSequenceId;
     }
 
-    public InternalPassiveOrderLayerInfo(IAnonymousOrderLayerInfo toClone) : base(toClone)
+    public AdditionalInternalPassiveOrderInfo(IAdditionalInternalPassiveOrderInfo? toClone) 
+        // : base(toClone)
     {
-        if (toClone is IInternalPassiveOrder internalPassiveOrder)
+        if (toClone != null)
         {
-            OrderSequenceId      = internalPassiveOrder.OrderSequenceId;
-            ParentOrderId        = internalPassiveOrder.ParentOrderId;
-            ClosingOrderId       = internalPassiveOrder.ClosingOrderId;
-            ClosingOrderPrice    = internalPassiveOrder.ClosingOrderPrice;
-            DecisionCreatedTime  = internalPassiveOrder.DecisionCreatedTime;
-            DecisionAmendTime    = internalPassiveOrder.DecisionAmendTime;
-            DivisionId           = internalPassiveOrder.DivisionId;
-            DivisionName         = internalPassiveOrder.DivisionName;
-            DeskId               = internalPassiveOrder.DeskId;
-            DeskName             = internalPassiveOrder.DeskName;
-            StrategyId           = internalPassiveOrder.StrategyId;
-            StrategyName         = internalPassiveOrder.StrategyName;
-            StrategyDecisionId   = internalPassiveOrder.StrategyDecisionId;
-            StrategyDecisionName = internalPassiveOrder.StrategyDecisionName;
-            PortfolioId          = internalPassiveOrder.PortfolioId;
-            PortfolioName        = internalPassiveOrder.PortfolioName;
-            InternalTraderId     = internalPassiveOrder.InternalTraderId;
-            InternalTraderName   = internalPassiveOrder.InternalTraderName;
-            MarginConsumed       = internalPassiveOrder.MarginConsumed;
-        }
-    }
-
-    public override bool IsEmpty
-    {
-        get =>
-            base.IsEmpty
-         && OrderSequenceId == 0
-         && ParentOrderId == 0
-         && ClosingOrderId == 0
-         && ClosingOrderPrice == 0
-         && DecisionCreatedTime == DateTime.MinValue
-         && DecisionAmendTime == DateTime.MinValue
-         && DivisionId == 0
-         && DivisionName == null
-         && DeskId == 0
-         && DeskName == null
-         && StrategyId == 0
-         && StrategyName == null
-         && StrategyDecisionId == 0
-         && StrategyDecisionName == null
-         && PortfolioId == 0
-         && PortfolioName == null
-         && InternalTraderId == 0
-         && InternalTraderName == null
-         && MarginConsumed == 0;
-        set
-        {
-            base.IsEmpty = value;
-            if (!value) return;
-            OrderSequenceId      = 0;
-            ParentOrderId        = 0;
-            ClosingOrderId       = 0;
-            ClosingOrderPrice    = 0;
-            DecisionCreatedTime  = DateTime.MinValue;
-            DecisionAmendTime    = DateTime.MinValue;
-            DivisionId           = 0;
-            DivisionName         = null;
-            DeskId               = 0;
-            DeskName             = null;
-            StrategyId           = 0;
-            StrategyName         = null;
-            StrategyDecisionId   = 0;
-            StrategyDecisionName = null;
-            PortfolioId          = 0;
-            PortfolioName        = null;
-            InternalTraderId     = 0;
-            InternalTraderName   = null;
-            MarginConsumed       = 0;
+            OrderSequenceId      = toClone.OrderSequenceId;
+            ParentOrderId        = toClone.ParentOrderId;
+            ClosingOrderId       = toClone.ClosingOrderId;
+            ClosingOrderPrice    = toClone.ClosingOrderPrice;
+            DecisionCreatedTime  = toClone.DecisionCreatedTime;
+            DecisionAmendTime    = toClone.DecisionAmendTime;
+            DivisionId           = toClone.DivisionId;
+            DivisionName         = toClone.DivisionName;
+            DeskId               = toClone.DeskId;
+            DeskName             = toClone.DeskName;
+            StrategyId           = toClone.StrategyId;
+            StrategyName         = toClone.StrategyName;
+            StrategyDecisionId   = toClone.StrategyDecisionId;
+            StrategyDecisionName = toClone.StrategyDecisionName;
+            PortfolioId          = toClone.PortfolioId;
+            PortfolioName        = toClone.PortfolioName;
+            InternalTraderId     = toClone.InternalTraderId;
+            InternalTraderName   = toClone.InternalTraderName;
+            MarginConsumed       = toClone.MarginConsumed;
         }
     }
 
@@ -113,6 +68,52 @@ public class InternalPassiveOrderLayerInfo : AnonymousOrderLayerInfo, IMutableIn
     public uint     InternalTraderId     { get; set; }
     public string?  InternalTraderName   { get; set; }
     public decimal  MarginConsumed       { get; set; }
+
+    public virtual bool IsEmpty
+    {
+        get => OrderSequenceId == 0
+         && ParentOrderId == 0
+         && ClosingOrderId == 0
+         && ClosingOrderPrice == 0
+         && DecisionCreatedTime == DateTime.MinValue
+         && DecisionAmendTime == DateTime.MinValue
+         && DivisionId == 0
+         && DivisionName == null
+         && DeskId == 0
+         && DeskName == null
+         && StrategyId == 0
+         && StrategyName == null
+         && StrategyDecisionId == 0
+         && StrategyDecisionName == null
+         && PortfolioId == 0
+         && PortfolioName == null
+         && InternalTraderId == 0
+         && InternalTraderName == null
+         && MarginConsumed == 0;
+        set
+        {
+            if (!value) return;
+            OrderSequenceId = 0;
+            ParentOrderId = 0;
+            ClosingOrderId = 0;
+            ClosingOrderPrice = 0;
+            DecisionCreatedTime = DateTime.MinValue;
+            DecisionAmendTime = DateTime.MinValue;
+            DivisionId = 0;
+            DivisionName = null;
+            DeskId = 0;
+            DeskName = null;
+            StrategyId = 0;
+            StrategyName = null;
+            StrategyDecisionId = 0;
+            StrategyDecisionName = null;
+            PortfolioId = 0;
+            PortfolioName = null;
+            InternalTraderId = 0;
+            InternalTraderName = null;
+            MarginConsumed = 0;
+        }
+    }
 
     public override void StateReset()
     {
@@ -138,29 +139,26 @@ public class InternalPassiveOrderLayerInfo : AnonymousOrderLayerInfo, IMutableIn
         base.StateReset();
     }
 
-    IInternalPassiveOrder ICloneable<IInternalPassiveOrder>.Clone() => Clone();
+    IAdditionalInternalPassiveOrderInfo ICloneable<IAdditionalInternalPassiveOrderInfo>.Clone() => Clone();
 
-    IInternalPassiveOrder IInternalPassiveOrder.Clone() => Clone();
+    IMutableAdditionalInternalPassiveOrderInfo ICloneable<IMutableAdditionalInternalPassiveOrderInfo>.Clone() => Clone();
 
-    IInternalPassiveOrderLayerInfo IInternalPassiveOrderLayerInfo.Clone() => Clone();
+    IMutableAdditionalInternalPassiveOrderInfo IMutableAdditionalInternalPassiveOrderInfo.Clone() => Clone();
 
-    IMutableInternalPassiveOrder ICloneable<IMutableInternalPassiveOrder>.Clone() => Clone();
-
-    IMutableInternalPassiveOrder IMutableInternalPassiveOrder.Clone() => Clone();
-
-    IMutableInternalPassiveOrderLayerInfo IMutableInternalPassiveOrderLayerInfo.Clone() => Clone();
-
-    IInternalPassiveOrderLayerInfo ICloneable<IInternalPassiveOrderLayerInfo>.              Clone() => Clone();
-
-    IMutableInternalPassiveOrderLayerInfo ICloneable<IMutableInternalPassiveOrderLayerInfo>.Clone() => Clone();
-
-    public override InternalPassiveOrderLayerInfo Clone() =>
-        Recycler?.Borrow<InternalPassiveOrderLayerInfo>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new InternalPassiveOrderLayerInfo(this);
+    public override AdditionalInternalPassiveOrderInfo Clone() =>
+        Recycler?.Borrow<AdditionalInternalPassiveOrderInfo>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new AdditionalInternalPassiveOrderInfo(this);
 
 
-    public override InternalPassiveOrderLayerInfo CopyFrom(IPublishedOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    IAdditionalInternalPassiveOrderInfo ITransferState<IAdditionalInternalPassiveOrderInfo>.CopyFrom
+        (IAdditionalInternalPassiveOrderInfo source, CopyMergeFlags copyMergeFlags) => 
+        CopyFrom(source, copyMergeFlags);
+
+    IMutableAdditionalInternalPassiveOrderInfo ITransferState<IMutableAdditionalInternalPassiveOrderInfo>.CopyFrom
+        (IMutableAdditionalInternalPassiveOrderInfo source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom(source, copyMergeFlags);
+
+    public override AdditionalInternalPassiveOrderInfo CopyFrom(IAdditionalInternalPassiveOrderInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(source, copyMergeFlags);
         if (source is IInternalPassiveOrder internalPassiveOrder)
         {
             OrderSequenceId      = internalPassiveOrder.OrderSequenceId;
@@ -186,22 +184,12 @@ public class InternalPassiveOrderLayerInfo : AnonymousOrderLayerInfo, IMutableIn
         return this;
     }
 
-    public bool AreEquivalent(IExternalCounterPartyOrderLayerInfo? other, bool exactTypes = false) =>
-        AreEquivalent((IAnonymousOrderLayerInfo?)other, exactTypes);
 
-
-    public bool AreEquivalent(IInternalPassiveOrderLayerInfo? other, bool exactTypes = false) => AreEquivalent(other as IPublishedOrder, exactTypes);
-
-    public bool AreEquivalent
-        (IMutableInternalPassiveOrderLayerInfo? other, bool exactTypes = false) =>
-        AreEquivalent(other as IPublishedOrder, exactTypes);
-
-    public override bool AreEquivalent(IPublishedOrder? other, bool exactTypes = false)
+    public virtual bool AreEquivalent(IAdditionalInternalPassiveOrderInfo? other, bool exactTypes = false)
     {
         if (other == null) return false;
         if (other is not IInternalPassiveOrder internalPassiveOrder) return false;
 
-        var baseSame                 = base.AreEquivalent(other, exactTypes);
         var orderSequenceIdSame      = OrderSequenceId == internalPassiveOrder.OrderSequenceId;
         var parentOrderIdSame        = ParentOrderId == internalPassiveOrder.ParentOrderId;
         var closingOrderIdSame       = ClosingOrderId == internalPassiveOrder.ClosingOrderId;
@@ -222,23 +210,21 @@ public class InternalPassiveOrderLayerInfo : AnonymousOrderLayerInfo, IMutableIn
         var internalTraderNameSame   = InternalTraderName == internalPassiveOrder.InternalTraderName;
         var marginConsumedSame       = MarginConsumed == internalPassiveOrder.MarginConsumed;
 
-        var allAreSame = orderSequenceIdSame && parentOrderIdSame && closingOrderIdSame && closingOrderPriceSame && decisionCreatedTimeSame
-                      && decisionAmendTimeSame && divisionIdSame && divisionNameSame && deskIdSame && deskNameSame && strategyIdSame
-                      && strategyNameSame && strategyDecisionNameSame && strategyDecisionIdSame && portfolioIdSame && portfolioNameSame &&
-                         internalTraderIdSame &&
-                         internalTraderNameSame && marginConsumedSame && baseSame;
+        var allAreSame = orderSequenceIdSame && parentOrderIdSame && closingOrderIdSame && closingOrderPriceSame && decisionCreatedTimeSame 
+            && decisionAmendTimeSame && divisionIdSame && divisionNameSame && deskIdSame && deskNameSame && strategyIdSame
+               && strategyNameSame && strategyDecisionNameSame && strategyDecisionIdSame && portfolioIdSame && portfolioNameSame && internalTraderIdSame &&
+               internalTraderNameSame && marginConsumedSame;
 
         return allAreSame;
     }
-
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IAnonymousOrderLayerInfo?)obj, true);
+    
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IInternalPassiveOrder, true);
 
     public override int GetHashCode()
     {
         unchecked
         {
-            var hashCode = base.GetHashCode();
-            hashCode = ((int)OrderSequenceId * 397) ^ hashCode;
+            var hashCode = (int)OrderSequenceId;
             hashCode = ((int)ParentOrderId * 397) ^ hashCode;
             hashCode = ((int)ClosingOrderId * 397) ^ hashCode;
             hashCode = (ClosingOrderPrice.GetHashCode() * 397) ^ hashCode;
@@ -261,14 +247,14 @@ public class InternalPassiveOrderLayerInfo : AnonymousOrderLayerInfo, IMutableIn
         }
     }
 
-    protected string InternalPassiveOrderLayerInfoToStringMembers =>
-        $"{PublishedOrderToStringMembers}, {nameof(OrderSequenceId)}: {OrderSequenceId}, {nameof(ParentOrderId)}: {ParentOrderId}, " +
-        $"{nameof(ClosingOrderId)}: {ClosingOrderId}, {nameof(ClosingOrderPrice)}: {ClosingOrderPrice}, {nameof(DecisionCreatedTime)}: {DecisionCreatedTime}, " +
+    protected string InternalPassiveOrderToStringMembers => 
+        $"{nameof(OrderSequenceId)}: {OrderSequenceId}, {nameof(ParentOrderId)}: {ParentOrderId}, {nameof(ClosingOrderId)}: {ClosingOrderId}, " +
+        $"{nameof(ClosingOrderPrice)}: {ClosingOrderPrice}, {nameof(DecisionCreatedTime)}: {DecisionCreatedTime}, " +
         $"{nameof(DecisionAmendTime)}: {DecisionAmendTime}, {nameof(DivisionId)}: {DivisionId}, {nameof(DivisionName)}: {DivisionName}, " +
         $"{nameof(DeskId)}: {DeskId}, {nameof(DeskName)}: {DeskName}, {nameof(StrategyId)}: {StrategyId}, {nameof(StrategyName)}: {StrategyName}, " +
         $"{nameof(StrategyDecisionId)}: {StrategyDecisionId}, {nameof(StrategyDecisionName)}: {StrategyDecisionName}, {nameof(PortfolioId)}: {PortfolioId}, " +
         $"{nameof(PortfolioName)}: {PortfolioName}, {nameof(InternalTraderId)}: {InternalTraderId}, {nameof(InternalTraderName)}: {InternalTraderName}, " +
         $"{nameof(MarginConsumed)}: {MarginConsumed}";
 
-    public override string ToString() => $"{GetType().Name}{{{InternalPassiveOrderLayerInfoToStringMembers}}}";
+    public override string ToString() => $"{GetType().Name}{{{InternalPassiveOrderToStringMembers}}}";
 }

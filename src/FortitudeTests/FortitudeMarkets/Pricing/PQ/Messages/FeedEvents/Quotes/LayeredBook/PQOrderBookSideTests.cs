@@ -9,14 +9,13 @@ using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
@@ -41,11 +40,10 @@ public class PQOrderBookSideTests
     private const int     ExpectedOrdersCount    = 3; // not too many traders.
     private const decimal ExpectedInternalVolume = 20_000_000m;
 
-    private const OrderFlags      ExpectedTypeFlags  = OrderFlags.FromAdapter;
-    private const OrderType       ExpectedOrderType  = OrderType.PassiveLimit;
-    private const LayerOrderFlags ExpectedLayerFlags = LayerOrderFlags.ExplicitlyDefinedFromSource;
+    private const OrderGenesisFlags ExpectedGenesisFlags = OrderGenesisFlags.FromAdapter | OrderGenesisFlags.IsExternalOrder | OrderGenesisFlags.HasExternalCounterPartyInfo;
+    private const OrderType         ExpectedOrderType    = OrderType.PassiveLimit;
 
-    private const OrderLifeCycleState ExpectedLifecycleState = OrderLifeCycleState.SourceActiveOnMarket;
+    private const OrderLifeCycleState ExpectedLifecycleState = OrderLifeCycleState.ConfirmedActiveOnMarket;
 
     private const uint    ExpectedTrackingId = 12467u;
     private const uint    ExpectedCounterPartyId = 1u;
@@ -158,19 +156,23 @@ public class PQOrderBookSideTests
             for (var j = 0; j < ExpectedOrdersCount; j++)
             {
                 allFieldsPvL.Add
-                    (new PQCounterPartyOrderLayerInfo
-                        (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedLayerFlags, ExpectedOrderType
-                       , ExpectedTypeFlags, ExpectedLifecycleState, ExpectedCounterPartyBase + i
-                       , ExpectedTraderNameBase + i, i + 1, i+1,ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId));
+                    (new PQExternalCounterPartyOrder
+                        (new PQAnonymousOrder(nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderType
+                       , ExpectedGenesisFlags, ExpectedLifecycleState, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId)
+                         {
+                             ExternalCounterPartyOrderInfo = new PQAdditionalExternalCounterPartyInfo(nameIdLookupGenerator, i + 1, ExpectedCounterPartyBase + i, i+ 1, ExpectedTraderNameBase + i)
+                         }));
                 anonOrdersPvL.Add
-                    (new PQAnonymousOrderLayerInfo
-                        (ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedLayerFlags, ExpectedOrderType, ExpectedTypeFlags
+                    (new PQAnonymousOrder
+                        (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderType, ExpectedGenesisFlags
                        , ExpectedLifecycleState, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId));
                 counterPartyOrdersPvL.Add
-                    (new PQCounterPartyOrderLayerInfo
-                        (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedLayerFlags, ExpectedOrderType
-                       , ExpectedTypeFlags, ExpectedLifecycleState, ExpectedCounterPartyBase + i, ExpectedTraderNameBase + i
-                       , i + 1, i+ 1, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId));
+                    (new PQExternalCounterPartyOrder
+                        (new PQAnonymousOrder(nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderType
+                                            , ExpectedGenesisFlags, ExpectedLifecycleState, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId)
+                        {
+                            ExternalCounterPartyOrderInfo = new PQAdditionalExternalCounterPartyInfo(nameIdLookupGenerator, i + 1, ExpectedCounterPartyBase + i, i+ 1, ExpectedTraderNameBase + i)
+                        }));
             }
         }
 
@@ -216,7 +218,7 @@ public class PQOrderBookSideTests
           , ordersCounterPartyFullyPopulatedOrderBookSide, allFieldsFullyPopulatedOrderBookSide
         ];
         // [
-        //     ordersAnonFullyPopulatedOrderBookSide
+        //     ordersAnonFullyPopulatedOrderBookSide, allFieldsFullyPopulatedOrderBookSide
         // ];
         publicationPrecisionSettings =
             new PQSourceTickerInfo
@@ -644,9 +646,9 @@ public class PQOrderBookSideTests
                         orderLayerInfo.IsOrderIdUpdated = false;
                         Assert.IsFalse(populatedOrderBook.HasUpdates);
 
-                        orderLayerInfo.OrderLayerFlags = LayerOrderFlags.ExplicitlyDefinedFromSource | LayerOrderFlags.HasExternalCounterPartyInfo;
+                        orderLayerInfo.GenesisFlags = OrderGenesisFlags.IsInternal | OrderGenesisFlags.IsSynthetic;
                         Assert.IsTrue(populatedOrderBook.HasUpdates);
-                        orderLayerInfo.IsOrderLayerFlagsUpdated = false;
+                        orderLayerInfo.IsGenesisFlagsUpdated = false;
                         Assert.IsFalse(populatedOrderBook.HasUpdates);
 
                         orderLayerInfo.CreatedTime = new DateTime(2025, 4, 25, 19, 18, 23);
@@ -671,7 +673,7 @@ public class PQOrderBookSideTests
                         orderLayerInfo.IsOrderRemainingVolumeUpdated = false;
                         Assert.IsFalse(populatedOrderBook.HasUpdates);
 
-                        if (orderLayerInfo is IPQCounterPartyOrderLayerInfo pqCounterPartyOrder)
+                        if (orderLayerInfo is IPQAdditionalExternalCounterPartyOrderInfo pqCounterPartyOrder)
                         {
                             pqCounterPartyOrder.ExternalCounterPartyName = "NewCounterPartyName_" + i;
                             Assert.IsTrue(pqCounterPartyOrder.HasUpdates);
@@ -1007,12 +1009,12 @@ public class PQOrderBookSideTests
             Assert.AreEqual
                 (!exactComparison, changingOrderBookSide.AreEquivalent(new OrderBookSide(original), exactComparison));
 
-        Assert.AreEqual(original.AllLayers.Count, changingOrderBookSide.AllLayers.Count);
+        Assert.AreEqual(original.Count, changingOrderBookSide.Count);
 
         var originalLayers = original.AllLayers;
         var changingLayers = changingOrderBookSide.AllLayers;
 
-        for (var i = 0; i < originalLayers.Count; i++)
+        for (var i = 0; i < original.Count; i++)
         {
             PQPriceVolumeLayerTests
                 .AssertAreEquivalentMeetsExpectedExactComparisonType
@@ -1266,9 +1268,8 @@ public class PQOrderBookSideTests
     }
 
     private void AssertAllLayersAreOfTypeAndEquivalentTo
-    (IPQOrderBookSide upgradedOrderBookSide,
-        IPQOrderBookSide equivalentTo, Type expectedType, bool compareForEquivalence = ExpectedExecutable,
-        bool exactlyEquals = false)
+    (IPQOrderBookSide upgradedOrderBookSide, IPQOrderBookSide equivalentTo, Type expectedType
+      , bool compareForEquivalence = ExpectedExecutable, bool exactlyEquals = false)
     {
         for (var i = 0; i < upgradedOrderBookSide.Capacity; i++)
         {

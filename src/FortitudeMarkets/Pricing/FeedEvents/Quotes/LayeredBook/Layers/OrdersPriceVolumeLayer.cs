@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
+using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 
 #endregion
 
@@ -16,22 +16,22 @@ namespace FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 public interface IOrdersPriceVolumeLayer : IOrdersCountPriceVolumeLayer,
     ICloneable<IOrdersPriceVolumeLayer>
 {
-    IReadOnlyList<IAnonymousOrderLayerInfo> Orders { get; }
-    IAnonymousOrderLayerInfo? this[int i] { get; }
+    IReadOnlyList<IAnonymousOrder> Orders { get; }
+    IAnonymousOrder? this[int i] { get; }
     new IOrdersPriceVolumeLayer Clone();
 }
 
 public interface IMutableOrdersPriceVolumeLayer : IOrdersPriceVolumeLayer, IMutableOrdersCountPriceVolumeLayer
   , ITrackableReset<IMutableOrdersPriceVolumeLayer>
 {
-    new IMutableAnonymousOrderLayerInfo? this[int i] { get; set; }
+    new IMutableAnonymousOrder? this[int i] { get; set; }
 
     new uint    OrdersCount    { get; }
     new decimal InternalVolume { get; }
 
-    new IReadOnlyList<IMutableAnonymousOrderLayerInfo> Orders { get; }
+    new IReadOnlyList<IMutableAnonymousOrder> Orders { get; }
 
-    void Add(IAnonymousOrderLayerInfo toAdd);
+    void Add(IAnonymousOrder toAdd);
     bool RemoveAt(int index);
     void ShiftOrders(int offset);
 
@@ -41,12 +41,13 @@ public interface IMutableOrdersPriceVolumeLayer : IOrdersPriceVolumeLayer, IMuta
 
 public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrdersPriceVolumeLayer
 {
-    private static readonly IReadOnlyList<IMutableAnonymousOrderLayerInfo> EmptyOrders = new List<IMutableAnonymousOrderLayerInfo>().AsReadOnly();
-    private readonly        bool                                           isCounterPartyOrders;
+    private static readonly IReadOnlyList<IMutableAnonymousOrder> EmptyOrders = new List<IMutableAnonymousOrder>().AsReadOnly();
 
-    private readonly IList<IMutableAnonymousOrderLayerInfo>? orders;
+    private readonly bool isCounterPartyOrders;
 
-    public OrdersPriceVolumeLayer() => orders = new List<IMutableAnonymousOrderLayerInfo>();
+    private readonly IList<IMutableAnonymousOrder>? orders;
+
+    public OrdersPriceVolumeLayer() => orders = new List<IMutableAnonymousOrder>();
 
     public OrdersPriceVolumeLayer(LayerType layerType)
     {
@@ -59,13 +60,13 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
               , _ => throw new ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {layerType}")
             };
 
-        orders = new List<IMutableAnonymousOrderLayerInfo>();
+        orders = new List<IMutableAnonymousOrder>();
     }
 
     public OrdersPriceVolumeLayer
     (LayerType layerType = LayerType.OrdersAnonymousPriceVolume
       , decimal price = 0m, decimal volume = 0m, uint ordersCount = 0, decimal internalVolume = 0
-      , IEnumerable<IAnonymousOrderLayerInfo>? layerOrders = null) : base(price, volume, ordersCount, internalVolume)
+      , IEnumerable<IAnonymousOrder>? layerOrders = null) : base(price, volume, ordersCount, internalVolume)
     {
         isCounterPartyOrders =
             layerType switch
@@ -75,7 +76,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
               , LayerType.FullSupportPriceVolume => true
               , _ => throw new ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {layerType}")
             };
-        orders = layerOrders?.OfType<IMutableAnonymousOrderLayerInfo>().ToList() ?? new List<IMutableAnonymousOrderLayerInfo>();
+        orders = layerOrders?.OfType<IMutableAnonymousOrder>().ToList() ?? new List<IMutableAnonymousOrder>();
     }
 
     public OrdersPriceVolumeLayer(IPriceVolumeLayer toClone, LayerType layerType) : base(toClone)
@@ -93,25 +94,23 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
                 };
         if (toClone is IOrdersPriceVolumeLayer ordersToClone)
         {
-            orders = new List<IMutableAnonymousOrderLayerInfo>((int)ordersToClone.OrdersCount);
+            orders = new List<IMutableAnonymousOrder>((int)ordersToClone.OrdersCount);
             foreach (var orderLayerInfo in ordersToClone.Orders) AddLayer(orderLayerInfo);
         }
         else
         {
-            orders = new List<IMutableAnonymousOrderLayerInfo>(0);
+            orders = new List<IMutableAnonymousOrder>(0);
         }
     }
 
     protected string OrdersPriceVolumeLayerToStringMembers => $"{OrdersCountPriceVolumeLayerToStringMembers}, {JustOrdersToString}";
     protected string JustOrdersToString                    => $"{nameof(Orders)}: [{string.Join(", ", Orders)}]";
 
-    [JsonIgnore]
-    public IReadOnlyList<IMutableAnonymousOrderLayerInfo> Orders => orders?.Where(aoli => !aoli.IsEmpty).ToList().AsReadOnly() ?? EmptyOrders;
+    [JsonIgnore] public IReadOnlyList<IMutableAnonymousOrder> Orders => orders?.Where(aoli => !aoli.IsEmpty).ToList().AsReadOnly() ?? EmptyOrders;
 
-    IReadOnlyList<IAnonymousOrderLayerInfo> IOrdersPriceVolumeLayer.Orders =>
-        orders?.Where(aoli => !aoli.IsEmpty).ToList().AsReadOnly() ?? EmptyOrders;
+    IReadOnlyList<IAnonymousOrder> IOrdersPriceVolumeLayer.Orders => orders?.Where(aoli => !aoli.IsEmpty).ToList().AsReadOnly() ?? EmptyOrders;
 
-    IAnonymousOrderLayerInfo? IOrdersPriceVolumeLayer.this[int i] => this[i];
+    IAnonymousOrder? IOrdersPriceVolumeLayer.this[int i] => this[i];
 
     [JsonIgnore] public override LayerType LayerType => isCounterPartyOrders ? LayerType.OrdersFullPriceVolume : LayerType.OrdersAnonymousPriceVolume;
 
@@ -124,7 +123,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
 
 
     [JsonIgnore]
-    public IMutableAnonymousOrderLayerInfo? this[int i]
+    public IMutableAnonymousOrder? this[int i]
     {
         get
         {
@@ -194,7 +193,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         }
     }
 
-    public void Add(IAnonymousOrderLayerInfo order)
+    public void Add(IAnonymousOrder order)
     {
         if (orders == null) return;
         var indexToUpdate = (int)CountFromOrders();
@@ -212,7 +211,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
 
     public bool RemoveAt(int index)
     {
-        var orderAt = orders![index]!;
+        var orderAt = orders![index];
         orderAt.IsEmpty = true;
         return true;
     }
@@ -223,7 +222,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         if (offset > 0)
             for (var i = 0; i < offset; i++)
             {
-                IMutableAnonymousOrderLayerInfo? toInsert;
+                IMutableAnonymousOrder? toInsert;
                 if (orders[^1].IsEmpty)
                 {
                     var allOrdersCount = orders.Count;
@@ -284,13 +283,30 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
+        var thisLayerGenesisFlags = LayerType.SupportsOrdersFullPriceVolume()
+            ? IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags
+            : OrderGenesisFlags.None;
+        var unsetTypeFlags             = IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags | OrderGenesisFlags.HasInternalOrderInfo;
+        var removeAdditionalFieldsMask = ~unsetTypeFlags;
         if (orders != null && source is IMutableOrdersPriceVolumeLayer ordersCountPriceVolumeLayer)
         {
             for (var i = 0; i < ordersCountPriceVolumeLayer.OrdersCount; i++)
                 if (i < orders.Count)
-                    orders[i].CopyFrom(ordersCountPriceVolumeLayer[i]!);
+                {
+                    var mutableAnonymousOrder = orders[i];
+                    mutableAnonymousOrder.CopyFrom(ordersCountPriceVolumeLayer[i]!);
+                    mutableAnonymousOrder.GenesisFlags            &= removeAdditionalFieldsMask | thisLayerGenesisFlags;
+                    mutableAnonymousOrder.GenesisFlags            |= thisLayerGenesisFlags;
+                    mutableAnonymousOrder.EmptyIgnoreGenesisFlags =  thisLayerGenesisFlags;
+                }
                 else
-                    orders.Add(ConvertToBookLayer(ordersCountPriceVolumeLayer[i]!));
+                {
+                    var mutableAnonymousOrder = ConvertToBookLayer(ordersCountPriceVolumeLayer[i]!);
+                    mutableAnonymousOrder.GenesisFlags            &= removeAdditionalFieldsMask;
+                    mutableAnonymousOrder.GenesisFlags            |= thisLayerGenesisFlags;
+                    mutableAnonymousOrder.EmptyIgnoreGenesisFlags = thisLayerGenesisFlags;
+                    orders.Add(mutableAnonymousOrder);
+                }
 
             for (var i = orders.Count - 1; i >= ordersCountPriceVolumeLayer.OrdersCount; i--) orders[i].StateReset();
         }
@@ -302,32 +318,32 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         Recycler?.Borrow<OrdersPriceVolumeLayer>().CopyFrom(this)
      ?? new OrdersPriceVolumeLayer(this, LayerType);
 
-    private void AddLayer(IAnonymousOrderLayerInfo toAdd)
+    private void AddLayer(IAnonymousOrder toAdd)
     {
         orders?.Add(ConvertToBookLayer(toAdd));
     }
 
-    public IMutableAnonymousOrderLayerInfo ConvertToBookLayer(IAnonymousOrderLayerInfo toAdd)
+    public IMutableAnonymousOrder ConvertToBookLayer(IAnonymousOrder toAdd)
     {
         if (LayerType.SupportsOrdersFullPriceVolume())
-            return new ExternalCounterPartyOrderLayerInfo(toAdd)
+            return new ExternalCounterPartyOrder(toAdd)
             {
                 Recycler = Recycler
             };
-        return new AnonymousOrderLayerInfo(toAdd)
+        return new AnonymousOrder(toAdd)
         {
             Recycler = Recycler
         };
     }
 
-    public IMutableAnonymousOrderLayerInfo CreateNewBookOrderLayer()
+    public IMutableAnonymousOrder CreateNewBookOrderLayer()
     {
         if (LayerType.SupportsOrdersFullPriceVolume())
-            return new ExternalCounterPartyOrderLayerInfo
+            return new ExternalCounterPartyOrder
             {
                 Recycler = Recycler
             };
-        return new AnonymousOrderLayerInfo
+        return new AnonymousOrder
         {
             Recycler = Recycler
         };
@@ -361,9 +377,9 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
     {
         return orders
                ?.Where(aoli =>
-                           aoli.OrderLayerFlags.HasIsInternallyCreatedOrder()
-                        && !aoli.OrderLayerFlags.HasNotLayerVolume()
-                        && !aoli.OrderLayerFlags.HasIsSyntheticTrackingOrder())
+                           aoli.GenesisFlags.IsInternalOrder()
+                        && !aoli.GenesisFlags.HasVolumeNotPartOfLiquidity()
+                        && !aoli.GenesisFlags.HasSyntheticForBacktestSimulation())
                .Sum(aoli => aoli.OrderRemainingVolume) ?? 0m;
     }
 }

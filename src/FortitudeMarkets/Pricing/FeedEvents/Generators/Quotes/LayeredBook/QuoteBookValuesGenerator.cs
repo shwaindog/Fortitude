@@ -5,13 +5,15 @@
 
 using System.Collections.Concurrent;
 using FortitudeCommon.DataStructures.Maps.IdMap;
+using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
-using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
+using FortitudeMarkets.Pricing.Generators.Quotes;
+using FortitudeMarkets.Pricing.Generators.Quotes.LayeredBook;
 using MathNet.Numerics.Distributions;
 
 #endregion
 
-namespace FortitudeMarkets.Pricing.Generators.Quotes.LayeredBook;
+namespace FortitudeMarkets.Pricing.FeedEvents.Generators.Quotes.LayeredBook;
 
 public struct SnapshotBookGeneratedValues
 {
@@ -54,14 +56,14 @@ public struct SnapshotLayerGeneratedValues(List<SnapshotOrderLayerGeneratedValue
 
 public struct SnapshotOrderLayerGeneratedValues
 {
-    public int?             OrderId;
-    public LayerOrderFlags? OrderFlags;
-    public DateTime?        CreatedTime;
-    public DateTime?        UpdatedTime;
-    public int?             CounterPartyId;
-    public int?             TraderId;
-    public decimal?         OrderVolume;
-    public decimal?         OrderRemainingVolume;
+    public int?               OrderId;
+    public OrderGenesisFlags? OrderGenesisFlags;
+    public DateTime?          CreatedTime;
+    public DateTime?          UpdatedTime;
+    public int?               CounterPartyId;
+    public int?               TraderId;
+    public decimal?           OrderVolume;
+    public decimal?           OrderRemainingVolume;
 }
 
 public class QuoteBookValuesGenerator
@@ -344,42 +346,42 @@ public class QuoteBookValuesGenerator
         return orderDepthPos.OrderId.Value;
     }
 
-    public virtual LayerOrderFlags? PreviousBidOrderFlagsAt(decimal price, int orderId, int orderPos)
+    public virtual OrderGenesisFlags? PreviousBidOrderGenesisFlagsAt(decimal price, int orderId, int orderPos)
     {
         var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.BidLayers, price);
         if (previousLayer == null) return null;
         var orderLayer = PreviousOrderLayerWithId(previousLayer.Value, orderId);
         if (orderLayer == null) return null;
-        return orderLayer.Value.OrderFlags;
+        return orderLayer.Value.OrderGenesisFlags;
     }
 
-    public virtual LayerOrderFlags BidOrderFlagsAt(int depth, int orderId, int orderPos)
+    public virtual OrderGenesisFlags BidOrderGenesisFlagsAt(int depth, int orderId, int orderPos)
     {
         var bidOrdersAtDepth = CurrentBookValues.BidLayers[depth].Orders;
         for (var i = bidOrdersAtDepth.Count; i <= orderPos; i++) bidOrdersAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
         var orderDepthPos = bidOrdersAtDepth[orderPos];
-        orderDepthPos.OrderFlags   ??= PreviousBidOrderFlagsAt(BidPriceAt(depth), orderId, orderPos) ?? GenerateOrderFlags();
+        orderDepthPos.OrderGenesisFlags   ??= PreviousBidOrderGenesisFlagsAt(BidPriceAt(depth), orderId, orderPos) ?? GenerateOrderGenesisFlags();
         bidOrdersAtDepth[orderPos] =   orderDepthPos;
-        return orderDepthPos.OrderFlags.Value;
+        return orderDepthPos.OrderGenesisFlags.Value;
     }
 
-    public virtual LayerOrderFlags? PreviousAskOrderFlagsAt(decimal price, int orderId, int orderPos)
+    public virtual OrderGenesisFlags? PreviousAskOrderGenesisFlagsAt(decimal price, int orderId, int orderPos)
     {
         var previousLayer = PreviousClosestLayerWithPrice(PreviousBookValues.AskLayers, price);
         if (previousLayer == null) return null;
         var orderLayer = PreviousOrderLayerWithId(previousLayer.Value, orderId);
         if (orderLayer == null) return null;
-        return orderLayer.Value.OrderFlags;
+        return orderLayer.Value.OrderGenesisFlags;
     }
 
-    public virtual LayerOrderFlags AskOrderFlagsAt(int depth, int orderId, int orderPos)
+    public virtual OrderGenesisFlags AskOrderGenesisFlagsAt(int depth, int orderId, int orderPos)
     {
         var askOrdersAtDepth = CurrentBookValues.AskLayers[depth].Orders;
         for (var i = askOrdersAtDepth.Count; i <= orderPos; i++) askOrdersAtDepth.Add(new SnapshotOrderLayerGeneratedValues());
         var orderDepthPos = askOrdersAtDepth[orderPos];
-        orderDepthPos.OrderFlags   ??= PreviousAskOrderFlagsAt(AskPriceAt(depth), orderId, orderPos) ?? GenerateOrderFlags();
+        orderDepthPos.OrderGenesisFlags   ??= PreviousAskOrderGenesisFlagsAt(AskPriceAt(depth), orderId, orderPos) ?? GenerateOrderGenesisFlags();
         askOrdersAtDepth[orderPos] =   orderDepthPos;
-        return orderDepthPos.OrderFlags.Value;
+        return orderDepthPos.OrderGenesisFlags.Value;
     }
 
     public virtual DateTime? PreviousBidOrderCreatedTimeAt(decimal price, int orderId, int orderPos)
@@ -828,8 +830,8 @@ public class QuoteBookValuesGenerator
     protected virtual int GenerateOrderId() =>
         (int)((quoteValueGenerator.CurrentMidPriceTimePair.CurrentMid.Time.Ticks / TimeSpan.TicksPerMillisecond) & 0x7FFF_FFFF);
 
-    protected virtual LayerOrderFlags GenerateOrderFlags() =>
-        (LayerOrderFlags)((quoteValueGenerator.CurrentMidPriceTimePair.CurrentMid.Time.Ticks / TimeSpan.TicksPerMillisecond) & 0x0FFF_FFFF);
+    protected virtual OrderGenesisFlags GenerateOrderGenesisFlags() =>
+        (OrderGenesisFlags)((quoteValueGenerator.CurrentMidPriceTimePair.CurrentMid.Time.Ticks / TimeSpan.TicksPerMillisecond) & 0x03FF_FFFF);
 
     protected virtual DateTime GenerateOrderCreatedTime() => DateTime.Now;
     protected virtual DateTime GenerateOrderUpdatedTime() => DateTime.Now;

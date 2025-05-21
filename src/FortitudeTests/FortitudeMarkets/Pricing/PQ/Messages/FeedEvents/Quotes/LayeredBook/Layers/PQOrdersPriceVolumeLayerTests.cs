@@ -10,14 +10,13 @@ using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
-using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
+using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;
 using Moq;
 
 #endregion
@@ -43,11 +42,10 @@ public class PQOrdersPriceVolumeLayerTests
     private const int ExpectedTraderId       = 2;
     private const int ExpectedCounterPartyId = 1;
 
-    private const OrderFlags      ExpectedTypeFlags  = OrderFlags.FromAdapter;
-    private const OrderType       ExpectedOrderType  = OrderType.PassiveLimit;
-    private const LayerOrderFlags ExpectedLayerFlags = LayerOrderFlags.ExplicitlyDefinedFromSource;
+    private const OrderGenesisFlags ExpectedGenesisFlags = OrderGenesisFlags.FromAdapter | OrderGenesisFlags.IsExternalOrder | OrderGenesisFlags.HasExternalCounterPartyInfo;
+    private const OrderType         ExpectedOrderType    = OrderType.PassiveLimit;
 
-    private const OrderLifeCycleState ExpectedLifecycleState = OrderLifeCycleState.SourceActiveOnMarket;
+    private const OrderLifeCycleState ExpectedLifecycleState = OrderLifeCycleState.ConfirmedActiveOnMarket;
 
 
     private static readonly DateTime CreatedTime = new DateTime(2025, 4, 21, 6, 27, 23).AddMilliseconds(123).AddMicroseconds(456);
@@ -57,7 +55,7 @@ public class PQOrdersPriceVolumeLayerTests
     private IPQOrdersPriceVolumeLayer emptyCounterPartyOrdersPvl = null!;
 
     private IPQNameIdLookupGenerator  emptyNameIdLookup              = null!;
-    private PQAnonymousOrderLayerInfo exampleAnonymousOrderLayer     = null!;
+    private PQAnonymousOrder exampleAnonymousOrderLayer     = null!;
     private IPQNameIdLookupGenerator  nameIdLookup                   = null!;
     private IPQOrdersPriceVolumeLayer populatedAnonymousOrdersPvl    = null!;
     private IPQOrdersPriceVolumeLayer populatedCounterPartyOrdersPvl = null!;
@@ -69,8 +67,8 @@ public class PQOrdersPriceVolumeLayerTests
         emptyNameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates);
         nameIdLookup      = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates);
 
-        exampleAnonymousOrderLayer = new PQAnonymousOrderLayerInfo
-            (OrderId, CreatedTime, OrderVolume, ExpectedLayerFlags, ExpectedOrderType, ExpectedTypeFlags, ExpectedLifecycleState, UpdatedTime
+        exampleAnonymousOrderLayer = new PQAnonymousOrder
+            (nameIdLookup, OrderId, CreatedTime, OrderVolume, ExpectedOrderType, ExpectedGenesisFlags, ExpectedLifecycleState, UpdatedTime
            , OrderRemainingVolume);
 
         emptyAnonymousOrdersPvl    = new PQOrdersPriceVolumeLayer(emptyNameIdLookup.Clone(), LayerType.OrdersAnonymousPriceVolume);
@@ -114,8 +112,8 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.IsTrue(newPvl.IsVolumeUpdated);
         Assert.IsTrue(newPvl.IsOrdersCountUpdated);
         Assert.IsTrue(newPvl.IsInternalVolumeUpdated);
-        Assert.IsTrue(((IPQCounterPartyOrderLayerInfo)newPvl[0]!).IsExternalCounterPartyNameUpdated);
-        Assert.IsTrue(((IPQCounterPartyOrderLayerInfo)newPvl[0]!).IsExternalTraderNameUpdated);
+        Assert.IsTrue(((IPQExternalCounterPartyOrder)newPvl[0]!).IsExternalCounterPartyNameUpdated);
+        Assert.IsTrue(((IPQExternalCounterPartyOrder)newPvl[0]!).IsExternalTraderNameUpdated);
         Assert.IsFalse(newPvl.IsEmpty);
         Assert.IsTrue(newPvl.HasUpdates);
         AssertOrdersAreAsExpected(newPvl, expectPopulated);
@@ -293,84 +291,84 @@ public class PQOrdersPriceVolumeLayerTests
         foreach (var orderLayer in newPopulatedPvl.Orders)
         {
             orderLayer.IsOrderIdUpdated              = false;
-            orderLayer.IsOrderLayerFlagsUpdated      = false;
+            orderLayer.IsGenesisFlagsUpdated      = false;
             orderLayer.IsCreatedTimeDateUpdated      = false;
             orderLayer.IsCreatedTimeSub2MinUpdated   = false;
             orderLayer.IsUpdateTimeDateUpdated       = false;
             orderLayer.IsUpdateTimeSub2MinUpdated    = false;
             orderLayer.IsOrderVolumeUpdated          = false;
             orderLayer.IsOrderRemainingVolumeUpdated = false;
-            if (orderLayer is IPQCounterPartyOrderLayerInfo counterPartyOrderLayer)
+            if (orderLayer is IPQExternalCounterPartyOrder counterPartyOrderLayer)
             {
                 counterPartyOrderLayer.IsExternalCounterPartyNameUpdated = false;
                 counterPartyOrderLayer.IsExternalTraderNameUpdated       = false;
             }
         }
         newPopulatedPvl = new PQOrdersPriceVolumeLayer(originalCpLayerOrder, LayerType.OrdersAnonymousPriceVolume, nameIdLookup.Clone());
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsOrderIdUpdated = true;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer.IsOrderIdUpdated = true;
         fromPQInstance = new PQOrdersPriceVolumeLayer(newPopulatedPvl, LayerType.OrdersAnonymousPriceVolume, newPopulatedPvl.NameIdLookup);
         var expectedUpdated = Enumerable.Range(1, NumOfOrders).Select(_ => new ExpectedUpdated(true)).ToArray();
         AssertOrdersAreAsExpected(fromPQInstance, expectPopulatedOrders, null, expectedUpdated);
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsOrderIdUpdated = false;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer.IsOrderIdUpdated = false;
 
         newPopulatedPvl = new PQOrdersPriceVolumeLayer(originalCpLayerOrder, LayerType.OrdersAnonymousPriceVolume, nameIdLookup.Clone());
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsOrderLayerFlagsUpdated = true;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer.IsGenesisFlagsUpdated = true;
         fromPQInstance  = new PQOrdersPriceVolumeLayer(newPopulatedPvl, LayerType.OrdersAnonymousPriceVolume, newPopulatedPvl.NameIdLookup);
-        expectedUpdated = Enumerable.Range(1, NumOfOrders).Select(_ => new ExpectedUpdated(IsOrderFlagsUpdated: true)).ToArray();
+        expectedUpdated = Enumerable.Range(1, NumOfOrders).Select(_ => new ExpectedUpdated(IsGenesisFlagsUpdated: true)).ToArray();
         AssertOrdersAreAsExpected(fromPQInstance, expectPopulatedOrders, null, expectedUpdated);
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsOrderLayerFlagsUpdated = false;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer.IsGenesisFlagsUpdated = false;
 
         newPopulatedPvl = new PQOrdersPriceVolumeLayer(originalCpLayerOrder, LayerType.OrdersAnonymousPriceVolume, nameIdLookup.Clone());
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsCreatedTimeDateUpdated = true;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer.IsCreatedTimeDateUpdated = true;
         fromPQInstance  = new PQOrdersPriceVolumeLayer(newPopulatedPvl, LayerType.OrdersAnonymousPriceVolume, newPopulatedPvl.NameIdLookup);
         expectedUpdated = Enumerable.Range(1, NumOfOrders).Select(_ => new ExpectedUpdated(IsCreatedDateUpdated: true)).ToArray();
         AssertOrdersAreAsExpected(fromPQInstance, expectPopulatedOrders, null, expectedUpdated);
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsCreatedTimeDateUpdated = false;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer.IsCreatedTimeDateUpdated = false;
 
         newPopulatedPvl = new PQOrdersPriceVolumeLayer(originalCpLayerOrder, LayerType.OrdersAnonymousPriceVolume, nameIdLookup.Clone());
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsCreatedTimeSub2MinUpdated = true;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer.IsCreatedTimeSub2MinUpdated = true;
         fromPQInstance  = new PQOrdersPriceVolumeLayer(newPopulatedPvl, LayerType.OrdersAnonymousPriceVolume, newPopulatedPvl.NameIdLookup);
         expectedUpdated = Enumerable.Range(1, NumOfOrders).Select(_ => new ExpectedUpdated(IsCreatedTimeSub2MinUpdated: true)).ToArray();
         AssertOrdersAreAsExpected(fromPQInstance, expectPopulatedOrders, null, expectedUpdated);
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsCreatedTimeSub2MinUpdated = false;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer.IsCreatedTimeSub2MinUpdated = false;
 
         newPopulatedPvl = new PQOrdersPriceVolumeLayer(originalCpLayerOrder, LayerType.OrdersAnonymousPriceVolume, nameIdLookup.Clone());
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsUpdateTimeDateUpdated = true;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer.IsUpdateTimeDateUpdated = true;
         fromPQInstance  = new PQOrdersPriceVolumeLayer(newPopulatedPvl, LayerType.OrdersAnonymousPriceVolume, newPopulatedPvl.NameIdLookup);
         expectedUpdated = Enumerable.Range(1, NumOfOrders).Select(_ => new ExpectedUpdated(IsUpdatedTimeDateUpdated: true)).ToArray();
         AssertOrdersAreAsExpected(fromPQInstance, expectPopulatedOrders, null, expectedUpdated);
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsUpdateTimeDateUpdated = false;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer.IsUpdateTimeDateUpdated = false;
 
         newPopulatedPvl = new PQOrdersPriceVolumeLayer(originalCpLayerOrder, LayerType.OrdersAnonymousPriceVolume, nameIdLookup.Clone());
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsUpdateTimeSub2MinUpdated = true;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer.IsUpdateTimeSub2MinUpdated = true;
         fromPQInstance  = new PQOrdersPriceVolumeLayer(newPopulatedPvl, LayerType.OrdersAnonymousPriceVolume, newPopulatedPvl.NameIdLookup);
         expectedUpdated = Enumerable.Range(1, NumOfOrders).Select(_ => new ExpectedUpdated(IsUpdatedTimeSub2MinUpdated: true)).ToArray();
         AssertOrdersAreAsExpected(fromPQInstance, expectPopulatedOrders, null, expectedUpdated);
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsUpdateTimeSub2MinUpdated = false;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer.IsUpdateTimeSub2MinUpdated = false;
 
         newPopulatedPvl = new PQOrdersPriceVolumeLayer(originalCpLayerOrder, LayerType.OrdersAnonymousPriceVolume, nameIdLookup.Clone());
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsOrderVolumeUpdated = true;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer.IsOrderVolumeUpdated = true;
         fromPQInstance  = new PQOrdersPriceVolumeLayer(newPopulatedPvl, LayerType.OrdersAnonymousPriceVolume, newPopulatedPvl.NameIdLookup);
         expectedUpdated = Enumerable.Range(1, NumOfOrders).Select(_ => new ExpectedUpdated(IsOrderVolumeUpdated: true)).ToArray();
         AssertOrdersAreAsExpected(fromPQInstance, expectPopulatedOrders, null, expectedUpdated);
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsOrderVolumeUpdated = false;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer.IsOrderVolumeUpdated = false;
 
         newPopulatedPvl = new PQOrdersPriceVolumeLayer(originalCpLayerOrder, LayerType.OrdersAnonymousPriceVolume, nameIdLookup.Clone());
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsOrderRemainingVolumeUpdated = true;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer.IsOrderRemainingVolumeUpdated = true;
         fromPQInstance  = new PQOrdersPriceVolumeLayer(newPopulatedPvl, LayerType.OrdersAnonymousPriceVolume, newPopulatedPvl.NameIdLookup);
         expectedUpdated = Enumerable.Range(1, NumOfOrders).Select(_ => new ExpectedUpdated(IsOrderRemainingVolumeUpdated: true)).ToArray();
         AssertOrdersAreAsExpected(fromPQInstance, expectPopulatedOrders, null, expectedUpdated);
-        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer!.IsOrderRemainingVolumeUpdated = false;
+        foreach (var orderLayer in newPopulatedPvl.Orders) orderLayer.IsOrderRemainingVolumeUpdated = false;
 
         newPopulatedPvl = new PQOrdersPriceVolumeLayer(originalCpLayerOrder, LayerType.OrdersFullPriceVolume, nameIdLookup.Clone());
-        foreach (var orderLayer in newPopulatedPvl.Orders) ((IPQCounterPartyOrderLayerInfo?)orderLayer)!.IsExternalCounterPartyNameUpdated = true;
+        foreach (var orderLayer in newPopulatedPvl.Orders) ((IPQExternalCounterPartyOrder?)orderLayer)!.IsExternalCounterPartyNameUpdated = true;
         fromPQInstance  = new PQOrdersPriceVolumeLayer(newPopulatedPvl, LayerType.OrdersFullPriceVolume, newPopulatedPvl.NameIdLookup);
         expectedUpdated = Enumerable.Range(1, NumOfOrders).Select(_ => new ExpectedUpdated(IsOrderCounterPartyNameIdUpdated: true)).ToArray();
         AssertOrdersAreAsExpected(fromPQInstance, expectPopulatedOrders, null, expectedUpdated);
-        foreach (var orderLayer in newPopulatedPvl.Orders) ((IPQCounterPartyOrderLayerInfo?)orderLayer)!.IsExternalCounterPartyNameUpdated = false;
+        foreach (var orderLayer in newPopulatedPvl.Orders) ((IPQExternalCounterPartyOrder?)orderLayer)!.IsExternalCounterPartyNameUpdated = false;
 
         newPopulatedPvl = new PQOrdersPriceVolumeLayer(originalCpLayerOrder, LayerType.OrdersFullPriceVolume, nameIdLookup.Clone());
-        foreach (var orderLayer in newPopulatedPvl.Orders) ((IPQCounterPartyOrderLayerInfo?)orderLayer)!.IsExternalTraderNameUpdated = true;
+        foreach (var orderLayer in newPopulatedPvl.Orders) ((IPQExternalCounterPartyOrder?)orderLayer)!.IsExternalTraderNameUpdated = true;
         fromPQInstance  = new PQOrdersPriceVolumeLayer(newPopulatedPvl, LayerType.OrdersFullPriceVolume, newPopulatedPvl.NameIdLookup);
         expectedUpdated = Enumerable.Range(1, NumOfOrders).Select(_ => new ExpectedUpdated(IsOrderTraderNameIdUpdated: true)).ToArray();
         AssertOrdersAreAsExpected(fromPQInstance, expectPopulatedOrders, null, expectedUpdated);
@@ -382,7 +380,7 @@ public class PQOrdersPriceVolumeLayerTests
         var newEmpty = emptyAnonymousOrdersPvl.Clone();
         Assert.AreEqual(0u, newEmpty.OrdersCount);
         ((IMutableOrdersPriceVolumeLayer)newEmpty)[3] =
-            new PQAnonymousOrderLayerInfo
+            new PQAnonymousOrder
             {
                 OrderId = OrderId + 3, OrderDisplayVolume = OrderVolume
             };
@@ -395,7 +393,7 @@ public class PQOrdersPriceVolumeLayerTests
         ((IMutableOrdersPriceVolumeLayer)newEmpty)[255]!.OrderId = OrderId + 255;
         Assert.AreEqual(256u, newEmpty.OrdersCount);
 
-        newEmpty[255] = new PQAnonymousOrderLayerInfo
+        newEmpty[255] = new PQAnonymousOrder
         {
             OrderId = OrderId + 255, OrderDisplayVolume = OrderVolume
         };
@@ -527,7 +525,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             var newEmpty = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
             newEmpty.UpdateField(layerUpdates[0]);
-            var foundTraderInfo = (IPQCounterPartyOrderLayerInfo?)newEmpty[i];
+            var foundTraderInfo = (IPQExternalCounterPartyOrder?)newEmpty[i];
             Assert.AreEqual(expectedOrderId, foundTraderInfo!.OrderId);
             Assert.IsTrue(newEmpty.HasUpdates);
             Assert.IsTrue(foundTraderInfo.HasUpdates);
@@ -536,54 +534,54 @@ public class PQOrdersPriceVolumeLayerTests
     }
 
     [TestMethod]
-    public void EmptyPvl_LayerOrderFlagsChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
+    public void EmptyPvl_OrderGenesisFlagsChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
     {
         for (var i = 0; i < 256; i++)
         {
             testDateTime = testDateTime.AddHours(1).AddMinutes(1);
             var orderLayerInfo = emptyCounterPartyOrdersPvl[i]!;
 
-            Assert.IsFalse(orderLayerInfo.IsOrderLayerFlagsUpdated);
+            Assert.IsFalse(orderLayerInfo.IsGenesisFlagsUpdated);
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.AreEqual(LayerOrderFlags.None, orderLayerInfo.OrderLayerFlags);
+            Assert.AreEqual(orderLayerInfo.EmptyIgnoreGenesisFlags, orderLayerInfo.GenesisFlags);
             Assert.AreEqual(0, emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
-            var expectedOrderFlags = LayerOrderFlags.ExplicitlyDefinedFromSource | LayerOrderFlags.CancelRequested |
-                                     LayerOrderFlags.NotExternalVolume;
-            orderLayerInfo.OrderLayerFlags = expectedOrderFlags;
-            Assert.IsTrue(orderLayerInfo.IsOrderLayerFlagsUpdated);
+            var expectedOrderFlags = OrderGenesisFlags.IsExternalOrder | OrderGenesisFlags.HasExternalCounterPartyInfo |
+                                     OrderGenesisFlags.VolumeNotPartOfLiquidity;
+            orderLayerInfo.GenesisFlags = expectedOrderFlags;
+            Assert.IsTrue(orderLayerInfo.IsGenesisFlagsUpdated);
             Assert.IsTrue(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.AreEqual(expectedOrderFlags, orderLayerInfo.OrderLayerFlags);
+            Assert.AreEqual(expectedOrderFlags, orderLayerInfo.GenesisFlags);
             var layerUpdates = emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
             var orderIndex = (ushort)i;
             var expectedLayerField
-                = new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderLayerFlags, orderIndex, (uint)expectedOrderFlags);
+                = new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderGenesisFlags, orderIndex, (uint)expectedOrderFlags);
             Assert.AreEqual(expectedLayerField, layerUpdates[0]);
 
-            orderLayerInfo.IsOrderLayerFlagsUpdated = false;
+            orderLayerInfo.IsGenesisFlagsUpdated = false;
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
             Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
 
 
-            orderLayerInfo.IsOrderLayerFlagsUpdated = true;
+            orderLayerInfo.IsGenesisFlagsUpdated = true;
             layerUpdates =
                 (from update in emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
-                    where update.OrdersSubId == PQOrdersSubFieldKeys.OrderLayerFlags && update.AuxiliaryPayload == orderIndex
+                    where update.OrdersSubId == PQOrdersSubFieldKeys.OrderGenesisFlags && update.AuxiliaryPayload == orderIndex
                     select update).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
             Assert.AreEqual(expectedLayerField, layerUpdates[0]);
 
-            orderLayerInfo.OrderLayerFlags          = LayerOrderFlags.None;
-            orderLayerInfo.IsOrderLayerFlagsUpdated = false;
+            orderLayerInfo.GenesisFlags             = OrderGenesisFlags.None;
+            orderLayerInfo.IsGenesisFlagsUpdated = false;
 
             var newEmpty = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
             newEmpty.UpdateField(layerUpdates[0]);
-            var foundTraderInfo = (IPQCounterPartyOrderLayerInfo?)newEmpty[i];
-            Assert.AreEqual(expectedOrderFlags, foundTraderInfo!.OrderLayerFlags);
+            var foundTraderInfo = (IPQExternalCounterPartyOrder?)newEmpty[i];
+            Assert.AreEqual(expectedOrderFlags, foundTraderInfo!.GenesisFlags);
             Assert.IsTrue(newEmpty.HasUpdates);
             Assert.IsTrue(foundTraderInfo.HasUpdates);
-            Assert.IsTrue(foundTraderInfo.IsOrderLayerFlagsUpdated);
+            Assert.IsTrue(foundTraderInfo.IsGenesisFlagsUpdated);
         }
     }
 
@@ -637,7 +635,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             var newEmpty = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
             newEmpty.UpdateField(layerUpdates[0]);
-            var foundTraderInfo = (IPQCounterPartyOrderLayerInfo?)newEmpty[i];
+            var foundTraderInfo = (IPQExternalCounterPartyOrder?)newEmpty[i];
             Assert.AreEqual(expectedCreatedTime, foundTraderInfo!.CreatedTime);
             Assert.IsTrue(foundTraderInfo.HasUpdates);
             Assert.IsTrue(foundTraderInfo.IsCreatedTimeDateUpdated);
@@ -696,7 +694,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             var newEmpty = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
             newEmpty.UpdateField(layerUpdates[0]);
-            var foundTraderInfo = (IPQCounterPartyOrderLayerInfo?)newEmpty[i];
+            var foundTraderInfo = (IPQExternalCounterPartyOrder?)newEmpty[i];
             Assert.AreEqual(expectedCreatedTime, foundTraderInfo!.CreatedTime);
             Assert.IsTrue(newEmpty.HasUpdates);
             Assert.IsTrue(foundTraderInfo.HasUpdates);
@@ -755,7 +753,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             var newEmpty = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
             newEmpty.UpdateField(layerUpdates[0]);
-            var foundTraderInfo = (IPQCounterPartyOrderLayerInfo?)newEmpty[i];
+            var foundTraderInfo = (IPQExternalCounterPartyOrder?)newEmpty[i];
             Assert.AreEqual(expectedUpdatedTime, foundTraderInfo!.UpdateTime);
             Assert.IsTrue(newEmpty.HasUpdates);
             Assert.IsTrue(foundTraderInfo.HasUpdates);
@@ -815,7 +813,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             var newEmpty = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
             newEmpty.UpdateField(layerUpdates[0]);
-            var foundTraderInfo = (IPQCounterPartyOrderLayerInfo?)newEmpty[i];
+            var foundTraderInfo = (IPQExternalCounterPartyOrder?)newEmpty[i];
             Assert.AreEqual(expectedUpdatedTime, foundTraderInfo!.UpdateTime);
             Assert.IsTrue(newEmpty.HasUpdates);
             Assert.IsTrue(foundTraderInfo.HasUpdates);
@@ -834,14 +832,14 @@ public class PQOrdersPriceVolumeLayerTests
 
             Assert.IsFalse(traderLayerInfo.IsOrderVolumeUpdated);
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.AreEqual(0m, ((IPublishedOrder)traderLayerInfo).OrderDisplayVolume);
+            Assert.AreEqual(0m, ((IAnonymousOrder)traderLayerInfo).OrderDisplayVolume);
             Assert.AreEqual(0, emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
             var expectedOrderVolume = OrderVolume + 1000;
             traderLayerInfo.OrderDisplayVolume = expectedOrderVolume;
             Assert.IsTrue(traderLayerInfo.IsOrderVolumeUpdated);
             Assert.IsTrue(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.AreEqual(expectedOrderVolume, ((IPublishedOrder)traderLayerInfo).OrderDisplayVolume);
+            Assert.AreEqual(expectedOrderVolume, ((IAnonymousOrder)traderLayerInfo).OrderDisplayVolume);
             var layerUpdates = emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
             var orderIndex = (ushort)i;
@@ -867,8 +865,8 @@ public class PQOrdersPriceVolumeLayerTests
 
             var newEmpty = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
             newEmpty.UpdateField(layerUpdates[0]);
-            var foundTraderInfo = (IPQCounterPartyOrderLayerInfo?)newEmpty[i];
-            Assert.AreEqual(expectedOrderVolume, ((IPublishedOrder)foundTraderInfo!).OrderDisplayVolume);
+            var foundTraderInfo = (IPQExternalCounterPartyOrder?)newEmpty[i];
+            Assert.AreEqual(expectedOrderVolume, ((IAnonymousOrder)foundTraderInfo!).OrderDisplayVolume);
             Assert.IsTrue(newEmpty.HasUpdates);
             Assert.IsTrue(foundTraderInfo.HasUpdates);
             Assert.IsTrue(foundTraderInfo.IsOrderVolumeUpdated);
@@ -917,7 +915,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             var newEmpty = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
             newEmpty.UpdateField(layerUpdates[0]);
-            var foundTraderInfo = (IPQCounterPartyOrderLayerInfo?)newEmpty[i];
+            var foundTraderInfo = (IPQExternalCounterPartyOrder?)newEmpty[i];
             Assert.AreEqual(expectedOrderRemainingVolume, foundTraderInfo!.OrderRemainingVolume);
             Assert.IsTrue(newEmpty.HasUpdates);
             Assert.IsTrue(foundTraderInfo.HasUpdates);
@@ -931,7 +929,7 @@ public class PQOrdersPriceVolumeLayerTests
         for (var i = 0; i < 256; i++)
         {
             testDateTime = testDateTime.AddHours(1).AddMinutes(1);
-            var cpOrderLayerInfo  = (IPQCounterPartyOrderLayerInfo?)emptyCounterPartyOrdersPvl[i]!;
+            var cpOrderLayerInfo  = (IPQExternalCounterPartyOrder?)emptyCounterPartyOrdersPvl[i]!;
             var layerNameIdLookup = emptyCounterPartyOrdersPvl.NameIdLookup;
 
             emptyCounterPartyOrdersPvl.HasUpdates = false;
@@ -985,7 +983,7 @@ public class PQOrdersPriceVolumeLayerTests
             var newEmpty = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
             newEmpty.UpdateField(layerUpdates[0]);
             newEmpty.UpdateFieldString(stringUpdates[0]);
-            var foundTraderInfo = (IPQCounterPartyOrderLayerInfo?)newEmpty[i];
+            var foundTraderInfo = (IPQExternalCounterPartyOrder?)newEmpty[i];
             Assert.AreEqual(expectedCounterPartyName, foundTraderInfo!.ExternalCounterPartyName);
             Assert.IsTrue(newEmpty.HasUpdates);
             Assert.IsTrue(foundTraderInfo.HasUpdates);
@@ -999,12 +997,12 @@ public class PQOrdersPriceVolumeLayerTests
         for (var i = 0; i < 256; i++)
         {
             testDateTime = testDateTime.AddHours(1).AddMinutes(1);
-            var cpOrderLayerInfo  = (IPQCounterPartyOrderLayerInfo?)emptyCounterPartyOrdersPvl[i]!;
+            var cpOrderLayerInfo  = (IPQExternalCounterPartyOrder?)emptyCounterPartyOrdersPvl[i]!;
             var layerNameIdLookup = emptyCounterPartyOrdersPvl.NameIdLookup;
 
             Assert.IsFalse(cpOrderLayerInfo.IsExternalTraderNameUpdated);
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.AreEqual(null, ((IExternalCounterPartyInfoOrder)cpOrderLayerInfo).ExternalTraderName);
+            Assert.AreEqual(null, ((IExternalCounterPartyOrder)cpOrderLayerInfo).ExternalTraderName);
             Assert.AreEqual(0, emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
             var expectedTraderName = TraderNameBase + i;
@@ -1017,7 +1015,7 @@ public class PQOrdersPriceVolumeLayerTests
             var orderIndex = (ushort)i;
             var expectedLayerField = new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderExternalTraderNameId, orderIndex
                                                      , (uint)layerNameIdLookup
-                                                           [((IExternalCounterPartyInfoOrder)cpOrderLayerInfo).ExternalTraderName]);
+                                                           [((IExternalCounterPartyOrder)cpOrderLayerInfo).ExternalTraderName]);
             Assert.AreEqual(expectedLayerField, layerUpdates[0]);
             var stringUpdates = emptyCounterPartyOrdersPvl.GetStringUpdates(testDateTime, StorageFlags.Update).ToList();
             Assert.AreEqual(1, stringUpdates.Count);
@@ -1027,7 +1025,7 @@ public class PQOrdersPriceVolumeLayerTests
               , StringUpdate = new PQStringUpdate
                 {
                     Command      = CrudCommand.Upsert
-                  , DictionaryId = emptyCounterPartyOrdersPvl.NameIdLookup[((IExternalCounterPartyInfoOrder)cpOrderLayerInfo).ExternalTraderName]
+                  , DictionaryId = emptyCounterPartyOrdersPvl.NameIdLookup[((IExternalCounterPartyOrder)cpOrderLayerInfo).ExternalTraderName]
                   , Value        = expectedTraderName
                 }
             };
@@ -1052,7 +1050,7 @@ public class PQOrdersPriceVolumeLayerTests
             var newEmpty = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
             newEmpty.UpdateField(layerUpdates[0]);
             newEmpty.UpdateFieldString(stringUpdates[0]);
-            var foundTraderInfo = (IPQCounterPartyOrderLayerInfo?)newEmpty[i];
+            var foundTraderInfo = (IPQExternalCounterPartyOrder?)newEmpty[i];
             Assert.AreEqual(expectedTraderName, foundTraderInfo!.ExternalTraderName);
             Assert.IsTrue(newEmpty.HasUpdates);
             Assert.IsTrue(foundTraderInfo.HasUpdates);
@@ -1115,24 +1113,24 @@ public class PQOrdersPriceVolumeLayerTests
         {
             var checkOrderLayer = populatedCounterPartyOrdersPvl[i]!;
             Assert.AreNotEqual(0, checkOrderLayer.OrderId);
-            Assert.AreNotEqual(LayerOrderFlags.None, checkOrderLayer.OrderLayerFlags);
+            Assert.AreNotEqual(OrderGenesisFlags.None, checkOrderLayer.GenesisFlags);
             Assert.AreNotEqual(DateTime.MinValue, checkOrderLayer.CreatedTime);
             Assert.AreNotEqual(DateTime.MinValue, checkOrderLayer.UpdateTime);
-            Assert.AreNotEqual(0m, ((IPublishedOrder)checkOrderLayer).OrderDisplayVolume);
+            Assert.AreNotEqual(0m, ((IAnonymousOrder)checkOrderLayer).OrderDisplayVolume);
             Assert.AreNotEqual(0m, checkOrderLayer.OrderRemainingVolume);
             Assert.IsTrue(checkOrderLayer.IsOrderIdUpdated);
-            Assert.IsTrue(checkOrderLayer.IsOrderLayerFlagsUpdated);
+            Assert.IsTrue(checkOrderLayer.IsGenesisFlagsUpdated);
             Assert.IsTrue(checkOrderLayer.IsCreatedTimeDateUpdated);
             Assert.IsTrue(checkOrderLayer.IsCreatedTimeSub2MinUpdated);
             Assert.IsTrue(checkOrderLayer.IsUpdateTimeDateUpdated);
             Assert.IsTrue(checkOrderLayer.IsUpdateTimeSub2MinUpdated);
             Assert.IsTrue(checkOrderLayer.IsOrderVolumeUpdated);
             Assert.IsTrue(checkOrderLayer.IsOrderRemainingVolumeUpdated);
-            if (checkOrderLayer is IExternalCounterPartyOrderLayerInfo checkCounterPartyLayer)
+            if (checkOrderLayer is IExternalCounterPartyOrder checkCounterPartyLayer)
             {
                 Assert.IsNotNull(checkCounterPartyLayer.ExternalCounterPartyName);
                 Assert.IsNotNull(checkCounterPartyLayer.ExternalTraderName);
-                if (checkCounterPartyLayer is IPQCounterPartyOrderLayerInfo pqCounterPartyLayer)
+                if (checkCounterPartyLayer is IPQExternalCounterPartyOrder pqCounterPartyLayer)
                 {
                     Assert.IsTrue(pqCounterPartyLayer.IsExternalCounterPartyNameUpdated);
                     Assert.IsTrue(pqCounterPartyLayer.IsExternalTraderNameUpdated);
@@ -1156,24 +1154,24 @@ public class PQOrdersPriceVolumeLayerTests
         {
             var checkOrderLayer = populatedCounterPartyOrdersPvl[i]!;
             Assert.AreEqual(0, checkOrderLayer.OrderId);
-            Assert.AreEqual(LayerOrderFlags.None, checkOrderLayer.OrderLayerFlags);
+            Assert.AreEqual(checkOrderLayer.EmptyIgnoreGenesisFlags, checkOrderLayer.GenesisFlags);
             Assert.AreEqual(DateTime.MinValue, checkOrderLayer.CreatedTime);
             Assert.AreEqual(DateTime.MinValue, checkOrderLayer.UpdateTime);
-            Assert.AreEqual(0m, ((IPublishedOrder)checkOrderLayer).OrderDisplayVolume);
+            Assert.AreEqual(0m, ((IAnonymousOrder)checkOrderLayer).OrderDisplayVolume);
             Assert.AreEqual(0m, checkOrderLayer.OrderRemainingVolume);
             Assert.IsTrue(checkOrderLayer.IsOrderIdUpdated);
-            Assert.IsTrue(checkOrderLayer.IsOrderLayerFlagsUpdated);
+            Assert.IsTrue(checkOrderLayer.IsGenesisFlagsUpdated);
             Assert.IsTrue(checkOrderLayer.IsCreatedTimeDateUpdated);
             Assert.IsTrue(checkOrderLayer.IsCreatedTimeSub2MinUpdated);
             Assert.IsTrue(checkOrderLayer.IsUpdateTimeDateUpdated);
             Assert.IsTrue(checkOrderLayer.IsUpdateTimeSub2MinUpdated);
             Assert.IsTrue(checkOrderLayer.IsOrderVolumeUpdated);
             Assert.IsTrue(checkOrderLayer.IsOrderRemainingVolumeUpdated);
-            if (checkOrderLayer is IExternalCounterPartyOrderLayerInfo checkCounterPartyLayer)
+            if (checkOrderLayer is IExternalCounterPartyOrder checkCounterPartyLayer)
             {
                 Assert.IsNull(checkCounterPartyLayer.ExternalCounterPartyName);
                 Assert.IsNull(checkCounterPartyLayer.ExternalTraderName);
-                if (checkCounterPartyLayer is IPQCounterPartyOrderLayerInfo pqCounterPartyLayer)
+                if (checkCounterPartyLayer is IPQExternalCounterPartyOrder pqCounterPartyLayer)
                 {
                     Assert.IsTrue(pqCounterPartyLayer.IsExternalCounterPartyNameUpdated);
                     Assert.IsTrue(pqCounterPartyLayer.IsExternalTraderNameUpdated);
@@ -1322,17 +1320,17 @@ public class PQOrdersPriceVolumeLayerTests
         populatedAnonymousOrdersPvl.CopyFrom(clonePopulated);
 
         Assert.AreEqual(0, populatedAnonymousOrdersPvl[0]!.OrderId);
-        Assert.AreEqual(0, ((IPublishedOrder)populatedAnonymousOrdersPvl[0]!).OrderDisplayVolume);
+        Assert.AreEqual(0, ((IAnonymousOrder)populatedAnonymousOrdersPvl[0]!).OrderDisplayVolume);
         Assert.IsTrue(populatedAnonymousOrdersPvl[0]!.IsOrderIdUpdated);
         Assert.IsTrue(populatedAnonymousOrdersPvl[0]!.IsOrderVolumeUpdated);
 
         Assert.AreEqual(251, populatedAnonymousOrdersPvl[1]!.OrderId);
-        Assert.AreEqual(50, ((IPublishedOrder)populatedAnonymousOrdersPvl[1]!).OrderDisplayVolume);
+        Assert.AreEqual(50, ((IAnonymousOrder)populatedAnonymousOrdersPvl[1]!).OrderDisplayVolume);
         Assert.IsFalse(populatedAnonymousOrdersPvl[1]!.IsOrderIdUpdated);
         Assert.IsTrue(populatedAnonymousOrdersPvl[1]!.IsOrderVolumeUpdated);
 
         Assert.AreEqual(2, populatedAnonymousOrdersPvl[2]!.OrderId);
-        Assert.AreEqual(100, ((IPublishedOrder)populatedAnonymousOrdersPvl[2]!).OrderDisplayVolume);
+        Assert.AreEqual(100, ((IAnonymousOrder)populatedAnonymousOrdersPvl[2]!).OrderDisplayVolume);
         Assert.IsTrue(populatedAnonymousOrdersPvl[2]!.IsOrderIdUpdated);
         Assert.IsTrue(populatedAnonymousOrdersPvl[2]!.IsOrderVolumeUpdated);
     }
@@ -1442,16 +1440,16 @@ public class PQOrdersPriceVolumeLayerTests
     {
         // ReSharper disable SuspiciousTypeConversion.Global
         Assert.AreEqual(OrdersCount, populatedCounterPartyOrdersPvl.OrdersCount);
-        Assert.AreEqual(NumOfOrders, ((IEnumerable<IPQAnonymousOrderLayerInfo>)populatedCounterPartyOrdersPvl.Orders).Count());
-        Assert.AreEqual(NumOfOrders, ((IEnumerable<IMutableAnonymousOrderLayerInfo>)populatedCounterPartyOrdersPvl.Orders).Count());
-        Assert.AreEqual(NumOfOrders, ((IEnumerable<IAnonymousOrderLayerInfo>)populatedCounterPartyOrdersPvl.Orders).Count());
+        Assert.AreEqual(NumOfOrders, ((IEnumerable<IPQAnonymousOrder>)populatedCounterPartyOrdersPvl.Orders).Count());
+        Assert.AreEqual(NumOfOrders, ((IEnumerable<IMutableAnonymousOrder>)populatedCounterPartyOrdersPvl.Orders).Count());
+        Assert.AreEqual(NumOfOrders, ((IEnumerable<IAnonymousOrder>)populatedCounterPartyOrdersPvl.Orders).Count());
 
         populatedCounterPartyOrdersPvl.StateReset();
 
         Assert.AreEqual(0u, populatedCounterPartyOrdersPvl.OrdersCount);
-        Assert.AreEqual(0, ((IEnumerable<IPQAnonymousOrderLayerInfo>)populatedCounterPartyOrdersPvl.Orders).Count(tli => !tli.IsEmpty));
-        Assert.AreEqual(0, ((IEnumerable<IMutableAnonymousOrderLayerInfo>)populatedCounterPartyOrdersPvl.Orders).Count(tli => !tli.IsEmpty));
-        Assert.AreEqual(0, ((IEnumerable<IAnonymousOrderLayerInfo>)populatedCounterPartyOrdersPvl.Orders).Count(tli => !tli.IsEmpty));
+        Assert.AreEqual(0, ((IEnumerable<IPQAnonymousOrder>)populatedCounterPartyOrdersPvl.Orders).Count(tli => !tli.IsEmpty));
+        Assert.AreEqual(0, ((IEnumerable<IMutableAnonymousOrder>)populatedCounterPartyOrdersPvl.Orders).Count(tli => !tli.IsEmpty));
+        Assert.AreEqual(0, ((IEnumerable<IAnonymousOrder>)populatedCounterPartyOrdersPvl.Orders).Count(tli => !tli.IsEmpty));
         // ReSharper restore SuspiciousTypeConversion.Global
     }
 
@@ -1474,10 +1472,10 @@ public class PQOrdersPriceVolumeLayerTests
                                                                       , PQOrdersSubFieldKeys.OrderId, orderIndex, value),
                             $"For {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-            value = (uint)orderLayerInfo.OrderLayerFlags;
-            Assert.AreEqual(new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, depthId, PQOrdersSubFieldKeys.OrderLayerFlags, orderIndex, value),
+            value = (uint)orderLayerInfo.GenesisFlags;
+            Assert.AreEqual(new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, depthId, PQOrdersSubFieldKeys.OrderGenesisFlags, orderIndex, value),
                             PQLevel2QuoteTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteLayerOrders, depthId
-                                                                      , PQOrdersSubFieldKeys.OrderLayerFlags, orderIndex, value),
+                                                                      , PQOrdersSubFieldKeys.OrderGenesisFlags, orderIndex, value),
                             $"For {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             value = orderLayerInfo.CreatedTime.Get2MinIntervalsFromUnixEpoch();
@@ -1510,7 +1508,7 @@ public class PQOrdersPriceVolumeLayerTests
                                                                         orderIndex, value, extended),
                             $"For {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-            value = PQScaling.Scale(((IPublishedOrder)orderLayerInfo).OrderDisplayVolume, volumeScale);
+            value = PQScaling.Scale(((IAnonymousOrder)orderLayerInfo).OrderDisplayVolume, volumeScale);
             Assert.AreEqual(new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, depthId, PQOrdersSubFieldKeys.OrderDisplayVolume, orderIndex, value, volumeScale)
                            ,
                             PQLevel2QuoteTests.ExtractFieldUpdateWithId
@@ -1527,7 +1525,7 @@ public class PQOrdersPriceVolumeLayerTests
                                , volumeScale),
                             $"For {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-            if (orderLayerInfo is IPQCounterPartyOrderLayerInfo counterPartyLayerInfo)
+            if (orderLayerInfo is IPQExternalCounterPartyOrder counterPartyLayerInfo)
             {
                 value = (uint)counterPartyLayerInfo.ExternalCounterPartyNameId;
                 Assert.AreEqual(new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, depthId, PQOrdersSubFieldKeys.OrderExternalCounterPartyNameId, orderIndex, value)
@@ -1579,9 +1577,9 @@ public class PQOrdersPriceVolumeLayerTests
             var changingTraderInfo = changingPriceVolumeLayer[i];
 
             Assert.AreEqual(originalTraderInfo != null, changingTraderInfo != null);
-            if (originalTraderInfo is PQAnonymousOrderLayerInfo pqOriginalTraderInfo)
-                PQAnonymousOrderLayerInfoTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-                    (exactComparison, pqOriginalTraderInfo, (PQAnonymousOrderLayerInfo)changingTraderInfo!, original
+            if (originalTraderInfo is PQAnonymousOrder pqOriginalTraderInfo)
+                PQAnonymousOrderTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+                    (exactComparison, pqOriginalTraderInfo, (PQAnonymousOrder)changingTraderInfo!, original
                    , changingPriceVolumeLayer, originalOrderBookSide, changingOrderBookSide, originalQuote, changingQuote);
         }
     }
@@ -1596,7 +1594,7 @@ public class PQOrdersPriceVolumeLayerTests
         {
             var anonOrderLayer = addOrdersLayers[i]!;
             anonOrderLayer.OrderId              = OrderId + i;
-            anonOrderLayer.OrderLayerFlags      = ExpectedLayerFlags;
+            anonOrderLayer.GenesisFlags         = ExpectedGenesisFlags;
             anonOrderLayer.CreatedTime          = createdTime.AddMinutes(5 * i);
             anonOrderLayer.UpdateTime           = updatedTime.AddMinutes(10 * i);
             anonOrderLayer.OrderDisplayVolume   = OrderVolume + i * 100;
@@ -1614,16 +1612,15 @@ public class PQOrdersPriceVolumeLayerTests
         {
             var anonOrderLayer = addOrdersLayers[i]!;
             anonOrderLayer.OrderId              = OrderId + i;
-            anonOrderLayer.OrderLayerFlags      = ExpectedLayerFlags;
             anonOrderLayer.OrderType            = ExpectedOrderType;
-            anonOrderLayer.TypeFlags            = ExpectedTypeFlags;
+            anonOrderLayer.GenesisFlags         = ExpectedGenesisFlags;
             anonOrderLayer.OrderLifeCycleState  = ExpectedLifecycleState;
             anonOrderLayer.CreatedTime          = createdTime.AddMinutes(5 * i);
             anonOrderLayer.UpdateTime           = updatedTime.AddMinutes(10 * i);
             anonOrderLayer.OrderDisplayVolume   = OrderVolume + i * 100;
             anonOrderLayer.OrderRemainingVolume = OrderVolume / 2;
             anonOrderLayer.TrackingId           = (uint)i + 10;
-            if (anonOrderLayer is IMutableExternalCounterPartyOrderLayerInfo counterPartyLayer)
+            if (anonOrderLayer is IMutableExternalCounterPartyOrder counterPartyLayer)
             {
                 counterPartyLayer.ExternalCounterPartyId   = ExpectedCounterPartyId;
                 counterPartyLayer.ExternalCounterPartyName = $"{CounterPartyBase}_{i}";
@@ -1644,7 +1641,7 @@ public class PQOrdersPriceVolumeLayerTests
             if (expectPopulated == null || expectPopulated[i])
             {
                 var expectedOrderId              = expectedValues?[i].OrderId ?? OrderId + i;
-                var expectedOrderFlags           = expectedValues?[i].OrderFlags ?? ExpectedLayerFlags;
+                var expectedOrderFlags           = expectedValues?[i].OrderFlags ?? ExpectedGenesisFlags;
                 var expectedCreatedTime          = expectedValues?[i].CreatedTime ?? createdTime.AddMinutes(5 * i);
                 var expectedUpdatedTime          = expectedValues?[i].UpdatedTime ?? updatedTime.AddMinutes(10 * i);
                 var expectedOrderVolume          = expectedValues?[i].OrderVolume ?? OrderVolume + i * 100;
@@ -1656,15 +1653,15 @@ public class PQOrdersPriceVolumeLayerTests
                 var checkOrderLayer = checkOrdersLayers[i]!;
 
                 Assert.AreEqual(expectedOrderId, checkOrderLayer.OrderId);
-                Assert.AreEqual(expectedOrderFlags, checkOrderLayer.OrderLayerFlags);
+                Assert.AreEqual(expectedOrderFlags, checkOrderLayer.GenesisFlags);
                 Assert.AreEqual(expectedCreatedTime, checkOrderLayer.CreatedTime);
                 Assert.AreEqual(expectedUpdatedTime, checkOrderLayer.UpdateTime);
                 Assert.AreEqual(expectedOrderVolume, checkOrderLayer.OrderDisplayVolume);
                 Assert.AreEqual(expectedOrderRemainingVolume, checkOrderLayer.OrderRemainingVolume);
-                if (checkOrderLayer is IPQAnonymousOrderLayerInfo pqAnonymousOrder)
+                if (checkOrderLayer is IPQAnonymousOrder pqAnonymousOrder)
                 {
                     Assert.AreEqual(expectedUpdated?[i].IsOrderIdUpdated ?? true, pqAnonymousOrder.IsOrderIdUpdated);
-                    Assert.AreEqual(expectedUpdated?[i].IsOrderFlagsUpdated ?? true, pqAnonymousOrder.IsOrderLayerFlagsUpdated);
+                    Assert.AreEqual(expectedUpdated?[i].IsGenesisFlagsUpdated ?? true, pqAnonymousOrder.IsGenesisFlagsUpdated);
                     Assert.AreEqual(expectedUpdated?[i].IsCreatedDateUpdated ?? true, pqAnonymousOrder.IsCreatedTimeDateUpdated);
                     Assert.AreEqual(expectedUpdated?[i].IsCreatedTimeSub2MinUpdated ?? true, pqAnonymousOrder.IsCreatedTimeSub2MinUpdated);
                     Assert.AreEqual(expectedUpdated?[i].IsUpdatedTimeDateUpdated ?? true, pqAnonymousOrder.IsUpdateTimeDateUpdated);
@@ -1672,11 +1669,11 @@ public class PQOrdersPriceVolumeLayerTests
                     Assert.AreEqual(expectedUpdated?[i].IsOrderVolumeUpdated ?? true, pqAnonymousOrder.IsOrderVolumeUpdated);
                     Assert.AreEqual(expectedUpdated?[i].IsOrderRemainingVolumeUpdated ?? true, pqAnonymousOrder.IsOrderRemainingVolumeUpdated);
                 }
-                if (checkOrderLayer is IExternalCounterPartyOrderLayerInfo checkCounterPartyLayer)
+                if (checkOrderLayer is IExternalCounterPartyOrder checkCounterPartyLayer)
                 {
                     Assert.AreEqual(expectedCounterPartyName, checkCounterPartyLayer.ExternalCounterPartyName);
                     Assert.AreEqual(expectedTraderName, checkCounterPartyLayer.ExternalTraderName);
-                    if (checkCounterPartyLayer is IPQCounterPartyOrderLayerInfo pqCounterPartyLayer)
+                    if (checkCounterPartyLayer is IPQExternalCounterPartyOrder pqCounterPartyLayer)
                     {
                         Assert.AreEqual(expectedUpdated?[i].IsOrderCounterPartyNameIdUpdated ?? true
                                       , pqCounterPartyLayer.IsExternalCounterPartyNameUpdated);
@@ -1688,15 +1685,15 @@ public class PQOrdersPriceVolumeLayerTests
             {
                 var checkOrderLayer = checkOrdersLayers[i]!;
                 Assert.AreEqual(0, checkOrderLayer.OrderId);
-                Assert.AreEqual(LayerOrderFlags.None, checkOrderLayer.OrderLayerFlags);
+                Assert.AreEqual(OrderGenesisFlags.None, checkOrderLayer.GenesisFlags);
                 Assert.AreEqual(DateTime.MinValue, checkOrderLayer.CreatedTime);
                 Assert.AreEqual(DateTime.MinValue, checkOrderLayer.UpdateTime);
                 Assert.AreEqual(0m, checkOrderLayer.OrderDisplayVolume);
                 Assert.AreEqual(0m, checkOrderLayer.OrderRemainingVolume);
-                if (checkOrderLayer is IPQAnonymousOrderLayerInfo pqAnonymousOrder)
+                if (checkOrderLayer is IPQAnonymousOrder pqAnonymousOrder)
                 {
                     Assert.IsFalse(pqAnonymousOrder.IsOrderIdUpdated);
-                    Assert.IsFalse(pqAnonymousOrder.IsOrderLayerFlagsUpdated);
+                    Assert.IsFalse(pqAnonymousOrder.IsGenesisFlagsUpdated);
                     Assert.IsFalse(pqAnonymousOrder.IsCreatedTimeDateUpdated);
                     Assert.IsFalse(pqAnonymousOrder.IsCreatedTimeSub2MinUpdated);
                     Assert.IsFalse(pqAnonymousOrder.IsUpdateTimeDateUpdated);
@@ -1704,11 +1701,11 @@ public class PQOrdersPriceVolumeLayerTests
                     Assert.IsFalse(pqAnonymousOrder.IsOrderVolumeUpdated);
                     Assert.IsFalse(pqAnonymousOrder.IsOrderRemainingVolumeUpdated);
                 }
-                if (checkOrderLayer is IExternalCounterPartyOrderLayerInfo checkCounterPartyLayer)
+                if (checkOrderLayer is IExternalCounterPartyOrder checkCounterPartyLayer)
                 {
                     Assert.IsNull(checkCounterPartyLayer.ExternalCounterPartyName);
                     Assert.IsNull(checkCounterPartyLayer.ExternalTraderName);
-                    if (checkCounterPartyLayer is IPQCounterPartyOrderLayerInfo pqCounterPartyLayer)
+                    if (checkCounterPartyLayer is IPQExternalCounterPartyOrder pqCounterPartyLayer)
                     {
                         Assert.IsFalse(pqCounterPartyLayer.IsExternalCounterPartyNameUpdated);
                         Assert.IsFalse(pqCounterPartyLayer.IsExternalTraderNameUpdated);
@@ -1721,7 +1718,7 @@ public class PQOrdersPriceVolumeLayerTests
     (
         // ReSharper disable MemberHidesStaticFromOuterClass
         int? OrderId = null
-      , LayerOrderFlags? OrderFlags = null
+      , OrderGenesisFlags? OrderFlags = null
       , DateTime? CreatedTime = null
       , DateTime? UpdatedTime = null
       , decimal? OrderVolume = null
@@ -1734,7 +1731,7 @@ public class PQOrdersPriceVolumeLayerTests
     public record ExpectedUpdated
     (
         bool IsOrderIdUpdated = false
-      , bool IsOrderFlagsUpdated = false
+      , bool IsGenesisFlagsUpdated = false
       , bool IsCreatedDateUpdated = false
       , bool IsCreatedTimeSub2MinUpdated = false
       , bool IsUpdatedTimeDateUpdated = false

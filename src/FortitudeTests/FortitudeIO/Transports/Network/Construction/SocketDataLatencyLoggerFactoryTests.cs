@@ -4,7 +4,7 @@ using FortitudeIO.Transports.Network.Construction;
 
 #endregion
 
-namespace FortitudeTests.FortitudeIO.Transports.Network.Logging;
+namespace FortitudeTests.FortitudeIO.Transports.Network.Construction;
 
 [TestClass]
 public class SocketDataLatencyLoggerFactoryTests

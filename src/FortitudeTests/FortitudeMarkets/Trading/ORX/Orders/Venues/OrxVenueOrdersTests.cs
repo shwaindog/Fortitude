@@ -7,14 +7,14 @@ using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeIO.Protocols.ORX.Serdes.Deserialization;
 using FortitudeIO.Protocols.ORX.Serdes.Serialization;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading;
+using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.ORX.Orders;
 using FortitudeMarkets.Trading.ORX.Orders.Venues;
 
 #endregion
 
-namespace FortitudeTests.FortitudeMarkets.Trading.ORX.Venues;
+namespace FortitudeTests.FortitudeMarkets.Trading.ORX.Orders.Venues;
 
 [TestClass]
 public class OrxVenueOrdersTests

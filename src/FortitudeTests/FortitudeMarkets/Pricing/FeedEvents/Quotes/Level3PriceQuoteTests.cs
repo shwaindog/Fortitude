@@ -12,7 +12,6 @@ using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
@@ -659,13 +658,16 @@ public class Level3PriceQuoteTests
                 if (traderLayer.OrdersCount <= j)
                 {
                     traderLayer.Add
-                        (new ExternalCounterPartyOrderLayerInfo
-                            (j + 1, DateTime.Now
-                           , currentVolume + j * deltaVolumePerLayer, LayerOrderFlags.ExplicitlyDefinedFromSource, traderName: traderName!));
+                        (new ExternalCounterPartyOrder
+                            (new AnonymousOrder(j + 1, DateTime.Now
+                           , currentVolume + j * deltaVolumePerLayer)
+                            {
+                                ExternalCounterPartyOrderInfo = new AdditionalExternalCounterPartyInfo(externalTraderName: traderName!)
+                            }));
                 }
                 else
                 {
-                    var traderLayerInfo = (IMutableExternalCounterPartyOrderLayerInfo)traderLayer[j]!;
+                    var traderLayerInfo = (IMutableExternalCounterPartyOrder)traderLayer[j]!;
                     traderLayerInfo.ExternalTraderName = traderName;
                     traderLayerInfo.OrderDisplayVolume = currentVolume + j * deltaVolumePerLayer;
                 }

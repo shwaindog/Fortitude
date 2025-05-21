@@ -15,7 +15,6 @@ using FortitudeMarkets.Pricing.PQ.Subscription.BusRules;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Subscription.BusRules;
-using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 

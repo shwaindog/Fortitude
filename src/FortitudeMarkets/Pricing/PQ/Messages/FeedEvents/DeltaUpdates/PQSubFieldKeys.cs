@@ -202,9 +202,8 @@
 
       , OrderId                                = 10 // 0x0A
       , OrderType                              = 11 // 0x0B
-      , OrderFlags                             = 12 // 0x0C
+      , OrderGenesisFlags                      = 12 // 0x0C
       , OrderLifecycleStateFlags               = 13 // 0x0D
-      , OrderLayerFlags                        = 14 // 0x0E
       , OrderUpdateReasonFlags                 = 15 // 0x1F
       , OrderCreatedDate                       = 16 // 0x10
       , OrderCreatedSub2MinTime                = 17 // 0x11

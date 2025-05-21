@@ -1,24 +1,25 @@
 ﻿using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
-using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
-namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
+namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;
 
-public interface IPQInternalPassiveOrderLayerInfo : IMutableInternalPassiveOrderLayerInfo, ISupportsPQNameIdLookupGenerator
-  , IPQSupportsStringUpdates<IPQInternalPassiveOrderLayerInfo>, ICloneable<IPQInternalPassiveOrderLayerInfo>
+public interface IPQAdditionalInternalPassiveOrderInfo : IMutableAdditionalInternalPassiveOrderInfo, ISupportsPQNameIdLookupGenerator
+  , IPQSupportsStringUpdates<IPQAdditionalInternalPassiveOrderInfo>, IPQSupportsNumberPrecisionFieldUpdates<IPQAdditionalInternalPassiveOrderInfo>
+  , ICloneable<IPQAdditionalInternalPassiveOrderInfo>
 {
     bool IsOrderSequenceIdUpdated      { get; set; }
     bool IsParentOrderIdUpdated        { get; set; }
     bool IsClosingOrderIdUpdated       { get; set; }
     bool IsClosingOrderPriceUpdated    { get; set; }
     bool IsDivisionIdUpdated           { get; set; }
-    int  DivisionNameId            { get; set; }
+    int  DivisionNameId                { get; set; }
     bool IsDivisionNameUpdated         { get; set; }
     bool IsDeskIdUpdated               { get; set; }
     int  DeskNameId                    { get; set; }
@@ -43,11 +44,11 @@ public interface IPQInternalPassiveOrderLayerInfo : IMutableInternalPassiveOrder
     bool IsDecisionAmendSub2MinTimeUpdated   { get; set; }
 
 
-    new IPQInternalPassiveOrderLayerInfo Clone();
+    new IPQAdditionalInternalPassiveOrderInfo Clone();
 }
 
 [Flags]
-public enum InternalPassiveOrderLayerInfoUpdatedFlags : uint
+public enum PQAdditionalInternalPassiveOrderInfoUpdatedFlags : uint
 {
     None                           = 0x00_00_00_00
   , OrderSequenceIdFlag            = 0x00_00_00_01
@@ -73,11 +74,13 @@ public enum InternalPassiveOrderLayerInfoUpdatedFlags : uint
   , MarginConsumedFlag             = 0x00_10_00_00
 }
 
-public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInternalPassiveOrderLayerInfo
+public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalInternalPassiveOrderInfo>, IPQAdditionalInternalPassiveOrderInfo
 {
+    protected int NumUpdatesSinceEmpty = -1;
+
     private IPQNameIdLookupGenerator nameIdLookup = null!;
 
-    protected InternalPassiveOrderLayerInfoUpdatedFlags IPOUpdatedFlags;
+    protected PQAdditionalInternalPassiveOrderInfoUpdatedFlags UpdatedFlags;
 
     private uint     orderSequenceId;
     private uint     parentOrderId;
@@ -99,31 +102,33 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
     private int      internalTraderNameId;
     private decimal  marginConsumed;
 
-    public PQInternalPassiveOrderLayerInfo()
+    public PQAdditionalInternalPassiveOrderInfo()
     {
         NameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates);
-        if (GetType() == typeof(PQCounterPartyOrderLayerInfo)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) NumUpdatesSinceEmpty = 0;
     }
 
-    public PQInternalPassiveOrderLayerInfo(IPQNameIdLookupGenerator pqNameIdLookupGenerator)
+    public PQAdditionalInternalPassiveOrderInfo(IPQNameIdLookupGenerator pqNameIdLookupGenerator)
     {
         NameIdLookup = pqNameIdLookupGenerator;
-        if (GetType() == typeof(PQCounterPartyOrderLayerInfo)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) NumUpdatesSinceEmpty = 0;
     }
 
-    public PQInternalPassiveOrderLayerInfo
-    (IPQNameIdLookupGenerator lookupDict, int orderId = 0, DateTime createdTime = default, decimal orderVolume = 0m
-      , OrderFlags typeFlags = OrderFlags.None, OrderType orderType = OrderType.None, LayerOrderFlags orderFlags = LayerOrderFlags.None
-      , OrderLifeCycleState orderLifeCycleState = OrderLifeCycleState.None, DateTime? updatedTime = null, decimal? remainingVolume = null, uint trackingId = 0)
-        : base(orderId, createdTime, orderVolume, orderFlags, orderType, typeFlags, orderLifeCycleState, updatedTime, remainingVolume, trackingId)
+    public PQAdditionalInternalPassiveOrderInfo
+        (IPQNameIdLookupGenerator lookupDict, int orderId = 0, DateTime createdTime = default, decimal orderVolume = 0m
+          , OrderGenesisFlags genesisFlags = OrderGenesisFlags.None, OrderType orderType = OrderType.None
+          , OrderLifeCycleState orderLifeCycleState = OrderLifeCycleState.None, DateTime? updatedTime = null, decimal? remainingVolume = null
+          , uint trackingId = 0)
+        //: base(orderId, createdTime, orderVolume, orderType, genesisFlags, orderLifeCycleState, updatedTime, remainingVolume, trackingId)
     {
         NameIdLookup = lookupDict;
-        if (GetType() == typeof(PQCounterPartyOrderLayerInfo)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) NumUpdatesSinceEmpty = 0;
     }
 
-    public PQInternalPassiveOrderLayerInfo(IAnonymousOrderLayerInfo toClone, IPQNameIdLookupGenerator pqNameIdLookupGenerator) : base(toClone)
+    public PQAdditionalInternalPassiveOrderInfo(IAdditionalInternalPassiveOrderInfo? toClone, IPQNameIdLookupGenerator? pqNameIdLookupGenerator = null)
+        //: base(toClone)
     {
-        NameIdLookup = pqNameIdLookupGenerator;
+        NameIdLookup = pqNameIdLookupGenerator ?? new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates);
         if (toClone is IInternalPassiveOrder internalPassiveOrder)
         {
             OrderSequenceId      = internalPassiveOrder.OrderSequenceId;
@@ -145,11 +150,11 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
             InternalTraderId     = internalPassiveOrder.InternalTraderId;
             InternalTraderName   = internalPassiveOrder.InternalTraderName;
             MarginConsumed       = internalPassiveOrder.MarginConsumed;
+
+            SetFlagsSame(toClone);
         }
 
-        SetFlagsSame(toClone);
-
-        if (GetType() == typeof(PQCounterPartyOrderLayerInfo)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) NumUpdatesSinceEmpty = 0;
     }
 
 
@@ -246,13 +251,13 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
         }
     }
 
-    public uint    DeskId
+    public uint DeskId
     {
         get => deskId;
         set
         {
             IsDeskIdUpdated |= value != deskId || NumUpdatesSinceEmpty == 0;
-            deskId              =  value;
+            deskId          =  value;
         }
     }
 
@@ -262,7 +267,7 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
         set
         {
             IsDeskNameUpdated |= deskNameId != value || NumUpdatesSinceEmpty == 0;
-            deskNameId            =  value;
+            deskNameId        =  value;
         }
     }
 
@@ -279,13 +284,13 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
         }
     }
 
-    public uint    StrategyId
+    public uint StrategyId
     {
         get => strategyId;
         set
         {
             IsStrategyIdUpdated |= value != strategyId || NumUpdatesSinceEmpty == 0;
-            strategyId      =  value;
+            strategyId          =  value;
         }
     }
 
@@ -295,11 +300,11 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
         set
         {
             IsStrategyNameUpdated |= strategyNameId != value || NumUpdatesSinceEmpty == 0;
-            strategyNameId    =  value;
+            strategyNameId        =  value;
         }
     }
 
-    public string? StrategyName 
+    public string? StrategyName
     {
         get => NameIdLookup[strategyNameId];
         set
@@ -312,13 +317,13 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
         }
     }
 
-    public uint    StrategyDecisionId
+    public uint StrategyDecisionId
     {
         get => strategyDecisionId;
         set
         {
             IsStrategyDecisionIdUpdated |= strategyDecisionId != value || NumUpdatesSinceEmpty == 0;
-            strategyDecisionId    =  value;
+            strategyDecisionId          =  value;
         }
     }
 
@@ -327,8 +332,8 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
         get => strategyDecisionNameId;
         set
         {
-            IsStrategyDecisionNameUpdated  |= strategyDecisionNameId != value || NumUpdatesSinceEmpty == 0;
-            strategyDecisionNameId =  value;
+            IsStrategyDecisionNameUpdated |= strategyDecisionNameId != value || NumUpdatesSinceEmpty == 0;
+            strategyDecisionNameId        =  value;
         }
     }
     public string? StrategyDecisionName
@@ -344,13 +349,13 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
         }
     }
 
-    public uint    PortfolioId
+    public uint PortfolioId
     {
         get => portfolioId;
         set
         {
             IsPortfolioIdUpdated |= portfolioId != value || NumUpdatesSinceEmpty == 0;
-            portfolioId                 =  value;
+            portfolioId          =  value;
         }
     }
 
@@ -360,7 +365,7 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
         set
         {
             IsPortfolioNameUpdated |= portfolioNameId != value || NumUpdatesSinceEmpty == 0;
-            portfolioNameId               =  value;
+            portfolioNameId        =  value;
         }
     }
     public string? PortfolioName
@@ -375,13 +380,13 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
             PortfolioNameId = convertedPortfolioNameId;
         }
     }
-    public uint    InternalTraderId
+    public uint InternalTraderId
     {
         get => internalTraderId;
         set
         {
             IsInternalTraderIdUpdated |= internalTraderId != value || NumUpdatesSinceEmpty == 0;
-            internalTraderId     =  value;
+            internalTraderId          =  value;
         }
     }
 
@@ -391,7 +396,7 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
         set
         {
             IsInternalTraderNameUpdated |= internalTraderNameId != value || NumUpdatesSinceEmpty == 0;
-            internalTraderNameId   =  value;
+            internalTraderNameId        =  value;
         }
     }
 
@@ -413,246 +418,247 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
         set
         {
             IsMarginConsumedUpdated |= marginConsumed != value || NumUpdatesSinceEmpty == 0;
-            marginConsumed            =  value;
+            marginConsumed          =  value;
         }
     }
 
 
     public bool IsOrderSequenceIdUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.OrderSequenceIdFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.OrderSequenceIdFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.OrderSequenceIdFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.OrderSequenceIdFlag;
 
-            else if (IsOrderSequenceIdUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.OrderSequenceIdFlag;
+            else if (IsOrderSequenceIdUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.OrderSequenceIdFlag;
         }
     }
 
     public bool IsParentOrderIdUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.ParentOrderIdFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.ParentOrderIdFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.ParentOrderIdFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.ParentOrderIdFlag;
 
-            else if (IsParentOrderIdUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.ParentOrderIdFlag;
+            else if (IsParentOrderIdUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.ParentOrderIdFlag;
         }
     }
     public bool IsClosingOrderIdUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.ClosingOrderIdFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.ClosingOrderIdFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.ClosingOrderIdFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.ClosingOrderIdFlag;
 
-            else if (IsClosingOrderIdUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.ClosingOrderIdFlag;
+            else if (IsClosingOrderIdUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.ClosingOrderIdFlag;
         }
     }
     public bool IsClosingOrderPriceUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.ClosingOrderPriceFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.ClosingOrderPriceFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.ClosingOrderPriceFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.ClosingOrderPriceFlag;
 
-            else if (IsClosingOrderPriceUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.ClosingOrderPriceFlag;
+            else if (IsClosingOrderPriceUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.ClosingOrderPriceFlag;
         }
     }
     public bool IsDivisionIdUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.DivisionIdFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DivisionIdFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.DivisionIdFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DivisionIdFlag;
 
-            else if (IsDivisionIdUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.DivisionIdFlag;
+            else if (IsDivisionIdUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DivisionIdFlag;
         }
     }
     public bool IsDivisionNameUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.DivisionNameFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DivisionNameFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.DivisionNameFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DivisionNameFlag;
 
-            else if (IsDivisionNameUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.DivisionNameFlag;
+            else if (IsDivisionNameUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DivisionNameFlag;
         }
     }
     public bool IsDeskIdUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.DeskIdFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DeskIdFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.DeskIdFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DeskIdFlag;
 
-            else if (IsDeskIdUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.DeskIdFlag;
+            else if (IsDeskIdUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DeskIdFlag;
         }
     }
     public bool IsDeskNameUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.DeskNameFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DeskNameFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.DeskNameFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DeskNameFlag;
 
-            else if (IsDeskNameUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.DeskNameFlag;
+            else if (IsDeskNameUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DeskNameFlag;
         }
     }
 
     public bool IsStrategyIdUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.StrategyIdFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.StrategyIdFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.StrategyIdFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.StrategyIdFlag;
 
-            else if (IsStrategyIdUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.StrategyIdFlag;
+            else if (IsStrategyIdUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.StrategyIdFlag;
         }
     }
 
     public bool IsStrategyNameUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.StrategyNameFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.StrategyNameFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.StrategyNameFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.StrategyNameFlag;
 
-            else if (IsStrategyNameUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.StrategyNameFlag;
+            else if (IsStrategyNameUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.StrategyNameFlag;
         }
     }
     public bool IsStrategyDecisionIdUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.StrategyDecisionIdFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.StrategyDecisionIdFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.StrategyDecisionIdFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.StrategyDecisionIdFlag;
 
-            else if (IsStrategyDecisionIdUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.StrategyDecisionIdFlag;
+            else if (IsStrategyDecisionIdUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.StrategyDecisionIdFlag;
         }
     }
 
     public bool IsStrategyDecisionNameUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.StrategyDecisionNameFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.StrategyDecisionNameFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.StrategyDecisionNameFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.StrategyDecisionNameFlag;
 
-            else if (IsStrategyDecisionIdUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.StrategyDecisionNameFlag;
+            else if (IsStrategyDecisionIdUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.StrategyDecisionNameFlag;
         }
     }
 
     public bool IsPortfolioIdUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.PortfolioIdFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.PortfolioIdFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.PortfolioIdFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.PortfolioIdFlag;
 
-            else if (IsPortfolioIdUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.PortfolioIdFlag;
+            else if (IsPortfolioIdUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.PortfolioIdFlag;
         }
     }
     public bool IsPortfolioNameUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.PortfolioNameFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.PortfolioNameFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.PortfolioNameFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.PortfolioNameFlag;
 
-            else if (IsPortfolioNameUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.PortfolioNameFlag;
+            else if (IsPortfolioNameUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.PortfolioNameFlag;
         }
     }
     public bool IsInternalTraderIdUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.InternalTraderIdFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.InternalTraderIdFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.InternalTraderIdFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.InternalTraderIdFlag;
 
-            else if (IsInternalTraderIdUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.InternalTraderIdFlag;
+            else if (IsInternalTraderIdUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.InternalTraderIdFlag;
         }
     }
 
     public bool IsInternalTraderNameUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.InternalTraderNameFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.InternalTraderNameFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.InternalTraderNameFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.InternalTraderNameFlag;
 
-            else if (IsInternalTraderNameUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.InternalTraderNameFlag;
+            else if (IsInternalTraderNameUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.InternalTraderNameFlag;
         }
     }
     public bool IsMarginConsumedUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.MarginConsumedFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.MarginConsumedFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.MarginConsumedFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.MarginConsumedFlag;
 
-            else if (IsMarginConsumedUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.MarginConsumedFlag;
+            else if (IsMarginConsumedUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.MarginConsumedFlag;
         }
     }
     public bool IsDecisionCreatedDateUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.DecisionCreatedDateFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DecisionCreatedDateFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.DecisionCreatedDateFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DecisionCreatedDateFlag;
 
-            else if (IsDecisionCreatedDateUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.DecisionCreatedDateFlag;
+            else if (IsDecisionCreatedDateUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DecisionCreatedDateFlag;
         }
     }
     public bool IsDecisionCreatedSub2MinTimeUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.DecisionCreatedSub2MinTimeFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DecisionCreatedSub2MinTimeFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.DecisionCreatedSub2MinTimeFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DecisionCreatedSub2MinTimeFlag;
 
-            else if (IsDecisionCreatedSub2MinTimeUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.DecisionCreatedSub2MinTimeFlag;
+            else if (IsDecisionCreatedSub2MinTimeUpdated)
+                UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DecisionCreatedSub2MinTimeFlag;
         }
     }
     public bool IsDecisionAmendDateUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.DecisionAmendDateFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DecisionAmendDateFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.DecisionAmendDateFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DecisionAmendDateFlag;
 
-            else if (IsDecisionAmendDateUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.DecisionAmendDateFlag;
+            else if (IsDecisionAmendDateUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DecisionAmendDateFlag;
         }
     }
     public bool IsDecisionAmendSub2MinTimeUpdated
     {
-        get => (IPOUpdatedFlags & InternalPassiveOrderLayerInfoUpdatedFlags.DecisionAmendSub2MinTimeFlag) > 0;
+        get => (UpdatedFlags & PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DecisionAmendSub2MinTimeFlag) > 0;
         set
         {
             if (value)
-                IPOUpdatedFlags |= InternalPassiveOrderLayerInfoUpdatedFlags.DecisionAmendSub2MinTimeFlag;
+                UpdatedFlags |= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DecisionAmendSub2MinTimeFlag;
 
-            else if (IsDecisionAmendSub2MinTimeUpdated) IPOUpdatedFlags ^= InternalPassiveOrderLayerInfoUpdatedFlags.DecisionAmendSub2MinTimeFlag;
+            else if (IsDecisionAmendSub2MinTimeUpdated) UpdatedFlags ^= PQAdditionalInternalPassiveOrderInfoUpdatedFlags.DecisionAmendSub2MinTimeFlag;
         }
     }
 
@@ -665,18 +671,18 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
         set
         {
             if (nameIdLookup == value) return;
-            string? cacheDivisionName               = null;
-            if (divisionNameId > 0) cacheDivisionName = DivisionName;
-            string? cacheDeskName                     = null;
-            if (deskNameId > 0) cacheDeskName       = DeskName;
-            string? strategyName                     = null;
-            if (strategyNameId > 0) strategyName       = StrategyName;
-            string? strategyDecisionName                     = null;
-            if (strategyDecisionNameId > 0) strategyDecisionName       = StrategyDecisionName;
-            string? portfolioName                     = null;
-            if (portfolioNameId > 0) portfolioName       = PortfolioName;
-            string? internalTraderName                     = null;
-            if (internalTraderNameId > 0) internalTraderName       = InternalTraderName;
+            string? cacheDivisionName                            = null;
+            if (divisionNameId > 0) cacheDivisionName            = DivisionName;
+            string? cacheDeskName                                = null;
+            if (deskNameId > 0) cacheDeskName                    = DeskName;
+            string? strategyName                                 = null;
+            if (strategyNameId > 0) strategyName                 = StrategyName;
+            string? strategyDecisionName                         = null;
+            if (strategyDecisionNameId > 0) strategyDecisionName = StrategyDecisionName;
+            string? portfolioName                                = null;
+            if (portfolioNameId > 0) portfolioName               = PortfolioName;
+            string? internalTraderName                           = null;
+            if (internalTraderNameId > 0) internalTraderName     = InternalTraderName;
             nameIdLookup = value;
             if (cacheDivisionName != null && divisionNameId > 0)
                 try
@@ -736,31 +742,30 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public override bool IsEmpty
+    public virtual bool IsEmpty
     {
-        get => base.IsEmpty
-            && OrderSequenceId == 0
-            && ParentOrderId == 0
-            && ClosingOrderId == 0
-            && ClosingOrderPrice == 0
-            && DecisionCreatedTime == DateTime.MinValue
-            && DecisionAmendTime == DateTime.MinValue
-            && DivisionId == 0
-            && divisionNameId == 0
-            && DeskId == 0
-            && deskNameId == 0
-            && StrategyId == 0
-            && strategyNameId == 0
-            && StrategyDecisionId == 0
-            && strategyDecisionNameId == 0
-            && PortfolioId == 0
-            && portfolioNameId == 0
-            && InternalTraderId == 0
-            && internalTraderNameId == 0
-            && MarginConsumed == 0;
+        get =>
+            OrderSequenceId == 0
+         && ParentOrderId == 0
+         && ClosingOrderId == 0
+         && ClosingOrderPrice == 0
+         && DecisionCreatedTime == DateTime.MinValue
+         && DecisionAmendTime == DateTime.MinValue
+         && DivisionId == 0
+         && divisionNameId == 0
+         && DeskId == 0
+         && deskNameId == 0
+         && StrategyId == 0
+         && strategyNameId == 0
+         && StrategyDecisionId == 0
+         && strategyDecisionNameId == 0
+         && PortfolioId == 0
+         && portfolioNameId == 0
+         && InternalTraderId == 0
+         && internalTraderNameId == 0
+         && MarginConsumed == 0;
         set
         {
-            base.IsEmpty = value;
             if (!value) return;
             OrderSequenceId        = 0;
             ParentOrderId          = 0;
@@ -783,33 +788,31 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
             MarginConsumed         = 0;
         }
     }
+    public uint UpdateCount => (uint)NumUpdatesSinceEmpty;
 
     [JsonIgnore]
-    public override bool HasUpdates
+    public virtual bool HasUpdates
     {
-        get => base.HasUpdates;
+        get => UpdatedFlags != PQAdditionalInternalPassiveOrderInfoUpdatedFlags.None;
         set
         {
-            base.HasUpdates = value;
             if (value) return;
             NameIdLookup.HasUpdates = value;
+            UpdatedFlags            = PQAdditionalInternalPassiveOrderInfoUpdatedFlags.None;
         }
     }
 
-    public override void UpdateComplete()
+    public virtual void UpdateComplete()
     {
         NameIdLookup.UpdateComplete();
-        base.UpdateComplete();
+        HasUpdates = false;
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+    public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
     (DateTime snapShotTime, StorageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
-        foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
-                                                                quotePublicationPrecisionSetting))
-            yield return pqFieldUpdate;
         if (!updatedOnly || IsOrderSequenceIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalSequenceId, OrderSequenceId);
         if (!updatedOnly || IsParentOrderIdUpdated)
@@ -818,14 +821,15 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalClosingOrderId, ClosingOrderId);
         if (!updatedOnly || IsClosingOrderPriceUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalClosingOrderOpenPrice, ClosingOrderPrice
-                                         , quotePublicationPrecisionSetting?.PriceScalingPrecision ?? (PQFieldFlags)1 );
+                                         , quotePublicationPrecisionSetting?.PriceScalingPrecision ?? (PQFieldFlags)1);
         if (!updatedOnly || IsDecisionCreatedDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalDecisionCreateDate
                                          , decisionCreatedTime.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsDecisionCreatedSub2MinTimeUpdated)
         {
             var extended = decisionCreatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalDecisionCreateSub2MinTime, value, extended);
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalDecisionCreateSub2MinTime, value
+                                         , extended);
         }
         if (!updatedOnly || IsDecisionAmendDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalDecisionAmendDate
@@ -833,7 +837,8 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
         if (!updatedOnly || IsDecisionAmendSub2MinTimeUpdated)
         {
             var extended = decisionCreatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
-            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalDecisionAmendSub2MinTime, value, extended);
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalDecisionAmendSub2MinTime, value
+                                         , extended);
         }
 
         if (!updatedOnly || IsDivisionIdUpdated)
@@ -851,7 +856,8 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
         if (!updatedOnly || IsStrategyDecisionIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalStrategyDecisionId, StrategyDecisionId);
         if (!updatedOnly || IsStrategyDecisionNameUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalStrategyDecisionNameId, StrategyDecisionNameId);
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalStrategyDecisionNameId
+                                         , StrategyDecisionNameId);
         if (!updatedOnly || IsPortfolioIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalPortfolioId, PortfolioId);
         if (!updatedOnly || IsPortfolioNameUpdated)
@@ -862,100 +868,100 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalTraderNameId, InternalTraderNameId);
     }
 
-    public override int UpdateField(PQFieldUpdate pqFieldUpdate)
+    public virtual int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the book has already forwarded this through to the correct layer
         switch (pqFieldUpdate.OrdersSubId)
         {
             case PQOrdersSubFieldKeys.OrderInternalSequenceId:
-                IsOrderSequenceIdUpdated = true; // incase of reset and sending 0;
-                OrderSequenceId                 = pqFieldUpdate.Payload;
+                IsOrderSequenceIdUpdated = true; // in-case of reset and sending 0;
+                OrderSequenceId          = pqFieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalParentOrderId:
-                IsParentOrderIdUpdated = true; // incase of reset and sending 0;
-                ParentOrderId        = pqFieldUpdate.Payload;
+                IsParentOrderIdUpdated = true; // in-case of reset and sending 0;
+                ParentOrderId          = pqFieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalClosingOrderId:
-                IsClosingOrderIdUpdated = true; // incase of reset and sending 0;
+                IsClosingOrderIdUpdated = true; // in=case of reset and sending 0;
                 ClosingOrderId          = pqFieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalClosingOrderOpenPrice:
-                IsClosingOrderPriceUpdated = true; // incase of reset and sending 0;
+                IsClosingOrderPriceUpdated = true; // in-case of reset and sending 0;
                 ClosingOrderPrice          = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalDecisionCreateDate:
-                IsDecisionCreatedDateUpdated = true; // incase of reset and sending 0;
+                IsDecisionCreatedDateUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref decisionCreatedTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
                 if (decisionCreatedTime == DateTime.UnixEpoch) decisionCreatedTime = default;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalDecisionCreateSub2MinTime:
-                IsDecisionCreatedSub2MinTimeUpdated = true; // incase of reset and sending 0;
+                IsDecisionCreatedSub2MinTimeUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref decisionCreatedTime, pqFieldUpdate.Payload);
                 if (decisionCreatedTime == DateTime.UnixEpoch) decisionCreatedTime = default;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalDecisionAmendDate:
-                IsDecisionAmendDateUpdated = true; // incase of reset and sending 0;
+                IsDecisionAmendDateUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref decisionAmendTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
                 if (decisionAmendTime == DateTime.UnixEpoch) decisionAmendTime = default;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalDecisionAmendSub2MinTime:
-                IsDecisionAmendSub2MinTimeUpdated = true; // incase of reset and sending 0;
+                IsDecisionAmendSub2MinTimeUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref decisionAmendTime, pqFieldUpdate.Payload);
                 if (decisionAmendTime == DateTime.UnixEpoch) decisionAmendTime = default;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalDivisionId:
-                IsDivisionIdUpdated = true; // incase of reset and sending 0;
+                IsDivisionIdUpdated = true; // in-case of reset and sending 0;
                 DivisionId          = pqFieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalDivisionNameId:
-                IsDivisionNameUpdated = true; // incase of reset and sending 0;
-                DivisionNameId          = (int)pqFieldUpdate.Payload;
+                IsDivisionNameUpdated = true; // in-case of reset and sending 0;
+                DivisionNameId        = (int)pqFieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalDeskId:
-                IsDeskIdUpdated = true; // incase of reset and sending 0;
+                IsDeskIdUpdated = true; // in-case of reset and sending 0;
                 DeskId          = pqFieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalDeskNameId:
-                IsDeskNameUpdated = true; // incase of reset and sending 0;
-                DeskNameId          = (int)pqFieldUpdate.Payload;
+                IsDeskNameUpdated = true; // in-case of reset and sending 0;
+                DeskNameId        = (int)pqFieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalStrategyId:
-                IsStrategyIdUpdated = true; // incase of reset and sending 0;
+                IsStrategyIdUpdated = true; // in-case of reset and sending 0;
                 StrategyId          = pqFieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalStrategyNameId:
-                IsStrategyNameUpdated = true; // incase of reset and sending 0;
-                StrategyNameId          = (int)pqFieldUpdate.Payload;
+                IsStrategyNameUpdated = true; // in-case of reset and sending 0;
+                StrategyNameId        = (int)pqFieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalStrategyDecisionId:
-                IsStrategyDecisionIdUpdated = true; // incase of reset and sending 0;
+                IsStrategyDecisionIdUpdated = true; // in-case of reset and sending 0;
                 StrategyDecisionId          = pqFieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalStrategyDecisionNameId:
-                IsStrategyDecisionNameUpdated = true; // incase of reset and sending 0;
-                StrategyDecisionNameId          = (int)pqFieldUpdate.Payload;
+                IsStrategyDecisionNameUpdated = true; // in-case of reset and sending 0;
+                StrategyDecisionNameId        = (int)pqFieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalPortfolioId:
-                IsPortfolioIdUpdated = true; // incase of reset and sending 0;
-                StrategyDecisionId          = pqFieldUpdate.Payload;
+                IsPortfolioIdUpdated = true; // in-case of reset and sending 0;
+                StrategyDecisionId   = pqFieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalPortfolioNameId:
-                IsPortfolioNameUpdated = true; // incase of reset and sending 0;
-                PortfolioNameId          = (int)pqFieldUpdate.Payload;
+                IsPortfolioNameUpdated = true; // in-case of reset and sending 0;
+                PortfolioNameId        = (int)pqFieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalTraderId:
-                IsInternalTraderIdUpdated = true; // incase of reset and sending 0;
+                IsInternalTraderIdUpdated = true; // in-case of reset and sending 0;
                 InternalTraderId          = pqFieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderInternalTraderNameId:
-                IsInternalTraderNameUpdated = true; // incase of reset and sending 0;
-                InternalTraderNameId          = (int)pqFieldUpdate.Payload;
+                IsInternalTraderNameUpdated = true; // in-case of reset and sending 0;
+                InternalTraderNameId        = (int)pqFieldUpdate.Payload;
                 return 0;
         }
 
-        return base.UpdateField(pqFieldUpdate);
+        return -1;
     }
 
     public override void StateReset()
@@ -980,77 +986,63 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
         portfolioNameId        = 0;
         MarginConsumed         = 0;
 
-        IPOUpdatedFlags = InternalPassiveOrderLayerInfoUpdatedFlags.None;
+        UpdatedFlags = PQAdditionalInternalPassiveOrderInfoUpdatedFlags.None;
         base.StateReset();
     }
 
     object ICloneable.Clone() => Clone();
 
-    IPQInternalPassiveOrderLayerInfo IPQInternalPassiveOrderLayerInfo.Clone() => Clone();
+    IPQAdditionalInternalPassiveOrderInfo IPQAdditionalInternalPassiveOrderInfo.Clone() => Clone();
+
+    IAdditionalInternalPassiveOrderInfo ICloneable<IAdditionalInternalPassiveOrderInfo>.Clone() => Clone();
+
+    IPQAdditionalInternalPassiveOrderInfo ICloneable<IPQAdditionalInternalPassiveOrderInfo>.Clone() => Clone();
+
+    IMutableAdditionalInternalPassiveOrderInfo ICloneable<IMutableAdditionalInternalPassiveOrderInfo>.Clone() => Clone();
+
+    IMutableAdditionalInternalPassiveOrderInfo IMutableAdditionalInternalPassiveOrderInfo.Clone() => Clone();
+
+    public override PQAdditionalInternalPassiveOrderInfo Clone() =>
+        Recycler?.Borrow<PQAdditionalInternalPassiveOrderInfo>().CopyFrom(this) ??
+        new PQAdditionalInternalPassiveOrderInfo(this, NameIdLookup);
 
 
-    IMutableInternalPassiveOrderLayerInfo IMutableInternalPassiveOrderLayerInfo.Clone() => Clone();
+    public bool AreEquivalent(IMutableInternalPassiveOrder? other, bool exactTypes = false) =>
+        AreEquivalent((IAdditionalInternalPassiveOrderInfo?)other, exactTypes);
 
-    IInternalPassiveOrderLayerInfo ICloneable<IInternalPassiveOrderLayerInfo>.Clone() => Clone();
-
-    IInternalPassiveOrderLayerInfo IInternalPassiveOrderLayerInfo.Clone() => Clone();
-
-    IMutableInternalPassiveOrderLayerInfo ICloneable<IMutableInternalPassiveOrderLayerInfo>.Clone() => Clone();
-
-    IInternalPassiveOrder ICloneable<IInternalPassiveOrder>.                      Clone() => Clone();
-
-    IInternalPassiveOrder IInternalPassiveOrder.                                  Clone() => Clone();
-
-    IMutableInternalPassiveOrder ICloneable<IMutableInternalPassiveOrder>.        Clone() => Clone();
-
-    IMutableInternalPassiveOrder IMutableInternalPassiveOrder.                    Clone() => Clone();
-
-    IPQInternalPassiveOrderLayerInfo ICloneable<IPQInternalPassiveOrderLayerInfo>.Clone() => Clone();
-
-    public override PQInternalPassiveOrderLayerInfo Clone() =>
-        Recycler?.Borrow<PQInternalPassiveOrderLayerInfo>().CopyFrom(this) ??
-        new PQInternalPassiveOrderLayerInfo(this, NameIdLookup);
-
-    bool IInterfacesComparable<IInternalPassiveOrderLayerInfo>.AreEquivalent(IInternalPassiveOrderLayerInfo? other, bool exactTypes) =>
-        AreEquivalent(other, exactTypes);
-
-    public bool AreEquivalent(IMutableInternalPassiveOrderLayerInfo? other, bool exactTypes = false) => 
-        AreEquivalent(other, exactTypes);
-
-    public override bool AreEquivalent(IAnonymousOrderLayerInfo? other, bool exactTypes = false)
+    public virtual bool AreEquivalent(IAdditionalInternalPassiveOrderInfo? other, bool exactTypes = false)
     {
-        if (!(other is IInternalPassiveOrder internalPassiveOrder)) return false;
+        if (other is null) return false;
 
-        var baseSame                 = base.AreEquivalent(other, exactTypes);
-        var orderSequenceIdSame      = OrderSequenceId == internalPassiveOrder.OrderSequenceId;
-        var parentOrderIdSame        = ParentOrderId == internalPassiveOrder.ParentOrderId;
-        var closingOrderIdSame       = ClosingOrderId == internalPassiveOrder.ClosingOrderId;
-        var closingOrderPriceSame    = ClosingOrderPrice == internalPassiveOrder.ClosingOrderPrice;
-        var decisionCreatedTimeSame  = DecisionCreatedTime == internalPassiveOrder.DecisionCreatedTime;
-        var decisionAmendTimeSame    = DecisionAmendTime == internalPassiveOrder.DecisionAmendTime;
-        var divisionIdSame           = DivisionId == internalPassiveOrder.DivisionId;
-        var divisionNameSame         = DivisionName == internalPassiveOrder.DivisionName;
-        var deskIdSame               = DeskId == internalPassiveOrder.DeskId;
-        var deskNameSame             = DeskName == internalPassiveOrder.DeskName;
-        var strategyIdSame           = StrategyId == internalPassiveOrder.StrategyId;
-        var strategyNameSame         = StrategyName == internalPassiveOrder.StrategyName;
-        var strategyDecisionIdSame   = StrategyDecisionId == internalPassiveOrder.StrategyDecisionId;
-        var strategyDecisionNameSame = StrategyDecisionName == internalPassiveOrder.StrategyDecisionName;
-        var portfolioIdSame          = PortfolioId == internalPassiveOrder.PortfolioId;
-        var portfolioNameSame        = PortfolioName == internalPassiveOrder.PortfolioName;
-        var internalTraderIdSame     = InternalTraderId == internalPassiveOrder.InternalTraderId;
-        var internalTraderNameSame   = InternalTraderName == internalPassiveOrder.InternalTraderName;
-        var marginConsumedSame       = MarginConsumed == internalPassiveOrder.MarginConsumed;
+        var orderSequenceIdSame      = OrderSequenceId == other.OrderSequenceId;
+        var parentOrderIdSame        = ParentOrderId == other.ParentOrderId;
+        var closingOrderIdSame       = ClosingOrderId == other.ClosingOrderId;
+        var closingOrderPriceSame    = ClosingOrderPrice == other.ClosingOrderPrice;
+        var decisionCreatedTimeSame  = DecisionCreatedTime == other.DecisionCreatedTime;
+        var decisionAmendTimeSame    = DecisionAmendTime == other.DecisionAmendTime;
+        var divisionIdSame           = DivisionId == other.DivisionId;
+        var divisionNameSame         = DivisionName == other.DivisionName;
+        var deskIdSame               = DeskId == other.DeskId;
+        var deskNameSame             = DeskName == other.DeskName;
+        var strategyIdSame           = StrategyId == other.StrategyId;
+        var strategyNameSame         = StrategyName == other.StrategyName;
+        var strategyDecisionIdSame   = StrategyDecisionId == other.StrategyDecisionId;
+        var strategyDecisionNameSame = StrategyDecisionName == other.StrategyDecisionName;
+        var portfolioIdSame          = PortfolioId == other.PortfolioId;
+        var portfolioNameSame        = PortfolioName == other.PortfolioName;
+        var internalTraderIdSame     = InternalTraderId == other.InternalTraderId;
+        var internalTraderNameSame   = InternalTraderName == other.InternalTraderName;
+        var marginConsumedSame       = MarginConsumed == other.MarginConsumed;
 
         var updatedSame = true;
         if (exactTypes)
-            updatedSame = internalPassiveOrder is PQInternalPassiveOrderLayerInfo pqCounterPartyOther && UpdatedFlags == pqCounterPartyOther.UpdatedFlags;
+            updatedSame = other is PQAdditionalInternalPassiveOrderInfo pqCounterPartyOther && UpdatedFlags == pqCounterPartyOther.UpdatedFlags;
 
-        var allAreSame =  orderSequenceIdSame && parentOrderIdSame && closingOrderIdSame && closingOrderPriceSame && decisionCreatedTimeSame
-                       && decisionAmendTimeSame && divisionIdSame && divisionNameSame && deskIdSame && deskNameSame && strategyIdSame
-                       && strategyNameSame && strategyDecisionNameSame && strategyDecisionIdSame && portfolioIdSame && portfolioNameSame &&
-                          internalTraderIdSame &&
-                          internalTraderNameSame && marginConsumedSame && baseSame && updatedSame;
+        var allAreSame = orderSequenceIdSame && parentOrderIdSame && closingOrderIdSame && closingOrderPriceSame && decisionCreatedTimeSame
+                      && decisionAmendTimeSame && divisionIdSame && divisionNameSame && deskIdSame && deskNameSame && strategyIdSame
+                      && strategyNameSame && strategyDecisionNameSame && strategyDecisionIdSame && portfolioIdSame && portfolioNameSame &&
+                         internalTraderIdSame &&
+                         internalTraderNameSame && marginConsumedSame && updatedSame;
 
         return allAreSame;
     }
@@ -1066,160 +1058,169 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
         foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate;
     }
 
-    IPQInternalPassiveOrderLayerInfo ITransferState<IPQInternalPassiveOrderLayerInfo>.CopyFrom
-        (IPQInternalPassiveOrderLayerInfo source, CopyMergeFlags copyMergeFlags) =>
+    IPQAdditionalInternalPassiveOrderInfo ITransferState<IPQAdditionalInternalPassiveOrderInfo>.CopyFrom
+        (IPQAdditionalInternalPassiveOrderInfo source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom(source, copyMergeFlags);
 
-    public override PQInternalPassiveOrderLayerInfo CopyFrom
-        (IAnonymousOrderLayerInfo? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    IMutableAdditionalInternalPassiveOrderInfo ITransferState<IMutableAdditionalInternalPassiveOrderInfo>.CopyFrom
+        (IMutableAdditionalInternalPassiveOrderInfo source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom(source, copyMergeFlags);
+
+    public override PQAdditionalInternalPassiveOrderInfo CopyFrom
+        (IAdditionalInternalPassiveOrderInfo? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(source, copyMergeFlags);
-        if (source is IPQInternalPassiveOrderLayerInfo pqIntrnlPsivOrdr)
+
+        if (source is IPQAdditionalInternalPassiveOrderInfo pqAddPassive)
         {
-            NameIdLookup.CopyFrom(pqIntrnlPsivOrdr.NameIdLookup, copyMergeFlags);
-
+            NameIdLookup.CopyFrom(pqAddPassive.NameIdLookup, copyMergeFlags);
+            
             var isFullReplace = copyMergeFlags.HasFullReplace();
-
-            if (pqIntrnlPsivOrdr.IsOrderSequenceIdUpdated || isFullReplace)
+            if (pqAddPassive.IsOrderSequenceIdUpdated || isFullReplace)
             {
                 IsOrderSequenceIdUpdated = true;
 
-                OrderSequenceId = pqIntrnlPsivOrdr.OrderSequenceId;
+                OrderSequenceId = pqAddPassive.OrderSequenceId;
             }
-            if (pqIntrnlPsivOrdr.IsParentOrderIdUpdated || isFullReplace)
+            if (pqAddPassive.IsParentOrderIdUpdated || isFullReplace)
             {
                 IsParentOrderIdUpdated = true;
 
-                ParentOrderId = pqIntrnlPsivOrdr.ParentOrderId;
+                ParentOrderId = pqAddPassive.ParentOrderId;
             }
-            if (pqIntrnlPsivOrdr.IsClosingOrderIdUpdated || isFullReplace)
+            if (pqAddPassive.IsClosingOrderIdUpdated || isFullReplace)
             {
                 IsClosingOrderIdUpdated = true;
 
-                ClosingOrderId = pqIntrnlPsivOrdr.ClosingOrderId;
+                ClosingOrderId = pqAddPassive.ClosingOrderId;
             }
-            if (pqIntrnlPsivOrdr.IsClosingOrderPriceUpdated || isFullReplace)
+            if (pqAddPassive.IsClosingOrderPriceUpdated || isFullReplace)
             {
                 IsClosingOrderPriceUpdated = true;
 
-                ClosingOrderPrice = pqIntrnlPsivOrdr.ClosingOrderPrice;
+                ClosingOrderPrice = pqAddPassive.ClosingOrderPrice;
             }
-            if (pqIntrnlPsivOrdr.IsDecisionCreatedDateUpdated || isFullReplace)
+            if (pqAddPassive.IsDecisionCreatedDateUpdated || isFullReplace)
             {
                 var originalDecisionCreateTime = decisionCreatedTime;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref decisionCreatedTime,
-                                                                      pqIntrnlPsivOrdr.DecisionCreatedTime.Get2MinIntervalsFromUnixEpoch());
+                                                                      pqAddPassive.DecisionCreatedTime.Get2MinIntervalsFromUnixEpoch());
                 IsDecisionCreatedDateUpdated |= originalDecisionCreateTime != decisionCreatedTime;
                 if (decisionCreatedTime == DateTime.UnixEpoch) decisionCreatedTime = default;
             }
-            if (pqIntrnlPsivOrdr.IsDecisionCreatedSub2MinTimeUpdated || isFullReplace)
+            if (pqAddPassive.IsDecisionCreatedSub2MinTimeUpdated || isFullReplace)
             {
                 var originalDecisionCreateTime = decisionCreatedTime;
                 PQFieldConverters.UpdateSub2MinComponent(ref decisionCreatedTime,
-                                                         pqIntrnlPsivOrdr.DecisionCreatedTime.GetSub2MinComponent());
+                                                         pqAddPassive.DecisionCreatedTime.GetSub2MinComponent());
                 IsDecisionCreatedSub2MinTimeUpdated |= originalDecisionCreateTime != decisionCreatedTime;
                 if (decisionCreatedTime == DateTime.UnixEpoch) decisionCreatedTime = default;
             }
-            if (pqIntrnlPsivOrdr.IsDecisionAmendDateUpdated || isFullReplace)
+            if (pqAddPassive.IsDecisionAmendDateUpdated || isFullReplace)
             {
                 var originalDecisionAmendTime = decisionAmendTime;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref decisionAmendTime,
-                                                                      pqIntrnlPsivOrdr.DecisionAmendTime.Get2MinIntervalsFromUnixEpoch());
+                                                                      pqAddPassive.DecisionAmendTime.Get2MinIntervalsFromUnixEpoch());
                 IsDecisionAmendDateUpdated |= originalDecisionAmendTime != decisionAmendTime;
                 if (decisionAmendTime == DateTime.UnixEpoch) decisionAmendTime = default;
             }
-            if (pqIntrnlPsivOrdr.IsDecisionCreatedSub2MinTimeUpdated || isFullReplace)
+            if (pqAddPassive.IsDecisionCreatedSub2MinTimeUpdated || isFullReplace)
             {
                 var originalDecisionAmendTime = decisionAmendTime;
                 PQFieldConverters.UpdateSub2MinComponent(ref decisionAmendTime,
-                                                         pqIntrnlPsivOrdr.DecisionAmendTime.GetSub2MinComponent());
+                                                         pqAddPassive.DecisionAmendTime.GetSub2MinComponent());
                 IsDecisionAmendSub2MinTimeUpdated |= originalDecisionAmendTime != decisionAmendTime;
                 if (decisionAmendTime == DateTime.UnixEpoch) decisionAmendTime = default;
             }
-            if (pqIntrnlPsivOrdr.IsDivisionIdUpdated || isFullReplace)
+            if (pqAddPassive.IsDivisionIdUpdated || isFullReplace)
             {
                 IsDivisionIdUpdated = true;
 
-                DivisionId = pqIntrnlPsivOrdr.DivisionId;
+                DivisionId = pqAddPassive.DivisionId;
             }
-            if (pqIntrnlPsivOrdr.IsDivisionNameUpdated || isFullReplace)
+            if (pqAddPassive.IsDivisionNameUpdated || isFullReplace)
             {
                 IsDivisionNameUpdated = true;
 
-                DivisionNameId = pqIntrnlPsivOrdr.DivisionNameId;
+                DivisionNameId = pqAddPassive.DivisionNameId;
             }
-            if (pqIntrnlPsivOrdr.IsDeskIdUpdated || isFullReplace)
+            if (pqAddPassive.IsDeskIdUpdated || isFullReplace)
             {
                 IsDeskIdUpdated = true;
 
-                DeskId = pqIntrnlPsivOrdr.DeskId;
+                DeskId = pqAddPassive.DeskId;
             }
-            if (pqIntrnlPsivOrdr.IsDeskNameUpdated || isFullReplace)
+            if (pqAddPassive.IsDeskNameUpdated || isFullReplace)
             {
                 IsDeskNameUpdated = true;
 
-                DeskNameId = pqIntrnlPsivOrdr.DeskNameId;
+                DeskNameId = pqAddPassive.DeskNameId;
             }
-            if (pqIntrnlPsivOrdr.IsStrategyIdUpdated || isFullReplace)
+            if (pqAddPassive.IsStrategyIdUpdated || isFullReplace)
             {
                 IsStrategyIdUpdated = true;
 
-                StrategyId = pqIntrnlPsivOrdr.StrategyId;
+                StrategyId = pqAddPassive.StrategyId;
             }
-            if (pqIntrnlPsivOrdr.IsStrategyNameUpdated || isFullReplace)
+            if (pqAddPassive.IsStrategyNameUpdated || isFullReplace)
             {
                 IsStrategyNameUpdated = true;
 
-                StrategyNameId = pqIntrnlPsivOrdr.StrategyNameId;
+                StrategyNameId = pqAddPassive.StrategyNameId;
             }
-            if (pqIntrnlPsivOrdr.IsStrategyDecisionIdUpdated || isFullReplace)
+            if (pqAddPassive.IsStrategyDecisionIdUpdated || isFullReplace)
             {
                 IsStrategyDecisionIdUpdated = true;
 
-                StrategyDecisionId = pqIntrnlPsivOrdr.StrategyDecisionId;
+                StrategyDecisionId = pqAddPassive.StrategyDecisionId;
             }
-            if (pqIntrnlPsivOrdr.IsStrategyDecisionNameUpdated || isFullReplace)
+            if (pqAddPassive.IsStrategyDecisionNameUpdated || isFullReplace)
             {
                 IsStrategyDecisionNameUpdated = true;
 
-                StrategyDecisionNameId = pqIntrnlPsivOrdr.StrategyDecisionNameId;
+                StrategyDecisionNameId = pqAddPassive.StrategyDecisionNameId;
             }
-            if (pqIntrnlPsivOrdr.IsPortfolioIdUpdated || isFullReplace)
+            if (pqAddPassive.IsPortfolioIdUpdated || isFullReplace)
             {
                 IsPortfolioIdUpdated = true;
 
-                PortfolioId = pqIntrnlPsivOrdr.PortfolioId;
+                PortfolioId = pqAddPassive.PortfolioId;
             }
-            if (pqIntrnlPsivOrdr.IsPortfolioNameUpdated || isFullReplace)
+            if (pqAddPassive.IsPortfolioNameUpdated || isFullReplace)
             {
                 IsPortfolioNameUpdated = true;
 
-                PortfolioNameId = pqIntrnlPsivOrdr.PortfolioNameId;
+                PortfolioNameId = pqAddPassive.PortfolioNameId;
             }
-            if (pqIntrnlPsivOrdr.IsInternalTraderIdUpdated || isFullReplace)
+            if (pqAddPassive.IsInternalTraderIdUpdated || isFullReplace)
             {
                 IsInternalTraderIdUpdated = true;
 
-                InternalTraderId = pqIntrnlPsivOrdr.InternalTraderId;
+                InternalTraderId = pqAddPassive.InternalTraderId;
             }
-            if (pqIntrnlPsivOrdr.IsInternalTraderNameUpdated || isFullReplace)
+            if (pqAddPassive.IsInternalTraderNameUpdated || isFullReplace)
             {
                 IsInternalTraderNameUpdated = true;
 
-                InternalTraderNameId = pqIntrnlPsivOrdr.InternalTraderNameId;
+                InternalTraderNameId = pqAddPassive.InternalTraderNameId;
             }
-            if (pqIntrnlPsivOrdr.IsMarginConsumedUpdated || isFullReplace)
+            if (pqAddPassive.IsMarginConsumedUpdated || isFullReplace)
             {
                 IsMarginConsumedUpdated = true;
 
-                MarginConsumed = pqIntrnlPsivOrdr.MarginConsumed;
+                MarginConsumed = pqAddPassive.MarginConsumed;
             }
 
-            if (isFullReplace && pqIntrnlPsivOrdr is PQInternalPassiveOrderLayerInfo pqInternalPassiveOrder)
-                UpdatedFlags = pqInternalPassiveOrder.UpdatedFlags;
+            if (isFullReplace) SetFlagsSame(pqAddPassive);
         }
         else if (source is IInternalPassiveOrder internalPassiveOrder)
         {
+            var hasAsNew               = copyMergeFlags.HasAsNew();
+            if (hasAsNew)
+            {
+                UpdatedFlags         = PQAdditionalInternalPassiveOrderInfoUpdatedFlags.None;
+                NumUpdatesSinceEmpty = int.MaxValue;
+            }
+
             OrderSequenceId      = internalPassiveOrder.OrderSequenceId;
             ParentOrderId        = internalPassiveOrder.ParentOrderId;
             ClosingOrderId       = internalPassiveOrder.ClosingOrderId;
@@ -1239,12 +1240,22 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
             InternalTraderId     = internalPassiveOrder.InternalTraderId;
             InternalTraderName   = internalPassiveOrder.InternalTraderName;
             MarginConsumed       = internalPassiveOrder.MarginConsumed;
+            
+            if (hasAsNew)
+            {
+                NumUpdatesSinceEmpty = 0;
+            }
         }
 
         return this;
     }
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IExternalCounterPartyOrderLayerInfo?)obj, true);
+    protected void SetFlagsSame(IAdditionalInternalPassiveOrderInfo toCopyFlags)
+    {
+        if (toCopyFlags is PQAdditionalInternalPassiveOrderInfo pqToClone) UpdatedFlags = pqToClone.UpdatedFlags;
+    }
+
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IAdditionalInternalPassiveOrderInfo, true);
 
     public override int GetHashCode()
     {
@@ -1275,14 +1286,15 @@ public class PQInternalPassiveOrderLayerInfo : PQAnonymousOrderLayerInfo, IPQInt
     }
 
     protected string PQInternalPassiveOrderLayerInfoToStringMembers =>
-        $"{PQAnonymousOrderLayerInfoToStringMembers}, {nameof(OrderSequenceId)}: {OrderSequenceId}, {nameof(ParentOrderId)}: {ParentOrderId}, " +
+        $"{nameof(OrderSequenceId)}: {OrderSequenceId}, {nameof(ParentOrderId)}: {ParentOrderId}, " +
         $"{nameof(ClosingOrderId)}: {ClosingOrderId}, {nameof(ClosingOrderPrice)}: {ClosingOrderPrice}, {nameof(DecisionCreatedTime)}: {DecisionCreatedTime}, " +
         $"{nameof(DecisionAmendTime)}: {DecisionAmendTime}, {nameof(DivisionId)}: {DivisionId}, {nameof(DivisionName)}: {DivisionName}, " +
         $"{nameof(DeskId)}: {DeskId}, {nameof(DeskName)}: {DeskName}, {nameof(StrategyId)}: {StrategyId}, {nameof(StrategyName)}: {StrategyName}, " +
         $"{nameof(StrategyDecisionId)}: {StrategyDecisionId}, {nameof(StrategyDecisionName)}: {StrategyDecisionName}, {nameof(PortfolioId)}: {PortfolioId}, " +
         $"{nameof(PortfolioName)}: {PortfolioName}, {nameof(InternalTraderId)}: {InternalTraderId}, {nameof(InternalTraderName)}: {InternalTraderName}, " +
         $"{nameof(MarginConsumed)}: {MarginConsumed}";
+    protected string UpdatedFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
 
     public override string ToString() =>
-        $"{nameof(PQCounterPartyOrderLayerInfo)}({PQInternalPassiveOrderLayerInfoToStringMembers}, {UpdatedFlagsToString})";
+        $"{nameof(PQAdditionalExternalCounterPartyInfo)}({PQInternalPassiveOrderLayerInfoToStringMembers}, {UpdatedFlagsToString})";
 }
