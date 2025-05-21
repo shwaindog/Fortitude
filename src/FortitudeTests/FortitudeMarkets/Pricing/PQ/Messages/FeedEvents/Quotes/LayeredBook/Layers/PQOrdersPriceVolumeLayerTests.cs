@@ -832,14 +832,14 @@ public class PQOrdersPriceVolumeLayerTests
 
             Assert.IsFalse(traderLayerInfo.IsOrderVolumeUpdated);
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.AreEqual(0m, ((IAnonymousOrder)traderLayerInfo).OrderDisplayVolume);
+            Assert.AreEqual(0m, traderLayerInfo.OrderDisplayVolume);
             Assert.AreEqual(0, emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
 
             var expectedOrderVolume = OrderVolume + 1000;
             traderLayerInfo.OrderDisplayVolume = expectedOrderVolume;
             Assert.IsTrue(traderLayerInfo.IsOrderVolumeUpdated);
             Assert.IsTrue(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.AreEqual(expectedOrderVolume, ((IAnonymousOrder)traderLayerInfo).OrderDisplayVolume);
+            Assert.AreEqual(expectedOrderVolume, traderLayerInfo.OrderDisplayVolume);
             var layerUpdates = emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
             Assert.AreEqual(1, layerUpdates.Count);
             var orderIndex = (ushort)i;
@@ -866,7 +866,7 @@ public class PQOrdersPriceVolumeLayerTests
             var newEmpty = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
             newEmpty.UpdateField(layerUpdates[0]);
             var foundTraderInfo = (IPQExternalCounterPartyOrder?)newEmpty[i];
-            Assert.AreEqual(expectedOrderVolume, ((IAnonymousOrder)foundTraderInfo!).OrderDisplayVolume);
+            Assert.AreEqual(expectedOrderVolume, foundTraderInfo!.OrderDisplayVolume);
             Assert.IsTrue(newEmpty.HasUpdates);
             Assert.IsTrue(foundTraderInfo.HasUpdates);
             Assert.IsTrue(foundTraderInfo.IsOrderVolumeUpdated);
@@ -1116,7 +1116,7 @@ public class PQOrdersPriceVolumeLayerTests
             Assert.AreNotEqual(OrderGenesisFlags.None, checkOrderLayer.GenesisFlags);
             Assert.AreNotEqual(DateTime.MinValue, checkOrderLayer.CreatedTime);
             Assert.AreNotEqual(DateTime.MinValue, checkOrderLayer.UpdateTime);
-            Assert.AreNotEqual(0m, ((IAnonymousOrder)checkOrderLayer).OrderDisplayVolume);
+            Assert.AreNotEqual(0m, checkOrderLayer.OrderDisplayVolume);
             Assert.AreNotEqual(0m, checkOrderLayer.OrderRemainingVolume);
             Assert.IsTrue(checkOrderLayer.IsOrderIdUpdated);
             Assert.IsTrue(checkOrderLayer.IsGenesisFlagsUpdated);
@@ -1157,7 +1157,7 @@ public class PQOrdersPriceVolumeLayerTests
             Assert.AreEqual(checkOrderLayer.EmptyIgnoreGenesisFlags, checkOrderLayer.GenesisFlags);
             Assert.AreEqual(DateTime.MinValue, checkOrderLayer.CreatedTime);
             Assert.AreEqual(DateTime.MinValue, checkOrderLayer.UpdateTime);
-            Assert.AreEqual(0m, ((IAnonymousOrder)checkOrderLayer).OrderDisplayVolume);
+            Assert.AreEqual(0m, checkOrderLayer.OrderDisplayVolume);
             Assert.AreEqual(0m, checkOrderLayer.OrderRemainingVolume);
             Assert.IsTrue(checkOrderLayer.IsOrderIdUpdated);
             Assert.IsTrue(checkOrderLayer.IsGenesisFlagsUpdated);
@@ -1320,17 +1320,17 @@ public class PQOrdersPriceVolumeLayerTests
         populatedAnonymousOrdersPvl.CopyFrom(clonePopulated);
 
         Assert.AreEqual(0, populatedAnonymousOrdersPvl[0]!.OrderId);
-        Assert.AreEqual(0, ((IAnonymousOrder)populatedAnonymousOrdersPvl[0]!).OrderDisplayVolume);
+        Assert.AreEqual(0, populatedAnonymousOrdersPvl[0]!.OrderDisplayVolume);
         Assert.IsTrue(populatedAnonymousOrdersPvl[0]!.IsOrderIdUpdated);
         Assert.IsTrue(populatedAnonymousOrdersPvl[0]!.IsOrderVolumeUpdated);
 
         Assert.AreEqual(251, populatedAnonymousOrdersPvl[1]!.OrderId);
-        Assert.AreEqual(50, ((IAnonymousOrder)populatedAnonymousOrdersPvl[1]!).OrderDisplayVolume);
+        Assert.AreEqual(50, populatedAnonymousOrdersPvl[1]!.OrderDisplayVolume);
         Assert.IsFalse(populatedAnonymousOrdersPvl[1]!.IsOrderIdUpdated);
         Assert.IsTrue(populatedAnonymousOrdersPvl[1]!.IsOrderVolumeUpdated);
 
         Assert.AreEqual(2, populatedAnonymousOrdersPvl[2]!.OrderId);
-        Assert.AreEqual(100, ((IAnonymousOrder)populatedAnonymousOrdersPvl[2]!).OrderDisplayVolume);
+        Assert.AreEqual(100, populatedAnonymousOrdersPvl[2]!.OrderDisplayVolume);
         Assert.IsTrue(populatedAnonymousOrdersPvl[2]!.IsOrderIdUpdated);
         Assert.IsTrue(populatedAnonymousOrdersPvl[2]!.IsOrderVolumeUpdated);
     }
@@ -1508,7 +1508,7 @@ public class PQOrdersPriceVolumeLayerTests
                                                                         orderIndex, value, extended),
                             $"For {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-            value = PQScaling.Scale(((IAnonymousOrder)orderLayerInfo).OrderDisplayVolume, volumeScale);
+            value = PQScaling.Scale(orderLayerInfo.OrderDisplayVolume, volumeScale);
             Assert.AreEqual(new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, depthId, PQOrdersSubFieldKeys.OrderDisplayVolume, orderIndex, value, volumeScale)
                            ,
                             PQLevel2QuoteTests.ExtractFieldUpdateWithId

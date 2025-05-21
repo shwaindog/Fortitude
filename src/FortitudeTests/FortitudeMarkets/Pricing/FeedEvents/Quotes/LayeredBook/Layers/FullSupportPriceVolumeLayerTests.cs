@@ -217,7 +217,7 @@ public class FullSupportPriceVolumeLayerTests
         for (var i = 0; i < NumOfOrders; i++)
         {
             var anonOrderLayerInfo = populatedPvl[i]!;
-            Assert.AreNotEqual(0m, ((IAnonymousOrder)anonOrderLayerInfo).OrderDisplayVolume);
+            Assert.AreNotEqual(0m, anonOrderLayerInfo.OrderDisplayVolume);
             Assert.IsFalse(anonOrderLayerInfo.IsEmpty);
             if (anonOrderLayerInfo is IExternalCounterPartyOrder counterPartyOrderLayerInfo)
             {
@@ -237,7 +237,7 @@ public class FullSupportPriceVolumeLayerTests
         for (var i = 0; i < NumOfOrders; i++)
         {
             var anonOrderLayerInfo = populatedPvl[i]!;
-            Assert.AreEqual(0m, ((IAnonymousOrder)anonOrderLayerInfo).OrderDisplayVolume);
+            Assert.AreEqual(0m, anonOrderLayerInfo.OrderDisplayVolume);
             Assert.IsTrue(anonOrderLayerInfo.IsEmpty);
             if (anonOrderLayerInfo is IExternalCounterPartyOrder counterPartyOrderLayerInfo)
                 Assert.AreEqual(null, counterPartyOrderLayerInfo.ExternalTraderName);

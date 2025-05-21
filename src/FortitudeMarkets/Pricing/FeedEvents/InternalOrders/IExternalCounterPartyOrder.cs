@@ -35,6 +35,7 @@ public interface IMutableAdditionalExternalCounterPartyOrderInfo : IAdditionalEx
 }
 
 public interface IExternalCounterPartyOrder : IAnonymousOrder, IAdditionalExternalCounterPartyOrderInfo, ICloneable<IExternalCounterPartyOrder>
+  , IInterfacesComparable<IExternalCounterPartyOrder>
 {
     const OrderGenesisFlags HasExternalCounterPartyOrderInfoFlags
         = OrderGenesisFlags.IsExternalOrder | OrderGenesisFlags.HasExternalCounterPartyInfo;
@@ -46,6 +47,7 @@ public interface IExternalCounterPartyOrder : IAnonymousOrder, IAdditionalExtern
 
 public interface IMutableExternalCounterPartyOrder : IExternalCounterPartyOrder, IMutableAdditionalExternalCounterPartyOrderInfo,
     IMutableAnonymousOrder, ICloneable<IMutableExternalCounterPartyOrder>, ITransferState<IMutableExternalCounterPartyOrder>
+  , IInterfacesComparable<IMutableExternalCounterPartyOrder>
 {
     new IMutableExternalCounterPartyOrder Clone();
 }

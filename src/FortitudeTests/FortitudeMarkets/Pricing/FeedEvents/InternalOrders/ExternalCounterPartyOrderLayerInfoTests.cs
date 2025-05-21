@@ -244,7 +244,7 @@ public class ExternalCounterPartyOrderTests
            , originalOrderBook, changingOrderBook, originalQuote, changingQuote);
 
         changingTraderLayerInfo.ExternalCounterPartyName = "TestChangedCounterPartyName";
-        Assert.IsFalse(original.AreEquivalent((IAnonymousOrder)changingTraderLayerInfo, exactComparison));
+        Assert.IsFalse(original.AreEquivalent(changingTraderLayerInfo, exactComparison));
         if (originalTraderPriceVolumeLayer != null)
             Assert.IsFalse
                 (originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
@@ -253,7 +253,7 @@ public class ExternalCounterPartyOrderTests
                 (originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingTraderLayerInfo.ExternalCounterPartyName = original.ExternalCounterPartyName;
-        Assert.IsTrue(original.AreEquivalent((IAnonymousOrder)changingTraderLayerInfo, exactComparison));
+        Assert.IsTrue(original.AreEquivalent(changingTraderLayerInfo, exactComparison));
         if (originalTraderPriceVolumeLayer != null)
             Assert.IsTrue
                 (originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
@@ -263,7 +263,7 @@ public class ExternalCounterPartyOrderTests
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
         changingTraderLayerInfo.ExternalTraderName = "TestChangedTraderName";
-        Assert.IsFalse(original.AreEquivalent((IAnonymousOrder)changingTraderLayerInfo, exactComparison));
+        Assert.IsFalse(original.AreEquivalent(changingTraderLayerInfo, exactComparison));
         if (originalTraderPriceVolumeLayer != null)
             Assert.IsFalse
                 (originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));
@@ -272,7 +272,7 @@ public class ExternalCounterPartyOrderTests
                 (originalOrderBook.AreEquivalent(changingOrderBook, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
         changingTraderLayerInfo.ExternalTraderName = ((IExternalCounterPartyOrder)original).ExternalTraderName;
-        Assert.IsTrue(original.AreEquivalent((IAnonymousOrder)changingTraderLayerInfo, exactComparison));
+        Assert.IsTrue(original.AreEquivalent(changingTraderLayerInfo, exactComparison));
         if (originalTraderPriceVolumeLayer != null)
             Assert.IsTrue
                 (originalTraderPriceVolumeLayer.AreEquivalent(changingTraderPriceVolumeLayer, exactComparison));

@@ -673,7 +673,7 @@ public class PQOrderBookSideTests
                         orderLayerInfo.IsOrderRemainingVolumeUpdated = false;
                         Assert.IsFalse(populatedOrderBook.HasUpdates);
 
-                        if (orderLayerInfo is IPQAdditionalExternalCounterPartyOrderInfo pqCounterPartyOrder)
+                        if (orderLayerInfo is IPQExternalCounterPartyOrder pqCounterPartyOrder)
                         {
                             pqCounterPartyOrder.ExternalCounterPartyName = "NewCounterPartyName_" + i;
                             Assert.IsTrue(pqCounterPartyOrder.HasUpdates);

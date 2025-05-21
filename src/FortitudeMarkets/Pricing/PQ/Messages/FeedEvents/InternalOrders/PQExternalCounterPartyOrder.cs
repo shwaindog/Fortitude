@@ -518,6 +518,12 @@ public class PQExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IPQE
     bool IInterfacesComparable<IPQExternalCounterPartyOrder>.AreEquivalent(IPQExternalCounterPartyOrder? other, bool exactTypes) =>
         AreEquivalent(other, exactTypes);
 
+    bool IInterfacesComparable<IExternalCounterPartyOrder>.       AreEquivalent(IExternalCounterPartyOrder? other, bool exactTypes) => 
+        AreEquivalent(other, exactTypes);
+
+    bool IInterfacesComparable<IMutableExternalCounterPartyOrder>.AreEquivalent(IMutableExternalCounterPartyOrder? other, bool exactTypes) => 
+        AreEquivalent(other, exactTypes);
+
 
     public bool AreEquivalent(IAnonymousOrder? other, bool exactTypes = false)
     {

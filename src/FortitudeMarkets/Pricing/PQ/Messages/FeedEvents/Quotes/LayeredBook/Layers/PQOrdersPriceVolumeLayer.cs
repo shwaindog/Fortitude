@@ -170,14 +170,14 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
             if (i >= SafeOrdersLength && value != null)
             {
                 orders?.Add(value);
-                if (value is IPQAdditionalExternalCounterPartyOrderInfo pqCounterPartyOrder) pqCounterPartyOrder.NameIdLookup = NameIdLookup;
+                value.NameIdLookup = NameIdLookup;
             }
             else if (orders != null)
             {
                 if (value != null)
                 {
                     orders[i] = value;
-                    if (value is IPQAdditionalExternalCounterPartyOrderInfo pqCounterPartyOrder) pqCounterPartyOrder.NameIdLookup = NameIdLookup;
+                    value.NameIdLookup = NameIdLookup;
                 }
                 else
                 {
@@ -388,9 +388,9 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         var numberOfTraderInfos = Math.Min(ushort.MaxValue, SafeOrdersLength);
         for (ushort i = 0; i < numberOfTraderInfos && i < SafeOrdersLength; i++)
         {
-            var tli = orders?[i] as IPQAdditionalExternalCounterPartyOrderInfo;
-            if (tli is null or { IsEmpty: true, HasUpdates: false } || i + 1 == ushort.MaxValue) continue;
-            foreach (var stringUpdate in tli.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate.WithAuxiliary(i);
+            var anonOrder = orders?[i];
+            if (anonOrder is null or { IsEmpty: true, HasUpdates: false } || i + 1 == ushort.MaxValue) continue;
+            foreach (var stringUpdate in anonOrder.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate.WithAuxiliary(i);
             if (i + 1 == numberOfTraderInfos) break;
         }
     }

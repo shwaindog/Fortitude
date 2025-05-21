@@ -82,7 +82,7 @@ public class PQAnonymousOrderTests
         Assert.AreEqual(OrderGenesisFlags.None, emptyAoli.GenesisFlags);
         Assert.AreEqual(DateTime.MinValue, emptyAoli.CreatedTime);
         Assert.AreEqual(DateTime.MinValue, emptyAoli.UpdateTime);
-        Assert.AreEqual(0m, ((IAnonymousOrder)emptyAoli).OrderDisplayVolume);
+        Assert.AreEqual(0m, emptyAoli.OrderDisplayVolume);
         Assert.AreEqual(0m, emptyAoli.OrderRemainingVolume);
     }
 
@@ -94,7 +94,7 @@ public class PQAnonymousOrderTests
         Assert.AreEqual(populatedAoli.GenesisFlags, fromInstance.GenesisFlags);
         Assert.AreEqual(populatedAoli.CreatedTime, fromInstance.CreatedTime);
         Assert.AreEqual(populatedAoli.UpdateTime, fromInstance.UpdateTime);
-        Assert.AreEqual(((IAnonymousOrder)populatedAoli).OrderDisplayVolume, fromInstance.OrderDisplayVolume);
+        Assert.AreEqual(populatedAoli.OrderDisplayVolume, fromInstance.OrderDisplayVolume);
         Assert.AreEqual(populatedAoli.OrderRemainingVolume, fromInstance.OrderRemainingVolume);
         Assert.IsTrue(fromInstance.IsOrderIdUpdated);
         Assert.IsTrue(fromInstance.IsGenesisFlagsUpdated);
@@ -131,7 +131,7 @@ public class PQAnonymousOrderTests
         Assert.AreEqual(populatedAoli.GenesisFlags, fromNonPQInstance.GenesisFlags);
         Assert.AreEqual(populatedAoli.CreatedTime, fromNonPQInstance.CreatedTime);
         Assert.AreEqual(populatedAoli.UpdateTime, fromNonPQInstance.UpdateTime);
-        Assert.AreEqual(((IAnonymousOrder)populatedAoli).OrderDisplayVolume, fromNonPQInstance.OrderDisplayVolume);
+        Assert.AreEqual(populatedAoli.OrderDisplayVolume, fromNonPQInstance.OrderDisplayVolume);
         Assert.AreEqual(populatedAoli.OrderRemainingVolume, fromNonPQInstance.OrderRemainingVolume);
         Assert.IsTrue(fromNonPQInstance.IsOrderIdUpdated);
         Assert.IsTrue(fromNonPQInstance.IsGenesisFlagsUpdated);
@@ -1475,7 +1475,7 @@ public class PQAnonymousOrderTests
         var expectedOrderVolume = 4682m;
         anonOrderInfo.OrderDisplayVolume = expectedOrderVolume;
         Assert.IsTrue(anonOrderInfo.HasUpdates);
-        Assert.AreEqual(expectedOrderVolume, ((IAnonymousOrder)anonOrderInfo).OrderDisplayVolume);
+        Assert.AreEqual(expectedOrderVolume, anonOrderInfo.OrderDisplayVolume);
         Assert.IsTrue(anonOrderInfo.IsOrderVolumeUpdated);
         var precisionSettings = l2Quote?.SourceTickerInfo ?? PQSourceTickerInfoTests.OrdersCountL3TraderNamePaidOrGivenSti;
         var l2QUpdates = l2QNotNull
@@ -1539,7 +1539,7 @@ public class PQAnonymousOrderTests
             var foundLayer =
                 (IPQOrdersPriceVolumeLayer)(isBid ? newEmpty.BidBook : newEmpty.AskBook)[bookDepth]!;
             var foundAnonOrderInfo = foundLayer[orderIndex]!;
-            Assert.AreEqual(expectedOrderVolume, ((IAnonymousOrder)foundAnonOrderInfo).OrderDisplayVolume);
+            Assert.AreEqual(expectedOrderVolume, foundAnonOrderInfo.OrderDisplayVolume);
             Assert.IsTrue(foundAnonOrderInfo.IsOrderVolumeUpdated);
             Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
             Assert.IsTrue(foundLayer.HasUpdates);
@@ -1560,7 +1560,7 @@ public class PQAnonymousOrderTests
             var foundLayer =
                 (IPQOrdersPriceVolumeLayer)(isBid ? newEmpty.BidSide : newEmpty.AskSide)[bookDepth]!;
             var foundAnonOrderInfo = foundLayer[orderIndex]!;
-            Assert.AreEqual(expectedOrderVolume, ((IAnonymousOrder)foundAnonOrderInfo).OrderDisplayVolume);
+            Assert.AreEqual(expectedOrderVolume, foundAnonOrderInfo.OrderDisplayVolume);
             Assert.IsTrue(foundAnonOrderInfo.IsOrderVolumeUpdated);
             Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
             Assert.IsTrue(foundLayer.HasUpdates);
@@ -1580,7 +1580,7 @@ public class PQAnonymousOrderTests
             newEmpty.UpdateField(bsUpdates[0]);
             var foundLayer         = (IPQOrdersPriceVolumeLayer)newEmpty[bookDepth]!;
             var foundAnonOrderInfo = foundLayer[orderIndex]!;
-            Assert.AreEqual(expectedOrderVolume, ((IAnonymousOrder)foundAnonOrderInfo).OrderDisplayVolume);
+            Assert.AreEqual(expectedOrderVolume, foundAnonOrderInfo.OrderDisplayVolume);
             Assert.IsTrue(foundAnonOrderInfo.IsOrderVolumeUpdated);
             Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
             Assert.IsTrue(foundLayer.HasUpdates);
@@ -1599,7 +1599,7 @@ public class PQAnonymousOrderTests
             var newLayer = new PQOrdersPriceVolumeLayer(LayerType.OrdersAnonymousPriceVolume, emptyNameIdLookup.Clone());
             newLayer.UpdateField(olUpdates[0]);
             var foundAnonOrderInfo = newLayer[orderIndex]!;
-            Assert.AreEqual(expectedOrderVolume, ((IAnonymousOrder)foundAnonOrderInfo).OrderDisplayVolume);
+            Assert.AreEqual(expectedOrderVolume, foundAnonOrderInfo.OrderDisplayVolume);
             Assert.IsTrue(foundAnonOrderInfo.IsOrderVolumeUpdated);
             Assert.IsTrue(foundAnonOrderInfo.HasUpdates);
             Assert.IsTrue(newLayer.HasUpdates);
@@ -1868,7 +1868,7 @@ public class PQAnonymousOrderTests
     [TestMethod]
     public void EmptyPqAoli_OrderVolumeChanged_ExpectedPropertiesUpdated()
     {
-        Assert.AreEqual(0m, ((IAnonymousOrder)emptyAoli).OrderDisplayVolume);
+        Assert.AreEqual(0m, emptyAoli.OrderDisplayVolume);
         Assert.IsFalse(emptyAoli.IsOrderVolumeUpdated);
         Assert.IsTrue(emptyAoli.IsEmpty);
         Assert.IsFalse(emptyAoli.HasUpdates);
@@ -1883,7 +1883,7 @@ public class PQAnonymousOrderTests
         var changedOrderVolume = 4_294_967_280;
         emptyAoli.OrderDisplayVolume = changedOrderVolume;
 
-        Assert.AreEqual(changedOrderVolume, ((IAnonymousOrder)emptyAoli).OrderDisplayVolume);
+        Assert.AreEqual(changedOrderVolume, emptyAoli.OrderDisplayVolume);
         Assert.IsTrue(emptyAoli.IsOrderVolumeUpdated);
         Assert.IsFalse(emptyAoli.IsEmpty);
         Assert.IsTrue(emptyAoli.HasUpdates);
@@ -1903,7 +1903,7 @@ public class PQAnonymousOrderTests
     [TestMethod]
     public void EmptyPqAoli_OrderRemainingVolumeChanged_ExpectedPropertiesUpdated()
     {
-        Assert.AreEqual(0m, ((IAnonymousOrder)emptyAoli).OrderDisplayVolume);
+        Assert.AreEqual(0m, emptyAoli.OrderDisplayVolume);
         Assert.IsFalse(emptyAoli.IsOrderVolumeUpdated);
         Assert.IsTrue(emptyAoli.IsEmpty);
         Assert.IsFalse(emptyAoli.HasUpdates);
@@ -1949,7 +1949,7 @@ public class PQAnonymousOrderTests
         Assert.AreEqual(ExpectedGenesisFlags, populatedAoli.GenesisFlags);
         Assert.AreEqual(CreatedTime, populatedAoli.CreatedTime);
         Assert.AreEqual(UpdatedTime, populatedAoli.UpdateTime);
-        Assert.AreEqual(OrderVolume, ((IAnonymousOrder)populatedAoli).OrderDisplayVolume);
+        Assert.AreEqual(OrderVolume, populatedAoli.OrderDisplayVolume);
         Assert.AreEqual(OrderRemainingVolume, populatedAoli.OrderRemainingVolume);
         Assert.IsTrue(populatedAoli.IsOrderIdUpdated);
         Assert.IsTrue(populatedAoli.IsGenesisFlagsUpdated);
@@ -1966,7 +1966,7 @@ public class PQAnonymousOrderTests
         Assert.AreEqual(OrderGenesisFlags.None, populatedAoli.GenesisFlags);
         Assert.AreEqual(DateTime.MinValue, populatedAoli.CreatedTime);
         Assert.AreEqual(DateTime.MinValue, populatedAoli.UpdateTime);
-        Assert.AreEqual(0m, ((IAnonymousOrder)populatedAoli).OrderDisplayVolume);
+        Assert.AreEqual(0m, populatedAoli.OrderDisplayVolume);
         Assert.AreEqual(0m, populatedAoli.OrderRemainingVolume);
         Assert.IsTrue(populatedAoli.IsOrderIdUpdated);
         Assert.IsTrue(populatedAoli.IsGenesisFlagsUpdated);
@@ -2014,7 +2014,7 @@ public class PQAnonymousOrderTests
         Assert.AreNotSame(cloned3, populatedAoli);
         Assert.AreEqual(populatedAoli, cloned3);
 
-        var cloned4 = ((IAnonymousOrder)populatedAoli).Clone();
+        var cloned4 = populatedAoli.Clone();
         Assert.AreNotSame(cloned4, populatedAoli);
         Assert.AreEqual(populatedAoli, cloned4);
     }
@@ -2057,7 +2057,7 @@ public class PQAnonymousOrderTests
         Assert.IsTrue(toString.Contains($"{nameof(populatedAoli.GenesisFlags)}: {populatedAoli.GenesisFlags}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedAoli.CreatedTime)}: {populatedAoli.CreatedTime}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedAoli.UpdateTime)}: {populatedAoli.UpdateTime}"));
-        Assert.IsTrue(toString.Contains($"{nameof(IAnonymousOrder.OrderDisplayVolume)}: {((IAnonymousOrder)populatedAoli).OrderDisplayVolume:N2}"));
+        Assert.IsTrue(toString.Contains($"{nameof(IAnonymousOrder.OrderDisplayVolume)}: {populatedAoli.OrderDisplayVolume:N2}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedAoli.OrderRemainingVolume)}: {populatedAoli.OrderRemainingVolume:N2}"));
     }
 

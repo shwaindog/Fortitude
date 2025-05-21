@@ -153,9 +153,9 @@ public class PQBookGenerator : BookGenerator
         int counterPartyId, int? prevCounterPartyNameId)
     {
         consistentOrderBookNameIdGenerator.SetIdToName(counterPartyId, counterPartyName);
-        if (orderLayerInfo is IPQAdditionalExternalCounterPartyOrderInfo pqBidCpOrderLyrInfo)
+        if (orderLayerInfo is IPQExternalCounterPartyOrder pqBidCpOrderLyrInfo)
             pqBidCpOrderLyrInfo.NameIdLookup.CopyFrom(consistentOrderBookNameIdGenerator);
-        if (orderLayerInfo is IPQAdditionalExternalCounterPartyOrderInfo pqCpOrdLyrInfo) pqCpOrdLyrInfo.IsExternalCounterPartyNameUpdated = true;
+        if (orderLayerInfo is IPQExternalCounterPartyOrder pqCpOrdLyrInfo) pqCpOrdLyrInfo.IsExternalCounterPartyNameUpdated = true;
         base.SetOrderCounterPartyName(side, orderLayerInfo, pos, counterPartyName, counterPartyId, prevCounterPartyNameId);
     }
 
@@ -163,9 +163,9 @@ public class PQBookGenerator : BookGenerator
         (BookSide side, IMutableExternalCounterPartyOrder orderLayerInfo, int pos, string traderName, int traderNameId, int? prevTraderNameId)
     {
         consistentOrderBookNameIdGenerator.SetIdToName(traderNameId, traderName);
-        if (orderLayerInfo is IPQAdditionalExternalCounterPartyOrderInfo pqAskCpOrderLyrInfo)
+        if (orderLayerInfo is IPQExternalCounterPartyOrder pqAskCpOrderLyrInfo)
             pqAskCpOrderLyrInfo.NameIdLookup.CopyFrom(consistentOrderBookNameIdGenerator);
-        if (orderLayerInfo is IPQAdditionalExternalCounterPartyOrderInfo pqCpOrdLyrInfo) pqCpOrdLyrInfo.IsExternalTraderNameUpdated = true;
+        if (orderLayerInfo is IPQExternalCounterPartyOrder pqCpOrdLyrInfo) pqCpOrdLyrInfo.IsExternalTraderNameUpdated = true;
         base.SetOrderTraderName(side, orderLayerInfo, pos, traderName, traderNameId, prevTraderNameId);
     }
 }

@@ -875,7 +875,7 @@ public class PQLevel3QuoteTests
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
-                        var cpOrderInfo = (IPQAdditionalExternalCounterPartyOrderInfo)ordersLayer[j]!;
+                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j]!;
                         PQExternalCounterPartyOrderTests.AssertOrdersCounterPartyNameFieldUpdatesReturnAsExpected
                             (cpOrderInfo, j, ordersLayer, i, bidBook, orderBook, emptyQuote);
                     }
@@ -888,7 +888,7 @@ public class PQLevel3QuoteTests
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
-                        var cpOrderInfo = (IPQAdditionalExternalCounterPartyOrderInfo)ordersLayer[j]!;
+                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j]!;
                         PQExternalCounterPartyOrderTests.AssertOrdersCounterPartyNameFieldUpdatesReturnAsExpected
                             (cpOrderInfo, j, ordersLayer, i, askBook, orderBook, emptyQuote);
                     }
@@ -913,7 +913,7 @@ public class PQLevel3QuoteTests
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
-                        var cpOrderInfo = (IPQAdditionalExternalCounterPartyOrderInfo)ordersLayer[j]!;
+                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j]!;
                         PQExternalCounterPartyOrderTests.AssertOrdersTraderNameFieldUpdatesReturnAsExpected(cpOrderInfo, j, ordersLayer, i, bidBook
                        , orderBook, emptyQuote);
                     }
@@ -926,7 +926,7 @@ public class PQLevel3QuoteTests
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
-                        var cpOrderInfo = (IPQAdditionalExternalCounterPartyOrderInfo)ordersLayer[j]!;
+                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j]!;
                         PQExternalCounterPartyOrderTests.AssertOrdersTraderNameFieldUpdatesReturnAsExpected(cpOrderInfo, j, ordersLayer, i, askBook
                        , orderBook, emptyQuote);
                     }

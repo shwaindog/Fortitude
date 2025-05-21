@@ -857,7 +857,7 @@ public class PQLevel2QuoteTests
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
-                        var cpOrderInfo = (IPQAdditionalExternalCounterPartyOrderInfo)ordersLayer[j]!;
+                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j]!;
                         PQExternalCounterPartyOrderTests.AssertOrdersCounterPartyNameFieldUpdatesReturnAsExpected
                             (cpOrderInfo, j, ordersLayer, i, bidBook, orderBook, emptyQuote);
                     }
@@ -870,7 +870,7 @@ public class PQLevel2QuoteTests
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
-                        var cpOrderInfo = (IPQAdditionalExternalCounterPartyOrderInfo)ordersLayer[j]!;
+                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j]!;
                         PQExternalCounterPartyOrderTests.AssertOrdersCounterPartyNameFieldUpdatesReturnAsExpected
                             (cpOrderInfo, j, ordersLayer, i, askBook, orderBook, emptyQuote);
                     }
@@ -895,7 +895,7 @@ public class PQLevel2QuoteTests
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
-                        var cpOrderInfo = (IPQAdditionalExternalCounterPartyOrderInfo)ordersLayer[j]!;
+                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j]!;
                         PQExternalCounterPartyOrderTests.AssertOrdersTraderNameFieldUpdatesReturnAsExpected(cpOrderInfo, j, ordersLayer, i, bidBook
                        , orderBook, emptyQuote);
                     }
@@ -908,7 +908,7 @@ public class PQLevel2QuoteTests
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
-                        var cpOrderInfo = (IPQAdditionalExternalCounterPartyOrderInfo)ordersLayer[j]!;
+                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j]!;
                         PQExternalCounterPartyOrderTests.AssertOrdersTraderNameFieldUpdatesReturnAsExpected(cpOrderInfo, j, ordersLayer, i, askBook
                        , orderBook, emptyQuote);
                     }
@@ -1592,7 +1592,7 @@ public class PQLevel2QuoteTests
                           , orderUpdatedSub2MinFu,
                             $"For {ordersPvl.GetType().Name} at [{depthIndex}][{j}] with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-            var orderVolume = PQScaling.Scale(((IAnonymousOrder)anonOrderLayerInfo).OrderDisplayVolume, volumeScale);
+            var orderVolume = PQScaling.Scale(anonOrderLayerInfo.OrderDisplayVolume, volumeScale);
             var orderVolumeFu
                 = ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteLayerOrders, depthId, PQOrdersSubFieldKeys.OrderDisplayVolume, orderIndex, orderVolume
                                          , volumeScale);
@@ -1607,7 +1607,7 @@ public class PQLevel2QuoteTests
                           , orderRemainingVolumeFu,
                             $"For {ordersPvl.GetType().Name} at [{depthIndex}][{j}] with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
-            if (anonOrderLayerInfo is IPQAdditionalExternalCounterPartyOrderInfo cpOrderLayerInfo)
+            if (anonOrderLayerInfo is IPQExternalCounterPartyOrder cpOrderLayerInfo)
             {
                 var orderCpNameId = (uint)nameIdLookup[cpOrderLayerInfo.ExternalCounterPartyName];
                 var orderCpIdFu = ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteLayerOrders, depthId

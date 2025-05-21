@@ -271,6 +271,12 @@ public class ExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IMutab
         (IAdditionalExternalCounterPartyOrderInfo? other, bool exactTypes) =>
         AreEquivalent(other as IAnonymousOrder, exactTypes);
 
+    bool IInterfacesComparable<IExternalCounterPartyOrder>.       AreEquivalent(IExternalCounterPartyOrder? other, bool exactTypes) => 
+        AreEquivalent(other, exactTypes);
+
+    bool IInterfacesComparable<IMutableExternalCounterPartyOrder>.AreEquivalent(IMutableExternalCounterPartyOrder? other, bool exactTypes) => 
+        AreEquivalent(other, exactTypes);
+
     public bool AreEquivalent(IAnonymousOrder? other, bool exactTypes = false)
     {
         if (other is not IExternalCounterPartyOrder extCpOrder) return false;

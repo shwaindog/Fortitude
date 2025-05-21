@@ -930,7 +930,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
             {
                 IsOrderVolumeUpdated = true;
 
-                OrderDisplayVolume = ((IAnonymousOrder)pqAnonOrder).OrderDisplayVolume;
+                OrderDisplayVolume = pqAnonOrder.OrderDisplayVolume;
             }
             if (pqAnonOrder.IsOrderRemainingVolumeUpdated || isFullReplace)
             {
