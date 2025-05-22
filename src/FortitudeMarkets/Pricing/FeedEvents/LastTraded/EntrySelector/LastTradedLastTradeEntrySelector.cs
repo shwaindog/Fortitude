@@ -11,12 +11,10 @@ public class LastTradedLastTradeEntrySelector : LastTradeEntryFlagsSelector<IMut
 
     protected override IMutableLastTrade SelectTraderLastTradeEntry() => new LastTraderPaidGivenTrade();
 
-    public override IMutableLastTrade? ConvertToExpectedImplementation(ILastTrade? checkLastTrade, bool clone = false)
+    public override IMutableLastTrade ConvertToExpectedImplementation(ILastTrade checkLastTrade, bool clone = false)
     {
         switch (checkLastTrade)
         {
-            case null:
-                return null;
             case LastTrade pqlastTrade:
                 return clone ? ((IMutableLastTrade)pqlastTrade).Clone() : pqlastTrade;
             case ILastTraderPaidGivenTrade _:

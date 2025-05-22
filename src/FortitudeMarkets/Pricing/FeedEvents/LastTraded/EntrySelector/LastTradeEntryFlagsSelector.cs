@@ -1,21 +1,17 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
-#region
-
-#endregion
-
 namespace FortitudeMarkets.Pricing.FeedEvents.LastTraded.EntrySelector;
 
 public interface ILastTradeEntryFlagsSelector<out T> where T : class
 {
-    T?                 FindForLastTradeFlags(LastTradedFlags lastTradedFlags);
-    IMutableLastTrade? ConvertToExpectedImplementation(ILastTrade? checkLastTrade, bool clone = false);
+    T                 FindForLastTradeFlags(LastTradedFlags lastTradedFlags);
+    IMutableLastTrade ConvertToExpectedImplementation(ILastTrade checkLastTrade, bool clone = false);
 }
 
 public abstract class LastTradeEntryFlagsSelector<T> : ILastTradeEntryFlagsSelector<T> where T : class
 {
-    public T? FindForLastTradeFlags(LastTradedFlags lastTradedFlags)
+    public T FindForLastTradeFlags(LastTradedFlags lastTradedFlags)
     {
         var lastTradeType = lastTradedFlags.MostCompactLayerType();
 
@@ -33,7 +29,7 @@ public abstract class LastTradeEntryFlagsSelector<T> : ILastTradeEntryFlagsSelec
         }
     }
 
-    public abstract IMutableLastTrade? ConvertToExpectedImplementation(ILastTrade? checkLastTrade, bool clone = false);
+    public abstract IMutableLastTrade ConvertToExpectedImplementation(ILastTrade checkLastTrade, bool clone = false);
 
     protected abstract T SelectSimpleLastTradeEntry();
     protected abstract T SelectLastPaidGivenTradeEntry();

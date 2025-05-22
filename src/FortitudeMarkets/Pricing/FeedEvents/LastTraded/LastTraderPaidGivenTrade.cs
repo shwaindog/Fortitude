@@ -50,6 +50,8 @@ public class LastTraderPaidGivenTrade : LastPaidGivenTrade, IMutableLastTraderPa
     {
         TraderName = null;
 
+        base.ResetWithTracking();
+
         return this;
     }
 

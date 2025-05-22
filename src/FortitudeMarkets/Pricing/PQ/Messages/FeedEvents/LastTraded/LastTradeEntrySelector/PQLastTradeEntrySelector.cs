@@ -16,27 +16,25 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded.LastTradeEn
 public interface IPQLastTradeTypeSelector : ILastTradeEntryFlagsSelector<IPQRecentlyTradedFactory>
   , ISupportsPQNameIdLookupGenerator
 {
-    bool TypeCanWholeyContain(Type copySourceType, Type copyDestinationType);
+    bool TypeCanWhollyContain(Type copySourceType, Type copyDestinationType);
 
-    IPQLastTrade? SelectLastTradeEntry
-    (IPQLastTrade? original, IPQNameIdLookupGenerator nameIdLookup, ILastTrade? desired
+    IPQLastTrade SelectLastTradeEntry
+    (IPQLastTrade original, IPQNameIdLookupGenerator nameIdLookup, ILastTrade? desired
       , bool keepCloneState = false);
 
-    IPQLastTrade? ConvertToExpectedImplementation(ILastTrade? checkLastTrade, IPQNameIdLookupGenerator nameIdLookup, bool clone = false);
+    IPQLastTrade ConvertToExpectedImplementation(ILastTrade checkLastTrade, IPQNameIdLookupGenerator nameIdLookup, bool clone = false);
 }
 
-public class PQLastTradeEntrySelector : LastTradeEntryFlagsSelector<IPQRecentlyTradedFactory>,
+public class PQLastTradeEntrySelector(IPQNameIdLookupGenerator nameIdLookup) : LastTradeEntryFlagsSelector<IPQRecentlyTradedFactory>,
     IPQLastTradeTypeSelector
 {
-    public PQLastTradeEntrySelector(IPQNameIdLookupGenerator nameIdLookup) => NameIdLookup = nameIdLookup;
+    INameIdLookup IHasNameIdLookup. NameIdLookup => NameIdLookup;
+    public IPQNameIdLookupGenerator NameIdLookup { get; set; } = nameIdLookup;
 
-    INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
-    public IPQNameIdLookupGenerator NameIdLookup { get; set; }
-
-    public override IMutableLastTrade? ConvertToExpectedImplementation(ILastTrade? checkLastTrade, bool clone = false) =>
+    public override IMutableLastTrade ConvertToExpectedImplementation(ILastTrade checkLastTrade, bool clone = false) =>
         ConvertToExpectedImplementation(checkLastTrade, NameIdLookup, clone);
 
-    public bool TypeCanWholeyContain(Type copySourceType, Type copyDestinationType)
+    public bool TypeCanWhollyContain(Type copySourceType, Type copyDestinationType)
     {
         if (copySourceType == typeof(PQLastTrade) || copySourceType == typeof(LastTrade)) return true;
         if (copySourceType == typeof(LastPaidGivenTrade) ||
@@ -49,35 +47,28 @@ public class PQLastTradeEntrySelector : LastTradeEntryFlagsSelector<IPQRecentlyT
         return false;
     }
 
-    public IPQLastTrade? SelectLastTradeEntry
-    (IPQLastTrade? original, IPQNameIdLookupGenerator nameIdLookup, ILastTrade? desired
+    public IPQLastTrade SelectLastTradeEntry
+    (IPQLastTrade original, IPQNameIdLookupGenerator nameIdLookup, ILastTrade? desired
       , bool keepCloneState = false)
     {
         if (desired == null) return original;
-        if (original == null)
-        {
-            var cloneOfSrc = (IPQLastTrade?)ConvertToExpectedImplementation(desired, nameIdLookup, true);
-            if (!keepCloneState) cloneOfSrc?.StateReset();
-            return cloneOfSrc;
-        }
 
         if (original.GetType() != desired.GetType() &&
-            !TypeCanWholeyContain(desired.GetType(), original.GetType()))
+            !TypeCanWhollyContain(desired.GetType(), original.GetType()))
             return new PQLastTraderPaidGivenTrade(original, nameIdLookup);
         return original;
     }
 
-    public IPQLastTrade? ConvertToExpectedImplementation(ILastTrade? checkLastTrade, IPQNameIdLookupGenerator nameIdLookup, bool clone = false)
+    public IPQLastTrade ConvertToExpectedImplementation(ILastTrade checkLastTrade, IPQNameIdLookupGenerator nameIdLookup, bool clone = false)
     {
         switch (checkLastTrade)
         {
-            case null: return null;
-            case PQLastTraderPaidGivenTrade pqlastTradedPaidGiventTrade:
-                return new PQLastTraderPaidGivenTrade(pqlastTradedPaidGiventTrade, nameIdLookup);
-            case PQLastTrade pqlastTrade:         return clone ? ((IPQLastTrade)pqlastTrade).Clone() : pqlastTrade;
-            case ILastTraderPaidGivenTrade _:     return new PQLastTraderPaidGivenTrade(checkLastTrade, nameIdLookup);
-            case ILastPaidGivenTrade trdrPvLayer: return new PQLastPaidGivenTrade(trdrPvLayer);
-            default:                              return new PQLastTrade(checkLastTrade);
+            case PQLastTraderPaidGivenTrade pqLastTradedPaidGivenTrade:
+                return new PQLastTraderPaidGivenTrade(pqLastTradedPaidGivenTrade, nameIdLookup);
+            case PQLastTrade pqLastTrade:                return clone ? ((IPQLastTrade)pqLastTrade).Clone() : pqLastTrade;
+            case ILastTraderPaidGivenTrade:              return new PQLastTraderPaidGivenTrade(checkLastTrade, nameIdLookup);
+            case ILastPaidGivenTrade lastPaidGivenTrade: return new PQLastPaidGivenTrade(lastPaidGivenTrade);
+            default:                                     return new PQLastTrade(checkLastTrade);
         }
     }
 

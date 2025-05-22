@@ -114,13 +114,13 @@ public class OnTickLastTradedTests
             for (var i = 0; i < MaxNumberOfEntries; i++)
             {
                 var lastTrade       = ((IOnTickLastTraded)populatedOnTickLastTraded)[i];
-                var clonedLastTrade = lastTrade?.Clone() as IMutableLastTrade;
+                var clonedLastTrade = (IMutableLastTrade)lastTrade.Clone();
                 populatedOnTickLastTraded[i] = clonedLastTrade;
                 Assert.AreNotSame(lastTrade, ((IMutableOnTickLastTraded)populatedOnTickLastTraded)[i]);
                 Assert.AreSame(clonedLastTrade, populatedOnTickLastTraded[i]);
                 if (i == populatedOnTickLastTraded.Count - 1)
                 {
-                    ((IMutableOnTickLastTraded)populatedOnTickLastTraded)[i] = null;
+                    ((IMutableOnTickLastTraded)populatedOnTickLastTraded)[i] = populatedOnTickLastTraded[i].ResetWithTracking();
                     Assert.AreEqual(MaxNumberOfEntries - 1, populatedOnTickLastTraded.Count);
                 }
             }
@@ -133,9 +133,9 @@ public class OnTickLastTradedTests
         {
             Assert.AreEqual(populatedOnTickLastTraded.Count, populatedOnTickLastTraded.Capacity);
             Assert.AreEqual(MaxNumberOfEntries, populatedOnTickLastTraded.Capacity);
-            populatedOnTickLastTraded[MaxNumberOfEntries - 1] = null;
-            Assert.AreEqual(MaxNumberOfEntries - 1, populatedOnTickLastTraded.Capacity);
-            Assert.AreEqual(populatedOnTickLastTraded.Count, populatedOnTickLastTraded.Capacity);
+            populatedOnTickLastTraded[MaxNumberOfEntries - 1] = populatedOnTickLastTraded[MaxNumberOfEntries - 1].ResetWithTracking();
+            Assert.AreEqual(MaxNumberOfEntries, populatedOnTickLastTraded.Capacity);
+            Assert.AreEqual(populatedOnTickLastTraded.Count + 1, populatedOnTickLastTraded.Capacity);
         }
     }
 
@@ -182,7 +182,7 @@ public class OnTickLastTradedTests
             Assert.AreEqual(MaxNumberOfEntries, populatedOnTickLastTraded.Count);
             populatedOnTickLastTraded.Add(populatedOnTickLastTraded[0]!.Clone());
             Assert.AreEqual(MaxNumberOfEntries + 1, populatedOnTickLastTraded.Count);
-            populatedOnTickLastTraded[MaxNumberOfEntries] = null;
+            populatedOnTickLastTraded[MaxNumberOfEntries] = populatedOnTickLastTraded[MaxNumberOfEntries].ResetWithTracking();
             Assert.AreEqual(MaxNumberOfEntries, populatedOnTickLastTraded.Count);
             populatedOnTickLastTraded.Add(populatedOnTickLastTraded[0]!.Clone());
             Assert.AreEqual(MaxNumberOfEntries + 1, populatedOnTickLastTraded.Count);
@@ -220,9 +220,9 @@ public class OnTickLastTradedTests
     {
         var clonePopulated = simpleFullyPopulatedOnTickLastTraded.Clone();
         Assert.AreEqual(MaxNumberOfEntries, clonePopulated.Count);
-        clonePopulated[^1] = null;
-        clonePopulated[^1] = null;
-        clonePopulated[^1] = null;
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
         Assert.AreEqual(MaxNumberOfEntries - 3, clonePopulated.Count);
         var notEmpty = new OnTickLastTraded(simpleFullyPopulatedOnTickLastTraded);
         Assert.AreEqual(MaxNumberOfEntries, notEmpty.Count);
@@ -235,9 +235,9 @@ public class OnTickLastTradedTests
     {
         var clonePopulated = simpleFullyPopulatedOnTickLastTraded.Clone();
         Assert.AreEqual(MaxNumberOfEntries, clonePopulated.Count);
-        clonePopulated[^1] = null;
-        clonePopulated[^1] = null;
-        clonePopulated[5]  = null;
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[5]  = clonePopulated[5].ResetWithTracking();
         Assert.AreEqual(MaxNumberOfEntries - 2, clonePopulated.Count);
         var notEmpty = new OnTickLastTraded(simpleFullyPopulatedOnTickLastTraded);
         Assert.AreEqual(MaxNumberOfEntries, notEmpty.Count);
@@ -251,10 +251,13 @@ public class OnTickLastTradedTests
     {
         var clonePopulated = simpleFullyPopulatedOnTickLastTraded.Clone();
         Assert.AreEqual(MaxNumberOfEntries, clonePopulated.Count);
-        clonePopulated[^1] = null;
-        clonePopulated[^1] = null;
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
         Assert.AreEqual(MaxNumberOfEntries - 2, clonePopulated.Count);
-        var notEmpty = new OnTickLastTraded(simpleFullyPopulatedOnTickLastTraded) { [5] = null };
+        var notEmpty = new OnTickLastTraded(simpleFullyPopulatedOnTickLastTraded)
+        {
+            [5] = simpleFullyPopulatedOnTickLastTraded[^5].Clone().ResetWithTracking()
+        };
         Assert.AreEqual(MaxNumberOfEntries, notEmpty.Count);
         notEmpty.CopyFrom(clonePopulated);
         Assert.AreEqual(notEmpty[5], clonePopulated[5]);

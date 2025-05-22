@@ -18,11 +18,23 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
 public interface IPQLastTradedList : IMutableLastTradedList,
     IPQSupportsNumberPrecisionFieldUpdates<ILastTradedList>, IPQSupportsStringUpdates<ILastTradedList>,
-    IEnumerable<IPQLastTrade>, IRelatedItems<IPQNameIdLookupGenerator>, IRelatedItems<ISourceTickerInfo>
-  , ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQLastTradedList>
+    IRelatedItems<IPQNameIdLookupGenerator>, IRelatedItems<ISourceTickerInfo>
+  , ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQLastTradedList>, IList<IPQLastTrade>
 {
-    new IPQLastTrade? this[int index] { get; set; }
-    new IPQLastTradedList         Clone();
+    new IPQLastTrade this[int index] { get; set; }
+
+    new int Capacity { get; set; }
+
+    new bool IsReadOnly { get; }
+
+    new int Count { get; set; }
+
+    new void RemoveAt(int index);
+
+    new void Clear();
+
+    new IPQLastTradedList Clone();
+
     new IEnumerator<IPQLastTrade> GetEnumerator();
 
     new IPQLastTradedList ResetWithTracking();
@@ -30,15 +42,15 @@ public interface IPQLastTradedList : IMutableLastTradedList,
 
 public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedList
 {
-    private readonly IList<IPQLastTrade?> lastTrades;
+    private readonly List<IPQLastTrade> lastTrades;
 
-    private IPQNameIdLookupGenerator nameIdLookupGenerator = null!;
+    private IPQNameIdLookupGenerator nameIdLookupGenerator;
 
     protected uint NumUpdates = uint.MaxValue;
 
     public PQLastTradedList()
     {
-        lastTrades             = new List<IPQLastTrade?>();
+        lastTrades             = [];
         nameIdLookupGenerator  = new PQNameIdLookupGenerator(PQFeedFields.LastTradedStringUpdates);
         LastTradeEntrySelector = new PQLastTradeEntrySelector(nameIdLookupGenerator);
 
@@ -48,20 +60,18 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
     public PQLastTradedList(ISourceTickerInfo sourceTickerInfo)
     {
         LastTradesSupportFlags = sourceTickerInfo.LastTradedFlags;
-        LastTradesOfType       = LastTradesSupportFlags.MostCompactLayerType();
         nameIdLookupGenerator  = new PQNameIdLookupGenerator(PQFeedFields.LastTradedStringUpdates);
         LastTradeEntrySelector = new PQLastTradeEntrySelector(nameIdLookupGenerator);
 
-        lastTrades = new List<IPQLastTrade?>();
+        lastTrades = new List<IPQLastTrade>();
         EnsureRelatedItemsAreConfigured(sourceTickerInfo);
 
         if (GetType() == typeof(PQLastTradedList)) NumUpdates = 0;
     }
 
-    public PQLastTradedList(IEnumerable<IPQLastTrade?> lastTrades) : this(lastTrades.ToList())
+    public PQLastTradedList(IEnumerable<IPQLastTrade> lastTrades) : this(lastTrades.ToList())
     {
         LastTradesSupportFlags = lastTrades.FirstOrDefault()?.SupportsLastTradedFlags ?? LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags;
-        LastTradesOfType       = LastTradesSupportFlags.MostCompactLayerType();
         nameIdLookupGenerator  = SourcePopulatedNameIdGeneratorFrom(lastTrades);
         LastTradeEntrySelector = new PQLastTradeEntrySelector(nameIdLookupGenerator);
 
@@ -69,10 +79,9 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         if (GetType() == typeof(PQLastTradedList)) NumUpdates = 0;
     }
 
-    public PQLastTradedList(IList<IPQLastTrade?> lastTrades)
+    public PQLastTradedList(List<IPQLastTrade> lastTrades)
     {
-        LastTradesSupportFlags = lastTrades.FirstOrDefault()?.SupportsLastTradedFlags ?? LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags;
-        LastTradesOfType       = LastTradesSupportFlags.MostCompactLayerType();
+        LastTradesSupportFlags = lastTrades.FirstOrDefault()?.SupportsLastTradedFlags  ?? LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags;
         nameIdLookupGenerator  = SourcePopulatedNameIdGeneratorFrom(lastTrades);
         LastTradeEntrySelector = new PQLastTradeEntrySelector(nameIdLookupGenerator);
         this.lastTrades        = lastTrades;
@@ -90,7 +99,6 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
     public PQLastTradedList(ILastTradedList toClone)
     {
         LastTradesSupportFlags = toClone.LastTradesSupportFlags;
-        LastTradesOfType       = toClone.LastTradesOfType;
         nameIdLookupGenerator  = SourcePopulatedNameIdGeneratorFrom(toClone);
         LastTradeEntrySelector = new PQLastTradeEntrySelector(nameIdLookupGenerator);
 
@@ -102,9 +110,9 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
 
     public IPQLastTradeTypeSelector LastTradeEntrySelector { get; set; }
 
-    public LastTradeType LastTradesOfType { get; } = LastTradeType.Price;
+    public LastTradeType LastTradesOfType => LastTradesSupportFlags.MostCompactLayerType();
 
-    public LastTradedFlags LastTradesSupportFlags { get; } = LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags;
+    public LastTradedFlags LastTradesSupportFlags { get; private set; } = LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags;
 
     public IPQNameIdLookupGenerator NameIdLookup
     {
@@ -117,32 +125,33 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         }
     }
 
-    public IPQLastTrade? this[int i]
+    public IPQLastTrade this[int i]
     {
         get
         {
             if (i > (ushort)PQDepthKey.DepthMask)
-                throw new ArgumentException($"The number of last treades can not be greater than {(ushort)PQDepthKey.DepthMask}");
+                throw new ArgumentException($"The number of last trades can not be greater than {(ushort)PQDepthKey.DepthMask}");
             while (i >= lastTrades.Count)
             {
-                lastTrades.Add(LastTradeEntrySelector.SelectLastTradeEntry(null, NameIdLookup, null));
+                lastTrades.Add(LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags).CreateNewLastTradeEntry());
             }
             return lastTrades[i];
         }
         set
         {
-            while (lastTrades.Count <= i) lastTrades.Add(LastTradeEntrySelector.SelectLastTradeEntry(null, NameIdLookup, null));
+            while (lastTrades.Count <= i)
+                lastTrades.Add(LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags).CreateNewLastTradeEntry());
             lastTrades[i] = value;
             if (value is ISupportsPQNameIdLookupGenerator lastTradeWithNameId) lastTradeWithNameId.NameIdLookup = NameIdLookup;
         }
     }
 
-    ILastTrade? ILastTradedList.this[int i] => this[i];
+    ILastTrade IReadOnlyList<ILastTrade>.this[int i] => this[i];
 
-    IMutableLastTrade? IMutableLastTradedList.this[int i]
+    IMutableLastTrade IMutableLastTradedList.this[int i]
     {
         get => this[i];
-        set => this[i] = value as IPQLastTrade;
+        set => this[i] = (IPQLastTrade)value;
     }
 
     public int Capacity
@@ -155,9 +164,9 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
                                             PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades);
             while (lastTrades.Count < value)
             {
-                var firstLastTrade = lastTrades[0]?.Clone();
-                firstLastTrade?.StateReset();
-                if (firstLastTrade != null) lastTrades.Add(firstLastTrade);
+                var firstLastTrade = lastTrades[0].Clone();
+                firstLastTrade.StateReset();
+                lastTrades.Add(firstLastTrade);
             }
         }
     }
@@ -169,21 +178,27 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
             for (var i = lastTrades.Count - 1; i >= 0; i--)
             {
                 var layerAtLevel = lastTrades[i];
-                if (!(layerAtLevel?.IsEmpty ?? true)) return i + 1;
+                if (!layerAtLevel.IsEmpty) return i + 1;
             }
 
             return 0;
+        }
+        set
+        {
+            for (var i = lastTrades.Count - 1; i >= value; i--)
+            {
+                var layerAtLevel                                             = lastTrades[i];
+                if (layerAtLevel is { IsEmpty: false }) layerAtLevel.IsEmpty = true;
+            }
         }
     }
 
     public bool HasUpdates
     {
-        get { return lastTrades.Any(pqpvl => pqpvl?.HasUpdates ?? false); }
+        get { return lastTrades.Any(pqLt => pqLt.HasUpdates); }
         set
         {
-            foreach (var pqLastTrade in lastTrades)
-                if (pqLastTrade != null)
-                    pqLastTrade.HasUpdates = value;
+            foreach (var pqLastTrade in lastTrades) pqLastTrade.HasUpdates = value;
         }
     }
 
@@ -193,6 +208,53 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
 
     public uint UpdateCount => NumUpdates;
 
+    public bool IsReadOnly => false;
+
+    IMutableLastTrade IList<IMutableLastTrade>.this[int index]
+    {
+        get => this[index];
+        set => this[index] = (IPQLastTrade)value;
+    }
+
+    protected Func<IPQLastTrade> NewElementFactory =>
+        () => LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags).CreateNewLastTradeEntry();
+
+    bool ICollection<IMutableLastTrade>.Contains(IMutableLastTrade item) => Contains((IPQLastTrade)item);
+
+    public bool Contains(IPQLastTrade item) => lastTrades.Contains(item);
+
+    void ICollection<IMutableLastTrade>.CopyTo(IMutableLastTrade[] array, int arrayIndex)
+    {
+        for (int i = arrayIndex; i < lastTrades.Count; i++)
+        {
+            array[i] = lastTrades[i];
+        }
+    }
+
+    public void CopyTo(IPQLastTrade[] array, int arrayIndex) => lastTrades.CopyTo(array, arrayIndex);
+
+    void IList<IMutableLastTrade>.Insert(int index, IMutableLastTrade item) => Insert(index, (IPQLastTrade)item);
+
+    public void Insert(int index, IPQLastTrade item) => lastTrades.Insert(index, item);
+
+    int IList<IMutableLastTrade>.IndexOf(IMutableLastTrade item) => IndexOf((IPQLastTrade)item);
+
+    public int IndexOf(IPQLastTrade item) => lastTrades.IndexOf(item);
+
+    bool ICollection<IMutableLastTrade>.Remove(IMutableLastTrade item) => Remove((IPQLastTrade)item);
+
+    public bool Remove(IPQLastTrade toRemove) => lastTrades.Remove(toRemove);
+
+    public void RemoveAt(int index) => lastTrades.RemoveAt(index);
+
+    public void Clear()
+    {
+        foreach (var lastTrade in lastTrades)
+        {
+            lastTrade.ResetWithTracking();
+        }
+    }
+
     public void UpdateComplete()
     {
         if (HasUpdates) NumUpdates++;
@@ -201,7 +263,7 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
     public int AppendEntryAtEnd()
     {
         var index = Count;
-        lastTrades.Add(LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags)!.CreateNewLastTradeEntry());
+        lastTrades.Add(LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags).CreateNewLastTradeEntry());
         return index;
     }
 
@@ -215,26 +277,28 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
     {
         foreach (var mutableLastTrade in lastTrades)
         {
-            mutableLastTrade?.ResetWithTracking();
+            mutableLastTrade.ResetWithTracking();
         }
         return this;
     }
 
     public override void StateReset()
     {
-        foreach (var lastTrade in lastTrades) lastTrade?.StateReset();
+        foreach (var lastTrade in lastTrades) lastTrade.StateReset();
         NameIdLookup.Clear();
 
         NumUpdates = 0;
         base.StateReset();
     }
 
-    public void Add(IMutableLastTrade newLastTrade)
+    void ICollection<IMutableLastTrade>.Add(IMutableLastTrade item) => Add((IPQLastTrade)item);
+
+    public void Add(IPQLastTrade newLastTrade)
     {
         if (lastTrades.Count == Count)
-            lastTrades.Add((IPQLastTrade)newLastTrade);
+            lastTrades.Add(newLastTrade);
         else
-            lastTrades[Count] = (IPQLastTrade)newLastTrade;
+            lastTrades[Count] = newLastTrade;
     }
 
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
@@ -273,51 +337,37 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
     {
         if (stringUpdate.Field.Id != PQFeedFields.LastTradedStringUpdates) return false;
         return NameIdLookup.UpdateFieldString(stringUpdate);
-        ;
-    }
-
-    public ElementShift CalculateShift<T>(IReadOnlyList<T> previousCollection, IReadOnlyList<T> updatedCollection)
-    {
-        throw new NotImplementedException();
     }
 
     public override PQLastTradedList CopyFrom(ILastTradedList source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is PQLastTradedList sourceRecentlyTraded) NameIdLookup.CopyFrom(sourceRecentlyTraded.NameIdLookup, copyMergeFlags);
+        LastTradesSupportFlags |= source.LastTradesSupportFlags;
         if (lastTrades.Count < source.Capacity)
             for (var i = Count; i < source.Capacity; i++)
             {
-                var newEntry = LastTradeEntrySelector.SelectLastTradeEntry(null, NameIdLookup, source[i]);
+                var newEntry = LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags).CreateNewLastTradeEntry();
                 lastTrades.Add(newEntry);
             }
 
         for (var i = 0; i < source.Capacity; i++)
         {
             var sourceLayer = source[i];
-            if (i < lastTrades.Count && (sourceLayer == null || sourceLayer.IsEmpty))
+            if (i < lastTrades.Count && sourceLayer.IsEmpty)
             {
-                lastTrades[i]?.StateReset();
+                lastTrades[i].StateReset();
                 continue;
             }
 
-            var foundAtIndex = false;
 
-            IPQLastTrade? destinationLayer = null;
-            if (i < lastTrades.Count)
-            {
-                var newDestinationLayer = lastTrades[i] ?? destinationLayer;
-                foundAtIndex     = !ReferenceEquals(newDestinationLayer, destinationLayer);
-                destinationLayer = newDestinationLayer;
-            }
+            IPQLastTrade destinationLayer = lastTrades[i];
 
-            destinationLayer = LastTradeEntrySelector.SelectLastTradeEntry
-                (foundAtIndex ? destinationLayer : destinationLayer?.Clone(), NameIdLookup, sourceLayer);
+            var upgradedDestinationLayer = LastTradeEntrySelector.SelectLastTradeEntry(destinationLayer, NameIdLookup, sourceLayer);
             if (i >= lastTrades.Count)
-                lastTrades.Add(destinationLayer);
-            else
-                lastTrades[i] = destinationLayer;
+                lastTrades.Add(upgradedDestinationLayer);
+            else if (!ReferenceEquals(upgradedDestinationLayer, destinationLayer)) lastTrades[i] = upgradedDestinationLayer;
 
-            destinationLayer?.CopyFrom(sourceLayer!, copyMergeFlags);
+            upgradedDestinationLayer.CopyFrom(sourceLayer, copyMergeFlags);
         }
 
         for (var i = source.Capacity; i < lastTrades.Count; i++)
@@ -336,14 +386,14 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         {
             var currLastTrade = i < lastTrades.Count ? lastTrades[i] : null;
             if (i >= lastTrades.Count || currLastTrade is not null)
-                lastTrades.Add(entriesFactory!.CreateNewLastTradeEntry());
+                lastTrades.Add(entriesFactory.CreateNewLastTradeEntry());
             else if (i < lastTrades.Count && currLastTrade != null
-                                          && !LastTradeEntrySelector.TypeCanWholeyContain
-                                                 (entriesFactory!.EntryCreationType, currLastTrade.GetType()))
+                                          && !LastTradeEntrySelector.TypeCanWhollyContain
+                                                 (entriesFactory.EntryCreationType, currLastTrade.GetType()))
                 lastTrades[i] = entriesFactory.UpgradeLayer(currLastTrade);
         }
 
-        for (var i = lastTrades.Count; i < maxEntries; i++) lastTrades[i]?.StateReset();
+        for (var i = lastTrades.Count; i < maxEntries; i++) lastTrades[i].StateReset();
     }
 
     object ICloneable.Clone() => Clone();
@@ -365,12 +415,11 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         var lastTradesSame = exactTypes
             ? lastTrades.Take(Count).SequenceEqual(other.Take(Count))
             : lastTrades.Take(Count).Zip(other.Take(Count), (thisLastTrade, otherLastTrade) => new { thisLastTrade, otherLastTrade })
-                        .All(joined =>
-                                 joined.thisLastTrade != null && joined.thisLastTrade.AreEquivalent(joined.otherLastTrade, exactTypes));
+                        .All(joined => joined.thisLastTrade.AreEquivalent(joined.otherLastTrade, exactTypes));
         return lastTradesSame;
     }
 
-    public IEnumerator<IPQLastTrade> GetEnumerator() => lastTrades.Take(Count).GetEnumerator()!;
+    public IEnumerator<IPQLastTrade> GetEnumerator() => lastTrades.Take(Count).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

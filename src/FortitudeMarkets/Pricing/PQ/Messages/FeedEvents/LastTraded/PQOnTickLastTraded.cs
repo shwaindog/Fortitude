@@ -7,7 +7,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
 public interface IPQOnTickLastTraded : IPQLastTradedList, IMutableOnTickLastTraded, ITrackableReset<IPQOnTickLastTraded>
 {
-    new IPQLastTrade? this[int index] { get; set; }
+    new IPQLastTrade this[int index] { get; set; }
     new IPQOnTickLastTraded       Clone();
     new IEnumerator<IPQLastTrade> GetEnumerator();
 
@@ -18,8 +18,8 @@ public class PQOnTickLastTraded : PQLastTradedList, IPQOnTickLastTraded
 {
     public PQOnTickLastTraded() { }
     public PQOnTickLastTraded(ISourceTickerInfo sourceTickerInfo) : base(sourceTickerInfo) { }
-    public PQOnTickLastTraded(IEnumerable<IPQLastTrade?> lastTrades) : base(lastTrades) { }
-    public PQOnTickLastTraded(IList<IPQLastTrade?> lastTrades) : base(lastTrades) { }
+    public PQOnTickLastTraded(IEnumerable<IPQLastTrade> lastTrades) : base(lastTrades) { }
+    public PQOnTickLastTraded(IList<IPQLastTrade> lastTrades) : base(lastTrades) { }
     public PQOnTickLastTraded(IOnTickLastTraded toClone) : base(toClone) { }
     public PQOnTickLastTraded(IPQOnTickLastTraded toClone) : this((IOnTickLastTraded)toClone) { }
     public PQOnTickLastTraded(PQOnTickLastTraded toClone) : this((IOnTickLastTraded)toClone) { }

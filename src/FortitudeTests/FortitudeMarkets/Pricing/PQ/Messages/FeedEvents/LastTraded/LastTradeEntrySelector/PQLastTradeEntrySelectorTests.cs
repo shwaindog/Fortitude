@@ -219,37 +219,37 @@ public class PQLastTradeEntrySelectorTests
     [TestMethod]
     public void NonPQLastTradeTypes_TypeCanWholeyContain_ReturnsAsExpected()
     {
-        Assert.IsTrue(entrySelector.TypeCanWholeyContain(typeof(LastTrade), typeof(PQLastTrade)));
-        Assert.IsFalse(entrySelector.TypeCanWholeyContain(typeof(LastPaidGivenTrade), typeof(PQLastTrade)));
-        Assert.IsFalse(entrySelector.TypeCanWholeyContain(typeof(LastTraderPaidGivenTrade), typeof(PQLastTrade)));
-        Assert.IsTrue(entrySelector.TypeCanWholeyContain(typeof(LastTrade), typeof(PQLastPaidGivenTrade)));
-        Assert.IsTrue(entrySelector.TypeCanWholeyContain(
+        Assert.IsTrue(entrySelector.TypeCanWhollyContain(typeof(LastTrade), typeof(PQLastTrade)));
+        Assert.IsFalse(entrySelector.TypeCanWhollyContain(typeof(LastPaidGivenTrade), typeof(PQLastTrade)));
+        Assert.IsFalse(entrySelector.TypeCanWhollyContain(typeof(LastTraderPaidGivenTrade), typeof(PQLastTrade)));
+        Assert.IsTrue(entrySelector.TypeCanWhollyContain(typeof(LastTrade), typeof(PQLastPaidGivenTrade)));
+        Assert.IsTrue(entrySelector.TypeCanWhollyContain(
                                                          typeof(LastPaidGivenTrade), typeof(PQLastPaidGivenTrade)));
-        Assert.IsFalse(entrySelector.TypeCanWholeyContain(
+        Assert.IsFalse(entrySelector.TypeCanWhollyContain(
                                                           typeof(LastTraderPaidGivenTrade), typeof(PQLastPaidGivenTrade)));
-        Assert.IsTrue(entrySelector.TypeCanWholeyContain(typeof(LastTrade), typeof(PQLastTraderPaidGivenTrade)));
-        Assert.IsTrue(entrySelector.TypeCanWholeyContain(
+        Assert.IsTrue(entrySelector.TypeCanWhollyContain(typeof(LastTrade), typeof(PQLastTraderPaidGivenTrade)));
+        Assert.IsTrue(entrySelector.TypeCanWhollyContain(
                                                          typeof(LastPaidGivenTrade), typeof(PQLastTraderPaidGivenTrade)));
-        Assert.IsTrue(entrySelector.TypeCanWholeyContain(
+        Assert.IsTrue(entrySelector.TypeCanWhollyContain(
                                                          typeof(LastTraderPaidGivenTrade), typeof(PQLastTraderPaidGivenTrade)));
     }
 
     [TestMethod]
     public void PQLastTradeTypes_TypeCanWholeyContain_ReturnsAsExpected()
     {
-        Assert.IsTrue(entrySelector.TypeCanWholeyContain(typeof(PQLastTrade), typeof(PQLastTrade)));
-        Assert.IsFalse(entrySelector.TypeCanWholeyContain(typeof(PQLastPaidGivenTrade), typeof(PQLastTrade)));
-        Assert.IsFalse(entrySelector.TypeCanWholeyContain(typeof(PQLastTraderPaidGivenTrade),
+        Assert.IsTrue(entrySelector.TypeCanWhollyContain(typeof(PQLastTrade), typeof(PQLastTrade)));
+        Assert.IsFalse(entrySelector.TypeCanWhollyContain(typeof(PQLastPaidGivenTrade), typeof(PQLastTrade)));
+        Assert.IsFalse(entrySelector.TypeCanWhollyContain(typeof(PQLastTraderPaidGivenTrade),
                                                           typeof(PQLastTrade)));
-        Assert.IsTrue(entrySelector.TypeCanWholeyContain(typeof(PQLastTrade), typeof(PQLastPaidGivenTrade)));
-        Assert.IsTrue(entrySelector.TypeCanWholeyContain(
+        Assert.IsTrue(entrySelector.TypeCanWhollyContain(typeof(PQLastTrade), typeof(PQLastPaidGivenTrade)));
+        Assert.IsTrue(entrySelector.TypeCanWhollyContain(
                                                          typeof(PQLastPaidGivenTrade), typeof(PQLastPaidGivenTrade)));
-        Assert.IsFalse(entrySelector.TypeCanWholeyContain(
+        Assert.IsFalse(entrySelector.TypeCanWhollyContain(
                                                           typeof(PQLastTraderPaidGivenTrade), typeof(PQLastPaidGivenTrade)));
-        Assert.IsTrue(entrySelector.TypeCanWholeyContain(typeof(PQLastTrade), typeof(PQLastTraderPaidGivenTrade)));
-        Assert.IsTrue(entrySelector.TypeCanWholeyContain(
+        Assert.IsTrue(entrySelector.TypeCanWhollyContain(typeof(PQLastTrade), typeof(PQLastTraderPaidGivenTrade)));
+        Assert.IsTrue(entrySelector.TypeCanWhollyContain(
                                                          typeof(PQLastPaidGivenTrade), typeof(PQLastTraderPaidGivenTrade)));
-        Assert.IsTrue(entrySelector.TypeCanWholeyContain(
+        Assert.IsTrue(entrySelector.TypeCanWhollyContain(
                                                          typeof(PQLastTraderPaidGivenTrade), typeof(PQLastTraderPaidGivenTrade)));
     }
 
@@ -315,9 +315,9 @@ public class PQLastTradeEntrySelectorTests
     }
 
     [TestMethod]
-    public void NullLastTradeEntries_SelectLastTradeEntry_HandlesEmptyValues()
+    public void CreateNewLastTradeEntries_SelectLastTradeEntry_ExpectedTypeIsReturned()
     {
-        var result = entrySelector.SelectLastTradeEntry(null, traderNameIdGenerator.Clone(), simpleLastTrade)!;
+        var result = entrySelector.FindForLastTradeFlags(LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedTime).CreateNewLastTradeEntry()!;
         Assert.AreEqual(typeof(PQLastTrade), result.GetType());
         Assert.IsTrue(result.IsEmpty);
         result = entrySelector.SelectLastTradeEntry(pqSimpleLastTrade, traderNameIdGenerator.Clone(), null);

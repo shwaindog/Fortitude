@@ -13,9 +13,9 @@ namespace FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 
 public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTradedList
 {
-    protected readonly IList<IMutableLastTrade?> LastTrades;
+    protected readonly IList<IMutableLastTrade> LastTrades;
 
-    public LastTradedList() => LastTrades = new List<IMutableLastTrade?>();
+    public LastTradedList() => LastTrades = new List<IMutableLastTrade>();
 
     public LastTradedList(IEnumerable<ILastTrade> lastTrades)
     {
@@ -29,7 +29,7 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
 
     public LastTradedList(ILastTradedList toClone)
     {
-        LastTrades = new List<IMutableLastTrade?>();
+        LastTrades = new List<IMutableLastTrade>();
         for (var i = 0; i < toClone.Count; i++) LastTrades.Add(LastTradeEntrySelector.ConvertToExpectedImplementation(toClone[i], true));
     }
 
@@ -39,7 +39,7 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
     {
         LastTradesSupportFlags = sourceTickerInfo.LastTradedFlags;
         LastTradesOfType       = LastTradesSupportFlags.MostCompactLayerType();
-        LastTrades             = new List<IMutableLastTrade?>();
+        LastTrades             = new List<IMutableLastTrade>();
         // for (var i = 0; i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades; i++)
         LastTrades.Add(LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags));
     }
@@ -51,20 +51,15 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
 
     public LastTradedFlags LastTradesSupportFlags { get; }
 
-    public bool HasLastTrades => LastTrades.Any(lt => lt?.TradePrice != null);
+    public bool IsReadOnly => false;
+
+    public bool HasLastTrades => LastTrades.Any(lt => !lt.IsEmpty);
+
+    protected Func<IMutableLastTrade> NewElementFactory => () => LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags);
 
     public int Capacity
     {
-        get
-        {
-            for (var i = LastTrades.Count - 1; i >= 0; i--)
-            {
-                var layerAtLevel = LastTrades[i];
-                if (layerAtLevel != null) return i + 1;
-            }
-
-            return 0;
-        }
+        get => LastTrades.Count;
         set
         {
             if (value > PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades)
@@ -72,12 +67,13 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
                                             PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades);
             while (LastTrades.Count < value)
             {
-                var cloneFirstLastTrade = LastTrades[0]?.Clone();
-                cloneFirstLastTrade?.StateReset();
-                if (cloneFirstLastTrade != null) LastTrades.Add(cloneFirstLastTrade);
+                var cloneFirstLastTrade = LastTrades[0].Clone();
+                cloneFirstLastTrade.StateReset();
+                LastTrades.Add(cloneFirstLastTrade);
             }
         }
     }
+
 
     public int Count
     {
@@ -86,16 +82,25 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
             for (var i = LastTrades.Count - 1; i >= 0; i--)
             {
                 var layerAtLevel = LastTrades[i];
-                if ((layerAtLevel?.TradePrice ?? 0) > 0) return i + 1;
+                if (layerAtLevel is { IsEmpty: false}) return i + 1;
             }
 
             return 0;
         }
+        set
+        {
+            for (var i = LastTrades.Count - 1; i >= value; i--)
+            {
+                var layerAtLevel = LastTrades[i];
+                if (layerAtLevel is { IsEmpty: false}) layerAtLevel.IsEmpty = true;
+            }
+        }
     }
 
-    ILastTrade? ILastTradedList.this[int i] => LastTrades[i];
 
-    public IMutableLastTrade? this[int i]
+    ILastTrade IReadOnlyList<ILastTrade>.this[int index] => LastTrades[index];
+
+    public virtual IMutableLastTrade this[int i]
     {
         get
         {
@@ -106,6 +111,26 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
         {
             while (LastTrades.Count <= i) LastTrades.Add(LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags));
             LastTrades[i] = value;
+        }
+    }
+
+    public bool Contains(IMutableLastTrade item) => LastTrades.Contains(item);
+
+    public void CopyTo(IMutableLastTrade[] array, int arrayIndex) => LastTrades.CopyTo(array, arrayIndex);
+
+    public void Insert(int index, IMutableLastTrade item) => LastTrades.Insert(index, item);
+
+    public int IndexOf(IMutableLastTrade item) => LastTrades.IndexOf(item);
+
+    public bool Remove(IMutableLastTrade toRemove) => LastTrades.Remove(toRemove);
+
+    public void RemoveAt (int index) => LastTrades.RemoveAt(index);
+
+    public void Clear()
+    {
+        foreach (var lastTrade in LastTrades)
+        {
+            lastTrade.ResetWithTracking();
         }
     }
 
@@ -122,7 +147,7 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
     {
         foreach (var mutableLastTrade in LastTrades)
         {
-            mutableLastTrade?.ResetWithTracking();
+            mutableLastTrade.ResetWithTracking();
         }
         return this;
     }
@@ -133,8 +158,9 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
         base.StateReset();
     }
 
-    public void Add(IMutableLastTrade newLastTrade)
+    public void Add(IMutableLastTrade? newLastTrade)
     {
+        if (newLastTrade is null) return;
         if (LastTrades.Count == Count)
             LastTrades.Add(newLastTrade);
         else
@@ -154,10 +180,10 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
             {
                 if (!(LastTrades[i] is { } mutableLayer))
                     LastTrades[i] = LastTradeEntrySelector.ConvertToExpectedImplementation(sourceLayerToCopy, true);
-                else if (sourceLayerToCopy != null)
-                    mutableLayer.CopyFrom(source[i]!);
+                else if (sourceLayerToCopy.IsEmpty == false)
+                    mutableLayer.CopyFrom(source[i]);
                 else
-                    LastTrades[i] = null;
+                    LastTrades[i].IsEmpty = true;
             }
             else
             {
@@ -187,8 +213,7 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
         var bookLayersSame = exactTypes
             ? LastTrades.Take(Count).SequenceEqual(other.Take(Count))
             : LastTrades.Take(Count).Zip(other.Take(Count), (thisLastTrade, otherLastTrade) => new { thisLastTrade, otherLastTrade })
-                        .All(joined =>
-                                 joined.thisLastTrade != null && joined.thisLastTrade.AreEquivalent(joined.otherLastTrade));
+                        .All(joined => joined.thisLastTrade.AreEquivalent(joined.otherLastTrade));
         return bookLayersSame;
     }
 
@@ -198,11 +223,11 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
 
     IEnumerator<IMutableLastTrade> IMutableLastTradedList.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<IMutableLastTrade> GetEnumerator() => LastTrades.GetEnumerator()!;
+    public IEnumerator<IMutableLastTrade> GetEnumerator() => LastTrades.GetEnumerator();
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ILastTradedList, true);
 
-    public override int GetHashCode() => LastTrades?.GetHashCode() ?? 0;
+    public override int GetHashCode() => LastTrades.GetHashCode();
 
     protected string LastTradedListToStringMembers => $"{nameof(LastTrades)}: [{string.Join(",", LastTrades.Take(Count))}], {nameof(Count)}: {Count}";
 

@@ -114,13 +114,13 @@ public class RecentlyTradedTests
             for (var i = 0; i < MaxNumberOfEntries; i++)
             {
                 var lastTrade       = ((IRecentlyTraded)populatedOrderBook)[i];
-                var clonedLastTrade = lastTrade?.Clone() as IMutableLastTrade;
+                var clonedLastTrade = (IMutableLastTrade)lastTrade.Clone();
                 populatedOrderBook[i] = clonedLastTrade;
                 Assert.AreNotSame(lastTrade, ((IMutableRecentlyTraded)populatedOrderBook)[i]);
                 Assert.AreSame(clonedLastTrade, populatedOrderBook[i]);
                 if (i == populatedOrderBook.Count - 1)
                 {
-                    ((IMutableRecentlyTraded)populatedOrderBook)[i] = null;
+                    ((IMutableRecentlyTraded)populatedOrderBook)[i] = populatedOrderBook[i].ResetWithTracking();
                     Assert.AreEqual(MaxNumberOfEntries - 1, populatedOrderBook.Count);
                 }
             }
@@ -133,9 +133,9 @@ public class RecentlyTradedTests
         {
             Assert.AreEqual(populatedRecentlyTraded.Count, populatedRecentlyTraded.Capacity);
             Assert.AreEqual(MaxNumberOfEntries, populatedRecentlyTraded.Capacity);
-            populatedRecentlyTraded[MaxNumberOfEntries - 1] = null;
-            Assert.AreEqual(MaxNumberOfEntries - 1, populatedRecentlyTraded.Capacity);
-            Assert.AreEqual(populatedRecentlyTraded.Count, populatedRecentlyTraded.Capacity);
+            populatedRecentlyTraded[MaxNumberOfEntries - 1] = populatedRecentlyTraded[MaxNumberOfEntries - 1].ResetWithTracking();
+            Assert.AreEqual(MaxNumberOfEntries, populatedRecentlyTraded.Capacity);
+            Assert.AreEqual(populatedRecentlyTraded.Count + 1, populatedRecentlyTraded.Capacity);
         }
     }
 
@@ -182,7 +182,7 @@ public class RecentlyTradedTests
             Assert.AreEqual(MaxNumberOfEntries, populatedRecentlyTraded.Count);
             populatedRecentlyTraded.Add(populatedRecentlyTraded[0]!.Clone());
             Assert.AreEqual(MaxNumberOfEntries + 1, populatedRecentlyTraded.Count);
-            populatedRecentlyTraded[MaxNumberOfEntries] = null;
+            populatedRecentlyTraded[MaxNumberOfEntries] = populatedRecentlyTraded[MaxNumberOfEntries].ResetWithTracking();
             Assert.AreEqual(MaxNumberOfEntries, populatedRecentlyTraded.Count);
             populatedRecentlyTraded.Add(populatedRecentlyTraded[0]!.Clone());
             Assert.AreEqual(MaxNumberOfEntries + 1, populatedRecentlyTraded.Count);
@@ -220,9 +220,9 @@ public class RecentlyTradedTests
     {
         var clonePopulated = simpleFullyPopulatedRecentlyTraded.Clone();
         Assert.AreEqual(MaxNumberOfEntries, clonePopulated.Count);
-        clonePopulated[^1] = null;
-        clonePopulated[^1] = null;
-        clonePopulated[^1] = null;
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
         Assert.AreEqual(MaxNumberOfEntries - 3, clonePopulated.Count);
         var notEmpty = new RecentlyTraded(simpleFullyPopulatedRecentlyTraded);
         Assert.AreEqual(MaxNumberOfEntries, notEmpty.Count);
@@ -235,9 +235,9 @@ public class RecentlyTradedTests
     {
         var clonePopulated = simpleFullyPopulatedRecentlyTraded.Clone();
         Assert.AreEqual(MaxNumberOfEntries, clonePopulated.Count);
-        clonePopulated[^1] = null;
-        clonePopulated[^1] = null;
-        clonePopulated[5]  = null;
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[5]  = clonePopulated[5].ResetWithTracking();
         Assert.AreEqual(MaxNumberOfEntries - 2, clonePopulated.Count);
         var notEmpty = new RecentlyTraded(simpleFullyPopulatedRecentlyTraded);
         Assert.AreEqual(MaxNumberOfEntries, notEmpty.Count);
@@ -251,10 +251,13 @@ public class RecentlyTradedTests
     {
         var clonePopulated = simpleFullyPopulatedRecentlyTraded.Clone();
         Assert.AreEqual(MaxNumberOfEntries, clonePopulated.Count);
-        clonePopulated[^1] = null;
-        clonePopulated[^1] = null;
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
         Assert.AreEqual(MaxNumberOfEntries - 2, clonePopulated.Count);
-        var notEmpty = new RecentlyTraded(simpleFullyPopulatedRecentlyTraded) { [5] = null };
+        var notEmpty = new RecentlyTraded(simpleFullyPopulatedRecentlyTraded)
+        {
+            [5] = simpleFullyPopulatedRecentlyTraded[^5].Clone().ResetWithTracking()
+        };
         Assert.AreEqual(MaxNumberOfEntries, notEmpty.Count);
         notEmpty.CopyFrom(clonePopulated);
         Assert.AreEqual(notEmpty[5], clonePopulated[5]);
