@@ -15,9 +15,9 @@ public class PQLastTraderPaidGivenTradeFactoryTests : PQLastTradeFactoryTestsBas
     {
         var ltFactory = new PQLastTraderPaidGivenTradeFactory(NameIdLookupGenerator);
 
-        var emptyPaidGivenTrade = new PQLastTraderPaidGivenTrade(NameIdLookupGenerator);
+        var emptyPaidGivenTrade = new PQLastExternalCounterPartyTrade(NameIdLookupGenerator);
 
-        Assert.AreEqual(typeof(PQLastTraderPaidGivenTrade), ltFactory.EntryCreationType);
+        Assert.AreEqual(typeof(PQLastExternalCounterPartyTrade), ltFactory.EntryCreationType);
         Assert.AreEqual(emptyPaidGivenTrade, ltFactory.CreateNewLastTradeEntry());
     }
 
@@ -33,7 +33,7 @@ public class PQLastTraderPaidGivenTradeFactoryTests : PQLastTradeFactoryTestsBas
         Assert.IsTrue(PopulatedLastPaidGivenTrade.AreEquivalent(paidGivenLastTrade));
 
         var traderLastTrade =
-            ltFactory.UpgradeLayer(PopulatedLastTraderPQLastPaidGivenTrade);
-        Assert.AreEqual(traderLastTrade, PopulatedLastTraderPQLastPaidGivenTrade);
+            ltFactory.UpgradeLayer(PopulatedLastExternalCounterPartyTrade);
+        Assert.AreEqual(traderLastTrade, PopulatedLastExternalCounterPartyTrade);
     }
 }

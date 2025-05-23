@@ -10,15 +10,18 @@ namespace FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 public interface ILastTradedList : IReusableObject<ILastTradedList>, IInterfacesComparable<ILastTradedList>, IReadOnlyList<ILastTrade>
 {
     LastTradeType   LastTradesOfType       { get; }
+
     LastTradedFlags LastTradesSupportFlags { get; }
 
     bool HasLastTrades { get; }
+
     int  Capacity      { get; }
 }
 
 public interface IMutableLastTradedList : ILastTradedList, ITrackableReset<IMutableLastTradedList>, IList<IMutableLastTrade>
 {
     new int Capacity { get; set; }
+
     new IMutableLastTrade this[int i] { get; set; }
     
     new int Count { get; set; }

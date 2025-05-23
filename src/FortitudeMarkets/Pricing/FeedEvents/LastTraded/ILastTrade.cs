@@ -15,15 +15,36 @@ namespace FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 
 [JsonDerivedType(typeof(LastTrade))]
 [JsonDerivedType(typeof(LastPaidGivenTrade))]
-[JsonDerivedType(typeof(LastTraderPaidGivenTrade))]
+[JsonDerivedType(typeof(LastExternalCounterPartyTrade))]
 [JsonDerivedType(typeof(PQLastTrade))]
 [JsonDerivedType(typeof(PQLastPaidGivenTrade))]
-[JsonDerivedType(typeof(PQLastTraderPaidGivenTrade))]
+[JsonDerivedType(typeof(PQLastExternalCounterPartyTrade))]
 public interface ILastTrade : IReusableObject<ILastTrade>, IInterfacesComparable<ILastTrade>, IShowsEmpty
 {
     [JsonIgnore] LastTradeType   LastTradeType           { get; }
     [JsonIgnore] LastTradedFlags SupportsLastTradedFlags { get; }
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    uint TradeId { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    uint BatchId { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    LastTradedTypeFlags TradeTypeFlags { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    LastTradedLifeCycleFlags TradeLifeCycleStatus { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    DateTime FirstNotifiedTime { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    DateTime AdapterReceivedTime { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    DateTime UpdateTime { get; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     DateTime TradeTime { get; }
@@ -34,8 +55,16 @@ public interface ILastTrade : IReusableObject<ILastTrade>, IInterfacesComparable
 
 public interface IMutableLastTrade : ILastTrade, ITrackableReset<IMutableLastTrade>, IEmptyable
 {
-    new DateTime TradeTime  { get; set; }
-    new decimal  TradePrice { get; set; }
+    new uint     TradeId             { get; set; }
+    new uint     BatchId             { get; set; }
+    new DateTime FirstNotifiedTime   { get; set; }
+    new DateTime AdapterReceivedTime { get; set; }
+    new DateTime TradeTime           { get; set; }
+    new decimal  TradePrice          { get; set; }
+    new DateTime UpdateTime          { get; set; }
+
+    new LastTradedTypeFlags      TradeTypeFlags       { get; set; }
+    new LastTradedLifeCycleFlags TradeLifeCycleStatus { get; set; }
 
     new IMutableLastTrade Clone();
 }

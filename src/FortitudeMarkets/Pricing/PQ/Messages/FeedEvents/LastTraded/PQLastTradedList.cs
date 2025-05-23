@@ -412,11 +412,16 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         if (exactTypes && other.GetType() != GetType()) return false;
         var countSame = Count == other.Count;
         if (!countSame) return false;
-        var lastTradesSame = exactTypes
-            ? lastTrades.Take(Count).SequenceEqual(other.Take(Count))
-            : lastTrades.Take(Count).Zip(other.Take(Count), (thisLastTrade, otherLastTrade) => new { thisLastTrade, otherLastTrade })
-                        .All(joined => joined.thisLastTrade.AreEquivalent(joined.otherLastTrade, exactTypes));
-        return lastTradesSame;
+        var allLastTradesSame = true;
+        for (int i = 0; i < Count && allLastTradesSame; i++)
+        {
+            var localLastTrade = this[i];
+            var otherLastTrade = other[i];
+            allLastTradesSame &= localLastTrade.AreEquivalent(otherLastTrade, exactTypes);
+        }
+        var allAreSame = countSame && allLastTradesSame;
+
+        return allAreSame;
     }
 
     public IEnumerator<IPQLastTrade> GetEnumerator() => lastTrades.Take(Count).GetEnumerator();

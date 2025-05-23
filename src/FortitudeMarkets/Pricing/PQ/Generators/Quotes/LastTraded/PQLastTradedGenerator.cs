@@ -27,9 +27,9 @@ public class PQLastTradedGenerator : LastTradedGenerator
         if (recentlyTraded is IPQOnTickLastTraded pqOnTickLastTraded) pqOnTickLastTraded.NameIdLookup.CopyFrom(consistentNameIdLookupGenerator);
     }
 
-    protected override void SetTraderName(IMutableLastTraderPaidGivenTrade lastTraderPaidGivenTrade, string traderName)
+    protected override void SetTraderName(IMutableLastExternalCounterPartyTrade lastExternalCounterPartyTrade, string traderName)
     {
         var id = consistentNameIdLookupGenerator.GetOrAddId(traderName);
-        lastTraderPaidGivenTrade.TraderName = traderName;
+        lastExternalCounterPartyTrade.ExternalTraderName = traderName;
     }
 }

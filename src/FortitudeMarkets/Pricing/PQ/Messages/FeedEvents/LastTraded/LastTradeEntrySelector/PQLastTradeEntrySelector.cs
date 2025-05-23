@@ -23,6 +23,7 @@ public interface IPQLastTradeTypeSelector : ILastTradeEntryFlagsSelector<IPQRece
       , bool keepCloneState = false);
 
     IPQLastTrade ConvertToExpectedImplementation(ILastTrade checkLastTrade, IPQNameIdLookupGenerator nameIdLookup, bool clone = false);
+
 }
 
 public class PQLastTradeEntrySelector(IPQNameIdLookupGenerator nameIdLookup) : LastTradeEntryFlagsSelector<IPQRecentlyTradedFactory>,
@@ -40,10 +41,10 @@ public class PQLastTradeEntrySelector(IPQNameIdLookupGenerator nameIdLookup) : L
         if (copySourceType == typeof(LastPaidGivenTrade) ||
             copySourceType == typeof(PQLastPaidGivenTrade))
             return copyDestinationType == typeof(PQLastPaidGivenTrade) ||
-                   copyDestinationType == typeof(PQLastTraderPaidGivenTrade);
-        if (copySourceType == typeof(LastTraderPaidGivenTrade) ||
-            copySourceType == typeof(PQLastTraderPaidGivenTrade))
-            return copyDestinationType == typeof(PQLastTraderPaidGivenTrade);
+                   copyDestinationType == typeof(PQLastExternalCounterPartyTrade);
+        if (copySourceType == typeof(LastExternalCounterPartyTrade) ||
+            copySourceType == typeof(PQLastExternalCounterPartyTrade))
+            return copyDestinationType == typeof(PQLastExternalCounterPartyTrade);
         return false;
     }
 
@@ -55,7 +56,7 @@ public class PQLastTradeEntrySelector(IPQNameIdLookupGenerator nameIdLookup) : L
 
         if (original.GetType() != desired.GetType() &&
             !TypeCanWhollyContain(desired.GetType(), original.GetType()))
-            return new PQLastTraderPaidGivenTrade(original, nameIdLookup);
+            return new PQLastExternalCounterPartyTrade(original, nameIdLookup);
         return original;
     }
 
@@ -63,10 +64,10 @@ public class PQLastTradeEntrySelector(IPQNameIdLookupGenerator nameIdLookup) : L
     {
         switch (checkLastTrade)
         {
-            case PQLastTraderPaidGivenTrade pqLastTradedPaidGivenTrade:
-                return new PQLastTraderPaidGivenTrade(pqLastTradedPaidGivenTrade, nameIdLookup);
+            case PQLastExternalCounterPartyTrade pqLastTradedPaidGivenTrade:
+                return new PQLastExternalCounterPartyTrade(pqLastTradedPaidGivenTrade, nameIdLookup);
             case PQLastTrade pqLastTrade:                return clone ? ((IPQLastTrade)pqLastTrade).Clone() : pqLastTrade;
-            case ILastTraderPaidGivenTrade:              return new PQLastTraderPaidGivenTrade(checkLastTrade, nameIdLookup);
+            case ILastExternalCounterPartyTrade:              return new PQLastExternalCounterPartyTrade(checkLastTrade, nameIdLookup);
             case ILastPaidGivenTrade lastPaidGivenTrade: return new PQLastPaidGivenTrade(lastPaidGivenTrade);
             default:                                     return new PQLastTrade(checkLastTrade);
         }

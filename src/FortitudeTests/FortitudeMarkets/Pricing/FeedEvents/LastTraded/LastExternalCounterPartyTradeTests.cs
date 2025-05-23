@@ -6,6 +6,8 @@
 using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
 #endregion
@@ -13,7 +15,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 namespace FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 
 [TestClass]
-public class LastPaidGivenTradeTests
+public class LastExternalCounterPartyTradeTests
 {
     private const uint    ExpectedTradeId     = 42;
     private const uint    ExpectedBatchId     = 24_942;
@@ -32,95 +34,113 @@ public class LastPaidGivenTradeTests
     private const bool ExpectedWasGiven = true;
     private const bool ExpectedWasPaid  = true;
 
-    private LastPaidGivenTrade emptyLt     = null!;
-    private LastPaidGivenTrade populatedLt = null!;
+    private const int ExpectedTraderId       = 34_902;
+    private const int ExpectedCounterPartyId = 2_198;
+
+    private const string ExpectedTraderName       = "TraderName-Helen";
+    private const string ExpectedCounterPartyName = "CounterPartyName-Valcopp";
+
+    private LastExternalCounterPartyTrade emptyLt               = null!;
+    private IPQNameIdLookupGenerator      nameIdLookupGenerator = null!;
+    private LastExternalCounterPartyTrade populatedLt           = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        emptyLt      = new LastPaidGivenTrade();
-        populatedLt  = 
-            new LastPaidGivenTrade
-                (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedOrderId, ExpectedWasPaid
-               , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
-               , ExpectedUpdateTime);
+        nameIdLookupGenerator = new PQNameIdLookupGenerator(PQFeedFields.LastTradedStringUpdates);
+
+        emptyLt      = new LastExternalCounterPartyTrade();
+        populatedLt = new LastExternalCounterPartyTrade
+            (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedCounterPartyId
+           , ExpectedCounterPartyName, ExpectedTraderId, ExpectedTraderName, ExpectedOrderId, ExpectedWasPaid, ExpectedWasGiven
+           , ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime, ExpectedUpdateTime);
     }
 
     [TestMethod]
     public void NewLt_SetsPriceAndVolume_PropertiesInitializedAsExpected()
     {
-        var newLt = 
-            new LastPaidGivenTrade
-                (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedOrderId, ExpectedWasPaid
-               , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
-               , ExpectedUpdateTime);
+        var newLt =
+            new LastExternalCounterPartyTrade
+                (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedCounterPartyId
+               , ExpectedCounterPartyName, ExpectedTraderId, ExpectedTraderName, ExpectedOrderId, ExpectedWasPaid, ExpectedWasGiven
+               , ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime, ExpectedUpdateTime);
         Assert.AreEqual(ExpectedTradePrice, newLt.TradePrice);
         Assert.AreEqual(ExpectedTradeTime, newLt.TradeTime);
         Assert.AreEqual(ExpectedTradeVolume, newLt.TradeVolume);
         Assert.IsTrue(newLt.WasGiven);
         Assert.IsTrue(newLt.WasPaid);
+        Assert.AreEqual(ExpectedTraderName, newLt.ExternalTraderName);
 
         Assert.AreEqual(0, emptyLt.TradePrice);
         Assert.AreEqual(default, emptyLt.TradeTime);
         Assert.AreEqual(0m, emptyLt.TradeVolume);
         Assert.IsFalse(emptyLt.WasGiven);
         Assert.IsFalse(emptyLt.WasPaid);
+        Assert.IsNull(emptyLt.ExternalTraderName);
     }
 
     [TestMethod]
     public void NewLt_NewFromCloneInstance_PropertiesInitializedAsExpected()
     {
-        var newPopulatedLt = 
-            new LastPaidGivenTrade
-                (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedOrderId, ExpectedWasPaid
-               , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
-               , ExpectedUpdateTime);
-        var fromPQInstance = new LastPaidGivenTrade(newPopulatedLt);
+        var newPopulatedLt = new LastExternalCounterPartyTrade
+            (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedCounterPartyId
+           , ExpectedCounterPartyName, ExpectedTraderId, ExpectedTraderName, ExpectedOrderId, ExpectedWasPaid, ExpectedWasGiven
+           , ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime, ExpectedUpdateTime);
+        var fromPQInstance = new LastExternalCounterPartyTrade(newPopulatedLt);
         Assert.AreEqual(ExpectedTradePrice, fromPQInstance.TradePrice);
         Assert.AreEqual(ExpectedTradeTime, fromPQInstance.TradeTime);
         Assert.AreEqual(ExpectedTradeVolume, fromPQInstance.TradeVolume);
         Assert.IsTrue(fromPQInstance.WasGiven);
         Assert.IsTrue(fromPQInstance.WasPaid);
+        Assert.AreEqual(ExpectedTraderName, fromPQInstance.ExternalTraderName);
 
-        var pqLt           = 
-            new PQLastPaidGivenTrade
-                (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedOrderId, ExpectedWasPaid
-               , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
-               , ExpectedUpdateTime);
-        var fromPqInstance = new LastPaidGivenTrade(pqLt);
-        Assert.AreEqual(ExpectedTradePrice, fromPqInstance.TradePrice);
-        Assert.AreEqual(ExpectedTradeTime, fromPqInstance.TradeTime);
-        Assert.AreEqual(ExpectedTradeVolume, fromPqInstance.TradeVolume);
-        Assert.IsTrue(fromPqInstance.WasGiven);
-        Assert.IsTrue(fromPqInstance.WasPaid);
+        var nonPQLt = new PQLastExternalCounterPartyTrade
+            (nameIdLookupGenerator, ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume
+           , ExpectedCounterPartyId, ExpectedCounterPartyName, ExpectedTraderId, ExpectedTraderName, ExpectedOrderId, ExpectedWasPaid
+           , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
+           , ExpectedUpdateTime)
+            {
+                ExternalTraderName = ExpectedTraderName
+            };
+        var fromNonPqInstance = new LastExternalCounterPartyTrade(nonPQLt);
+        Assert.AreEqual(ExpectedTradePrice, fromNonPqInstance.TradePrice);
+        Assert.AreEqual(ExpectedTradeTime, fromNonPqInstance.TradeTime);
+        Assert.AreEqual(ExpectedTradeVolume, fromNonPqInstance.TradeVolume);
+        Assert.IsTrue(fromNonPqInstance.WasGiven);
+        Assert.IsTrue(fromNonPqInstance.WasPaid);
+        Assert.AreEqual(ExpectedTraderName, fromNonPqInstance.ExternalTraderName);
 
-        var newEmptyLt = new LastPaidGivenTrade(emptyLt);
+        var newEmptyLt = new LastExternalCounterPartyTrade(emptyLt);
         Assert.AreEqual(0, newEmptyLt.TradePrice);
         Assert.AreEqual(default, newEmptyLt.TradeTime);
         Assert.AreEqual(0m, newEmptyLt.TradeVolume);
         Assert.IsFalse(newEmptyLt.WasGiven);
         Assert.IsFalse(newEmptyLt.WasPaid);
+        Assert.IsNull(newEmptyLt.ExternalTraderName);
     }
 
     [TestMethod]
     public void EmptyEntry_Mutate_UpdatesFields()
     {
-        const decimal expectedPrice  = 3.45678m;
-        const decimal expectedVolume = 2345.345m;
+        const decimal expectedPrice      = 3.45678m;
+        const decimal expectedVolume     = 2345.345m;
+        const string  expectedTraderName = "Toly";
 
         var expectedTradeTime = new DateTime(2018, 3, 4, 11, 34, 5);
 
-        emptyLt.TradePrice  = expectedPrice;
-        emptyLt.TradeTime   = expectedTradeTime;
-        emptyLt.TradeVolume = expectedVolume;
-        emptyLt.WasGiven    = true;
-        emptyLt.WasPaid     = true;
+        emptyLt.TradePrice         = expectedPrice;
+        emptyLt.TradeTime          = expectedTradeTime;
+        emptyLt.TradeVolume        = expectedVolume;
+        emptyLt.WasGiven           = true;
+        emptyLt.WasPaid            = true;
+        emptyLt.ExternalTraderName = expectedTraderName;
 
         Assert.AreEqual(expectedPrice, emptyLt.TradePrice);
         Assert.AreEqual(expectedTradeTime, emptyLt.TradeTime);
         Assert.AreEqual(expectedVolume, emptyLt.TradeVolume);
         Assert.IsTrue(emptyLt.WasPaid);
         Assert.IsTrue(emptyLt.WasGiven);
+        Assert.AreEqual(expectedTraderName, emptyLt.ExternalTraderName);
     }
 
     [TestMethod]
@@ -151,7 +171,7 @@ public class LastPaidGivenTradeTests
     [TestMethod]
     public void FullyPopulatedLt_CopyFromToEmptyLt_PvlsEqualEachOther()
     {
-        var nonPQLt = new LastPaidGivenTrade(populatedLt);
+        var nonPQLt = new LastExternalCounterPartyTrade(populatedLt);
         emptyLt.CopyFrom(nonPQLt);
         Assert.AreEqual(populatedLt, emptyLt);
     }
@@ -159,8 +179,8 @@ public class LastPaidGivenTradeTests
     [TestMethod]
     public void PQPopulatedLt_CopyFromToEmptyPvl_QuotesEquivalentToEachOther()
     {
-        var pqLastTrade = new PQLastPaidGivenTrade(populatedLt);
-        var newEmpty    = new LastPaidGivenTrade();
+        var pqLastTrade = new PQLastExternalCounterPartyTrade(populatedLt, nameIdLookupGenerator);
+        var newEmpty    = new LastExternalCounterPartyTrade();
         newEmpty.CopyFrom(pqLastTrade);
         Assert.IsTrue(populatedLt.AreEquivalent(newEmpty));
         Assert.AreEqual(populatedLt, newEmpty);
@@ -184,12 +204,18 @@ public class LastPaidGivenTradeTests
         clone = ((IMutableLastPaidGivenTrade)populatedLt).Clone();
         Assert.AreNotSame(clone, populatedLt);
         Assert.AreEqual(populatedLt, clone);
+        clone = ((ILastExternalCounterPartyTrade)populatedLt).Clone();
+        Assert.AreNotSame(clone, populatedLt);
+        Assert.AreEqual(populatedLt, clone);
+        clone = ((IMutableLastExternalCounterPartyTrade)populatedLt).Clone();
+        Assert.AreNotSame(clone, populatedLt);
+        Assert.AreEqual(populatedLt, clone);
     }
 
     [TestMethod]
     public void FullyPopulatedLtCloned_OneDifferenceAtATimeAreEquivalentExact_CorrectlyReturnsWhenDifferent()
     {
-        var fullyPopulatedClone = (LastPaidGivenTrade)((ICloneable)populatedLt).Clone();
+        var fullyPopulatedClone = (LastExternalCounterPartyTrade)((ICloneable)populatedLt).Clone();
         AssertAreEquivalentMeetsExpectedExactComparisonType
             (true, populatedLt, fullyPopulatedClone);
         AssertAreEquivalentMeetsExpectedExactComparisonType
@@ -201,8 +227,7 @@ public class LastPaidGivenTradeTests
     {
         Assert.AreEqual(populatedLt, populatedLt);
         Assert.AreEqual(populatedLt, ((ICloneable)populatedLt).Clone());
-        Assert.AreEqual(populatedLt, ((ILastPaidGivenTrade)populatedLt).Clone());
-        Assert.AreEqual(populatedLt, ((IMutableLastPaidGivenTrade)populatedLt).Clone());
+        Assert.AreEqual(populatedLt, ((ICloneable<ILastTrade>)populatedLt).Clone());
     }
 
     [TestMethod]
@@ -231,68 +256,77 @@ public class LastPaidGivenTradeTests
         Assert.IsTrue(toString.Contains($"{nameof(populatedLt.TradeVolume)}: {populatedLt.TradeVolume:N2}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedLt.WasGiven)}: {populatedLt.WasGiven}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedLt.WasPaid)}: {populatedLt.WasPaid}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.ExternalCounterPartyId)}: {populatedLt.ExternalCounterPartyId}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.ExternalCounterPartyName)}: {populatedLt.ExternalCounterPartyName}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.ExternalTraderId)}: {populatedLt.ExternalTraderId}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.ExternalTraderName)}: {populatedLt.ExternalTraderName}"));
     }
 
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType
-    (bool exactComparison,
-        IMutableLastPaidGivenTrade original, IMutableLastPaidGivenTrade changingLastPaidGivenTrade,
-        IMutableLastTradedList? originalLastTradedList = null, IMutableLastTradedList? changingLastTradedList = null,
-        IMutablePublishableLevel3Quote? originalQuote = null, IMutablePublishableLevel3Quote? changingQuote = null)
+    (
+        bool exactComparison,
+        IMutableLastExternalCounterPartyTrade original,
+        IMutableLastExternalCounterPartyTrade changingExtCpTrade,
+        IMutableLastTradedList? originalLastTradedList = null,
+        IMutableLastTradedList? changingLastTradedList = null,
+        IMutablePublishableLevel3Quote? originalQuote = null,
+        IMutablePublishableLevel3Quote? changingQuote = null)
     {
-        LastTradeTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-            (exactComparison, original, changingLastPaidGivenTrade, originalLastTradedList, changingLastTradedList, originalQuote, changingQuote);
+        LastPaidGivenTradeTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+            (exactComparison, original, changingExtCpTrade, originalLastTradedList, changingLastTradedList, originalQuote
+           , changingQuote);
 
-        if (original.GetType() == typeof(LastPaidGivenTrade))
+        if (original.GetType() == typeof(LastExternalCounterPartyTrade))
             Assert.IsTrue
-                (original.AreEquivalent(new LastPaidGivenTrade(changingLastPaidGivenTrade), exactComparison));
+                (original.AreEquivalent(new LastExternalCounterPartyTrade(changingExtCpTrade), exactComparison));
 
-        changingLastPaidGivenTrade.OrderId = 992_184;
-        Assert.IsFalse(original.AreEquivalent(changingLastPaidGivenTrade, exactComparison));
+        changingExtCpTrade.ExternalCounterPartyId = 1_992_102;
+        Assert.IsFalse(original.AreEquivalent(changingExtCpTrade, exactComparison));
         if (originalLastTradedList != null)
             Assert.IsFalse
                 (originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
-        changingLastPaidGivenTrade.OrderId = original.OrderId;
-        Assert.IsTrue(changingLastPaidGivenTrade.AreEquivalent(original, exactComparison));
-        if (originalLastTradedList != null)
-            Assert.IsTrue
-                (originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
-        if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
-
-        changingLastPaidGivenTrade.TradeVolume = 1_234_567m;
-        Assert.IsFalse(original.AreEquivalent(changingLastPaidGivenTrade, exactComparison));
-        if (originalLastTradedList != null)
-            Assert.IsFalse
-                (originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
-        if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
-        changingLastPaidGivenTrade.TradeVolume = original.TradeVolume;
-        Assert.IsTrue(changingLastPaidGivenTrade.AreEquivalent(original, exactComparison));
+        changingExtCpTrade.ExternalCounterPartyId = original.ExternalCounterPartyId;
+        Assert.IsTrue(changingExtCpTrade.AreEquivalent(original, exactComparison));
         if (originalLastTradedList != null)
             Assert.IsTrue
                 (originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
-        changingLastPaidGivenTrade.WasGiven = !changingLastPaidGivenTrade.WasGiven;
-        Assert.IsFalse(original.AreEquivalent(changingLastPaidGivenTrade, exactComparison));
+        changingExtCpTrade.ExternalCounterPartyName = "Changed CounterParty Name";
+        Assert.IsFalse(original.AreEquivalent(changingExtCpTrade, exactComparison));
         if (originalLastTradedList != null)
             Assert.IsFalse
                 (originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
-        changingLastPaidGivenTrade.WasGiven = original.WasGiven;
-        Assert.IsTrue(changingLastPaidGivenTrade.AreEquivalent(original, exactComparison));
+        changingExtCpTrade.ExternalCounterPartyName = original.ExternalCounterPartyName;
+        Assert.IsTrue(changingExtCpTrade.AreEquivalent(original, exactComparison));
         if (originalLastTradedList != null)
             Assert.IsTrue
                 (originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
-        changingLastPaidGivenTrade.WasPaid = !changingLastPaidGivenTrade.WasPaid;
-        Assert.IsFalse(original.AreEquivalent(changingLastPaidGivenTrade, exactComparison));
+        changingExtCpTrade.ExternalTraderId = 992_102;
+        Assert.IsFalse(original.AreEquivalent(changingExtCpTrade, exactComparison));
         if (originalLastTradedList != null)
             Assert.IsFalse
                 (originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
         if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
-        changingLastPaidGivenTrade.WasPaid = original.WasPaid;
-        Assert.IsTrue(changingLastPaidGivenTrade.AreEquivalent(original, exactComparison));
+        changingExtCpTrade.ExternalTraderId = original.ExternalTraderId;
+        Assert.IsTrue(changingExtCpTrade.AreEquivalent(original, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsTrue
+                (originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
+
+        changingExtCpTrade.ExternalTraderName = "Changed Trader Name";
+        Assert.IsFalse(original.AreEquivalent(changingExtCpTrade, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsFalse
+                (originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
+        changingExtCpTrade.ExternalTraderName = original.ExternalTraderName;
+        Assert.IsTrue(changingExtCpTrade.AreEquivalent(original, exactComparison));
         if (originalLastTradedList != null)
             Assert.IsTrue
                 (originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));

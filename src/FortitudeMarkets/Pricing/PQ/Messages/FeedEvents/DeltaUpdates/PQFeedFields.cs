@@ -233,26 +233,30 @@ public enum PQFeedFields : byte
   , QuoteLayersRangeEnd = 209 // 0xD1
 
     // Level 3 Quote Layer Fields
-  , LastTradedStringUpdates                   = 210 // 0xD2
-  , LastTradedTickTrades                      = 211 // 0xD3
-  , LastTradedRecentlyByPeriod                = 213 // 0xD5
-  , LastTradedRecentlyByTradeCount            = 214 // 0xD6
-  , LastTradedInternalDailyAggregate          = 215 // 0xD7
-  , LastTradedSimulatorTickTrades             = 217 // 0xD9 
-  , LastTradedSimulatorRecentlyByPeriod       = 218 // 0xDA
-  , LastTradedSimulatorRecentlyByTradeCount   = 219 // 0xDB
-  , LastTradedSimulatorInternalDailyAggregate = 220 // 0xDC
-  , LastTradedMarketDailyAggregate            = 221 // 0xDD
+  , LastTradedStringUpdates                               = 210 // 0xD2
+  , LastTradedTickTrades                                  = 211 // 0xD3
+  , LastTradedRecentlyByPeriod                            = 212 // 0xD4
+  , LastTradedInternalOrdersRecentlyByPeriod              = 213 // 0xD5
+  , LastTradedRecentlyByTradeCount                        = 214 // 0xD6
+  , LastTradedInternalOrdersRecentlyByTradeCount          = 215 // 0xD7 
+  , LastTradedInternalDailyAggregate                      = 217 // 0xD9
+  , LastTradedSimulatorTickTrades                         = 218 // 0xDA
+  , LastTradedSimulatorRecentlyByPeriod                   = 219 // 0xDB
+  , LastTradedSimulatorInternalOrdersRecentlyByPeriod     = 220 // 0xDC
+  , LastTradedSimulatorRecentlyByTradeCount               = 221 // 0xDD
+  , LastTradedSimulatorInternalOrdersRecentlyByTradeCount = 222 // 0xDE
+  , LastTradedSimulatorInternalDailyAggregate             = 223 // 0xDF
+  , LastTradedMarketDailyAggregate                        = 224 // 0xE0
 
-  , AdapterInternalOrdersStringUpdates           = 222 // 0xDE
-  , AdapterInternalOrdersTick                    = 223 // 0xDF
-  , AdapterInternalOrdersRecentByPeriod          = 224 // 0xE0
-  , AdapterInternalOrdersRecentByCount           = 225 // 0xE1
-  , AdapterInternalOrdersOpen                    = 226 // 0xE2
-  , AdapterInternalOrdersSimulatorTick           = 227 // 0xE3
-  , AdapterInternalOrdersSimulatorRecentByPeriod = 228 // 0xE4
-  , AdapterInternalOrdersSimulatorRecentByCount  = 229 // 0xE5
-  , AdapterInternalOrdersSimulatorOpen           = 230 // 0xE6
+  , AdapterInternalOrdersStringUpdates           = 226 // 0xE2
+  , AdapterInternalOrdersTick                    = 227 // 0xE3
+  , AdapterInternalOrdersRecentByPeriod          = 228 // 0xE4
+  , AdapterInternalOrdersRecentByCount           = 229 // 0xE5
+  , AdapterInternalOrdersOpen                    = 230 // 0xE6
+  , AdapterInternalOrdersSimulatorTick           = 231 // 0xE7
+  , AdapterInternalOrdersSimulatorRecentByPeriod = 232 // 0xE8
+  , AdapterInternalOrdersSimulatorRecentByCount  = 233 // 0xE9
+  , AdapterInternalOrdersSimulatorOpen           = 234 // 0xEA
 
   , QuoteBatchId            = 238 // 0xEE
   , QuoteSourceQuoteRef     = 239 // 0xEF

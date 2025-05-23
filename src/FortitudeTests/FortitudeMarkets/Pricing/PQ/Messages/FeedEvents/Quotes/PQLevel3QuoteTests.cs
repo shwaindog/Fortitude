@@ -131,7 +131,7 @@ public class PQLevel3QuoteTests
     public void TraderPaidGivenVolumeLevel3Quote_New_BuildsLastTraderPaidGivenEntries()
     {
         AssertLastTradeTypeIsExpected
-            (typeof(PQLastTraderPaidGivenTrade), fullSupportOnTickLastTradedEmptyQuote
+            (typeof(PQLastExternalCounterPartyTrade), fullSupportOnTickLastTradedEmptyQuote
            , fullSupportOnTickLastTradedFullyPopulatedQuote);
     }
 
@@ -1299,10 +1299,10 @@ public class PQLevel3QuoteTests
             Assert.IsFalse(paidGivenTrade.IsWasPaidUpdated);
         }
 
-        if (pvl is IPQLastTraderPaidGivenTrade traderPaidGivenTrade)
+        if (pvl is IPQLastExternalCounterPartyTrade traderPaidGivenTrade)
         {
-            Assert.IsNull(traderPaidGivenTrade.TraderName);
-            Assert.IsFalse(traderPaidGivenTrade.IsTraderNameUpdated);
+            Assert.IsNull(traderPaidGivenTrade.ExternalTraderName);
+            Assert.IsFalse(traderPaidGivenTrade.IsExternalTraderNameUpdated);
         }
     }
 

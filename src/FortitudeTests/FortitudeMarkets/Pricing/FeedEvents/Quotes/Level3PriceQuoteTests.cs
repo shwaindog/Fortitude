@@ -128,6 +128,11 @@ public class Level3PriceQuoteTests
     [TestMethod]
     public void IntializedFromConstructor_New_InitializesFieldsAsExpected()
     {
+        var expectedTradeId            = 10u;
+        var expectedBatchId            = 234567u;
+        var expectedTradePrice         = 1.23156m;
+        var expectedTradeFlags         = LastTradedTypeFlags.HasPaidGivenDetails;
+        var expectedTradeLifeCycle         = LastTradedLifeCycleFlags.DropCopyReceived;
         var expectedSourceTime         = new DateTime(2018, 02, 04, 23, 56, 59);
         var expectedClientReceivedTime = new DateTime(2018, 02, 04, 19, 56, 9);
         var expectedSingleValue        = 1.23456m;
@@ -151,9 +156,9 @@ public class Level3PriceQuoteTests
         var expectedOnTickLastTraded =
             new OnTickLastTraded(simpleOnTickLastTradedSrcTkrInfo)
             {
-                [0] = new LastTrade(12345m, new DateTime(2018, 3, 3, 10, 53, 41))
+                [0] = new LastTrade(expectedTradeId, expectedBatchId, expectedTradePrice, new DateTime(2018, 3, 3, 10, 53, 41)
+                                  , expectedTradeFlags, expectedTradeLifeCycle)
             };
-        var expectedBatchId        = 234567u;
         var expectedSourceQuoteRef = 678123u;
         var expectedValueDate      = new DateTime(2018, 3, 3, 10, 57, 23);
 
@@ -196,6 +201,11 @@ public class Level3PriceQuoteTests
     [TestMethod]
     public void NonOnTickLastTraded_New_ConvertsToOnTickLastTraded()
     {
+        var expectedTradeId            = 10u;
+        var expectedBatchId            = 234567u;
+        var expectedTradePrice         = 1.23156m;
+        var expectedTradeFlags         = LastTradedTypeFlags.HasPaidGivenDetails;
+        var expectedTradeLifeCycle     = LastTradedLifeCycleFlags.DropCopyReceived;
         var expectedSourceTime         = new DateTime(2018, 02, 04, 18, 56, 9);
         var expectedClientReceivedTime = new DateTime(2018, 02, 04, 19, 56, 9);
         var expectedSingleValue        = 1.23456m;
@@ -219,10 +229,10 @@ public class Level3PriceQuoteTests
         var convertedOnTickLastTraded
             = new PQOnTickLastTraded(new PQSourceTickerInfo(simpleOnTickLastTradedSrcTkrInfo))
             {
-                [0] = new PQLastTrade(12345m, new DateTime(2018, 3, 3, 10, 53, 41))
+                [0] = new PQLastTrade(expectedTradeId, expectedBatchId, expectedTradePrice, new DateTime(2018, 3, 3, 10, 53, 41)
+                                  , expectedTradeFlags, expectedTradeLifeCycle)
             };
         var expectedOnTickLastTraded = new OnTickLastTraded(convertedOnTickLastTraded);
-        var expectedBatchId          = 234567u;
         var expectedSourceQuoteRef   = 678123u;
         var expectedValueDate        = new DateTime(2018, 3, 3, 10, 57, 23);
 
@@ -265,7 +275,7 @@ public class Level3PriceQuoteTests
     [TestMethod]
     public void TraderPaidGivenVolumeLevel3Quote_New_BuildsLastTraderPaidGivenEntries()
     {
-        AssertLastTradeTypeIsExpected(typeof(LastTraderPaidGivenTrade), fullSupportOnTickLastTradedEmptyQuote
+        AssertLastTradeTypeIsExpected(typeof(LastExternalCounterPartyTrade), fullSupportOnTickLastTradedEmptyQuote
                                     , fullSupportOnTickLastTradedFullyPopulatedQuote);
     }
 
@@ -576,9 +586,14 @@ public class Level3PriceQuoteTests
         var volStart = i * 1_000m;
         UpdateOrdersQuoteBook(sourceBidBook, 20, 1, 10000 + volStart, 1000 + volDiff);
         UpdateOrdersQuoteBook(sourceAskBook, 20, 1, 20000 + volStart, 500 + volDiff);
-        var     toggleBool   = false;
-        decimal growVolume   = 10000;
-        var     traderNumber = 1;
+        var     toggleBool             = false;
+        decimal growVolume             = 10000;
+        var     traderNumber           = 1;
+        var     expectedTradeId        = 10u;
+        var     expectedBatchId        = 234567u;
+        var     expectedTradePrice     = 1.23156m;
+        var     expectedTradeFlags     = LastTradedTypeFlags.HasPaidGivenDetails;
+        var     expectedTradeLifeCycle = LastTradedLifeCycleFlags.DropCopyReceived;
 
         var onTickLastTraded =
             GenerateOnTickLastTraded
@@ -586,9 +601,10 @@ public class Level3PriceQuoteTests
                , new DateTime(2015, 10, 18, 11, 33, 48) + TimeSpan.FromSeconds(i)
                , new TimeSpan(20 + 1 * TimeSpan.TicksPerMillisecond)
                , (price, time) =>
-                     new LastTraderPaidGivenTrade
-                         (price, time, growVolume += growVolume, toggleBool = !toggleBool,
-                          toggleBool = !toggleBool, "TraderName" + ++traderNumber));
+                     new LastExternalCounterPartyTrade
+                         (expectedTradeId, expectedBatchId, price, time, growVolume += growVolume,i +1, "CounterPartyName_" + traderNumber,
+                          i+ 10, "TraderName" + ++traderNumber, (uint)(i + 100), toggleBool = !toggleBool,
+                          toggleBool = !toggleBool));
 
         // setup source quote
         return new PublishableLevel3PriceQuote

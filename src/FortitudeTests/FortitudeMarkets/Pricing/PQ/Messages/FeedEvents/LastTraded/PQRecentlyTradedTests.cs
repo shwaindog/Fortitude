@@ -20,19 +20,42 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTra
 [TestClass]
 public class PQRecentlyTradedTests
 {
+    private const uint    ExpectedTradeId     = 42;
+    private const uint    ExpectedBatchId     = 24_942;
+    private const uint    ExpectedOrderId     = 1_772_942;
+    private const decimal ExpectedTradePrice  = 2.3456m;
+    private const decimal ExpectedTradeVolume = 42_000_111m;
+
+    private const LastTradedTypeFlags      ExpectedTradedTypeFlags     = LastTradedTypeFlags.HasPaidGivenDetails;
+    private const LastTradedLifeCycleFlags ExpectedTradeLifeCycleFlags = LastTradedLifeCycleFlags.Confirmed;
+
+    private static readonly DateTime ExpectedTradeTime           = new(2018, 03, 2, 14, 40, 30);
+    private static readonly DateTime ExpectedFirstNotifiedTime   = new(2018, 03, 2, 14, 40, 31);
+    private static readonly DateTime ExpectedAdapterReceivedTime = new(2018, 03, 2, 14, 40, 41);
+    private static readonly DateTime ExpectedUpdateTime          = new(2018, 03, 2, 14, 40, 42);
+
+    private const bool ExpectedWasGiven = true;
+    private const bool ExpectedWasPaid  = true;
+
+    private const int ExpectedTraderId       = 34_902;
+    private const int ExpectedCounterPartyId = 2_198;
+
+    private const string ExpectedTraderName       = "TraderName-Helen";
+    private const string ExpectedCounterPartyName = "CounterPartyName-Valcopp";
+
     private const int MaxNumberOfEntries = QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades;
 
-    private IList<PQRecentlyTraded>            allFullyPopulatedRecentlyTraded = null!;
-    private List<IReadOnlyList<IPQLastTrade>>  allPopulatedEntries             = null!;
-    private IList<IPQLastPaidGivenTrade>       lastPaidGivenEntries            = null!;
-    private IList<IPQLastTraderPaidGivenTrade> lastTraderPaidGivenEntries      = null!;
+    private IList<PQRecentlyTraded>                 allFullyPopulatedRecentlyTraded = null!;
+    private List<IReadOnlyList<IPQLastTrade>>       allPopulatedEntries             = null!;
+    private IList<IPQLastPaidGivenTrade>            lastPaidGivenEntries            = null!;
+    private IList<IPQLastExternalCounterPartyTrade> lastTraderPaidGivenEntries      = null!;
 
     private PQRecentlyTraded paidGivenVolumeRecentlyTradedFullyPopulatedLastTrades = null!;
 
     private IList<IPQLastTrade> simpleEntries = null!;
 
-    private PQRecentlyTraded        simpleRecentlyTradedFullyPopulatedLastTrades                = null!;
-    private PQNameIdLookupGenerator traderNameIdLookupGenerator                            = null!;
+    private PQRecentlyTraded        simpleRecentlyTradedFullyPopulatedLastTrades      = null!;
+    private PQNameIdLookupGenerator traderNameIdLookupGenerator                       = null!;
     private PQRecentlyTraded        fullSupportRecentlyTradedFullyPopulatedLastTrades = null!;
     // test being less than max.
 
@@ -43,7 +66,7 @@ public class PQRecentlyTradedTests
 
         simpleEntries              = new List<IPQLastTrade>(MaxNumberOfEntries);
         lastPaidGivenEntries       = new List<IPQLastPaidGivenTrade>(MaxNumberOfEntries);
-        lastTraderPaidGivenEntries = new List<IPQLastTraderPaidGivenTrade>(MaxNumberOfEntries);
+        lastTraderPaidGivenEntries = new List<IPQLastExternalCounterPartyTrade>(MaxNumberOfEntries);
 
         allPopulatedEntries = new List<IReadOnlyList<IPQLastTrade>>
         {
@@ -53,19 +76,29 @@ public class PQRecentlyTradedTests
 
         for (var i = 0; i < MaxNumberOfEntries; i++)
         {
-            simpleEntries.Add(new PQLastTrade(1.234567m, new DateTime(2018, 1, 2, 22, 52, 59)));
-            lastPaidGivenEntries.Add(new PQLastPaidGivenTrade(1.234567m, new DateTime(2018, 1, 2, 22, 52, 59),
-                                                              40_111_222m, true, true));
-            lastTraderPaidGivenEntries.Add(new PQLastTraderPaidGivenTrade(traderNameIdLookupGenerator, 1.234567m,
-                                                                          new DateTime(2018, 1, 2, 22, 52, 59), 40_111_222m, true, true)
+            simpleEntries.Add
+                (new PQLastTrade
+                    (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradedTypeFlags
+                   , ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime, ExpectedUpdateTime));
+            lastPaidGivenEntries.Add
+                (new PQLastPaidGivenTrade
+                    (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedOrderId, ExpectedWasPaid
+                   , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
+                   , ExpectedUpdateTime));
+            lastTraderPaidGivenEntries.Add
+                (new PQLastExternalCounterPartyTrade
+                    (traderNameIdLookupGenerator, ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume
+                   , ExpectedCounterPartyId, ExpectedCounterPartyName, ExpectedTraderId, ExpectedTraderName, ExpectedOrderId, ExpectedWasPaid
+                   , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
+                   , ExpectedUpdateTime)
             {
-                TraderName = "TestTraderName"
+                ExternalTraderName = "TestTraderName"
             });
         }
 
-        simpleRecentlyTradedFullyPopulatedLastTrades                = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)simpleEntries);
-        paidGivenVolumeRecentlyTradedFullyPopulatedLastTrades       = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)lastPaidGivenEntries);
-        fullSupportRecentlyTradedFullyPopulatedLastTrades = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)lastTraderPaidGivenEntries);
+        simpleRecentlyTradedFullyPopulatedLastTrades          = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)simpleEntries);
+        paidGivenVolumeRecentlyTradedFullyPopulatedLastTrades = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)lastPaidGivenEntries);
+        fullSupportRecentlyTradedFullyPopulatedLastTrades     = new PQRecentlyTraded((IEnumerable<IPQLastTrade>)lastTraderPaidGivenEntries);
 
         allFullyPopulatedRecentlyTraded = new List<PQRecentlyTraded>
         {
@@ -200,13 +233,13 @@ public class PQRecentlyTradedTests
                     Assert.IsFalse(lastPaidGivenTrade.HasUpdates);
                 }
 
-                if (lt is IPQLastTraderPaidGivenTrade traderPaidGivenTrader)
+                if (lt is IPQLastExternalCounterPartyTrade traderPaidGivenTrader)
                 {
-                    traderPaidGivenTrader.TraderName = "TestChangedTraderName";
+                    traderPaidGivenTrader.ExternalTraderName = "TestChangedTraderName";
                     Assert.IsTrue(populatedRecentlyTraded.HasUpdates);
                     Assert.IsTrue(traderPaidGivenTrader.HasUpdates);
-                    traderPaidGivenTrader.IsTraderNameUpdated     = false;
-                    traderPaidGivenTrader.NameIdLookup.HasUpdates = false;
+                    traderPaidGivenTrader.IsExternalTraderNameUpdated = false;
+                    traderPaidGivenTrader.NameIdLookup.HasUpdates     = false;
                     Assert.IsFalse(populatedRecentlyTraded.HasUpdates);
                     Assert.IsFalse(traderPaidGivenTrader.HasUpdates);
                 }
@@ -409,10 +442,10 @@ public class PQRecentlyTradedTests
                     Assert.IsFalse(paidGivenTrade.IsTradeVolumeUpdated);
                 }
 
-                if (pvl is IPQLastTraderPaidGivenTrade traderTrade)
+                if (pvl is IPQLastExternalCounterPartyTrade traderTrade)
                 {
-                    Assert.IsNull(traderTrade.TraderName);
-                    Assert.IsFalse(traderTrade.IsTraderNameUpdated);
+                    Assert.IsNull(traderTrade.ExternalTraderName);
+                    Assert.IsFalse(traderTrade.IsExternalTraderNameUpdated);
                 }
             }
         }
@@ -424,7 +457,7 @@ public class PQRecentlyTradedTests
         foreach (var populatedRecentlyTraded in allFullyPopulatedRecentlyTraded)
         {
             var nonPQRecentlyTraded = new RecentlyTraded(populatedRecentlyTraded);
-            var newEmpty       = CreateNewEmpty(populatedRecentlyTraded);
+            var newEmpty            = CreateNewEmpty(populatedRecentlyTraded);
             newEmpty.CopyFrom(nonPQRecentlyTraded);
             Assert.AreEqual(populatedRecentlyTraded, newEmpty);
         }
@@ -439,11 +472,11 @@ public class PQRecentlyTradedTests
         {
             var emptyOriginalTypeRecentlyTraded = CreateNewEmpty(originalRecentlyTraded);
             AssertAllLastTradesAreOfTypeAndEquivalentTo(emptyOriginalTypeRecentlyTraded, originalRecentlyTraded,
-                                                    originalRecentlyTraded[0]!.GetType(), false);
+                                                        originalRecentlyTraded[0]!.GetType(), false);
             emptyOriginalTypeRecentlyTraded.CopyFrom(otherRecentlyTraded);
             AssertAllLastTradesAreOfTypeAndEquivalentTo(emptyOriginalTypeRecentlyTraded, otherRecentlyTraded,
-                                                    GetExpectedType(originalRecentlyTraded[0]!.GetType(),
-                                                                    otherRecentlyTraded[0]!.GetType()));
+                                                        GetExpectedType(originalRecentlyTraded[0]!.GetType(),
+                                                                        otherRecentlyTraded[0]!.GetType()));
         }
     }
 
@@ -456,14 +489,14 @@ public class PQRecentlyTradedTests
         {
             var clonedPopulatedRecentlyTraded = (PQRecentlyTraded)originalRecentlyTraded.Clone();
             AssertAllLastTradesAreOfTypeAndEquivalentTo(clonedPopulatedRecentlyTraded, originalRecentlyTraded,
-                                                    originalRecentlyTraded[0]!.GetType(), false);
+                                                        originalRecentlyTraded[0]!.GetType(), false);
             clonedPopulatedRecentlyTraded.CopyFrom(otherRecentlyTraded);
             AssertAllLastTradesAreOfTypeAndEquivalentTo(clonedPopulatedRecentlyTraded, otherRecentlyTraded,
-                                                    GetExpectedType(originalRecentlyTraded[0]!.GetType(),
-                                                                    otherRecentlyTraded[0]!.GetType()));
+                                                        GetExpectedType(originalRecentlyTraded[0]!.GetType(),
+                                                                        otherRecentlyTraded[0]!.GetType()));
             AssertAllLastTradesAreOfTypeAndEquivalentTo(clonedPopulatedRecentlyTraded, originalRecentlyTraded,
-                                                    GetExpectedType(originalRecentlyTraded[0]!.GetType(),
-                                                                    otherRecentlyTraded[0]!.GetType()));
+                                                        GetExpectedType(originalRecentlyTraded[0]!.GetType(),
+                                                                        otherRecentlyTraded[0]!.GetType()));
         }
     }
 
@@ -556,7 +589,7 @@ public class PQRecentlyTradedTests
     {
         if (copyType == typeof(PQLastTrade)) return originalType;
         if (originalType == typeof(PQLastPaidGivenTrade) && copyType == typeof(PQLastPaidGivenTrade)) return typeof(PQLastPaidGivenTrade);
-        return typeof(PQLastTraderPaidGivenTrade);
+        return typeof(PQLastExternalCounterPartyTrade);
     }
 
     private void AssertAllLastTradesAreOfTypeAndEquivalentTo
@@ -580,10 +613,10 @@ public class PQRecentlyTradedTests
         if (copySourceType == typeof(PQLastPaidGivenTrade))
             return copyDestinationType == typeof(PQLastTrade) ||
                    copyDestinationType == typeof(PQLastPaidGivenTrade);
-        if (copySourceType == typeof(PQLastTraderPaidGivenTrade))
+        if (copySourceType == typeof(PQLastExternalCounterPartyTrade))
             return copyDestinationType == typeof(PQLastTrade) ||
                    copyDestinationType == typeof(PQLastPaidGivenTrade) ||
-                   copyDestinationType == typeof(PQLastTraderPaidGivenTrade);
+                   copyDestinationType == typeof(PQLastExternalCounterPartyTrade);
         return false;
     }
 
@@ -591,7 +624,7 @@ public class PQRecentlyTradedTests
     {
         var cloneGensis = populatedRecentlyTraded[0]!.Clone();
         cloneGensis.StateReset();
-        if (cloneGensis is IPQLastTraderPaidGivenTrade traderLastTrade)
+        if (cloneGensis is IPQLastExternalCounterPartyTrade traderLastTrade)
             traderLastTrade.NameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.LastTradedStringUpdates);
         var clonedEmptyEntries = new List<IPQLastTrade>(MaxNumberOfEntries);
         for (var i = 0; i < MaxNumberOfEntries; i++) clonedEmptyEntries.Add(cloneGensis.Clone());
@@ -601,8 +634,9 @@ public class PQRecentlyTradedTests
 
     public static void AssertContainsAllLevelRecentlyTradedFields
     (IList<PQFieldUpdate> checkFieldUpdates,
-        IPQRecentlyTraded recentlyTraded, PQQuoteBooleanValues expectedQuoteBooleanFlags = PQQuoteBooleanValuesExtensions.LivePricingFieldsSetNoReplayOrSnapshots
-      ,  PQFieldFlags priceScale = (PQFieldFlags)1,  PQFieldFlags volumeScale = (PQFieldFlags)6)
+        IPQRecentlyTraded recentlyTraded
+      , PQQuoteBooleanValues expectedQuoteBooleanFlags = PQQuoteBooleanValuesExtensions.LivePricingFieldsSetNoReplayOrSnapshots
+      , PQFieldFlags priceScale = (PQFieldFlags)1, PQFieldFlags volumeScale = (PQFieldFlags)6)
     {
         for (var i = 0; i < recentlyTraded.Count; i++)
         {
@@ -610,8 +644,9 @@ public class PQRecentlyTradedTests
             var depthId   = (PQDepthKey)i;
 
 
-            Assert.AreEqual(new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, depthId, PQTradingSubFieldKeys.LastTradedAtPrice, lastTrade.TradePrice, priceScale),
-                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.LastTradedTickTrades, depthId, 
+            Assert.AreEqual(new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, depthId, PQTradingSubFieldKeys.LastTradedAtPrice, lastTrade.TradePrice, priceScale)
+                           ,
+                            PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.LastTradedTickTrades, depthId,
                                                                         PQTradingSubFieldKeys.LastTradedAtPrice, priceScale),
                             $"For lastTradeType {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
@@ -624,7 +659,8 @@ public class PQRecentlyTradedTests
             var extended = lastTrade.TradeTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var subHourBase);
             Assert.AreEqual(new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, depthId, PQTradingSubFieldKeys.LastTradedTradeSub2MinTime, subHourBase, extended)
                           , PQTickInstantTests.ExtractFieldUpdateWithId
-                                (checkFieldUpdates, PQFeedFields.LastTradedTickTrades, depthId, PQTradingSubFieldKeys.LastTradedTradeSub2MinTime, extended),
+                                (checkFieldUpdates, PQFeedFields.LastTradedTickTrades, depthId, PQTradingSubFieldKeys.LastTradedTradeSub2MinTime
+                               , extended),
                             $"For lastTradeType {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
             if (lastTrade is IPQLastPaidGivenTrade pqPaidGivenTrade)
@@ -633,18 +669,20 @@ public class PQRecentlyTradedTests
                 lastTradedBoolFlags |= pqPaidGivenTrade.WasPaid ? LastTradeBooleanFlags.WasPaid : LastTradeBooleanFlags.None;
 
 
-                Assert.AreEqual(new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, depthId, PQTradingSubFieldKeys.LastTradedBooleanFlags, (uint)lastTradedBoolFlags),
+                Assert.AreEqual(new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, depthId, PQTradingSubFieldKeys.LastTradedBooleanFlags, (uint)lastTradedBoolFlags)
+                               ,
                                 PQTickInstantTests.ExtractFieldUpdateWithId
                                     (checkFieldUpdates, PQFeedFields.LastTradedTickTrades, depthId, PQTradingSubFieldKeys.LastTradedBooleanFlags),
                                 $"For lastTradeType {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
             }
 
-            if (lastTrade is IPQLastTraderPaidGivenTrade pqTraderPaidGivenTrade)
+            if (lastTrade is IPQLastExternalCounterPartyTrade pqTraderPaidGivenTrade)
             {
-                var lastTradedTraderId = (uint)pqTraderPaidGivenTrade.TraderId;
-                Assert.AreEqual(new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, depthId, PQTradingSubFieldKeys.LastTradedTraderNameId, lastTradedTraderId),
-                                PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.LastTradedTickTrades, depthId, 
-                                                                            PQTradingSubFieldKeys.LastTradedTraderNameId),
+                var lastTradedTraderNameId = (uint)pqTraderPaidGivenTrade.ExternalTraderNameId;
+                Assert.AreEqual(new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, depthId, PQTradingSubFieldKeys.LastTradedExternalTraderNameId, lastTradedTraderNameId)
+                               ,
+                                PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.LastTradedTickTrades, depthId,
+                                                                            PQTradingSubFieldKeys.LastTradedExternalTraderNameId),
                                 $"For lastTradeType {lastTrade.GetType().Name} level {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
             }
         }
@@ -675,10 +713,10 @@ public class PQRecentlyTradedTests
                     (exactComparison, originalEntry as PQLastPaidGivenTrade,
                      changingEntry as PQLastPaidGivenTrade, original,
                      changingRecentlyTraded, originalQuote, changingQuote);
-            PQLastTraderPaidGivenTradeTests
+            PQLastExternalCounterPartyTradeTests
                 .AssertAreEquivalentMeetsExpectedExactComparisonType
-                    (exactComparison, originalEntry as PQLastTraderPaidGivenTrade,
-                     changingEntry as PQLastTraderPaidGivenTrade, original,
+                    (exactComparison, originalEntry as PQLastExternalCounterPartyTrade,
+                     changingEntry as PQLastExternalCounterPartyTrade, original,
                      changingRecentlyTraded, originalQuote, changingQuote);
         }
     }

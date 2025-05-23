@@ -20,13 +20,37 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 public class RecentlyTradedTests
 {
     private const int MaxNumberOfEntries = QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades - 1;
+    
+    private const uint    ExpectedTradeId     = 42;
+    private const uint    ExpectedBatchId     = 24_942;
+    private const uint    ExpectedOrderId     = 1_772_942;
+    private const decimal ExpectedTradePrice  = 2.3456m;
+    private const decimal ExpectedTradeVolume = 42_000_111m;
+
+    private const LastTradedTypeFlags      ExpectedTradedTypeFlags     = LastTradedTypeFlags.HasPaidGivenDetails;
+    private const LastTradedLifeCycleFlags ExpectedTradeLifeCycleFlags = LastTradedLifeCycleFlags.Confirmed;
+
+    private static readonly DateTime ExpectedTradeTime           = new(2018, 03, 2, 14, 40, 30);
+    private static readonly DateTime ExpectedFirstNotifiedTime   = new(2018, 03, 2, 14, 40, 31);
+    private static readonly DateTime ExpectedAdapterReceivedTime = new(2018, 03, 2, 14, 40, 41);
+    private static readonly DateTime ExpectedUpdateTime          = new(2018, 03, 2, 14, 40, 42);
+
+    private const bool ExpectedWasGiven = true;
+    private const bool ExpectedWasPaid  = true;
+
+    private const int ExpectedTraderId       = 34_902;
+    private const int ExpectedCounterPartyId = 2_198;
+
+    private const string ExpectedTraderName       = "TraderName-Helen";
+    private const string ExpectedCounterPartyName = "CounterPartyName-Valcopp";
+
 
     private IList<RecentlyTraded> allFullyPopulatedRecentlyTraded = null!;
 
     private List<IReadOnlyList<ILastTrade>>   allPopulatedEntries  = null!;
     private IList<IMutableLastPaidGivenTrade> lastPaidGivenEntries = null!;
 
-    private IList<IMutableLastTraderPaidGivenTrade> lastTraderPaidGivenEntries = null!;
+    private IList<IMutableLastExternalCounterPartyTrade> lastTraderPaidGivenEntries = null!;
 
     private RecentlyTraded paidGivenVolumeFullyPopulatedRecentlyTraded = null!;
 
@@ -43,7 +67,7 @@ public class RecentlyTradedTests
         simpleEntries        = new List<IMutableLastTrade>(MaxNumberOfEntries);
         lastPaidGivenEntries = new List<IMutableLastPaidGivenTrade>(MaxNumberOfEntries);
 
-        lastTraderPaidGivenEntries = new List<IMutableLastTraderPaidGivenTrade>(MaxNumberOfEntries);
+        lastTraderPaidGivenEntries = new List<IMutableLastExternalCounterPartyTrade>(MaxNumberOfEntries);
 
         allPopulatedEntries =
         [
@@ -53,14 +77,18 @@ public class RecentlyTradedTests
 
         for (var i = 0; i < MaxNumberOfEntries; i++)
         {
-            simpleEntries.Add(new LastTrade(1.234567m, new DateTime(2018, 1, 2, 22, 52, 59)));
+            simpleEntries.Add(new LastTrade(ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradedTypeFlags
+                                          , ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime, ExpectedUpdateTime));
             lastPaidGivenEntries.Add
                 (new LastPaidGivenTrade
-                    (1.234567m, new DateTime(2018, 1, 2, 22, 52, 59), 40_111_222m, true, true));
+                    (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedOrderId, ExpectedWasPaid
+                   , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
+                   , ExpectedUpdateTime));
             lastTraderPaidGivenEntries.Add
-                (new LastTraderPaidGivenTrade
-                    (1.234567m, new DateTime(2018, 1, 2, 22, 52, 59), 40_111_222m
-                   , true, true, "TestTraderName"));
+                (new LastExternalCounterPartyTrade
+                    (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedCounterPartyId
+                   , ExpectedCounterPartyName, ExpectedTraderId, ExpectedTraderName, ExpectedOrderId, ExpectedWasPaid, ExpectedWasGiven
+                   , ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime, ExpectedUpdateTime));
         }
 
         simpleFullyPopulatedRecentlyTraded          = new RecentlyTraded(simpleEntries);
@@ -147,7 +175,7 @@ public class RecentlyTradedTests
             for (var i = MaxNumberOfEntries - 1; i >= 0; i--)
             {
                 Assert.AreEqual(i, populatedRecentlyTraded.Count - 1);
-                populatedRecentlyTraded[i]?.StateReset();
+                populatedRecentlyTraded[i].StateReset();
             }
 
             Assert.AreEqual(0, populatedRecentlyTraded.Count);
@@ -180,11 +208,11 @@ public class RecentlyTradedTests
         foreach (var populatedRecentlyTraded in allFullyPopulatedRecentlyTraded)
         {
             Assert.AreEqual(MaxNumberOfEntries, populatedRecentlyTraded.Count);
-            populatedRecentlyTraded.Add(populatedRecentlyTraded[0]!.Clone());
+            populatedRecentlyTraded.Add(populatedRecentlyTraded[0].Clone());
             Assert.AreEqual(MaxNumberOfEntries + 1, populatedRecentlyTraded.Count);
             populatedRecentlyTraded[MaxNumberOfEntries] = populatedRecentlyTraded[MaxNumberOfEntries].ResetWithTracking();
             Assert.AreEqual(MaxNumberOfEntries, populatedRecentlyTraded.Count);
-            populatedRecentlyTraded.Add(populatedRecentlyTraded[0]!.Clone());
+            populatedRecentlyTraded.Add(populatedRecentlyTraded[0].Clone());
             Assert.AreEqual(MaxNumberOfEntries + 1, populatedRecentlyTraded.Count);
         }
     }
@@ -206,7 +234,7 @@ public class RecentlyTradedTests
         foreach (var populatedOrderBook in allFullyPopulatedRecentlyTraded)
         foreach (var subType in allFullyPopulatedRecentlyTraded.Where(ob => !ReferenceEquals(ob, populatedOrderBook)))
         {
-            if (!WhollyContainedBy(subType[0]!.GetType(), populatedOrderBook[0]!.GetType())) continue;
+            if (!WhollyContainedBy(subType[0].GetType(), populatedOrderBook[0].GetType())) continue;
             var newEmpty = new RecentlyTraded(populatedOrderBook);
             newEmpty.StateReset();
             Assert.AreNotEqual(populatedOrderBook, newEmpty);
@@ -365,7 +393,7 @@ public class RecentlyTradedTests
 
     private static RecentlyTraded CreateNewEmpty(RecentlyTraded populatedOrderBook)
     {
-        var cloneGenesis = populatedOrderBook[0]!.Clone();
+        var cloneGenesis = populatedOrderBook[0].Clone();
         cloneGenesis.StateReset();
         var clonedEmptyEntries = new List<ILastTrade>(MaxNumberOfEntries);
         for (var i = 0; i < MaxNumberOfEntries; i++) clonedEmptyEntries.Add(cloneGenesis.Clone());
@@ -379,10 +407,10 @@ public class RecentlyTradedTests
         if (copySourceType == typeof(LastPaidGivenTrade))
             return copyDestinationType == typeof(LastTrade) ||
                    copyDestinationType == typeof(LastPaidGivenTrade);
-        if (copySourceType == typeof(LastTraderPaidGivenTrade))
+        if (copySourceType == typeof(LastExternalCounterPartyTrade))
             return copyDestinationType == typeof(LastTrade) ||
                    copyDestinationType == typeof(LastPaidGivenTrade) ||
-                   copyDestinationType == typeof(LastTraderPaidGivenTrade);
+                   copyDestinationType == typeof(LastExternalCounterPartyTrade);
         return false;
     }
 
@@ -406,10 +434,10 @@ public class RecentlyTradedTests
             if (originalEntry is IMutableLastPaidGivenTrade trade)
                 LastPaidGivenTradeTests.AssertAreEquivalentMeetsExpectedExactComparisonType
                     (exactComparison, trade
-                   , (IMutableLastPaidGivenTrade)changingEntry!, original, changingRecentlyTraded, originalQuote, changingQuote);
-            if (originalEntry is IMutableLastTraderPaidGivenTrade paidGivenTrade)
-                LastTraderPaidGivenTradeTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-                    (exactComparison, paidGivenTrade, (IMutableLastTraderPaidGivenTrade)changingEntry!
+                   , (IMutableLastPaidGivenTrade)changingEntry, original, changingRecentlyTraded, originalQuote, changingQuote);
+            if (originalEntry is IMutableLastExternalCounterPartyTrade paidGivenTrade)
+                LastExternalCounterPartyTradeTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+                    (exactComparison, paidGivenTrade, (IMutableLastExternalCounterPartyTrade)changingEntry
                    , original, changingRecentlyTraded, originalQuote, changingQuote);
         }
     }

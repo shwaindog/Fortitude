@@ -83,7 +83,7 @@ public class PQMessageDeserializerBaseTests
         dummyLevel3MessageDeserializer = new DummyPQMessageDeserializerBase<IPQPublishableLevel3Quote>(moqUniqueSrcTkrId.Object);
         moqQuoteDeserializer         = new Mock<IPQMessageDeserializer>();
 
-        readWriteBuffer = new CircularReadWriteBuffer(new byte[9000]);
+        readWriteBuffer = new CircularReadWriteBuffer(new byte[30_000]);
         socketBufferReadContext = new SocketBufferReadContext
         {
             DetectTimestamp    = new DateTime(2017, 07, 01, 18, 59, 22)
@@ -407,14 +407,14 @@ public class PQMessageDeserializerBaseTests
         var togglePaidBool  = true;
         for (var i = 0; i < deepestPossibleLayerIndex; i++)
             if (i < QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades &&
-                expectedL3Quote.OnTickLastTraded![i] is PQLastTraderPaidGivenTrade lastTradeInfo)
+                expectedL3Quote.OnTickLastTraded![i] is PQLastExternalCounterPartyTrade lastTradeInfo)
             {
                 lastTradeInfo.TradePrice  = 0.76591m;
                 lastTradeInfo.TradeTime   = new DateTime(2017, 07, 02, 13, 40, 11);
                 lastTradeInfo.TradeVolume = 2000000;
                 lastTradeInfo.WasGiven    = toggleGivenBool = !toggleGivenBool;
                 lastTradeInfo.WasPaid     = togglePaidBool  = !togglePaidBool;
-                lastTradeInfo.TraderName  = "NewTraderName " + i;
+                lastTradeInfo.ExternalTraderName  = "NewTraderName " + i;
             }
 
         var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
@@ -431,16 +431,16 @@ public class PQMessageDeserializerBaseTests
 
         for (var i = 0; i < deepestPossibleLayerIndex && i < QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades; i++)
         {
-            var expectedLastTradeInfo = expectedL3Quote.OnTickLastTraded![i] as PQLastTraderPaidGivenTrade;
+            var expectedLastTradeInfo = expectedL3Quote.OnTickLastTraded![i] as PQLastExternalCounterPartyTrade;
             Assert.IsNotNull(expectedLastTradeInfo);
-            var actualLastTradeInfo = actualL3Quote.OnTickLastTraded![i] as PQLastTraderPaidGivenTrade;
+            var actualLastTradeInfo = actualL3Quote.OnTickLastTraded![i] as PQLastExternalCounterPartyTrade;
             Assert.IsNotNull(actualLastTradeInfo);
             Assert.AreEqual(expectedLastTradeInfo.TradePrice, actualLastTradeInfo.TradePrice);
             Assert.AreEqual(expectedLastTradeInfo.TradeTime, actualLastTradeInfo.TradeTime);
             Assert.AreEqual(expectedLastTradeInfo.TradeVolume, actualLastTradeInfo.TradeVolume);
             Assert.AreEqual(expectedLastTradeInfo.WasGiven, actualLastTradeInfo.WasGiven);
             Assert.AreEqual(expectedLastTradeInfo.WasPaid, actualLastTradeInfo.WasPaid);
-            Assert.AreEqual(expectedLastTradeInfo.TraderName, actualLastTradeInfo.TraderName);
+            Assert.AreEqual(expectedLastTradeInfo.ExternalTraderName, actualLastTradeInfo.ExternalTraderName);
         }
     }
 

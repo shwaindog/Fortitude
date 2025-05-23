@@ -15,9 +15,13 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
     public LastPaidGivenTrade() { }
 
     public LastPaidGivenTrade
-    (decimal tradePrice = 0m, DateTime? tradeDateTime = null, decimal tradeVolume = 0m,
-        bool wasPaid = false, bool wasGiven = false) : base(tradePrice, tradeDateTime)
+    (uint tradeId = 0, uint batchId = 0, decimal tradePrice = 0m, DateTime? tradeDateTime = null, decimal tradeVolume = 0m
+       , uint orderId = 0, bool wasPaid = false, bool wasGiven = false, LastTradedTypeFlags tradeTypeFlags = LastTradedTypeFlags.None
+      , LastTradedLifeCycleFlags tradeLifecycleStatus = LastTradedLifeCycleFlags.None
+      , DateTime? firstNotifiedTime = null, DateTime? adapterReceivedTime = null, DateTime? updateTime = null) 
+        : base(tradeId, batchId, tradePrice, tradeDateTime, tradeTypeFlags, tradeLifecycleStatus, firstNotifiedTime, adapterReceivedTime, updateTime)
     {
+        OrderId     = orderId;
         WasPaid     = wasPaid;
         WasGiven    = wasGiven;
         TradeVolume = tradeVolume;
@@ -27,6 +31,7 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
     {
         if (toClone is ILastPaidGivenTrade lastPaidGivenTrade)
         {
+            OrderId     = lastPaidGivenTrade.OrderId;
             WasPaid     = lastPaidGivenTrade.WasPaid;
             WasGiven    = lastPaidGivenTrade.WasGiven;
             TradeVolume = lastPaidGivenTrade.TradeVolume;
@@ -39,6 +44,9 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
     public override LastTradedFlags SupportsLastTradedFlags =>
         LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedVolume | base.SupportsLastTradedFlags;
 
+    
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public uint OrderId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool WasPaid { get; set; }
@@ -53,20 +61,13 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
-        get => base.IsEmpty && WasPaid == false && WasGiven == false && TradeVolume == 0m;
-        set
-        {
-            if (!value) return;
-            WasPaid  = false;
-            WasGiven = false;
-
-            TradeVolume  = 0m;
-            base.IsEmpty = true;
-        }
+        get => base.IsEmpty && OrderId == 0 && WasPaid == false && WasGiven == false && TradeVolume == 0m;
+        set => base.IsEmpty = value;
     }
 
     public override LastPaidGivenTrade ResetWithTracking()
     {
+        OrderId     = 0;
         TradeVolume = 0;
         WasPaid     = WasGiven = false;
         base.ResetWithTracking();
@@ -74,18 +75,12 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
         return this;
     }
 
-    public override void StateReset()
-    {
-        TradeVolume = 0;
-        WasPaid     = WasGiven = false;
-        base.StateReset();
-    }
-
     public override ILastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is ILastPaidGivenTrade lastPaidGivenTrade)
         {
+            OrderId = lastPaidGivenTrade.OrderId;
             TradeVolume = lastPaidGivenTrade.TradeVolume;
             WasPaid     = lastPaidGivenTrade.WasPaid;
             WasGiven    = lastPaidGivenTrade.WasGiven;
@@ -106,11 +101,14 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
         if (!(other is ILastPaidGivenTrade lastPaidGivenTrade)) return false;
 
         var baseSame        = base.AreEquivalent(other, exactTypes);
+        var orderIdSame     = OrderId == lastPaidGivenTrade.OrderId;
         var wasPaidSame     = WasPaid == lastPaidGivenTrade.WasPaid;
         var wasGivenSame    = WasGiven == lastPaidGivenTrade.WasGiven;
         var tradeVolumeSame = TradeVolume == lastPaidGivenTrade.TradeVolume;
 
-        return baseSame && wasPaidSame && wasGivenSame && tradeVolumeSame;
+        var allAreSame = baseSame && orderIdSame && wasPaidSame && wasGivenSame && tradeVolumeSame;
+
+        return allAreSame;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ILastPaidGivenTrade, true);
@@ -120,6 +118,7 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
         unchecked
         {
             var hashCode = base.GetHashCode();
+            hashCode = (hashCode * 397) ^ (int)OrderId;
             hashCode = (hashCode * 397) ^ WasPaid.GetHashCode();
             hashCode = (hashCode * 397) ^ WasGiven.GetHashCode();
             hashCode = (hashCode * 397) ^ TradeVolume.GetHashCode();
@@ -127,8 +126,9 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
         }
     }
 
-    public override string ToString() =>
-        $"LastPaidGivenTrade {{ {nameof(TradePrice)}: {TradePrice:N5}, {nameof(TradeTime)}: " +
-        $"{TradeTime:O}, {nameof(WasPaid)}: {WasPaid}, {nameof(WasGiven)}: {WasGiven}, " +
-        $"{nameof(TradeVolume)}: {TradeVolume:N2} }}";
+    protected string LastPaidGivenTradeToStringMembers =>
+        $"{LastTradeToStringMembers}, {nameof(OrderId)}: {OrderId}, {nameof(WasPaid)}: {WasPaid}, {nameof(WasGiven)}: {WasGiven}, " +
+        $"{nameof(TradeVolume)}: {TradeVolume:N2}";
+    
+    public override string ToString() => $"{nameof(LastPaidGivenTrade)} {{{LastPaidGivenTradeToStringMembers}}}";
 }

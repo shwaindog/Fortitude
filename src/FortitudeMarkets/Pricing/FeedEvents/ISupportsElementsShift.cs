@@ -19,6 +19,13 @@ public readonly struct ElementShift(short shiftAmount, short pinnedElementsFromI
         shiftAmount            = ShiftAmount;
         pinnedElementFromIndex = PinnedElementsFromIndex;
     }
+    #pragma warning disable CS0675 // Bitwise-or operator used on a sign-extended operand
+    public static explicit operator uint(ElementShift toConvert) =>
+        ((uint)toConvert.PinnedElementsFromIndex << sizeof(short) | (uint)toConvert.ShiftAmount);
+
+    public static explicit operator ElementShift(uint toConvert) =>
+        new ((short)(toConvert >> sizeof(short)), (short)(toConvert & 0xFF_FF));
+    #pragma warning restore CS0675 // Bitwise-or operator used on a sign-extended operand
 }
 
 public static class ElementShiftExtensions
@@ -74,6 +81,12 @@ public static class ElementShiftExtensions
     public static bool AppendShiftFromIndex(this IList<ElementShift> shiftCommands, short fromIndex, short amount)
     {
         shiftCommands.Add(new ElementShift(amount, fromIndex));
+        return false;
+    }
+
+    public static bool Append(this IList<ElementShift> shiftCommands, ElementShift toAppend)
+    {
+        shiftCommands.Add(toAppend);
         return false;
     }
 

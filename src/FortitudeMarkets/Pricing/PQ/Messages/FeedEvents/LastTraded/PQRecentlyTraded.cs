@@ -34,6 +34,7 @@ public interface IPQRecentlyTraded : IPQLastTradedList, IMutableRecentlyTraded, 
     new IReadOnlyList<ElementShift> ElementShifts { get; set; }
 
     new ushort? ClearedElementsAfterIndex { get; set; }
+
     new bool    HasRandomAccessUpdates    { get; set; }
 
     new int CachedMaxCount { get; set; }
@@ -229,6 +230,11 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
         (DateTime snapShotTime, StorageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
+        foreach (var shiftCommand in elementShiftRegistry.ShiftCommands)
+        {
+            yield return new PQFieldUpdate(PQFeedFields.LastTradedRecentlyByPeriod, PQTradingSubFieldKeys.CommandElementsShift, (uint)shiftCommand);
+        }
+
         foreach (var lastTradeUpdates in base.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSetting))
         {
             yield return lastTradeUpdates;
@@ -238,17 +244,26 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
 
         if (!updatedOnly || IsDuringPeriodUpdated)
         {
-            yield return new PQFieldUpdate(PQFeedFields.LastTradedRecentlyByPeriod, PQTradingSubFieldKeys.LastTradedSummaryPeriod
-                                         , (uint)DuringPeriod);
+            yield return new PQFieldUpdate(PQFeedFields.LastTradedRecentlyByPeriod, PQTradingSubFieldKeys.LastTradedSummaryPeriod, (uint)DuringPeriod);
         }
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
-        if (pqFieldUpdate is { Id: PQFeedFields.LastTradedRecentlyByPeriod, TradingSubId: PQTradingSubFieldKeys.LastTradedSummaryPeriod })
+        if (pqFieldUpdate is { Id: PQFeedFields.LastTradedRecentlyByPeriod})
         {
-            IsDuringPeriodUpdated = true;
-            DuringPeriod          = (TimeBoundaryPeriod)pqFieldUpdate.Payload;
+            switch (pqFieldUpdate.TradingSubId)
+            {
+                case PQTradingSubFieldKeys.CommandElementsShift :
+                    var elementShift          = (ElementShift)(pqFieldUpdate.Payload);
+                    elementShiftRegistry.ShiftCommands.Append(elementShift);
+                    ApplyElementShift(elementShift);
+                break;
+                    case PQTradingSubFieldKeys.LastTradedSummaryPeriod :
+                    IsDuringPeriodUpdated = true;
+                    DuringPeriod          = (TimeBoundaryPeriod)pqFieldUpdate.Payload;
+                break;
+            }
         }
 
         return base.UpdateField(pqFieldUpdate);

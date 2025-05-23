@@ -98,7 +98,7 @@ public class QuoteSequencedTestDataBuilder
                 lastPaidGivenTrade.WasPaid     = togglePaidBool  = !togglePaidBool;
             }
 
-            if (lastTradedInfo is IMutableLastTraderPaidGivenTrade lastTraderTrade) lastTraderTrade.TraderName = "NewTraderName " + i;
+            if (lastTradedInfo is IMutableLastExternalCounterPartyTrade lastTraderTrade) lastTraderTrade.ExternalTraderName = "NewTraderName " + i;
         }
     }
 
