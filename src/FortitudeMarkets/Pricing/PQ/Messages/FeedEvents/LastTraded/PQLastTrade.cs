@@ -18,7 +18,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 [JsonDerivedType(typeof(PQLastTrade))]
 [JsonDerivedType(typeof(PQLastPaidGivenTrade))]
 [JsonDerivedType(typeof(PQLastExternalCounterPartyTrade))]
-public interface IPQLastTrade : IMutableLastTrade, IPQSupportsNumberPrecisionFieldUpdates<ILastTrade>, ITrackableReset<IPQLastTrade>
+public interface IPQLastTrade : IMutableLastTrade, IPQSupportsNumberPrecisionFieldUpdates<ILastTrade>, ITrackableReset<IPQLastTrade>, ICloneable<IPQLastTrade>
 {
     [JsonIgnore] bool IsTradeIdUpdated                    { get; set; }
     [JsonIgnore] bool IsBatchIdUpdated                    { get; set; }
@@ -563,7 +563,19 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         return -1;
     }
 
-    public override ILastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    IPQLastTrade IPQLastTrade.Clone() => Clone();
+
+    object ICloneable.Clone() => Clone();
+
+    ILastTrade ICloneable<ILastTrade>.Clone() => Clone();
+
+    IMutableLastTrade IMutableLastTrade.  Clone() => Clone();
+
+    IPQLastTrade ICloneable<IPQLastTrade>.Clone() => Clone();
+
+    public override PQLastTrade Clone() => Recycler?.Borrow<PQLastTrade>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new PQLastTrade(this);
+
+    public override PQLastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is PQLastTrade pqlt)
         {
@@ -589,7 +601,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
             }
             if (pqlt.IsTradeTimeDateUpdated || isFullReplace)
             {
-                IsTradeTypeFlagsUpdated = true;
+                IsTradeTimeDateUpdated = true;
 
                 TradeTime = pqlt.TradeTime;
             }
@@ -664,16 +676,11 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
             AdapterReceivedTime  = source.AdapterReceivedTime;
         }
 
+        if (copyMergeFlags.HasUpdateFlagsNone()) UpdatedFlags = LastTradeUpdated.None;
+        if (copyMergeFlags.HasUpdateFlagsAll()) UpdatedFlags = LastTradeUpdated.AllFlagsMask;
+
         return this;
     }
-
-    IPQLastTrade IPQLastTrade.Clone() => (IPQLastTrade)Clone();
-
-    object ICloneable.Clone() => Clone();
-
-    ILastTrade ICloneable<ILastTrade>.Clone() => Clone();
-
-    public override IMutableLastTrade Clone() => (IMutableLastTrade?)Recycler?.Borrow<PQLastTrade>().CopyFrom(this) ?? new PQLastTrade(this);
 
     public virtual bool AreEquivalent(ILastTrade? other, bool exactTypes = false)
     {

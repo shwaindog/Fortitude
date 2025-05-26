@@ -300,7 +300,7 @@ public class OrderBookSideTests
     [ExpectedException(typeof(ArgumentException))]
     public void PopulatedOrderBook_CapacityLargerThanMaxBookDepth_ThrowsException()
     {
-        simpleFullyPopulatedOrderBookSide.Capacity = PQQuoteFieldsExtensions.SingleByteFieldIdMaxBookDepth + 1;
+        simpleFullyPopulatedOrderBookSide.Capacity = PQFeedFieldsExtensions.SingleByteFieldIdMaxBookDepth + 1;
     }
 
     [TestMethod]

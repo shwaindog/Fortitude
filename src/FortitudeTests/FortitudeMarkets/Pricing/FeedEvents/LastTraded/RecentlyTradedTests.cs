@@ -91,10 +91,10 @@ public class RecentlyTradedTests
                    , ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime, ExpectedUpdateTime));
         }
 
-        simpleFullyPopulatedRecentlyTraded          = new RecentlyTraded(simpleEntries);
-        paidGivenVolumeFullyPopulatedRecentlyTraded = new RecentlyTraded(lastPaidGivenEntries);
+        simpleFullyPopulatedRecentlyTraded          = new RecentlyTraded(IRecentlyTradedHistory.DefaultAllLimitedHistoryLastTradedTransmissionFlags, simpleEntries);
+        paidGivenVolumeFullyPopulatedRecentlyTraded = new RecentlyTraded(IRecentlyTradedHistory.DefaultAllLimitedHistoryLastTradedTransmissionFlags, lastPaidGivenEntries);
 
-        fullSupportLastTradesFullyPopulatedRecentlyTraded = new RecentlyTraded(lastTraderPaidGivenEntries);
+        fullSupportLastTradesFullyPopulatedRecentlyTraded = new RecentlyTraded(IRecentlyTradedHistory.DefaultAllLimitedHistoryLastTradedTransmissionFlags, lastTraderPaidGivenEntries);
 
         allFullyPopulatedRecentlyTraded = new List<RecentlyTraded>
         {
@@ -397,7 +397,7 @@ public class RecentlyTradedTests
         cloneGenesis.StateReset();
         var clonedEmptyEntries = new List<ILastTrade>(MaxNumberOfEntries);
         for (var i = 0; i < MaxNumberOfEntries; i++) clonedEmptyEntries.Add(cloneGenesis.Clone());
-        var newEmpty = new RecentlyTraded(clonedEmptyEntries);
+        var newEmpty = new RecentlyTraded(IRecentlyTradedHistory.DefaultAllLimitedHistoryLastTradedTransmissionFlags, clonedEmptyEntries);
         return newEmpty;
     }
 

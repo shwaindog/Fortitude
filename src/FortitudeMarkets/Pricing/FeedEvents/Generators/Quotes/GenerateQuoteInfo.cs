@@ -3,9 +3,9 @@
 
 #region
 
+using FortitudeMarkets.Pricing.FeedEvents.Generators.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.Generators.MidPrice;
-using FortitudeMarkets.Pricing.Generators.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Generators.Quotes.LayeredBook;
 
 #endregion

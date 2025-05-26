@@ -3,8 +3,8 @@
 
 #region
 
+using FortitudeMarkets.Pricing.FeedEvents.Generators.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
-using FortitudeMarkets.Pricing.Generators.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;

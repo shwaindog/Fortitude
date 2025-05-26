@@ -135,8 +135,8 @@ public class PQLevel2QuoteTests
                , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                                   LastTradedFlags.LastTradedTime);
         var cappedLevel2Quote = new PQPublishableLevel2Quote(tooLargeMaxDepth);
-        Assert.AreEqual(PQQuoteFieldsExtensions.TwoByteFieldIdMaxBookDepth, cappedLevel2Quote.BidBook.Capacity);
-        Assert.AreEqual(PQQuoteFieldsExtensions.TwoByteFieldIdMaxBookDepth, cappedLevel2Quote.AskBook.Capacity);
+        Assert.AreEqual(PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth, cappedLevel2Quote.BidBook.Capacity);
+        Assert.AreEqual(PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth, cappedLevel2Quote.AskBook.Capacity);
     }
 
     [TestMethod]

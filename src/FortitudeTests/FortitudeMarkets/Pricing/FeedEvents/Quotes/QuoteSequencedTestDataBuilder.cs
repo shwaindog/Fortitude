@@ -80,25 +80,40 @@ public class QuoteSequencedTestDataBuilder
 
         var toggleGivenBool = false;
         var togglePaidBool  = true;
-        if (pqLevel3Quote.OnTickLastTraded == null || pqLevel3Quote is IPublishableLevel3Quote {SourceTickerInfo.LastTradedFlags: not LastTradedFlags.None}) return;
-        for (var i = 0; i < GeneratedNumberOfLastTrades; i++)
+        if (pqLevel3Quote is IPQPublishableLevel3Quote { OnTickLastTraded: not null, SourceTickerInfo.LastTradedFlags: not LastTradedFlags.None } pqPubL3Qt )
         {
-            var tradePriceDelta  = 0.00001m * i;
-            var tradeVolumeDelta = batchId * 10000 + 10000m * i;
-
-            var lastTradedInfo = pqLevel3Quote.OnTickLastTraded[i]!;
-            // lastTradedInfo.StateReset();
-            lastTradedInfo!.TradePrice = 0.76591m + batchId * 0.00001m + tradePriceDelta;
-            lastTradedInfo!.TradeTime  = new DateTime(2017, 07, 02, 13, 40, 11);
-
-            if (lastTradedInfo is IMutableLastPaidGivenTrade lastPaidGivenTrade)
+            for (var i = 0; i < GeneratedNumberOfLastTrades; i++)
             {
-                lastPaidGivenTrade.TradeVolume = 2000000 + tradeVolumeDelta;
-                lastPaidGivenTrade.WasGiven    = toggleGivenBool = !toggleGivenBool;
-                lastPaidGivenTrade.WasPaid     = togglePaidBool  = !togglePaidBool;
-            }
+                var tradePriceDelta  = 0.00001m * i;
+                var tradeVolumeDelta = batchId * 10000 + 10000m * i;
 
-            if (lastTradedInfo is IMutableLastExternalCounterPartyTrade lastTraderTrade) lastTraderTrade.ExternalTraderName = "NewTraderName " + i;
+                var lastTradedInfo = pqPubL3Qt.OnTickLastTraded[i]!;
+                lastTradedInfo.TradeId              = batchId + 1000;
+                lastTradedInfo.BatchId              = batchId;
+                lastTradedInfo.TradePrice           = 0.76591m + batchId * 0.00001m + tradePriceDelta;
+                lastTradedInfo.TradeTime            = new DateTime(2017, 07, 02, 13, 40, 11);
+                lastTradedInfo.TradeTypeFlags       = LastTradedTypeFlags.IsTradeExternalAggressiveOrder;
+                lastTradedInfo.TradeLifeCycleStatus = LastTradedLifeCycleFlags.Confirmed;
+                lastTradedInfo.FirstNotifiedTime    = new DateTime(2017, 07, 02, 13, 40, 10);
+                lastTradedInfo.AdapterReceivedTime    = new DateTime(2017, 07, 02, 13, 40, 11);
+                lastTradedInfo.UpdateTime    = new DateTime(2017, 07, 02, 13, 40, 11);
+
+                if (lastTradedInfo is IMutableLastPaidGivenTrade lastPaidGivenTrade)
+                {
+                    lastPaidGivenTrade.OrderId     = batchId + 500;
+                    lastPaidGivenTrade.TradeVolume = 2000000 + tradeVolumeDelta;
+                    lastPaidGivenTrade.WasGiven    = toggleGivenBool = !toggleGivenBool;
+                    lastPaidGivenTrade.WasPaid     = togglePaidBool  = !togglePaidBool;
+                }
+
+                if (lastTradedInfo is IMutableLastExternalCounterPartyTrade lastTraderTrade)
+                {
+                    lastTraderTrade.ExternalCounterPartyId   = (int)(batchId + 50);
+                    lastTraderTrade.ExternalCounterPartyName = "CounterPartyName_" + i;
+                    lastTraderTrade.ExternalTraderId         = (int)(batchId + 50 + 100_000);
+                    lastTraderTrade.ExternalTraderName       = "TraderName_" + i;
+                }
+            }
         }
     }
 

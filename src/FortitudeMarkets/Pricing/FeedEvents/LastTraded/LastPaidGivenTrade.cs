@@ -75,7 +75,7 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
         return this;
     }
 
-    public override ILastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override LastPaidGivenTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is ILastPaidGivenTrade lastPaidGivenTrade)
@@ -88,13 +88,14 @@ public class LastPaidGivenTrade : LastTrade, IMutableLastPaidGivenTrade
 
         return this;
     }
+    
 
-    public override IMutableLastTrade Clone() =>
-        (IMutableLastTrade?)Recycler?.Borrow<LastPaidGivenTrade>().CopyFrom(this) ?? new LastPaidGivenTrade(this);
+    ILastPaidGivenTrade ILastPaidGivenTrade.Clone() => Clone();
 
-    ILastPaidGivenTrade ILastPaidGivenTrade.Clone() => (ILastPaidGivenTrade)Clone();
-
-    IMutableLastPaidGivenTrade IMutableLastPaidGivenTrade.Clone() => (IMutableLastPaidGivenTrade)Clone();
+    IMutableLastPaidGivenTrade IMutableLastPaidGivenTrade.Clone() => Clone();
+    
+    public override LastPaidGivenTrade Clone() =>
+        Recycler?.Borrow<LastPaidGivenTrade>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new LastPaidGivenTrade(this);
 
     public override bool AreEquivalent(ILastTrade? other, bool exactTypes = false)
     {

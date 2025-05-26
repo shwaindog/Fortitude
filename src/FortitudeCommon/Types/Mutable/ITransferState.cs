@@ -14,17 +14,18 @@ public interface ITransferState<T> : ITransferState where T : class
 }
 
 [Flags]
-public enum CopyMergeFlags : byte
+public enum CopyMergeFlags : ushort
 {
-    Default              = 0x00
-  , FullReplace          = 0x01
-  , JustDifferences      = 0x02
-  , AppendMissing        = 0x04
-  , RemoveUnmatched      = 0x08
-  , SkipReferenceLookups = 0x10
-  , UpdateFlagsNone      = 0x20
-  , UpdateFlagsAll       = 0x40
-  , AsNew                = 0x80
+    Default              = 0x00_00
+  , FullReplace          = 0x00_01
+  , JustDifferences      = 0x00_02
+  , AppendMissing        = 0x00_04
+  , RemoveUnmatched      = 0x00_08
+  , SkipReferenceLookups = 0x00_10
+  , UpdateFlagsNone      = 0x00_20
+  , UpdateFlagsAll       = 0x00_40
+  , AsNew                = 0x00_80
+  , KeepCachedItems      = 0x01_00
 }
 
 public static class CopyMergeFlagExtensions

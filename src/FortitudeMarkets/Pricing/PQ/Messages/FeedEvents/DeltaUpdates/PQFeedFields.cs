@@ -233,20 +233,18 @@ public enum PQFeedFields : byte
   , QuoteLayersRangeEnd = 209 // 0xD1
 
     // Level 3 Quote Layer Fields
-  , LastTradedStringUpdates                               = 210 // 0xD2
-  , LastTradedTickTrades                                  = 211 // 0xD3
-  , LastTradedRecentlyByPeriod                            = 212 // 0xD4
-  , LastTradedInternalOrdersRecentlyByPeriod              = 213 // 0xD5
-  , LastTradedRecentlyByTradeCount                        = 214 // 0xD6
-  , LastTradedInternalOrdersRecentlyByTradeCount          = 215 // 0xD7 
-  , LastTradedInternalDailyAggregate                      = 217 // 0xD9
-  , LastTradedSimulatorTickTrades                         = 218 // 0xDA
-  , LastTradedSimulatorRecentlyByPeriod                   = 219 // 0xDB
-  , LastTradedSimulatorInternalOrdersRecentlyByPeriod     = 220 // 0xDC
-  , LastTradedSimulatorRecentlyByTradeCount               = 221 // 0xDD
-  , LastTradedSimulatorInternalOrdersRecentlyByTradeCount = 222 // 0xDE
-  , LastTradedSimulatorInternalDailyAggregate             = 223 // 0xDF
-  , LastTradedMarketDailyAggregate                        = 224 // 0xE0
+  , LastTradedStringUpdates                          = 210 // 0xD2
+  , LastTradedTickTrades                             = 211 // 0xD3
+  , LastTradedAllRecentlyLimitedHistory              = 212 // 0xD4  // expected no more than 100
+  , LastTradedRecentInternalOrderTrades              = 213 // 0xD5
+  , LastTradedInternalOpeningPositionTrades          = 215 // 0xD7 
+  , LastTradedSimulatorTickTrades                    = 216 // 0xD8
+  , LastTradedSimulatorAllRecentlyLimitedHistory     = 217 // 0xD9 
+  , LastTradedSimulatorRecentInternalOrderTrades     = 218 // oxDA
+  , LastTradedSimulatorInternalOpeningPositionTrades = 219 // 0xDB
+  , LastTradedAlertTrades                            = 220 // 0xDC
+  , LastTradedRecentMarketAggregates                 = 221 // 0xDD
+  , LastTradedMarketDailyAggregates                  = 222 // 0xDE
 
   , AdapterInternalOrdersStringUpdates           = 226 // 0xE2
   , AdapterInternalOrdersTick                    = 227 // 0xE3
@@ -273,7 +271,7 @@ public enum PQFeedFields : byte
 }
 
 [TestClassNotRequired]
-public static class PQQuoteFieldsExtensions
+public static class PQFeedFieldsExtensions
 {
     public const byte   SingleByteFieldIdMaxBookDepth          = PQDepthKeyExtensions.SingleByteDepthMask + 1; // 63
     public const ushort TwoByteFieldIdMaxBookDepth             = (ushort)PQDepthKey.DepthMask + 1;             // 16,383

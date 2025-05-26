@@ -401,51 +401,53 @@
       , LimitBreachAttemptedOrderId        = 112 // 0x70
 
       , LastTradedSummaryPeriod                            = 140 // 0x8C
-      , LastTradedTradeId                                  = 141 // 0x8D
-      , LastTradedBatchId                                  = 142 // 0x8E
-      , LastTradedTypeFlags                                = 143 // 0x8F
-      , LastTradedLifeCycleStatus                          = 144 // 0x90
-      , LastTradedFirstNotifiedDate                        = 145 // 0x91
-      , LastTradedFirstNotifiedSub2MinTime                 = 146 // 0x92
-      , LastTradedAdapterReceivedDate                      = 147 // 0x93
-      , LastTradedAdapterReceivedSub2MinTime               = 148 // 0x94
-      , LastTradedUpdateDate                               = 149 // 0x95
-      , LastTradedUpdateSub2MinTime                        = 150 // 0x96
-      , LastTradedAtPrice                                  = 151 // 0x97
-      , LastTradedTradeTimeDate                            = 152 // 0x98
-      , LastTradedTradeSub2MinTime                         = 153 // 0x99
-      , LastTradedOrderId                                  = 154 // 0x9A
-      , LastTradedTradeVolume                              = 155 // 0x9B
-      , LastTradedBooleanFlags                             = 156 // 0x9C
-      , LastTradedInternalTargetPrice                      = 157 // 0x9D
-      , LastTradedInternalSubmitPrice                      = 158 // 0x9E
-      , LastTradedInternalOrderVolume                      = 159 // 0x9F
-      , LastTradedInternalOrderRemainingVolume             = 160 // 0xA0
-      , LastTradedInternalTradeFillRefStringId             = 161 // 0xA1
-      , LastTradedInternalLinkedClosingOrderId             = 162 // 0xA2
-      , LastTradedInternalDivisionId                       = 163 // 0xA3
-      , LastTradedInternalDivisionNameId                   = 164 // 0xA4
-      , LastTradedInternalDeskId                           = 165 // 0xA5
-      , LastTradedInternalDeskNameId                       = 166 // 0xA6
-      , LastTradedInternalStrategyId                       = 167 // 0xA7
-      , LastTradedInternalStrategyNameId                   = 168 // 0xA8
-      , LastTradedInternalPortfolioId                      = 169 // 0xA9
-      , LastTradedInternalPortfolioNameId                  = 170 // 0xAA
-      , LastTradedInternalTraderId                         = 171 // 0xAB
-      , LastTradedInternalTraderNameId                     = 172 // 0xAC
-      , LastTradedInternalNetOpenPositionDeltaPnl          = 173 // 0xAD
-      , LastTradedInternalPortfolioNetOpenPositionDeltaPnl = 174 // 0xAE
-      , LastTradedInternalStrategyNetOpenPositionDeltaPnl  = 175 // 0xAF
-      , LastTradedInternalTraderNetOpenPositionDeltaPnl    = 176 // 0xB0
-      , LastTradedInternalSimulatorNetOpenPositionDeltaPnl = 177 // 0xB1
-      , LastTradedInternalTargetPricePnl                   = 178 // 0xB2
-      , LastTradedInternalClosingOrderPnl                  = 179 // 0xB3
-      , LastTradedInternalClosingOrderDeltaMarginReleased  = 180 // 0xB4
-      , LastTradedInternalTotalDeltaMarginReleased         = 181 // 0xB5
-      , LastTradedExternalCounterPartyId                   = 182 // 0xB6
-      , LastTradedExternalCounterPartyNameId               = 183 // 0xB7
-      , LastTradedExternalTraderId                         = 184 // 0xB8
-      , LastTradedExternalTraderNameId                     = 185 // 0xB9
+      , LastTradedPeriodUpdateDate                         = 141 // 0x8D
+      , LastTradedPeriodUpdateSub2MinTime                  = 142 // 0x8E
+      , LastTradedTradeId                                  = 143 // 0x8F
+      , LastTradedBatchId                                  = 144 // 0x90
+      , LastTradedTypeFlags                                = 145 // 0x91
+      , LastTradedLifeCycleStatus                          = 146 // 0x92
+      , LastTradedFirstNotifiedDate                        = 147 // 0x93
+      , LastTradedFirstNotifiedSub2MinTime                 = 148 // 0x94
+      , LastTradedAdapterReceivedDate                      = 149 // 0x95
+      , LastTradedAdapterReceivedSub2MinTime               = 150 // 0x96
+      , LastTradedUpdateDate                               = 151 // 0x97
+      , LastTradedUpdateSub2MinTime                        = 152 // 0x98
+      , LastTradedAtPrice                                  = 153 // 0x99
+      , LastTradedTradeTimeDate                            = 154 // 0x9A
+      , LastTradedTradeSub2MinTime                         = 155 // 0x9B
+      , LastTradedOrderId                                  = 156 // 0x9C
+      , LastTradedTradeVolume                              = 157 // 0x9D
+      , LastTradedBooleanFlags                             = 158 // 0x9E
+      , LastTradedInternalTargetPrice                      = 159 // 0x9F
+      , LastTradedInternalSubmitPrice                      = 160 // 0xA0
+      , LastTradedInternalOrderVolume                      = 161 // 0xA1
+      , LastTradedInternalOrderRemainingVolume             = 162 // 0xA2
+      , LastTradedInternalTradeFillRefId                   = 163 // 0xA3
+      , LastTradedInternalLinkedClosingOrderId             = 164 // 0xA4
+      , LastTradedInternalDivisionId                       = 165 // 0xA5
+      , LastTradedInternalDivisionNameId                   = 166 // 0xA6
+      , LastTradedInternalDeskId                           = 167 // 0xA7
+      , LastTradedInternalDeskNameId                       = 168 // 0xA8
+      , LastTradedInternalStrategyId                       = 169 // 0xA9
+      , LastTradedInternalStrategyNameId                   = 170 // 0xAA
+      , LastTradedInternalPortfolioId                      = 171 // 0xAB
+      , LastTradedInternalPortfolioNameId                  = 172 // 0xAC
+      , LastTradedInternalTraderId                         = 173 // 0xAD
+      , LastTradedInternalTraderNameId                     = 174 // 0xAE
+      , LastTradedInternalNetOpenPositionDeltaPnl          = 175 // 0xAF
+      , LastTradedInternalPortfolioNetOpenPositionDeltaPnl = 176 // 0xB0
+      , LastTradedInternalStrategyNetOpenPositionDeltaPnl  = 177 // 0xB1
+      , LastTradedInternalTraderNetOpenPositionDeltaPnl    = 178 // 0xB2
+      , LastTradedInternalSimulatorNetOpenPositionDeltaPnl = 179 // 0xB3
+      , LastTradedInternalTargetPricePnl                   = 180 // 0xB4
+      , LastTradedInternalClosingOrderPnl                  = 181 // 0xB5
+      , LastTradedInternalClosingOrderDeltaMarginReleased  = 182 // 0xB6
+      , LastTradedInternalTotalDeltaMarginReleased         = 183 // 0xB7
+      , LastTradedExternalCounterPartyId                   = 184 // 0xB8
+      , LastTradedExternalCounterPartyNameId               = 185 // 0xB9
+      , LastTradedExternalTraderId                         = 186 // 0xBA
+      , LastTradedExternalTraderNameId                     = 187 // 0xBB
     }
 
     public enum SubKeyType
@@ -479,7 +481,7 @@
                      , _ when parentId <= PQFeedFields.QuoteLayerOrdersCount                => SubKeyType.PricingSubKey
                      , _ when parentId <= PQFeedFields.QuoteLayerOrders                     => SubKeyType.OrdersSubKey
                      , _ when parentId <= PQFeedFields.QuoteLayersRangeEnd                  => SubKeyType.PricingSubKey
-                     , _ when parentId <= PQFeedFields.LastTradedMarketDailyAggregate       => SubKeyType.TradingSubKey
+                     , _ when parentId <= PQFeedFields.LastTradedMarketDailyAggregates      => SubKeyType.TradingSubKey
                      , _ when parentId <= PQFeedFields.AdapterInternalOrdersSimulatorOpen   => SubKeyType.OrdersSubKey
                      , _ when parentId <= PQFeedFields.QuoteExpiryDate                      => SubKeyType.PricingSubKey
                      , _                                                                    => SubKeyType.PricingSubKey

@@ -62,9 +62,9 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
         get => LastTrades.Count;
         set
         {
-            if (value > PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades)
+            if (value > PQFeedFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades)
                 throw new ArgumentException("Expected RecentlyTraded Capacity to be less than or equal to " +
-                                            PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades);
+                                            PQFeedFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades);
             while (LastTrades.Count < value)
             {
                 var cloneFirstLastTrade = LastTrades[0].Clone();

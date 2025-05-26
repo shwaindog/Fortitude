@@ -106,7 +106,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     public ushort MaxPublishDepth
     {
         get => maxPublishDepth;
-        private set => maxPublishDepth = Math.Max((byte)1, Math.Min(value, PQQuoteFieldsExtensions.TwoByteFieldIdMaxBookDepth));
+        private set => maxPublishDepth = Math.Max((byte)1, Math.Min(value, PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth));
     }
 
     public static ILayerFlagsSelector<IPriceVolumeLayer> LayerSelector { get; set; } = new OrderBookLayerFactorySelector();
@@ -221,9 +221,9 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         get => bookLayers.Count;
         set
         {
-            if (value > PQQuoteFieldsExtensions.SingleByteFieldIdMaxBookDepth)
+            if (value > PQFeedFieldsExtensions.SingleByteFieldIdMaxBookDepth)
                 throw new ArgumentException("Expected OrderBook Capacity to be less than or equal to " +
-                                            PQQuoteFieldsExtensions.SingleByteFieldIdMaxBookDepth);
+                                            PQFeedFieldsExtensions.SingleByteFieldIdMaxBookDepth);
             while (bookLayers.Count < value)
             {
                 var cloneFirstLayer = LayerSelector.CreateExpectedImplementation(LayerSupportedType);
