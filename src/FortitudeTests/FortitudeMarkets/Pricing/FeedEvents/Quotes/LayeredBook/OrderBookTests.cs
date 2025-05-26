@@ -9,7 +9,6 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
-using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 
 namespace FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 

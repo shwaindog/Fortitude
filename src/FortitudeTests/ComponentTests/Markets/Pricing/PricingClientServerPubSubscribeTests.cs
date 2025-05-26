@@ -15,7 +15,6 @@ using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Publication;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Subscription.Standalone;
-using FortitudeTests.FortitudeMarkets.Pricing.Quotes;
 
 #endregion
 

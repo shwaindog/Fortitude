@@ -38,7 +38,7 @@ public class AncillaryPricingFeedEvent : TradingStatusFeedEvent, IMutableAncilla
 
     public IMutablePublishedContinuousPriceAdjustments? ContinuousPriceAdjustments { get; set; }
 
-    public TickerQuoteDetailLevel                 TickerQuoteDetailLevel  => SourceTickerInfo.PublishedTickerQuoteDetailLevel;
+    public TickerQuoteDetailLevel                 TickerQuoteDetailLevel  => SourceTickerInfo!.PublishedTickerQuoteDetailLevel;
     ICandle? IAncillaryPricingFeedEvent.          ConflationSummaryCandle => ConflationSummaryCandle;
     IPublishedSignals? IAncillaryPricingFeedEvent.PublishedSignals        => PublishedSignals;
 

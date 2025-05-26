@@ -15,24 +15,36 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 [TestClass]
 public class LastTradeTests
 {
+    private const uint    ExpectedTradeId    = 42;
+    private const uint    ExpectedBatchId    = 24_942;
+    private const decimal ExpectedTradePrice = 2.3456m;
+
+    private const LastTradedTypeFlags      ExpectedTradedTypeFlags     = LastTradedTypeFlags.HasPaidGivenDetails;
+    private const LastTradedLifeCycleFlags ExpectedTradeLifeCycleFlags = LastTradedLifeCycleFlags.Confirmed;
+
+    private static readonly DateTime ExpectedTradeTime           = new(2018, 03, 2, 14, 40, 30);
+    private static readonly DateTime ExpectedFirstNotifiedTime   = new(2018, 03, 2, 14, 40, 31);
+    private static readonly DateTime ExpectedAdapterReceivedTime = new(2018, 03, 2, 14, 40, 41);
+    private static readonly DateTime ExpectedUpdateTime          = new(2018, 03, 2, 14, 40, 42);
+
     private LastTrade emptyLt     = null!;
     private LastTrade populatedLt = null!;
-    private DateTime  testDateTime;
 
     [TestInitialize]
     public void SetUp()
     {
         emptyLt      = new LastTrade();
-        testDateTime = new DateTime(2017, 12, 17, 16, 11, 52);
-        populatedLt  = new LastTrade(4.2949_672m, testDateTime);
+        populatedLt = new LastTrade(ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradedTypeFlags
+                                  , ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime, ExpectedUpdateTime);
     }
 
     [TestMethod]
     public void NewLt_SetsPriceAndVolume_PropertiesInitializedAsExpected()
     {
-        var newLt = new LastTrade(20, testDateTime);
-        Assert.AreEqual(20m, newLt.TradePrice);
-        Assert.AreEqual(testDateTime, newLt.TradeTime);
+        var newLt = new LastTrade(ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradedTypeFlags
+                                , ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime, ExpectedUpdateTime);
+        Assert.AreEqual(ExpectedTradePrice, newLt.TradePrice);
+        Assert.AreEqual(ExpectedTradeTime, newLt.TradeTime);
 
         Assert.AreEqual(0, emptyLt.TradePrice);
         Assert.AreEqual(default, emptyLt.TradeTime);
@@ -41,15 +53,17 @@ public class LastTradeTests
     [TestMethod]
     public void NewLt_NewFromCloneInstance_PropertiesInitializedAsExpected()
     {
-        var newPopulatedLt = new LastTrade(20, testDateTime);
+        var newPopulatedLt = new LastTrade(ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradedTypeFlags
+                                         , ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime, ExpectedUpdateTime);
         var fromPQInstance = new LastTrade(newPopulatedLt);
-        Assert.AreEqual(20m, fromPQInstance.TradePrice);
-        Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
+        Assert.AreEqual(ExpectedTradePrice, fromPQInstance.TradePrice);
+        Assert.AreEqual(ExpectedTradeTime, fromPQInstance.TradeTime);
 
-        var pqLt           = new PQLastTrade(1.23456m, testDateTime);
+        var pqLt = new PQLastTrade(ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradedTypeFlags
+                                 , ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime, ExpectedUpdateTime);
         var fromPqInstance = new LastTrade(pqLt);
-        Assert.AreEqual(1.23456m, fromPqInstance.TradePrice);
-        Assert.AreEqual(testDateTime, fromPqInstance.TradeTime);
+        Assert.AreEqual(ExpectedTradePrice, fromPqInstance.TradePrice);
+        Assert.AreEqual(ExpectedTradeTime, fromPqInstance.TradeTime);
 
         var newEmptyLt = new LastTrade(emptyLt);
         Assert.AreEqual(0, newEmptyLt.TradePrice);
@@ -152,8 +166,15 @@ public class LastTradeTests
         var toString = populatedLt.ToString();
 
         Assert.IsTrue(toString.Contains(populatedLt.GetType().Name));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.TradeId)}: {populatedLt.TradeId}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.BatchId)}: {populatedLt.BatchId}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedLt.TradePrice)}: {populatedLt.TradePrice:N5}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedLt.TradeTime)}: {populatedLt.TradeTime:O}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.TradeTypeFlags)}: {populatedLt.TradeTypeFlags}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.TradeLifeCycleStatus)}: {populatedLt.TradeLifeCycleStatus}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.FirstNotifiedTime)}: {populatedLt.FirstNotifiedTime:O}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.AdapterReceivedTime)}: {populatedLt.AdapterReceivedTime:O}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.UpdateTime)}: {populatedLt.UpdateTime:O}"));
     }
 
 
@@ -166,6 +187,32 @@ public class LastTradeTests
         if (original == null || changingLastTrade == null) return;
 
         if (original.GetType() == typeof(LastTrade)) Assert.IsTrue(original.AreEquivalent(new LastTrade(changingLastTrade), exactComparison));
+
+        changingLastTrade.TradeId = 77_889;
+        Assert.IsFalse(original.AreEquivalent(changingLastTrade, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsFalse(
+                           originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
+        changingLastTrade.TradeId = original.TradeId;
+        Assert.IsTrue(changingLastTrade.AreEquivalent(original, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsTrue(
+                          originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
+
+        changingLastTrade.BatchId = 277_889;
+        Assert.IsFalse(original.AreEquivalent(changingLastTrade, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsFalse(
+                           originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
+        changingLastTrade.BatchId = original.BatchId;
+        Assert.IsTrue(changingLastTrade.AreEquivalent(original, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsTrue(
+                          originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
         changingLastTrade.TradePrice = 12.34567m;
         Assert.IsFalse(original.AreEquivalent(changingLastTrade, exactComparison));
@@ -191,6 +238,71 @@ public class LastTradeTests
         if (originalLastTradedList != null)
             Assert.IsTrue
                 (originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
+
+        changingLastTrade.TradeTypeFlags = LastTradedTypeFlags.HasPaidGivenDetails | LastTradedTypeFlags.IsInternalOrderTradeUpdate;
+        Assert.IsFalse(original.AreEquivalent(changingLastTrade, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsFalse(
+                           originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
+        changingLastTrade.TradeTypeFlags = original.TradeTypeFlags;
+        Assert.IsTrue(changingLastTrade.AreEquivalent(original, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsTrue(
+                          originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
+
+        changingLastTrade.TradeLifeCycleStatus = LastTradedLifeCycleFlags.Confirmed | LastTradedLifeCycleFlags.Rejected;
+        Assert.IsFalse(original.AreEquivalent(changingLastTrade, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsFalse(
+                           originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
+        changingLastTrade.TradeLifeCycleStatus = original.TradeLifeCycleStatus;
+        Assert.IsTrue(changingLastTrade.AreEquivalent(original, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsTrue(
+                          originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
+
+        changingLastTrade.FirstNotifiedTime = new DateTime(2018, 1, 02, 20, 22, 50);
+        Assert.IsFalse(original.AreEquivalent(changingLastTrade, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsFalse(
+                           originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
+        changingLastTrade.FirstNotifiedTime = original.FirstNotifiedTime;
+        Assert.IsTrue(changingLastTrade.AreEquivalent(original, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsTrue(
+                          originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
+
+        changingLastTrade.AdapterReceivedTime = new DateTime(2018, 1, 02, 20, 22, 50);
+        Assert.IsFalse(original.AreEquivalent(changingLastTrade, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsFalse(
+                           originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
+        changingLastTrade.AdapterReceivedTime = original.AdapterReceivedTime;
+        Assert.IsTrue(changingLastTrade.AreEquivalent(original, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsTrue(
+                          originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
+
+        changingLastTrade.UpdateTime = new DateTime(2018, 1, 02, 20, 22, 50);
+        Assert.IsFalse(original.AreEquivalent(changingLastTrade, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsFalse(
+                           originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
+        changingLastTrade.UpdateTime = original.UpdateTime;
+        Assert.IsTrue(changingLastTrade.AreEquivalent(original, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsTrue(
+                          originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
         if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
     }
 }

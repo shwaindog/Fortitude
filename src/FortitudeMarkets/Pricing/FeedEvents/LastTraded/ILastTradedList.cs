@@ -7,23 +7,24 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 
-public interface ILastTradedList : IReusableObject<ILastTradedList>, IEnumerable<ILastTrade>,
-    IInterfacesComparable<ILastTradedList>
+public interface ILastTradedList : IReusableObject<ILastTradedList>, IInterfacesComparable<ILastTradedList>, IReadOnlyList<ILastTrade>
 {
     LastTradeType   LastTradesOfType       { get; }
+
     LastTradedFlags LastTradesSupportFlags { get; }
 
     bool HasLastTrades { get; }
-    int  Count         { get; }
+
     int  Capacity      { get; }
-    ILastTrade? this[int i] { get; }
 }
 
-public interface IMutableLastTradedList : ILastTradedList, IEnumerable<IMutableLastTrade>, ITrackableReset<IMutableLastTradedList>
+public interface IMutableLastTradedList : ILastTradedList, ITrackableReset<IMutableLastTradedList>, IList<IMutableLastTrade>
 {
     new int Capacity { get; set; }
-    new IMutableLastTrade? this[int i] { get; set; }
-    void Add(IMutableLastTrade newLastTrade);
+
+    new IMutableLastTrade this[int i] { get; set; }
+    
+    new int Count { get; set; }
 
     new IMutableLastTradedList         Clone();
 

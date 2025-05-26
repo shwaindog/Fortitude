@@ -11,8 +11,8 @@ using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
@@ -294,7 +294,7 @@ public class PQFullSupportPriceVolumeLayerTests
              PopulatedSourceName, true, PopulatedQuoteRef);
         PQOrdersPriceVolumeLayerTests.AddCounterPartyOrders(newPopulatedPvl, PopulatedNumberOfOrders);
         for (var i = 0; i < PopulatedNumberOfOrders; i++)
-            ((IPQCounterPartyOrderLayerInfo)newPopulatedPvl[i]!).IsExternalCounterPartyNameUpdated = false;
+            ((IPQExternalCounterPartyOrder)newPopulatedPvl[i]!).IsExternalCounterPartyNameUpdated = false;
         fromPQInstance = new PQFullSupportPriceVolumeLayer(newPopulatedPvl, newPopulatedPvl.NameIdLookup);
         Assert.AreEqual(PopulatedQuotePrice, fromPQInstance.Price);
         Assert.AreEqual(PopulatedQuoteVolume, fromPQInstance.Volume);
@@ -320,7 +320,7 @@ public class PQFullSupportPriceVolumeLayerTests
              PopulatedSourceName, true, PopulatedQuoteRef, OrdersCount, PopulatedInternalVolume);
         PQOrdersPriceVolumeLayerTests.AddCounterPartyOrders(newPopulatedPvl, PopulatedNumberOfOrders);
 
-        for (var i = 0; i < PopulatedNumberOfOrders; i++) ((IPQCounterPartyOrderLayerInfo)newPopulatedPvl[i]!).IsExternalTraderNameUpdated = false;
+        for (var i = 0; i < PopulatedNumberOfOrders; i++) ((IPQExternalCounterPartyOrder)newPopulatedPvl[i]!).IsExternalTraderNameUpdated = false;
         fromPQInstance = new PQFullSupportPriceVolumeLayer(newPopulatedPvl, newPopulatedPvl.NameIdLookup);
         Assert.AreEqual(PopulatedQuotePrice, fromPQInstance.Price);
         Assert.AreEqual(PopulatedQuoteVolume, fromPQInstance.Volume);
@@ -613,12 +613,12 @@ public class PQFullSupportPriceVolumeLayerTests
         for (var i = 0; i < PopulatedNumberOfOrders; i++)
         {
             var anonOrderLayer = populatedPvl[i]!;
-            Assert.AreNotEqual(0m, ((IPublishedOrder)anonOrderLayer).OrderDisplayVolume);
+            Assert.AreNotEqual(0m, anonOrderLayer.OrderDisplayVolume);
             Assert.IsTrue(anonOrderLayer.IsOrderVolumeUpdated);
             Assert.IsFalse(anonOrderLayer.IsEmpty);
-            if (anonOrderLayer is IPQCounterPartyOrderLayerInfo counterPartyOrderLayer)
+            if (anonOrderLayer is IPQExternalCounterPartyOrder counterPartyOrderLayer)
             {
-                Assert.AreNotEqual(null, ((IExternalCounterPartyInfoOrder)counterPartyOrderLayer).ExternalTraderName);
+                Assert.AreNotEqual(null, ((IExternalCounterPartyOrder)counterPartyOrderLayer).ExternalTraderName);
                 Assert.IsTrue(counterPartyOrderLayer.IsExternalTraderNameUpdated);
             }
         }
@@ -640,12 +640,12 @@ public class PQFullSupportPriceVolumeLayerTests
         for (var i = 0; i < PopulatedNumberOfOrders; i++)
         {
             var anonOrderLayer = populatedPvl[i]!;
-            Assert.AreEqual(0m, ((IPublishedOrder)anonOrderLayer).OrderDisplayVolume);
+            Assert.AreEqual(0m, anonOrderLayer.OrderDisplayVolume);
             Assert.IsTrue(anonOrderLayer.IsOrderVolumeUpdated);
             Assert.IsTrue(anonOrderLayer.IsEmpty);
-            if (anonOrderLayer is IPQCounterPartyOrderLayerInfo counterPartyOrderLayer)
+            if (anonOrderLayer is IPQExternalCounterPartyOrder counterPartyOrderLayer)
             {
-                Assert.AreEqual(null, ((IExternalCounterPartyInfoOrder)counterPartyOrderLayer).ExternalTraderName);
+                Assert.AreEqual(null, ((IExternalCounterPartyOrder)counterPartyOrderLayer).ExternalTraderName);
                 Assert.IsTrue(counterPartyOrderLayer.IsExternalTraderNameUpdated);
             }
         }

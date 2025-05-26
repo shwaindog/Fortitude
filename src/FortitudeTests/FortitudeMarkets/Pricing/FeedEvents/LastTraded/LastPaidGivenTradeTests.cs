@@ -15,26 +15,48 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 [TestClass]
 public class LastPaidGivenTradeTests
 {
+    private const uint    ExpectedTradeId     = 42;
+    private const uint    ExpectedBatchId     = 24_942;
+    private const uint    ExpectedOrderId     = 1_772_942;
+    private const decimal ExpectedTradePrice  = 2.3456m;
+    private const decimal ExpectedTradeVolume = 42_000_111m;
+
+    private const LastTradedTypeFlags      ExpectedTradedTypeFlags     = LastTradedTypeFlags.HasPaidGivenDetails;
+    private const LastTradedLifeCycleFlags ExpectedTradeLifeCycleFlags = LastTradedLifeCycleFlags.Confirmed;
+
+    private static readonly DateTime ExpectedTradeTime           = new(2018, 03, 2, 14, 40, 30);
+    private static readonly DateTime ExpectedFirstNotifiedTime   = new(2018, 03, 2, 14, 40, 31);
+    private static readonly DateTime ExpectedAdapterReceivedTime = new(2018, 03, 2, 14, 40, 41);
+    private static readonly DateTime ExpectedUpdateTime          = new(2018, 03, 2, 14, 40, 42);
+
+    private const bool ExpectedWasGiven = true;
+    private const bool ExpectedWasPaid  = true;
+
     private LastPaidGivenTrade emptyLt     = null!;
     private LastPaidGivenTrade populatedLt = null!;
-
-    private DateTime testDateTime;
 
     [TestInitialize]
     public void SetUp()
     {
         emptyLt      = new LastPaidGivenTrade();
-        testDateTime = new DateTime(2017, 12, 17, 16, 11, 52);
-        populatedLt  = new LastPaidGivenTrade(4.2949_672m, testDateTime, 42_949_672.95m, true, true);
+        populatedLt  = 
+            new LastPaidGivenTrade
+                (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedOrderId, ExpectedWasPaid
+               , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
+               , ExpectedUpdateTime);
     }
 
     [TestMethod]
     public void NewLt_SetsPriceAndVolume_PropertiesInitializedAsExpected()
     {
-        var newLt = new LastPaidGivenTrade(20, testDateTime, 42_949_672.95m, true, true);
-        Assert.AreEqual(20m, newLt.TradePrice);
-        Assert.AreEqual(testDateTime, newLt.TradeTime);
-        Assert.AreEqual(42_949_672.95m, newLt.TradeVolume);
+        var newLt = 
+            new LastPaidGivenTrade
+                (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedOrderId, ExpectedWasPaid
+               , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
+               , ExpectedUpdateTime);
+        Assert.AreEqual(ExpectedTradePrice, newLt.TradePrice);
+        Assert.AreEqual(ExpectedTradeTime, newLt.TradeTime);
+        Assert.AreEqual(ExpectedTradeVolume, newLt.TradeVolume);
         Assert.IsTrue(newLt.WasGiven);
         Assert.IsTrue(newLt.WasPaid);
 
@@ -48,19 +70,27 @@ public class LastPaidGivenTradeTests
     [TestMethod]
     public void NewLt_NewFromCloneInstance_PropertiesInitializedAsExpected()
     {
-        var newPopulatedLt = new LastPaidGivenTrade(20, testDateTime, 42_949_672.95m, true, true);
+        var newPopulatedLt = 
+            new LastPaidGivenTrade
+                (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedOrderId, ExpectedWasPaid
+               , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
+               , ExpectedUpdateTime);
         var fromPQInstance = new LastPaidGivenTrade(newPopulatedLt);
-        Assert.AreEqual(20m, fromPQInstance.TradePrice);
-        Assert.AreEqual(testDateTime, fromPQInstance.TradeTime);
-        Assert.AreEqual(42_949_672.95m, fromPQInstance.TradeVolume);
+        Assert.AreEqual(ExpectedTradePrice, fromPQInstance.TradePrice);
+        Assert.AreEqual(ExpectedTradeTime, fromPQInstance.TradeTime);
+        Assert.AreEqual(ExpectedTradeVolume, fromPQInstance.TradeVolume);
         Assert.IsTrue(fromPQInstance.WasGiven);
         Assert.IsTrue(fromPQInstance.WasPaid);
 
-        var pqLt           = new PQLastPaidGivenTrade(1.23456m, testDateTime, 42_949_672.95m, true, true);
+        var pqLt           = 
+            new PQLastPaidGivenTrade
+                (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedOrderId, ExpectedWasPaid
+               , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
+               , ExpectedUpdateTime);
         var fromPqInstance = new LastPaidGivenTrade(pqLt);
-        Assert.AreEqual(1.23456m, fromPqInstance.TradePrice);
-        Assert.AreEqual(testDateTime, fromPqInstance.TradeTime);
-        Assert.AreEqual(42_949_672.95m, fromPqInstance.TradeVolume);
+        Assert.AreEqual(ExpectedTradePrice, fromPqInstance.TradePrice);
+        Assert.AreEqual(ExpectedTradeTime, fromPqInstance.TradeTime);
+        Assert.AreEqual(ExpectedTradeVolume, fromPqInstance.TradeVolume);
         Assert.IsTrue(fromPqInstance.WasGiven);
         Assert.IsTrue(fromPqInstance.WasPaid);
 
@@ -188,8 +218,16 @@ public class LastPaidGivenTradeTests
         var toString = populatedLt.ToString();
 
         Assert.IsTrue(toString.Contains(populatedLt.GetType().Name));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.TradeId)}: {populatedLt.TradeId}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.BatchId)}: {populatedLt.BatchId}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedLt.TradePrice)}: {populatedLt.TradePrice:N5}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedLt.TradeTime)}: {populatedLt.TradeTime:O}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.TradeTypeFlags)}: {populatedLt.TradeTypeFlags}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.TradeLifeCycleStatus)}: {populatedLt.TradeLifeCycleStatus}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.FirstNotifiedTime)}: {populatedLt.FirstNotifiedTime:O}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.AdapterReceivedTime)}: {populatedLt.AdapterReceivedTime:O}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.UpdateTime)}: {populatedLt.UpdateTime:O}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedLt.OrderId)}: {populatedLt.OrderId}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedLt.TradeVolume)}: {populatedLt.TradeVolume:N2}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedLt.WasGiven)}: {populatedLt.WasGiven}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedLt.WasPaid)}: {populatedLt.WasPaid}"));
@@ -207,6 +245,19 @@ public class LastPaidGivenTradeTests
         if (original.GetType() == typeof(LastPaidGivenTrade))
             Assert.IsTrue
                 (original.AreEquivalent(new LastPaidGivenTrade(changingLastPaidGivenTrade), exactComparison));
+
+        changingLastPaidGivenTrade.OrderId = 992_184;
+        Assert.IsFalse(original.AreEquivalent(changingLastPaidGivenTrade, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsFalse
+                (originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsFalse(originalQuote.AreEquivalent(changingQuote, exactComparison));
+        changingLastPaidGivenTrade.OrderId = original.OrderId;
+        Assert.IsTrue(changingLastPaidGivenTrade.AreEquivalent(original, exactComparison));
+        if (originalLastTradedList != null)
+            Assert.IsTrue
+                (originalLastTradedList.AreEquivalent(changingLastTradedList, exactComparison));
+        if (originalQuote != null) Assert.IsTrue(originalQuote.AreEquivalent(changingQuote, exactComparison));
 
         changingLastPaidGivenTrade.TradeVolume = 1_234_567m;
         Assert.IsFalse(original.AreEquivalent(changingLastPaidGivenTrade, exactComparison));

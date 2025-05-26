@@ -22,6 +22,9 @@ public enum CopyMergeFlags : byte
   , AppendMissing        = 0x04
   , RemoveUnmatched      = 0x08
   , SkipReferenceLookups = 0x10
+  , UpdateFlagsNone      = 0x20
+  , UpdateFlagsAll       = 0x40
+  , AsNew                = 0x80
 }
 
 public static class CopyMergeFlagExtensions
@@ -31,7 +34,10 @@ public static class CopyMergeFlagExtensions
     public static bool HasJustDifferences(this CopyMergeFlags check)      => (check & CopyMergeFlags.JustDifferences) > 0;
     public static bool HasAppendMissing(this CopyMergeFlags check)        => (check & CopyMergeFlags.AppendMissing) > 0;
     public static bool HasRemoveUnmatched(this CopyMergeFlags check)      => (check & CopyMergeFlags.RemoveUnmatched) > 0;
-    public static bool HasSkipReferenceLookups(this CopyMergeFlags check) => (check & CopyMergeFlags.RemoveUnmatched) > 0;
+    public static bool HasSkipReferenceLookups(this CopyMergeFlags check) => (check & CopyMergeFlags.SkipReferenceLookups) > 0;
+    public static bool HasUpdateFlagsNone(this CopyMergeFlags check)      => (check & CopyMergeFlags.UpdateFlagsNone) > 0;
+    public static bool HasUpdateFlagsAll(this CopyMergeFlags check)       => (check & CopyMergeFlags.UpdateFlagsAll) > 0;
+    public static bool HasAsNew(this CopyMergeFlags check)                => (check & CopyMergeFlags.AsNew) > 0;
 
     public static CopyMergeFlags AddSkipReferenceLookups(this CopyMergeFlags original) => original | CopyMergeFlags.RemoveUnmatched;
 }

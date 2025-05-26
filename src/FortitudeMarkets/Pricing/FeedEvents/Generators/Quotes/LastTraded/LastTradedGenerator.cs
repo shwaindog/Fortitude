@@ -179,7 +179,7 @@ public class LastTradedGenerator : ILastTradedGenerator
             var currentLastTradeCount = recentlyTraded.Count;
             if (currentLastTradeCount >= GenerateLastTradeInfo.MaxNumberOfLastTrade || currentLastTradeCount >= i) break;
             var index        = recentlyTraded.AppendEntryAtEnd();
-            var lastTradInfo = (IMutableLastTraderPaidGivenTrade)recentlyTraded[index]!;
+            var lastTradInfo = (IMutableLastExternalCounterPartyTrade)recentlyTraded[index]!;
             var isBidTrade   = pseudoRandom.NextDouble() < GenerateLastTradeInfo.LastTradedWasBidProbability;
 
             var traderNum = pseudoRandom.Next(1, GenerateLastTradeInfo.MaxDifferentTraderNames + 1);
@@ -189,8 +189,8 @@ public class LastTradedGenerator : ILastTradedGenerator
         }
     }
 
-    protected virtual void SetTraderName(IMutableLastTraderPaidGivenTrade lastTraderPaidGivenTrade, string traderName)
+    protected virtual void SetTraderName(IMutableLastExternalCounterPartyTrade lastExternalCounterPartyTrade, string traderName)
     {
-        lastTraderPaidGivenTrade.TraderName = traderName;
+        lastExternalCounterPartyTrade.ExternalTraderName = traderName;
     }
 }

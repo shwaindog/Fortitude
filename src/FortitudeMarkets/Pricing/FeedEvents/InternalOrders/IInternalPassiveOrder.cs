@@ -1,11 +1,13 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 
-public interface IAdditionalInternalPassiveInfo
+public interface IAdditionalInternalPassiveOrderInfo : IReusableObject<IAdditionalInternalPassiveOrderInfo>, IShowsEmpty, IInterfacesComparable<IAdditionalInternalPassiveOrderInfo>
 {
     uint    OrderSequenceId   { get; set; }
     uint    ParentOrderId     { get; }
@@ -35,7 +37,8 @@ public interface IAdditionalInternalPassiveInfo
     decimal MarginConsumed { get; }
 }
 
-public interface IMutableAdditionalInternalPassiveInfo : IAdditionalInternalPassiveInfo
+public interface IMutableAdditionalInternalPassiveOrderInfo : IAdditionalInternalPassiveOrderInfo, ICloneable<IMutableAdditionalInternalPassiveOrderInfo>, IEmptyable
+  , ITransferState<IMutableAdditionalInternalPassiveOrderInfo>
 {
     new uint OrderSequenceId { get; set; }
     new uint ParentOrderId   { get; set; }
@@ -65,15 +68,21 @@ public interface IMutableAdditionalInternalPassiveInfo : IAdditionalInternalPass
     new string? InternalTraderName { get; set; }
 
     new decimal MarginConsumed { get; set; }
+
+    new IMutableAdditionalInternalPassiveOrderInfo Clone();
 }
 
-
-public interface IInternalPassiveOrder : IPublishedOrder, IAdditionalInternalPassiveInfo, ICloneable<IInternalPassiveOrder>
+public interface IInternalPassiveOrder : IAnonymousOrder, IAdditionalInternalPassiveOrderInfo, ICloneable<IInternalPassiveOrder>
 {
+    const OrderGenesisFlags HasInternalOrderInfo = OrderGenesisFlags.HasInternalOrderInfo;
+
+    const OrderGenesisFlags AllExceptHasInternalInfoFlag = ~OrderGenesisFlags.HasInternalOrderInfo;
+
     new IInternalPassiveOrder Clone();
 }
 
-public interface IMutableInternalPassiveOrder : IInternalPassiveOrder, IMutableAdditionalInternalPassiveInfo, IMutablePublishedOrder, ICloneable<IMutableInternalPassiveOrder>
+public interface IMutableInternalPassiveOrder : IInternalPassiveOrder, IMutableAdditionalInternalPassiveOrderInfo, IMutableAnonymousOrder
+  , ICloneable<IMutableInternalPassiveOrder>
 {
     new IMutableInternalPassiveOrder Clone();
 }

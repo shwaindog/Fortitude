@@ -15,9 +15,10 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
 public interface IPQLastPaidGivenTrade : IPQLastTrade, IMutableLastPaidGivenTrade, ITrackableReset<IPQLastPaidGivenTrade>
 {
-    bool IsWasPaidUpdated     { get; set; }
-    bool IsWasGivenUpdated    { get; set; }
-    bool IsTradeVolumeUpdated { get; set; }
+    bool IsOrderIdUpdated { get; set; }
+    bool IsWasPaidUpdated      { get; set; }
+    bool IsWasGivenUpdated     { get; set; }
+    bool IsTradeVolumeUpdated  { get; set; }
 
     new IPQLastPaidGivenTrade Clone();
 
@@ -37,11 +38,16 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
     protected LastTradeBooleanFlags LastTradeBooleanFlags;
 
     private decimal tradeVolume;
+    private uint    orderId;
 
     public PQLastPaidGivenTrade
-        (decimal tradePrice = 0m, DateTime? tradeTime = null, decimal tradeVolume = 0m, bool wasPaid = false, bool wasGiven = false)
-        : base(tradePrice, tradeTime)
+    (uint tradeId = 0, uint batchId = 0, decimal tradePrice = 0m, DateTime? tradeDateTime = null, decimal tradeVolume = 0m
+       , uint orderId = 0, bool wasPaid = false, bool wasGiven = false, LastTradedTypeFlags tradeTypeFlags = LastTradedTypeFlags.None
+      , LastTradedLifeCycleFlags tradeLifecycleStatus = LastTradedLifeCycleFlags.None
+      , DateTime? firstNotifiedTime = null, DateTime? adapterReceivedTime = null, DateTime? updateTime = null) 
+        : base(tradeId, batchId, tradePrice, tradeDateTime, tradeTypeFlags, tradeLifecycleStatus, firstNotifiedTime, adapterReceivedTime, updateTime)
     {
+        OrderId     = orderId;
         TradeVolume = tradeVolume;
         WasPaid     = wasPaid;
         WasGiven    = wasGiven;
@@ -53,32 +59,46 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
     {
         if (toClone is ILastPaidGivenTrade lastPaidGivenTrade)
         {
+            OrderId = lastPaidGivenTrade.OrderId;
             TradeVolume = lastPaidGivenTrade.TradeVolume;
             WasPaid     = lastPaidGivenTrade.WasPaid;
             WasGiven    = lastPaidGivenTrade.WasGiven;
         }
 
-        if (toClone is IPQLastPaidGivenTrade pqLastPaidGivenTrade)
-        {
-            IsTradeVolumeUpdated = pqLastPaidGivenTrade.IsTradeVolumeUpdated;
-            IsWasGivenUpdated    = pqLastPaidGivenTrade.IsWasGivenUpdated;
-            IsWasPaidUpdated     = pqLastPaidGivenTrade.IsWasPaidUpdated;
-        }
-
-        if (toClone is PQLastPaidGivenTrade pqLastPaidGiven) UpdatedFlags = pqLastPaidGiven.UpdatedFlags;
+        SetFlagsSame(toClone);
 
         if (GetType() == typeof(PQLastPaidGivenTrade)) NumUpdatesSinceEmpty = 0;
     }
-
-    protected string PQLastPaidGivenTradeToStringMembers =>
-        $"{PQLastTradeToStringMembers}, {nameof(WasPaid)}: {WasPaid}, " +
-        $"{nameof(WasGiven)}: {WasGiven}, {nameof(TradeVolume)}: {TradeVolume:N2}";
 
     [JsonIgnore] public override LastTradeType LastTradeType => LastTradeType.PricePaidOrGivenVolume;
 
     [JsonIgnore]
     public override LastTradedFlags SupportsLastTradedFlags =>
         LastTradedFlags.PaidOrGiven | LastTradedFlags.LastTradedVolume | base.SupportsLastTradedFlags;
+
+
+    public uint OrderId
+    {
+        get => orderId;
+        set
+        {
+            IsOrderIdUpdated |= orderId != value || NumUpdatesSinceEmpty == 0;
+            orderId          =  value;
+        }
+    }
+
+    [JsonIgnore]
+    public bool IsOrderIdUpdated
+    {
+        get => (UpdatedFlags & LastTradeUpdated.TradeOrderIdUpdated) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= LastTradeUpdated.TradeOrderIdUpdated;
+
+            else if (IsOrderIdUpdated) UpdatedFlags ^= LastTradeUpdated.TradeOrderIdUpdated;
+        }
+    }
 
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -98,13 +118,13 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
     [JsonIgnore]
     public bool IsWasPaidUpdated
     {
-        get => (UpdatedFlags & LastTradeUpdated.WasPaidUpdated) > 0;
+        get => (UpdatedFlags & LastTradeUpdated.TradeWasPaidUpdated) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= LastTradeUpdated.WasPaidUpdated;
+                UpdatedFlags |= LastTradeUpdated.TradeWasPaidUpdated;
 
-            else if (IsWasPaidUpdated) UpdatedFlags ^= LastTradeUpdated.WasPaidUpdated;
+            else if (IsWasPaidUpdated) UpdatedFlags ^= LastTradeUpdated.TradeWasPaidUpdated;
         }
     }
 
@@ -126,13 +146,13 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
     [JsonIgnore]
     public bool IsWasGivenUpdated
     {
-        get => (UpdatedFlags & LastTradeUpdated.WasGivenUpdated) > 0;
+        get => (UpdatedFlags & LastTradeUpdated.TradeWasGivenUpdated) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= LastTradeUpdated.WasGivenUpdated;
+                UpdatedFlags |= LastTradeUpdated.TradeWasGivenUpdated;
 
-            else if (IsWasGivenUpdated) UpdatedFlags ^= LastTradeUpdated.WasGivenUpdated;
+            else if (IsWasGivenUpdated) UpdatedFlags ^= LastTradeUpdated.TradeWasGivenUpdated;
         }
     }
 
@@ -150,36 +170,21 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
     [JsonIgnore]
     public bool IsTradeVolumeUpdated
     {
-        get => (UpdatedFlags & LastTradeUpdated.VolumeUpdated) > 0;
+        get => (UpdatedFlags & LastTradeUpdated.TradeVolumeUpdated) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= LastTradeUpdated.VolumeUpdated;
+                UpdatedFlags |= LastTradeUpdated.TradeVolumeUpdated;
 
-            else if (IsTradeVolumeUpdated) UpdatedFlags ^= LastTradeUpdated.VolumeUpdated;
+            else if (IsTradeVolumeUpdated) UpdatedFlags ^= LastTradeUpdated.TradeVolumeUpdated;
         }
     }
-
-    [JsonIgnore]
-    public override bool HasUpdates
-    {
-        set => base.HasUpdates = IsTradeVolumeUpdated = IsWasGivenUpdated = IsWasPaidUpdated = value;
-    }
-
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
-        get => base.IsEmpty && WasPaid == false && WasGiven == false && TradeVolume == 0m;
-        set
-        {
-            if (!value) return;
-            WasPaid  = false;
-            WasGiven = false;
-
-            TradeVolume  = 0m;
-            base.IsEmpty = true;
-        }
+        get => base.IsEmpty && OrderId == 0 && WasPaid == false && WasGiven == false && TradeVolume == 0m;
+        set => base.IsEmpty = value;
     }
 
     IMutableLastTrade ITrackableReset<IMutableLastTrade>.ResetWithTracking() => ResetWithTracking();
@@ -193,18 +198,12 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
 
     public override PQLastPaidGivenTrade ResetWithTracking()
     {
+        OrderId     = 0;
         WasGiven    = WasPaid = false;
         TradeVolume = 0m;
 
         base.ResetWithTracking();
         return this;
-    }
-
-    public override void StateReset()
-    {
-        WasGiven    = WasPaid = false;
-        TradeVolume = 0m;
-        base.StateReset();
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
@@ -215,52 +214,82 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         foreach (var deltaUpdateField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                    quotePublicationPrecisionSetting))
             yield return deltaUpdateField;
+        if (!updatedOnly || IsOrderIdUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedOrderId, OrderId);
         if (!updatedOnly || IsBooleanFlagsChanged())
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedBooleanFlags
                                          , (uint)LastTradeBooleanFlags);
         if (!updatedOnly || IsTradeVolumeUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedOrderVolume, TradeVolume,
+            yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTradeVolume, TradeVolume,
                                            quotePublicationPrecisionSetting?.VolumeScalingPrecision ?? (PQFieldFlags)6);
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the recentlytraded has already forwarded this through to the correct lasttrade
-        if (pqFieldUpdate.TradingSubId == PQTradingSubFieldKeys.LastTradedBooleanFlags)
+        switch (pqFieldUpdate.TradingSubId)
         {
-            WasGiven = ((LastTradeBooleanFlags)pqFieldUpdate.Payload & LastTradeBooleanFlags.WasGiven) == LastTradeBooleanFlags.WasGiven;
-            WasPaid  = ((LastTradeBooleanFlags)pqFieldUpdate.Payload & LastTradeBooleanFlags.WasPaid) == LastTradeBooleanFlags.WasPaid;
-            return 0;
-        }
-        if (pqFieldUpdate.TradingSubId == PQTradingSubFieldKeys.LastTradedOrderVolume)
-        {
-            TradeVolume = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
-            return 0;
+            case PQTradingSubFieldKeys.LastTradedOrderId:
+                IsOrderIdUpdated = true;
+                OrderId          = pqFieldUpdate.Payload;
+                return 0;
+            case PQTradingSubFieldKeys.LastTradedBooleanFlags:
+                var boolValues = pqFieldUpdate.Payload;
+                WasGiven = ((LastTradeBooleanFlags)boolValues & LastTradeBooleanFlags.WasGiven) == LastTradeBooleanFlags.WasGiven;
+                WasPaid  = ((LastTradeBooleanFlags)boolValues & LastTradeBooleanFlags.WasPaid) == LastTradeBooleanFlags.WasPaid;
+                return 0;
+            case PQTradingSubFieldKeys.LastTradedTradeVolume:
+                IsTradeVolumeUpdated = true;
+
+                TradeVolume          = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
+                return 0;
         }
 
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public override ILastTrade CopyFrom(ILastTrade? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override ILastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
-        if (source == null) return this;
-        var pqlpgt = source as PQLastPaidGivenTrade;
-        if (pqlpgt == null && source is ILastPaidGivenTrade lpgt)
+        if (source is not ILastPaidGivenTrade lpgt) return this;
+        var pqlpgt = source as IPQLastPaidGivenTrade;
+        if (pqlpgt == null)
         {
+            OrderId     = lpgt.OrderId;
             TradeVolume = lpgt.TradeVolume;
             WasGiven    = lpgt.WasGiven;
             WasPaid     = lpgt.WasPaid;
         }
-        else if (pqlpgt != null)
+        else 
         {
             var isFullReplace = copyMergeFlags.HasFullReplace();
 
-            if (pqlpgt.IsTradeVolumeUpdated || isFullReplace) tradeVolume = pqlpgt.tradeVolume;
-            if (pqlpgt.IsWasPaidUpdated || isFullReplace) WasPaid         = pqlpgt.WasPaid;
-            if (pqlpgt.IsWasGivenUpdated || isFullReplace) WasGiven       = pqlpgt.WasGiven;
+            if (pqlpgt.IsOrderIdUpdated || isFullReplace)
+            {
+                IsOrderIdUpdated = true;
 
-            UpdatedFlags = pqlpgt.UpdatedFlags;
+                OrderId      = pqlpgt.OrderId;
+            }
+            if (pqlpgt.IsTradeVolumeUpdated || isFullReplace)
+            {
+                IsTradeVolumeUpdated = true;
+
+                TradeVolume = pqlpgt.TradeVolume;
+            }
+            if (pqlpgt.IsWasPaidUpdated || isFullReplace)
+            {
+                IsWasPaidUpdated = true;
+
+                WasPaid         = pqlpgt.WasPaid;
+            }
+            if (pqlpgt.IsWasGivenUpdated || isFullReplace)
+            {
+                IsWasGivenUpdated = true;
+
+                WasGiven       = pqlpgt.WasGiven;
+            }
+
+            if(isFullReplace) SetFlagsSame(pqlpgt);
         }
 
         return this;
@@ -276,15 +305,18 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
 
     public override bool AreEquivalent(ILastTrade? other, bool exactTypes = false)
     {
-        if (!(other is ILastPaidGivenTrade pqLastPaidGivenTrader)) return false;
+        if (other is not ILastPaidGivenTrade pqLastPaidGivenTrader) return false;
 
         var baseSame = base.AreEquivalent(other, exactTypes);
-
+        
+        var orderIdSame      = OrderId == pqLastPaidGivenTrader.OrderId;
         var traderVolumeSame = tradeVolume == pqLastPaidGivenTrader.TradeVolume;
 
         var wasPaidSame  = WasPaid == pqLastPaidGivenTrader.WasPaid;
         var wasGivenSame = WasGiven == pqLastPaidGivenTrader.WasGiven;
-        return baseSame && traderVolumeSame && wasPaidSame && wasGivenSame;
+        var allAreSame = baseSame  && orderIdSame && traderVolumeSame && wasPaidSame && wasGivenSame;
+
+        return allAreSame;
     }
 
     protected virtual bool IsBooleanFlagsChanged() => IsWasGivenUpdated || IsWasPaidUpdated;
@@ -298,6 +330,10 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
             return (base.GetHashCode() * 397) ^ tradeVolume.GetHashCode();
         }
     }
+    
+    protected string PQLastPaidGivenTradeToStringMembers =>
+        $"{PQLastTradeToStringMembers}, {nameof(OrderId)}: {OrderId}, {nameof(WasPaid)}: {WasPaid}, " +
+        $"{nameof(WasGiven)}: {WasGiven}, {nameof(TradeVolume)}: {TradeVolume:N2}";
 
-    public override string ToString() => $"{GetType().Name}({PQLastPaidGivenTradeToStringMembers})";
+    public override string ToString() => $"{GetType().Name}({PQLastPaidGivenTradeToStringMembers}, {UpdatedFlagsToString})";
 }

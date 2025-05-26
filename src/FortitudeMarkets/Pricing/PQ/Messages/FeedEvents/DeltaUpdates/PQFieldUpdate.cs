@@ -353,7 +353,7 @@ public struct PQFieldUpdate
     public override string ToString() =>
         $"{nameof(PQFieldUpdate)}{{{nameof(Id)}: {Id}, " +
         $"{nameof(DepthId)}: ({(PQDepthKey)((ushort)DepthId & PQDepthKeyExtensions.TwoByteFlagsMask)}, {(ushort)(DepthId & PQDepthKey.DepthMask)}), " +
-        $"{ (Id.IsPricingSubKey() ? nameof(PricingSubId) : nameof(TradingSubId))}: {SubIdByte.ToSubIdString(Id)}, " +
+        $"{ (Id.GetSubKeyType())}: {SubIdByte.ToSubIdString(Id)}, " +
         $"{nameof(AuxiliaryPayload)}: 0x{AuxiliaryPayload.ToHex2()}, {nameof(Payload)}: 0x{Payload.ToHex2()}, {nameof(Flag)}: {Flag}}}";
 }
 

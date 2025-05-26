@@ -8,11 +8,9 @@ using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeTests.FortitudeMarkets.Pricing.Quotes.LayeredBook;
 
 #endregion
 
@@ -219,9 +217,9 @@ public class FullSupportPriceVolumeLayerTests
         for (var i = 0; i < NumOfOrders; i++)
         {
             var anonOrderLayerInfo = populatedPvl[i]!;
-            Assert.AreNotEqual(0m, ((IPublishedOrder)anonOrderLayerInfo).OrderDisplayVolume);
+            Assert.AreNotEqual(0m, anonOrderLayerInfo.OrderDisplayVolume);
             Assert.IsFalse(anonOrderLayerInfo.IsEmpty);
-            if (anonOrderLayerInfo is IExternalCounterPartyOrderLayerInfo counterPartyOrderLayerInfo)
+            if (anonOrderLayerInfo is IExternalCounterPartyOrder counterPartyOrderLayerInfo)
             {
                 Assert.AreNotEqual(null, counterPartyOrderLayerInfo.ExternalCounterPartyName);
                 Assert.AreNotEqual(null, counterPartyOrderLayerInfo.ExternalTraderName);
@@ -239,9 +237,9 @@ public class FullSupportPriceVolumeLayerTests
         for (var i = 0; i < NumOfOrders; i++)
         {
             var anonOrderLayerInfo = populatedPvl[i]!;
-            Assert.AreEqual(0m, ((IPublishedOrder)anonOrderLayerInfo).OrderDisplayVolume);
+            Assert.AreEqual(0m, anonOrderLayerInfo.OrderDisplayVolume);
             Assert.IsTrue(anonOrderLayerInfo.IsEmpty);
-            if (anonOrderLayerInfo is IExternalCounterPartyOrderLayerInfo counterPartyOrderLayerInfo)
+            if (anonOrderLayerInfo is IExternalCounterPartyOrder counterPartyOrderLayerInfo)
                 Assert.AreEqual(null, counterPartyOrderLayerInfo.ExternalTraderName);
         }
     }

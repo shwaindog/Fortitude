@@ -12,16 +12,16 @@ using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
+using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers.LayerOrders;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 
 #endregion
@@ -131,7 +131,7 @@ public class PQLevel3QuoteTests
     public void TraderPaidGivenVolumeLevel3Quote_New_BuildsLastTraderPaidGivenEntries()
     {
         AssertLastTradeTypeIsExpected
-            (typeof(PQLastTraderPaidGivenTrade), fullSupportOnTickLastTradedEmptyQuote
+            (typeof(PQLastExternalCounterPartyTrade), fullSupportOnTickLastTradedEmptyQuote
            , fullSupportOnTickLastTradedFullyPopulatedQuote);
     }
 
@@ -648,7 +648,7 @@ public class PQLevel3QuoteTests
                     {
                         if (j == 2) j     = 4;
                         var anonOrderInfo = ordersLayer[j];
-                        PQAnonymousOrderLayerInfoTests.AssertOrdersOrderIdFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i, bidBook
+                        PQAnonymousOrderTests.AssertOrdersOrderIdFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i, bidBook
                        , orderBook, emptyQuote);
                     }
                 }
@@ -661,7 +661,7 @@ public class PQLevel3QuoteTests
                     {
                         if (j == 2) j     = 4;
                         var anonOrderInfo = ordersLayer[j];
-                        PQAnonymousOrderLayerInfoTests.AssertOrdersOrderIdFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i, askBook
+                        PQAnonymousOrderTests.AssertOrdersOrderIdFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i, askBook
                        , orderBook, emptyQuote);
                     }
                 }
@@ -686,7 +686,7 @@ public class PQLevel3QuoteTests
                     {
                         if (j == 2) j     = 4;
                         var anonOrderInfo = ordersLayer[j];
-                        PQAnonymousOrderLayerInfoTests.AssertOrdersOrderFlagsFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i, bidBook
+                        PQAnonymousOrderTests.AssertOrdersOrderGenesisFlagsFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i, bidBook
                        , orderBook, emptyQuote);
                     }
                 }
@@ -699,7 +699,7 @@ public class PQLevel3QuoteTests
                     {
                         if (j == 2) j     = 4;
                         var anonOrderInfo = ordersLayer[j];
-                        PQAnonymousOrderLayerInfoTests.AssertOrdersOrderFlagsFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i, askBook
+                        PQAnonymousOrderTests.AssertOrdersOrderGenesisFlagsFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i, askBook
                        , orderBook, emptyQuote);
                     }
                 }
@@ -724,7 +724,7 @@ public class PQLevel3QuoteTests
                     {
                         if (j == 2) j     = 4;
                         var anonOrderInfo = ordersLayer[j];
-                        PQAnonymousOrderLayerInfoTests.AssertOrdersOrderCreatedTimeFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i
+                        PQAnonymousOrderTests.AssertOrdersOrderCreatedTimeFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i
                        , bidBook, orderBook, emptyQuote);
                     }
                 }
@@ -737,7 +737,7 @@ public class PQLevel3QuoteTests
                     {
                         if (j == 2) j     = 4;
                         var anonOrderInfo = ordersLayer[j];
-                        PQAnonymousOrderLayerInfoTests.AssertOrdersOrderCreatedTimeFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i
+                        PQAnonymousOrderTests.AssertOrdersOrderCreatedTimeFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i
                        , askBook, orderBook, emptyQuote);
                     }
                 }
@@ -762,7 +762,7 @@ public class PQLevel3QuoteTests
                     {
                         if (j == 2) j     = 4;
                         var anonOrderInfo = ordersLayer[j];
-                        PQAnonymousOrderLayerInfoTests.AssertOrdersOrderUpdatedTimeFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i
+                        PQAnonymousOrderTests.AssertOrdersOrderUpdatedTimeFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i
                        , bidBook, orderBook, emptyQuote);
                     }
                 }
@@ -775,7 +775,7 @@ public class PQLevel3QuoteTests
                     {
                         if (j == 2) j     = 4;
                         var anonOrderInfo = ordersLayer[j];
-                        PQAnonymousOrderLayerInfoTests.AssertOrdersOrderUpdatedTimeFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i
+                        PQAnonymousOrderTests.AssertOrdersOrderUpdatedTimeFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i
                        , askBook, orderBook, emptyQuote);
                     }
                 }
@@ -800,7 +800,7 @@ public class PQLevel3QuoteTests
                     {
                         if (j == 2) j     = 4;
                         var anonOrderInfo = ordersLayer[j];
-                        PQAnonymousOrderLayerInfoTests.AssertOrdersOrderVolumeFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i, bidBook
+                        PQAnonymousOrderTests.AssertOrdersOrderVolumeFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i, bidBook
                        , orderBook, emptyQuote);
                     }
                 }
@@ -813,7 +813,7 @@ public class PQLevel3QuoteTests
                     {
                         if (j == 2) j     = 4;
                         var anonOrderInfo = ordersLayer[j];
-                        PQAnonymousOrderLayerInfoTests.AssertOrdersOrderVolumeFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i, askBook
+                        PQAnonymousOrderTests.AssertOrdersOrderVolumeFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i, askBook
                        , orderBook, emptyQuote);
                     }
                 }
@@ -838,7 +838,7 @@ public class PQLevel3QuoteTests
                     {
                         if (j == 2) j     = 4;
                         var anonOrderInfo = ordersLayer[j];
-                        PQAnonymousOrderLayerInfoTests.AssertOrdersOrderRemainingVolumeFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i
+                        PQAnonymousOrderTests.AssertOrdersOrderRemainingVolumeFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i
                        , bidBook, orderBook, emptyQuote);
                     }
                 }
@@ -851,7 +851,7 @@ public class PQLevel3QuoteTests
                     {
                         if (j == 2) j     = 4;
                         var anonOrderInfo = ordersLayer[j];
-                        PQAnonymousOrderLayerInfoTests.AssertOrdersOrderRemainingVolumeFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i
+                        PQAnonymousOrderTests.AssertOrdersOrderRemainingVolumeFieldUpdatesReturnAsExpected(anonOrderInfo, j, ordersLayer, i
                        , askBook, orderBook, emptyQuote);
                     }
                 }
@@ -875,8 +875,8 @@ public class PQLevel3QuoteTests
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
-                        var cpOrderInfo = (IPQCounterPartyOrderLayerInfo)ordersLayer[j]!;
-                        PQCounterPartyOrderLayerInfoTests.AssertOrdersCounterPartyNameFieldUpdatesReturnAsExpected
+                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j]!;
+                        PQExternalCounterPartyOrderTests.AssertOrdersCounterPartyNameFieldUpdatesReturnAsExpected
                             (cpOrderInfo, j, ordersLayer, i, bidBook, orderBook, emptyQuote);
                     }
                 }
@@ -888,8 +888,8 @@ public class PQLevel3QuoteTests
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
-                        var cpOrderInfo = (IPQCounterPartyOrderLayerInfo)ordersLayer[j]!;
-                        PQCounterPartyOrderLayerInfoTests.AssertOrdersCounterPartyNameFieldUpdatesReturnAsExpected
+                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j]!;
+                        PQExternalCounterPartyOrderTests.AssertOrdersCounterPartyNameFieldUpdatesReturnAsExpected
                             (cpOrderInfo, j, ordersLayer, i, askBook, orderBook, emptyQuote);
                     }
                 }
@@ -913,8 +913,8 @@ public class PQLevel3QuoteTests
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
-                        var cpOrderInfo = (IPQCounterPartyOrderLayerInfo)ordersLayer[j]!;
-                        PQCounterPartyOrderLayerInfoTests.AssertOrdersTraderNameFieldUpdatesReturnAsExpected(cpOrderInfo, j, ordersLayer, i, bidBook
+                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j]!;
+                        PQExternalCounterPartyOrderTests.AssertOrdersTraderNameFieldUpdatesReturnAsExpected(cpOrderInfo, j, ordersLayer, i, bidBook
                        , orderBook, emptyQuote);
                     }
                 }
@@ -926,8 +926,8 @@ public class PQLevel3QuoteTests
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
-                        var cpOrderInfo = (IPQCounterPartyOrderLayerInfo)ordersLayer[j]!;
-                        PQCounterPartyOrderLayerInfoTests.AssertOrdersTraderNameFieldUpdatesReturnAsExpected(cpOrderInfo, j, ordersLayer, i, askBook
+                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j]!;
+                        PQExternalCounterPartyOrderTests.AssertOrdersTraderNameFieldUpdatesReturnAsExpected(cpOrderInfo, j, ordersLayer, i, askBook
                        , orderBook, emptyQuote);
                     }
                 }
@@ -1299,10 +1299,10 @@ public class PQLevel3QuoteTests
             Assert.IsFalse(paidGivenTrade.IsWasPaidUpdated);
         }
 
-        if (pvl is IPQLastTraderPaidGivenTrade traderPaidGivenTrade)
+        if (pvl is IPQLastExternalCounterPartyTrade traderPaidGivenTrade)
         {
-            Assert.IsNull(traderPaidGivenTrade.TraderName);
-            Assert.IsFalse(traderPaidGivenTrade.IsTraderNameUpdated);
+            Assert.IsNull(traderPaidGivenTrade.ExternalTraderName);
+            Assert.IsFalse(traderPaidGivenTrade.IsExternalTraderNameUpdated);
         }
     }
 

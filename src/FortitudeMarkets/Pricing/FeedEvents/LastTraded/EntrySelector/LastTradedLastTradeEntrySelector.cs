@@ -9,18 +9,16 @@ public class LastTradedLastTradeEntrySelector : LastTradeEntryFlagsSelector<IMut
 
     protected override IMutableLastTrade SelectLastPaidGivenTradeEntry() => new LastPaidGivenTrade();
 
-    protected override IMutableLastTrade SelectTraderLastTradeEntry() => new LastTraderPaidGivenTrade();
+    protected override IMutableLastTrade SelectTraderLastTradeEntry() => new LastExternalCounterPartyTrade();
 
-    public override IMutableLastTrade? ConvertToExpectedImplementation(ILastTrade? checkLastTrade, bool clone = false)
+    public override IMutableLastTrade ConvertToExpectedImplementation(ILastTrade checkLastTrade, bool clone = false)
     {
         switch (checkLastTrade)
         {
-            case null:
-                return null;
             case LastTrade pqlastTrade:
                 return clone ? ((IMutableLastTrade)pqlastTrade).Clone() : pqlastTrade;
-            case ILastTraderPaidGivenTrade _:
-                return new LastTraderPaidGivenTrade(checkLastTrade);
+            case ILastExternalCounterPartyTrade _:
+                return new LastExternalCounterPartyTrade(checkLastTrade);
             case ILastPaidGivenTrade trdrPvLayer:
                 return new LastPaidGivenTrade(trdrPvLayer);
             default:
