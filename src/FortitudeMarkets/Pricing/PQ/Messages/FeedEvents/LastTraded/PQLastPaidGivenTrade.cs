@@ -4,6 +4,7 @@
 #region
 
 using System.Text.Json.Serialization;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
@@ -13,7 +14,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
-public interface IPQLastPaidGivenTrade : IPQLastTrade, IMutableLastPaidGivenTrade, ITrackableReset<IPQLastPaidGivenTrade>
+public interface IPQLastPaidGivenTrade : IPQLastTrade, IMutableLastPaidGivenTrade, ITrackableReset<IPQLastPaidGivenTrade>, ICloneable<IPQLastPaidGivenTrade>
 {
     bool IsOrderIdUpdated { get; set; }
     bool IsWasPaidUpdated      { get; set; }
@@ -39,6 +40,11 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
 
     private decimal tradeVolume;
     private uint    orderId;
+
+    public PQLastPaidGivenTrade()
+    {
+        if (GetType() == typeof(PQLastPaidGivenTrade)) NumUpdatesSinceEmpty = 0;
+    }
 
     public PQLastPaidGivenTrade
     (uint tradeId = 0, uint batchId = 0, decimal tradePrice = 0m, DateTime? tradeDateTime = null, decimal tradeVolume = 0m
@@ -248,7 +254,18 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public override ILastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    ILastPaidGivenTrade ILastPaidGivenTrade.Clone() => Clone();
+
+    IMutableLastPaidGivenTrade IMutableLastPaidGivenTrade.Clone() => Clone();
+
+    IPQLastPaidGivenTrade IPQLastPaidGivenTrade.Clone() => Clone();
+
+    IPQLastPaidGivenTrade ICloneable<IPQLastPaidGivenTrade>.Clone() => Clone();
+
+    public override PQLastPaidGivenTrade Clone() => 
+        Recycler?.Borrow<PQLastPaidGivenTrade>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new PQLastPaidGivenTrade(this);
+
+    public override PQLastPaidGivenTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is not ILastPaidGivenTrade lpgt) return this;
@@ -294,14 +311,6 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
 
         return this;
     }
-
-    public override IMutableLastTrade Clone() => new PQLastPaidGivenTrade(this);
-
-    ILastPaidGivenTrade ILastPaidGivenTrade.Clone() => (ILastPaidGivenTrade)Clone();
-
-    IMutableLastPaidGivenTrade IMutableLastPaidGivenTrade.Clone() => (IMutableLastPaidGivenTrade)Clone();
-
-    IPQLastPaidGivenTrade IPQLastPaidGivenTrade.Clone() => (IPQLastPaidGivenTrade)Clone();
 
     public override bool AreEquivalent(ILastTrade? other, bool exactTypes = false)
     {

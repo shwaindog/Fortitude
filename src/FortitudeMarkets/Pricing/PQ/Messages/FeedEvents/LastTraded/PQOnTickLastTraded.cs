@@ -2,6 +2,7 @@
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
@@ -18,12 +19,33 @@ public class PQOnTickLastTraded : PQLastTradedList, IPQOnTickLastTraded
 {
     public PQOnTickLastTraded() { }
     public PQOnTickLastTraded(ISourceTickerInfo sourceTickerInfo) : base(sourceTickerInfo) { }
+
+    public PQOnTickLastTraded(ISourceTickerInfo sourceTickerInfo, IPQNameIdLookupGenerator nameIdLookup) 
+        : base(sourceTickerInfo, nameIdLookup) { }
+
+    public PQOnTickLastTraded(IPQNameIdLookupGenerator nameIdLookup) : base(nameIdLookup) { }
     public PQOnTickLastTraded(IEnumerable<IPQLastTrade> lastTrades) : base(lastTrades) { }
     public PQOnTickLastTraded(IList<IPQLastTrade> lastTrades) : base(lastTrades) { }
-    public PQOnTickLastTraded(IOnTickLastTraded toClone) : base(toClone) { }
-    public PQOnTickLastTraded(IPQOnTickLastTraded toClone) : this((IOnTickLastTraded)toClone) { }
-    public PQOnTickLastTraded(PQOnTickLastTraded toClone) : this((IOnTickLastTraded)toClone) { }
+    public PQOnTickLastTraded(IOnTickLastTraded toClone, IPQNameIdLookupGenerator? nameIdLookup = null) : base(toClone) { }
 
+    public PQOnTickLastTraded(IPQOnTickLastTraded toClone, IPQNameIdLookupGenerator? nameIdLookup = null) 
+        : this((IOnTickLastTraded)toClone, nameIdLookup) { }
+
+    public PQOnTickLastTraded(PQOnTickLastTraded toClone, IPQNameIdLookupGenerator? nameIdLookup = null) 
+        : this((IOnTickLastTraded)toClone, nameIdLookup) { }
+
+
+    public bool IsEmpty
+    {
+        get => LastTrades.All(lt => lt.IsEmpty);
+        set
+        {
+            foreach (var lastTrade in LastTrades)
+            { 
+                lastTrade.IsEmpty = value;
+            }
+        }
+    }
 
     IMutableOnTickLastTraded ITrackableReset<IMutableOnTickLastTraded>.ResetWithTracking() => ResetWithTracking();
 
@@ -38,9 +60,6 @@ public class PQOnTickLastTraded : PQLastTradedList, IPQOnTickLastTraded
         base.ResetWithTracking();
         return this;
     }
-
-    bool IInterfacesComparable<IOnTickLastTraded>.AreEquivalent(IOnTickLastTraded? other, bool exactTypes) => AreEquivalent(other, exactTypes);
-
 
     IOnTickLastTraded IOnTickLastTraded.Clone() => Clone();
 
@@ -63,6 +82,8 @@ public class PQOnTickLastTraded : PQLastTradedList, IPQOnTickLastTraded
         base.CopyFrom(source, copyMergeFlags);
         return this;
     }
+
+    bool IInterfacesComparable<IOnTickLastTraded>.AreEquivalent(IOnTickLastTraded? other, bool exactTypes) => AreEquivalent(other, exactTypes);
 
     public override string ToString() => $"{nameof(PQOnTickLastTraded)}{{{PQLastTradedListToStringMembers}}}";
 }

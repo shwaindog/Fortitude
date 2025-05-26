@@ -10,7 +10,7 @@ using MathNet.Numerics.Distributions;
 
 #endregion
 
-namespace FortitudeMarkets.Pricing.Generators.Quotes.LastTraded;
+namespace FortitudeMarkets.Pricing.FeedEvents.Generators.Quotes.LastTraded;
 
 public struct GenerateLastTradeInfo
 {
@@ -33,7 +33,7 @@ public struct GenerateLastTradeInfo
 
 public interface ILastTradedGenerator
 {
-    void PopulateLevel3LastTraded(IMutableLevel3Quote level3Quote, MidPriceTimePair midPriceTimePair);
+    void PopulateLevel3LastTraded(IMutablePublishableLevel3Quote level3Quote, MidPriceTimePair midPriceTimePair);
 }
 
 public class LastTradedGenerator : ILastTradedGenerator
@@ -47,7 +47,7 @@ public class LastTradedGenerator : ILastTradedGenerator
 
     public LastTradedGenerator(GenerateLastTradeInfo generateLastTradeInfo) => GenerateLastTradeInfo = generateLastTradeInfo;
 
-    public void PopulateLevel3LastTraded(IMutableLevel3Quote level3Quote, MidPriceTimePair midPriceTimePair)
+    public void PopulateLevel3LastTraded(IMutablePublishableLevel3Quote level3Quote, MidPriceTimePair midPriceTimePair)
     {
         if (!GenerateLastTradeInfo.GenerateLastTrades) return;
         var prev = midPriceTimePair.PreviousMid;
@@ -83,7 +83,7 @@ public class LastTradedGenerator : ILastTradedGenerator
     }
 
     protected virtual void PopulateLastTrades
-        (IMutableLevel3Quote level3Quote, int numberOfTrades, MidPriceTimePair midPriceTimePair)
+        (IMutablePublishableLevel3Quote level3Quote, int numberOfTrades, MidPriceTimePair midPriceTimePair)
     {
         var recentlyTraded = level3Quote.OnTickLastTraded!;
         InitializeRecentlyTraded(recentlyTraded);
@@ -125,7 +125,7 @@ public class LastTradedGenerator : ILastTradedGenerator
     }
 
     protected virtual void PopulateLastPaidGivenTrades
-        (IMutableLevel3Quote level3Quote, int numberOfTrades, MidPriceTimePair midPriceTimePair)
+        (IMutablePublishableLevel3Quote level3Quote, int numberOfTrades, MidPriceTimePair midPriceTimePair)
     {
         var recentlyTraded = level3Quote.OnTickLastTraded!;
 
@@ -170,7 +170,7 @@ public class LastTradedGenerator : ILastTradedGenerator
     }
 
     protected virtual void PopulateLastTraderPaidGivenTrades
-        (IMutableLevel3Quote level3Quote, int numberOfTrades, MidPriceTimePair midPriceTimePair)
+        (IMutablePublishableLevel3Quote level3Quote, int numberOfTrades, MidPriceTimePair midPriceTimePair)
     {
         var recentlyTraded = level3Quote.OnTickLastTraded!;
 

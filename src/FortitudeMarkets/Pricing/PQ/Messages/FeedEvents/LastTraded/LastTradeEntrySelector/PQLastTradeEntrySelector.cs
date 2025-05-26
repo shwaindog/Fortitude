@@ -56,7 +56,7 @@ public class PQLastTradeEntrySelector(IPQNameIdLookupGenerator nameIdLookup) : L
 
         if (original.GetType() != desired.GetType() &&
             !TypeCanWhollyContain(desired.GetType(), original.GetType()))
-            return new PQLastExternalCounterPartyTrade(original, nameIdLookup);
+            return ConvertToExpectedImplementation(desired, nameIdLookup, true);
         return original;
     }
 
@@ -64,10 +64,17 @@ public class PQLastTradeEntrySelector(IPQNameIdLookupGenerator nameIdLookup) : L
     {
         switch (checkLastTrade)
         {
-            case PQLastExternalCounterPartyTrade pqLastTradedPaidGivenTrade:
-                return new PQLastExternalCounterPartyTrade(pqLastTradedPaidGivenTrade, nameIdLookup);
-            case PQLastTrade pqLastTrade:                return clone ? ((IPQLastTrade)pqLastTrade).Clone() : pqLastTrade;
-            case ILastExternalCounterPartyTrade:              return new PQLastExternalCounterPartyTrade(checkLastTrade, nameIdLookup);
+            case PQLastExternalCounterPartyTrade pqLastExtCpTrade:
+                var extCpConvert = clone ? pqLastExtCpTrade.Clone() : pqLastExtCpTrade;
+                extCpConvert.NameIdLookup = nameIdLookup;
+                return extCpConvert;
+            case PQLastPaidGivenTrade pqLastPaidGiven:   
+                var paidGivenConvert = clone ? pqLastPaidGiven.Clone() : pqLastPaidGiven;
+                return paidGivenConvert;
+            case PQLastTrade pqLastTrade:                
+                var lastTradeConvert = clone ? pqLastTrade.Clone() : pqLastTrade;
+                return lastTradeConvert;
+            case ILastExternalCounterPartyTrade:         return new PQLastExternalCounterPartyTrade(checkLastTrade, nameIdLookup);
             case ILastPaidGivenTrade lastPaidGivenTrade: return new PQLastPaidGivenTrade(lastPaidGivenTrade);
             default:                                     return new PQLastTrade(checkLastTrade);
         }

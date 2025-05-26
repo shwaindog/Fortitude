@@ -41,19 +41,20 @@ public class PQLastTradeEntrySelectorTests
     private const int ExpectedTraderId       = 34_902;
     private const int ExpectedCounterPartyId = 2_198;
 
-    private const string               ExpectedTraderName       = "TraderName-Anatoly";
-    private const string               ExpectedCounterPartyName = "CounterPartyName-Valcopp";
-    private       LastPaidGivenTrade   paidGivenLastTrade       = null!;
-    private       PQLastPaidGivenTrade pqPaidGivenLastTrade     = null!;
+    private const string ExpectedTraderName       = "TraderName-Anatoly";
+    private const string ExpectedCounterPartyName = "CounterPartyName-Valcopp";
 
-    private PQLastTradeEntrySelector entrySelector = null!;
-    private PQLastTrade                pqSimpleLastTrade          = null!;
-    private IPQSourceTickerInfo        pqSourceTickerInfo         = null!;
+    private LastPaidGivenTrade   paidGivenLastTrade   = null!;
+    private PQLastPaidGivenTrade pqPaidGivenLastTrade = null!;
+
+    private PQLastTradeEntrySelector        entrySelector                   = null!;
+    private PQLastTrade                     pqSimpleLastTrade               = null!;
+    private IPQSourceTickerInfo             pqSourceTickerInfo              = null!;
     private PQLastExternalCounterPartyTrade pqExternalCounterPartyLastTrade = null!;
 
     private LastTrade simpleLastTrade = null!;
 
-    private IPQNameIdLookupGenerator traderNameIdGenerator    = null!;
+    private IPQNameIdLookupGenerator      traderNameIdGenerator         = null!;
     private LastExternalCounterPartyTrade externalCounterPartyLastTrade = null!;
 
     [TestInitialize]
@@ -62,26 +63,26 @@ public class PQLastTradeEntrySelectorTests
         traderNameIdGenerator = new PQNameIdLookupGenerator(PQFeedFields.LastTradedStringUpdates);
         entrySelector         = new PQLastTradeEntrySelector(traderNameIdGenerator);
 
-        simpleLastTrade       = new LastTrade(ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradedTypeFlags
-                                            , ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime, ExpectedUpdateTime);
-        paidGivenLastTrade    = 
+        simpleLastTrade = new LastTrade(ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradedTypeFlags
+                                      , ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime, ExpectedUpdateTime);
+        paidGivenLastTrade =
             new LastPaidGivenTrade
                 (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedOrderId, ExpectedWasPaid
                , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
                , ExpectedUpdateTime);
-        externalCounterPartyLastTrade = 
+        externalCounterPartyLastTrade =
             new LastExternalCounterPartyTrade
                 (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedCounterPartyId
                , ExpectedCounterPartyName, ExpectedTraderId, ExpectedTraderName, ExpectedOrderId, ExpectedWasPaid, ExpectedWasGiven
                , ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime, ExpectedUpdateTime);
         pqSimpleLastTrade = new PQLastTrade(ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradedTypeFlags
                                           , ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime, ExpectedUpdateTime);
-        pqPaidGivenLastTrade = 
+        pqPaidGivenLastTrade =
             new PQLastPaidGivenTrade
                 (ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume, ExpectedOrderId, ExpectedWasPaid
                , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
                , ExpectedUpdateTime);
-        pqExternalCounterPartyLastTrade = 
+        pqExternalCounterPartyLastTrade =
             new PQLastExternalCounterPartyTrade
                 (traderNameIdGenerator, ExpectedTradeId, ExpectedBatchId, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume
                , ExpectedCounterPartyId, ExpectedCounterPartyName, ExpectedTraderId, ExpectedTraderName, ExpectedOrderId, ExpectedWasPaid
@@ -241,7 +242,7 @@ public class PQLastTradeEntrySelectorTests
         var pqLastPaidGivenEntry = pqLastTradeEntry as PQLastPaidGivenTrade;
         Assert.IsNotNull(pqLastPaidGivenEntry);
         Assert.AreSame(pqLastTradeEntry, pqPaidGivenLastTrade);
-        pqLastTradeEntry = entrySelector.ConvertToExpectedImplementation(pqExternalCounterPartyLastTrade, traderNameIdGenerator);
+        pqLastTradeEntry = entrySelector.ConvertToExpectedImplementation(pqExternalCounterPartyLastTrade, traderNameIdGenerator, true);
         var pqLastTraderPaidGivenEntry = pqLastTradeEntry as PQLastExternalCounterPartyTrade;
         Assert.IsNotNull(pqLastTraderPaidGivenEntry);
         Assert.AreNotSame(pqLastTradeEntry, pqExternalCounterPartyLastTrade);
@@ -295,7 +296,7 @@ public class PQLastTradeEntrySelectorTests
         Assert.AreSame(result, pqExternalCounterPartyLastTrade);
         result = entrySelector.SelectLastTradeEntry(pqSimpleLastTrade, traderNameIdGenerator.Clone(), paidGivenLastTrade);
         Assert.AreNotSame(result, pqSimpleLastTrade);
-        Assert.IsInstanceOfType(result, typeof(PQLastExternalCounterPartyTrade));
+        Assert.IsInstanceOfType(result, typeof(PQLastPaidGivenTrade));
         Assert.IsTrue(pqSimpleLastTrade.AreEquivalent(result));
         result = entrySelector.SelectLastTradeEntry(pqPaidGivenLastTrade, traderNameIdGenerator.Clone(), paidGivenLastTrade);
         Assert.AreSame(result, pqPaidGivenLastTrade);
@@ -316,8 +317,8 @@ public class PQLastTradeEntrySelectorTests
     [TestMethod]
     public void PQLastTradeEntries_SelectLastTradeEntry_UpgradesLayerToTraderLastPaidEntryIfCantContain()
     {
-        var desiredType = pqSimpleLastTrade.Clone();
-        var result      = entrySelector.SelectLastTradeEntry(pqSimpleLastTrade, traderNameIdGenerator.Clone(), desiredType);
+        ILastTrade desiredType = pqSimpleLastTrade.Clone();
+        var          result      = entrySelector.SelectLastTradeEntry(pqSimpleLastTrade, traderNameIdGenerator.Clone(), desiredType);
         Assert.AreSame(result, pqSimpleLastTrade);
         result = entrySelector.SelectLastTradeEntry(pqPaidGivenLastTrade, traderNameIdGenerator.Clone(), desiredType);
         Assert.AreSame(result, pqPaidGivenLastTrade);
@@ -326,7 +327,7 @@ public class PQLastTradeEntrySelectorTests
         desiredType = paidGivenLastTrade.Clone();
         result      = entrySelector.SelectLastTradeEntry(pqSimpleLastTrade, traderNameIdGenerator.Clone(), desiredType);
         Assert.AreNotSame(result, pqSimpleLastTrade);
-        Assert.IsInstanceOfType(result, typeof(PQLastExternalCounterPartyTrade));
+        Assert.IsInstanceOfType(result, typeof(PQLastPaidGivenTrade));
         Assert.IsTrue(pqSimpleLastTrade.AreEquivalent(result));
         result = entrySelector.SelectLastTradeEntry(pqPaidGivenLastTrade, traderNameIdGenerator.Clone(), desiredType);
         Assert.AreSame(result, pqPaidGivenLastTrade);

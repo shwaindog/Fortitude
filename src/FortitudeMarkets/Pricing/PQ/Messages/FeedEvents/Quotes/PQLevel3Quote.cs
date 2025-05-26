@@ -24,8 +24,6 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 public interface IPQLevel3Quote : IPQLevel2Quote, IMutableLevel3Quote, ITrackableReset<IPQLevel3Quote>
 {
-    new IPQOnTickLastTraded? OnTickLastTraded { get; set; }
-
     bool IsValueDateUpdated            { get; set; }
     bool IsBatchIdUpdated              { get; set; }
     bool IsSourceQuoteReferenceUpdated { get; set; }
@@ -42,7 +40,7 @@ public interface IPQPublishableLevel3Quote : IPQPublishableLevel2Quote, IMutable
   , IDoublyLinkedListNode<IPQPublishableLevel3Quote>, ITrackableReset<IPQPublishableLevel3Quote>
 {
     new IPQOnTickLastTraded? OnTickLastTraded { get; set; }
-
+    
     new IPQLevel3Quote AsNonPublishable { get; }
 
     new IPQPublishableLevel3Quote? Next     { get; set; }
@@ -61,8 +59,6 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
 
     private uint batchId;
 
-    private IPQOnTickLastTraded? onTickLastTraded;
-
     private uint     sourceQuoteRef;
     private DateTime valueDate;
 
@@ -74,34 +70,16 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
     }
 
     // Reflection invoked constructor (PQServer<T>)
-    public PQLevel3Quote(ISourceTickerInfo sourceTickerInfo) : this(sourceTickerInfo, singlePrice: 0m)
-    {
-        if (sourceTickerInfo.LastTradedFlags != LastTradedFlags.None)
-        {
-            onTickLastTraded ??= new PQOnTickLastTraded();
-        }
-    }
+    public PQLevel3Quote(ISourceTickerInfo sourceTickerInfo) : this(sourceTickerInfo, singlePrice: 0m) { }
 
     public PQLevel3Quote
-    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, IOrderBook? orderBook = null, IOnTickLastTraded? onTickLastTraded = null
+    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, IOrderBook? orderBook = null
       , uint batchId = 0u, uint sourceQuoteRef = 0u, DateTime? valueDate = null
       , bool isBidPriceTopChanged = false, bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null
       , DateTime? validFrom = null, DateTime? validTo = null, bool executable = true, decimal singlePrice = 0m)
         : base(sourceTickerInfo, sourceTime, orderBook, isBidPriceTopChanged, isAskPriceTopChanged, sourceBidTime, sourceAskTime
              , validFrom, validTo, executable, singlePrice)
     {
-        if (onTickLastTraded is IPQOnTickLastTraded pqRecentlyTraded)
-        {
-            this.onTickLastTraded = pqRecentlyTraded;
-        }
-        else if (onTickLastTraded != null)
-        {
-            this.onTickLastTraded = new PQOnTickLastTraded(onTickLastTraded);
-        }
-        else if (sourceTickerInfo.LastTradedFlags != LastTradedFlags.None)
-        {
-            this.onTickLastTraded = new PQOnTickLastTraded(sourceTickerInfo);
-        }
         BatchId              = batchId;
         SourceQuoteReference = sourceQuoteRef;
         ValueDate            = valueDate ?? DateTime.MinValue;
@@ -116,28 +94,17 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
             BatchId              = ipql3QToClone.BatchId;
             SourceQuoteReference = ipql3QToClone.SourceQuoteReference;
             ValueDate            = ipql3QToClone.ValueDate;
-            onTickLastTraded     = ipql3QToClone?.OnTickLastTraded?.Clone();
         }
         else if (toClone is ILevel3Quote l3QToClone)
         {
             BatchId              = l3QToClone.BatchId;
             SourceQuoteReference = l3QToClone.SourceQuoteReference;
             ValueDate            = l3QToClone.ValueDate;
-            if (l3QToClone.OnTickLastTraded != null)
-            {
-                onTickLastTraded = new PQOnTickLastTraded(l3QToClone.OnTickLastTraded);
-            }
         }
         SetFlagsSame(toClone);
 
         if (GetType() == typeof(PQLevel3Quote)) NumOfUpdates = 0;
     }
-
-    public override string QuoteToStringMembers =>
-        $"{base.QuoteToStringMembers}, {nameof(BatchId)}: {BatchId}, {nameof(SourceQuoteReference)}: {SourceQuoteReference}, " +
-        $"{nameof(ValueDate)}: {ValueDate}, {nameof(OnTickLastTraded)}: {OnTickLastTraded}";
-
-    public override PQLevel3Quote Clone() => Recycler?.Borrow<PQLevel3Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new PQLevel3Quote(this);
 
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -215,39 +182,11 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         }
     }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public IPQOnTickLastTraded? OnTickLastTraded
-    {
-        get => onTickLastTraded;
-        set => onTickLastTraded = value as PQOnTickLastTraded;
-    }
-
-    [JsonIgnore]
-    IMutableOnTickLastTraded? IMutableLevel3Quote.OnTickLastTraded
-    {
-        get => OnTickLastTraded;
-        set => OnTickLastTraded = value as IPQOnTickLastTraded;
-    }
-
-    [JsonIgnore] IOnTickLastTraded? ILevel3Quote.OnTickLastTraded => OnTickLastTraded;
-
     [JsonIgnore]
     public override bool HasUpdates
     {
-        get =>
-            base.HasUpdates || (onTickLastTraded?.HasUpdates ?? false) || IsBatchIdUpdated ||
-            IsSourceQuoteReferenceUpdated || IsValueDateUpdated;
-        set
-        {
-            base.HasUpdates = IsBatchIdUpdated                        = IsSourceQuoteReferenceUpdated = IsValueDateUpdated = value;
-            if (onTickLastTraded != null) onTickLastTraded.HasUpdates = value;
-        }
-    }
-
-    public override void UpdateComplete()
-    {
-        onTickLastTraded?.UpdateComplete();
-        base.UpdateComplete();
+        get => base.HasUpdates;
+        set => base.HasUpdates = value;
     }
 
     IMutableLevel3Quote ITrackableReset<IMutableLevel3Quote>.ResetWithTracking() => ResetWithTracking();
@@ -260,8 +199,6 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
 
     public override PQLevel3Quote ResetWithTracking()
     {
-        onTickLastTraded?.StateReset();
-
         BatchId   = SourceQuoteReference = 0;
         ValueDate = default;
         base.ResetWithTracking();
@@ -278,10 +215,6 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime,
                                                                messageFlags, quotePublicationPrecisionSetting))
             yield return updatedField;
-        if (onTickLastTraded != null)
-            foreach (var recentlyTradedFields in onTickLastTraded.GetDeltaUpdateFields(snapShotTime,
-                                                                                       messageFlags, quotePublicationPrecisionSetting))
-                yield return recentlyTradedFields;
         if (!updatedOnly || IsBatchIdUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteBatchId, BatchId);
 
         if (!updatedOnly || IsSourceQuoteReferenceUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteSourceQuoteRef, SourceQuoteReference);
@@ -291,75 +224,37 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
-        if (pqFieldUpdate.Id == PQFeedFields.LastTradedStringUpdates) return (int)pqFieldUpdate.Payload;
-        if (onTickLastTraded != null
-         && pqFieldUpdate.Id is >= PQFeedFields.LastTradedTickTrades and <= PQFeedFields.LastTradedRecentlyByPeriod)
-            return onTickLastTraded!.UpdateField(pqFieldUpdate);
-        if (pqFieldUpdate.Id == PQFeedFields.QuoteBatchId)
+        switch (pqFieldUpdate.Id)
         {
-            IsBatchIdUpdated = true; // incase of reset and sending 0;
-            BatchId          = pqFieldUpdate.Payload;
-            return 0;
-        }
-
-        if (pqFieldUpdate.Id == PQFeedFields.QuoteSourceQuoteRef)
-        {
-            IsSourceQuoteReferenceUpdated = true; // incase of reset and sending 0;
-            SourceQuoteReference          = pqFieldUpdate.Payload;
-            return 0;
-        }
-
-        if (pqFieldUpdate.Id == PQFeedFields.QuoteValueDate)
-        {
-            IsValueDateUpdated = true; // incase of reset and sending 0;
-            PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref valueDate, pqFieldUpdate.Payload);
-            if (valueDate == DateTime.UnixEpoch) valueDate = default;
-            return 0;
+            case PQFeedFields.QuoteBatchId:
+                IsBatchIdUpdated = true; // incase of reset and sending 0;
+                BatchId          = pqFieldUpdate.Payload;
+                return 0;
+            case PQFeedFields.QuoteSourceQuoteRef:
+                IsSourceQuoteReferenceUpdated = true; // incase of reset and sending 0;
+                SourceQuoteReference          = pqFieldUpdate.Payload;
+                return 0;
+            case PQFeedFields.QuoteValueDate:
+                IsValueDateUpdated = true; // incase of reset and sending 0;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref valueDate, pqFieldUpdate.Payload);
+                if (valueDate == DateTime.UnixEpoch) valueDate = default;
+                return 0;
         }
 
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
-    {
-        foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, messageFlags)) yield return pqFieldStringUpdate;
-        if (onTickLastTraded != null)
-            foreach (var stringUpdate in onTickLastTraded.GetStringUpdates(snapShotTime, messageFlags))
-                yield return stringUpdate;
-    }
 
     public override bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
     {
         var found = base.UpdateFieldString(stringUpdate);
-        if (found) return true;
-        if (stringUpdate.Field.Id == PQFeedFields.LastTradedStringUpdates)
-        {
-            onTickLastTraded ??= new PQOnTickLastTraded();
-            return onTickLastTraded.UpdateFieldString(stringUpdate);
-        }
 
-        return false;
+        return found;
     }
 
     public override void EnsureRelatedItemsAreConfigured(ITickInstant? quote)
     {
         base.EnsureRelatedItemsAreConfigured(quote);
-        if (quote is IPQLevel3Quote pqLevel3Quote)
-        {
-            if (pqLevel3Quote.OnTickLastTraded != null)
-            {
-                onTickLastTraded ??= new PQOnTickLastTraded(pqLevel3Quote.OnTickLastTraded!);
-            }
-            onTickLastTraded?.EnsureRelatedItemsAreConfigured(pqLevel3Quote.OnTickLastTraded?.NameIdLookup);
-        }
-        if (quote is IPQPublishableLevel3Quote pqPubL3Quote)
-        {
-            if (pqPubL3Quote.OnTickLastTraded != null || pqPubL3Quote.SourceTickerInfo?.LastTradedFlags != LastTradedFlags.None)
-            {
-                onTickLastTraded ??= new PQOnTickLastTraded(pqPubL3Quote.SourceTickerInfo!);
-            }
-            onTickLastTraded?.EnsureRelatedItemsAreConfigured(pqPubL3Quote.OnTickLastTraded?.NameIdLookup);
-        }
     }
 
     ILevel3Quote ICloneable<ILevel3Quote>.Clone() => Clone();
@@ -370,17 +265,17 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
 
     IPQLevel3Quote IPQLevel3Quote.Clone() => Clone();
 
+    public override PQLevel3Quote Clone() => Recycler?.Borrow<PQLevel3Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new PQLevel3Quote(this);
+
     public override bool AreEquivalent(ITickInstant? other, bool exactTypes = false)
     {
         if (other is not IPQLevel3Quote && exactTypes) return false;
         if (other is not ILevel3Quote otherL3) return false;
-        var baseSame = base.AreEquivalent(otherL3, exactTypes);
-        var recentlyTradedSame = onTickLastTraded?.AreEquivalent(otherL3.OnTickLastTraded, exactTypes)
-                              ?? otherL3.OnTickLastTraded == null;
+        var baseSame             = base.AreEquivalent(otherL3, exactTypes);
         var batchIdSame          = batchId == otherL3.BatchId;
         var sourceSequenceIdSame = sourceQuoteRef == otherL3.SourceQuoteReference;
         var valueDateSame        = ValueDate == otherL3.ValueDate;
-        var allAreSame           = baseSame && recentlyTradedSame && batchIdSame && sourceSequenceIdSame && valueDateSame;
+        var allAreSame           = baseSame && batchIdSame && sourceSequenceIdSame && valueDateSame;
         return allAreSame;
     }
 
@@ -392,21 +287,12 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         var pql3Q = source as IPQLevel3Quote;
         if (pql3Q == null && source is ILevel3Quote l3Q)
         {
-            // Only copy if changed
-            if (onTickLastTraded == null && l3Q.OnTickLastTraded != null)
-                onTickLastTraded = new PQOnTickLastTraded(l3Q.OnTickLastTraded);
-            else if (l3Q.OnTickLastTraded != null) onTickLastTraded?.CopyFrom(l3Q.OnTickLastTraded, copyMergeFlags);
             BatchId              = l3Q.BatchId;
             SourceQuoteReference = l3Q.SourceQuoteReference;
             ValueDate            = l3Q.ValueDate;
         }
         else if (pql3Q != null)
         {
-            // Only copy if changed
-            if (onTickLastTraded == null && pql3Q.OnTickLastTraded != null)
-                onTickLastTraded = pql3Q.OnTickLastTraded.Clone();
-            else if (pql3Q.OnTickLastTraded != null) onTickLastTraded?.CopyFrom(pql3Q.OnTickLastTraded, copyMergeFlags);
-
             var hasFullReplace = copyMergeFlags.HasFullReplace();
 
             if (pql3Q.IsBatchIdUpdated || hasFullReplace) BatchId                           = pql3Q.BatchId;
@@ -427,13 +313,16 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         unchecked
         {
             var hashCode = base.GetHashCode();
-            hashCode = (hashCode * 397) ^ (onTickLastTraded != null ? onTickLastTraded.GetHashCode() : 0);
             hashCode = (hashCode * 397) ^ (int)batchId;
             hashCode = (hashCode * 397) ^ (int)sourceQuoteRef;
             hashCode = (hashCode * 397) ^ valueDate.GetHashCode();
             return hashCode;
         }
     }
+
+    public override string QuoteToStringMembers =>
+        $"{base.QuoteToStringMembers}, {nameof(BatchId)}: {BatchId}, {nameof(SourceQuoteReference)}: {SourceQuoteReference}, " +
+        $"{nameof(ValueDate)}: {ValueDate}";
 
     public override string ToString() => $"{GetType().Name}({QuoteToStringMembers}, {UpdatedFlagsToString})";
 }
@@ -443,6 +332,8 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQPublishableLevel3Quote));
 
+    private IPQOnTickLastTraded? onTickLastTraded;
+
     public PQPublishableLevel3Quote()
     {
         // recentlyTraded = new PQRecentlyTraded();
@@ -451,24 +342,44 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
     }
 
     // Reflection invoked constructor (PQServer<T>)
-    public PQPublishableLevel3Quote(ISourceTickerInfo sourceTickerInfo) : this(sourceTickerInfo, singlePrice: 0m) { }
+    public PQPublishableLevel3Quote(ISourceTickerInfo sourceTickerInfo) : this(sourceTickerInfo, singlePrice: 0m)
+    {
+        if (sourceTickerInfo.LastTradedFlags != LastTradedFlags.None)
+        {
+            onTickLastTraded ??= new PQOnTickLastTraded();
+        }
+    }
 
     public PQPublishableLevel3Quote
-    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null , IOrderBook? orderBook = null, IOnTickLastTraded? onTickLastTraded = null
+    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, IOrderBook? orderBook = null, IOnTickLastTraded? onTickLastTraded = null
       , uint batchId = 0u, uint sourceQuoteRef = 0u, DateTime? valueDate = null, DateTime? sourceBidTime = null, bool isBidPriceTopChanged = false
-      , DateTime? sourceAskTime = null, DateTime? validFrom = null, DateTime? validTo = null, bool isAskPriceTopChanged = false, bool executable = true
+      , DateTime? sourceAskTime = null, DateTime? validFrom = null, DateTime? validTo = null, bool isAskPriceTopChanged = false
+      , bool executable = true
       , FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good, FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None
       , decimal singlePrice = 0m, ICandle? conflationTicksCandle = null)
         : this(new PQLevel3Quote
-                   (sourceTickerInfo, sourceTime, orderBook, onTickLastTraded, batchId, sourceQuoteRef, valueDate, isBidPriceTopChanged, isAskPriceTopChanged
+                   (sourceTickerInfo, sourceTime, orderBook, batchId, sourceQuoteRef, valueDate, isBidPriceTopChanged, isAskPriceTopChanged
                   , sourceBidTime, sourceAskTime, validFrom, validTo, executable, singlePrice),
-               sourceTickerInfo, feedSyncStatus, feedConnectivityStatus, conflationTicksCandle) { }
+               sourceTickerInfo, onTickLastTraded, feedSyncStatus, feedConnectivityStatus, conflationTicksCandle) { }
 
     protected PQPublishableLevel3Quote
-    (IPQTickInstant? initializedQuoteContainer, ISourceTickerInfo sourceTickerInfo, FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good
-      , FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None, ICandle? conflationTicksCandle = null)
-        : base(initializedQuoteContainer, sourceTickerInfo, feedSyncStatus,feedConnectivityStatus, conflationTicksCandle)
+    (IPQTickInstant? initializedQuoteContainer, ISourceTickerInfo sourceTickerInfo, IOnTickLastTraded? onTickLastTraded = null
+      , FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good, FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None
+      , ICandle? conflationTicksCandle = null)
+        : base(initializedQuoteContainer, sourceTickerInfo, feedSyncStatus, feedConnectivityStatus, conflationTicksCandle)
     {
+        if (onTickLastTraded is IPQOnTickLastTraded pqRecentlyTraded)
+        {
+            this.onTickLastTraded = pqRecentlyTraded;
+        }
+        else if (onTickLastTraded != null)
+        {
+            this.onTickLastTraded = new PQOnTickLastTraded(onTickLastTraded);
+        }
+        else if (sourceTickerInfo.LastTradedFlags != LastTradedFlags.None)
+        {
+            this.onTickLastTraded = new PQOnTickLastTraded(sourceTickerInfo);
+        }
         if (GetType() == typeof(PQPublishableLevel3Quote)) NumOfUpdates = 0;
     }
 
@@ -477,6 +388,14 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
     protected PQPublishableLevel3Quote(IPublishableTickInstant toClone, IPQTickInstant? initializedQuoteContainer)
         : base(toClone, initializedQuoteContainer)
     {
+        if (toClone is IPQPublishableLevel3Quote ipql3QToClone)
+        {
+            onTickLastTraded = ipql3QToClone?.OnTickLastTraded?.Clone();
+        }
+        else if (toClone is IPublishableLevel3Quote { OnTickLastTraded: not null } l3QToClone)
+        {
+            onTickLastTraded = new PQOnTickLastTraded(l3QToClone.OnTickLastTraded);
+        }
         SetFlagsSame(toClone);
 
         if (GetType() == typeof(PQPublishableLevel3Quote)) NumOfUpdates = 0;
@@ -488,18 +407,74 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
 
     protected override IPQLevel3Quote CreateQuoteContainerFromTickerInfo(ISourceTickerInfo tickerInfo) => new PQLevel3Quote(tickerInfo);
 
-    public override PQPublishableLevel3Quote Clone() =>
-        Recycler?.Borrow<PQPublishableLevel3Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) ??
-        new PQPublishableLevel3Quote(this, PQQuoteContainer.Clone());
+    ILevel3Quote IPublishableLevel3Quote.AsNonPublishable => AsNonPublishable;
+
+    IMutableLevel3Quote IMutablePublishableLevel3Quote.AsNonPublishable => AsNonPublishable;
 
 
-    ILevel3Quote ICloneable<ILevel3Quote>.Clone() => Clone();
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IPQOnTickLastTraded? OnTickLastTraded
+    {
+        get => onTickLastTraded;
+        set => onTickLastTraded = value as PQOnTickLastTraded;
+    }
 
-    ILevel3Quote ILevel3Quote.Clone() => Clone();
+    [JsonIgnore]
+    IMutableOnTickLastTraded? IMutablePublishableLevel3Quote.OnTickLastTraded
+    {
+        get => OnTickLastTraded;
+        set => OnTickLastTraded = value as IPQOnTickLastTraded;
+    }
 
-    IMutableLevel3Quote IMutableLevel3Quote.Clone() => Clone();
+    [JsonIgnore] IOnTickLastTraded? IPublishableLevel3Quote.OnTickLastTraded => OnTickLastTraded;
 
-    IPQLevel3Quote IPQLevel3Quote.Clone() => Clone();
+    [JsonIgnore] public override TickerQuoteDetailLevel TickerQuoteDetailLevel => TickerQuoteDetailLevel.Level3Quote;
+
+    public override IPQLevel3Quote AsNonPublishable => (IPQLevel3Quote)PQQuoteContainer;
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public uint BatchId
+    {
+        get => AsNonPublishable.BatchId;
+        set => AsNonPublishable.BatchId = value;
+    }
+
+    [JsonIgnore]
+    public bool IsBatchIdUpdated
+    {
+        get => AsNonPublishable.IsBatchIdUpdated;
+        set => AsNonPublishable.IsBatchIdUpdated = value;
+    }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public uint SourceQuoteReference
+    {
+        get => AsNonPublishable.SourceQuoteReference;
+        set => AsNonPublishable.SourceQuoteReference = value;
+    }
+
+    [JsonIgnore]
+    public bool IsSourceQuoteReferenceUpdated
+    {
+        get => AsNonPublishable.IsSourceQuoteReferenceUpdated;
+        set => AsNonPublishable.IsSourceQuoteReferenceUpdated = value;
+    }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime ValueDate
+    {
+        get => AsNonPublishable.ValueDate;
+        set => AsNonPublishable.ValueDate = value;
+    }
+
+    [JsonIgnore]
+    public bool IsValueDateUpdated
+    {
+        get => AsNonPublishable.IsValueDateUpdated;
+        set => AsNonPublishable.IsValueDateUpdated = value;
+    }
+
 
     [JsonIgnore]
     public new PQPublishableLevel3Quote? Previous
@@ -571,87 +546,35 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
     }
 
-    [JsonIgnore] public override TickerQuoteDetailLevel TickerQuoteDetailLevel => TickerQuoteDetailLevel.Level3Quote;
-
-    public override IPQLevel3Quote AsNonPublishable => (IPQLevel3Quote)PQQuoteContainer;
-
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public uint BatchId
-    {
-        get => AsNonPublishable.BatchId;
-        set => AsNonPublishable.BatchId = value;
-    }
-
-    [JsonIgnore]
-    public bool IsBatchIdUpdated
-    {
-        get => AsNonPublishable.IsBatchIdUpdated;
-        set => AsNonPublishable.IsBatchIdUpdated = value;
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public uint SourceQuoteReference
-    {
-        get => AsNonPublishable.SourceQuoteReference;
-        set => AsNonPublishable.SourceQuoteReference = value;
-    }
-
-    [JsonIgnore]
-    public bool IsSourceQuoteReferenceUpdated
-    {
-        get => AsNonPublishable.IsSourceQuoteReferenceUpdated;
-        set => AsNonPublishable.IsSourceQuoteReferenceUpdated = value;
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTime ValueDate
-    {
-        get => AsNonPublishable.ValueDate;
-        set => AsNonPublishable.ValueDate = value;
-    }
-
-    [JsonIgnore]
-    public bool IsValueDateUpdated
-    {
-        get => AsNonPublishable.IsValueDateUpdated;
-        set => AsNonPublishable.IsValueDateUpdated = value;
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public IPQOnTickLastTraded? OnTickLastTraded
-    {
-        get => AsNonPublishable.OnTickLastTraded;
-        set => AsNonPublishable.OnTickLastTraded = value;
-    }
-
-    [JsonIgnore]
-    IMutableOnTickLastTraded? IMutableLevel3Quote.OnTickLastTraded
-    {
-        get => AsNonPublishable.OnTickLastTraded;
-        set => AsNonPublishable.OnTickLastTraded = value as IPQOnTickLastTraded;
-    }
-
-    [JsonIgnore] IOnTickLastTraded? ILevel3Quote.OnTickLastTraded => OnTickLastTraded;
-
     [JsonIgnore]
     public override bool HasUpdates
     {
-        get =>
-            base.HasUpdates || (OnTickLastTraded?.HasUpdates ?? false) || IsBatchIdUpdated ||
-            IsSourceQuoteReferenceUpdated || IsValueDateUpdated;
+        get => base.HasUpdates || (OnTickLastTraded?.HasUpdates ?? false);
         set
         {
-            base.HasUpdates = IsBatchIdUpdated = IsSourceQuoteReferenceUpdated = IsValueDateUpdated = value;
-            if (AsNonPublishable.OnTickLastTraded != null) AsNonPublishable.OnTickLastTraded.HasUpdates = value;
+            base.HasUpdates = value;
+            if (OnTickLastTraded != null) OnTickLastTraded.HasUpdates = value;
         }
     }
 
     public override void UpdateComplete()
     {
-        AsNonPublishable.OnTickLastTraded?.UpdateComplete();
+        OnTickLastTraded?.UpdateComplete();
         base.UpdateComplete();
     }
+
+    public override PQPublishableLevel3Quote Clone() =>
+        Recycler?.Borrow<PQPublishableLevel3Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) ??
+        new PQPublishableLevel3Quote(this, PQQuoteContainer.Clone());
+
+
+    ILevel3Quote ICloneable<ILevel3Quote>.Clone() => Clone();
+
+    ILevel3Quote ILevel3Quote.Clone() => Clone();
+
+    IMutableLevel3Quote IMutableLevel3Quote.Clone() => Clone();
+
+    IPQLevel3Quote IPQLevel3Quote.Clone() => Clone();
 
     IMutableLevel3Quote ITrackableReset<IMutableLevel3Quote>.ResetWithTracking() => ResetWithTracking();
 
@@ -671,10 +594,8 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
 
     public override PQPublishableLevel3Quote ResetWithTracking()
     {
-        AsNonPublishable.OnTickLastTraded?.StateReset();
+        OnTickLastTraded?.StateReset();
 
-        BatchId   = SourceQuoteReference = 0;
-        ValueDate = default;
         base.ResetWithTracking();
         return this;
     }
@@ -687,9 +608,9 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
         {
             if (pqLevel3Quote.OnTickLastTraded != null || PQSourceTickerInfo?.LastTradedFlags != LastTradedFlags.None)
             {
-                AsNonPublishable.OnTickLastTraded ??= new PQOnTickLastTraded(PQSourceTickerInfo!);
+                OnTickLastTraded ??= new PQOnTickLastTraded(PQSourceTickerInfo!);
             }
-            AsNonPublishable.OnTickLastTraded?.EnsureRelatedItemsAreConfigured(pqLevel3Quote.OnTickLastTraded?.NameIdLookup);
+            OnTickLastTraded?.EnsureRelatedItemsAreConfigured(pqLevel3Quote.OnTickLastTraded?.NameIdLookup);
         }
     }
 
@@ -703,13 +624,41 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
         {
             yield return level2QuoteUpdates;
         }
+        if (onTickLastTraded != null)
+            foreach (var recentlyTradedFields in onTickLastTraded.GetDeltaUpdateFields(snapShotTime,
+                                                                                       messageFlags, quotePublicationPrecisionSettings))
+                yield return recentlyTradedFields;
+    }
+
+    public override int UpdateField(PQFieldUpdate pqFieldUpdate)
+    {
+        if (pqFieldUpdate.Id == PQFeedFields.LastTradedStringUpdates) return (int)pqFieldUpdate.Payload;
+        if (onTickLastTraded != null
+         && pqFieldUpdate.Id is PQFeedFields.LastTradedTickTrades)
+            return onTickLastTraded!.UpdateField(pqFieldUpdate);
+
+        return base.UpdateField(pqFieldUpdate);
+    }
+
+    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
+    {
+        foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, messageFlags)) yield return pqFieldStringUpdate;
+        if (onTickLastTraded != null)
+            foreach (var stringUpdate in onTickLastTraded.GetStringUpdates(snapShotTime, messageFlags))
+                yield return stringUpdate;
     }
 
     public override bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
     {
         var found = base.UpdateFieldString(stringUpdate);
+        if (found) return true;
+        if (stringUpdate.Field.Id == PQFeedFields.LastTradedStringUpdates)
+        {
+            onTickLastTraded ??= new PQOnTickLastTraded();
+            return onTickLastTraded.UpdateFieldString(stringUpdate);
+        }
 
-        return found;
+        return false;
     }
 
     IPublishableLevel3Quote ICloneable<IPublishableLevel3Quote>.Clone() => Clone();
@@ -723,8 +672,10 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
     public override bool AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false)
     {
         if (!(other is IPublishableLevel3Quote otherL3)) return false;
-        var baseSame   = base.AreEquivalent(otherL3, exactTypes);
-        var allAreSame = baseSame;
+        var baseSame = base.AreEquivalent(otherL3, exactTypes);
+        var onTickLastTradedSame = onTickLastTraded?.AreEquivalent(otherL3.OnTickLastTraded, exactTypes)
+                                ?? otherL3.OnTickLastTraded == null;
+        var allAreSame = baseSame && onTickLastTradedSame;
         return allAreSame;
     }
 
@@ -748,9 +699,25 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
     public override PQPublishableLevel3Quote CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
-        var hasFullReplace = copyMergeFlags.HasFullReplace();
+        var pql3Q = source as IPQPublishableLevel3Quote;
+        if (pql3Q == null && source is IPublishableLevel3Quote l3Q)
+        {
+            // Only copy if changed
+            if (onTickLastTraded == null && l3Q.OnTickLastTraded != null)
+                onTickLastTraded = new PQOnTickLastTraded(l3Q.OnTickLastTraded);
+            else if (l3Q.OnTickLastTraded != null) onTickLastTraded?.CopyFrom(l3Q.OnTickLastTraded, copyMergeFlags);
+        }
+        else if (pql3Q != null)
+        {
+            // Only copy if changed
+            if (onTickLastTraded == null && pql3Q.OnTickLastTraded != null)
+                onTickLastTraded = pql3Q.OnTickLastTraded.Clone();
+            else if (pql3Q.OnTickLastTraded != null) onTickLastTraded?.CopyFrom(pql3Q.OnTickLastTraded, copyMergeFlags);
 
-        if (hasFullReplace) SetFlagsSame(source);
+            var hasFullReplace = copyMergeFlags.HasFullReplace();
+
+            if (hasFullReplace) SetFlagsSame(pql3Q);
+        }
 
         return this;
     }
@@ -763,12 +730,11 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
         {
             var hashCode = base.GetHashCode();
             hashCode = (hashCode * 397) ^ (OnTickLastTraded?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ BatchId.GetHashCode();
-            hashCode = (hashCode * 397) ^ (int)SourceQuoteReference;
-            hashCode = (hashCode * 397) ^ ValueDate.GetHashCode();
             return hashCode;
         }
     }
+
+    public override string QuoteToStringMembers => $"{base.QuoteToStringMembers}, {nameof(OnTickLastTraded)}: {OnTickLastTraded}";
 
 
     public override string ToString() => $"{GetType().Name}({QuoteToStringMembers}, {PQQuoteContainer.QuoteToStringMembers}, {UpdatedFlagsToString})";

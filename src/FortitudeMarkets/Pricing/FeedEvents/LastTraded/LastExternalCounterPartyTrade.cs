@@ -81,7 +81,14 @@ public class LastExternalCounterPartyTrade : LastPaidGivenTrade, IMutableLastExt
         return this;
     }
 
-    public override ILastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    ILastExternalCounterPartyTrade ILastExternalCounterPartyTrade.Clone() => Clone();
+
+    IMutableLastExternalCounterPartyTrade IMutableLastExternalCounterPartyTrade.Clone() => Clone();
+
+    public override LastExternalCounterPartyTrade Clone() =>
+        Recycler?.Borrow<LastExternalCounterPartyTrade>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new LastExternalCounterPartyTrade(this);
+
+    public override LastExternalCounterPartyTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
 
@@ -94,14 +101,6 @@ public class LastExternalCounterPartyTrade : LastPaidGivenTrade, IMutableLastExt
         }
         return this;
     }
-
-    public override IMutableLastTrade Clone() =>
-        (IMutableLastTrade?)Recycler?.Borrow<LastExternalCounterPartyTrade>().CopyFrom(this) ??
-        new LastExternalCounterPartyTrade(this);
-
-    ILastExternalCounterPartyTrade ILastExternalCounterPartyTrade.Clone() => (ILastExternalCounterPartyTrade)Clone();
-
-    IMutableLastExternalCounterPartyTrade IMutableLastExternalCounterPartyTrade.Clone() => (IMutableLastExternalCounterPartyTrade)Clone();
 
     public override bool AreEquivalent(ILastTrade? other, bool exactTypes = false)
     {

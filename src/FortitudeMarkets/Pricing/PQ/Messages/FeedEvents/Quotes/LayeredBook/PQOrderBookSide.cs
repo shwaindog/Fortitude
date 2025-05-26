@@ -182,7 +182,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     public ushort MaxPublishDepth
     {
         get => maxPublishDepth;
-        private set => maxPublishDepth = Math.Max((byte)1, Math.Min(value, PQQuoteFieldsExtensions.TwoByteFieldIdMaxBookDepth));
+        private set => maxPublishDepth = Math.Max((byte)1, Math.Min(value, PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth));
     }
 
     private IPQOrderBookLayerFactorySelector LayerSelector { get; set; }
@@ -257,9 +257,9 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         get => Math.Min(MaxPublishDepth, AllLayers.Count);
         set
         {
-            if (value > PQQuoteFieldsExtensions.SingleByteFieldIdMaxBookDepth)
+            if (value > PQFeedFieldsExtensions.SingleByteFieldIdMaxBookDepth)
                 throw new ArgumentException("Expected PQOrderBook Capacity to be less than or equal to " +
-                                            PQQuoteFieldsExtensions.SingleByteFieldIdMaxBookDepth);
+                                            PQFeedFieldsExtensions.SingleByteFieldIdMaxBookDepth);
 
             for (var i = AllLayers.Count; i < value && AllLayers.Count > 0; i++)
             {

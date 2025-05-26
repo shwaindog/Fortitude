@@ -3,9 +3,9 @@
 
 #region
 
+using FortitudeMarkets.Pricing.FeedEvents.Generators.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.Generators.MidPrice;
-using FortitudeMarkets.Pricing.Generators.Quotes.LastTraded;
 
 #endregion
 
@@ -13,15 +13,11 @@ namespace FortitudeMarkets.Pricing.Generators.Quotes;
 
 public abstract class Level3QuoteGeneratorBase<TQuote> : Level2QuoteGeneratorBase<TQuote> where TQuote : IMutableLevel3Quote
 {
-    protected readonly ILastTradedGenerator LastTradedGenerator;
-
-    protected Level3QuoteGeneratorBase(CurrentQuoteInstantValueGenerator generateQuoteValues) : base(generateQuoteValues) =>
-        LastTradedGenerator = CreateLastTradedGenerator(generateQuoteValues.GenerateQuoteInfo.LastTradeInfo);
+    protected Level3QuoteGeneratorBase(CurrentQuoteInstantValueGenerator generateQuoteValues) : base(generateQuoteValues) { }
 
     public void PopulateQuote(IMutableLevel3Quote populateQuote, MidPriceTimePair midPriceTimePair)
     {
         base.PopulateQuote(populateQuote, midPriceTimePair);
-        LastTradedGenerator.PopulateLevel3LastTraded(populateQuote, midPriceTimePair);
         populateQuote.ValueDate            = BookGenerator.QuoteBookGenerator.BookValueDate;
         populateQuote.SourceQuoteReference = BookGenerator.QuoteBookGenerator.BookSourceQuoteRef;
         populateQuote.BatchId              = BookGenerator.QuoteBookGenerator.BookBatchId;

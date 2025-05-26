@@ -246,7 +246,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
         public ushort MaxPublishDepth
         {
             get => maxPublishDepth;
-            private set => maxPublishDepth = Math.Max((byte)1, Math.Min(value, PQQuoteFieldsExtensions.TwoByteFieldIdMaxBookDepth));
+            private set => maxPublishDepth = Math.Max((byte)1, Math.Min(value, PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth));
         }
 
         public decimal? MidPrice => (BidSide[0]?.Price ?? 0 + AskSide[0]?.Price ?? 0) / 2;

@@ -411,6 +411,7 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
         get => AsNonPublishable.IsBidPriceTopChanged;
         set => AsNonPublishable.IsBidPriceTopChanged = value;
     }
+
     [JsonIgnore]
     public bool IsAskPriceTopChanged
     {
@@ -418,28 +419,25 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
         set => AsNonPublishable.IsAskPriceTopChanged = value;
     }
 
-
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IMutableCandle? ConflatedTicksCandle { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     ICandle? IPublishableLevel1Quote.ConflatedTicksCandle => ConflatedTicksCandle;
 
+    IMutableLevel1Quote ITrackableReset<IMutableLevel1Quote>.ResetWithTracking() => ResetWithTracking();
 
-    IMutableLevel1Quote ITrackableReset<IMutableLevel1Quote>.ResetWithTracking() => throw new NotImplementedException();
+    IMutableLevel1Quote IMutableLevel1Quote.ResetWithTracking() => ResetWithTracking();
 
-    IMutableLevel1Quote IMutableLevel1Quote.ResetWithTracking() => throw new NotImplementedException();
+    IMutablePublishableLevel1Quote ITrackableReset<IMutablePublishableLevel1Quote>.ResetWithTracking() => ResetWithTracking();
 
-    IMutablePublishableLevel1Quote ITrackableReset<IMutablePublishableLevel1Quote>.ResetWithTracking() => throw new NotImplementedException();
-
-    IMutablePublishableLevel1Quote IMutablePublishableLevel1Quote.ResetWithTracking() => throw new NotImplementedException();
+    IMutablePublishableLevel1Quote IMutablePublishableLevel1Quote.ResetWithTracking() => ResetWithTracking();
 
     public override PublishableLevel1PriceQuote ResetWithTracking()
     {
         base.ResetWithTracking();
         return this;
     }
-
 
     IReusableObject<IBidAskInstant> ITransferState<IReusableObject<IBidAskInstant>>.CopyFrom
         (IReusableObject<IBidAskInstant> source, CopyMergeFlags copyMergeFlags)
@@ -536,7 +534,6 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
 
     public override string QuoteToStringMembers =>
         $"{base.QuoteToStringMembers}, {nameof(ConflatedTicksCandle)}: {ConflatedTicksCandle}";
-
 
     public override string ToString() => $"{nameof(PublishableLevel1PriceQuote)}{{{QuoteToStringMembers}, {AsNonPublishable.QuoteToStringMembers}}}";
 }

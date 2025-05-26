@@ -314,7 +314,7 @@ public class PQLevel3QuoteTests
                 Assert.IsTrue(lastTrade.IsTradePriceUpdated);
                 Assert.IsTrue(emptyQuote.HasUpdates);
                 Assert.AreEqual(expectedPrice, lastTrade.TradePrice);
-                var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+                var quoteUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pqSrcTrkQtInfo).ToList();
                 Assert.AreEqual(3, quoteUpdates.Count);
                 var lastTradeUpdates = lastTrade.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pqSrcTrkQtInfo).ToList();
                 Assert.AreEqual(1, lastTradeUpdates.Count);
@@ -337,7 +337,7 @@ public class PQLevel3QuoteTests
 
                 lastTrade.IsTradePriceUpdated = true;
                 quoteUpdates =
-                    (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
+                    (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, pqSrcTrkQtInfo)
                         where update.TradingSubId == PQTradingSubFieldKeys.LastTradedAtPrice && update.DepthId == (PQDepthKey)i
                         select update).ToList();
                 Assert.AreEqual(1, quoteUpdates.Count);

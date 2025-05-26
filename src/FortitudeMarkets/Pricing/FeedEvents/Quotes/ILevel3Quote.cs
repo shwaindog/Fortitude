@@ -15,7 +15,6 @@ namespace FortitudeMarkets.Pricing.FeedEvents.Quotes;
 public interface ILevel3Quote : ILevel2Quote, ICloneable<ILevel3Quote>
 {
     // ILastTradedList? TickLastTraded { get; }
-    IOnTickLastTraded? OnTickLastTraded { get; }
 
     uint     BatchId              { get; }
     uint     SourceQuoteReference { get; }
@@ -34,19 +33,21 @@ public interface IMutableLevel3Quote : ILevel3Quote, IMutableLevel2Quote, ITrack
 
     new DateTime ValueDate { get; set; }
 
-    new IMutableOnTickLastTraded? OnTickLastTraded { get; set; }
 
-    
     new IMutableLevel3Quote ResetWithTracking();
 
-    new bool                    AreEquivalent(ITickInstant? other, bool exactTypes = false);
+    new bool AreEquivalent(ITickInstant? other, bool exactTypes = false);
 
-    new IMutableLevel3Quote     Clone();
+    new IMutableLevel3Quote Clone();
 }
 
 public interface IPublishableLevel3Quote : IPublishableLevel2Quote, ILevel3Quote, ICloneable<IPublishableLevel3Quote>
   , IDoublyLinkedListNode<IPublishableLevel3Quote>
 {
+    IOnTickLastTraded? OnTickLastTraded { get; }
+
+    new ILevel3Quote AsNonPublishable { get; }
+
     new IPublishableLevel3Quote? Next     { get; set; }
     new IPublishableLevel3Quote? Previous { get; set; }
 
@@ -55,12 +56,16 @@ public interface IPublishableLevel3Quote : IPublishableLevel2Quote, ILevel3Quote
     new IPublishableLevel3Quote Clone();
 }
 
-public interface IMutablePublishableLevel3Quote : IPublishableLevel3Quote, IMutableLevel3Quote, IMutablePublishableLevel2Quote, 
+public interface IMutablePublishableLevel3Quote : IPublishableLevel3Quote, IMutableLevel3Quote, IMutablePublishableLevel2Quote,
     ITrackableReset<IMutablePublishableLevel3Quote>
 {
+    new IMutableOnTickLastTraded? OnTickLastTraded { get; set; }
+
+    new IMutableLevel3Quote AsNonPublishable { get; }
+
     new IMutablePublishableLevel3Quote Clone();
-    
+
     new IMutablePublishableLevel3Quote ResetWithTracking();
-    
+
     new bool AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false);
 }

@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
@@ -392,7 +393,7 @@ public class PQOnTickLastTradedTests
         Assert.AreEqual(MaxNumberOfEntries - 2, clonePopulated.Count);
         var notEmpty = new PQOnTickLastTraded((IOnTickLastTraded)simpleOnTickLastTradedFullyPopulatedQuote);
         Assert.AreEqual(MaxNumberOfEntries, notEmpty.Count);
-        notEmpty.CopyFrom(clonePopulated);
+        notEmpty.CopyFrom(clonePopulated, CopyMergeFlags.UpdateFlagsNone);
         Assert.AreEqual(new PQLastTrade(), notEmpty[5]);
         Assert.AreEqual(MaxNumberOfEntries - 2, notEmpty.Count);
     }
@@ -607,7 +608,7 @@ public class PQOnTickLastTradedTests
     private Type GetExpectedType(Type originalType, Type copyType)
     {
         if (copyType == typeof(PQLastTrade)) return originalType;
-        if (originalType == typeof(PQLastPaidGivenTrade) && copyType == typeof(PQLastPaidGivenTrade)) return typeof(PQLastPaidGivenTrade);
+        if ((originalType == typeof(PQLastPaidGivenTrade) || originalType == typeof(PQLastTrade)) && copyType == typeof(PQLastPaidGivenTrade)) return typeof(PQLastPaidGivenTrade);
         return typeof(PQLastExternalCounterPartyTrade);
     }
 

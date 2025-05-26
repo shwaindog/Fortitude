@@ -3,10 +3,10 @@
 
 #region
 
+using FortitudeMarkets.Pricing.FeedEvents.Generators.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Generators.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.Generators.MidPrice;
 using FortitudeMarkets.Pricing.Generators.Quotes;
-using FortitudeMarkets.Pricing.Generators.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.Generators.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Generators.Quotes.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Generators.Quotes.LayeredBook;

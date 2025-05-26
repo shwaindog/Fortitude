@@ -14,7 +14,6 @@ public class OnTickLastTraded : LastTradedList, IMutableOnTickLastTraded
     public OnTickLastTraded(IOnTickLastTraded toClone) : base(toClone) { }
     public OnTickLastTraded(ISourceTickerInfo sourceTickerInfo) : base(sourceTickerInfo) { }
 
-
     IMutableOnTickLastTraded ITrackableReset<IMutableOnTickLastTraded>.ResetWithTracking() => ResetWithTracking();
 
     IMutableOnTickLastTraded IMutableOnTickLastTraded.ResetWithTracking() => ResetWithTracking();
@@ -25,7 +24,17 @@ public class OnTickLastTraded : LastTradedList, IMutableOnTickLastTraded
         return this;
     }
 
-    bool IInterfacesComparable<IOnTickLastTraded>.AreEquivalent(IOnTickLastTraded? other, bool exactTypes) => AreEquivalent(other, exactTypes);
+    public bool IsEmpty
+    {
+        get => LastTrades.All( lt => lt.IsEmpty);
+        set
+        {
+            foreach (var lastTrade in LastTrades)
+            {
+                lastTrade.IsEmpty = value;
+            }
+        }
+    }
 
     IOnTickLastTraded IOnTickLastTraded.Clone() => Clone();
 
@@ -45,7 +54,9 @@ public class OnTickLastTraded : LastTradedList, IMutableOnTickLastTraded
 
     public override OnTickLastTraded Clone() =>
         Recycler?.Borrow<OnTickLastTraded>().CopyFrom(this) ?? new OnTickLastTraded(this);
+    
 
+    bool IInterfacesComparable<IOnTickLastTraded>.AreEquivalent(IOnTickLastTraded? other, bool exactTypes) => AreEquivalent(other, exactTypes);
     
     public override bool AreEquivalent(ILastTradedList? other, bool exactTypes = false)
     {

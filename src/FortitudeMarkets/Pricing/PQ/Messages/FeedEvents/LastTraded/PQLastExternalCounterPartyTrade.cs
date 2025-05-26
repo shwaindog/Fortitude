@@ -5,6 +5,7 @@
 
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
@@ -16,7 +17,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
 public interface IPQLastExternalCounterPartyTrade : IPQLastPaidGivenTrade, IMutableLastExternalCounterPartyTrade,
-    IPQSupportsStringUpdates<ILastTrade>, ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQLastExternalCounterPartyTrade>
+    IPQSupportsStringUpdates<ILastTrade>, ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQLastExternalCounterPartyTrade>, ICloneable<IPQLastExternalCounterPartyTrade>
 {
     bool IsExternalCounterPartyIdUpdated   { get; set; }
     int  ExternalCounterPartyNameId        { get; set; }
@@ -41,6 +42,13 @@ public class PQLastExternalCounterPartyTrade : PQLastPaidGivenTrade, IPQLastExte
 
     private int externalTraderNameId;
     private int externalCounterPartyNameId;
+
+    public PQLastExternalCounterPartyTrade() 
+    {
+        nameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.LastTradedStringUpdates);
+
+        if (GetType() == typeof(PQLastExternalCounterPartyTrade)) NumUpdatesSinceEmpty = 0;
+    }
 
     public PQLastExternalCounterPartyTrade(IPQNameIdLookupGenerator traderIdToNameLookup) 
     {
@@ -383,7 +391,18 @@ public class PQLastExternalCounterPartyTrade : PQLastPaidGivenTrade, IPQLastExte
         return NameIdLookup.UpdateFieldString(stringUpdate);
     }
 
-    public override ILastTrade CopyFrom(ILastTrade? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    ILastExternalCounterPartyTrade ILastExternalCounterPartyTrade.Clone() => Clone();
+
+    IMutableLastExternalCounterPartyTrade IMutableLastExternalCounterPartyTrade.Clone() => Clone();
+
+    IPQLastExternalCounterPartyTrade IPQLastExternalCounterPartyTrade.Clone() => Clone();
+
+    IPQLastExternalCounterPartyTrade ICloneable<IPQLastExternalCounterPartyTrade>.Clone() => Clone();
+
+    public override PQLastExternalCounterPartyTrade Clone() => 
+        Recycler?.Borrow<PQLastExternalCounterPartyTrade>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new PQLastExternalCounterPartyTrade(this, NameIdLookup);
+
+    public override PQLastExternalCounterPartyTrade CopyFrom(ILastTrade? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source == null) return this;
         base.CopyFrom(source, copyMergeFlags);
@@ -431,14 +450,6 @@ public class PQLastExternalCounterPartyTrade : PQLastPaidGivenTrade, IPQLastExte
         return this;
     }
 
-    public override IMutableLastTrade Clone() => new PQLastExternalCounterPartyTrade(this, NameIdLookup);
-
-    ILastExternalCounterPartyTrade ILastExternalCounterPartyTrade.Clone() => (ILastExternalCounterPartyTrade)Clone();
-
-    IMutableLastExternalCounterPartyTrade IMutableLastExternalCounterPartyTrade.Clone() => (IMutableLastExternalCounterPartyTrade)Clone();
-
-    IPQLastExternalCounterPartyTrade IPQLastExternalCounterPartyTrade.Clone() => (IPQLastExternalCounterPartyTrade)Clone();
-
     public override bool AreEquivalent(ILastTrade? other, bool exactTypes = false)
     {
         if (!(other is ILastExternalCounterPartyTrade lastExtCpTrade)) return false;
@@ -471,8 +482,9 @@ public class PQLastExternalCounterPartyTrade : PQLastPaidGivenTrade, IPQLastExte
 
     protected string PQLastExternalCounterPartyTradeToStringMembers =>
         $"{PQLastPaidGivenTradeToStringMembers}, {nameof(ExternalCounterPartyId)}: {ExternalCounterPartyId}, " +
-        $"{nameof(ExternalCounterPartyName)}: {ExternalCounterPartyName}, {nameof(ExternalCounterPartyId)}: {ExternalCounterPartyId}, " +
-        $"{nameof(ExternalTraderId)}: {ExternalTraderId}, {nameof(ExternalTraderName)}: {ExternalTraderName}";
+        $"{nameof(ExternalCounterPartyName)}: {ExternalCounterPartyName}, {nameof(ExternalCounterPartyNameId)}: {ExternalCounterPartyNameId}, " +
+        $"{nameof(ExternalCounterPartyId)}: {ExternalCounterPartyId}, {nameof(ExternalTraderId)}: {ExternalTraderId}, " +
+        $"{nameof(ExternalTraderName)}: {ExternalTraderName}, {nameof(ExternalTraderNameId)}: {ExternalTraderNameId}";
 
     public override string ToString() => $"{GetType().Name}({PQLastExternalCounterPartyTradeToStringMembers}, {UpdatedFlagsToString})";
 }

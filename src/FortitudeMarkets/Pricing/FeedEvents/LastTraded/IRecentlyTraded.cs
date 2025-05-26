@@ -11,15 +11,20 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 
+// A short term cache of recently last traded trades so clients resyncing can stitch together gaps in last trade updates
+// or contains internal order last trades for the day or open position last trades
 public interface IRecentlyTraded : ILastTradedList, IInterfacesComparable<IRecentlyTraded>, ICloneable<IRecentlyTraded>
-  , IExpiringCachedPeriodUpdateHistory<IRecentlyTraded, ILastTrade>
+  , IExpiringCachedPeriodUpdateHistory<IRecentlyTraded, ILastTrade>, IShowsEmpty
 {
     new ILastTrade this[int index] { get; }
+
+    LastTradedTransmissionFlags TransferFlags { get; }
+
     new IRecentlyTraded Clone();
 }
 
 public interface IMutableRecentlyTraded : IRecentlyTraded, IMutableLastTradedList, ITrackableReset<IMutableRecentlyTraded>
-  , IMutableExpiringCachedPeriodUpdateHistory<IMutableRecentlyTraded, IMutableLastTrade>
+  , IMutableExpiringCachedPeriodUpdateHistory<IMutableRecentlyTraded, IMutableLastTrade>, IEmptyable
 {
     new IMutableLastTrade this[int index] { get; set; }
 
@@ -28,11 +33,15 @@ public interface IMutableRecentlyTraded : IRecentlyTraded, IMutableLastTradedLis
     new IReadOnlyList<ElementShift> ElementShifts { get; set; }
 
     new ushort? ClearedElementsAfterIndex { get; set; }
-    new bool    HasRandomAccessUpdates    { get; set; }
+
+    new bool HasRandomAccessUpdates { get; set; }
 
     new int CachedMaxCount { get; set; }
 
-    new TimeBoundaryPeriod     DuringPeriod { get; set; }
+    new LastTradedTransmissionFlags TransferFlags { get; set; }
+
+    new TimeBoundaryPeriod DuringPeriod { get; set; }
+
     new IMutableRecentlyTraded Clone();
 
     new IMutableRecentlyTraded ResetWithTracking();
