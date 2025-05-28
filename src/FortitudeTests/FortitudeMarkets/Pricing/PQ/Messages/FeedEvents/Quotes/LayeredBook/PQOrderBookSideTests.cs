@@ -46,8 +46,6 @@ public class PQOrderBookSideTests
     private const OrderLifeCycleState ExpectedLifecycleState = OrderLifeCycleState.ConfirmedActiveOnMarket;
 
     private const uint    ExpectedTrackingId = 12467u;
-    private const uint    ExpectedCounterPartyId = 1u;
-    private const uint    ExpectedTraderId = 2u;
 
     private const int     ExpectedOrderId              = 250;
     private const decimal ExpectedOrderVolume          = 50.50m;
@@ -409,14 +407,14 @@ public class PQOrderBookSideTests
             for (var i = 0; i < MaxNumberOfLayers; i++)
             {
                 var layer       = ((IOrderBookSide)populatedOrderBook)[i];
-                var clonedLayer = (IPQPriceVolumeLayer)layer!.Clone();
+                var clonedLayer = (IPQPriceVolumeLayer)layer.Clone();
 
                 populatedOrderBook[i] = clonedLayer;
                 Assert.AreNotSame(layer, ((IMutableOrderBookSide)populatedOrderBook)[i]);
                 Assert.AreSame(clonedLayer, populatedOrderBook[i]);
                 if (i == populatedOrderBook.AllLayers.Count - 1)
                 {
-                    ((IMutableOrderBookSide)populatedOrderBook)[i] = null;
+                    populatedOrderBook[i] = populatedOrderBook[i].ResetWithTracking();
                     Assert.AreEqual(MaxNumberOfLayers - 1, populatedOrderBook.Count);
                 }
             }
@@ -430,7 +428,7 @@ public class PQOrderBookSideTests
         {
             Assert.AreEqual(populatedOrderBook.AllLayers.Count, populatedOrderBook.Capacity);
             Assert.AreEqual(MaxNumberOfLayers, populatedOrderBook.Capacity);
-            populatedOrderBook[MaxNumberOfLayers - 1] = null;
+            populatedOrderBook[MaxNumberOfLayers - 1] = populatedOrderBook[MaxNumberOfLayers - 1].ResetWithTracking();
             Assert.AreEqual(MaxNumberOfLayers, populatedOrderBook.Capacity);
             Assert.AreEqual(populatedOrderBook.AllLayers.Count, populatedOrderBook.Capacity);
         }
@@ -574,7 +572,7 @@ public class PQOrderBookSideTests
             for (var i = MaxNumberOfLayers - 1; i >= 0; i--)
             {
                 Assert.AreEqual(i, populatedOrderBook.Count - 1);
-                populatedOrderBook[i]?.StateReset();
+                populatedOrderBook[i].StateReset();
             }
 
             Assert.AreEqual(0, populatedOrderBook.Count);
@@ -783,9 +781,9 @@ public class PQOrderBookSideTests
     {
         var clonePopulated = simpleFullyPopulatedOrderBookSide.Clone();
         Assert.AreEqual(MaxNumberOfLayers, clonePopulated.Count);
-        clonePopulated[^1] = null;
-        clonePopulated[^1] = null;
-        clonePopulated[^1] = null;
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
         Assert.AreEqual(MaxNumberOfLayers - 3, clonePopulated.Count);
         var notEmpty = new PQOrderBookSide(simpleFullyPopulatedOrderBookSide);
         Assert.AreEqual(MaxNumberOfLayers, notEmpty.Count);
@@ -798,9 +796,9 @@ public class PQOrderBookSideTests
     {
         var clonePopulated = simpleFullyPopulatedOrderBookSide.Clone();
         Assert.AreEqual(MaxNumberOfLayers, clonePopulated.Count);
-        clonePopulated[^1] = null;
-        clonePopulated[^1] = null;
-        clonePopulated[5]  = null;
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[5]  = clonePopulated[5].ResetWithTracking();
         Assert.AreEqual(MaxNumberOfLayers - 2, clonePopulated.Count);
         var notEmpty = new PQOrderBookSide(simpleFullyPopulatedOrderBookSide);
         Assert.AreEqual(MaxNumberOfLayers, notEmpty.Count);
@@ -814,10 +812,10 @@ public class PQOrderBookSideTests
     {
         var clonePopulated = simpleFullyPopulatedOrderBookSide.Clone();
         Assert.AreEqual(MaxNumberOfLayers, clonePopulated.Count);
-        clonePopulated[^1] = null;
-        clonePopulated[^1] = null;
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
         Assert.AreEqual(MaxNumberOfLayers - 2, clonePopulated.Count);
-        var notEmpty = new PQOrderBookSide(simpleFullyPopulatedOrderBookSide) { [5] = null };
+        var notEmpty = new PQOrderBookSide(simpleFullyPopulatedOrderBookSide) { [5] = simpleFullyPopulatedOrderBookSide[5].Clone().ResetWithTracking() };
         Assert.AreEqual(MaxNumberOfLayers, notEmpty.Count);
         notEmpty.CopyFrom(clonePopulated);
         Assert.AreEqual(notEmpty[5], clonePopulated[5]);
@@ -883,11 +881,11 @@ public class PQOrderBookSideTests
             var emptyOriginalTypeOrderBook = CreateNewEmpty(originalTypeOrderBook);
             AssertAllLayersAreOfTypeAndEquivalentTo
                 (emptyOriginalTypeOrderBook, originalTypeOrderBook
-               , originalTypeOrderBook[0]!.GetType(), false);
+               , originalTypeOrderBook[0].GetType(), false);
             emptyOriginalTypeOrderBook.CopyFrom(otherOrderBook);
             AssertAllLayersAreOfTypeAndEquivalentTo
                 (emptyOriginalTypeOrderBook, otherOrderBook
-               , GetExpectedType(originalTypeOrderBook[0]!.LayerType, otherOrderBook[0]!.LayerType));
+               , GetExpectedType(originalTypeOrderBook[0].LayerType, otherOrderBook[0].LayerType));
         }
     }
 
@@ -900,14 +898,14 @@ public class PQOrderBookSideTests
         {
             var clonedPopulatedOrderBook = originalTypeOrderBook.Clone();
             AssertAllLayersAreOfTypeAndEquivalentTo(clonedPopulatedOrderBook, originalTypeOrderBook,
-                                                    originalTypeOrderBook[0]!.GetType(), false);
+                                                    originalTypeOrderBook[0].GetType(), false);
             clonedPopulatedOrderBook.CopyFrom(otherOrderBook);
             AssertAllLayersAreOfTypeAndEquivalentTo
                 (clonedPopulatedOrderBook, otherOrderBook
-               , GetExpectedType(originalTypeOrderBook[0]!.LayerType, otherOrderBook[0]!.LayerType));
+               , GetExpectedType(originalTypeOrderBook[0].LayerType, otherOrderBook[0].LayerType));
             AssertAllLayersAreOfTypeAndEquivalentTo
                 (clonedPopulatedOrderBook, originalTypeOrderBook
-               , GetExpectedType(originalTypeOrderBook[0]!.LayerType, otherOrderBook[0]!.LayerType));
+               , GetExpectedType(originalTypeOrderBook[0].LayerType, otherOrderBook[0].LayerType));
         }
     }
 
@@ -1064,7 +1062,7 @@ public class PQOrderBookSideTests
             var depthId = (PQDepthKey)i | (orderBookSide.BookSide == BookSide.AskBook ? PQDepthKey.AskSide : PQDepthKey.None);
             Assert.AreEqual
                 (new PQFieldUpdate
-                     (PQFeedFields.QuoteLayerPrice, depthId, pvl!.Price, priceScale),
+                     (PQFeedFields.QuoteLayerPrice, depthId, pvl.Price, priceScale),
                  PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteLayerPrice, depthId, priceScale),
                  $"For {orderBookSide.BookSide}  {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
             Assert.AreEqual
@@ -1279,14 +1277,14 @@ public class PQOrderBookSideTests
 
             Assert.IsInstanceOfType(upgradedLayer, expectedType);
             if (compareForEquivalence)
-                Assert.IsTrue(copyFromLayer!.AreEquivalent(upgradedLayer, exactlyEquals),
+                Assert.IsTrue(copyFromLayer.AreEquivalent(upgradedLayer, exactlyEquals),
                               $"Expected {copyFromLayer} to be equivalent to {upgradedLayer} when exactlyEquals {exactlyEquals}");
         }
     }
 
     private static IPQOrderBookSide CreateNewEmpty(IPQOrderBookSide populatedOrderBookSide)
     {
-        var cloneGenesis = populatedOrderBookSide[0]!.Clone();
+        var cloneGenesis = populatedOrderBookSide[0].Clone();
         cloneGenesis.StateReset();
         var clonedEmptyLayers = new List<IPQPriceVolumeLayer>(MaxNumberOfLayers);
         for (var i = 0; i < MaxNumberOfLayers; i++) clonedEmptyLayers.Add(cloneGenesis.Clone());

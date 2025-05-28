@@ -79,11 +79,11 @@ public class PQOrderBookLayerFactorySelector : LayerFlagsSelector<IPQOrderBookLa
         return newLayer;
     }
 
-    public override IPriceVolumeLayer CreateExpectedImplementation
+    public override IMutablePriceVolumeLayer CreateExpectedImplementation
         (LayerType desiredLayerType, IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CreateExpectedImplementation(desiredLayerType, NameIdLookup, copy, copyMergeFlags);
 
-    public override IPriceVolumeLayer UpgradeExistingLayer
+    public override IMutablePriceVolumeLayer UpgradeExistingLayer
     (IPriceVolumeLayer? original, LayerType desiredLayerType, IPriceVolumeLayer? copy = null
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         UpgradeExistingLayer(original as IPQPriceVolumeLayer, NameIdLookup, desiredLayerType, copy, copyMergeFlags);

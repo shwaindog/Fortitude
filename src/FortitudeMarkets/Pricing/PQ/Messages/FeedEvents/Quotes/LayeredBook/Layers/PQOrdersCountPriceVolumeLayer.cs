@@ -194,7 +194,7 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override PQOrdersCountPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         var isFullReplace = copyMergeFlags.HasFullReplace();

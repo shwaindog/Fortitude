@@ -591,9 +591,6 @@ public class Level3PriceQuoteTests
         var     traderNumber           = 1;
         var     expectedTradeId        = 10u;
         var     expectedBatchId        = 234567u;
-        var     expectedTradePrice     = 1.23156m;
-        var     expectedTradeFlags     = LastTradedTypeFlags.HasPaidGivenDetails;
-        var     expectedTradeLifeCycle = LastTradedLifeCycleFlags.DropCopyReceived;
 
         var onTickLastTraded =
             GenerateOnTickLastTraded

@@ -5,6 +5,7 @@
 
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 
 #endregion
@@ -66,7 +67,11 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
         base.StateReset();
     }
 
-    public override IPriceVolumeLayer CopyFrom
+    IMutablePriceVolumeLayer ITransferState<IMutablePriceVolumeLayer>.CopyFrom
+        (IMutablePriceVolumeLayer source, CopyMergeFlags copyMergeFlags) => 
+        CopyFrom(source, copyMergeFlags);
+
+    public override PriceVolumeLayer CopyFrom
     (IPriceVolumeLayer source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -75,9 +80,12 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
         return this;
     }
 
-    public override IPriceVolumeLayer Clone() => Recycler?.Borrow<PriceVolumeLayer>().CopyFrom(this) ?? new PriceVolumeLayer(this);
+    IMutablePriceVolumeLayer ICloneable<IMutablePriceVolumeLayer>.Clone() => Clone();
 
-    object ICloneable.Clone() => Clone();
+    IMutablePriceVolumeLayer IMutablePriceVolumeLayer.Clone() => Clone();
+
+    public override PriceVolumeLayer Clone() => Recycler?.Borrow<PriceVolumeLayer>().CopyFrom(this) ?? new PriceVolumeLayer(this);
+
 
     public virtual bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {

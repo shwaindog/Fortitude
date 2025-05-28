@@ -267,7 +267,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         return NameIdLookup.UpdateFieldString(stringUpdate);
     }
 
-    public override IPriceVolumeLayer CopyFrom
+    public override PQSourcePriceVolumeLayer CopyFrom
     (IPriceVolumeLayer source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -326,7 +326,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (!(obj is PQSourcePriceVolumeLayer)) return false;
+        if (obj is not PQSourcePriceVolumeLayer) return false;
         return AreEquivalent((IPriceVolumeLayer)obj, true);
     }
 

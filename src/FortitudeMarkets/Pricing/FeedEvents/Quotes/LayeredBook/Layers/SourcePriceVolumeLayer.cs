@@ -78,7 +78,7 @@ public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolum
         Executable = false;
     }
 
-    public override IPriceVolumeLayer CopyFrom
+    public override SourcePriceVolumeLayer CopyFrom
     (IPriceVolumeLayer source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -92,13 +92,13 @@ public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolum
         return this;
     }
 
-    ISourcePriceVolumeLayer ICloneable<ISourcePriceVolumeLayer>.Clone() => (ISourcePriceVolumeLayer)Clone();
+    ISourcePriceVolumeLayer ICloneable<ISourcePriceVolumeLayer>.Clone() => Clone();
 
-    IMutableSourcePriceVolumeLayer IMutableSourcePriceVolumeLayer.Clone() => (IMutableSourcePriceVolumeLayer)Clone();
+    IMutableSourcePriceVolumeLayer IMutableSourcePriceVolumeLayer.Clone() => Clone();
 
-    ISourcePriceVolumeLayer ISourcePriceVolumeLayer.Clone() => (ISourcePriceVolumeLayer)Clone();
+    ISourcePriceVolumeLayer ISourcePriceVolumeLayer.Clone() => Clone();
 
-    public override IPriceVolumeLayer Clone() => Recycler?.Borrow<SourcePriceVolumeLayer>().CopyFrom(this) ?? new SourcePriceVolumeLayer(this);
+    public override SourcePriceVolumeLayer Clone() => Recycler?.Borrow<SourcePriceVolumeLayer>().CopyFrom(this) ?? new SourcePriceVolumeLayer(this);
 
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {

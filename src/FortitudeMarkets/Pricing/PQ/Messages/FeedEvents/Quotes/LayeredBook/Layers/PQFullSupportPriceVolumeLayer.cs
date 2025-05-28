@@ -363,7 +363,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
         return NameIdLookup.UpdateFieldString(stringUpdate);
     }
 
-    public override IPriceVolumeLayer CopyFrom
+    public override PQFullSupportPriceVolumeLayer CopyFrom
         (IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);

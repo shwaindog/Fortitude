@@ -41,7 +41,8 @@ public interface IPriceVolumeLayer : IReusableObject<IPriceVolumeLayer>, IInterf
     bool IsEmpty { get; }
 }
 
-public interface IMutablePriceVolumeLayer : IPriceVolumeLayer, ITrackableReset<IMutablePriceVolumeLayer>
+public interface IMutablePriceVolumeLayer : IPriceVolumeLayer, ITrackableReset<IMutablePriceVolumeLayer>, ICloneable<IMutablePriceVolumeLayer>
+  , ITransferState<IMutablePriceVolumeLayer>
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new decimal Price { get; set; }
@@ -51,4 +52,6 @@ public interface IMutablePriceVolumeLayer : IPriceVolumeLayer, ITrackableReset<I
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new bool IsEmpty { get; set; }
+
+    new IMutablePriceVolumeLayer Clone();
 }

@@ -213,7 +213,11 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         return -1;
     }
 
-    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    IMutablePriceVolumeLayer ITransferState<IMutablePriceVolumeLayer>.CopyFrom
+        (IMutablePriceVolumeLayer source, CopyMergeFlags copyMergeFlags) => 
+        CopyFrom(source, copyMergeFlags);
+
+    public override PQPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is not PQPriceVolumeLayer pqpvl)
         {
@@ -244,13 +248,14 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         return this;
     }
 
+    IMutablePriceVolumeLayer ICloneable<IMutablePriceVolumeLayer>.Clone() => Clone();
 
-    public override IPQPriceVolumeLayer Clone() =>
-        (IPQPriceVolumeLayer?)Recycler?.Borrow<PQPriceVolumeLayer>().CopyFrom(this) ?? new PQPriceVolumeLayer(this);
+    IMutablePriceVolumeLayer IMutablePriceVolumeLayer.            Clone() => Clone();
 
     IPriceVolumeLayer ICloneable<IPriceVolumeLayer>.Clone() => Clone();
 
-    object ICloneable.Clone() => Clone();
+    public override IPQPriceVolumeLayer Clone() =>
+        (IPQPriceVolumeLayer?)Recycler?.Borrow<PQPriceVolumeLayer>().CopyFrom(this) ?? new PQPriceVolumeLayer(this);
 
     public virtual bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {

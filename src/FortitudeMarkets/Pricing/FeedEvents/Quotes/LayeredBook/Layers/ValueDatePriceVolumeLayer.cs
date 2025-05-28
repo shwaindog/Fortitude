@@ -69,7 +69,7 @@ public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePric
         ValueDate = DateTime.MinValue;
     }
 
-    public override IPriceVolumeLayer CopyFrom
+    public override ValueDatePriceVolumeLayer CopyFrom
     (IPriceVolumeLayer source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -80,13 +80,13 @@ public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePric
 
     IValueDatePriceVolumeLayer ICloneable<IValueDatePriceVolumeLayer>.Clone() => ((IValueDatePriceVolumeLayer)this).Clone();
 
-    IValueDatePriceVolumeLayer IValueDatePriceVolumeLayer.Clone() => (IValueDatePriceVolumeLayer)Clone();
+    IValueDatePriceVolumeLayer IValueDatePriceVolumeLayer.Clone() => Clone();
 
-    IMutableValueDatePriceVolumeLayer ICloneable<IMutableValueDatePriceVolumeLayer>.Clone() => (IMutableValueDatePriceVolumeLayer)Clone();
+    IMutableValueDatePriceVolumeLayer ICloneable<IMutableValueDatePriceVolumeLayer>.Clone() => Clone();
 
-    IMutableValueDatePriceVolumeLayer IMutableValueDatePriceVolumeLayer.Clone() => (IMutableValueDatePriceVolumeLayer)Clone();
+    IMutableValueDatePriceVolumeLayer IMutableValueDatePriceVolumeLayer.Clone() => Clone();
 
-    public override IPriceVolumeLayer Clone() => Recycler?.Borrow<ValueDatePriceVolumeLayer>().CopyFrom(this) ?? new ValueDatePriceVolumeLayer(this);
+    public override ValueDatePriceVolumeLayer Clone() => Recycler?.Borrow<ValueDatePriceVolumeLayer>().CopyFrom(this) ?? new ValueDatePriceVolumeLayer(this);
 
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {

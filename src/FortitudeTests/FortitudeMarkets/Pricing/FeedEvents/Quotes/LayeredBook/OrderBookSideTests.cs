@@ -93,15 +93,15 @@ public class OrderBookSideTests
             {
                 allFieldsPvL.Add(new ExternalCounterPartyOrder
                                      (new AnonymousOrder(i, new DateTime(2017, 12, 09, 14, 0, 0),
-                                      40_000_000m)
+                                                         40_000_000m)
                                      {
-                                         ExternalCounterPartyOrderInfo = new AdditionalExternalCounterPartyInfo(externalTraderName: "Trdr" + j)
+                                         ExternalCounterPartyOrderInfo = new AdditionalExternalCounterPartyInfo(externalTraderName: "TraderName_" + j)
                                      }));
                 traderPvL.Add(new ExternalCounterPartyOrder
                                   (new AnonymousOrder(i, new DateTime(2017, 12, 09, 14, 0, 0),
                                                       40_000_000m)
                                   {
-                                      ExternalCounterPartyOrderInfo = new AdditionalExternalCounterPartyInfo(externalTraderName: "Trdr" + j)
+                                      ExternalCounterPartyOrderInfo = new AdditionalExternalCounterPartyInfo(externalTraderName: "TraderName_" + j)
                                   }));
             }
         }
@@ -121,7 +121,7 @@ public class OrderBookSideTests
         ];
         publicationPrecisionSettings = new SourceTickerInfo
             (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+           , 20, 0.00001m, 30000m, 50000000m, 1000m
            , layerFlags: LayerFlags.Volume | LayerFlags.Price
            , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                               LastTradedFlags.LastTradedTime);
@@ -186,7 +186,7 @@ public class OrderBookSideTests
         orderBook = new OrderBookSide(BookSide.BidBook, pqList);
         Assert.IsInstanceOfType(orderBook[0], typeof(FullSupportPriceVolumeLayer));
 
-        orderBook = new OrderBookSide(BookSide.BidBook, Enumerable.Empty<IPriceVolumeLayer>());
+        orderBook = new OrderBookSide(BookSide.BidBook, []);
         Assert.AreEqual(0, orderBook.Count);
     }
 
@@ -271,13 +271,13 @@ public class OrderBookSideTests
             for (var i = 0; i < MaxNumberOfLayers; i++)
             {
                 var layer       = ((IOrderBookSide)populatedOrderBook)[i];
-                var clonedLayer = (IMutablePriceVolumeLayer)layer!.Clone();
+                var clonedLayer = (IMutablePriceVolumeLayer)layer.Clone();
                 populatedOrderBook[i] = clonedLayer;
                 Assert.AreNotSame(layer, ((IMutableOrderBookSide)populatedOrderBook)[i]);
                 Assert.AreSame(clonedLayer, populatedOrderBook[i]);
                 if (i == populatedOrderBook.Count - 1)
                 {
-                    ((IMutableOrderBookSide)populatedOrderBook)[i] = null;
+                    populatedOrderBook[i] = populatedOrderBook[i].ResetWithTracking();
                     Assert.AreEqual(MaxNumberOfLayers - 1, populatedOrderBook.Count);
                 }
             }
@@ -290,9 +290,9 @@ public class OrderBookSideTests
         {
             Assert.AreEqual(populatedOrderBook.Count, populatedOrderBook.Capacity);
             Assert.AreEqual(MaxNumberOfLayers, populatedOrderBook.Capacity);
-            populatedOrderBook[MaxNumberOfLayers - 1] = null;
-            Assert.AreEqual(MaxNumberOfLayers - 1, populatedOrderBook.Capacity);
-            Assert.AreEqual(populatedOrderBook.Count, populatedOrderBook.Capacity);
+            populatedOrderBook[MaxNumberOfLayers - 1] = populatedOrderBook[MaxNumberOfLayers - 1].ResetWithTracking();
+            Assert.AreEqual(MaxNumberOfLayers, populatedOrderBook.Capacity);
+            Assert.AreEqual(populatedOrderBook.Count + 1, populatedOrderBook.Capacity);
         }
     }
 
@@ -311,7 +311,7 @@ public class OrderBookSideTests
             for (var i = MaxNumberOfLayers - 1; i >= 0; i--)
             {
                 Assert.AreEqual(i, populatedOrderBook.Count - 1);
-                populatedOrderBook[i]?.StateReset();
+                populatedOrderBook[i].StateReset();
             }
 
             Assert.AreEqual(0, populatedOrderBook.Count);
@@ -356,7 +356,7 @@ public class OrderBookSideTests
         foreach (var populatedOrderBook in allPopulatedOrderBooks)
         foreach (var subType in allPopulatedOrderBooks.Where(ob => !ReferenceEquals(ob, populatedOrderBook)))
         {
-            if (!WholeyContainedBy(subType[0]!.GetType(), populatedOrderBook[0]!.GetType())) continue;
+            if (!WhollyContainedBy(subType[0].GetType(), populatedOrderBook[0].GetType())) continue;
             var newEmpty = new OrderBookSide(populatedOrderBook);
             newEmpty.StateReset();
             Assert.AreNotEqual(populatedOrderBook, newEmpty);
@@ -370,9 +370,9 @@ public class OrderBookSideTests
     {
         var clonePopulated = simpleFullyPopulatedOrderBookSide.Clone();
         Assert.AreEqual(MaxNumberOfLayers, clonePopulated.Count);
-        clonePopulated[clonePopulated.Count - 1] = null;
-        clonePopulated[clonePopulated.Count - 1] = null;
-        clonePopulated[clonePopulated.Count - 1] = null;
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
         Assert.AreEqual(MaxNumberOfLayers - 3, clonePopulated.Count);
         var notEmpty = new OrderBookSide(simpleFullyPopulatedOrderBookSide);
         Assert.AreEqual(MaxNumberOfLayers, notEmpty.Count);
@@ -385,9 +385,9 @@ public class OrderBookSideTests
     {
         var clonePopulated = simpleFullyPopulatedOrderBookSide.Clone();
         Assert.AreEqual(MaxNumberOfLayers, clonePopulated.Count);
-        clonePopulated[clonePopulated.Count - 1] = null;
-        clonePopulated[clonePopulated.Count - 1] = null;
-        clonePopulated[5]                        = null;
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[5]  = clonePopulated[5].ResetWithTracking();
         Assert.AreEqual(MaxNumberOfLayers - 2, clonePopulated.Count);
         var notEmpty = new OrderBookSide(simpleFullyPopulatedOrderBookSide);
         Assert.AreEqual(MaxNumberOfLayers, notEmpty.Count);
@@ -401,10 +401,11 @@ public class OrderBookSideTests
     {
         var clonePopulated = simpleFullyPopulatedOrderBookSide.Clone();
         Assert.AreEqual(MaxNumberOfLayers, clonePopulated.Count);
-        clonePopulated[clonePopulated.Count - 1] = null;
-        clonePopulated[clonePopulated.Count - 1] = null;
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
+        clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
         Assert.AreEqual(MaxNumberOfLayers - 2, clonePopulated.Count);
-        var notEmpty = new OrderBookSide(simpleFullyPopulatedOrderBookSide) { [5] = null };
+        var notEmpty = new OrderBookSide(simpleFullyPopulatedOrderBookSide)
+            { [5] = simpleFullyPopulatedOrderBookSide[5].Clone().ResetWithTracking() };
         Assert.AreEqual(MaxNumberOfLayers, notEmpty.Count);
         notEmpty.CopyFrom(clonePopulated);
         Assert.AreEqual(notEmpty[5], clonePopulated[5]);
@@ -465,8 +466,11 @@ public class OrderBookSideTests
 
             Assert.IsTrue(toString.Contains(q.GetType().Name));
             Assert.IsTrue(toString.Contains($"{nameof(q.Capacity)}: {q.Capacity}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.MaxPublishDepth)}: {q.MaxPublishDepth}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.Count)}: {q.Count}"));
-            Assert.IsTrue(toString.Contains($"bookLayers:[{string.Join(", ", q)}]"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.LayerSupportedFlags)}: {q.LayerSupportedFlags}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.OpenInterestSideSide)}: {q.OpenInterestSideSide}"));
+            Assert.IsTrue(toString.Contains($"AllLayers: [{string.Join(", ", ((IEnumerable<IMutablePriceVolumeLayer>)q))}]"));
         }
     }
 
@@ -486,7 +490,7 @@ public class OrderBookSideTests
         Assert.AreEqual(0, ((IEnumerable<IPriceVolumeLayer>)rt).Count());
     }
 
-    private bool WholeyContainedBy(Type copySourceType, Type copyDestinationType)
+    private bool WhollyContainedBy(Type copySourceType, Type copyDestinationType)
     {
         if (copySourceType == typeof(PriceVolumeLayer)) return true;
         if (copySourceType == typeof(SourcePriceVolumeLayer))
@@ -598,15 +602,11 @@ public class OrderBookSideTests
                , commonOrderBookSide,
                  changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote, changingQuote
                 );
-            FullSupportPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType(
-                                                                                                 exactComparison
-                                                                                               , commonOrderBookSide[i] as
-                                                                                                     IMutableFullSupportPriceVolumeLayer,
-                                                                                                 changingOrderBookSide[i] as
-                                                                                                     IMutableFullSupportPriceVolumeLayer
-                                                                                               , commonOrderBookSide,
-                                                                                                 changingOrderBookSide, originalOrderBook
-                                                                                               , changingOrderBook, originalQuote, changingQuote);
+            FullSupportPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
+                (exactComparison, commonOrderBookSide[i] as IMutableFullSupportPriceVolumeLayer
+               , changingOrderBookSide[i] as IMutableFullSupportPriceVolumeLayer, commonOrderBookSide
+               , changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote, changingQuote
+                );
         }
     }
 }

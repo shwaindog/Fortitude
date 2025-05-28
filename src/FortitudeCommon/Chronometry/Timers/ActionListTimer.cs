@@ -654,7 +654,7 @@ public class ActionListTimer : ActionTimer
             syncLock.Release();
         }
 
-        return processingCallbacks;
+        return processingCallbacks!;
     }
 
     public class ShouldSkipDisposable : IProcessListConsumer

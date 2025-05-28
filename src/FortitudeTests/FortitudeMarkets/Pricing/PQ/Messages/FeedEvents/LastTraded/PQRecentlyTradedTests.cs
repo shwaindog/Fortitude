@@ -599,7 +599,6 @@ public class PQRecentlyTradedTests
     [TestMethod]
     public void PopulatedRecentlyTraded_SmallerToLargerCalculateShifts_ShiftRightCommandsExpected()
     {
-        var midIndex = MaxNumberOfEntries / 2 + 1;
         fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
@@ -674,7 +673,6 @@ public class PQRecentlyTradedTests
     [TestMethod]
     public void PopulatedRecentlyTraded_SmallerToLargerCalculateShiftsWithElementMovedToStart_ShiftRightCommandsExpected()
     {
-        var midIndex = MaxNumberOfEntries / 2 + 1;
         fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
@@ -775,7 +773,6 @@ public class PQRecentlyTradedTests
     [TestMethod]
     public void PopulatedRecentlyTraded_LargerToSmallerCalculateShiftsWithNewEntryInMiddle_CalculateShiftLeftCommandsReturnsExpected()
     {
-        var midIndex = MaxNumberOfEntries / 2 + 1;
         fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);

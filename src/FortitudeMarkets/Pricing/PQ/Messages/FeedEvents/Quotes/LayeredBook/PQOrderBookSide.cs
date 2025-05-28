@@ -5,6 +5,7 @@
 
 using System.Collections;
 using FortitudeCommon.DataStructures.Collections;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
@@ -25,12 +26,16 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 
 public interface IPQOrderBookSide : IMutableOrderBookSide, IPQSupportsNumberPrecisionFieldUpdates<IOrderBookSide>,
-    IPQSupportsStringUpdates<IOrderBookSide>, IEnumerable<IPQPriceVolumeLayer>, ICloneable<IPQOrderBookSide>,
+    IPQSupportsStringUpdates<IOrderBookSide>, ICloneable<IPQOrderBookSide>,
     IRelatedItems<LayerFlags, ushort>, IRelatedItems<INameIdLookupGenerator>,
-    ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQOrderBookSide>
+    ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQOrderBookSide>, ICapacityList<IPQPriceVolumeLayer>
 
 {
-    new IPQPriceVolumeLayer? this[int level] { get; set; }
+    new int Capacity { get; set; }
+
+    new int Count { get; set; }
+
+    new IPQPriceVolumeLayer this[int level] { get; set; }
     IReadOnlyList<IPQPriceVolumeLayer> AllLayers { get; }
 
     new bool HasUpdates { get; set; }
@@ -163,17 +168,8 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         for (var i = 0; i < size; i++)
         {
             var sourceLayer = toClone[i];
-            if (sourceLayer != null)
-            {
-                var pqLayer = LayerSelector.CreateExpectedImplementation(sourceLayer.LayerType, NameIdLookup, sourceLayer);
-                allLayers.Add(pqLayer);
-            }
-            else
-            {
-                var pqLayer = LayerSelector.CreateExpectedImplementation(LayerSupportedType, NameIdLookup);
-                pqLayer.IsEmpty = true;
-                allLayers.Add(pqLayer);
-            }
+            var pqLayer = LayerSelector.CreateExpectedImplementation(sourceLayer.LayerType, NameIdLookup, sourceLayer);
+            allLayers.Add(pqLayer);
         }
 
         if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
@@ -206,35 +202,25 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public BookSide BookSide { get; }
 
-    public IPQPriceVolumeLayer? this[int level]
+    public IPQPriceVolumeLayer this[int level]
     {
-        get => level < AllLayers.Count && level >= 0 ? AllLayers[level] : null;
+        get => level < AllLayers.Count && level >= 0 ? AllLayers[level] : AllLayers[0];
         set
         {
-            if (value == null)
+            if (value is ISupportsPQNameIdLookupGenerator setNameIdLookup)
             {
-                if (level < AllLayers.Count)
-                {
-                    AllLayers[level].IsEmpty = true;
-                }
+                setNameIdLookup.NameIdLookup = NameIdLookup;
             }
-            else
-            {
-                if (value is ISupportsPQNameIdLookupGenerator setNameIdLookup)
-                {
-                    setNameIdLookup.NameIdLookup = NameIdLookup;
-                }
-                allLayers[level] = value;
-            }
+            allLayers[level] = value;
         }
     }
 
-    IPriceVolumeLayer? IOrderBookSide.this[int level] => this[level];
+    IPriceVolumeLayer IReadOnlyList<IPriceVolumeLayer>.this[int level] => this[level];
 
-    IMutablePriceVolumeLayer? IMutableOrderBookSide.this[int level]
+    IMutablePriceVolumeLayer IMutableOrderBookSide.this[int level]
     {
         get => this[level];
-        set => this[level] = value as IPQPriceVolumeLayer;
+        set => this[level] = (IPQPriceVolumeLayer)value;
     }
 
     public IReadOnlyList<IPQPriceVolumeLayer> AllLayers => allLayers.AsReadOnly();
@@ -282,7 +268,66 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
             return 0;
         }
+        set
+        {
+            for (var i = Capacity; i >= value; i--)
+            {
+                var layerAtLevel = AllLayers[i];
+                layerAtLevel.IsEmpty = true;
+            }
+        }
     }
+
+    IMutablePriceVolumeLayer IReadOnlyList<IMutablePriceVolumeLayer>.this[int index] => this[index];
+
+    public void Add(IMutablePriceVolumeLayer item)
+    {
+        allLayers.Add((IPQPriceVolumeLayer)item);
+    }
+
+    public void Clear()
+    {
+        allLayers.Clear();
+    }
+
+    public bool Contains(IMutablePriceVolumeLayer item) => allLayers.Contains((IPQPriceVolumeLayer)item);
+
+    public void CopyTo(IMutablePriceVolumeLayer[] array, int arrayIndex)
+    {
+        for (int i = 0; i < allLayers.Count && i + arrayIndex < array.Length; i++)
+        {
+            array[i + arrayIndex] = allLayers[i];
+        }
+    }
+
+    public bool Remove(IMutablePriceVolumeLayer item)  => allLayers.Remove((IPQPriceVolumeLayer)item);
+    public bool IsReadOnly                             => false;
+    public int  IndexOf(IMutablePriceVolumeLayer item) => allLayers.IndexOf((IPQPriceVolumeLayer)item);
+
+    public void Insert(int index, IMutablePriceVolumeLayer item)
+    {
+        allLayers.Insert(index, (IPQPriceVolumeLayer)item);
+    }
+
+    public void RemoveAt(int index)
+    {
+        allLayers.RemoveAt(index);
+    }
+
+    IMutablePriceVolumeLayer IList<IMutablePriceVolumeLayer>.this[int index]
+    {
+        get => this[index];
+        set => this[index] = (IPQPriceVolumeLayer)value;
+    }
+
+    IMutablePriceVolumeLayer IMutableCapacityList<IMutablePriceVolumeLayer>.this[int i]
+    {
+        get => this[i];
+        set => this[i] = (IPQPriceVolumeLayer)value;
+    }
+
+    IEnumerator<IMutablePriceVolumeLayer> IMutableOrderBookSide.                GetEnumerator() => GetEnumerator();
+    IEnumerator<IMutablePriceVolumeLayer> IEnumerable<IMutablePriceVolumeLayer>.GetEnumerator() => GetEnumerator();
 
     public bool HasUpdates
     {
@@ -440,7 +485,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         {
             var index              = pqFieldUpdate.DepthIndex();
             var pqPriceVolumeLayer = this[index];
-            return pqPriceVolumeLayer?.UpdateField(pqFieldUpdate) ?? -1;
+            return pqPriceVolumeLayer.UpdateField(pqFieldUpdate);
         }
         return -1;
     }
@@ -546,7 +591,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         {
             var localLayer  = this[i];
             var otherLayer  = other[i];
-            var layerIsSame = localLayer?.AreEquivalent(otherLayer, exactTypes) ?? otherLayer == null;
+            var layerIsSame = localLayer.AreEquivalent(otherLayer, exactTypes);
             bookLayersSame &= layerIsSame;
         }
 

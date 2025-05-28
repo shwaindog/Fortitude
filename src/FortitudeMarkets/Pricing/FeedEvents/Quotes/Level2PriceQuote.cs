@@ -4,6 +4,7 @@
 #region
 
 using System.Text.Json.Serialization;
+using System.Linq;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
@@ -18,11 +19,9 @@ namespace FortitudeMarkets.Pricing.FeedEvents.Quotes;
 
 public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneable<Level2PriceQuote>
 {
-    private IMutableOrderBook orderBook;
-
     public Level2PriceQuote()
     {
-        orderBook = new OrderBook(numBookLayers: SourceTickerInfo.DefaultMaximumPublishedLayers);
+        OrderBook = new OrderBook(numBookLayers: SourceTickerInfo.DefaultMaximumPublishedLayers);
     }
 
     public Level2PriceQuote
@@ -36,13 +35,13 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
         {
             mutOrderBook.LayerSupportedFlags |= sourceTickerInfo.LayerFlags;
 
-            orderBook = mutOrderBook;
+            OrderBook = mutOrderBook;
         }
         else if (orderBookParam != null)
-            orderBook = new OrderBook(orderBookParam);
+            OrderBook = new OrderBook(orderBookParam);
         else
         {
-            orderBook = new OrderBook(sourceTickerInfo);
+            OrderBook = new OrderBook(sourceTickerInfo);
         }
     }
 
@@ -50,11 +49,11 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
     {
         if (toClone is ILevel2Quote level2ToClone)
         {
-            orderBook = new OrderBook(level2ToClone.OrderBook);
+            OrderBook = new OrderBook(level2ToClone.OrderBook);
         }
         else
         {
-            orderBook = new OrderBook(numBookLayers: SourceTickerInfo.DefaultMaximumPublishedLayers);
+            OrderBook = new OrderBook(numBookLayers: SourceTickerInfo.DefaultMaximumPublishedLayers);
         }
     }
 
@@ -68,11 +67,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
 
     IOrderBook ILevel2Quote.OrderBook => OrderBook;
 
-    public IMutableOrderBook OrderBook
-    {
-        get => orderBook;
-        set { orderBook = value; }
-    }
+    public IMutableOrderBook OrderBook { get; set; }
 
     public       IMutableOrderBookSide       BidBook => OrderBook.BidSide;
     [JsonIgnore] IOrderBookSide ILevel2Quote.BidBook => OrderBook.BidSide;
@@ -84,15 +79,15 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
     [JsonIgnore]
     public override decimal BidPriceTop
     {
-        get => BidBook.Any() ? BidBook[0]?.Price ?? 0 : 0m;
-        set { BidBook[0]!.Price = value; }
+        get => ((IEnumerable<IMutablePriceVolumeLayer>)BidBook).Any() ? BidBook[0].Price : 0;
+        set => BidBook[0].Price = value;
     }
 
     [JsonIgnore]
     public override decimal AskPriceTop
     {
-        get => AskBook.Any() ? AskBook[0]?.Price ?? 0 : 0m;
-        set { AskBook[0]!.Price = value; }
+        get => ((IEnumerable<IMutablePriceVolumeLayer>)AskBook).Any() ? AskBook[0].Price : 0m;
+        set => AskBook[0].Price = value;
     }
 
     IMutableLevel2Quote ITrackableReset<IMutableLevel2Quote>.ResetWithTracking() => ResetWithTracking();
@@ -129,7 +124,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
         if (other is not ILevel2Quote otherL2) return false;
         var baseIsSame = base.AreEquivalent(otherL2, exactTypes);
 
-        var orderBookSame = OrderBook?.AreEquivalent(otherL2.OrderBook, exactTypes) ?? otherL2?.BidBook == null;
+        var orderBookSame = OrderBook.AreEquivalent(otherL2.OrderBook, exactTypes);
 
 
         var allAreSame = baseIsSame && orderBookSame;
@@ -143,8 +138,8 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
         unchecked
         {
             var hashCode = base.GetHashCode();
-            hashCode = (hashCode * 397) ^ (BidBook != null ? BidBook.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ (AskBook != null ? AskBook.GetHashCode() : 0);
+            hashCode = (hashCode * 397) ^ BidBook.GetHashCode();
+            hashCode = (hashCode * 397) ^ AskBook.GetHashCode();
             return hashCode;
         }
     }
@@ -281,17 +276,17 @@ public class PublishableLevel2PriceQuote : PublishableLevel1PriceQuote, IMutable
     [JsonIgnore]
     public override decimal BidPriceTop
     {
-        get => AsNonPublishable.OrderBook.BidSide.Any() ? AsNonPublishable.OrderBook.BidSide[0]?.Price ?? 0 : 0m;
+        get => ((IEnumerable<IPriceVolumeLayer>)AsNonPublishable.OrderBook.BidSide).Any() ? AsNonPublishable.OrderBook.BidSide[0].Price : 0m;
         set
         {
-            if (AsNonPublishable.BidBook.Capacity > 0 && AsNonPublishable.OrderBook.BidSide[0] != null)
+            if (AsNonPublishable.BidBook.Capacity > 0)
             {
-                AsNonPublishable.OrderBook.BidSide[0]!.Price = value;
+                AsNonPublishable.OrderBook.BidSide[0].Price = value;
             }
             else
             {
-                AsNonPublishable.OrderBook.BidSide[0] = OrderBookSide.LayerSelector.FindForLayerFlags(SourceTickerInfo!) as IMutablePriceVolumeLayer;
-                AsNonPublishable.OrderBook.BidSide[0]!.Price = value;
+                AsNonPublishable.OrderBook.BidSide[0] = OrderBookSide.LayerSelector.FindForLayerFlags(SourceTickerInfo!);
+                AsNonPublishable.OrderBook.BidSide[0].Price = value;
             }
         }
     }
@@ -299,17 +294,17 @@ public class PublishableLevel2PriceQuote : PublishableLevel1PriceQuote, IMutable
     [JsonIgnore]
     public override decimal AskPriceTop
     {
-        get => AsNonPublishable.OrderBook.AskSide.Any() ? AsNonPublishable.OrderBook.AskSide[0]?.Price ?? 0 : 0m;
+        get => ((IEnumerable<IPriceVolumeLayer>)AsNonPublishable.OrderBook.AskSide).Any() ? AsNonPublishable.OrderBook.AskSide[0].Price : 0m;
         set
         {
-            if (AsNonPublishable.OrderBook.AskSide.Capacity > 0 && AsNonPublishable.OrderBook.AskSide[0] != null)
+            if (AsNonPublishable.OrderBook.AskSide.Capacity > 0)
             {
-                AsNonPublishable.OrderBook.AskSide[0]!.Price = value;
+                AsNonPublishable.OrderBook.AskSide[0].Price = value;
             }
             else
             {
-                AsNonPublishable.OrderBook.AskSide[0] = OrderBookSide.LayerSelector.FindForLayerFlags(SourceTickerInfo!) as IMutablePriceVolumeLayer;
-                AsNonPublishable.OrderBook.AskSide[0]!.Price = value;
+                AsNonPublishable.OrderBook.AskSide[0] = OrderBookSide.LayerSelector.FindForLayerFlags(SourceTickerInfo!);
+                AsNonPublishable.OrderBook.AskSide[0].Price = value;
             }
         }
     }
@@ -360,8 +355,8 @@ public class PublishableLevel2PriceQuote : PublishableLevel1PriceQuote, IMutable
         unchecked
         {
             var hashCode = base.GetHashCode();
-            hashCode = (hashCode * 397) ^ (BidBook != null ? BidBook.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ (AskBook != null ? AskBook.GetHashCode() : 0);
+            hashCode = (hashCode * 397) ^ BidBook.GetHashCode();
+            hashCode = (hashCode * 397) ^ AskBook.GetHashCode();
             return hashCode;
         }
     }

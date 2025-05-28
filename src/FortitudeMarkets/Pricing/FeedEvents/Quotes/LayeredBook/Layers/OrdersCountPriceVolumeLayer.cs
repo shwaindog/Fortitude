@@ -11,7 +11,6 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 
-
 public class OrdersCountPriceVolumeLayer : PriceVolumeLayer, IMutableOrdersCountPriceVolumeLayer
 {
     public OrdersCountPriceVolumeLayer() { }
@@ -63,11 +62,14 @@ public class OrdersCountPriceVolumeLayer : PriceVolumeLayer, IMutableOrdersCount
 
     IOrdersCountPriceVolumeLayer IOrdersCountPriceVolumeLayer.Clone() => Clone();
 
-    public override IMutableOrdersCountPriceVolumeLayer Clone() => new OrdersCountPriceVolumeLayer(this);
+    IMutableOrdersCountPriceVolumeLayer IMutableOrdersCountPriceVolumeLayer.Clone() => Clone();
+
+    public override OrdersCountPriceVolumeLayer Clone() =>
+        Recycler?.Borrow<OrdersCountPriceVolumeLayer>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new OrdersCountPriceVolumeLayer(this);
 
     IMutableOrdersCountPriceVolumeLayer ITrackableReset<IMutableOrdersCountPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
 
-    IMutableOrdersCountPriceVolumeLayer IMutableOrdersCountPriceVolumeLayer.                 ResetWithTracking() => ResetWithTracking();
+    IMutableOrdersCountPriceVolumeLayer IMutableOrdersCountPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
 
     public override OrdersCountPriceVolumeLayer ResetWithTracking()
     {
@@ -96,7 +98,7 @@ public class OrdersCountPriceVolumeLayer : PriceVolumeLayer, IMutableOrdersCount
         return baseSame && ordersCountSame && internalVolumeSame;
     }
 
-    public override IMutableOrdersCountPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override OrdersCountPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
 

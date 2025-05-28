@@ -297,7 +297,7 @@ public class LayerFlagsSelectorTests
 
         protected override string SelectSourceQuoteRefTraderValueDatePriceVolumeLayer() => nameof(SelectSourceQuoteRefTraderValueDatePriceVolumeLayer);
 
-        public override IPriceVolumeLayer CreateExpectedImplementation
+        public override IMutablePriceVolumeLayer CreateExpectedImplementation
         (LayerType desiredLayerType, IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
             throw new NotImplementedException();
     }

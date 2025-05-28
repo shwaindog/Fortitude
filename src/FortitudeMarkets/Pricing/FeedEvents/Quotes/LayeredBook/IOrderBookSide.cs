@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
@@ -19,7 +20,7 @@ public enum BookSide
   , AskBook
 }
 
-public interface IOrderBookSide : IEnumerable<IPriceVolumeLayer>, IReusableObject<IOrderBookSide>,
+public interface IOrderBookSide : ICapacityList<IPriceVolumeLayer>, IReusableObject<IOrderBookSide>,
     IInterfacesComparable<IOrderBookSide>
 {
     LayerType  LayerSupportedType             { get; }
@@ -33,16 +34,14 @@ public interface IOrderBookSide : IEnumerable<IPriceVolumeLayer>, IReusableObjec
     bool      HasNonEmptyOpenInterest { get; }
     IMarketAggregate OpenInterestSide               { get; }
 
-    int Capacity { get; }
-    int Count    { get; }
-
-
     BookSide BookSide { get; }
-    IPriceVolumeLayer? this[int level] { get; }
 }
 
-public interface IMutableOrderBookSide : IOrderBookSide, ICloneable<IMutableOrderBookSide>, ITrackableReset<IMutableOrderBookSide>
+public interface IMutableOrderBookSide : IOrderBookSide, IMutableCapacityList<IMutablePriceVolumeLayer>,
+    ICloneable<IMutableOrderBookSide>, ITrackableReset<IMutableOrderBookSide>
 {
+    new int Count { get; set; }
+
     new int Capacity { get; set; }
     
     new LayerFlags            LayerSupportedFlags { get; set; }
@@ -53,7 +52,10 @@ public interface IMutableOrderBookSide : IOrderBookSide, ICloneable<IMutableOrde
 
     new IMutableMarketAggregate? OpenInterestSide        { get; set; }
 
-    new IMutablePriceVolumeLayer? this[int level] { get; set; }
+    new IEnumerator<IMutablePriceVolumeLayer> GetEnumerator(); 
+
+    new IMutablePriceVolumeLayer this[int level] { get; set; }
+
     new IMutableOrderBookSide Clone();
 
     int AppendEntryAtEnd();

@@ -18,18 +18,18 @@ namespace FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 
 public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSide
 {
-    private IList<IPriceVolumeLayer?> bookLayers;
+    protected IList<IMutablePriceVolumeLayer> AllLayers;
 
     private ushort maxPublishDepth;
 
-    private LayerFlags            layerFlags = LayerFlagsExtensions.PriceVolumeLayerFlags;
+    private LayerFlags               layerFlags = LayerFlagsExtensions.PriceVolumeLayerFlags;
     private IMutableMarketAggregate? openInterestSide;
 
     public OrderBookSide()
     {
         BookSide   = BookSide.Unknown;
-        bookLayers = new List<IPriceVolumeLayer?>();
-        bookLayers.Add(LayerSelector?.CreateExpectedImplementation(LayerSupportedType));
+        AllLayers = new List<IMutablePriceVolumeLayer>();
+        AllLayers.Add(LayerSelector.CreateExpectedImplementation(LayerSupportedType));
     }
 
     public OrderBookSide
@@ -38,20 +38,20 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     {
         BookSide        = bookSide;
         MaxPublishDepth = maxPublishDepth;
-        LayerSupportedFlags = bookLayers?.FirstOrDefault()?.SupportsLayerFlags ?? LayerFlagsExtensions.PriceVolumeLayerFlags |
+        LayerSupportedFlags = AllLayers?.FirstOrDefault()?.SupportsLayerFlags ?? LayerFlagsExtensions.PriceVolumeLayerFlags |
             (isLadder ? LayerFlags.Ladder : LayerFlags.None);
         layerFlags |= LayerSupportedType.SupportedLayerFlags();
-        bookLayers =  Enumerable.Repeat(LayerSelector?.CreateExpectedImplementation(layerType), maxPublishDepth).ToList();
+        AllLayers =  Enumerable.Repeat(LayerSelector.CreateExpectedImplementation(layerType), maxPublishDepth).ToList();
         IsLadder   =  isLadder;
     }
 
     public OrderBookSide(BookSide bookSide, ushort numBookLayers, bool isLadder = false)
     {
-        BookSide                 = bookSide;
-        MaxPublishDepth          = numBookLayers;
+        BookSide            = bookSide;
+        MaxPublishDepth     = numBookLayers;
         LayerSupportedFlags = (isLadder ? LayerFlags.Ladder : LayerFlags.None);
-        bookLayers               = Enumerable.Repeat(LayerSelector?.CreateExpectedImplementation(LayerSupportedType), numBookLayers).ToList();
-        IsLadder                 = isLadder;
+        AllLayers          = Enumerable.Repeat(LayerSelector.CreateExpectedImplementation(LayerSupportedType), numBookLayers).ToList();
+        IsLadder            = isLadder;
     }
 
     public OrderBookSide(BookSide bookSide, IEnumerable<IPriceVolumeLayer> bookLayers)
@@ -59,31 +59,30 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         BookSide = bookSide;
 
         LayerSupportedFlags = bookLayers.FirstOrDefault()?.SupportsLayerFlags ?? LayerFlagsExtensions.PriceVolumeLayerFlags;
-        MaxPublishDepth          = (ushort)bookLayers.Count();
-        this.bookLayers =
+        MaxPublishDepth     = (ushort)bookLayers.Count();
+        this.AllLayers =
             bookLayers
                 .Select(pvl => LayerSelector
                             .CreateExpectedImplementation(pvl.LayerType, pvl))
-                .Cast<IPriceVolumeLayer?>()
                 .ToList();
     }
 
     public OrderBookSide(IOrderBookSide toClone)
     {
-        BookSide                 =  toClone.BookSide;
-        MaxPublishDepth          =  toClone.MaxPublishDepth;
-        LayerSupportedFlags =  toClone.LayerSupportedFlags;
-        layerFlags               |= LayerSupportedType.SupportedLayerFlags();
-        IsLadder                 =  toClone.IsLadder;
-        DailyTickUpdateCount = toClone.DailyTickUpdateCount;
+        BookSide             =  toClone.BookSide;
+        MaxPublishDepth      =  toClone.MaxPublishDepth;
+        LayerSupportedFlags  =  toClone.LayerSupportedFlags;
+        layerFlags           |= LayerSupportedType.SupportedLayerFlags();
+        IsLadder             =  toClone.IsLadder;
+        DailyTickUpdateCount =  toClone.DailyTickUpdateCount;
         if (toClone.HasNonEmptyOpenInterest)
         {
             openInterestSide = new MarketAggregate(toClone.OpenInterestSide);
         }
-        bookLayers =
+        AllLayers =
             toClone
                 .Select
-                    (pvl => LayerSelector?.CreateExpectedImplementation(pvl.LayerType, pvl))
+                    (pvl => LayerSelector.CreateExpectedImplementation(pvl.LayerType, pvl))
                 .ToList();
         Capacity = toClone.Capacity;
     }
@@ -93,12 +92,12 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         BookSide = bookSide;
 
         LayerSupportedFlags =  sourceTickerInfo.LayerFlags;
-        layerFlags               |= LayerSupportedType.SupportedLayerFlags();
+        layerFlags          |= LayerSupportedType.SupportedLayerFlags();
 
         MaxPublishDepth = sourceTickerInfo.MaximumPublishedLayers;
-        bookLayers =
+        AllLayers =
             Enumerable
-                .Repeat(LayerSelector?.CreateExpectedImplementation(LayerSupportedType), MaxPublishDepth)
+                .Repeat(LayerSelector.CreateExpectedImplementation(LayerSupportedType), MaxPublishDepth)
                 .ToList();
     }
 
@@ -109,7 +108,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         private set => maxPublishDepth = Math.Max((byte)1, Math.Min(value, PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth));
     }
 
-    public static ILayerFlagsSelector<IPriceVolumeLayer> LayerSelector { get; set; } = new OrderBookLayerFactorySelector();
+    public static ILayerFlagsSelector<IMutablePriceVolumeLayer> LayerSelector { get; set; } = new OrderBookLayerFactorySelector();
 
     public LayerType LayerSupportedType
     {
@@ -122,15 +121,16 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         get => layerFlags;
         set => layerFlags = layerFlags.Unset(LayerFlags.Ladder) | value;
     }
-    
+
     public bool IsLadder
     {
         get => layerFlags.HasLadder();
         set => LayerSupportedFlags = value ? LayerFlags.Ladder : LayerFlags.None;
     }
+
     public bool HasNonEmptyOpenInterest
     {
-        get => openInterestSide is {IsEmpty: false};
+        get => openInterestSide is { IsEmpty: false };
         set
         {
             if (value) return;
@@ -142,6 +142,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     }
 
     IMarketAggregate IOrderBookSide.OpenInterestSide => OpenInterestSideSide!;
+
     IMutableMarketAggregate? IMutableOrderBookSide.OpenInterestSide
     {
         get => OpenInterestSideSide;
@@ -152,9 +153,10 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     {
         get
         {
-            if (HasNonEmptyOpenInterest && openInterestSide is not {DataSource: (MarketDataSource.Published or MarketDataSource.None)}) return openInterestSide;
+            if (HasNonEmptyOpenInterest && openInterestSide is not { DataSource: (MarketDataSource.Published or MarketDataSource.None) })
+                return openInterestSide;
             var vwapResult = this.CalculateVwap();
-            
+
             openInterestSide            ??= new MarketAggregate();
             openInterestSide.DataSource =   MarketDataSource.Published;
             openInterestSide.UpdateTime =   DateTime.Now;
@@ -183,60 +185,95 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     public uint DailyTickUpdateCount { get; set; }
 
 
-    public IMutablePriceVolumeLayer? this[int level]
+    public IMutablePriceVolumeLayer this[int level]
     {
-        get => level < bookLayers.Count && level >= 0 ? (IMutablePriceVolumeLayer)bookLayers[level]! : null;
-        set
-        {
-            if (value == null && level == bookLayers.Count - 1)
-            {
-                bookLayers.RemoveAt(level);
-                return;
-            }
-
-            bookLayers[level] = value!;
-        }
+        get => level < AllLayers.Count && level >= 0 ? AllLayers[level] : AllLayers[0];
+        set => AllLayers[level] = value;
     }
 
     public BookSide BookSide { get; }
 
-    IPriceVolumeLayer? IOrderBookSide.this[int level] => this[level];
+    IPriceVolumeLayer IReadOnlyList<IPriceVolumeLayer>.this[int level] => this[level];
 
     public int Count
     {
         get
         {
-            for (var i = bookLayers.Count - 1; i >= 0; i--)
+            for (var i = AllLayers.Count - 1; i >= 0; i--)
             {
-                var layerAtLevel = bookLayers[i];
-                if ((layerAtLevel?.Price ?? 0) > 0) return i + 1;
+                var layerAtLevel = AllLayers[i];
+                if (!layerAtLevel.IsEmpty) return i + 1;
             }
 
             return 0;
+        }
+        set
+        {
+            for (var i = Capacity; i >= value; i--)
+            {
+                var layerAtLevel = AllLayers[i];
+                layerAtLevel.IsEmpty = true;
+            }
         }
     }
 
     public int Capacity
     {
-        get => bookLayers.Count;
+        get => AllLayers.Count;
         set
         {
             if (value > PQFeedFieldsExtensions.SingleByteFieldIdMaxBookDepth)
                 throw new ArgumentException("Expected OrderBook Capacity to be less than or equal to " +
                                             PQFeedFieldsExtensions.SingleByteFieldIdMaxBookDepth);
-            while (bookLayers.Count < value)
+            while (AllLayers.Count < value)
             {
                 var cloneFirstLayer = LayerSelector.CreateExpectedImplementation(LayerSupportedType);
-                cloneFirstLayer?.StateReset();
-                if (cloneFirstLayer != null) bookLayers.Add(cloneFirstLayer);
+                cloneFirstLayer.StateReset();
+                AllLayers.Add(cloneFirstLayer);
             }
         }
     }
 
+    public void Add(IMutablePriceVolumeLayer item)
+    {
+        AllLayers.Add(item);
+    }
+
+    public void Clear()
+    {
+        AllLayers.Clear();
+    }
+
+    public bool Contains(IMutablePriceVolumeLayer item) => AllLayers.Contains(item);
+
+    public void CopyTo(IMutablePriceVolumeLayer[] array, int arrayIndex)
+    {
+        for (int i = 0; i < AllLayers.Count && i + arrayIndex < array.Length; i++)
+        {
+            array[i + arrayIndex] = AllLayers[i];
+        }
+    }
+
+    public bool Remove(IMutablePriceVolumeLayer item) => AllLayers.Remove(item);
+
+    public bool IsReadOnly => false;
+
+    public int IndexOf(IMutablePriceVolumeLayer item) => AllLayers.IndexOf(item);
+
+    public void Insert(int index, IMutablePriceVolumeLayer item)
+    {
+        AllLayers.Insert(index, item);
+    }
+
+    public void RemoveAt(int index)
+    {
+        AllLayers.RemoveAt(index);
+    }
+
     public int AppendEntryAtEnd()
     {
-        var index = bookLayers.Count;
-        bookLayers.Add(LayerSelector.CreateExpectedImplementation(LayerSupportedType));
+        var index = AllLayers.Count;
+        AllLayers.Add(LayerSelector.CreateExpectedImplementation(LayerSupportedType));
         return index;
     }
 
@@ -246,7 +283,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
     IOrderBookSide ICloneable<IOrderBookSide>.Clone() => Clone();
 
-    object ICloneable.Clone() => Clone();
+    public override OrderBookSide Clone() => Recycler?.Borrow<OrderBookSide>().CopyFrom(this) ?? new OrderBookSide(this);
 
     public bool AreEquivalent(IOrderBookSide? other, bool exactTypes = false)
     {
@@ -261,12 +298,12 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         {
             openInterestSame = Equals(openInterestSide, other.OpenInterestSide);
         }
-        var bookLayersSame  = true;
+        var bookLayersSame = true;
         for (int i = 0; i < Count; i++)
         {
             var localLayer  = this[i];
             var otherLayer  = other[i];
-            var layerIsSame = localLayer?.AreEquivalent(otherLayer, exactTypes) ?? otherLayer == null;
+            var layerIsSame = localLayer.AreEquivalent(otherLayer, exactTypes);
             bookLayersSame &= layerIsSame;
         }
         var allAreSame = ladderSame && countSame && maxPubDepthSame && bookLayersSame && openInterestSame;
@@ -275,22 +312,24 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<IPriceVolumeLayer> GetEnumerator() => bookLayers.Take(Count).GetEnumerator()!;
+    IEnumerator<IPriceVolumeLayer> IEnumerable<IPriceVolumeLayer>.GetEnumerator() => GetEnumerator();
 
-    
+    public IEnumerator<IMutablePriceVolumeLayer> GetEnumerator() => AllLayers.Take(Count).GetEnumerator();
+
+
     public OrderBookSide ResetWithTracking()
     {
-        for (var i = 0; i < bookLayers.Count; i++) (bookLayers[i] as IMutablePriceVolumeLayer)?.ResetWithTracking();
+        for (var i = 0; i < AllLayers.Count; i++) (AllLayers[i]).ResetWithTracking();
         openInterestSide?.ResetWithTracking();
 
         return this;
     }
-    
+
     IMutableOrderBookSide ITrackableReset<IMutableOrderBookSide>.ResetWithTracking() => ResetWithTracking();
 
     public override void StateReset()
     {
-        for (var i = 0; i < bookLayers.Count; i++) (bookLayers[i] as IMutablePriceVolumeLayer)?.StateReset();
+        for (var i = 0; i < AllLayers.Count; i++) (AllLayers[i]).StateReset();
         openInterestSide?.StateReset();
         base.StateReset();
     }
@@ -299,12 +338,13 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     public override OrderBookSide CopyFrom(IOrderBookSide source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         LayerSupportedFlags = source.LayerSupportedFlags;
-        MaxPublishDepth          = source.MaxPublishDepth;
+        MaxPublishDepth     = source.MaxPublishDepth;
         if (source.HasNonEmptyOpenInterest)
         {
             openInterestSide ??= new MarketAggregate();
             openInterestSide.CopyFrom(source.OpenInterestSide, copyMergeFlags);
-        } else if (openInterestSide != null)
+        }
+        else if (openInterestSide != null)
         {
             openInterestSide.IsEmpty = true;
         }
@@ -316,31 +356,27 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
             if (sourceLayer is null or { IsEmpty: true } && i >= originalCount) continue;
             var destinationLayer = this[i];
 
-            if (i < bookLayers.Count)
-                bookLayers[i] = LayerSelector.UpgradeExistingLayer(destinationLayer, LayerSupportedType, sourceLayer);
+            if (i < AllLayers.Count)
+                AllLayers[i] = LayerSelector.UpgradeExistingLayer(destinationLayer, LayerSupportedType, sourceLayer);
             else
-                bookLayers.Add(LayerSelector.CreateExpectedImplementation(LayerSupportedType, sourceLayer));
+                AllLayers.Add(LayerSelector.CreateExpectedImplementation(LayerSupportedType, sourceLayer));
 
             if (sourceLayer is { IsEmpty: false }) continue;
             if (destinationLayer is { } mutablePriceVolumeLayer) mutablePriceVolumeLayer.IsEmpty = true;
         }
 
-        for (var i = source.Count; i < bookLayers.Count; i++)
-            if (bookLayers[i] is IMutablePriceVolumeLayer mutablePvl)
-                mutablePvl.IsEmpty = true;
+        for (var i = source.Count; i < AllLayers.Count; i++) AllLayers[i].IsEmpty = true;
         return this;
     }
 
-    public override OrderBookSide Clone() => (OrderBookSide?)Recycler?.Borrow<OrderBookSide>().CopyFrom(this) ?? new OrderBookSide(this);
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IOrderBookSide?)obj, true);
 
-    public override int GetHashCode() => bookLayers?.GetHashCode() ?? 0;
+    public override int GetHashCode() => AllLayers.GetHashCode();
 
     protected string OrderBookSideToStringMembers =>
         $"{nameof(Capacity)}: {Capacity}, {nameof(MaxPublishDepth)}: {MaxPublishDepth}, {nameof(Count)}: {Count}, {nameof(LayerSupportedFlags)}: {LayerSupportedFlags}, " +
-        $"{nameof(OpenInterestSideSide)}: {OpenInterestSideSide},  {nameof(bookLayers)}:[{string.Join(", ", bookLayers.Take(Count))}]";
+        $"{nameof(OpenInterestSideSide)}: {OpenInterestSideSide}, {nameof(AllLayers)}: [{string.Join(", ", AllLayers.Take(Count))}]";
 
-    public override string ToString() =>
-        $"{nameof(OrderBookSide)}{{{OrderBookSideToStringMembers}}}";
+    public override string ToString() => $"{nameof(OrderBookSide)}{{{OrderBookSideToStringMembers}}}";
 }
