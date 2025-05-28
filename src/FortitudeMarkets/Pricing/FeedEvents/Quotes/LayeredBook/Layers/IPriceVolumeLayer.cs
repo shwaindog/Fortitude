@@ -29,7 +29,7 @@ namespace FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 [JsonDerivedType(typeof(PQOrdersPriceVolumeLayer))]
 [JsonDerivedType(typeof(PQOrdersCountPriceVolumeLayer))]
 [JsonDerivedType(typeof(PQFullSupportPriceVolumeLayer))]
-public interface IPriceVolumeLayer : IReusableObject<IPriceVolumeLayer>, IInterfacesComparable<IPriceVolumeLayer>
+public interface IPriceVolumeLayer : IReusableObject<IPriceVolumeLayer>, IInterfacesComparable<IPriceVolumeLayer>, IShowsEmpty
 {
     [JsonIgnore] LayerType  LayerType          { get; }
     [JsonIgnore] LayerFlags SupportsLayerFlags { get; }
@@ -41,8 +41,7 @@ public interface IPriceVolumeLayer : IReusableObject<IPriceVolumeLayer>, IInterf
     bool IsEmpty { get; }
 }
 
-public interface IMutablePriceVolumeLayer : IPriceVolumeLayer, ITrackableReset<IMutablePriceVolumeLayer>, ICloneable<IMutablePriceVolumeLayer>
-  , ITransferState<IMutablePriceVolumeLayer>
+public interface IMutablePriceVolumeLayer : IReusableObject<IMutablePriceVolumeLayer>, IPriceVolumeLayer, ITrackableReset<IMutablePriceVolumeLayer>, IEmptyable
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new decimal Price { get; set; }

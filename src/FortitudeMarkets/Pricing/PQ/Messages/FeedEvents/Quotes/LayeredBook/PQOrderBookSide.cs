@@ -11,9 +11,11 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
+using FortitudeMarkets.Pricing.FeedEvents.Utils;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
@@ -25,17 +27,45 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 
-public interface IPQOrderBookSide : IMutableOrderBookSide, IPQSupportsNumberPrecisionFieldUpdates<IOrderBookSide>,
-    IPQSupportsStringUpdates<IOrderBookSide>, ICloneable<IPQOrderBookSide>,
-    IRelatedItems<LayerFlags, ushort>, IRelatedItems<INameIdLookupGenerator>,
-    ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQOrderBookSide>, ICapacityList<IPQPriceVolumeLayer>
+public interface IPQOrderBookSide : IMutableOrderBookSide, IPQSupportsNumberPrecisionFieldUpdates<IOrderBookSide>
+  , IPQSupportsStringUpdates<IOrderBookSide>, ICloneable<IPQOrderBookSide>
+  , IRelatedItems<LayerFlags, ushort>, IRelatedItems<INameIdLookupGenerator>
+  , ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQOrderBookSide>, IMutableCapacityList<IPQPriceVolumeLayer>
+  , IMutableSupportsElementsShift<IPQOrderBookSide, IPQPriceVolumeLayer>
 
 {
+    new IPQPriceVolumeLayer this[int index] { get; set; }
+
+    new IReadOnlyList<ListShiftCommand> ElementShifts { get; set; }
+
+    new int? ClearedElementsAfterIndex { get; set; }
+
+    new bool HasRandomAccessUpdates { get; set; }
+
+    new bool IsReadOnly { get; }
+
+    new ListShiftCommand ClearAll();
+
+    new ListShiftCommand DeleteAt(int index);
+
+    new ListShiftCommand ShiftElementsFrom(int byElements, int pinElementsFromIndex);
+
+    new ListShiftCommand ShiftElementsUntil(int byElements, int pinElementsFromIndex);
+
+    new ListShiftCommand ApplyElementShift(ListShiftCommand shiftCommandToApply);
+
+    new ListShiftCommand MoveSingleElementBy(IPQPriceVolumeLayer existingItem, int shift);
+
+    new ListShiftCommand MoveSingleElementBy(int indexToMoveToEnd, int shift);
+
+    new ListShiftCommand MoveSingleElementToEnd(int indexToMoveToEnd);
+
+    new ListShiftCommand MoveSingleElementToStart(int indexToMoveToStart);
+
     new int Capacity { get; set; }
 
     new int Count { get; set; }
 
-    new IPQPriceVolumeLayer this[int level] { get; set; }
     IReadOnlyList<IPQPriceVolumeLayer> AllLayers { get; }
 
     new bool HasUpdates { get; set; }
@@ -45,6 +75,10 @@ public interface IPQOrderBookSide : IMutableOrderBookSide, IPQSupportsNumberPrec
     new IPQMarketAggregate? OpenInterestSide { get; set; }
 
     bool IsDailyTickUpdateCountUpdated { get; set; }
+
+    new void Clear();
+
+    new void RemoveAt(int index);
 
     new IPQOrderBookSide Clone();
     new IPQOrderBookSide ResetWithTracking();
@@ -56,7 +90,9 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 {
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQOrderBookSide));
 
-    private IList<IPQPriceVolumeLayer> allLayers;
+    private readonly IList<IPQPriceVolumeLayer> allLayers;
+
+    private readonly ListElementShiftRegistry<IPQPriceVolumeLayer, IPriceVolumeLayer>? elementShiftRegistry;
 
     private IPQNameIdLookupGenerator nameIdLookupGenerator;
 
@@ -71,6 +107,8 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public PQOrderBookSide()
     {
+        elementShiftRegistry = new ListElementShiftRegistry<IPQPriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
+
         BookSide              = BookSide.Unknown;
         nameIdLookupGenerator = InitializeNewIdLookupGenerator();
         LayerSelector         = new PQOrderBookLayerFactorySelector(nameIdLookupGenerator);
@@ -84,6 +122,8 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         int numBookLayers = SourceTickerInfo.DefaultMaximumPublishedLayers, bool isLadder = false,
         IPQNameIdLookupGenerator? nameIdLookup = null)
     {
+        elementShiftRegistry = new ListElementShiftRegistry<IPQPriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
+
         BookSide              =  bookSide;
         LayerSupportedFlags   =  layerType.SupportedLayerFlags();
         LayerSupportedFlags   |= LayerSupportedType.SupportedLayerFlags();
@@ -104,6 +144,8 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     public PQOrderBookSide
         (BookSide bookSide, ISourceTickerInfo srcTickerInfo, IPQNameIdLookupGenerator? nameIdLookup = null)
     {
+        elementShiftRegistry = new ListElementShiftRegistry<IPQPriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
+
         BookSide            =  bookSide;
         LayerSupportedFlags =  srcTickerInfo.LayerFlags;
         layerFlags          |= LayerSupportedType.SupportedLayerFlags();
@@ -129,6 +171,8 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     (BookSide bookSide, IEnumerable<IPriceVolumeLayer>? bookLayers = null, bool isLadder = false,
         IPQNameIdLookupGenerator? nameIdLookup = null)
     {
+        elementShiftRegistry = new ListElementShiftRegistry<IPQPriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
+
         BookSide            = bookSide;
         LayerSupportedFlags = bookLayers?.FirstOrDefault()?.SupportsLayerFlags ?? LayerFlagsExtensions.PriceVolumeLayerFlags;
         IsLadder            = isLadder;
@@ -147,6 +191,10 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public PQOrderBookSide(IOrderBookSide toClone, IPQNameIdLookupGenerator? nameIdLookup = null)
     {
+        elementShiftRegistry = new ListElementShiftRegistry<IPQPriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
+
+        elementShiftRegistry.CopyFrom(toClone.ElementShifts);
+
         BookSide = toClone.BookSide;
 
         LayerSupportedFlags =  toClone.LayerSupportedFlags;
@@ -168,12 +216,17 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         for (var i = 0; i < size; i++)
         {
             var sourceLayer = toClone[i];
-            var pqLayer = LayerSelector.CreateExpectedImplementation(sourceLayer.LayerType, NameIdLookup, sourceLayer);
+            var pqLayer     = LayerSelector.CreateExpectedImplementation(sourceLayer.LayerType, NameIdLookup, sourceLayer);
             allLayers.Add(pqLayer);
         }
 
         if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
     }
+
+
+    protected static Func<IPriceVolumeLayer, IPriceVolumeLayer, bool> SamePrice = (lhs, rhs) => lhs.Price == rhs.Price;
+
+    protected Func<IPQPriceVolumeLayer> NewElementFactory => () => LayerSelector.CreateExpectedImplementation(LayerSupportedType, NameIdLookup);
 
     public ushort MaxPublishDepth
     {
@@ -202,6 +255,27 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public BookSide BookSide { get; }
 
+    IMutablePriceVolumeLayer IReadOnlyList<IMutablePriceVolumeLayer>.this[int index] => this[index];
+
+    IPriceVolumeLayer IReadOnlyList<IPriceVolumeLayer>.this[int level] => this[level];
+
+    IMutablePriceVolumeLayer IMutableOrderBookSide.this[int level]
+    {
+        get => this[level];
+        set => this[level] = (IPQPriceVolumeLayer)value;
+    }
+
+    IPriceVolumeLayer ISupportsElementsShift<IOrderBookSide, IPriceVolumeLayer>.this[int index] => this[index];
+
+    IPriceVolumeLayer IOrderBookSide.this[int index] => this[index];
+
+    IMutablePriceVolumeLayer IMutableSupportsElementsShift<IMutableOrderBookSide, IMutablePriceVolumeLayer>.this[int index]
+    {
+        get => this[index];
+        set => this[index] = (IPQPriceVolumeLayer)value;
+    }
+
+
     public IPQPriceVolumeLayer this[int level]
     {
         get => level < AllLayers.Count && level >= 0 ? AllLayers[level] : AllLayers[0];
@@ -214,15 +288,6 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
             allLayers[level] = value;
         }
     }
-
-    IPriceVolumeLayer IReadOnlyList<IPriceVolumeLayer>.this[int level] => this[level];
-
-    IMutablePriceVolumeLayer IMutableOrderBookSide.this[int level]
-    {
-        get => this[level];
-        set => this[level] = (IPQPriceVolumeLayer)value;
-    }
-
     public IReadOnlyList<IPQPriceVolumeLayer> AllLayers => allLayers.AsReadOnly();
 
     public IPQNameIdLookupGenerator NameIdLookup
@@ -278,7 +343,124 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         }
     }
 
-    IMutablePriceVolumeLayer IReadOnlyList<IMutablePriceVolumeLayer>.this[int index] => this[index];
+    public bool IsEmpty
+    {
+        get => AllLayers.All(pvl => pvl.IsEmpty);
+        set
+        {
+            foreach (var priceVolumeLayer in AllLayers)
+            {
+                priceVolumeLayer.IsEmpty = value;
+            }
+        }
+    }
+
+    public IReadOnlyList<ListShiftCommand> ElementShifts
+    {
+        get => elementShiftRegistry!.ShiftCommands;
+        set => elementShiftRegistry!.ShiftCommands = (List<ListShiftCommand>)value;
+    }
+
+    public int? ClearedElementsAfterIndex
+    {
+        get => elementShiftRegistry!.ClearRemainingElementsAt;
+        set => elementShiftRegistry!.ClearRemainingElementsAt = (ushort?)value;
+    }
+
+    public bool HasRandomAccessUpdates { get; set; }
+    
+    public void CalculateShift(DateTime asAtTime, IReadOnlyList<IPriceVolumeLayer> updatedCollection)
+    {
+        elementShiftRegistry!.CalculateShift(asAtTime, updatedCollection);
+    }
+
+    ListShiftCommand IMutableSupportsElementsShift<IMutableOrderBookSide, IMutablePriceVolumeLayer>.InsertAtStart
+        (IMutablePriceVolumeLayer toInsertAtStart) => 
+        elementShiftRegistry!.InsertAtStart((IPQPriceVolumeLayer)toInsertAtStart);
+
+    bool IMutableSupportsElementsShift<IMutableOrderBookSide, IMutablePriceVolumeLayer>.AppendAtEnd
+        (IMutablePriceVolumeLayer toAppendAtEnd) => 
+        elementShiftRegistry!.AppendAtEnd((IPQPriceVolumeLayer)toAppendAtEnd);
+
+    ListShiftCommand IMutableSupportsElementsShift<IMutableOrderBookSide, IMutablePriceVolumeLayer>.InsertAt
+        (int index, IMutablePriceVolumeLayer toInsertAtStart) => 
+        elementShiftRegistry!.InsertAt(index, (IPQPriceVolumeLayer)toInsertAtStart);
+
+    ListShiftCommand IMutableSupportsElementsShift<IMutableOrderBookSide, IMutablePriceVolumeLayer>.Delete
+        (IMutablePriceVolumeLayer toDelete) => 
+        elementShiftRegistry!.Delete((IPQPriceVolumeLayer)toDelete);
+
+    public ListShiftCommand ApplyElementShift(ListShiftCommand shiftCommandToApply) => elementShiftRegistry!.ApplyElementShift(shiftCommandToApply);
+
+    ListShiftCommand IMutableSupportsElementsShift<IMutableOrderBookSide, IMutablePriceVolumeLayer>.MoveToStart
+        (IMutablePriceVolumeLayer existingItem) => 
+        elementShiftRegistry!.MoveToStart((IPQPriceVolumeLayer)existingItem);
+
+    public ListShiftCommand MoveSingleElementToStart(int indexToMoveToStart) =>
+        elementShiftRegistry!.MoveToStart(indexToMoveToStart);
+
+    public ListShiftCommand MoveSingleElementToEnd(int indexToMoveToEnd) =>
+        elementShiftRegistry!.MoveToEnd(indexToMoveToEnd);
+
+    public ListShiftCommand MoveSingleElementBy(int indexToMoveToEnd, int shift) =>
+        elementShiftRegistry!.MoveSingleElementBy(indexToMoveToEnd, shift);
+
+    ListShiftCommand IMutableSupportsElementsShift<IMutableOrderBookSide, IMutablePriceVolumeLayer>.MoveSingleElementBy
+        (IMutablePriceVolumeLayer existingItem, int shift) => 
+        elementShiftRegistry!.MoveSingleElementBy((IPQPriceVolumeLayer)existingItem, shift);
+
+    ListShiftCommand IMutableSupportsElementsShift<IMutableOrderBookSide, IMutablePriceVolumeLayer>.MoveToEnd
+        (IMutablePriceVolumeLayer existingItem) => 
+        elementShiftRegistry!.MoveToEnd((IPQPriceVolumeLayer)existingItem);
+
+    public ListShiftCommand ClearAll() => elementShiftRegistry!.ClearAll();
+
+    public ListShiftCommand ShiftElementsFrom(int byElements, int pinElementsFromIndex) =>
+        elementShiftRegistry!.ShiftElementsFrom(byElements, pinElementsFromIndex);
+
+    public ListShiftCommand ShiftElementsUntil(int byElements, int pinElementsFromIndex) =>
+        elementShiftRegistry!.ShiftElementsUntil(byElements, pinElementsFromIndex);
+
+    public ListShiftCommand InsertAtStart(IPQPriceVolumeLayer toInsertAtStart) => elementShiftRegistry!.InsertAtStart(toInsertAtStart);
+
+    public bool AppendAtEnd(IPQPriceVolumeLayer toAppendAtEnd) => elementShiftRegistry!.AppendAtEnd(toAppendAtEnd);
+
+    public ListShiftCommand InsertAt(int index, IPQPriceVolumeLayer toInsertAtStart) => elementShiftRegistry!.InsertAt(index, toInsertAtStart);
+
+    public ListShiftCommand DeleteAt(int index) => elementShiftRegistry!.DeleteAt(index);
+
+    public ListShiftCommand Delete(IPQPriceVolumeLayer toDelete) => elementShiftRegistry!.Delete(toDelete);
+
+    public ListShiftCommand MoveToStart(IPQPriceVolumeLayer existingItem) => elementShiftRegistry!.MoveToStart(existingItem);
+
+    public ListShiftCommand MoveSingleElementBy(IPQPriceVolumeLayer existingItem, int shift) =>
+        elementShiftRegistry!.MoveSingleElementBy(existingItem, shift);
+
+    public ListShiftCommand MoveToEnd(IPQPriceVolumeLayer existingItem) => elementShiftRegistry!.MoveToEnd(existingItem);
+
+    public void Add(IPQPriceVolumeLayer item)
+    {
+        allLayers.Add(item);
+    }
+
+    public bool Contains(IPQPriceVolumeLayer item) => allLayers.Contains(item);
+
+    public void CopyTo(IPQPriceVolumeLayer[] array, int arrayIndex)
+    {
+        for (int i = 0; i < allLayers.Count && i + arrayIndex < array.Length; i++)
+        {
+            array[i + arrayIndex] = allLayers[i];
+        }
+    }
+
+    public bool Remove(IPQPriceVolumeLayer item) => allLayers.Remove(item);
+
+    public int IndexOf(IPQPriceVolumeLayer item) => allLayers.IndexOf(item);
+
+    public void Insert(int index, IPQPriceVolumeLayer item)
+    {
+        allLayers.Insert(index, item);
+    }
 
     public void Add(IMutablePriceVolumeLayer item)
     {
@@ -301,7 +483,9 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     }
 
     public bool Remove(IMutablePriceVolumeLayer item)  => allLayers.Remove((IPQPriceVolumeLayer)item);
+
     public bool IsReadOnly                             => false;
+
     public int  IndexOf(IMutablePriceVolumeLayer item) => allLayers.IndexOf((IPQPriceVolumeLayer)item);
 
     public void Insert(int index, IMutablePriceVolumeLayer item)
@@ -334,8 +518,8 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         get
         {
             return UpdatedFlags != OrderBookUpdatedFlags.None
-                || (HasNonEmptyOpenInterest 
-                 && pqOpenInterestSide is {DataSource: not(MarketDataSource.None or MarketDataSource.Published), HasUpdates: true })
+                || (HasNonEmptyOpenInterest
+                 && pqOpenInterestSide is { DataSource: not (MarketDataSource.None or MarketDataSource.Published), HasUpdates: true })
                 || AllLayers.Any(pqpvl => pqpvl.HasUpdates);
         }
         set
@@ -353,7 +537,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public bool HasNonEmptyOpenInterest
     {
-        get => pqOpenInterestSide is { IsEmpty: false};
+        get => pqOpenInterestSide is { IsEmpty: false };
         set
         {
             if (value) return;
@@ -375,12 +559,12 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     {
         get
         {
-            if (HasNonEmptyOpenInterest && pqOpenInterestSide is {DataSource: not (MarketDataSource.None or MarketDataSource.Published) })
+            if (HasNonEmptyOpenInterest && pqOpenInterestSide is { DataSource: not (MarketDataSource.None or MarketDataSource.Published) })
                 return pqOpenInterestSide;
 
             var vwapResult = this.CalculateVwap();
 
-            pqOpenInterestSide ??= new PQMarketAggregate();
+            pqOpenInterestSide            ??= new PQMarketAggregate();
             pqOpenInterestSide.DataSource =   MarketDataSource.Published;
             pqOpenInterestSide.UpdateTime =   DateTime.Now;
             pqOpenInterestSide.Volume     =   vwapResult.VolumeAchieved;
@@ -614,7 +798,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     IPQOrderBookSide ITrackableReset<IPQOrderBookSide>.ResetWithTracking() => ResetWithTracking();
 
-    IPQOrderBookSide IPQOrderBookSide.                 ResetWithTracking() => ResetWithTracking();
+    IPQOrderBookSide IPQOrderBookSide.ResetWithTracking() => ResetWithTracking();
 
     public PQOrderBookSide ResetWithTracking()
     {
@@ -678,7 +862,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IOrderBookSide, true);
 
     public override int GetHashCode() => AllLayers.GetHashCode();
-    
+
     protected string PQOrderBookSideToStringMembers =>
         $"{nameof(Capacity)}: {Capacity}, {nameof(MaxPublishDepth)}: {MaxPublishDepth}, {nameof(Count)}: {Count}, {nameof(IsLadder)}: {IsLadder}, " +
         $"{nameof(OpenInterestSide)}: {OpenInterestSide}, {nameof(DailyTickUpdateCount)}: {DailyTickUpdateCount}, " +

@@ -68,6 +68,7 @@ public static class ListShiftCommandExtensions
     public static bool IsSwapWithDestination
         (this ListShiftCommand moveCommand) =>
         moveCommand.ShiftCommandType.HasInsertElementsRangeFlag() && moveCommand.ShiftCommandType.HasMoveSingleElementFlag();
+
     public static bool IsClearAll(this ListShiftCommand shiftCommand) =>
         shiftCommand is { Shift : ListShiftCommand.ClearAllShiftAmount, FromIndex: ListShiftCommand.ClearAllPinnedIndex };
 

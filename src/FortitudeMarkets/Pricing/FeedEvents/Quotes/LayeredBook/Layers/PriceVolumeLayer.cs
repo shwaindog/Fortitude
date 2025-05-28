@@ -67,6 +67,10 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
         base.StateReset();
     }
 
+    IReusableObject<IMutablePriceVolumeLayer> ITransferState<IReusableObject<IMutablePriceVolumeLayer>>.CopyFrom
+        (IReusableObject<IMutablePriceVolumeLayer> source, CopyMergeFlags copyMergeFlags) => 
+        CopyFrom((IPriceVolumeLayer)source, copyMergeFlags);
+
     IMutablePriceVolumeLayer ITransferState<IMutablePriceVolumeLayer>.CopyFrom
         (IMutablePriceVolumeLayer source, CopyMergeFlags copyMergeFlags) => 
         CopyFrom(source, copyMergeFlags);

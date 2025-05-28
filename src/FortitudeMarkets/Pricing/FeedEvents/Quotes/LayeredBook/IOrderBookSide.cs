@@ -21,40 +21,49 @@ public enum BookSide
 }
 
 public interface IOrderBookSide : ICapacityList<IPriceVolumeLayer>, IReusableObject<IOrderBookSide>,
-    IInterfacesComparable<IOrderBookSide>
+    IInterfacesComparable<IOrderBookSide>, ISupportsElementsShift<IOrderBookSide, IPriceVolumeLayer>, IShowsEmpty
 {
-    LayerType  LayerSupportedType             { get; }
+    new IPriceVolumeLayer this[int index] { get; }
+
+    LayerType  LayerSupportedType  { get; }
     LayerFlags LayerSupportedFlags { get; }
 
-    bool IsLadder { get; }
+    bool   IsLadder        { get; }
     ushort MaxPublishDepth { get; }
 
     uint DailyTickUpdateCount { get; }
-    
-    bool      HasNonEmptyOpenInterest { get; }
-    IMarketAggregate OpenInterestSide               { get; }
+
+    bool             HasNonEmptyOpenInterest { get; }
+    IMarketAggregate OpenInterestSide        { get; }
 
     BookSide BookSide { get; }
 }
 
 public interface IMutableOrderBookSide : IOrderBookSide, IMutableCapacityList<IMutablePriceVolumeLayer>,
     ICloneable<IMutableOrderBookSide>, ITrackableReset<IMutableOrderBookSide>
+  , IMutableSupportsElementsShift<IMutableOrderBookSide, IMutablePriceVolumeLayer>, IEmptyable
 {
+    new IMutablePriceVolumeLayer this[int index] { get; set; }
+
+    new IReadOnlyList<ListShiftCommand> ElementShifts { get; set; }
+
+    new int? ClearedElementsAfterIndex { get; set; }
+
+    new bool HasRandomAccessUpdates { get; set; }
+
     new int Count { get; set; }
 
     new int Capacity { get; set; }
-    
-    new LayerFlags            LayerSupportedFlags { get; set; }
-    
+
+    new LayerFlags LayerSupportedFlags { get; set; }
+
     new bool HasNonEmptyOpenInterest { get; set; }
 
-    new uint  DailyTickUpdateCount    { get; set; }
+    new uint DailyTickUpdateCount { get; set; }
 
-    new IMutableMarketAggregate? OpenInterestSide        { get; set; }
+    new IMutableMarketAggregate? OpenInterestSide { get; set; }
 
-    new IEnumerator<IMutablePriceVolumeLayer> GetEnumerator(); 
-
-    new IMutablePriceVolumeLayer this[int level] { get; set; }
+    new IEnumerator<IMutablePriceVolumeLayer> GetEnumerator();
 
     new IMutableOrderBookSide Clone();
 
@@ -70,11 +79,11 @@ public static class OrderBookSideExtensions
         var volAccum         = 0m;
         var volPriceAccum    = 0m;
         var lastIndex        = 0;
-        
+
         var layerDeductVolume = 0m;
         for (int i = 0; i < orderBookSide.Count && remainingVol > 0m; i++)
         {
-            var pvl         = orderBookSide[i];
+            var pvl = orderBookSide[i];
             if (pvl == null) continue;
             decimal cappedVolume;
             if (remainingSkipVol > 0)
@@ -95,10 +104,10 @@ public static class OrderBookSideExtensions
                 volAccum      += cappedVolume;
                 volPriceAccum += cappedVolume * pvl.Price;
             }
-            lastIndex     =  i;
+            lastIndex = i;
         }
 
-        var publishedVwap    = volAccum > 0 ? volPriceAccum / volAccum : 0m;
-        return new VwapResult(lastIndex, volume,  volAccum, publishedVwap);
+        var publishedVwap = volAccum > 0 ? volPriceAccum / volAccum : 0m;
+        return new VwapResult(lastIndex, volume, volAccum, publishedVwap);
     }
 }

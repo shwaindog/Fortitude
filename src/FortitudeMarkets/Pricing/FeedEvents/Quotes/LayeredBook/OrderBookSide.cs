@@ -10,6 +10,7 @@ using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.LayerSelector;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
+using FortitudeMarkets.Pricing.FeedEvents.Utils;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 
 #endregion
@@ -20,6 +21,8 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 {
     protected IList<IMutablePriceVolumeLayer> AllLayers;
 
+    private readonly ListElementShiftRegistry<IMutablePriceVolumeLayer, IPriceVolumeLayer>? elementShiftRegistry;
+
     private ushort maxPublishDepth;
 
     private LayerFlags               layerFlags = LayerFlagsExtensions.PriceVolumeLayerFlags;
@@ -27,8 +30,9 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
     public OrderBookSide()
     {
-        BookSide   = BookSide.Unknown;
-        AllLayers = new List<IMutablePriceVolumeLayer>();
+        elementShiftRegistry = new ListElementShiftRegistry<IMutablePriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
+        BookSide             = BookSide.Unknown;
+        AllLayers            = new List<IMutablePriceVolumeLayer>();
         AllLayers.Add(LayerSelector.CreateExpectedImplementation(LayerSupportedType));
     }
 
@@ -36,26 +40,32 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     (BookSide bookSide, LayerType layerType = LayerType.PriceVolume, ushort maxPublishDepth = SourceTickerInfo.DefaultMaximumPublishedLayers
       , bool isLadder = false)
     {
+        elementShiftRegistry = new ListElementShiftRegistry<IMutablePriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
+
         BookSide        = bookSide;
         MaxPublishDepth = maxPublishDepth;
         LayerSupportedFlags = AllLayers?.FirstOrDefault()?.SupportsLayerFlags ?? LayerFlagsExtensions.PriceVolumeLayerFlags |
             (isLadder ? LayerFlags.Ladder : LayerFlags.None);
         layerFlags |= LayerSupportedType.SupportedLayerFlags();
-        AllLayers =  Enumerable.Repeat(LayerSelector.CreateExpectedImplementation(layerType), maxPublishDepth).ToList();
+        AllLayers  =  Enumerable.Repeat(LayerSelector.CreateExpectedImplementation(layerType), maxPublishDepth).ToList();
         IsLadder   =  isLadder;
     }
 
     public OrderBookSide(BookSide bookSide, ushort numBookLayers, bool isLadder = false)
     {
+        elementShiftRegistry = new ListElementShiftRegistry<IMutablePriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
+
         BookSide            = bookSide;
         MaxPublishDepth     = numBookLayers;
         LayerSupportedFlags = (isLadder ? LayerFlags.Ladder : LayerFlags.None);
-        AllLayers          = Enumerable.Repeat(LayerSelector.CreateExpectedImplementation(LayerSupportedType), numBookLayers).ToList();
+        AllLayers           = Enumerable.Repeat(LayerSelector.CreateExpectedImplementation(LayerSupportedType), numBookLayers).ToList();
         IsLadder            = isLadder;
     }
 
     public OrderBookSide(BookSide bookSide, IEnumerable<IPriceVolumeLayer> bookLayers)
     {
+        elementShiftRegistry = new ListElementShiftRegistry<IMutablePriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
+
         BookSide = bookSide;
 
         LayerSupportedFlags = bookLayers.FirstOrDefault()?.SupportsLayerFlags ?? LayerFlagsExtensions.PriceVolumeLayerFlags;
@@ -69,6 +79,10 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
     public OrderBookSide(IOrderBookSide toClone)
     {
+        elementShiftRegistry = new ListElementShiftRegistry<IMutablePriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
+
+        elementShiftRegistry.CopyFrom(toClone.ElementShifts);
+
         BookSide             =  toClone.BookSide;
         MaxPublishDepth      =  toClone.MaxPublishDepth;
         LayerSupportedFlags  =  toClone.LayerSupportedFlags;
@@ -89,7 +103,9 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
     public OrderBookSide(BookSide bookSide, ISourceTickerInfo sourceTickerInfo)
     {
-        BookSide = bookSide;
+        elementShiftRegistry = new ListElementShiftRegistry<IMutablePriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
+
+        BookSide             = bookSide;
 
         LayerSupportedFlags =  sourceTickerInfo.LayerFlags;
         layerFlags          |= LayerSupportedType.SupportedLayerFlags();
@@ -101,6 +117,10 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
                 .ToList();
     }
 
+
+    protected static Func<IPriceVolumeLayer, IPriceVolumeLayer, bool> SamePrice = (lhs, rhs) => lhs.Price == rhs.Price;
+
+    protected Func<IMutablePriceVolumeLayer> NewElementFactory => () => LayerSelector.CreateExpectedImplementation(LayerSupportedType);
 
     public ushort MaxPublishDepth
     {
@@ -184,6 +204,62 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
     public uint DailyTickUpdateCount { get; set; }
 
+    public IReadOnlyList<ListShiftCommand> ElementShifts
+    {
+        get => elementShiftRegistry!.ShiftCommands;
+        set => elementShiftRegistry!.ShiftCommands = (List<ListShiftCommand>)value;
+    }
+
+    public int? ClearedElementsAfterIndex
+    {
+        get => elementShiftRegistry!.ClearRemainingElementsAt;
+        set => elementShiftRegistry!.ClearRemainingElementsAt = (ushort?)value;
+    }
+
+    public bool HasRandomAccessUpdates { get; set; }
+
+    public void CalculateShift(DateTime asAtTime, IReadOnlyList<IPriceVolumeLayer> updatedCollection)
+    {
+        elementShiftRegistry!.CalculateShift(asAtTime, updatedCollection);
+    }
+
+    public ListShiftCommand InsertAtStart(IMutablePriceVolumeLayer toInsertAtStart) => elementShiftRegistry!.InsertAtStart(toInsertAtStart);
+
+    public bool AppendAtEnd(IMutablePriceVolumeLayer toAppendAtEnd) => elementShiftRegistry!.AppendAtEnd(toAppendAtEnd);
+
+    public ListShiftCommand InsertAt(int index, IMutablePriceVolumeLayer toInsertAtStart) => elementShiftRegistry!.InsertAt(index, toInsertAtStart);
+
+    public ListShiftCommand DeleteAt(int index) => elementShiftRegistry!.DeleteAt(index);
+
+    public ListShiftCommand Delete(IMutablePriceVolumeLayer toDelete) => elementShiftRegistry!.Delete(toDelete);
+
+    public ListShiftCommand ApplyElementShift(ListShiftCommand shiftCommandToApply) => elementShiftRegistry!.ApplyElementShift(shiftCommandToApply);
+
+    public ListShiftCommand MoveToStart(IMutablePriceVolumeLayer existingItem) => elementShiftRegistry!.MoveToStart(existingItem);
+
+    public ListShiftCommand MoveSingleElementToStart(int indexToMoveToStart) => elementShiftRegistry!.MoveToStart(indexToMoveToStart);
+
+    public ListShiftCommand MoveSingleElementToEnd(int indexToMoveToEnd) => elementShiftRegistry!.MoveToEnd(indexToMoveToEnd);
+
+    public ListShiftCommand MoveSingleElementBy(int indexToMoveToEnd, int shift) =>
+        elementShiftRegistry!.MoveSingleElementBy(indexToMoveToEnd, shift);
+
+    public ListShiftCommand MoveSingleElementBy(IMutablePriceVolumeLayer existingItem, int shift) =>
+        elementShiftRegistry!.MoveSingleElementBy(existingItem, shift);
+
+    public ListShiftCommand MoveToEnd(IMutablePriceVolumeLayer existingItem) => elementShiftRegistry!.MoveToEnd(existingItem);
+
+    public ListShiftCommand ClearAll() => elementShiftRegistry!.ClearAll();
+
+    public ListShiftCommand ShiftElementsFrom(int byElements, int pinElementsFromIndex) =>
+        elementShiftRegistry!.ShiftElementsFrom(byElements, pinElementsFromIndex);
+
+    public ListShiftCommand ShiftElementsUntil(int byElements, int pinElementsFromIndex) =>
+        elementShiftRegistry!.ShiftElementsUntil(byElements, pinElementsFromIndex);
+
+    IPriceVolumeLayer ISupportsElementsShift<IOrderBookSide, IPriceVolumeLayer>.this[int index] => this[index];
+
+    IPriceVolumeLayer IOrderBookSide.this[int index] => this[index];
 
     public IMutablePriceVolumeLayer this[int level]
     {
@@ -275,6 +351,18 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         var index = AllLayers.Count;
         AllLayers.Add(LayerSelector.CreateExpectedImplementation(LayerSupportedType));
         return index;
+    }
+
+    public bool IsEmpty
+    {
+        get => AllLayers.All(pvl => pvl.IsEmpty);
+        set
+        {
+            foreach (var priceVolumeLayer in AllLayers)
+            {
+                priceVolumeLayer.IsEmpty = value;
+            }
+        }
     }
 
     IMutableOrderBookSide ICloneable<IMutableOrderBookSide>.Clone() => Clone();

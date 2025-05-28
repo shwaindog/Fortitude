@@ -23,7 +23,8 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Lay
 [JsonDerivedType(typeof(PQValueDatePriceVolumeLayer))]
 [JsonDerivedType(typeof(PQOrdersCountPriceVolumeLayer))]
 [JsonDerivedType(typeof(PQOrdersPriceVolumeLayer))]
-public interface IPQPriceVolumeLayer : IMutablePriceVolumeLayer, IPQSupportsNumberPrecisionFieldUpdates<IPriceVolumeLayer>
+public interface IPQPriceVolumeLayer : IReusableObject<IPQPriceVolumeLayer>, IMutablePriceVolumeLayer
+  , IPQSupportsNumberPrecisionFieldUpdates<IPriceVolumeLayer>
   , ITrackableReset<IPQPriceVolumeLayer>
 {
     [JsonIgnore] bool IsPriceUpdated  { get; set; }
@@ -213,8 +214,20 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         return -1;
     }
 
+    IReusableObject<IPQPriceVolumeLayer> ITransferState<IReusableObject<IPQPriceVolumeLayer>>.CopyFrom
+        (IReusableObject<IPQPriceVolumeLayer> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPriceVolumeLayer)source, copyMergeFlags);
+
+    IPQPriceVolumeLayer ITransferState<IPQPriceVolumeLayer>.CopyFrom
+        (IPQPriceVolumeLayer source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom(source, copyMergeFlags);
+
+    IReusableObject<IMutablePriceVolumeLayer> ITransferState<IReusableObject<IMutablePriceVolumeLayer>>.CopyFrom
+        (IReusableObject<IMutablePriceVolumeLayer> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPriceVolumeLayer)source, copyMergeFlags);
+
     IMutablePriceVolumeLayer ITransferState<IMutablePriceVolumeLayer>.CopyFrom
-        (IMutablePriceVolumeLayer source, CopyMergeFlags copyMergeFlags) => 
+        (IMutablePriceVolumeLayer source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom(source, copyMergeFlags);
 
     public override PQPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
@@ -250,7 +263,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
 
     IMutablePriceVolumeLayer ICloneable<IMutablePriceVolumeLayer>.Clone() => Clone();
 
-    IMutablePriceVolumeLayer IMutablePriceVolumeLayer.            Clone() => Clone();
+    IMutablePriceVolumeLayer IMutablePriceVolumeLayer.Clone() => Clone();
 
     IPriceVolumeLayer ICloneable<IPriceVolumeLayer>.Clone() => Clone();
 
