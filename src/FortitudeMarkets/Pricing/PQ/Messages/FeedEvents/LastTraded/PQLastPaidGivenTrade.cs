@@ -232,7 +232,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
-        // assume the recentlytraded has already forwarded this through to the correct lasttrade
+        // assume the parent has already forwarded this through to the correct last trade
         switch (pqFieldUpdate.TradingSubId)
         {
             case PQTradingSubFieldKeys.LastTradedOrderId:
@@ -265,7 +265,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
     public override PQLastPaidGivenTrade Clone() => 
         Recycler?.Borrow<PQLastPaidGivenTrade>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new PQLastPaidGivenTrade(this);
 
-    public override PQLastPaidGivenTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override PQLastPaidGivenTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is not ILastPaidGivenTrade lpgt) return this;

@@ -53,7 +53,7 @@ public interface ILastTrade : IReusableObject<ILastTrade>, IInterfacesComparable
     decimal TradePrice { get; }
 }
 
-public interface IMutableLastTrade : ILastTrade, ITrackableReset<IMutableLastTrade>, IEmptyable
+public interface IMutableLastTrade : IReusableObject<IMutableLastTrade>, ILastTrade, ITrackableReset<IMutableLastTrade>, IEmptyable
 {
     new uint     TradeId             { get; set; }
     new uint     BatchId             { get; set; }

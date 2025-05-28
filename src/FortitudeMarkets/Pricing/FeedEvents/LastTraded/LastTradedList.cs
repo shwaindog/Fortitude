@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2024 all rights reserved
 
 using System.Collections;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
@@ -97,6 +98,17 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
         }
     }
 
+    ILastTrade IList<ILastTrade>.this[int index]
+    {
+        get => this[index];
+        set => this[index] = (IMutableLastTrade)value;
+    }
+
+    ILastTrade IMutableCapacityList<ILastTrade>.this[int i]
+    {
+        get => this[i];
+        set => this[i] = (IMutableLastTrade)value;
+    }
 
     ILastTrade IReadOnlyList<ILastTrade>.this[int index] => LastTrades[index];
 
@@ -114,13 +126,33 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
         }
     }
 
+    bool ICollection<ILastTrade>.Contains(ILastTrade item) => LastTrades.Contains(item);
+
     public bool Contains(IMutableLastTrade item) => LastTrades.Contains(item);
+
+    void ICollection<ILastTrade>.CopyTo(ILastTrade[] array, int arrayIndex)
+    {
+        for (int i = 0; i < LastTrades.Count && i + arrayIndex < array.Length; i++)
+        {
+            array[i + arrayIndex] = LastTrades[i];
+        }
+    }
 
     public void CopyTo(IMutableLastTrade[] array, int arrayIndex) => LastTrades.CopyTo(array, arrayIndex);
 
+    void IList<ILastTrade>.Insert(int index, ILastTrade item)
+    {
+        Insert(index, (IMutableLastTrade)item);
+    }
+
     public void Insert(int index, IMutableLastTrade item) => LastTrades.Insert(index, item);
 
+    int IList<ILastTrade>. IndexOf(ILastTrade item) => IndexOf((IMutableLastTrade)item);
+
     public int IndexOf(IMutableLastTrade item) => LastTrades.IndexOf(item);
+    
+
+    bool ICollection<ILastTrade>.Remove(ILastTrade item) => Remove((IMutableLastTrade)item);
 
     public bool Remove(IMutableLastTrade toRemove) => LastTrades.Remove(toRemove);
 
@@ -158,9 +190,13 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
         base.StateReset();
     }
 
-    public void Add(IMutableLastTrade? newLastTrade)
+    void ICollection<ILastTrade>.Add(ILastTrade item)
     {
-        if (newLastTrade is null) return;
+        Add((IMutableLastTrade)item);
+    }
+
+    public void Add(IMutableLastTrade newLastTrade)
+    {
         if (LastTrades.Count == Count)
             LastTrades.Add(newLastTrade);
         else

@@ -3,6 +3,7 @@
 
 using System.Collections;
 using FortitudeCommon.DataStructures.Collections;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
@@ -19,7 +20,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 public interface IPQLastTradedList : IMutableLastTradedList,
     IPQSupportsNumberPrecisionFieldUpdates<ILastTradedList>, IPQSupportsStringUpdates<ILastTradedList>,
     IRelatedItems<IPQNameIdLookupGenerator>, IRelatedItems<ISourceTickerInfo>
-  , ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQLastTradedList>, IList<IPQLastTrade>
+  , ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQLastTradedList>, IMutableCapacityList<IPQLastTrade>
 {
     new IPQLastTrade this[int index] { get; set; }
 
@@ -148,6 +149,22 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         }
     }
 
+    ILastTrade IReadOnlyList<ILastTrade>.this[int i] => this[i];
+
+    IMutableLastTrade IMutableLastTradedList.this[int i]
+    {
+        get => this[i];
+        set => this[i] = (IPQLastTrade)value;
+    }
+
+    IMutableLastTrade IReadOnlyList<IMutableLastTrade>.this[int index] => this[index];
+
+    IMutableLastTrade IMutableCapacityList<IMutableLastTrade>.this[int i]
+    {
+        get => this[i];
+        set => this[i] = (IPQLastTrade)value;
+    }
+
     public IPQLastTrade this[int i]
     {
         get
@@ -169,9 +186,13 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         }
     }
 
-    ILastTrade IReadOnlyList<ILastTrade>.this[int i] => this[i];
+    ILastTrade IList<ILastTrade>.this[int index]
+    {
+        get => this[index];
+        set => this[index] = (IPQLastTrade)value;
+    }
 
-    IMutableLastTrade IMutableLastTradedList.this[int i]
+    ILastTrade IMutableCapacityList<ILastTrade>.this[int i]
     {
         get => this[i];
         set => this[i] = (IPQLastTrade)value;
@@ -240,15 +261,25 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
     protected Func<IPQLastTrade> NewElementFactory =>
         () => LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags).CreateNewLastTradeEntry();
 
+    bool ICollection<ILastTrade>.Contains(ILastTrade item) => Contains((IPQLastTrade)item);
+
     bool ICollection<IMutableLastTrade>.Contains(IMutableLastTrade item) => Contains((IPQLastTrade)item);
 
     public bool Contains(IPQLastTrade item) => LastTrades.Contains(item);
 
+    void ICollection<ILastTrade>.CopyTo(ILastTrade[] array, int arrayIndex)
+    {
+        for (int i = 0; i < LastTrades.Count && i + arrayIndex < array.Length; i++)
+        {
+            array[i + arrayIndex] = LastTrades[i];
+        }
+    }
+
     void ICollection<IMutableLastTrade>.CopyTo(IMutableLastTrade[] array, int arrayIndex)
     {
-        for (int i = arrayIndex; i < LastTrades.Count; i++)
+        for (int i = 0; i < LastTrades.Count && i + arrayIndex < array.Length; i++)
         {
-            array[i] = LastTrades[i];
+            array[i + arrayIndex] = LastTrades[i];
         }
     }
 
@@ -256,13 +287,19 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
 
     void IList<IMutableLastTrade>.Insert(int index, IMutableLastTrade item) => Insert(index, (IPQLastTrade)item);
 
+    void IList<ILastTrade>.Insert(int index, ILastTrade item)=> Insert(index, (IPQLastTrade)item);
+
     public void Insert(int index, IPQLastTrade item) => LastTrades.Insert(index, item);
 
     int IList<IMutableLastTrade>.IndexOf(IMutableLastTrade item) => IndexOf((IPQLastTrade)item);
 
+    int IList<ILastTrade>.IndexOf(ILastTrade item) => IndexOf((IPQLastTrade)item);
+
     public int IndexOf(IPQLastTrade item) => LastTrades.IndexOf(item);
 
     bool ICollection<IMutableLastTrade>.Remove(IMutableLastTrade item) => Remove((IPQLastTrade)item);
+
+    bool ICollection<ILastTrade>.Remove(ILastTrade item)        => Remove((IPQLastTrade)item);
 
     public bool Remove(IPQLastTrade toRemove) => LastTrades.Remove(toRemove);
 
@@ -311,6 +348,8 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         NumUpdatesSinceEmpty = 0;
         base.StateReset();
     }
+
+    void ICollection<ILastTrade>.Add(ILastTrade item) => Add((IPQLastTrade)item);
 
     void ICollection<IMutableLastTrade>.Add(IMutableLastTrade item) => Add((IPQLastTrade)item);
 

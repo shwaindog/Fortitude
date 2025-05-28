@@ -119,6 +119,7 @@ public abstract class SyncStateBase<T> where T : IPQMessage
     protected void SaveMessageToSyncSlot(IMessageBufferContext bufferContext, uint sequenceId)
     {
         var ent = LinkedDeserializer.ClaimSyncSlotEntry();
+        ent.IsEmpty    = true;
         ent.HasUpdates = false;
         LinkedDeserializer.UpdateEntity(bufferContext, ent, sequenceId);
     }

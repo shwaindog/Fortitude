@@ -70,11 +70,11 @@ public class PQOnTickLastTradedTests
         lastPaidGivenEntries       = new List<IPQLastPaidGivenTrade>(MaxNumberOfEntries);
         lastTraderPaidGivenEntries = new List<IPQLastExternalCounterPartyTrade>(MaxNumberOfEntries);
 
-        allPopulatedEntries = new List<IReadOnlyList<IPQLastTrade>>
-        {
+        allPopulatedEntries =
+        [
             (IReadOnlyList<IPQLastTrade>)simpleEntries, (IReadOnlyList<IPQLastTrade>)lastPaidGivenEntries
           , (IReadOnlyList<IPQLastTrade>)lastTraderPaidGivenEntries
-        };
+        ];
 
         for (var i = 0; i < MaxNumberOfEntries; i++)
         {
@@ -96,10 +96,12 @@ public class PQOnTickLastTradedTests
                 ExternalTraderName = "TestTraderName"
             });
         }
-
+        
+        // ReSharper disable RedundantCast
         simpleOnTickLastTradedFullyPopulatedQuote               = new PQOnTickLastTraded((IEnumerable<IPQLastTrade>)simpleEntries);
         paidGivenVolumeOnTickTradedFullyPopulatedQuote          = new PQOnTickLastTraded((IEnumerable<IPQLastTrade>)lastPaidGivenEntries);
         fullSupportLastTradeOnTickLastTradedFullyPopulatedQuote = new PQOnTickLastTraded((IEnumerable<IPQLastTrade>)lastTraderPaidGivenEntries);
+        // ReSharper restore RedundantCast
 
         allFullyPopulatedOnTickLastTraded = new List<PQOnTickLastTraded>
         {
@@ -145,7 +147,7 @@ public class PQOnTickLastTradedTests
             for (var i = 0; i < MaxNumberOfEntries; i++)
             {
                 var lastTrade       = ((IOnTickLastTraded)populatedOnTickLastTraded)[i];
-                var clonedLastTrade = (IPQLastTrade)lastTrade!.Clone();
+                var clonedLastTrade = (IPQLastTrade)lastTrade.Clone();
                 populatedOnTickLastTraded[i] = clonedLastTrade;
                 Assert.AreNotSame(lastTrade, ((IMutableOnTickLastTraded)populatedOnTickLastTraded)[i]);
                 Assert.AreSame(clonedLastTrade, populatedOnTickLastTraded[i]);
@@ -179,7 +181,7 @@ public class PQOnTickLastTradedTests
             for (var i = MaxNumberOfEntries - 1; i >= 0; i--)
             {
                 Assert.AreEqual(i, populatedOnTickLastTraded.Count - 1);
-                populatedOnTickLastTraded[i]?.StateReset();
+                populatedOnTickLastTraded[i].StateReset();
             }
 
             Assert.AreEqual(0, populatedOnTickLastTraded.Count);
@@ -267,11 +269,11 @@ public class PQOnTickLastTradedTests
         foreach (var populatedOnTickLastTraded in allFullyPopulatedOnTickLastTraded)
         {
             Assert.AreEqual(MaxNumberOfEntries, populatedOnTickLastTraded.Count);
-            populatedOnTickLastTraded.Add(populatedOnTickLastTraded[0]!.Clone());
+            populatedOnTickLastTraded.Add(populatedOnTickLastTraded[0].Clone());
             Assert.AreEqual(MaxNumberOfEntries + 1, populatedOnTickLastTraded.Count);
             populatedOnTickLastTraded[MaxNumberOfEntries] = populatedOnTickLastTraded[MaxNumberOfEntries].ResetWithTracking();
             Assert.AreEqual(MaxNumberOfEntries, populatedOnTickLastTraded.Count);
-            populatedOnTickLastTraded.Add(populatedOnTickLastTraded[0]!.Clone());
+            populatedOnTickLastTraded.Add(populatedOnTickLastTraded[0].Clone());
             Assert.AreEqual(MaxNumberOfEntries + 1, populatedOnTickLastTraded.Count);
         }
     }
@@ -356,7 +358,7 @@ public class PQOnTickLastTradedTests
         foreach (var populatedOnTickLastTraded in allFullyPopulatedOnTickLastTraded)
         foreach (var subType in allFullyPopulatedOnTickLastTraded.Where(ob => !ReferenceEquals(ob, populatedOnTickLastTraded)))
         {
-            if (!WhollyContainedBy(subType[0]!.GetType(), populatedOnTickLastTraded[0]!.GetType())) continue;
+            if (!WhollyContainedBy(subType[0].GetType(), populatedOnTickLastTraded[0].GetType())) continue;
             var newEmpty = new PQOnTickLastTraded((IOnTickLastTraded)populatedOnTickLastTraded);
             newEmpty.StateReset();
             Assert.AreNotEqual(populatedOnTickLastTraded, newEmpty);
@@ -473,11 +475,11 @@ public class PQOnTickLastTradedTests
         {
             var emptyOriginalTypeOrderBook = CreateNewEmpty(originalOnTickLastTraded);
             AssertAllLastTradesAreOfTypeAndEquivalentTo(emptyOriginalTypeOrderBook, originalOnTickLastTraded,
-                                                        originalOnTickLastTraded[0]!.GetType(), false);
+                                                        originalOnTickLastTraded[0].GetType(), false);
             emptyOriginalTypeOrderBook.CopyFrom(otherOnTickLastTraded);
             AssertAllLastTradesAreOfTypeAndEquivalentTo(emptyOriginalTypeOrderBook, otherOnTickLastTraded,
-                                                        GetExpectedType(originalOnTickLastTraded[0]!.GetType(),
-                                                                        otherOnTickLastTraded[0]!.GetType()));
+                                                        GetExpectedType(originalOnTickLastTraded[0].GetType(),
+                                                                        otherOnTickLastTraded[0].GetType()));
         }
     }
 
@@ -490,14 +492,14 @@ public class PQOnTickLastTradedTests
         {
             var clonedPopulatedOrderBook = originalOnTickLastTraded.Clone();
             AssertAllLastTradesAreOfTypeAndEquivalentTo(clonedPopulatedOrderBook, originalOnTickLastTraded,
-                                                        originalOnTickLastTraded[0]!.GetType(), false);
+                                                        originalOnTickLastTraded[0].GetType(), false);
             clonedPopulatedOrderBook.CopyFrom(otherOnTickLastTraded);
             AssertAllLastTradesAreOfTypeAndEquivalentTo(clonedPopulatedOrderBook, otherOnTickLastTraded,
-                                                        GetExpectedType(originalOnTickLastTraded[0]!.GetType(),
-                                                                        otherOnTickLastTraded[0]!.GetType()));
+                                                        GetExpectedType(originalOnTickLastTraded[0].GetType(),
+                                                                        otherOnTickLastTraded[0].GetType()));
             AssertAllLastTradesAreOfTypeAndEquivalentTo(clonedPopulatedOrderBook, originalOnTickLastTraded,
-                                                        GetExpectedType(originalOnTickLastTraded[0]!.GetType(),
-                                                                        otherOnTickLastTraded[0]!.GetType()));
+                                                        GetExpectedType(originalOnTickLastTraded[0].GetType(),
+                                                                        otherOnTickLastTraded[0].GetType()));
         }
     }
 
@@ -623,7 +625,7 @@ public class PQOnTickLastTradedTests
             var copyFromLastTrade = equivalentTo[i];
 
             Assert.IsInstanceOfType(upgradedLastTrade, expectedType);
-            if (compareForEquivalence) Assert.IsTrue(copyFromLastTrade!.AreEquivalent(upgradedLastTrade, exactlyEquals));
+            if (compareForEquivalence) Assert.IsTrue(copyFromLastTrade.AreEquivalent(upgradedLastTrade, exactlyEquals));
         }
     }
 
@@ -642,13 +644,13 @@ public class PQOnTickLastTradedTests
 
     private static PQOnTickLastTraded CreateNewEmpty(PQOnTickLastTraded populatedOnTickLastTraded)
     {
-        var cloneGenesis = populatedOnTickLastTraded[0]!.Clone();
+        var cloneGenesis = populatedOnTickLastTraded[0].Clone();
         cloneGenesis.StateReset();
         if (cloneGenesis is IPQLastExternalCounterPartyTrade traderLastTrade)
             traderLastTrade.NameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.LastTradedStringUpdates);
         var clonedEmptyEntries = new List<IPQLastTrade>(MaxNumberOfEntries);
         for (var i = 0; i < MaxNumberOfEntries; i++) clonedEmptyEntries.Add(cloneGenesis.Clone());
-        var newEmpty = new PQOnTickLastTraded(clonedEmptyEntries!);
+        var newEmpty = new PQOnTickLastTraded(clonedEmptyEntries);
         return newEmpty;
     }
 
@@ -658,7 +660,7 @@ public class PQOnTickLastTradedTests
     {
         for (var i = 0; i < onTickLastTraded.Count; i++)
         {
-            var lastTrade = onTickLastTraded[i]!;
+            var lastTrade = onTickLastTraded[i];
             var depthId   = (PQDepthKey)i;
 
 
@@ -720,7 +722,7 @@ public class PQOnTickLastTradedTests
         for (var i = 0; i < original.Count; i++)
         {
             var originalEntry = original[i];
-            var changingEntry = changingOnTickLastTraded[i]!;
+            var changingEntry = changingOnTickLastTraded[i];
             PQLastTradeTests
                 .AssertAreEquivalentMeetsExpectedExactComparisonType
                     (exactComparison, originalEntry as PQLastTrade,
