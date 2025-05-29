@@ -19,7 +19,7 @@ public interface IOrderBook : IReusableObject<IOrderBook>, IInterfacesComparable
     IOrderBookSide AskSide { get; }
     IOrderBookSide BidSide { get; }
 
-    ushort MaxPublishDepth { get; }
+    ushort MaxAllowedSize { get; }
 
     bool IsBidBookChanged { get; }
     

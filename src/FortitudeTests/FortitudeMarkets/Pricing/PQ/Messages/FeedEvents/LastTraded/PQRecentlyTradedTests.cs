@@ -6,6 +6,7 @@
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents;
+using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
@@ -625,19 +626,19 @@ public class PQRecentlyTradedTests
             }
         }
 
-        toShift.ElementShifts = new List<ListShiftCommand>();
+        toShift.ShiftCommands = new List<ListShiftCommand>();
 
         var shiftedNext = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         toShift.CalculateShift(ExpectedTradeTime, shiftedNext);
 
-        Assert.AreEqual(3, toShift.ElementShifts.Count);
+        Assert.AreEqual(3, toShift.ShiftCommands.Count);
         AssertExpectedShiftCommands();
 
         void AssertExpectedShiftCommands()
         {
-            for (int i = 0; i < toShift.ElementShifts.Count; i++)
+            for (int i = 0; i < toShift.ShiftCommands.Count; i++)
             {
-                var shift = toShift.ElementShifts[i];
+                var shift = toShift.ShiftCommands[i];
                 switch (i)
                 {
                     case 0:
@@ -659,7 +660,7 @@ public class PQRecentlyTradedTests
             }
         }
 
-        foreach (var shiftElementShift in toShift.ElementShifts)
+        foreach (var shiftElementShift in toShift.ShiftCommands)
         {
             toShift.ApplyElementShift(shiftElementShift);
         }
@@ -696,7 +697,7 @@ public class PQRecentlyTradedTests
             {
                 Console.Out.WriteLine($"Moving index {oldIndex} with TradeId {toShift[actualIndex].TradeId} to Start");
                 instances[oldIndex] = toShift[actualIndex];
-                toShift.MoveSingleElementToStart(actualIndex);
+                toShift.MoveToStart(actualIndex);
                 oldIndex++;
                 actualIndex++;
             } 
@@ -709,19 +710,19 @@ public class PQRecentlyTradedTests
             }
         }
 
-        toShift.ElementShifts = new List<ListShiftCommand>();
+        toShift.ShiftCommands = new List<ListShiftCommand>();
 
         var shiftedNext = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         toShift.CalculateShift(ExpectedTradeTime, shiftedNext);
 
-        Assert.AreEqual(6, toShift.ElementShifts.Count);
+        Assert.AreEqual(6, toShift.ShiftCommands.Count);
         AssertExpectedShiftCommands();
 
         void AssertExpectedShiftCommands()
         {
-            for (int i = 0; i < toShift.ElementShifts.Count; i++)
+            for (int i = 0; i < toShift.ShiftCommands.Count; i++)
             {
-                var shift = toShift.ElementShifts[i];
+                var shift = toShift.ShiftCommands[i];
                 Console.Out.WriteLine($"shift: {shift}");
                 switch (i)
                 {
@@ -759,7 +760,7 @@ public class PQRecentlyTradedTests
             }
         }
 
-        foreach (var shiftElementShift in toShift.ElementShifts)
+        foreach (var shiftElementShift in toShift.ShiftCommands)
         {
             toShift.ApplyElementShift(shiftElementShift);
         }
@@ -777,12 +778,10 @@ public class PQRecentlyTradedTests
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
 
-
-        var count        = toShift.Count; // original    0,1,2,3,4,5,6,7,8,9,10,11
-        int oldIndex     = count - 1;     // deleted     0,1,3,4,5,7,8,10                         
-        int actualIndex  = oldIndex;      // leaving     2,6,{new entry}, 9,11                     
-        int indexCounter = 0;             // shifts at   (-1,-2),(0,-3), {new entry} ,(2,-1),(3,-1)
-        for (var i = 0; oldIndex >= 0; i++)
+        var count        = toShift.Count;   // original    0,1,2,3,4,5,6,7,8,9,10,11
+        int oldIndex     = count - 1;       // deleted     0,1,3,4,5,7,8,10                         
+        int actualIndex  = oldIndex;        // leaving     2,6,{new entry}, 9,11                     
+        for (var i = 0; oldIndex >= 0; i++) // shifts at   (-1,-2),(0,-3), {new entry} ,(2,-1),(3,-1)
         {
             Console.Out.WriteLine($"Leaving index {oldIndex} with TradeId {toShift[actualIndex].TradeId}");
             oldIndex--;
@@ -803,7 +802,7 @@ public class PQRecentlyTradedTests
 
         toShift.InsertAt(2, newLastTrade);
 
-        toShift.ElementShifts = new List<ListShiftCommand>();
+        toShift.ShiftCommands = new List<ListShiftCommand>();
 
         var shiftedNext = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
 
@@ -818,13 +817,13 @@ public class PQRecentlyTradedTests
         shiftedNext.CalculateShift(ExpectedTradeTime, toShift);
 
         AssertExpectedShiftCommands();
-        Assert.AreEqual(4, shiftedNext.ElementShifts.Count);
+        Assert.AreEqual(4, shiftedNext.ShiftCommands.Count);
 
         void AssertExpectedShiftCommands()
         {
-            for (int i = 0; i < shiftedNext.ElementShifts.Count; i++)
+            for (int i = 0; i < shiftedNext.ShiftCommands.Count; i++)
             {
-                var shift = shiftedNext.ElementShifts[i];
+                var shift = shiftedNext.ShiftCommands[i];
                 Console.Out.WriteLine($"shift: {shift}");
                 switch (i)
                 {
@@ -852,7 +851,7 @@ public class PQRecentlyTradedTests
             }
         }
 
-        foreach (var shiftElementShift in shiftedNext.ElementShifts)
+        foreach (var shiftElementShift in shiftedNext.ShiftCommands)
         {
             shiftedNext.ApplyElementShift(shiftElementShift);
         }
@@ -872,7 +871,7 @@ public class PQRecentlyTradedTests
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
 
-        toShift.ClearedElementsAfterIndex = halfListSize;
+        toShift.ClearRemainingElementsFromIndex = halfListSize;
 
         for (int i = 0; i <= halfListSize; i++)
         {
@@ -987,7 +986,7 @@ public class PQRecentlyTradedTests
            , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
            , ExpectedUpdateTime);
 
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.CachedMaxCount = MaxNumberOfEntries;
+        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
         fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
@@ -1063,7 +1062,7 @@ public class PQRecentlyTradedTests
            , ExpectedUpdateTime);
 
         fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.CachedMaxCount = MaxNumberOfEntries;
+        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
 
@@ -1082,7 +1081,7 @@ public class PQRecentlyTradedTests
 
         var middleElement = toShift[midIndex];
 
-        toShift.MoveSingleElementToStart(midIndex);
+        toShift.MoveToStart(midIndex);
 
         for (int i = 0; i < toShift.Count; i++)
         {
@@ -1124,13 +1123,13 @@ public class PQRecentlyTradedTests
     {
         var midIndex = MaxNumberOfEntries / 2 + 1;
         fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.CachedMaxCount = MaxNumberOfEntries;
+        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
 
         var middleElement = toShift[midIndex];
 
-        toShift.MoveSingleElementToStart(midIndex);
+        toShift.MoveToStart(midIndex);
 
         for (int i = 0; i < toShift.Count; i++)
         {
@@ -1179,7 +1178,7 @@ public class PQRecentlyTradedTests
 
         var middleElement = toShift[midIndex];
 
-        toShift.MoveSingleElementToEnd(midIndex);
+        toShift.MoveToEnd(midIndex);
 
         for (int i = 0; i < toShift.Count; i++)
         {
@@ -1221,13 +1220,13 @@ public class PQRecentlyTradedTests
     {
         var midIndex = MaxNumberOfEntries / 2 + 1;
         fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.CachedMaxCount = MaxNumberOfEntries;
+        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
 
         var middleElement = toShift[midIndex];
 
-        toShift.MoveSingleElementToEnd(midIndex);
+        toShift.MoveToEnd(midIndex);
 
         for (int i = 0; i < toShift.Count; i++)
         {
@@ -1319,7 +1318,7 @@ public class PQRecentlyTradedTests
     {
         var midIndex = MaxNumberOfEntries / 2 + 1;
         fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.CachedMaxCount = MaxNumberOfEntries;
+        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
 
@@ -1418,7 +1417,7 @@ public class PQRecentlyTradedTests
     {
         var midIndex = MaxNumberOfEntries / 2 + 1;
         fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.CachedMaxCount = MaxNumberOfEntries;
+        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
 
@@ -1501,7 +1500,7 @@ public class PQRecentlyTradedTests
     {
         var pinAt = MaxNumberOfEntries / 2 + 1;
         fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.CachedMaxCount = MaxNumberOfEntries;
+        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
 
@@ -1567,7 +1566,7 @@ public class PQRecentlyTradedTests
     {
         var pinAt = MaxNumberOfEntries / 2 - 1;
         fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.CachedMaxCount = MaxNumberOfEntries;
+        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
 
@@ -1633,7 +1632,7 @@ public class PQRecentlyTradedTests
     {
         var pinAt = MaxNumberOfEntries / 2 + 1;
         fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.CachedMaxCount = MaxNumberOfEntries;
+        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
 
@@ -1699,7 +1698,7 @@ public class PQRecentlyTradedTests
     {
         var pinAt = MaxNumberOfEntries / 2 - 1;
         fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.CachedMaxCount = MaxNumberOfEntries;
+        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
 
@@ -1761,7 +1760,7 @@ public class PQRecentlyTradedTests
     {
         var halfListSize = MaxNumberOfEntries / 2;
         fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.CachedMaxCount = MaxNumberOfEntries;
+        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
 
@@ -1823,7 +1822,7 @@ public class PQRecentlyTradedTests
     {
         var halfListSize = MaxNumberOfEntries / 2;
         fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.CachedMaxCount = MaxNumberOfEntries;
+        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
 

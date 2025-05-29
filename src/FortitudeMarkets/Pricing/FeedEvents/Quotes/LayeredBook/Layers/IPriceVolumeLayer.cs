@@ -36,9 +36,6 @@ public interface IPriceVolumeLayer : IReusableObject<IPriceVolumeLayer>, IInterf
 
     decimal Price  { get; }
     decimal Volume { get; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    bool IsEmpty { get; }
 }
 
 public interface IMutablePriceVolumeLayer : IReusableObject<IMutablePriceVolumeLayer>, IPriceVolumeLayer, ITrackableReset<IMutablePriceVolumeLayer>, IEmptyable

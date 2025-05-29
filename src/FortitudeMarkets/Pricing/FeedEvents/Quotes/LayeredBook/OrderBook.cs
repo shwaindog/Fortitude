@@ -24,17 +24,17 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     {
         layerFlags      = layerType.SupportedLayerFlags();
         layerFlags      |= isLadder ? LayerFlags.Ladder : LayerFlags.None;
-        MaxPublishDepth = (ushort)numBookLayers;
+        MaxAllowedSize = (ushort)numBookLayers;
 
-        AskSide = new OrderBookSide(BookSide.AskBook, layerType, MaxPublishDepth, isLadder);
-        BidSide = new OrderBookSide(BookSide.BidBook, layerType, MaxPublishDepth, isLadder);
+        AskSide = new OrderBookSide(BookSide.AskBook, layerType, MaxAllowedSize, isLadder);
+        BidSide = new OrderBookSide(BookSide.BidBook, layerType, MaxAllowedSize, isLadder);
     }
 
     public OrderBook(IOrderBook toClone)
     {
         layerFlags          =  toClone.LayerSupportedFlags;
         layerFlags          |= LayersSupportedType.SupportedLayerFlags();
-        MaxPublishDepth     =  toClone.MaxPublishDepth;
+        MaxAllowedSize     =  toClone.MaxAllowedSize;
         DailyTickUpdateCount = toClone.DailyTickUpdateCount;
         if (toClone.HasNonEmptyOpenInterest)
         {
@@ -69,7 +69,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         layerFlags |= LayersSupportedType.SupportedLayerFlags();
         layerFlags |=  isLadder ? LayerFlags.Ladder : LayerFlags.None;
 
-        MaxPublishDepth = Math.Max(BidSide.MaxPublishDepth, AskSide.MaxPublishDepth);
+        MaxAllowedSize = Math.Max(((IOrderBookSide)BidSide).MaxAllowedSize, ((IOrderBookSide)AskSide).MaxAllowedSize);
     }
 
     public OrderBook(ISourceTickerInfo sourceTickerInfo)
@@ -77,7 +77,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         layerFlags =  sourceTickerInfo.LayerFlags;
         layerFlags |= LayersSupportedType.SupportedLayerFlags();
 
-        MaxPublishDepth = sourceTickerInfo.MaximumPublishedLayers;
+        MaxAllowedSize = sourceTickerInfo.MaximumPublishedLayers;
 
         AskSide = new OrderBookSide(BookSide.AskBook, sourceTickerInfo);
         BidSide = new OrderBookSide(BookSide.BidBook, sourceTickerInfo);
@@ -109,7 +109,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     public bool IsBidBookChanged { get; set; }
     public bool IsAskBookChanged { get; set; }
 
-    public ushort MaxPublishDepth { get; private set; }
+    public ushort MaxAllowedSize { get; private set; }
 
     public decimal? MidPrice => (BidSide[0]?.Price ?? 0 + AskSide[0]?.Price ?? 0) / 2;
 
@@ -212,7 +212,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         if (exactTypes && other.GetType() != typeof(OrderBook)) return false;
 
         var layerFlagsSame     = LayerSupportedFlags == other.LayerSupportedFlags;
-        var maxDepthSame       = MaxPublishDepth == other.MaxPublishDepth;
+        var maxDepthSame       = MaxAllowedSize == other.MaxAllowedSize;
         var dailyTickCountSame = DailyTickUpdateCount == other.DailyTickUpdateCount;
         var openInterestSame   = HasNonEmptyOpenInterest == other.HasNonEmptyOpenInterest;
         if (openInterestSame && other.HasNonEmptyOpenInterest && HasNonEmptyOpenInterest)
@@ -239,7 +239,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         {
             openInterest.IsEmpty = true;
         }
-        MaxPublishDepth      = source.MaxPublishDepth;
+        MaxAllowedSize      = source.MaxAllowedSize;
         IsBidBookChanged     = source.IsBidBookChanged;
         IsAskBookChanged     = source.IsAskBookChanged;
         DailyTickUpdateCount = source.DailyTickUpdateCount;
@@ -259,7 +259,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
             var hashCode = new HashCode();
             hashCode.Add(LayersSupportedType);
             hashCode.Add(IsLadder);
-            hashCode.Add(MaxPublishDepth);
+            hashCode.Add(MaxAllowedSize);
             hashCode.Add(IsBidBookChanged);
             hashCode.Add(IsAskBookChanged);
             hashCode.Add(DailyTickUpdateCount);

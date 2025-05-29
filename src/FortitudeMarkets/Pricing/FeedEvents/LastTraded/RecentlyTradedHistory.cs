@@ -5,14 +5,11 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
-using FortitudeMarkets.Pricing.FeedEvents.Utils;
-using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 
 public class RecentlyTradedHistory : ReusableObject<IRecentlyTradedHistory>, IMutableRecentlyTradedHistory
 {
-
     public RecentlyTradedHistory()
     {
         OnTickLastTraded            = new OnTickLastTraded();

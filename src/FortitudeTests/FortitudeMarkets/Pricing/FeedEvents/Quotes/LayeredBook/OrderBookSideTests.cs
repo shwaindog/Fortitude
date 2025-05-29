@@ -262,7 +262,7 @@ public class OrderBookSideTests
         var clonedEmptyOrderBook = new OrderBookSide(emptyOrderBook);
         Assert.AreEqual(0, clonedEmptyOrderBook.Count);
         for (var j = 0; j < MaxNumberOfTraders; j++) Assert.AreNotSame(emptyOrderBook[j], clonedEmptyOrderBook[j]);
-    }
+    } 
 
     [TestMethod]
     public void PopulatedOrderBook_AccessIndexerVariousInterfaces_GetsAndSetsLayerRemovesLastEntryIfNull()
@@ -466,7 +466,7 @@ public class OrderBookSideTests
 
             Assert.IsTrue(toString.Contains(q.GetType().Name));
             Assert.IsTrue(toString.Contains($"{nameof(q.Capacity)}: {q.Capacity}"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.MaxPublishDepth)}: {q.MaxPublishDepth}"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.MaxAllowedSize)}: {q.MaxAllowedSize}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.Count)}: {q.Count}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.LayerSupportedFlags)}: {q.LayerSupportedFlags}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.OpenInterestSideSide)}: {q.OpenInterestSideSide}"));

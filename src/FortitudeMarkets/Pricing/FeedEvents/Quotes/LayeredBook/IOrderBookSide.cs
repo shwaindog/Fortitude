@@ -7,6 +7,7 @@ using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 
 #endregion
@@ -20,34 +21,36 @@ public enum BookSide
   , AskBook
 }
 
-public interface IOrderBookSide : ICapacityList<IPriceVolumeLayer>, IReusableObject<IOrderBookSide>,
-    IInterfacesComparable<IOrderBookSide>, ISupportsElementsShift<IOrderBookSide, IPriceVolumeLayer>, IShowsEmpty
+public interface IOrderBookSide : ITracksShiftsList<IPriceVolumeLayer, IPriceVolumeLayer>, IReusableObject<IOrderBookSide>,
+    IInterfacesComparable<IOrderBookSide>, IShowsEmpty
 {
     new IPriceVolumeLayer this[int index] { get; }
 
-    LayerType  LayerSupportedType  { get; }
+    LayerType LayerSupportedType { get; }
+
     LayerFlags LayerSupportedFlags { get; }
 
-    bool   IsLadder        { get; }
-    ushort MaxPublishDepth { get; }
+    bool IsLadder { get; }
 
     uint DailyTickUpdateCount { get; }
 
-    bool             HasNonEmptyOpenInterest { get; }
-    IMarketAggregate OpenInterestSide        { get; }
+    bool HasNonEmptyOpenInterest { get; }
+
+    IMarketAggregate OpenInterestSide { get; }
 
     BookSide BookSide { get; }
 }
 
-public interface IMutableOrderBookSide : IOrderBookSide, IMutableCapacityList<IMutablePriceVolumeLayer>,
-    ICloneable<IMutableOrderBookSide>, ITrackableReset<IMutableOrderBookSide>
-  , IMutableSupportsElementsShift<IMutableOrderBookSide, IMutablePriceVolumeLayer>, IEmptyable
+public interface IMutableOrderBookSide : IOrderBookSide, IMutableTracksShiftsList<IMutablePriceVolumeLayer, IPriceVolumeLayer>,
+    ICloneable<IMutableOrderBookSide>, ITrackableReset<IMutableOrderBookSide>, IEmptyable
 {
     new IMutablePriceVolumeLayer this[int index] { get; set; }
 
-    new IReadOnlyList<ListShiftCommand> ElementShifts { get; set; }
+    new IReadOnlyList<ListShiftCommand> ShiftCommands { get; set; }
 
-    new int? ClearedElementsAfterIndex { get; set; }
+    new int? ClearRemainingElementsFromIndex { get; set; }
+
+    new ushort MaxAllowedSize { get; }
 
     new bool HasRandomAccessUpdates { get; set; }
 
@@ -62,6 +65,12 @@ public interface IMutableOrderBookSide : IOrderBookSide, IMutableCapacityList<IM
     new uint DailyTickUpdateCount { get; set; }
 
     new IMutableMarketAggregate? OpenInterestSide { get; set; }
+
+    new bool CalculateShift(DateTime asAtTime, IReadOnlyList<IPriceVolumeLayer> updatedCollection);
+
+    new ListShiftCommand AppendShiftCommand(ListShiftCommand toAppendAtEnd);
+
+    new void ClearShiftCommands();
 
     new IEnumerator<IMutablePriceVolumeLayer> GetEnumerator();
 
@@ -84,7 +93,6 @@ public static class OrderBookSideExtensions
         for (int i = 0; i < orderBookSide.Count && remainingVol > 0m; i++)
         {
             var pvl = orderBookSide[i];
-            if (pvl == null) continue;
             decimal cappedVolume;
             if (remainingSkipVol > 0)
             {
