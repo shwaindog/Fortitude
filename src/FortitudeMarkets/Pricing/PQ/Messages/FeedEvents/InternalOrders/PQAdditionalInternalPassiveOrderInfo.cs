@@ -76,7 +76,7 @@ public enum PQAdditionalInternalPassiveOrderInfoUpdatedFlags : uint
 
 public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalInternalPassiveOrderInfo>, IPQAdditionalInternalPassiveOrderInfo
 {
-    protected int NumUpdatesSinceEmpty = -1;
+    protected uint SequenceId = uint.MaxValue;
 
     private IPQNameIdLookupGenerator nameIdLookup = null!;
 
@@ -105,13 +105,13 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
     public PQAdditionalInternalPassiveOrderInfo()
     {
         NameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates);
-        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) SequenceId = 0;
     }
 
     public PQAdditionalInternalPassiveOrderInfo(IPQNameIdLookupGenerator pqNameIdLookupGenerator)
     {
         NameIdLookup = pqNameIdLookupGenerator;
-        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) SequenceId = 0;
     }
 
     public PQAdditionalInternalPassiveOrderInfo
@@ -122,7 +122,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         //: base(orderId, createdTime, orderVolume, orderType, genesisFlags, orderLifeCycleState, updatedTime, remainingVolume, trackingId)
     {
         NameIdLookup = lookupDict;
-        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) SequenceId = 0;
     }
 
     public PQAdditionalInternalPassiveOrderInfo(IAdditionalInternalPassiveOrderInfo? toClone, IPQNameIdLookupGenerator? pqNameIdLookupGenerator = null)
@@ -154,7 +154,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
             SetFlagsSame(toClone);
         }
 
-        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) SequenceId = 0;
     }
 
 
@@ -163,7 +163,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => orderSequenceId;
         set
         {
-            IsOrderSequenceIdUpdated |= value != orderSequenceId || NumUpdatesSinceEmpty == 0;
+            IsOrderSequenceIdUpdated |= value != orderSequenceId || SequenceId == 0;
             orderSequenceId          =  value;
         }
     }
@@ -172,7 +172,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => parentOrderId;
         set
         {
-            IsParentOrderIdUpdated |= value != parentOrderId || NumUpdatesSinceEmpty == 0;
+            IsParentOrderIdUpdated |= value != parentOrderId || SequenceId == 0;
             parentOrderId          =  value;
         }
     }
@@ -181,7 +181,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => closingOrderId;
         set
         {
-            IsClosingOrderIdUpdated |= value != closingOrderId || NumUpdatesSinceEmpty == 0;
+            IsClosingOrderIdUpdated |= value != closingOrderId || SequenceId == 0;
             closingOrderId          =  value;
         }
     }
@@ -190,7 +190,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => closingOrderPrice;
         set
         {
-            IsClosingOrderPriceUpdated |= value != closingOrderPrice || NumUpdatesSinceEmpty == 0;
+            IsClosingOrderPriceUpdated |= value != closingOrderPrice || SequenceId == 0;
             closingOrderPrice          =  value;
         }
     }
@@ -200,9 +200,9 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         set
         {
             IsDecisionCreatedDateUpdated |= value.Get2MinIntervalsFromUnixEpoch() != decisionCreatedTime.Get2MinIntervalsFromUnixEpoch() ||
-                                            NumUpdatesSinceEmpty == 0;
+                                            SequenceId == 0;
             IsDecisionCreatedSub2MinTimeUpdated
-                |= value.GetSub2MinComponent() != decisionCreatedTime.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
+                |= value.GetSub2MinComponent() != decisionCreatedTime.GetSub2MinComponent() || SequenceId == 0;
             decisionCreatedTime = value;
         }
     }
@@ -212,8 +212,8 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         set
         {
             IsDecisionAmendDateUpdated |= value.Get2MinIntervalsFromUnixEpoch() != decisionAmendTime.Get2MinIntervalsFromUnixEpoch() ||
-                                          NumUpdatesSinceEmpty == 0;
-            IsDecisionAmendSub2MinTimeUpdated |= value.GetSub2MinComponent() != decisionAmendTime.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
+                                          SequenceId == 0;
+            IsDecisionAmendSub2MinTimeUpdated |= value.GetSub2MinComponent() != decisionAmendTime.GetSub2MinComponent() || SequenceId == 0;
             decisionAmendTime                 =  value;
         }
     }
@@ -222,7 +222,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => divisionId;
         set
         {
-            IsDivisionIdUpdated |= value != divisionId || NumUpdatesSinceEmpty == 0;
+            IsDivisionIdUpdated |= value != divisionId || SequenceId == 0;
             divisionId          =  value;
         }
     }
@@ -233,7 +233,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => divisionNameId;
         set
         {
-            IsDivisionNameUpdated |= divisionNameId != value || NumUpdatesSinceEmpty == 0;
+            IsDivisionNameUpdated |= divisionNameId != value || SequenceId == 0;
             divisionNameId        =  value;
         }
     }
@@ -256,7 +256,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => deskId;
         set
         {
-            IsDeskIdUpdated |= value != deskId || NumUpdatesSinceEmpty == 0;
+            IsDeskIdUpdated |= value != deskId || SequenceId == 0;
             deskId          =  value;
         }
     }
@@ -266,7 +266,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => deskNameId;
         set
         {
-            IsDeskNameUpdated |= deskNameId != value || NumUpdatesSinceEmpty == 0;
+            IsDeskNameUpdated |= deskNameId != value || SequenceId == 0;
             deskNameId        =  value;
         }
     }
@@ -289,7 +289,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => strategyId;
         set
         {
-            IsStrategyIdUpdated |= value != strategyId || NumUpdatesSinceEmpty == 0;
+            IsStrategyIdUpdated |= value != strategyId || SequenceId == 0;
             strategyId          =  value;
         }
     }
@@ -299,7 +299,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => strategyNameId;
         set
         {
-            IsStrategyNameUpdated |= strategyNameId != value || NumUpdatesSinceEmpty == 0;
+            IsStrategyNameUpdated |= strategyNameId != value || SequenceId == 0;
             strategyNameId        =  value;
         }
     }
@@ -322,7 +322,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => strategyDecisionId;
         set
         {
-            IsStrategyDecisionIdUpdated |= strategyDecisionId != value || NumUpdatesSinceEmpty == 0;
+            IsStrategyDecisionIdUpdated |= strategyDecisionId != value || SequenceId == 0;
             strategyDecisionId          =  value;
         }
     }
@@ -332,7 +332,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => strategyDecisionNameId;
         set
         {
-            IsStrategyDecisionNameUpdated |= strategyDecisionNameId != value || NumUpdatesSinceEmpty == 0;
+            IsStrategyDecisionNameUpdated |= strategyDecisionNameId != value || SequenceId == 0;
             strategyDecisionNameId        =  value;
         }
     }
@@ -354,7 +354,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => portfolioId;
         set
         {
-            IsPortfolioIdUpdated |= portfolioId != value || NumUpdatesSinceEmpty == 0;
+            IsPortfolioIdUpdated |= portfolioId != value || SequenceId == 0;
             portfolioId          =  value;
         }
     }
@@ -364,7 +364,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => portfolioNameId;
         set
         {
-            IsPortfolioNameUpdated |= portfolioNameId != value || NumUpdatesSinceEmpty == 0;
+            IsPortfolioNameUpdated |= portfolioNameId != value || SequenceId == 0;
             portfolioNameId        =  value;
         }
     }
@@ -385,7 +385,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => internalTraderId;
         set
         {
-            IsInternalTraderIdUpdated |= internalTraderId != value || NumUpdatesSinceEmpty == 0;
+            IsInternalTraderIdUpdated |= internalTraderId != value || SequenceId == 0;
             internalTraderId          =  value;
         }
     }
@@ -395,7 +395,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => internalTraderNameId;
         set
         {
-            IsInternalTraderNameUpdated |= internalTraderNameId != value || NumUpdatesSinceEmpty == 0;
+            IsInternalTraderNameUpdated |= internalTraderNameId != value || SequenceId == 0;
             internalTraderNameId        =  value;
         }
     }
@@ -417,7 +417,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         get => marginConsumed;
         set
         {
-            IsMarginConsumedUpdated |= marginConsumed != value || NumUpdatesSinceEmpty == 0;
+            IsMarginConsumedUpdated |= marginConsumed != value || SequenceId == 0;
             marginConsumed          =  value;
         }
     }
@@ -788,7 +788,6 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
             MarginConsumed         = 0;
         }
     }
-    public uint UpdateCount => (uint)NumUpdatesSinceEmpty;
 
     [JsonIgnore]
     public virtual bool HasUpdates
@@ -802,9 +801,16 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         }
     }
 
-    public virtual void UpdateComplete(uint updateId = 0)
+    public uint UpdateSequenceId => SequenceId;
+
+    public void UpdateStarted(uint updateSequenceId)
     {
-        NameIdLookup.UpdateComplete(updateId);
+        SequenceId = updateSequenceId;
+    }
+
+    public virtual void UpdateComplete(uint updateSequenceId = 0)
+    {
+        NameIdLookup.UpdateComplete(updateSequenceId);
         HasUpdates = false;
     }
 
@@ -1218,7 +1224,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
             if (hasAsNew)
             {
                 UpdatedFlags         = PQAdditionalInternalPassiveOrderInfoUpdatedFlags.None;
-                NumUpdatesSinceEmpty = int.MaxValue;
+                SequenceId = int.MaxValue;
             }
 
             OrderSequenceId      = internalPassiveOrder.OrderSequenceId;
@@ -1243,7 +1249,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
             
             if (hasAsNew)
             {
-                NumUpdatesSinceEmpty = 0;
+                SequenceId = 0;
             }
         }
 

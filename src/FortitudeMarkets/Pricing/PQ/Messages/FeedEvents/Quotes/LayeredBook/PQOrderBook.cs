@@ -46,7 +46,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
 
         private IPQNameIdLookupGenerator nameIdLookupGenerator;
 
-        protected uint NumOfUpdates = uint.MaxValue;
+        protected uint SequenceId = uint.MaxValue;
 
         private IPQMarketAggregate? pqOpenInterest = null;
 
@@ -58,7 +58,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
 
         public PQOrderBook() : this(LayerType.PriceVolume)
         {
-            if (GetType() == typeof(PQOrderBook)) NumOfUpdates = 0;
+            if (GetType() == typeof(PQOrderBook)) SequenceId = 0;
         }
 
         public PQOrderBook
@@ -77,7 +77,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             AskSide = new PQOrderBookSide(BookSide.AskBook, layerType, numBookLayers, isLadder, nameIdLookupGenerator);
             BidSide = new PQOrderBookSide(BookSide.BidBook, layerType, numBookLayers, isLadder, nameIdLookupGenerator);
 
-            if (GetType() == typeof(PQOrderBook)) NumOfUpdates = 0;
+            if (GetType() == typeof(PQOrderBook)) SequenceId = 0;
         }
 
         public PQOrderBook(ISourceTickerInfo srcTickerInfo)
@@ -93,7 +93,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             AskSide = new PQOrderBookSide(BookSide.AskBook, srcTickerInfo, nameIdLookupGenerator);
             BidSide = new PQOrderBookSide(BookSide.BidBook, srcTickerInfo, nameIdLookupGenerator);
 
-            if (GetType() == typeof(PQOrderBook)) NumOfUpdates = 0;
+            if (GetType() == typeof(PQOrderBook)) SequenceId = 0;
         }
 
         public PQOrderBook
@@ -109,7 +109,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             AskSide = new PQOrderBookSide(BookSide.AskBook, askBookLayers, IsLadder, nameIdLookupGenerator);
             BidSide = new PQOrderBookSide(BookSide.BidBook, bidBookLayers, IsLadder, nameIdLookupGenerator);
 
-            if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
+            if (GetType() == typeof(PQOrderBookSide)) SequenceId = 0;
         }
 
         public PQOrderBook(IOrderBookSide bidSide, IOrderBookSide askBookSide, uint dailyTickCount = 0, bool isLadder = false)
@@ -164,7 +164,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
 
             SetFlagsSame(toClone);
 
-            if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
+            if (GetType() == typeof(PQOrderBookSide)) SequenceId = 0;
         }
 
         protected string PQOrderBookToStringMembers =>
@@ -257,7 +257,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             get => dailyTickUpdateCount;
             set
             {
-                IsDailyTickUpdateCountUpdated |= value != dailyTickUpdateCount || NumOfUpdates == 0;
+                IsDailyTickUpdateCountUpdated |= value != dailyTickUpdateCount || SequenceId == 0;
                 dailyTickUpdateCount          =  value;
             }
         }
@@ -355,17 +355,25 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             }
         }
 
-        public uint UpdateCount => NumOfUpdates;
+        public uint UpdateSequenceId => SequenceId;
 
-        public void UpdateComplete(uint updateId = 0)
+        public void UpdateStarted(uint updateSequenceId)
         {
-            AskSide.UpdateComplete(updateId);
-            BidSide.UpdateComplete(updateId);
-            NameIdLookup.UpdateComplete(updateId);
-            pqOpenInterest?.UpdateComplete(updateId);
+            SequenceId = updateSequenceId;
+            AskSide.UpdateStarted(updateSequenceId);
+            BidSide.UpdateStarted(updateSequenceId);
+            pqOpenInterest?.UpdateStarted(updateSequenceId);
+        }
+
+        public void UpdateComplete(uint updateSequenceId = 0)
+        {
+            AskSide.UpdateComplete(updateSequenceId);
+            BidSide.UpdateComplete(updateSequenceId);
+            NameIdLookup.UpdateComplete(updateSequenceId);
+            pqOpenInterest?.UpdateComplete(updateSequenceId);
             if (HasUpdates)
             {
-                NumOfUpdates++;
+                SequenceId++;
                 HasUpdates = false;
             }
         }

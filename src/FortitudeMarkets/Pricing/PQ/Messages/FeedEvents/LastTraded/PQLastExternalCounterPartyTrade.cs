@@ -47,14 +47,14 @@ public class PQLastExternalCounterPartyTrade : PQLastPaidGivenTrade, IPQLastExte
     {
         nameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.LastTradedStringUpdates);
 
-        if (GetType() == typeof(PQLastExternalCounterPartyTrade)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastExternalCounterPartyTrade)) SequenceId = 0;
     }
 
     public PQLastExternalCounterPartyTrade(IPQNameIdLookupGenerator traderIdToNameLookup) 
     {
         nameIdLookup = traderIdToNameLookup;
 
-        if (GetType() == typeof(PQLastExternalCounterPartyTrade)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastExternalCounterPartyTrade)) SequenceId = 0;
     }
 
     public PQLastExternalCounterPartyTrade
@@ -73,7 +73,7 @@ public class PQLastExternalCounterPartyTrade : PQLastPaidGivenTrade, IPQLastExte
         ExternalTraderId         = traderId;
         ExternalTraderName       = traderName;
 
-        if (GetType() == typeof(PQLastExternalCounterPartyTrade)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastExternalCounterPartyTrade)) SequenceId = 0;
     }
 
     public PQLastExternalCounterPartyTrade(ILastTrade toClone, IPQNameIdLookupGenerator traderIdToNameLookup) : base(toClone)
@@ -89,7 +89,7 @@ public class PQLastExternalCounterPartyTrade : PQLastPaidGivenTrade, IPQLastExte
 
         SetFlagsSame(toClone);
 
-        if (GetType() == typeof(PQLastExternalCounterPartyTrade)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastExternalCounterPartyTrade)) SequenceId = 0;
     }
 
 
@@ -103,7 +103,7 @@ public class PQLastExternalCounterPartyTrade : PQLastPaidGivenTrade, IPQLastExte
         get => externalCounterPartyId;
         set
         {
-            IsExternalCounterPartyIdUpdated |= externalCounterPartyId != value || NumUpdatesSinceEmpty == 0;
+            IsExternalCounterPartyIdUpdated |= externalCounterPartyId != value || SequenceId == 0;
             externalCounterPartyId          =  value;
         }
     }
@@ -114,7 +114,7 @@ public class PQLastExternalCounterPartyTrade : PQLastPaidGivenTrade, IPQLastExte
         get => externalCounterPartyNameId;
         set
         {
-            IsExternalCounterPartyNameUpdated |= externalCounterPartyNameId != value || NumUpdatesSinceEmpty == 0;
+            IsExternalCounterPartyNameUpdated |= externalCounterPartyNameId != value || SequenceId == 0;
 
             externalCounterPartyNameId = value;
         }
@@ -149,7 +149,7 @@ public class PQLastExternalCounterPartyTrade : PQLastPaidGivenTrade, IPQLastExte
         get => externalTraderId;
         set
         {
-            IsExternalTraderIdUpdated |= externalTraderId != value || NumUpdatesSinceEmpty == 0;
+            IsExternalTraderIdUpdated |= externalTraderId != value || SequenceId == 0;
             externalTraderId          =  value;
         }
     }
@@ -161,7 +161,7 @@ public class PQLastExternalCounterPartyTrade : PQLastPaidGivenTrade, IPQLastExte
         get => externalTraderNameId;
         set
         {
-            IsExternalTraderNameUpdated |= externalTraderNameId != value || NumUpdatesSinceEmpty == 0;
+            IsExternalTraderNameUpdated |= externalTraderNameId != value || SequenceId == 0;
 
             externalTraderNameId = value;
         }
@@ -297,10 +297,10 @@ public class PQLastExternalCounterPartyTrade : PQLastPaidGivenTrade, IPQLastExte
         }
     }
 
-    public override void UpdateComplete(uint updateId = 0)
+    public override void UpdateComplete(uint updateSequenceId = 0)
     {
-        NameIdLookup.UpdateComplete(updateId);
-        base.UpdateComplete(updateId);
+        NameIdLookup.UpdateComplete(updateSequenceId);
+        base.UpdateComplete(updateSequenceId);
     }
 
     IMutableLastTrade ITrackableReset<IMutableLastTrade>.ResetWithTracking() => ResetWithTracking();

@@ -35,7 +35,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
     {
         protected PQMarketAggregateUpdatedFlags UpdatedFlags;
 
-        protected uint NumUpdatesSinceEmpty = uint.MaxValue;
+        protected uint SequenceId = uint.MaxValue;
 
         private MarketDataSource dataSource = MarketDataSource.None;
 
@@ -45,7 +45,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
 
         public PQMarketAggregate()
         {
-            if (GetType() == typeof(PQMarketAggregate)) NumUpdatesSinceEmpty = 0;
+            if (GetType() == typeof(PQMarketAggregate)) SequenceId = 0;
         }
 
         public PQMarketAggregate(MarketDataSource dataSource, decimal volume, decimal vwap, DateTime? updateTime = null)
@@ -55,7 +55,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             Volume     = volume;
             Vwap       = vwap;
 
-            if (GetType() == typeof(PQMarketAggregate)) NumUpdatesSinceEmpty = 0;
+            if (GetType() == typeof(PQMarketAggregate)) SequenceId = 0;
         }
 
         public PQMarketAggregate(IMarketAggregate toClone)
@@ -67,7 +67,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
 
             SetFlagsSame(toClone);
 
-            if (GetType() == typeof(PQMarketAggregate)) NumUpdatesSinceEmpty = 0;
+            if (GetType() == typeof(PQMarketAggregate)) SequenceId = 0;
         }
 
         public MarketDataSource DataSource
@@ -75,7 +75,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             get => dataSource;
             set
             {
-                IsDataSourceUpdated |= value != dataSource || NumUpdatesSinceEmpty == 0;
+                IsDataSourceUpdated |= value != dataSource || SequenceId == 0;
 
                 dataSource = value;
             }
@@ -87,8 +87,8 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             set
             {
                 IsUpdatedDateUpdated |= updateTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() ||
-                                        NumUpdatesSinceEmpty == 0;
-                IsUpdatedSub2MinTimeUpdated |= updateTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
+                                        SequenceId == 0;
+                IsUpdatedSub2MinTimeUpdated |= updateTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
                 updateTime                  =  value;
                 if(updateTime == DateTime.UnixEpoch) updateTime = DateTime.MinValue;
             }
@@ -99,7 +99,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             get => volume;
             set
             {
-                IsVolumeUpdated |= value != volume || NumUpdatesSinceEmpty == 0;
+                IsVolumeUpdated |= value != volume || SequenceId == 0;
 
                 volume = value;
             }
@@ -109,7 +109,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             get => vwap;
             set
             {
-                IsVwapUpdated |= value != vwap || NumUpdatesSinceEmpty == 0;
+                IsVwapUpdated |= value != vwap || SequenceId == 0;
 
                 vwap = value;
             }
@@ -179,7 +179,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             {
                 if (value) return;
                 UpdatedFlags         = PQMarketAggregateUpdatedFlags.None;
-                NumUpdatesSinceEmpty = 0;
+                SequenceId = 0;
             }
         }
 
@@ -196,13 +196,18 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             }
         }
 
-        public uint UpdateCount => NumUpdatesSinceEmpty;
+        public uint UpdateSequenceId => SequenceId;
 
-        public void UpdateComplete(uint updateId = 0)
+        public void UpdateStarted(uint updateSequenceId)
+        {
+            SequenceId = updateSequenceId;
+        }
+
+        public void UpdateComplete(uint updateSequenceId = 0)
         {
             if (HasUpdates && !IsEmpty)
             {
-                NumUpdatesSinceEmpty++;
+                SequenceId++;
             }
             HasUpdates = false;
         }

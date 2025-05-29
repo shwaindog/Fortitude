@@ -36,7 +36,7 @@ public interface IPQPriceVolumeLayer : IReusableObject<IPQPriceVolumeLayer>, IMu
 
 public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVolumeLayer
 {
-    protected uint    NumUpdatesSinceEmpty = uint.MaxValue;
+    protected uint    SequenceId = uint.MaxValue;
     private   decimal price;
 
     protected LayerFieldUpdatedFlags UpdatedFlags;
@@ -45,7 +45,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
 
     public PQPriceVolumeLayer()
     {
-        if (GetType() == typeof(PQPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQPriceVolumeLayer)) SequenceId = 0;
     }
 
     public PQPriceVolumeLayer(decimal price = 0m, decimal volume = 0m)
@@ -53,7 +53,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         Price  = price;
         Volume = volume;
 
-        if (GetType() == typeof(PQPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQPriceVolumeLayer)) SequenceId = 0;
     }
 
     public PQPriceVolumeLayer(IPriceVolumeLayer toClone)
@@ -62,7 +62,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         Volume = toClone.Volume;
         SetFlagsSame(toClone);
 
-        if (GetType() == typeof(PQPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQPriceVolumeLayer)) SequenceId = 0;
     }
 
     protected string PQPriceVolumeLayerToStringMembers => $"{nameof(Price)}: {Price:N5}, {nameof(Volume)}: {Volume:N2}";
@@ -78,7 +78,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         get => price;
         set
         {
-            IsPriceUpdated |= price != value || NumUpdatesSinceEmpty == 0;
+            IsPriceUpdated |= price != value || SequenceId == 0;
             price          =  value;
         }
     }
@@ -89,7 +89,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         get => volume;
         set
         {
-            IsVolumeUpdated |= volume != value || NumUpdatesSinceEmpty == 0;
+            IsVolumeUpdated |= volume != value || SequenceId == 0;
             volume          =  value;
         }
     }
@@ -147,15 +147,20 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
             if (!value) return;
             Price = Volume = 0m;
 
-            NumUpdatesSinceEmpty = 0;
+            SequenceId = 0;
         }
     }
 
-    public uint UpdateCount => NumUpdatesSinceEmpty;
+    public uint UpdateSequenceId => SequenceId;
 
-    public virtual void UpdateComplete(uint updateId = 0)
+    public virtual void UpdateStarted(uint updateSequenceId)
     {
-        if (HasUpdates && !IsEmpty) NumUpdatesSinceEmpty++;
+        SequenceId = updateSequenceId;
+    }
+
+    public virtual void UpdateComplete(uint updateSequenceId = 0)
+    {
+        if (HasUpdates && !IsEmpty) SequenceId++;
         HasUpdates = false;
     }
 
@@ -178,7 +183,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         Volume       = 0m;
         UpdatedFlags = LayerFieldUpdatedFlags.None;
 
-        NumUpdatesSinceEmpty = 0;
+        SequenceId = 0;
     }
 
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields

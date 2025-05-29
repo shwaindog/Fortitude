@@ -32,7 +32,7 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         : base(price, volume)
     {
         ValueDate = valueDate ?? DateTime.MinValue;
-        if (GetType() == typeof(PQValueDatePriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQValueDatePriceVolumeLayer)) SequenceId = 0;
     }
 
     public PQValueDatePriceVolumeLayer(IPriceVolumeLayer toClone) : base(toClone)
@@ -40,7 +40,7 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         if (toClone is IValueDatePriceVolumeLayer valueDateToClone) ValueDate = valueDateToClone.ValueDate;
 
         SetFlagsSame(toClone);
-        if (GetType() == typeof(PQValueDatePriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQValueDatePriceVolumeLayer)) SequenceId = 0;
     }
 
     protected string PQValueDatePriceVolumeLayerToStringMembers => $"{PQPriceVolumeLayerToStringMembers}, {nameof(ValueDate)}: {ValueDate}";
@@ -55,7 +55,7 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         get => valueDate;
         set
         {
-            IsValueDateUpdated |= valueDate != value || NumUpdatesSinceEmpty == 0;
+            IsValueDateUpdated |= valueDate != value || SequenceId == 0;
             valueDate          =  value;
         }
     }

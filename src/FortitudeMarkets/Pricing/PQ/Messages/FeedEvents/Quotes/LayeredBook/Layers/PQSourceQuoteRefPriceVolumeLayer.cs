@@ -36,7 +36,7 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         : base(sourceIdToNameIdLookup, price, volume, sourceName, executable)
     {
         SourceQuoteReference = quoteRef;
-        if (GetType() == typeof(PQSourceQuoteRefPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQSourceQuoteRefPriceVolumeLayer)) SequenceId = 0;
     }
 
     public PQSourceQuoteRefPriceVolumeLayer(IPriceVolumeLayer toClone, IPQNameIdLookupGenerator nameIdLookupGenerator) : base(toClone
@@ -44,7 +44,7 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
     {
         if (toClone is ISourceQuoteRefPriceVolumeLayer sourceQtRefPvLayer) SourceQuoteReference = sourceQtRefPvLayer.SourceQuoteReference;
         SetFlagsSame(toClone);
-        if (GetType() == typeof(PQSourceQuoteRefPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQSourceQuoteRefPriceVolumeLayer)) SequenceId = 0;
     }
 
     protected string PQSourceQuoteRefPriceVolumeLayerToStringMembers =>
@@ -59,7 +59,7 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         get => sourceQuoteReference;
         set
         {
-            IsSourceQuoteReferenceUpdated |= sourceQuoteReference != value || NumUpdatesSinceEmpty == 0;
+            IsSourceQuoteReferenceUpdated |= sourceQuoteReference != value || SequenceId == 0;
             sourceQuoteReference          =  value;
         }
     }

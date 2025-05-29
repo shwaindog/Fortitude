@@ -74,14 +74,14 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
     protected PQFieldFlags PriceScalingPrecision;
     protected PQFieldFlags VolumeScalingPrecision;
 
-    protected uint NumOfUpdates = uint.MaxValue;
+    protected uint SequenceId = uint.MaxValue;
 
     private decimal  singleValue;
     private DateTime sourceTime;
 
     public PQTickInstant()
     {
-        if (GetType() == typeof(PQPublishableTickInstant)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQPublishableTickInstant)) SequenceId = 0;
     }
 
     // Reflection invoked constructor (PQServer<T>)
@@ -95,7 +95,7 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
         PriceScalingPrecision  = PQScaling.FindPriceScaleFactor(sourceTickerInfo.RoundingPrecision);
         VolumeScalingPrecision = PQScaling.FindVolumeScaleFactor(Math.Min(sourceTickerInfo.MinSubmitSize, sourceTickerInfo.IncrementSize));
 
-        if (GetType() == typeof(PQTickInstant)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQTickInstant)) SequenceId = 0;
     }
 
     public PQTickInstant(ITickInstant toClone)
@@ -104,7 +104,7 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
         SourceTime      = toClone.SourceTime;
 
         SetFlagsSame(toClone);
-        if (GetType() == typeof(PQTickInstant)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQTickInstant)) SequenceId = 0;
     }
 
     public virtual string QuoteToStringMembers => $"{nameof(SingleTickValue)}: {SingleTickValue}";
@@ -131,7 +131,7 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
         get => singleValue;
         set
         {
-            IsSingleValueUpdated |= singleValue != value || NumOfUpdates == 0;
+            IsSingleValueUpdated |= singleValue != value || SequenceId == 0;
             singleValue          =  value;
         }
     }
@@ -157,8 +157,8 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
         get => sourceTime;
         set
         {
-            IsSourceTimeDateUpdated    |= sourceTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumOfUpdates == 0;
-            IsSourceTimeSub2MinUpdated |= sourceTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumOfUpdates == 0;
+            IsSourceTimeDateUpdated    |= sourceTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
+            IsSourceTimeSub2MinUpdated |= sourceTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
             sourceTime                 =  value == DateTime.UnixEpoch ? default : value;
         }
     }
@@ -212,11 +212,16 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
         return QuoteStorageTimeResolver.Instance.ResolveStorageTime(this);
     }
 
-    public uint UpdateCount => NumOfUpdates;
+    public uint UpdateSequenceId => SequenceId;
 
-    public virtual void UpdateComplete(uint updateId = 0)
+    public virtual void UpdateStarted(uint updateSequenceId)
     {
-        if (HasUpdates) NumOfUpdates++;
+        SequenceId = updateSequenceId;
+    }
+
+    public virtual void UpdateComplete(uint updateSequenceId = 0)
+    {
+        if (HasUpdates) SequenceId++;
         HasUpdates = false;
     }
 
@@ -229,7 +234,7 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
         set
         {
             if (!value) return;
-            NumOfUpdates       = 0;
+            SequenceId       = 0;
             singleValue        = 0m;
             sourceTime         = DateTime.MinValue;
             QuoteBooleanFields = PQQuoteBooleanValues.DefaultEmptyQuoteFlags;
@@ -239,7 +244,7 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
 
     public virtual IMutableTickInstant ResetWithTracking()
     {
-        NumOfUpdates       = 0;
+        SequenceId       = 0;
         singleValue        = 0m;
         sourceTime         = DateTime.MinValue;
         QuoteBooleanFields = PQQuoteBooleanValues.DefaultEmptyQuoteFlags;
@@ -454,12 +459,9 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
 
     protected IPQSourceTickerInfo? PQSourceTickerInfo;
 
-
     public PQPublishableTickInstant()
     {
         PQQuoteContainer = CreateEmptyQuoteContainerInstant();
-
-        if (GetType() == typeof(PQPublishableTickInstant)) NumOfUpdates = 0;
     }
 
     // Reflection invoked constructor (PQServer<T>)
@@ -491,8 +493,6 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
         PQQuoteContainer.EnsureRelatedItemsAreConfigured(SourceTickerInfo);
         FeedSyncStatus               = feedSyncStatus;
         FeedMarketConnectivityStatus = feedConnectivityStatus;
-
-        if (GetType() == typeof(PQPublishableTickInstant)) NumOfUpdates = 0;
     }
 
     public PQPublishableTickInstant(IPublishableTickInstant toClone) : this(toClone, null) { }
@@ -525,7 +525,6 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
         }
 
         SetFlagsSame(toClone);
-        if (GetType() == typeof(PQPublishableTickInstant)) NumOfUpdates = 0;
     }
 
     protected virtual IPQTickInstant CreateEmptyQuoteContainerInstant() => new PQTickInstant();
@@ -698,12 +697,17 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
             UpdatedFlags = PublishableQuoteFieldUpdatedFlags.None;
         }
     }
-
-    public override void UpdateComplete(uint updateId = 0)
+    
+    public override void UpdateStarted(uint updateSequenceId)
     {
-        PQSourceTickerInfo?.UpdateComplete(updateId);
-        base.UpdateComplete(updateId);
-        PQQuoteContainer.UpdateComplete(updateId);
+        PQQuoteContainer.UpdateStarted(updateSequenceId);
+    }
+
+    public override void UpdateComplete(uint updateSequenceId = 0)
+    {
+        PQSourceTickerInfo?.UpdateComplete(updateSequenceId);
+        base.UpdateComplete(updateSequenceId);
+        PQQuoteContainer.UpdateComplete(updateSequenceId);
         HasUpdates = false;
     }
 

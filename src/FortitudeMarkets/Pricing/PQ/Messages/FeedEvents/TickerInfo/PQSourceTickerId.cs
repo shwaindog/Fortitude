@@ -35,7 +35,7 @@ public interface IPQSourceTickerId : ISourceTickerId
 
 public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTickerId
 {
-    protected uint NumUpdates = uint.MaxValue;
+    protected uint SequenceId = uint.MaxValue;
 
     private ushort sourceId;
     private string sourceName = "";
@@ -46,7 +46,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
 
     public PQSourceTickerId()
     {
-        if (GetType() == typeof(PQSourceTickerId)) NumUpdates = 0;
+        if (GetType() == typeof(PQSourceTickerId)) SequenceId = 0;
     }
 
     public PQSourceTickerId(ushort sourceId, string sourceName, ushort tickerId, string ticker)
@@ -56,7 +56,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         SourceName     = sourceName;
         InstrumentName = ticker;
 
-        if (GetType() == typeof(PQSourceTickerId)) NumUpdates = 0;
+        if (GetType() == typeof(PQSourceTickerId)) SequenceId = 0;
     }
 
     public PQSourceTickerId(ISourceTickerId toClone)
@@ -72,7 +72,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
             IsTickerUpdated = pqSourceTickerId.IsTickerUpdated;
         }
 
-        if (GetType() == typeof(PQSourceTickerId)) NumUpdates = 0;
+        if (GetType() == typeof(PQSourceTickerId)) SequenceId = 0;
     }
 
     public PQSourceTickerId(SourceTickerIdentifier toClone)
@@ -82,7 +82,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         SourceName     = toClone.Source;
         InstrumentName = toClone.Ticker;
 
-        if (GetType() == typeof(PQSourceTickerId)) NumUpdates = 0;
+        if (GetType() == typeof(PQSourceTickerId)) SequenceId = 0;
     }
 
     public PQSourceTickerId(SourceTickerIdValue toClone)
@@ -92,7 +92,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         SourceName     = toClone.Source;
         InstrumentName = toClone.Ticker;
 
-        if (GetType() == typeof(PQSourceTickerId)) NumUpdates = 0;
+        if (GetType() == typeof(PQSourceTickerId)) SequenceId = 0;
     }
 
     public uint SourceTickerId => ((uint)SourceId << 16) | InstrumentId;
@@ -101,7 +101,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         get => sourceId;
         set
         {
-            IsIdUpdated |= sourceId != value || NumUpdates == 0;
+            IsIdUpdated |= sourceId != value || SequenceId == 0;
             sourceId    =  value;
         }
     }
@@ -111,7 +111,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         get => tickerId;
         set
         {
-            IsIdUpdated |= tickerId != value || NumUpdates == 0;
+            IsIdUpdated |= tickerId != value || SequenceId == 0;
             tickerId    =  value;
         }
     }
@@ -121,7 +121,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         get => sourceName;
         set
         {
-            IsSourceUpdated |= sourceName != value || NumUpdates == 0;
+            IsSourceUpdated |= sourceName != value || SequenceId == 0;
             sourceName      =  value;
         }
     }
@@ -131,7 +131,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         get => ticker;
         set
         {
-            IsTickerUpdated |= ticker != value || NumUpdates == 0;
+            IsTickerUpdated |= ticker != value || SequenceId == 0;
             ticker          =  value;
         }
     }
@@ -182,13 +182,18 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
 
     INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
 
-    public uint UpdateCount => NumUpdates;
+    public uint UpdateSequenceId => SequenceId;
 
-    public void UpdateComplete(uint updateId = 0)
+    public void UpdateStarted(uint updateSequenceId)
+    {
+        SequenceId = updateSequenceId;
+    }
+
+    public void UpdateComplete(uint updateSequenceId = 0)
     {
         if (HasUpdates)
         {
-            NumUpdates++;
+            SequenceId++;
             HasUpdates = false;
         }
     }
@@ -200,7 +205,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         ticker     = "";
         sourceName = "";
 
-        NumUpdates   = 0;
+        SequenceId   = 0;
         UpdatedFlags = SourceTickerInfoUpdatedFlags.None;
         base.StateReset();
     }

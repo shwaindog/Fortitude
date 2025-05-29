@@ -27,7 +27,7 @@ public interface IPQRecentlyTradedHistory : IMutableRecentlyTradedHistory, IPQSu
 
 public class PQRecentlyTradedHistory : ReusableObject<IRecentlyTradedHistory>, IPQRecentlyTradedHistory
 {
-    protected uint NumUpdatesSinceEmpty = uint.MaxValue;
+    protected uint SequenceId = uint.MaxValue;
 
     private IPQNameIdLookupGenerator nameIdLookupGenerator;
 
@@ -223,16 +223,21 @@ public class PQRecentlyTradedHistory : ReusableObject<IRecentlyTradedHistory>, I
         }
     }
 
-    public uint UpdateCount => NumUpdatesSinceEmpty;
+    public uint UpdateSequenceId => SequenceId;
 
-    public void UpdateComplete(uint updateId = 0)
+    public void UpdateStarted(uint updateSequenceId)
     {
-        OnTickLastTraded.UpdateComplete(updateId);
-        AllLimitedHistoryLastTrades.UpdateComplete(updateId);
-        RecentInternalOrdersTrades.UpdateComplete(updateId);
-        OpenPositionTrades.UpdateComplete(updateId);
-        AlertTrades.UpdateComplete(updateId);
-        ClientOnlyReceivedCache.UpdateComplete(updateId);
+        SequenceId = updateSequenceId;
+    }
+
+    public void UpdateComplete(uint updateSequenceId = 0)
+    {
+        OnTickLastTraded.UpdateComplete(updateSequenceId);
+        AllLimitedHistoryLastTrades.UpdateComplete(updateSequenceId);
+        RecentInternalOrdersTrades.UpdateComplete(updateSequenceId);
+        OpenPositionTrades.UpdateComplete(updateSequenceId);
+        AlertTrades.UpdateComplete(updateSequenceId);
+        ClientOnlyReceivedCache.UpdateComplete(updateSequenceId);
     }
 
     public bool HasUpdates
@@ -270,7 +275,7 @@ public class PQRecentlyTradedHistory : ReusableObject<IRecentlyTradedHistory>, I
         AlertTrades.ResetWithTracking();
         ClientOnlyReceivedCache.ResetWithTracking();
 
-        NumUpdatesSinceEmpty = 0;
+        SequenceId = 0;
         return this;
     }
 

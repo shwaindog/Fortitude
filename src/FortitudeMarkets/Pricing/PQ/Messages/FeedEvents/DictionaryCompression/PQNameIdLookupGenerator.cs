@@ -28,7 +28,7 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
 
     protected int HighestIdSerialized;
 
-    protected uint NumOfUpdates = 0;
+    protected uint SequenceId = 0;
 
     public PQNameIdLookupGenerator(PQFeedFields dictionaryFieldKey) => this.dictionaryFieldKey = dictionaryFieldKey;
 
@@ -59,13 +59,18 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
         }
     }
 
-    public uint UpdateCount => NumOfUpdates;
+    public uint UpdateSequenceId => SequenceId;
 
-    public void UpdateComplete(uint updateId = 0)
+    public void UpdateStarted(uint updateSequenceId)
+    {
+        SequenceId = updateSequenceId;
+    }
+
+    public void UpdateComplete(uint updateSequenceId = 0)
     {
         if (HasUpdates)
         {
-            NumOfUpdates++;
+            SequenceId++;
             HasUpdates = false;
         }
     }

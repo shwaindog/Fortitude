@@ -96,7 +96,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
         elementShiftRegistry = new TracksReorderingListRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
 
 
-        if (GetType() == typeof(PQRecentlyTraded)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQRecentlyTraded)) SequenceId = 0;
     }
 
     public PQRecentlyTraded
@@ -107,7 +107,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
         MaxAllowedSize       = maxAllowedSize;
         TransferFlags        = transmissionFlags;
 
-        if (GetType() == typeof(PQRecentlyTraded)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQRecentlyTraded)) SequenceId = 0;
     }
 
     public PQRecentlyTraded
@@ -117,7 +117,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
         MaxAllowedSize       = maxAllowedSize;
         TransferFlags        = transmissionFlags;
 
-        if (GetType() == typeof(PQRecentlyTraded)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQRecentlyTraded)) SequenceId = 0;
     }
 
     public PQRecentlyTraded
@@ -128,7 +128,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
         MaxAllowedSize       = maxAllowedSize;
         TransferFlags        = transmissionFlags;
 
-        if (GetType() == typeof(PQRecentlyTraded)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQRecentlyTraded)) SequenceId = 0;
     }
 
     public PQRecentlyTraded
@@ -139,7 +139,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
         MaxAllowedSize       = maxAllowedSize;
         TransferFlags        = transmissionFlags;
 
-        if (GetType() == typeof(PQRecentlyTraded)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQRecentlyTraded)) SequenceId = 0;
     }
 
     public PQRecentlyTraded
@@ -150,7 +150,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
         MaxAllowedSize       = maxAllowedSize;
         TransferFlags        = transmissionFlags;
 
-        if (GetType() == typeof(PQRecentlyTraded)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQRecentlyTraded)) SequenceId = 0;
     }
 
     public PQRecentlyTraded
@@ -161,7 +161,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
         MaxAllowedSize       = maxAllowedSize;
         TransferFlags        = transmissionFlags;
 
-        if (GetType() == typeof(PQRecentlyTraded)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQRecentlyTraded)) SequenceId = 0;
     }
 
     public PQRecentlyTraded(IRecentlyTraded toClone, IPQNameIdLookupGenerator? nameIdLookup = null) : base(toClone, nameIdLookup)
@@ -176,7 +176,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
 
         SetFlagsSame(toClone);
 
-        if (GetType() == typeof(PQRecentlyTraded)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQRecentlyTraded)) SequenceId = 0;
     }
 
     public PQRecentlyTraded(IPQRecentlyTraded toClone, IPQNameIdLookupGenerator? nameIdLookup = null)
@@ -195,7 +195,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
         get => duringPeriod;
         set
         {
-            IsDuringPeriodUpdated |= value != duringPeriod || NumUpdatesSinceEmpty == 0;
+            IsDuringPeriodUpdated |= value != duringPeriod || SequenceId == 0;
 
             duringPeriod = value;
         }
@@ -207,8 +207,8 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
         set
         {
             IsPeriodUpdateDateUpdated
-                |= value.Get2MinIntervalsFromUnixEpoch() != updateTime.Get2MinIntervalsFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
-            IsPeriodUpdateSub2MinTimeUpdated |= value.GetSub2MinComponent() != updateTime.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
+                |= value.Get2MinIntervalsFromUnixEpoch() != updateTime.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
+            IsPeriodUpdateSub2MinTimeUpdated |= value.GetSub2MinComponent() != updateTime.GetSub2MinComponent() || SequenceId == 0;
 
             updateTime = value;
             if (elementShiftRegistry != null) elementShiftRegistry.UpdateTime = value;

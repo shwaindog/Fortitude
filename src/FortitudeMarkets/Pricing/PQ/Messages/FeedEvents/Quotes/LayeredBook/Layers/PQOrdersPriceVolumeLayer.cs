@@ -66,7 +66,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
 
         NameIdLookup = initialDictionary;
         orders       = new List<IPQAnonymousOrder>(0);
-        if (GetType() == typeof(PQOrdersPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQOrdersPriceVolumeLayer)) SequenceId = 0;
     }
 
     public PQOrdersPriceVolumeLayer
@@ -89,7 +89,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         if (layerOrders is not null)
             foreach (var orderLayerInfo in layerOrders)
                 CopyAddLayer(orderLayerInfo);
-        if (GetType() == typeof(PQOrdersPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQOrdersPriceVolumeLayer)) SequenceId = 0;
     }
 
     public PQOrdersPriceVolumeLayer(IPriceVolumeLayer toClone, LayerType layerType, IPQNameIdLookupGenerator ipqNameIdLookupGenerator) : base(toClone)
@@ -113,7 +113,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
             orders = new List<IPQAnonymousOrder>(0);
         }
         SetFlagsSame(toClone);
-        if (GetType() == typeof(PQOrdersPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQOrdersPriceVolumeLayer)) SequenceId = 0;
     }
 
     protected string PQJustOrdersToStringMembers => $"{nameof(Orders)}: [{string.Join(", ", Orders)}]";
@@ -283,10 +283,19 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         }
     }
 
-    public override void UpdateComplete(uint updateId = 0)
+    public override void UpdateStarted(uint updateSequenceId)
     {
-        NameIdLookup.UpdateComplete(updateId);
-        base.UpdateComplete(updateId);
+        foreach (var anonymousOrder in Orders)
+        {
+            anonymousOrder.UpdateStarted(updateSequenceId);
+        }
+        base.UpdateStarted(updateSequenceId);
+    }
+
+    public override void UpdateComplete(uint updateSequenceId = 0)
+    {
+        NameIdLookup.UpdateComplete(updateSequenceId);
+        base.UpdateComplete(updateSequenceId);
     }
 
     public bool RemoveAt(int index)

@@ -6,17 +6,12 @@ namespace FortitudeCommon.Types.Mutable;
 
 public interface IDiscreetUpdatable
 {
-    void UpdateComplete(uint updateId = 0);
+    void UpdateComplete(uint updateSequenceId = 0);
 }
 
 
 public interface IScopedDiscreetUpdatable : IDiscreetUpdatable
 {
-    void UpdateStarted(uint startUpdateId);
-}
-
-
-public interface ICountedDiscreetUpdatable : IDiscreetUpdatable
-{
-    uint UpdateCount { get; }
+    uint UpdateSequenceId { get; }
+    void UpdateStarted(uint updateSequenceId);
 }

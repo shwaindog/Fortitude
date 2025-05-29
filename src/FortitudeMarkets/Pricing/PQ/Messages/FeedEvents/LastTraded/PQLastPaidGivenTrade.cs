@@ -43,7 +43,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
 
     public PQLastPaidGivenTrade()
     {
-        if (GetType() == typeof(PQLastPaidGivenTrade)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastPaidGivenTrade)) SequenceId = 0;
     }
 
     public PQLastPaidGivenTrade
@@ -58,7 +58,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         WasPaid     = wasPaid;
         WasGiven    = wasGiven;
 
-        if (GetType() == typeof(PQLastPaidGivenTrade)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastPaidGivenTrade)) SequenceId = 0;
     }
 
     public PQLastPaidGivenTrade(ILastTrade toClone) : base(toClone)
@@ -73,7 +73,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
 
         SetFlagsSame(toClone);
 
-        if (GetType() == typeof(PQLastPaidGivenTrade)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastPaidGivenTrade)) SequenceId = 0;
     }
 
     [JsonIgnore] public override LastTradeType LastTradeType => LastTradeType.PricePaidOrGivenVolume;
@@ -88,7 +88,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         get => orderId;
         set
         {
-            IsOrderIdUpdated |= orderId != value || NumUpdatesSinceEmpty == 0;
+            IsOrderIdUpdated |= orderId != value || SequenceId == 0;
             orderId          =  value;
         }
     }
@@ -113,7 +113,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         get => (LastTradeBooleanFlags & LastTradeBooleanFlags.WasPaid) > 0;
         set
         {
-            IsWasPaidUpdated |= WasPaid != value || NumUpdatesSinceEmpty == 0;
+            IsWasPaidUpdated |= WasPaid != value || SequenceId == 0;
             if (value)
                 LastTradeBooleanFlags |= LastTradeBooleanFlags.WasPaid;
 
@@ -141,7 +141,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         get => (LastTradeBooleanFlags & LastTradeBooleanFlags.WasGiven) > 0;
         set
         {
-            IsWasGivenUpdated |= WasGiven != value || NumUpdatesSinceEmpty == 0;
+            IsWasGivenUpdated |= WasGiven != value || SequenceId == 0;
             if (value)
                 LastTradeBooleanFlags |= LastTradeBooleanFlags.WasGiven;
 
@@ -168,7 +168,7 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
         get => tradeVolume;
         set
         {
-            IsTradeVolumeUpdated |= tradeVolume != value || NumUpdatesSinceEmpty == 0;
+            IsTradeVolumeUpdated |= tradeVolume != value || SequenceId == 0;
             tradeVolume          =  value;
         }
     }

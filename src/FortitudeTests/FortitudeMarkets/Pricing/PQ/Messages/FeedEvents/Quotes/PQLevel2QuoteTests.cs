@@ -82,22 +82,38 @@ public class PQLevel2QuoteTests
         ordersCounterPartySourceTickerInfo = PQSourceTickerInfoTests.OrdersCounterPartyL3TraderNamePaidOrGivenSti;
         valueDateSourceTickerInfo          = PQSourceTickerInfoTests.ValueDateL3TraderNamePaidOrGivenSti;
         fullSupportSourceTickerInfo        = PQSourceTickerInfoTests.FullSupportL3TraderNamePaidOrGivenSti;
-        simpleEmptyLevel2Quote             = new PQPublishableLevel2Quote(simpleSourceTickerInfo.Clone()) { HasUpdates = false };
-        simpleFullyPopulatedLevel2Quote    = new PQPublishableLevel2Quote(simpleSourceTickerInfo.Clone());
-        sourceNameEmptyLevel2Quote          = new PQPublishableLevel2Quote(sourceNameSourceTickerInfo.Clone()) { HasUpdates = false };
+        simpleEmptyLevel2Quote             = new PQPublishableLevel2Quote(simpleSourceTickerInfo.Clone());
+        simpleEmptyLevel2Quote.UpdateStarted(1);
+        simpleEmptyLevel2Quote.HasUpdates = false;
+        simpleFullyPopulatedLevel2Quote   = new PQPublishableLevel2Quote(simpleSourceTickerInfo.Clone());
+        sourceNameEmptyLevel2Quote        = new PQPublishableLevel2Quote(sourceNameSourceTickerInfo.Clone());
+        sourceNameEmptyLevel2Quote.UpdateStarted(1);
+        sourceNameEmptyLevel2Quote.HasUpdates   = false;
         sourceNameFullyPopulatedLevel2Quote = new PQPublishableLevel2Quote(sourceNameSourceTickerInfo.Clone());
-        sourceQuoteRefEmptyLevel2Quote          = new PQPublishableLevel2Quote(sourceRefSourceTickerInfo.Clone()) { HasUpdates = false };
+        sourceQuoteRefEmptyLevel2Quote          = new PQPublishableLevel2Quote(sourceRefSourceTickerInfo.Clone());
+        sourceQuoteRefEmptyLevel2Quote.UpdateStarted(1);
+        sourceQuoteRefEmptyLevel2Quote.HasUpdates   = false;
         sourceQuoteRefFullyPopulatedLevel2Quote = new PQPublishableLevel2Quote(sourceRefSourceTickerInfo.Clone());
-        ordersCountEmptyLevel2Quote          = new PQPublishableLevel2Quote(ordersCountSourceTickerInfo.Clone()) { HasUpdates = false };
-        ordersCountFullyPopulatedLevel2Quote = new PQPublishableLevel2Quote(ordersCountSourceTickerInfo.Clone());
-        ordersAnonEmptyLevel2Quote          = new PQPublishableLevel2Quote(ordersAnonSourceTickerInfo.Clone()) { HasUpdates = false };
-        ordersAnonFullyPopulatedLevel2Quote = new PQPublishableLevel2Quote(ordersAnonSourceTickerInfo.Clone());
-        ordersCounterPartyEmptyLevel2Quote          = new PQPublishableLevel2Quote(ordersCounterPartySourceTickerInfo.Clone()) { HasUpdates = false };
+        ordersCountEmptyLevel2Quote          = new PQPublishableLevel2Quote(ordersCountSourceTickerInfo.Clone());
+        ordersCountEmptyLevel2Quote.UpdateStarted(1);
+        ordersCountEmptyLevel2Quote.HasUpdates = false;
+        ordersCountFullyPopulatedLevel2Quote  = new PQPublishableLevel2Quote(ordersCountSourceTickerInfo.Clone());
+        ordersAnonEmptyLevel2Quote          = new PQPublishableLevel2Quote(ordersAnonSourceTickerInfo.Clone());
+        ordersAnonEmptyLevel2Quote.UpdateStarted(1);
+        ordersAnonEmptyLevel2Quote.HasUpdates = false;
+        ordersAnonFullyPopulatedLevel2Quote   = new PQPublishableLevel2Quote(ordersAnonSourceTickerInfo.Clone());
+        ordersCounterPartyEmptyLevel2Quote          = new PQPublishableLevel2Quote(ordersCounterPartySourceTickerInfo.Clone());
+        ordersCounterPartyEmptyLevel2Quote.UpdateStarted(1);
+        ordersCounterPartyEmptyLevel2Quote.HasUpdates       = false;
         ordersCounterPartyFullyPopulatedLevel2Quote = new PQPublishableLevel2Quote(ordersCounterPartySourceTickerInfo.Clone());
-        valueDateEmptyLevel2Quote          = new PQPublishableLevel2Quote(valueDateSourceTickerInfo.Clone()) { HasUpdates = false };
-        valueDateFullyPopulatedLevel2Quote = new PQPublishableLevel2Quote(valueDateSourceTickerInfo.Clone());
-        fullSupportEmptyLevel2Quote          = new PQPublishableLevel2Quote(fullSupportSourceTickerInfo.Clone()) { HasUpdates = false };
-        fullSupportFullyPopulatedLevel2Quote = new PQPublishableLevel2Quote(fullSupportSourceTickerInfo.Clone());
+        valueDateEmptyLevel2Quote          = new PQPublishableLevel2Quote(valueDateSourceTickerInfo.Clone());
+        valueDateEmptyLevel2Quote.UpdateStarted(1);
+        valueDateEmptyLevel2Quote.HasUpdates = false;
+        valueDateFullyPopulatedLevel2Quote    = new PQPublishableLevel2Quote(valueDateSourceTickerInfo.Clone());
+        fullSupportEmptyLevel2Quote          = new PQPublishableLevel2Quote(fullSupportSourceTickerInfo.Clone());
+        fullSupportEmptyLevel2Quote.UpdateStarted(1);
+        fullSupportEmptyLevel2Quote.HasUpdates = false;
+        fullSupportFullyPopulatedLevel2Quote  = new PQPublishableLevel2Quote(fullSupportSourceTickerInfo.Clone());
 
         quoteSequencedTestDataBuilder.InitializeQuote(simpleFullyPopulatedLevel2Quote, 1);
         quoteSequencedTestDataBuilder.InitializeQuote(sourceNameFullyPopulatedLevel2Quote, 2);
@@ -313,15 +329,15 @@ public class PQLevel2QuoteTests
     {
         var orderAskBookViaClass = simpleFullyPopulatedLevel2Quote.AskBook;
 
-        Assert.AreEqual(simpleFullyPopulatedLevel2Quote.AskPriceTop, orderAskBookViaClass[0]!.Price);
+        Assert.AreEqual(simpleFullyPopulatedLevel2Quote.AskPriceTop, orderAskBookViaClass[0].Price);
 
-        orderAskBookViaClass[0]!.Price = 456321m;
+        orderAskBookViaClass[0].Price = 456321m;
         Assert.AreEqual(456321m, simpleFullyPopulatedLevel2Quote.AskPriceTop);
-        Assert.AreEqual(simpleFullyPopulatedLevel2Quote.AskPriceTop, orderAskBookViaClass[0]!.Price);
+        Assert.AreEqual(simpleFullyPopulatedLevel2Quote.AskPriceTop, orderAskBookViaClass[0].Price);
 
         simpleFullyPopulatedLevel2Quote.AskPriceTop = 12398745m;
-        Assert.AreEqual(12398745m, orderAskBookViaClass[0]!.Price);
-        Assert.AreEqual(simpleFullyPopulatedLevel2Quote.AskPriceTop, orderAskBookViaClass[0]!.Price);
+        Assert.AreEqual(12398745m, orderAskBookViaClass[0].Price);
+        Assert.AreEqual(simpleFullyPopulatedLevel2Quote.AskPriceTop, orderAskBookViaClass[0].Price);
     }
 
     [TestMethod]
@@ -329,15 +345,15 @@ public class PQLevel2QuoteTests
     {
         var orderBidBookViaClass = simpleFullyPopulatedLevel2Quote.BidBook;
 
-        Assert.AreEqual(simpleFullyPopulatedLevel2Quote.BidPriceTop, orderBidBookViaClass[0]!.Price);
+        Assert.AreEqual(simpleFullyPopulatedLevel2Quote.BidPriceTop, orderBidBookViaClass[0].Price);
 
-        orderBidBookViaClass[0]!.Price = 456321m;
+        orderBidBookViaClass[0].Price = 456321m;
         Assert.AreEqual(456321m, simpleFullyPopulatedLevel2Quote.BidPriceTop);
-        Assert.AreEqual(simpleFullyPopulatedLevel2Quote.BidPriceTop, orderBidBookViaClass[0]!.Price);
+        Assert.AreEqual(simpleFullyPopulatedLevel2Quote.BidPriceTop, orderBidBookViaClass[0].Price);
 
         simpleFullyPopulatedLevel2Quote.BidPriceTop = 12398745m;
-        Assert.AreEqual(12398745m, orderBidBookViaClass[0]!.Price);
-        Assert.AreEqual(simpleFullyPopulatedLevel2Quote.BidPriceTop, orderBidBookViaClass[0]!.Price);
+        Assert.AreEqual(12398745m, orderBidBookViaClass[0].Price);
+        Assert.AreEqual(simpleFullyPopulatedLevel2Quote.BidPriceTop, orderBidBookViaClass[0].Price);
     }
 
     [TestMethod]
@@ -385,10 +401,11 @@ public class PQLevel2QuoteTests
     [TestMethod]
     public void AllLevel2QuoteTypes_AllOrderBookAskSideFieldsChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
     {
-        foreach (var emptyQuote in allEmptyQuotes)
+        for (var i = 0; i < allEmptyQuotes.Count; i++)
         {
-            var orderBook         = emptyQuote.OrderBook;
-            var askBook           = orderBook.AskSide;
+            var emptyQuote       = allEmptyQuotes[i];
+            var orderBook        = emptyQuote.OrderBook;
+            var askBook          = orderBook.AskSide;
             var sideOpenInterest = askBook.OpenInterestSide!;
             sideOpenInterest.HasUpdates = false;
 
@@ -409,14 +426,14 @@ public class PQLevel2QuoteTests
 
             for (int i = 0; i < bidBook.Capacity; i++)
             {
-                var priceVolumeLayer = bidBook[i]!;
+                var priceVolumeLayer = bidBook[i];
                 PQPriceVolumeLayerTests.AssertPriceFieldUpdatesReturnAsExpected(priceVolumeLayer, i, bidBook, orderBook, emptyQuote);
             }
             var askBook = orderBook.AskSide;
 
             for (int i = 0; i < askBook.Capacity; i++)
             {
-                var priceVolumeLayer = askBook[i]!;
+                var priceVolumeLayer = askBook[i];
                 PQPriceVolumeLayerTests.AssertPriceFieldUpdatesReturnAsExpected(priceVolumeLayer, i, askBook, orderBook, emptyQuote);
             }
         }
@@ -432,14 +449,14 @@ public class PQLevel2QuoteTests
 
             for (int i = 0; i < bidBook.Capacity; i++)
             {
-                var priceVolumeLayer = bidBook[i]!;
+                var priceVolumeLayer = bidBook[i];
                 PQPriceVolumeLayerTests.AssertVolumeFieldUpdatesReturnAsExpected(priceVolumeLayer, i, bidBook, orderBook, emptyQuote);
             }
             var askBook = orderBook.AskSide;
 
             for (int i = 0; i < askBook.Capacity; i++)
             {
-                var priceVolumeLayer = askBook[i]!;
+                var priceVolumeLayer = askBook[i];
                 PQPriceVolumeLayerTests.AssertVolumeFieldUpdatesReturnAsExpected(priceVolumeLayer, i, askBook, orderBook, emptyQuote);
             }
         }
@@ -457,7 +474,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < bidBook.Capacity; i++)
                 {
-                    var ordersCountLayer = (IPQSourcePriceVolumeLayer)bidBook[i]!;
+                    var ordersCountLayer = (IPQSourcePriceVolumeLayer)bidBook[i];
                     PQSourcePriceVolumeLayerTests.AssertSourceNameFieldUpdatesReturnAsExpected
                         (ordersCountLayer, i, bidBook, orderBook, emptyQuote);
                 }
@@ -465,7 +482,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < askBook.Capacity; i++)
                 {
-                    var ordersCountLayer = (IPQSourcePriceVolumeLayer)askBook[i]!;
+                    var ordersCountLayer = (IPQSourcePriceVolumeLayer)askBook[i];
                     PQSourcePriceVolumeLayerTests.AssertSourceNameFieldUpdatesReturnAsExpected
                         (ordersCountLayer, i, askBook, orderBook, emptyQuote);
                 }
@@ -485,7 +502,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < bidBook.Capacity; i++)
                 {
-                    var ordersCountLayer = (IPQSourcePriceVolumeLayer)bidBook[i]!;
+                    var ordersCountLayer = (IPQSourcePriceVolumeLayer)bidBook[i];
                     PQSourcePriceVolumeLayerTests.AssertExecutableFieldUpdatesReturnAsExpected
                         (ordersCountLayer, i, bidBook, orderBook, emptyQuote);
                 }
@@ -493,7 +510,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < askBook.Capacity; i++)
                 {
-                    var ordersCountLayer = (IPQSourcePriceVolumeLayer)askBook[i]!;
+                    var ordersCountLayer = (IPQSourcePriceVolumeLayer)askBook[i];
                     PQSourcePriceVolumeLayerTests.AssertExecutableFieldUpdatesReturnAsExpected
                         (ordersCountLayer, i, askBook, orderBook, emptyQuote);
                 }
@@ -513,7 +530,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < bidBook.Capacity; i++)
                 {
-                    var ordersCountLayer = (IPQSourceQuoteRefPriceVolumeLayer)bidBook[i]!;
+                    var ordersCountLayer = (IPQSourceQuoteRefPriceVolumeLayer)bidBook[i];
                     PQSourceQuoteRefPriceVolumeLayerTests.AssertSourceQuoteRefFieldUpdatesReturnAsExpected
                         (ordersCountLayer, i, bidBook, orderBook, emptyQuote);
                 }
@@ -521,7 +538,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < askBook.Capacity; i++)
                 {
-                    var ordersCountLayer = (IPQSourceQuoteRefPriceVolumeLayer)askBook[i]!;
+                    var ordersCountLayer = (IPQSourceQuoteRefPriceVolumeLayer)askBook[i];
                     PQSourceQuoteRefPriceVolumeLayerTests.AssertSourceQuoteRefFieldUpdatesReturnAsExpected
                         (ordersCountLayer, i, askBook, orderBook, emptyQuote);
                 }
@@ -541,7 +558,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < bidBook.Capacity; i++)
                 {
-                    var ordersCountLayer = (IPQValueDatePriceVolumeLayer)bidBook[i]!;
+                    var ordersCountLayer = (IPQValueDatePriceVolumeLayer)bidBook[i];
                     PQValueDatePriceVolumeLayerTests.AssertValueDateFieldUpdatesReturnAsExpected
                         (ordersCountLayer, i, bidBook, orderBook, emptyQuote);
                 }
@@ -549,7 +566,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < askBook.Capacity; i++)
                 {
-                    var ordersCountLayer = (IPQValueDatePriceVolumeLayer)askBook[i]!;
+                    var ordersCountLayer = (IPQValueDatePriceVolumeLayer)askBook[i];
                     PQValueDatePriceVolumeLayerTests.AssertValueDateFieldUpdatesReturnAsExpected
                         (ordersCountLayer, i, askBook, orderBook, emptyQuote);
                 }
@@ -569,7 +586,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < bidBook.Capacity; i++)
                 {
-                    var ordersCountLayer = (IPQOrdersCountPriceVolumeLayer)bidBook[i]!;
+                    var ordersCountLayer = (IPQOrdersCountPriceVolumeLayer)bidBook[i];
                     PQOrdersCountPriceVolumeLayerTests.AssertOrdersCountFieldUpdatesReturnAsExpected(ordersCountLayer, i, bidBook, orderBook
                    , emptyQuote);
                 }
@@ -577,7 +594,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < askBook.Capacity; i++)
                 {
-                    var ordersCountLayer = (IPQOrdersCountPriceVolumeLayer)askBook[i]!;
+                    var ordersCountLayer = (IPQOrdersCountPriceVolumeLayer)askBook[i];
                     PQOrdersCountPriceVolumeLayerTests.AssertOrdersCountFieldUpdatesReturnAsExpected(ordersCountLayer, i, askBook, orderBook
                    , emptyQuote);
                 }
@@ -597,7 +614,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < bidBook.Capacity; i++)
                 {
-                    var ordersCountLayer = (IPQOrdersCountPriceVolumeLayer)bidBook[i]!;
+                    var ordersCountLayer = (IPQOrdersCountPriceVolumeLayer)bidBook[i];
                     PQOrdersCountPriceVolumeLayerTests.AssertInternalVolumeFieldUpdatesReturnAsExpected(ordersCountLayer, i, bidBook, orderBook
                    , emptyQuote);
                 }
@@ -605,7 +622,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < askBook.Capacity; i++)
                 {
-                    var ordersCountLayer = (IPQOrdersCountPriceVolumeLayer)askBook[i]!;
+                    var ordersCountLayer = (IPQOrdersCountPriceVolumeLayer)askBook[i];
                     PQOrdersCountPriceVolumeLayerTests.AssertInternalVolumeFieldUpdatesReturnAsExpected(ordersCountLayer, i, askBook, orderBook
                    , emptyQuote);
                 }
@@ -625,7 +642,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < bidBook.Capacity; i++)
                 {
-                    var ordersLayer = (IPQOrdersPriceVolumeLayer)bidBook[i]!;
+                    var ordersLayer = (IPQOrdersPriceVolumeLayer)bidBook[i];
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j     = 4;
@@ -638,7 +655,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < askBook.Capacity; i++)
                 {
-                    var ordersLayer = (IPQOrdersPriceVolumeLayer)askBook[i]!;
+                    var ordersLayer = (IPQOrdersPriceVolumeLayer)askBook[i];
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j     = 4;
@@ -663,7 +680,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < bidBook.Capacity; i++)
                 {
-                    var ordersLayer = (IPQOrdersPriceVolumeLayer)bidBook[i]!;
+                    var ordersLayer = (IPQOrdersPriceVolumeLayer)bidBook[i];
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j     = 4;
@@ -676,7 +693,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < askBook.Capacity; i++)
                 {
-                    var ordersLayer = (IPQOrdersPriceVolumeLayer)askBook[i]!;
+                    var ordersLayer = (IPQOrdersPriceVolumeLayer)askBook[i];
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j     = 4;
@@ -701,7 +718,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < bidBook.Capacity; i++)
                 {
-                    var ordersLayer = (IPQOrdersPriceVolumeLayer)bidBook[i]!;
+                    var ordersLayer = (IPQOrdersPriceVolumeLayer)bidBook[i];
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j     = 4;
@@ -714,7 +731,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < askBook.Capacity; i++)
                 {
-                    var ordersLayer = (IPQOrdersPriceVolumeLayer)askBook[i]!;
+                    var ordersLayer = (IPQOrdersPriceVolumeLayer)askBook[i];
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j     = 4;
@@ -739,7 +756,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < bidBook.Capacity; i++)
                 {
-                    var ordersLayer = (IPQOrdersPriceVolumeLayer)bidBook[i]!;
+                    var ordersLayer = (IPQOrdersPriceVolumeLayer)bidBook[i];
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j     = 4;
@@ -752,7 +769,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < askBook.Capacity; i++)
                 {
-                    var ordersLayer = (IPQOrdersPriceVolumeLayer)askBook[i]!;
+                    var ordersLayer = (IPQOrdersPriceVolumeLayer)askBook[i];
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j     = 4;
@@ -777,7 +794,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < bidBook.Capacity; i++)
                 {
-                    var ordersLayer = (IPQOrdersPriceVolumeLayer)bidBook[i]!;
+                    var ordersLayer = (IPQOrdersPriceVolumeLayer)bidBook[i];
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j     = 4;
@@ -790,7 +807,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < askBook.Capacity; i++)
                 {
-                    var ordersLayer = (IPQOrdersPriceVolumeLayer)askBook[i]!;
+                    var ordersLayer = (IPQOrdersPriceVolumeLayer)askBook[i];
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j     = 4;
@@ -815,7 +832,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < bidBook.Capacity; i++)
                 {
-                    var ordersLayer = (IPQOrdersPriceVolumeLayer)bidBook[i]!;
+                    var ordersLayer = (IPQOrdersPriceVolumeLayer)bidBook[i];
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j     = 4;
@@ -828,7 +845,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < askBook.Capacity; i++)
                 {
-                    var ordersLayer = (IPQOrdersPriceVolumeLayer)askBook[i]!;
+                    var ordersLayer = (IPQOrdersPriceVolumeLayer)askBook[i];
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j     = 4;
@@ -853,7 +870,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < bidBook.Capacity; i++)
                 {
-                    var ordersLayer = (IPQOrdersPriceVolumeLayer)bidBook[i]!;
+                    var ordersLayer = (IPQOrdersPriceVolumeLayer)bidBook[i];
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
@@ -866,7 +883,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < askBook.Capacity; i++)
                 {
-                    var ordersLayer = (IPQOrdersPriceVolumeLayer)askBook[i]!;
+                    var ordersLayer = (IPQOrdersPriceVolumeLayer)askBook[i];
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
@@ -891,7 +908,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < bidBook.Capacity; i++)
                 {
-                    var ordersLayer = (IPQOrdersPriceVolumeLayer)bidBook[i]!;
+                    var ordersLayer = (IPQOrdersPriceVolumeLayer)bidBook[i];
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
@@ -904,7 +921,7 @@ public class PQLevel2QuoteTests
 
                 for (int i = 0; i < askBook.Capacity; i++)
                 {
-                    var ordersLayer = (IPQOrdersPriceVolumeLayer)askBook[i]!;
+                    var ordersLayer = (IPQOrdersPriceVolumeLayer)askBook[i];
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
@@ -970,8 +987,7 @@ public class PQLevel2QuoteTests
                     .GetDeltaUpdateFields
                         (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
             AssertContainsAllLevel2Fields
-                ((PQSourceTickerInfo)populatedL2Quote.SourceTickerInfo!, pqFieldUpdates, populatedL2Quote
-               , PQQuoteBooleanValuesExtensions.ExpectedL1QuoteSnapshotBooleanValues);
+                ((PQSourceTickerInfo)populatedL2Quote.SourceTickerInfo!, pqFieldUpdates, populatedL2Quote);
         }
     }
 
@@ -984,8 +1000,7 @@ public class PQLevel2QuoteTests
                 .GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
         AssertContainsAllLevel2Fields
-            ((PQSourceTickerInfo)ordersCountFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates, ordersCountFullyPopulatedLevel2Quote
-            , PQQuoteBooleanValuesExtensions.ExpectedL1QuoteSnapshotBooleanValues);
+            ((PQSourceTickerInfo)ordersCountFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates, ordersCountFullyPopulatedLevel2Quote);
     }
 
     [TestMethod]
@@ -997,8 +1012,7 @@ public class PQLevel2QuoteTests
                 .GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
         AssertContainsAllLevel2Fields
-            ((PQSourceTickerInfo)ordersAnonFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates, ordersAnonFullyPopulatedLevel2Quote
-           , PQQuoteBooleanValuesExtensions.ExpectedL1QuoteSnapshotBooleanValues);
+            ((PQSourceTickerInfo)ordersAnonFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates, ordersAnonFullyPopulatedLevel2Quote);
     }
 
     [TestMethod]
@@ -1010,8 +1024,7 @@ public class PQLevel2QuoteTests
                 .GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
         AssertContainsAllLevel2Fields
-            ((PQSourceTickerInfo)ordersCountFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates, ordersCountFullyPopulatedLevel2Quote
-            , PQQuoteBooleanValuesExtensions.ExpectedL1QuoteSnapshotBooleanValues);
+            ((PQSourceTickerInfo)ordersCountFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates, ordersCountFullyPopulatedLevel2Quote);
     }
 
     [TestMethod]
@@ -1327,8 +1340,8 @@ public class PQLevel2QuoteTests
 
         for (var i = 0; i < maxLayers; i++)
         {
-            var bidL2Pvl = l2Q.BidBook[i]!;
-            var askL2Pvl = l2Q.AskBook[i]!;
+            var bidL2Pvl = l2Q.BidBook[i];
+            var askL2Pvl = l2Q.AskBook[i];
 
             var bidDepthId = (PQDepthKey)i;
             var askDepthId = (PQDepthKey)i | PQDepthKey.AskSide;
@@ -1425,27 +1438,27 @@ public class PQLevel2QuoteTests
         foreach (var level2Quote in quotesToCheck)
             for (var i = 0; i < level2Quote.SourceTickerInfo!.MaximumPublishedLayers; i++)
             {
-                Assert.AreEqual(expectedType, level2Quote.BidBook[i]!.GetType());
-                Assert.AreEqual(expectedType, level2Quote.AskBook[i]!.GetType());
+                Assert.AreEqual(expectedType, level2Quote.BidBook[i].GetType());
+                Assert.AreEqual(expectedType, level2Quote.AskBook[i].GetType());
                 switch (level2Quote.BidBook[i])
                 {
                     case PQFullSupportPriceVolumeLayer fullSupportPvl:
                         Assert.IsTrue
                             (ReferenceEquals
-                                (((IPQSourcePriceVolumeLayer)level2Quote.BidBook[0]!).NameIdLookup, fullSupportPvl.NameIdLookup));
+                                (((IPQSourcePriceVolumeLayer)level2Quote.BidBook[0]).NameIdLookup, fullSupportPvl.NameIdLookup));
                         Assert.IsTrue
                             (ReferenceEquals
-                                (((IPQOrdersPriceVolumeLayer)level2Quote.BidBook[0]!).NameIdLookup, fullSupportPvl.NameIdLookup));
+                                (((IPQOrdersPriceVolumeLayer)level2Quote.BidBook[0]).NameIdLookup, fullSupportPvl.NameIdLookup));
                         break;
                     case PQSourcePriceVolumeLayer sourcePriceVolumeLayer:
                         Assert.IsTrue
                             (ReferenceEquals
-                                (((IPQSourcePriceVolumeLayer)level2Quote.BidBook[0]!).NameIdLookup, sourcePriceVolumeLayer.NameIdLookup));
+                                (((IPQSourcePriceVolumeLayer)level2Quote.BidBook[0]).NameIdLookup, sourcePriceVolumeLayer.NameIdLookup));
                         break;
                     case PQOrdersPriceVolumeLayer ordersPriceVolumeLayer:
                         Assert.IsTrue
                             (ReferenceEquals
-                                (((IPQOrdersPriceVolumeLayer)level2Quote.BidBook[0]!).NameIdLookup, ordersPriceVolumeLayer.NameIdLookup));
+                                (((IPQOrdersPriceVolumeLayer)level2Quote.BidBook[0]).NameIdLookup, ordersPriceVolumeLayer.NameIdLookup));
                         break;
                 }
             }

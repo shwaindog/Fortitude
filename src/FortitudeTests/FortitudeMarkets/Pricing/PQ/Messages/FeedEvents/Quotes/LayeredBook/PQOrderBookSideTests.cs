@@ -462,7 +462,7 @@ public class PQOrderBookSideTests
         var isBid      = orderBookSide.BookSide == BookSide.BidBook;
         var sidedDepth = isBid ? PQDepthKey.None : PQDepthKey.AskSide;
 
-        testDateTime = testDateTime.AddHours(1).AddMinutes(1);
+        testDateTime = testDateTime.AddHours(2).AddMinutes(2);
 
         Assert.IsFalse(orderBookSide.IsDailyTickUpdateCountUpdated);
         Assert.IsFalse(orderBookSide.HasUpdates);
@@ -474,7 +474,11 @@ public class PQOrderBookSideTests
         orderBookSide.HasUpdates                    = false;
 
         Assert.AreEqual(0, orderBookSide.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (l2QNotNull)
+        {
+            var deltaUpdateFields = l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+            Assert.AreEqual(2, deltaUpdateFields.Count());
+        }
 
         var expectedDailyTickCount = 128u;
         orderBookSide.DailyTickUpdateCount = expectedDailyTickCount;

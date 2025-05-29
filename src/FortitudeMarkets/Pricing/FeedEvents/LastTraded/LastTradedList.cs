@@ -168,7 +168,7 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
 
     ITracksResetCappedCapacityList<IMutableLastTrade> ITrackableReset<ITracksResetCappedCapacityList<IMutableLastTrade>>.ResetWithTracking() => ResetWithTracking();
 
-    public virtual void UpdateComplete(uint updateId = 0)
+    public virtual void UpdateComplete(uint updateSequenceId = 0)
     {
     }
 

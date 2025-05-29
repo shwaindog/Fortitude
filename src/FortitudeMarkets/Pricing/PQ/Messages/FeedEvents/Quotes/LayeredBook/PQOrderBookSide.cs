@@ -98,7 +98,8 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     protected OrderBookUpdatedFlags UpdatedFlags;
 
-    protected uint   NumOfUpdates    = uint.MaxValue;
+    protected uint   SequenceId    = uint.MaxValue;
+
     private   ushort maxPublishDepth = 1;
     private   uint   dailyTickUpdateCount;
 
@@ -111,7 +112,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         LayerSelector         = new PQOrderBookLayerFactorySelector(nameIdLookupGenerator);
         allLayers             = [new PQPriceVolumeLayer()];
 
-        if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQOrderBookSide)) SequenceId = 0;
     }
 
     public PQOrderBookSide
@@ -135,7 +136,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
             allLayers.Add(pqLayer);
         }
 
-        if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQOrderBookSide)) SequenceId = 0;
     }
 
     public PQOrderBookSide
@@ -161,7 +162,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         }
         EnsureRelatedItemsAreConfigured(nameIdLookup);
 
-        if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQOrderBookSide)) SequenceId = 0;
     }
 
     public PQOrderBookSide
@@ -183,7 +184,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
                        .ToList() ?? [LayerSelector.CreateExpectedImplementation(LayerSupportedType, NameIdLookup)]
             );
 
-        if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQOrderBookSide)) SequenceId = 0;
     }
 
     public PQOrderBookSide(IOrderBookSide toClone, IPQNameIdLookupGenerator? nameIdLookup = null)
@@ -217,7 +218,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
             allLayers.Add(pqLayer);
         }
 
-        if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQOrderBookSide)) SequenceId = 0;
     }
 
 
@@ -539,28 +540,6 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     IEnumerator<IMutablePriceVolumeLayer> IEnumerable<IMutablePriceVolumeLayer>.GetEnumerator() => GetEnumerator();
 
-    public bool HasUpdates
-    {
-        get
-        {
-            return UpdatedFlags != OrderBookUpdatedFlags.None
-                || (HasNonEmptyOpenInterest
-                 && pqOpenInterestSide is { DataSource: not (MarketDataSource.None or MarketDataSource.Published), HasUpdates: true })
-                || AllLayers.Any(pqpvl => pqpvl.HasUpdates);
-        }
-        set
-        {
-            foreach (var pqPvLayer in AllLayers) pqPvLayer.HasUpdates = value;
-            NameIdLookup.HasUpdates = value;
-            if (pqOpenInterestSide != null)
-            {
-                pqOpenInterestSide.HasUpdates = value;
-            }
-            if (value) return;
-            UpdatedFlags = OrderBookUpdatedFlags.None;
-        }
-    }
-
     public bool HasNonEmptyOpenInterest
     {
         get => pqOpenInterestSide is { IsEmpty: false };
@@ -620,7 +599,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         get => dailyTickUpdateCount;
         set
         {
-            IsDailyTickUpdateCountUpdated |= value != dailyTickUpdateCount || NumOfUpdates == 0;
+            IsDailyTickUpdateCountUpdated |= value != dailyTickUpdateCount || SequenceId == 0;
             dailyTickUpdateCount          =  value;
         }
     }
@@ -637,17 +616,48 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         }
     }
 
-    public uint UpdateCount => NumOfUpdates;
+    public bool HasUpdates
+    {
+        get
+        {
+            return UpdatedFlags != OrderBookUpdatedFlags.None
+                || (HasNonEmptyOpenInterest
+                 && pqOpenInterestSide is { DataSource: not (MarketDataSource.None or MarketDataSource.Published), HasUpdates: true })
+                || AllLayers.Any(pqpvl => pqpvl.HasUpdates);
+        }
+        set
+        {
+            foreach (var pqPvLayer in AllLayers) pqPvLayer.HasUpdates = value;
+            NameIdLookup.HasUpdates = value;
+            if (pqOpenInterestSide != null)
+            {
+                pqOpenInterestSide.HasUpdates = value;
+            }
+            if (value) return;
+            UpdatedFlags = OrderBookUpdatedFlags.None;
+        }
+    }
 
-    public void UpdateComplete(uint updateId = 0)
+    public uint UpdateSequenceId => SequenceId;
+
+    public void UpdateStarted(uint updateSequenceId)
+    {
+        SequenceId = updateSequenceId;
+        foreach (var priceVolumeLayer in AllLayers)
+        {
+            priceVolumeLayer.UpdateStarted(updateSequenceId);
+        }
+    }
+
+    public void UpdateComplete(uint updateSequenceId = 0)
     {
         foreach (var pqPriceVolumeLayer in AllLayers) pqPriceVolumeLayer.UpdateComplete();
         elementShiftRegistry!.ClearShiftCommands();
-        NameIdLookup.UpdateComplete(updateId);
-        pqOpenInterestSide?.UpdateComplete(updateId);
+        NameIdLookup.UpdateComplete(updateSequenceId);
+        pqOpenInterestSide?.UpdateComplete(updateSequenceId);
         if (HasUpdates)
         {
-            NumOfUpdates++;
+            SequenceId++;
             HasUpdates = false;
         }
     }
@@ -851,7 +861,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         DailyTickUpdateCount = 0;
         NameIdLookup.Clear();
         pqOpenInterestSide?.StateReset();
-        NumOfUpdates = 0;
+        SequenceId = 0;
         UpdatedFlags = OrderBookUpdatedFlags.None;
         base.StateReset();
     }

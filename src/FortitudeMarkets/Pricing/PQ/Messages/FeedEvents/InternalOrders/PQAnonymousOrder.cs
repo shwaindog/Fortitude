@@ -81,11 +81,11 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
     private IPQInternalPassiveOrder?      asPassiveOrderRef;
     private IPQExternalCounterPartyOrder? asExternalCpRef;
 
-    protected int NumUpdatesSinceEmpty = -1;
+    protected uint SequenceId = uint.MaxValue;
 
     protected PQAnonymousOrderUpdatedFlags UpdatedFlags;
 
-    private IPQNameIdLookupGenerator nameIdLookup = null!;
+    private IPQNameIdLookupGenerator nameIdLookup;
 
     private int       orderId;
     private decimal   orderVolume;
@@ -104,7 +104,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
     public PQAnonymousOrder()
     {
         nameIdLookup = new PQNameIdLookupGenerator(DefaultOrderStringDictionaryField);
-        if (GetType() == typeof(PQAnonymousOrder)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQAnonymousOrder)) SequenceId = 0;
     }
 
     public PQAnonymousOrder
@@ -115,7 +115,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         EmptyIgnoreGenesisFlags = genesisFlags;
         GenesisFlags            = genesisFlags;
         IsGenesisFlagsUpdated   = false;
-        if (GetType() == typeof(PQAnonymousOrder)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQAnonymousOrder)) SequenceId = 0;
     }
 
     public PQAnonymousOrder
@@ -137,7 +137,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         OrderLifeCycleState  = orderLifeCycleState;
         OrderDisplayVolume   = orderVolume;
         OrderRemainingVolume = remainingVolume ?? orderVolume;
-        if (GetType() == typeof(PQAnonymousOrder)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQAnonymousOrder)) SequenceId = 0;
     }
 
     public PQAnonymousOrder(IAnonymousOrder? toClone, IPQNameIdLookupGenerator? nameIdLookupGenerator = null)
@@ -184,7 +184,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
             SetFlagsSame(toClone);
         }
 
-        if (GetType() == typeof(PQAnonymousOrder)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQAnonymousOrder)) SequenceId = 0;
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -193,7 +193,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         get => orderId;
         set
         {
-            IsOrderIdUpdated |= orderId != value || NumUpdatesSinceEmpty == 0;
+            IsOrderIdUpdated |= orderId != value || SequenceId == 0;
             orderId          =  value;
         }
     }
@@ -203,7 +203,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         get => orderType;
         set
         {
-            IsOrderTypeUpdated |= orderType != value || NumUpdatesSinceEmpty == 0;
+            IsOrderTypeUpdated |= orderType != value || SequenceId == 0;
             orderType          =  value;
         }
     }
@@ -212,7 +212,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         get => orderLifeCycleState;
         set
         {
-            IsOrderLifecycleStateUpdated |= orderLifeCycleState != value || NumUpdatesSinceEmpty == 0;
+            IsOrderLifecycleStateUpdated |= orderLifeCycleState != value || SequenceId == 0;
             orderLifeCycleState          =  value;
         }
     }
@@ -221,7 +221,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         get => genesisFlags;
         set
         {
-            IsGenesisFlagsUpdated |= genesisFlags != value || NumUpdatesSinceEmpty == 0;
+            IsGenesisFlagsUpdated |= genesisFlags != value || SequenceId == 0;
             genesisFlags          =  value;
         }
     }
@@ -234,8 +234,8 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         set
         {
             IsCreatedTimeDateUpdated |= createdTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() ||
-                                        NumUpdatesSinceEmpty == 0;
-            IsCreatedTimeSub2MinUpdated |= createdTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
+                                        SequenceId == 0;
+            IsCreatedTimeSub2MinUpdated |= createdTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
             createdTime                 =  value;
         }
     }
@@ -247,8 +247,8 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         set
         {
             IsUpdateTimeDateUpdated
-                |= updateTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
-            IsUpdateTimeSub2MinUpdated |= updateTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
+                |= updateTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
+            IsUpdateTimeSub2MinUpdated |= updateTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
             updateTime                 =  value;
         }
     }
@@ -259,7 +259,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         get => orderVolume;
         set
         {
-            IsOrderVolumeUpdated |= orderVolume != value || NumUpdatesSinceEmpty == 0;
+            IsOrderVolumeUpdated |= orderVolume != value || SequenceId == 0;
 
             orderVolume = value;
         }
@@ -271,7 +271,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         get => remainingOrderVolume;
         set
         {
-            IsOrderRemainingVolumeUpdated |= remainingOrderVolume != value || NumUpdatesSinceEmpty == 0;
+            IsOrderRemainingVolumeUpdated |= remainingOrderVolume != value || SequenceId == 0;
 
             remainingOrderVolume = value;
         }
@@ -367,7 +367,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         get => trackingId;
         set
         {
-            IsTrackingIdUpdated |= trackingId != value || NumUpdatesSinceEmpty == 0;
+            IsTrackingIdUpdated |= trackingId != value || SequenceId == 0;
 
             trackingId = value;
         }
@@ -556,17 +556,22 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
             OrderDisplayVolume   = 0m;
             OrderRemainingVolume = 0m;
 
-            NumUpdatesSinceEmpty = 0;
+            SequenceId = 0;
             if (additionalInternalPassiveOrderInfo != null) additionalInternalPassiveOrderInfo.IsEmpty           = true;
             if (additionalExternalCounterPartyOrderInfo != null) additionalExternalCounterPartyOrderInfo.IsEmpty = true;
         }
     }
 
-    public uint UpdateCount => (uint)NumUpdatesSinceEmpty;
+    public uint UpdateSequenceId => SequenceId;
 
-    public virtual void UpdateComplete(uint updateId = 0)
+    public void UpdateStarted(uint updateSequenceId)
     {
-        if (HasUpdates && !IsEmpty) NumUpdatesSinceEmpty++;
+        SequenceId = updateSequenceId;
+    }
+
+    public virtual void UpdateComplete(uint updateSequenceId = 0)
+    {
+        if (HasUpdates && !IsEmpty) SequenceId++;
         HasUpdates = false;
     }
 
@@ -767,7 +772,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         OrderDisplayVolume   = 0m;
         OrderRemainingVolume = 0m;
         OrderLifeCycleState  = OrderLifeCycleState.None;
-        NumUpdatesSinceEmpty = 0;
+        SequenceId = 0;
 
         UpdatedFlags = PQAnonymousOrderUpdatedFlags.None;
         base.StateReset();

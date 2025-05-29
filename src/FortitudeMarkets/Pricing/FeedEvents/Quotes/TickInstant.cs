@@ -100,6 +100,8 @@ public class PublishableTickInstant : FeedEventStatusUpdate, IMutablePublishable
 {
     protected static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PublishableTickInstant));
 
+    protected uint NumOfUpdatesSinceEmpty = uint.MaxValue;
+
     protected IMutableTickInstant QuoteContainer;
 
     public PublishableTickInstant()
@@ -110,7 +112,10 @@ public class PublishableTickInstant : FeedEventStatusUpdate, IMutablePublishable
     public PublishableTickInstant
     (ISourceTickerInfo sourceTickerInfo, decimal singlePrice = 0m, DateTime? sourceTime = null, FeedSyncStatus syncStatus = FeedSyncStatus.Good,
         FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None)
-        : this(new TickInstant(singlePrice, sourceTime), sourceTickerInfo, syncStatus, feedConnectivityStatus) { }
+        : this(new TickInstant(singlePrice, sourceTime), sourceTickerInfo, syncStatus, feedConnectivityStatus)
+    {
+        if (GetType() == typeof(PublishableTickInstant)) NumOfUpdatesSinceEmpty = 0;
+    }
 
 
     [SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
@@ -124,6 +129,8 @@ public class PublishableTickInstant : FeedEventStatusUpdate, IMutablePublishable
         SourceTickerInfo = sourceTickerInfo is SourceTickerInfo
             ? sourceTickerInfo
             : new SourceTickerInfo(sourceTickerInfo);
+
+        if (GetType() == typeof(PublishableTickInstant)) NumOfUpdatesSinceEmpty = 0;
     }
 
     public PublishableTickInstant(IPublishableTickInstant toClone) : this(toClone, null) { }
@@ -143,6 +150,8 @@ public class PublishableTickInstant : FeedEventStatusUpdate, IMutablePublishable
         SourceTickerInfo = toClone.SourceTickerInfo is SourceTickerInfo
             ? toClone.SourceTickerInfo
             : new SourceTickerInfo(toClone.SourceTickerInfo!);
+
+        if (GetType() == typeof(PublishableTickInstant)) NumOfUpdatesSinceEmpty = 0;
     }
 
     protected virtual IMutableTickInstant CreateEmptyQuoteContainerInstant() => new TickInstant();

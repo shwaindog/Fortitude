@@ -523,11 +523,15 @@ public class PQInternalPassiveOrder : ReusableObject<IAnonymousOrder>, IPQIntern
         set => owner.HasUpdates = value;
     }
 
-    public uint UpdateCount => owner.UpdateCount;
+    public uint UpdateSequenceId => owner.UpdateSequenceId;
 
-    public void UpdateComplete(uint updateId = 0)
+    public void UpdateStarted(uint updateSequenceId)
     {
-        owner.UpdateComplete(updateId);
+    }
+
+    public void UpdateComplete(uint updateSequenceId = 0)
+    {
+        owner.UpdateComplete(updateSequenceId);
     }
     
     public override void StateReset()

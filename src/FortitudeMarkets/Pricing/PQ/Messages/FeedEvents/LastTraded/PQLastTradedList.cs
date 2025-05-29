@@ -47,7 +47,7 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
 
     private IPQNameIdLookupGenerator nameIdLookupGenerator;
 
-    protected uint NumUpdatesSinceEmpty = uint.MaxValue;
+    protected uint SequenceId = uint.MaxValue;
 
     public PQLastTradedList()
     {
@@ -55,7 +55,7 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         nameIdLookupGenerator  = new PQNameIdLookupGenerator(PQFeedFields.LastTradedStringUpdates);
         LastTradeEntrySelector = new PQLastTradeEntrySelector(nameIdLookupGenerator);
 
-        if (GetType() == typeof(PQLastTradedList)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastTradedList)) SequenceId = 0;
     }
 
     public PQLastTradedList(IPQNameIdLookupGenerator nameIdLookup)
@@ -64,7 +64,7 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         nameIdLookupGenerator  = nameIdLookup;
         LastTradeEntrySelector = new PQLastTradeEntrySelector(nameIdLookupGenerator);
 
-        if (GetType() == typeof(PQLastTradedList)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastTradedList)) SequenceId = 0;
     }
 
     public PQLastTradedList(ISourceTickerInfo sourceTickerInfo)
@@ -76,7 +76,7 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         LastTrades = new List<IPQLastTrade>();
         EnsureRelatedItemsAreConfigured(sourceTickerInfo);
 
-        if (GetType() == typeof(PQLastTradedList)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastTradedList)) SequenceId = 0;
     }
 
     public PQLastTradedList(ISourceTickerInfo sourceTickerInfo, IPQNameIdLookupGenerator nameIdLookup)
@@ -88,7 +88,7 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         LastTrades = new List<IPQLastTrade>();
         EnsureRelatedItemsAreConfigured(sourceTickerInfo);
 
-        if (GetType() == typeof(PQLastTradedList)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastTradedList)) SequenceId = 0;
     }
 
     public PQLastTradedList(IEnumerable<IPQLastTrade> lastTrades) : this(lastTrades.ToList())
@@ -98,7 +98,7 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         LastTradeEntrySelector = new PQLastTradeEntrySelector(nameIdLookupGenerator);
 
         this.LastTrades = lastTrades.Select(lt => LastTradeEntrySelector.ConvertToExpectedImplementation(lt, NameIdLookup, true)).ToList();
-        if (GetType() == typeof(PQLastTradedList)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastTradedList)) SequenceId = 0;
     }
 
     public PQLastTradedList(List<IPQLastTrade> lastTrades)
@@ -115,7 +115,7 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
             }
         }
 
-        if (GetType() == typeof(PQLastTradedList)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastTradedList)) SequenceId = 0;
     }
 
     public PQLastTradedList(ILastTradedList toClone, IPQNameIdLookupGenerator? nameIdLookup = null)
@@ -127,7 +127,7 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         LastTrades = toClone.Select(lt => LastTradeEntrySelector.ConvertToExpectedImplementation(lt, NameIdLookup, true)).ToList();
         EnsureRelatedItemsAreConfigured(toClone, NameIdLookup);
 
-        if (GetType() == typeof(PQLastTradedList)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastTradedList)) SequenceId = 0;
     }
 
     public IPQLastTradeTypeSelector LastTradeEntrySelector { get; set; }
@@ -244,7 +244,7 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
 
     public bool HasLastTrades => Count > 0;
 
-    public uint UpdateCount => NumUpdatesSinceEmpty;
+    public uint UpdateSequenceId => SequenceId;
 
     public bool IsReadOnly => false;
 
@@ -260,7 +260,7 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
             }
 
             if (!value) return;
-            NumUpdatesSinceEmpty = 0;
+            SequenceId = 0;
         }
     }
 
@@ -303,9 +303,15 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         }
     }
 
-    public void UpdateComplete(uint updateId = 0)
+    public void UpdateStarted(uint updateSequenceId)
     {
-        if (HasUpdates) NumUpdatesSinceEmpty++;
+        SequenceId = updateSequenceId;
+    }
+
+
+    public void UpdateComplete(uint updateSequenceId = 0)
+    {
+        if (HasUpdates) SequenceId++;
     }
 
     public int AppendEntryAtEnd()
@@ -340,7 +346,7 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         foreach (var lastTrade in LastTrades) lastTrade.StateReset();
         NameIdLookup.Clear();
 
-        NumUpdatesSinceEmpty = 0;
+        SequenceId = 0;
         base.StateReset();
     }
 

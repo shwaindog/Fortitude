@@ -76,7 +76,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
     {
         QuoteBooleanFields |= PQQuoteBooleanValues.IsExecutableSetFlag;
 
-        if (GetType() == typeof(PQLevel1Quote)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQLevel1Quote)) SequenceId = 0;
     }
 
     // Reflection invoked constructor (PQServer<T>)
@@ -102,7 +102,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         Executable           = executable;
         IsExecutableUpdated  = !executable;
 
-        if (GetType() == typeof(PQLevel1Quote)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQLevel1Quote)) SequenceId = 0;
     }
 
     public PQLevel1Quote(ITickInstant toClone) : base(toClone)
@@ -141,7 +141,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         }
         SetFlagsSame(toClone);
 
-        if (GetType() == typeof(PQLevel1Quote)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQLevel1Quote)) SequenceId = 0;
     }
 
     public override string QuoteToStringMembers =>
@@ -240,7 +240,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         get => QuoteBooleanFields.HasBidTopPriceChangedSet();
         set
         {
-            IsBidPriceTopChangedUpdated |= value != IsBidPriceTopChanged || NumOfUpdates == 0;
+            IsBidPriceTopChangedUpdated |= value != IsBidPriceTopChanged || SequenceId == 0;
             if (value)
                 QuoteBooleanFields |= PQQuoteBooleanValues.IsBidPriceTopChangedSetFlag;
 
@@ -254,7 +254,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         get => QuoteBooleanFields.HasAskTopPriceChangedSet();
         set
         {
-            IsAskPriceTopChangedUpdated |= value != IsAskPriceTopChanged || NumOfUpdates == 0;
+            IsAskPriceTopChangedUpdated |= value != IsAskPriceTopChanged || SequenceId == 0;
             if (value)
                 QuoteBooleanFields |= PQQuoteBooleanValues.IsAskPriceTopChangedSetFlag;
 
@@ -356,8 +356,8 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         get => sourceAskTime;
         set
         {
-            IsSourceAskTimeDateUpdated |= sourceAskTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumOfUpdates == 0;
-            IsSourceAskTimeSub2MinUpdated |= sourceAskTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumOfUpdates == 0;
+            IsSourceAskTimeDateUpdated |= sourceAskTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
+            IsSourceAskTimeSub2MinUpdated |= sourceAskTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
             sourceAskTime = value == DateTime.UnixEpoch ? default : value;
         }
     }
@@ -369,8 +369,8 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         get => sourceBidTime;
         set
         {
-            IsSourceBidTimeDateUpdated |= sourceBidTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumOfUpdates == 0;
-            IsSourceBidTimeSub2MinUpdated |= sourceBidTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumOfUpdates == 0;
+            IsSourceBidTimeDateUpdated |= sourceBidTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
+            IsSourceBidTimeSub2MinUpdated |= sourceBidTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
             sourceBidTime = value == DateTime.UnixEpoch ? default : value;
         }
     }
@@ -386,7 +386,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         get => bidPriceTop;
         set
         {
-            IsBidPriceTopUpdated |= bidPriceTop != value || NumOfUpdates == 0;
+            IsBidPriceTopUpdated |= bidPriceTop != value || SequenceId == 0;
             IsBidPriceTopChanged =  bidPriceTop != value;
             bidPriceTop          =  value;
         }
@@ -411,7 +411,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         get => askPriceTop;
         set
         {
-            IsAskPriceTopUpdated |= askPriceTop != value || NumOfUpdates == 0;
+            IsAskPriceTopUpdated |= askPriceTop != value || SequenceId == 0;
             IsAskPriceTopChanged =  askPriceTop != value;
             askPriceTop          =  value;
         }
@@ -436,7 +436,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         get => (QuoteBooleanFields & PQQuoteBooleanValues.IsExecutableSetFlag) > 0;
         set
         {
-            IsExecutableUpdated |= Executable != value || NumOfUpdates == 0;
+            IsExecutableUpdated |= Executable != value || SequenceId == 0;
             if (value)
                 QuoteBooleanFields |= PQQuoteBooleanValues.IsExecutableSetFlag;
 
@@ -450,8 +450,8 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         get => validFromTime;
         set
         {
-            IsValidFromTimeDateUpdated |= validFromTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumOfUpdates == 0;
-            IsValidFromTimeSub2MinUpdated |= validFromTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumOfUpdates == 0;
+            IsValidFromTimeDateUpdated |= validFromTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
+            IsValidFromTimeSub2MinUpdated |= validFromTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
             validFromTime = value == DateTime.UnixEpoch ? default : value;
         }
     }
@@ -463,8 +463,8 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         get => validToTime;
         set
         {
-            IsValidToTimeDateUpdated    |= validToTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumOfUpdates == 0;
-            IsValidToTimeSub2MinUpdated |= validToTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumOfUpdates == 0;
+            IsValidToTimeDateUpdated    |= validToTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
+            IsValidToTimeSub2MinUpdated |= validToTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
             validToTime                 =  value == DateTime.UnixEpoch ? default : value;
         }
     }
@@ -863,7 +863,6 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
 {
     public PQPublishableLevel1Quote()
     {
-        if (GetType() == typeof(PQPublishableLevel1Quote)) NumOfUpdates = 0;
     }
 
     // Reflection invoked constructor (PQServer<T>)
@@ -893,8 +892,6 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
         {
             ConflatedTicksCandle = conflationTicksCandle != null ? new PQCandle(conflationTicksCandle) : new PQCandle();
         }
-
-        if (GetType() == typeof(PQPublishableLevel1Quote)) NumOfUpdates = 0;
     }
 
     public PQPublishableLevel1Quote(IPublishableTickInstant toClone) : this(toClone, null) { }
@@ -914,8 +911,6 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
             }
         }
         SetFlagsSame(toClone);
-
-        if (GetType() == typeof(PQPublishableLevel1Quote)) NumOfUpdates = 0;
     }
 
     protected override IPQLevel1Quote CreateEmptyQuoteContainerInstant() => new PQLevel1Quote();
@@ -1164,10 +1159,16 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
         }
     }
 
-    public override void UpdateComplete(uint updateId = 0)
+    public override void UpdateStarted(uint updateSequenceId)
     {
-        ConflatedTicksCandle?.UpdateComplete(updateId);
-        base.UpdateComplete(updateId);
+        ConflatedTicksCandle?.UpdateStarted(updateSequenceId);
+        base.UpdateStarted(updateSequenceId);
+    }
+
+    public override void UpdateComplete(uint updateSequenceId = 0)
+    {
+        ConflatedTicksCandle?.UpdateComplete(updateSequenceId);
+        base.UpdateComplete(updateSequenceId);
     }
 
 

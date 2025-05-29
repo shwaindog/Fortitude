@@ -323,19 +323,6 @@ public class PQExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IPQE
         set => addExternalCpOrderInfo.IsExternalTraderIdUpdated = value;
     }
 
-    public uint UpdateCount => owner.UpdateCount;
-
-    public void UpdateComplete(uint updateId = 0)
-    {
-        owner.UpdateComplete(updateId);
-    }
-
-    public bool HasUpdates
-    {
-        get => owner.HasUpdates;
-        set => owner.HasUpdates = value;
-    }
-
     INameIdLookup IHasNameIdLookup.NameIdLookup => NameIdLookup;
 
     public IPQNameIdLookupGenerator NameIdLookup
@@ -392,6 +379,23 @@ public class PQExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IPQE
             owner.IsEmpty                  = value;
             addExternalCpOrderInfo.IsEmpty = value;
         }
+    }
+
+    public uint UpdateSequenceId => owner.UpdateSequenceId;
+
+    public void UpdateStarted(uint updateSequenceId)
+    {
+    }
+
+    public void UpdateComplete(uint updateSequenceId = 0)
+    {
+        owner.UpdateComplete(updateSequenceId);
+    }
+
+    public bool HasUpdates
+    {
+        get => owner.HasUpdates;
+        set => owner.HasUpdates = value;
     }
 
     public override void StateReset()

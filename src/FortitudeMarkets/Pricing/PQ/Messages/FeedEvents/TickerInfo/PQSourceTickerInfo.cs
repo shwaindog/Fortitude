@@ -202,7 +202,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => publishedTickerQuoteDetailLevel;
         set
         {
-            IsPublishedTickerDetailLevelUpdated |= publishedTickerQuoteDetailLevel != value || NumUpdates == 0;
+            IsPublishedTickerDetailLevelUpdated |= publishedTickerQuoteDetailLevel != value || SequenceId == 0;
             publishedTickerQuoteDetailLevel     =  value;
         }
     }
@@ -212,7 +212,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => roundingPrecision;
         set
         {
-            IsRoundingPrecisionUpdated |= roundingPrecision != value || NumUpdates == 0;
+            IsRoundingPrecisionUpdated |= roundingPrecision != value || SequenceId == 0;
             formatPrice                =  null;
             roundingPrecision          =  value;
         }
@@ -223,7 +223,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => pip;
         set
         {
-            IsPipUpdated |= pip != value || NumUpdates == 0;
+            IsPipUpdated |= pip != value || SequenceId == 0;
             pip          =  value;
         }
     }
@@ -233,7 +233,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => minSubmitSize;
         set
         {
-            IsMinSubmitSizeUpdated |= minSubmitSize != value || NumUpdates == 0;
+            IsMinSubmitSizeUpdated |= minSubmitSize != value || SequenceId == 0;
             minSubmitSize          =  value;
         }
     }
@@ -243,7 +243,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => maxSubmitSize;
         set
         {
-            IsMaxSubmitSizeUpdated |= maxSubmitSize != value || NumUpdates == 0;
+            IsMaxSubmitSizeUpdated |= maxSubmitSize != value || SequenceId == 0;
             maxSubmitSize          =  value;
         }
     }
@@ -253,7 +253,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => incrementSize;
         set
         {
-            IsIncrementSizeUpdated |= incrementSize != value || NumUpdates == 0;
+            IsIncrementSizeUpdated |= incrementSize != value || SequenceId == 0;
             incrementSize          =  value;
         }
     }
@@ -263,7 +263,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => minimumQuoteLife;
         set
         {
-            IsMinimumQuoteLifeUpdated |= minimumQuoteLife != value || NumUpdates == 0;
+            IsMinimumQuoteLifeUpdated |= minimumQuoteLife != value || SequenceId == 0;
             minimumQuoteLife          =  value;
         }
     }
@@ -273,7 +273,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => defaultMaxValidMs;
         set
         {
-            IsDefaultMaxValidMsUpdated |= defaultMaxValidMs != value || NumUpdates == 0;
+            IsDefaultMaxValidMsUpdated |= defaultMaxValidMs != value || SequenceId == 0;
             defaultMaxValidMs          =  value;
         }
     }
@@ -283,7 +283,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => (booleanFlags & SourceTickerInfoBooleanFlags.SubscribeToPricesSet) > 0;
         set
         {
-            IsSubscribeToPricesUpdated |= SubscribeToPrices != value || NumUpdates == 0;
+            IsSubscribeToPricesUpdated |= SubscribeToPrices != value || SequenceId == 0;
 
             if (value)
                 booleanFlags |= SourceTickerInfoBooleanFlags.SubscribeToPricesSet;
@@ -297,7 +297,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => (booleanFlags & SourceTickerInfoBooleanFlags.TradingEnabledSet) > 0;
         set
         {
-            IsTradingEnabledUpdated |= TradingEnabled || NumUpdates == 0;
+            IsTradingEnabledUpdated |= TradingEnabled || SequenceId == 0;
 
             if (value)
                 booleanFlags |= SourceTickerInfoBooleanFlags.TradingEnabledSet;
@@ -311,7 +311,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => layerFlags;
         set
         {
-            IsLayerFlagsUpdated |= layerFlags != value || NumUpdates == 0;
+            IsLayerFlagsUpdated |= layerFlags != value || SequenceId == 0;
             layerFlags          =  value;
         }
     }
@@ -321,7 +321,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => maximumPublishedLayers;
         set
         {
-            IsMaximumPublishedLayersUpdated |= maximumPublishedLayers != value || NumUpdates == 0;
+            IsMaximumPublishedLayersUpdated |= maximumPublishedLayers != value || SequenceId == 0;
             maximumPublishedLayers          =  value;
         }
     }
@@ -331,7 +331,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         get => lastTradedFlags;
         set
         {
-            IsLastTradedFlagsUpdated |= lastTradedFlags != value || NumUpdates == 0;
+            IsLastTradedFlagsUpdated |= lastTradedFlags != value || SequenceId == 0;
             lastTradedFlags          =  value;
         }
     }

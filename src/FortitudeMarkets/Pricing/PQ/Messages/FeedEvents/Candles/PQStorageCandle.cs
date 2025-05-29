@@ -52,8 +52,7 @@ public static class PQStorageCandleFlagsExtensions
 {
     public static bool HasSnapshotFlag(this PQStorageCandleFlags flags) => (flags & Snapshot) > 0;
 
-    public static int SignMultiplier(this PQStorageCandleFlags flags, PQStorageCandleFlags checkNegative) =>
-        (flags & checkNegative) > 0 ? -1 : 1;
+    public static int SignMultiplier(this PQStorageCandleFlags flags, PQStorageCandleFlags checkNegative) => (flags & checkNegative) > 0 ? -1 : 1;
 }
 
 public interface IPQStorageCandle : IMutableCandle, ITracksChanges<IPQStorageCandle>, ITrackableReset<IPQStorageCandle>
@@ -62,22 +61,22 @@ public interface IPQStorageCandle : IMutableCandle, ITracksChanges<IPQStorageCan
 
     IPQPriceVolumePublicationPrecisionSettings? PrecisionSettings { get; }
 
-    uint DeltaPeriodsFromPrevious    { get; set; }
-    uint DeltaStartBidPrice          { get; set; }
-    uint DeltaStartAskPrice          { get; set; }
-    uint DeltaHighestBidPrice        { get; set; }
-    uint DeltaHighestAskPrice        { get; set; }
-    uint DeltaLowestBidPrice         { get; set; }
-    uint DeltaLowestAskPrice         { get; set; }
-    uint DeltaEndBidPrice            { get; set; }
-    uint DeltaEndAskPrice            { get; set; }
-    uint DeltaTickCount              { get; set; }
-    uint DeltaPeriodVolume           { get; set; }
+    uint DeltaPeriodsFromPrevious   { get; set; }
+    uint DeltaStartBidPrice         { get; set; }
+    uint DeltaStartAskPrice         { get; set; }
+    uint DeltaHighestBidPrice       { get; set; }
+    uint DeltaHighestAskPrice       { get; set; }
+    uint DeltaLowestBidPrice        { get; set; }
+    uint DeltaLowestAskPrice        { get; set; }
+    uint DeltaEndBidPrice           { get; set; }
+    uint DeltaEndAskPrice           { get; set; }
+    uint DeltaTickCount             { get; set; }
+    uint DeltaPeriodVolume          { get; set; }
     uint DeltaCandleFlagsUpperBytes { get; set; }
     uint DeltaCandleFlagsLowerBytes { get; set; }
-    uint DeltaAverageBidPrice        { get; set; }
-    uint DeltaAverageAskPrice        { get; set; }
-    byte VolumePricePrecisionScale   { get; }
+    uint DeltaAverageBidPrice       { get; set; }
+    uint DeltaAverageAskPrice       { get; set; }
+    byte VolumePricePrecisionScale  { get; }
 
     void CalculatedScaledDeltas();
     void CalculateAllFromNewDeltas();
@@ -97,7 +96,7 @@ public class PQStorageCandle : ReusableObject<ICandle>, IPQStorageCandle, IClone
     private   decimal highestBidPrice;
     private   decimal lowestAskPrice;
     private   decimal lowestBidPrice;
-    protected uint    NumUpdatesSinceEmpty = uint.MaxValue;
+    protected uint    SequenceId = uint.MaxValue;
 
     private CandleFlags candleFlags;
 
@@ -119,9 +118,9 @@ public class PQStorageCandle : ReusableObject<ICandle>, IPQStorageCandle, IClone
     public PQStorageCandle()
     {
         CandleStorageFlags |= Snapshot;
-        CandleFlags  =  CandleFlags.FromStorage;
+        CandleFlags        =  CandleFlags.FromStorage;
 
-        if (GetType() == typeof(PQStorageCandle)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQStorageCandle)) SequenceId = 0;
     }
 
     public PQStorageCandle(IPQStorageCandle toClone)
@@ -140,15 +139,12 @@ public class PQStorageCandle : ReusableObject<ICandle>, IPQStorageCandle, IClone
         EndAskPrice        = toClone.EndAskPrice;
         TickCount          = toClone.TickCount;
         PeriodVolume       = toClone.PeriodVolume;
-        CandleFlags = toClone.CandleFlags | CandleFlags.FromStorage;
+        CandleFlags        = toClone.CandleFlags | CandleFlags.FromStorage;
         AverageBidPrice    = toClone.AverageBidPrice;
         AverageAskPrice    = toClone.AverageBidPrice;
 
-        if (GetType() == typeof(PQStorageCandle)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQStorageCandle)) SequenceId = 0;
     }
-
-    public override PQStorageCandle Clone() =>
-        Recycler?.Borrow<PQStorageCandle>().CopyFrom(this) as PQStorageCandle ?? new PQStorageCandle(this);
 
     public PQStorageCandleFlags CandleStorageFlags { get; private set; }
 
@@ -244,7 +240,7 @@ public class PQStorageCandle : ReusableObject<ICandle>, IPQStorageCandle, IClone
                 EndBidPrice == decimal.Zero && EndAskPrice == decimal.Zero &&
                 AverageBidPrice == decimal.Zero && AverageAskPrice == decimal.Zero;
             var tickCountAndVolumeZero    = TickCount == 0 && PeriodVolume == 0;
-            var candlePeriodNone         = TimeBoundaryPeriod == TimeBoundaryPeriod.Tick;
+            var candlePeriodNone          = TimeBoundaryPeriod == TimeBoundaryPeriod.Tick;
             var summaryFlagsNoneOrStorage = CandleFlags is CandleFlags.FromStorage or CandleFlags.None;
             var startEndTimeUnixEpoch = PeriodStartTime == DateTime.MinValue
                                      && PeriodEndTime == DateTime.MinValue;
@@ -260,14 +256,14 @@ public class PQStorageCandle : ReusableObject<ICandle>, IPQStorageCandle, IClone
             previousEndBidPrice     = previousEndAskPrice     = previousAverageBidPrice = previousAverageAskPrice = -1m;
             previousPeriodVolume    = -1L;
 
-            TickCount           = 0;
-            PeriodVolume        = 0;
-            TimeBoundaryPeriod  = TimeBoundaryPeriod.Tick;
-            CandleFlags  = CandleFlags.FromStorage;
-            PeriodStartTime     = PeriodEndTime = DateTime.MinValue;
+            TickCount          = 0;
+            PeriodVolume       = 0;
+            TimeBoundaryPeriod = TimeBoundaryPeriod.Tick;
+            CandleFlags        = CandleFlags.FromStorage;
+            PeriodStartTime    = PeriodEndTime = DateTime.MinValue;
             CandleStorageFlags = None;
 
-            NumUpdatesSinceEmpty = 0;
+            SequenceId = 0;
         }
     }
 
@@ -436,24 +432,109 @@ public class PQStorageCandle : ReusableObject<ICandle>, IPQStorageCandle, IClone
             previousEndBidPrice     = previousEndAskPrice     = previousAverageBidPrice = previousAverageAskPrice = -1m;
             previousPeriodVolume    = -1L;
 
-            DeltaStartBidPrice          = DeltaStartAskPrice          = DeltaHighestBidPrice = DeltaHighestAskPrice = 0;
-            DeltaLowestBidPrice         = DeltaLowestAskPrice         = DeltaEndBidPrice     = DeltaEndAskPrice     = 0;
-            DeltaTickCount              = DeltaPeriodVolume           = DeltaAverageBidPrice = DeltaAverageAskPrice = 0;
+            DeltaStartBidPrice         = DeltaStartAskPrice         = DeltaHighestBidPrice = DeltaHighestAskPrice = 0;
+            DeltaLowestBidPrice        = DeltaLowestAskPrice        = DeltaEndBidPrice     = DeltaEndAskPrice     = 0;
+            DeltaTickCount             = DeltaPeriodVolume          = DeltaAverageBidPrice = DeltaAverageAskPrice = 0;
             DeltaCandleFlagsLowerBytes = DeltaCandleFlagsUpperBytes = 0;
         }
-    }
-
-    public uint UpdateCount => NumUpdatesSinceEmpty;
-
-    public void UpdateComplete(uint updateId = 0)
-    {
-        if (HasUpdates && !IsEmpty) NumUpdatesSinceEmpty++;
-        HasUpdates = false;
     }
 
     public ICandle? Previous { get; set; }
 
     public ICandle? Next { get; set; }
+
+    public double ContributingCompletePercentage(BoundedTimeRange timeRange, IRecycler recycler)
+    {
+        const ushort checkBitMask = 0x1;
+
+        var missingTickPeriods      = CandleFlags.MissingTickFlags();
+        var currentRangeMissing     = (missingTickPeriods & checkBitMask) > 0;
+        var totalCompletePercentage = 0.0;
+        foreach (var subRange in this.To16SubTimeRanges(recycler))
+        {
+            if (subRange.IntersectsWith(timeRange) && !currentRangeMissing)
+                totalCompletePercentage += subRange.ContributingPercentageOfTimeRange(timeRange);
+            missingTickPeriods  >>= 1;
+            currentRangeMissing =   (missingTickPeriods & checkBitMask) > 0;
+        }
+        return totalCompletePercentage;
+    }
+
+    public uint UpdateSequenceId => SequenceId;
+
+    public void UpdateStarted(uint updateSequenceId)
+    {
+        SequenceId = updateSequenceId;
+    }
+
+    public void UpdateComplete(uint updateSequenceId = 0)
+    {
+        if (HasUpdates && !IsEmpty) SequenceId++;
+        HasUpdates = false;
+    }
+
+    IMutableCandle ITrackableReset<IMutableCandle>.ResetWithTracking() => ResetWithTracking();
+
+    IPQStorageCandle ITrackableReset<IPQStorageCandle>.ResetWithTracking() => ResetWithTracking();
+
+    IPQStorageCandle IPQStorageCandle.ResetWithTracking() => ResetWithTracking();
+
+    public PQStorageCandle ResetWithTracking()
+    {
+        CandleFlags        = CandleFlags.None;
+        TimeBoundaryPeriod = TimeBoundaryPeriod.Tick;
+        PeriodStartTime    = DateTime.MinValue;
+        PeriodEndTime      = DateTime.MinValue;
+
+        StartBidPrice   = 0m;
+        StartAskPrice   = 0m;
+        HighestBidPrice = 0m;
+        HighestAskPrice = 0m;
+        LowestBidPrice  = 0m;
+        LowestAskPrice  = 0m;
+        EndBidPrice     = 0m;
+        EndAskPrice     = 0m;
+        AverageBidPrice = 0m;
+        AverageAskPrice = 0m;
+        TickCount       = 0;
+        PeriodVolume    = 0;
+
+
+        DeltaStartBidPrice         = DeltaStartAskPrice         = DeltaHighestBidPrice = DeltaHighestAskPrice = 0;
+        DeltaLowestBidPrice        = DeltaLowestAskPrice        = DeltaEndBidPrice     = DeltaEndAskPrice     = 0;
+        DeltaTickCount             = DeltaPeriodVolume          = DeltaAverageBidPrice = DeltaAverageAskPrice = 0;
+        DeltaCandleFlagsLowerBytes = DeltaCandleFlagsUpperBytes = 0;
+
+        return this;
+    }
+
+    public override void StateReset()
+    {
+        Next       = Previous = null;
+        IsEmpty    = true;
+        HasUpdates = false;
+
+        SequenceId = 0;
+        base.StateReset();
+    }
+
+    IPQStorageCandle IPQStorageCandle.Clone() => Clone();
+
+    object ICloneable.Clone() => Clone();
+
+    ICandle ICloneable<ICandle>.Clone() => Clone();
+
+    public override PQStorageCandle Clone() => Recycler?.Borrow<PQStorageCandle>().CopyFrom(this) as PQStorageCandle ?? new PQStorageCandle(this);
+
+    ITransferState ITransferState.CopyFrom
+        (ITransferState source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((ICandle)source, copyMergeFlags);
+
+    IMutableCandle IMutableCandle.Clone() => Recycler?.Borrow<PQStorageCandle>().CopyFrom(this) as IMutableCandle ?? new PQStorageCandle(this);
+
+    IReusableObject<ICandle> ITransferState<IReusableObject<ICandle>>.CopyFrom
+        (IReusableObject<ICandle> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IMutableCandle)source, copyMergeFlags);
 
     public IPQStorageCandle CopyFrom
         (IPQStorageCandle ps, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
@@ -475,7 +556,7 @@ public class PQStorageCandle : ReusableObject<ICandle>, IPQStorageCandle, IClone
         EndAskPrice        = ps.EndBidAsk.AskPrice;
         TickCount          = ps.TickCount;
         PeriodVolume       = ps.PeriodVolume;
-        CandleFlags = ps.CandleFlags | CandleFlags.FromStorage;
+        CandleFlags        = ps.CandleFlags | CandleFlags.FromStorage;
         AverageBidPrice    = ps.AverageBidAsk.BidPrice;
         AverageAskPrice    = ps.AverageBidAsk.AskPrice;
 
@@ -487,105 +568,26 @@ public class PQStorageCandle : ReusableObject<ICandle>, IPQStorageCandle, IClone
         return this;
     }
 
-    IMutableCandle ITrackableReset<IMutableCandle>.ResetWithTracking() => ResetWithTracking();
-
-    IPQStorageCandle ITrackableReset<IPQStorageCandle>.ResetWithTracking() => ResetWithTracking();
-
-    IPQStorageCandle IPQStorageCandle.                 ResetWithTracking() => ResetWithTracking();
-
-    public PQStorageCandle ResetWithTracking()
-    {
-        CandleFlags        = CandleFlags.None;
-        TimeBoundaryPeriod = TimeBoundaryPeriod.Tick;
-        PeriodStartTime    = DateTime.MinValue;
-        PeriodEndTime      = DateTime.MinValue;
-
-        StartBidPrice   = 0m;
-        StartAskPrice   = 0m;
-        HighestBidPrice = 0m;
-        HighestAskPrice = 0m;
-        LowestBidPrice  = 0m;
-        LowestAskPrice  = 0m;
-        EndBidPrice     = 0m;
-        EndAskPrice     = 0m;
-        AverageBidPrice = 0m;
-        AverageAskPrice = 0m;
-        TickCount       = 0;
-        PeriodVolume    = 0;
-        
-
-        DeltaStartBidPrice         = DeltaStartAskPrice         = DeltaHighestBidPrice = DeltaHighestAskPrice = 0;
-        DeltaLowestBidPrice        = DeltaLowestAskPrice        = DeltaEndBidPrice     = DeltaEndAskPrice     = 0;
-        DeltaTickCount             = DeltaPeriodVolume          = DeltaAverageBidPrice = DeltaAverageAskPrice = 0;
-        DeltaCandleFlagsLowerBytes = DeltaCandleFlagsUpperBytes = 0;
-
-        return this;
-    }
-
-    public override void StateReset()
-    {
-        Next       = Previous = null;
-        IsEmpty    = true;
-        HasUpdates = false;
-
-        NumUpdatesSinceEmpty = 0;
-        base.StateReset();
-    }
-
-    ITransferState ITransferState.CopyFrom
-        (ITransferState source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom((ICandle)source, copyMergeFlags);
-
-    IMutableCandle IMutableCandle.Clone() =>
-        Recycler?.Borrow<PQStorageCandle>().CopyFrom(this) as IMutableCandle ?? new PQStorageCandle(this);
-
-    IReusableObject<ICandle> ITransferState<IReusableObject<ICandle>>.CopyFrom
-        (IReusableObject<ICandle> source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom((IMutableCandle)source, copyMergeFlags);
-
-    IPQStorageCandle IPQStorageCandle.Clone() => Clone();
-
-    object ICloneable.Clone() => Clone();
-
-    ICandle ICloneable<ICandle>.Clone() => Clone();
-
-    public double ContributingCompletePercentage(BoundedTimeRange timeRange, IRecycler recycler)
-    {
-        const ushort checkBitMask = 0x1;
-
-        var missingTickPeriods      = CandleFlags.MissingTickFlags();
-        var currentRangeMissing     = (missingTickPeriods & checkBitMask) > 0;
-        var totalCompletePercentage = 0.0;
-        foreach (var subRange in this.To16SubTimeRanges(recycler))
-        {
-            if (subRange.IntersectsWith(timeRange) && !currentRangeMissing)
-                totalCompletePercentage += subRange.ContributingPercentageOfTimeRange(timeRange);
-            missingTickPeriods  >>= 1;
-            currentRangeMissing =   (missingTickPeriods & checkBitMask) > 0;
-        }
-        return totalCompletePercentage;
-    }
-
     public bool AreEquivalent(ICandle? other, bool exactTypes = false)
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
-        var timeFrameSame          = TimeBoundaryPeriod == other.TimeBoundaryPeriod;
-        var startTimeSame          = PeriodStartTime.Equals(other.PeriodStartTime);
-        var endTimeSame            = PeriodEndTime.Equals(other.PeriodEndTime);
-        var startBidPriceSame      = StartBidPrice == other.StartBidAsk.BidPrice;
-        var startAskPriceSame      = StartAskPrice == other.StartBidAsk.AskPrice;
-        var highestBidPriceSame    = HighestBidPrice == other.HighestBidAsk.BidPrice;
-        var highestAskPriceSame    = HighestAskPrice == other.HighestBidAsk.AskPrice;
-        var lowestBidPriceSame     = LowestBidPrice == other.LowestBidAsk.BidPrice;
-        var lowestAskPriceSame     = LowestAskPrice == other.LowestBidAsk.AskPrice;
-        var endBidPriceSame        = EndBidPrice == other.EndBidAsk.BidPrice;
-        var endAskPriceSame        = EndAskPrice == other.EndBidAsk.AskPrice;
-        var tickCountSame          = TickCount == other.TickCount;
-        var periodVolumeSame       = PeriodVolume == other.PeriodVolume;
-        var candleFlagsSame = CandleFlags == (other.CandleFlags | CandleFlags.FromStorage);
-        var averageBidSame         = AverageBidPrice == other.AverageBidAsk.BidPrice;
-        var averageAskSame         = AverageAskPrice == other.AverageBidAsk.AskPrice;
+        var timeFrameSame       = TimeBoundaryPeriod == other.TimeBoundaryPeriod;
+        var startTimeSame       = PeriodStartTime.Equals(other.PeriodStartTime);
+        var endTimeSame         = PeriodEndTime.Equals(other.PeriodEndTime);
+        var startBidPriceSame   = StartBidPrice == other.StartBidAsk.BidPrice;
+        var startAskPriceSame   = StartAskPrice == other.StartBidAsk.AskPrice;
+        var highestBidPriceSame = HighestBidPrice == other.HighestBidAsk.BidPrice;
+        var highestAskPriceSame = HighestAskPrice == other.HighestBidAsk.AskPrice;
+        var lowestBidPriceSame  = LowestBidPrice == other.LowestBidAsk.BidPrice;
+        var lowestAskPriceSame  = LowestAskPrice == other.LowestBidAsk.AskPrice;
+        var endBidPriceSame     = EndBidPrice == other.EndBidAsk.BidPrice;
+        var endAskPriceSame     = EndAskPrice == other.EndBidAsk.AskPrice;
+        var tickCountSame       = TickCount == other.TickCount;
+        var periodVolumeSame    = PeriodVolume == other.PeriodVolume;
+        var candleFlagsSame     = CandleFlags == (other.CandleFlags | CandleFlags.FromStorage);
+        var averageBidSame      = AverageBidPrice == other.AverageBidAsk.BidPrice;
+        var averageAskSame      = AverageAskPrice == other.AverageBidAsk.AskPrice;
 
         var updateFlagsSame = true;
         if (exactTypes)
@@ -603,9 +605,9 @@ public class PQStorageCandle : ReusableObject<ICandle>, IPQStorageCandle, IClone
 
     public void CalculateAllFromNewDeltas()
     {
-        DeltaStartBidPrice          = DeltaStartAskPrice          = DeltaHighestBidPrice = DeltaHighestAskPrice = 0;
-        DeltaLowestBidPrice         = DeltaLowestAskPrice         = DeltaEndBidPrice     = DeltaEndAskPrice     = 0;
-        DeltaTickCount              = DeltaPeriodVolume           = DeltaAverageBidPrice = DeltaAverageAskPrice = 0;
+        DeltaStartBidPrice         = DeltaStartAskPrice         = DeltaHighestBidPrice = DeltaHighestAskPrice = 0;
+        DeltaLowestBidPrice        = DeltaLowestAskPrice        = DeltaEndBidPrice     = DeltaEndAskPrice     = 0;
+        DeltaTickCount             = DeltaPeriodVolume          = DeltaAverageBidPrice = DeltaAverageAskPrice = 0;
         DeltaCandleFlagsLowerBytes = DeltaCandleFlagsUpperBytes = 0;
 
         previousHighestBidPrice = previousHighestAskPrice = previousLowestBidPrice  = previousLowestAskPrice  = 0m;

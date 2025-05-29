@@ -67,7 +67,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
     public PQLevel2Quote()
     {
         orderBook = new PQOrderBook();
-        if (GetType() == typeof(PQPublishableLevel2Quote)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQPublishableLevel2Quote)) SequenceId = 0;
     }
 
     // Reflection invoked constructor (PQServer<T>)
@@ -94,7 +94,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
         }
         OrderBook.EnsureRelatedItemsAreConfigured(sourceTickerInfo, null);
 
-        if (GetType() == typeof(PQLevel2Quote)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQLevel2Quote)) SequenceId = 0;
     }
 
     public PQLevel2Quote(ITickInstant toClone) : base(toClone)
@@ -127,7 +127,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
         EnsureRelatedItemsAreConfigured(toClone as IPQTickInstant);
         SetFlagsSame(toClone);
 
-        if (GetType() == typeof(PQLevel2Quote)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQLevel2Quote)) SequenceId = 0;
     }
 
     public override string QuoteToStringMembers => $"{base.QuoteToStringMembers}, {nameof(OrderBook)}: {OrderBook}";
@@ -188,7 +188,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
         get => BidBook.Count > 0 ? BidBook[0]?.Price ?? 0 : 0;
         set
         {
-            IsBidPriceTopUpdated = BidBook[0]!.Price != value || NumOfUpdates == 0;
+            IsBidPriceTopUpdated = BidBook[0]!.Price != value || SequenceId == 0;
             if (BidBook[0]!.Price == value) return;
             BidBook[0]!.Price    = value;
             IsBidPriceTopUpdated = true;
@@ -201,17 +201,23 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
         get => AskBook.Count > 0 ? AskBook[0]?.Price ?? 0 : 0;
         set
         {
-            IsAskPriceTopUpdated = AskBook[0]!.Price != value || NumOfUpdates == 0;
+            IsAskPriceTopUpdated = AskBook[0]!.Price != value || SequenceId == 0;
             if (AskBook[0]!.Price == value) return;
             AskBook[0]!.Price    = value;
             IsAskPriceTopUpdated = true;
         }
     }
 
-    public override void UpdateComplete(uint updateId = 0)
+    public override void UpdateStarted(uint updateSequenceId)
     {
-        OrderBook.UpdateComplete(updateId);
-        base.UpdateComplete(updateId);
+        OrderBook.UpdateStarted(updateSequenceId);
+        base.UpdateStarted(updateSequenceId);
+    }
+
+    public override void UpdateComplete(uint updateSequenceId = 0)
+    {
+        OrderBook.UpdateComplete(updateSequenceId);
+        base.UpdateComplete(updateSequenceId);
     }
 
     IMutableLevel2Quote ITrackableReset<IMutableLevel2Quote>.ResetWithTracking() => ResetWithTracking();
@@ -394,7 +400,6 @@ public class PQPublishableLevel2Quote : PQPublishableLevel1Quote, IPQPublishable
 
     public PQPublishableLevel2Quote()
     {
-        if (GetType() == typeof(PQPublishableLevel2Quote)) NumOfUpdates = 0;
     }
 
     // Reflection invoked constructor (PQServer<T>)
@@ -415,8 +420,6 @@ public class PQPublishableLevel2Quote : PQPublishableLevel1Quote, IPQPublishable
         : base(initializedQuoteContainer, sourceTickerInfo, feedSyncStatus, feedStatus, conflationTicksCandle)
     {
         OrderBook.EnsureRelatedItemsAreConfigured(SourceTickerInfo, null);
-
-        if (GetType() == typeof(PQPublishableLevel2Quote)) NumOfUpdates = 0;
     }
 
 
@@ -428,8 +431,6 @@ public class PQPublishableLevel2Quote : PQPublishableLevel1Quote, IPQPublishable
         // ReSharper disable once VirtualMemberCallInConstructor
         EnsureRelatedItemsAreConfigured(toClone);
         SetFlagsSame(toClone);
-
-        if (GetType() == typeof(PQPublishableLevel2Quote)) NumOfUpdates = 0;
     }
 
     protected override IPQLevel2Quote CreateEmptyQuoteContainerInstant() => new PQLevel2Quote();
@@ -576,10 +577,10 @@ public class PQPublishableLevel2Quote : PQPublishableLevel1Quote, IPQPublishable
         }
     }
 
-    public override void UpdateComplete(uint updateId = 0)
+    public override void UpdateComplete(uint updateSequenceId = 0)
     {
-        OrderBook.UpdateComplete(updateId);
-        base.UpdateComplete(updateId);
+        OrderBook.UpdateComplete(updateSequenceId);
+        base.UpdateComplete(updateSequenceId);
     }
 
     IMutableLevel2Quote ITrackableReset<IMutableLevel2Quote>.ResetWithTracking() => ResetWithTracking();

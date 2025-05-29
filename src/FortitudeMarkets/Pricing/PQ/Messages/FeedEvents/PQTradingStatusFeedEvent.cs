@@ -94,7 +94,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
     public PQTradingStatusFeedEvent()
     {
         PQSourceTickerInfo = new PQSourceTickerInfo();
-        if (GetType() == typeof(PQPublishableTickInstant)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQPublishableTickInstant)) PQSequenceId = 0;
     }
 
     // Reflection invoked constructor (PQServer<T>)
@@ -126,7 +126,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         FeedSyncStatus     = feedSyncStatus;
         ClientReceivedTime = clientReceivedTime ?? DateTime.MinValue;
 
-        if (GetType() == typeof(PQPublishableTickInstant)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQPublishableTickInstant)) PQSequenceId = 0;
     }
 
 
@@ -144,7 +144,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         }
 
         SetFlagsSame(toClone);
-        if (GetType() == typeof(PQTradingStatusFeedEvent)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQTradingStatusFeedEvent)) PQSequenceId = 0;
     }
 
     public override uint StreamId => SourceTickerInfo!.SourceTickerId;
@@ -183,8 +183,8 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         {
             if (downstreamTime == value) return;
             IsDownstreamDateUpdated
-                |= downstreamTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumOfUpdates == 0;
-            IsDownstreamSub2MinTimeUpdated |= downstreamTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumOfUpdates == 0;
+                |= downstreamTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || PQSequenceId == 0;
+            IsDownstreamSub2MinTimeUpdated |= downstreamTime.GetSub2MinComponent() != value.GetSub2MinComponent() || PQSequenceId == 0;
             downstreamTime                 =  value == DateTime.UnixEpoch ? default : value;
         }
     }
@@ -193,7 +193,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         get => sourceSeqNum;
         set
         {
-            IsSourceSequenceNumberUpdated |= sourceSeqNum != value || NumOfUpdates == 0;
+            IsSourceSequenceNumberUpdated |= sourceSeqNum != value || PQSequenceId == 0;
             sourceSeqNum = value;
         }
     }
@@ -202,7 +202,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         get => adapterSeqNum;
         set
         {
-            IsAdapterSequenceNumberUpdated |= adapterSeqNum != value || NumOfUpdates == 0;
+            IsAdapterSequenceNumberUpdated |= adapterSeqNum != value || PQSequenceId == 0;
             adapterSeqNum                 =  value;
         }
     }
@@ -211,7 +211,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         get => clientSeqNum;
         set
         {
-            IsClientSequenceNumberUpdated |= clientSeqNum != value || NumOfUpdates == 0;
+            IsClientSequenceNumberUpdated |= clientSeqNum != value || PQSequenceId == 0;
             clientSeqNum                   =  value;
         }
     }
@@ -221,7 +221,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         get => feedSeqNum;
         set
         {
-            IsClientSequenceNumberUpdated |= feedSeqNum != value || NumOfUpdates == 0;
+            IsClientSequenceNumberUpdated |= feedSeqNum != value || PQSequenceId == 0;
             feedSeqNum                    =  value;
         }
     }
@@ -231,7 +231,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         get => eventUpdateFlags;
         set
         {
-            IsEventUpdateFlagsUpdated |= eventUpdateFlags != value || NumOfUpdates == 0;
+            IsEventUpdateFlagsUpdated |= eventUpdateFlags != value || PQSequenceId == 0;
             eventUpdateFlags                      =  value;
         }
     }
@@ -471,9 +471,9 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         set
         {
             IsLastSourceFeedUpdateDateUpdated |= lastSourceFeedUpdateTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() ||
-                                                 NumOfUpdates == 0;
+                                                 PQSequenceId == 0;
             IsLastSourceFeedUpdateSub2MinTimeUpdated
-                |= lastSourceFeedUpdateTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumOfUpdates == 0;
+                |= lastSourceFeedUpdateTime.GetSub2MinComponent() != value.GetSub2MinComponent() || PQSequenceId == 0;
             lastSourceFeedUpdateTime = value == DateTime.UnixEpoch ? default : value;
         }
     }
@@ -660,20 +660,20 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         }
     }
 
-    public override void UpdateComplete(uint updateId = 0)
+    public override void UpdateComplete(uint updateSequenceId = 0)
     {
-        PQSourceTickerInfo?.UpdateComplete(updateId);
-        base.UpdateComplete(updateId);
-        MarketEvents?.UpdateComplete(updateId);
-        RecentTradedHistory?.UpdateComplete(updateId);
-        PublishedInternalOrders?.UpdateComplete(updateId);
-        PublishedAccounts?.UpdateComplete(updateId);
-        PublishedLimits?.UpdateComplete(updateId);
-        LimitBreaches?.UpdateComplete(updateId);
-        MarginDetails?.UpdateComplete(updateId);
-        TickerPnLConversionRate?.UpdateComplete(updateId);
-        TickerRegionInfo?.UpdateComplete(updateId);
-        AdapterExecutionStatistics?.UpdateComplete(updateId);
+        PQSourceTickerInfo?.UpdateComplete(updateSequenceId);
+        base.UpdateComplete(updateSequenceId);
+        MarketEvents?.UpdateComplete(updateSequenceId);
+        RecentTradedHistory?.UpdateComplete(updateSequenceId);
+        PublishedInternalOrders?.UpdateComplete(updateSequenceId);
+        PublishedAccounts?.UpdateComplete(updateSequenceId);
+        PublishedLimits?.UpdateComplete(updateSequenceId);
+        LimitBreaches?.UpdateComplete(updateSequenceId);
+        MarginDetails?.UpdateComplete(updateSequenceId);
+        TickerPnLConversionRate?.UpdateComplete(updateSequenceId);
+        TickerRegionInfo?.UpdateComplete(updateSequenceId);
+        AdapterExecutionStatistics?.UpdateComplete(updateSequenceId);
         HasUpdates = false;
     }
 
