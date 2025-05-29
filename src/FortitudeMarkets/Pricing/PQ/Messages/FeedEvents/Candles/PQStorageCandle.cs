@@ -445,7 +445,7 @@ public class PQStorageCandle : ReusableObject<ICandle>, IPQStorageCandle, IClone
 
     public uint UpdateCount => NumUpdatesSinceEmpty;
 
-    public void UpdateComplete()
+    public void UpdateComplete(uint updateId = 0)
     {
         if (HasUpdates && !IsEmpty) NumUpdatesSinceEmpty++;
         HasUpdates = false;

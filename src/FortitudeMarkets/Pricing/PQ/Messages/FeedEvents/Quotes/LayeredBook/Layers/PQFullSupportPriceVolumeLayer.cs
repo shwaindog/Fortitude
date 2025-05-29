@@ -238,10 +238,10 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
         }
     }
 
-    public override void UpdateComplete()
+    public override void UpdateComplete(uint updateId = 0)
     {
-        NameIdLookup.UpdateComplete();
-        base.UpdateComplete();
+        NameIdLookup.UpdateComplete(updateId);
+        base.UpdateComplete(updateId);
     }
 
     IMutableValueDatePriceVolumeLayer ITrackableReset<IMutableValueDatePriceVolumeLayer>.          ResetWithTracking() => ResetWithTracking();

@@ -357,12 +357,12 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
 
         public uint UpdateCount => NumOfUpdates;
 
-        public void UpdateComplete()
+        public void UpdateComplete(uint updateId = 0)
         {
-            AskSide.UpdateComplete();
-            BidSide.UpdateComplete();
-            NameIdLookup.UpdateComplete();
-            pqOpenInterest?.UpdateComplete();
+            AskSide.UpdateComplete(updateId);
+            BidSide.UpdateComplete(updateId);
+            NameIdLookup.UpdateComplete(updateId);
+            pqOpenInterest?.UpdateComplete(updateId);
             if (HasUpdates)
             {
                 NumOfUpdates++;

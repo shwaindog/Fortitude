@@ -52,7 +52,7 @@ public interface IMutableOrderBookSide : IOrderBookSide, IMutableTracksShiftsLis
 
     new ushort MaxAllowedSize { get; }
 
-    new bool HasRandomAccessUpdates { get; set; }
+    new bool HasUnreliableListTracking { get; set; }
 
     new int Count { get; set; }
 
@@ -73,6 +73,8 @@ public interface IMutableOrderBookSide : IOrderBookSide, IMutableTracksShiftsLis
     new void ClearShiftCommands();
 
     new IEnumerator<IMutablePriceVolumeLayer> GetEnumerator();
+
+    new IMutableOrderBookSide ResetWithTracking();
 
     new IMutableOrderBookSide Clone();
 

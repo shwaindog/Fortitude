@@ -198,7 +198,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
 
         public uint UpdateCount => NumUpdatesSinceEmpty;
 
-        public void UpdateComplete()
+        public void UpdateComplete(uint updateId = 0)
         {
             if (HasUpdates && !IsEmpty)
             {

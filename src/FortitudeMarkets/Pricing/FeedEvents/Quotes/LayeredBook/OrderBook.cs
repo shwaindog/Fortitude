@@ -111,7 +111,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 
     public ushort MaxAllowedSize { get; private set; }
 
-    public decimal? MidPrice => (BidSide[0]?.Price ?? 0 + AskSide[0]?.Price ?? 0) / 2;
+    public decimal? MidPrice => (BidSide[0].Price + AskSide[0].Price) / 2;
 
     public bool HasNonEmptyOpenInterest
     {
@@ -183,8 +183,8 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     {
         DailyTickUpdateCount = 0;
         openInterest?.ResetWithTracking();
-        BidSide?.ResetWithTracking();
-        AskSide?.ResetWithTracking();
+        BidSide.ResetWithTracking();
+        AskSide.ResetWithTracking();
         IsAskBookChanged = false;
         IsBidBookChanged = false;
 

@@ -4,20 +4,19 @@ using FortitudeCommon.Types.Mutable;
 namespace FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 
 
-public interface ITracksShiftsList<out TElement, in TCompare> : ICapacityList<TElement> where TElement : TCompare
+public interface ITracksShiftsList<out TElement, in TCompare> : IResetableCappedCapacityList<TElement> where TElement : TCompare
 {
     IReadOnlyList<ListShiftCommand> ShiftCommands { get; }
 
     int? ClearRemainingElementsFromIndex { get; }
 
-    bool HasRandomAccessUpdates { get; }
-
-    ushort MaxAllowedSize { get; }
+    bool HasUnreliableListTracking { get; }
 
     bool CalculateShift(DateTime asAtTime, IReadOnlyList<TCompare> updatedCollection);
 }
 
-public interface IMutableTracksShiftsList<TElement, in TCompare> : ITracksShiftsList<TElement, TCompare>, IMutableCapacityList<TElement>
+public interface IMutableTracksShiftsList<TElement, in TCompare> : ITracksShiftsList<TElement, TCompare>, 
+    ITracksResetCappedCapacityList<TElement>
     where TElement : ITrackableReset<TElement>, TCompare
 {
     new IReadOnlyList<ListShiftCommand> ShiftCommands { get; set; }
@@ -30,7 +29,7 @@ public interface IMutableTracksShiftsList<TElement, in TCompare> : ITracksShifts
 
     new int? ClearRemainingElementsFromIndex { get; set; }
 
-    new bool HasRandomAccessUpdates { get; set; }
+    new bool HasUnreliableListTracking { get; set; }
 
     new TElement this[int index] { get; set; }
 
@@ -44,7 +43,7 @@ public interface IMutableTracksShiftsList<TElement, in TCompare> : ITracksShifts
 
     ListShiftCommand Delete(TElement toDelete);
 
-    ListShiftCommand ApplyElementShift(ListShiftCommand shiftCommandToApply);
+    ListShiftCommand ApplyListShiftCommand(ListShiftCommand shiftCommandToApply);
 
     ListShiftCommand ClearAll();
 

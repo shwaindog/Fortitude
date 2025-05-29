@@ -525,9 +525,9 @@ public class PQInternalPassiveOrder : ReusableObject<IAnonymousOrder>, IPQIntern
 
     public uint UpdateCount => owner.UpdateCount;
 
-    public void UpdateComplete()
+    public void UpdateComplete(uint updateId = 0)
     {
-        owner.UpdateComplete();
+        owner.UpdateComplete(updateId);
     }
     
     public override void StateReset()

@@ -4,6 +4,7 @@
 #region
 
 using System.Collections;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
@@ -86,6 +87,8 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     {
         elementShiftRegistry = new TrackShiftsListRegistry<IMutablePriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
         elementShiftRegistry.CopyFrom(toClone.ShiftCommands);
+
+        HasUnreliableListTracking = toClone.HasUnreliableListTracking;
         LayerSupportedFlags  = toClone.LayerSupportedFlags;
         DailyTickUpdateCount = toClone.DailyTickUpdateCount;
 
@@ -115,7 +118,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
         MaxAllowedSize = sourceTickerInfo.MaximumPublishedLayers;
 
-        BookSide = bookSide;
+        BookSide   =  bookSide;
         layerFlags |= LayerSupportedType.SupportedLayerFlags();
         AllLayers =
             Enumerable
@@ -129,6 +132,12 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     protected Func<IMutablePriceVolumeLayer> NewElementFactory => () => LayerSelector.CreateExpectedImplementation(LayerSupportedType);
 
     ushort IMutableTracksShiftsList<IMutablePriceVolumeLayer, IPriceVolumeLayer>.MaxAllowedSize
+    {
+        get => MaxAllowedSize;
+        set => MaxAllowedSize = value;
+    }
+
+    ushort IMutableCappedCapacityList<IMutablePriceVolumeLayer>.MaxAllowedSize
     {
         get => MaxAllowedSize;
         set => MaxAllowedSize = value;
@@ -216,6 +225,18 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
     public uint DailyTickUpdateCount { get; set; }
 
+    public bool IsEmpty
+    {
+        get => AllLayers.All(pvl => pvl.IsEmpty);
+        set
+        {
+            foreach (var priceVolumeLayer in AllLayers)
+            {
+                priceVolumeLayer.IsEmpty = value;
+            }
+        }
+    }
+
     public IReadOnlyList<ListShiftCommand> ShiftCommands
     {
         get => elementShiftRegistry!.ShiftCommands;
@@ -228,9 +249,9 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         set => elementShiftRegistry!.ClearRemainingElementsFromIndex = (ushort?)value;
     }
 
-    public bool HasRandomAccessUpdates { get; set; }
+    public bool HasUnreliableListTracking { get; set; }
 
-    public bool CalculateShift(DateTime asAtTime, IReadOnlyList<IPriceVolumeLayer> updatedCollection) => 
+    public bool CalculateShift(DateTime asAtTime, IReadOnlyList<IPriceVolumeLayer> updatedCollection) =>
         elementShiftRegistry!.CalculateShift(asAtTime, updatedCollection);
 
     ListShiftCommand IMutableTracksShiftsList<IMutablePriceVolumeLayer, IPriceVolumeLayer>.AppendShiftCommand
@@ -257,7 +278,9 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
     public ListShiftCommand Delete(IMutablePriceVolumeLayer toDelete) => elementShiftRegistry!.Delete(toDelete);
 
-    public ListShiftCommand ApplyElementShift(ListShiftCommand shiftCommandToApply) => elementShiftRegistry!.ApplyElementShift(shiftCommandToApply);
+    public ListShiftCommand ApplyListShiftCommand
+        (ListShiftCommand shiftCommandToApply) =>
+        elementShiftRegistry!.ApplyListShiftCommand(shiftCommandToApply);
 
     public ListShiftCommand ClearAll() => elementShiftRegistry!.ClearAll();
 
@@ -314,11 +337,13 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
     public void Add(IMutablePriceVolumeLayer item)
     {
+        HasUnreliableListTracking = ShiftCommands.Any();
         AllLayers.Add(item);
     }
 
     public void Clear()
     {
+        HasUnreliableListTracking = ShiftCommands.Any();
         AllLayers.Clear();
     }
 
@@ -332,7 +357,11 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         }
     }
 
-    public bool Remove(IMutablePriceVolumeLayer item) => AllLayers.Remove(item);
+    public bool Remove(IMutablePriceVolumeLayer item)
+    {
+        HasUnreliableListTracking = ShiftCommands.Any();
+        return AllLayers.Remove(item);
+    }
 
     public bool IsReadOnly => false;
 
@@ -340,31 +369,22 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
     public void Insert(int index, IMutablePriceVolumeLayer item)
     {
+        HasUnreliableListTracking = ShiftCommands.Any();
         AllLayers.Insert(index, item);
     }
 
     public void RemoveAt(int index)
     {
+        HasUnreliableListTracking = ShiftCommands.Any();
         AllLayers.RemoveAt(index);
     }
 
     public int AppendEntryAtEnd()
     {
+        HasUnreliableListTracking = ShiftCommands.Any();
         var index = AllLayers.Count;
         AllLayers.Add(LayerSelector.CreateExpectedImplementation(LayerSupportedType));
         return index;
-    }
-
-    public bool IsEmpty
-    {
-        get => AllLayers.All(pvl => pvl.IsEmpty);
-        set
-        {
-            foreach (var priceVolumeLayer in AllLayers)
-            {
-                priceVolumeLayer.IsEmpty = value;
-            }
-        }
     }
 
     IMutableOrderBookSide ICloneable<IMutableOrderBookSide>.Clone() => Clone();
@@ -407,6 +427,14 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     public IEnumerator<IMutablePriceVolumeLayer> GetEnumerator() => AllLayers.Take(Count).GetEnumerator();
 
 
+    IMutableOrderBookSide ITrackableReset<IMutableOrderBookSide>.ResetWithTracking() => ResetWithTracking();
+
+
+    ITracksResetCappedCapacityList<IMutablePriceVolumeLayer> ITrackableReset<ITracksResetCappedCapacityList<IMutablePriceVolumeLayer>>.
+        ResetWithTracking() => ResetWithTracking();
+
+    IMutableOrderBookSide IMutableOrderBookSide.ResetWithTracking() => ResetWithTracking();
+
     public OrderBookSide ResetWithTracking()
     {
         for (var i = 0; i < AllLayers.Count; i++) (AllLayers[i]).ResetWithTracking();
@@ -414,8 +442,6 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
         return this;
     }
-
-    IMutableOrderBookSide ITrackableReset<IMutableOrderBookSide>.ResetWithTracking() => ResetWithTracking();
 
     public override void StateReset()
     {

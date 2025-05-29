@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 
 namespace FortitudeCommon.Types.Mutable;
 
-public interface ITracksChanges<T> : ITransferState<T>, IUpdatable where T : class
+public interface ITracksChanges<T> : ITransferState<T>, ICountedDiscreetUpdatable where T : class
 {
     [JsonIgnore] bool HasUpdates { get; set; }
 }

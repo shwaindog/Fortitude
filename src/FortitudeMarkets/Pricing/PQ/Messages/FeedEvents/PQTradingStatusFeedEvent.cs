@@ -660,20 +660,20 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         }
     }
 
-    public override void UpdateComplete()
+    public override void UpdateComplete(uint updateId = 0)
     {
-        PQSourceTickerInfo?.UpdateComplete();
-        base.UpdateComplete();
-        MarketEvents?.UpdateComplete();
-        RecentTradedHistory?.UpdateComplete();
-        PublishedInternalOrders?.UpdateComplete();
-        PublishedAccounts?.UpdateComplete();
-        PublishedLimits?.UpdateComplete();
-        LimitBreaches?.UpdateComplete();
-        MarginDetails?.UpdateComplete();
-        TickerPnLConversionRate?.UpdateComplete();
-        TickerRegionInfo?.UpdateComplete();
-        AdapterExecutionStatistics?.UpdateComplete();
+        PQSourceTickerInfo?.UpdateComplete(updateId);
+        base.UpdateComplete(updateId);
+        MarketEvents?.UpdateComplete(updateId);
+        RecentTradedHistory?.UpdateComplete(updateId);
+        PublishedInternalOrders?.UpdateComplete(updateId);
+        PublishedAccounts?.UpdateComplete(updateId);
+        PublishedLimits?.UpdateComplete(updateId);
+        LimitBreaches?.UpdateComplete(updateId);
+        MarginDetails?.UpdateComplete(updateId);
+        TickerPnLConversionRate?.UpdateComplete(updateId);
+        TickerRegionInfo?.UpdateComplete(updateId);
+        AdapterExecutionStatistics?.UpdateComplete(updateId);
         HasUpdates = false;
     }
 

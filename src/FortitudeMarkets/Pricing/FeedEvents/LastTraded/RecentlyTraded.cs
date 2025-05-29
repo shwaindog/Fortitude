@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
@@ -18,7 +19,8 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
 {
     private TracksReorderingListRegistry<IMutableLastTrade, ILastTrade>? elementShiftRegistry;
 
-    public RecentlyTraded() => elementShiftRegistry = new TracksReorderingListRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+    public RecentlyTraded() =>
+        elementShiftRegistry = new TracksReorderingListRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
 
     public RecentlyTraded(LastTradedTransmissionFlags transmissionFlags, ushort maxAllowedSize = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount)
     {
@@ -38,9 +40,10 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
 
     public RecentlyTraded(IRecentlyTraded toClone) : base(toClone)
     {
-        elementShiftRegistry = new TracksReorderingListRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
-        TransferFlags        = toClone.TransferFlags;
-        MaxAllowedSize       = toClone.MaxAllowedSize;
+        elementShiftRegistry   = new TracksReorderingListRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        TransferFlags          = toClone.TransferFlags;
+        MaxAllowedSize         = toClone.MaxAllowedSize;
+        HasUnreliableListTracking = toClone.HasUnreliableListTracking;
     }
 
     public RecentlyTraded
@@ -52,13 +55,16 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
         TransferFlags        = transmissionFlags;
     }
 
-    protected static Func<ILastTrade, ILastTrade, bool> SameTradeId = (lhs, rhs) => lhs.TradeId == rhs.TradeId; 
+    protected static Func<ILastTrade, ILastTrade, bool> SameTradeId = (lhs, rhs) => lhs.TradeId == rhs.TradeId;
 
     public TimeBoundaryPeriod DuringPeriod { get; set; }
 
     IMutableRecentlyTraded ITrackableReset<IMutableRecentlyTraded>.ResetWithTracking() => ResetWithTracking();
 
     IMutableRecentlyTraded IMutableRecentlyTraded.ResetWithTracking() => ResetWithTracking();
+
+    ITracksResetCappedCapacityList<IMutableLastTrade> ITrackableReset<ITracksResetCappedCapacityList<IMutableLastTrade>>.ResetWithTracking() =>
+        ResetWithTracking();
 
     public override RecentlyTraded ResetWithTracking()
     {
@@ -82,22 +88,16 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
         set => elementShiftRegistry!.ClearRemainingElementsFromIndex = (ushort?)value;
     }
 
-    public bool HasRandomAccessUpdates
+    public bool HasUnreliableListTracking
     {
-        get => elementShiftRegistry!.HasRandomAccessUpdates;
-        set => elementShiftRegistry!.HasRandomAccessUpdates = value;
+        get => elementShiftRegistry!.HasUnreliableListTracking;
+        set => elementShiftRegistry!.HasUnreliableListTracking = value;
     }
 
     public DateTime UpdateTime
     {
         get => elementShiftRegistry!.UpdateTime;
         set => elementShiftRegistry!.UpdateTime = value;
-    }
-
-    public ushort MaxAllowedSize
-    {
-        get => elementShiftRegistry!.MaxAllowedSize;
-        set => elementShiftRegistry!.MaxAllowedSize = value;
     }
 
     IMutableLastTrade IMutableTracksShiftsList<IMutableLastTrade, ILastTrade>.this[int index]
@@ -134,16 +134,27 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
         set => this[index] = value;
     }
 
+    public override IMutableLastTrade this[int i]
+    {
+        get => base[i];
+        set
+        {
+            if (ReferenceEquals(base[i], value)) return;
+            HasUnreliableListTracking = ShiftCommands.Any();
+
+            base[i] = value;
+        }
+    }
+
     // more recent trades appear at start
     // find the shift of the first entry in previous collection in the updated collection
     public bool CalculateShift(DateTime asAtTime, IReadOnlyList<ILastTrade> updatedCollection) =>
         elementShiftRegistry!.CalculateShift(asAtTime, updatedCollection);
 
 
-    public ListShiftCommand AppendShiftCommand(ListShiftCommand toAppendAtEnd) => 
-        elementShiftRegistry!.AppendShiftCommand(toAppendAtEnd);
+    public ListShiftCommand AppendShiftCommand(ListShiftCommand toAppendAtEnd) => elementShiftRegistry!.AppendShiftCommand(toAppendAtEnd);
 
-    ListShiftCommand IMutableTracksShiftsList<IMutableLastTrade, ILastTrade>.ShiftElements(int byElements) => 
+    ListShiftCommand IMutableTracksShiftsList<IMutableLastTrade, ILastTrade>.ShiftElements(int byElements) =>
         elementShiftRegistry!.ShiftElements(byElements);
 
     public void ClearShiftCommands() => elementShiftRegistry!.ClearShiftCommands();
@@ -156,7 +167,9 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
         (int byElements, int pinElementsFromIndex) =>
         elementShiftRegistry!.ShiftElementsUntil(byElements, pinElementsFromIndex);
 
-    public ListShiftCommand ApplyElementShift(ListShiftCommand shiftCommandToApply) => elementShiftRegistry!.ApplyElementShift(shiftCommandToApply);
+    public ListShiftCommand ApplyListShiftCommand
+        (ListShiftCommand shiftCommandToApply) =>
+        elementShiftRegistry!.ApplyListShiftCommand(shiftCommandToApply);
 
     public ListShiftCommand InsertAtStart(IMutableLastTrade toInsertAtStart) => elementShiftRegistry!.InsertAtStart(toInsertAtStart);
 
@@ -172,32 +185,47 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
 
     public ListShiftCommand MoveToStart(IMutableLastTrade existingItem) => elementShiftRegistry!.MoveToStart((IPQLastTrade)existingItem);
 
-    public ListShiftCommand MoveToStart(int indexToMoveToStart) =>
-        elementShiftRegistry!.MoveToStart(indexToMoveToStart);
+    public ListShiftCommand MoveToStart(int indexToMoveToStart) => elementShiftRegistry!.MoveToStart(indexToMoveToStart);
 
-    public ListShiftCommand MoveToEnd (int indexToMoveToEnd) =>
-        elementShiftRegistry!.MoveToEnd(indexToMoveToEnd);
+    public ListShiftCommand MoveToEnd(int indexToMoveToEnd) => elementShiftRegistry!.MoveToEnd(indexToMoveToEnd);
 
     public ListShiftCommand MoveSingleElementBy
         (int indexToMoveToEnd, int shift) =>
         elementShiftRegistry!.MoveSingleElementBy(indexToMoveToEnd, shift);
 
-    public ListShiftCommand MoveSingleElementBy(IMutableLastTrade existingItem, int shift) => 
+    public ListShiftCommand MoveSingleElementBy(IMutableLastTrade existingItem, int shift) =>
         elementShiftRegistry!.MoveSingleElementBy((IPQLastTrade)existingItem, shift);
 
-    public ListShiftCommand MoveToEnd(IMutableLastTrade existingItem) =>
-        elementShiftRegistry!.MoveToEnd((IPQLastTrade)existingItem);
+    public ListShiftCommand MoveToEnd(IMutableLastTrade existingItem) => elementShiftRegistry!.MoveToEnd((IPQLastTrade)existingItem);
 
-    public bool IsEmpty
+    public override void Add(IMutableLastTrade newLastTrade)
     {
-        get => LastTrades.All(lt => lt.IsEmpty);
-        set
-        {
-            foreach (var lastTrade in LastTrades)
-            {
-                lastTrade.IsEmpty = value;
-            }
-        }
+        HasUnreliableListTracking = ShiftCommands.Any();
+        base.Add(newLastTrade);
+    }
+
+    public override void Insert(int index, IMutableLastTrade item)
+    {
+        HasUnreliableListTracking = ShiftCommands.Any();
+        LastTrades.Insert(index, item);
+    }
+
+    public override bool Remove(IMutableLastTrade toRemove)
+    {
+        HasUnreliableListTracking = ShiftCommands.Any();
+        return LastTrades.Remove(toRemove);
+    }
+
+    public override void RemoveAt(int index)
+    {
+        HasUnreliableListTracking = ShiftCommands.Any();
+        LastTrades.RemoveAt(index);
+    }
+
+    public override void Clear()
+    {
+        HasUnreliableListTracking = ShiftCommands.Any();
+        base.Clear();
     }
 
     IRecentlyTraded IRecentlyTraded.Clone() => Clone();
@@ -208,6 +236,7 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
         (ILastTradedList source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         elementShiftRegistry ??= new TracksReorderingListRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry.CopyFrom(source, copyMergeFlags);
         base.CopyFrom(source, copyMergeFlags);
         if (source is IRecentlyTraded recentlyTraded)
         {

@@ -817,7 +817,7 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
 
     bool IInterfacesComparable<IPQMessage>.AreEquivalent(IPQMessage? other, bool exactTypes) => AreEquivalent(other, exactTypes);
 
-    public virtual void UpdateComplete()
+    public virtual void UpdateComplete(uint updateId = 0)
     {
         if (HasUpdates) NumOfUpdates++;
     }

@@ -15,7 +15,7 @@ namespace FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 // A short term cache of recently last traded trades so clients resyncing can stitch together gaps in last trade updates
 // or contains internal order last trades for the day or open position last trades
 public interface IRecentlyTraded : ILastTradedList, IInterfacesComparable<IRecentlyTraded>, ICloneable<IRecentlyTraded>
-  , IExpiringCachedPeriodUpdateHistory<ILastTrade, ILastTrade>, IShowsEmpty
+  , IExpiringCachedPeriodUpdateHistory<ILastTrade, ILastTrade>
 {
     new ILastTrade this[int index] { get; }
 
@@ -25,7 +25,7 @@ public interface IRecentlyTraded : ILastTradedList, IInterfacesComparable<IRecen
 }
 
 public interface IMutableRecentlyTraded : IRecentlyTraded, IMutableLastTradedList, ITrackableReset<IMutableRecentlyTraded>
-  , IMutableExpiringCachedPeriodUpdateHistory<IMutableLastTrade, ILastTrade>, IEmptyable
+  , IMutableExpiringCachedPeriodUpdateHistory<IMutableLastTrade, ILastTrade>
 {
     new IMutableLastTrade this[int index] { get; set; }
 
@@ -35,7 +35,7 @@ public interface IMutableRecentlyTraded : IRecentlyTraded, IMutableLastTradedLis
 
     new int? ClearRemainingElementsFromIndex { get; set; }
 
-    new bool HasRandomAccessUpdates { get; set; }
+    new bool HasUnreliableListTracking { get; set; }
 
     new ushort MaxAllowedSize { get; set; }
 

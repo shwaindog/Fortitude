@@ -283,10 +283,10 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         }
     }
 
-    public override void UpdateComplete()
+    public override void UpdateComplete(uint updateId = 0)
     {
-        NameIdLookup.UpdateComplete();
-        base.UpdateComplete();
+        NameIdLookup.UpdateComplete(updateId);
+        base.UpdateComplete(updateId);
     }
 
     public bool RemoveAt(int index)

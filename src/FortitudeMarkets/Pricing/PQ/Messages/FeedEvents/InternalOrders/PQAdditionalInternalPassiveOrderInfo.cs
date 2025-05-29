@@ -802,9 +802,9 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         }
     }
 
-    public virtual void UpdateComplete()
+    public virtual void UpdateComplete(uint updateId = 0)
     {
-        NameIdLookup.UpdateComplete();
+        NameIdLookup.UpdateComplete(updateId);
         HasUpdates = false;
     }
 

@@ -426,7 +426,7 @@ public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
 
     public uint UpdateCount => NumUpdatesSinceEmpty;
 
-    public virtual void UpdateComplete()
+    public virtual void UpdateComplete(uint updateId = 0)
     {
         if (HasUpdates && !IsEmpty) NumUpdatesSinceEmpty++;
         HasUpdates = false;

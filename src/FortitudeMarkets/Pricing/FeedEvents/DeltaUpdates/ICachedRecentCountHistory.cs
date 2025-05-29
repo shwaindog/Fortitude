@@ -18,5 +18,5 @@ public interface IMutableCachedRecentCountHistory<TElement, in TCompare> : IMuta
 
     new int? ClearRemainingElementsFromIndex { get; set; }
 
-    new bool HasRandomAccessUpdates { get; set; }
+    new bool HasUnreliableListTracking { get; set; }
 }

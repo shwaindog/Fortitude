@@ -122,7 +122,7 @@ public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQ
 
     public unsafe int UpdateEntity(IMessageBufferContext readContext, T ent, uint sequenceId)
     {
-        ent.UpdateComplete();
+        ent.UpdateComplete(ent.PQSequenceId);
         if (readContext is SocketBufferReadContext sockBuffContext)
         {
             ent.ClientReceivedTime  = sockBuffContext.DetectTimestamp;

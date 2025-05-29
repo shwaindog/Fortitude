@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
@@ -18,22 +19,12 @@ public class OnTickLastTraded : LastTradedList, IMutableOnTickLastTraded
 
     IMutableOnTickLastTraded IMutableOnTickLastTraded.ResetWithTracking() => ResetWithTracking();
 
+    ITracksResetCappedCapacityList<IMutableLastTrade> ITrackableReset<ITracksResetCappedCapacityList<IMutableLastTrade>>.ResetWithTracking() => ResetWithTracking();
+
     public override OnTickLastTraded ResetWithTracking()
     {
         base.ResetWithTracking();
         return this;
-    }
-
-    public bool IsEmpty
-    {
-        get => LastTrades.All( lt => lt.IsEmpty);
-        set
-        {
-            foreach (var lastTrade in LastTrades)
-            {
-                lastTrade.IsEmpty = value;
-            }
-        }
     }
 
     IOnTickLastTraded IOnTickLastTraded.Clone() => Clone();

@@ -54,8 +54,6 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
 
     public bool IsReadOnly => false;
 
-    public bool HasLastTrades => LastTrades.Any(lt => !lt.IsEmpty);
-
     protected Func<IMutableLastTrade> NewElementFactory => () => LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags);
 
     public int Capacity
@@ -98,18 +96,6 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
         }
     }
 
-    ILastTrade IList<ILastTrade>.this[int index]
-    {
-        get => this[index];
-        set => this[index] = (IMutableLastTrade)value;
-    }
-
-    ILastTrade IMutableCapacityList<ILastTrade>.this[int i]
-    {
-        get => this[i];
-        set => this[i] = (IMutableLastTrade)value;
-    }
-
     ILastTrade IReadOnlyList<ILastTrade>.this[int index] => LastTrades[index];
 
     public virtual IMutableLastTrade this[int i]
@@ -126,39 +112,42 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
         }
     }
 
-    bool ICollection<ILastTrade>.Contains(ILastTrade item) => LastTrades.Contains(item);
+    public ushort MaxAllowedSize { get; set; }
 
-    public bool Contains(IMutableLastTrade item) => LastTrades.Contains(item);
-
-    void ICollection<ILastTrade>.CopyTo(ILastTrade[] array, int arrayIndex)
+    public virtual bool IsEmpty
     {
-        for (int i = 0; i < LastTrades.Count && i + arrayIndex < array.Length; i++)
+        get => LastTrades.All(lt => lt.IsEmpty);
+        set
         {
-            array[i + arrayIndex] = LastTrades[i];
+            foreach (var lastTrade in LastTrades)
+            {
+                lastTrade.IsEmpty = value;
+            }
         }
     }
 
+    public int IndexOf(IMutableLastTrade item) => LastTrades.IndexOf(item);
+
+    public bool Contains(IMutableLastTrade item) => LastTrades.Contains(item);
+
     public void CopyTo(IMutableLastTrade[] array, int arrayIndex) => LastTrades.CopyTo(array, arrayIndex);
 
-    void IList<ILastTrade>.Insert(int index, ILastTrade item)
+    public virtual void Insert(int index, IMutableLastTrade item) => LastTrades.Insert(index, item);
+
+    public virtual bool Remove(IMutableLastTrade toRemove) => LastTrades.Remove(toRemove);
+
+    public virtual void RemoveAt (int index) => LastTrades.RemoveAt(index);
+
+    public virtual void Add(IMutableLastTrade newLastTrade)
     {
-        Insert(index, (IMutableLastTrade)item);
+        var nonEmptyCount = Count;
+        if (LastTrades.Count == nonEmptyCount)
+            LastTrades.Add(newLastTrade);
+        else
+            LastTrades[nonEmptyCount] = newLastTrade;
     }
 
-    public void Insert(int index, IMutableLastTrade item) => LastTrades.Insert(index, item);
-
-    int IList<ILastTrade>. IndexOf(ILastTrade item) => IndexOf((IMutableLastTrade)item);
-
-    public int IndexOf(IMutableLastTrade item) => LastTrades.IndexOf(item);
-    
-
-    bool ICollection<ILastTrade>.Remove(ILastTrade item) => Remove((IMutableLastTrade)item);
-
-    public bool Remove(IMutableLastTrade toRemove) => LastTrades.Remove(toRemove);
-
-    public void RemoveAt (int index) => LastTrades.RemoveAt(index);
-
-    public void Clear()
+    public virtual void Clear()
     {
         foreach (var lastTrade in LastTrades)
         {
@@ -175,6 +164,14 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
 
     IMutableLastTradedList ITrackableReset<IMutableLastTradedList>.ResetWithTracking() => ResetWithTracking();
 
+    IMutableLastTradedList IMutableLastTradedList.ResetWithTracking() => ResetWithTracking();
+
+    ITracksResetCappedCapacityList<IMutableLastTrade> ITrackableReset<ITracksResetCappedCapacityList<IMutableLastTrade>>.ResetWithTracking() => ResetWithTracking();
+
+    public virtual void UpdateComplete(uint updateId = 0)
+    {
+    }
+
     public virtual LastTradedList ResetWithTracking()
     {
         foreach (var mutableLastTrade in LastTrades)
@@ -188,19 +185,6 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
     {
         LastTrades.Clear();
         base.StateReset();
-    }
-
-    void ICollection<ILastTrade>.Add(ILastTrade item)
-    {
-        Add((IMutableLastTrade)item);
-    }
-
-    public void Add(IMutableLastTrade newLastTrade)
-    {
-        if (LastTrades.Count == Count)
-            LastTrades.Add(newLastTrade);
-        else
-            LastTrades[Count] = newLastTrade;
     }
 
     public override ILastTradedList CopyFrom
@@ -262,8 +246,16 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
     public IEnumerator<IMutableLastTrade> GetEnumerator() => LastTrades.GetEnumerator();
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ILastTradedList, true);
-
-    public override int GetHashCode() => LastTrades.GetHashCode();
+    
+    public override int GetHashCode()
+    {
+        var hashCode = new HashCode();
+        foreach (var lastTrade in LastTrades)
+        {
+            hashCode.Add(lastTrade);
+        }
+        return hashCode.ToHashCode();
+    }
 
     protected string LastTradedListToStringMembers => $"{nameof(LastTrades)}: [{string.Join(",", LastTrades.Take(Count))}], {nameof(Count)}: {Count}";
 

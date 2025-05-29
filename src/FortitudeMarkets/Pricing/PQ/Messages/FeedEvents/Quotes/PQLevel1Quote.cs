@@ -1164,10 +1164,10 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
         }
     }
 
-    public override void UpdateComplete()
+    public override void UpdateComplete(uint updateId = 0)
     {
-        ConflatedTicksCandle?.UpdateComplete();
-        base.UpdateComplete();
+        ConflatedTicksCandle?.UpdateComplete(updateId);
+        base.UpdateComplete(updateId);
     }
 
 

@@ -214,7 +214,7 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
 
     public uint UpdateCount => NumOfUpdates;
 
-    public virtual void UpdateComplete()
+    public virtual void UpdateComplete(uint updateId = 0)
     {
         if (HasUpdates) NumOfUpdates++;
         HasUpdates = false;
@@ -699,11 +699,11 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
         }
     }
 
-    public override void UpdateComplete()
+    public override void UpdateComplete(uint updateId = 0)
     {
-        PQSourceTickerInfo?.UpdateComplete();
-        base.UpdateComplete();
-        PQQuoteContainer.UpdateComplete();
+        PQSourceTickerInfo?.UpdateComplete(updateId);
+        base.UpdateComplete(updateId);
+        PQQuoteContainer.UpdateComplete(updateId);
         HasUpdates = false;
     }
 

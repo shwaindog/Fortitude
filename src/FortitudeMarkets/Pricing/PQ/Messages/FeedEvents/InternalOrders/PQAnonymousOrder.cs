@@ -564,7 +564,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
 
     public uint UpdateCount => (uint)NumUpdatesSinceEmpty;
 
-    public virtual void UpdateComplete()
+    public virtual void UpdateComplete(uint updateId = 0)
     {
         if (HasUpdates && !IsEmpty) NumUpdatesSinceEmpty++;
         HasUpdates = false;

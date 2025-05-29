@@ -1,19 +1,18 @@
 ﻿using System.Collections;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
-using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using static FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates.ListShiftCommandType;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 
 public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<TrackShiftsListRegistry<TElement, TCompare>>
-  , ITransferState<TrackShiftsListRegistry<TElement, TCompare>>, ITransferState<IEnumerable<ListShiftCommand>>
-  , IMutableTracksShiftsList<TElement, TCompare>
+  , ITransferState<IEnumerable<ListShiftCommand>>, IMutableTracksShiftsList<TElement, TCompare>
     where TElement : class, TCompare, ITrackableReset<TElement>, IReusableObject<TElement>, IShowsEmpty
 {
-    protected readonly IMutableCapacityList<TElement> ShiftedList;
+    protected readonly IMutableTracksShiftsList<TElement, TCompare> ShiftedList;
 
     protected readonly Func<TElement> NewElementFactory;
 
@@ -21,12 +20,13 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
 
     protected List<ListShiftCommand> RegisteredShiftCommands = new();
 
+    private int? previousCopyHashCode = null;
+
     protected readonly List<ListShiftCommand> CandidateRightShiftFirstCommands = new();
     protected readonly List<ListShiftCommand> CandidateLeftShiftFirstCommands  = new();
-    private            bool                   isReadOnly;
 
     public TrackShiftsListRegistry
-        (IMutableCapacityList<TElement> shiftedList, Func<TElement> newElementFactory, Func<TCompare, TCompare, bool> comparison)
+        (IMutableTracksShiftsList<TElement, TCompare> shiftedList, Func<TElement> newElementFactory, Func<TCompare, TCompare, bool> comparison)
     {
         ShiftedList       = shiftedList;
         NewElementFactory = newElementFactory;
@@ -49,7 +49,7 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
             }
             if (value == null) return;
             RegisteredShiftCommands.AppendShiftTowardFromIndex((short)value, ListShiftCommand.ClearAllShiftAmount);
-            ApplyElementShift(RegisteredShiftCommands.LastShift());
+            ApplyListShiftCommand(RegisteredShiftCommands.LastShift());
         }
     }
 
@@ -82,22 +82,35 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
         set => ShiftedList.Capacity = value;
     }
 
-    public bool HasRandomAccessUpdates { get; set; }
+    public bool IsEmpty
+    {
+        get => !RegisteredShiftCommands.Any();
+        set
+        {
+            if (value) RegisteredShiftCommands.Clear();
+        }
+    }
 
-    public ushort MaxAllowedSize { get; set; } = PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth;
+    public bool HasUnreliableListTracking { get; set; }
+
+    public ushort MaxAllowedSize
+    {
+        get => ShiftedList.MaxAllowedSize;
+        set => ShiftedList.MaxAllowedSize = value;
+    }
 
     public TElement ElementAt(int index) => ShiftedList[index];
 
     public TElement this[int index]
     {
         get => ShiftedList[index];
-        set => ShiftedList[index] = value;
-    }
-
-    public TrackShiftsListRegistry<TElement, TCompare> ResetWithTracking()
-    {
-        RegisteredShiftCommands.Clear();
-        return this;
+        set
+        {
+            if(ReferenceEquals(value, ShiftedList[index] )) return;
+            var prevHasRandomAccessUpdates = HasUnreliableListTracking;
+            ShiftedList[index]     = value;
+            HasUnreliableListTracking = prevHasRandomAccessUpdates;
+        }
     }
 
     public ListShiftCommand ShiftElements(int byElements)
@@ -115,14 +128,14 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
         }
         else
         {
-            if (!ShiftCommands.Any()) HasRandomAccessUpdates = false;
+            if (!ShiftCommands.Any()) HasUnreliableListTracking = false;
             RegisteredShiftCommands.AppendShiftAwayFromIndex(pinElementsFromIndex, (short)byElements);
         }
-        ApplyElementShift(RegisteredShiftCommands.LastShift());
+        ApplyListShiftCommand(RegisteredShiftCommands.LastShift());
         return RegisteredShiftCommands.LastShift();
     }
 
-    public ListShiftCommand ApplyElementShift(ListShiftCommand shiftCommandToApply)
+    public ListShiftCommand ApplyListShiftCommand(ListShiftCommand shiftCommandToApply)
     {
         switch (shiftCommandToApply.ShiftCommandType)
         {
@@ -147,10 +160,10 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
         var removeIndex = Math.Clamp(originIndex, 0, ShiftedList.Count);
         for (int i = 0; i < rangeToRemove; i++)
         {
-            var lastTradeAt = ShiftedList[removeIndex];
-            lastTradeAt.StateReset();
-            ShiftedList.RemoveAt(removeIndex);
-            ShiftedList.Add(lastTradeAt);
+            var elementToDelete = ShiftedList[removeIndex];
+            elementToDelete.StateReset();
+            RemoveAt(removeIndex);
+            Add(elementToDelete);
         }
     }
 
@@ -158,10 +171,10 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
     {
         var (destinationIndex, originIndex) = shiftCommandToApply;
         var lastTradeAt = ShiftedList[originIndex];
-        ShiftedList.RemoveAt(originIndex);
+        RemoveAt(originIndex);
         if (destinationIndex > ShiftedList.Capacity)
         {
-            ShiftedList.Add(lastTradeAt);
+            Add(lastTradeAt);
         }
         else
         {
@@ -171,10 +184,10 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
                                                  , ShiftedList.Capacity - 1);
                 var adjustedOriginIndex = Math.Clamp(originIndex > destinationIndex ? originIndex - 1 : originIndex, 0, ShiftedList.Capacity - 1);
                 var destinationElement  = ShiftedList[adjustedDestIndex];
-                ShiftedList.RemoveAt(adjustedDestIndex);
-                ShiftedList.Insert(adjustedOriginIndex, destinationElement);
+                RemoveAt(adjustedDestIndex);
+                Insert(adjustedOriginIndex, destinationElement);
             }
-            ShiftedList.Insert(destinationIndex, lastTradeAt);
+            Insert(destinationIndex, lastTradeAt);
         }
     }
 
@@ -203,15 +216,15 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
         for (var i = 0; i < shiftAmount; i++)
         {
             var checkLastExistingElement = ShiftedList[removeIndex];
-            ShiftedList.RemoveAt(removeIndex);
+            RemoveAt(removeIndex);
             checkLastExistingElement.StateReset();
             if (insertEmptyIndex >= ShiftedList.Capacity)
             {
-                ShiftedList.Add(checkLastExistingElement);
+                Add(checkLastExistingElement);
             }
             else
             {
-                ShiftedList.Insert(insertEmptyIndex, checkLastExistingElement);
+                Insert(insertEmptyIndex, checkLastExistingElement);
             }
         }
     }
@@ -224,8 +237,8 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
         {
             var lastTradeAt = removeIndex > ShiftedList.Capacity ? NewElementFactory() : ShiftedList[removeIndex];
             lastTradeAt.StateReset();
-            ShiftedList.RemoveAt(removeIndex);
-            ShiftedList.Insert(0, lastTradeAt);
+            RemoveAt(removeIndex);
+            Insert(0, lastTradeAt);
         }
         PostInsertCheck();
     }
@@ -252,14 +265,14 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
         {
             var lastTradeAt = ShiftedList[0];
             lastTradeAt.StateReset();
-            ShiftedList.RemoveAt(0);
+            RemoveAt(0);
             if (insertEmptyIndex >= ShiftedList.Capacity)
             {
-                ShiftedList.Add(lastTradeAt);
+                Add(lastTradeAt);
             }
             else
             {
-                ShiftedList.Insert(insertEmptyIndex, lastTradeAt);
+                Insert(insertEmptyIndex, lastTradeAt);
             }
         }
     }
@@ -275,20 +288,20 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
             if (lastElementCliffDeath)
             {
                 var checkLastExistingElement = ShiftedList[checkEndElementIndex];
-                ShiftedList.RemoveAt(checkEndElementIndex);
+                RemoveAt(checkEndElementIndex);
                 checkLastExistingElement.StateReset();
                 if (insertEmptyIndex >= ShiftedList.Capacity)
                 {
-                    ShiftedList.Add(checkLastExistingElement);
+                    Add(checkLastExistingElement);
                 }
                 else
                 {
-                    ShiftedList.Insert(insertEmptyIndex, checkLastExistingElement);
+                    Insert(insertEmptyIndex, checkLastExistingElement);
                 }
             }
             else
             {
-                ShiftedList.Insert(insertEmptyIndex, NewElementFactory());
+                Insert(insertEmptyIndex, NewElementFactory());
             }
         }
         PostInsertCheck();
@@ -296,11 +309,12 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
 
     public virtual bool CalculateShift(DateTime asAtTime, IReadOnlyList<TCompare> updatedCollection)
     {
-        if (ShiftCommands.Any() && !HasRandomAccessUpdates)
+        if (ShiftCommands.Any() && !HasUnreliableListTracking)
         {
             return false;
         }
-
+        HasUnreliableListTracking = false;
+        RegisteredShiftCommands.Clear();
         CandidateRightShiftFirstCommands.Clear();
         int lastMoveFromIndex = updatedCollection.Count;
         for (var i = ShiftedList.Count - 1; i >= 0; i--)
@@ -372,39 +386,12 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
         }
         else
         {
-            if (!RegisteredShiftCommands.Any()) HasRandomAccessUpdates = false;
+            if (!RegisteredShiftCommands.Any()) HasUnreliableListTracking = false;
             RegisteredShiftCommands.AddShiftRightFromStart();
         }
-        ShiftedList.Insert(0, toInsertAtStart);
+        Insert(0, toInsertAtStart);
         PostInsertCheck();
         return RegisteredShiftCommands.LastShift();
-    }
-
-    protected void PostInsertCheck()
-    {
-        while (ShiftedList.Count > MaxAllowedSize)
-        {
-            var toRecycle = ShiftedList[^1];
-            ShiftedList.RemoveAt(ShiftedList.Count - 1);
-            toRecycle.DecrementRefCount();
-        }
-    }
-
-    public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom((TrackShiftsListRegistry<TElement, TCompare>)source, copyMergeFlags);
-
-    public virtual TrackShiftsListRegistry<TElement, TCompare> CopyFrom
-        (TrackShiftsListRegistry<TElement, TCompare> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        ShiftCommands = source.ShiftCommands.ToList();
-        return this;
-    }
-
-    public IEnumerable<ListShiftCommand> CopyFrom(IEnumerable<ListShiftCommand> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        RegisteredShiftCommands.Clear();
-        RegisteredShiftCommands.AddRange(source);
-        return RegisteredShiftCommands;
     }
 
     public ListShiftCommand InsertAt(int index, TElement toInsertAtStart)
@@ -420,10 +407,10 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
         }
         else
         {
-            if (!RegisteredShiftCommands.Any()) HasRandomAccessUpdates = false;
+            if (!RegisteredShiftCommands.Any()) HasUnreliableListTracking = false;
             RegisteredShiftCommands.AppendShiftAwayFromIndex((short)(index - 1), 1);
         }
-        ShiftedList.Insert(index, toInsertAtStart);
+        Insert(index, toInsertAtStart);
         PostInsertCheck();
         return RegisteredShiftCommands.LastShift();
     }
@@ -439,10 +426,10 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
         }
         else
         {
-            if (!RegisteredShiftCommands.Any()) HasRandomAccessUpdates = false;
+            if (!RegisteredShiftCommands.Any()) HasUnreliableListTracking = false;
             RegisteredShiftCommands.AppendRemoveRangeFromIndex((short)index, 1);
         }
-        ShiftedList.RemoveAt(index);
+        RemoveAt(index);
         return RegisteredShiftCommands.LastShift();
     }
 
@@ -451,13 +438,10 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
         var lastCommand = RegisteredShiftCommands.SafeLastShift();
         if (lastCommand is not { FromIndex: ListShiftCommand.ClearAllPinnedIndex, Shift: ListShiftCommand.ClearAllShiftAmount })
         {
-            if (!RegisteredShiftCommands.Any()) HasRandomAccessUpdates = false;
+            if (!RegisteredShiftCommands.Any()) HasUnreliableListTracking = false;
             RegisteredShiftCommands.AppendShiftAwayFromIndex(ListShiftCommand.ClearAllPinnedIndex, ListShiftCommand.ClearAllShiftAmount);
         }
-        foreach (var lastTrade in ShiftedList)
-        {
-            lastTrade.StateReset();
-        }
+        Clear();
         return RegisteredShiftCommands.LastShift();
     }
 
@@ -480,7 +464,7 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
     {
         if (ShiftedList.Count < MaxAllowedSize)
         {
-            ShiftedList[ShiftedList.Count] = toAppendAtEnd;
+            this[ShiftedList.Count] = toAppendAtEnd;
             return true;
         }
         return false;
@@ -496,9 +480,18 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
         throw new ArgumentException($"Could not find item {toDelete} in list to be deleted. shiftedList:  [{ShiftedList.JoinToString()}]");
     }
 
-    void ICollection<TElement>.Add(TElement item) => ShiftedList.Add(item);
+    public void Add(TElement item)
+    {
+        var prevHasRandomAccessUpdates = HasUnreliableListTracking;
+        ShiftedList.Add(item);
+        HasUnreliableListTracking = prevHasRandomAccessUpdates;
+    }
 
-    void ICollection<TElement>.Clear()                 => ShiftedList.Clear();
+    public void Clear()
+    {
+        ShiftedList.Clear();
+        HasUnreliableListTracking = false;
+    }
 
     bool ICollection<TElement>.Contains(TElement item) => ShiftedList.Contains(item);
 
@@ -510,17 +503,122 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
         }
     }
 
-    bool ICollection<TElement>.Remove(TElement item) => ShiftedList.Remove(item);
+    public bool Remove(TElement item)
+    {
+        var prevHasRandomAccessUpdates = HasUnreliableListTracking;
+        var result = ShiftedList.Remove(item);
+        HasUnreliableListTracking = prevHasRandomAccessUpdates;
+        return result;
+    }
 
     bool ICollection<TElement>.IsReadOnly => ShiftedList.IsReadOnly;
 
-    int IList<TElement>. IndexOf(TElement item) => ShiftedList.IndexOf(item);
+    int IList<TElement>.IndexOf(TElement item) => ShiftedList.IndexOf(item);
 
-    void IList<TElement>.Insert(int index, TElement item) => ShiftedList.Insert(index, item);
+    public void Insert(int index, TElement item)
+    {
+        var prevHasRandomAccessUpdates = HasUnreliableListTracking;
+        ShiftedList.Insert(index, item);
+        HasUnreliableListTracking = prevHasRandomAccessUpdates;
+    }
 
-    void IList<TElement>.RemoveAt(int index) => ShiftedList.RemoveAt(index);
+    public void RemoveAt(int index)
+    {
+        var prevHasRandomAccessUpdates = HasUnreliableListTracking;
+        ShiftedList.RemoveAt(index);
+        HasUnreliableListTracking = prevHasRandomAccessUpdates;
+    }
 
     IEnumerator IEnumerable.GetEnumerator() => ShiftedList.GetEnumerator();
 
     IEnumerator<TElement> IEnumerable<TElement>.GetEnumerator() => ShiftedList.GetEnumerator();
+
+    protected void PostInsertCheck()
+    {
+        while (ShiftedList.Count > MaxAllowedSize)
+        {
+            var toRecycle = ShiftedList[^1];
+            RemoveAt(ShiftedList.Count - 1);
+            toRecycle.DecrementRefCount();
+        }
+    }
+
+    public virtual IMutableTracksShiftsList<TElement, TCompare> CopyFrom
+        (IReadOnlyList<TCompare> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        var isFullReplace = copyMergeFlags.HasFullReplace();
+        var wasEmpty      = ShiftedList.IsEmpty;
+        if (source is IMutableTracksShiftsList<TElement, TCompare> sourceTracksShifts)
+        {
+            if (isFullReplace) ClearShiftCommands();
+            var currentHashCode = ShiftedList.GetHashCode();
+            if (previousCopyHashCode != null)
+            {
+                HasUnreliableListTracking = previousCopyHashCode.Value == currentHashCode;
+            }
+            previousCopyHashCode = currentHashCode;
+            if (isFullReplace || !HasUnreliableListTracking && !sourceTracksShifts.HasUnreliableListTracking)
+            {
+                HasUnreliableListTracking = sourceTracksShifts.HasUnreliableListTracking;
+                CopyFrom(sourceTracksShifts.ShiftCommands, CopyMergeFlags.KeepCachedItems);
+                if (!wasEmpty)
+                {
+                    foreach (var applyShifts in sourceTracksShifts.ShiftCommands)
+                    {
+                        ApplyListShiftCommand(applyShifts);
+                    }
+                }
+            }
+            else
+            {
+                if (!wasEmpty)
+                {
+                    CalculateShift(TimeContext.UtcNow, sourceTracksShifts);
+                    foreach (var applyShifts in ShiftCommands)
+                    {
+                        ApplyListShiftCommand(applyShifts);
+                    }
+                }
+                else
+                {
+                    ClearShiftCommands(); // just in case
+                }
+            }
+        }
+        return ShiftedList;
+    }
+
+    ITransferState ITransferState.CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags)
+    {
+        if (source is IReadOnlyList<TCompare> compareList)
+        {
+            CopyFrom(compareList, copyMergeFlags);
+        } else if (source is IEnumerable<ListShiftCommand> listCommandEnum)
+        {
+            CopyFrom(listCommandEnum, copyMergeFlags);
+        }
+        return this;
+    }
+
+    public IEnumerable<ListShiftCommand> CopyFrom(IEnumerable<ListShiftCommand> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if (!copyMergeFlags.HasKeepCachedItems()) RegisteredShiftCommands.Clear();
+        RegisteredShiftCommands.AddRange(source);
+        return RegisteredShiftCommands;
+    }
+
+    ITracksResetCappedCapacityList<TElement> ITrackableReset<ITracksResetCappedCapacityList<TElement>>.ResetWithTracking() => ResetWithTracking();
+
+    public TrackShiftsListRegistry<TElement, TCompare> ResetWithTracking()
+    {
+        RegisteredShiftCommands.Clear();
+        HasUnreliableListTracking = false;
+        return this;
+    }
+
+    public void StateReset()
+    {
+        RegisteredShiftCommands.Clear();
+        HasUnreliableListTracking = false;
+    }
 }

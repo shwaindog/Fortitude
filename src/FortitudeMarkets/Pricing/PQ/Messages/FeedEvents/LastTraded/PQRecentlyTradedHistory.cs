@@ -225,14 +225,14 @@ public class PQRecentlyTradedHistory : ReusableObject<IRecentlyTradedHistory>, I
 
     public uint UpdateCount => NumUpdatesSinceEmpty;
 
-    public void UpdateComplete()
+    public void UpdateComplete(uint updateId = 0)
     {
-        OnTickLastTraded.UpdateComplete();
-        AllLimitedHistoryLastTrades.UpdateComplete();
-        RecentInternalOrdersTrades.UpdateComplete();
-        OpenPositionTrades.UpdateComplete();
-        AlertTrades.UpdateComplete();
-        ClientOnlyReceivedCache.UpdateComplete();
+        OnTickLastTraded.UpdateComplete(updateId);
+        AllLimitedHistoryLastTrades.UpdateComplete(updateId);
+        RecentInternalOrdersTrades.UpdateComplete(updateId);
+        OpenPositionTrades.UpdateComplete(updateId);
+        AlertTrades.UpdateComplete(updateId);
+        ClientOnlyReceivedCache.UpdateComplete(updateId);
     }
 
     public bool HasUpdates

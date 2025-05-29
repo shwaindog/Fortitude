@@ -184,7 +184,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
 
     public uint UpdateCount => NumUpdates;
 
-    public void UpdateComplete()
+    public void UpdateComplete(uint updateId = 0)
     {
         if (HasUpdates)
         {

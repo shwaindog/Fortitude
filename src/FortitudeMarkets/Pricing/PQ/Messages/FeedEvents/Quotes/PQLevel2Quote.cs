@@ -208,10 +208,10 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
         }
     }
 
-    public override void UpdateComplete()
+    public override void UpdateComplete(uint updateId = 0)
     {
-        OrderBook.UpdateComplete();
-        base.UpdateComplete();
+        OrderBook.UpdateComplete(updateId);
+        base.UpdateComplete(updateId);
     }
 
     IMutableLevel2Quote ITrackableReset<IMutableLevel2Quote>.ResetWithTracking() => ResetWithTracking();
@@ -576,10 +576,10 @@ public class PQPublishableLevel2Quote : PQPublishableLevel1Quote, IPQPublishable
         }
     }
 
-    public override void UpdateComplete()
+    public override void UpdateComplete(uint updateId = 0)
     {
-        OrderBook.UpdateComplete();
-        base.UpdateComplete();
+        OrderBook.UpdateComplete(updateId);
+        base.UpdateComplete(updateId);
     }
 
     IMutableLevel2Quote ITrackableReset<IMutableLevel2Quote>.ResetWithTracking() => ResetWithTracking();

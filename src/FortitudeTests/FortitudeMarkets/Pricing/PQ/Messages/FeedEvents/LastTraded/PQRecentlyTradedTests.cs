@@ -5,7 +5,6 @@
 
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
@@ -25,9 +24,10 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTra
 [TestClass]
 public class PQRecentlyTradedTests
 {
-    private const uint    ExpectedTradeId     = 42;
-    private const uint    ExpectedBatchId     = 24_942;
-    private const uint    ExpectedOrderId     = 1_772_942;
+    private const uint ExpectedTradeId = 42;
+    private const uint ExpectedBatchId = 24_942;
+    private const uint ExpectedOrderId = 1_772_942;
+
     private const decimal ExpectedTradePrice  = 2.3456m;
     private const decimal ExpectedTradeVolume = 42_000_111m;
 
@@ -57,17 +57,18 @@ public class PQRecentlyTradedTests
 
     private PQRecentlyTraded paidGivenVolumeRecentlyTradedFullyPopulatedLastTrades = null!;
 
+    private PQNameIdLookupGenerator traderNameIdLookupGenerator = null!;
+
     private IList<IPQLastTrade> simpleEntries = null!;
 
-    private PQRecentlyTraded        simpleRecentlyTradedFullyPopulatedLastTrades      = null!;
-    private PQNameIdLookupGenerator traderNameIdLookupGenerator                       = null!;
-    private PQRecentlyTraded        fullSupportRecentlyTradedFullyPopulatedLastTrades = null!;
+    private PQRecentlyTraded simpleRecentlyTradedFullyPopulatedLastTrades      = null!;
+    private PQRecentlyTraded fullSupportRecentlyTradedFullyPopulatedLastTrades = null!;
     // test being less than max.
     private const LastTradedTransmissionFlags AllLimitedAllPublishing
         = LastTradedTransmissionFlags.LimitByPeriodTime | LastTradedTransmissionFlags.LimitByTradeCount |
           LastTradedTransmissionFlags.PublishesOnDeltaUpdates | LastTradedTransmissionFlags.PublishOnCompleteOrSnapshot;
 
-    private PQSourceTickerInfo forGetDeltaUpdates = PQSourceTickerInfoTests.FullSupportL3TraderNamePaidOrGivenSti;
+    private readonly PQSourceTickerInfo forGetDeltaUpdates = PQSourceTickerInfoTests.FullSupportL3TraderNamePaidOrGivenSti;
 
     [TestInitialize]
     public void SetUp()
@@ -662,7 +663,7 @@ public class PQRecentlyTradedTests
 
         foreach (var shiftElementShift in toShift.ShiftCommands)
         {
-            toShift.ApplyElementShift(shiftElementShift);
+            toShift.ApplyListShiftCommand(shiftElementShift);
         }
         foreach (var expectedIndex in expectedIndices)
         {
@@ -682,12 +683,12 @@ public class PQRecentlyTradedTests
         ILastTrade[] instances       = new ILastTrade[11];
 
 
-        int oldIndex      = 0;                     // original    0,1,2,3,4,5,6,7,8,9,10,11        
-        int actualIndex   = 0;                     // deleted     1,3,5,9,11         
-        var count         = toShift.Count;         // leaving     7,0,2,4,6,8,10        
-        for (var i = 0; oldIndex < count; i++)     // shifts at   (6,1),(5,1),(4,1),(3,1)(2,1)(1,1)(0,1)
+        int oldIndex    = 0;                   // original    0,1,2,3,4,5,6,7,8,9,10,11        
+        int actualIndex = 0;                   // deleted     1,3,5,9,11         
+        var count       = toShift.Count;       // leaving     7,0,2,4,6,8,10        
+        for (var i = 0; oldIndex < count; i++) // shifts at   (6,1),(5,1),(4,1),(3,1)(2,1)(1,1)(0,1)
         {
-            if(i % 2 == 1 && i != 7)
+            if (i % 2 == 1 && i != 7)
             {
                 Console.Out.WriteLine($"Deleting index {oldIndex} with TradeId {toShift[actualIndex].TradeId}");
                 toShift.RemoveAt(actualIndex);
@@ -700,7 +701,7 @@ public class PQRecentlyTradedTests
                 toShift.MoveToStart(actualIndex);
                 oldIndex++;
                 actualIndex++;
-            } 
+            }
             else
             {
                 Console.Out.WriteLine($"Leaving index {oldIndex} with TradeId {toShift[actualIndex].TradeId}");
@@ -762,7 +763,7 @@ public class PQRecentlyTradedTests
 
         foreach (var shiftElementShift in toShift.ShiftCommands)
         {
-            toShift.ApplyElementShift(shiftElementShift);
+            toShift.ApplyListShiftCommand(shiftElementShift);
         }
         for (int i = 0; i < expectedIndices.Length; i++)
         {
@@ -778,9 +779,9 @@ public class PQRecentlyTradedTests
         var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
 
-        var count        = toShift.Count;   // original    0,1,2,3,4,5,6,7,8,9,10,11
-        int oldIndex     = count - 1;       // deleted     0,1,3,4,5,7,8,10                         
-        int actualIndex  = oldIndex;        // leaving     2,6,{new entry}, 9,11                     
+        var count       = toShift.Count;    // original    0,1,2,3,4,5,6,7,8,9,10,11
+        int oldIndex    = count - 1;        // deleted     0,1,3,4,5,7,8,10                         
+        int actualIndex = oldIndex;         // leaving     2,6,{new entry}, 9,11                     
         for (var i = 0; oldIndex >= 0; i++) // shifts at   (-1,-2),(0,-3), {new entry} ,(2,-1),(3,-1)
         {
             Console.Out.WriteLine($"Leaving index {oldIndex} with TradeId {toShift[actualIndex].TradeId}");
@@ -853,7 +854,7 @@ public class PQRecentlyTradedTests
 
         foreach (var shiftElementShift in shiftedNext.ShiftCommands)
         {
-            shiftedNext.ApplyElementShift(shiftElementShift);
+            shiftedNext.ApplyListShiftCommand(shiftElementShift);
         }
 
         foreach (var expectedIndex in expectedIndices)

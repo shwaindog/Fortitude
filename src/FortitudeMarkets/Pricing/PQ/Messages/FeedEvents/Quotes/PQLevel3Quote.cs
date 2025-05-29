@@ -557,10 +557,10 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
         }
     }
 
-    public override void UpdateComplete()
+    public override void UpdateComplete(uint updateId = 0)
     {
-        OnTickLastTraded?.UpdateComplete();
-        base.UpdateComplete();
+        OnTickLastTraded?.UpdateComplete(updateId);
+        base.UpdateComplete(updateId);
     }
 
     public override PQPublishableLevel3Quote Clone() =>

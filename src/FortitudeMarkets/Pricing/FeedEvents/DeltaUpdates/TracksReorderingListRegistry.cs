@@ -1,5 +1,4 @@
 ﻿using FortitudeCommon.DataStructures.Collections;
-using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
 using static FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates.ListShiftCommandType;
@@ -7,7 +6,7 @@ using static FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates.ListShiftCommandTy
 namespace FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 
 public class TracksReorderingListRegistry<TElement, TCompare>
-    (IMutableCapacityList<TElement> shiftedList, Func<TElement> newElementFactory, Func<TCompare, TCompare, bool> comparison) 
+    (IMutableTracksShiftsList<TElement, TCompare> shiftedList, Func<TElement> newElementFactory, Func<TCompare, TCompare, bool> comparison) 
     : TrackShiftsListRegistry<TElement, TCompare>(shiftedList, newElementFactory, comparison), IMutableTracksReorderingList<TElement, TCompare>
     where TElement : class, TCompare, ITrackableReset<TElement>, IReusableObject<TElement>, IShowsEmpty
 {
@@ -25,10 +24,10 @@ public class TracksReorderingListRegistry<TElement, TCompare>
         }
         else
         {
-            if (!ShiftCommands.Any()) HasRandomAccessUpdates = false;
+            if (!ShiftCommands.Any()) HasUnreliableListTracking = false;
             RegisteredShiftCommands.AppendShiftAwayFromIndex((short)pinElementsFromIndex, (short)byElements);
         }
-        ApplyElementShift(RegisteredShiftCommands.LastShift());
+        ApplyListShiftCommand(RegisteredShiftCommands.LastShift());
         return RegisteredShiftCommands.LastShift();
     }
 
@@ -44,10 +43,10 @@ public class TracksReorderingListRegistry<TElement, TCompare>
         }
         else
         {
-            if (!ShiftCommands.Any()) HasRandomAccessUpdates = false;
+            if (!ShiftCommands.Any()) HasUnreliableListTracking = false;
             RegisteredShiftCommands.AppendShiftTowardFromIndex((short)pinElementsFromIndex, (short)byElements);
         }
-        ApplyElementShift(RegisteredShiftCommands.LastShift());
+        ApplyListShiftCommand(RegisteredShiftCommands.LastShift());
         return RegisteredShiftCommands.LastShift();
     }
 
@@ -151,13 +150,6 @@ public class TracksReorderingListRegistry<TElement, TCompare>
         return true;
     }
 
-    public override TracksReorderingListRegistry<TElement, TCompare> CopyFrom
-        (TrackShiftsListRegistry<TElement, TCompare> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        ShiftCommands = source.ShiftCommands.ToList();
-        return this;
-    }
-
     public ListShiftCommand MoveToStart(TElement existingItem)
     {
         var indexOfExisting = IndexOfExisting(existingItem);
@@ -175,9 +167,9 @@ public class TracksReorderingListRegistry<TElement, TCompare>
             throw new
                 ArgumentException($"Can not move an item at {indexToMoveToStart} as it is outside the existing items. shiftedList:  [{ShiftedList.JoinToString()}]");
         }
-        if (!ShiftCommands.Any()) HasRandomAccessUpdates = false;
+        if (!ShiftCommands.Any()) HasUnreliableListTracking = false;
         RegisteredShiftCommands.AppendMoveSingleElement((short)indexToMoveToStart, 0);
-        return ApplyElementShift(RegisteredShiftCommands.LastShift());
+        return ApplyListShiftCommand(RegisteredShiftCommands.LastShift());
     }
 
     public ListShiftCommand MoveToEnd(int indexToMoveToEnd)
@@ -187,12 +179,12 @@ public class TracksReorderingListRegistry<TElement, TCompare>
             throw new
                 ArgumentException($"Can not move an item at {indexToMoveToEnd} as it is outside the existing items. shiftedList:  [{ShiftedList.JoinToString()}]");
         }
-        if (!ShiftCommands.Any()) HasRandomAccessUpdates = false;
+        if (!ShiftCommands.Any()) HasUnreliableListTracking = false;
         RegisteredShiftCommands.AppendMoveSingleElement((short)indexToMoveToEnd
                                                       , (short)(ShiftedList.Count - 1)); // list will shrink by one when element is removed so at
         // reinsert it will be shiftListCount.Count - 2
 
-        return ApplyElementShift(RegisteredShiftCommands.LastShift());
+        return ApplyListShiftCommand(RegisteredShiftCommands.LastShift());
     }
 
     public ListShiftCommand MoveSingleElementBy(int indexToMoveToEnd, int shift)
@@ -204,7 +196,7 @@ public class TracksReorderingListRegistry<TElement, TCompare>
         }
         var destinationIndex = Math.Clamp(indexToMoveToEnd + shift, 0, ShiftedList.Capacity - 1);
         RegisteredShiftCommands.AppendMoveSingleElement((short)indexToMoveToEnd, (short)destinationIndex);
-        return ApplyElementShift(RegisteredShiftCommands.LastShift());
+        return ApplyListShiftCommand(RegisteredShiftCommands.LastShift());
     }
 
     public ListShiftCommand MoveSingleElementBy(TElement existingItem, int shift)

@@ -61,7 +61,7 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
 
     public uint UpdateCount => NumOfUpdates;
 
-    public void UpdateComplete()
+    public void UpdateComplete(uint updateId = 0)
     {
         if (HasUpdates)
         {

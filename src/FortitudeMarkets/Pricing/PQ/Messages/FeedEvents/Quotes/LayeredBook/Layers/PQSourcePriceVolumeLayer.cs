@@ -182,10 +182,10 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         }
     }
 
-    public override void UpdateComplete()
+    public override void UpdateComplete(uint updateId = 0)
     {
-        NameIdLookup.UpdateComplete();
-        base.UpdateComplete();
+        NameIdLookup.UpdateComplete(updateId);
+        base.UpdateComplete(updateId);
     }
 
     IMutableSourcePriceVolumeLayer ITrackableReset<IMutableSourcePriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();

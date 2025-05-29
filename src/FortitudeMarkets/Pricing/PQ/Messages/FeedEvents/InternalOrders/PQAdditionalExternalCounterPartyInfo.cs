@@ -290,9 +290,9 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
 
     public uint UpdateCount => (uint)NumUpdatesSinceEmpty;
 
-    public virtual void UpdateComplete()
+    public virtual void UpdateComplete(uint updateId = 0)
     {
-        NameIdLookup.UpdateComplete();
+        NameIdLookup.UpdateComplete(updateId);
         HasUpdates = false;
     }
 

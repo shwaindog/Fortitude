@@ -686,7 +686,7 @@ public class PQTickInstantTests
 
         public uint UpdateCount => 0;
 
-        public void UpdateComplete()
+        public void UpdateComplete(uint updateId = 0)
         {
             HasUpdates = false;
         }
