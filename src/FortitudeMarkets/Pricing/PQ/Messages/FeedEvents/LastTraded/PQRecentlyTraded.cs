@@ -34,9 +34,9 @@ public interface IPQRecentlyTraded : IPQLastTradedList, IMutableRecentlyTraded, 
 
     new DateTime UpdateTime { get; set; }
 
-    new IReadOnlyList<ElementShift> ElementShifts { get; set; }
+    new IReadOnlyList<ListShiftCommand> ElementShifts { get; set; }
 
-    new ushort? ClearedElementsAfterIndex { get; set; }
+    new int? ClearedElementsAfterIndex { get; set; }
 
     new bool HasRandomAccessUpdates { get; set; }
 
@@ -44,13 +44,23 @@ public interface IPQRecentlyTraded : IPQLastTradedList, IMutableRecentlyTraded, 
 
     new TimeBoundaryPeriod DuringPeriod { get; set; }
 
-    new ElementShift ClearAll();
+    new ListShiftCommand ClearAll();
 
-    new ElementShift DeleteAt(int index);
+    new ListShiftCommand DeleteAt(int index);
 
-    new ElementShift ShiftElements(int byElements, int pinElementsFromIndex);
+    new ListShiftCommand ShiftElementsFrom(int byElements, int pinElementsFromIndex);
 
-    new ElementShift ApplyElementShift(ElementShift shiftToApply);
+    new ListShiftCommand ShiftElementsUntil(int byElements, int pinElementsFromIndex);
+
+    new ListShiftCommand ApplyElementShift(ListShiftCommand shiftCommandToApply);
+
+    new ListShiftCommand MoveSingleElementBy(IPQLastTrade existingItem, int shift);
+
+    new ListShiftCommand MoveSingleElementBy(int indexToMoveToEnd, int shift);
+
+    new ListShiftCommand MoveSingleElementToEnd(int indexToMoveToEnd);
+
+    new ListShiftCommand MoveSingleElementToStart(int indexToMoveToStart);
 
     new IPQRecentlyTraded Clone();
 
@@ -66,7 +76,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
 {
     protected PQLastTradedListUpdatedFlags UpdatedFlags;
 
-    private ListElementShiftRegistry<IPQLastTrade>? elementShiftRegistry;
+    private ListElementShiftRegistry<IPQLastTrade, ILastTrade>? elementShiftRegistry;
 
     private DateTime updateTime = DateTime.MinValue;
 
@@ -74,16 +84,17 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
 
     public PQRecentlyTraded()
     {
-        elementShiftRegistry = new ListElementShiftRegistry<IPQLastTrade>(this, NewElementFactory);
-        
+        elementShiftRegistry = new ListElementShiftRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+
 
         if (GetType() == typeof(PQRecentlyTraded)) NumUpdatesSinceEmpty = 0;
     }
 
-    public PQRecentlyTraded(IPQNameIdLookupGenerator nameIdLookup, LastTradedTransmissionFlags transmissionFlags
+    public PQRecentlyTraded
+    (IPQNameIdLookupGenerator nameIdLookup, LastTradedTransmissionFlags transmissionFlags
       , int maxCacheCount = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount) : base(nameIdLookup)
     {
-        elementShiftRegistry = new ListElementShiftRegistry<IPQLastTrade>(this, NewElementFactory);
+        elementShiftRegistry = new ListElementShiftRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         CachedMaxCount       = maxCacheCount;
         TransferFlags        = transmissionFlags;
 
@@ -92,47 +103,51 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
 
     public PQRecentlyTraded(LastTradedTransmissionFlags transmissionFlags, int maxCacheCount = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount)
     {
-        elementShiftRegistry = new ListElementShiftRegistry<IPQLastTrade>(this, NewElementFactory);
+        elementShiftRegistry = new ListElementShiftRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         CachedMaxCount       = maxCacheCount;
         TransferFlags        = transmissionFlags;
 
         if (GetType() == typeof(PQRecentlyTraded)) NumUpdatesSinceEmpty = 0;
     }
 
-    public PQRecentlyTraded(ISourceTickerInfo sourceTickerInfo, LastTradedTransmissionFlags transmissionFlags
+    public PQRecentlyTraded
+    (ISourceTickerInfo sourceTickerInfo, LastTradedTransmissionFlags transmissionFlags
       , int maxCacheCount = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount) : base(sourceTickerInfo)
     {
-        elementShiftRegistry = new ListElementShiftRegistry<IPQLastTrade>(this, NewElementFactory);
+        elementShiftRegistry = new ListElementShiftRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         CachedMaxCount       = maxCacheCount;
         TransferFlags        = transmissionFlags;
 
         if (GetType() == typeof(PQRecentlyTraded)) NumUpdatesSinceEmpty = 0;
     }
 
-    public PQRecentlyTraded(ISourceTickerInfo sourceTickerInfo, IPQNameIdLookupGenerator nameIdLookup, LastTradedTransmissionFlags transmissionFlags
+    public PQRecentlyTraded
+    (ISourceTickerInfo sourceTickerInfo, IPQNameIdLookupGenerator nameIdLookup, LastTradedTransmissionFlags transmissionFlags
       , int maxCacheCount = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount) : base(sourceTickerInfo, nameIdLookup)
     {
-        elementShiftRegistry = new ListElementShiftRegistry<IPQLastTrade>(this, NewElementFactory);
+        elementShiftRegistry = new ListElementShiftRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         CachedMaxCount       = maxCacheCount;
         TransferFlags        = transmissionFlags;
 
         if (GetType() == typeof(PQRecentlyTraded)) NumUpdatesSinceEmpty = 0;
     }
 
-    public PQRecentlyTraded(LastTradedTransmissionFlags transmissionFlags, IEnumerable<IPQLastTrade> lastTrades
+    public PQRecentlyTraded
+    (LastTradedTransmissionFlags transmissionFlags, IEnumerable<IPQLastTrade> lastTrades
       , int maxCacheCount = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount) : base(lastTrades)
     {
-        elementShiftRegistry = new ListElementShiftRegistry<IPQLastTrade>(this, NewElementFactory);
+        elementShiftRegistry = new ListElementShiftRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         CachedMaxCount       = maxCacheCount;
         TransferFlags        = transmissionFlags;
 
         if (GetType() == typeof(PQRecentlyTraded)) NumUpdatesSinceEmpty = 0;
     }
 
-    public PQRecentlyTraded(LastTradedTransmissionFlags transmissionFlags, IList<IPQLastTrade> lastTrades
+    public PQRecentlyTraded
+    (LastTradedTransmissionFlags transmissionFlags, IList<IPQLastTrade> lastTrades
       , int maxCacheCount = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount) : base(lastTrades)
     {
-        elementShiftRegistry = new ListElementShiftRegistry<IPQLastTrade>(this, NewElementFactory);
+        elementShiftRegistry = new ListElementShiftRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         CachedMaxCount       = maxCacheCount;
         TransferFlags        = transmissionFlags;
 
@@ -141,20 +156,27 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
 
     public PQRecentlyTraded(IRecentlyTraded toClone, IPQNameIdLookupGenerator? nameIdLookup = null) : base(toClone, nameIdLookup)
     {
-        elementShiftRegistry = new ListElementShiftRegistry<IPQLastTrade>(this, NewElementFactory);
-        TransferFlags        = toClone.TransferFlags;
-        CachedMaxCount       = toClone.CachedMaxCount;
-        UpdateTime = toClone.UpdateTime;
-        DuringPeriod = toClone.DuringPeriod;
+        elementShiftRegistry = new ListElementShiftRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry.CopyFrom(toClone.ElementShifts);
+
+        TransferFlags  = toClone.TransferFlags;
+        CachedMaxCount = toClone.CachedMaxCount;
+        UpdateTime     = toClone.UpdateTime;
+        DuringPeriod   = toClone.DuringPeriod;
 
         SetFlagsSame(toClone);
 
         if (GetType() == typeof(PQRecentlyTraded)) NumUpdatesSinceEmpty = 0;
     }
 
-    public PQRecentlyTraded(IPQRecentlyTraded toClone, IPQNameIdLookupGenerator? nameIdLookup = null) : this((IRecentlyTraded)toClone, nameIdLookup) { }
+    public PQRecentlyTraded
+        (IPQRecentlyTraded toClone, IPQNameIdLookupGenerator? nameIdLookup = null) : this((IRecentlyTraded)toClone, nameIdLookup) { }
 
-    public PQRecentlyTraded(PQRecentlyTraded toClone, IPQNameIdLookupGenerator? nameIdLookup = null) : this((IRecentlyTraded)toClone, nameIdLookup) { }
+    public PQRecentlyTraded
+        (PQRecentlyTraded toClone, IPQNameIdLookupGenerator? nameIdLookup = null) : this((IRecentlyTraded)toClone, nameIdLookup) { }
+
+
+    protected static Func<ILastTrade, ILastTrade, bool> SameTradeId = (lhs, rhs) => lhs.TradeId == rhs.TradeId;
 
     public LastTradedTransmissionFlags TransferFlags { get; set; }
 
@@ -174,11 +196,12 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
         get => updateTime;
         set
         {
-            IsPeriodUpdateDateUpdated |= value.Get2MinIntervalsFromUnixEpoch() != updateTime.Get2MinIntervalsFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
+            IsPeriodUpdateDateUpdated
+                |= value.Get2MinIntervalsFromUnixEpoch() != updateTime.Get2MinIntervalsFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
             IsPeriodUpdateSub2MinTimeUpdated |= value.GetSub2MinComponent() != updateTime.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
 
-            updateTime                =  value;
-            if(elementShiftRegistry != null) elementShiftRegistry.UpdateTime = value;
+            updateTime = value;
+            if (elementShiftRegistry != null) elementShiftRegistry.UpdateTime = value;
         }
     }
 
@@ -218,21 +241,21 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
         }
     }
 
-    public IReadOnlyList<ElementShift> ElementShifts
+    public IReadOnlyList<ListShiftCommand> ElementShifts
     {
-        get => elementShiftRegistry?.ShiftCommands.AsReadOnly() ?? new List<ElementShift>().AsReadOnly();
+        get => elementShiftRegistry?.ShiftCommands.AsReadOnly() ?? new List<ListShiftCommand>().AsReadOnly();
         set
         {
-            if(elementShiftRegistry != null) elementShiftRegistry.ShiftCommands = (List<ElementShift>)value;
+            if (elementShiftRegistry != null) elementShiftRegistry.ShiftCommands = (List<ListShiftCommand>)value;
         }
     }
 
-    public ushort? ClearedElementsAfterIndex
+    public int? ClearedElementsAfterIndex
     {
         get => elementShiftRegistry?.ClearRemainingElementsAt ?? ushort.MaxValue;
         set
         {
-            if (elementShiftRegistry != null) elementShiftRegistry.ClearRemainingElementsAt = value;
+            if (elementShiftRegistry != null) elementShiftRegistry.ClearRemainingElementsAt = (ushort?)value;
         }
     }
 
@@ -294,7 +317,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
 
     public bool IsEmpty
     {
-        get => LastTrades.All(lt => lt.IsEmpty);
+        get => LastTrades.All(lt => lt.IsEmpty); // do not include ElementShifts in IsEmpty
         set
         {
             foreach (var lastTrade in LastTrades)
@@ -309,39 +332,109 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
 
     // more recent trades appear at start
     // find the shift of the first entry in previous collection in the updated collection
-    public void CalculateShift
-        (DateTime asAtTime, IReadOnlyList<IPQLastTrade> updatedCollection) =>
-        elementShiftRegistry!.CalculateShift(asAtTime, updatedCollection);
 
-    public ElementShift ShiftElements
-        (int byElements, int pinElementsFromIndex) =>
-        elementShiftRegistry!.ShiftElements(byElements, pinElementsFromIndex);
-
-    public ElementShift ApplyElementShift(ElementShift shiftToApply) => elementShiftRegistry!.ApplyElementShift(shiftToApply);
-
-    public ElementShift InsertAtStart(IPQLastTrade toInsertAtStart) => elementShiftRegistry!.InsertAtStart(toInsertAtStart);
-
-    ElementShift IMutableSupportsElementsShift<IMutableRecentlyTraded, IMutableLastTrade>.InsertAtStart(IMutableLastTrade toInsertAtStart) =>
-        InsertAtStart((IPQLastTrade)toInsertAtStart);
-
-    ElementShift IMutableSupportsElementsShift<IMutableRecentlyTraded, IMutableLastTrade>.InsertAt(int index, IMutableLastTrade toInsertAtStart) =>
-        InsertAt(index, (IPQLastTrade)toInsertAtStart);
-
-    void IMutableSupportsElementsShift<IMutableRecentlyTraded, IMutableLastTrade>.CalculateShift
-        (DateTime asAtTime, IReadOnlyList<IMutableLastTrade> updatedCollection) =>
+    void ISupportsElementsShift<IMutableRecentlyTraded, IMutableLastTrade>.CalculateShift
+        (DateTime asAtTime, IReadOnlyList<IMutableLastTrade> updatedCollection)=>
         CalculateShift(asAtTime, (IReadOnlyList<IPQLastTrade>)updatedCollection);
 
-    ElementShift IMutableCachedRecentCountHistory<IMutableRecentlyTraded, IMutableLastTrade>.InsertAtStart(IMutableLastTrade toInsertAtStart) =>
+    public void CalculateShift(DateTime asAtTime, IReadOnlyList<ILastTrade> updatedCollection) 
+    {
+        UpdateTime = asAtTime;
+        elementShiftRegistry!.CalculateShift(asAtTime, updatedCollection);
+    }
+
+    public void CalculateShift(DateTime asAtTime, IReadOnlyList<IPQLastTrade> updatedCollection)
+    {
+        UpdateTime = asAtTime;
+        elementShiftRegistry!.CalculateShift(asAtTime, updatedCollection);
+    }
+
+    public ListShiftCommand ShiftElementsFrom(int byElements, int pinElementsFromIndex)
+    {
+        return elementShiftRegistry!.ShiftElementsFrom(byElements, pinElementsFromIndex);
+    }
+
+    public ListShiftCommand ShiftElementsUntil(int byElements, int pinElementsFromIndex)
+    {
+        return elementShiftRegistry!.ShiftElementsUntil(byElements, pinElementsFromIndex);
+    }
+
+    public ListShiftCommand ApplyElementShift(ListShiftCommand shiftCommandToApply)
+    {
+        if (!IsEmpty)
+        {
+            return elementShiftRegistry!.ApplyElementShift(shiftCommandToApply);
+        }
+        return new ListShiftCommand(0);
+    }
+
+    public ListShiftCommand InsertAtStart(IPQLastTrade toInsertAtStart) => elementShiftRegistry!.InsertAtStart(toInsertAtStart);
+
+    public bool AppendAtEnd(IMutableLastTrade toAppendAtEnd) => AppendAtEnd((IPQLastTrade)toAppendAtEnd);
+
+    public bool AppendAtEnd(IPQLastTrade toAppendAtEnd) => elementShiftRegistry!.AppendAtEnd(toAppendAtEnd);
+
+    ListShiftCommand IMutableSupportsElementsShift<IMutableRecentlyTraded, IMutableLastTrade>.InsertAtStart(IMutableLastTrade toInsertAtStart) =>
         InsertAtStart((IPQLastTrade)toInsertAtStart);
 
-    ElementShift IMutableCachedRecentCountHistory<IMutableRecentlyTraded, IMutableLastTrade>.InsertAt(int index, IMutableLastTrade toInsertAtStart) =>
+    ListShiftCommand IMutableSupportsElementsShift<IMutableRecentlyTraded, IMutableLastTrade>.InsertAt
+        (int index, IMutableLastTrade toInsertAtStart) =>
         InsertAt(index, (IPQLastTrade)toInsertAtStart);
 
-    public ElementShift InsertAt(int index, IPQLastTrade toInsertAtStart) => elementShiftRegistry!.InsertAt(index, toInsertAtStart);
+    ListShiftCommand IMutableCachedRecentCountHistory<IMutableRecentlyTraded, IMutableLastTrade>.InsertAtStart(IMutableLastTrade toInsertAtStart) =>
+        InsertAtStart((IPQLastTrade)toInsertAtStart);
 
-    public ElementShift DeleteAt(int index) => elementShiftRegistry!.DeleteAt(index);
+    ListShiftCommand IMutableCachedRecentCountHistory<IMutableRecentlyTraded, IMutableLastTrade>.InsertAt
+        (int index, IMutableLastTrade toInsertAtStart) =>
+        InsertAt(index, (IPQLastTrade)toInsertAtStart);
 
-    public ElementShift ClearAll() => elementShiftRegistry!.ClearAll();
+    public ListShiftCommand InsertAt(int index, IPQLastTrade toInsertAtStart) => elementShiftRegistry!.InsertAt(index, toInsertAtStart);
+
+    public ListShiftCommand DeleteAt(int index) => elementShiftRegistry!.DeleteAt(index);
+
+    ListShiftCommand IMutableSupportsElementsShift<IMutableRecentlyTraded, IMutableLastTrade>.Delete
+        (IMutableLastTrade toDelete) =>
+        Delete((IPQLastTrade)toDelete);
+
+    public ListShiftCommand Delete(IPQLastTrade toDelete) => elementShiftRegistry!.Delete(toDelete);
+
+    public ListShiftCommand ClearAll() => elementShiftRegistry!.ClearAll();
+
+    ListShiftCommand IMutableSupportsElementsShift<IMutableRecentlyTraded, IMutableLastTrade>.MoveToStart
+        (IMutableLastTrade existingItem) =>
+        elementShiftRegistry!.MoveToStart((IPQLastTrade)existingItem);
+
+    ListShiftCommand IMutableSupportsElementsShift<IMutableRecentlyTraded, IMutableLastTrade>.MoveSingleElementToStart(int indexToMoveToStart) =>
+        elementShiftRegistry!.MoveToStart(indexToMoveToStart);
+
+    ListShiftCommand IMutableSupportsElementsShift<IMutableRecentlyTraded, IMutableLastTrade>.MoveSingleElementToEnd(int indexToMoveToEnd) =>
+        elementShiftRegistry!.MoveToEnd(indexToMoveToEnd);
+
+    ListShiftCommand IMutableSupportsElementsShift<IMutableRecentlyTraded, IMutableLastTrade>.MoveSingleElementBy
+        (int indexToMoveToEnd, int shift) =>
+        elementShiftRegistry!.MoveSingleElementBy(indexToMoveToEnd, shift);
+
+    ListShiftCommand IMutableSupportsElementsShift<IMutableRecentlyTraded, IMutableLastTrade>.MoveSingleElementBy
+        (IMutableLastTrade existingItem, int shift) =>
+        elementShiftRegistry!.MoveSingleElementBy((IPQLastTrade)existingItem, shift);
+
+    ListShiftCommand IMutableSupportsElementsShift<IMutableRecentlyTraded, IMutableLastTrade>.MoveToEnd(IMutableLastTrade existingItem) =>
+        elementShiftRegistry!.MoveToEnd((IPQLastTrade)existingItem);
+
+    public ListShiftCommand MoveToStart(IPQLastTrade existingItem) => elementShiftRegistry!.MoveToStart(existingItem);
+
+    public ListShiftCommand MoveSingleElementToStart(int indexToMoveToStart) => elementShiftRegistry!.MoveToStart(indexToMoveToStart);
+
+    public ListShiftCommand MoveSingleElementToEnd(int indexToMoveToEnd) => elementShiftRegistry!.MoveToEnd(indexToMoveToEnd);
+
+    public ListShiftCommand MoveSingleElementBy(int indexToMoveToEnd, int shift) =>
+        elementShiftRegistry!.MoveSingleElementBy(indexToMoveToEnd, shift);
+
+    public ListShiftCommand MoveSingleElementBy(IPQLastTrade existingItem, int shift) =>
+        elementShiftRegistry!.MoveSingleElementBy(existingItem, shift);
+
+    public ListShiftCommand MoveToEnd(IPQLastTrade existingItem) => elementShiftRegistry!.MoveToEnd(existingItem);
+
 
     IMutableRecentlyTraded ITrackableReset<IMutableRecentlyTraded>.ResetWithTracking() => ResetWithTracking();
 
@@ -369,7 +462,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
         foreach (var shiftCommand in elementShiftRegistry!.ShiftCommands)
         {
             yield return new PQFieldUpdate(PQFeedFields.LastTradedAllRecentlyLimitedHistory, PQTradingSubFieldKeys.CommandElementsShift
-                                         , (uint)shiftCommand);
+                                         , (uint)shiftCommand, (PQFieldFlags)shiftCommand);
         }
 
         foreach (var lastTradeUpdates in base.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSetting))
@@ -399,7 +492,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
             switch (pqFieldUpdate.TradingSubId)
             {
                 case PQTradingSubFieldKeys.CommandElementsShift:
-                    var elementShift = (ElementShift)(pqFieldUpdate.Payload);
+                    var elementShift = (ListShiftCommand)(pqFieldUpdate);
                     elementShiftRegistry!.ShiftCommands.Append(elementShift);
                     ApplyElementShift(elementShift);
                     break;
@@ -440,17 +533,36 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
     public override PQRecentlyTraded CopyFrom
         (ILastTradedList source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        elementShiftRegistry ??= new ListElementShiftRegistry<IPQLastTrade>(this, NewElementFactory);
-        base.CopyFrom(source, copyMergeFlags);
+        var isFullReplace = copyMergeFlags.HasFullReplace();
+        elementShiftRegistry ??= new ListElementShiftRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        var wasEmpty = IsEmpty;
         if (source is IRecentlyTraded recentlyTraded)
         {
-            TransferFlags = recentlyTraded.TransferFlags;
-            UpdateTime = recentlyTraded.UpdateTime;
-            DuringPeriod = recentlyTraded.DuringPeriod;
+            if (recentlyTraded.ElementShifts.Any())
+            {
+                if (!wasEmpty) elementShiftRegistry.ResetWithTracking();
+                elementShiftRegistry.CopyFrom(recentlyTraded.ElementShifts);
+            }
+            else
+            {
+                CalculateShift(TimeContext.UtcNow, recentlyTraded);
+            }
+            if (!wasEmpty && !isFullReplace)
+            {
+                foreach (var applyShifts in ElementShifts)
+                {
+                    ApplyElementShift(applyShifts);
+                }
+            }
+        }
+        base.CopyFrom(source, copyMergeFlags);
+        if (source is IRecentlyTraded recentTraded)
+        {
+            TransferFlags = recentTraded.TransferFlags;
+            UpdateTime    = recentTraded.UpdateTime;
+            DuringPeriod  = recentTraded.DuringPeriod;
 
-            var isFullReplace = copyMergeFlags.HasFullReplace();
-
-            if (isFullReplace) SetFlagsSame(recentlyTraded);
+            if (isFullReplace) SetFlagsSame(recentTraded);
         }
         return this;
     }

@@ -18,7 +18,8 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 [JsonDerivedType(typeof(PQLastTrade))]
 [JsonDerivedType(typeof(PQLastPaidGivenTrade))]
 [JsonDerivedType(typeof(PQLastExternalCounterPartyTrade))]
-public interface IPQLastTrade : IMutableLastTrade, IPQSupportsNumberPrecisionFieldUpdates<ILastTrade>, ITrackableReset<IPQLastTrade>, ICloneable<IPQLastTrade>
+public interface IPQLastTrade : IReusableObject<IPQLastTrade>, IMutableLastTrade, IPQSupportsNumberPrecisionFieldUpdates<ILastTrade>,
+    ITrackableReset<IPQLastTrade>
 {
     [JsonIgnore] bool IsTradeIdUpdated                    { get; set; }
     [JsonIgnore] bool IsBatchIdUpdated                    { get; set; }
@@ -36,10 +37,12 @@ public interface IPQLastTrade : IMutableLastTrade, IPQSupportsNumberPrecisionFie
 
     new IPQLastTrade Clone();
 
+    new IPQLastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
+
     new IPQLastTrade ResetWithTracking();
 }
 
-public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
+public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
 {
     protected uint NumUpdatesSinceEmpty = uint.MaxValue;
 
@@ -53,7 +56,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
     uint     batchId;
     DateTime firstNotifiedTime   = DateTime.MinValue;
     DateTime adapterReceivedTime = DateTime.MinValue;
-    DateTime updateTime = DateTime.MinValue;
+    DateTime updateTime          = DateTime.MinValue;
 
     protected LastTradeUpdated UpdatedFlags;
 
@@ -569,13 +572,36 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
 
     ILastTrade ICloneable<ILastTrade>.Clone() => Clone();
 
-    IMutableLastTrade IMutableLastTrade.  Clone() => Clone();
+    IMutableLastTrade IMutableLastTrade.Clone() => Clone();
 
     IPQLastTrade ICloneable<IPQLastTrade>.Clone() => Clone();
 
+    IMutableLastTrade ICloneable<IMutableLastTrade>.Clone() => Clone();
+
     public override PQLastTrade Clone() => Recycler?.Borrow<PQLastTrade>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new PQLastTrade(this);
 
-    public override PQLastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    IReusableObject<IMutableLastTrade> ITransferState<IReusableObject<IMutableLastTrade>>.CopyFrom
+        (IReusableObject<IMutableLastTrade> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((ILastTrade)source, copyMergeFlags);
+
+    IMutableLastTrade ITransferState<IMutableLastTrade>.CopyFrom(IMutableLastTrade source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom(source, copyMergeFlags);
+
+    IReusableObject<ILastTrade> ITransferState<IReusableObject<ILastTrade>>.CopyFrom
+        (IReusableObject<ILastTrade> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((ILastTrade)source, copyMergeFlags);
+
+    public override IPQLastTrade CopyFrom(IPQLastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => 
+        CopyFrom(source, copyMergeFlags);
+
+    ILastTrade ITransferState<ILastTrade>.CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
+
+    IPQLastTrade IPQLastTrade.CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
+
+    public PQLastTrade CopyFrom(LastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => 
+        CopyFrom((ILastTrade)source, copyMergeFlags);
+
+    public virtual PQLastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags)
     {
         if (source is PQLastTrade pqlt)
         {
@@ -677,7 +703,7 @@ public class PQLastTrade : ReusableObject<ILastTrade>, IPQLastTrade
         }
 
         if (copyMergeFlags.HasUpdateFlagsNone()) UpdatedFlags = LastTradeUpdated.None;
-        if (copyMergeFlags.HasUpdateFlagsAll()) UpdatedFlags = LastTradeUpdated.AllFlagsMask;
+        if (copyMergeFlags.HasUpdateFlagsAll()) UpdatedFlags  = LastTradeUpdated.AllFlagsMask;
 
         return this;
     }

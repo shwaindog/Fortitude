@@ -30,9 +30,9 @@ public interface IMutableRecentlyTraded : IRecentlyTraded, IMutableLastTradedLis
 
     new DateTime UpdateTime { get; set; }
 
-    new IReadOnlyList<ElementShift> ElementShifts { get; set; }
+    new IReadOnlyList<ListShiftCommand> ElementShifts { get; set; }
 
-    new ushort? ClearedElementsAfterIndex { get; set; }
+    new int? ClearedElementsAfterIndex { get; set; }
 
     new bool HasRandomAccessUpdates { get; set; }
 

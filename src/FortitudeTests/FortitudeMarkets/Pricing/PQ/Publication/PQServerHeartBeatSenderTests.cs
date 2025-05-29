@@ -11,7 +11,6 @@ using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeMarkets.Pricing.PQ.Messages;
-using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Publication;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using Moq;
@@ -61,7 +60,7 @@ public class PQServerHeartBeatSenderTests
         moqOsThread.SetupSet(ot => ot.IsBackground = true).Verifiable();
         moqOsThread.Setup(ot => ot.Start()).Verifiable();
 
-        pqServerHeartBeatSender = new PQServerHeartBeatSender
+        pqServerHeartBeatSender = new PQServerHeartBeatSender(moqOsParallelController.Object)
         {
             UpdateServer       = moqUpdateServer.Object, ServerLinkedLock = moqSyncLock.Object
           , ServerLinkedQuotes = moqQuotesList.Object

@@ -14,7 +14,7 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 
-public class LastTrade : ReusableObject<ILastTrade>, IMutableLastTrade
+public class LastTrade : ReusableObject<IMutableLastTrade>, IMutableLastTrade
 {
     public LastTrade() => TradeTime = default;
 
@@ -112,7 +112,17 @@ public class LastTrade : ReusableObject<ILastTrade>, IMutableLastTrade
         base.StateReset();
     }
 
-    public override ILastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override LastTrade CopyFrom(IMutableLastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        return CopyFrom(source, copyMergeFlags);
+    }
+
+    public IReusableObject<ILastTrade> CopyFrom(IReusableObject<ILastTrade> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        CopyFrom((ILastTrade)source, copyMergeFlags);
+
+    ILastTrade ITransferState<ILastTrade>.CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
+
+    public virtual LastTrade CopyFrom(ILastTrade source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         TradeId    = source.TradeId;
         BatchId    = source.BatchId;
