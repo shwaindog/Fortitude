@@ -375,7 +375,10 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
 
         var updatedSame = true;
         if (exactTypes)
-            updatedSame = other is PQAdditionalExternalCounterPartyInfo pqCounterPartyOther && UpdatedFlags == pqCounterPartyOther.UpdatedFlags;
+        {
+            var pqCounterPartyOther = (PQAdditionalExternalCounterPartyInfo)other;
+            updatedSame = UpdatedFlags == pqCounterPartyOther.UpdatedFlags;
+        }
 
         return counterPartyIdSame && counterPartySame && traderIdSame && traderNameSame && updatedSame;
     }
@@ -433,7 +436,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
                 ExternalTraderNameId = pqCpOrderLyrInfo.ExternalTraderNameId;
             }
 
-            if (isFullReplace && pqCpOrderLyrInfo is PQAdditionalExternalCounterPartyInfo pqCounterPartyOrder) UpdatedFlags = pqCounterPartyOrder.UpdatedFlags;
+            if (isFullReplace) SetFlagsSame(pqCpOrderLyrInfo);
         }
         else if (source is IExternalCounterPartyOrder counterPartyOrderLayerInfo)
         {
@@ -462,7 +465,16 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
 
     protected void SetFlagsSame(IAdditionalExternalCounterPartyOrderInfo toCopyFlags)
     {
-        if (toCopyFlags is PQAdditionalExternalCounterPartyInfo pqToClone) UpdatedFlags = pqToClone.UpdatedFlags;
+        if (toCopyFlags is PQAdditionalExternalCounterPartyInfo pqToClone)
+        {
+            UpdatedFlags = pqToClone.UpdatedFlags;
+        } else if (toCopyFlags is IPQAdditionalExternalCounterPartyOrderInfo ipqAddCpOrders)
+        {
+            IsExternalCounterPartyIdUpdated   = ipqAddCpOrders.IsExternalCounterPartyIdUpdated;
+            IsExternalCounterPartyNameUpdated = ipqAddCpOrders.IsExternalCounterPartyNameUpdated;
+            IsExternalTraderIdUpdated         = ipqAddCpOrders.IsExternalTraderIdUpdated;
+            IsExternalTraderNameUpdated       = ipqAddCpOrders.IsExternalTraderNameUpdated;
+        }
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IExternalCounterPartyOrder?)obj, true);

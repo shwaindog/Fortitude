@@ -116,10 +116,6 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         if (GetType() == typeof(PQOrdersPriceVolumeLayer)) SequenceId = 0;
     }
 
-    protected string PQJustOrdersToStringMembers => $"{nameof(Orders)}: [{string.Join(", ", Orders)}]";
-
-    protected string PQOrdersPriceVolumeLayerToStringMembers => $"{PQOrdersCountVolumeLayerToStringMembers}, {PQJustOrdersToStringMembers}";
-
     private int SafeOrdersLength => orders?.Count ?? 0;
 
 
@@ -422,31 +418,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
     IMutablePriceVolumeLayer IMutablePriceVolumeLayer.Clone() => Clone();
 
     public override PQOrdersPriceVolumeLayer Clone() => new(this, LayerType, NameIdLookup);
-
-    public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
-    {
-        if (!(other is IOrdersPriceVolumeLayer traderPvLayer)) return false;
-        var baseSame        = base.AreEquivalent(other, exactTypes);
-        var countFromOrders = CountFromOrders();
-        var ordersCountSame = countFromOrders == traderPvLayer.Orders.Count(aoli => !aoli.IsEmpty);
-
-        var orderStillSame = true;
-        if (ordersCountSame)
-        {
-            for (int i = 0; i < countFromOrders && orderStillSame; i++)
-            {
-                var localOrder = this[i]!;
-                var otherOrder = traderPvLayer.Orders[i];
-
-                if (localOrder.IsEmpty && otherOrder.IsEmpty) continue;
-                orderStillSame = localOrder.AreEquivalent(otherOrder, exactTypes);
-            }
-        }
-
-        var allAreSame = baseSame && orderStillSame && ordersCountSame;
-        return allAreSame;
-    }
-
+    
     public void Add(IAnonymousOrder order)
     {
         var indexToUpdate = (int)OrdersCount;
@@ -462,56 +434,6 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         }
     }
 
-    public override PQOrdersPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        var isFullReplace = copyMergeFlags.HasFullReplace();
-        var pqopvl        = source as IPQOrdersPriceVolumeLayer;
-        var opvl          = source as IOrdersPriceVolumeLayer;
-
-        var thisLayerGenesisFlags = LayerType.SupportsOrdersFullPriceVolume()
-            ? IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags
-            : OrderGenesisFlags.None;
-        var addInfoMask = IAnonymousOrder.AllExceptExtraInfoFlags;
-        if (source is ISupportsPQNameIdLookupGenerator pqNameIdLookupGenerator && !copyMergeFlags.HasSkipReferenceLookups())
-            NameIdLookup.CopyFrom(pqNameIdLookupGenerator.NameIdLookup, copyMergeFlags);
-        if (opvl != null)
-        {
-            for (var j = 0; j < opvl.Orders.Count; j++)
-            {
-                var sourceOrder = opvl[j]!;
-                var destOrder   = this[j]!;
-                var originalGenesisUpdated = sourceOrder is IPQAnonymousOrder pqAnonymousOrder
-                    ? pqAnonymousOrder.IsOrderIdUpdated | destOrder.IsGenesisFlagsUpdated
-                    : destOrder.IsGenesisFlagsUpdated;
-                var originalGenesisFlags = destOrder.GenesisFlags;
-                destOrder.CopyFrom(sourceOrder, copyMergeFlags);
-                var modifiedGenesisFlags = (destOrder.GenesisFlags & addInfoMask);
-                destOrder.GenesisFlags            = modifiedGenesisFlags | thisLayerGenesisFlags;
-                destOrder.EmptyIgnoreGenesisFlags = thisLayerGenesisFlags;
-                destOrder.IsGenesisFlagsUpdated
-                    = !thisLayerGenesisFlags.IgnoringAreSame(originalGenesisFlags, modifiedGenesisFlags) || originalGenesisUpdated;
-            }
-            for (var i = opvl.Orders.Count; i < SafeOrdersLength; i++)
-                if (orders?[i] is { IsEmpty: false } makeEmpty)
-                    makeEmpty.IsEmpty = true;
-        }
-        base.CopyFrom(source, copyMergeFlags);
-        if (pqopvl != null && isFullReplace) SetFlagsSame(source);
-
-        return this;
-    }
-
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPriceVolumeLayer?)obj, true);
-
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            return (base.GetHashCode() * 397) ^ orders?.GetHashCode() ?? 0;
-        }
-    }
-
-    public override string ToString() => $"{GetType().Name}({PQOrdersPriceVolumeLayerToStringMembers}, {UpdatedFlagsToString})";
 
     [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
     private void AssertMaxTraderSizeNotExceeded(int proposedNewIndex)
@@ -575,4 +497,86 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
                        && !aoli.GenesisFlags.HasSyntheticForBacktestSimulation())
                .Sum(aoli => aoli.OrderRemainingVolume);
     }
+
+    public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
+    {
+        if (!(other is IOrdersPriceVolumeLayer traderPvLayer)) return false;
+        var baseSame        = base.AreEquivalent(other, exactTypes);
+        var countFromOrders = CountFromOrders();
+        var ordersCountSame = countFromOrders == traderPvLayer.Orders.Count(aoli => !aoli.IsEmpty);
+
+        var orderStillSame = true;
+        if (ordersCountSame)
+        {
+            for (int i = 0; i < countFromOrders && orderStillSame; i++)
+            {
+                var localOrder = this[i]!;
+                var otherOrder = traderPvLayer.Orders[i];
+
+                if (localOrder.IsEmpty && otherOrder.IsEmpty) continue;
+                orderStillSame = localOrder.AreEquivalent(otherOrder, exactTypes);
+            }
+        }
+
+        var allAreSame = baseSame && orderStillSame && ordersCountSame;
+        return allAreSame;
+    }
+
+    public override PQOrdersPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        var isFullReplace = copyMergeFlags.HasFullReplace();
+        var pqopvl        = source as IPQOrdersPriceVolumeLayer;
+        var opvl          = source as IOrdersPriceVolumeLayer;
+
+        var thisLayerGenesisFlags = LayerType.SupportsOrdersFullPriceVolume()
+            ? IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags
+            : OrderGenesisFlags.None;
+        var addInfoMask = IAnonymousOrder.AllExceptExtraInfoFlags;
+        if (source is ISupportsPQNameIdLookupGenerator pqNameIdLookupGenerator && !copyMergeFlags.HasSkipReferenceLookups())
+            NameIdLookup.CopyFrom(pqNameIdLookupGenerator.NameIdLookup, copyMergeFlags);
+        if (opvl != null)
+        {
+            for (var j = 0; j < opvl.Orders.Count; j++)
+            {
+                var sourceOrder                   = opvl[j]!;
+                var destOrder                     = this[j]!;
+                var hasSourceIsGenesisFlagsUpdate = sourceOrder is IPQAnonymousOrder;
+                var originalGenesisUpdated = sourceOrder is IPQAnonymousOrder pqAnonymousOrder
+                    ? pqAnonymousOrder.IsOrderIdUpdated | destOrder.IsGenesisFlagsUpdated
+                    : destOrder.IsGenesisFlagsUpdated;
+                var originalGenesisFlags = destOrder.GenesisFlags;
+                destOrder.CopyFrom(sourceOrder, copyMergeFlags);
+                var modifiedGenesisFlags = (destOrder.GenesisFlags & addInfoMask);
+                destOrder.GenesisFlags            = modifiedGenesisFlags | thisLayerGenesisFlags;
+                destOrder.EmptyIgnoreGenesisFlags = thisLayerGenesisFlags;
+                destOrder.IsGenesisFlagsUpdated
+                    = hasSourceIsGenesisFlagsUpdate 
+                        ? originalGenesisUpdated 
+                        : !thisLayerGenesisFlags.IgnoringAreSame(originalGenesisFlags, modifiedGenesisFlags) || originalGenesisUpdated;
+            }
+            for (var i = opvl.Orders.Count; i < SafeOrdersLength; i++)
+                if (orders?[i] is { IsEmpty: false } makeEmpty)
+                    makeEmpty.IsEmpty = true;
+        }
+        base.CopyFrom(source, copyMergeFlags);
+        if (pqopvl != null && isFullReplace) SetFlagsSame(source);
+
+        return this;
+    }
+
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPriceVolumeLayer?)obj, true);
+
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            return (base.GetHashCode() * 397) ^ orders?.GetHashCode() ?? 0;
+        }
+    }
+
+    protected string PQJustOrdersToStringMembers => $"{nameof(Orders)}: [{string.Join(", ", Orders)}]";
+
+    protected string PQOrdersPriceVolumeLayerToStringMembers => $"{PQOrdersCountVolumeLayerToStringMembers}, {PQJustOrdersToStringMembers}";
+
+    public override string ToString() => $"{GetType().Name}({PQOrdersPriceVolumeLayerToStringMembers}, {UpdatedFlagsToString})";
 }

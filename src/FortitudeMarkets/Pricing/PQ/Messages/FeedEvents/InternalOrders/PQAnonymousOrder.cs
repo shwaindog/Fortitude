@@ -950,7 +950,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
                 TrackingId = pqAnonOrder.TrackingId;
             }
 
-            if (isFullReplace) UpdatedFlags = (source as PQAnonymousOrder)?.UpdatedFlags ?? UpdatedFlags;
+            if (isFullReplace) SetFlagsSame(pqAnonOrder);
         }
         if (source.InternalOrderInfo != null)
         {

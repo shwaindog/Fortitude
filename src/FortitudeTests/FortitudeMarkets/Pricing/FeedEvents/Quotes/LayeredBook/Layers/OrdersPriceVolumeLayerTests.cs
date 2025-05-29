@@ -458,7 +458,7 @@ public class OrdersPriceVolumeLayerTests
     [TestMethod]
     public void PQPvl_CopyFromToEmptyPvl_LayersEquivalentToEachOther()
     {
-        var pqPvl    = new PQOrdersPriceVolumeLayer(populatedAnonymousOrdersPvl, LayerType.OrdersFullPriceVolume, nameIdLookupGenerator);
+        var pqPvl    = new PQOrdersPriceVolumeLayer(populatedAnonymousOrdersPvl, LayerType.OrdersAnonymousPriceVolume, nameIdLookupGenerator);
         var newEmpty = new OrdersPriceVolumeLayer(LayerType.OrdersAnonymousPriceVolume);
         newEmpty.CopyFrom(pqPvl);
         Assert.AreEqual(populatedAnonymousOrdersPvl, newEmpty);

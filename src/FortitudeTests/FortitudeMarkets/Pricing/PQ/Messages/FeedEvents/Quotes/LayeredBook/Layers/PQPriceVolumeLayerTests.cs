@@ -560,11 +560,11 @@ public class PQPriceVolumeLayerTests
     (IList<PQFieldUpdate> checkFieldUpdates, IPQPriceVolumeLayer pvl, int bookIndex = 0,
         PQFieldFlags priceScale = (PQFieldFlags)1, PQFieldFlags volumeScale = (PQFieldFlags)6)
     {
-        Assert.AreEqual(new PQFieldUpdate(PQFeedFields.QuoteLayerPrice, pvl.Price, priceScale),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteLayerPrice, priceScale),
+        Assert.AreEqual(new PQFieldUpdate(PQFeedFields.QuoteLayerPrice, (PQDepthKey)bookIndex,  pvl.Price, priceScale),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteLayerPrice, (PQDepthKey)bookIndex, priceScale),
                         $"For {pvl.GetType().Name} at {bookIndex} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
-        Assert.AreEqual(new PQFieldUpdate(PQFeedFields.QuoteLayerVolume, pvl.Volume, volumeScale),
-                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteLayerVolume, volumeScale),
+        Assert.AreEqual(new PQFieldUpdate(PQFeedFields.QuoteLayerVolume, (PQDepthKey)bookIndex, pvl.Volume, volumeScale),
+                        PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteLayerVolume, (PQDepthKey)bookIndex, volumeScale),
                         $"For {pvl.GetType().Name} at {bookIndex} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
     }
 

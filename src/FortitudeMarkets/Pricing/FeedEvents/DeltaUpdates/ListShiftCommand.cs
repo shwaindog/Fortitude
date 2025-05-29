@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.DataStructures.Collections;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
@@ -50,6 +51,16 @@ public static class ListShiftCommandExtensions
     public static bool IsSwapWithDestination
         (this ListShiftCommand moveCommand) =>
         moveCommand.ShiftCommandType.HasInsertElementsRangeFlag() && moveCommand.ShiftCommandType.HasMoveSingleElementFlag();
+
+    public static bool IsJustClearNotRemove
+        (this ListShiftCommand moveCommand) =>
+        moveCommand.ShiftCommandType.HasInsertElementsRangeFlag() && moveCommand.ShiftCommandType.HasRemoveElementsFlag();
+
+    public static bool IsShiftLeftOrRightCommand
+        (this ListShiftCommand moveCommand) =>
+        moveCommand.ShiftCommandType.IsShiftLeftOrRight();
+
+    public static string JoinShiftCommandsOnNewLine(this IReadOnlyList<ListShiftCommand> shiftCommands) => shiftCommands.JoinToString(",\n");
 
     public static bool IsClearAll(this ListShiftCommand shiftCommand) =>
         shiftCommand is { Shift : ListShiftCommand.ClearAllShiftAmount, FromIndex: ListShiftCommand.ClearAllPinnedIndex };
@@ -136,6 +147,13 @@ public static class ListShiftCommandExtensions
         return false;
     }
 
+    public static bool AppendClearRangeFromIndex(this IList<ListShiftCommand> shiftCommands, short fromIndex, short amount)
+    {
+        shiftCommands.Add(new ListShiftCommand(amount, fromIndex
+                                             , ListShiftCommandType.RemoveElementsRange | ListShiftCommandType.InsertElementsRange));
+        return false;
+    }
+
     public static bool AppendMoveSingleElement(this IList<ListShiftCommand> shiftCommands, short fromIndex, short toIndex)
     {
         shiftCommands.Add(new ListShiftCommand(toIndex, fromIndex, ListShiftCommandType.MoveSingleElement));
@@ -167,7 +185,15 @@ public static class ListShiftCommandExtensions
 
     public static bool ChangeLastCommandShiftBy(this IList<ListShiftCommand> shiftCommands, short amountToChange)
     {
-        return shiftCommands.HasLastShift() && shiftCommands.ReplaceLastShift(shiftCommands.LastShift().AddToShift(amountToChange));
+        if (shiftCommands.HasLastShift())
+        {
+            var lastShift = shiftCommands.LastShift();
+            if (lastShift.ShiftCommandType.IsShiftLeftOrRight())
+            {
+                return shiftCommands.ReplaceLastShift(lastShift.AddToShift(amountToChange));
+            }
+        }
+        return false;
     }
 
     public static bool LastShiftIsShiftLeftFromEnd(this IList<ListShiftCommand> shiftCommands)

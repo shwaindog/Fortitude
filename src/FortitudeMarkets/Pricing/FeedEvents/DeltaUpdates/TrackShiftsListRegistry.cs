@@ -48,7 +48,7 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
                 RegisteredShiftCommands.RemoveAt(prevClearAt);
             }
             if (value == null) return;
-            RegisteredShiftCommands.AppendShiftTowardFromIndex((short)value, ListShiftCommand.ClearAllShiftAmount);
+            RegisteredShiftCommands.AppendClearRangeFromIndex((short)value, (short)Math.Max(0, ShiftedList.Count - value.Value));
             ApplyListShiftCommand(RegisteredShiftCommands.LastShift());
         }
     }
@@ -107,9 +107,9 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
         set
         {
             if(ReferenceEquals(value, ShiftedList[index] )) return;
-            var prevHasRandomAccessUpdates = HasUnreliableListTracking;
+            var prevHasUnreliableTracking = HasUnreliableListTracking;
             ShiftedList[index]     = value;
-            HasUnreliableListTracking = prevHasRandomAccessUpdates;
+            HasUnreliableListTracking = prevHasUnreliableTracking;
         }
     }
 
@@ -137,6 +137,7 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
 
     public ListShiftCommand ApplyListShiftCommand(ListShiftCommand shiftCommandToApply)
     {
+        var hasUnreliableListTracking = HasUnreliableListTracking;
         switch (shiftCommandToApply.ShiftCommandType)
         {
             case ShiftAllElementsAwayFromPinnedIndex: ApplyShiftAwayFromPinnedIndex(shiftCommandToApply); break;
@@ -146,24 +147,32 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
                | InsertElementsRange:
                 ApplyMoveSingleElement(shiftCommandToApply);
                 break;
-            case RemoveElementsRange: ApplyDeleteElements(shiftCommandToApply); break;
+            case RemoveElementsRange: 
+            case RemoveElementsRange
+                | InsertElementsRange: ApplyClearOrDeleteElements(shiftCommandToApply); break;
             default:                  throw new ArgumentException($"Currently don't handle {shiftCommandToApply.ShiftCommandType}");
         }
+        HasUnreliableListTracking = hasUnreliableListTracking;
 
         return shiftCommandToApply;
     }
 
-    private void ApplyDeleteElements(ListShiftCommand shiftCommandToApply)
+    private void ApplyClearOrDeleteElements(ListShiftCommand shiftCommandToApply)
     {
         var (rangeToRemove, originIndex) = shiftCommandToApply;
         if (originIndex >= ShiftedList.Count) return;
         var removeIndex = Math.Clamp(originIndex, 0, ShiftedList.Count);
-        for (int i = 0; i < rangeToRemove; i++)
+        for (int i = removeIndex; i < removeIndex + rangeToRemove; i++)
         {
-            var elementToDelete = ShiftedList[removeIndex];
+            var elementToDelete = ShiftedList[i];
             elementToDelete.StateReset();
-            RemoveAt(removeIndex);
-            Add(elementToDelete);
+            if (!shiftCommandToApply.IsJustClearNotRemove())
+            {
+                RemoveAt(removeIndex);
+                Add(elementToDelete);
+                i--;
+                rangeToRemove--;
+            }
         }
     }
 
@@ -315,47 +324,9 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
         }
         HasUnreliableListTracking = false;
         RegisteredShiftCommands.Clear();
-        CandidateRightShiftFirstCommands.Clear();
-        int lastMoveFromIndex = updatedCollection.Count;
-        for (var i = ShiftedList.Count - 1; i >= 0; i--)
-        {
-            var prevItem = ShiftedList[i];
+        CandidateRunRightShiftFirstCommands(updatedCollection);
 
-            for (var j = i + 1; j < updatedCollection.Count - 1 && j < lastMoveFromIndex; j++)
-            {
-                var updateItem = updatedCollection[j];
-
-                if (Comparison(prevItem, updateItem))
-                { // found new shift
-                    var indexDiff = (short)(j - i);
-                    CandidateRightShiftFirstCommands.ChangeLastCommandShiftBy((short)-indexDiff);
-                    CandidateRightShiftFirstCommands.AppendShiftAwayFromIndex((short)(i - 1), indexDiff);
-                    lastMoveFromIndex = j;
-                    break;
-                }
-            }
-        }
-
-        CandidateLeftShiftFirstCommands.Clear();
-        var appliedShiftLeft = 0;
-        for (var i = 0; i < ShiftedList.Count; i++)
-        {
-            var prevItem = ShiftedList[i];
-
-
-            for (var j = Math.Min(i + appliedShiftLeft - 1, updatedCollection.Count - 1); j >= 0; j--)
-            {
-                var updateItem = updatedCollection[j];
-
-                if (Comparison(prevItem, updateItem) && (j - i) < appliedShiftLeft)
-                { // found new shift
-                    var indexDiff = (short)(j - i - appliedShiftLeft);
-                    CandidateLeftShiftFirstCommands.AppendShiftTowardFromIndex((short)(j - 1), indexDiff);
-                    appliedShiftLeft += indexDiff;
-                    break;
-                }
-            }
-        }
+        CandidateRunLeftShiftFirstCommands(updatedCollection);
 
         var shiftRightCommandCount = CandidateRightShiftFirstCommands.Count;
         var shiftLeftCommandCount  = CandidateLeftShiftFirstCommands.Count;
@@ -376,6 +347,129 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
             RegisteredShiftCommands.AddRange(CandidateLeftShiftFirstCommands);
         }
         return true;
+    }
+
+    protected void CandidateRunLeftShiftFirstCommands(IReadOnlyList<TCompare> updatedCollection)
+    {
+        CandidateLeftShiftFirstCommands.Clear();
+        var isFirstShift           = true;
+        var appliedShiftLeft       = 0;
+        int highestMatchedPrevious = 0;
+        for (var i = 0; i < ShiftedList.Count; i++)
+        {
+            var prevItem = ShiftedList[i];
+            for (var j = Math.Min(i - appliedShiftLeft, updatedCollection.Count - 1); j >= 0; j--)
+            {
+                var updateItem = updatedCollection[j];
+                if (Comparison(prevItem, updateItem))
+                { 
+                    if (isFirstShift && j > 0 && i > 0)
+                    {
+                        CandidateLeftShiftFirstCommands.AppendClearRangeFromIndex(0, (short)i);
+                    }
+                    isFirstShift     =  false;
+                    var indexDiff = (short)(j - i - appliedShiftLeft);
+                    if (indexDiff < 0)
+                    {
+                        CandidateLeftShiftFirstCommands.AppendShiftTowardFromIndex((short)(j - 1), indexDiff);
+                        appliedShiftLeft += indexDiff;
+                    }
+                    highestMatchedPrevious =  i;
+                    break;
+                }
+            }
+        }
+        if (!isFirstShift && highestMatchedPrevious + 1 < ShiftedList.Count)
+        {
+            int currentRunLength = 0;
+            for (int i = highestMatchedPrevious + 1; i < ShiftedList.Count; i++)
+            {
+                var checkElement = ShiftedList[i];
+                if(updatedCollection.All( uce => !Comparison(checkElement, uce)))
+                {
+                    currentRunLength++;
+                }
+                else
+                {
+                    if (currentRunLength > 0)
+                    {
+                        CandidateLeftShiftFirstCommands.AppendClearRangeFromIndex((short)(i + appliedShiftLeft - currentRunLength), (short)(currentRunLength));
+                    }
+                    currentRunLength = 0;
+                }
+            }
+            if (currentRunLength > 0)
+            {
+                CandidateLeftShiftFirstCommands.AppendClearRangeFromIndex((short)(ShiftedList.Count + appliedShiftLeft - currentRunLength), (short)(currentRunLength));
+            }
+        }
+
+        // Only RightShiftsFirstCommands can have potential readjusted 0 shifts
+    }
+
+    protected void CandidateRunRightShiftFirstCommands(IReadOnlyList<TCompare> updatedCollection)
+    {
+        CandidateRightShiftFirstCommands.Clear();
+        var isFirstShift          = true;
+        int lastMoveFromIndex     = updatedCollection.Count;
+        int lowestMatchedPrevious = updatedCollection.Count;
+        for (var i = ShiftedList.Count - 1; i >= 0; i--)
+        {
+            var prevItem = ShiftedList[i];
+
+            for (var j = i; j < updatedCollection.Count && j < lastMoveFromIndex; j++)
+            {
+                var updateItem = updatedCollection[j];
+
+                if (Comparison(prevItem, updateItem))
+                { // found new shift
+                    var indexDiff = (short)(j - i);
+                    if (isFirstShift && i + 1 < ShiftedList.Count)
+                    {
+                        CandidateRightShiftFirstCommands.AppendClearRangeFromIndex((short)(i + 1), (short)(ShiftedList.Count - i - 1));
+                    }
+                    isFirstShift      = false;
+                    if (indexDiff > 0)
+                    {
+                        CandidateRightShiftFirstCommands.ChangeLastCommandShiftBy((short)-indexDiff);
+                        CandidateRightShiftFirstCommands.AppendShiftAwayFromIndex((short)(i - 1), indexDiff);
+
+                        lastMoveFromIndex = j;
+                    }
+                    lowestMatchedPrevious = i;
+                    break;
+                }
+            }
+        }
+        if (!isFirstShift && lowestMatchedPrevious > 0)
+        {
+            int currentRunLength = 0;
+            for (int i = 0; i < lowestMatchedPrevious; i++)
+            {
+                var checkElement = ShiftedList[i];
+                if(updatedCollection.All( uce => !Comparison(checkElement, uce)))
+                {
+                    currentRunLength++;
+                }
+                else
+                {
+                    if (currentRunLength > 0)
+                    {
+                        CandidateRightShiftFirstCommands.AppendClearRangeFromIndex((short)(i - currentRunLength), (short)(currentRunLength));
+                    }
+                    currentRunLength = 0;
+                }
+            }
+        }
+        for (var i = 0; i < CandidateRightShiftFirstCommands.Count; i++)
+        {
+            var rightShift = CandidateRightShiftFirstCommands[i];
+            if (rightShift.IsShiftLeftOrRightCommand() && rightShift.Shift <= 0)
+            {
+                CandidateRightShiftFirstCommands.RemoveAt(i);
+                i--;
+            }
+        }
     }
 
     public ListShiftCommand InsertAtStart(TElement toInsertAtStart)
@@ -462,9 +556,18 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
 
     public bool AppendAtEnd(TElement toAppendAtEnd)
     {
-        if (ShiftedList.Count < MaxAllowedSize)
+        if (Count < MaxAllowedSize)
         {
-            this[ShiftedList.Count] = toAppendAtEnd;
+            if (ShiftedList.Count < ShiftedList.Capacity)
+            {
+                this[Count] = toAppendAtEnd;
+            }
+            else
+            {
+                var prevHasUnreliableListTracking = HasUnreliableListTracking;
+                ShiftedList.Add(toAppendAtEnd);
+                HasUnreliableListTracking = prevHasUnreliableListTracking;
+            }
             return true;
         }
         return false;

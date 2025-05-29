@@ -715,7 +715,8 @@ public class PQRecentlyTradedTests
 
         var shiftedNext = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         toShift.CalculateShift(ExpectedTradeTime, shiftedNext);
-
+        
+        Console.Out.WriteLine($"{toShift.ShiftCommands.JoinShiftCommandsOnNewLine()}");
         Assert.AreEqual(6, toShift.ShiftCommands.Count);
         AssertExpectedShiftCommands();
 
@@ -817,6 +818,8 @@ public class PQRecentlyTradedTests
         instances[expectedIndices[3]] = shiftedNext[11];
         shiftedNext.CalculateShift(ExpectedTradeTime, toShift);
 
+        Console.Out.WriteLine($"{shiftedNext.ShiftCommands.JoinShiftCommandsOnNewLine()}");
+
         AssertExpectedShiftCommands();
         Assert.AreEqual(4, shiftedNext.ShiftCommands.Count);
 
@@ -874,15 +877,15 @@ public class PQRecentlyTradedTests
 
         toShift.ClearRemainingElementsFromIndex = halfListSize;
 
-        for (int i = 0; i <= halfListSize; i++)
+        for (int i = 0; i < halfListSize; i++)
         {
             Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i]);
         }
-        for (int i = halfListSize + 1; i < fullSupportRecentlyTradedFullyPopulatedLastTrades.Count; i++)
+        for (int i = halfListSize; i < fullSupportRecentlyTradedFullyPopulatedLastTrades.Count; i++)
         {
             Assert.IsTrue(toShift[i].IsEmpty);
         }
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades.Count, toShift.Count + halfListSize - 1);
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades.Count, toShift.Count + halfListSize);
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
@@ -1116,7 +1119,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1166,7 +1169,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1213,7 +1216,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1263,7 +1266,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1311,7 +1314,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1362,7 +1365,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1410,7 +1413,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1461,7 +1464,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1493,7 +1496,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1527,7 +1530,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1559,7 +1562,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1593,7 +1596,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1625,7 +1628,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1659,7 +1662,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1691,7 +1694,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1725,7 +1728,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1753,7 +1756,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1783,7 +1786,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1815,7 +1818,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -1849,7 +1852,7 @@ public class PQRecentlyTradedTests
 
         var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     private Type GetExpectedType(Type originalType, Type copyType)

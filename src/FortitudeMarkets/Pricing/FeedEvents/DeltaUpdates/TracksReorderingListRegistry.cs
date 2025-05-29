@@ -75,7 +75,10 @@ public class TracksReorderingListRegistry<TElement, TCompare>
                 for (var j = updatedCollection.Count - 1; j >= 0; j--)
                 {
                     var updateItem        = updatedCollection[j];
-                    var finalShiftApplied = CandidateRightShiftFirstCommands.Where(lsc => lsc.FromIndex < i).Sum(lsc => lsc.Shift);
+                    var finalShiftApplied = CandidateRightShiftFirstCommands
+                                            .Where(lsc => lsc.FromIndex < i 
+                                                        && lsc.ShiftCommandType == ShiftAllElementsAwayFromPinnedIndex)
+                                            .Sum(lsc => lsc.Shift);
 
                     if (Comparison(prevItem, updateItem) && (i + finalShiftApplied) != j)
                     { // found new shift
@@ -109,7 +112,10 @@ public class TracksReorderingListRegistry<TElement, TCompare>
                 for (var j = 0; j < updatedCollection.Count; j++)
                 {
                     var updateItem        = updatedCollection[j];
-                    var finalShiftApplied = CandidateLeftShiftFirstCommands.Where(lsc => lsc.FromIndex < j).Sum(lsc => lsc.Shift);
+                    var finalShiftApplied = CandidateLeftShiftFirstCommands
+                                            .Where(lsc => lsc.FromIndex < j 
+                                                       && lsc.ShiftCommandType == ShiftAllElementsTowardPinnedIndex)
+                                            .Sum(lsc => lsc.Shift);
 
                     if (Comparison(prevItem, updateItem) && (i + finalShiftApplied) != j)
                     { // found new shift

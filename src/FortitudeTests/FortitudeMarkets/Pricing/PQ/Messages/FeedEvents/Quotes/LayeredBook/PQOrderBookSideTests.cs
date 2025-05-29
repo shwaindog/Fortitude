@@ -5,6 +5,7 @@
 
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
+using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
@@ -30,7 +31,7 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.
 [TestClass]
 public class PQOrderBookSideTests
 {
-    private const int MaxNumberOfLayers = 19; // test being less than max.
+    private const int MaxNumberOfLayers = 12; // test being less than max.
 
     private const decimal ExpectedPrice          = 1.234567m;
     private const decimal ExpectedVolume         = 40_000_000m;
@@ -40,12 +41,13 @@ public class PQOrderBookSideTests
     private const int     ExpectedOrdersCount    = 3; // not too many traders.
     private const decimal ExpectedInternalVolume = 20_000_000m;
 
-    private const OrderGenesisFlags ExpectedGenesisFlags = OrderGenesisFlags.FromAdapter | OrderGenesisFlags.IsExternalOrder | OrderGenesisFlags.HasExternalCounterPartyInfo;
-    private const OrderType         ExpectedOrderType    = OrderType.PassiveLimit;
+    private const OrderGenesisFlags ExpectedGenesisFlags
+        = OrderGenesisFlags.FromAdapter | OrderGenesisFlags.IsExternalOrder | OrderGenesisFlags.HasExternalCounterPartyInfo;
+    private const OrderType ExpectedOrderType = OrderType.PassiveLimit;
 
     private const OrderLifeCycleState ExpectedLifecycleState = OrderLifeCycleState.ConfirmedActiveOnMarket;
 
-    private const uint    ExpectedTrackingId = 12467u;
+    private const uint ExpectedTrackingId = 12467u;
 
     private const int     ExpectedOrderId              = 250;
     private const decimal ExpectedOrderVolume          = 50.50m;
@@ -53,10 +55,10 @@ public class PQOrderBookSideTests
     private const string  ExpectedCounterPartyBase     = "TestCounterPartyName_";
     private const string  ExpectedTraderNameBase       = "TestTraderName_";
 
-    private const MarketDataSource ExpectedDataSource         = MarketDataSource.Venue;
+    private const MarketDataSource ExpectedDataSource = MarketDataSource.Venue;
 
-    private const decimal          ExpectedOpenInterestVolume = ExpectedOrderVolume * 100;
-    private const decimal          ExpectedOpenInterestVwap   = ExpectedPrice * 2m;
+    private const decimal ExpectedOpenInterestVolume = ExpectedOrderVolume * 100;
+    private const decimal ExpectedOpenInterestVwap   = ExpectedPrice * 2m;
 
     private const uint ExpectedDailyTickCount = 2_582;
 
@@ -66,38 +68,34 @@ public class PQOrderBookSideTests
     private static readonly DateTime ExpectedValueDate        = new(2017, 12, 09, 14, 0, 0);
     private static readonly DateTime ExpectedOrderCreatedTime = new DateTime(2025, 4, 21, 6, 27, 23).AddMilliseconds(123).AddMicroseconds(456);
     private static readonly DateTime ExpectedOrderUpdatedTime = new DateTime(2025, 4, 21, 12, 8, 59).AddMilliseconds(789).AddMicroseconds(213);
-    
-    private IPQOrderBookSide allFieldsFullyPopulatedOrderBookSide = null!;
 
-    private IList<IPQFullSupportPriceVolumeLayer> allFieldsLayers = null!;
+    private List<IReadOnlyList<IPQPriceVolumeLayer?>> allPopulatedLayers     = null!;
+    private List<IPQOrderBookSide>                    allPopulatedOrderBooks = null!;
 
-    private List<IReadOnlyList<IPQPriceVolumeLayer?>> allPopulatedLayers = null!;
+    private IList<IPQPriceVolumeLayer>               simpleLayers             = null!;
+    private IList<IPQSourcePriceVolumeLayer>         sourceLayers             = null!;
+    private IList<IPQSourceQuoteRefPriceVolumeLayer> sourceQtRefLayers        = null!;
+    private IList<IPQValueDatePriceVolumeLayer>      valueDateLayers          = null!;
+    private IList<IPQOrdersCountPriceVolumeLayer>    ordersCountLayers        = null!;
+    private IList<IPQOrdersPriceVolumeLayer>         ordersAnonLayers         = null!;
+    private IList<IPQOrdersPriceVolumeLayer>         ordersCounterPartyLayers = null!;
+    private IList<IPQFullSupportPriceVolumeLayer>    fullSupportLayers        = null!;
 
-    private List<IPQOrderBookSide> allPopulatedOrderBooks = null!;
+    private IPQOrderBookSide simpleFullyPopulatedOrderBookSide             = null!;
+    private IPQOrderBookSide sourceFullyPopulatedOrderBookSide             = null!;
+    private IPQOrderBookSide sourceQtRefFullyPopulatedOrderBookSide        = null!;
+    private IPQOrderBookSide valueDateFullyPopulatedOrderBookSide          = null!;
+    private IPQOrderBookSide ordersCountFullyPopulatedOrderBookSide        = null!;
+    private IPQOrderBookSide ordersAnonFullyPopulatedOrderBookSide         = null!;
+    private IPQOrderBookSide ordersCounterPartyFullyPopulatedOrderBookSide = null!;
+    private IPQOrderBookSide fullSupportFullyPopulatedOrderBookSide        = null!;
 
-    private PQNameIdLookupGenerator          nameIdLookupGenerator                         = null!;
-    private IPQOrderBookSide                 ordersAnonFullyPopulatedOrderBookSide         = null!;
-    private IList<IPQOrdersPriceVolumeLayer> ordersAnonLayers                              = null!;
-    private IPQOrderBookSide                 ordersCounterPartyFullyPopulatedOrderBookSide = null!;
-    private IList<IPQOrdersPriceVolumeLayer> ordersCounterPartyLayers                      = null!;
-    private IPQOrderBookSide                 ordersCountFullyPopulatedOrderBookSide        = null!;
-
-    private IList<IPQOrdersCountPriceVolumeLayer> ordersCountLayers = null!;
-
-    private PQSourceTickerInfo publicationPrecisionSettings = null!;
-
-    private IPQOrderBookSide simpleFullyPopulatedOrderBookSide = null!;
-
-    private IList<IPQPriceVolumeLayer>       simpleLayers                           = null!;
-    private IPQOrderBookSide                 sourceFullyPopulatedOrderBookSide      = null!;
-    private IList<IPQSourcePriceVolumeLayer> sourceLayers                           = null!;
-    private IPQOrderBookSide                 sourceQtRefFullyPopulatedOrderBookSide = null!;
-
-    private IList<IPQSourceQuoteRefPriceVolumeLayer> sourceQtRefLayers                    = null!;
-    private IPQOrderBookSide                         valueDateFullyPopulatedOrderBookSide = null!;
-    private IList<IPQValueDatePriceVolumeLayer>      valueDateLayers                      = null!;
+    private PQSourceTickerInfo      publicationPrecisionSettings = null!;
+    private PQNameIdLookupGenerator nameIdLookupGenerator        = null!;
 
     private static DateTime testDateTime = new(2025, 5, 7, 18, 33, 24);
+
+    private readonly PQSourceTickerInfo forGetDeltaUpdates = PQSourceTickerInfoTests.FullSupportL2PriceVolumeSti;
 
     [TestInitialize]
     public void SetUp()
@@ -111,7 +109,7 @@ public class PQOrderBookSideTests
         valueDateLayers   = new List<IPQValueDatePriceVolumeLayer>(MaxNumberOfLayers);
         ordersCountLayers = new List<IPQOrdersCountPriceVolumeLayer>(MaxNumberOfLayers);
         ordersAnonLayers  = new List<IPQOrdersPriceVolumeLayer>(MaxNumberOfLayers);
-        allFieldsLayers   = new List<IPQFullSupportPriceVolumeLayer>(MaxNumberOfLayers);
+        fullSupportLayers = new List<IPQFullSupportPriceVolumeLayer>(MaxNumberOfLayers);
 
         // placed in the same order as the orderBooks at the end of Setup
         allPopulatedLayers =
@@ -119,58 +117,67 @@ public class PQOrderBookSideTests
             (IReadOnlyList<IPQPriceVolumeLayer>)simpleLayers, (IReadOnlyList<IPQPriceVolumeLayer>)sourceLayers
           , (IReadOnlyList<IPQPriceVolumeLayer>)sourceQtRefLayers, (IReadOnlyList<IPQPriceVolumeLayer>)valueDateLayers
           , (IReadOnlyList<IPQPriceVolumeLayer>)ordersCountLayers, (IReadOnlyList<IPQPriceVolumeLayer>)ordersAnonLayers
-          , (IReadOnlyList<IPQPriceVolumeLayer>)ordersCounterPartyLayers, (IReadOnlyList<IPQPriceVolumeLayer>)allFieldsLayers
+          , (IReadOnlyList<IPQPriceVolumeLayer>)ordersCounterPartyLayers, (IReadOnlyList<IPQPriceVolumeLayer>)fullSupportLayers
         ];
 
         for (var i = 0; i < MaxNumberOfLayers; i++)
         {
-            simpleLayers.Add(new PQPriceVolumeLayer(ExpectedPrice, ExpectedVolume));
+            simpleLayers.Add(new PQPriceVolumeLayer(ExpectedPrice + (0.0001m * i), ExpectedVolume));
 
-            var sourcePvl =
-                new PQSourcePriceVolumeLayer
-                    (nameIdLookupGenerator, ExpectedPrice, ExpectedVolume, ExpectedSourceName, ExpectedExecutable);
+            var sourcePvl = new PQSourcePriceVolumeLayer
+                (nameIdLookupGenerator, ExpectedPrice + (0.0001m * i), ExpectedVolume, ExpectedSourceName, ExpectedExecutable);
             sourceLayers.Add(sourcePvl);
 
             var srcQtRefPvl = new PQSourceQuoteRefPriceVolumeLayer
-                (nameIdLookupGenerator, ExpectedPrice, ExpectedVolume, ExpectedSourceName, ExpectedExecutable, ExpectedSourceQuoteRef);
+                (nameIdLookupGenerator, ExpectedPrice + (0.0001m * i), ExpectedVolume, ExpectedSourceName, ExpectedExecutable
+               , ExpectedSourceQuoteRef);
             sourceQtRefLayers.Add(srcQtRefPvl);
 
-            valueDateLayers.Add
-                (new PQValueDatePriceVolumeLayer
-                    (ExpectedPrice, ExpectedVolume, ExpectedValueDate));
-
-            var allFieldsPvL = new PQFullSupportPriceVolumeLayer
-                (nameIdLookupGenerator, ExpectedPrice, ExpectedVolume, ExpectedValueDate,
-                 ExpectedSourceName, ExpectedExecutable, ExpectedSourceQuoteRef, ExpectedOrdersCount, ExpectedInternalVolume);
-            allFieldsLayers.Add(allFieldsPvL);
-            var ordersCountPvl = new PQOrdersCountPriceVolumeLayer(ExpectedPrice, ExpectedVolume, ExpectedOrdersCount, ExpectedInternalVolume);
+            valueDateLayers.Add(new PQValueDatePriceVolumeLayer(ExpectedPrice + (0.0001m * i), ExpectedVolume, ExpectedValueDate));
+            var ordersCountPvl
+                = new PQOrdersCountPriceVolumeLayer(ExpectedPrice + (0.0001m * i), ExpectedVolume, ExpectedOrdersCount, ExpectedInternalVolume);
             ordersCountLayers.Add(ordersCountPvl);
-            var anonOrdersPvL = new PQOrdersPriceVolumeLayer(nameIdLookupGenerator, LayerType.OrdersAnonymousPriceVolume, ExpectedPrice
-                                                           , ExpectedVolume, ExpectedOrdersCount, ExpectedInternalVolume);
+            var anonOrdersPvL = new PQOrdersPriceVolumeLayer
+                (nameIdLookupGenerator, LayerType.OrdersAnonymousPriceVolume, ExpectedPrice + (0.0001m * i)
+               , ExpectedVolume, ExpectedOrdersCount, ExpectedInternalVolume);
             ordersAnonLayers.Add(anonOrdersPvL);
             var counterPartyOrdersPvL = new PQOrdersPriceVolumeLayer
-                (nameIdLookupGenerator, LayerType.OrdersFullPriceVolume, ExpectedPrice, ExpectedVolume, ExpectedOrdersCount, ExpectedInternalVolume);
+                (nameIdLookupGenerator, LayerType.OrdersFullPriceVolume, ExpectedPrice + (0.0001m * i), ExpectedVolume, ExpectedOrdersCount
+               , ExpectedInternalVolume);
             ordersCounterPartyLayers.Add(counterPartyOrdersPvL);
+            var fullSupportPvL = new PQFullSupportPriceVolumeLayer
+                (nameIdLookupGenerator, ExpectedPrice + (0.0001m * i), ExpectedVolume, ExpectedValueDate,
+                 ExpectedSourceName, ExpectedExecutable, ExpectedSourceQuoteRef, ExpectedOrdersCount, ExpectedInternalVolume);
+            fullSupportLayers.Add(fullSupportPvL);
             for (var j = 0; j < ExpectedOrdersCount; j++)
             {
-                allFieldsPvL.Add
+                fullSupportPvL.Add
                     (new PQExternalCounterPartyOrder
-                        (new PQAnonymousOrder(nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderType
-                       , ExpectedGenesisFlags, ExpectedLifecycleState, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId)
-                         {
-                             ExternalCounterPartyOrderInfo = new PQAdditionalExternalCounterPartyInfo(nameIdLookupGenerator, i + 1, ExpectedCounterPartyBase + i, i+ 1, ExpectedTraderNameBase + i)
-                         }));
+                        (new PQAnonymousOrder
+                            (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderType
+                           , ExpectedGenesisFlags, ExpectedLifecycleState, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId)
+                            {
+                                ExternalCounterPartyOrderInfo
+                                    = new PQAdditionalExternalCounterPartyInfo
+                                        (nameIdLookupGenerator, i + 1, ExpectedCounterPartyBase + i
+                                       , i + 1, ExpectedTraderNameBase + i)
+                            }));
                 anonOrdersPvL.Add
                     (new PQAnonymousOrder
-                        (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderType, ExpectedGenesisFlags
+                        (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderType
+                       , ExpectedGenesisFlags
                        , ExpectedLifecycleState, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId));
                 counterPartyOrdersPvL.Add
                     (new PQExternalCounterPartyOrder
-                        (new PQAnonymousOrder(nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderType
-                                            , ExpectedGenesisFlags, ExpectedLifecycleState, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId)
-                        {
-                            ExternalCounterPartyOrderInfo = new PQAdditionalExternalCounterPartyInfo(nameIdLookupGenerator, i + 1, ExpectedCounterPartyBase + i, i+ 1, ExpectedTraderNameBase + i)
-                        }));
+                        (new PQAnonymousOrder
+                            (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderType
+                           , ExpectedGenesisFlags
+                           , ExpectedLifecycleState, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId)
+                            {
+                                ExternalCounterPartyOrderInfo
+                                    = new PQAdditionalExternalCounterPartyInfo(nameIdLookupGenerator, i + 1, ExpectedCounterPartyBase + i, i + 1
+                                                                             , ExpectedTraderNameBase + i)
+                            }));
             }
         }
 
@@ -186,6 +193,10 @@ public class PQOrderBookSideTests
         {
             DailyTickUpdateCount = ExpectedDailyTickCount, OpenInterestSide = ExpectedSidedOpenInterest
         };
+        valueDateFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, valueDateLayers)
+        {
+            DailyTickUpdateCount = ExpectedDailyTickCount, OpenInterestSide = ExpectedSidedOpenInterest
+        };
         ordersCountFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, ordersCountLayers)
         {
             DailyTickUpdateCount = ExpectedDailyTickCount, OpenInterestSide = ExpectedSidedOpenInterest
@@ -194,17 +205,11 @@ public class PQOrderBookSideTests
         {
             DailyTickUpdateCount = ExpectedDailyTickCount, OpenInterestSide = ExpectedSidedOpenInterest
         };
-        valueDateFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, valueDateLayers)
-        {
-            DailyTickUpdateCount = ExpectedDailyTickCount, OpenInterestSide = ExpectedSidedOpenInterest
-        };
-
         ordersCounterPartyFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, ordersCounterPartyLayers)
         {
             DailyTickUpdateCount = ExpectedDailyTickCount, OpenInterestSide = ExpectedSidedOpenInterest
         };
-
-        allFieldsFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, allFieldsLayers)
+        fullSupportFullyPopulatedOrderBookSide = new PQOrderBookSide(BookSide.BidBook, fullSupportLayers)
         {
             DailyTickUpdateCount = ExpectedDailyTickCount, OpenInterestSide = ExpectedSidedOpenInterest
         };
@@ -213,7 +218,7 @@ public class PQOrderBookSideTests
         [
             simpleFullyPopulatedOrderBookSide, sourceFullyPopulatedOrderBookSide, sourceQtRefFullyPopulatedOrderBookSide
           , valueDateFullyPopulatedOrderBookSide, ordersCountFullyPopulatedOrderBookSide, ordersAnonFullyPopulatedOrderBookSide
-          , ordersCounterPartyFullyPopulatedOrderBookSide, allFieldsFullyPopulatedOrderBookSide
+          , ordersCounterPartyFullyPopulatedOrderBookSide, fullSupportFullyPopulatedOrderBookSide
         ];
         // [
         //     ordersAnonFullyPopulatedOrderBookSide, allFieldsFullyPopulatedOrderBookSide
@@ -377,7 +382,10 @@ public class PQOrderBookSideTests
             var populatedOrderBook = allPopulatedOrderBooks[i];
             var populatedLayers    = allPopulatedLayers[i];
             Assert.AreEqual(MaxNumberOfLayers, populatedOrderBook.AllLayers.Count);
-            for (var j = 0; j < MaxNumberOfLayers; j++) Assert.AreSame(populatedLayers[j], populatedOrderBook[j]);
+            for (var j = 0; j < MaxNumberOfLayers; j++)
+            {
+                Assert.AreSame(populatedLayers[j], populatedOrderBook[j]);
+            }
         }
     }
 
@@ -477,7 +485,7 @@ public class PQOrderBookSideTests
         if (l2QNotNull)
         {
             var deltaUpdateFields = l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
-            Assert.AreEqual(2, deltaUpdateFields.Count());
+            Assert.AreEqual(2, deltaUpdateFields.Count);
         }
 
         var expectedDailyTickCount = 128u;
@@ -819,7 +827,8 @@ public class PQOrderBookSideTests
         clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
         clonePopulated[^1] = clonePopulated[^1].ResetWithTracking();
         Assert.AreEqual(MaxNumberOfLayers - 2, clonePopulated.Count);
-        var notEmpty = new PQOrderBookSide(simpleFullyPopulatedOrderBookSide) { [5] = simpleFullyPopulatedOrderBookSide[5].Clone().ResetWithTracking() };
+        var notEmpty = new PQOrderBookSide(simpleFullyPopulatedOrderBookSide)
+            { [5] = simpleFullyPopulatedOrderBookSide[5].Clone().ResetWithTracking() };
         Assert.AreEqual(MaxNumberOfLayers, notEmpty.Count);
         notEmpty.CopyFrom(clonePopulated);
         Assert.AreEqual(notEmpty[5], clonePopulated[5]);
@@ -984,7 +993,7 @@ public class PQOrderBookSideTests
     [TestMethod]
     public void FullyPopulatedPvlVariousInterfaces_GetEnumerator_OnlyGetsNonEmptyEntries()
     {
-        var rt = allFieldsFullyPopulatedOrderBookSide;
+        var rt = fullSupportFullyPopulatedOrderBookSide;
         Assert.AreEqual(MaxNumberOfLayers, rt.Count);
         Assert.AreEqual(MaxNumberOfLayers, ((IEnumerable<IPQPriceVolumeLayer>)rt).Count());
         Assert.AreEqual(MaxNumberOfLayers, ((IEnumerable<IPriceVolumeLayer>)rt).Count());
@@ -996,6 +1005,769 @@ public class PQOrderBookSideTests
         Assert.AreEqual(0, ((IEnumerable<IPQPriceVolumeLayer>)rt).Count());
         Assert.AreEqual(0, ((IEnumerable<IPriceVolumeLayer>)rt).Count());
         Assert.AreEqual(0, rt.OfType<IPriceVolumeLayer>().Count());
+    }
+
+    [TestMethod]
+    public void PopulatedOrderBookSide_SmallerToLargerCalculateShifts_ShiftRightCommandsExpected()
+    {
+        fullSupportFullyPopulatedOrderBookSide.HasUpdates = false;
+        var toShift = fullSupportFullyPopulatedOrderBookSide.Clone();
+        Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide, toShift);
+
+        int[]               expectedIndices = [0, 2, 5, 9];
+        IPriceVolumeLayer[] instances       = new IPriceVolumeLayer[10];
+
+        int oldIndex    = 0;                   // original    0,1,2,3,4,5,6,7,8,9,10,11
+        int actualIndex = 0;                   // deleted     1,3,4,6,7,8,10,11 
+        var count       = toShift.Count;       // leaving     0,2,5,9
+        for (var i = 0; oldIndex < count; i++) // shifts at   (2,3),(1,2)(0,1)
+        {
+            Console.Out.WriteLine($"Leaving index {oldIndex} with Price {toShift[actualIndex].Price}");
+            instances[oldIndex] = toShift[actualIndex];
+            oldIndex++;
+            actualIndex++;
+            for (var j = i + 1; j < 2 + 2 * i && oldIndex < count; j++)
+            {
+                Console.Out.WriteLine($"Deleting index {oldIndex} with Price {toShift[actualIndex].Price}");
+                toShift.RemoveAt(actualIndex);
+                oldIndex++;
+            }
+        }
+
+        toShift.ShiftCommands = new List<ListShiftCommand>();
+
+        var shiftedNext = fullSupportFullyPopulatedOrderBookSide.Clone();
+        toShift.CalculateShift(testDateTime, shiftedNext);
+
+        Assert.AreEqual(3, toShift.ShiftCommands.Count);
+        AssertExpectedShiftCommands();
+
+        void AssertExpectedShiftCommands()
+        {
+            for (int i = 0; i < toShift.ShiftCommands.Count; i++)
+            {
+                var shift = toShift.ShiftCommands[i];
+                switch (i)
+                {
+                    case 0:
+                        Assert.AreEqual(2, shift.PinnedFromIndex);
+                        Assert.AreEqual(3, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 1:
+                        Assert.AreEqual(1, shift.PinnedFromIndex);
+                        Assert.AreEqual(2, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 2:
+                        Assert.AreEqual(0, shift.PinnedFromIndex);
+                        Assert.AreEqual(1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                }
+            }
+        }
+
+        foreach (var shiftElementShift in toShift.ShiftCommands)
+        {
+            toShift.ApplyListShiftCommand(shiftElementShift);
+        }
+        foreach (var expectedIndex in expectedIndices)
+        {
+            Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide[expectedIndex], toShift[expectedIndex]);
+            Assert.AreSame(instances[expectedIndex], toShift[expectedIndex]);
+        }
+    }
+
+    [TestMethod]
+    public void PopulatedOrderBookSide_SmallerToLargerCalculateShiftsNewInsertInMiddle_ShiftRightCommandsExpected()
+    {
+        fullSupportFullyPopulatedOrderBookSide.HasUpdates = false;
+        var toShift = fullSupportFullyPopulatedOrderBookSide.Clone();
+        Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide, toShift);
+
+        int[]               expectedIndices = [0, 2, 4, 5, 6, 8, 10];
+        IPriceVolumeLayer[] instances       = new IPriceVolumeLayer[11];
+
+        var counterPartyOrdersPvL = new PQFullSupportPriceVolumeLayer
+            (nameIdLookupGenerator, ExpectedPrice + (0.0001m * 13), ExpectedVolume, ExpectedValueDate,
+             ExpectedSourceName, ExpectedExecutable, ExpectedSourceQuoteRef, ExpectedOrdersCount, ExpectedInternalVolume);
+
+
+        int oldIndex    = 0;                   // original    0,1,2,3,4,5,6,7,8,9,10,11        
+        int actualIndex = 0;                   // deleted     1,3,5,9,11         
+        var count       = toShift.Count;       // leaving     0,2,4,{new},6,8,10        
+        for (var i = 0; oldIndex < count; i++) // shifts at   (5,1),(4,1),(1,1),(0,1)
+        {
+            if (i % 2 == 1)
+            {
+                Console.Out.WriteLine($"Deleting index {oldIndex} with Price {toShift[actualIndex].Price}");
+                toShift.RemoveAt(actualIndex);
+                oldIndex++;
+            }
+            else
+            {
+                Console.Out.WriteLine($"Leaving index {oldIndex} with Price {toShift[actualIndex].Price}");
+                instances[oldIndex] = toShift[actualIndex];
+                oldIndex++;
+                actualIndex++;
+                if (actualIndex == 3)
+                {
+                    Console.Out.WriteLine($"Inserting at index {oldIndex} with Price {counterPartyOrdersPvL.Price}");
+                    toShift.InsertAt(actualIndex, counterPartyOrdersPvL);
+                    instances[oldIndex] = counterPartyOrdersPvL;
+                    actualIndex++;
+                }
+            }
+        }
+
+        toShift.ShiftCommands = new List<ListShiftCommand>();
+
+        var shiftedNext = fullSupportFullyPopulatedOrderBookSide.Clone();
+        toShift.CalculateShift(testDateTime, shiftedNext);
+
+        Console.Out.WriteLine($"{toShift.ShiftCommands.JoinShiftCommandsOnNewLine()}");
+
+        Assert.AreEqual(4, toShift.ShiftCommands.Count);
+        AssertExpectedShiftCommands();
+
+        void AssertExpectedShiftCommands()
+        {
+            for (int i = 0; i < toShift.ShiftCommands.Count; i++)
+            {
+                var shift = toShift.ShiftCommands[i];
+                Console.Out.WriteLine($"shift: {shift}");
+                switch (i)
+                {
+                    case 0:
+                        Assert.AreEqual(5, shift.PinnedFromIndex);
+                        Assert.AreEqual(1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 1:
+                        Assert.AreEqual(4, shift.PinnedFromIndex);
+                        Assert.AreEqual(1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 2:
+                        Assert.AreEqual(1, shift.PinnedFromIndex);
+                        Assert.AreEqual(1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 3:
+                        Assert.AreEqual(0, shift.PinnedFromIndex);
+                        Assert.AreEqual(1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                }
+            }
+        }
+
+        foreach (var shiftElementShift in toShift.ShiftCommands)
+        {
+            toShift.ApplyListShiftCommand(shiftElementShift);
+        }
+        for (int i = 0; i < expectedIndices.Length; i++)
+        {
+            if (i != 3) Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide[expectedIndices[i]], toShift[expectedIndices[i]]);
+            Assert.AreSame(instances[expectedIndices[i]], toShift[expectedIndices[i]]);
+        }
+    }
+
+    [TestMethod]
+    public void PopulatedOrderBookSide_ClearEdgesSomeGapsRemainingWithNewEntries_ShiftLeftAndClearCommandsExpected()
+    {
+        fullSupportFullyPopulatedOrderBookSide.HasUpdates = false;
+        var toShift = fullSupportFullyPopulatedOrderBookSide.Clone();
+        Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide, toShift);
+
+        IPriceVolumeLayer[] instances = new IPriceVolumeLayer[10];
+
+
+        int[] leaveExisting             = [3, 6, 9];
+        int[] existingNewLocation       = [1, 3, 4];
+        int[] insertNewIndexesLocations = [0, 4, 10, 11, 12];    // original    0,1,2,3,4,5,6,7,8,9,10,11        
+        int   actualIndex               = 0;                     // deleted     0,1,2,4,5,7,8,10,11         
+        var   count                     = toShift.Count;         // leaving     {new},3,{?},6,9,{new},{new},{new}        
+        for (var oldIndex = 0; oldIndex < count + 1; oldIndex++) // shifts at   {clear(0,3)},(0,-2),(2,-1),(3,-2),{clear(4,2)}
+        {
+            if (leaveExisting.Contains(oldIndex))
+            {
+                Console.Out.WriteLine($"Leaving index {oldIndex} at new Index {actualIndex} with Price {toShift[actualIndex].Price}");
+                instances[oldIndex] = toShift[actualIndex];
+                actualIndex++;
+            }
+            else if (oldIndex < count)
+            {
+                Console.Out.WriteLine($"Deleting index {oldIndex} with Price {toShift[actualIndex].Price}");
+                toShift.RemoveAt(actualIndex);
+            }
+            if (insertNewIndexesLocations.Contains(oldIndex))
+            {
+                var counterPartyOrdersPvL = new PQFullSupportPriceVolumeLayer
+                    (nameIdLookupGenerator, ExpectedPrice + (0.0001m * (20 + oldIndex)), ExpectedVolume, ExpectedValueDate,
+                     ExpectedSourceName, ExpectedExecutable, ExpectedSourceQuoteRef, ExpectedOrdersCount, ExpectedInternalVolume);
+                Console.Out.WriteLine($"Inserting at index {oldIndex} at new Index {actualIndex} with Price {counterPartyOrdersPvL.Price}");
+                toShift.InsertAt(actualIndex, counterPartyOrdersPvL);
+                actualIndex++;
+            }
+        }
+
+        toShift.ShiftCommands = new List<ListShiftCommand>();
+
+        var shiftedNext = fullSupportFullyPopulatedOrderBookSide.Clone();
+        shiftedNext.CalculateShift(testDateTime, toShift);
+
+        Console.Out.WriteLine($"{shiftedNext.ShiftCommands.JoinShiftCommandsOnNewLine()}");
+
+        Assert.AreEqual(5, shiftedNext.ShiftCommands.Count);
+        instances[leaveExisting[0]] = shiftedNext[leaveExisting[0]];
+        instances[leaveExisting[1]] = shiftedNext[leaveExisting[1]];
+        instances[leaveExisting[2]] = shiftedNext[leaveExisting[2]];
+        AssertExpectedShiftCommands();
+
+        void AssertExpectedShiftCommands()
+        {
+            for (int i = 0; i < shiftedNext.ShiftCommands.Count; i++)
+            {
+                var shift = shiftedNext.ShiftCommands[i];
+                Console.Out.WriteLine($"shift: {shift}");
+                switch (i)
+                {
+                    case 0:
+                        Assert.AreEqual(0, shift.PinnedFromIndex);
+                        Assert.AreEqual(3, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.RemoveElementsRange | ListShiftCommandType.InsertElementsRange, shift.ShiftCommandType);
+                        break;
+                    case 1:
+                        Assert.AreEqual(0, shift.PinnedFromIndex);
+                        Assert.AreEqual(-2, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsTowardPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 2:
+                        Assert.AreEqual(2, shift.PinnedFromIndex);
+                        Assert.AreEqual(-1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsTowardPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 3:
+                        Assert.AreEqual(3, shift.PinnedFromIndex);
+                        Assert.AreEqual(-2, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsTowardPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 4:
+                        Assert.AreEqual(5, shift.PinnedFromIndex);
+                        Assert.AreEqual(2, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.RemoveElementsRange | ListShiftCommandType.InsertElementsRange, shift.ShiftCommandType);
+                        break;
+                }
+            }
+        }
+
+        foreach (var shiftElementShift in shiftedNext.ShiftCommands)
+        {
+            shiftedNext.ApplyListShiftCommand(shiftElementShift);
+        }
+        for (int i = 0; i < existingNewLocation.Length; i++)
+        {
+            Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide[leaveExisting[i]], shiftedNext[existingNewLocation[i]]);
+            Assert.AreSame(instances[leaveExisting[i]], shiftedNext[existingNewLocation[i]]);
+        }
+    }
+
+    [TestMethod]
+    public void PopulatedOrderBookSide_InsertNewAtStart_OneShiftRightCommandExpected()
+    {
+        fullSupportFullyPopulatedOrderBookSide.HasUpdates = false;
+        var toShift = fullSupportFullyPopulatedOrderBookSide.Clone();
+        Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide, toShift);
+
+        int[] expectedExistingIndices = [4, 5, 6, 7];
+        int[] expectedNewIndices      = [0, 1, 2, 3];
+
+        IPriceVolumeLayer[] instances = new IPriceVolumeLayer[12];
+
+        int actualIndex = 0;                                 // original    0,1,2,3,4,5,6,7,8,9,10,11
+        var count       = toShift.Count;                     // inserting   {new},{new},{new},{new} 
+        for (var oldIndex = 0; oldIndex < count; oldIndex++) // deleted     8,9,10,11
+        {                                                    // leaving     {new},{new},{new},{new},4,5,6,7
+            if (oldIndex < 8)                                // shifts at   {clear(4,8)}(-1,4) 
+            {
+                if (oldIndex < 4)
+                {
+                    var counterPartyOrdersPvL = new PQFullSupportPriceVolumeLayer
+                        (nameIdLookupGenerator, ExpectedPrice + (0.0001m * (20 + oldIndex)), ExpectedVolume, ExpectedValueDate,
+                         ExpectedSourceName, ExpectedExecutable, ExpectedSourceQuoteRef, ExpectedOrdersCount, ExpectedInternalVolume);
+                    Console.Out.WriteLine($"Inserting at index {oldIndex} with Price {counterPartyOrdersPvL.Price}");
+                    toShift.InsertAt(actualIndex, counterPartyOrdersPvL);
+                }
+                else
+                {
+                    Console.Out.WriteLine($"Leaving original index {oldIndex - 4} at new index {oldIndex} with Price {toShift[actualIndex].Price}");
+                }
+                actualIndex++;
+            }
+            else
+            {
+                Console.Out.WriteLine($"Deleting index {oldIndex} with Price {toShift[actualIndex].Price}");
+                toShift.RemoveAt(actualIndex);
+            }
+        }
+
+        toShift.ShiftCommands = new List<ListShiftCommand>();
+
+        var shiftedNext = fullSupportFullyPopulatedOrderBookSide.Clone();
+        instances[expectedNewIndices[0]] = shiftedNext[expectedNewIndices[0]];
+        instances[expectedNewIndices[1]] = shiftedNext[expectedNewIndices[1]];
+        instances[expectedNewIndices[2]] = shiftedNext[expectedNewIndices[2]];
+        instances[expectedNewIndices[3]] = shiftedNext[expectedNewIndices[3]];
+        shiftedNext.CalculateShift(testDateTime, toShift);
+
+        Console.Out.WriteLine($"{shiftedNext.ShiftCommands.JoinShiftCommandsOnNewLine()}");
+
+        Assert.AreEqual(2, shiftedNext.ShiftCommands.Count);
+        AssertExpectedShiftCommands();
+
+        void AssertExpectedShiftCommands()
+        {
+            for (int i = 0; i < shiftedNext.ShiftCommands.Count; i++)
+            {
+                var shift = shiftedNext.ShiftCommands[i];
+                switch (i)
+                {
+                    case 0:
+                        Assert.AreEqual(4, shift.PinnedFromIndex);
+                        Assert.AreEqual(8, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.RemoveElementsRange | ListShiftCommandType.InsertElementsRange, shift.ShiftCommandType);
+                        break;
+                    case 1:
+                        Assert.AreEqual(-1, shift.PinnedFromIndex);
+                        Assert.AreEqual(4, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                }
+            }
+        }
+
+        foreach (var shiftElementShift in shiftedNext.ShiftCommands)
+        {
+            shiftedNext.ApplyListShiftCommand(shiftElementShift);
+        }
+        for (var i = 0; i < expectedExistingIndices.Length; i++)
+        {
+            var newIndex   = expectedExistingIndices[i];
+            var oldIndexes = expectedNewIndices[i];
+            Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide[oldIndexes], shiftedNext[newIndex]);
+            Assert.AreSame(instances[oldIndexes], shiftedNext[newIndex]);
+        }
+    }
+
+    [TestMethod]
+    public void PopulatedOrderBookSide_DeleteAtStartNewAtEnd_OneShiftLeftCommandExpected()
+    {
+        fullSupportFullyPopulatedOrderBookSide.HasUpdates = false;
+        var toShift = fullSupportFullyPopulatedOrderBookSide.Clone();
+        Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide, toShift);
+
+        int[] expectedExistingIndices = [4, 5, 6, 7, 8, 9, 10, 11];
+        int[] expectedNewIndices      = [0, 1, 2, 3, 4, 5, 6, 7];
+
+        IPriceVolumeLayer[] instances = new IPriceVolumeLayer[12];
+
+        int actualIndex = 0;                                     // original    0,1,2,3,4,5,6,7,8,9,10,11 
+        var count       = toShift.Count;                         // inserting                     {new},{new},{new},{new}
+        for (var oldIndex = 0; oldIndex < count + 4; oldIndex++) // deleted     0,1,2,3,
+        {                                                        // leaving     4,5,6,7,8,9,10,11,{new},{new},{new},{new}
+            if (oldIndex > 3)                                    // shifts at   (-1,-4)
+            {
+                if (oldIndex > 11)
+                {
+                    var counterPartyOrdersPvL = new PQOrdersPriceVolumeLayer
+                        (nameIdLookupGenerator, LayerType.OrdersFullPriceVolume, ExpectedPrice + (0.0001m * (20 + oldIndex))
+                       , ExpectedVolume, ExpectedOrdersCount, ExpectedInternalVolume);
+                    Console.Out.WriteLine($"Inserting new entry index {actualIndex} with Price {counterPartyOrdersPvL.Price}");
+                    toShift.InsertAt(actualIndex, counterPartyOrdersPvL);
+                }
+                else
+                {
+                    Console.Out.WriteLine($"Leaving original index {oldIndex} at new index {actualIndex} with Price {toShift[actualIndex].Price}");
+                    instances[oldIndex] = toShift[actualIndex];
+                }
+                actualIndex++;
+            }
+            else
+            {
+                Console.Out.WriteLine($"Deleting index {oldIndex} with Price {toShift[actualIndex].Price}");
+                toShift.RemoveAt(actualIndex);
+            }
+        }
+
+        toShift.ShiftCommands = new List<ListShiftCommand>();
+
+        var shiftedNext = fullSupportFullyPopulatedOrderBookSide.Clone();
+        instances[expectedExistingIndices[0]] = shiftedNext[expectedExistingIndices[0]];
+        instances[expectedExistingIndices[1]] = shiftedNext[expectedExistingIndices[1]];
+        instances[expectedExistingIndices[2]] = shiftedNext[expectedExistingIndices[2]];
+        instances[expectedExistingIndices[3]] = shiftedNext[expectedExistingIndices[3]];
+        instances[expectedExistingIndices[4]] = shiftedNext[expectedExistingIndices[4]];
+        instances[expectedExistingIndices[5]] = shiftedNext[expectedExistingIndices[5]];
+        instances[expectedExistingIndices[6]] = shiftedNext[expectedExistingIndices[6]];
+        instances[expectedExistingIndices[7]] = shiftedNext[expectedExistingIndices[7]];
+        shiftedNext.CalculateShift(testDateTime, toShift);
+
+        Console.Out.WriteLine($"{shiftedNext.ShiftCommands.JoinShiftCommandsOnNewLine()}");
+
+        Assert.AreEqual(1, shiftedNext.ShiftCommands.Count);
+        AssertExpectedShiftCommands();
+
+        void AssertExpectedShiftCommands()
+        {
+            for (int i = 0; i < shiftedNext.ShiftCommands.Count; i++)
+            {
+                var shift = shiftedNext.ShiftCommands[i];
+                switch (i)
+                {
+                    case 0:
+                        Assert.AreEqual(-1, shift.PinnedFromIndex);
+                        Assert.AreEqual(-4, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsTowardPinnedIndex, shift.ShiftCommandType);
+                        break;
+                }
+            }
+        }
+
+        foreach (var shiftElementShift in shiftedNext.ShiftCommands)
+        {
+            shiftedNext.ApplyListShiftCommand(shiftElementShift);
+        }
+        for (var i = 0; i < expectedExistingIndices.Length; i++)
+        {
+            var updatedIndex    = expectedNewIndices[i];
+            var previousIndexes = expectedExistingIndices[i];
+            Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide[previousIndexes], shiftedNext[updatedIndex]);
+            Assert.AreSame(instances[previousIndexes], shiftedNext[updatedIndex]);
+        }
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrderBookSide_ClearAfterMidElement_ListIsReducedByHalf()
+    {
+        var halfListSize = MaxNumberOfLayers / 2;
+        ordersAnonFullyPopulatedOrderBookSide.HasUpdates = false;
+        var toShift = ordersAnonFullyPopulatedOrderBookSide.Clone();
+        Assert.AreEqual(ordersAnonFullyPopulatedOrderBookSide, toShift);
+
+        toShift.ClearRemainingElementsFromIndex = halfListSize;
+
+        for (int i = 0; i < halfListSize; i++)
+        {
+            Assert.AreEqual(toShift[i], ordersAnonFullyPopulatedOrderBookSide[i]);
+        }
+        for (int i = halfListSize; i < ordersAnonFullyPopulatedOrderBookSide.Count; i++)
+        {
+            Assert.IsTrue(toShift[i].IsEmpty);
+        }
+        Assert.AreEqual(ordersAnonFullyPopulatedOrderBookSide.Count, toShift.Count + halfListSize);
+
+        var shiftViaDeltaUpdates = ordersAnonFullyPopulatedOrderBookSide.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = ordersAnonFullyPopulatedOrderBookSide.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrderBookSide_InsertNewElementAtStart_RemainingElementsShiftRightByOne()
+    {
+        var newPvl = new PQPriceVolumeLayer(ExpectedPrice + (0.0001m * 13), ExpectedVolume);
+
+        simpleFullyPopulatedOrderBookSide.MaxAllowedSize = PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth;
+        simpleFullyPopulatedOrderBookSide.HasUpdates     = false;
+        var toShift = simpleFullyPopulatedOrderBookSide.Clone();
+        Assert.AreEqual(simpleFullyPopulatedOrderBookSide, toShift);
+
+        toShift.InsertAtStart(newPvl);
+
+        for (int i = 1; i < toShift.Count; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i - 1;
+            Assert.AreEqual(toShift[shiftIndex], simpleFullyPopulatedOrderBookSide[prevIndex]);
+        }
+        Assert.AreEqual(0, toShift.IndexOf(newPvl));
+
+        var shiftViaDeltaUpdates = simpleFullyPopulatedOrderBookSide.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = simpleFullyPopulatedOrderBookSide.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrderBookSide_DeleteMiddleElement_RemainingElementsShiftLeftByOne()
+    {
+        var midIndex = MaxNumberOfLayers / 2 + 1;
+
+        sourceFullyPopulatedOrderBookSide.HasUpdates = false;
+        var toShift = sourceFullyPopulatedOrderBookSide.Clone();
+        Assert.AreEqual(sourceFullyPopulatedOrderBookSide, toShift);
+
+        var middleElement = toShift[midIndex];
+
+        toShift.DeleteAt(midIndex);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i < midIndex ? i : i + 1;
+            Assert.AreEqual(toShift[shiftIndex], sourceFullyPopulatedOrderBookSide[prevIndex]);
+        }
+        Assert.AreEqual(sourceFullyPopulatedOrderBookSide.Count, toShift.Count + 1);
+
+        toShift = sourceFullyPopulatedOrderBookSide.Clone();
+        Assert.AreEqual(sourceFullyPopulatedOrderBookSide, toShift);
+
+        toShift.Delete(middleElement);
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i < midIndex ? i : i + 1;
+            Assert.AreEqual(toShift[shiftIndex], sourceFullyPopulatedOrderBookSide[prevIndex]);
+        }
+        Assert.AreEqual(sourceFullyPopulatedOrderBookSide.Count, toShift.Count + 1);
+
+
+        var shiftViaDeltaUpdates = sourceFullyPopulatedOrderBookSide.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = sourceFullyPopulatedOrderBookSide.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedMaxAllowedSizeReachedOrderBookSide_InsertNewElementAtStart_RemainingElementsShiftRightExceptLastIsRemoved()
+    {
+        var newLastTrade = new PQValueDatePriceVolumeLayer
+            (ExpectedPrice + (0.0001m * 13), ExpectedVolume, ExpectedValueDate);
+
+        valueDateFullyPopulatedOrderBookSide.MaxAllowedSize = MaxNumberOfLayers;
+        valueDateFullyPopulatedOrderBookSide.HasUpdates     = false;
+        var toShift = valueDateFullyPopulatedOrderBookSide.Clone();
+        Assert.AreEqual(valueDateFullyPopulatedOrderBookSide, toShift);
+
+        Assert.AreEqual(MaxNumberOfLayers, toShift.Count);
+        toShift.InsertAtStart(newLastTrade);
+
+        for (int i = 1; i < toShift.Count; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i - 1;
+            Assert.AreEqual(toShift[shiftIndex], valueDateFullyPopulatedOrderBookSide[prevIndex]);
+        }
+        Assert.AreEqual(MaxNumberOfLayers, toShift.Count);
+        Assert.AreEqual(0, toShift.IndexOf(newLastTrade));
+
+        var shiftViaDeltaUpdates = valueDateFullyPopulatedOrderBookSide.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(MaxNumberOfLayers, toShift.Count);
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = valueDateFullyPopulatedOrderBookSide.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(MaxNumberOfLayers, toShift.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrderBookSide_InsertNewElementAtEnd_NewElementAppearsAtTheEnd()
+    {
+        var newLastTrade = new PQOrdersPriceVolumeLayer
+            (nameIdLookupGenerator, LayerType.OrdersAnonymousPriceVolume, ExpectedPrice + (0.0001m * 13)
+           , ExpectedVolume, ExpectedOrdersCount, ExpectedInternalVolume);
+
+        ordersAnonFullyPopulatedOrderBookSide.MaxAllowedSize = PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth;
+        ordersAnonFullyPopulatedOrderBookSide.HasUpdates     = false;
+        var toShift = ordersAnonFullyPopulatedOrderBookSide.Clone();
+        Assert.AreEqual(ordersAnonFullyPopulatedOrderBookSide, toShift);
+
+        toShift.AppendAtEnd(newLastTrade);
+
+        for (int i = 0; i < toShift.Count - 1; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i;
+            Assert.AreEqual(toShift[shiftIndex], ordersAnonFullyPopulatedOrderBookSide[prevIndex]);
+        }
+        Assert.AreEqual(toShift.Count - 1, toShift.IndexOf(newLastTrade));
+
+        var shiftViaDeltaUpdates = ordersAnonFullyPopulatedOrderBookSide.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = ordersAnonFullyPopulatedOrderBookSide.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedMaxAllowedSizeReachedOrderBookSide_AttemptInsertNewElementAtEnd_ReturnsFalseAndNoElementIsAdded()
+    {
+        var newPvl = new PQPriceVolumeLayer(ExpectedPrice + (0.0001m * 13), ExpectedVolume);
+
+        simpleFullyPopulatedOrderBookSide.HasUpdates     = false;
+        simpleFullyPopulatedOrderBookSide.MaxAllowedSize = MaxNumberOfLayers;
+        var toShift = simpleFullyPopulatedOrderBookSide.Clone();
+        Assert.AreEqual(simpleFullyPopulatedOrderBookSide, toShift);
+
+        var result = toShift.AppendAtEnd(newPvl);
+
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrderBookSide_ShiftLeftFromEndByHalfListSize_CreatesEmptyAtEndAndShortensListByHalf()
+    {
+        var halfListSize = MaxNumberOfLayers / 2;
+        fullSupportFullyPopulatedOrderBookSide.MaxAllowedSize = PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth;
+        fullSupportFullyPopulatedOrderBookSide.HasUpdates     = false;
+        var toShift = fullSupportFullyPopulatedOrderBookSide.Clone();
+        Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide, toShift);
+
+        toShift.ShiftElements(-halfListSize);
+
+        for (int i = 0; i < halfListSize; i++)
+        {
+            Assert.AreEqual(toShift[i], fullSupportFullyPopulatedOrderBookSide[i + halfListSize]);
+        }
+        Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide.Count, toShift.Count + halfListSize);
+
+        var shiftViaDeltaUpdates = fullSupportFullyPopulatedOrderBookSide.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = fullSupportFullyPopulatedOrderBookSide.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedMaxAllowedSizeReachedOrderBookSide_ShiftLeftFromEndByHalfListSize_CreatesEmptyAtEndAndShortensListByHalf()
+    {
+        var halfListSize = MaxNumberOfLayers / 2;
+        fullSupportFullyPopulatedOrderBookSide.HasUpdates     = false;
+        fullSupportFullyPopulatedOrderBookSide.MaxAllowedSize = MaxNumberOfLayers;
+        var toShift = fullSupportFullyPopulatedOrderBookSide.Clone();
+        Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide, toShift);
+
+        toShift.ShiftElements(-halfListSize);
+
+        for (int i = 0; i < halfListSize; i++)
+        {
+            Assert.AreEqual(toShift[i], fullSupportFullyPopulatedOrderBookSide[i + halfListSize]);
+        }
+        Assert.AreEqual(MaxNumberOfLayers, toShift.Count + halfListSize);
+        Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide.Count, toShift.Count + halfListSize);
+
+        var shiftViaDeltaUpdates = fullSupportFullyPopulatedOrderBookSide.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = fullSupportFullyPopulatedOrderBookSide.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrderBookSide_ShiftRightFromStart_CreatesEmptyAtStartAndExtendsListByHalf()
+    {
+        var halfListSize = MaxNumberOfLayers / 2;
+        fullSupportFullyPopulatedOrderBookSide.MaxAllowedSize = PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth;
+        fullSupportFullyPopulatedOrderBookSide.HasUpdates     = false;
+        var toShift = fullSupportFullyPopulatedOrderBookSide.Clone();
+        Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide, toShift);
+
+        toShift.ShiftElements(halfListSize);
+
+        for (int i = halfListSize; i < toShift.Count; i++)
+        {
+            Assert.AreEqual(toShift[i], fullSupportFullyPopulatedOrderBookSide[i - halfListSize]);
+        }
+        for (int i = 0; i < halfListSize; i++)
+        {
+            Assert.IsTrue(toShift[i].IsEmpty);
+        }
+        Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide.Count, toShift.Count - halfListSize);
+
+        var shiftViaDeltaUpdates = fullSupportFullyPopulatedOrderBookSide.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = fullSupportFullyPopulatedOrderBookSide.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedMaxAllowedSizeReachedOrderBookSide_ShiftRightFromStart_CreatesEmptyAtStartAndExtendsListByHalf()
+    {
+        var halfListSize = MaxNumberOfLayers / 2;
+        fullSupportFullyPopulatedOrderBookSide.HasUpdates     = false;
+        fullSupportFullyPopulatedOrderBookSide.MaxAllowedSize = MaxNumberOfLayers;
+        var toShift = fullSupportFullyPopulatedOrderBookSide.Clone();
+        Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide, toShift);
+
+        toShift.ShiftElements(halfListSize);
+
+        for (int i = halfListSize; i < toShift.Count; i++)
+        {
+            Assert.AreEqual(toShift[i], fullSupportFullyPopulatedOrderBookSide[i - halfListSize]);
+        }
+        for (int i = 0; i < halfListSize; i++)
+        {
+            Assert.IsTrue(toShift[i].IsEmpty);
+        }
+        Assert.AreEqual(MaxNumberOfLayers, toShift.Count);
+        Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide.Count, toShift.Count);
+
+        var shiftViaDeltaUpdates = fullSupportFullyPopulatedOrderBookSide.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = fullSupportFullyPopulatedOrderBookSide.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType
@@ -1065,8 +1837,7 @@ public class PQOrderBookSideTests
 
             var depthId = (PQDepthKey)i | (orderBookSide.BookSide == BookSide.AskBook ? PQDepthKey.AskSide : PQDepthKey.None);
             Assert.AreEqual
-                (new PQFieldUpdate
-                     (PQFeedFields.QuoteLayerPrice, depthId, pvl.Price, priceScale),
+                (new PQFieldUpdate(PQFeedFields.QuoteLayerPrice, depthId, pvl.Price, priceScale),
                  PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteLayerPrice, depthId, priceScale),
                  $"For {orderBookSide.BookSide}  {pvl.GetType().Name} at {i} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
             Assert.AreEqual
