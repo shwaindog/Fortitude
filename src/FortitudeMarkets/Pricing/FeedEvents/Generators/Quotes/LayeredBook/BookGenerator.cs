@@ -301,14 +301,14 @@ public class BookGenerator : IBookGenerator
         }
     }
 
-    protected virtual void SetAnonymousOrderValues(int depth, BookSide side, int i, IMutableAnonymousOrder orderLayer)
+    protected virtual void SetAnonymousOrderValues(int depth, BookSide side, int i, IMutableAnonymousOrder orderLayer, OrderGenesisFlags extraFlags = OrderGenesisFlags.None)
     {
         switch (side)
         {
             case BookSide.AskBook:
                 var askPrice                = QuoteBookGenerator.AskPriceAt(depth);
                 var askOrderId              = QuoteBookGenerator.AskOrderIdAt(depth, i);
-                var askOrderFlags           = QuoteBookGenerator.AskOrderGenesisFlagsAt(depth, askOrderId, i);
+                var askOrderFlags           = QuoteBookGenerator.AskOrderGenesisFlagsAt(depth, askOrderId, i) | extraFlags;
                 var askOrderCreatedTime     = QuoteBookGenerator.AskOrderCreatedTimeAt(depth, askOrderId, i);
                 var askOrderUpdatedTime     = QuoteBookGenerator.AskOrderUpdatedTimeAt(depth, askOrderId, i);
                 var askOrderVolume          = QuoteBookGenerator.AskOrderVolumeAt(depth, i);
@@ -316,7 +316,7 @@ public class BookGenerator : IBookGenerator
                 SetOrderId(side, orderLayer, i, askOrderId
                          , QuoteBookGenerator.PreviousAskOrderIdAt(askPrice, i));
                 SetOrderGenesisFlags(side, orderLayer, i, askOrderFlags
-                            , QuoteBookGenerator.PreviousAskOrderGenesisFlagsAt(askPrice, askOrderId, depth));
+                            , QuoteBookGenerator.PreviousAskOrderGenesisFlagsAt(askPrice, askOrderId, depth) | extraFlags);
                 SetOrderCreatedTime(side, orderLayer, i, askOrderCreatedTime
                                   , QuoteBookGenerator.PreviousAskOrderCreatedTimeAt(askPrice, askOrderId, depth));
                 SetOrderUpdatedTime(side, orderLayer, i, askOrderUpdatedTime
@@ -329,7 +329,7 @@ public class BookGenerator : IBookGenerator
             case BookSide.BidBook:
                 var bidPrice                = QuoteBookGenerator.BidPriceAt(depth);
                 var bidOrderId              = QuoteBookGenerator.BidOrderIdAt(depth, i);
-                var bidOrderFlags           = QuoteBookGenerator.BidOrderGenesisFlagsAt(depth, bidOrderId, i);
+                var bidOrderFlags           = QuoteBookGenerator.BidOrderGenesisFlagsAt(depth, bidOrderId, i) | extraFlags;
                 var bidOrderCreatedTime     = QuoteBookGenerator.BidOrderCreatedTimeAt(depth, bidOrderId, i);
                 var bidOrderUpdatedTime     = QuoteBookGenerator.BidOrderUpdatedTimeAt(depth, bidOrderId, i);
                 var bidOrderVolume          = QuoteBookGenerator.BidOrderVolumeAt(depth, i);
@@ -337,7 +337,7 @@ public class BookGenerator : IBookGenerator
                 SetOrderId(side, orderLayer, i, bidOrderId
                          , QuoteBookGenerator.PreviousBidOrderIdAt(bidPrice, i));
                 SetOrderGenesisFlags(side, orderLayer, i, bidOrderFlags
-                            , QuoteBookGenerator.PreviousBidOrderGenesisFlagsAt(bidPrice, bidOrderId, depth));
+                            , QuoteBookGenerator.PreviousBidOrderGenesisFlagsAt(bidPrice, bidOrderId, depth) | extraFlags);
                 SetOrderCreatedTime(side, orderLayer, i, bidOrderCreatedTime
                                   , QuoteBookGenerator.PreviousBidOrderCreatedTimeAt(bidPrice, bidOrderId, depth));
                 SetOrderUpdatedTime(side, orderLayer, i, bidOrderUpdatedTime
@@ -365,7 +365,7 @@ public class BookGenerator : IBookGenerator
         for (var i = 0; i < ordersCountOnLayer; i++)
         {
             var orderLayer = (IMutableExternalCounterPartyOrder)ordersPriceVolumeLayer[i]!;
-            SetAnonymousOrderValues(depth, side, i, orderLayer);
+            SetAnonymousOrderValues(depth, side, i, orderLayer, OrderGenesisFlags.IsExternalOrder | OrderGenesisFlags.HasExternalCounterPartyInfo);
 
             switch (side)
             {

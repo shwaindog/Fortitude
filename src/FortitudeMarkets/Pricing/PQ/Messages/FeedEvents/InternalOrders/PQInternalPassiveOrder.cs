@@ -24,6 +24,8 @@ public interface IPQInternalPassiveOrder : IPQAnonymousOrder, IPQAdditionalInter
 
     new bool HasUpdates { get; set; }
 
+    new IPQInternalPassiveOrder ResetWithTracking();
+
     new IPQInternalPassiveOrder Clone();
 }
 
@@ -37,23 +39,18 @@ public class PQInternalPassiveOrder : ReusableObject<IAnonymousOrder>, IPQIntern
 
     public PQInternalPassiveOrder()
         : this(new PQAnonymousOrder(IInternalPassiveOrder.HasInternalOrderInfo),
-               new PQAdditionalInternalPassiveOrderInfo())
-    {
-    }
+               new PQAdditionalInternalPassiveOrderInfo()) { }
 
     public PQInternalPassiveOrder(IPQNameIdLookupGenerator nameIdLookupGenerator)
         : this(new PQAnonymousOrder
-                   (IInternalPassiveOrder.HasInternalOrderInfo, nameIdLookupGenerator), nameIdLookupGenerator)
-    {
-    }
+                   (IInternalPassiveOrder.HasInternalOrderInfo, nameIdLookupGenerator), nameIdLookupGenerator) { }
 
     public PQInternalPassiveOrder(IAnonymousOrder owner, IPQAdditionalInternalPassiveOrderInfo addInternalOrderInfo)
         : this((owner as IPQAnonymousOrder)?.NameIdLookup ?? new PQNameIdLookupGenerator(PQAnonymousOrder.DefaultOrderStringDictionaryField),
-               owner, addInternalOrderInfo)
-    {
-    }
+               owner, addInternalOrderInfo) { }
 
-    public PQInternalPassiveOrder(IPQNameIdLookupGenerator nameIdLookupGenerator,  IAnonymousOrder owner, IPQAdditionalInternalPassiveOrderInfo addInternalOrderInfo)
+    public PQInternalPassiveOrder
+        (IPQNameIdLookupGenerator nameIdLookupGenerator, IAnonymousOrder owner, IPQAdditionalInternalPassiveOrderInfo addInternalOrderInfo)
     {
         if (owner is IPQAnonymousOrder pqOwner)
         {
@@ -65,14 +62,14 @@ public class PQInternalPassiveOrder : ReusableObject<IAnonymousOrder>, IPQIntern
         }
         else
         {
-            this.owner                         =  new PQAnonymousOrder(owner);
+            this.owner = new PQAnonymousOrder(owner);
             var originalGenesisFlagsUpdate = owner.GenesisFlags.AnyButNone();
             this.owner.GenesisFlags            |= HasInternalOrderFlags;
             this.owner.EmptyIgnoreGenesisFlags |= HasInternalOrderFlags;
             this.owner.IsGenesisFlagsUpdated   =  originalGenesisFlagsUpdate;
         }
 
-        this.owner.NameIdLookup = nameIdLookupGenerator;
+        this.owner.NameIdLookup   = nameIdLookupGenerator;
         this.addInternalOrderInfo = this.owner.InternalOrderInfo ?? addInternalOrderInfo;
 
         if (!ReferenceEquals(this.owner.InternalOrderInfo, this.addInternalOrderInfo))
@@ -92,20 +89,21 @@ public class PQInternalPassiveOrder : ReusableObject<IAnonymousOrder>, IPQIntern
     {
         if (toClone is PQInternalPassiveOrder pqInternalPassiveOrder)
         {
-            owner                  = pqInternalPassiveOrder.owner.Clone();
+            owner = pqInternalPassiveOrder.owner.Clone();
             if (nameIdLookupGenerator != null)
             {
                 NameIdLookup = nameIdLookupGenerator;
             }
             var originalGenesisFlagsUpdate = pqInternalPassiveOrder.IsGenesisFlagsUpdated;
-            owner.GenesisFlags |= HasInternalOrderFlags;
+            owner.GenesisFlags            |= HasInternalOrderFlags;
             owner.EmptyIgnoreGenesisFlags |= HasInternalOrderFlags;
             owner.IsGenesisFlagsUpdated   =  originalGenesisFlagsUpdate;
-            addInternalOrderInfo = pqInternalPassiveOrder.InternalOrderInfo ?? new PQAdditionalInternalPassiveOrderInfo(toClone.InternalOrderInfo, NameIdLookup);
+            addInternalOrderInfo = pqInternalPassiveOrder.InternalOrderInfo ??
+                                   new PQAdditionalInternalPassiveOrderInfo(toClone.InternalOrderInfo, NameIdLookup);
         }
         else if (toClone is PQAnonymousOrder pqAnonOrder)
         {
-            owner                  = pqAnonOrder.Clone();
+            owner = pqAnonOrder.Clone();
             if (nameIdLookupGenerator != null)
             {
                 NameIdLookup = nameIdLookupGenerator;
@@ -113,21 +111,21 @@ public class PQInternalPassiveOrder : ReusableObject<IAnonymousOrder>, IPQIntern
             var originalGenesisFlagsUpdate = pqAnonOrder.IsGenesisFlagsUpdated;
             owner.GenesisFlags |= HasInternalOrderFlags;
             owner.EmptyIgnoreGenesisFlags |= HasInternalOrderFlags;
-            owner.IsGenesisFlagsUpdated   =  originalGenesisFlagsUpdate;
+            owner.IsGenesisFlagsUpdated = originalGenesisFlagsUpdate;
             addInternalOrderInfo = pqAnonOrder.InternalOrderInfo ?? new PQAdditionalInternalPassiveOrderInfo(toClone.InternalOrderInfo, NameIdLookup);
         }
         else
         {
-            owner                = new PQAnonymousOrder(toClone);
+            owner = new PQAnonymousOrder(toClone);
             if (nameIdLookupGenerator != null)
             {
                 NameIdLookup = nameIdLookupGenerator;
             }
-            var originalGenesisFlagsUpdate = !(toClone?.IsEmpty ?? true) && (toClone?.GenesisFlags.AnyButNone() ?? false);
+            var originalGenesisFlagsUpdate = !(toClone?.IsEmpty ?? true) && (toClone.GenesisFlags.AnyButNone());
             owner.GenesisFlags |= HasInternalOrderFlags;
             owner.EmptyIgnoreGenesisFlags |= HasInternalOrderFlags;
-            owner.IsGenesisFlagsUpdated   =  originalGenesisFlagsUpdate;
-            addInternalOrderInfo          =  owner.InternalOrderInfo ?? new PQAdditionalInternalPassiveOrderInfo(toClone?.InternalOrderInfo, NameIdLookup);
+            owner.IsGenesisFlagsUpdated = originalGenesisFlagsUpdate;
+            addInternalOrderInfo = owner.InternalOrderInfo ?? new PQAdditionalInternalPassiveOrderInfo(toClone?.InternalOrderInfo, NameIdLookup);
         }
 
         if (!ReferenceEquals(owner.InternalOrderInfo, addInternalOrderInfo))
@@ -517,23 +515,53 @@ public class PQInternalPassiveOrder : ReusableObject<IAnonymousOrder>, IPQIntern
         set => owner.NameIdLookup = value;
     }
 
+    public uint UpdateSequenceId => owner.UpdateSequenceId;
+
+    public void UpdateStarted(uint updateSequenceId) { }
+
+    public void UpdateComplete(uint updateSequenceId = 0)
+    {
+        owner.UpdateComplete(updateSequenceId);
+    }
+
     public bool HasUpdates
     {
         get => owner.HasUpdates;
         set => owner.HasUpdates = value;
     }
 
-    public uint UpdateSequenceId => owner.UpdateSequenceId;
 
-    public void UpdateStarted(uint updateSequenceId)
+    public bool IsEmpty
     {
+        get => owner.IsEmpty && addInternalOrderInfo.IsEmpty;
+        set
+        {
+            owner.IsEmpty                = value;
+            addInternalOrderInfo.IsEmpty = value;
+        }
     }
 
-    public void UpdateComplete(uint updateSequenceId = 0)
+    IMutableAnonymousOrder ITrackableReset<IMutableAnonymousOrder>.ResetWithTracking() => ResetWithTracking();
+
+    IPQAnonymousOrder ITrackableReset<IPQAnonymousOrder>.ResetWithTracking() => ResetWithTracking();
+
+    IPQAnonymousOrder IPQAnonymousOrder.ResetWithTracking() => ResetWithTracking();
+
+    IMutableAdditionalInternalPassiveOrderInfo ITrackableReset<IMutableAdditionalInternalPassiveOrderInfo>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableInternalPassiveOrder ITrackableReset<IMutableInternalPassiveOrder>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableInternalPassiveOrder IMutableInternalPassiveOrder.ResetWithTracking() => ResetWithTracking();
+
+    IPQInternalPassiveOrder IPQInternalPassiveOrder.ResetWithTracking() => ResetWithTracking();
+
+    public PQInternalPassiveOrder ResetWithTracking()
     {
-        owner.UpdateComplete(updateSequenceId);
+        owner.ResetWithTracking();
+
+        return this;
     }
-    
+
     public override void StateReset()
     {
         owner.StateReset();
@@ -576,17 +604,6 @@ public class PQInternalPassiveOrder : ReusableObject<IAnonymousOrder>, IPQIntern
     {
         get => owner.ExternalCounterPartyOrderInfo;
         set => owner.ExternalCounterPartyOrderInfo = value;
-    }
-
-
-    public bool IsEmpty
-    {
-        get => owner.IsEmpty && addInternalOrderInfo.IsEmpty;
-        set
-        {
-            owner.IsEmpty                = value;
-            addInternalOrderInfo.IsEmpty = value;
-        }
     }
 
     public IInternalPassiveOrder ToInternalOrder() => this;
@@ -684,9 +701,14 @@ public class PQInternalPassiveOrder : ReusableObject<IAnonymousOrder>, IPQIntern
     IMutableAnonymousOrder ITransferState<IMutableAnonymousOrder>.CopyFrom(IMutableAnonymousOrder source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom(source, copyMergeFlags);
 
-    IPQAnonymousOrder ITransferState<IPQAnonymousOrder>.CopyFrom
-        (IPQAnonymousOrder source, CopyMergeFlags copyMergeFlags) =>
+    IPQAnonymousOrder ITransferState<IPQAnonymousOrder>.CopyFrom(IPQAnonymousOrder source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom(source, copyMergeFlags);
+
+    IReusableObject<IPQAnonymousOrder> ITransferState<IReusableObject<IPQAnonymousOrder>>.CopyFrom
+        (IReusableObject<IPQAnonymousOrder> source, CopyMergeFlags copyMergeFlags) => CopyFrom((IAnonymousOrder)source, copyMergeFlags);
+
+    IReusableObject<IMutableAnonymousOrder> ITransferState<IReusableObject<IMutableAnonymousOrder>>.CopyFrom
+        (IReusableObject<IMutableAnonymousOrder> source, CopyMergeFlags copyMergeFlags) => CopyFrom((IAnonymousOrder)source, copyMergeFlags);
 
     public override PQInternalPassiveOrder CopyFrom(IAnonymousOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -704,18 +726,18 @@ public class PQInternalPassiveOrder : ReusableObject<IAnonymousOrder>, IPQIntern
     {
         if (other is not IInternalPassiveOrder ipqPassiveOrder) return false;
 
-        var anonOrderSame = true;
-        var addPassiveOrderSame = true;
+        bool anonOrderSame;
+        bool  addPassiveOrderSame;
         if (ipqPassiveOrder is PQInternalPassiveOrder pqInternalPassive)
         {
-            anonOrderSame = owner.AreEquivalent(pqInternalPassive.owner, exactTypes);
+            anonOrderSame       = owner.AreEquivalent(pqInternalPassive.owner, exactTypes);
             addPassiveOrderSame = addInternalOrderInfo.AreEquivalent(pqInternalPassive.addInternalOrderInfo, exactTypes);
         }
         else
         {
             if (exactTypes) return false;
-            addPassiveOrderSame = addInternalOrderInfo.AreEquivalent(ipqPassiveOrder, false);
-            anonOrderSame = owner.AreEquivalent(other, false);
+            addPassiveOrderSame = addInternalOrderInfo.AreEquivalent(ipqPassiveOrder);
+            anonOrderSame       = owner.AreEquivalent(other);
         }
 
         var allAreSame = anonOrderSame && addPassiveOrderSame;
@@ -723,6 +745,10 @@ public class PQInternalPassiveOrder : ReusableObject<IAnonymousOrder>, IPQIntern
         return allAreSame;
     }
 
+    public void SetFlagsSame(IAdditionalInternalPassiveOrderInfo? toCopyFlags)
+    {
+        addInternalOrderInfo.SetFlagsSame(toCopyFlags);
+    }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IAnonymousOrder, true);
 

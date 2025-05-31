@@ -14,8 +14,7 @@ public class ExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IMutab
 
     private IMutableAdditionalExternalCounterPartyOrderInfo addExternalCpOrderInfo;
 
-    public ExternalCounterPartyOrder() : this(new AnonymousOrder(HasCpFlags)
-                                            , new AdditionalExternalCounterPartyInfo()) { }
+    public ExternalCounterPartyOrder() : this(new AnonymousOrder(HasCpFlags), new AdditionalExternalCounterPartyInfo()) { }
 
     public ExternalCounterPartyOrder(IMutableAnonymousOrder owner, IMutableAdditionalExternalCounterPartyOrderInfo? addExternalCpOrderInfo = null)
     {
@@ -136,26 +135,32 @@ public class ExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IMutab
         get => addExternalCpOrderInfo.ExternalCounterPartyId;
         set => addExternalCpOrderInfo.ExternalCounterPartyId = value;
     }
+
     public string? ExternalCounterPartyName
     {
         get => addExternalCpOrderInfo.ExternalCounterPartyName;
         set => addExternalCpOrderInfo.ExternalCounterPartyName = value;
     }
+
     public int ExternalTraderId
     {
         get => addExternalCpOrderInfo.ExternalTraderId;
         set => addExternalCpOrderInfo.ExternalTraderId = value;
     }
+
     public string? ExternalTraderName
     {
         get => addExternalCpOrderInfo.ExternalTraderName;
         set => addExternalCpOrderInfo.ExternalTraderName = value;
     }
 
+    public IInternalPassiveOrder? ToInternalOrder() => owner.ToInternalOrder();
+
+    public IExternalCounterPartyOrder ToExternalCounterPartyInfoOrder() => this;
 
     IAdditionalInternalPassiveOrderInfo? IAnonymousOrder.InternalOrderInfo => owner.InternalOrderInfo;
 
-    IAdditionalExternalCounterPartyOrderInfo? IAnonymousOrder.ExternalCounterPartyOrderInfo => this;
+    IAdditionalExternalCounterPartyOrderInfo IAnonymousOrder.ExternalCounterPartyOrderInfo => this;
 
     public IMutableAdditionalInternalPassiveOrderInfo? InternalOrderInfo
     {
@@ -180,25 +185,36 @@ public class ExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IMutab
         }
     }
 
-
     public bool IsEmpty
     {
         get => owner.IsEmpty && addExternalCpOrderInfo.IsEmpty;
         set
         {
-            owner.IsEmpty                  = value;
-            addExternalCpOrderInfo.IsEmpty = value;
+            if (!value) return;
+            ResetWithTracking();
         }
+    }
+
+    IMutableAdditionalExternalCounterPartyOrderInfo ITrackableReset<IMutableAdditionalExternalCounterPartyOrderInfo>.ResetWithTracking() =>
+        ResetWithTracking();
+
+    IMutableAnonymousOrder ITrackableReset<IMutableAnonymousOrder>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableExternalCounterPartyOrder ITrackableReset<IMutableExternalCounterPartyOrder>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableExternalCounterPartyOrder IMutableExternalCounterPartyOrder.ResetWithTracking() => ResetWithTracking();
+
+    public ExternalCounterPartyOrder ResetWithTracking()
+    {
+        owner.ResetWithTracking();
+
+        return this;
     }
 
     public override void StateReset()
     {
         owner.StateReset();
     }
-
-    public IInternalPassiveOrder? ToInternalOrder() => owner.ToInternalOrder();
-
-    public IExternalCounterPartyOrder? ToExternalCounterPartyInfoOrder() => this;
 
     IAnonymousOrder ICloneable<IAnonymousOrder>.Clone() => Clone();
 
@@ -224,7 +240,6 @@ public class ExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IMutab
         Recycler?.Borrow<ExternalCounterPartyOrder>().CopyFrom(this, CopyMergeFlags.FullReplace) ??
         new ExternalCounterPartyOrder(owner.Clone(), addExternalCpOrderInfo.Clone());
 
-
     IReusableObject<IAdditionalExternalCounterPartyOrderInfo> ITransferState<IReusableObject<IAdditionalExternalCounterPartyOrderInfo>>.CopyFrom
         (IReusableObject<IAdditionalExternalCounterPartyOrderInfo> source, CopyMergeFlags copyMergeFlags) =>
         TryCopyAdditionalCounterPartyOrderInfo(source as IAdditionalExternalCounterPartyOrderInfo, copyMergeFlags);
@@ -237,7 +252,6 @@ public class ExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IMutab
     IMutableAdditionalExternalCounterPartyOrderInfo ITransferState<IMutableAdditionalExternalCounterPartyOrderInfo>.CopyFrom
         (IMutableAdditionalExternalCounterPartyOrderInfo source, CopyMergeFlags copyMergeFlags) =>
         TryCopyAdditionalCounterPartyOrderInfo(source, copyMergeFlags);
-
 
     protected virtual ExternalCounterPartyOrder TryCopyAdditionalCounterPartyOrderInfo
         (IAdditionalExternalCounterPartyOrderInfo? source, CopyMergeFlags copyMergeFlags)
@@ -257,6 +271,10 @@ public class ExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IMutab
         (IMutableExternalCounterPartyOrder source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom(source, copyMergeFlags);
 
+    IReusableObject<IMutableAnonymousOrder> ITransferState<IReusableObject<IMutableAnonymousOrder>>.CopyFrom
+        (IReusableObject<IMutableAnonymousOrder> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IAnonymousOrder)source, copyMergeFlags);
+
     public override ExternalCounterPartyOrder CopyFrom(IAnonymousOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         owner.CopyFrom(source, copyMergeFlags);
@@ -271,17 +289,17 @@ public class ExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IMutab
         (IAdditionalExternalCounterPartyOrderInfo? other, bool exactTypes) =>
         AreEquivalent(other as IAnonymousOrder, exactTypes);
 
-    bool IInterfacesComparable<IExternalCounterPartyOrder>.       AreEquivalent(IExternalCounterPartyOrder? other, bool exactTypes) => 
+    bool IInterfacesComparable<IExternalCounterPartyOrder>.AreEquivalent(IExternalCounterPartyOrder? other, bool exactTypes) =>
         AreEquivalent(other, exactTypes);
 
-    bool IInterfacesComparable<IMutableExternalCounterPartyOrder>.AreEquivalent(IMutableExternalCounterPartyOrder? other, bool exactTypes) => 
+    bool IInterfacesComparable<IMutableExternalCounterPartyOrder>.AreEquivalent(IMutableExternalCounterPartyOrder? other, bool exactTypes) =>
         AreEquivalent(other, exactTypes);
 
     public bool AreEquivalent(IAnonymousOrder? other, bool exactTypes = false)
     {
         if (other is not IExternalCounterPartyOrder extCpOrder) return false;
-        var anonOrderSame     = true;
-        var addExtCpOrderSame = true;
+        bool anonOrderSame;
+        bool addExtCpOrderSame;
         if (extCpOrder is ExternalCounterPartyOrder externalCounterPartyOrder)
         {
             anonOrderSame     = owner.AreEquivalent(externalCounterPartyOrder.owner, exactTypes);
@@ -290,15 +308,14 @@ public class ExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IMutab
         else
         {
             if (exactTypes) return false;
-            addExtCpOrderSame = addExternalCpOrderInfo.AreEquivalent(extCpOrder, false);
-            anonOrderSame     = owner.AreEquivalent(other, false);
+            addExtCpOrderSame = addExternalCpOrderInfo.AreEquivalent(extCpOrder);
+            anonOrderSame     = owner.AreEquivalent(other);
         }
 
         var allAreSame = anonOrderSame && addExtCpOrderSame;
 
         return allAreSame;
     }
-
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IAnonymousOrder, true);
 

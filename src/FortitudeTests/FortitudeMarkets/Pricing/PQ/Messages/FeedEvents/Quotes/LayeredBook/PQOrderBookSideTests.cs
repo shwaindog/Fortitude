@@ -221,7 +221,7 @@ public class PQOrderBookSideTests
           , ordersCounterPartyFullyPopulatedOrderBookSide, fullSupportFullyPopulatedOrderBookSide
         ];
         // [
-        //     ordersAnonFullyPopulatedOrderBookSide, allFieldsFullyPopulatedOrderBookSide
+        //     ordersAnonFullyPopulatedOrderBookSide, ordersCounterPartyFullyPopulatedOrderBookSide
         // ];
         publicationPrecisionSettings =
             new PQSourceTickerInfo

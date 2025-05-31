@@ -51,11 +51,13 @@ public interface IPQAdditionalExternalCounterPartyOrderInfo : IMutableAdditional
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     bool IsExternalTraderIdUpdated { get; set; }
 
+    void SetFlagsSame(IAdditionalExternalCounterPartyOrderInfo? toCopyFlags);
 
     new IPQAdditionalExternalCounterPartyOrderInfo Clone();
 }
 
-public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalExternalCounterPartyOrderInfo>, IPQAdditionalExternalCounterPartyOrderInfo
+public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalExternalCounterPartyOrderInfo>
+  , IPQAdditionalExternalCounterPartyOrderInfo
 {
     protected uint SequenceId = uint.MaxValue;
 
@@ -82,8 +84,8 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
     }
 
     public PQAdditionalExternalCounterPartyInfo
-    (IPQNameIdLookupGenerator lookupDict, int counterPartyId = 0,  string? counterPartyName = null, int traderId = 0, string? traderName = null)
-     //   : base(orderId, createdTime, orderVolume, orderType, genesisFlags, orderLifeCycleState, updatedTime, remainingVolume, trackingId)
+        (IPQNameIdLookupGenerator lookupDict, int counterPartyId = 0, string? counterPartyName = null, int traderId = 0, string? traderName = null)
+        //   : base(orderId, createdTime, orderVolume, orderType, genesisFlags, orderLifeCycleState, updatedTime, remainingVolume, trackingId)
     {
         NameIdLookup             = lookupDict;
         ExternalCounterPartyId   = counterPartyId;
@@ -93,7 +95,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
         if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) SequenceId = 0;
     }
 
-    public PQAdditionalExternalCounterPartyInfo(IAdditionalExternalCounterPartyOrderInfo? toClone, IPQNameIdLookupGenerator pqNameIdLookupGenerator) 
+    public PQAdditionalExternalCounterPartyInfo(IAdditionalExternalCounterPartyOrderInfo? toClone, IPQNameIdLookupGenerator pqNameIdLookupGenerator)
         // : base(toClone)
     {
         NameIdLookup = pqNameIdLookupGenerator;
@@ -262,20 +264,6 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
         }
     }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public virtual bool IsEmpty
-    {
-        get => externalCounterPartyId == 0 && counterPartyNameId == 0 && externalTraderId == 0 && traderNameId == 0;
-        set
-        {
-            if (!value) return;
-            ExternalCounterPartyId     = 0;
-            ExternalCounterPartyNameId = 0;
-            ExternalTraderId           = 0;
-            ExternalTraderNameId       = 0;
-        }
-    }
-
     [JsonIgnore]
     public virtual bool HasUpdates
     {
@@ -288,7 +276,40 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
         }
     }
 
-    public uint UpdateSequenceId => (uint)SequenceId;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public virtual bool IsEmpty
+    {
+        get => externalCounterPartyId == 0 && counterPartyNameId == 0 && externalTraderId == 0 && traderNameId == 0;
+        set
+        {
+            if (!value) return;
+            ResetWithTracking();
+        }
+    }
+
+    IMutableAdditionalExternalCounterPartyOrderInfo ITrackableReset<IMutableAdditionalExternalCounterPartyOrderInfo>.ResetWithTracking() =>
+        ResetWithTracking();
+
+    public virtual PQAdditionalExternalCounterPartyInfo ResetWithTracking()
+    {
+        externalCounterPartyId = 0;
+        counterPartyNameId     = 0;
+        externalTraderId       = 0;
+        traderNameId           = 0;
+
+        return this;
+    }
+
+    public override void StateReset()
+    {
+        ResetWithTracking();
+
+        UpdatedFlags = PQAdditionalCounterPartyInfoFlags.None;
+        base.StateReset();
+    }
+
+
+    public uint UpdateSequenceId => SequenceId;
 
     public void UpdateStarted(uint updateSequenceId)
     {
@@ -345,17 +366,6 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
         return -1;
     }
 
-    public override void StateReset()
-    {
-        externalCounterPartyId = 0;
-        counterPartyNameId     = 0;
-        externalTraderId       = 0;
-        traderNameId           = 0;
-        UpdatedFlags           = PQAdditionalCounterPartyInfoFlags.None;
-        base.StateReset();
-    }
-
-    
     IPQAdditionalExternalCounterPartyOrderInfo IPQAdditionalExternalCounterPartyOrderInfo.Clone() => Clone();
 
     IMutableAdditionalExternalCounterPartyOrderInfo IMutableAdditionalExternalCounterPartyOrderInfo.Clone() => Clone();
@@ -440,11 +450,11 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
         }
         else if (source is IExternalCounterPartyOrder counterPartyOrderLayerInfo)
         {
-            var hasAsNew               = copyMergeFlags.HasAsNew();
+            var hasAsNew = copyMergeFlags.HasAsNew();
             if (hasAsNew)
             {
-                UpdatedFlags         = PQAdditionalCounterPartyInfoFlags.None;
-                SequenceId = int.MaxValue;
+                UpdatedFlags = PQAdditionalCounterPartyInfoFlags.None;
+                SequenceId   = int.MaxValue;
             }
 
             ExternalCounterPartyId   = counterPartyOrderLayerInfo.ExternalCounterPartyId;
@@ -463,12 +473,13 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
 
     IMutableAdditionalExternalCounterPartyOrderInfo ICloneable<IMutableAdditionalExternalCounterPartyOrderInfo>.Clone() => Clone();
 
-    protected void SetFlagsSame(IAdditionalExternalCounterPartyOrderInfo toCopyFlags)
+    public void SetFlagsSame(IAdditionalExternalCounterPartyOrderInfo? toCopyFlags)
     {
         if (toCopyFlags is PQAdditionalExternalCounterPartyInfo pqToClone)
         {
             UpdatedFlags = pqToClone.UpdatedFlags;
-        } else if (toCopyFlags is IPQAdditionalExternalCounterPartyOrderInfo ipqAddCpOrders)
+        }
+        else if (toCopyFlags is IPQAdditionalExternalCounterPartyOrderInfo ipqAddCpOrders)
         {
             IsExternalCounterPartyIdUpdated   = ipqAddCpOrders.IsExternalCounterPartyIdUpdated;
             IsExternalCounterPartyNameUpdated = ipqAddCpOrders.IsExternalCounterPartyNameUpdated;
@@ -483,8 +494,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
     {
         unchecked
         {
-            var hash = base.GetHashCode();
-            hash = (externalCounterPartyId * 397) ^ hash;
+            var hash = externalCounterPartyId;
             hash = (counterPartyNameId * 397) ^ hash;
             hash = (externalTraderId * 397) ^ hash;
             hash = (traderNameId * 397) ^ hash;
@@ -499,5 +509,6 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
 
     protected string UpdatedFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
 
-    public override string ToString() => $"{nameof(PQAdditionalExternalCounterPartyInfo)}({PQCounterPartyOrderLayerInfoToStringMembers}, {UpdatedFlagsToString})";
+    public override string ToString() =>
+        $"{nameof(PQAdditionalExternalCounterPartyInfo)}({PQCounterPartyOrderLayerInfoToStringMembers}, {UpdatedFlagsToString})";
 }

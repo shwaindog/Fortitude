@@ -1077,7 +1077,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(OrdersCount, populatedAnonymousOrdersPvl.OrdersCount);
         populatedAnonymousOrdersPvl.Add(exampleAnonymousOrderLayer.Clone());
         Assert.AreEqual(OrdersCount + 1, populatedAnonymousOrdersPvl.OrdersCount);
-        populatedAnonymousOrdersPvl[(int)OrdersCount]?.StateReset();
+        populatedAnonymousOrdersPvl[(int)OrdersCount].StateReset();
         Assert.AreEqual(OrdersCount, populatedAnonymousOrdersPvl.OrdersCount);
         populatedAnonymousOrdersPvl.Add(exampleAnonymousOrderLayer.Clone());
         Assert.AreEqual(OrdersCount + 1, populatedAnonymousOrdersPvl.OrdersCount);

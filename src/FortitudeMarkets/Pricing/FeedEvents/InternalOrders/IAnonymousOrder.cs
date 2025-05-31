@@ -15,8 +15,8 @@ namespace FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 [JsonDerivedType(typeof(PQAdditionalExternalCounterPartyInfo))]
 public interface IAnonymousOrder : IReusableObject<IAnonymousOrder>, IInterfacesComparable<IAnonymousOrder>, IShowsEmpty
 {
-    public const OrderGenesisFlags AllAdditionalInfoFlags = IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags 
-                                                          | IInternalPassiveOrder.HasInternalOrderInfo;
+    public const OrderGenesisFlags AllAdditionalInfoFlags = 
+        IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags | IInternalPassiveOrder.HasInternalOrderInfo;
 
     public const OrderGenesisFlags AllExceptExtraInfoFlags = ~AllAdditionalInfoFlags;
 
@@ -45,7 +45,7 @@ public interface IAnonymousOrder : IReusableObject<IAnonymousOrder>, IInterfaces
     IExternalCounterPartyOrder? ToExternalCounterPartyInfoOrder();
 }
 
-public interface IMutableAnonymousOrder : IAnonymousOrder, IEmptyable, ICloneable<IMutableAnonymousOrder>, ITransferState<IMutableAnonymousOrder>
+public interface IMutableAnonymousOrder : IReusableObject<IMutableAnonymousOrder>, IAnonymousOrder, IEmptyable, ITrackableReset<IMutableAnonymousOrder>
 {
     new int OrderId { get; set; }
 

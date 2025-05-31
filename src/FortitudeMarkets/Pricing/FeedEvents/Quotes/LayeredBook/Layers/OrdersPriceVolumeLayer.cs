@@ -3,51 +3,34 @@
 
 #region
 
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 
-public interface IOrdersPriceVolumeLayer : IOrdersCountPriceVolumeLayer,
-    ICloneable<IOrdersPriceVolumeLayer>
-{
-    IReadOnlyList<IAnonymousOrder> Orders { get; }
-    IAnonymousOrder? this[int i] { get; }
-    new IOrdersPriceVolumeLayer Clone();
-}
-
-public interface IMutableOrdersPriceVolumeLayer : IOrdersPriceVolumeLayer, IMutableOrdersCountPriceVolumeLayer
-  , ITrackableReset<IMutableOrdersPriceVolumeLayer>
-{
-    new IMutableAnonymousOrder? this[int i] { get; set; }
-
-    new uint    OrdersCount    { get; }
-    new decimal InternalVolume { get; }
-
-    new IReadOnlyList<IMutableAnonymousOrder> Orders { get; }
-
-    void Add(IAnonymousOrder toAdd);
-    bool RemoveAt(int index);
-    void ShiftOrders(int offset);
-
-    new IMutableOrdersPriceVolumeLayer Clone();
-    new IMutableOrdersPriceVolumeLayer ResetWithTracking();
-}
-
 public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrdersPriceVolumeLayer
 {
-    private static readonly IReadOnlyList<IMutableAnonymousOrder> EmptyOrders = new List<IMutableAnonymousOrder>().AsReadOnly();
-
     private readonly bool isCounterPartyOrders;
 
-    private readonly IList<IMutableAnonymousOrder>? orders;
+    private readonly TracksReorderingListRegistry<IMutableAnonymousOrder, IAnonymousOrder> elementShiftRegistry;
 
-    public OrdersPriceVolumeLayer() => orders = new List<IMutableAnonymousOrder>();
+    private readonly IList<IMutableAnonymousOrder> orders;
+
+    public OrdersPriceVolumeLayer()
+    {
+        orders = new List<IMutableAnonymousOrder>();
+
+        elementShiftRegistry = new TracksReorderingListRegistry<IMutableAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
+    }
 
     public OrdersPriceVolumeLayer(LayerType layerType)
     {
@@ -61,6 +44,8 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
             };
 
         orders = new List<IMutableAnonymousOrder>();
+
+        elementShiftRegistry = new TracksReorderingListRegistry<IMutableAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
     }
 
     public OrdersPriceVolumeLayer
@@ -77,6 +62,8 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
               , _ => throw new ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {layerType}")
             };
         orders = layerOrders?.OfType<IMutableAnonymousOrder>().ToList() ?? new List<IMutableAnonymousOrder>();
+
+        elementShiftRegistry = new TracksReorderingListRegistry<IMutableAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
     }
 
     public OrdersPriceVolumeLayer(IPriceVolumeLayer toClone, LayerType layerType) : base(toClone)
@@ -101,13 +88,18 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         {
             orders = new List<IMutableAnonymousOrder>(0);
         }
+
+        elementShiftRegistry = new TracksReorderingListRegistry<IMutableAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
     }
 
-    [JsonIgnore] public IReadOnlyList<IMutableAnonymousOrder> Orders => orders?.Where(aoli => !aoli.IsEmpty).ToList().AsReadOnly() ?? EmptyOrders;
+    protected static Func<IAnonymousOrder, IAnonymousOrder, bool> SameTradeId = (lhs, rhs) => lhs.OrderId == rhs.OrderId;
 
-    IReadOnlyList<IAnonymousOrder> IOrdersPriceVolumeLayer.Orders => orders?.Where(aoli => !aoli.IsEmpty).ToList().AsReadOnly() ?? EmptyOrders;
+    protected Func<IMutableAnonymousOrder> NewElementFactory => CreateNewBookOrderLayer;
 
-    IAnonymousOrder? IOrdersPriceVolumeLayer.this[int i] => this[i];
+    [JsonIgnore] public IReadOnlyList<IMutableAnonymousOrder> Orders => orders.Where(aoli => !aoli.IsEmpty).ToList().AsReadOnly();
+
+    IReadOnlyList<IAnonymousOrder> IOrdersPriceVolumeLayer.Orders => orders.Where(aoli => !aoli.IsEmpty).ToList().AsReadOnly();
+
 
     [JsonIgnore] public override LayerType LayerType => isCounterPartyOrders ? LayerType.OrdersFullPriceVolume : LayerType.OrdersAnonymousPriceVolume;
 
@@ -118,32 +110,49 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
             ? LayerFlagsExtensions.AdditionalCounterPartyOrderFlags | base.SupportsLayerFlags
             : LayerFlagsExtensions.AdditionalAnonymousOrderFlags | base.SupportsLayerFlags;
 
+    public ushort MaxAllowedSize { get; set; } = PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth;
+
+    IAnonymousOrder IReadOnlyList<IAnonymousOrder>.this[int index] => this[index];
 
     [JsonIgnore]
-    public IMutableAnonymousOrder? this[int i]
+    public IMutableAnonymousOrder this[int i]
     {
         get
         {
             AssertMaxOrdersNotExceeded(i);
-            for (var j = orders?.Count ?? 0; j <= i; j++) orders?.Add(CreateNewBookOrderLayer());
-            return orders?[i];
+            for (var j = orders.Count; j <= i; j++) orders.Add(CreateNewBookOrderLayer());
+            return orders[i];
         }
         set
         {
             AssertMaxOrdersNotExceeded(i);
-            for (var j = orders?.Count ?? 0; j < i; j++) orders?.Add(CreateNewBookOrderLayer());
-            if (orders?.Count == i && value != null)
+            for (var j = orders.Count; j < i; j++) orders.Add(CreateNewBookOrderLayer());
+            if (i < orders.Count)
+            {
+                orders[i] = value;
+            }
+            else
             {
                 orders.Add(value);
             }
-            else if (orders != null)
-            {
-                if (value != null)
-                    orders[i] = value;
-                else
-                    orders[i].StateReset();
-            }
         }
+    }
+
+    int IReadOnlyCollection<IAnonymousOrder>.Count => (int)OrdersCount;
+
+    int IReadOnlyCollection<IMutableAnonymousOrder>.Count => (int)OrdersCount;
+
+    int ICollection<IMutableAnonymousOrder>.Count => (int)OrdersCount;
+
+    int IMutableCapacityList<IMutableAnonymousOrder>.Count
+    {
+        get => (int)OrdersCount;
+        set => OrdersCount = (uint)value;
+    }
+    int IMutableOrdersPriceVolumeLayer.Count
+    {
+        get => (int)OrdersCount;
+        set => OrdersCount = (uint)value;
     }
 
     public override uint OrdersCount
@@ -151,17 +160,40 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         get
         {
             var calcOrderCount = CountFromOrders();
-            if (calcOrderCount > 0) return calcOrderCount;
+            if (calcOrderCount > 0) return (uint)calcOrderCount;
             return base.OrdersCount;
         }
         set
         {
-            for (var i = (orders?.Count ?? 0) - 1; i >= value; i--)
-            {
-                var layerAtLevel                                          = orders?[i];
-                if (!layerAtLevel?.IsEmpty ?? true) layerAtLevel!.IsEmpty = true;
-            }
             base.OrdersCount = value;
+            if (orders != null!)
+            {
+                for (var i = (orders.Count) - 1; i >= value; i--)
+                {
+                    var layerAtLevel = orders[i];
+
+                    if (!layerAtLevel.IsEmpty) layerAtLevel.IsEmpty = true;
+                }
+            }
+        }
+    }
+
+    public int Capacity
+    {
+        get => orders.Count;
+        set
+        {
+            if (value > PQFeedFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades)
+                throw new ArgumentException("Expected PQRecentlyTraded Capacity to be less than or equal to " +
+                                            PQFeedFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades);
+            var orderCount = CountFromOrders();
+            while (orderCount < Math.Min(MaxAllowedSize, value))
+            {
+                var firstLastTrade = CreateNewBookOrderLayer();
+                firstLastTrade.StateReset();
+                orders.Add(firstLastTrade);
+                orderCount++;
+            }
         }
     }
 
@@ -176,7 +208,6 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         set => base.InternalVolume = value;
     }
 
-
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {
@@ -185,15 +216,109 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         {
             base.IsEmpty = value;
             if (!value) return;
-            foreach (var orderLayerInfo in orders ?? []) orderLayerInfo.IsEmpty = true;
+            foreach (var orderLayerInfo in orders) orderLayerInfo.IsEmpty = true;
             base.IsEmpty = true;
         }
     }
 
+    public IReadOnlyList<ListShiftCommand> ShiftCommands
+    {
+        get => elementShiftRegistry.ShiftCommands;
+        set => elementShiftRegistry.ShiftCommands = value;
+    }
+
+    public int? ClearRemainingElementsFromIndex
+    {
+        get => elementShiftRegistry.ClearRemainingElementsFromIndex;
+        set => elementShiftRegistry.ClearRemainingElementsFromIndex = value;
+    }
+
+    public bool HasUnreliableListTracking
+    {
+        get => elementShiftRegistry.HasUnreliableListTracking;
+        set => elementShiftRegistry.HasUnreliableListTracking = value;
+    }
+
+    public bool CalculateShift(DateTime asAtTime, IReadOnlyList<IAnonymousOrder> updatedCollection) =>
+        elementShiftRegistry.CalculateShift(asAtTime, updatedCollection);
+
+
+    public ListShiftCommand AppendShiftCommand(ListShiftCommand toAppendAtEnd) => elementShiftRegistry.AppendShiftCommand(toAppendAtEnd);
+
+    public void ClearShiftCommands() => elementShiftRegistry.ClearShiftCommands();
+
+    public ListShiftCommand InsertAtStart(IMutableAnonymousOrder toInsertAtStart) => elementShiftRegistry.InsertAtStart(toInsertAtStart);
+
+    public bool AppendAtEnd(IMutableAnonymousOrder toAppendAtEnd) => elementShiftRegistry.AppendAtEnd(toAppendAtEnd);
+
+    public ListShiftCommand InsertAt(int index, IMutableAnonymousOrder toInsertAtStart) => elementShiftRegistry.InsertAt(index, toInsertAtStart);
+
+    public ListShiftCommand DeleteAt(int index) => elementShiftRegistry.DeleteAt(index);
+
+    public ListShiftCommand Delete(IMutableAnonymousOrder toDelete) => elementShiftRegistry.Delete(toDelete);
+
+    public ListShiftCommand ApplyListShiftCommand(ListShiftCommand shiftCommandToApply) => elementShiftRegistry.ApplyListShiftCommand(shiftCommandToApply);
+
+    public ListShiftCommand ClearAll() => elementShiftRegistry.ClearAll();
+
+    public ListShiftCommand ShiftElements(int byElements) => elementShiftRegistry.ShiftElements(byElements);
+
+    public ListShiftCommand MoveToStart(IMutableAnonymousOrder existingItem) => elementShiftRegistry.MoveToStart(existingItem);
+
+    public ListShiftCommand MoveToStart(int indexToMoveToStart) => elementShiftRegistry.MoveToStart(indexToMoveToStart);
+
+    public ListShiftCommand MoveToEnd(int indexToMoveToEnd) => elementShiftRegistry.MoveToEnd(indexToMoveToEnd);
+
+    public ListShiftCommand MoveSingleElementBy(int indexToMoveToEnd, int shift) => elementShiftRegistry.MoveSingleElementBy(indexToMoveToEnd, shift);
+
+    public ListShiftCommand MoveSingleElementBy(IMutableAnonymousOrder existingItem, int shift) =>
+        elementShiftRegistry.MoveSingleElementBy(existingItem, shift);
+
+    public ListShiftCommand MoveToEnd(IMutableAnonymousOrder existingItem) => elementShiftRegistry.MoveToEnd(existingItem);
+
+    public ListShiftCommand ShiftElementsFrom(int byElements, int pinElementsFromIndex) => elementShiftRegistry.ShiftElementsFrom(byElements, pinElementsFromIndex);
+
+    public ListShiftCommand ShiftElementsUntil(int byElements, int pinElementsFromIndex) => elementShiftRegistry.ShiftElementsUntil(byElements, pinElementsFromIndex);
+
+    public void Add(IMutableAnonymousOrder item)
+    {
+        var index = CountFromOrders();
+        if (index < Capacity)
+        {
+            this[index] = item;
+        }
+        else
+        {
+            orders.Add(item);
+        }
+    }
+
+    public void Clear()
+    {
+        orders.Clear();
+    }
+
+    public bool Contains(IMutableAnonymousOrder item) => orders.Contains(item);
+
+    public void CopyTo(IMutableAnonymousOrder[] array, int arrayIndex)
+    {
+        for (int i = 0; i < orders.Count && i + arrayIndex < array.Length; i++)
+        {
+            array[i + arrayIndex] = orders[i];
+        }
+    }
+
+    public bool Remove(IMutableAnonymousOrder item) => orders.Remove(item);
+
+    public bool IsReadOnly => false;
+
+    public int IndexOf(IMutableAnonymousOrder item) => orders.IndexOf(item);
+
+    public void Insert(int index, IMutableAnonymousOrder item) => orders.Insert(index, item);
+
     public void Add(IAnonymousOrder order)
     {
-        if (orders == null) return;
-        var indexToUpdate = (int)CountFromOrders();
+        var indexToUpdate = CountFromOrders();
         AssertMaxOrdersNotExceeded(indexToUpdate);
         if (indexToUpdate >= orders.Count)
         {
@@ -206,45 +331,19 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         }
     }
 
-    public bool RemoveAt(int index)
+    public void RemoveAt(int index)
     {
-        var orderAt = orders![index];
+        var orderAt = orders[index];
         orderAt.IsEmpty = true;
-        return true;
-    }
-
-    public void ShiftOrders(int offset)
-    {
-        if (orders == null || orders.Count == 0) return;
-        if (offset > 0)
-            for (var i = 0; i < offset; i++)
-            {
-                IMutableAnonymousOrder? toInsert;
-                if (orders[^1].IsEmpty)
-                {
-                    var allOrdersCount = orders.Count;
-                    toInsert = orders[allOrdersCount - 1];
-                    orders.RemoveAt(allOrdersCount - 1);
-                }
-                else
-                {
-                    toInsert = CreateNewBookOrderLayer();
-                }
-                orders.Insert(0, toInsert);
-            }
-        else if (offset < 0)
-            for (var i = offset; i < 0; i++)
-            {
-                var toResetAtEnd = Orders[0];
-                orders.RemoveAt(0);
-                toResetAtEnd.StateReset();
-                orders.Add(toResetAtEnd);
-            }
     }
 
     IMutableOrdersPriceVolumeLayer ITrackableReset<IMutableOrdersPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
 
     IMutableOrdersPriceVolumeLayer IMutableOrdersPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    ITracksResetCappedCapacityList<IMutableAnonymousOrder> ITrackableReset<ITracksResetCappedCapacityList<IMutableAnonymousOrder>>.
+        ResetWithTracking() =>
+        ResetWithTracking();
 
     public override OrdersPriceVolumeLayer ResetWithTracking()
     {
@@ -271,7 +370,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
 
     private void AddLayer(IAnonymousOrder toAdd)
     {
-        orders?.Add(ConvertToBookLayer(toAdd));
+        orders.Add(ConvertToBookLayer(toAdd));
     }
 
     public IMutableAnonymousOrder ConvertToBookLayer(IAnonymousOrder toAdd)
@@ -300,6 +399,14 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         };
     }
 
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    IEnumerator<IAnonymousOrder> IEnumerable<IAnonymousOrder>.GetEnumerator() => GetEnumerator();
+
+    IEnumerator<IMutableAnonymousOrder> IEnumerable<IMutableAnonymousOrder>.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<IMutableAnonymousOrder> GetEnumerator() => orders.Take(CountFromOrders()).GetEnumerator();
+
 
     [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
     private void AssertMaxOrdersNotExceeded(int proposedNewIndex)
@@ -307,12 +414,12 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         if (proposedNewIndex > ushort.MaxValue) throw new ArgumentOutOfRangeException($"Max Traders represented is {ushort.MaxValue}");
     }
 
-    protected uint CountFromOrders()
+    protected int CountFromOrders()
     {
-        for (var i = (orders?.Count ?? 0) - 1; i >= 0; i--)
+        for (var i = (orders.Count) - 1; i >= 0; i--)
         {
-            var layerAtLevel = orders?[i];
-            if (!layerAtLevel?.IsEmpty ?? true) return (uint)(i + 1);
+            var layerAtLevel = orders[i];
+            if (!layerAtLevel.IsEmpty) return (i + 1);
         }
 
         return 0;
@@ -321,20 +428,20 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
     protected decimal InternalVolumeFromOrders()
     {
         return orders
-               ?.Where(aoli =>
-                           aoli.GenesisFlags.IsInternalOrder()
-                        && !aoli.GenesisFlags.HasVolumeNotPartOfLiquidity()
-                        && !aoli.GenesisFlags.HasSyntheticForBacktestSimulation())
-               .Sum(aoli => aoli.OrderRemainingVolume) ?? 0m;
+               .Where(aoli =>
+                          aoli.GenesisFlags.IsInternalOrder()
+                       && !aoli.GenesisFlags.HasVolumeNotPartOfLiquidity()
+                       && !aoli.GenesisFlags.HasSyntheticForBacktestSimulation())
+               .Sum(aoli => aoli.OrderRemainingVolume);
     }
 
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {
         if (!(other is IOrdersPriceVolumeLayer otherTvl)) return false;
         var baseSame = base.AreEquivalent(other, exactTypes);
-        var traderDetailsSame = orders!.Zip(otherTvl.Orders,
-                                            (ftd, std) => ftd.AreEquivalent(std, exactTypes))
-                                       .All(same => same);
+        var traderDetailsSame = orders.Zip(otherTvl.Orders,
+                                           (ftd, std) => ftd.AreEquivalent(std, exactTypes))
+                                      .All(same => same);
         return baseSame && traderDetailsSame;
     }
 
@@ -344,23 +451,23 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         var thisLayerGenesisFlags = LayerType.SupportsOrdersFullPriceVolume()
             ? IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags
             : OrderGenesisFlags.None;
-        var addInfoMask                = IAnonymousOrder.AllExceptExtraInfoFlags;
-        if (orders != null && source is IMutableOrdersPriceVolumeLayer ordersCountPriceVolumeLayer)
+        var addInfoMask = IAnonymousOrder.AllExceptExtraInfoFlags;
+        if (source is IMutableOrdersPriceVolumeLayer ordersCountPriceVolumeLayer)
         {
             for (var i = 0; i < ordersCountPriceVolumeLayer.OrdersCount; i++)
             {
-                var destOrder = ordersCountPriceVolumeLayer[i]!;
+                var destOrder = ordersCountPriceVolumeLayer[i];
                 if (i < orders.Count)
                 {
                     var mutableAnonymousOrder = orders[i];
-                    mutableAnonymousOrder.CopyFrom(ordersCountPriceVolumeLayer[i]!);
+                    mutableAnonymousOrder.CopyFrom(ordersCountPriceVolumeLayer[i]);
                     var modifiedGenesisFlags = (destOrder.GenesisFlags & addInfoMask);
                     destOrder.GenesisFlags                        = modifiedGenesisFlags | thisLayerGenesisFlags;
                     mutableAnonymousOrder.EmptyIgnoreGenesisFlags = thisLayerGenesisFlags;
                 }
                 else
                 {
-                    var mutableAnonymousOrder = ConvertToBookLayer(ordersCountPriceVolumeLayer[i]!);
+                    var mutableAnonymousOrder = ConvertToBookLayer(ordersCountPriceVolumeLayer[i]);
                     var modifiedGenesisFlags  = (destOrder.GenesisFlags & addInfoMask);
                     destOrder.GenesisFlags                        = modifiedGenesisFlags | thisLayerGenesisFlags;
                     mutableAnonymousOrder.EmptyIgnoreGenesisFlags = thisLayerGenesisFlags;

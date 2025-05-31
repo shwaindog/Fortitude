@@ -38,7 +38,7 @@ public interface IAdditionalInternalPassiveOrderInfo : IReusableObject<IAddition
 }
 
 public interface IMutableAdditionalInternalPassiveOrderInfo : IAdditionalInternalPassiveOrderInfo, ICloneable<IMutableAdditionalInternalPassiveOrderInfo>, IEmptyable
-  , ITransferState<IMutableAdditionalInternalPassiveOrderInfo>
+  , ITransferState<IMutableAdditionalInternalPassiveOrderInfo>, ITrackableReset<IMutableAdditionalInternalPassiveOrderInfo>
 {
     new uint OrderSequenceId { get; set; }
     new uint ParentOrderId   { get; set; }
@@ -82,7 +82,9 @@ public interface IInternalPassiveOrder : IAnonymousOrder, IAdditionalInternalPas
 }
 
 public interface IMutableInternalPassiveOrder : IInternalPassiveOrder, IMutableAdditionalInternalPassiveOrderInfo, IMutableAnonymousOrder
-  , ICloneable<IMutableInternalPassiveOrder>
+  , ICloneable<IMutableInternalPassiveOrder>, ITrackableReset<IMutableInternalPassiveOrder>
 {
+    new IMutableInternalPassiveOrder ResetWithTracking();
+
     new IMutableInternalPassiveOrder Clone();
 }

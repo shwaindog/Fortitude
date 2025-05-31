@@ -334,6 +334,17 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         level2SessionReader = level2OneWeekFile.GetReaderSession();
         var allEntriesReader = level2SessionReader.AllChronologicalEntriesReader
             (new Recycler(), EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible, retrievalFactory);
+        // var allEntriesReader = level2SessionReader.AllChronologicalEntriesReader
+        //     (new Recycler(), EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ConsumerControlled, retrievalFactory);
+        //
+        // var storedItems = new List<IPublishableLevel2Quote>();
+        // var indexCount  = 0;
+        // foreach (var readQuote in allEntriesReader.ResultEnumerable)
+        // {
+        //     CompareQuotes(indexCount, toPersistAndCheck[indexCount], readQuote);
+        //     indexCount++;
+        //     storedItems.Add(readQuote);    
+        // }
         var storedItems = allEntriesReader.ResultEnumerable.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
@@ -433,7 +444,12 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
         level2SessionReader = level2OneWeekFile.GetReaderSession();
         var allEntriesReader = level2SessionReader.AllChronologicalEntriesReader
             (new Recycler(), EntryResultSourcing.FromFactoryFuncUnlimited, ReaderOptions.ReadFastAsPossible, retrievalFactory);
-        var storedItems = allEntriesReader.ResultEnumerable.ToList();
+        var storedItems = new List<IPublishableLevel2Quote>();
+        foreach (var readQuote in allEntriesReader.ResultEnumerable)
+        {
+            storedItems.Add(readQuote);    
+        }
+        // var storedItems = allEntriesReader.ResultEnumerable.ToList();
         Assert.AreEqual(toPersistAndCheck.Count, allEntriesReader.CountMatch);
         Assert.AreEqual(allEntriesReader.CountMatch, allEntriesReader.CountProcessed);
         Assert.AreEqual(toPersistAndCheck.Count, storedItems.Count);
@@ -456,14 +472,24 @@ public class WeeklyLevel2QuoteTimeSeriesFileTests
     {
         for (var i = 0; i < originalList.Count; i++)
         {
-            var originalEntry = originalList[i];
-            var compareEntry  = toCompareList[i];
-            if (!originalEntry.AreEquivalent(compareEntry))
-            {
-                Logger.Warn("Entries at {0} differ test failed \ndiff {1}", i, originalEntry.DiffQuotes(compareEntry));
-                FLoggerFactory.WaitUntilDrained();
-                Assert.Fail($"Entries at {i} differ test failed \ndiff {originalEntry.DiffQuotes(compareEntry)}.");
-            }
+            CompareIndex(originalList, toCompareList, i);
+        }
+    }
+
+    private static void CompareIndex(List<IPublishableLevel2Quote> originalList, List<IPublishableLevel2Quote> toCompareList, int i)
+    {
+        var originalEntry = originalList[i];
+        var compareEntry  = toCompareList[i];
+        CompareQuotes(i, originalEntry, compareEntry);
+    }
+
+    private static void CompareQuotes(int i, IPublishableLevel2Quote originalEntry, IPublishableLevel2Quote compareEntry)
+    {
+        if (!originalEntry.AreEquivalent(compareEntry))
+        {
+            Logger.Warn("Entries at {0} differ test failed \ndiff {1}", i, originalEntry.DiffQuotes(compareEntry));
+            FLoggerFactory.WaitUntilDrained();
+            Assert.Fail($"Entries at {i} differ test failed \ndiff {originalEntry.DiffQuotes(compareEntry)}.");
         }
     }
 

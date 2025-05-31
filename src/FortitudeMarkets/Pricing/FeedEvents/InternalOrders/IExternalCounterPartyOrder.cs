@@ -20,7 +20,7 @@ public interface IAdditionalExternalCounterPartyOrderInfo : IReusableObject<IAdd
 }
 
 public interface IMutableAdditionalExternalCounterPartyOrderInfo : IAdditionalExternalCounterPartyOrderInfo
-  , ICloneable<IMutableAdditionalExternalCounterPartyOrderInfo>, IEmptyable
+  , ICloneable<IMutableAdditionalExternalCounterPartyOrderInfo>, IEmptyable, ITrackableReset<IMutableAdditionalExternalCounterPartyOrderInfo>
   , ITransferState<IMutableAdditionalExternalCounterPartyOrderInfo>
 {
     new int ExternalCounterPartyId { get; set; }
@@ -40,14 +40,15 @@ public interface IExternalCounterPartyOrder : IAnonymousOrder, IAdditionalExtern
     const OrderGenesisFlags HasExternalCounterPartyOrderInfoFlags
         = OrderGenesisFlags.IsExternalOrder | OrderGenesisFlags.HasExternalCounterPartyInfo;
 
-    const OrderGenesisFlags          AllExceptHasExternalCounterPartyInfoFlags = ~(HasExternalCounterPartyOrderInfoFlags);
+    const OrderGenesisFlags AllExceptHasExternalCounterPartyInfoFlags = ~(HasExternalCounterPartyOrderInfoFlags);
 
-    new   IExternalCounterPartyOrder Clone();
+    new IExternalCounterPartyOrder Clone();
 }
 
 public interface IMutableExternalCounterPartyOrder : IExternalCounterPartyOrder, IMutableAdditionalExternalCounterPartyOrderInfo,
     IMutableAnonymousOrder, ICloneable<IMutableExternalCounterPartyOrder>, ITransferState<IMutableExternalCounterPartyOrder>
-  , IInterfacesComparable<IMutableExternalCounterPartyOrder>
+  , IInterfacesComparable<IMutableExternalCounterPartyOrder>, ITrackableReset<IMutableExternalCounterPartyOrder>
 {
+    new IMutableExternalCounterPartyOrder ResetWithTracking();
     new IMutableExternalCounterPartyOrder Clone();
 }
