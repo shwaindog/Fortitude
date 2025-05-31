@@ -60,7 +60,11 @@ public class PQLevel1QuoteTests
                                   LastTradedFlags.LastTradedTime);
         blankSourceTickerInfo       = new SourceTickerInfo(0, "", 0, "", Level1Quote, Unknown);
         fullyPopulatedPqLevel1Quote = new PQPublishableLevel1Quote(new PQSourceTickerInfo(sourceTickerInfo));
-        emptyQuote                  = new PQPublishableLevel1Quote(new PQSourceTickerInfo(sourceTickerInfo)) { HasUpdates = false };
+        emptyQuote                  = new PQPublishableLevel1Quote(new PQSourceTickerInfo(sourceTickerInfo))
+        {
+            PQSequenceId = 1,
+            HasUpdates = false
+        };
         quoteSequencedTestDataBuilder.InitializeQuote(fullyPopulatedPqLevel1Quote, 1);
 
         testDateTime = new DateTime(2017, 10, 08, 18, 33, 24);
@@ -268,11 +272,6 @@ public class PQLevel1QuoteTests
     {
         Assert.IsFalse(emptyQuote.IsAdapterReceivedTimeDateUpdated);
         Assert.IsFalse(emptyQuote.IsAdapterReceivedTimeSub2MinUpdated);
-        emptyQuote.AdapterReceivedTime = DateTime.Now;
-        Assert.IsTrue(emptyQuote.HasUpdates);
-        emptyQuote.UpdateComplete();
-        emptyQuote.AdapterReceivedTime = DateTime.MinValue;
-        emptyQuote.HasUpdates          = false;
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.AreEqual(default, emptyQuote.AdapterReceivedTime);
         Assert.AreEqual(2, emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
@@ -312,7 +311,8 @@ public class PQLevel1QuoteTests
         emptyQuote.IsAdapterSentTimeDateUpdated    = false;
         emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
+        var deltaUpdateFields = emptyQuote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+        Assert.IsTrue(deltaUpdateFields.IsNullOrEmpty());
 
         var newEmpty = new PQPublishableLevel1Quote(sourceTickerInfo);
         newEmpty.UpdateField(adapterReceivedUpdates[0]);

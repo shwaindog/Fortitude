@@ -44,7 +44,7 @@ public interface IPQLastTrade : IReusableObject<IPQLastTrade>, IMutableLastTrade
 
 public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
 {
-    protected uint NumUpdatesSinceEmpty = uint.MaxValue;
+    protected uint SequenceId = uint.MaxValue;
 
     private decimal  tradePrice;
     private DateTime tradeTime = DateTime.MinValue;
@@ -62,7 +62,7 @@ public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
 
     public PQLastTrade()
     {
-        if (GetType() == typeof(PQLastTrade)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastTrade)) SequenceId = 0;
     }
 
     public PQLastTrade
@@ -81,7 +81,7 @@ public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
         FirstNotifiedTime    = firstNotifiedTime ?? default;
         AdapterReceivedTime  = adapterReceivedTime ?? default;
 
-        if (GetType() == typeof(PQLastTrade)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastTrade)) SequenceId = 0;
     }
 
     public PQLastTrade(ILastTrade toClone)
@@ -99,7 +99,7 @@ public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
 
         SetFlagsSame(toClone);
 
-        if (GetType() == typeof(PQLastTrade)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQLastTrade)) SequenceId = 0;
     }
 
     [JsonIgnore] public virtual LastTradeType LastTradeType => LastTradeType.Price;
@@ -113,7 +113,7 @@ public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
         get => tradeId;
         set
         {
-            IsTradeIdUpdated |= tradeId != value || NumUpdatesSinceEmpty == 0;
+            IsTradeIdUpdated |= tradeId != value || SequenceId == 0;
             tradeId          =  value;
         }
     }
@@ -124,7 +124,7 @@ public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
         get => batchId;
         set
         {
-            IsBatchIdUpdated |= batchId != value || NumUpdatesSinceEmpty == 0;
+            IsBatchIdUpdated |= batchId != value || SequenceId == 0;
             batchId          =  value;
         }
     }
@@ -135,7 +135,7 @@ public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
         get => tradeTypeFlags;
         set
         {
-            IsTradeTypeFlagsUpdated |= tradeTypeFlags != value || NumUpdatesSinceEmpty == 0;
+            IsTradeTypeFlagsUpdated |= tradeTypeFlags != value || SequenceId == 0;
             tradeTypeFlags          =  value;
         }
     }
@@ -146,7 +146,7 @@ public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
         get => tradeLifeCycleStatus;
         set
         {
-            IsTradeLifeCycleStatusUpdated |= tradeLifeCycleStatus != value || NumUpdatesSinceEmpty == 0;
+            IsTradeLifeCycleStatusUpdated |= tradeLifeCycleStatus != value || SequenceId == 0;
             tradeLifeCycleStatus          =  value;
         }
     }
@@ -157,8 +157,8 @@ public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
         get => tradeTime;
         set
         {
-            IsTradeTimeDateUpdated |= tradeTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
-            IsTradeTimeSub2MinUpdated |= tradeTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
+            IsTradeTimeDateUpdated |= tradeTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
+            IsTradeTimeSub2MinUpdated |= tradeTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
             tradeTime = value;
         }
     }
@@ -170,7 +170,7 @@ public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
         get => tradePrice;
         set
         {
-            IsTradePriceUpdated |= tradePrice != value || NumUpdatesSinceEmpty == 0;
+            IsTradePriceUpdated |= tradePrice != value || SequenceId == 0;
             tradePrice          =  value;
         }
     }
@@ -182,8 +182,8 @@ public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
         set
         {
             IsFirstNotifiedDateUpdated |= firstNotifiedTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() ||
-                                          NumUpdatesSinceEmpty == 0;
-            IsFirstNotifiedSub2MinTimeUpdated |= firstNotifiedTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
+                                          SequenceId == 0;
+            IsFirstNotifiedSub2MinTimeUpdated |= firstNotifiedTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
             firstNotifiedTime                 =  value;
         }
     }
@@ -195,9 +195,9 @@ public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
         set
         {
             IsAdapterReceivedDateUpdated |= adapterReceivedTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() ||
-                                            NumUpdatesSinceEmpty == 0;
+                                            SequenceId == 0;
             IsAdapterReceivedSub2MinTimeUpdated
-                |= adapterReceivedTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
+                |= adapterReceivedTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
             adapterReceivedTime = value;
         }
     }
@@ -208,8 +208,8 @@ public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
         get => updateTime;
         set
         {
-            IsUpdatedDateUpdated |= updateTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
-            IsUpdateSub2MinTimeUpdated |= updateTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
+            IsUpdatedDateUpdated |= updateTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
+            IsUpdateSub2MinTimeUpdated |= updateTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
             updateTime = value;
         }
     }
@@ -420,15 +420,20 @@ public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
         FirstNotifiedTime    = default;
         AdapterReceivedTime  = default;
 
-        NumUpdatesSinceEmpty = 0;
+        SequenceId = 0;
         return this;
     }
 
-    public uint UpdateCount => NumUpdatesSinceEmpty;
+    public uint UpdateSequenceId => SequenceId;
 
-    public virtual void UpdateComplete()
+    public virtual void UpdateStarted(uint updateSequenceId)
     {
-        if (HasUpdates && !IsEmpty) NumUpdatesSinceEmpty++;
+        SequenceId = updateSequenceId;
+    }
+
+    public virtual void UpdateComplete(uint updateSequenceId = 0)
+    {
+        if (HasUpdates && !IsEmpty) SequenceId++;
         HasUpdates = false;
     }
 

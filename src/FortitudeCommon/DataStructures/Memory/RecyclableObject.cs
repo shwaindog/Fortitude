@@ -19,7 +19,12 @@ public class UsesRecycler : IUsesRecycler
     [JsonIgnore] public virtual IRecycler? Recycler { get; set; }
 }
 
-public interface IRecyclableObject : IUsesRecycler
+public interface IResetable
+{
+    void StateReset();
+}
+
+public interface IRecyclableObject : IUsesRecycler, IResetable
 {
     [JsonIgnore] bool AutoRecycleAtRefCountZero { get; set; }
 
@@ -29,7 +34,6 @@ public interface IRecyclableObject : IUsesRecycler
     int  DecrementRefCount();
     int  IncrementRefCount();
     bool Recycle();
-    void StateReset();
 }
 
 public class RecyclableObject : UsesRecycler, IRecyclableObject

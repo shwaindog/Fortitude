@@ -143,7 +143,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQMessage
             {
                 var seqId = ent.PQSequenceId;
                 ent.CopyFrom(quote);
-                quote.UpdateComplete();
+                quote.UpdateComplete(seqId);
                 ent.PQSequenceId = seqId;
             }
             finally

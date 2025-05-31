@@ -22,13 +22,13 @@ public class PQMarketAggregateTests
     private static readonly DateTime ExpectedUpdateTime = new(2025, 5, 6, 16, 11, 52);
 
 
-    private static DateTime testDateTime = new(2025, 5, 7, 18, 33, 24);
+    private static DateTime testDateTime = new(2025, 5, 26, 18, 33, 24);
 
     [TestInitialize]
     public void SetUp()
     {
         emptyMarketAggregate     = new PQMarketAggregate();
-        testDateTime             = new DateTime(2017, 12, 17, 16, 11, 52);
+        testDateTime             = new DateTime(2025, 5, 29, 14, 11, 52);
         populatedMarketAggregate = new PQMarketAggregate(MarketDataSource.Adapter, ExpectedVolume, ExpectedVwap, ExpectedUpdateTime);
     }
 

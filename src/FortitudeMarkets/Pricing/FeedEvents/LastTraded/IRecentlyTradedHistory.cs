@@ -7,8 +7,8 @@ namespace FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 
 public interface IRecentlyTradedHistory : IReusableObject<IRecentlyTradedHistory>, IInterfacesComparable<IRecentlyTradedHistory>, IShowsEmpty
 {
-    public const int DefaultLimitedHistoryMaxTradeCount = 100;
-    public const int PublishedHistoryMaxTradeCount = PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth;
+    public const ushort DefaultLimitedHistoryMaxTradeCount = 100;
+    public const ushort PublishedHistoryMaxTradeCount = PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth;
 
 
     public const LastTradedTransmissionFlags DefaultAllLimitedHistoryLastTradedTransmissionFlags =

@@ -341,6 +341,7 @@ public class PQServerHeartBeatSenderTests
 
             Assert.AreNotSame(OSParallelControllerFactory.Instance, moqOsParallelController);
             pqServerHeartBeatSender.CheckPublishHeartbeats();
+            moqSyncLock.Verify();
             moqQuotesList.Verify();
             moqTickInstantQuote.Verify();
         }

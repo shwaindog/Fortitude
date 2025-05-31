@@ -61,7 +61,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
     private   decimal  highestBidPrice;
     private   decimal  lowestAskPrice;
     private   decimal  lowestBidPrice;
-    protected uint     NumUpdatesSinceEmpty = uint.MaxValue;
+    protected uint     SequenceId = uint.MaxValue;
 
     private CandleFlags candleFlags;
 
@@ -76,7 +76,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
 
     public PQCandle()
     {
-        if (GetType() == typeof(PQCandle)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQCandle)) SequenceId = 0;
     }
 
     public PQCandle(ICandle toClone)
@@ -98,7 +98,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         AverageBidPrice    = toClone.AverageBidAsk.BidPrice;
         AverageAskPrice    = toClone.AverageBidAsk.AskPrice;
 
-        if (GetType() == typeof(PQCandle)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQCandle)) SequenceId = 0;
     }
 
     public override PQCandle Clone() => Recycler?.Borrow<PQCandle>().CopyFrom(this) as PQCandle ?? new PQCandle(this);
@@ -109,7 +109,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         get => timeBoundaryPeriod;
         set
         {
-            IsCandlePeriodUpdated = timeBoundaryPeriod != value || NumUpdatesSinceEmpty == 0;
+            IsCandlePeriodUpdated = timeBoundaryPeriod != value || SequenceId == 0;
             timeBoundaryPeriod    = value;
         }
     }
@@ -140,7 +140,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
             CandleFlags        = CandleFlags.None;
             PeriodStartTime    = PeriodEndTime = DateTime.MinValue;
 
-            NumUpdatesSinceEmpty = 0;
+            SequenceId = 0;
         }
     }
 
@@ -168,7 +168,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         get => candleFlags;
         set
         {
-            IsCandleFlagsUpdated = candleFlags != value || NumUpdatesSinceEmpty == 0;
+            IsCandleFlagsUpdated = candleFlags != value || SequenceId == 0;
             candleFlags          = value;
         }
     }
@@ -234,8 +234,8 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         get => endTime;
         set
         {
-            IsEndTimeDateUpdated    |= endTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumUpdatesSinceEmpty == 0;
-            IsEndTimeSub2MinUpdated |= endTime.GetSub2MinComponent() != value.GetSub2MinComponent() || NumUpdatesSinceEmpty == 0;
+            IsEndTimeDateUpdated    |= endTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
+            IsEndTimeSub2MinUpdated |= endTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
             endTime                 =  value;
         }
     }
@@ -283,7 +283,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         get => averageBidPrice;
         set
         {
-            IsAverageBidPriceUpdated = averageBidPrice != value || NumUpdatesSinceEmpty == 0;
+            IsAverageBidPriceUpdated = averageBidPrice != value || SequenceId == 0;
             averageBidPrice          = value;
         }
     }
@@ -293,7 +293,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         get => averageAskPrice;
         set
         {
-            IsAverageAskPriceUpdated = averageAskPrice != value || NumUpdatesSinceEmpty == 0;
+            IsAverageAskPriceUpdated = averageAskPrice != value || SequenceId == 0;
 
             averageAskPrice = value;
         }
@@ -305,7 +305,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         get => startBidPrice;
         set
         {
-            IsStartBidPriceUpdated = startBidPrice != value || NumUpdatesSinceEmpty == 0;
+            IsStartBidPriceUpdated = startBidPrice != value || SequenceId == 0;
             startBidPrice          = value;
         }
     }
@@ -329,7 +329,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         get => startAskPrice;
         set
         {
-            IsStartAskPriceUpdated = startAskPrice != value || NumUpdatesSinceEmpty == 0;
+            IsStartAskPriceUpdated = startAskPrice != value || SequenceId == 0;
             startAskPrice          = value;
         }
     }
@@ -353,7 +353,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         get => highestBidPrice;
         set
         {
-            IsHighestBidPriceUpdated = highestBidPrice != value || NumUpdatesSinceEmpty == 0;
+            IsHighestBidPriceUpdated = highestBidPrice != value || SequenceId == 0;
             highestBidPrice          = value;
         }
     }
@@ -377,7 +377,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         get => highestAskPrice;
         set
         {
-            IsHighestAskPriceUpdated = highestAskPrice != value || NumUpdatesSinceEmpty == 0;
+            IsHighestAskPriceUpdated = highestAskPrice != value || SequenceId == 0;
             highestAskPrice          = value;
         }
     }
@@ -401,7 +401,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         get => lowestBidPrice;
         set
         {
-            IsLowestBidPriceUpdated = lowestBidPrice != value || NumUpdatesSinceEmpty == 0;
+            IsLowestBidPriceUpdated = lowestBidPrice != value || SequenceId == 0;
             lowestBidPrice          = value;
         }
     }
@@ -425,7 +425,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         get => lowestAskPrice;
         set
         {
-            IsLowestAskPriceUpdated = lowestAskPrice != value || NumUpdatesSinceEmpty == 0;
+            IsLowestAskPriceUpdated = lowestAskPrice != value || SequenceId == 0;
             lowestAskPrice          = value;
         }
     }
@@ -449,7 +449,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         get => endBidPrice;
         set
         {
-            IsEndBidPriceUpdated = endBidPrice != value || NumUpdatesSinceEmpty == 0;
+            IsEndBidPriceUpdated = endBidPrice != value || SequenceId == 0;
             endBidPrice          = value;
         }
     }
@@ -473,7 +473,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         get => endAskPrice;
         set
         {
-            IsEndAskPriceUpdated = endAskPrice != value || NumUpdatesSinceEmpty == 0;
+            IsEndAskPriceUpdated = endAskPrice != value || SequenceId == 0;
             endAskPrice          = value;
         }
     }
@@ -522,7 +522,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         get => tickCount;
         set
         {
-            IsTickCountUpdated = tickCount != value || NumUpdatesSinceEmpty == 0;
+            IsTickCountUpdated = tickCount != value || SequenceId == 0;
             tickCount          = value;
         }
     }
@@ -545,7 +545,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         get => periodVolume;
         set
         {
-            IsPeriodVolumeUpdated = periodVolume != value || NumUpdatesSinceEmpty == 0;
+            IsPeriodVolumeUpdated = periodVolume != value || SequenceId == 0;
             periodVolume          = value;
         }
     }
@@ -601,11 +601,16 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         set => updatedFlags = value ? updatedFlags.AllFlags() : 0;
     }
 
-    public uint UpdateCount => NumUpdatesSinceEmpty;
+    public uint UpdateSequenceId => SequenceId;
 
-    public virtual void UpdateComplete()
+    public void UpdateStarted(uint updateSequenceId)
     {
-        if (HasUpdates && !IsEmpty) NumUpdatesSinceEmpty++;
+        SequenceId = updateSequenceId;
+    }
+
+    public virtual void UpdateComplete(uint updateSequenceId = 0)
+    {
+        if (HasUpdates && !IsEmpty) SequenceId++;
         HasUpdates = false;
     }
 
@@ -971,7 +976,7 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
         IsEmpty    = true;
         HasUpdates = false;
 
-        NumUpdatesSinceEmpty = 0;
+        SequenceId = 0;
         base.StateReset();
     }
 

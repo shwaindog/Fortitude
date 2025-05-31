@@ -588,7 +588,7 @@ public class PQTickInstantTests
     }
 
     /// Created because when built Moq couldn't handle a property redefinition in interfaces and sets up only
-    /// the most base form of the property leaving the redefined property unsetup.
+    /// the most base form of the property leaving the redefined property untouched.
     internal class DummyPQTickInstant : ReusableObject<IPublishableTickInstant>, IPQPublishableTickInstant, ITransferState<DummyPQTickInstant>
     {
         public uint MessageId    => (uint)PQMessageIds.Quote;
@@ -684,9 +684,14 @@ public class PQTickInstantTests
         IMutableTickInstant IMutablePublishableTickInstant.AsNonPublishable => AsNonPublishable;
         public virtual IPQTickInstant                      AsNonPublishable => this;
 
-        public uint UpdateCount => 0;
+        public uint UpdateSequenceId { get; set; }
 
-        public void UpdateComplete()
+        public void UpdateStarted(uint updateSequenceId)
+        {
+            UpdateSequenceId = updateSequenceId;
+        }
+
+        public void UpdateComplete(uint updateSequenceId = 0)
         {
             HasUpdates = false;
         }

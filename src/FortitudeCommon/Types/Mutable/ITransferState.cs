@@ -39,6 +39,7 @@ public static class CopyMergeFlagExtensions
     public static bool HasUpdateFlagsNone(this CopyMergeFlags check)      => (check & CopyMergeFlags.UpdateFlagsNone) > 0;
     public static bool HasUpdateFlagsAll(this CopyMergeFlags check)       => (check & CopyMergeFlags.UpdateFlagsAll) > 0;
     public static bool HasAsNew(this CopyMergeFlags check)                => (check & CopyMergeFlags.AsNew) > 0;
+    public static bool HasKeepCachedItems(this CopyMergeFlags check)      => (check & CopyMergeFlags.KeepCachedItems) > 0;
 
     public static CopyMergeFlags AddSkipReferenceLookups(this CopyMergeFlags original) => original | CopyMergeFlags.RemoveUnmatched;
 }

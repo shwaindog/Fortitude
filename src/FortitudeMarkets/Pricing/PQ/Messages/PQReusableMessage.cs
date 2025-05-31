@@ -39,8 +39,6 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
 {
     private FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good;
 
-    protected uint NumOfUpdates = uint.MaxValue;
-
     protected readonly ISyncLock SyncLock = new SpinLockLight();
 
     protected DateTime InboundProcessedTimeField;
@@ -58,6 +56,7 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     protected PQReusableMessage(IFeedEventStatusUpdate? toClone)
     {
         if (toClone == null) return;
+        PQSequenceId   = toClone.UpdateSequenceId;
         FeedSyncStatus = toClone.FeedSyncStatus;
 
         SubscriberDispatchedTime   = toClone.SubscriberDispatchedTime;
@@ -102,14 +101,13 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
 
     public virtual byte Version => 1;
 
-    public uint UpdateCount => NumOfUpdates;
-
     public FeedConnectivityStatusFlags FeedMarketConnectivityStatus
     {
         get => feedMarketConnectivityStatus;
         set
         {
-            IsFeedConnectivityStatusUpdated |= value != feedMarketConnectivityStatus || NumOfUpdates == 0;
+            if (feedMarketConnectivityStatus == value) return;
+            IsFeedConnectivityStatusUpdated = true;
             feedMarketConnectivityStatus    =  value;
         }
     }
@@ -121,8 +119,8 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         {
             if (DispatchedTimeField == value) return;
             IsDispatchedTimeDateUpdated
-                |= DispatchedTimeField.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumOfUpdates == 0;
-            IsDispatchedTimeSub2MinUpdated |= DispatchedTimeField.GetSub2MinComponent() != value.GetSub2MinComponent() || NumOfUpdates == 0;
+                |= DispatchedTimeField.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || PQSequenceId == 0;
+            IsDispatchedTimeSub2MinUpdated |= DispatchedTimeField.GetSub2MinComponent() != value.GetSub2MinComponent() || PQSequenceId == 0;
             DispatchedTimeField            =  value == DateTime.UnixEpoch ? default : value;
         }
     }
@@ -134,8 +132,8 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         {
             if (InboundProcessedTimeField == value) return;
             IsProcessedTimeDateUpdated
-                |= InboundProcessedTimeField.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumOfUpdates == 0;
-            IsProcessedTimeSub2MinUpdated |= InboundProcessedTimeField.GetSub2MinComponent() != value.GetSub2MinComponent() || NumOfUpdates == 0;
+                |= InboundProcessedTimeField.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || PQSequenceId == 0;
+            IsProcessedTimeSub2MinUpdated |= InboundProcessedTimeField.GetSub2MinComponent() != value.GetSub2MinComponent() || PQSequenceId == 0;
             InboundProcessedTimeField     =  value == DateTime.UnixEpoch ? default : value;
         }
     }
@@ -146,9 +144,9 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         set
         {
             IsSocketReceivedTimeDateUpdated
-                |= InboundSocketReceivingTimeField.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumOfUpdates == 0;
+                |= InboundSocketReceivingTimeField.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || PQSequenceId == 0;
             IsSocketReceivedTimeSub2MinUpdated
-                |= InboundSocketReceivingTimeField.GetSub2MinComponent() != value.GetSub2MinComponent() || NumOfUpdates == 0;
+                |= InboundSocketReceivingTimeField.GetSub2MinComponent() != value.GetSub2MinComponent() || PQSequenceId == 0;
             InboundSocketReceivingTimeField = value == DateTime.UnixEpoch ? default : value;
         }
     }
@@ -159,9 +157,9 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         set
         {
             IsClientReceivedTimeDateUpdated
-                |= ClientReceivedTimeField.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || NumOfUpdates == 0;
+                |= ClientReceivedTimeField.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || PQSequenceId == 0;
             IsClientReceivedTimeSub2MinUpdated
-                |= ClientReceivedTimeField.GetSub2MinComponent() != value.GetSub2MinComponent() || NumOfUpdates == 0;
+                |= ClientReceivedTimeField.GetSub2MinComponent() != value.GetSub2MinComponent() || PQSequenceId == 0;
             ClientReceivedTimeField = value == DateTime.UnixEpoch ? default : value;
         }
     }
@@ -173,9 +171,9 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         set
         {
             IsAdapterSentTimeDateUpdated |= AdapterSentTimeField.Get2MinIntervalsFromUnixEpoch()
-             != value.Get2MinIntervalsFromUnixEpoch() || NumOfUpdates == 0;
+             != value.Get2MinIntervalsFromUnixEpoch() || PQSequenceId == 0;
             IsAdapterSentTimeSub2MinUpdated |= AdapterSentTimeField.GetSub2MinComponent()
-             != value.GetSub2MinComponent() || NumOfUpdates == 0;
+             != value.GetSub2MinComponent() || PQSequenceId == 0;
             AdapterSentTimeField = value == DateTime.UnixEpoch ? default : value;
         }
     }
@@ -188,9 +186,9 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         set
         {
             IsAdapterReceivedTimeDateUpdated |= AdapterReceivedTimeField.Get2MinIntervalsFromUnixEpoch()
-             != value.Get2MinIntervalsFromUnixEpoch() || NumOfUpdates == 0;
+             != value.Get2MinIntervalsFromUnixEpoch() || PQSequenceId == 0;
             IsAdapterReceivedTimeSub2MinUpdated |= AdapterReceivedTimeField.GetSub2MinComponent()
-             != value.GetSub2MinComponent() || NumOfUpdates == 0;
+             != value.GetSub2MinComponent() || PQSequenceId == 0;
             AdapterReceivedTimeField = value == DateTime.UnixEpoch ? default : value;
         }
     }
@@ -452,8 +450,6 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
             if (!value) return;
             OverrideSerializationFlags = null;
 
-            NumOfUpdates = 0;
-
             ClientReceivedTimeField         = default;
             DispatchedTimeField             = default;
             InboundProcessedTimeField       = default;
@@ -467,6 +463,41 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
             PQSequenceId   = 0;
             feedSyncStatus = FeedSyncStatus.NotStarted;
         }
+    }
+
+    public uint UpdateSequenceId
+    {
+        get => PQSequenceId;
+        set => PQSequenceId = value;
+    }
+
+    public virtual void UpdateStarted(uint updateSequenceId)
+    {
+        PQSequenceId = updateSequenceId;
+    }
+
+    public virtual void UpdateComplete(uint updateSequenceId = 0)
+    {
+    }
+
+    public virtual IPQMessage ResetWithTracking()
+    {
+        OverrideSerializationFlags = null;
+
+        ClientReceivedTimeField         = default;
+        LastPublicationTime             = default;
+        InboundSocketReceivingTimeField = default;
+        InboundProcessedTimeField       = default;
+        AdapterReceivedTimeField        = default;
+        AdapterSentTimeField            = default;
+        DispatchedTimeField             = default;
+
+        FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.None;
+
+        PQSequenceId   = 0;
+        feedSyncStatus = FeedSyncStatus.Good;
+        HasUpdates     = false;
+        return this;
     }
 
     IVersionedMessage ICloneable<IVersionedMessage>.Clone() => (IVersionedMessage)Clone();
@@ -816,33 +847,6 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     }
 
     bool IInterfacesComparable<IPQMessage>.AreEquivalent(IPQMessage? other, bool exactTypes) => AreEquivalent(other, exactTypes);
-
-    public virtual void UpdateComplete()
-    {
-        if (HasUpdates) NumOfUpdates++;
-    }
-
-    public virtual IPQMessage ResetWithTracking()
-    {
-        OverrideSerializationFlags = null;
-
-        NumOfUpdates = 0;
-
-        ClientReceivedTimeField         = default;
-        LastPublicationTime             = default;
-        InboundSocketReceivingTimeField = default;
-        InboundProcessedTimeField       = default;
-        AdapterReceivedTimeField        = default;
-        AdapterSentTimeField            = default;
-        DispatchedTimeField             = default;
-
-        FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.None;
-
-        PQSequenceId   = 0;
-        feedSyncStatus = FeedSyncStatus.Good;
-        HasUpdates     = false;
-        return this;
-    }
 
     protected void SetFlagsSame(IPQMessage toCopyFlags)
     {

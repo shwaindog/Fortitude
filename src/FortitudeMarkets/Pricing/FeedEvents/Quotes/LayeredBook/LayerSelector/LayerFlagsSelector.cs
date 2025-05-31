@@ -18,11 +18,11 @@ public interface ILayerFlagsSelector<out T> where T : class
     T FindForLayerFlags(ISourceTickerInfo sourceTickerInfo);
     T FindForLayerFlags(LayerFlags layerFlags);
 
-    IPriceVolumeLayer CreateExpectedImplementation
+    IMutablePriceVolumeLayer CreateExpectedImplementation
     (LayerType desiredLayerType, IPriceVolumeLayer? copy = null,
         CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 
-    IPriceVolumeLayer UpgradeExistingLayer
+    IMutablePriceVolumeLayer UpgradeExistingLayer
     (IPriceVolumeLayer? original, LayerType desiredLayerType,
         IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 }
@@ -58,7 +58,7 @@ public abstract class LayerFlagsSelector<T> : ILayerFlagsSelector<T> where T : c
     public bool OriginalCanWhollyContain(LayerFlags copySourceRequiredFlags, LayerFlags copyDestinationSupportedFlags) =>
         copyDestinationSupportedFlags.HasAllOf(copySourceRequiredFlags);
 
-    public virtual IPriceVolumeLayer UpgradeExistingLayer
+    public virtual IMutablePriceVolumeLayer UpgradeExistingLayer
     (IPriceVolumeLayer? original, LayerType desiredLayerType,
         IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -72,8 +72,8 @@ public abstract class LayerFlagsSelector<T> : ILayerFlagsSelector<T> where T : c
         if ((original.LayerType != desiredLayerType && !OriginalCanWhollyContain(desiredLayerType.SupportedLayerFlags(), original.SupportsLayerFlags))
          || !AllowedImplementations.Contains(original.GetType()))
         {
-            var mergeOrginalDesiredLayerFlags = original.SupportsLayerFlags | desiredLayerType.SupportedLayerFlags();
-            var mostCompatibleSupportsBoth    = mergeOrginalDesiredLayerFlags.MostCompactLayerType();
+            var mergeOriginalDesiredLayerFlags = original.SupportsLayerFlags | desiredLayerType.SupportedLayerFlags();
+            var mostCompatibleSupportsBoth    = mergeOriginalDesiredLayerFlags.MostCompactLayerType();
             var upgradedLayer                 = CreateExpectedImplementation(mostCompatibleSupportsBoth);
             upgradedLayer.CopyFrom(original);
             if (copy != null) upgradedLayer.CopyFrom(copy, copyMergeFlags);
@@ -81,10 +81,10 @@ public abstract class LayerFlagsSelector<T> : ILayerFlagsSelector<T> where T : c
         }
 
         if (copy != null) original.CopyFrom(copy, copyMergeFlags);
-        return original;
+        return (IMutablePriceVolumeLayer)original;
     }
 
-    public abstract IPriceVolumeLayer CreateExpectedImplementation
+    public abstract IMutablePriceVolumeLayer CreateExpectedImplementation
     (LayerType desiredLayerType, IPriceVolumeLayer? copy = null,
         CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 

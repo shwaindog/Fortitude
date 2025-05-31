@@ -8,24 +8,25 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 
-public interface ILastTradedList : IReusableObject<ILastTradedList>, IInterfacesComparable<ILastTradedList>, ICapacityList<ILastTrade>
+public interface ILastTradedList : IReusableObject<ILastTradedList>, IInterfacesComparable<ILastTradedList>, IResetableCappedCapacityList<ILastTrade>
 {
-    LastTradeType   LastTradesOfType       { get; }
+    LastTradeType LastTradesOfType { get; }
 
     LastTradedFlags LastTradesSupportFlags { get; }
 
-    bool HasLastTrades { get; }
-
-    new int  Capacity { get; }
+    new int Capacity { get; }
 }
 
-public interface IMutableLastTradedList : ILastTradedList, ITrackableReset<IMutableLastTradedList>, IMutableCapacityList<ILastTrade>, IMutableCapacityList<IMutableLastTrade>
+public interface IMutableLastTradedList : ILastTradedList, ITrackableReset<IMutableLastTradedList>
+  , ITracksResetCappedCapacityList<IMutableLastTrade>, IDiscreetUpdatable
 {
     new int Capacity { get; set; }
 
     new IMutableLastTrade this[int i] { get; set; }
-    
+
     new int Count { get; set; }
+
+    new ushort MaxAllowedSize { get; set; }
 
     new void Clear();
 
@@ -33,9 +34,11 @@ public interface IMutableLastTradedList : ILastTradedList, ITrackableReset<IMuta
 
     new void RemoveAt(int index);
 
-    new IMutableLastTradedList         Clone();
+    new IMutableLastTradedList Clone();
 
     new IEnumerator<IMutableLastTrade> GetEnumerator();
+
+    new IMutableLastTradedList ResetWithTracking();
 
     int AppendEntryAtEnd();
 }

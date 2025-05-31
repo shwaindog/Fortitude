@@ -122,13 +122,7 @@ public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQ
 
     public unsafe int UpdateEntity(IMessageBufferContext readContext, T ent, uint sequenceId)
     {
-        ent.UpdateComplete();
-        if (readContext is SocketBufferReadContext sockBuffContext)
-        {
-            ent.ClientReceivedTime  = sockBuffContext.DetectTimestamp;
-            ent.InboundSocketReceivingTime = sockBuffContext.ReceivingTimestamp;
-            ent.InboundProcessedTime       = sockBuffContext.DeserializerTime;
-        }
+        ent.UpdateComplete(ent.PQSequenceId);
 
         using var fixedBuffer = readContext.EncodedBuffer!;
 
@@ -189,6 +183,13 @@ public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQ
 
         if (serializationFlags == PQSerializationFlags.ForSocketPublish || (storageFlags & StorageFlags.IncludesSequenceId) > 0)
             sequenceId = StreamByteOps.ToUInt(ref ptr);
+        ent.UpdateStarted(sequenceId);
+        if (readContext is SocketBufferReadContext sockBuffContext)
+        {
+            ent.ClientReceivedTime         = sockBuffContext.DetectTimestamp;
+            ent.InboundSocketReceivingTime = sockBuffContext.ReceivingTimestamp;
+            ent.InboundProcessedTime       = sockBuffContext.DeserializerTime;
+        }
         ent.PQSequenceId = sequenceId;
 
         while (ptr < end)

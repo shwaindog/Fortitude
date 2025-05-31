@@ -109,32 +109,32 @@ public class OrderBookTests
     [TestMethod]
     public void EmptyQuote_New_InitializesFieldsAsExpected()
     {
-        Assert.AreEqual(simpleSourceTickerInfo.MaximumPublishedLayers, simpleEmptyOrderBook.MaxPublishDepth);
+        Assert.AreEqual(simpleSourceTickerInfo.MaximumPublishedLayers, simpleEmptyOrderBook.MaxAllowedSize);
         Assert.IsTrue(simpleEmptyOrderBook.LayerSupportedFlags.HasAllOf(simpleSourceTickerInfo.LayerFlags));
         Assert.AreEqual(simpleEmptyOrderBook.BidSide, new OrderBookSide(BookSide.BidBook, simpleSourceTickerInfo));
         Assert.AreEqual(simpleEmptyOrderBook.AskSide, new OrderBookSide(BookSide.AskBook, simpleSourceTickerInfo));
 
-        Assert.AreEqual(sourceNameSourceTickerInfo.MaximumPublishedLayers, sourceNameEmptyOrderBook.MaxPublishDepth);
+        Assert.AreEqual(sourceNameSourceTickerInfo.MaximumPublishedLayers, sourceNameEmptyOrderBook.MaxAllowedSize);
         Assert.IsTrue(sourceNameEmptyOrderBook.LayerSupportedFlags.HasAllOf(sourceNameSourceTickerInfo.LayerFlags));
         Assert.AreEqual(sourceNameEmptyOrderBook.BidSide, new OrderBookSide(BookSide.BidBook, sourceNameSourceTickerInfo));
         Assert.AreEqual(sourceNameEmptyOrderBook.AskSide, new OrderBookSide(BookSide.AskBook, sourceNameSourceTickerInfo));
 
-        Assert.AreEqual(sourceRefSourceTickerInfo.MaximumPublishedLayers, sourceQuoteRefEmptyOrderBook.MaxPublishDepth);
+        Assert.AreEqual(sourceRefSourceTickerInfo.MaximumPublishedLayers, sourceQuoteRefEmptyOrderBook.MaxAllowedSize);
         Assert.IsTrue(sourceQuoteRefEmptyOrderBook.LayerSupportedFlags.HasAllOf(sourceRefSourceTickerInfo.LayerFlags));
         Assert.AreEqual(sourceQuoteRefEmptyOrderBook.BidSide, new OrderBookSide(BookSide.BidBook, sourceRefSourceTickerInfo));
         Assert.AreEqual(sourceQuoteRefEmptyOrderBook.AskSide, new OrderBookSide(BookSide.AskBook, sourceRefSourceTickerInfo));
 
-        Assert.AreEqual(valueDateSourceTickerInfo.MaximumPublishedLayers, valueDateEmptyOrderBook.MaxPublishDepth);
+        Assert.AreEqual(valueDateSourceTickerInfo.MaximumPublishedLayers, valueDateEmptyOrderBook.MaxAllowedSize);
         Assert.IsTrue(valueDateEmptyOrderBook.LayerSupportedFlags.HasAllOf(valueDateSourceTickerInfo.LayerFlags));
         Assert.AreEqual(valueDateEmptyOrderBook.BidSide, new OrderBookSide(BookSide.BidBook, valueDateSourceTickerInfo));
         Assert.AreEqual(valueDateEmptyOrderBook.AskSide, new OrderBookSide(BookSide.AskBook, valueDateSourceTickerInfo));
 
-        Assert.AreEqual(ordersCounterPartySourceTickerInfo.MaximumPublishedLayers, ordersEmptyOrderBook.MaxPublishDepth);
+        Assert.AreEqual(ordersCounterPartySourceTickerInfo.MaximumPublishedLayers, ordersEmptyOrderBook.MaxAllowedSize);
         Assert.IsTrue(ordersEmptyOrderBook.LayerSupportedFlags.HasAllOf(ordersCounterPartySourceTickerInfo.LayerFlags));
         Assert.AreEqual(ordersEmptyOrderBook.BidSide, new OrderBookSide(BookSide.BidBook, ordersCounterPartySourceTickerInfo));
         Assert.AreEqual(ordersEmptyOrderBook.AskSide, new OrderBookSide(BookSide.AskBook, ordersCounterPartySourceTickerInfo));
 
-        Assert.AreEqual(fullSupportSourceTickerInfo.MaximumPublishedLayers, fullSupportEmptyOrderBook.MaxPublishDepth);
+        Assert.AreEqual(fullSupportSourceTickerInfo.MaximumPublishedLayers, fullSupportEmptyOrderBook.MaxAllowedSize);
         Assert.IsTrue(fullSupportEmptyOrderBook.LayerSupportedFlags.HasAllOf(fullSupportSourceTickerInfo.LayerFlags));
         Assert.AreEqual(fullSupportEmptyOrderBook.BidSide, new OrderBookSide(BookSide.BidBook, fullSupportSourceTickerInfo));
         Assert.AreEqual(fullSupportEmptyOrderBook.AskSide, new OrderBookSide(BookSide.AskBook, fullSupportSourceTickerInfo));
@@ -167,7 +167,7 @@ public class OrderBookTests
 
         Assert.AreSame(expectedBidBook, fromConstructor.BidSide);
         Assert.AreSame(expectedAskBook, fromConstructor.AskSide);
-        Assert.AreEqual(simpleSourceTickerInfo.MaximumPublishedLayers, fromConstructor.MaxPublishDepth);
+        Assert.AreEqual(simpleSourceTickerInfo.MaximumPublishedLayers, fromConstructor.MaxAllowedSize);
         Assert.IsTrue(fromConstructor.LayerSupportedFlags.HasAllOf(simpleSourceTickerInfo.LayerFlags));
         Assert.AreEqual(expectedBidBook, fromConstructor.BidSide);
         Assert.AreEqual(expectedAskBook, fromConstructor.AskSide);
@@ -198,7 +198,7 @@ public class OrderBookTests
 
         Assert.AreNotSame(convertedBidBook, fromConstructor.BidSide);
         Assert.AreNotSame(convertedAskBook, fromConstructor.AskSide);
-        Assert.AreEqual(simpleSourceTickerInfo.MaximumPublishedLayers, fromConstructor.MaxPublishDepth);
+        Assert.AreEqual(simpleSourceTickerInfo.MaximumPublishedLayers, fromConstructor.MaxAllowedSize);
         Assert.IsTrue(fromConstructor.LayerSupportedFlags.HasAllOf(simpleSourceTickerInfo.LayerFlags));
         Assert.AreNotEqual(convertedBidBook, fromConstructor.BidSide);
         Assert.AreNotEqual(convertedAskBook, fromConstructor.AskSide);
@@ -565,7 +565,7 @@ public class OrderBookTests
     private void AssertLayerTypeIsExpected(Type expectedType, params OrderBook[] booksToCheck)
     {
         foreach (var orderBook in booksToCheck)
-            for (var i = 0; i < orderBook.MaxPublishDepth; i++)
+            for (var i = 0; i < orderBook.MaxAllowedSize; i++)
             {
                 Assert.AreEqual(expectedType, orderBook.BidSide[i]?.GetType(),
                                 $"BidBook[{i}] expectedType: {expectedType.Name} " +

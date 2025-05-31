@@ -135,7 +135,7 @@ public class SourcePriceVolumeLayerTests
     [TestMethod]
     public void FromInterfacePopulatedNameLookupId_Cloned_ReturnsNewIdenticalCopy()
     {
-        var clone = populatedPvl.Clone();
+        IPriceVolumeLayer clone = populatedPvl.Clone();
         Assert.AreNotSame(clone, populatedPvl);
         Assert.AreEqual(populatedPvl, clone);
         clone = ((IPriceVolumeLayer)populatedPvl).Clone();

@@ -57,7 +57,7 @@ public interface IPQAdditionalExternalCounterPartyOrderInfo : IMutableAdditional
 
 public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalExternalCounterPartyOrderInfo>, IPQAdditionalExternalCounterPartyOrderInfo
 {
-    protected int NumUpdatesSinceEmpty = -1;
+    protected uint SequenceId = uint.MaxValue;
 
     protected PQAdditionalCounterPartyInfoFlags UpdatedFlags;
 
@@ -72,13 +72,13 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
     public PQAdditionalExternalCounterPartyInfo()
     {
         NameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates);
-        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) SequenceId = 0;
     }
 
     public PQAdditionalExternalCounterPartyInfo(IPQNameIdLookupGenerator pqNameIdLookupGenerator)
     {
         NameIdLookup = pqNameIdLookupGenerator;
-        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) SequenceId = 0;
     }
 
     public PQAdditionalExternalCounterPartyInfo
@@ -90,7 +90,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
         ExternalCounterPartyName = counterPartyName;
         ExternalTraderId         = traderId;
         ExternalTraderName       = traderName;
-        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) SequenceId = 0;
     }
 
     public PQAdditionalExternalCounterPartyInfo(IAdditionalExternalCounterPartyOrderInfo? toClone, IPQNameIdLookupGenerator pqNameIdLookupGenerator) 
@@ -106,7 +106,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
 
             SetFlagsSame(toClone);
         }
-        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) SequenceId = 0;
     }
 
 
@@ -115,7 +115,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
         get => externalCounterPartyId;
         set
         {
-            IsExternalCounterPartyIdUpdated |= value != externalCounterPartyId || NumUpdatesSinceEmpty == 0;
+            IsExternalCounterPartyIdUpdated |= value != externalCounterPartyId || SequenceId == 0;
             externalCounterPartyId          =  value;
         }
     }
@@ -141,7 +141,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
         get => counterPartyNameId;
         set
         {
-            IsExternalCounterPartyNameUpdated |= value != counterPartyNameId || NumUpdatesSinceEmpty == 0;
+            IsExternalCounterPartyNameUpdated |= value != counterPartyNameId || SequenceId == 0;
             counterPartyNameId                =  value;
         }
     }
@@ -151,7 +151,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
         get => externalTraderId;
         set
         {
-            IsExternalTraderIdUpdated |= value != externalTraderId || NumUpdatesSinceEmpty == 0;
+            IsExternalTraderIdUpdated |= value != externalTraderId || SequenceId == 0;
             externalTraderId          =  value;
         }
     }
@@ -176,7 +176,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
         get => traderNameId;
         set
         {
-            IsExternalTraderNameUpdated |= traderNameId != value || NumUpdatesSinceEmpty == 0;
+            IsExternalTraderNameUpdated |= traderNameId != value || SequenceId == 0;
             traderNameId                =  value;
         }
     }
@@ -288,11 +288,16 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
         }
     }
 
-    public uint UpdateCount => (uint)NumUpdatesSinceEmpty;
+    public uint UpdateSequenceId => (uint)SequenceId;
 
-    public virtual void UpdateComplete()
+    public void UpdateStarted(uint updateSequenceId)
     {
-        NameIdLookup.UpdateComplete();
+        SequenceId = updateSequenceId;
+    }
+
+    public virtual void UpdateComplete(uint updateSequenceId = 0)
+    {
+        NameIdLookup.UpdateComplete(updateSequenceId);
         HasUpdates = false;
     }
 
@@ -370,7 +375,10 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
 
         var updatedSame = true;
         if (exactTypes)
-            updatedSame = other is PQAdditionalExternalCounterPartyInfo pqCounterPartyOther && UpdatedFlags == pqCounterPartyOther.UpdatedFlags;
+        {
+            var pqCounterPartyOther = (PQAdditionalExternalCounterPartyInfo)other;
+            updatedSame = UpdatedFlags == pqCounterPartyOther.UpdatedFlags;
+        }
 
         return counterPartyIdSame && counterPartySame && traderIdSame && traderNameSame && updatedSame;
     }
@@ -428,7 +436,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
                 ExternalTraderNameId = pqCpOrderLyrInfo.ExternalTraderNameId;
             }
 
-            if (isFullReplace && pqCpOrderLyrInfo is PQAdditionalExternalCounterPartyInfo pqCounterPartyOrder) UpdatedFlags = pqCounterPartyOrder.UpdatedFlags;
+            if (isFullReplace) SetFlagsSame(pqCpOrderLyrInfo);
         }
         else if (source is IExternalCounterPartyOrder counterPartyOrderLayerInfo)
         {
@@ -436,7 +444,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
             if (hasAsNew)
             {
                 UpdatedFlags         = PQAdditionalCounterPartyInfoFlags.None;
-                NumUpdatesSinceEmpty = int.MaxValue;
+                SequenceId = int.MaxValue;
             }
 
             ExternalCounterPartyId   = counterPartyOrderLayerInfo.ExternalCounterPartyId;
@@ -446,7 +454,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
 
             if (hasAsNew)
             {
-                NumUpdatesSinceEmpty = 0;
+                SequenceId = 0;
             }
         }
 
@@ -457,7 +465,16 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
 
     protected void SetFlagsSame(IAdditionalExternalCounterPartyOrderInfo toCopyFlags)
     {
-        if (toCopyFlags is PQAdditionalExternalCounterPartyInfo pqToClone) UpdatedFlags = pqToClone.UpdatedFlags;
+        if (toCopyFlags is PQAdditionalExternalCounterPartyInfo pqToClone)
+        {
+            UpdatedFlags = pqToClone.UpdatedFlags;
+        } else if (toCopyFlags is IPQAdditionalExternalCounterPartyOrderInfo ipqAddCpOrders)
+        {
+            IsExternalCounterPartyIdUpdated   = ipqAddCpOrders.IsExternalCounterPartyIdUpdated;
+            IsExternalCounterPartyNameUpdated = ipqAddCpOrders.IsExternalCounterPartyNameUpdated;
+            IsExternalTraderIdUpdated         = ipqAddCpOrders.IsExternalTraderIdUpdated;
+            IsExternalTraderNameUpdated       = ipqAddCpOrders.IsExternalTraderNameUpdated;
+        }
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IExternalCounterPartyOrder?)obj, true);

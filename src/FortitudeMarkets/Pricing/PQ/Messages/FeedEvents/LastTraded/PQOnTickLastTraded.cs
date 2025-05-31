@@ -26,26 +26,15 @@ public class PQOnTickLastTraded : PQLastTradedList, IPQOnTickLastTraded
     public PQOnTickLastTraded(IPQNameIdLookupGenerator nameIdLookup) : base(nameIdLookup) { }
     public PQOnTickLastTraded(IEnumerable<IPQLastTrade> lastTrades) : base(lastTrades) { }
     public PQOnTickLastTraded(IList<IPQLastTrade> lastTrades) : base(lastTrades) { }
-    public PQOnTickLastTraded(IOnTickLastTraded toClone, IPQNameIdLookupGenerator? nameIdLookup = null) : base(toClone) { }
+
+    public PQOnTickLastTraded(IOnTickLastTraded toClone, IPQNameIdLookupGenerator? nameIdLookup = null) 
+        : base(toClone, nameIdLookup) { }
 
     public PQOnTickLastTraded(IPQOnTickLastTraded toClone, IPQNameIdLookupGenerator? nameIdLookup = null) 
         : this((IOnTickLastTraded)toClone, nameIdLookup) { }
 
     public PQOnTickLastTraded(PQOnTickLastTraded toClone, IPQNameIdLookupGenerator? nameIdLookup = null) 
         : this((IOnTickLastTraded)toClone, nameIdLookup) { }
-
-
-    public bool IsEmpty
-    {
-        get => LastTrades.All(lt => lt.IsEmpty);
-        set
-        {
-            foreach (var lastTrade in LastTrades)
-            { 
-                lastTrade.IsEmpty = value;
-            }
-        }
-    }
 
     IMutableOnTickLastTraded ITrackableReset<IMutableOnTickLastTraded>.ResetWithTracking() => ResetWithTracking();
 

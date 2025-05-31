@@ -1,5 +1,6 @@
 ﻿using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.FeedEvents;
 
@@ -15,9 +16,11 @@ public interface IFeedEventStatusUpdate : IReusableObject<IFeedEventStatusUpdate
     DateTime SubscriberDispatchedTime   { get; }
     DateTime AdapterSentTime            { get; }
     DateTime AdapterReceivedTime        { get; }
+
+    uint UpdateSequenceId { get; }
 }
 
-public interface IMutableFeedEventStatusUpdate : IFeedEventStatusUpdate, ICloneable<IMutableFeedEventStatusUpdate>
+public interface IMutableFeedEventStatusUpdate : IFeedEventStatusUpdate, ICloneable<IMutableFeedEventStatusUpdate>, IScopedDiscreetUpdatable
 {
     new FeedConnectivityStatusFlags FeedMarketConnectivityStatus { get; set; }
 
@@ -29,6 +32,8 @@ public interface IMutableFeedEventStatusUpdate : IFeedEventStatusUpdate, IClonea
     new DateTime SubscriberDispatchedTime   { get; set; }
     new DateTime AdapterSentTime            { get; set; }
     new DateTime AdapterReceivedTime        { get; set; }
+
+    new uint UpdateSequenceId { get; set; }
 
     new IMutableFeedEventStatusUpdate Clone();
 }

@@ -66,7 +66,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
     {
         // recentlyTraded = new PQRecentlyTraded();
 
-        if (GetType() == typeof(PQPublishableLevel3Quote)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQPublishableLevel3Quote)) SequenceId = 0;
     }
 
     // Reflection invoked constructor (PQServer<T>)
@@ -84,7 +84,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         SourceQuoteReference = sourceQuoteRef;
         ValueDate            = valueDate ?? DateTime.MinValue;
 
-        if (GetType() == typeof(PQLevel3Quote)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQLevel3Quote)) SequenceId = 0;
     }
 
     public PQLevel3Quote(ITickInstant toClone) : base(toClone)
@@ -103,7 +103,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         }
         SetFlagsSame(toClone);
 
-        if (GetType() == typeof(PQLevel3Quote)) NumOfUpdates = 0;
+        if (GetType() == typeof(PQLevel3Quote)) SequenceId = 0;
     }
 
 
@@ -113,7 +113,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         get => batchId;
         set
         {
-            IsBatchIdUpdated = batchId != value || NumOfUpdates == 0;
+            IsBatchIdUpdated = batchId != value || SequenceId == 0;
 
             batchId = value;
         }
@@ -138,7 +138,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         get => sourceQuoteRef;
         set
         {
-            IsSourceQuoteReferenceUpdated = sourceQuoteRef != value || NumOfUpdates == 0;
+            IsSourceQuoteReferenceUpdated = sourceQuoteRef != value || SequenceId == 0;
 
             sourceQuoteRef = value;
         }
@@ -163,7 +163,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         get => valueDate;
         set
         {
-            IsValueDateUpdated = valueDate != value || NumOfUpdates == 0;
+            IsValueDateUpdated = valueDate != value || SequenceId == 0;
 
             valueDate = value;
         }
@@ -337,8 +337,6 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
     public PQPublishableLevel3Quote()
     {
         // recentlyTraded = new PQRecentlyTraded();
-
-        if (GetType() == typeof(PQPublishableLevel3Quote)) NumOfUpdates = 0;
     }
 
     // Reflection invoked constructor (PQServer<T>)
@@ -380,7 +378,6 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
         {
             this.onTickLastTraded = new PQOnTickLastTraded(sourceTickerInfo);
         }
-        if (GetType() == typeof(PQPublishableLevel3Quote)) NumOfUpdates = 0;
     }
 
     public PQPublishableLevel3Quote(IPublishableTickInstant toClone) : this(toClone, null) { }
@@ -397,8 +394,6 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
             onTickLastTraded = new PQOnTickLastTraded(l3QToClone.OnTickLastTraded);
         }
         SetFlagsSame(toClone);
-
-        if (GetType() == typeof(PQPublishableLevel3Quote)) NumOfUpdates = 0;
     }
 
     protected override IPQLevel3Quote CreateEmptyQuoteContainerInstant() => new PQLevel3Quote();
@@ -557,10 +552,10 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
         }
     }
 
-    public override void UpdateComplete()
+    public override void UpdateComplete(uint updateSequenceId = 0)
     {
-        OnTickLastTraded?.UpdateComplete();
-        base.UpdateComplete();
+        OnTickLastTraded?.UpdateComplete(updateSequenceId);
+        base.UpdateComplete(updateSequenceId);
     }
 
     public override PQPublishableLevel3Quote Clone() =>

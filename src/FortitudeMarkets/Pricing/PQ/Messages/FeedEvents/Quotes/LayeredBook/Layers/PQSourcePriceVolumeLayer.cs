@@ -47,7 +47,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         NameIdLookup = sourceIdToNameIdLookup;
         SourceName   = sourceName;
         Executable   = executable;
-        if (GetType() == typeof(PQSourcePriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQSourcePriceVolumeLayer)) SequenceId = 0;
     }
 
     public PQSourcePriceVolumeLayer(IPriceVolumeLayer toClone, IPQNameIdLookupGenerator nameIdLookupGenerator) : base(toClone)
@@ -67,7 +67,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         }
 
         SetFlagsSame(toClone);
-        if (GetType() == typeof(PQSourcePriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQSourcePriceVolumeLayer)) SequenceId = 0;
     }
 
     protected string PQSourcePriceVolumeLayerToStringMembers =>
@@ -83,7 +83,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         get => sourceId;
         set
         {
-            IsSourceNameUpdated |= sourceId != value || NumUpdatesSinceEmpty == 0;
+            IsSourceNameUpdated |= sourceId != value || SequenceId == 0;
 
             sourceId = value;
         }
@@ -122,7 +122,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         get => (LayerBooleanFlags & LayerBooleanFlags.IsExecutableFlag) != 0;
         set
         {
-            IsExecutableUpdated |= Executable != value || NumUpdatesSinceEmpty == 0;
+            IsExecutableUpdated |= Executable != value || SequenceId == 0;
             if (value)
                 LayerBooleanFlags |= LayerBooleanFlags.IsExecutableFlag;
 
@@ -182,10 +182,10 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         }
     }
 
-    public override void UpdateComplete()
+    public override void UpdateComplete(uint updateSequenceId = 0)
     {
-        NameIdLookup.UpdateComplete();
-        base.UpdateComplete();
+        NameIdLookup.UpdateComplete(updateSequenceId);
+        base.UpdateComplete(updateSequenceId);
     }
 
     IMutableSourcePriceVolumeLayer ITrackableReset<IMutableSourcePriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
@@ -267,7 +267,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
         return NameIdLookup.UpdateFieldString(stringUpdate);
     }
 
-    public override IPriceVolumeLayer CopyFrom
+    public override PQSourcePriceVolumeLayer CopyFrom
     (IPriceVolumeLayer source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -326,7 +326,7 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (!(obj is PQSourcePriceVolumeLayer)) return false;
+        if (obj is not PQSourcePriceVolumeLayer) return false;
         return AreEquivalent((IPriceVolumeLayer)obj, true);
     }
 

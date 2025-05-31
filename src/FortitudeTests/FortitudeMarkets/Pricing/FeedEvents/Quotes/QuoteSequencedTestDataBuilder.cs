@@ -125,7 +125,7 @@ public class QuoteSequencedTestDataBuilder
 
     public void SetupOrderBook(IMutableOrderBook orderBook, uint batchId)
     {
-        var numLayers             = Math.Min((ushort)3, orderBook.MaxPublishDepth);
+        var numLayers             = Math.Min((ushort)3, orderBook.MaxAllowedSize);
         var totalOpenInterest = orderBook.OpenInterest!;
         totalOpenInterest.DataSource = batchId % 2 == 0 ? MarketDataSource.Adapter : MarketDataSource.Venue;
         totalOpenInterest.UpdateTime  = new DateTime(2017, 5, 7, 9, 40, 11).AddSeconds(batchId);

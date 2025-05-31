@@ -44,10 +44,9 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
     {
         private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQOrderBook));
 
-
         private IPQNameIdLookupGenerator nameIdLookupGenerator;
 
-        protected uint NumOfUpdates = uint.MaxValue;
+        protected uint SequenceId = uint.MaxValue;
 
         private IPQMarketAggregate? pqOpenInterest = null;
 
@@ -59,7 +58,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
 
         public PQOrderBook() : this(LayerType.PriceVolume)
         {
-            if (GetType() == typeof(PQOrderBook)) NumOfUpdates = 0;
+            if (GetType() == typeof(PQOrderBook)) SequenceId = 0;
         }
 
         public PQOrderBook
@@ -67,16 +66,18 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             ushort numBookLayers = SourceTickerInfo.DefaultMaximumPublishedLayers,
             bool isLadder = false)
         {
-            layerFlags            =  layerType.SupportedLayerFlags();
-            layerFlags            |= LayersSupportedType.SupportedLayerFlags();
-            layerFlags            |= isLadder ? LayerFlags.Ladder : LayerFlags.None;
-            MaxPublishDepth       =  numBookLayers;
-            nameIdLookupGenerator =  SourceOtherExistingOrNewPQNameIdNameLookup(this);
+            layerFlags =  layerType.SupportedLayerFlags();
+            layerFlags |= LayersSupportedType.SupportedLayerFlags();
+            layerFlags |= isLadder ? LayerFlags.Ladder : LayerFlags.None;
+
+            MaxAllowedSize = numBookLayers;
+
+            nameIdLookupGenerator = SourceOtherExistingOrNewPQNameIdNameLookup(this);
 
             AskSide = new PQOrderBookSide(BookSide.AskBook, layerType, numBookLayers, isLadder, nameIdLookupGenerator);
             BidSide = new PQOrderBookSide(BookSide.BidBook, layerType, numBookLayers, isLadder, nameIdLookupGenerator);
 
-            if (GetType() == typeof(PQOrderBook)) NumOfUpdates = 0;
+            if (GetType() == typeof(PQOrderBook)) SequenceId = 0;
         }
 
         public PQOrderBook(ISourceTickerInfo srcTickerInfo)
@@ -84,7 +85,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             layerFlags =  srcTickerInfo.LayerFlags;
             layerFlags |= LayersSupportedType.SupportedLayerFlags();
 
-            MaxPublishDepth = srcTickerInfo.MaximumPublishedLayers;
+            MaxAllowedSize = srcTickerInfo.MaximumPublishedLayers;
             nameIdLookupGenerator ??= srcTickerInfo is IPQSourceTickerInfo pqSrcTkrInfo
                 ? InitializeNewIdLookupGenerator(pqSrcTkrInfo.NameIdLookup)
                 : InitializeNewIdLookupGenerator();
@@ -92,7 +93,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             AskSide = new PQOrderBookSide(BookSide.AskBook, srcTickerInfo, nameIdLookupGenerator);
             BidSide = new PQOrderBookSide(BookSide.BidBook, srcTickerInfo, nameIdLookupGenerator);
 
-            if (GetType() == typeof(PQOrderBook)) NumOfUpdates = 0;
+            if (GetType() == typeof(PQOrderBook)) SequenceId = 0;
         }
 
         public PQOrderBook
@@ -108,7 +109,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             AskSide = new PQOrderBookSide(BookSide.AskBook, askBookLayers, IsLadder, nameIdLookupGenerator);
             BidSide = new PQOrderBookSide(BookSide.BidBook, bidBookLayers, IsLadder, nameIdLookupGenerator);
 
-            if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
+            if (GetType() == typeof(PQOrderBookSide)) SequenceId = 0;
         }
 
         public PQOrderBook(IOrderBookSide bidSide, IOrderBookSide askBookSide, uint dailyTickCount = 0, bool isLadder = false)
@@ -141,7 +142,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             layerFlags |= LayersSupportedType.SupportedLayerFlags();
             layerFlags |= isLadder ? LayerFlags.Ladder : LayerFlags.None;
 
-            MaxPublishDepth = Math.Max(BidSide.MaxPublishDepth, AskSide.MaxPublishDepth);
+            MaxAllowedSize = Math.Max(((IOrderBookSide)BidSide).MaxAllowedSize, ((IOrderBookSide)AskSide).MaxAllowedSize);
         }
 
         public PQOrderBook(IOrderBook toClone)
@@ -149,7 +150,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             layerFlags =  toClone.LayerSupportedFlags;
             layerFlags |= LayersSupportedType.SupportedLayerFlags();
 
-            MaxPublishDepth      = toClone.MaxPublishDepth;
+            MaxAllowedSize      = toClone.MaxAllowedSize;
             DailyTickUpdateCount = toClone.DailyTickUpdateCount;
 
             nameIdLookupGenerator = SourceOtherExistingOrNewPQNameIdNameLookup(toClone);
@@ -163,12 +164,12 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
 
             SetFlagsSame(toClone);
 
-            if (GetType() == typeof(PQOrderBookSide)) NumOfUpdates = 0;
+            if (GetType() == typeof(PQOrderBookSide)) SequenceId = 0;
         }
 
         protected string PQOrderBookToStringMembers =>
             $"{nameof(LayersSupportedType)}: {LayersSupportedType}, {nameof(DailyTickUpdateCount)}: {DailyTickUpdateCount}, " +
-            $"{nameof(MaxPublishDepth)}, {MaxPublishDepth}, {nameof(OpenInterest)}: {OpenInterest}, " +
+            $"{nameof(MaxAllowedSize)}, {MaxAllowedSize}, {nameof(OpenInterest)}: {OpenInterest}, " +
             $"{nameof(IsAskBookChanged)}: {IsAskBookChanged}, {nameof(IsBidBookChanged)}: {IsBidBookChanged}, {nameof(AskSide)}: {AskSide}, " +
             $"{nameof(BidSide)}: {BidSide}, {nameof(IsLadder)}: {IsLadder}";
 
@@ -243,7 +244,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             set => LayerSupportedFlags = value ? LayerFlags.Ladder : LayerFlags.None;
         }
 
-        public ushort MaxPublishDepth
+        public ushort MaxAllowedSize
         {
             get => maxPublishDepth;
             private set => maxPublishDepth = Math.Max((byte)1, Math.Min(value, PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth));
@@ -256,7 +257,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             get => dailyTickUpdateCount;
             set
             {
-                IsDailyTickUpdateCountUpdated |= value != dailyTickUpdateCount || NumOfUpdates == 0;
+                IsDailyTickUpdateCountUpdated |= value != dailyTickUpdateCount || SequenceId == 0;
                 dailyTickUpdateCount          =  value;
             }
         }
@@ -354,17 +355,25 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             }
         }
 
-        public uint UpdateCount => NumOfUpdates;
+        public uint UpdateSequenceId => SequenceId;
 
-        public void UpdateComplete()
+        public void UpdateStarted(uint updateSequenceId)
         {
-            AskSide.UpdateComplete();
-            BidSide.UpdateComplete();
-            NameIdLookup.UpdateComplete();
-            pqOpenInterest?.UpdateComplete();
+            SequenceId = updateSequenceId;
+            AskSide.UpdateStarted(updateSequenceId);
+            BidSide.UpdateStarted(updateSequenceId);
+            pqOpenInterest?.UpdateStarted(updateSequenceId);
+        }
+
+        public void UpdateComplete(uint updateSequenceId = 0)
+        {
+            AskSide.UpdateComplete(updateSequenceId);
+            BidSide.UpdateComplete(updateSequenceId);
+            NameIdLookup.UpdateComplete(updateSequenceId);
+            pqOpenInterest?.UpdateComplete(updateSequenceId);
             if (HasUpdates)
             {
-                NumOfUpdates++;
+                SequenceId++;
                 HasUpdates = false;
             }
         }
@@ -423,7 +432,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
         public override PQOrderBook CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
         {
             LayerSupportedFlags = source.LayerSupportedFlags;
-            MaxPublishDepth     = source.MaxPublishDepth;
+            MaxAllowedSize     = source.MaxAllowedSize;
             if (source.HasNonEmptyOpenInterest)
             {
                 pqOpenInterest ??= new PQMarketAggregate();
@@ -472,7 +481,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             LayerSupportedFlags = (LayerSupportedFlags.Unset(LayerFlags.Ladder) | refSrcTickerInfo?.LayerFlags ??
                                    refOrderBook?.LayerSupportedFlags ?? LayerSupportedFlags);
             layerFlags      |= LayersSupportedType.SupportedLayerFlags();
-            MaxPublishDepth =  refSrcTickerInfo?.MaximumPublishedLayers ?? refOrderBook?.MaxPublishDepth ?? MaxPublishDepth;
+            MaxAllowedSize =  refSrcTickerInfo?.MaximumPublishedLayers ?? refOrderBook?.MaxAllowedSize ?? MaxAllowedSize;
             IsLadder        =  refSrcTickerInfo?.LayerFlags.HasLadder() ?? refOrderBook?.IsLadder ?? IsLadder;
             if (refOrderBook is IPQOrderBook pqOrderBook)
             {
@@ -481,8 +490,8 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
             BidSide.NameIdLookup = NameIdLookup;
             AskSide.NameIdLookup = NameIdLookup;
 
-            BidSide.EnsureRelatedItemsAreConfigured(LayerSupportedFlags, MaxPublishDepth);
-            AskSide.EnsureRelatedItemsAreConfigured(LayerSupportedFlags, MaxPublishDepth);
+            BidSide.EnsureRelatedItemsAreConfigured(LayerSupportedFlags, MaxAllowedSize);
+            AskSide.EnsureRelatedItemsAreConfigured(LayerSupportedFlags, MaxAllowedSize);
         }
 
         bool IInterfacesComparable<IMutableOrderBook>.AreEquivalent(IMutableOrderBook? other, bool exactTypes) => AreEquivalent(other, exactTypes);
@@ -494,7 +503,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
 
             var layerTypesSame     = LayersSupportedType == other.LayersSupportedType;
             var isLadderSame       = IsLadder == other.IsLadder;
-            var maxDepthSame       = MaxPublishDepth == other.MaxPublishDepth;
+            var maxDepthSame       = MaxAllowedSize == other.MaxAllowedSize;
             var dailyTickCountSame = DailyTickUpdateCount == other.DailyTickUpdateCount;
             var openInterestSame   = HasNonEmptyOpenInterest == other.HasNonEmptyOpenInterest;
             if (openInterestSame && other.HasNonEmptyOpenInterest && HasNonEmptyOpenInterest)
@@ -612,7 +621,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
                 var hashCode = new HashCode();
                 hashCode.Add(LayersSupportedType);
                 hashCode.Add(IsLadder);
-                hashCode.Add(MaxPublishDepth);
+                hashCode.Add(MaxAllowedSize);
                 hashCode.Add(IsBidBookChanged);
                 hashCode.Add(IsAskBookChanged);
                 hashCode.Add(DailyTickUpdateCount);

@@ -3,9 +3,11 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 
 #endregion
@@ -19,41 +21,61 @@ public enum BookSide
   , AskBook
 }
 
-public interface IOrderBookSide : IEnumerable<IPriceVolumeLayer>, IReusableObject<IOrderBookSide>,
-    IInterfacesComparable<IOrderBookSide>
+public interface IOrderBookSide : ITracksShiftsList<IPriceVolumeLayer, IPriceVolumeLayer>, IReusableObject<IOrderBookSide>,
+    IInterfacesComparable<IOrderBookSide>, IShowsEmpty
 {
-    LayerType  LayerSupportedType             { get; }
+    new IPriceVolumeLayer this[int index] { get; }
+
+    LayerType LayerSupportedType { get; }
+
     LayerFlags LayerSupportedFlags { get; }
 
     bool IsLadder { get; }
-    ushort MaxPublishDepth { get; }
 
     uint DailyTickUpdateCount { get; }
-    
-    bool      HasNonEmptyOpenInterest { get; }
-    IMarketAggregate OpenInterestSide               { get; }
 
-    int Capacity { get; }
-    int Count    { get; }
+    bool HasNonEmptyOpenInterest { get; }
 
+    IMarketAggregate OpenInterestSide { get; }
 
     BookSide BookSide { get; }
-    IPriceVolumeLayer? this[int level] { get; }
 }
 
-public interface IMutableOrderBookSide : IOrderBookSide, ICloneable<IMutableOrderBookSide>, ITrackableReset<IMutableOrderBookSide>
+public interface IMutableOrderBookSide : IOrderBookSide, IMutableTracksShiftsList<IMutablePriceVolumeLayer, IPriceVolumeLayer>,
+    ICloneable<IMutableOrderBookSide>, ITrackableReset<IMutableOrderBookSide>, IEmptyable
 {
+    new IMutablePriceVolumeLayer this[int index] { get; set; }
+
+    new IReadOnlyList<ListShiftCommand> ShiftCommands { get; set; }
+
+    new int? ClearRemainingElementsFromIndex { get; set; }
+
+    new ushort MaxAllowedSize { get; }
+
+    new bool HasUnreliableListTracking { get; set; }
+
+    new int Count { get; set; }
+
     new int Capacity { get; set; }
-    
-    new LayerFlags            LayerSupportedFlags { get; set; }
-    
+
+    new LayerFlags LayerSupportedFlags { get; set; }
+
     new bool HasNonEmptyOpenInterest { get; set; }
 
-    new uint  DailyTickUpdateCount    { get; set; }
+    new uint DailyTickUpdateCount { get; set; }
 
-    new IMutableMarketAggregate? OpenInterestSide        { get; set; }
+    new IMutableMarketAggregate? OpenInterestSide { get; set; }
 
-    new IMutablePriceVolumeLayer? this[int level] { get; set; }
+    new bool CalculateShift(DateTime asAtTime, IReadOnlyList<IPriceVolumeLayer> updatedCollection);
+
+    new ListShiftCommand AppendShiftCommand(ListShiftCommand toAppendAtEnd);
+
+    new void ClearShiftCommands();
+
+    new IEnumerator<IMutablePriceVolumeLayer> GetEnumerator();
+
+    new IMutableOrderBookSide ResetWithTracking();
+
     new IMutableOrderBookSide Clone();
 
     int AppendEntryAtEnd();
@@ -68,12 +90,11 @@ public static class OrderBookSideExtensions
         var volAccum         = 0m;
         var volPriceAccum    = 0m;
         var lastIndex        = 0;
-        
+
         var layerDeductVolume = 0m;
         for (int i = 0; i < orderBookSide.Count && remainingVol > 0m; i++)
         {
-            var pvl         = orderBookSide[i];
-            if (pvl == null) continue;
+            var pvl = orderBookSide[i];
             decimal cappedVolume;
             if (remainingSkipVol > 0)
             {
@@ -93,10 +114,10 @@ public static class OrderBookSideExtensions
                 volAccum      += cappedVolume;
                 volPriceAccum += cappedVolume * pvl.Price;
             }
-            lastIndex     =  i;
+            lastIndex = i;
         }
 
-        var publishedVwap    = volAccum > 0 ? volPriceAccum / volAccum : 0m;
-        return new VwapResult(lastIndex, volume,  volAccum, publishedVwap);
+        var publishedVwap = volAccum > 0 ? volPriceAccum / volAccum : 0m;
+        return new VwapResult(lastIndex, volume, volAccum, publishedVwap);
     }
 }

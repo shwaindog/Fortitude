@@ -37,7 +37,7 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
 
     public PQOrdersCountPriceVolumeLayer()
     {
-        if (GetType() == typeof(PQOrdersCountPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQOrdersCountPriceVolumeLayer)) SequenceId = 0;
     }
 
     public PQOrdersCountPriceVolumeLayer
@@ -45,7 +45,7 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
     {
         OrdersCount    = ordersCount;
         InternalVolume = internalVolume;
-        if (GetType() == typeof(PQOrdersCountPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQOrdersCountPriceVolumeLayer)) SequenceId = 0;
     }
 
     public PQOrdersCountPriceVolumeLayer(IPriceVolumeLayer toClone) : base(toClone)
@@ -56,7 +56,7 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
             InternalVolume = ordersCountPvl.InternalVolume;
         }
         SetFlagsSame(toClone);
-        if (GetType() == typeof(PQOrdersCountPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQOrdersCountPriceVolumeLayer)) SequenceId = 0;
     }
 
     protected string PQOrdersCountVolumeLayerToStringMembers =>
@@ -72,7 +72,7 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
         get => ordersCount;
         set
         {
-            IsOrdersCountUpdated |= ordersCount != value || NumUpdatesSinceEmpty == 0;
+            IsOrdersCountUpdated |= ordersCount != value || SequenceId == 0;
             ordersCount          =  value;
         }
     }
@@ -83,7 +83,7 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
         get => internalVolume;
         set
         {
-            IsInternalVolumeUpdated |= internalVolume != value || NumUpdatesSinceEmpty == 0;
+            IsInternalVolumeUpdated |= internalVolume != value || SequenceId == 0;
             internalVolume          =  value;
         }
     }
@@ -194,7 +194,7 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override PQOrdersCountPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         var isFullReplace = copyMergeFlags.HasFullReplace();

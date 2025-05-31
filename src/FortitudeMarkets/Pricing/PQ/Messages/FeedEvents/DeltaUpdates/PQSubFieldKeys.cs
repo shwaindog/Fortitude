@@ -468,6 +468,7 @@
                      , SubKeyType.DecisionsSubKey => ((PQDecisionsSubFieldKeys)subId).ToString()
                      , SubKeyType.OrdersSubKey    => ((PQOrdersSubFieldKeys)subId).ToString()
                      , SubKeyType.TradingSubKey   => ((PQTradingSubFieldKeys)subId).ToString()
+                     , _ => throw new ArgumentException($"Unexpected subKey type {parentId.GetSubKeyType()}")
                    };
         }
 

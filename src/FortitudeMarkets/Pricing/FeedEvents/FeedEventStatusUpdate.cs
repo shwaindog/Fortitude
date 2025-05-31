@@ -43,6 +43,8 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
     public DateTime AdapterSentTime            { get; set; }
     public DateTime AdapterReceivedTime        { get; set; }
 
+    public uint UpdateSequenceId { get; set; }
+
     public abstract override FeedEventStatusUpdate Clone();
 
     IFeedEventStatusUpdate ICloneable<IFeedEventStatusUpdate>.              Clone() => Clone();
@@ -52,6 +54,11 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
 
     public override FeedEventStatusUpdate CopyFrom(IFeedEventStatusUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
+        UpdateComplete(UpdateSequenceId);
+        UpdateStarted(source.UpdateSequenceId);
+
+        UpdateSequenceId = source.UpdateSequenceId;
+
         FeedSyncStatus               = source.FeedSyncStatus;
         FeedMarketConnectivityStatus = source.FeedMarketConnectivityStatus;
 
@@ -63,6 +70,16 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
 
         return this;
     }
+
+    public virtual void UpdateComplete(uint updateSequenceId = 0)
+    {
+    }
+
+    public virtual void UpdateStarted(uint updateSequenceId)
+    {
+    }
+
+    public virtual uint UpdateCount => UpdateSequenceId;
 
     public override void StateReset()
     {

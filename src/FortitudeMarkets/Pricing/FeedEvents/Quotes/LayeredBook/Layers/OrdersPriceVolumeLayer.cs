@@ -103,9 +103,6 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         }
     }
 
-    protected string OrdersPriceVolumeLayerToStringMembers => $"{OrdersCountPriceVolumeLayerToStringMembers}, {JustOrdersToString}";
-    protected string JustOrdersToString                    => $"{nameof(Orders)}: [{string.Join(", ", Orders)}]";
-
     [JsonIgnore] public IReadOnlyList<IMutableAnonymousOrder> Orders => orders?.Where(aoli => !aoli.IsEmpty).ToList().AsReadOnly() ?? EmptyOrders;
 
     IReadOnlyList<IAnonymousOrder> IOrdersPriceVolumeLayer.Orders => orders?.Where(aoli => !aoli.IsEmpty).ToList().AsReadOnly() ?? EmptyOrders;
@@ -268,52 +265,6 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
 
     IMutableOrdersPriceVolumeLayer IMutableOrdersPriceVolumeLayer.Clone() => Clone();
 
-    public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
-    {
-        if (!(other is IOrdersPriceVolumeLayer otherTvl)) return false;
-        var baseSame = base.AreEquivalent(other, exactTypes);
-        var traderDetailsSame = orders!.Zip(otherTvl.Orders,
-                                            (ftd, std) => ftd.AreEquivalent(std, exactTypes))
-                                       .All(same => same);
-        return baseSame && traderDetailsSame;
-    }
-
-    public override OrdersPriceVolumeLayer CopyFrom
-    (IPriceVolumeLayer source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        base.CopyFrom(source, copyMergeFlags);
-        var thisLayerGenesisFlags = LayerType.SupportsOrdersFullPriceVolume()
-            ? IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags
-            : OrderGenesisFlags.None;
-        var unsetTypeFlags             = IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags | OrderGenesisFlags.HasInternalOrderInfo;
-        var removeAdditionalFieldsMask = ~unsetTypeFlags;
-        if (orders != null && source is IMutableOrdersPriceVolumeLayer ordersCountPriceVolumeLayer)
-        {
-            for (var i = 0; i < ordersCountPriceVolumeLayer.OrdersCount; i++)
-                if (i < orders.Count)
-                {
-                    var mutableAnonymousOrder = orders[i];
-                    mutableAnonymousOrder.CopyFrom(ordersCountPriceVolumeLayer[i]!);
-                    mutableAnonymousOrder.GenesisFlags            &= removeAdditionalFieldsMask | thisLayerGenesisFlags;
-                    mutableAnonymousOrder.GenesisFlags            |= thisLayerGenesisFlags;
-                    mutableAnonymousOrder.EmptyIgnoreGenesisFlags =  thisLayerGenesisFlags;
-                }
-                else
-                {
-                    var mutableAnonymousOrder = ConvertToBookLayer(ordersCountPriceVolumeLayer[i]!);
-                    mutableAnonymousOrder.GenesisFlags            &= removeAdditionalFieldsMask;
-                    mutableAnonymousOrder.GenesisFlags            |= thisLayerGenesisFlags;
-                    mutableAnonymousOrder.EmptyIgnoreGenesisFlags = thisLayerGenesisFlags;
-                    orders.Add(mutableAnonymousOrder);
-                }
-
-            for (var i = orders.Count - 1; i >= ordersCountPriceVolumeLayer.OrdersCount; i--) orders[i].StateReset();
-        }
-
-        return this;
-    }
-
     public override OrdersPriceVolumeLayer Clone() =>
         Recycler?.Borrow<OrdersPriceVolumeLayer>().CopyFrom(this)
      ?? new OrdersPriceVolumeLayer(this, LayerType);
@@ -356,12 +307,6 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         if (proposedNewIndex > ushort.MaxValue) throw new ArgumentOutOfRangeException($"Max Traders represented is {ushort.MaxValue}");
     }
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IOrdersPriceVolumeLayer?)obj, true);
-
-    public override int GetHashCode() => base.GetHashCode() ^ Orders.GetHashCode();
-
-    public override string ToString() => $"{nameof(OrdersPriceVolumeLayer)}{{{OrdersPriceVolumeLayerToStringMembers}}}";
-
     protected uint CountFromOrders()
     {
         for (var i = (orders?.Count ?? 0) - 1; i >= 0; i--)
@@ -382,4 +327,59 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
                         && !aoli.GenesisFlags.HasSyntheticForBacktestSimulation())
                .Sum(aoli => aoli.OrderRemainingVolume) ?? 0m;
     }
+
+    public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
+    {
+        if (!(other is IOrdersPriceVolumeLayer otherTvl)) return false;
+        var baseSame = base.AreEquivalent(other, exactTypes);
+        var traderDetailsSame = orders!.Zip(otherTvl.Orders,
+                                            (ftd, std) => ftd.AreEquivalent(std, exactTypes))
+                                       .All(same => same);
+        return baseSame && traderDetailsSame;
+    }
+
+    public override OrdersPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(source, copyMergeFlags);
+        var thisLayerGenesisFlags = LayerType.SupportsOrdersFullPriceVolume()
+            ? IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags
+            : OrderGenesisFlags.None;
+        var addInfoMask                = IAnonymousOrder.AllExceptExtraInfoFlags;
+        if (orders != null && source is IMutableOrdersPriceVolumeLayer ordersCountPriceVolumeLayer)
+        {
+            for (var i = 0; i < ordersCountPriceVolumeLayer.OrdersCount; i++)
+            {
+                var destOrder = ordersCountPriceVolumeLayer[i]!;
+                if (i < orders.Count)
+                {
+                    var mutableAnonymousOrder = orders[i];
+                    mutableAnonymousOrder.CopyFrom(ordersCountPriceVolumeLayer[i]!);
+                    var modifiedGenesisFlags = (destOrder.GenesisFlags & addInfoMask);
+                    destOrder.GenesisFlags                        = modifiedGenesisFlags | thisLayerGenesisFlags;
+                    mutableAnonymousOrder.EmptyIgnoreGenesisFlags = thisLayerGenesisFlags;
+                }
+                else
+                {
+                    var mutableAnonymousOrder = ConvertToBookLayer(ordersCountPriceVolumeLayer[i]!);
+                    var modifiedGenesisFlags  = (destOrder.GenesisFlags & addInfoMask);
+                    destOrder.GenesisFlags                        = modifiedGenesisFlags | thisLayerGenesisFlags;
+                    mutableAnonymousOrder.EmptyIgnoreGenesisFlags = thisLayerGenesisFlags;
+                    orders.Add(mutableAnonymousOrder);
+                }
+            }
+
+            for (var i = orders.Count - 1; i >= ordersCountPriceVolumeLayer.OrdersCount; i--) orders[i].StateReset();
+        }
+        return this;
+    }
+
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IOrdersPriceVolumeLayer?)obj, true);
+
+    public override int GetHashCode() => base.GetHashCode() ^ Orders.GetHashCode();
+
+    protected string OrdersPriceVolumeLayerToStringMembers => $"{OrdersCountPriceVolumeLayerToStringMembers}, {JustOrdersToString}";
+
+    protected string JustOrdersToString => $"{nameof(Orders)}: [{string.Join(", ", Orders)}]";
+
+    public override string ToString() => $"{nameof(OrdersPriceVolumeLayer)}{{{OrdersPriceVolumeLayerToStringMembers}}}";
 }

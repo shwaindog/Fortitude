@@ -23,7 +23,8 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Lay
 [JsonDerivedType(typeof(PQValueDatePriceVolumeLayer))]
 [JsonDerivedType(typeof(PQOrdersCountPriceVolumeLayer))]
 [JsonDerivedType(typeof(PQOrdersPriceVolumeLayer))]
-public interface IPQPriceVolumeLayer : IMutablePriceVolumeLayer, IPQSupportsNumberPrecisionFieldUpdates<IPriceVolumeLayer>
+public interface IPQPriceVolumeLayer : IReusableObject<IPQPriceVolumeLayer>, IMutablePriceVolumeLayer
+  , IPQSupportsNumberPrecisionFieldUpdates<IPriceVolumeLayer>
   , ITrackableReset<IPQPriceVolumeLayer>
 {
     [JsonIgnore] bool IsPriceUpdated  { get; set; }
@@ -35,7 +36,7 @@ public interface IPQPriceVolumeLayer : IMutablePriceVolumeLayer, IPQSupportsNumb
 
 public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVolumeLayer
 {
-    protected uint    NumUpdatesSinceEmpty = uint.MaxValue;
+    protected uint    SequenceId = uint.MaxValue;
     private   decimal price;
 
     protected LayerFieldUpdatedFlags UpdatedFlags;
@@ -44,7 +45,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
 
     public PQPriceVolumeLayer()
     {
-        if (GetType() == typeof(PQPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQPriceVolumeLayer)) SequenceId = 0;
     }
 
     public PQPriceVolumeLayer(decimal price = 0m, decimal volume = 0m)
@@ -52,7 +53,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         Price  = price;
         Volume = volume;
 
-        if (GetType() == typeof(PQPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQPriceVolumeLayer)) SequenceId = 0;
     }
 
     public PQPriceVolumeLayer(IPriceVolumeLayer toClone)
@@ -61,7 +62,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         Volume = toClone.Volume;
         SetFlagsSame(toClone);
 
-        if (GetType() == typeof(PQPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQPriceVolumeLayer)) SequenceId = 0;
     }
 
     protected string PQPriceVolumeLayerToStringMembers => $"{nameof(Price)}: {Price:N5}, {nameof(Volume)}: {Volume:N2}";
@@ -77,7 +78,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         get => price;
         set
         {
-            IsPriceUpdated |= price != value || NumUpdatesSinceEmpty == 0;
+            IsPriceUpdated |= price != value || SequenceId == 0;
             price          =  value;
         }
     }
@@ -88,7 +89,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         get => volume;
         set
         {
-            IsVolumeUpdated |= volume != value || NumUpdatesSinceEmpty == 0;
+            IsVolumeUpdated |= volume != value || SequenceId == 0;
             volume          =  value;
         }
     }
@@ -146,15 +147,20 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
             if (!value) return;
             Price = Volume = 0m;
 
-            NumUpdatesSinceEmpty = 0;
+            SequenceId = 0;
         }
     }
 
-    public uint UpdateCount => NumUpdatesSinceEmpty;
+    public uint UpdateSequenceId => SequenceId;
 
-    public virtual void UpdateComplete()
+    public virtual void UpdateStarted(uint updateSequenceId)
     {
-        if (HasUpdates && !IsEmpty) NumUpdatesSinceEmpty++;
+        SequenceId = updateSequenceId;
+    }
+
+    public virtual void UpdateComplete(uint updateSequenceId = 0)
+    {
+        if (HasUpdates && !IsEmpty) SequenceId++;
         HasUpdates = false;
     }
 
@@ -177,7 +183,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         Volume       = 0m;
         UpdatedFlags = LayerFieldUpdatedFlags.None;
 
-        NumUpdatesSinceEmpty = 0;
+        SequenceId = 0;
     }
 
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
@@ -213,7 +219,23 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         return -1;
     }
 
-    public override IPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    IReusableObject<IPQPriceVolumeLayer> ITransferState<IReusableObject<IPQPriceVolumeLayer>>.CopyFrom
+        (IReusableObject<IPQPriceVolumeLayer> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPriceVolumeLayer)source, copyMergeFlags);
+
+    IPQPriceVolumeLayer ITransferState<IPQPriceVolumeLayer>.CopyFrom
+        (IPQPriceVolumeLayer source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom(source, copyMergeFlags);
+
+    IReusableObject<IMutablePriceVolumeLayer> ITransferState<IReusableObject<IMutablePriceVolumeLayer>>.CopyFrom
+        (IReusableObject<IMutablePriceVolumeLayer> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPriceVolumeLayer)source, copyMergeFlags);
+
+    IMutablePriceVolumeLayer ITransferState<IMutablePriceVolumeLayer>.CopyFrom
+        (IMutablePriceVolumeLayer source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom(source, copyMergeFlags);
+
+    public override PQPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is not PQPriceVolumeLayer pqpvl)
         {
@@ -244,13 +266,14 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         return this;
     }
 
+    IMutablePriceVolumeLayer ICloneable<IMutablePriceVolumeLayer>.Clone() => Clone();
 
-    public override IPQPriceVolumeLayer Clone() =>
-        (IPQPriceVolumeLayer?)Recycler?.Borrow<PQPriceVolumeLayer>().CopyFrom(this) ?? new PQPriceVolumeLayer(this);
+    IMutablePriceVolumeLayer IMutablePriceVolumeLayer.Clone() => Clone();
 
     IPriceVolumeLayer ICloneable<IPriceVolumeLayer>.Clone() => Clone();
 
-    object ICloneable.Clone() => Clone();
+    public override IPQPriceVolumeLayer Clone() =>
+        (IPQPriceVolumeLayer?)Recycler?.Borrow<PQPriceVolumeLayer>().CopyFrom(this) ?? new PQPriceVolumeLayer(this);
 
     public virtual bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {

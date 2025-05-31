@@ -37,7 +37,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
     public PQFullSupportPriceVolumeLayer(IPQNameIdLookupGenerator initialDict)
         : base(LayerType.FullSupportPriceVolume, initialDict)
     {
-        if (GetType() == typeof(PQFullSupportPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQFullSupportPriceVolumeLayer)) SequenceId = 0;
     }
 
     public PQFullSupportPriceVolumeLayer
@@ -51,7 +51,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
 
         SourceQuoteReference = sourceQuoteReference;
 
-        if (GetType() == typeof(PQFullSupportPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQFullSupportPriceVolumeLayer)) SequenceId = 0;
     }
 
     public PQFullSupportPriceVolumeLayer(IPriceVolumeLayer toClone, IPQNameIdLookupGenerator ipNameIdLookupGenerator)
@@ -67,7 +67,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
         if (toClone is IValueDatePriceVolumeLayer valueDatePvl) ValueDate                = valueDatePvl.ValueDate;
         SetFlagsSame(toClone);
 
-        if (GetType() == typeof(PQFullSupportPriceVolumeLayer)) NumUpdatesSinceEmpty = 0;
+        if (GetType() == typeof(PQFullSupportPriceVolumeLayer)) SequenceId = 0;
     }
 
     protected string PQFullSupportVolumeLayerToStringMembers =>
@@ -98,7 +98,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
         get => valueDate;
         set
         {
-            IsValueDateUpdated |= valueDate != value || NumUpdatesSinceEmpty == 0;
+            IsValueDateUpdated |= valueDate != value || SequenceId == 0;
             valueDate          =  value;
         }
     }
@@ -109,7 +109,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
         get => sourceQuoteReference;
         set
         {
-            IsSourceQuoteReferenceUpdated |= sourceQuoteReference != value || NumUpdatesSinceEmpty == 0;
+            IsSourceQuoteReferenceUpdated |= sourceQuoteReference != value || SequenceId == 0;
             sourceQuoteReference          =  value;
         }
     }
@@ -133,7 +133,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
         get => sourceId;
         set
         {
-            IsSourceNameUpdated |= sourceId != value || NumUpdatesSinceEmpty == 0;
+            IsSourceNameUpdated |= sourceId != value || SequenceId == 0;
             sourceId            =  value;
         }
     }
@@ -171,7 +171,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
         get => (LayerBooleanFlags & LayerBooleanFlags.IsExecutableFlag) != 0;
         set
         {
-            IsExecutableUpdated |= (LayerBooleanFlags & LayerBooleanFlags.IsExecutableFlag) > 0 != value || NumUpdatesSinceEmpty == 0;
+            IsExecutableUpdated |= (LayerBooleanFlags & LayerBooleanFlags.IsExecutableFlag) > 0 != value || SequenceId == 0;
             if (value)
                 LayerBooleanFlags |= LayerBooleanFlags.IsExecutableFlag;
 
@@ -238,10 +238,10 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
         }
     }
 
-    public override void UpdateComplete()
+    public override void UpdateComplete(uint updateSequenceId = 0)
     {
-        NameIdLookup.UpdateComplete();
-        base.UpdateComplete();
+        NameIdLookup.UpdateComplete(updateSequenceId);
+        base.UpdateComplete(updateSequenceId);
     }
 
     IMutableValueDatePriceVolumeLayer ITrackableReset<IMutableValueDatePriceVolumeLayer>.          ResetWithTracking() => ResetWithTracking();
@@ -363,7 +363,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
         return NameIdLookup.UpdateFieldString(stringUpdate);
     }
 
-    public override IPriceVolumeLayer CopyFrom
+    public override PQFullSupportPriceVolumeLayer CopyFrom
         (IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
