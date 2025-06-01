@@ -39,6 +39,8 @@ public interface IMutableLastTradedList : ILastTradedList, ITrackableReset<IMuta
     new IEnumerator<IMutableLastTrade> GetEnumerator();
 
     new IMutableLastTradedList ResetWithTracking();
+    
+    string EachLastTradeByIndexOnNewLines();
 
     int AppendEntryAtEnd();
 }

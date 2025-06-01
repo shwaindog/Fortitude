@@ -6,6 +6,7 @@
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
+using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
@@ -17,6 +18,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;
+using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using Moq;
 
 #endregion
@@ -28,8 +30,8 @@ public class PQOrdersPriceVolumeLayerTests
 {
     private const decimal Price          = 1.3456m;
     private const decimal Volume         = 100_000m;
-    private const uint    OrdersCount    = 3;
-    private const int     NumOfOrders    = 3;
+    private const uint    OrdersCount    = 12;
+    private const int     NumOfOrders    = 12;
     private const decimal InternalVolume = 50_000m;
 
     private const int     OrderId              = 250;
@@ -37,16 +39,17 @@ public class PQOrdersPriceVolumeLayerTests
     private const decimal OrderRemainingVolume = 10.25m;
     private const string  CounterPartyBase     = "TestCounterPartyName";
     private const string  TraderNameBase       = "TestTraderName";
+    private const uint    TrackingId           = 1234567;
 
 
     private const int ExpectedTraderId       = 2;
     private const int ExpectedCounterPartyId = 1;
 
-    private const OrderGenesisFlags ExpectedGenesisFlags = OrderGenesisFlags.FromAdapter | OrderGenesisFlags.IsExternalOrder | OrderGenesisFlags.HasExternalCounterPartyInfo;
-    private const OrderType         ExpectedOrderType    = OrderType.PassiveLimit;
+    private const OrderGenesisFlags ExpectedGenesisFlags
+        = OrderGenesisFlags.FromAdapter | OrderGenesisFlags.IsExternalOrder | OrderGenesisFlags.HasExternalCounterPartyInfo;
+    private const OrderType ExpectedOrderType = OrderType.PassiveLimit;
 
     private const OrderLifeCycleState ExpectedLifecycleState = OrderLifeCycleState.ConfirmedActiveOnMarket;
-
 
     private static readonly DateTime CreatedTime = new DateTime(2025, 4, 21, 6, 27, 23).AddMilliseconds(123).AddMicroseconds(456);
     private static readonly DateTime UpdatedTime = new DateTime(2025, 4, 21, 12, 8, 59).AddMilliseconds(789).AddMicroseconds(213);
@@ -55,11 +58,17 @@ public class PQOrdersPriceVolumeLayerTests
     private IPQOrdersPriceVolumeLayer emptyCounterPartyOrdersPvl = null!;
 
     private IPQNameIdLookupGenerator  emptyNameIdLookup              = null!;
-    private PQAnonymousOrder exampleAnonymousOrderLayer     = null!;
+    private PQAnonymousOrder          exampleAnonymousOrderLayer     = null!;
     private IPQNameIdLookupGenerator  nameIdLookup                   = null!;
     private IPQOrdersPriceVolumeLayer populatedAnonymousOrdersPvl    = null!;
     private IPQOrdersPriceVolumeLayer populatedCounterPartyOrdersPvl = null!;
-    private DateTime                  testDateTime;
+
+    private DateTime testDateTime = new(2025, 6, 1, 11, 54, 52);
+
+    private IPQAnonymousOrder exampleCounterPartyAnonymousOrder = null!;
+
+    private readonly PQSourceTickerInfo forGetDeltaUpdates = PQSourceTickerInfoTests.OrdersCounterPartyL2PriceVolumeSti
+                                                                                    .WithIncrementSize(0.01m).WithMaxSubmitSize(0.01m);
 
     [TestInitialize]
     public void SetUp()
@@ -67,13 +76,22 @@ public class PQOrdersPriceVolumeLayerTests
         emptyNameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates);
         nameIdLookup      = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates);
 
+        exampleCounterPartyAnonymousOrder = new PQExternalCounterPartyOrder
+            (new PQAnonymousOrder
+                (nameIdLookup, OrderId + 100, CreatedTime, OrderVolume, ExpectedOrderType, ExpectedGenesisFlags, ExpectedLifecycleState, UpdatedTime
+               , OrderRemainingVolume, TrackingId)
+                {
+                    ExternalCounterPartyOrderInfo
+                        = new PQAdditionalExternalCounterPartyInfo(nameIdLookup, 100, $"{CounterPartyBase}_100", 200
+                                                                 , $"{TraderNameBase}_100")
+                });
+
         exampleAnonymousOrderLayer = new PQAnonymousOrder
-            (nameIdLookup, OrderId, CreatedTime, OrderVolume, ExpectedOrderType, ExpectedGenesisFlags, ExpectedLifecycleState, UpdatedTime
+            (nameIdLookup, OrderId + 50, CreatedTime, OrderVolume, ExpectedOrderType, ExpectedGenesisFlags, ExpectedLifecycleState, UpdatedTime
            , OrderRemainingVolume);
 
         emptyAnonymousOrdersPvl    = new PQOrdersPriceVolumeLayer(emptyNameIdLookup.Clone(), LayerType.OrdersAnonymousPriceVolume);
         emptyCounterPartyOrdersPvl = new PQOrdersPriceVolumeLayer(emptyNameIdLookup.Clone(), LayerType.OrdersFullPriceVolume);
-        testDateTime               = new DateTime(2017, 12, 17, 18, 54, 52);
         populatedAnonymousOrdersPvl
             = new PQOrdersPriceVolumeLayer(nameIdLookup, LayerType.OrdersAnonymousPriceVolume, Price, Volume, OrdersCount, InternalVolume);
         AddAnonymousOrders(populatedAnonymousOrdersPvl, NumOfOrders);
@@ -85,7 +103,7 @@ public class PQOrdersPriceVolumeLayerTests
     [TestMethod]
     public void NewPvl_SetsPriceAndVolume_PropertiesInitializedAsExpected()
     {
-        bool[] expectPopulated = [true, true, true];
+        bool[] expectPopulated = [true, true, true, true, true, true, true, true, true, true, true, true];
         var    newPvl = new PQOrdersPriceVolumeLayer(nameIdLookup, LayerType.OrdersAnonymousPriceVolume, Price, Volume, OrdersCount, InternalVolume);
         AddAnonymousOrders(newPvl, NumOfOrders);
         Assert.AreEqual(Price, newPvl.Price);
@@ -112,8 +130,8 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.IsTrue(newPvl.IsVolumeUpdated);
         Assert.IsTrue(newPvl.IsOrdersCountUpdated);
         Assert.IsTrue(newPvl.IsInternalVolumeUpdated);
-        Assert.IsTrue(((IPQExternalCounterPartyOrder)newPvl[0]!).IsExternalCounterPartyNameUpdated);
-        Assert.IsTrue(((IPQExternalCounterPartyOrder)newPvl[0]!).IsExternalTraderNameUpdated);
+        Assert.IsTrue(((IPQExternalCounterPartyOrder)newPvl[0]).IsExternalCounterPartyNameUpdated);
+        Assert.IsTrue(((IPQExternalCounterPartyOrder)newPvl[0]).IsExternalTraderNameUpdated);
         Assert.IsFalse(newPvl.IsEmpty);
         Assert.IsTrue(newPvl.HasUpdates);
         AssertOrdersAreAsExpected(newPvl, expectPopulated);
@@ -150,7 +168,7 @@ public class PQOrdersPriceVolumeLayerTests
     [TestMethod]
     public void NewPvl_NewFromCloneInstance_PropertiesInitializedAsExpected()
     {
-        var expectPopulated = new[] { true, true, true };
+        var expectPopulated = new[] { true, true, true, true, true, true, true, true, true, true, true, true };
         var newPopulatedPvl
             = new PQOrdersPriceVolumeLayer(populatedAnonymousOrdersPvl, LayerType.OrdersAnonymousPriceVolume, emptyNameIdLookup.Clone());
         AddAnonymousOrders(newPopulatedPvl, NumOfOrders);
@@ -230,7 +248,7 @@ public class PQOrdersPriceVolumeLayerTests
     [TestMethod]
     public void NewPvl_NewFromCloneInstance_WhenOneFieldNonDefaultIsNotUpdatedNewInstanceCopies()
     {
-        var expectPopulatedOrders = new[] { true, true, true };
+        var expectPopulatedOrders = new[] { true, true, true, true, true, true, true, true, true, true, true, true };
         var newPopulatedPvl = new PQOrdersPriceVolumeLayer(nameIdLookup.Clone(), LayerType.OrdersFullPriceVolume, Price, Volume, OrdersCount
                                                          , InternalVolume)
         {
@@ -291,7 +309,7 @@ public class PQOrdersPriceVolumeLayerTests
         foreach (var orderLayer in newPopulatedPvl.Orders)
         {
             orderLayer.IsOrderIdUpdated              = false;
-            orderLayer.IsGenesisFlagsUpdated      = false;
+            orderLayer.IsGenesisFlagsUpdated         = false;
             orderLayer.IsCreatedTimeDateUpdated      = false;
             orderLayer.IsCreatedTimeSub2MinUpdated   = false;
             orderLayer.IsUpdateTimeDateUpdated       = false;
@@ -385,12 +403,12 @@ public class PQOrdersPriceVolumeLayerTests
                 OrderId = OrderId + 3, OrderDisplayVolume = OrderVolume
             };
         Assert.AreEqual(4u, newEmpty.OrdersCount);
-        Assert.AreEqual(OrderId + 3, ((IOrdersPriceVolumeLayer)newEmpty)[3]!.OrderId);
-        Assert.AreEqual(OrderVolume, ((IOrdersPriceVolumeLayer)newEmpty)[3]!.OrderDisplayVolume);
+        Assert.AreEqual(OrderId + 3, ((IOrdersPriceVolumeLayer)newEmpty)[3].OrderId);
+        Assert.AreEqual(OrderVolume, ((IOrdersPriceVolumeLayer)newEmpty)[3].OrderDisplayVolume);
 
         Assert.IsNotNull(((IOrdersPriceVolumeLayer)newEmpty)[255]);
         Assert.AreEqual(4u, newEmpty.OrdersCount);
-        ((IMutableOrdersPriceVolumeLayer)newEmpty)[255]!.OrderId = OrderId + 255;
+        ((IMutableOrdersPriceVolumeLayer)newEmpty)[255].OrderId = OrderId + 255;
         Assert.AreEqual(256u, newEmpty.OrdersCount);
 
         newEmpty[255] = new PQAnonymousOrder
@@ -398,8 +416,8 @@ public class PQOrdersPriceVolumeLayerTests
             OrderId = OrderId + 255, OrderDisplayVolume = OrderVolume
         };
         Assert.AreEqual(256u, newEmpty.OrdersCount);
-        Assert.AreEqual(OrderId + 255, ((IOrdersPriceVolumeLayer)newEmpty)[255]!.OrderId);
-        Assert.AreEqual(OrderVolume, ((IOrdersPriceVolumeLayer)newEmpty)[255]!.OrderDisplayVolume);
+        Assert.AreEqual(OrderId + 255, ((IOrdersPriceVolumeLayer)newEmpty)[255].OrderId);
+        Assert.AreEqual(OrderVolume, ((IOrdersPriceVolumeLayer)newEmpty)[255].OrderDisplayVolume);
     }
 
     [TestMethod]
@@ -433,7 +451,7 @@ public class PQOrdersPriceVolumeLayerTests
         caughtException = false;
         try
         {
-            ((IMutableOrdersPriceVolumeLayer)emptyAnonymousOrdersPvl)[ushort.MaxValue + 1] = null;
+            emptyAnonymousOrdersPvl[ushort.MaxValue + 1] = exampleAnonymousOrderLayer;
         }
         catch (ArgumentOutOfRangeException)
         {
@@ -457,7 +475,7 @@ public class PQOrdersPriceVolumeLayerTests
         caughtException = false;
         try
         {
-            emptyCounterPartyOrdersPvl[ushort.MaxValue + 1] = null;
+            emptyCounterPartyOrdersPvl[ushort.MaxValue + 1] = exampleCounterPartyAnonymousOrder;
         }
         catch (ArgumentOutOfRangeException)
         {
@@ -471,16 +489,15 @@ public class PQOrdersPriceVolumeLayerTests
     public void PopulatedPvl_HasUpdatesSetFalse_LookupAndTraderLayersHaveNoUpdates()
     {
         Assert.IsTrue(populatedCounterPartyOrdersPvl.HasUpdates);
-        for (var i = 0; i < NumOfOrders; i++) Assert.IsTrue(populatedCounterPartyOrdersPvl[i]!.HasUpdates);
+        for (var i = 0; i < NumOfOrders; i++) Assert.IsTrue(populatedCounterPartyOrdersPvl[i].HasUpdates);
         Assert.IsTrue(populatedCounterPartyOrdersPvl.NameIdLookup.HasUpdates);
 
         populatedCounterPartyOrdersPvl.HasUpdates = false;
 
         Assert.IsFalse(populatedCounterPartyOrdersPvl.HasUpdates);
-        for (var i = 0; i < NumOfOrders; i++) Assert.IsFalse(populatedCounterPartyOrdersPvl[i]!.HasUpdates);
+        for (var i = 0; i < NumOfOrders; i++) Assert.IsFalse(populatedCounterPartyOrdersPvl[i].HasUpdates);
         Assert.IsFalse(populatedCounterPartyOrdersPvl.NameIdLookup.HasUpdates);
     }
-
 
     [TestMethod]
     public void EmptyPvl_LayerOrderIdChanged_ExpectedPropertiesUpdatedDeltaUpdatesAffected()
@@ -488,7 +505,7 @@ public class PQOrdersPriceVolumeLayerTests
         for (var i = 0; i < 256; i++)
         {
             testDateTime = testDateTime.AddHours(1).AddMinutes(1);
-            var orderLayerInfo = emptyCounterPartyOrdersPvl[i]!;
+            var orderLayerInfo = emptyCounterPartyOrdersPvl[i];
 
             Assert.IsFalse(orderLayerInfo.IsOrderIdUpdated);
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
@@ -539,7 +556,7 @@ public class PQOrdersPriceVolumeLayerTests
         for (var i = 0; i < 256; i++)
         {
             testDateTime = testDateTime.AddHours(1).AddMinutes(1);
-            var orderLayerInfo = emptyCounterPartyOrdersPvl[i]!;
+            var orderLayerInfo = emptyCounterPartyOrdersPvl[i];
 
             Assert.IsFalse(orderLayerInfo.IsGenesisFlagsUpdated);
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
@@ -572,7 +589,7 @@ public class PQOrdersPriceVolumeLayerTests
             Assert.AreEqual(1, layerUpdates.Count);
             Assert.AreEqual(expectedLayerField, layerUpdates[0]);
 
-            orderLayerInfo.GenesisFlags             = OrderGenesisFlags.None;
+            orderLayerInfo.GenesisFlags          = OrderGenesisFlags.None;
             orderLayerInfo.IsGenesisFlagsUpdated = false;
 
             var newEmpty = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
@@ -591,7 +608,7 @@ public class PQOrdersPriceVolumeLayerTests
         for (var i = 0; i < 256; i++)
         {
             testDateTime = testDateTime.AddHours(1).AddMinutes(1);
-            var orderLayerInfo = emptyCounterPartyOrdersPvl[i]!;
+            var orderLayerInfo = emptyCounterPartyOrdersPvl[i];
             // increment NumUpdatesSinceEmpty
             orderLayerInfo.CreatedTime = testDateTime;
             orderLayerInfo.UpdateComplete();
@@ -649,7 +666,7 @@ public class PQOrdersPriceVolumeLayerTests
         for (var i = 0; i < 256; i++)
         {
             testDateTime = testDateTime.AddHours(1).AddMinutes(1);
-            var orderLayerInfo = emptyCounterPartyOrdersPvl[i]!;
+            var orderLayerInfo = emptyCounterPartyOrdersPvl[i];
             // increment NumUpdatesSinceEmpty
             orderLayerInfo.CreatedTime = testDateTime;
             orderLayerInfo.UpdateComplete();
@@ -709,7 +726,7 @@ public class PQOrdersPriceVolumeLayerTests
         for (var i = 0; i < 256; i++)
         {
             testDateTime = testDateTime.AddHours(1).AddMinutes(1);
-            var orderLayerInfo = emptyCounterPartyOrdersPvl[i]!;
+            var orderLayerInfo = emptyCounterPartyOrdersPvl[i];
             // increment NumUpdatesSinceEmpty
             orderLayerInfo.UpdateTime = testDateTime;
             orderLayerInfo.UpdateComplete();
@@ -768,7 +785,7 @@ public class PQOrdersPriceVolumeLayerTests
         for (var i = 0; i < 256; i++)
         {
             testDateTime = testDateTime.AddHours(1).AddMinutes(1);
-            var orderLayerInfo = emptyCounterPartyOrdersPvl[i]!;
+            var orderLayerInfo = emptyCounterPartyOrdersPvl[i];
             // increment NumUpdatesSinceEmpty
             orderLayerInfo.UpdateTime = testDateTime;
             orderLayerInfo.UpdateComplete();
@@ -828,7 +845,7 @@ public class PQOrdersPriceVolumeLayerTests
         for (var i = 0; i < 256; i++)
         {
             testDateTime = testDateTime.AddHours(1).AddMinutes(1);
-            var traderLayerInfo = emptyCounterPartyOrdersPvl[i]!;
+            var traderLayerInfo = emptyCounterPartyOrdersPvl[i];
 
             Assert.IsFalse(traderLayerInfo.IsOrderVolumeUpdated);
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
@@ -879,7 +896,7 @@ public class PQOrdersPriceVolumeLayerTests
         for (var i = 0; i < 256; i++)
         {
             testDateTime = testDateTime.AddHours(1).AddMinutes(1);
-            var traderLayerInfo = emptyCounterPartyOrdersPvl[i]!;
+            var traderLayerInfo = emptyCounterPartyOrdersPvl[i];
 
             Assert.IsFalse(traderLayerInfo.IsOrderRemainingVolumeUpdated);
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
@@ -1058,17 +1075,15 @@ public class PQOrdersPriceVolumeLayerTests
         }
     }
 
-
     [TestMethod]
     public void PopulatedPvl_RemoveAt_ClearsOrReducesCount()
     {
         Assert.AreEqual(OrdersCount, populatedAnonymousOrdersPvl.OrdersCount);
         populatedAnonymousOrdersPvl.RemoveAt(1);
-        Assert.AreEqual(OrdersCount, populatedAnonymousOrdersPvl.OrdersCount);
-        Assert.IsTrue(populatedAnonymousOrdersPvl[1]!.IsEmpty);
-        populatedAnonymousOrdersPvl.RemoveAt(2);
-        Assert.AreEqual(1u, populatedAnonymousOrdersPvl.OrdersCount);
-        Assert.IsTrue(populatedAnonymousOrdersPvl[2]!.IsEmpty);
+        Assert.AreEqual(OrdersCount - 1, populatedAnonymousOrdersPvl.OrdersCount);
+        Assert.IsFalse(populatedAnonymousOrdersPvl[1].IsEmpty);
+        populatedAnonymousOrdersPvl.RemoveAt(10);
+        Assert.AreEqual(10u, populatedAnonymousOrdersPvl.OrdersCount);
     }
 
     [TestMethod]
@@ -1086,7 +1101,6 @@ public class PQOrdersPriceVolumeLayerTests
         populatedAnonymousOrdersPvl.Add(exampleAnonymousOrderLayer.Clone());
         Assert.AreEqual(1u, populatedAnonymousOrdersPvl.OrdersCount);
     }
-
 
     [TestMethod]
     public void EmptyAndPopulatedPvl_IsEmpty_ReturnsAsExpected()
@@ -1111,7 +1125,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.IsTrue(populatedCounterPartyOrdersPvl.IsInternalVolumeUpdated);
         for (var i = 0; i < NumOfOrders; i++)
         {
-            var checkOrderLayer = populatedCounterPartyOrdersPvl[i]!;
+            var checkOrderLayer = populatedCounterPartyOrdersPvl[i];
             Assert.AreNotEqual(0, checkOrderLayer.OrderId);
             Assert.AreNotEqual(OrderGenesisFlags.None, checkOrderLayer.GenesisFlags);
             Assert.AreNotEqual(DateTime.MinValue, checkOrderLayer.CreatedTime);
@@ -1152,7 +1166,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.IsTrue(populatedCounterPartyOrdersPvl.IsInternalVolumeUpdated);
         for (var i = 0; i < NumOfOrders; i++)
         {
-            var checkOrderLayer = populatedCounterPartyOrdersPvl[i]!;
+            var checkOrderLayer = populatedCounterPartyOrdersPvl[i];
             Assert.AreEqual(0, checkOrderLayer.OrderId);
             Assert.AreEqual(checkOrderLayer.EmptyIgnoreGenesisFlags, checkOrderLayer.GenesisFlags);
             Assert.AreEqual(DateTime.MinValue, checkOrderLayer.CreatedTime);
@@ -1310,35 +1324,35 @@ public class PQOrdersPriceVolumeLayerTests
         var clonePopulated = populatedAnonymousOrdersPvl.Clone();
         for (var i = 0; i < clonePopulated.OrdersCount; i++)
         {
-            clonePopulated[i]!.OrderId            = i;
-            clonePopulated[i]!.OrderDisplayVolume = 50 * i;
+            clonePopulated[i].OrderId            = i;
+            clonePopulated[i].OrderDisplayVolume = 50 * i;
         }
 
-        clonePopulated[1]!.IsOrderIdUpdated = false;
+        clonePopulated[1].IsOrderIdUpdated = false;
 
         populatedAnonymousOrdersPvl.HasUpdates = false;
         populatedAnonymousOrdersPvl.CopyFrom(clonePopulated);
 
-        Assert.AreEqual(0, populatedAnonymousOrdersPvl[0]!.OrderId);
-        Assert.AreEqual(0, populatedAnonymousOrdersPvl[0]!.OrderDisplayVolume);
-        Assert.IsTrue(populatedAnonymousOrdersPvl[0]!.IsOrderIdUpdated);
-        Assert.IsTrue(populatedAnonymousOrdersPvl[0]!.IsOrderVolumeUpdated);
+        Assert.AreEqual(0, populatedAnonymousOrdersPvl[0].OrderId);
+        Assert.AreEqual(0, populatedAnonymousOrdersPvl[0].OrderDisplayVolume);
+        Assert.IsTrue(populatedAnonymousOrdersPvl[0].IsOrderIdUpdated);
+        Assert.IsTrue(populatedAnonymousOrdersPvl[0].IsOrderVolumeUpdated);
 
-        Assert.AreEqual(251, populatedAnonymousOrdersPvl[1]!.OrderId);
-        Assert.AreEqual(50, populatedAnonymousOrdersPvl[1]!.OrderDisplayVolume);
-        Assert.IsFalse(populatedAnonymousOrdersPvl[1]!.IsOrderIdUpdated);
-        Assert.IsTrue(populatedAnonymousOrdersPvl[1]!.IsOrderVolumeUpdated);
+        Assert.AreEqual(251, populatedAnonymousOrdersPvl[1].OrderId);
+        Assert.AreEqual(50, populatedAnonymousOrdersPvl[1].OrderDisplayVolume);
+        Assert.IsFalse(populatedAnonymousOrdersPvl[1].IsOrderIdUpdated);
+        Assert.IsTrue(populatedAnonymousOrdersPvl[1].IsOrderVolumeUpdated);
 
-        Assert.AreEqual(2, populatedAnonymousOrdersPvl[2]!.OrderId);
-        Assert.AreEqual(100, populatedAnonymousOrdersPvl[2]!.OrderDisplayVolume);
-        Assert.IsTrue(populatedAnonymousOrdersPvl[2]!.IsOrderIdUpdated);
-        Assert.IsTrue(populatedAnonymousOrdersPvl[2]!.IsOrderVolumeUpdated);
+        Assert.AreEqual(2, populatedAnonymousOrdersPvl[2].OrderId);
+        Assert.AreEqual(100, populatedAnonymousOrdersPvl[2].OrderDisplayVolume);
+        Assert.IsTrue(populatedAnonymousOrdersPvl[2].IsOrderIdUpdated);
+        Assert.IsTrue(populatedAnonymousOrdersPvl[2].IsOrderVolumeUpdated);
     }
 
     [TestMethod]
     public void EmptyPvl_Construction_SetsTraderNameIdLookupWhenNullOrSameAsInfo()
     {
-        Assert.AreEqual(populatedCounterPartyOrdersPvl.Orders.Count * 2, nameIdLookup.Count);
+        Assert.AreEqual(populatedCounterPartyOrdersPvl.Orders.Count * 2 + 2, nameIdLookup.Count);
 
         var newEmpty = new PQOrdersPriceVolumeLayer(emptyNameIdLookup, LayerType.OrdersFullPriceVolume);
         Assert.AreEqual(0, newEmpty.NameIdLookup.Count);
@@ -1348,7 +1362,7 @@ public class PQOrdersPriceVolumeLayerTests
     [TestMethod]
     public void EmptyPvlMissingLookup_Construction_SetsNameIdLookupWhenNullOrSameAsInfo()
     {
-        Assert.AreEqual(NumOfOrders * 2, nameIdLookup.Count);
+        Assert.AreEqual(NumOfOrders * 2 + 2, nameIdLookup.Count);
 
         var moqSrcTkrQuoteInfo = new Mock<IPQSourceTickerInfo>();
         moqSrcTkrQuoteInfo.SetupGet(stqi => stqi.NameIdLookup).Returns(emptyNameIdLookup);
@@ -1430,9 +1444,10 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.IsTrue(toString.Contains($"{nameof(populatedCounterPartyOrdersPvl.Volume)}: {populatedCounterPartyOrdersPvl.Volume:N2}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedCounterPartyOrdersPvl.OrdersCount)}: {populatedCounterPartyOrdersPvl.OrdersCount}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedCounterPartyOrdersPvl.InternalVolume)}: {populatedCounterPartyOrdersPvl.InternalVolume:N2}"));
+        Assert.IsTrue(toString.Contains($"{nameof(populatedCounterPartyOrdersPvl.MaxAllowedSize)}: {populatedCounterPartyOrdersPvl.MaxAllowedSize:N0}"));
         Assert.IsTrue(toString.Contains("Orders: ["));
         for (var i = 0; i < populatedCounterPartyOrdersPvl.OrdersCount; i++)
-            Assert.IsTrue(toString.Contains(populatedCounterPartyOrdersPvl[i]!.ToString()!));
+            Assert.IsTrue(toString.Contains(populatedCounterPartyOrdersPvl[i].ToString()!));
     }
 
     [TestMethod]
@@ -1440,17 +1455,1285 @@ public class PQOrdersPriceVolumeLayerTests
     {
         // ReSharper disable SuspiciousTypeConversion.Global
         Assert.AreEqual(OrdersCount, populatedCounterPartyOrdersPvl.OrdersCount);
-        Assert.AreEqual(NumOfOrders, ((IEnumerable<IPQAnonymousOrder>)populatedCounterPartyOrdersPvl.Orders).Count());
+        Assert.AreEqual(NumOfOrders, ((IEnumerable<IPQAnonymousOrder>)populatedCounterPartyOrdersPvl).Count());
         Assert.AreEqual(NumOfOrders, ((IEnumerable<IMutableAnonymousOrder>)populatedCounterPartyOrdersPvl.Orders).Count());
         Assert.AreEqual(NumOfOrders, ((IEnumerable<IAnonymousOrder>)populatedCounterPartyOrdersPvl.Orders).Count());
 
         populatedCounterPartyOrdersPvl.StateReset();
 
         Assert.AreEqual(0u, populatedCounterPartyOrdersPvl.OrdersCount);
-        Assert.AreEqual(0, ((IEnumerable<IPQAnonymousOrder>)populatedCounterPartyOrdersPvl.Orders).Count(tli => !tli.IsEmpty));
+        Assert.AreEqual(0, ((IEnumerable<IPQAnonymousOrder>)populatedCounterPartyOrdersPvl).Count(tli => !tli.IsEmpty));
         Assert.AreEqual(0, ((IEnumerable<IMutableAnonymousOrder>)populatedCounterPartyOrdersPvl.Orders).Count(tli => !tli.IsEmpty));
         Assert.AreEqual(0, ((IEnumerable<IAnonymousOrder>)populatedCounterPartyOrdersPvl.Orders).Count(tli => !tli.IsEmpty));
         // ReSharper restore SuspiciousTypeConversion.Global
+    }
+
+    [TestMethod]
+    public void PopulatedOrdersLayer_SmallerToLargerCalculateShifts_ShiftRightCommandsExpected()
+    {
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        int[]             expectedIndices = [0, 2, 5, 9];
+        IAnonymousOrder[] instances       = new IAnonymousOrder[10];
+
+        int oldIndex    = 0;                   // original    0,1,2,3,4,5,6,7,8,9,10,11
+        int actualIndex = 0;                   // deleted     1,3,4,6,7,8,10,11 
+        var count       = toShift.Count;       // leaving     0,2,5,9
+        for (var i = 0; oldIndex < count; i++) // shifts at   (2,3),(1,2)(0,1)
+        {
+            Console.Out.WriteLine($"Leaving index {oldIndex} with OrderId {toShift[actualIndex].OrderId}");
+            instances[oldIndex] = toShift[actualIndex];
+            oldIndex++;
+            actualIndex++;
+            for (var j = i + 1; j < 2 + 2 * i && oldIndex < count; j++)
+            {
+                Console.Out.WriteLine($"Deleting index {oldIndex} with OrderId {toShift[actualIndex].OrderId}");
+                toShift.RemoveAt(actualIndex);
+                oldIndex++;
+            }
+        }
+
+        toShift.ShiftCommands = new List<ListShiftCommand>();
+
+        var shiftedNext = populatedCounterPartyOrdersPvl.Clone();
+        toShift.CalculateShift(testDateTime, shiftedNext);
+
+        Assert.AreEqual(3, toShift.ShiftCommands.Count);
+        AssertExpectedShiftCommands();
+
+        void AssertExpectedShiftCommands()
+        {
+            for (int i = 0; i < toShift.ShiftCommands.Count; i++)
+            {
+                var shift = toShift.ShiftCommands[i];
+                switch (i)
+                {
+                    case 0:
+                        Assert.AreEqual(2, shift.PinnedFromIndex);
+                        Assert.AreEqual(3, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 1:
+                        Assert.AreEqual(1, shift.PinnedFromIndex);
+                        Assert.AreEqual(2, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 2:
+                        Assert.AreEqual(0, shift.PinnedFromIndex);
+                        Assert.AreEqual(1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                }
+            }
+        }
+
+        foreach (var shiftElementShift in toShift.ShiftCommands)
+        {
+            toShift.ApplyListShiftCommand(shiftElementShift);
+        }
+        foreach (var expectedIndex in expectedIndices)
+        {
+            Assert.AreEqual(populatedCounterPartyOrdersPvl[expectedIndex], toShift[expectedIndex]);
+            Assert.AreSame(instances[expectedIndex], toShift[expectedIndex]);
+        }
+    }
+
+    [TestMethod]
+    public void PopulatedOrdersLayer_SmallerToLargerCalculateShiftsWithElementMovedToStart_ShiftRightCommandsExpected()
+    {
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        int[]             expectedIndices = [0, 2, 4, 6, 7, 8, 10];
+        IAnonymousOrder[] instances       = new IAnonymousOrder[11];
+
+
+        int oldIndex    = 0;                   // original    0,1,2,3,4,5,6,7,8,9,10,11        
+        int actualIndex = 0;                   // deleted     1,3,5,9,11         
+        var count       = toShift.Count;       // leaving     7,0,2,4,6,8,10        
+        for (var i = 0; oldIndex < count; i++) // shifts at   (6,1),(5,1),(4,1),(3,1)(2,1)(1,1)(0,1)
+        {
+            if (i % 2 == 1 && i != 7)
+            {
+                Console.Out.WriteLine($"Deleting index {oldIndex} with OrderId {toShift[actualIndex].OrderId}");
+                toShift.RemoveAt(actualIndex);
+                oldIndex++;
+            }
+            else if (i == 7)
+            {
+                Console.Out.WriteLine($"Moving index {oldIndex} with OrderId {toShift[actualIndex].OrderId} to Start");
+                instances[oldIndex] = toShift[actualIndex];
+                toShift.MoveToStart(actualIndex);
+                oldIndex++;
+                actualIndex++;
+            }
+            else
+            {
+                Console.Out.WriteLine($"Leaving index {oldIndex} with OrderId {toShift[actualIndex].OrderId}");
+                instances[oldIndex] = toShift[actualIndex];
+                oldIndex++;
+                actualIndex++;
+            }
+        }
+
+        toShift.ShiftCommands = new List<ListShiftCommand>();
+
+        var shiftedNext = populatedCounterPartyOrdersPvl.Clone();
+        toShift.CalculateShift(testDateTime, shiftedNext);
+
+        Console.Out.WriteLine($"{toShift.ShiftCommands.JoinShiftCommandsOnNewLine()}");
+        Assert.AreEqual(6, toShift.ShiftCommands.Count);
+        AssertExpectedShiftCommands();
+
+        void AssertExpectedShiftCommands()
+        {
+            for (int i = 0; i < toShift.ShiftCommands.Count; i++)
+            {
+                var shift = toShift.ShiftCommands[i];
+                Console.Out.WriteLine($"shift: {shift}");
+                switch (i)
+                {
+                    case 0:
+                        Assert.AreEqual(5, shift.PinnedFromIndex);
+                        Assert.AreEqual(1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 1:
+                        Assert.AreEqual(4, shift.PinnedFromIndex);
+                        Assert.AreEqual(1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 2:
+                        Assert.AreEqual(3, shift.PinnedFromIndex);
+                        Assert.AreEqual(1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 3:
+                        Assert.AreEqual(2, shift.PinnedFromIndex);
+                        Assert.AreEqual(1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 4:
+                        Assert.AreEqual(1, shift.PinnedFromIndex);
+                        Assert.AreEqual(0, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.MoveSingleElement | ListShiftCommandType.InsertElementsRange, shift.ShiftCommandType);
+                        break;
+                    case 5:
+                        Assert.AreEqual(1, shift.PinnedFromIndex);
+                        Assert.AreEqual(7, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.MoveSingleElement | ListShiftCommandType.InsertElementsRange, shift.ShiftCommandType);
+                        break;
+                }
+            }
+        }
+
+        foreach (var shiftElementShift in toShift.ShiftCommands)
+        {
+            toShift.ApplyListShiftCommand(shiftElementShift);
+        }
+        for (int i = 0; i < expectedIndices.Length; i++)
+        {
+            Assert.AreEqual(populatedCounterPartyOrdersPvl[expectedIndices[i]], toShift[expectedIndices[i]]);
+            Assert.AreSame(instances[expectedIndices[i]], toShift[expectedIndices[i]]);
+        }
+    }
+
+    [TestMethod]
+    public void PopulatedOrdersLayer_LargerToSmallerCalculateShiftsWithNewEntryInMiddle_CalculateShiftLeftCommandsReturnsExpected()
+    {
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        var count       = toShift.Count;    // original    0,1,2,3,4,5,6,7,8,9,10,11
+        int oldIndex    = count - 1;        // deleted     0,1,3,4,5,7,8,10                         
+        int actualIndex = oldIndex;         // leaving     2,6,{new entry}, 9,11                     
+        for (var i = 0; oldIndex >= 0; i++) // shifts at   (-1,-2),(0,-3), {new entry} ,(2,-1),(3,-1)
+        {
+            Console.Out.WriteLine($"Leaving index {oldIndex} with OrderId {toShift[actualIndex].OrderId}");
+            oldIndex--;
+            actualIndex--;
+            for (var j = i + 1; j < 2 + 2 * i && oldIndex >= 0; j++)
+            {
+                Console.Out.WriteLine($"Deleting index {oldIndex} with OrderId {toShift[actualIndex].OrderId}");
+                toShift.RemoveAt(actualIndex--);
+                oldIndex--;
+            }
+        }
+
+        var newEntry = exampleCounterPartyAnonymousOrder.Clone();
+
+        toShift.InsertAt(2, newEntry);
+
+        toShift.ShiftCommands = new List<ListShiftCommand>();
+
+        var shiftedNext = populatedCounterPartyOrdersPvl.Clone();
+
+        int[] expectedIndices = [0, 1, 3, 4];
+
+        IAnonymousOrder[] instances = new IAnonymousOrder[5];
+
+        instances[expectedIndices[0]] = shiftedNext[2];
+        instances[expectedIndices[1]] = shiftedNext[6];
+        instances[expectedIndices[2]] = shiftedNext[9];
+        instances[expectedIndices[3]] = shiftedNext[11];
+        shiftedNext.CalculateShift(testDateTime, toShift);
+
+        Console.Out.WriteLine($"{shiftedNext.ShiftCommands.JoinShiftCommandsOnNewLine()}");
+
+        AssertExpectedShiftCommands();
+        Assert.AreEqual(4, shiftedNext.ShiftCommands.Count);
+
+        void AssertExpectedShiftCommands()
+        {
+            for (int i = 0; i < shiftedNext.ShiftCommands.Count; i++)
+            {
+                var shift = shiftedNext.ShiftCommands[i];
+                Console.Out.WriteLine($"shift: {shift}");
+                switch (i)
+                {
+                    case 0:
+                        Assert.AreEqual(-1, shift.PinnedFromIndex);
+                        Assert.AreEqual(-2, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsTowardPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 1:
+                        Assert.AreEqual(0, shift.PinnedFromIndex);
+                        Assert.AreEqual(-3, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsTowardPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 2:
+                        Assert.AreEqual(2, shift.PinnedFromIndex);
+                        Assert.AreEqual(-1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsTowardPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 3:
+                        Assert.AreEqual(3, shift.PinnedFromIndex);
+                        Assert.AreEqual(-1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsTowardPinnedIndex, shift.ShiftCommandType);
+                        break;
+                }
+            }
+        }
+
+        foreach (var shiftElementShift in shiftedNext.ShiftCommands)
+        {
+            shiftedNext.ApplyListShiftCommand(shiftElementShift);
+        }
+
+        foreach (var expectedIndex in expectedIndices)
+        {
+            Assert.AreEqual(toShift[expectedIndex], shiftedNext[expectedIndex]);
+            Assert.AreSame(instances[expectedIndex], shiftedNext[expectedIndex]);
+        }
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrdersLayer_ClearAfterMidElement_ListIsReducedByHalf()
+    {
+        var halfListSize = NumOfOrders / 2;
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        toShift.ClearRemainingElementsFromIndex = halfListSize;
+
+        for (int i = 0; i < halfListSize; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i]);
+        }
+        for (int i = halfListSize; i < populatedCounterPartyOrdersPvl.Count; i++)
+        {
+            Assert.IsTrue(toShift[i].IsEmpty);
+        }
+        Assert.AreEqual(populatedCounterPartyOrdersPvl.Count, toShift.Count + halfListSize);
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrdersLayer_InsertNewElementAtStart_RemainingElementsShiftRightByOne()
+    {
+        var newAnonOrder = exampleCounterPartyAnonymousOrder.Clone();
+
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        toShift.InsertAtStart(newAnonOrder);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i + 1;
+            var prevIndex  = i;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(0, toShift.IndexOf(newAnonOrder));
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrdersLayer_DeleteMiddleElement_RemainingElementsShiftLeftByOne()
+    {
+        var midIndex = NumOfOrders / 2 + 1;
+
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        var middleElement = toShift[midIndex];
+
+        toShift.DeleteAt(midIndex);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i < midIndex ? i : i + 1;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(populatedCounterPartyOrdersPvl.Count, toShift.Count + 1);
+
+
+        toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        toShift.Delete(middleElement);
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i < midIndex ? i : i + 1;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(populatedCounterPartyOrdersPvl.Count, toShift.Count + 1);
+
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(NumOfOrders - 1, shiftViaDeltaUpdates.Count);
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(NumOfOrders - 1, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedMaxAllowedSizeReachedOrdersLayer_InsertNewElementAtStart_RemainingElementsShiftRightExceptLastIsRemoved()
+    {
+        var newAnonOrder = exampleCounterPartyAnonymousOrder.Clone();
+
+        populatedCounterPartyOrdersPvl.MaxAllowedSize = NumOfOrders;
+        populatedCounterPartyOrdersPvl.HasUpdates     = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        toShift.InsertAtStart(newAnonOrder);
+
+        for (int i = 1; i < toShift.Count; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i - 1;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.AreEqual(0, toShift.IndexOf(newAnonOrder));
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrdersLayer_InsertNewElementAtEnd_NewElementAppearsAtTheEnd()
+    {
+        var newAnonOrder = exampleCounterPartyAnonymousOrder.Clone();
+
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        toShift.AppendAtEnd(newAnonOrder);
+
+        for (int i = 0; i < toShift.Count - 1; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(NumOfOrders + 1, toShift.Count);
+        Assert.AreEqual(toShift.Count - 1, toShift.IndexOf(newAnonOrder));
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(NumOfOrders + 1, toShift.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedMaxAllowedSizeReachOrdersLayer_AttemptInsertNewElementAtEnd_ReturnsFalseAndNoElementIsAdded()
+    {
+        var newAnonOrder = exampleCounterPartyAnonymousOrder.Clone();
+
+        populatedCounterPartyOrdersPvl.HasUpdates     = false;
+        populatedCounterPartyOrdersPvl.MaxAllowedSize = NumOfOrders;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        var result = toShift.AppendAtEnd(newAnonOrder);
+
+        Assert.IsFalse(result);
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.AreEqual(populatedCounterPartyOrdersPvl[^1], toShift[^1]);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrdersLayer_MoveMiddleToStart_FormerMiddleElementIsAtStart()
+    {
+        var midIndex = NumOfOrders / 2 + 1;
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        var middleElement = toShift[midIndex];
+
+        toShift.MoveToStart(midIndex);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i == midIndex ? 0 : i < midIndex ? i + 1 : i;
+            var prevIndex  = i;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(0, toShift.IndexOf(middleElement));
+
+        toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        middleElement = toShift[midIndex];
+
+        toShift.MoveToStart(middleElement);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i == midIndex ? 0 : i < midIndex ? i + 1 : i;
+            var prevIndex  = i;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(0, toShift.IndexOf(middleElement));
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedMaxAllowedSizeReachedOrdersLayer_MoveMiddleToStart_FormerMiddleElementIsAtStart()
+    {
+        var midIndex = NumOfOrders / 2 + 1;
+        populatedCounterPartyOrdersPvl.HasUpdates     = false;
+        populatedCounterPartyOrdersPvl.MaxAllowedSize = NumOfOrders;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        var middleElement = toShift[midIndex];
+
+        toShift.MoveToStart(midIndex);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i == midIndex ? 0 : i < midIndex ? i + 1 : i;
+            var prevIndex  = i;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.AreEqual(0, toShift.IndexOf(middleElement));
+
+        toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        middleElement = toShift[midIndex];
+
+        toShift.MoveToStart(middleElement);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i == midIndex ? 0 : i < midIndex ? i + 1 : i;
+            var prevIndex  = i;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.AreEqual(0, toShift.IndexOf(middleElement));
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(NumOfOrders, shiftViaDeltaUpdates.Count);
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(NumOfOrders, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrdersLayer_MoveMiddleToEnd_FormerMiddleElementIsAtTheEnd()
+    {
+        var midIndex = NumOfOrders / 2 + 1;
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        var middleElement = toShift[midIndex];
+
+        toShift.MoveToEnd(midIndex);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i < midIndex ? i : i == toShift.Count - 1 ? midIndex : i + 1;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(toShift.Count - 1, toShift.IndexOf(middleElement));
+
+        toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        middleElement = toShift[midIndex];
+
+        toShift.MoveToEnd(middleElement);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i < midIndex ? i : i == toShift.Count - 1 ? midIndex : i + 1;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(toShift.Count - 1, toShift.IndexOf(middleElement));
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedMaxAllowedSizeReachedOrdersLayer_MoveMiddleToEnd_FormerMiddleElementIsAtTheEnd()
+    {
+        var midIndex = NumOfOrders / 2 + 1;
+        populatedCounterPartyOrdersPvl.HasUpdates     = false;
+        populatedCounterPartyOrdersPvl.MaxAllowedSize = NumOfOrders;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        var middleElement = toShift[midIndex];
+
+        toShift.MoveToEnd(midIndex);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i < midIndex ? i : i == toShift.Count - 1 ? midIndex : i + 1;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.AreEqual(toShift.Count - 1, toShift.IndexOf(middleElement));
+
+        toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        middleElement = toShift[midIndex];
+
+        toShift.MoveToEnd(middleElement);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i < midIndex ? i : i == toShift.Count - 1 ? midIndex : i + 1;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.AreEqual(toShift.Count - 1, toShift.IndexOf(middleElement));
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrdersLayer_MoveMiddleRightByTwoPlaces_FormerMiddleElementIsIndexPlus2()
+    {
+        var midIndex = NumOfOrders / 2 + 1;
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        var middleElement = toShift[midIndex];
+        var shiftAmount   = 2;
+
+        toShift.MoveSingleElementBy(midIndex, shiftAmount);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i < midIndex ? i : i < midIndex + shiftAmount ? i + 1 : i == midIndex + shiftAmount ? midIndex : i;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
+
+        toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        middleElement = toShift[midIndex];
+
+        toShift.MoveSingleElementBy(middleElement, shiftAmount);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i < midIndex ? i : i < midIndex + shiftAmount ? i + 1 : i == midIndex + shiftAmount ? midIndex : i;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedMaxAllowedSizeReachedOrdersLayer_MoveMiddleRightByTwoPlaces_FormerMiddleElementIsIndexPlus2()
+    {
+        var midIndex = NumOfOrders / 2 + 1;
+        populatedCounterPartyOrdersPvl.HasUpdates     = false;
+        populatedCounterPartyOrdersPvl.MaxAllowedSize = NumOfOrders;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        var middleElement = toShift[midIndex];
+        var shiftAmount   = 2;
+
+        toShift.MoveSingleElementBy(midIndex, shiftAmount);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i < midIndex ? i : i < midIndex + shiftAmount ? i + 1 : i == midIndex + shiftAmount ? midIndex : i;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
+
+        toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        middleElement = toShift[midIndex];
+
+        toShift.MoveSingleElementBy(middleElement, shiftAmount);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i;
+            var prevIndex  = i < midIndex ? i : i < midIndex + shiftAmount ? i + 1 : i == midIndex + shiftAmount ? midIndex : i;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrdersLayer_MoveMiddleLeftByTwoPlaces_FormerMiddleElementIsIndexPlus2()
+    {
+        var midIndex = NumOfOrders / 2 + 1;
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        var middleElement = toShift[midIndex];
+        var shiftAmount   = -2;
+
+        toShift.MoveSingleElementBy(midIndex, shiftAmount);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i < midIndex + shiftAmount ? i : i < midIndex ? i + 1 : i == midIndex ? midIndex + shiftAmount : i;
+            var prevIndex  = i;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
+
+        toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        middleElement = toShift[midIndex];
+
+        toShift.MoveSingleElementBy(middleElement, shiftAmount);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i < midIndex + shiftAmount ? i : i < midIndex ? i + 1 : i == midIndex ? midIndex + shiftAmount : i;
+            var prevIndex  = i;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedMaxAllowedSizeReachedRecentlyTraded_MoveMiddleLeftByTwoPlaces_FormerMiddleElementIsIndexPlus2()
+    {
+        var midIndex = NumOfOrders / 2 + 1;
+        populatedCounterPartyOrdersPvl.HasUpdates     = false;
+        populatedCounterPartyOrdersPvl.MaxAllowedSize = NumOfOrders;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        var middleElement = toShift[midIndex];
+        var shiftAmount   = -2;
+
+        toShift.MoveSingleElementBy(midIndex, shiftAmount);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i < midIndex + shiftAmount ? i : i < midIndex ? i + 1 : i == midIndex ? midIndex + shiftAmount : i;
+            var prevIndex  = i;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
+
+        toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        middleElement = toShift[midIndex];
+
+        toShift.MoveSingleElementBy(middleElement, shiftAmount);
+
+        for (int i = 0; i < toShift.Count; i++)
+        {
+            var shiftIndex = i < midIndex + shiftAmount ? i : i < midIndex ? i + 1 : i == midIndex ? midIndex + shiftAmount : i;
+            var prevIndex  = i;
+            Assert.AreEqual(toShift[shiftIndex], populatedCounterPartyOrdersPvl[prevIndex]);
+        }
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(NumOfOrders, shiftViaDeltaUpdates.Count);
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(NumOfOrders, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrdersLayer_ShiftLeftFromMiddleByOne_DeletesEntryFirstEntryCreatesEmptyOneBelowPinIndex()
+    {
+        var pinAt = NumOfOrders / 2 + 1;
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        toShift.ShiftElementsFrom(-1, pinAt);
+
+        for (int i = 0; i < pinAt - 1; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i + 1]);
+        }
+        Assert.IsTrue(toShift[pinAt - 1].IsEmpty);
+        for (int i = pinAt; i < toShift.Count; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i]);
+        }
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedMaxAllowedSizeReachedOrdersLayer_ShiftLeftFromMiddleByOne_DeletesEntryFirstEntryCreatesEmptyOneBelowPinIndex()
+    {
+        var pinAt = NumOfOrders / 2 + 1;
+        populatedCounterPartyOrdersPvl.HasUpdates     = false;
+        populatedCounterPartyOrdersPvl.MaxAllowedSize = NumOfOrders;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        toShift.ShiftElementsFrom(-1, pinAt);
+
+        for (int i = 0; i < pinAt - 1; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i + 1]);
+        }
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.IsTrue(toShift[pinAt - 1].IsEmpty);
+        for (int i = pinAt; i < toShift.Count; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i]);
+        }
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(NumOfOrders, shiftViaDeltaUpdates.Count);
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(NumOfOrders, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrdersLayer_ShiftRightFromMiddleByOne_CreatesEmptyOneAbovePinIndexAndExtendsList()
+    {
+        var pinAt = NumOfOrders / 2 - 1;
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        toShift.ShiftElementsFrom(1, pinAt);
+
+        for (int i = pinAt + 2; i < toShift.Count; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i - 1]);
+        }
+        Assert.IsTrue(toShift[pinAt + 1].IsEmpty);
+        for (int i = 0; i < pinAt; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i]);
+        }
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedMaxAllowedSizeReachedOrdersLayer_ShiftRightFromMiddleByOne_CreatesEmptyOneAbovePinIndexAndDeletesLastEntry()
+    {
+        var pinAt = NumOfOrders / 2 - 1;
+        populatedCounterPartyOrdersPvl.HasUpdates     = false;
+        populatedCounterPartyOrdersPvl.MaxAllowedSize = NumOfOrders;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        toShift.ShiftElementsFrom(1, pinAt);
+
+        for (int i = pinAt + 2; i < toShift.Count; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i - 1]);
+        }
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.IsTrue(toShift[pinAt + 1].IsEmpty);
+        for (int i = 0; i < pinAt; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i]);
+        }
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(NumOfOrders, shiftViaDeltaUpdates.Count);
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(NumOfOrders, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrdersLayers_ShiftLeftTowardMiddleByOne_DeletesPreMiddleEntryCreatesEmptyAtEnd()
+    {
+        var pinAt = NumOfOrders / 2 + 1;
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        toShift.ShiftElementsUntil(-1, pinAt);
+
+        for (int i = pinAt + 1; i < toShift.Count; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i + 1]);
+        }
+        Assert.AreEqual(NumOfOrders - 1, toShift.Count);
+        Assert.IsTrue(toShift[populatedCounterPartyOrdersPvl.Count - 1].IsEmpty);
+        for (int i = 0; i < pinAt; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i]);
+        }
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(NumOfOrders - 1, shiftViaDeltaUpdates.Count);
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(NumOfOrders - 1, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedCacheMaxAllowedSizeReachedOrdersLayer_ShiftLeftTowardMiddleByOne_DeletesPreMiddleEntryCreatesEmptyAtEnd()
+    {
+        var pinAt = NumOfOrders / 2 + 1;
+        populatedCounterPartyOrdersPvl.HasUpdates     = false;
+        populatedCounterPartyOrdersPvl.MaxAllowedSize = NumOfOrders;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        toShift.ShiftElementsUntil(-1, pinAt);
+
+        for (int i = pinAt + 1; i < toShift.Count; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i + 1]);
+        }
+        Assert.AreEqual(NumOfOrders, toShift.Count + 1);
+        Assert.IsTrue(toShift[populatedCounterPartyOrdersPvl.Count - 1].IsEmpty);
+        for (int i = 0; i < pinAt; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i]);
+        }
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(NumOfOrders, shiftViaDeltaUpdates.Count + 1);
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(NumOfOrders, shiftCopyFrom.Count + 1);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrdersLayer_ShiftRightTowardMiddleByOne_CreatesEmptyAtStartDeletesPreMiddleEntry()
+    {
+        var pinAt = NumOfOrders / 2 - 1;
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        toShift.ShiftElementsUntil(1, pinAt);
+
+        for (int i = 1; i < pinAt; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i - 1]);
+        }
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.IsTrue(toShift[0].IsEmpty);
+        for (int i = pinAt; i < toShift.Count; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i]);
+        }
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(NumOfOrders, shiftViaDeltaUpdates.Count);
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(NumOfOrders, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedMaxAllowedSizeReachedOrdersLayer_ShiftRightTowardMiddleByOne_CreatesEmptyAtStartDeletesPreMiddleEntry()
+    {
+        var pinAt = NumOfOrders / 2 - 1;
+        populatedCounterPartyOrdersPvl.HasUpdates     = false;
+        populatedCounterPartyOrdersPvl.MaxAllowedSize = NumOfOrders;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        toShift.ShiftElementsUntil(1, pinAt);
+
+        for (int i = 1; i < pinAt; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i - 1]);
+        }
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.IsTrue(toShift[0].IsEmpty);
+        for (int i = pinAt; i < toShift.Count; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i]);
+        }
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(NumOfOrders, shiftViaDeltaUpdates.Count);
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(NumOfOrders, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrdersLayer_ShiftLeftFromEndByHalfListSize_CreatesEmptyAtEndAndShortensListByHalf()
+    {
+        var halfListSize = NumOfOrders / 2;
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        toShift.ShiftElementsFrom(-halfListSize, short.MaxValue);
+
+        for (int i = 0; i < halfListSize; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i + halfListSize]);
+        }
+        Assert.AreEqual(halfListSize, toShift.Count);
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(halfListSize, shiftViaDeltaUpdates.Count);
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(halfListSize, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedMaxAllowedSizeReachedOrdersLayer_ShiftLeftFromEndByHalfListSize_CreatesEmptyAtEndAndShortensListByHalf()
+    {
+        var halfListSize = NumOfOrders / 2;
+        populatedCounterPartyOrdersPvl.HasUpdates     = false;
+        populatedCounterPartyOrdersPvl.MaxAllowedSize = NumOfOrders;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        toShift.ShiftElementsFrom(-halfListSize, short.MaxValue);
+
+        for (int i = 0; i < halfListSize; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i + halfListSize]);
+        }
+        Assert.AreEqual(halfListSize, toShift.Count);
+        Assert.AreEqual(populatedCounterPartyOrdersPvl.Count, toShift.Count + halfListSize);
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(halfListSize, shiftViaDeltaUpdates.Count);
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(halfListSize, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeOrdersLayer_ShiftRightFromStart_CreatesEmptyAtStartAndExtendsListByHalf()
+    {
+        var halfListSize = NumOfOrders / 2;
+        populatedCounterPartyOrdersPvl.HasUpdates = false;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        toShift.ShiftElementsFrom(halfListSize, short.MinValue);
+
+        for (int i = halfListSize; i < toShift.Count; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i - halfListSize]);
+        }
+        Assert.AreEqual(NumOfOrders + halfListSize, toShift.Count);
+        for (int i = 0; i < halfListSize; i++)
+        {
+            Assert.IsTrue(toShift[i].IsEmpty);
+        }
+        Assert.AreEqual(populatedCounterPartyOrdersPvl.Count, toShift.Count - halfListSize);
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(NumOfOrders + halfListSize, shiftViaDeltaUpdates.Count);
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(NumOfOrders + halfListSize, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedMaxAllowedSizeReachedOrdersLayer_ShiftRightFromStartByHalfList_CreatesEmptyItemsAtStartAndTruncatesLastHalfOfOrders()
+    {
+        var halfListSize = NumOfOrders / 2;
+        populatedCounterPartyOrdersPvl.HasUpdates     = false;
+        populatedCounterPartyOrdersPvl.MaxAllowedSize = NumOfOrders;
+        var toShift = populatedCounterPartyOrdersPvl.Clone();
+        Assert.AreEqual(populatedCounterPartyOrdersPvl, toShift);
+
+        toShift.ShiftElementsFrom(halfListSize, short.MinValue);
+
+        for (int i = halfListSize; i < toShift.Count; i++)
+        {
+            Assert.AreEqual(toShift[i], populatedCounterPartyOrdersPvl[i - halfListSize]);
+        }
+        for (int i = 0; i < halfListSize; i++)
+        {
+            Assert.IsTrue(toShift[i].IsEmpty);
+        }
+        Assert.AreEqual(NumOfOrders, toShift.Count);
+        Assert.AreEqual(populatedCounterPartyOrdersPvl.Count, toShift.Count);
+
+        var shiftViaDeltaUpdates = populatedCounterPartyOrdersPvl.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(NumOfOrders, shiftViaDeltaUpdates.Count);
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(NumOfOrders, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     public static void AssertContainsAllPvlFields
@@ -1458,12 +2741,11 @@ public class PQOrdersPriceVolumeLayerTests
         PQFieldFlags priceScale = (PQFieldFlags)1, PQFieldFlags volumeScale = (PQFieldFlags)6)
     {
         PQOrdersCountPriceVolumeLayerTests.AssertContainsAllPvlFields(checkFieldUpdates, pvl, bookIndex, priceScale, volumeScale);
-        var depthId      = (PQDepthKey)bookIndex;
-        var nameIdLookup = pvl.NameIdLookup;
+        var depthId = (PQDepthKey)bookIndex;
 
         for (var i = 0; i < pvl.Orders.Count; i++)
         {
-            var orderLayerInfo = pvl[i]!;
+            var orderLayerInfo = pvl[i];
 
             var value      = (uint)orderLayerInfo.OrderId;
             var orderIndex = (ushort)i;
@@ -1576,10 +2858,9 @@ public class PQOrdersPriceVolumeLayerTests
             var originalTraderInfo = original[i];
             var changingTraderInfo = changingPriceVolumeLayer[i];
 
-            Assert.AreEqual(originalTraderInfo != null, changingTraderInfo != null);
             if (originalTraderInfo is PQAnonymousOrder pqOriginalTraderInfo)
                 PQAnonymousOrderTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-                    (exactComparison, pqOriginalTraderInfo, (PQAnonymousOrder)changingTraderInfo!, original
+                    (exactComparison, pqOriginalTraderInfo, (PQAnonymousOrder)changingTraderInfo, original
                    , changingPriceVolumeLayer, originalOrderBookSide, changingOrderBookSide, originalQuote, changingQuote);
         }
     }
@@ -1592,7 +2873,7 @@ public class PQOrdersPriceVolumeLayerTests
         var updatedTime = new DateTime(2025, 4, 21, 12, 8, 59).AddMilliseconds(789).AddMicroseconds(213);
         for (var i = 0; i < numOrdersToCreate; i++)
         {
-            var anonOrderLayer = addOrdersLayers[i]!;
+            var anonOrderLayer = addOrdersLayers[i];
             anonOrderLayer.OrderId              = OrderId + i;
             anonOrderLayer.GenesisFlags         = ExpectedGenesisFlags;
             anonOrderLayer.CreatedTime          = createdTime.AddMinutes(5 * i);
@@ -1610,7 +2891,7 @@ public class PQOrdersPriceVolumeLayerTests
         var updatedTime = new DateTime(2025, 4, 21, 12, 8, 59).AddMilliseconds(789).AddMicroseconds(213);
         for (var i = 0; i < numOrdersToCreate; i++)
         {
-            var anonOrderLayer = addOrdersLayers[i]!;
+            var anonOrderLayer = addOrdersLayers[i];
             anonOrderLayer.OrderId              = OrderId + i;
             anonOrderLayer.OrderType            = ExpectedOrderType;
             anonOrderLayer.GenesisFlags         = ExpectedGenesisFlags;
@@ -1650,7 +2931,7 @@ public class PQOrdersPriceVolumeLayerTests
                 var expectedCounterPartyName = expectedValues?[i].CounterPartyName ?? $"{CounterPartyBase}_{i}";
                 var expectedTraderName       = expectedValues?[i].TraderName ?? $"{TraderNameBase}_{i}";
 
-                var checkOrderLayer = checkOrdersLayers[i]!;
+                var checkOrderLayer = checkOrdersLayers[i];
 
                 Assert.AreEqual(expectedOrderId, checkOrderLayer.OrderId);
                 Assert.AreEqual(expectedOrderFlags, checkOrderLayer.GenesisFlags);
@@ -1683,7 +2964,7 @@ public class PQOrdersPriceVolumeLayerTests
             }
             else
             {
-                var checkOrderLayer = checkOrdersLayers[i]!;
+                var checkOrderLayer = checkOrdersLayers[i];
                 Assert.AreEqual(0, checkOrderLayer.OrderId);
                 Assert.AreEqual(OrderGenesisFlags.None, checkOrderLayer.GenesisFlags);
                 Assert.AreEqual(DateTime.MinValue, checkOrderLayer.CreatedTime);

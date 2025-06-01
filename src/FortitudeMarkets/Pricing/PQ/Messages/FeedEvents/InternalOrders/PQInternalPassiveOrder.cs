@@ -141,6 +141,18 @@ public class PQInternalPassiveOrder : ReusableObject<IAnonymousOrder>, IPQIntern
         }
     }
 
+    public PQAnonymousOrderUpdatedFlags AnonymousOrderUpdatedFlags
+    {
+        get => owner.AnonymousOrderUpdatedFlags;
+        set => owner.AnonymousOrderUpdatedFlags = value;
+    }
+    
+    public  PQAdditionalInternalPassiveOrderInfoUpdatedFlags InternalPassiveOrderInfoUpdatedFlags
+    {
+        get => addInternalOrderInfo.InternalPassiveOrderInfoUpdatedFlags;
+        set => addInternalOrderInfo.InternalPassiveOrderInfoUpdatedFlags = value;
+    }
+
     public int OrderId
     {
         get => owner.OrderId;

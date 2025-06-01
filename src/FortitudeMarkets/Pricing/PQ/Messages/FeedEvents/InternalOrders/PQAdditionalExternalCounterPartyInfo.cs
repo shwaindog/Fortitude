@@ -51,6 +51,8 @@ public interface IPQAdditionalExternalCounterPartyOrderInfo : IMutableAdditional
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     bool IsExternalTraderIdUpdated { get; set; }
 
+    PQAdditionalCounterPartyInfoFlags ExternalCounterPartyUpdatedFlags { get; set; }
+
     void SetFlagsSame(IAdditionalExternalCounterPartyOrderInfo? toCopyFlags);
 
     new IPQAdditionalExternalCounterPartyOrderInfo Clone();
@@ -61,7 +63,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
 {
     protected uint SequenceId = uint.MaxValue;
 
-    protected PQAdditionalCounterPartyInfoFlags UpdatedFlags;
+    private PQAdditionalCounterPartyInfoFlags updatedFlags;
 
     private int counterPartyNameId;
 
@@ -111,6 +113,11 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
         if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) SequenceId = 0;
     }
 
+    public PQAdditionalCounterPartyInfoFlags ExternalCounterPartyUpdatedFlags
+    {
+        get => updatedFlags;
+        set => updatedFlags = value;
+    }
 
     public int ExternalCounterPartyId
     {
@@ -185,47 +192,47 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
 
     public bool IsExternalTraderNameUpdated
     {
-        get => (UpdatedFlags & PQAdditionalCounterPartyInfoFlags.ExternalTraderNameIdUpdatedFlag) > 0;
+        get => (updatedFlags & PQAdditionalCounterPartyInfoFlags.ExternalTraderNameIdUpdatedFlag) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= PQAdditionalCounterPartyInfoFlags.ExternalTraderNameIdUpdatedFlag;
+                updatedFlags |= PQAdditionalCounterPartyInfoFlags.ExternalTraderNameIdUpdatedFlag;
 
-            else if (IsExternalTraderNameUpdated) UpdatedFlags ^= PQAdditionalCounterPartyInfoFlags.ExternalTraderNameIdUpdatedFlag;
+            else if (IsExternalTraderNameUpdated) updatedFlags ^= PQAdditionalCounterPartyInfoFlags.ExternalTraderNameIdUpdatedFlag;
         }
     }
     public bool IsExternalCounterPartyNameUpdated
     {
-        get => (UpdatedFlags & PQAdditionalCounterPartyInfoFlags.ExternalCounterPartyNameIdUpdatedFlag) > 0;
+        get => (updatedFlags & PQAdditionalCounterPartyInfoFlags.ExternalCounterPartyNameIdUpdatedFlag) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= PQAdditionalCounterPartyInfoFlags.ExternalCounterPartyNameIdUpdatedFlag;
+                updatedFlags |= PQAdditionalCounterPartyInfoFlags.ExternalCounterPartyNameIdUpdatedFlag;
 
-            else if (IsExternalCounterPartyNameUpdated) UpdatedFlags ^= PQAdditionalCounterPartyInfoFlags.ExternalCounterPartyNameIdUpdatedFlag;
+            else if (IsExternalCounterPartyNameUpdated) updatedFlags ^= PQAdditionalCounterPartyInfoFlags.ExternalCounterPartyNameIdUpdatedFlag;
         }
     }
 
     public bool IsExternalCounterPartyIdUpdated
     {
-        get => (UpdatedFlags & PQAdditionalCounterPartyInfoFlags.ExternalCounterPartyIdUpdatedFlag) > 0;
+        get => (updatedFlags & PQAdditionalCounterPartyInfoFlags.ExternalCounterPartyIdUpdatedFlag) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= PQAdditionalCounterPartyInfoFlags.ExternalCounterPartyIdUpdatedFlag;
+                updatedFlags |= PQAdditionalCounterPartyInfoFlags.ExternalCounterPartyIdUpdatedFlag;
 
-            else if (IsExternalCounterPartyIdUpdated) UpdatedFlags ^= PQAdditionalCounterPartyInfoFlags.ExternalCounterPartyIdUpdatedFlag;
+            else if (IsExternalCounterPartyIdUpdated) updatedFlags ^= PQAdditionalCounterPartyInfoFlags.ExternalCounterPartyIdUpdatedFlag;
         }
     }
     public bool IsExternalTraderIdUpdated
     {
-        get => (UpdatedFlags & PQAdditionalCounterPartyInfoFlags.ExternalTraderIdUpdatedFlag) > 0;
+        get => (updatedFlags & PQAdditionalCounterPartyInfoFlags.ExternalTraderIdUpdatedFlag) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= PQAdditionalCounterPartyInfoFlags.ExternalTraderIdUpdatedFlag;
+                updatedFlags |= PQAdditionalCounterPartyInfoFlags.ExternalTraderIdUpdatedFlag;
 
-            else if (IsExternalTraderIdUpdated) UpdatedFlags ^= PQAdditionalCounterPartyInfoFlags.ExternalTraderIdUpdatedFlag;
+            else if (IsExternalTraderIdUpdated) updatedFlags ^= PQAdditionalCounterPartyInfoFlags.ExternalTraderIdUpdatedFlag;
         }
     }
 
@@ -267,12 +274,12 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
     [JsonIgnore]
     public virtual bool HasUpdates
     {
-        get => UpdatedFlags != PQAdditionalCounterPartyInfoFlags.None;
+        get => updatedFlags != PQAdditionalCounterPartyInfoFlags.None;
         set
         {
             if (value) return;
             NameIdLookup.HasUpdates = value;
-            UpdatedFlags            = PQAdditionalCounterPartyInfoFlags.None;
+            updatedFlags            = PQAdditionalCounterPartyInfoFlags.None;
         }
     }
 
@@ -304,7 +311,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
     {
         ResetWithTracking();
 
-        UpdatedFlags = PQAdditionalCounterPartyInfoFlags.None;
+        updatedFlags = PQAdditionalCounterPartyInfoFlags.None;
         base.StateReset();
     }
 
@@ -387,7 +394,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
         if (exactTypes)
         {
             var pqCounterPartyOther = (PQAdditionalExternalCounterPartyInfo)other;
-            updatedSame = UpdatedFlags == pqCounterPartyOther.UpdatedFlags;
+            updatedSame = updatedFlags == pqCounterPartyOther.updatedFlags;
         }
 
         return counterPartyIdSame && counterPartySame && traderIdSame && traderNameSame && updatedSame;
@@ -453,7 +460,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
             var hasAsNew = copyMergeFlags.HasAsNew();
             if (hasAsNew)
             {
-                UpdatedFlags = PQAdditionalCounterPartyInfoFlags.None;
+                updatedFlags = PQAdditionalCounterPartyInfoFlags.None;
                 SequenceId   = int.MaxValue;
             }
 
@@ -477,7 +484,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
     {
         if (toCopyFlags is PQAdditionalExternalCounterPartyInfo pqToClone)
         {
-            UpdatedFlags = pqToClone.UpdatedFlags;
+            updatedFlags = pqToClone.updatedFlags;
         }
         else if (toCopyFlags is IPQAdditionalExternalCounterPartyOrderInfo ipqAddCpOrders)
         {
@@ -507,7 +514,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
         $"{nameof(ExternalCounterPartyName)}: {ExternalCounterPartyName}, {nameof(ExternalTraderId)}: {ExternalTraderId}, " +
         $"{nameof(ExternalTraderName)}: {ExternalTraderName}";
 
-    protected string UpdatedFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
+    protected string UpdatedFlagsToString => $"{nameof(updatedFlags)}: {updatedFlags}";
 
     public override string ToString() =>
         $"{nameof(PQAdditionalExternalCounterPartyInfo)}({PQCounterPartyOrderLayerInfoToStringMembers}, {UpdatedFlagsToString})";

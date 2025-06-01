@@ -574,17 +574,17 @@ public class PQOnTickLastTradedTests
     [TestMethod]
     public void FullyPopulatedOnTickLastTraded_ToString_ReturnsNameAndValues()
     {
-        foreach (var populatedQuote in allFullyPopulatedOnTickLastTraded)
+        foreach (var populatedOnTickLastTraded in allFullyPopulatedOnTickLastTraded)
         {
-            var q = populatedQuote;
+            var otlt = populatedOnTickLastTraded;
 
-            var toString = q.ToString();
+            var toString = otlt.ToString();
 
-            Assert.IsTrue(toString.Contains(q.GetType().Name));
+            Assert.IsTrue(toString.Contains(otlt.GetType().Name));
+            Assert.IsTrue(toString.Contains($"{nameof(otlt.MaxAllowedSize)}: {otlt.MaxAllowedSize}"));
 
-            Assert.IsTrue(toString.Contains(
-                                            $"LastTrades: [{string.Join(", ", (IEnumerable<ILastTrade>)populatedQuote)}]"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.Count)}: {q.Count}"));
+            Assert.IsTrue(toString.Contains($"LastTrades: [{otlt.EachLastTradeByIndexOnNewLines()}]"));
+            Assert.IsTrue(toString.Contains($"{nameof(otlt.Count)}: {otlt.Count}"));
         }
     }
 

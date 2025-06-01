@@ -42,7 +42,7 @@ public interface IMutableOrdersPriceVolumeLayer : IOrdersPriceVolumeLayer, IMuta
 
     new IEnumerator<IMutableAnonymousOrder> GetEnumerator();
 
-    void Add(IAnonymousOrder toAdd);
+    string EachOrderByIndexOnNewLines();
 
     new IMutableOrdersPriceVolumeLayer Clone();
     new IMutableOrdersPriceVolumeLayer ResetWithTracking();

@@ -58,5 +58,5 @@ public class OnTickLastTraded : LastTradedList, IMutableOnTickLastTraded
         return baseSame;
     }
 
-    public override string ToString() => $"{nameof(OnTickLastTraded)}{{{LastTradedListToStringMembers}}}";
+    public override string ToString() => $"{nameof(OnTickLastTraded)}{{{NonLastTradedListToStringMembers}, {LastTradedListToString}}}";
 }

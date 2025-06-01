@@ -5,6 +5,7 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Types;
@@ -81,6 +82,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
                 };
         if (toClone is IOrdersPriceVolumeLayer ordersToClone)
         {
+            MaxAllowedSize = ordersToClone.MaxAllowedSize;
             orders = new List<IMutableAnonymousOrder>((int)ordersToClone.OrdersCount);
             foreach (var orderLayerInfo in ordersToClone.Orders) AddLayer(orderLayerInfo);
         }
@@ -96,9 +98,9 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
 
     protected Func<IMutableAnonymousOrder> NewElementFactory => CreateNewBookOrderLayer;
 
-    [JsonIgnore] public IReadOnlyList<IMutableAnonymousOrder> Orders => orders.Where(aoli => !aoli.IsEmpty).ToList().AsReadOnly();
+    [JsonIgnore] public IReadOnlyList<IMutableAnonymousOrder> Orders => orders.Take(CountFromOrders()).ToList().AsReadOnly();
 
-    IReadOnlyList<IAnonymousOrder> IOrdersPriceVolumeLayer.Orders => orders.Where(aoli => !aoli.IsEmpty).ToList().AsReadOnly();
+    IReadOnlyList<IAnonymousOrder> IOrdersPriceVolumeLayer.Orders => orders.Take(CountFromOrders()).ToList().AsReadOnly();
 
 
     [JsonIgnore] public override LayerType LayerType => isCounterPartyOrders ? LayerType.OrdersFullPriceVolume : LayerType.OrdersAnonymousPriceVolume;
@@ -138,18 +140,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         }
     }
 
-    int IReadOnlyCollection<IAnonymousOrder>.Count => (int)OrdersCount;
-
-    int IReadOnlyCollection<IMutableAnonymousOrder>.Count => (int)OrdersCount;
-
-    int ICollection<IMutableAnonymousOrder>.Count => (int)OrdersCount;
-
-    int IMutableCapacityList<IMutableAnonymousOrder>.Count
-    {
-        get => (int)OrdersCount;
-        set => OrdersCount = (uint)value;
-    }
-    int IMutableOrdersPriceVolumeLayer.Count
+    public int Count
     {
         get => (int)OrdersCount;
         set => OrdersCount = (uint)value;
@@ -283,13 +274,14 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
     public void Add(IMutableAnonymousOrder item)
     {
         var index = CountFromOrders();
+        AssertMaxOrdersNotExceeded(index);
         if (index < Capacity)
         {
             this[index] = item;
         }
         else
         {
-            orders.Add(item);
+            AddLayer(item);
         }
     }
 
@@ -316,25 +308,9 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
 
     public void Insert(int index, IMutableAnonymousOrder item) => orders.Insert(index, item);
 
-    public void Add(IAnonymousOrder order)
-    {
-        var indexToUpdate = CountFromOrders();
-        AssertMaxOrdersNotExceeded(indexToUpdate);
-        if (indexToUpdate >= orders.Count)
-        {
-            AddLayer(order);
-        }
-        else
-        {
-            var entryToUpdate = orders[indexToUpdate];
-            entryToUpdate.CopyFrom(order, CopyMergeFlags.FullReplace);
-        }
-    }
-
     public void RemoveAt(int index)
     {
-        var orderAt = orders[index];
-        orderAt.IsEmpty = true;
+        orders.RemoveAt(index);
     }
 
     IMutableOrdersPriceVolumeLayer ITrackableReset<IMutableOrdersPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
@@ -483,6 +459,22 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IOrdersPriceVolumeLayer?)obj, true);
 
     public override int GetHashCode() => base.GetHashCode() ^ Orders.GetHashCode();
+
+    public string EachOrderByIndexOnNewLines()
+    {
+        var countFromOrders = CountFromOrders();
+        var sb              = new StringBuilder(100 * countFromOrders);
+        for (var i = 0; i < countFromOrders; i++)
+        {
+            var order = Orders[i];
+            sb.Append("[").Append(i).Append("] = ").Append(order);
+            if (i < countFromOrders - 1)
+            {
+                sb.AppendLine(",");
+            }
+        }
+        return sb.ToString();
+    }
 
     protected string OrdersPriceVolumeLayerToStringMembers => $"{OrdersCountPriceVolumeLayerToStringMembers}, {JustOrdersToString}";
 

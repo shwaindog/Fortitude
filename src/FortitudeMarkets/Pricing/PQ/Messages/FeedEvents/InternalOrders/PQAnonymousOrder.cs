@@ -67,6 +67,8 @@ public interface IPQAnonymousOrder : IReusableObject<IPQAnonymousOrder>, IMutabl
 
     new bool HasUpdates { get; set; }
 
+    PQAnonymousOrderUpdatedFlags AnonymousOrderUpdatedFlags { get; set; }
+
     new IPQAdditionalInternalPassiveOrderInfo?      InternalOrderInfo             { get; set; }
     new IPQAdditionalExternalCounterPartyOrderInfo? ExternalCounterPartyOrderInfo { get; set; }
 
@@ -186,6 +188,12 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         }
 
         if (GetType() == typeof(PQAnonymousOrder)) SequenceId = 0;
+    }
+
+    public PQAnonymousOrderUpdatedFlags AnonymousOrderUpdatedFlags
+    {
+        get => UpdatedFlags;
+        set => UpdatedFlags = value;
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -573,6 +581,10 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
     {
         ResetWithTracking();
         UpdatedFlags = PQAnonymousOrderUpdatedFlags.None;
+        if (additionalExternalCounterPartyOrderInfo != null)
+            additionalExternalCounterPartyOrderInfo.ExternalCounterPartyUpdatedFlags = PQAdditionalCounterPartyInfoFlags.None;
+        if (additionalInternalPassiveOrderInfo != null)
+            additionalInternalPassiveOrderInfo.InternalPassiveOrderInfoUpdatedFlags = PQAdditionalInternalPassiveOrderInfoUpdatedFlags.None;
         base.StateReset();
     }
 

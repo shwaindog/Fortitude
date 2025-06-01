@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2024 all rights reserved
 
 using System.Collections;
+using System.Text;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
@@ -20,16 +21,20 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
 
     public LastTradedList(IEnumerable<ILastTrade> lastTrades)
     {
-        LastTrades = lastTrades.Select(lt => LastTradeEntrySelector.ConvertToExpectedImplementation(lt)).ToList();
+        LastTradesSupportFlags = lastTrades.FirstOrDefault()?.SupportsLastTradedFlags ?? LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags;
+
+        LastTrades             = lastTrades.Select(lt => LastTradeEntrySelector.ConvertToExpectedImplementation(lt)).ToList();
     }
 
     public LastTradedList(IEnumerable<IMutableLastTrade> lastTrades)
     {
-        LastTrades = lastTrades.Select(lt => LastTradeEntrySelector.ConvertToExpectedImplementation(lt)).ToList();
+        LastTradesSupportFlags = lastTrades.FirstOrDefault()?.SupportsLastTradedFlags ?? LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags;
+        LastTrades             = lastTrades.Select(lt => LastTradeEntrySelector.ConvertToExpectedImplementation(lt)).ToList();
     }
 
     public LastTradedList(ILastTradedList toClone)
     {
+        LastTradesSupportFlags = toClone.LastTradesSupportFlags;
         LastTrades = new List<IMutableLastTrade>();
         for (var i = 0; i < toClone.Count; i++) LastTrades.Add(LastTradeEntrySelector.ConvertToExpectedImplementation(toClone[i], true));
     }
@@ -39,7 +44,6 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
     public LastTradedList(ISourceTickerInfo sourceTickerInfo)
     {
         LastTradesSupportFlags = sourceTickerInfo.LastTradedFlags;
-        LastTradesOfType       = LastTradesSupportFlags.MostCompactLayerType();
         LastTrades             = new List<IMutableLastTrade>();
         // for (var i = 0; i < PQQuoteFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades; i++)
         LastTrades.Add(LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags));
@@ -47,10 +51,10 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
 
     public static ILastTradeEntryFlagsSelector<IMutableLastTrade>
         LastTradeEntrySelector { get; set; } = new LastTradedLastTradeEntrySelector();
-
-    public LastTradeType LastTradesOfType { get; }
-
-    public LastTradedFlags LastTradesSupportFlags { get; }
+    
+    public LastTradeType LastTradesOfType => LastTradesSupportFlags.MostCompactLayerType();
+    
+    public LastTradedFlags LastTradesSupportFlags { get; private set; } = LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags;
 
     public bool IsReadOnly => false;
 
@@ -191,6 +195,7 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
     (ILastTradedList source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
+        LastTradesSupportFlags |= source.LastTradesSupportFlags;
         var currentDeepestLayerSet = Count;
         var sourceDeepestLayerSet  = source.Count;
         for (var i = 0; i < sourceDeepestLayerSet; i++)
@@ -230,11 +235,15 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
         if (exactTypes && other.GetType() != GetType()) return false;
         var countSame = Count == other.Count;
         if (!countSame) return false;
-        var bookLayersSame = exactTypes
-            ? LastTrades.Take(Count).SequenceEqual(other.Take(Count))
-            : LastTrades.Take(Count).Zip(other.Take(Count), (thisLastTrade, otherLastTrade) => new { thisLastTrade, otherLastTrade })
-                        .All(joined => joined.thisLastTrade.AreEquivalent(joined.otherLastTrade));
-        return bookLayersSame;
+        
+        var allLastTradesSame = true;
+        for (int i = 0; i < Count && allLastTradesSame; i++)
+        {
+            var localLastTrade = this[i];
+            var otherLastTrade = other[i];
+            allLastTradesSame &= localLastTrade.AreEquivalent(otherLastTrade, exactTypes);
+        }
+        return countSame && allLastTradesSame;
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -257,8 +266,25 @@ public class LastTradedList : ReusableObject<ILastTradedList>, IMutableLastTrade
         return hashCode.ToHashCode();
     }
 
-    protected string LastTradedListToStringMembers => $"{nameof(LastTrades)}: [{string.Join(",", LastTrades.Take(Count))}], {nameof(Count)}: {Count}";
+    public string EachLastTradeByIndexOnNewLines()
+    {
+        var count = Count;
+        var sb    = new StringBuilder(100 * count);
+        for (var i = 0; i < count; i++)
+        {
+            var lastTrade = LastTrades[i];
+            sb.Append("[").Append(i).Append("] = ").Append(lastTrade);
+            if (i < count - 1)
+            {
+                sb.AppendLine(",");
+            }
+        }
+        return sb.ToString();
+    }
+
+    protected string NonLastTradedListToStringMembers => $"{nameof(Count)}: {Count}, {nameof(MaxAllowedSize)}: {MaxAllowedSize:N0}";
+    protected string LastTradedListToString => $"{nameof(LastTrades)}: [{EachLastTradeByIndexOnNewLines()}]";
 
     public override string ToString() =>
-        $"{nameof(LastTradedList)}{{{LastTradedListToStringMembers}}}";
+        $"{nameof(LastTradedList)}{{{NonLastTradedListToStringMembers}, {LastTradedListToString}}}";
 }
