@@ -43,6 +43,9 @@ public interface IPQAdditionalInternalPassiveOrderInfo : IMutableAdditionalInter
     bool IsDecisionAmendDateUpdated          { get; set; }
     bool IsDecisionAmendSub2MinTimeUpdated   { get; set; }
 
+    PQAdditionalInternalPassiveOrderInfoUpdatedFlags InternalPassiveOrderInfoUpdatedFlags { get; set; }
+
+    void SetFlagsSame(IAdditionalInternalPassiveOrderInfo? toCopyFlags);
 
     new IPQAdditionalInternalPassiveOrderInfo Clone();
 }
@@ -125,7 +128,8 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) SequenceId = 0;
     }
 
-    public PQAdditionalInternalPassiveOrderInfo(IAdditionalInternalPassiveOrderInfo? toClone, IPQNameIdLookupGenerator? pqNameIdLookupGenerator = null)
+    public PQAdditionalInternalPassiveOrderInfo
+        (IAdditionalInternalPassiveOrderInfo? toClone, IPQNameIdLookupGenerator? pqNameIdLookupGenerator = null)
         //: base(toClone)
     {
         NameIdLookup = pqNameIdLookupGenerator ?? new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates);
@@ -157,6 +161,11 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         if (GetType() == typeof(PQAdditionalExternalCounterPartyInfo)) SequenceId = 0;
     }
 
+    public PQAdditionalInternalPassiveOrderInfoUpdatedFlags InternalPassiveOrderInfoUpdatedFlags
+    {
+        get => UpdatedFlags;
+        set => UpdatedFlags = value;
+    }
 
     public uint OrderSequenceId
     {
@@ -741,6 +750,18 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         }
     }
 
+    [JsonIgnore]
+    public virtual bool HasUpdates
+    {
+        get => UpdatedFlags != PQAdditionalInternalPassiveOrderInfoUpdatedFlags.None;
+        set
+        {
+            if (value) return;
+            NameIdLookup.HasUpdates = value;
+            UpdatedFlags            = PQAdditionalInternalPassiveOrderInfoUpdatedFlags.None;
+        }
+    }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public virtual bool IsEmpty
     {
@@ -767,38 +788,42 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         set
         {
             if (!value) return;
-            OrderSequenceId        = 0;
-            ParentOrderId          = 0;
-            ClosingOrderId         = 0;
-            ClosingOrderPrice      = 0;
-            DecisionCreatedTime    = DateTime.MinValue;
-            DecisionAmendTime      = DateTime.MinValue;
-            DivisionId             = 0;
-            divisionNameId         = 0;
-            DeskId                 = 0;
-            deskNameId             = 0;
-            StrategyId             = 0;
-            strategyNameId         = 0;
-            StrategyDecisionId     = 0;
-            strategyDecisionNameId = 0;
-            PortfolioId            = 0;
-            portfolioNameId        = 0;
-            InternalTraderId       = 0;
-            portfolioNameId        = 0;
-            MarginConsumed         = 0;
+            ResetWithTracking();
         }
     }
 
-    [JsonIgnore]
-    public virtual bool HasUpdates
+    IMutableAdditionalInternalPassiveOrderInfo ITrackableReset<IMutableAdditionalInternalPassiveOrderInfo>.ResetWithTracking() => ResetWithTracking();
+
+    public PQAdditionalInternalPassiveOrderInfo ResetWithTracking()
     {
-        get => UpdatedFlags != PQAdditionalInternalPassiveOrderInfoUpdatedFlags.None;
-        set
-        {
-            if (value) return;
-            NameIdLookup.HasUpdates = value;
-            UpdatedFlags            = PQAdditionalInternalPassiveOrderInfoUpdatedFlags.None;
-        }
+        OrderSequenceId        = 0;
+        ParentOrderId          = 0;
+        ClosingOrderId         = 0;
+        ClosingOrderPrice      = 0;
+        DecisionCreatedTime    = DateTime.MinValue;
+        DecisionAmendTime      = DateTime.MinValue;
+        DivisionId             = 0;
+        divisionNameId         = 0;
+        DeskId                 = 0;
+        deskNameId             = 0;
+        StrategyId             = 0;
+        strategyNameId         = 0;
+        StrategyDecisionId     = 0;
+        strategyDecisionNameId = 0;
+        PortfolioId            = 0;
+        portfolioNameId        = 0;
+        InternalTraderId       = 0;
+        portfolioNameId        = 0;
+        MarginConsumed         = 0;
+
+        return this;
+    }
+
+    public override void StateReset()
+    {
+        ResetWithTracking();
+        UpdatedFlags = PQAdditionalInternalPassiveOrderInfoUpdatedFlags.None;
+        base.StateReset();
     }
 
     public uint UpdateSequenceId => SequenceId;
@@ -970,32 +995,6 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         return -1;
     }
 
-    public override void StateReset()
-    {
-        OrderSequenceId        = 0;
-        ParentOrderId          = 0;
-        ClosingOrderId         = 0;
-        ClosingOrderPrice      = 0;
-        DecisionCreatedTime    = DateTime.MinValue;
-        DecisionAmendTime      = DateTime.MinValue;
-        DivisionId             = 0;
-        divisionNameId         = 0;
-        DeskId                 = 0;
-        deskNameId             = 0;
-        StrategyId             = 0;
-        strategyNameId         = 0;
-        StrategyDecisionId     = 0;
-        strategyDecisionNameId = 0;
-        PortfolioId            = 0;
-        portfolioNameId        = 0;
-        InternalTraderId       = 0;
-        portfolioNameId        = 0;
-        MarginConsumed         = 0;
-
-        UpdatedFlags = PQAdditionalInternalPassiveOrderInfoUpdatedFlags.None;
-        base.StateReset();
-    }
-
     object ICloneable.Clone() => Clone();
 
     IPQAdditionalInternalPassiveOrderInfo IPQAdditionalInternalPassiveOrderInfo.Clone() => Clone();
@@ -1075,11 +1074,10 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
     public override PQAdditionalInternalPassiveOrderInfo CopyFrom
         (IAdditionalInternalPassiveOrderInfo? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-
         if (source is IPQAdditionalInternalPassiveOrderInfo pqAddPassive)
         {
             NameIdLookup.CopyFrom(pqAddPassive.NameIdLookup, copyMergeFlags);
-            
+
             var isFullReplace = copyMergeFlags.HasFullReplace();
             if (pqAddPassive.IsOrderSequenceIdUpdated || isFullReplace)
             {
@@ -1220,11 +1218,11 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         }
         else if (source is IInternalPassiveOrder internalPassiveOrder)
         {
-            var hasAsNew               = copyMergeFlags.HasAsNew();
+            var hasAsNew = copyMergeFlags.HasAsNew();
             if (hasAsNew)
             {
-                UpdatedFlags         = PQAdditionalInternalPassiveOrderInfoUpdatedFlags.None;
-                SequenceId = int.MaxValue;
+                UpdatedFlags = PQAdditionalInternalPassiveOrderInfoUpdatedFlags.None;
+                SequenceId   = int.MaxValue;
             }
 
             OrderSequenceId      = internalPassiveOrder.OrderSequenceId;
@@ -1246,7 +1244,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
             InternalTraderId     = internalPassiveOrder.InternalTraderId;
             InternalTraderName   = internalPassiveOrder.InternalTraderName;
             MarginConsumed       = internalPassiveOrder.MarginConsumed;
-            
+
             if (hasAsNew)
             {
                 SequenceId = 0;
@@ -1256,9 +1254,36 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         return this;
     }
 
-    protected void SetFlagsSame(IAdditionalInternalPassiveOrderInfo toCopyFlags)
+    public void SetFlagsSame(IAdditionalInternalPassiveOrderInfo? toCopyFlags)
     {
-        if (toCopyFlags is PQAdditionalInternalPassiveOrderInfo pqToClone) UpdatedFlags = pqToClone.UpdatedFlags;
+        if (toCopyFlags is PQAdditionalInternalPassiveOrderInfo pqToClone)
+        {
+            UpdatedFlags = pqToClone.UpdatedFlags;
+        }
+        else if (toCopyFlags is IPQAdditionalInternalPassiveOrderInfo ipqSameFlags)
+        {
+            IsOrderSequenceIdUpdated            = ipqSameFlags.IsOrderSequenceIdUpdated;
+            IsParentOrderIdUpdated              = ipqSameFlags.IsParentOrderIdUpdated;
+            IsClosingOrderIdUpdated             = ipqSameFlags.IsClosingOrderIdUpdated;
+            IsClosingOrderPriceUpdated          = ipqSameFlags.IsClosingOrderPriceUpdated;
+            IsDecisionCreatedDateUpdated        = ipqSameFlags.IsDecisionCreatedDateUpdated;
+            IsDecisionCreatedSub2MinTimeUpdated = ipqSameFlags.IsDecisionCreatedSub2MinTimeUpdated;
+            IsDecisionAmendDateUpdated          = ipqSameFlags.IsDecisionAmendDateUpdated;
+            IsDecisionAmendSub2MinTimeUpdated   = ipqSameFlags.IsDecisionAmendSub2MinTimeUpdated;
+            IsDivisionIdUpdated                 = ipqSameFlags.IsDivisionIdUpdated;
+            IsDivisionNameUpdated               = ipqSameFlags.IsDivisionNameUpdated;
+            IsDeskIdUpdated                     = ipqSameFlags.IsDeskIdUpdated;
+            IsDeskNameUpdated                   = ipqSameFlags.IsDeskNameUpdated;
+            IsStrategyIdUpdated                 = ipqSameFlags.IsStrategyIdUpdated;
+            IsStrategyNameUpdated               = ipqSameFlags.IsStrategyNameUpdated;
+            IsStrategyDecisionIdUpdated         = ipqSameFlags.IsStrategyDecisionIdUpdated;
+            IsStrategyDecisionNameUpdated       = ipqSameFlags.IsStrategyDecisionNameUpdated;
+            IsPortfolioIdUpdated                = ipqSameFlags.IsPortfolioIdUpdated;
+            IsPortfolioNameUpdated              = ipqSameFlags.IsPortfolioNameUpdated;
+            IsInternalTraderIdUpdated           = ipqSameFlags.IsInternalTraderIdUpdated;
+            IsInternalTraderNameUpdated         = ipqSameFlags.IsInternalTraderNameUpdated;
+            IsMarginConsumedUpdated             = ipqSameFlags.IsMarginConsumedUpdated;
+        }
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IAdditionalInternalPassiveOrderInfo, true);

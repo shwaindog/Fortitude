@@ -7,12 +7,10 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 
-public class AdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalExternalCounterPartyOrderInfo>, IMutableAdditionalExternalCounterPartyOrderInfo
+public class AdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalExternalCounterPartyOrderInfo>
+  , IMutableAdditionalExternalCounterPartyOrderInfo
 {
-    public AdditionalExternalCounterPartyInfo()
-    {
-
-    }
+    public AdditionalExternalCounterPartyInfo() { }
 
     public AdditionalExternalCounterPartyInfo
         (int externalCounterPartyId = 0, string? externalCounterPartyName = null, int externalTraderId = 0, string? externalTraderName = null)
@@ -34,7 +32,6 @@ public class AdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalExte
         }
     }
 
-
     public int     ExternalCounterPartyId   { get; set; }
     public string? ExternalCounterPartyName { get; set; }
 
@@ -47,19 +44,26 @@ public class AdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalExte
         set
         {
             if (!value) return;
-            ExternalCounterPartyId   = 0;
-            ExternalCounterPartyName = null;
-            ExternalTraderId         = 0;
-            ExternalTraderName       = null;
+            ResetWithTracking();
         }
     }
 
-    public override void StateReset()
+    IMutableAdditionalExternalCounterPartyOrderInfo ITrackableReset<IMutableAdditionalExternalCounterPartyOrderInfo>.ResetWithTracking() =>
+        ResetWithTracking();
+
+    public AdditionalExternalCounterPartyInfo ResetWithTracking()
     {
         ExternalCounterPartyId   = 0;
         ExternalCounterPartyName = null;
         ExternalTraderId         = 0;
         ExternalTraderName       = null;
+
+        return this;
+    }
+
+    public override void StateReset()
+    {
+        ResetWithTracking();
         base.StateReset();
     }
 
@@ -67,8 +71,9 @@ public class AdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalExte
 
     IMutableAdditionalExternalCounterPartyOrderInfo IMutableAdditionalExternalCounterPartyOrderInfo.Clone() => Clone();
 
-    public override AdditionalExternalCounterPartyInfo Clone() => 
-        Recycler?.Borrow<AdditionalExternalCounterPartyInfo>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new AdditionalExternalCounterPartyInfo(this);
+    public override AdditionalExternalCounterPartyInfo Clone() =>
+        Recycler?.Borrow<AdditionalExternalCounterPartyInfo>().CopyFrom(this, CopyMergeFlags.FullReplace) ??
+        new AdditionalExternalCounterPartyInfo(this);
 
 
     IMutableAdditionalExternalCounterPartyOrderInfo ITransferState<IMutableAdditionalExternalCounterPartyOrderInfo>.CopyFrom
@@ -114,11 +119,9 @@ public class AdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalExte
         }
     }
 
-    protected string AddExternalCounterPartyInfoToStringMembers => 
+    protected string AddExternalCounterPartyInfoToStringMembers =>
         $"{nameof(ExternalCounterPartyId)}: {ExternalCounterPartyId}, {nameof(ExternalCounterPartyName)}: {ExternalCounterPartyName}, " +
         $"{nameof(ExternalTraderId)}: {ExternalTraderId}, {nameof(ExternalTraderName)}: {ExternalTraderName}";
 
     public override string ToString() => $"{GetType().Name}{{{AddExternalCounterPartyInfoToStringMembers}}}";
-
-
 }

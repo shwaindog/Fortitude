@@ -144,7 +144,7 @@ public class PQOrderBookLayerFactorySelectorTests
             new SourceQuoteRefPriceVolumeLayer(ExpectedPrice, ExpectedVolume, ExpectedSourceName, true, ExpectedQuoteRef);
         valueDatePriceVolumeLayer   = new ValueDatePriceVolumeLayer(ExpectedPrice, ExpectedVolume, expectedValueDate);
         ordersCountPriceVolumeLayer = new OrdersCountPriceVolumeLayer(ExpectedPrice, ExpectedVolume, ExpectedOrdersCount, ExpectedInternalVolume);
-        ordersAnonPriceVolumeLayer = new OrdersPriceVolumeLayer(price: ExpectedPrice, volume: ExpectedVolume)
+        ordersAnonPriceVolumeLayer = new OrdersPriceVolumeLayer(LayerType.OrdersAnonymousPriceVolume, ExpectedPrice, ExpectedVolume, ExpectedOrdersCount, ExpectedInternalVolume)
         {
             [0] = new AnonymousOrder
                 (ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderType, ExpectedGenesisFlags

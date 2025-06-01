@@ -121,6 +121,7 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
 
     [JsonIgnore] public override LayerFlags SupportsLayerFlags => LayerFlagsExtensions.AdditionalOrdersCountFlags | base.SupportsLayerFlags;
 
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
     {

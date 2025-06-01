@@ -3,12 +3,16 @@
 
 #region
 
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Text.Json.Serialization;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
@@ -23,16 +27,58 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Lay
 
 public interface IPQOrdersPriceVolumeLayer : IMutableOrdersPriceVolumeLayer, IPQOrdersCountPriceVolumeLayer
   , IPQSupportsStringUpdates<IPriceVolumeLayer>, ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQOrdersPriceVolumeLayer>
+  , IMutableTracksReorderingList<IPQAnonymousOrder, IAnonymousOrder>
 {
-    new IPQAnonymousOrder? this[int index] { get; set; }
+    new IPQAnonymousOrder this[int index] { get; set; }
+
+    new bool IsReadOnly { get; }
+
+    new int Count { get; set; }
+
+    new int Capacity { get; set; }
+
+    new IReadOnlyList<ListShiftCommand> ShiftCommands { get; set; }
+
+    new int? ClearRemainingElementsFromIndex { get; set; }
+
+    new bool HasUnreliableListTracking { get; set; }
+
+    new ushort MaxAllowedSize { get; set; }
+
+    new ListShiftCommand ShiftElements(int byElements);
+
+    new ListShiftCommand AppendShiftCommand(ListShiftCommand toAppendAtEnd);
+
+    new void ClearShiftCommands();
+
+    new ListShiftCommand ClearAll();
+
+    new ListShiftCommand DeleteAt(int index);
+
+    new ListShiftCommand ShiftElementsFrom(int byElements, int pinElementsFromIndex);
+
+    new ListShiftCommand ShiftElementsUntil(int byElements, int pinElementsFromIndex);
+
+    new ListShiftCommand ApplyListShiftCommand(ListShiftCommand shiftCommandToApply);
+
+    new ListShiftCommand MoveSingleElementBy(IPQAnonymousOrder existingItem, int shift);
+
+    new ListShiftCommand MoveSingleElementBy(int indexToMoveToEnd, int shift);
+
+    new ListShiftCommand MoveToEnd(int indexToMoveToEnd);
+
+    new ListShiftCommand MoveToStart(int indexToMoveToStart);
+
+    new bool CalculateShift(DateTime asAtTime, IReadOnlyList<IAnonymousOrder> updatedCollection);
+
+    new void RemoveAt(int index);
+
+    new void Clear();
+
     new IPQNameIdLookupGenerator         NameIdLookup { get; set; }
     new IReadOnlyList<IPQAnonymousOrder> Orders       { get; }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    int OrdersShifted { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    bool IsOrdersShiftedUpdated { get; set; }
+    new IEnumerator<IPQAnonymousOrder> GetEnumerator();
 
     new IPQOrdersPriceVolumeLayer Clone();
     new IPQOrdersPriceVolumeLayer ResetWithTracking();
@@ -46,12 +92,11 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
 
     private readonly bool isCounterPartyOrders;
 
-    private readonly IList<IPQAnonymousOrder>? orders;
+    private readonly IList<IPQAnonymousOrder> orders;
 
     private IPQNameIdLookupGenerator nameIdLookup = null!;
 
-    private int ordersShifted;
-
+    private readonly TracksReorderingListRegistry<IPQAnonymousOrder, IAnonymousOrder> elementShiftRegistry;
 
     public PQOrdersPriceVolumeLayer(LayerType layerType, IPQNameIdLookupGenerator initialDictionary)
     {
@@ -66,6 +111,9 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
 
         NameIdLookup = initialDictionary;
         orders       = new List<IPQAnonymousOrder>(0);
+
+        elementShiftRegistry = new TracksReorderingListRegistry<IPQAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
+
         if (GetType() == typeof(PQOrdersPriceVolumeLayer)) SequenceId = 0;
     }
 
@@ -86,6 +134,9 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
 
         NameIdLookup = traderIdToNameLookup;
         orders       = new List<IPQAnonymousOrder>(0);
+
+        elementShiftRegistry = new TracksReorderingListRegistry<IPQAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
+
         if (layerOrders is not null)
             foreach (var orderLayerInfo in layerOrders)
                 CopyAddLayer(orderLayerInfo);
@@ -105,6 +156,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         NameIdLookup = ipqNameIdLookupGenerator;
         if (toClone is IOrdersPriceVolumeLayer ordersToClone)
         {
+            MaxAllowedSize = ordersToClone.MaxAllowedSize;
             orders = new List<IPQAnonymousOrder>((int)ordersToClone.OrdersCount);
             foreach (var orderLayerInfo in ordersToClone.Orders) CopyAddLayer(orderLayerInfo);
         }
@@ -112,25 +164,24 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         {
             orders = new List<IPQAnonymousOrder>(0);
         }
+
+        elementShiftRegistry = new TracksReorderingListRegistry<IPQAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
         SetFlagsSame(toClone);
         if (GetType() == typeof(PQOrdersPriceVolumeLayer)) SequenceId = 0;
     }
 
-    private int SafeOrdersLength => orders?.Count ?? 0;
+    protected static Func<IAnonymousOrder, IAnonymousOrder, bool> SameTradeId = (lhs, rhs) => lhs.OrderId == rhs.OrderId;
 
+    protected Func<IPQAnonymousOrder> NewElementFactory => CreateNewBookOrderLayer;
+
+    [JsonIgnore] IReadOnlyList<IAnonymousOrder> IOrdersPriceVolumeLayer.Orders => orders.Take(CountFromOrders()).ToList().AsReadOnly();
 
     [JsonIgnore]
-    IReadOnlyList<IAnonymousOrder> IOrdersPriceVolumeLayer.Orders => orders?.Where(aoli => !aoli.IsEmpty).ToList().AsReadOnly() ?? EmptyOrders;
+    IReadOnlyList<IMutableAnonymousOrder> IMutableOrdersPriceVolumeLayer.Orders => orders.Take(CountFromOrders()).ToList().AsReadOnly();
 
-    [JsonIgnore]
-    IReadOnlyList<IMutableAnonymousOrder> IMutableOrdersPriceVolumeLayer.Orders =>
-        orders?.Where(aoli => !aoli.IsEmpty).ToList().AsReadOnly() ?? EmptyOrders;
-
-    public IReadOnlyList<IPQAnonymousOrder> Orders => orders?.Where(aoli => !aoli.IsEmpty).ToList().AsReadOnly() ?? EmptyOrders;
-
+    public IReadOnlyList<IPQAnonymousOrder> Orders => orders.Take(CountFromOrders()).ToList().AsReadOnly();
 
     [JsonIgnore] public override LayerType LayerType => isCounterPartyOrders ? LayerType.OrdersFullPriceVolume : LayerType.OrdersAnonymousPriceVolume;
-
 
     [JsonIgnore]
     public override LayerFlags SupportsLayerFlags =>
@@ -139,99 +190,96 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
             ? LayerFlagsExtensions.AdditionalCounterPartyOrderFlags
             : LayerFlagsExtensions.AdditionalAnonymousOrderFlags);
 
+    public ushort MaxAllowedSize { get; set; } = PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth;
+
     [JsonIgnore]
-    IMutableAnonymousOrder? IMutableOrdersPriceVolumeLayer.this[int i]
+    IMutableAnonymousOrder IMutableOrdersPriceVolumeLayer.this[int i]
     {
         get => this[i];
-        set => this[i] = value as IPQAnonymousOrder;
+        set => this[i] = (IPQAnonymousOrder)value;
     }
 
-    [JsonIgnore] IAnonymousOrder? IOrdersPriceVolumeLayer.this[int i] => this[i];
+    IAnonymousOrder IReadOnlyList<IAnonymousOrder>.this[int index] => this[index];
+
+    IMutableAnonymousOrder IReadOnlyList<IMutableAnonymousOrder>.this[int index] => this[index];
+
+    IMutableAnonymousOrder IList<IMutableAnonymousOrder>.this[int index]
+    {
+        get => this[index];
+        set => this[index] = (IPQAnonymousOrder)value;
+    }
+    IMutableAnonymousOrder IMutableCapacityList<IMutableAnonymousOrder>.this[int i]
+    {
+        get => this[i];
+        set => this[i] = (IPQAnonymousOrder)value;
+    }
+
+    IMutableAnonymousOrder IMutableTracksShiftsList<IMutableAnonymousOrder, IAnonymousOrder>.this[int index]
+    {
+        get => this[index];
+        set => this[index] = (IPQAnonymousOrder)value;
+    }
 
 
     [JsonIgnore]
-    public IPQAnonymousOrder? this[int i]
+    public IPQAnonymousOrder this[int i]
     {
         get
         {
             AssertMaxTraderSizeNotExceeded(i);
-            for (var j = SafeOrdersLength; j <= i; j++) AppendLayer(CreateNewBookOrderLayer());
-            return orders?[i];
+            for (var j = Capacity; j <= i; j++) AppendLayer(CreateNewBookOrderLayer());
+            return orders[i];
         }
         set
         {
             AssertMaxTraderSizeNotExceeded(i);
-            for (var j = SafeOrdersLength; j < i; j++) AppendLayer(CreateNewBookOrderLayer());
-            if (i >= SafeOrdersLength && value != null)
+            for (var j = Capacity; j < i; j++) AppendLayer(CreateNewBookOrderLayer());
+            if (i >= Capacity)
             {
-                orders?.Add(value);
+                orders.Add(value);
                 value.NameIdLookup = NameIdLookup;
             }
-            else if (orders != null)
+            else
             {
-                if (value != null)
-                {
-                    orders[i]          = value;
-                    value.NameIdLookup = NameIdLookup;
-                }
-                else
-                {
-                    orders[i].StateReset();
-                }
+                orders[i]          = value;
+                value.NameIdLookup = NameIdLookup;
             }
+            base.OrdersCount = (uint)CountFromOrders();
         }
     }
 
-    public int OrdersShifted
+    int IReadOnlyCollection<IAnonymousOrder>.Count => (int)OrdersCount;
+
+    int IReadOnlyCollection<IMutableAnonymousOrder>.Count => (int)OrdersCount;
+
+    int ICollection<IMutableAnonymousOrder>.Count => (int)OrdersCount;
+
+    int IMutableCapacityList<IMutableAnonymousOrder>.Count
     {
-        get => ordersShifted;
-        set
-        {
-            if (value == ordersShifted) return;
-            IsOrdersShiftedUpdated = true;
-            ordersShifted          = value;
-        }
+        get => (int)OrdersCount;
+        set => OrdersCount = (uint)value;
     }
 
-    [JsonIgnore]
-    public bool IsOrdersShiftedUpdated
+    int IMutableOrdersPriceVolumeLayer.Count
     {
-        get => (UpdatedFlags & LayerFieldUpdatedFlags.OrdersIndexesShiftedFlag) > 0;
-        set
-        {
-            if (value)
-                UpdatedFlags |= LayerFieldUpdatedFlags.OrdersIndexesShiftedFlag;
-
-            else if (IsOrdersShiftedUpdated) UpdatedFlags ^= LayerFieldUpdatedFlags.OrdersIndexesShiftedFlag;
-        }
+        get => (int)OrdersCount;
+        set => OrdersCount = (uint)value;
     }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public override bool IsEmpty
+    int IReadOnlyCollection<IPQAnonymousOrder>.Count => (int)OrdersCount;
+
+    int ICollection<IPQAnonymousOrder>.Count => (int)OrdersCount;
+
+    int IMutableCapacityList<IPQAnonymousOrder>.Count
     {
-        get => base.IsEmpty && (orders?.All(aoli => aoli.IsEmpty) ?? true);
-        set
-        {
-            base.IsEmpty = value;
-            if (!value) return;
-            foreach (var traderLayerInfo in Orders) traderLayerInfo.IsEmpty = true;
-            ordersShifted = 0;
-            base.IsEmpty  = true;
-        }
+        get => (int)OrdersCount;
+        set => OrdersCount = (uint)value;
     }
 
-    [JsonIgnore]
-    public override bool HasUpdates
+    int IPQOrdersPriceVolumeLayer.Count
     {
-        get { return base.HasUpdates || (orders?.Any(aoli => aoli.HasUpdates) ?? false); }
-        set
-        {
-            base.HasUpdates = value;
-            if (value) return;
-            ordersShifted = 0;
-            foreach (var pqaoli in orders ?? []) pqaoli.HasUpdates = value;
-            NameIdLookup.HasUpdates = value;
-        }
+        get => (int)OrdersCount;
+        set => OrdersCount = (uint)value;
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -240,17 +288,40 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         get
         {
             var calcOrderCount = CountFromOrders();
-            if (calcOrderCount > 0) return calcOrderCount;
+            if (calcOrderCount > 0) return (uint)calcOrderCount;
             return base.OrdersCount;
         }
         set
         {
-            for (var i = SafeOrdersLength - 1; i >= value; i--)
+            if (orders != null!)
             {
-                var layerAtLevel                                          = orders?[i];
-                if (!layerAtLevel?.IsEmpty ?? true) layerAtLevel!.IsEmpty = true;
+                for (var i = Capacity - 1; i >= value; i--)
+                {
+                    var layerAtLevel = orders[i];
+
+                    if (!layerAtLevel.IsEmpty) layerAtLevel.IsEmpty = true;
+                }
             }
             base.OrdersCount = value;
+        }
+    }
+
+    public int Capacity
+    {
+        get => orders.Count;
+        set
+        {
+            if (value > PQFeedFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades)
+                throw new ArgumentException("Expected PQRecentlyTraded Capacity to be less than or equal to " +
+                                            PQFeedFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades);
+            var orderCount = CountFromOrders();
+            while (orderCount < Math.Min(MaxAllowedSize, value))
+            {
+                var firstLastTrade = CreateNewBookOrderLayer();
+                firstLastTrade.StateReset();
+                orders.Add(firstLastTrade);
+                orderCount++;
+            }
         }
     }
 
@@ -273,9 +344,37 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         get => nameIdLookup;
         set
         {
-            if (nameIdLookup == value) return;
+            if (ReferenceEquals(nameIdLookup, value)) return;
             nameIdLookup = value;
-            foreach (var pqaoli in Orders.OfType<ISupportsPQNameIdLookupGenerator>()) pqaoli.NameIdLookup = nameIdLookup;
+            if (orders != null!)
+            {
+                foreach (var pqaoli in Orders.OfType<ISupportsPQNameIdLookupGenerator>()) pqaoli.NameIdLookup = nameIdLookup;
+            }
+        }
+    }
+
+    [JsonIgnore]
+    public override bool HasUpdates
+    {
+        get { return base.HasUpdates || orders.Any(aoli => aoli.HasUpdates); }
+        set
+        {
+            base.HasUpdates = value;
+            foreach (var pqaoli in orders) pqaoli.HasUpdates = value;
+            if (value) return;
+            NameIdLookup.HasUpdates = value;
+        }
+    }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public override bool IsEmpty
+    {
+        get => base.IsEmpty && (orders.All(aoli => aoli.IsEmpty));
+        set
+        {
+            base.IsEmpty = value;
+            if (!value) return;
+            ResetWithTracking();
         }
     }
 
@@ -290,46 +389,160 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
 
     public override void UpdateComplete(uint updateSequenceId = 0)
     {
+        foreach (var pqaoli in orders) pqaoli.UpdateComplete(updateSequenceId);
         NameIdLookup.UpdateComplete(updateSequenceId);
         base.UpdateComplete(updateSequenceId);
     }
 
-    public bool RemoveAt(int index)
+    public IReadOnlyList<ListShiftCommand> ShiftCommands
     {
-        orders?[index].StateReset();
-        return true;
+        get => elementShiftRegistry.ShiftCommands;
+        set => elementShiftRegistry.ShiftCommands = value;
     }
 
-    public void ShiftOrders(int offset)
+    public int? ClearRemainingElementsFromIndex
     {
-        var nonEmptyOrders = (int)CountFromOrders();
-        if (nonEmptyOrders == 0 || orders == null) return;
-        OrdersShifted = offset;
-        if (offset > 0)
-            for (var i = 0; i < offset; i++)
-            {
-                IPQAnonymousOrder? toInsert;
-                if (orders[^1].IsEmpty)
-                {
-                    var allOrdersCount = orders.Count;
-                    toInsert = orders[allOrdersCount - 1];
-                    orders.RemoveAt(allOrdersCount - 1);
-                }
-                else
-                {
-                    toInsert = CreateNewBookOrderLayer();
-                }
-                orders.Insert(0, toInsert);
-            }
-        else if (offset < 0 && orders != null)
-            for (var i = offset; i < 0; i++)
-            {
-                var toResetAtEnd = orders[0];
-                orders.RemoveAt(0);
-                toResetAtEnd.StateReset();
-                orders.Add(toResetAtEnd);
-            }
+        get => elementShiftRegistry.ClearRemainingElementsFromIndex;
+        set
+        {
+            elementShiftRegistry.ClearRemainingElementsFromIndex = value;
+
+            base.OrdersCount = (uint)CountFromOrders();
+        }
     }
+
+    public bool HasUnreliableListTracking
+    {
+        get => elementShiftRegistry.HasUnreliableListTracking;
+        set => elementShiftRegistry.HasUnreliableListTracking = value;
+    }
+
+    public bool CalculateShift(DateTime asAtTime, IReadOnlyList<IAnonymousOrder> updatedCollection) =>
+        elementShiftRegistry.CalculateShift(asAtTime, updatedCollection);
+
+    public ListShiftCommand AppendShiftCommand(ListShiftCommand toAppendAtEnd) => elementShiftRegistry.AppendShiftCommand(toAppendAtEnd);
+
+    public void ClearShiftCommands() => elementShiftRegistry.ClearShiftCommands();
+
+    ListShiftCommand IMutableTracksShiftsList<IMutableAnonymousOrder, IAnonymousOrder>.InsertAtStart
+        (IMutableAnonymousOrder toInsertAtStart) =>
+        InsertAtStart((IPQAnonymousOrder)toInsertAtStart);
+
+    bool IMutableTracksShiftsList<IMutableAnonymousOrder, IAnonymousOrder>.AppendAtEnd(IMutableAnonymousOrder toAppendAtEnd) =>
+        AppendAtEnd((IPQAnonymousOrder)toAppendAtEnd);
+
+    ListShiftCommand IMutableTracksShiftsList<IMutableAnonymousOrder, IAnonymousOrder>.InsertAt(int index, IMutableAnonymousOrder toInsertAtStart) =>
+        InsertAt(index, (IPQAnonymousOrder)toInsertAtStart);
+
+    ListShiftCommand IMutableTracksShiftsList<IMutableAnonymousOrder, IAnonymousOrder>.Delete(IMutableAnonymousOrder toDelete) =>
+        Delete((IPQAnonymousOrder)toDelete);
+
+    ListShiftCommand IMutableTracksReorderingList<IMutableAnonymousOrder, IAnonymousOrder>.MoveToStart(IMutableAnonymousOrder existingItem) =>
+        MoveToStart((IPQAnonymousOrder)existingItem);
+
+    ListShiftCommand IMutableTracksReorderingList<IMutableAnonymousOrder, IAnonymousOrder>.MoveSingleElementBy
+        (IMutableAnonymousOrder existingItem, int shift) =>
+        MoveSingleElementBy((IPQAnonymousOrder)existingItem, shift);
+
+    ListShiftCommand IMutableTracksReorderingList<IMutableAnonymousOrder, IAnonymousOrder>.MoveToEnd(IMutableAnonymousOrder existingItem) =>
+        MoveToEnd((IPQAnonymousOrder)existingItem);
+
+    public ListShiftCommand InsertAtStart(IPQAnonymousOrder toInsertAtStart)
+    {
+        var result = elementShiftRegistry.InsertAtStart(toInsertAtStart);
+        base.OrdersCount = (uint)CountFromOrders();
+        return result;
+    }
+
+    public bool AppendAtEnd(IPQAnonymousOrder toAppendAtEnd)
+    {
+        var result = elementShiftRegistry.AppendAtEnd(toAppendAtEnd);
+        base.OrdersCount = (uint)CountFromOrders();
+        return result;
+    }
+
+    public ListShiftCommand InsertAt(int index, IPQAnonymousOrder toInsertAtStart)
+    {
+        var result = elementShiftRegistry.InsertAt(index, toInsertAtStart);
+        base.OrdersCount = (uint)CountFromOrders();
+        return result;
+    }
+
+    public ListShiftCommand Delete(IPQAnonymousOrder toDelete)
+    {
+        var result = elementShiftRegistry.Delete(toDelete);
+        base.OrdersCount = (uint)CountFromOrders();
+        return result;
+    }
+
+    public ListShiftCommand MoveToStart(IPQAnonymousOrder existingItem)
+    {
+        var result = elementShiftRegistry.MoveToStart(existingItem);
+        base.OrdersCount = (uint)CountFromOrders();
+        return result;
+    }
+
+    public ListShiftCommand MoveToEnd(IPQAnonymousOrder existingItem)
+    {
+        var result = elementShiftRegistry.MoveToEnd(existingItem);
+        base.OrdersCount = (uint)CountFromOrders();
+        return result;
+    }
+
+    public ListShiftCommand ShiftElements(int byElements)
+    {
+        var result = elementShiftRegistry.ShiftElements(byElements);
+        base.OrdersCount = (uint)CountFromOrders();
+        return result;
+    }
+
+    public ListShiftCommand ClearAll()
+    {
+        var result = elementShiftRegistry.ClearAll();
+        base.OrdersCount = 0;
+        return result;
+    }
+
+    public ListShiftCommand DeleteAt(int index)
+    {
+        var result = elementShiftRegistry.DeleteAt(index);
+        base.OrdersCount = (uint)CountFromOrders();
+        return result;
+    }
+
+    public ListShiftCommand ShiftElementsFrom(int byElements, int pinElementsFromIndex)
+    {
+        var result = elementShiftRegistry.ShiftElementsFrom(byElements, pinElementsFromIndex);
+        base.OrdersCount = (uint)CountFromOrders();
+        return result;
+    }
+
+    public ListShiftCommand ShiftElementsUntil(int byElements, int pinElementsFromIndex)
+    {
+        var result = elementShiftRegistry.ShiftElementsUntil(byElements, pinElementsFromIndex);
+        base.OrdersCount = (uint)CountFromOrders();
+        return result;
+    }
+
+    public ListShiftCommand ApplyListShiftCommand(ListShiftCommand shiftCommandToApply)
+    {
+        var result = elementShiftRegistry.ApplyListShiftCommand(shiftCommandToApply);
+        base.OrdersCount = (uint)CountFromOrders();
+        return result;
+    }
+
+    public ListShiftCommand MoveSingleElementBy(IPQAnonymousOrder existingItem, int shift)
+    {
+        var result = elementShiftRegistry.MoveSingleElementBy(existingItem, shift);
+        base.OrdersCount = (uint)CountFromOrders();
+        return result;
+    }
+
+    public ListShiftCommand MoveSingleElementBy(int indexToMoveToEnd, int shift) => elementShiftRegistry.MoveSingleElementBy(indexToMoveToEnd, shift);
+
+    public ListShiftCommand MoveToEnd(int indexToMoveToEnd) => elementShiftRegistry.MoveToEnd(indexToMoveToEnd);
+
+    public ListShiftCommand MoveToStart(int indexToMoveToStart) => elementShiftRegistry.MoveToStart(indexToMoveToStart);
 
     IMutableOrdersPriceVolumeLayer ITrackableReset<IMutableOrdersPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
 
@@ -339,19 +552,114 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
 
     IPQOrdersPriceVolumeLayer IPQOrdersPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
 
+    ITracksResetCappedCapacityList<IMutableAnonymousOrder> ITrackableReset<ITracksResetCappedCapacityList<IMutableAnonymousOrder>>.
+        ResetWithTracking() => ResetWithTracking();
+
+    ITracksResetCappedCapacityList<IPQAnonymousOrder> ITrackableReset<ITracksResetCappedCapacityList<IPQAnonymousOrder>>.ResetWithTracking() =>
+        ResetWithTracking();
+
     public override PQOrdersPriceVolumeLayer ResetWithTracking()
     {
-        ordersShifted = 0;
-        foreach (var pqTraderLayerInfo in Orders) pqTraderLayerInfo.StateReset();
+        foreach (var pqTraderLayerInfo in Orders) pqTraderLayerInfo.ResetWithTracking();
         base.ResetWithTracking();
         return this;
     }
 
     public override void StateReset()
     {
-        ordersShifted = 0;
         foreach (var pqTraderLayerInfo in Orders) pqTraderLayerInfo.StateReset();
         base.StateReset();
+    }
+
+    void ICollection<IMutableAnonymousOrder>.Add(IMutableAnonymousOrder item) => Add((IPQAnonymousOrder)item);
+
+    bool ICollection<IMutableAnonymousOrder>.Contains(IMutableAnonymousOrder item) => Contains((IPQAnonymousOrder)item);
+
+    void ICollection<IMutableAnonymousOrder>.CopyTo(IMutableAnonymousOrder[] array, int arrayIndex)
+    {
+        for (int i = 0; i < orders.Count && i + arrayIndex < array.Length; i++)
+        {
+            array[i + arrayIndex] = orders[i];
+        }
+    }
+
+    bool ICollection<IMutableAnonymousOrder>.Remove(IMutableAnonymousOrder item) => Remove((IPQAnonymousOrder)item);
+
+    int IList<IMutableAnonymousOrder>.IndexOf(IMutableAnonymousOrder item) => IndexOf((IPQAnonymousOrder)item);
+
+    void IList<IMutableAnonymousOrder>.Insert(int index, IMutableAnonymousOrder item)
+    {
+        Insert(index, (IPQAnonymousOrder)item);
+    }
+
+    public void Add(IMutableAnonymousOrder order)
+    {
+        var indexToUpdate = (int)OrdersCount;
+        AssertMaxTraderSizeNotExceeded(indexToUpdate);
+        if (indexToUpdate >= Capacity)
+        {
+            CopyAddLayer(order);
+        }
+        else
+        {
+            var entryToUpdate = this[indexToUpdate];
+            entryToUpdate.CopyFrom(order, CopyMergeFlags.FullReplace);
+            base.OrdersCount = (uint)CountFromOrders();
+        }
+    }
+
+    public void Add(IPQAnonymousOrder item)
+    {
+        int index = CountFromOrders();
+        item.NameIdLookup = NameIdLookup;
+        if (index < Capacity)
+        {
+            this[index] = item;
+        }
+        else
+        {
+            orders.Add(item);
+            base.OrdersCount = (uint)CountFromOrders();
+        }
+    }
+
+    public void Clear()
+    {
+        orders.Clear();
+        base.OrdersCount = 0;
+    }
+
+    public bool Contains(IPQAnonymousOrder item) => orders.Contains(item);
+
+    public void CopyTo(IPQAnonymousOrder[] array, int arrayIndex)
+    {
+        for (int i = 0; i < orders.Count && i + arrayIndex < array.Length; i++)
+        {
+            array[i + arrayIndex] = orders[i];
+        }
+    }
+
+    public bool Remove(IPQAnonymousOrder item)
+    {
+        var result = orders.Remove(item);
+        base.OrdersCount = (uint)CountFromOrders();
+        return result;
+    }
+
+    public bool IsReadOnly => false;
+
+    public int IndexOf(IPQAnonymousOrder item) => orders.IndexOf(item);
+
+    public void Insert(int index, IPQAnonymousOrder item)
+    {
+        orders.Insert(index, item);
+        base.OrdersCount = (uint)CountFromOrders();
+    }
+
+    public void RemoveAt(int index)
+    {
+        orders.RemoveAt(index);
+        base.OrdersCount = (uint)CountFromOrders();
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
@@ -359,15 +667,22 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
       , IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
+
+
+        foreach (var shiftCommand in elementShiftRegistry!.ShiftCommands)
+        {
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQPricingSubFieldKeys.CommandElementsShift
+                                         , (uint)shiftCommand, (PQFieldFlags)shiftCommand);
+        }
+
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                 quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
 
-        var numberOfTraderInfos = Math.Min(ushort.MaxValue, SafeOrdersLength);
-        for (ushort i = 0; i < numberOfTraderInfos && i < SafeOrdersLength; i++)
+        var numberOfTraderInfos = Math.Min(ushort.MaxValue, Capacity);
+        for (ushort i = 0; i < numberOfTraderInfos && i < Capacity; i++)
         {
-            var tli = orders?[i];
-            if (tli == null) continue;
+            var tli = orders[i];
             foreach (var orderFu in tli.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSetting))
                 yield return orderFu.WithAuxiliary(i);
             if (i + 1 == numberOfTraderInfos) break;
@@ -379,9 +694,18 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         // assume the book has already forwarded this through to the correct layer
         if (pqFieldUpdate.Id is PQFeedFields.QuoteLayerOrders)
         {
-            var index          = pqFieldUpdate.AuxiliaryPayload;
-            var orderLayerInfo = this[index]!;
-            return orderLayerInfo.UpdateField(pqFieldUpdate);
+            if (pqFieldUpdate.PricingSubId is PQPricingSubFieldKeys.CommandElementsShift)
+            {
+                var elementShift = (ListShiftCommand)(pqFieldUpdate);
+                elementShiftRegistry.AppendShiftCommand(elementShift);
+                ApplyListShiftCommand(elementShift);
+            }
+            else
+            {
+                var index          = pqFieldUpdate.AuxiliaryPayload;
+                var orderLayerInfo = this[index];
+                return orderLayerInfo.UpdateField(pqFieldUpdate);
+            }
         }
 
         return base.UpdateField(pqFieldUpdate);
@@ -389,8 +713,8 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
 
     public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
     {
-        var numberOfTraderInfos = Math.Min(ushort.MaxValue, SafeOrdersLength);
-        for (ushort i = 0; i < numberOfTraderInfos && i < SafeOrdersLength; i++)
+        var numberOfTraderInfos = Math.Min(ushort.MaxValue, Capacity);
+        for (ushort i = 0; i < numberOfTraderInfos && i < Capacity; i++)
         {
             var anonOrder = orders?[i];
             if (anonOrder is null or { IsEmpty: true, HasUpdates: false } || i + 1 == ushort.MaxValue) continue;
@@ -405,6 +729,16 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         return NameIdLookup.UpdateFieldString(stringUpdate);
     }
 
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    IEnumerator<IAnonymousOrder> IEnumerable<IAnonymousOrder>.GetEnumerator() => GetEnumerator();
+
+    IEnumerator<IMutableAnonymousOrder> IEnumerable<IMutableAnonymousOrder>.GetEnumerator() => GetEnumerator();
+
+    IEnumerator<IMutableAnonymousOrder> IMutableOrdersPriceVolumeLayer.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<IPQAnonymousOrder> GetEnumerator() => orders.Take(CountFromOrders()).GetEnumerator();
+
     IPQOrdersPriceVolumeLayer IPQOrdersPriceVolumeLayer.Clone() => Clone();
 
     IOrdersPriceVolumeLayer ICloneable<IOrdersPriceVolumeLayer>.Clone() => Clone();
@@ -418,21 +752,6 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
     IMutablePriceVolumeLayer IMutablePriceVolumeLayer.Clone() => Clone();
 
     public override PQOrdersPriceVolumeLayer Clone() => new(this, LayerType, NameIdLookup);
-    
-    public void Add(IAnonymousOrder order)
-    {
-        var indexToUpdate = (int)OrdersCount;
-        AssertMaxTraderSizeNotExceeded(indexToUpdate);
-        if (indexToUpdate >= SafeOrdersLength)
-        {
-            CopyAddLayer(order);
-        }
-        else
-        {
-            var entryToUpdate = this[indexToUpdate]!;
-            entryToUpdate.CopyFrom(order, CopyMergeFlags.FullReplace);
-        }
-    }
 
 
     [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local")]
@@ -444,12 +763,13 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
 
     private void AppendLayer(IPQAnonymousOrder toAdd)
     {
-        orders?.Add(toAdd);
+        orders.Add(toAdd);
     }
 
     private void CopyAddLayer(IAnonymousOrder toAdd)
     {
-        orders?.Add(ConvertToBookLayer(toAdd));
+        orders.Add(ConvertToBookLayer(toAdd));
+        base.OrdersCount = (uint)CountFromOrders();
     }
 
     public IPQAnonymousOrder ConvertToBookLayer(IAnonymousOrder toAdd)
@@ -478,12 +798,12 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         };
     }
 
-    protected uint CountFromOrders()
+    protected int CountFromOrders()
     {
-        for (var i = SafeOrdersLength - 1; i >= 0; i--)
+        for (var i = Capacity - 1; i >= 0; i--)
         {
-            var layerAtLevel = orders?[i];
-            if (!layerAtLevel?.IsEmpty ?? true) return (uint)(i + 1);
+            var layerAtLevel = orders[i];
+            if (!layerAtLevel.IsEmpty) return (i + 1);
         }
         return 0;
     }
@@ -503,14 +823,14 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         if (!(other is IOrdersPriceVolumeLayer traderPvLayer)) return false;
         var baseSame        = base.AreEquivalent(other, exactTypes);
         var countFromOrders = CountFromOrders();
-        var ordersCountSame = countFromOrders == traderPvLayer.Orders.Count(aoli => !aoli.IsEmpty);
+        var ordersCountSame = countFromOrders == traderPvLayer.Orders.Count;
 
         var orderStillSame = true;
         if (ordersCountSame)
         {
             for (int i = 0; i < countFromOrders && orderStillSame; i++)
             {
-                var localOrder = this[i]!;
+                var localOrder = this[i];
                 var otherOrder = traderPvLayer.Orders[i];
 
                 if (localOrder.IsEmpty && otherOrder.IsEmpty) continue;
@@ -534,12 +854,18 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         var addInfoMask = IAnonymousOrder.AllExceptExtraInfoFlags;
         if (source is ISupportsPQNameIdLookupGenerator pqNameIdLookupGenerator && !copyMergeFlags.HasSkipReferenceLookups())
             NameIdLookup.CopyFrom(pqNameIdLookupGenerator.NameIdLookup, copyMergeFlags);
+
         if (opvl != null)
         {
+            elementShiftRegistry.CopyFrom(opvl, copyMergeFlags);
+
+            var existingOrdersCountUpdated = IsOrdersCountUpdated;
+            var existingCount              = (uint)CountFromOrders();
             for (var j = 0; j < opvl.Orders.Count; j++)
             {
-                var sourceOrder                   = opvl[j]!;
-                var destOrder                     = this[j]!;
+                var sourceOrder = opvl[j];
+                var destOrder   = this[j];
+
                 var hasSourceIsGenesisFlagsUpdate = sourceOrder is IPQAnonymousOrder;
                 var originalGenesisUpdated = sourceOrder is IPQAnonymousOrder pqAnonymousOrder
                     ? pqAnonymousOrder.IsOrderIdUpdated | destOrder.IsGenesisFlagsUpdated
@@ -550,14 +876,16 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
                 destOrder.GenesisFlags            = modifiedGenesisFlags | thisLayerGenesisFlags;
                 destOrder.EmptyIgnoreGenesisFlags = thisLayerGenesisFlags;
                 destOrder.IsGenesisFlagsUpdated
-                    = hasSourceIsGenesisFlagsUpdate 
-                        ? originalGenesisUpdated 
+                    = hasSourceIsGenesisFlagsUpdate
+                        ? originalGenesisUpdated
                         : !thisLayerGenesisFlags.IgnoringAreSame(originalGenesisFlags, modifiedGenesisFlags) || originalGenesisUpdated;
             }
-            for (var i = opvl.Orders.Count; i < SafeOrdersLength; i++)
-                if (orders?[i] is { IsEmpty: false } makeEmpty)
-                    makeEmpty.IsEmpty = true;
+            for (var i = opvl.Orders.Count; i < Capacity; i++) orders[i].ResetWithTracking();
+            var newOrderCount = (uint)CountFromOrders();
+            base.OrdersCount     = newOrderCount;
+            IsOrdersCountUpdated = existingOrdersCountUpdated || existingCount != newOrderCount;
         }
+
         base.CopyFrom(source, copyMergeFlags);
         if (pqopvl != null && isFullReplace) SetFlagsSame(source);
 
@@ -570,13 +898,30 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
     {
         unchecked
         {
-            return (base.GetHashCode() * 397) ^ orders?.GetHashCode() ?? 0;
+            return (base.GetHashCode() * 397) ^ orders.GetHashCode();
         }
     }
+    
+    public string EachOrderByIndexOnNewLines()
+    {
+        var countFromOrders = CountFromOrders();
+        var sb              = new StringBuilder(100 * countFromOrders);
+        for (var i = 0; i < countFromOrders; i++)
+        {
+            var order = Orders[i];
+            sb.Append("[").Append(i).Append("] = ").Append(order);
+            if (i < countFromOrders - 1)
+            {
+                sb.AppendLine(",");
+            }
+        }
+        return sb.ToString();
+    }
 
-    protected string PQJustOrdersToStringMembers => $"{nameof(Orders)}: [{string.Join(", ", Orders)}]";
+    protected string PQJustOrdersToStringMembers => $"{nameof(Orders)}: [{EachOrderByIndexOnNewLines()}]";
 
-    protected string PQOrdersPriceVolumeLayerToStringMembers => $"{PQOrdersCountVolumeLayerToStringMembers}, {PQJustOrdersToStringMembers}";
+    protected string PQOrdersPriceVolumeLayerToStringMembers => 
+        $"{PQOrdersCountVolumeLayerToStringMembers}, {nameof(MaxAllowedSize)}: {MaxAllowedSize:N0}, {PQJustOrdersToStringMembers}";
 
     public override string ToString() => $"{GetType().Name}({PQOrdersPriceVolumeLayerToStringMembers}, {UpdatedFlagsToString})";
 }

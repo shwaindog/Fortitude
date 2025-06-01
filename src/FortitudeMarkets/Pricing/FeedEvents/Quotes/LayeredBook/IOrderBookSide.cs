@@ -3,7 +3,6 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
@@ -22,7 +21,7 @@ public enum BookSide
 }
 
 public interface IOrderBookSide : ITracksShiftsList<IPriceVolumeLayer, IPriceVolumeLayer>, IReusableObject<IOrderBookSide>,
-    IInterfacesComparable<IOrderBookSide>, IShowsEmpty
+    IInterfacesComparable<IOrderBookSide>
 {
     new IPriceVolumeLayer this[int index] { get; }
 

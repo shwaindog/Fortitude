@@ -62,7 +62,7 @@ public class PQRecentlyTradedTests
     private IList<IPQLastTrade> simpleEntries = null!;
 
     private PQRecentlyTraded simpleRecentlyTradedFullyPopulatedLastTrades      = null!;
-    private PQRecentlyTraded fullSupportRecentlyTradedFullyPopulatedLastTrades = null!;
+    private PQRecentlyTraded fullSupportRecentlyTradedFullyPopulated = null!;
     // test being less than max.
     private const LastTradedTransmissionFlags AllLimitedAllPublishing
         = LastTradedTransmissionFlags.LimitByPeriodTime | LastTradedTransmissionFlags.LimitByTradeCount |
@@ -111,13 +111,13 @@ public class PQRecentlyTradedTests
         simpleRecentlyTradedFullyPopulatedLastTrades = new PQRecentlyTraded(AllLimitedAllPublishing, (IEnumerable<IPQLastTrade>)simpleEntries);
         paidGivenVolumeRecentlyTradedFullyPopulatedLastTrades
             = new PQRecentlyTraded(AllLimitedAllPublishing, (IEnumerable<IPQLastTrade>)lastPaidGivenEntries);
-        fullSupportRecentlyTradedFullyPopulatedLastTrades
+        fullSupportRecentlyTradedFullyPopulated
             = new PQRecentlyTraded(AllLimitedAllPublishing, (IEnumerable<IPQLastTrade>)lastExternalCounterPartyEntries);
         // ReSharper restore RedundantCast
         allFullyPopulatedRecentlyTraded = new List<PQRecentlyTraded>
         {
             simpleRecentlyTradedFullyPopulatedLastTrades, paidGivenVolumeRecentlyTradedFullyPopulatedLastTrades
-          , fullSupportRecentlyTradedFullyPopulatedLastTrades
+          , fullSupportRecentlyTradedFullyPopulated
         };
     }
 
@@ -569,22 +569,21 @@ public class PQRecentlyTradedTests
     {
         foreach (var populatedRecentlyTraded in allFullyPopulatedRecentlyTraded)
         {
-            var q = populatedRecentlyTraded;
+            var rt = populatedRecentlyTraded;
 
-            var toString = q.ToString();
+            var toString = rt.ToString();
 
-            Assert.IsTrue(toString.Contains(q.GetType().Name));
-
-            Assert.IsTrue(toString.Contains(
-                                            $"LastTrades: [{string.Join(", ", (IEnumerable<ILastTrade>)populatedRecentlyTraded)}]"));
-            Assert.IsTrue(toString.Contains($"{nameof(q.Count)}: {q.Count}"));
+            Assert.IsTrue(toString.Contains(rt.GetType().Name));
+            Assert.IsTrue(toString.Contains($"{nameof(rt.MaxAllowedSize)}: {rt.MaxAllowedSize:N0}"));
+            Assert.IsTrue(toString.Contains($"LastTrades: [{rt.EachLastTradeByIndexOnNewLines()}]"));
+            Assert.IsTrue(toString.Contains($"{nameof(rt.Count)}: {rt.Count}"));
         }
     }
 
     [TestMethod]
     public void FullyPopulatedPvlVariousInterfaces_GetEnumerator_OnlyGetsNonEmptyEntries()
     {
-        var rt = fullSupportRecentlyTradedFullyPopulatedLastTrades;
+        var rt = fullSupportRecentlyTradedFullyPopulated;
         Assert.AreEqual(MaxNumberOfEntries, rt.Count);
         Assert.AreEqual(MaxNumberOfEntries, ((IEnumerable<IPQLastTrade>)rt).Count());
         Assert.AreEqual(MaxNumberOfEntries, ((IEnumerable<ILastTrade>)rt).Count());
@@ -601,9 +600,9 @@ public class PQRecentlyTradedTests
     [TestMethod]
     public void PopulatedRecentlyTraded_SmallerToLargerCalculateShifts_ShiftRightCommandsExpected()
     {
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
 
         int[]        expectedIndices = [0, 2, 5, 9];
@@ -629,7 +628,7 @@ public class PQRecentlyTradedTests
 
         toShift.ShiftCommands = new List<ListShiftCommand>();
 
-        var shiftedNext = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftedNext = fullSupportRecentlyTradedFullyPopulated.Clone();
         toShift.CalculateShift(ExpectedTradeTime, shiftedNext);
 
         Assert.AreEqual(3, toShift.ShiftCommands.Count);
@@ -667,7 +666,7 @@ public class PQRecentlyTradedTests
         }
         foreach (var expectedIndex in expectedIndices)
         {
-            Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades[expectedIndex], toShift[expectedIndex]);
+            Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated[expectedIndex], toShift[expectedIndex]);
             Assert.AreSame(instances[expectedIndex], toShift[expectedIndex]);
         }
     }
@@ -675,9 +674,9 @@ public class PQRecentlyTradedTests
     [TestMethod]
     public void PopulatedRecentlyTraded_SmallerToLargerCalculateShiftsWithElementMovedToStart_ShiftRightCommandsExpected()
     {
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         int[]        expectedIndices = [0, 2, 4, 6, 7, 8, 10];
         ILastTrade[] instances       = new ILastTrade[11];
@@ -713,7 +712,7 @@ public class PQRecentlyTradedTests
 
         toShift.ShiftCommands = new List<ListShiftCommand>();
 
-        var shiftedNext = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftedNext = fullSupportRecentlyTradedFullyPopulated.Clone();
         toShift.CalculateShift(ExpectedTradeTime, shiftedNext);
         
         Console.Out.WriteLine($"{toShift.ShiftCommands.JoinShiftCommandsOnNewLine()}");
@@ -768,7 +767,7 @@ public class PQRecentlyTradedTests
         }
         for (int i = 0; i < expectedIndices.Length; i++)
         {
-            Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades[expectedIndices[i]], toShift[expectedIndices[i]]);
+            Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated[expectedIndices[i]], toShift[expectedIndices[i]]);
             Assert.AreSame(instances[expectedIndices[i]], toShift[expectedIndices[i]]);
         }
     }
@@ -776,9 +775,9 @@ public class PQRecentlyTradedTests
     [TestMethod]
     public void PopulatedRecentlyTraded_LargerToSmallerCalculateShiftsWithNewEntryInMiddle_CalculateShiftLeftCommandsReturnsExpected()
     {
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         var count       = toShift.Count;    // original    0,1,2,3,4,5,6,7,8,9,10,11
         int oldIndex    = count - 1;        // deleted     0,1,3,4,5,7,8,10                         
@@ -806,7 +805,7 @@ public class PQRecentlyTradedTests
 
         toShift.ShiftCommands = new List<ListShiftCommand>();
 
-        var shiftedNext = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftedNext = fullSupportRecentlyTradedFullyPopulated.Clone();
 
         int[] expectedIndices = [0, 1, 3, 4];
 
@@ -868,39 +867,41 @@ public class PQRecentlyTradedTests
     }
 
     [TestMethod]
-    public void PopulatedNonMaxedSizeRecentlyTraded_ClearAfterMidElement_ListIsReducedByHalf()
+    public void PopulatedNonMaxAllowedSizeRecentlyTraded_ClearAfterMidElement_ListIsReducedByHalf()
     {
         var halfListSize = MaxNumberOfEntries / 2;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         toShift.ClearRemainingElementsFromIndex = halfListSize;
 
         for (int i = 0; i < halfListSize; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i]);
         }
-        for (int i = halfListSize; i < fullSupportRecentlyTradedFullyPopulatedLastTrades.Count; i++)
+        for (int i = halfListSize; i < fullSupportRecentlyTradedFullyPopulated.Count; i++)
         {
             Assert.IsTrue(toShift[i].IsEmpty);
         }
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades.Count, toShift.Count + halfListSize);
+        Assert.AreEqual(halfListSize, toShift.Count);
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
+        Assert.AreEqual(halfListSize, shiftViaDeltaUpdates.Count);
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(halfListSize, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedNonMaxedSizeRecentlyTraded_InsertNewElementAtStart_RemainingElementsShiftRightByOne()
+    public void PopulatedNonMaxAllowedSizeRecentlyTraded_InsertNewElementAtStart_RemainingElementsShiftRightByOne()
     {
         var newLastTrade = new PQLastExternalCounterPartyTrade
             (traderNameIdLookupGenerator, ExpectedTradeId + 13, ExpectedBatchId + 13, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume
@@ -908,9 +909,9 @@ public class PQRecentlyTradedTests
            , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
            , ExpectedUpdateTime);
 
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         toShift.InsertAtStart(newLastTrade);
 
@@ -918,20 +919,21 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i + 1;
             var prevIndex  = i;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(0, toShift.IndexOf(newLastTrade));
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(MaxNumberOfEntries + 1, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
@@ -939,9 +941,9 @@ public class PQRecentlyTradedTests
     {
         var midIndex = MaxNumberOfEntries / 2 + 1;
 
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         var middleElement = toShift[midIndex];
 
@@ -951,38 +953,38 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i;
             var prevIndex  = i < midIndex ? i : i + 1;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades.Count, toShift.Count + 1);
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated.Count, toShift.Count + 1);
 
 
-        toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         toShift.Delete(middleElement);
         for (int i = 0; i < toShift.Count; i++)
         {
             var shiftIndex = i;
             var prevIndex  = i < midIndex ? i : i + 1;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades.Count, toShift.Count + 1);
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated.Count, toShift.Count + 1);
 
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedCacheMaxedSizeReachedRecentlyTraded_InsertNewElementAtStart_RemainingElementsShiftRightExceptLastIsRemoved()
+    public void PopulatedMaxAllowedSizeReachedRecentlyTraded_InsertNewElementAtStart_RemainingElementsShiftRightExceptLastIsRemoved()
     {
         var newLastTrade = new PQLastExternalCounterPartyTrade
             (traderNameIdLookupGenerator, ExpectedTradeId + 13, ExpectedBatchId + 13, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume
@@ -990,10 +992,10 @@ public class PQRecentlyTradedTests
            , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
            , ExpectedUpdateTime);
 
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.MaxAllowedSize = MaxNumberOfEntries;
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates     = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
         toShift.InsertAtStart(newLastTrade);
@@ -1002,27 +1004,27 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i;
             var prevIndex  = i - 1;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
         Assert.AreEqual(0, toShift.IndexOf(newLastTrade));
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
-        Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
+        Assert.AreEqual(MaxNumberOfEntries, shiftViaDeltaUpdates.Count);
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(MaxNumberOfEntries, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedNonMaxedSizeRecentlyTraded_InsertNewElementAtEnd_NewElementAppearsAtTheEnd()
+    public void PopulatedNonMaxAllowedSizeRecentlyTraded_InsertNewElementAtEnd_NewElementAppearsAtTheEnd()
     {
         var newLastTrade = new PQLastExternalCounterPartyTrade
             (traderNameIdLookupGenerator, ExpectedTradeId + 13, ExpectedBatchId + 13, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume
@@ -1030,9 +1032,9 @@ public class PQRecentlyTradedTests
            , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
            , ExpectedUpdateTime);
 
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         toShift.AppendAtEnd(newLastTrade);
 
@@ -1040,24 +1042,27 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i;
             var prevIndex  = i;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
+        Assert.AreEqual(MaxNumberOfEntries + 1, toShift.Count);
         Assert.AreEqual(toShift.Count - 1, toShift.IndexOf(newLastTrade));
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
+        Assert.AreEqual(MaxNumberOfEntries + 1, shiftViaDeltaUpdates.Count);
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+        Assert.AreEqual(MaxNumberOfEntries + 1, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedCacheMaxedSizeReachRecentlyTraded_AttemptInsertNewElementAtEnd_ReturnsFalseAndNoElementIsAdded()
+    public void PopulatedMaxAllowedSizeReachRecentlyTraded_AttemptInsertNewElementAtEnd_ReturnsFalseAndNoElementIsAdded()
     {
         var newLastTrade = new PQLastExternalCounterPartyTrade
             (traderNameIdLookupGenerator, ExpectedTradeId + 13, ExpectedBatchId + 13, ExpectedTradePrice, ExpectedTradeTime, ExpectedTradeVolume
@@ -1065,23 +1070,24 @@ public class PQRecentlyTradedTests
            , ExpectedWasGiven, ExpectedTradedTypeFlags, ExpectedTradeLifeCycleFlags, ExpectedFirstNotifiedTime, ExpectedAdapterReceivedTime
            , ExpectedUpdateTime);
 
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates     = false;
+        fullSupportRecentlyTradedFullyPopulated.MaxAllowedSize = MaxNumberOfEntries;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         var result = toShift.AppendAtEnd(newLastTrade);
-
         Assert.IsFalse(result);
+        Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated[^1], toShift[^1]);
     }
 
     [TestMethod]
-    public void PopulatedNonMaxedSizeRecentlyTraded_MoveMiddleToStart_FormerMiddleElementIsAtStart()
+    public void PopulatedNonMaxAllowedSizeRecentlyTraded_MoveMiddleToStart_FormerMiddleElementIsAtStart()
     {
         var midIndex = MaxNumberOfEntries / 2 + 1;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         var middleElement = toShift[midIndex];
 
@@ -1091,12 +1097,12 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i == midIndex ? 0 : i < midIndex ? i + 1 : i;
             var prevIndex  = i;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(0, toShift.IndexOf(middleElement));
 
-        toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         middleElement = toShift[midIndex];
 
@@ -1106,30 +1112,30 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i == midIndex ? 0 : i < midIndex ? i + 1 : i;
             var prevIndex  = i;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(0, toShift.IndexOf(middleElement));
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedCacheMaxedSizeReachedRecentlyTraded_MoveMiddleToStart_FormerMiddleElementIsAtStart()
+    public void PopulatedMaxAllowedSizeReachedRecentlyTraded_MoveMiddleToStart_FormerMiddleElementIsAtStart()
     {
         var midIndex = MaxNumberOfEntries / 2 + 1;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates     = false;
+        fullSupportRecentlyTradedFullyPopulated.MaxAllowedSize = MaxNumberOfEntries;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         var middleElement = toShift[midIndex];
 
@@ -1139,13 +1145,13 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i == midIndex ? 0 : i < midIndex ? i + 1 : i;
             var prevIndex  = i;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
         Assert.AreEqual(0, toShift.IndexOf(middleElement));
 
-        toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         middleElement = toShift[midIndex];
 
@@ -1155,30 +1161,32 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i == midIndex ? 0 : i < midIndex ? i + 1 : i;
             var prevIndex  = i;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
         Assert.AreEqual(0, toShift.IndexOf(middleElement));
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
+        Assert.AreEqual(MaxNumberOfEntries, shiftViaDeltaUpdates.Count);
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(MaxNumberOfEntries, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedNonMaxedSizeRecentlyTraded_MoveMiddleToEnd_FormerMiddleElementIsAtTheEnd()
+    public void PopulatedNonMaxAllowedSizeRecentlyTraded_MoveMiddleToEnd_FormerMiddleElementIsAtTheEnd()
     {
         var midIndex = MaxNumberOfEntries / 2 + 1;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         var middleElement = toShift[midIndex];
 
@@ -1188,12 +1196,12 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i;
             var prevIndex  = i < midIndex ? i : i == toShift.Count - 1 ? midIndex : i + 1;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(toShift.Count - 1, toShift.IndexOf(middleElement));
 
-        toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         middleElement = toShift[midIndex];
 
@@ -1203,30 +1211,30 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i;
             var prevIndex  = i < midIndex ? i : i == toShift.Count - 1 ? midIndex : i + 1;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(toShift.Count - 1, toShift.IndexOf(middleElement));
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedCacheMaxedSizeReachedRecentlyTraded_MoveMiddleToEnd_FormerMiddleElementIsAtTheEnd()
+    public void PopulatedMaxAllowedSizeReachedRecentlyTraded_MoveMiddleToEnd_FormerMiddleElementIsAtTheEnd()
     {
         var midIndex = MaxNumberOfEntries / 2 + 1;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates     = false;
+        fullSupportRecentlyTradedFullyPopulated.MaxAllowedSize = MaxNumberOfEntries;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         var middleElement = toShift[midIndex];
 
@@ -1236,13 +1244,13 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i;
             var prevIndex  = i < midIndex ? i : i == toShift.Count - 1 ? midIndex : i + 1;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
         Assert.AreEqual(toShift.Count - 1, toShift.IndexOf(middleElement));
 
-        toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         middleElement = toShift[midIndex];
 
@@ -1252,30 +1260,30 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i;
             var prevIndex  = i < midIndex ? i : i == toShift.Count - 1 ? midIndex : i + 1;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
         Assert.AreEqual(toShift.Count - 1, toShift.IndexOf(middleElement));
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedNonMaxedSizeRecentlyTraded_MoveMiddleRightByTwoPlaces_FormerMiddleElementIsIndexPlus2()
+    public void PopulatedNonMaxAllowedSizeRecentlyTraded_MoveMiddleRightByTwoPlaces_FormerMiddleElementIsIndexPlus2()
     {
         var midIndex = MaxNumberOfEntries / 2 + 1;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         var middleElement = toShift[midIndex];
         var shiftAmount   = 2;
@@ -1286,12 +1294,12 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i;
             var prevIndex  = i < midIndex ? i : i < midIndex + shiftAmount ? i + 1 : i == midIndex + shiftAmount ? midIndex : i;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
 
-        toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         middleElement = toShift[midIndex];
 
@@ -1301,30 +1309,30 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i;
             var prevIndex  = i < midIndex ? i : i < midIndex + shiftAmount ? i + 1 : i == midIndex + shiftAmount ? midIndex : i;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedCacheMaxedSizeReachedRecentlyTraded_MoveMiddleRightByTwoPlaces_FormerMiddleElementIsIndexPlus2()
+    public void PopulatedMaxAllowedSizeReachedRecentlyTraded_MoveMiddleRightByTwoPlaces_FormerMiddleElementIsIndexPlus2()
     {
         var midIndex = MaxNumberOfEntries / 2 + 1;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates     = false;
+        fullSupportRecentlyTradedFullyPopulated.MaxAllowedSize = MaxNumberOfEntries;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         var middleElement = toShift[midIndex];
         var shiftAmount   = 2;
@@ -1335,13 +1343,13 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i;
             var prevIndex  = i < midIndex ? i : i < midIndex + shiftAmount ? i + 1 : i == midIndex + shiftAmount ? midIndex : i;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
         Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
 
-        toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         middleElement = toShift[midIndex];
 
@@ -1351,30 +1359,30 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i;
             var prevIndex  = i < midIndex ? i : i < midIndex + shiftAmount ? i + 1 : i == midIndex + shiftAmount ? midIndex : i;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
         Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedNonMaxedSizeRecentlyTraded_MoveMiddleLeftByTwoPlaces_FormerMiddleElementIsIndexPlus2()
+    public void PopulatedNonMaxAllowedSizeRecentlyTraded_MoveMiddleLeftByTwoPlaces_FormerMiddleElementIsIndexPlus2()
     {
         var midIndex = MaxNumberOfEntries / 2 + 1;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         var middleElement = toShift[midIndex];
         var shiftAmount   = -2;
@@ -1385,12 +1393,12 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i < midIndex + shiftAmount ? i : i < midIndex ? i + 1 : i == midIndex ? midIndex + shiftAmount : i;
             var prevIndex  = i;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
 
-        toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         middleElement = toShift[midIndex];
 
@@ -1400,30 +1408,30 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i < midIndex + shiftAmount ? i : i < midIndex ? i + 1 : i == midIndex ? midIndex + shiftAmount : i;
             var prevIndex  = i;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedCacheMaxedSizeReachedRecentlyTraded_MoveMiddleLeftByTwoPlaces_FormerMiddleElementIsIndexPlus2()
+    public void PopulatedMaxAllowedSizeReachedRecentlyTraded_MoveMiddleLeftByTwoPlaces_FormerMiddleElementIsIndexPlus2()
     {
         var midIndex = MaxNumberOfEntries / 2 + 1;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates     = false;
+        fullSupportRecentlyTradedFullyPopulated.MaxAllowedSize = MaxNumberOfEntries;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         var middleElement = toShift[midIndex];
         var shiftAmount   = -2;
@@ -1434,13 +1442,13 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i < midIndex + shiftAmount ? i : i < midIndex ? i + 1 : i == midIndex ? midIndex + shiftAmount : i;
             var prevIndex  = i;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
         Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
 
-        toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         middleElement = toShift[midIndex];
 
@@ -1450,408 +1458,433 @@ public class PQRecentlyTradedTests
         {
             var shiftIndex = i < midIndex + shiftAmount ? i : i < midIndex ? i + 1 : i == midIndex ? midIndex + shiftAmount : i;
             var prevIndex  = i;
-            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulatedLastTrades[prevIndex]);
+            Assert.AreEqual(toShift[shiftIndex], fullSupportRecentlyTradedFullyPopulated[prevIndex]);
         }
         Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
         Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
+        Assert.AreEqual(MaxNumberOfEntries, shiftViaDeltaUpdates.Count);
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(MaxNumberOfEntries, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedNonMaxedSizeRecentlyTraded_ShiftLeftFromMiddleByOne_DeletesEntryFirstEntryCreatesEmptyOneBelowPinIndex()
+    public void PopulatedNonMaxAllowedSizeRecentlyTraded_ShiftLeftFromMiddleByOne_DeletesEntryFirstEntryCreatesEmptyOneBelowPinIndex()
     {
         var pinAt = MaxNumberOfEntries / 2 + 1;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         toShift.ShiftElementsFrom(-1, pinAt);
 
         for (int i = 0; i < pinAt - 1; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i + 1]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i + 1]);
         }
         Assert.IsTrue(toShift[pinAt - 1].IsEmpty);
         for (int i = pinAt; i < toShift.Count; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i]);
         }
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedCacheMaxedSizeReachedRecentlyTraded_ShiftLeftFromMiddleByOne_DeletesEntryFirstEntryCreatesEmptyOneBelowPinIndex()
+    public void PopulatedMaxAllowedSizeReachedRecentlyTraded_ShiftLeftFromMiddleByOne_DeletesEntryFirstEntryCreatesEmptyOneBelowPinIndex()
     {
         var pinAt = MaxNumberOfEntries / 2 + 1;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates     = false;
+        fullSupportRecentlyTradedFullyPopulated.MaxAllowedSize = MaxNumberOfEntries;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         toShift.ShiftElementsFrom(-1, pinAt);
 
         for (int i = 0; i < pinAt - 1; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i + 1]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i + 1]);
         }
         Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
         Assert.IsTrue(toShift[pinAt - 1].IsEmpty);
         for (int i = pinAt; i < toShift.Count; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i]);
         }
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
+        Assert.AreEqual(MaxNumberOfEntries, shiftViaDeltaUpdates.Count);
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(MaxNumberOfEntries, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedNonMaxedSizeRecentlyTraded_ShiftRightFromMiddleByOne_CreatesEmptyOneAbovePinIndexAndExtendsList()
+    public void PopulatedNonMaxAllowedSizeRecentlyTraded_ShiftRightFromMiddleByOne_CreatesEmptyOneAbovePinIndexAndExtendsList()
     {
         var pinAt = MaxNumberOfEntries / 2 - 1;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         toShift.ShiftElementsFrom(1, pinAt);
 
         for (int i = pinAt + 2; i < toShift.Count; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i - 1]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i - 1]);
         }
         Assert.IsTrue(toShift[pinAt + 1].IsEmpty);
         for (int i = 0; i < pinAt; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i]);
         }
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedCacheMaxedSizeReachedRecentlyTraded_ShiftRightFromMiddleByOne_CreatesEmptyOneAbovePinIndexAndExtendsList()
+    public void PopulatedMaxAllowedSizeReachedRecentlyTraded_ShiftRightFromMiddleByOne_CreatesEmptyOneAbovePinIndexAndDeletesLastEntry()
     {
         var pinAt = MaxNumberOfEntries / 2 - 1;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates     = false;
+        fullSupportRecentlyTradedFullyPopulated.MaxAllowedSize = MaxNumberOfEntries;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         toShift.ShiftElementsFrom(1, pinAt);
 
         for (int i = pinAt + 2; i < toShift.Count; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i - 1]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i - 1]);
         }
         Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
         Assert.IsTrue(toShift[pinAt + 1].IsEmpty);
         for (int i = 0; i < pinAt; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i]);
         }
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
+        Assert.AreEqual(MaxNumberOfEntries, shiftViaDeltaUpdates.Count);
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(MaxNumberOfEntries, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedNonMaxedSizeRecentlyTraded_ShiftLeftTowardMiddleByOne_DeletesPreMiddleEntryCreatesEmptyAtEnd()
+    public void PopulatedNonMaxAllowedSizeRecentlyTraded_ShiftLeftTowardMiddleByOne_DeletesPreMiddleEntryCreatesEmptyAtEnd()
     {
         var pinAt = MaxNumberOfEntries / 2 + 1;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         toShift.ShiftElementsUntil(-1, pinAt);
 
         for (int i = pinAt + 1; i < toShift.Count; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i + 1]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i + 1]);
         }
-        Assert.IsTrue(toShift[fullSupportRecentlyTradedFullyPopulatedLastTrades.Count - 1].IsEmpty);
+        Assert.AreEqual(MaxNumberOfEntries - 1, toShift.Count);
+        Assert.IsTrue(toShift[fullSupportRecentlyTradedFullyPopulated.Count - 1].IsEmpty);
         for (int i = 0; i < pinAt; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i]);
         }
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
+        Assert.AreEqual(MaxNumberOfEntries - 1, shiftViaDeltaUpdates.Count);
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(MaxNumberOfEntries - 1, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedCacheMaxedSizeReachedRecentlyTraded_ShiftLeftTowardMiddleByOne_DeletesPreMiddleEntryCreatesEmptyAtEnd()
+    public void PopulatedCacheMaxAllowedSizeReachedRecentlyTraded_ShiftLeftTowardMiddleByOne_DeletesPreMiddleEntryCreatesEmptyAtEnd()
     {
         var pinAt = MaxNumberOfEntries / 2 + 1;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates     = false;
+        fullSupportRecentlyTradedFullyPopulated.MaxAllowedSize = MaxNumberOfEntries;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         toShift.ShiftElementsUntil(-1, pinAt);
 
         for (int i = pinAt + 1; i < toShift.Count; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i + 1]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i + 1]);
         }
         Assert.AreEqual(MaxNumberOfEntries, toShift.Count + 1);
-        Assert.IsTrue(toShift[fullSupportRecentlyTradedFullyPopulatedLastTrades.Count - 1].IsEmpty);
+        Assert.IsTrue(toShift[fullSupportRecentlyTradedFullyPopulated.Count - 1].IsEmpty);
         for (int i = 0; i < pinAt; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i]);
         }
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
+        Assert.AreEqual(MaxNumberOfEntries, shiftViaDeltaUpdates.Count + 1);
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(MaxNumberOfEntries, shiftCopyFrom.Count + 1);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedNonMaxedSizeRecentlyTraded_ShiftRightTowardMiddleByOne_CreatesEmptyAtStartDeletesPreMiddleEntry()
+    public void PopulatedNonMaxAllowedSizeRecentlyTraded_ShiftRightTowardMiddleByOne_CreatesEmptyAtStartDeletesPreMiddleEntry()
     {
         var pinAt = MaxNumberOfEntries / 2 - 1;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         toShift.ShiftElementsUntil(1, pinAt);
 
         for (int i = 1; i < pinAt; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i - 1]);
-        }
-        Assert.IsTrue(toShift[0].IsEmpty);
-        for (int i = pinAt; i < toShift.Count; i++)
-        {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i]);
-        }
-
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
-        {
-            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
-        }
-        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
-
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
-        Assert.AreEqual(toShift, shiftCopyFrom);
-    }
-
-    [TestMethod]
-    public void PopulatedCacheMaxedSizeReachedRecentlyTraded_ShiftRightTowardMiddleByOne_CreatesEmptyAtStartDeletesPreMiddleEntry()
-    {
-        var pinAt = MaxNumberOfEntries / 2 - 1;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
-
-        toShift.ShiftElementsUntil(1, pinAt);
-
-        for (int i = 1; i < pinAt; i++)
-        {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i - 1]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i - 1]);
         }
         Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
         Assert.IsTrue(toShift[0].IsEmpty);
         for (int i = pinAt; i < toShift.Count; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i]);
         }
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
+        Assert.AreEqual(MaxNumberOfEntries, shiftViaDeltaUpdates.Count);
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(MaxNumberOfEntries, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedNonMaxedSizeRecentlyTraded_ShiftLeftFromEndByHalfListSize_CreatesEmptyAtEndAndShortensListByHalf()
+    public void PopulatedMaxAllowedSizeReachedRecentlyTraded_ShiftRightTowardMiddleByOne_CreatesEmptyAtStartDeletesPreMiddleEntry()
+    {
+        var pinAt = MaxNumberOfEntries / 2 - 1;
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates     = false;
+        fullSupportRecentlyTradedFullyPopulated.MaxAllowedSize = MaxNumberOfEntries;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
+
+        toShift.ShiftElementsUntil(1, pinAt);
+
+        for (int i = 1; i < pinAt; i++)
+        {
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i - 1]);
+        }
+        Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
+        Assert.IsTrue(toShift[0].IsEmpty);
+        for (int i = pinAt; i < toShift.Count; i++)
+        {
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i]);
+        }
+
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        {
+            shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
+        }
+        Assert.AreEqual(MaxNumberOfEntries, shiftViaDeltaUpdates.Count);
+        Assert.AreEqual(toShift, shiftViaDeltaUpdates);
+
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
+        shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(MaxNumberOfEntries, shiftCopyFrom.Count);
+        Assert.AreEqual(toShift, shiftCopyFrom);
+    }
+
+    [TestMethod]
+    public void PopulatedNonMaxAllowedSizeRecentlyTraded_ShiftLeftFromEndByHalfListSize_CreatesEmptyAtEndAndShortensListByHalf()
     {
         var halfListSize = MaxNumberOfEntries / 2;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         toShift.ShiftElementsFrom(-halfListSize, short.MaxValue);
 
         for (int i = 0; i < halfListSize; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i + halfListSize]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i + halfListSize]);
         }
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades.Count, toShift.Count + halfListSize);
+        Assert.AreEqual(halfListSize, toShift.Count);
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
+        Assert.AreEqual(halfListSize, shiftViaDeltaUpdates.Count);
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(halfListSize, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedCacheMaxedSizeReachedRecentlyTraded_ShiftLeftFromEndByHalfListSize_CreatesEmptyAtEndAndShortensListByHalf()
+    public void PopulatedMaxAllowedSizeReachedRecentlyTraded_ShiftLeftFromEndByHalfListSize_CreatesEmptyAtEndAndShortensListByHalf()
     {
         var halfListSize = MaxNumberOfEntries / 2;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates     = false;
+        fullSupportRecentlyTradedFullyPopulated.MaxAllowedSize = MaxNumberOfEntries;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         toShift.ShiftElementsFrom(-halfListSize, short.MaxValue);
 
         for (int i = 0; i < halfListSize; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i + halfListSize]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i + halfListSize]);
         }
         Assert.AreEqual(MaxNumberOfEntries, toShift.Count + halfListSize);
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades.Count, toShift.Count + halfListSize);
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated.Count, toShift.Count + halfListSize);
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
+        Assert.AreEqual(halfListSize, shiftViaDeltaUpdates.Count);
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(halfListSize, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedNonMaxedSizeRecentlyTraded_ShiftRightFromStart_CreatesEmptyAtStartAndExtendsListByHalf()
+    public void PopulatedNonMaxAllowedSizeRecentlyTraded_ShiftRightFromStart_CreatesEmptyAtStartAndExtendsListByHalf()
     {
         var halfListSize = MaxNumberOfEntries / 2;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates = false;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates = false;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         toShift.ShiftElementsFrom(halfListSize, short.MinValue);
 
         for (int i = halfListSize; i < toShift.Count; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i - halfListSize]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i - halfListSize]);
         }
+        Assert.AreEqual(MaxNumberOfEntries + halfListSize, toShift.Count);
         for (int i = 0; i < halfListSize; i++)
         {
             Assert.IsTrue(toShift[i].IsEmpty);
         }
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades.Count, toShift.Count - halfListSize);
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated.Count, toShift.Count - halfListSize);
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
+        Assert.AreEqual(MaxNumberOfEntries + halfListSize, shiftViaDeltaUpdates.Count);
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(MaxNumberOfEntries + halfListSize, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
     [TestMethod]
-    public void PopulatedCacheMaxedSizeReachedRecentlyTraded_ShiftRightFromStart_CreatesEmptyAtStartAndExtendsListByHalf()
+    public void PopulatedMaxAllowedSizeReachedRecentlyTraded_ShiftRightFromStartByHalfList_CreatesEmptyItemsAtStartAndTruncatesLastHalfOfOrders()
     {
         var halfListSize = MaxNumberOfEntries / 2;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.HasUpdates     = false;
-        fullSupportRecentlyTradedFullyPopulatedLastTrades.MaxAllowedSize = MaxNumberOfEntries;
-        var toShift = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades, toShift);
+        fullSupportRecentlyTradedFullyPopulated.HasUpdates     = false;
+        fullSupportRecentlyTradedFullyPopulated.MaxAllowedSize = MaxNumberOfEntries;
+        var toShift = fullSupportRecentlyTradedFullyPopulated.Clone();
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated, toShift);
 
         toShift.ShiftElementsFrom(halfListSize, short.MinValue);
 
         for (int i = halfListSize; i < toShift.Count; i++)
         {
-            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulatedLastTrades[i - halfListSize]);
+            Assert.AreEqual(toShift[i], fullSupportRecentlyTradedFullyPopulated[i - halfListSize]);
         }
         for (int i = 0; i < halfListSize; i++)
         {
             Assert.IsTrue(toShift[i].IsEmpty);
         }
         Assert.AreEqual(MaxNumberOfEntries, toShift.Count);
-        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulatedLastTrades.Count, toShift.Count);
+        Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated.Count, toShift.Count);
 
-        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
         foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
+        Assert.AreEqual(MaxNumberOfEntries, shiftViaDeltaUpdates.Count);
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
-        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulatedLastTrades.Clone();
+        var shiftCopyFrom = fullSupportRecentlyTradedFullyPopulated.Clone();
         shiftCopyFrom.CopyFrom(toShift);
+        Assert.AreEqual(MaxNumberOfEntries, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 

@@ -424,8 +424,6 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
         return this;
     }
 
-
-
     bool IInterfacesComparable<IRecentlyTraded>.AreEquivalent(IRecentlyTraded? other, bool exactTypes) => AreEquivalent(other, exactTypes);
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
@@ -534,10 +532,11 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
     }
 
     protected string PQRecentlyTradedToStringMembers =>
-        $"{PQLastTradedListToStringMembers}, {nameof(TransferFlags)}: {TransferFlags}, {nameof(UpdateTime)}: {UpdateTime:O}, {nameof(DuringPeriod)}: {DuringPeriod}";
+        $"{PQNonLastTradedListToStringMembers}, {nameof(TransferFlags)}: {TransferFlags}, {nameof(UpdateTime)}: {UpdateTime:O}" +
+        $", {nameof(DuringPeriod)}: {DuringPeriod}";
 
 
     protected string UpdateFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
 
-    public override string ToString() => $"{nameof(PQRecentlyTraded)}{{{PQRecentlyTradedToStringMembers}, {UpdateFlagsToString}}}";
+    public override string ToString() => $"{nameof(PQRecentlyTraded)}{{{PQRecentlyTradedToStringMembers}, {UpdateFlagsToString}, {PQLastTradedListToString}}}";
 }

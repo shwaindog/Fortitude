@@ -9,27 +9,25 @@ namespace FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 
 public class InternalPassiveOrder : ReusableObject<IAnonymousOrder>, IMutableInternalPassiveOrder
 {
-    private readonly IMutableAnonymousOrder                     owner;
+    private readonly IMutableAnonymousOrder owner;
 
-    private          IMutableAdditionalInternalPassiveOrderInfo addInternalOrderInfo;
+    private IMutableAdditionalInternalPassiveOrderInfo addInternalOrderInfo;
 
-    public InternalPassiveOrder() : this(new AnonymousOrder(IInternalPassiveOrder.HasInternalOrderInfo), new AdditionalInternalPassiveOrderInfo())
-    {
-    }
+    public InternalPassiveOrder() : this(new AnonymousOrder(IInternalPassiveOrder.HasInternalOrderInfo), new AdditionalInternalPassiveOrderInfo()) { }
 
     public InternalPassiveOrder(IMutableAnonymousOrder owner, IMutableAdditionalInternalPassiveOrderInfo? addInternalOrderInfo)
     {
         this.owner                         =  owner;
         this.addInternalOrderInfo          =  this.owner.InternalOrderInfo ?? addInternalOrderInfo ?? new AdditionalInternalPassiveOrderInfo();
         this.owner.EmptyIgnoreGenesisFlags |= IInternalPassiveOrder.HasInternalOrderInfo;
-        
+
         if (!ReferenceEquals(this.owner.InternalOrderInfo, this.addInternalOrderInfo))
         {
             if (this.owner.InternalOrderInfo == null)
             {
                 this.owner.InternalOrderInfo = this.addInternalOrderInfo;
             }
-            else if(addInternalOrderInfo != null)
+            else if (addInternalOrderInfo != null)
             {
                 this.owner.InternalOrderInfo.CopyFrom(addInternalOrderInfo, CopyMergeFlags.FullReplace);
             }
@@ -40,7 +38,7 @@ public class InternalPassiveOrder : ReusableObject<IAnonymousOrder>, IMutableInt
     {
         if (toClone is InternalPassiveOrder pqExternalCounterPartyOrder)
         {
-            owner                  = pqExternalCounterPartyOrder.owner.Clone();
+            owner                = pqExternalCounterPartyOrder.owner.Clone();
             addInternalOrderInfo = owner.InternalOrderInfo?.Clone() ?? new AdditionalInternalPassiveOrderInfo(toClone.InternalOrderInfo);
         }
         else
@@ -216,7 +214,11 @@ public class InternalPassiveOrder : ReusableObject<IAnonymousOrder>, IMutableInt
         set => addInternalOrderInfo.MarginConsumed = value;
     }
 
-    IAdditionalInternalPassiveOrderInfo? IAnonymousOrder.InternalOrderInfo => this;
+    public IInternalPassiveOrder ToInternalOrder() => this;
+
+    public IExternalCounterPartyOrder? ToExternalCounterPartyInfoOrder() => owner.ToExternalCounterPartyInfoOrder();
+
+    IAdditionalInternalPassiveOrderInfo IAnonymousOrder.InternalOrderInfo => this;
 
     IAdditionalExternalCounterPartyOrderInfo? IAnonymousOrder.ExternalCounterPartyOrderInfo => owner.ExternalCounterPartyOrderInfo;
 
@@ -228,8 +230,8 @@ public class InternalPassiveOrder : ReusableObject<IAnonymousOrder>, IMutableInt
             if (ReferenceEquals(value, addInternalOrderInfo)) return;
             if (value != null)
             {
-                owner.InternalOrderInfo       = value;
-                addInternalOrderInfo = value;
+                owner.InternalOrderInfo = value;
+                addInternalOrderInfo    = value;
             }
             else
             {
@@ -249,14 +251,32 @@ public class InternalPassiveOrder : ReusableObject<IAnonymousOrder>, IMutableInt
         get => owner.IsEmpty && addInternalOrderInfo.IsEmpty;
         set
         {
-            owner.IsEmpty                         = value;
-            addInternalOrderInfo.IsEmpty = value;
+            if (!value) return;
+            ResetWithTracking();
         }
     }
 
-    public IInternalPassiveOrder? ToInternalOrder() => this;
+    IMutableAdditionalInternalPassiveOrderInfo ITrackableReset<IMutableAdditionalInternalPassiveOrderInfo>.ResetWithTracking() => ResetWithTracking();
 
-    public IExternalCounterPartyOrder? ToExternalCounterPartyInfoOrder() => owner.ToExternalCounterPartyInfoOrder();
+    IMutableAnonymousOrder ITrackableReset<IMutableAnonymousOrder>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableInternalPassiveOrder ITrackableReset<IMutableInternalPassiveOrder>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableInternalPassiveOrder IMutableInternalPassiveOrder.ResetWithTracking() => ResetWithTracking();
+
+    public InternalPassiveOrder ResetWithTracking()
+    {
+        owner.ResetWithTracking();
+
+        return this;
+    }
+
+    public override void StateReset()
+    {
+        ResetWithTracking();
+
+        base.StateReset();
+    }
 
 
     IInternalPassiveOrder ICloneable<IInternalPassiveOrder>.Clone() => Clone();
@@ -294,7 +314,7 @@ public class InternalPassiveOrder : ReusableObject<IAnonymousOrder>, IMutableInt
     IMutableAdditionalInternalPassiveOrderInfo ITransferState<IMutableAdditionalInternalPassiveOrderInfo>.CopyFrom
         (IMutableAdditionalInternalPassiveOrderInfo source, CopyMergeFlags copyMergeFlags) =>
         TryCopyAdditionalInternalPassiveOrderInfo(source, copyMergeFlags);
-    
+
     protected virtual InternalPassiveOrder TryCopyAdditionalInternalPassiveOrderInfo
         (IAdditionalInternalPassiveOrderInfo? source, CopyMergeFlags copyMergeFlags)
     {
@@ -302,12 +322,16 @@ public class InternalPassiveOrder : ReusableObject<IAnonymousOrder>, IMutableInt
         {
             return CopyFrom(anonymousOrder, copyMergeFlags);
         }
-        if(source != null) addInternalOrderInfo.CopyFrom(source, copyMergeFlags);
+        if (source != null) addInternalOrderInfo.CopyFrom(source, copyMergeFlags);
         return this;
     }
 
     IMutableAnonymousOrder ITransferState<IMutableAnonymousOrder>.CopyFrom(IMutableAnonymousOrder source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom(source, copyMergeFlags);
+        CopyFrom((IAnonymousOrder)source, copyMergeFlags);
+
+    IReusableObject<IMutableAnonymousOrder> ITransferState<IReusableObject<IMutableAnonymousOrder>>.CopyFrom
+        (IReusableObject<IMutableAnonymousOrder> source, CopyMergeFlags copyMergeFlags) => 
+        CopyFrom((IAnonymousOrder)source, copyMergeFlags);
 
     public override InternalPassiveOrder CopyFrom(IAnonymousOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -319,14 +343,14 @@ public class InternalPassiveOrder : ReusableObject<IAnonymousOrder>, IMutableInt
         return this;
     }
 
-    bool IInterfacesComparable<IAdditionalInternalPassiveOrderInfo>.AreEquivalent(IAdditionalInternalPassiveOrderInfo? other, bool exactTypes) => 
+    bool IInterfacesComparable<IAdditionalInternalPassiveOrderInfo>.AreEquivalent(IAdditionalInternalPassiveOrderInfo? other, bool exactTypes) =>
         AreEquivalent(other as IAnonymousOrder, exactTypes);
 
     public bool AreEquivalent(IAnonymousOrder? other, bool exactTypes = false)
     {
         if (other is not IInternalPassiveOrder intPassiveOrder) return false;
-        var anonOrderSame       = true;
-        var addPassiveOrderSame = true;
+        bool anonOrderSame;
+        bool addPassiveOrderSame;
         if (intPassiveOrder is InternalPassiveOrder internalPassive)
         {
             anonOrderSame       = owner.AreEquivalent(internalPassive.owner, exactTypes);
@@ -335,8 +359,8 @@ public class InternalPassiveOrder : ReusableObject<IAnonymousOrder>, IMutableInt
         else
         {
             if (exactTypes) return false;
-            addPassiveOrderSame = addInternalOrderInfo.AreEquivalent(intPassiveOrder, false);
-            anonOrderSame       = owner.AreEquivalent(other, false);
+            addPassiveOrderSame = addInternalOrderInfo.AreEquivalent(intPassiveOrder);
+            anonOrderSame       = owner.AreEquivalent(other);
         }
 
         var allAreSame = anonOrderSame && addPassiveOrderSame;
@@ -344,7 +368,7 @@ public class InternalPassiveOrder : ReusableObject<IAnonymousOrder>, IMutableInt
         return allAreSame;
     }
 
-    
+
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IAnonymousOrder, true);
 
     public override int GetHashCode()
@@ -357,11 +381,11 @@ public class InternalPassiveOrder : ReusableObject<IAnonymousOrder>, IMutableInt
         }
     }
 
-    protected string InternalPassiveOrderToStringMembers => 
+    protected string InternalPassiveOrderToStringMembers =>
         $"{nameof(OrderId)}: {OrderId}, {nameof(OrderType)}: {OrderType}, {nameof(GenesisFlags)}: {GenesisFlags}, " +
         $"{nameof(EmptyIgnoreGenesisFlags)}: {EmptyIgnoreGenesisFlags}, {nameof(CreatedTime)}: {CreatedTime}, " +
         $"{nameof(OrderLifeCycleState)}: {OrderLifeCycleState}, {nameof(UpdateTime)}: {UpdateTime}, {nameof(OrderDisplayVolume)}: {OrderDisplayVolume:N2}, " +
-        $"{nameof(OrderRemainingVolume)}: {OrderRemainingVolume:N2}, {nameof(TrackingId)}: {TrackingId}, "  + 
+        $"{nameof(OrderRemainingVolume)}: {OrderRemainingVolume:N2}, {nameof(TrackingId)}: {TrackingId}, " +
         $"{nameof(OrderSequenceId)}: {OrderSequenceId}, {nameof(ParentOrderId)}: {ParentOrderId}, {nameof(ClosingOrderId)}: {ClosingOrderId}, " +
         $"{nameof(ClosingOrderPrice)}: {ClosingOrderPrice}, {nameof(DecisionCreatedTime)}: {DecisionCreatedTime}, " +
         $"{nameof(DecisionAmendTime)}: {DecisionAmendTime}, {nameof(DivisionId)}: {DivisionId}, {nameof(DivisionName)}: {DivisionName}, " +

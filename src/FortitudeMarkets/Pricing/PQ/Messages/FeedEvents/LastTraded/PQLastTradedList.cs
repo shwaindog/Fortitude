@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2024 all rights reserved
 
 using System.Collections;
+using System.Text;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Maps.IdMap;
@@ -553,7 +554,25 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         return hashCode.ToHashCode();
     }
 
-    protected string PQLastTradedListToStringMembers => $"{nameof(LastTrades)}: [{string.Join(", ", LastTrades.Take(Count))}], {nameof(Count)}: {Count}";
+    public string EachLastTradeByIndexOnNewLines()
+    {
+        var count = Count;
+        var sb    = new StringBuilder(100 * count);
+        for (var i = 0; i < count; i++)
+        {
+            var lastTrade = LastTrades[i];
+            sb.Append("[").Append(i).Append("] = ").Append(lastTrade);
+            if (i < count - 1)
+            {
+                sb.AppendLine(",");
+            }
+        }
+        return sb.ToString();
+    }
+    
 
-    public override string ToString() => $"{nameof(PQLastTradedList)}{{{PQLastTradedListToStringMembers}}}";
+    protected string PQNonLastTradedListToStringMembers => $"{nameof(Count)}: {Count}, {nameof(MaxAllowedSize)}: {MaxAllowedSize:N0}";
+    protected string PQLastTradedListToString           => $"{nameof(LastTrades)}: [{EachLastTradeByIndexOnNewLines()}]";
+
+    public override string ToString() => $"{nameof(PQLastTradedList)}{{{PQNonLastTradedListToStringMembers}, {PQLastTradedListToString}}}";
 }

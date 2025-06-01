@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Maps.IdMap;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
@@ -29,8 +28,8 @@ public enum PQAnonymousOrderUpdatedFlags : ushort
   , TrackingIdFlag           = 0x04_00
 }
 
-public interface IPQAnonymousOrder : IMutableAnonymousOrder, IPQSupportsStringUpdates<IPQAnonymousOrder>
-  , IPQSupportsNumberPrecisionFieldUpdates<IPQAnonymousOrder>, ICloneable<IPQAnonymousOrder>, ISupportsPQNameIdLookupGenerator
+public interface IPQAnonymousOrder : IReusableObject<IPQAnonymousOrder>, IMutableAnonymousOrder, IPQSupportsStringUpdates<IPQAnonymousOrder>
+  , IPQSupportsNumberPrecisionFieldUpdates<IPQAnonymousOrder>, ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQAnonymousOrder>
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     bool IsOrderIdUpdated { get; set; }
@@ -68,8 +67,12 @@ public interface IPQAnonymousOrder : IMutableAnonymousOrder, IPQSupportsStringUp
 
     new bool HasUpdates { get; set; }
 
+    PQAnonymousOrderUpdatedFlags AnonymousOrderUpdatedFlags { get; set; }
+
     new IPQAdditionalInternalPassiveOrderInfo?      InternalOrderInfo             { get; set; }
     new IPQAdditionalExternalCounterPartyOrderInfo? ExternalCounterPartyOrderInfo { get; set; }
+
+    new IPQAnonymousOrder ResetWithTracking();
 
     new IPQAnonymousOrder Clone();
 }
@@ -187,6 +190,12 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         if (GetType() == typeof(PQAnonymousOrder)) SequenceId = 0;
     }
 
+    public PQAnonymousOrderUpdatedFlags AnonymousOrderUpdatedFlags
+    {
+        get => UpdatedFlags;
+        set => UpdatedFlags = value;
+    }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public int OrderId
     {
@@ -277,7 +286,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         }
     }
 
-    INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
+    INameIdLookup IHasNameIdLookup.NameIdLookup => NameIdLookup;
 
     [JsonIgnore]
     public IPQNameIdLookupGenerator NameIdLookup
@@ -294,7 +303,8 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         }
     }
 
-    IAdditionalInternalPassiveOrderInfo? IAnonymousOrder.     InternalOrderInfo             => InternalOrderInfo;
+    IAdditionalInternalPassiveOrderInfo? IAnonymousOrder.InternalOrderInfo => InternalOrderInfo;
+
     IAdditionalExternalCounterPartyOrderInfo? IAnonymousOrder.ExternalCounterPartyOrderInfo => ExternalCounterPartyOrderInfo;
 
     IMutableAdditionalInternalPassiveOrderInfo? IMutableAnonymousOrder.InternalOrderInfo
@@ -430,6 +440,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
             else if (IsCreatedTimeSub2MinUpdated) UpdatedFlags ^= PQAnonymousOrderUpdatedFlags.CreatedTimeSub2MinFlag;
         }
     }
+
     public bool IsCreatedTimeDateUpdated
     {
         get => (UpdatedFlags & PQAnonymousOrderUpdatedFlags.CreatedTimeDateFlag) > 0;
@@ -441,7 +452,6 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
             else if (IsCreatedTimeDateUpdated) UpdatedFlags ^= PQAnonymousOrderUpdatedFlags.CreatedTimeDateFlag;
         }
     }
-
 
     public bool IsUpdateTimeSub2MinUpdated
     {
@@ -515,14 +525,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         {
             if (additionalInternalPassiveOrderInfo != null) additionalInternalPassiveOrderInfo.HasUpdates           = value;
             if (additionalExternalCounterPartyOrderInfo != null) additionalExternalCounterPartyOrderInfo.HasUpdates = value;
-            if (value)
-            {
-                UpdatedFlags = UpdatedFlags.AllFlags();
-            }
-            else
-            {
-                UpdatedFlags = PQAnonymousOrderUpdatedFlags.None;
-            }
+            UpdatedFlags = value ? UpdatedFlags.AllFlags() : PQAnonymousOrderUpdatedFlags.None;
         }
     }
 
@@ -544,22 +547,45 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         set
         {
             if (!value) return;
-            OrderId      = 0;
-            CreatedTime  = default;
-            UpdateTime   = default;
-            UpdateTime   = default;
-            OrderType    = OrderType.None;
-            GenesisFlags = EmptyIgnoreGenesisFlags;
-            TrackingId   = 0;
-
-            OrderLifeCycleState  = OrderLifeCycleState.None;
-            OrderDisplayVolume   = 0m;
-            OrderRemainingVolume = 0m;
-
-            SequenceId = 0;
-            if (additionalInternalPassiveOrderInfo != null) additionalInternalPassiveOrderInfo.IsEmpty           = true;
-            if (additionalExternalCounterPartyOrderInfo != null) additionalExternalCounterPartyOrderInfo.IsEmpty = true;
+            ResetWithTracking();
         }
+    }
+
+    IMutableAnonymousOrder ITrackableReset<IMutableAnonymousOrder>.ResetWithTracking() => ResetWithTracking();
+
+    IPQAnonymousOrder ITrackableReset<IPQAnonymousOrder>.ResetWithTracking() => ResetWithTracking();
+
+    IPQAnonymousOrder IPQAnonymousOrder.ResetWithTracking() => ResetWithTracking();
+
+    public PQAnonymousOrder ResetWithTracking()
+    {
+        OrderId      = 0;
+        OrderType    = OrderType.None;
+        GenesisFlags = EmptyIgnoreGenesisFlags;
+        CreatedTime  = default;
+        UpdateTime   = default;
+        TrackingId   = 0;
+
+        additionalInternalPassiveOrderInfo?.ResetWithTracking();
+        additionalExternalCounterPartyOrderInfo?.ResetWithTracking();
+
+        OrderDisplayVolume   = 0m;
+        OrderRemainingVolume = 0m;
+        OrderLifeCycleState  = OrderLifeCycleState.None;
+        SequenceId           = 0;
+
+        return this;
+    }
+
+    public override void StateReset()
+    {
+        ResetWithTracking();
+        UpdatedFlags = PQAnonymousOrderUpdatedFlags.None;
+        if (additionalExternalCounterPartyOrderInfo != null)
+            additionalExternalCounterPartyOrderInfo.ExternalCounterPartyUpdatedFlags = PQAdditionalCounterPartyInfoFlags.None;
+        if (additionalInternalPassiveOrderInfo != null)
+            additionalInternalPassiveOrderInfo.InternalPassiveOrderInfoUpdatedFlags = PQAdditionalInternalPassiveOrderInfoUpdatedFlags.None;
+        base.StateReset();
     }
 
     public uint UpdateSequenceId => SequenceId;
@@ -572,6 +598,8 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
     public virtual void UpdateComplete(uint updateSequenceId = 0)
     {
         if (HasUpdates && !IsEmpty) SequenceId++;
+        additionalInternalPassiveOrderInfo?.UpdateComplete(updateSequenceId);
+        additionalExternalCounterPartyOrderInfo?.UpdateComplete(updateSequenceId);
         HasUpdates = false;
     }
 
@@ -593,7 +621,6 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
     {
         var hasInfo = GenesisFlags.IsInternalOrder() && GenesisFlags.HasInternalOrderInfo() && InternalOrderInfo != null;
         if (!hasInfo) return null;
-        if (this is IPQInternalPassiveOrder alreadyInternalPassiveOrder) return alreadyInternalPassiveOrder;
 
         additionalInternalPassiveOrderInfo ??= CreatedPassiveOrderInfoInstance();
         asPassiveOrderRef                  ??= new PQInternalPassiveOrder(this, additionalInternalPassiveOrderInfo);
@@ -606,7 +633,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
     {
         var hasInfo = GenesisFlags.IsExternalOrder() && GenesisFlags.HasExternalCounterPartyInfo() && ExternalCounterPartyOrderInfo != null;
         if (!hasInfo) return null;
-        if (this is IPQExternalCounterPartyOrder alreadyExternalCounterPartyInfoOrder) return alreadyExternalCounterPartyInfoOrder;
+
         additionalExternalCounterPartyOrderInfo ??= CreatedExternalCounterPartyInfo();
         asExternalCpRef                         ??= new PQExternalCounterPartyOrder(this, additionalExternalCounterPartyOrderInfo);
         return asExternalCpRef;
@@ -617,53 +644,53 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         switch (fieldUpdate.OrdersSubId)
         {
             case PQOrdersSubFieldKeys.OrderId:
-                IsOrderIdUpdated = true; // incase of reset and sending 0;
+                IsOrderIdUpdated = true; // in-case of reset and sending 0;
                 OrderId          = (int)fieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderType:
-                IsOrderTypeUpdated = true; // incase of reset and sending 0;
+                IsOrderTypeUpdated = true; // in-case of reset and sending 0;
                 OrderType          = (OrderType)fieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderGenesisFlags:
-                IsGenesisFlagsUpdated = true; // incase of reset and sending 0;
+                IsGenesisFlagsUpdated = true; // in-case of reset and sending 0;
                 GenesisFlags          = (OrderGenesisFlags)fieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderLifecycleStateFlags:
-                IsOrderLifecycleStateUpdated = true; // incase of reset and sending 0;
+                IsOrderLifecycleStateUpdated = true; // in-case of reset and sending 0;
                 OrderLifeCycleState          = (OrderLifeCycleState)fieldUpdate.Payload;
                 return 0;
             case PQOrdersSubFieldKeys.OrderCreatedDate:
-                IsCreatedTimeDateUpdated = true; // incase of reset and sending 0;
+                IsCreatedTimeDateUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref createdTime, fieldUpdate.Payload);
                 if (createdTime == DateTime.UnixEpoch) createdTime = default;
                 return 0;
             case PQOrdersSubFieldKeys.OrderCreatedSub2MinTime:
-                IsCreatedTimeSub2MinUpdated = true; // incase of reset and sending 0;
+                IsCreatedTimeSub2MinUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref createdTime, fieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(fieldUpdate.Payload));
                 if (createdTime == DateTime.UnixEpoch) createdTime = default;
                 return 0;
             case PQOrdersSubFieldKeys.OrderUpdatedDate:
-                IsUpdateTimeDateUpdated = true; // incase of reset and sending 0;
+                IsUpdateTimeDateUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref updateTime, fieldUpdate.Payload);
                 if (updateTime == DateTime.UnixEpoch) updateTime = default;
                 return 0;
             case PQOrdersSubFieldKeys.OrderUpdatedSub2MinTime:
-                IsUpdateTimeSub2MinUpdated = true; // incase of reset and sending 0;
+                IsUpdateTimeSub2MinUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref updateTime, fieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(fieldUpdate.Payload));
                 if (updateTime == DateTime.UnixEpoch) updateTime = default;
                 return 0;
             case PQOrdersSubFieldKeys.OrderDisplayVolume:
-                IsOrderVolumeUpdated = true; // incase of reset and sending 0;
+                IsOrderVolumeUpdated = true; // in-case of reset and sending 0;
                 OrderDisplayVolume   = PQScaling.Unscale(fieldUpdate.Payload, fieldUpdate.Flag);
                 return 0;
             case PQOrdersSubFieldKeys.OrderRemainingVolume:
-                IsOrderRemainingVolumeUpdated = true; // incase of reset and sending 0;
+                IsOrderRemainingVolumeUpdated = true; // in-case of reset and sending 0;
                 OrderRemainingVolume          = PQScaling.Unscale(fieldUpdate.Payload, fieldUpdate.Flag);
                 return 0;
             case PQOrdersSubFieldKeys.OrderTrackingId:
-                IsTrackingIdUpdated = true; // incase of reset and sending 0;
+                IsTrackingIdUpdated = true; // in-case of reset and sending 0;
                 TrackingId          = fieldUpdate.Payload;
                 return 0;
             default:
@@ -758,96 +785,6 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
     public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags) =>
         NameIdLookup.GetStringUpdates(snapShotTime, messageFlags);
 
-    public override void StateReset()
-    {
-        OrderId      = 0;
-        OrderType    = OrderType.None;
-        GenesisFlags = EmptyIgnoreGenesisFlags; // Todo move this to ResetFieldsWithTracking
-        CreatedTime  = default;
-        UpdateTime   = default;
-        TrackingId   = 0;
-        additionalInternalPassiveOrderInfo?.StateReset();
-        additionalExternalCounterPartyOrderInfo?.StateReset();
-
-        OrderDisplayVolume   = 0m;
-        OrderRemainingVolume = 0m;
-        OrderLifeCycleState  = OrderLifeCycleState.None;
-        SequenceId = 0;
-
-        UpdatedFlags = PQAnonymousOrderUpdatedFlags.None;
-        base.StateReset();
-    }
-
-    public virtual bool AreEquivalent(IAnonymousOrder? other, bool exactTypes = false)
-    {
-        if (other == null) return false;
-        if (exactTypes && other.GetType() != GetType()) return false;
-        var orderIdsSame    = OrderId == other.OrderId;
-        var createdSame     = CreatedTime == other.CreatedTime;
-        var orderTypeSame   = OrderType == other.OrderType;
-        var lifecycleSame   = OrderLifeCycleState == other.OrderLifeCycleState;
-        var updatedTimeSame = UpdateTime == other.UpdateTime;
-        var volumeSame      = OrderDisplayVolume == other.OrderDisplayVolume;
-        var trackingIdSame  = TrackingId == other.TrackingId;
-
-        var ignoreFlagsDifferences = IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags |
-                                     IInternalPassiveOrder.HasInternalOrderInfo;
-        var ignoreFlagsDiffMask = ~ignoreFlagsDifferences;
-        var emptyGenesisSame = exactTypes
-            ? EmptyIgnoreGenesisFlags == other.EmptyIgnoreGenesisFlags
-            : (EmptyIgnoreGenesisFlags & ignoreFlagsDiffMask) == (other.EmptyIgnoreGenesisFlags & ignoreFlagsDiffMask);
-        
-        var genesisFlagsSame   = exactTypes
-            ? GenesisFlags == other.GenesisFlags
-            : (GenesisFlags & ignoreFlagsDiffMask) == (other.GenesisFlags & ignoreFlagsDiffMask);
-
-
-        var remainingVolumeSame = OrderRemainingVolume == other.OrderRemainingVolume;
-
-        var internalOrderInfoSame =
-            additionalInternalPassiveOrderInfo?.AreEquivalent(other.InternalOrderInfo, exactTypes) ??
-            !exactTypes || other.InternalOrderInfo is null or { IsEmpty: true };
-
-        var externalCpInfoSame =
-            additionalExternalCounterPartyOrderInfo?.AreEquivalent(other.ExternalCounterPartyOrderInfo, exactTypes) ??
-            !exactTypes || other.ExternalCounterPartyOrderInfo is null or { IsEmpty: true };
-
-        var updatedSame = true;
-        if (exactTypes)
-        {
-            var pqTraderLayerInfo = (PQAnonymousOrder)other;
-            updatedSame = UpdatedFlags == pqTraderLayerInfo.UpdatedFlags;
-        }
-
-        var allAreSame = orderIdsSame && createdSame && orderTypeSame && genesisFlagsSame && lifecycleSame && updatedTimeSame
-                      && volumeSame && remainingVolumeSame && updatedSame && trackingIdSame && internalOrderInfoSame && externalCpInfoSame &&
-                         emptyGenesisSame;
-
-        return allAreSame;
-    }
-
-    protected void SetFlagsSame(IAnonymousOrder toCopyFlags)
-    {
-        if (toCopyFlags is PQAnonymousOrder pqToClone)
-        {
-            UpdatedFlags = pqToClone.UpdatedFlags;
-        }
-        else if (toCopyFlags is IPQAnonymousOrder ipqAnonOrder)
-        {
-            IsOrderIdUpdated              = ipqAnonOrder.IsOrderIdUpdated;
-            IsGenesisFlagsUpdated         = ipqAnonOrder.IsGenesisFlagsUpdated;
-            IsOrderTypeUpdated            = ipqAnonOrder.IsOrderTypeUpdated;
-            IsOrderLifecycleStateUpdated  = ipqAnonOrder.IsOrderLifecycleStateUpdated;
-            IsCreatedTimeDateUpdated      = ipqAnonOrder.IsCreatedTimeDateUpdated;
-            IsCreatedTimeSub2MinUpdated   = ipqAnonOrder.IsCreatedTimeSub2MinUpdated;
-            IsUpdateTimeDateUpdated       = ipqAnonOrder.IsUpdateTimeDateUpdated;
-            IsUpdateTimeSub2MinUpdated    = ipqAnonOrder.IsUpdateTimeSub2MinUpdated;
-            IsOrderVolumeUpdated          = ipqAnonOrder.IsOrderVolumeUpdated;
-            IsOrderRemainingVolumeUpdated = ipqAnonOrder.IsOrderRemainingVolumeUpdated;
-            IsTrackingIdUpdated           = ipqAnonOrder.IsTrackingIdUpdated;
-        }
-    }
-
     IReusableObject<IAnonymousOrder> ITransferState<IReusableObject<IAnonymousOrder>>.CopyFrom
         (IReusableObject<IAnonymousOrder> source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IAnonymousOrder?)source!, copyMergeFlags);
@@ -860,6 +797,14 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
 
     IMutableAnonymousOrder ITransferState<IMutableAnonymousOrder>.CopyFrom(IMutableAnonymousOrder source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom(source, copyMergeFlags);
+
+    IReusableObject<IMutableAnonymousOrder> ITransferState<IReusableObject<IMutableAnonymousOrder>>.CopyFrom
+        (IReusableObject<IMutableAnonymousOrder> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IAnonymousOrder)source, copyMergeFlags);
+
+    IReusableObject<IPQAnonymousOrder> ITransferState<IReusableObject<IPQAnonymousOrder>>.CopyFrom
+        (IReusableObject<IPQAnonymousOrder> source, CopyMergeFlags copyMergeFlags) => 
+        CopyFrom((IAnonymousOrder)source, copyMergeFlags);
 
     public override PQAnonymousOrder CopyFrom(IAnonymousOrder? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -972,6 +917,82 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
             additionalExternalCounterPartyOrderInfo.IsEmpty = true;
         }
         return this;
+    }
+
+    public virtual bool AreEquivalent(IAnonymousOrder? other, bool exactTypes = false)
+    {
+        if (other == null) return false;
+        if (exactTypes && other.GetType() != GetType()) return false;
+        var orderIdsSame    = OrderId == other.OrderId;
+        var createdSame     = CreatedTime == other.CreatedTime;
+        var orderTypeSame   = OrderType == other.OrderType;
+        var lifecycleSame   = OrderLifeCycleState == other.OrderLifeCycleState;
+        var updatedTimeSame = UpdateTime == other.UpdateTime;
+        var volumeSame      = OrderDisplayVolume == other.OrderDisplayVolume;
+        var trackingIdSame  = TrackingId == other.TrackingId;
+
+        var ignoreFlagsDifferences = IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags |
+                                     IInternalPassiveOrder.HasInternalOrderInfo;
+        var ignoreFlagsDiffMask = ~ignoreFlagsDifferences;
+        var emptyGenesisSame = exactTypes
+            ? EmptyIgnoreGenesisFlags == other.EmptyIgnoreGenesisFlags
+            : (EmptyIgnoreGenesisFlags & ignoreFlagsDiffMask) == (other.EmptyIgnoreGenesisFlags & ignoreFlagsDiffMask);
+
+        var genesisFlagsSame = exactTypes
+            ? GenesisFlags == other.GenesisFlags
+            : (GenesisFlags & ignoreFlagsDiffMask) == (other.GenesisFlags & ignoreFlagsDiffMask);
+
+
+        var remainingVolumeSame = OrderRemainingVolume == other.OrderRemainingVolume;
+
+        var internalOrderInfoSame =
+            additionalInternalPassiveOrderInfo?.AreEquivalent(other.InternalOrderInfo, exactTypes) ??
+            !exactTypes || other.InternalOrderInfo is null or { IsEmpty: true };
+
+        var externalCpInfoSame =
+            additionalExternalCounterPartyOrderInfo?.AreEquivalent(other.ExternalCounterPartyOrderInfo, exactTypes) ??
+            !exactTypes || other.ExternalCounterPartyOrderInfo is null or { IsEmpty: true };
+
+        var updatedSame = true;
+        if (exactTypes)
+        {
+            var pqTraderLayerInfo = (PQAnonymousOrder)other;
+            updatedSame = UpdatedFlags == pqTraderLayerInfo.UpdatedFlags;
+        }
+
+        var allAreSame = orderIdsSame && createdSame && orderTypeSame && genesisFlagsSame && lifecycleSame && updatedTimeSame
+                      && volumeSame && remainingVolumeSame && updatedSame && trackingIdSame && internalOrderInfoSame && externalCpInfoSame &&
+                         emptyGenesisSame;
+
+        return allAreSame;
+    }
+
+    protected void SetFlagsSame(IAnonymousOrder toCopyFlags)
+    {
+        if (toCopyFlags is PQAnonymousOrder pqToClone)
+        {
+            UpdatedFlags = pqToClone.UpdatedFlags;
+
+            additionalExternalCounterPartyOrderInfo?.SetFlagsSame(pqToClone.ExternalCounterPartyOrderInfo);
+            additionalInternalPassiveOrderInfo?.SetFlagsSame(pqToClone.InternalOrderInfo);
+        }
+        else if (toCopyFlags is IPQAnonymousOrder ipqAnonOrder)
+        {
+            IsOrderIdUpdated              = ipqAnonOrder.IsOrderIdUpdated;
+            IsGenesisFlagsUpdated         = ipqAnonOrder.IsGenesisFlagsUpdated;
+            IsOrderTypeUpdated            = ipqAnonOrder.IsOrderTypeUpdated;
+            IsOrderLifecycleStateUpdated  = ipqAnonOrder.IsOrderLifecycleStateUpdated;
+            IsCreatedTimeDateUpdated      = ipqAnonOrder.IsCreatedTimeDateUpdated;
+            IsCreatedTimeSub2MinUpdated   = ipqAnonOrder.IsCreatedTimeSub2MinUpdated;
+            IsUpdateTimeDateUpdated       = ipqAnonOrder.IsUpdateTimeDateUpdated;
+            IsUpdateTimeSub2MinUpdated    = ipqAnonOrder.IsUpdateTimeSub2MinUpdated;
+            IsOrderVolumeUpdated          = ipqAnonOrder.IsOrderVolumeUpdated;
+            IsOrderRemainingVolumeUpdated = ipqAnonOrder.IsOrderRemainingVolumeUpdated;
+            IsTrackingIdUpdated           = ipqAnonOrder.IsTrackingIdUpdated;
+
+            additionalExternalCounterPartyOrderInfo?.SetFlagsSame(ipqAnonOrder.ExternalCounterPartyOrderInfo);
+            additionalInternalPassiveOrderInfo?.SetFlagsSame(ipqAnonOrder.InternalOrderInfo);
+        }
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IAnonymousOrder?)obj, true);

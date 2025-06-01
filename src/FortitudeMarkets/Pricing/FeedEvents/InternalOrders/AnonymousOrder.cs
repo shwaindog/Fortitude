@@ -100,20 +100,13 @@ public class AnonymousOrder : ReusableObject<IAnonymousOrder>, IMutableAnonymous
         {
             if (!value) return;
 
-            OrderId      = 0;
-            CreatedTime  = default;
-            UpdateTime   = default;
-            OrderType    = OrderType.None;
-            GenesisFlags = EmptyIgnoreGenesisFlags;
-            TrackingId   = 0;
-
-            OrderLifeCycleState  = OrderLifeCycleState.None;
-            OrderDisplayVolume   = 0m;
-            OrderRemainingVolume = 0m;
+            ResetWithTracking();
         }
     }
 
-    public override void StateReset()
+    IMutableAnonymousOrder ITrackableReset<IMutableAnonymousOrder>.ResetWithTracking() => ResetWithTracking();
+
+    public virtual AnonymousOrder ResetWithTracking()
     {
         OrderId      = 0;
         CreatedTime  = default;
@@ -121,12 +114,20 @@ public class AnonymousOrder : ReusableObject<IAnonymousOrder>, IMutableAnonymous
         OrderType    = OrderType.None;
         GenesisFlags = EmptyIgnoreGenesisFlags;  // Todo create ResetFieldsWithTracking and move this here
         TrackingId   = 0;
-        InternalOrderInfo?.StateReset();
-        ExternalCounterPartyOrderInfo?.StateReset();
+
+        InternalOrderInfo?.ResetWithTracking();
+        ExternalCounterPartyOrderInfo?.ResetWithTracking();
 
         OrderLifeCycleState  = OrderLifeCycleState.None;
         OrderDisplayVolume   = 0m;
         OrderRemainingVolume = 0m;
+
+        return this;
+    }
+
+    public override void StateReset()
+    {
+        ResetWithTracking();
     }
 
     IMutableAnonymousOrder ICloneable<IMutableAnonymousOrder>.Clone() => Clone();
@@ -135,7 +136,10 @@ public class AnonymousOrder : ReusableObject<IAnonymousOrder>, IMutableAnonymous
 
     public override AnonymousOrder Clone() =>
         Recycler?.Borrow<AnonymousOrder>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new AnonymousOrder(this);
-
+    
+    IReusableObject<IMutableAnonymousOrder> ITransferState<IReusableObject<IMutableAnonymousOrder>>
+        .CopyFrom(IReusableObject<IMutableAnonymousOrder> source, CopyMergeFlags copyMergeFlags) => 
+        CopyFrom((IAnonymousOrder)source, copyMergeFlags);
 
     IMutableAnonymousOrder ITransferState<IMutableAnonymousOrder>.CopyFrom(IMutableAnonymousOrder source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom(source, copyMergeFlags);

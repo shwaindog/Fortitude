@@ -827,10 +827,15 @@ public class QuoteBookValuesGenerator
         return sourceName;
     }
 
-    protected virtual int GenerateOrderId() =>
-        (int)((quoteValueGenerator.CurrentMidPriceTimePair.CurrentMid.Time.Ticks / TimeSpan.TicksPerMillisecond) & 0x7FFF_FFFF);
+    private int nextOrderInt = 1;
+
+    protected virtual int GenerateOrderId() => nextOrderInt++;
+
+    private const OrderGenesisFlags NeverSetOrderGenesisFlags = ~(OrderGenesisFlags.IsExternalOrder | OrderGenesisFlags.HasExternalCounterPartyInfo |
+                                              OrderGenesisFlags.HasInternalOrderInfo);
 
     protected virtual OrderGenesisFlags GenerateOrderGenesisFlags() =>
+        NeverSetOrderGenesisFlags &
         (OrderGenesisFlags)((quoteValueGenerator.CurrentMidPriceTimePair.CurrentMid.Time.Ticks / TimeSpan.TicksPerMillisecond) & 0x03FF_FFFF);
 
     protected virtual DateTime GenerateOrderCreatedTime() => DateTime.Now;

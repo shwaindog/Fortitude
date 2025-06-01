@@ -74,5 +74,5 @@ public class PQOnTickLastTraded : PQLastTradedList, IPQOnTickLastTraded
 
     bool IInterfacesComparable<IOnTickLastTraded>.AreEquivalent(IOnTickLastTraded? other, bool exactTypes) => AreEquivalent(other, exactTypes);
 
-    public override string ToString() => $"{nameof(PQOnTickLastTraded)}{{{PQLastTradedListToStringMembers}}}";
+    public override string ToString() => $"{nameof(PQOnTickLastTraded)}{{{PQNonLastTradedListToStringMembers}, {PQLastTradedListToString}}}";
 }

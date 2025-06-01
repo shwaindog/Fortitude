@@ -12,16 +12,16 @@ public class AdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalInte
     public AdditionalInternalPassiveOrderInfo() { }
 
     public AdditionalInternalPassiveOrderInfo
-    (int orderId, DateTime createdTime, decimal orderDisplayVolume
-      , OrderType orderType = OrderType.None, OrderGenesisFlags genesisFlags = OrderGenesisFlags.None
-      , OrderLifeCycleState lifeCycleState = OrderLifeCycleState.None
-      , uint orderSequenceId = 0, DateTime? updatedTime = null, decimal? remainingVolume = null, uint trackingId = 0)
+        (int orderId, DateTime createdTime, decimal orderDisplayVolume
+          , OrderType orderType = OrderType.None, OrderGenesisFlags genesisFlags = OrderGenesisFlags.None
+          , OrderLifeCycleState lifeCycleState = OrderLifeCycleState.None
+          , uint orderSequenceId = 0, DateTime? updatedTime = null, decimal? remainingVolume = null, uint trackingId = 0)
         // : base(orderId, createdTime, orderDisplayVolume, orderType, genesisFlags, lifeCycleState, updatedTime, remainingVolume, trackingId)
     {
         OrderSequenceId = orderSequenceId;
     }
 
-    public AdditionalInternalPassiveOrderInfo(IAdditionalInternalPassiveOrderInfo? toClone) 
+    public AdditionalInternalPassiveOrderInfo(IAdditionalInternalPassiveOrderInfo? toClone)
         // : base(toClone)
     {
         if (toClone != null)
@@ -71,7 +71,8 @@ public class AdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalInte
 
     public virtual bool IsEmpty
     {
-        get => OrderSequenceId == 0
+        get =>
+            OrderSequenceId == 0
          && ParentOrderId == 0
          && ClosingOrderId == 0
          && ClosingOrderPrice == 0
@@ -93,29 +94,13 @@ public class AdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalInte
         set
         {
             if (!value) return;
-            OrderSequenceId = 0;
-            ParentOrderId = 0;
-            ClosingOrderId = 0;
-            ClosingOrderPrice = 0;
-            DecisionCreatedTime = DateTime.MinValue;
-            DecisionAmendTime = DateTime.MinValue;
-            DivisionId = 0;
-            DivisionName = null;
-            DeskId = 0;
-            DeskName = null;
-            StrategyId = 0;
-            StrategyName = null;
-            StrategyDecisionId = 0;
-            StrategyDecisionName = null;
-            PortfolioId = 0;
-            PortfolioName = null;
-            InternalTraderId = 0;
-            InternalTraderName = null;
-            MarginConsumed = 0;
+            ResetWithTracking();
         }
     }
 
-    public override void StateReset()
+    IMutableAdditionalInternalPassiveOrderInfo ITrackableReset<IMutableAdditionalInternalPassiveOrderInfo>.ResetWithTracking() => ResetWithTracking();
+
+    public AdditionalInternalPassiveOrderInfo ResetWithTracking()
     {
         OrderSequenceId      = 0;
         ParentOrderId        = 0;
@@ -136,6 +121,13 @@ public class AdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalInte
         InternalTraderId     = 0;
         InternalTraderName   = null;
         MarginConsumed       = 0;
+
+        return this;
+    }
+
+    public override void StateReset()
+    {
+        ResetWithTracking();
         base.StateReset();
     }
 
@@ -146,18 +138,20 @@ public class AdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalInte
     IMutableAdditionalInternalPassiveOrderInfo IMutableAdditionalInternalPassiveOrderInfo.Clone() => Clone();
 
     public override AdditionalInternalPassiveOrderInfo Clone() =>
-        Recycler?.Borrow<AdditionalInternalPassiveOrderInfo>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new AdditionalInternalPassiveOrderInfo(this);
+        Recycler?.Borrow<AdditionalInternalPassiveOrderInfo>().CopyFrom(this, CopyMergeFlags.FullReplace) ??
+        new AdditionalInternalPassiveOrderInfo(this);
 
 
     IAdditionalInternalPassiveOrderInfo ITransferState<IAdditionalInternalPassiveOrderInfo>.CopyFrom
-        (IAdditionalInternalPassiveOrderInfo source, CopyMergeFlags copyMergeFlags) => 
+        (IAdditionalInternalPassiveOrderInfo source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom(source, copyMergeFlags);
 
     IMutableAdditionalInternalPassiveOrderInfo ITransferState<IMutableAdditionalInternalPassiveOrderInfo>.CopyFrom
         (IMutableAdditionalInternalPassiveOrderInfo source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom(source, copyMergeFlags);
 
-    public override AdditionalInternalPassiveOrderInfo CopyFrom(IAdditionalInternalPassiveOrderInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override AdditionalInternalPassiveOrderInfo CopyFrom
+        (IAdditionalInternalPassiveOrderInfo source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is IInternalPassiveOrder internalPassiveOrder)
         {
@@ -210,14 +204,15 @@ public class AdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalInte
         var internalTraderNameSame   = InternalTraderName == internalPassiveOrder.InternalTraderName;
         var marginConsumedSame       = MarginConsumed == internalPassiveOrder.MarginConsumed;
 
-        var allAreSame = orderSequenceIdSame && parentOrderIdSame && closingOrderIdSame && closingOrderPriceSame && decisionCreatedTimeSame 
-            && decisionAmendTimeSame && divisionIdSame && divisionNameSame && deskIdSame && deskNameSame && strategyIdSame
-               && strategyNameSame && strategyDecisionNameSame && strategyDecisionIdSame && portfolioIdSame && portfolioNameSame && internalTraderIdSame &&
-               internalTraderNameSame && marginConsumedSame;
+        var allAreSame = orderSequenceIdSame && parentOrderIdSame && closingOrderIdSame && closingOrderPriceSame && decisionCreatedTimeSame
+                      && decisionAmendTimeSame && divisionIdSame && divisionNameSame && deskIdSame && deskNameSame && strategyIdSame
+                      && strategyNameSame && strategyDecisionNameSame && strategyDecisionIdSame && portfolioIdSame && portfolioNameSame &&
+                         internalTraderIdSame &&
+                         internalTraderNameSame && marginConsumedSame;
 
         return allAreSame;
     }
-    
+
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IInternalPassiveOrder, true);
 
     public override int GetHashCode()
@@ -247,7 +242,7 @@ public class AdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalInte
         }
     }
 
-    protected string InternalPassiveOrderToStringMembers => 
+    protected string InternalPassiveOrderToStringMembers =>
         $"{nameof(OrderSequenceId)}: {OrderSequenceId}, {nameof(ParentOrderId)}: {ParentOrderId}, {nameof(ClosingOrderId)}: {ClosingOrderId}, " +
         $"{nameof(ClosingOrderPrice)}: {ClosingOrderPrice}, {nameof(DecisionCreatedTime)}: {DecisionCreatedTime}, " +
         $"{nameof(DecisionAmendTime)}: {DecisionAmendTime}, {nameof(DivisionId)}: {DivisionId}, {nameof(DivisionName)}: {DivisionName}, " +

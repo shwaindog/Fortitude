@@ -3,6 +3,7 @@
 
 #region
 
+using System.Text;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Types;
@@ -183,7 +184,7 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
 
     public ListShiftCommand ClearAll() => elementShiftRegistry!.ClearAll();
 
-    public ListShiftCommand MoveToStart(IMutableLastTrade existingItem) => elementShiftRegistry!.MoveToStart((IPQLastTrade)existingItem);
+    public ListShiftCommand MoveToStart(IMutableLastTrade existingItem) => elementShiftRegistry!.MoveToStart(existingItem);
 
     public ListShiftCommand MoveToStart(int indexToMoveToStart) => elementShiftRegistry!.MoveToStart(indexToMoveToStart);
 
@@ -194,9 +195,9 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
         elementShiftRegistry!.MoveSingleElementBy(indexToMoveToEnd, shift);
 
     public ListShiftCommand MoveSingleElementBy(IMutableLastTrade existingItem, int shift) =>
-        elementShiftRegistry!.MoveSingleElementBy((IPQLastTrade)existingItem, shift);
+        elementShiftRegistry!.MoveSingleElementBy(existingItem, shift);
 
-    public ListShiftCommand MoveToEnd(IMutableLastTrade existingItem) => elementShiftRegistry!.MoveToEnd((IPQLastTrade)existingItem);
+    public ListShiftCommand MoveToEnd(IMutableLastTrade existingItem) => elementShiftRegistry!.MoveToEnd(existingItem);
 
     public override void Add(IMutableLastTrade newLastTrade)
     {
@@ -236,6 +237,7 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
         (ILastTradedList source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         elementShiftRegistry ??= new TracksReorderingListRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        MaxAllowedSize = source.MaxAllowedSize;
         elementShiftRegistry.CopyFrom(source, copyMergeFlags);
         base.CopyFrom(source, copyMergeFlags);
         if (source is IRecentlyTraded recentlyTraded)
@@ -260,5 +262,5 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
         return baseSame;
     }
 
-    public override string ToString() => $"{nameof(RecentlyTraded)}{{{LastTradedListToStringMembers}, {nameof(DuringPeriod)}: {DuringPeriod}}}";
+    public override string ToString() => $"{nameof(RecentlyTraded)}{{{NonLastTradedListToStringMembers}, {nameof(DuringPeriod)}: {DuringPeriod}, {LastTradedListToString}}}";
 }

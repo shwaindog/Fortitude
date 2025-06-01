@@ -27,12 +27,14 @@ public interface IPQExternalCounterPartyOrder : IPQAnonymousOrder, IPQAdditional
 
     new bool HasUpdates { get; set; }
 
+    new IPQExternalCounterPartyOrder ResetWithTracking();
+
     new IPQExternalCounterPartyOrder Clone();
 }
 
 public class PQExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IPQExternalCounterPartyOrder
 {
-    private const    OrderGenesisFlags HasCpFlags = IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags;
+    private const OrderGenesisFlags HasCpFlags = IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags;
 
     private readonly IPQAnonymousOrder owner;
 
@@ -48,10 +50,8 @@ public class PQExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IPQE
              , nameIdLookupGenerator) { }
 
     public PQExternalCounterPartyOrder(IAnonymousOrder owner, IPQAdditionalExternalCounterPartyOrderInfo addExternalCpOrderInfo)
-    : this((owner as IPQAnonymousOrder)?.NameIdLookup ?? new PQNameIdLookupGenerator(PQAnonymousOrder.DefaultOrderStringDictionaryField),
-           owner, addExternalCpOrderInfo)
-    {
-    }
+        : this((owner as IPQAnonymousOrder)?.NameIdLookup ?? new PQNameIdLookupGenerator(PQAnonymousOrder.DefaultOrderStringDictionaryField),
+               owner, addExternalCpOrderInfo) { }
 
     public PQExternalCounterPartyOrder
     (IPQNameIdLookupGenerator nameIdLookupGenerator, IAnonymousOrder owner
@@ -74,20 +74,13 @@ public class PQExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IPQE
             this.owner.IsGenesisFlagsUpdated   =  originalGenesisFlagsUpdate;
         }
 
-        this.owner.NameIdLookup = nameIdLookupGenerator;
-        this.addExternalCpOrderInfo
-            = this.owner.ExternalCounterPartyOrderInfo ?? addExternalCpOrderInfo;
+        this.owner.NameIdLookup                  =   nameIdLookupGenerator;
+        this.owner.ExternalCounterPartyOrderInfo ??= addExternalCpOrderInfo;
+        this.addExternalCpOrderInfo                   =   this.owner.ExternalCounterPartyOrderInfo;
 
         if (!ReferenceEquals(this.owner.ExternalCounterPartyOrderInfo, this.addExternalCpOrderInfo))
         {
-            if (this.owner.ExternalCounterPartyOrderInfo == null)
-            {
-                this.owner.ExternalCounterPartyOrderInfo = this.addExternalCpOrderInfo;
-            }
-            else 
-            {
-                this.owner.ExternalCounterPartyOrderInfo.CopyFrom(addExternalCpOrderInfo, CopyMergeFlags.FullReplace | CopyMergeFlags.AsNew);
-            }
+            this.owner.ExternalCounterPartyOrderInfo.CopyFrom(addExternalCpOrderInfo, CopyMergeFlags.FullReplace | CopyMergeFlags.AsNew);
         }
     }
 
@@ -100,41 +93,47 @@ public class PQExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IPQE
             owner.GenesisFlags            |= HasCpFlags;
             owner.EmptyIgnoreGenesisFlags |= HasCpFlags;
             owner.IsGenesisFlagsUpdated   =  originalGenesisFlagsUpdate;
-            addExternalCpOrderInfo = owner.ExternalCounterPartyOrderInfo ??
-                                     new PQAdditionalExternalCounterPartyInfo(toClone.ExternalCounterPartyOrderInfo, NameIdLookup);
-        } else if (toClone is PQAnonymousOrder pqAnonymous)
+            owner.ExternalCounterPartyOrderInfo ??= new PQAdditionalExternalCounterPartyInfo(toClone.ExternalCounterPartyOrderInfo, NameIdLookup);
+            addExternalCpOrderInfo = owner.ExternalCounterPartyOrderInfo;
+        }
+        else if (toClone is PQAnonymousOrder pqAnonymous)
         {
             owner = new PQAnonymousOrder(pqAnonymous, nameIdLookupGenerator);
             var originalGenesisFlagsUpdate = pqAnonymous.IsGenesisFlagsUpdated;
             owner.GenesisFlags            |= HasCpFlags;
             owner.EmptyIgnoreGenesisFlags |= HasCpFlags;
             owner.IsGenesisFlagsUpdated   =  originalGenesisFlagsUpdate;
-            addExternalCpOrderInfo = owner.ExternalCounterPartyOrderInfo ??
-                                     new PQAdditionalExternalCounterPartyInfo(toClone.ExternalCounterPartyOrderInfo, NameIdLookup);
+            owner.ExternalCounterPartyOrderInfo ??= new PQAdditionalExternalCounterPartyInfo(toClone.ExternalCounterPartyOrderInfo, NameIdLookup);
+            addExternalCpOrderInfo = owner.ExternalCounterPartyOrderInfo;
         }
         else
         {
             owner = new PQAnonymousOrder(toClone, nameIdLookupGenerator);
-            var originalGenesisFlagsUpdate = !(toClone?.IsEmpty ?? true) && (toClone?.GenesisFlags.AnyButNone() ?? false);
-            owner.GenesisFlags |= IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags;
-            owner.EmptyIgnoreGenesisFlags |= IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags;
-            owner.IsGenesisFlagsUpdated   =  originalGenesisFlagsUpdate;
-            addExternalCpOrderInfo = owner.ExternalCounterPartyOrderInfo ??
-                                     new PQAdditionalExternalCounterPartyInfo(toClone?.ExternalCounterPartyOrderInfo, NameIdLookup);
+            var originalGenesisFlagsUpdate = !(toClone?.IsEmpty ?? true) && (toClone.GenesisFlags.AnyButNone());
+            owner.GenesisFlags                  |=  IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags;
+            owner.EmptyIgnoreGenesisFlags       |=  IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags;
+            owner.IsGenesisFlagsUpdated         =   originalGenesisFlagsUpdate;
+            owner.ExternalCounterPartyOrderInfo ??= new PQAdditionalExternalCounterPartyInfo(toClone?.ExternalCounterPartyOrderInfo, NameIdLookup);
+            addExternalCpOrderInfo              =   owner.ExternalCounterPartyOrderInfo;
         }
 
-        if (!ReferenceEquals(owner.ExternalCounterPartyOrderInfo, addExternalCpOrderInfo))
+        if (toClone != null && !ReferenceEquals(owner.ExternalCounterPartyOrderInfo, addExternalCpOrderInfo))
         {
-            if (owner.ExternalCounterPartyOrderInfo == null)
-            {
-                owner.ExternalCounterPartyOrderInfo = addExternalCpOrderInfo;
-            }
-            else if (toClone?.ExternalCounterPartyOrderInfo != null)
-            {
-                owner.ExternalCounterPartyOrderInfo.CopyFrom(toClone.ExternalCounterPartyOrderInfo
-                                                           , CopyMergeFlags.FullReplace | CopyMergeFlags.AsNew);
-            }
+            owner.ExternalCounterPartyOrderInfo.CopyFrom(toClone.ExternalCounterPartyOrderInfo!
+                                                       , CopyMergeFlags.FullReplace | CopyMergeFlags.AsNew);
         }
+    }
+
+    public PQAnonymousOrderUpdatedFlags AnonymousOrderUpdatedFlags
+    {
+        get => owner.AnonymousOrderUpdatedFlags;
+        set => owner.AnonymousOrderUpdatedFlags = value;
+    }
+    
+    public  PQAdditionalCounterPartyInfoFlags ExternalCounterPartyUpdatedFlags
+    {
+        get => addExternalCpOrderInfo.ExternalCounterPartyUpdatedFlags;
+        set => addExternalCpOrderInfo.ExternalCounterPartyUpdatedFlags = value;
     }
 
     public int OrderId
@@ -371,6 +370,17 @@ public class PQExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IPQE
         }
     }
 
+    public bool HasUpdates
+    {
+        get => owner.HasUpdates;
+        set
+        {
+            owner.HasUpdates = value;
+
+            addExternalCpOrderInfo.HasUpdates = value;
+        }
+    }
+
     public bool IsEmpty
     {
         get => owner.IsEmpty && addExternalCpOrderInfo.IsEmpty;
@@ -381,26 +391,42 @@ public class PQExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IPQE
         }
     }
 
-    public uint UpdateSequenceId => owner.UpdateSequenceId;
+    IMutableAnonymousOrder ITrackableReset<IMutableAnonymousOrder>.ResetWithTracking() => ResetWithTracking();
 
-    public void UpdateStarted(uint updateSequenceId)
-    {
-    }
+    IPQAnonymousOrder ITrackableReset<IPQAnonymousOrder>.ResetWithTracking() => ResetWithTracking();
 
-    public void UpdateComplete(uint updateSequenceId = 0)
-    {
-        owner.UpdateComplete(updateSequenceId);
-    }
+    IPQAnonymousOrder IPQAnonymousOrder.ResetWithTracking() => ResetWithTracking();
 
-    public bool HasUpdates
+    IMutableAdditionalExternalCounterPartyOrderInfo ITrackableReset<IMutableAdditionalExternalCounterPartyOrderInfo>.ResetWithTracking() =>
+        ResetWithTracking();
+
+    IMutableExternalCounterPartyOrder ITrackableReset<IMutableExternalCounterPartyOrder>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableExternalCounterPartyOrder IMutableExternalCounterPartyOrder.ResetWithTracking() => ResetWithTracking();
+
+    IPQExternalCounterPartyOrder IPQExternalCounterPartyOrder.ResetWithTracking() => ResetWithTracking();
+
+    public PQExternalCounterPartyOrder ResetWithTracking()
     {
-        get => owner.HasUpdates;
-        set => owner.HasUpdates = value;
+        owner.ResetWithTracking();
+        addExternalCpOrderInfo.ResetWithTracking();
+
+        return this;
     }
 
     public override void StateReset()
     {
         owner.StateReset();
+    }
+
+    public uint UpdateSequenceId => owner.UpdateSequenceId;
+
+    public void UpdateStarted(uint updateSequenceId) { }
+
+    public void UpdateComplete(uint updateSequenceId = 0)
+    {
+        owner.UpdateComplete(updateSequenceId);
+        addExternalCpOrderInfo.UpdateComplete(updateSequenceId);
     }
 
     public IInternalPassiveOrder? ToInternalOrder() => owner.ToInternalOrder();
@@ -509,9 +535,26 @@ public class PQExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IPQE
         (IMutableExternalCounterPartyOrder source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom(source, copyMergeFlags);
 
+    IReusableObject<IPQAnonymousOrder> ITransferState<IReusableObject<IPQAnonymousOrder>>.CopyFrom
+        (IReusableObject<IPQAnonymousOrder> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IAnonymousOrder)source, copyMergeFlags);
+
+    IReusableObject<IMutableAnonymousOrder> ITransferState<IReusableObject<IMutableAnonymousOrder>>.CopyFrom
+        (IReusableObject<IMutableAnonymousOrder> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IAnonymousOrder)source, copyMergeFlags);
+
     public override PQExternalCounterPartyOrder CopyFrom(IAnonymousOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         owner.CopyFrom(source, copyMergeFlags);
+        var isFullReplace = copyMergeFlags.HasFullReplace();
+        if (source is IAdditionalExternalCounterPartyOrderInfo addExtCpOrderInfo)
+        {
+            if (isFullReplace) SetFlagsSame(addExtCpOrderInfo);
+        }
+        if (!ReferenceEquals(owner.ExternalCounterPartyOrderInfo, addExternalCpOrderInfo))
+        {
+            Debugger.Break();
+        }
         return this;
     }
 
@@ -522,18 +565,18 @@ public class PQExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IPQE
     bool IInterfacesComparable<IPQExternalCounterPartyOrder>.AreEquivalent(IPQExternalCounterPartyOrder? other, bool exactTypes) =>
         AreEquivalent(other, exactTypes);
 
-    bool IInterfacesComparable<IExternalCounterPartyOrder>.       AreEquivalent(IExternalCounterPartyOrder? other, bool exactTypes) => 
+    bool IInterfacesComparable<IExternalCounterPartyOrder>.AreEquivalent(IExternalCounterPartyOrder? other, bool exactTypes) =>
         AreEquivalent(other, exactTypes);
 
-    bool IInterfacesComparable<IMutableExternalCounterPartyOrder>.AreEquivalent(IMutableExternalCounterPartyOrder? other, bool exactTypes) => 
+    bool IInterfacesComparable<IMutableExternalCounterPartyOrder>.AreEquivalent(IMutableExternalCounterPartyOrder? other, bool exactTypes) =>
         AreEquivalent(other, exactTypes);
 
 
     public bool AreEquivalent(IAnonymousOrder? other, bool exactTypes = false)
     {
         if (other is not IExternalCounterPartyOrder ipqExtCpOrder) return false;
-        var anonOrderSame     = true;
-        var addExtCpOrderSame = true;
+        bool anonOrderSame;
+        bool  addExtCpOrderSame;
         if (ipqExtCpOrder is PQExternalCounterPartyOrder pqExternalCounterPartyOrder)
         {
             anonOrderSame     = owner.AreEquivalent(pqExternalCounterPartyOrder.owner, exactTypes);
@@ -542,13 +585,18 @@ public class PQExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IPQE
         else
         {
             if (exactTypes) return false;
-            anonOrderSame     = owner.AreEquivalent(other, false);
-            addExtCpOrderSame = addExternalCpOrderInfo.AreEquivalent(ipqExtCpOrder, false);
+            anonOrderSame     = owner.AreEquivalent(other);
+            addExtCpOrderSame = addExternalCpOrderInfo.AreEquivalent(ipqExtCpOrder);
         }
 
         var allAreSame = anonOrderSame && addExtCpOrderSame;
 
         return allAreSame;
+    }
+
+    public void SetFlagsSame(IAdditionalExternalCounterPartyOrderInfo? toCopyFlags)
+    {
+        addExternalCpOrderInfo.SetFlagsSame(toCopyFlags);
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IAnonymousOrder, true);
@@ -571,5 +619,9 @@ public class PQExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IPQE
         $"{nameof(ExternalCounterPartyId)}: {ExternalCounterPartyId}, {nameof(ExternalCounterPartyName)}: {ExternalCounterPartyName}, " +
         $"{nameof(ExternalTraderId)}: {ExternalTraderId}, {nameof(ExternalTraderName)}: {ExternalTraderName}";
 
-    public override string ToString() => $"{GetType().Name}{{{PQExternalCounterPartyOrderToStringMembers}}}";
+    protected string UpdatedFlagsToString => 
+        $"{nameof(AnonymousOrderUpdatedFlags)}: {AnonymousOrderUpdatedFlags}, " +
+        $"{nameof(ExternalCounterPartyUpdatedFlags)}: {ExternalCounterPartyUpdatedFlags}";
+
+    public override string ToString() => $"{GetType().Name}{{{PQExternalCounterPartyOrderToStringMembers}, {UpdatedFlagsToString}}}";
 }
