@@ -10,8 +10,7 @@ using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
-using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages;
 
@@ -86,7 +85,7 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     }
 
 
-    public PQMessageFlags? OverrideSerializationFlags { get; set; }
+    public FeedEvents.Quotes.PQMessageFlags? OverrideSerializationFlags { get; set; }
 
     public abstract uint MessageId { get; }
 
@@ -471,9 +470,15 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         set => PQSequenceId = value;
     }
 
-    public virtual void UpdateStarted(uint updateSequenceId)
+    public bool IsCompleteUpdate { get; set; }
+
+    public virtual void UpdateStarted(uint updateSequenceId = 0)
     {
         PQSequenceId = updateSequenceId;
+    }
+
+    public virtual void UpdatesAppliedToAllDeltas(uint startSequenceId, uint latestSequenceId)
+    {
     }
 
     public virtual void UpdateComplete(uint updateSequenceId = 0)
@@ -500,177 +505,13 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         return this;
     }
 
-    IVersionedMessage ICloneable<IVersionedMessage>.Clone() => (IVersionedMessage)Clone();
-
-    IPQMessage IPQMessage.Clone() => (IPQMessage)Clone();
-
-    IPQMessage ICloneable<IPQMessage>.Clone() => (IPQMessage)Clone();
-
-    IMutableFeedEventStatusUpdate ICloneable<IMutableFeedEventStatusUpdate>.Clone() => (IMutableFeedEventStatusUpdate)Clone();
-
-    IMutableFeedEventStatusUpdate IMutableFeedEventStatusUpdate.Clone() => (IMutableFeedEventStatusUpdate)Clone();
-
-    public abstract override IFeedEventStatusUpdate Clone();
-
-    IFeedEventStatusUpdate ITransferState<IFeedEventStatusUpdate>.CopyFrom
-        (IFeedEventStatusUpdate source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom(source, copyMergeFlags);
-
-    IVersionedMessage ITransferState<IVersionedMessage>.CopyFrom
-        (IVersionedMessage? source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom((IFeedEventStatusUpdate?)source!, copyMergeFlags);
-
-    IReusableObject<IVersionedMessage> ITransferState<IReusableObject<IVersionedMessage>>.CopyFrom
-        (IReusableObject<IVersionedMessage> source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom((IFeedEventStatusUpdate?)source, copyMergeFlags);
-
-    IPQMessage ITransferState<IPQMessage>.CopyFrom(IPQMessage source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
-
-    IPQMessage IPQMessage.CopyFrom(IPQMessage source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
-
-
-    public override IPQMessage CopyFrom(IFeedEventStatusUpdate? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        if (source is IPQMessage pqMesg)
-        {
-            var isFullReplace = copyMergeFlags.HasFullReplace();
-            if (pqMesg.IsFeedConnectivityStatusUpdated || isFullReplace)
-            {
-                IsFeedConnectivityStatusUpdated = true;
-                FeedMarketConnectivityStatus    = pqMesg.FeedMarketConnectivityStatus;
-            }
-            if (pqMesg.IsAdapterSentTimeDateUpdated || isFullReplace)
-            {
-                var originalAdapterSentTime = AdapterSentTimeField;
-                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref AdapterSentTimeField,
-                                                                      pqMesg.AdapterSentTime.Get2MinIntervalsFromUnixEpoch());
-                IsAdapterSentTimeDateUpdated |= originalAdapterSentTime != AdapterSentTimeField;
-                if (AdapterSentTimeField == DateTime.UnixEpoch) AdapterSentTimeField = default;
-            }
-            if (pqMesg.IsAdapterSentTimeSub2MinUpdated || isFullReplace)
-            {
-                var originalAdapterSentTime = AdapterSentTimeField;
-                PQFieldConverters.UpdateSub2MinComponent(ref AdapterSentTimeField,
-                                                         pqMesg.AdapterSentTime.GetSub2MinComponent());
-                IsAdapterSentTimeSub2MinUpdated |= originalAdapterSentTime != AdapterSentTimeField;
-                if (AdapterSentTimeField == DateTime.UnixEpoch) AdapterSentTimeField = default;
-            }
-            if (pqMesg.IsAdapterReceivedTimeDateUpdated || isFullReplace)
-            {
-                var originalAdapterReceivedTime = AdapterReceivedTimeField;
-                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref AdapterReceivedTimeField,
-                                                                      pqMesg.AdapterReceivedTime.Get2MinIntervalsFromUnixEpoch());
-                IsAdapterReceivedTimeDateUpdated |= originalAdapterReceivedTime != AdapterReceivedTimeField;
-                if (AdapterReceivedTimeField == DateTime.UnixEpoch) AdapterReceivedTimeField = default;
-            }
-            if (pqMesg.IsAdapterReceivedTimeSub2MinUpdated || isFullReplace)
-            {
-                var originalAdapterReceivedTime = AdapterReceivedTimeField;
-                PQFieldConverters.UpdateSub2MinComponent(ref AdapterReceivedTimeField,
-                                                         pqMesg.AdapterReceivedTime.GetSub2MinComponent());
-                IsAdapterReceivedTimeSub2MinUpdated |= originalAdapterReceivedTime != AdapterReceivedTimeField;
-                if (AdapterReceivedTimeField == DateTime.UnixEpoch) AdapterReceivedTimeField = default;
-            }
-            if (pqMesg.IsSocketReceivedTimeDateUpdated || isFullReplace)
-            {
-                var originalSocketReceivingTime = InboundSocketReceivingTimeField;
-                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref InboundSocketReceivingTimeField
-                                                                    , pqMesg.InboundSocketReceivingTime.Get2MinIntervalsFromUnixEpoch());
-                IsSocketReceivedTimeDateUpdated = originalSocketReceivingTime != InboundSocketReceivingTimeField;
-                if (InboundSocketReceivingTimeField == DateTime.UnixEpoch) InboundSocketReceivingTimeField = default;
-            }
-            if (pqMesg.IsSocketReceivedTimeSub2MinUpdated || isFullReplace)
-            {
-                var originalSocketReceivingTime = InboundSocketReceivingTimeField;
-                PQFieldConverters.UpdateSub2MinComponent(ref InboundSocketReceivingTimeField
-                                                       , pqMesg.InboundSocketReceivingTime.GetSub2MinComponent());
-                IsSocketReceivedTimeSub2MinUpdated = originalSocketReceivingTime != InboundSocketReceivingTimeField;
-                if (InboundSocketReceivingTimeField == DateTime.UnixEpoch) InboundSocketReceivingTimeField = default;
-            }
-            if (pqMesg.IsProcessedTimeDateUpdated || isFullReplace)
-            {
-                var originalProcessedTime = InboundProcessedTimeField;
-                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref InboundProcessedTimeField
-                                                                    , pqMesg.InboundProcessedTime.Get2MinIntervalsFromUnixEpoch());
-                IsProcessedTimeDateUpdated = originalProcessedTime != InboundProcessedTimeField;
-                if (InboundProcessedTimeField == DateTime.UnixEpoch) InboundProcessedTimeField = default;
-            }
-            if (pqMesg.IsProcessedTimeSub2MinUpdated || isFullReplace)
-            {
-                var originalProcessedTime = InboundProcessedTimeField;
-                PQFieldConverters.UpdateSub2MinComponent(ref InboundProcessedTimeField, pqMesg.InboundProcessedTime.GetSub2MinComponent());
-                IsProcessedTimeSub2MinUpdated = originalProcessedTime != InboundProcessedTimeField;
-                if (InboundProcessedTimeField == DateTime.UnixEpoch) InboundProcessedTimeField = default;
-            }
-            if (pqMesg.IsDispatchedTimeDateUpdated || isFullReplace)
-            {
-                var originalDispatchedTime = DispatchedTimeField;
-                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref DispatchedTimeField
-                                                                    , pqMesg.SubscriberDispatchedTime.Get2MinIntervalsFromUnixEpoch());
-                IsDispatchedTimeDateUpdated = originalDispatchedTime != DispatchedTimeField;
-                if (DispatchedTimeField == DateTime.UnixEpoch) DispatchedTimeField = default;
-            }
-            if (pqMesg.IsDispatchedTimeSub2MinUpdated || isFullReplace)
-            {
-                var originalDispatchedTime = DispatchedTimeField;
-                PQFieldConverters.UpdateSub2MinComponent(ref DispatchedTimeField, pqMesg.SubscriberDispatchedTime.GetSub2MinComponent());
-                IsDispatchedTimeSub2MinUpdated = originalDispatchedTime != DispatchedTimeField;
-                if (DispatchedTimeField == DateTime.UnixEpoch) DispatchedTimeField = default;
-            }
-            if (pqMesg.IsClientReceivedTimeDateUpdated || isFullReplace)
-            {
-                var originalClientReceivedTime = ClientReceivedTimeField;
-                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref ClientReceivedTimeField
-                                                                    , pqMesg.ClientReceivedTime.Get2MinIntervalsFromUnixEpoch());
-                IsClientReceivedTimeDateUpdated = originalClientReceivedTime != ClientReceivedTimeField;
-                if (ClientReceivedTimeField == DateTime.UnixEpoch) ClientReceivedTimeField = default;
-            }
-            if (pqMesg.IsClientReceivedTimeSub2MinUpdated || isFullReplace)
-            {
-                var originalClientReceivedTime = ClientReceivedTimeField;
-                PQFieldConverters.UpdateSub2MinComponent(ref ClientReceivedTimeField, pqMesg.ClientReceivedTime.GetSub2MinComponent());
-                IsClientReceivedTimeSub2MinUpdated = originalClientReceivedTime != ClientReceivedTimeField;
-                if (ClientReceivedTimeField == DateTime.UnixEpoch) ClientReceivedTimeField = default;
-            }
-            if (pqMesg.IsFeedSyncStatusUpdated || isFullReplace) FeedSyncStatus = pqMesg.FeedSyncStatus;
-
-            OverrideSerializationFlags = pqMesg.OverrideSerializationFlags;
-
-            LastPublicationTime = pqMesg.LastPublicationTime;
-            PQSequenceId        = pqMesg.PQSequenceId;
-        }
-        else if (source is not null)
-        {
-            OverrideSerializationFlags = null;
-
-            FeedMarketConnectivityStatus = source.FeedMarketConnectivityStatus;
-            FeedSyncStatus               = source.FeedSyncStatus;
-
-            ClientReceivedTime         = source.ClientReceivedTime;
-            AdapterSentTime            = source.AdapterSentTime;
-            AdapterReceivedTime        = source.AdapterReceivedTime;
-            InboundSocketReceivingTime = source.InboundSocketReceivingTime;
-            SubscriberDispatchedTime   = source.SubscriberDispatchedTime;
-            InboundProcessedTime       = source.InboundProcessedTime;
-        }
-
-        return this;
-    }
-
-    public virtual void SetPublisherStateToConnectivityStatus(PublisherStates publisherStates, DateTime atDateTime)
-    {
-        // Todo map publisherStates to feed states
-    }
-
-    public abstract void EnsureRelatedItemsAreConfigured(IPQMessage? item);
-
-    public abstract IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags);
+    public abstract IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags);
 
     public abstract bool UpdateFieldString(PQFieldStringUpdate stringUpdate);
 
-    public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags)
+    public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags)
     {
-        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
         // only copy if changed
 
         if (!updatedOnly || IsFeedConnectivityStatusUpdated)
@@ -690,7 +531,7 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
             var extended = AdapterReceivedTimeField.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQFeedFields.AdapterReceivedSub2MinTime, value, extended);
         }
-        var includeReceiverTimes = (messageFlags & StorageFlags.IncludeReceiverTimes) > 0;
+        var includeReceiverTimes = (messageFlags & PQMessageFlags.IncludeReceiverTimes) > 0;
         if (includeReceiverTimes)
         {
             if (!updatedOnly || IsFeedSyncStatusUpdated) yield return new PQFieldUpdate(PQFeedFields.PQSyncStatus, (byte)FeedSyncStatus);
@@ -740,75 +581,75 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         switch (pqFieldUpdate.Id)
         {
             case PQFeedFields.PQSyncStatus:
-                IsFeedSyncStatusUpdated = true; // incase of reset and sending 0;
+                IsFeedSyncStatusUpdated = true; // in-case of reset and sending 0;
                 FeedSyncStatus          = (FeedSyncStatus)pqFieldUpdate.Payload;
                 return 0;
             case PQFeedFields.FeedMarketConnectivityStatus:
-                IsFeedConnectivityStatusUpdated = true; // incase of reset and sending 0;
+                IsFeedConnectivityStatusUpdated = true; // in-case of reset and sending 0;
                 FeedMarketConnectivityStatus    = (FeedConnectivityStatusFlags)pqFieldUpdate.Payload;
                 return 0;
             case PQFeedFields.AdapterSentDateTime:
-                IsAdapterSentTimeDateUpdated = true; // incase of reset and sending 0;
+                IsAdapterSentTimeDateUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref AdapterSentTimeField, pqFieldUpdate.Payload);
                 if (AdapterSentTimeField == DateTime.UnixEpoch) AdapterSentTimeField = default;
                 return 0;
             case PQFeedFields.AdapterSentSub2MinTime:
-                IsAdapterSentTimeSub2MinUpdated = true; // incase of reset and sending 0;
+                IsAdapterSentTimeSub2MinUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref AdapterSentTimeField, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
                 if (AdapterSentTimeField == DateTime.UnixEpoch) AdapterSentTimeField = default;
                 return 0;
             case PQFeedFields.AdapterReceivedDateTime:
-                IsAdapterReceivedTimeDateUpdated = true; // incase of reset and sending 0;
+                IsAdapterReceivedTimeDateUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref AdapterReceivedTimeField, pqFieldUpdate.Payload);
                 if (AdapterReceivedTimeField == DateTime.UnixEpoch) AdapterReceivedTimeField = default;
                 return 0;
             case PQFeedFields.AdapterReceivedSub2MinTime:
-                IsAdapterReceivedTimeSub2MinUpdated = true; // incase of reset and sending 0;
+                IsAdapterReceivedTimeSub2MinUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref AdapterReceivedTimeField, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
                 if (AdapterReceivedTimeField == DateTime.UnixEpoch) AdapterReceivedTimeField = default;
                 return 0;
             case PQFeedFields.ClientSocketReceivingDateTime:
-                IsSocketReceivedTimeDateUpdated = true; // incase of reset and sending 0;
+                IsSocketReceivedTimeDateUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref InboundSocketReceivingTimeField, pqFieldUpdate.Payload);
                 if (InboundSocketReceivingTimeField == DateTime.UnixEpoch) InboundSocketReceivingTimeField = default;
                 return 0;
             case PQFeedFields.ClientSocketReceivingSub2MinTime:
-                IsSocketReceivedTimeSub2MinUpdated = true; // incase of reset and sending 0;
+                IsSocketReceivedTimeSub2MinUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent(ref InboundSocketReceivingTimeField,
                                                          pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
                 if (InboundSocketReceivingTimeField == DateTime.UnixEpoch) InboundSocketReceivingTimeField = default;
                 return 0;
             case PQFeedFields.ClientProcessedDateTime:
-                IsProcessedTimeDateUpdated = true; // incase of reset and sending 0;
+                IsProcessedTimeDateUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref InboundProcessedTimeField, pqFieldUpdate.Payload);
                 if (InboundProcessedTimeField == DateTime.UnixEpoch) InboundProcessedTimeField = default;
                 return 0;
             case PQFeedFields.ClientProcessedSub2MinTime:
-                IsProcessedTimeSub2MinUpdated = true; // incase of reset and sending 0;
+                IsProcessedTimeSub2MinUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent(ref InboundProcessedTimeField,
                                                          pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
                 if (InboundProcessedTimeField == DateTime.UnixEpoch) InboundProcessedTimeField = default;
                 return 0;
             case PQFeedFields.ClientDispatchedDateTime:
-                IsDispatchedTimeDateUpdated = true; // incase of reset and sending 0;
+                IsDispatchedTimeDateUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref DispatchedTimeField, pqFieldUpdate.Payload);
                 if (DispatchedTimeField == DateTime.UnixEpoch) DispatchedTimeField = default;
                 return 0;
             case PQFeedFields.ClientDispatchedSub2MinTime:
-                IsDispatchedTimeSub2MinUpdated = true; // incase of reset and sending 0;
+                IsDispatchedTimeSub2MinUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent(ref DispatchedTimeField,
                                                          pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
                 if (DispatchedTimeField == DateTime.UnixEpoch) DispatchedTimeField = default;
                 return 0;
             case PQFeedFields.ClientReceivedDateTime:
-                IsClientReceivedTimeDateUpdated = true; // incase of reset and sending 0;
+                IsClientReceivedTimeDateUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref ClientReceivedTimeField, pqFieldUpdate.Payload);
                 if (ClientReceivedTimeField == DateTime.UnixEpoch) ClientReceivedTimeField = default;
                 return 0;
             case PQFeedFields.ClientReceivedSub2MinTime:
-                IsClientReceivedTimeSub2MinUpdated = true; // incase of reset and sending 0;
+                IsClientReceivedTimeSub2MinUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent(ref ClientReceivedTimeField,
                                                          pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
                 if (ClientReceivedTimeField == DateTime.UnixEpoch) ClientReceivedTimeField = default;
@@ -817,6 +658,173 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
 
         return -1;
     }
+
+    IVersionedMessage ICloneable<IVersionedMessage>.Clone() => (IVersionedMessage)Clone();
+
+    IPQMessage IPQMessage.Clone() => (IPQMessage)Clone();
+
+    IPQMessage ICloneable<IPQMessage>.Clone() => (IPQMessage)Clone();
+
+    IMutableFeedEventStatusUpdate ICloneable<IMutableFeedEventStatusUpdate>.Clone() => (IMutableFeedEventStatusUpdate)Clone();
+
+    IMutableFeedEventStatusUpdate IMutableFeedEventStatusUpdate.Clone() => (IMutableFeedEventStatusUpdate)Clone();
+
+    public abstract override IFeedEventStatusUpdate Clone();
+
+    IFeedEventStatusUpdate ITransferState<IFeedEventStatusUpdate>.CopyFrom
+        (IFeedEventStatusUpdate source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom(source, copyMergeFlags);
+
+    IVersionedMessage ITransferState<IVersionedMessage>.CopyFrom
+        (IVersionedMessage? source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IFeedEventStatusUpdate?)source!, copyMergeFlags);
+
+    IReusableObject<IVersionedMessage> ITransferState<IReusableObject<IVersionedMessage>>.CopyFrom
+        (IReusableObject<IVersionedMessage> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IFeedEventStatusUpdate?)source, copyMergeFlags);
+
+    IPQMessage ITransferState<IPQMessage>.CopyFrom(IPQMessage source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
+
+    IPQMessage IPQMessage.CopyFrom(IPQMessage source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
+
+
+    public override IPQMessage CopyFrom(IFeedEventStatusUpdate? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if (source is IPQMessage pqMessage)
+        {
+            var isFullReplace = copyMergeFlags.HasFullReplace();
+            if (pqMessage.IsFeedConnectivityStatusUpdated || isFullReplace)
+            {
+                IsFeedConnectivityStatusUpdated = true;
+                FeedMarketConnectivityStatus    = pqMessage.FeedMarketConnectivityStatus;
+            }
+            if (pqMessage.IsAdapterSentTimeDateUpdated || isFullReplace)
+            {
+                var originalAdapterSentTime = AdapterSentTimeField;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref AdapterSentTimeField,
+                                                                      pqMessage.AdapterSentTime.Get2MinIntervalsFromUnixEpoch());
+                IsAdapterSentTimeDateUpdated |= originalAdapterSentTime != AdapterSentTimeField;
+                if (AdapterSentTimeField == DateTime.UnixEpoch) AdapterSentTimeField = default;
+            }
+            if (pqMessage.IsAdapterSentTimeSub2MinUpdated || isFullReplace)
+            {
+                var originalAdapterSentTime = AdapterSentTimeField;
+                PQFieldConverters.UpdateSub2MinComponent(ref AdapterSentTimeField,
+                                                         pqMessage.AdapterSentTime.GetSub2MinComponent());
+                IsAdapterSentTimeSub2MinUpdated |= originalAdapterSentTime != AdapterSentTimeField;
+                if (AdapterSentTimeField == DateTime.UnixEpoch) AdapterSentTimeField = default;
+            }
+            if (pqMessage.IsAdapterReceivedTimeDateUpdated || isFullReplace)
+            {
+                var originalAdapterReceivedTime = AdapterReceivedTimeField;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref AdapterReceivedTimeField,
+                                                                      pqMessage.AdapterReceivedTime.Get2MinIntervalsFromUnixEpoch());
+                IsAdapterReceivedTimeDateUpdated |= originalAdapterReceivedTime != AdapterReceivedTimeField;
+                if (AdapterReceivedTimeField == DateTime.UnixEpoch) AdapterReceivedTimeField = default;
+            }
+            if (pqMessage.IsAdapterReceivedTimeSub2MinUpdated || isFullReplace)
+            {
+                var originalAdapterReceivedTime = AdapterReceivedTimeField;
+                PQFieldConverters.UpdateSub2MinComponent(ref AdapterReceivedTimeField,
+                                                         pqMessage.AdapterReceivedTime.GetSub2MinComponent());
+                IsAdapterReceivedTimeSub2MinUpdated |= originalAdapterReceivedTime != AdapterReceivedTimeField;
+                if (AdapterReceivedTimeField == DateTime.UnixEpoch) AdapterReceivedTimeField = default;
+            }
+            if (pqMessage.IsSocketReceivedTimeDateUpdated || isFullReplace)
+            {
+                var originalSocketReceivingTime = InboundSocketReceivingTimeField;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref InboundSocketReceivingTimeField
+                                                                    , pqMessage.InboundSocketReceivingTime.Get2MinIntervalsFromUnixEpoch());
+                IsSocketReceivedTimeDateUpdated = originalSocketReceivingTime != InboundSocketReceivingTimeField;
+                if (InboundSocketReceivingTimeField == DateTime.UnixEpoch) InboundSocketReceivingTimeField = default;
+            }
+            if (pqMessage.IsSocketReceivedTimeSub2MinUpdated || isFullReplace)
+            {
+                var originalSocketReceivingTime = InboundSocketReceivingTimeField;
+                PQFieldConverters.UpdateSub2MinComponent(ref InboundSocketReceivingTimeField
+                                                       , pqMessage.InboundSocketReceivingTime.GetSub2MinComponent());
+                IsSocketReceivedTimeSub2MinUpdated = originalSocketReceivingTime != InboundSocketReceivingTimeField;
+                if (InboundSocketReceivingTimeField == DateTime.UnixEpoch) InboundSocketReceivingTimeField = default;
+            }
+            if (pqMessage.IsProcessedTimeDateUpdated || isFullReplace)
+            {
+                var originalProcessedTime = InboundProcessedTimeField;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref InboundProcessedTimeField
+                                                                    , pqMessage.InboundProcessedTime.Get2MinIntervalsFromUnixEpoch());
+                IsProcessedTimeDateUpdated = originalProcessedTime != InboundProcessedTimeField;
+                if (InboundProcessedTimeField == DateTime.UnixEpoch) InboundProcessedTimeField = default;
+            }
+            if (pqMessage.IsProcessedTimeSub2MinUpdated || isFullReplace)
+            {
+                var originalProcessedTime = InboundProcessedTimeField;
+                PQFieldConverters.UpdateSub2MinComponent(ref InboundProcessedTimeField, pqMessage.InboundProcessedTime.GetSub2MinComponent());
+                IsProcessedTimeSub2MinUpdated = originalProcessedTime != InboundProcessedTimeField;
+                if (InboundProcessedTimeField == DateTime.UnixEpoch) InboundProcessedTimeField = default;
+            }
+            if (pqMessage.IsDispatchedTimeDateUpdated || isFullReplace)
+            {
+                var originalDispatchedTime = DispatchedTimeField;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref DispatchedTimeField
+                                                                    , pqMessage.SubscriberDispatchedTime.Get2MinIntervalsFromUnixEpoch());
+                IsDispatchedTimeDateUpdated = originalDispatchedTime != DispatchedTimeField;
+                if (DispatchedTimeField == DateTime.UnixEpoch) DispatchedTimeField = default;
+            }
+            if (pqMessage.IsDispatchedTimeSub2MinUpdated || isFullReplace)
+            {
+                var originalDispatchedTime = DispatchedTimeField;
+                PQFieldConverters.UpdateSub2MinComponent(ref DispatchedTimeField, pqMessage.SubscriberDispatchedTime.GetSub2MinComponent());
+                IsDispatchedTimeSub2MinUpdated = originalDispatchedTime != DispatchedTimeField;
+                if (DispatchedTimeField == DateTime.UnixEpoch) DispatchedTimeField = default;
+            }
+            if (pqMessage.IsClientReceivedTimeDateUpdated || isFullReplace)
+            {
+                var originalClientReceivedTime = ClientReceivedTimeField;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref ClientReceivedTimeField
+                                                                    , pqMessage.ClientReceivedTime.Get2MinIntervalsFromUnixEpoch());
+                IsClientReceivedTimeDateUpdated = originalClientReceivedTime != ClientReceivedTimeField;
+                if (ClientReceivedTimeField == DateTime.UnixEpoch) ClientReceivedTimeField = default;
+            }
+            if (pqMessage.IsClientReceivedTimeSub2MinUpdated || isFullReplace)
+            {
+                var originalClientReceivedTime = ClientReceivedTimeField;
+                PQFieldConverters.UpdateSub2MinComponent(ref ClientReceivedTimeField, pqMessage.ClientReceivedTime.GetSub2MinComponent());
+                IsClientReceivedTimeSub2MinUpdated = originalClientReceivedTime != ClientReceivedTimeField;
+                if (ClientReceivedTimeField == DateTime.UnixEpoch) ClientReceivedTimeField = default;
+            }
+            if (pqMessage.IsFeedSyncStatusUpdated || isFullReplace) FeedSyncStatus = pqMessage.FeedSyncStatus;
+
+            OverrideSerializationFlags = pqMessage.OverrideSerializationFlags;
+
+            LastPublicationTime = pqMessage.LastPublicationTime;
+            PQSequenceId        = pqMessage.PQSequenceId;
+        }
+        else if (source is not null)
+        {
+            OverrideSerializationFlags = null;
+
+            IsCompleteUpdate           = source.IsCompleteUpdate;
+
+            FeedMarketConnectivityStatus = source.FeedMarketConnectivityStatus;
+            FeedSyncStatus               = source.FeedSyncStatus;
+
+            ClientReceivedTime         = source.ClientReceivedTime;
+            AdapterSentTime            = source.AdapterSentTime;
+            AdapterReceivedTime        = source.AdapterReceivedTime;
+            InboundSocketReceivingTime = source.InboundSocketReceivingTime;
+            SubscriberDispatchedTime   = source.SubscriberDispatchedTime;
+            InboundProcessedTime       = source.InboundProcessedTime;
+        }
+
+        return this;
+    }
+
+    public virtual void SetPublisherStateToConnectivityStatus(PublisherStates publisherStates, DateTime atDateTime)
+    {
+        // Todo map publisherStates to feed states
+    }
+
+    public abstract void EnsureRelatedItemsAreConfigured(IPQMessage? item);
+
 
     public virtual bool AreEquivalent(IFeedEventStatusUpdate? other, bool exactTypes = false)
     {
@@ -852,4 +860,16 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     {
         if (toCopyFlags is PQReusableMessage pqToClone) MessageUpdatedFlags = pqToClone.MessageUpdatedFlags;
     }
+
+    public virtual string PQReusableMessageToStringMembers =>
+        $"{nameof(ClientReceivedTime)}: {ClientReceivedTime:O}, {nameof(InboundSocketReceivingTime)}: {InboundSocketReceivingTime:O}, " +
+        $"{nameof(InboundProcessedTime)}: {InboundProcessedTime:O}, {nameof(SubscriberDispatchedTime)}: {SubscriberDispatchedTime:O}, " +
+        $"{nameof(AdapterSentTime)}: {AdapterSentTime:O}, {nameof(AdapterReceivedTime)}: {AdapterReceivedTime:O}, " +
+        $"{nameof(IsCompleteUpdate)}: {IsCompleteUpdate}";
+
+    protected string MessageUpdatedFlagsToString => $"{nameof(MessageUpdatedFlags)}: {MessageUpdatedFlags}";
+    protected string JustFeedStatusToStringMembers =>
+        $"{nameof(FeedMarketConnectivityStatus)}: {FeedMarketConnectivityStatus}, {nameof(FeedSyncStatus)}: {FeedSyncStatus}, {nameof(PQSequenceId)}: {PQSequenceId}";
+
+    public override string ToString() => $"{nameof(PQReusableMessage)}{{{PQReusableMessageToStringMembers}, {JustFeedStatusToStringMembers}, {MessageUpdatedFlagsToString}}}";
 }

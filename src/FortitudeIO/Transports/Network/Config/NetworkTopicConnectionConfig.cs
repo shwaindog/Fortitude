@@ -46,7 +46,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
 {
     private static readonly Dictionary<string, string?> Defaults = new()
     {
-        { nameof(ReceiveBufferSize), (1024 * 1024 * 2).ToString() }, { nameof(SendBufferSize), (1024 * 1024 * 2).ToString() }
+        { nameof(ReceiveBufferSize), (1024 * 1024 * 4).ToString() }, { nameof(SendBufferSize), (1024 * 1024 * 4).ToString() }
       , { nameof(NumberOfReceivesPerPoll), "50" }, { nameof(ConnectionAttributes), SocketConnectionAttributes.None.ToString() }
       , { nameof(ConnectionSelectionOrder), ConnectionSelectionOrder.ListedOrder.ToString() }, { nameof(ConnectionTimeoutMs), "2000" }
       , { nameof(ResponseTimeoutMs), "10000" }
@@ -62,7 +62,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
     public NetworkTopicConnectionConfig
     (string connectionName, string topicName, SocketConversationProtocol conversationProtocol
       , IEnumerable<IEndpointConfig> availableConnections,
-        string? topicDescription = null, int receiveBufferSize = 1024 * 1024 * 2, int sendBufferSize = 1024 * 1024 * 2,
+        string? topicDescription = null, int receiveBufferSize = 1024 * 1024 * 4, int sendBufferSize = 1024 * 1024 * 4,
         int numberOfReceivesPerPoll = 50
       , SocketConnectionAttributes connectionAttributes = SocketConnectionAttributes.None,
         ConnectionSelectionOrder connectionSelectionOrder = ConnectionSelectionOrder.ListedOrder,
@@ -75,7 +75,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
     public NetworkTopicConnectionConfig
     (string topicName, SocketConversationProtocol conversationProtocol
       , IEnumerable<IEndpointConfig> availableConnections,
-        string? topicDescription = null, int receiveBufferSize = 1024 * 1024 * 2, int sendBufferSize = 1024 * 1024 * 2,
+        string? topicDescription = null, int receiveBufferSize = 1024 * 1024 * 4, int sendBufferSize = 1024 * 1024 * 4,
         int numberOfReceivesPerPoll = 50
       , SocketConnectionAttributes connectionAttributes = SocketConnectionAttributes.None,
         ConnectionSelectionOrder connectionSelectionOrder = ConnectionSelectionOrder.ListedOrder,

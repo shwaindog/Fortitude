@@ -17,6 +17,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
 #endregion
 
@@ -375,14 +376,14 @@ public class PQExternalCounterPartyOrderTests
         cpOrderInfo.IsExternalCounterPartyNameUpdated = false;
         cpOrderInfo.HasUpdates       = false;
 
-        Assert.AreEqual(0, cpOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0, cpOrderInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
         if (bsNotNull)
         {
-            var deltaUpdateFields = orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+            var deltaUpdateFields = orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
             Assert.AreEqual(0, deltaUpdateFields.Count());
         }
-        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
         
         var expectedCounterPartyName = "NewChangedCounterPartyName" + orderIndex;
         cpOrderInfo.ExternalCounterPartyName = expectedCounterPartyName;
@@ -391,23 +392,23 @@ public class PQExternalCounterPartyOrderTests
         Assert.IsTrue(cpOrderInfo.IsExternalCounterPartyNameUpdated);
         var precisionSettings = l2Quote?.SourceTickerInfo ?? PQSourceTickerInfoTests.OrdersCounterPartyL3TraderNamePaidOrGivenSti;
         var l2QUpdates = l2QNotNull
-            ? l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         var bkUpdates = bkNotNull
-            ? orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         var bsUpdates = bsNotNull
-            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         var olUpdates = olNotNull
-            ? ordersLayer!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? ordersLayer!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         if (l2QNotNull) Assert.AreEqual(3, l2QUpdates.Count);
         if (bkNotNull) Assert.AreEqual(1, bkUpdates.Count);
         if (bsNotNull) Assert.AreEqual(1, bsUpdates.Count);
         if (olNotNull) Assert.AreEqual(1, olUpdates.Count);
         var orderInfoUpdates = cpOrderInfo
-                               .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
+                               .GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList();
         Assert.AreEqual(1, orderInfoUpdates.Count);
         var dictId             = cpOrderInfo.NameIdLookup[expectedCounterPartyName];
         var expectedOrderInfo
@@ -432,14 +433,14 @@ public class PQExternalCounterPartyOrderTests
             l2Quote.IsAdapterSentTimeDateUpdated    = false;
             l2Quote.IsAdapterSentTimeSub2MinUpdated = false;
             Assert.IsFalse(l2Quote.HasUpdates);
-            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).Count());
+            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(cpOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(cpOrderInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
 
         if (l2QNotNull)
         {
             l2QUpdates =
-                (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update is { Id: PQFeedFields.QuoteLayerOrders, OrdersSubId: PQOrdersSubFieldKeys.OrderExternalCounterPartyNameId }
                        && update.DepthId == depthWithSide && update.AuxiliaryPayload == orderIndex
                     select update).ToList();
@@ -447,7 +448,7 @@ public class PQExternalCounterPartyOrderTests
             Assert.AreEqual(expectedOrderBook, l2QUpdates[0]);
 
             var newEmpty = new PQPublishableLevel2Quote(l2Quote.SourceTickerInfo ?? precisionSettings);
-            foreach (var stringUpdate in l2Quote.GetStringUpdates(testDateTime, StorageFlags.Snapshot))
+            foreach (var stringUpdate in l2Quote.GetStringUpdates(testDateTime, PQMessageFlags.Snapshot))
             {
                 newEmpty.UpdateFieldString(stringUpdate);
             }
@@ -464,7 +465,7 @@ public class PQExternalCounterPartyOrderTests
         if (bkNotNull)
         {
             bkUpdates =
-                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update is { Id: PQFeedFields.QuoteLayerOrders, OrdersSubId: PQOrdersSubFieldKeys.OrderExternalCounterPartyNameId }
                        && update.DepthId == depthWithSide && update.AuxiliaryPayload == orderIndex
                     select update).ToList();
@@ -472,7 +473,7 @@ public class PQExternalCounterPartyOrderTests
             Assert.AreEqual(expectedOrderBook, bkUpdates[0]);
 
             var newEmpty = new PQOrderBook(l2Quote?.SourceTickerInfo ?? precisionSettings);
-            foreach (var stringUpdate in orderBook.GetStringUpdates(testDateTime, StorageFlags.Snapshot))
+            foreach (var stringUpdate in orderBook.GetStringUpdates(testDateTime, PQMessageFlags.Snapshot))
             {
                 newEmpty.UpdateFieldString(stringUpdate);
             }
@@ -489,7 +490,7 @@ public class PQExternalCounterPartyOrderTests
         if (bsNotNull)
         {
             bsUpdates =
-                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update is { Id: PQFeedFields.QuoteLayerOrders, OrdersSubId: PQOrdersSubFieldKeys.OrderExternalCounterPartyNameId }
                        && update.DepthId == depthNoSide && update.AuxiliaryPayload == orderIndex
                     select update).ToList();
@@ -497,7 +498,7 @@ public class PQExternalCounterPartyOrderTests
             Assert.AreEqual(expectedBookSide, bsUpdates[0]);
 
             var newEmpty = new PQOrderBookSide(orderBookSide.BookSide, l2Quote?.SourceTickerInfo ?? precisionSettings);
-            foreach (var stringUpdate in orderBookSide.GetStringUpdates(testDateTime, StorageFlags.Snapshot))
+            foreach (var stringUpdate in orderBookSide.GetStringUpdates(testDateTime, PQMessageFlags.Snapshot))
             {
                 newEmpty.UpdateFieldString(stringUpdate);
             }
@@ -513,14 +514,14 @@ public class PQExternalCounterPartyOrderTests
         if (olNotNull)
         {
             olUpdates =
-                (from update in ordersLayer!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in ordersLayer!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update is { Id: PQFeedFields.QuoteLayerOrders, OrdersSubId: PQOrdersSubFieldKeys.OrderExternalCounterPartyNameId } && update.AuxiliaryPayload == orderIndex
                     select update).ToList();
             Assert.AreEqual(1, olUpdates.Count);
             Assert.AreEqual(expectedLayer, olUpdates[0]);
 
             var newLayer = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
-            foreach (var stringUpdate in ordersLayer.GetStringUpdates(testDateTime, StorageFlags.Snapshot))
+            foreach (var stringUpdate in ordersLayer.GetStringUpdates(testDateTime, PQMessageFlags.Snapshot))
             {
                 newLayer.UpdateFieldString(stringUpdate);
             }
@@ -532,14 +533,14 @@ public class PQExternalCounterPartyOrderTests
             Assert.IsTrue(newLayer.HasUpdates);
         }
         orderInfoUpdates =
-            (from update in cpOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+            (from update in cpOrderInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                 where update is { Id: PQFeedFields.QuoteLayerOrders, OrdersSubId: PQOrdersSubFieldKeys.OrderExternalCounterPartyNameId }
                 select update).ToList();
         Assert.AreEqual(1, orderInfoUpdates.Count);
         Assert.AreEqual(expectedOrderInfo, orderInfoUpdates[0]);
 
         var newAnonOrderInfo = new PQExternalCounterPartyOrder();
-        foreach (var stringUpdate in cpOrderInfo.GetStringUpdates(testDateTime, StorageFlags.Snapshot))
+        foreach (var stringUpdate in cpOrderInfo.GetStringUpdates(testDateTime, PQMessageFlags.Snapshot))
         {
             newAnonOrderInfo.UpdateFieldString(stringUpdate);
         }
@@ -592,10 +593,10 @@ public class PQExternalCounterPartyOrderTests
         cpOrderInfo.IsExternalTraderNameUpdated = false;
         cpOrderInfo.HasUpdates       = false;
 
-        Assert.AreEqual(0, cpOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (bsNotNull) Assert.AreEqual(0, orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0, cpOrderInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (bsNotNull) Assert.AreEqual(0, orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
         
         var expectedTraderName = "NewChangedTraderName" + orderIndex;
         cpOrderInfo.ExternalTraderName = expectedTraderName;
@@ -604,23 +605,23 @@ public class PQExternalCounterPartyOrderTests
         Assert.IsTrue(cpOrderInfo.IsExternalTraderNameUpdated);
         var precisionSettings = l2Quote?.SourceTickerInfo ?? PQSourceTickerInfoTests.OrdersCountL3TraderNamePaidOrGivenSti;
         var l2QUpdates = l2QNotNull
-            ? l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         var bkUpdates = bkNotNull
-            ? orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         var bsUpdates = bsNotNull
-            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         var olUpdates = olNotNull
-            ? ordersLayer!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? ordersLayer!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         if (l2QNotNull) Assert.AreEqual(3, l2QUpdates.Count);
         if (bkNotNull) Assert.AreEqual(1, bkUpdates.Count);
         if (bsNotNull) Assert.AreEqual(1, bsUpdates.Count);
         if (olNotNull) Assert.AreEqual(1, olUpdates.Count);
         var orderInfoUpdates = cpOrderInfo
-                               .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
+                               .GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList();
         Assert.AreEqual(1, orderInfoUpdates.Count);
         var dictId             = cpOrderInfo.NameIdLookup[expectedTraderName];
         var expectedOrderInfo
@@ -645,14 +646,14 @@ public class PQExternalCounterPartyOrderTests
             l2Quote.IsAdapterSentTimeDateUpdated    = false;
             l2Quote.IsAdapterSentTimeSub2MinUpdated = false;
             Assert.IsFalse(l2Quote.HasUpdates);
-            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).Count());
+            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(cpOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(cpOrderInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
 
         if (l2QNotNull)
         {
             l2QUpdates =
-                (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update is { Id: PQFeedFields.QuoteLayerOrders, OrdersSubId: PQOrdersSubFieldKeys.OrderExternalTraderNameId }
                        && update.DepthId == depthWithSide && update.AuxiliaryPayload == orderIndex
                     select update).ToList();
@@ -660,7 +661,7 @@ public class PQExternalCounterPartyOrderTests
             Assert.AreEqual(expectedOrderBook, l2QUpdates[0]);
 
             var newEmpty = new PQPublishableLevel2Quote(l2Quote.SourceTickerInfo ?? precisionSettings);
-            foreach (var stringUpdate in l2Quote.GetStringUpdates(testDateTime, StorageFlags.Snapshot))
+            foreach (var stringUpdate in l2Quote.GetStringUpdates(testDateTime, PQMessageFlags.Snapshot))
             {
                 newEmpty.UpdateFieldString(stringUpdate);
             }
@@ -677,7 +678,7 @@ public class PQExternalCounterPartyOrderTests
         if (bkNotNull)
         {
             bkUpdates =
-                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update is { Id: PQFeedFields.QuoteLayerOrders, OrdersSubId: PQOrdersSubFieldKeys.OrderExternalTraderNameId }
                        && update.DepthId == depthWithSide && update.AuxiliaryPayload == orderIndex
                     select update).ToList();
@@ -685,7 +686,7 @@ public class PQExternalCounterPartyOrderTests
             Assert.AreEqual(expectedOrderBook, bkUpdates[0]);
 
             var newEmpty = new PQOrderBook(l2Quote?.SourceTickerInfo ?? precisionSettings);
-            foreach (var stringUpdate in orderBook.GetStringUpdates(testDateTime, StorageFlags.Snapshot))
+            foreach (var stringUpdate in orderBook.GetStringUpdates(testDateTime, PQMessageFlags.Snapshot))
             {
                 newEmpty.UpdateFieldString(stringUpdate);
             }
@@ -702,7 +703,7 @@ public class PQExternalCounterPartyOrderTests
         if (bsNotNull)
         {
             bsUpdates =
-                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update is { Id: PQFeedFields.QuoteLayerOrders, OrdersSubId: PQOrdersSubFieldKeys.OrderExternalTraderNameId }
                        && update.DepthId == depthNoSide && update.AuxiliaryPayload == orderIndex
                     select update).ToList();
@@ -710,7 +711,7 @@ public class PQExternalCounterPartyOrderTests
             Assert.AreEqual(expectedBookSide, bsUpdates[0]);
 
             var newEmpty = new PQOrderBookSide(orderBookSide.BookSide, l2Quote?.SourceTickerInfo ?? precisionSettings);
-            foreach (var stringUpdate in orderBookSide.GetStringUpdates(testDateTime, StorageFlags.Snapshot))
+            foreach (var stringUpdate in orderBookSide.GetStringUpdates(testDateTime, PQMessageFlags.Snapshot))
             {
                 newEmpty.UpdateFieldString(stringUpdate);
             }
@@ -726,14 +727,14 @@ public class PQExternalCounterPartyOrderTests
         if (olNotNull)
         {
             olUpdates =
-                (from update in ordersLayer!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in ordersLayer!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update is { Id: PQFeedFields.QuoteLayerOrders, OrdersSubId: PQOrdersSubFieldKeys.OrderExternalTraderNameId } && update.AuxiliaryPayload == orderIndex
                     select update).ToList();
             Assert.AreEqual(1, olUpdates.Count);
             Assert.AreEqual(expectedLayer, olUpdates[0]);
 
             var newLayer = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, emptyNameIdLookup.Clone());
-            foreach (var stringUpdate in ordersLayer.GetStringUpdates(testDateTime, StorageFlags.Snapshot))
+            foreach (var stringUpdate in ordersLayer.GetStringUpdates(testDateTime, PQMessageFlags.Snapshot))
             {
                 newLayer.UpdateFieldString(stringUpdate);
             }
@@ -745,14 +746,14 @@ public class PQExternalCounterPartyOrderTests
             Assert.IsTrue(newLayer.HasUpdates);
         }
         orderInfoUpdates =
-            (from update in cpOrderInfo.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+            (from update in cpOrderInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                 where update is { Id: PQFeedFields.QuoteLayerOrders, OrdersSubId: PQOrdersSubFieldKeys.OrderExternalTraderNameId }
                 select update).ToList();
         Assert.AreEqual(1, orderInfoUpdates.Count);
         Assert.AreEqual(expectedOrderInfo, orderInfoUpdates[0]);
 
         var newAnonOrderInfo = new PQExternalCounterPartyOrder();
-        foreach (var stringUpdate in cpOrderInfo.GetStringUpdates(testDateTime, StorageFlags.Snapshot))
+        foreach (var stringUpdate in cpOrderInfo.GetStringUpdates(testDateTime, PQMessageFlags.Snapshot))
         {
             newAnonOrderInfo.UpdateFieldString(stringUpdate);
         }

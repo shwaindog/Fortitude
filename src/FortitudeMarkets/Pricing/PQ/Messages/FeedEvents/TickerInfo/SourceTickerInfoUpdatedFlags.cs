@@ -9,7 +9,7 @@ public enum SourceTickerInfoUpdatedFlags : uint
     None                   = 0x00_00_00
   , SourceTickerId         = 0x00_00_01
   , SourceName             = 0x00_00_02
-  , TickerName             = 0x00_00_04
+  , InstrumentName         = 0x00_00_04
   , PublishedQuoteLevel    = 0x00_00_08
   , MarketClassification   = 0x00_00_10
   , RoundingPrecision      = 0x00_00_20

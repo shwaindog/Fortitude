@@ -11,7 +11,7 @@ using FortitudeCommon.Monitoring.Logging;
 
 namespace FortitudeCommon.Serdes.Binary;
 
-public interface IFixedByteArrayBuffer : IBuffer
+public interface IFixedByteArrayBuffer : IMessageQueueBuffer
 {
     IByteArray                 BackingByteArray          { get; }
     IVirtualMemoryAddressRange BackingMemoryAddressRange { get; }
@@ -28,18 +28,20 @@ public unsafe class FixedByteArrayBuffer : IFixedByteArrayBuffer
     private long cappedLength = long.MaxValue;
 
     private bool isDestroyed;
+
     private long ReadCursorPos;
 
     protected IVirtualMemoryAddressRange? VirtualMemoryAddressRange;
 
     protected long WriteCursorPos;
 
+    private List<MessageBufferEntry> messageQueue = new();
+
     public FixedByteArrayBuffer(IVirtualMemoryAddressRange virtualMemoryAddressRange, bool shouldCloseView = true)
     {
         VirtualMemoryAddressRange = virtualMemoryAddressRange;
         this.shouldCloseView      = shouldCloseView;
     }
-
 
     public virtual long DefaultGrowSize => 0;
 
@@ -221,6 +223,24 @@ public unsafe class FixedByteArrayBuffer : IFixedByteArrayBuffer
     public virtual void TryHandleRemainingWriteBufferRunningLow() { }
 
     public bool HasStorageForBytes(int bytes) => RemainingStorage > bytes;
+
+    public bool EnforceCappedMessageSize { get; set; }
+
+    public long MaximumMessageSize { get; set; }
+
+    public bool HasAnotherMessage => messageQueue.Count > 0;
+
+    public MessageBufferEntry PopNextMessage()
+    {
+        var next = messageQueue[0];
+        messageQueue.RemoveAt(0);
+        return next;
+    }
+
+    public void QueueMessage(MessageBufferEntry messageEntry)
+    {
+        messageQueue.Add(messageEntry);
+    }
 
     ~FixedByteArrayBuffer()
     {

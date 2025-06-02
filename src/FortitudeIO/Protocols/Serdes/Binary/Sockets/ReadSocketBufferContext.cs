@@ -24,11 +24,11 @@ public interface ISocketBufferReadContext : IMessageBufferContext
 public class SocketBufferReadContext : MessageBufferContext, ISocketBufferReadContext
 {
     public SocketBufferReadContext() : base(new CircularReadWriteBuffer(Array.Empty<byte>())) { }
-    public SocketBufferReadContext(IBuffer buffer) : base(buffer) { }
+    public SocketBufferReadContext(IMessageQueueBuffer buffer) : base(buffer) { }
 
-    public ISocketReceiver SocketReceiver { get; set; } = null!;
-    public DateTime DetectTimestamp { get; set; } = DateTimeConstants.UnixEpoch;
-    public DateTime ReceivingTimestamp { get; set; } = DateTimeConstants.UnixEpoch;
+    public ISocketReceiver SocketReceiver     { get; set; } = null!;
+    public DateTime        DetectTimestamp    { get; set; } = DateTime.MinValue;
+    public DateTime        ReceivingTimestamp { get; set; } = DateTime.MinValue;
     public IConversation? Conversation { get; set; }
     public IPerfLogger? DispatchLatencyLogger { get; set; }
 }

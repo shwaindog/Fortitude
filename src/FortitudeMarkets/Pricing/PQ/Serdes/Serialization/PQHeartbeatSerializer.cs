@@ -59,7 +59,7 @@ internal sealed class PQHeartbeatSerializer : IMessageSerializer<PQHeartBeatQuot
                 if (AddMessageHeader)
                 {
                     *ptr++ = message.Version;
-                    *ptr++ = (byte)PQMessageFlags.None;
+                    *ptr++ = (byte)Messages.FeedEvents.Quotes.PQMessageFlags.None;
                     StreamByteOps.ToBytes(ref ptr, quote.StreamId);
                     messageSize = ptr;
 

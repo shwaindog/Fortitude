@@ -60,7 +60,7 @@ public class SourceTickerInfoSerializer : IMessageSerializer<ISourceTickerInfo>
         if (AddMessageHeader)
         {
             *ptr++ = message.Version;
-            *ptr++ = (byte)PQMessageFlags.None; // header flags
+            *ptr++ = (byte)Messages.FeedEvents.Quotes.PQMessageFlags.None; // header flags
             StreamByteOps.ToBytes(ref ptr, message.MessageId);
             messageSize =  ptr;
             ptr         += sizeof(uint);

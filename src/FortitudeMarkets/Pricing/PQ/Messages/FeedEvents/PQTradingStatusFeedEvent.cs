@@ -28,6 +28,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TradingConversions;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.TimeSeries;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents;
 
@@ -702,12 +703,12 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         return this;
     }
 
-    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags) =>
+    public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags) =>
         GetDeltaUpdateFields(snapShotTime, messageFlags, null);
 
     // ReSharper disable once MethodOverloadWithOptionalParameter
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-        (DateTime snapShotTime, StorageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
+        (DateTime snapShotTime, PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         foreach (var quoteContainerUpdates in base.GetDeltaUpdateFields(snapShotTime, messageFlags))
         {
@@ -783,7 +784,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         return FeedEventStorageTimeResolver.Instance.ResolveStorageTime(this);
     }
 
-    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
+    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags)
     {
         if (PQSourceTickerInfo != null)
             foreach (var field in PQSourceTickerInfo.GetStringUpdates(snapShotTime, messageFlags))

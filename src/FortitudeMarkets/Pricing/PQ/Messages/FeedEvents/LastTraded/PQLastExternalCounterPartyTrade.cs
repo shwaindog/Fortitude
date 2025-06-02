@@ -324,10 +324,10 @@ public class PQLastExternalCounterPartyTrade : PQLastPaidGivenTrade, IPQLastExte
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags messageFlags,
+    (DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
         foreach (var deltaUpdateField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                    quotePublicationPrecisionSetting))
             yield return deltaUpdateField;
@@ -380,7 +380,7 @@ public class PQLastExternalCounterPartyTrade : PQLastPaidGivenTrade, IPQLastExte
 
     public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates
     (DateTime snapShotTime,
-        StorageFlags messageFlags)
+        PQMessageFlags messageFlags)
     {
         foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate;
     }

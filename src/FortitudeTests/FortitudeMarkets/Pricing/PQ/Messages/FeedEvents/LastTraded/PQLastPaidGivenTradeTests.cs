@@ -11,6 +11,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
 #endregion
 
@@ -261,14 +262,14 @@ public class PQLastPaidGivenTradeTests
         Assert.IsFalse(emptyLt.IsTradeVolumeUpdated);
         Assert.IsFalse(emptyLt.HasUpdates);
         Assert.AreEqual(0m, emptyLt.TradeVolume);
-        Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).Count());
 
         const decimal expectedVolume = 42_949_672.95m;
         emptyLt.TradeVolume = expectedVolume;
         Assert.IsTrue(emptyLt.IsTradeVolumeUpdated);
         Assert.IsTrue(emptyLt.HasUpdates);
         Assert.AreEqual(expectedVolume, emptyLt.TradeVolume);
-        var sourceUpdates = emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update).ToList();
+        var sourceUpdates = emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
         var expectedFieldUpdate = new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTradeVolume, expectedVolume
@@ -278,21 +279,21 @@ public class PQLastPaidGivenTradeTests
         emptyLt.IsTradeVolumeUpdated = false;
         Assert.IsFalse(emptyLt.IsTradeVolumeUpdated);
         Assert.IsFalse(emptyLt.HasUpdates);
-        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         const decimal nextExpectedVolume = 0.11m;
         emptyLt.TradeVolume = nextExpectedVolume;
         Assert.IsTrue(emptyLt.IsTradeVolumeUpdated);
         Assert.IsTrue(emptyLt.HasUpdates);
         Assert.AreEqual(nextExpectedVolume, emptyLt.TradeVolume);
-        sourceUpdates = emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update).ToList();
+        sourceUpdates = emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         expectedFieldUpdate = new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTradeVolume, nextExpectedVolume
                                               , (PQFieldFlags)6);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
         emptyLt.HasUpdates = false;
-        sourceUpdates = (from update in emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Snapshot)
+        sourceUpdates = (from update in emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Snapshot)
             where update.TradingSubId == PQTradingSubFieldKeys.LastTradedTradeVolume
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
@@ -310,13 +311,13 @@ public class PQLastPaidGivenTradeTests
         Assert.IsFalse(emptyLt.IsWasGivenUpdated);
         Assert.IsFalse(emptyLt.HasUpdates);
         Assert.IsFalse(emptyLt.WasGiven);
-        Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).Count());
 
         emptyLt.WasGiven = true;
         Assert.IsTrue(emptyLt.IsWasGivenUpdated);
         Assert.IsTrue(emptyLt.HasUpdates);
         Assert.IsTrue(emptyLt.WasGiven);
-        var sourceLayerUpdates = emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update).ToList();
+        var sourceLayerUpdates = emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceLayerUpdates.Count);
         var expectedLayerField = new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedBooleanFlags
                                                  , (uint)LastTradeBooleanFlags.WasGiven);
@@ -324,11 +325,11 @@ public class PQLastPaidGivenTradeTests
 
         emptyLt.IsWasGivenUpdated = false;
         Assert.IsFalse(emptyLt.HasUpdates);
-        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         emptyLt.IsWasGivenUpdated = true;
         sourceLayerUpdates =
-            (from update in emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update)
+            (from update in emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update)
                 where update.TradingSubId == PQTradingSubFieldKeys.LastTradedBooleanFlags
                 select update).ToList();
         Assert.AreEqual(1, sourceLayerUpdates.Count);
@@ -347,13 +348,13 @@ public class PQLastPaidGivenTradeTests
         Assert.IsFalse(emptyLt.IsWasPaidUpdated);
         Assert.IsFalse(emptyLt.HasUpdates);
         Assert.IsFalse(emptyLt.WasPaid);
-        Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).Count());
 
         emptyLt.WasPaid = true;
         Assert.IsTrue(emptyLt.IsWasPaidUpdated);
         Assert.IsTrue(emptyLt.HasUpdates);
         Assert.IsTrue(emptyLt.WasPaid);
-        var sourceLayerUpdates = emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update).ToList();
+        var sourceLayerUpdates = emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceLayerUpdates.Count);
         var expectedLayerField = new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedBooleanFlags
                                                  , (uint)LastTradeBooleanFlags.WasPaid);
@@ -361,11 +362,11 @@ public class PQLastPaidGivenTradeTests
 
         emptyLt.IsWasPaidUpdated = false;
         Assert.IsFalse(emptyLt.HasUpdates);
-        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         emptyLt.IsWasPaidUpdated = true;
         sourceLayerUpdates =
-            (from update in emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update)
+            (from update in emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update)
                 where update.TradingSubId == PQTradingSubFieldKeys.LastTradedBooleanFlags
                 select update).ToList();
         Assert.AreEqual(1, sourceLayerUpdates.Count);
@@ -447,7 +448,7 @@ public class PQLastPaidGivenTradeTests
     public void PopulatedLtWithAllUpdates_GetDeltaUpdateFieldsAsUpdate_ReturnsAllPvlFields()
     {
         var pqFieldUpdates = populatedLt.GetDeltaUpdateFields(
-                                                              new DateTime(2017, 12, 17, 12, 33, 1), StorageFlags.Update).ToList();
+                                                              new DateTime(2017, 12, 17, 12, 33, 1), PQMessageFlags.Update).ToList();
         AssertContainsAllLtFields(pqFieldUpdates, populatedLt);
     }
 
@@ -456,7 +457,7 @@ public class PQLastPaidGivenTradeTests
     {
         populatedLt.HasUpdates = false;
         var pqFieldUpdates = populatedLt.GetDeltaUpdateFields(
-                                                              new DateTime(2017, 12, 17, 12, 33, 1), StorageFlags.Snapshot).ToList();
+                                                              new DateTime(2017, 12, 17, 12, 33, 1), PQMessageFlags.Snapshot).ToList();
         AssertContainsAllLtFields(pqFieldUpdates, populatedLt);
     }
 
@@ -465,7 +466,7 @@ public class PQLastPaidGivenTradeTests
     {
         populatedLt.HasUpdates = false;
         var pqFieldUpdates = populatedLt.GetDeltaUpdateFields(
-                                                              new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
+                                                              new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
         Assert.AreEqual(0, pqFieldUpdates.Count);
     }
 
@@ -474,7 +475,7 @@ public class PQLastPaidGivenTradeTests
     {
         var pqFieldUpdates = populatedLt.GetDeltaUpdateFields(
                                                               new DateTime(2017, 11, 04, 13, 33, 3)
-                                                            , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
+                                                            , PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
         var newEmpty = new PQLastPaidGivenTrade();
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         Assert.AreEqual(populatedLt, newEmpty);

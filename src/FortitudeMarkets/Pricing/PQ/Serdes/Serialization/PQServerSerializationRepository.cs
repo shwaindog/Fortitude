@@ -14,10 +14,10 @@ namespace FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 public sealed class PQServerSerializationRepository : FactorySerializationRepository
 {
-    private readonly PQMessageFlags feedType;
+    private readonly Messages.FeedEvents.Quotes.PQMessageFlags feedType;
 
     public PQServerSerializationRepository
-    (PQMessageFlags feedType, IRecycler recycler
+    (Messages.FeedEvents.Quotes.PQMessageFlags feedType, IRecycler recycler
       , IMessageSerializationRepository? coalescingMessageSerializationRepository = null)
         : base(recycler, coalescingMessageSerializationRepository)
     {
@@ -31,7 +31,7 @@ public sealed class PQServerSerializationRepository : FactorySerializationReposi
     {
         switch (msgId)
         {
-            case (uint)PQMessageIds.Quote:     return new PQQuoteSerializer(feedType);
+            case (uint)PQMessageIds.Quote:     return new PQMessageSerializer(feedType);
             case (uint)PQMessageIds.HeartBeat: return new PQHeartbeatSerializer();
 
             case (uint)PQMessageIds.SourceTickerInfoResponse: return new PQSourceTickerInfoResponseSerializer();

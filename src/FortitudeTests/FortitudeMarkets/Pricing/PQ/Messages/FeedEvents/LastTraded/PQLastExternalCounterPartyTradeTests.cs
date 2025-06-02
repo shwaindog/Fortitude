@@ -12,6 +12,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
 #endregion
 
@@ -348,14 +349,14 @@ public class PQLastExternalCounterPartyTradeTests
         Assert.IsFalse(emptyLt.IsExternalTraderNameUpdated);
         Assert.IsFalse(emptyLt.HasUpdates);
         Assert.AreEqual(null, emptyLt.ExternalTraderName);
-        Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0, emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).Count());
 
         emptyLt.ExternalTraderName = ExpectedTraderName;
         Assert.IsTrue(emptyLt.IsExternalTraderNameUpdated);
         Assert.AreEqual(emptyNameIdLookup[ExpectedTraderName], emptyLt.ExternalTraderNameId);
         Assert.IsTrue(emptyLt.HasUpdates);
         Assert.AreEqual(ExpectedTraderName, emptyLt.ExternalTraderName);
-        var sourceUpdates = emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update).ToList();
+        var sourceUpdates = emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
         var expectedFieldUpdate = new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedExternalTraderNameId
@@ -365,8 +366,8 @@ public class PQLastExternalCounterPartyTradeTests
         emptyLt.IsExternalTraderNameUpdated = false;
         Assert.IsFalse(emptyLt.IsExternalTraderNameUpdated);
         Assert.IsFalse(emptyLt.HasUpdates);
-        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update).IsNullOrEmpty());
-        var stringUpdates = emptyLt.GetStringUpdates(ExpectedTradeTime, StorageFlags.Update).ToList();
+        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).IsNullOrEmpty());
+        var stringUpdates = emptyLt.GetStringUpdates(ExpectedTradeTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, stringUpdates.Count);
         emptyLt.HasUpdates = false;
 
@@ -375,9 +376,9 @@ public class PQLastExternalCounterPartyTradeTests
         Assert.IsTrue(emptyLt.IsExternalTraderNameUpdated);
         Assert.IsTrue(emptyLt.HasUpdates);
         Assert.AreEqual(nextExpectedTraderName, emptyLt.ExternalTraderName);
-        sourceUpdates = emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update).ToList();
+        sourceUpdates = emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
-        stringUpdates = emptyLt.GetStringUpdates(ExpectedTradeTime, StorageFlags.Update).ToList();
+        stringUpdates = emptyLt.GetStringUpdates(ExpectedTradeTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, stringUpdates.Count);
         expectedFieldUpdate = new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedExternalTraderNameId
                                               , emptyLt.ExternalTraderNameId);
@@ -394,7 +395,7 @@ public class PQLastExternalCounterPartyTradeTests
         Assert.AreEqual(expectedStringUpdates, stringUpdates[0]);
 
         emptyLt.HasUpdates = false;
-        sourceUpdates = (from update in emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Snapshot)
+        sourceUpdates = (from update in emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Snapshot)
             where update.TradingSubId == PQTradingSubFieldKeys.LastTradedExternalTraderNameId
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
@@ -482,7 +483,7 @@ public class PQLastExternalCounterPartyTradeTests
     public void PopulatedLtWithAllUpdates_GetDeltaUpdateFieldsAsUpdate_ReturnsAllPvlFields()
     {
         var pqFieldUpdates =
-            populatedLt.GetDeltaUpdateFields(new DateTime(2017, 12, 17, 12, 33, 1), StorageFlags.Update).ToList();
+            populatedLt.GetDeltaUpdateFields(new DateTime(2017, 12, 17, 12, 33, 1), PQMessageFlags.Update).ToList();
         AssertContainsAllLtFields(pqFieldUpdates, populatedLt);
     }
 
@@ -491,7 +492,7 @@ public class PQLastExternalCounterPartyTradeTests
     {
         populatedLt.HasUpdates = false;
         var pqFieldUpdates =
-            populatedLt.GetDeltaUpdateFields(new DateTime(2017, 12, 17, 12, 33, 1), StorageFlags.Snapshot).ToList();
+            populatedLt.GetDeltaUpdateFields(new DateTime(2017, 12, 17, 12, 33, 1), PQMessageFlags.Snapshot).ToList();
         AssertContainsAllLtFields(pqFieldUpdates, populatedLt);
     }
 
@@ -500,7 +501,7 @@ public class PQLastExternalCounterPartyTradeTests
     {
         populatedLt.HasUpdates = false;
         var pqFieldUpdates =
-            populatedLt.GetDeltaUpdateFields(new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
+            populatedLt.GetDeltaUpdateFields(new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
         Assert.AreEqual(0, pqFieldUpdates.Count);
     }
 
@@ -509,10 +510,10 @@ public class PQLastExternalCounterPartyTradeTests
     {
         var pqFieldUpdates =
             populatedLt.GetDeltaUpdateFields(new DateTime(2017, 11, 04, 13, 33, 3)
-                                           , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
+                                           , PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
         var pqStringUpdates =
             populatedLt.GetStringUpdates(new DateTime(2017, 11, 04, 13, 33, 3)
-                                       , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
+                                       , PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
         var newEmpty = new PQLastExternalCounterPartyTrade(nameIdLookup);
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         foreach (var pqStringUpdate in pqStringUpdates) newEmpty.UpdateFieldString(pqStringUpdate);

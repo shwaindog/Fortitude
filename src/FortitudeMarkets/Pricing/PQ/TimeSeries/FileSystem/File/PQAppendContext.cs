@@ -40,8 +40,7 @@ public class PQCandleAppendContext<TEntry, TBucket> : AppendContext<TEntry, TBuc
     where TEntry : ITimeSeriesEntry, ICandle
     where TBucket : class, IBucketNavigation<TBucket>, IMutableBucket<TEntry>
 {
-    public PQCandleAppendContext
-        (IPricingInstrumentId pricingInstrumentId) =>
+    public PQCandleAppendContext(IPricingInstrumentId pricingInstrumentId) =>
         SerializeEntry = new PQStorageCandle();
 
     public IPQStorageCandle SerializeEntry { get; }

@@ -59,7 +59,7 @@ public class PQSnapshotIdsRequestSerializer : IMessageSerializer<PQSnapshotIdsRe
         if (AddMessageHeader)
         {
             *currPtr++ = message.Version;
-            *currPtr++ = (byte)PQMessageFlags.None; // header flags
+            *currPtr++ = (byte)Messages.FeedEvents.Quotes.PQMessageFlags.None; // header flags
             StreamByteOps.ToBytes(ref currPtr, message.MessageId);
             messageSize =  currPtr;
             currPtr     += sizeof(uint);

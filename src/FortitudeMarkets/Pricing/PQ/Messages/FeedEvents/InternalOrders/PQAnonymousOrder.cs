@@ -723,10 +723,10 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
         new PQAdditionalExternalCounterPartyInfo(NameIdLookup);
 
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags messageFlags
+    (DateTime snapShotTime, PQMessageFlags messageFlags
       , IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
-        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
         if (!updatedOnly || IsOrderIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderId, (uint)OrderId);
         if (!updatedOnly || IsOrderTypeUpdated)
@@ -782,7 +782,7 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
 
     public virtual bool UpdateFieldString(PQFieldStringUpdate stringUpdate) => NameIdLookup.UpdateFieldString(stringUpdate);
 
-    public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags) =>
+    public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags) =>
         NameIdLookup.GetStringUpdates(snapShotTime, messageFlags);
 
     IReusableObject<IAnonymousOrder> ITransferState<IReusableObject<IAnonymousOrder>>.CopyFrom

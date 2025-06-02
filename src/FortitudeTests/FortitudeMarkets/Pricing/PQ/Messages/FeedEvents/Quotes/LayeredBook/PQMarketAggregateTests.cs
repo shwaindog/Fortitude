@@ -7,6 +7,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
 namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 
@@ -171,14 +172,14 @@ public class PQMarketAggregateTests
         Assert.IsFalse(emptyMarketAggregate.IsDataSourceUpdated);
         Assert.IsFalse(emptyMarketAggregate.HasUpdates);
         Assert.AreEqual(MarketDataSource.None, emptyMarketAggregate.DataSource);
-        Assert.AreEqual(0, emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0, emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
         const MarketDataSource expectedDataSource = MarketDataSource.Venue;
         emptyMarketAggregate.DataSource = expectedDataSource;
         Assert.IsTrue(emptyMarketAggregate.IsDataSourceUpdated);
         Assert.IsTrue(emptyMarketAggregate.HasUpdates);
         Assert.AreEqual(expectedDataSource, emptyMarketAggregate.DataSource);
-        var sourceUpdates = emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+        var sourceUpdates = emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
         var expectedFieldUpdate
@@ -188,20 +189,20 @@ public class PQMarketAggregateTests
         emptyMarketAggregate.IsDataSourceUpdated = false;
         Assert.IsFalse(emptyMarketAggregate.IsDataSourceUpdated);
         Assert.IsFalse(emptyMarketAggregate.HasUpdates);
-        Assert.IsTrue(emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         const MarketDataSource nextExpectedDataSource = MarketDataSource.Adapter;
         emptyMarketAggregate.DataSource = nextExpectedDataSource;
         Assert.IsTrue(emptyMarketAggregate.IsDataSourceUpdated);
         Assert.IsTrue(emptyMarketAggregate.HasUpdates);
         Assert.AreEqual(nextExpectedDataSource, emptyMarketAggregate.DataSource);
-        sourceUpdates = emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+        sourceUpdates = emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         expectedFieldUpdate
             = new PQFieldUpdate(PQFeedFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateSource, (uint)nextExpectedDataSource);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
-        sourceUpdates = (from update in emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
+        sourceUpdates = (from update in emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot)
             where update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateSource
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
@@ -219,7 +220,7 @@ public class PQMarketAggregateTests
         Assert.IsFalse(emptyMarketAggregate.IsDataSourceUpdated);
         Assert.IsFalse(emptyMarketAggregate.HasUpdates);
         Assert.AreEqual(MarketDataSource.None, emptyMarketAggregate.DataSource);
-        Assert.AreEqual(0, emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0, emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
 
         var expectedUpdateTime = new DateTime(2025, 5, 19, 9, 30, 26);
@@ -229,7 +230,7 @@ public class PQMarketAggregateTests
         Assert.IsTrue(emptyMarketAggregate.HasUpdates);
         Assert.AreEqual(expectedUpdateTime, emptyMarketAggregate.UpdateTime);
         var layerUpdates = emptyMarketAggregate
-                           .GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+                           .GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(2, layerUpdates.Count);
         var hoursSinceUnixEpoch = expectedUpdateTime.Get2MinIntervalsFromUnixEpoch();
         var expectedDateLayerField
@@ -243,12 +244,12 @@ public class PQMarketAggregateTests
         emptyMarketAggregate.IsUpdatedDateUpdated        = false;
         emptyMarketAggregate.IsUpdatedSub2MinTimeUpdated = false;
         Assert.IsFalse(emptyMarketAggregate.HasUpdates);
-        Assert.IsTrue(emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         emptyMarketAggregate.IsUpdatedDateUpdated        = true;
         emptyMarketAggregate.IsUpdatedSub2MinTimeUpdated = true;
         var quoteUpdates =
-            (from update in emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update)
+            (from update in emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
                 where update.PricingSubId is PQPricingSubFieldKeys.MarketAggregateUpdateDate or PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime
                 select update).ToList();
         Assert.AreEqual(2, quoteUpdates.Count);
@@ -273,14 +274,14 @@ public class PQMarketAggregateTests
         Assert.IsFalse(emptyMarketAggregate.IsVolumeUpdated);
         Assert.IsFalse(emptyMarketAggregate.HasUpdates);
         Assert.AreEqual(0m, emptyMarketAggregate.Volume);
-        Assert.AreEqual(0, emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0, emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
         const decimal expectedVolume = 3_123_721m;
         emptyMarketAggregate.Volume = expectedVolume;
         Assert.IsTrue(emptyMarketAggregate.IsVolumeUpdated);
         Assert.IsTrue(emptyMarketAggregate.HasUpdates);
         Assert.AreEqual(expectedVolume, emptyMarketAggregate.Volume);
-        var sourceUpdates = emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+        var sourceUpdates = emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
         var expectedFieldUpdate = new PQFieldUpdate(PQFeedFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateVolume, expectedVolume
@@ -290,20 +291,20 @@ public class PQMarketAggregateTests
         emptyMarketAggregate.IsVolumeUpdated = false;
         Assert.IsFalse(emptyMarketAggregate.IsVolumeUpdated);
         Assert.IsFalse(emptyMarketAggregate.HasUpdates);
-        Assert.IsTrue(emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         const decimal nextExpectedVolume = 221_124m;
         emptyMarketAggregate.Volume = nextExpectedVolume;
         Assert.IsTrue(emptyMarketAggregate.IsVolumeUpdated);
         Assert.IsTrue(emptyMarketAggregate.HasUpdates);
         Assert.AreEqual(nextExpectedVolume, emptyMarketAggregate.Volume);
-        sourceUpdates = emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+        sourceUpdates = emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         expectedFieldUpdate = new PQFieldUpdate(PQFeedFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateVolume, nextExpectedVolume
                                               , (PQFieldFlags)6);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
-        sourceUpdates = (from update in emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
+        sourceUpdates = (from update in emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot)
             where update.PricingSubId is PQPricingSubFieldKeys.MarketAggregateVolume
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
@@ -321,14 +322,14 @@ public class PQMarketAggregateTests
         Assert.IsFalse(emptyMarketAggregate.IsVwapUpdated);
         Assert.IsFalse(emptyMarketAggregate.HasUpdates);
         Assert.AreEqual(0m, emptyMarketAggregate.Vwap);
-        Assert.AreEqual(0, emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0, emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
         const decimal expectedVwap = 3_721m;
         emptyMarketAggregate.Vwap = expectedVwap;
         Assert.IsTrue(emptyMarketAggregate.IsVwapUpdated);
         Assert.IsTrue(emptyMarketAggregate.HasUpdates);
         Assert.AreEqual(expectedVwap, emptyMarketAggregate.Vwap);
-        var sourceUpdates = emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+        var sourceUpdates = emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
 
         var expectedFieldUpdate
@@ -338,20 +339,20 @@ public class PQMarketAggregateTests
         emptyMarketAggregate.IsVwapUpdated = false;
         Assert.IsFalse(emptyMarketAggregate.IsVwapUpdated);
         Assert.IsFalse(emptyMarketAggregate.HasUpdates);
-        Assert.IsTrue(emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         const decimal nextExpectedVwap = 124.0238m;
         emptyMarketAggregate.Vwap = nextExpectedVwap;
         Assert.IsTrue(emptyMarketAggregate.IsVwapUpdated);
         Assert.IsTrue(emptyMarketAggregate.HasUpdates);
         Assert.AreEqual(nextExpectedVwap, emptyMarketAggregate.Vwap);
-        sourceUpdates = emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+        sourceUpdates = emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         expectedFieldUpdate = new PQFieldUpdate(PQFeedFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateVwap, nextExpectedVwap
                                               , (PQFieldFlags)2);
         Assert.AreEqual(expectedFieldUpdate, sourceUpdates[0]);
 
-        sourceUpdates = (from update in emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot)
+        sourceUpdates = (from update in emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot)
             where update.PricingSubId is PQPricingSubFieldKeys.MarketAggregateVwap
             select update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
@@ -420,7 +421,7 @@ public class PQMarketAggregateTests
     {
         var pqFieldUpdates =
             populatedMarketAggregate.GetDeltaUpdateFields
-                (new DateTime(2017, 12, 17, 12, 33, 1), StorageFlags.Update).ToList();
+                (new DateTime(2017, 12, 17, 12, 33, 1), PQMessageFlags.Update).ToList();
         AssertContainsAllOpenInterestFields(pqFieldUpdates, PQFeedFields.ParentContextRemapped, populatedMarketAggregate);
     }
 
@@ -430,7 +431,7 @@ public class PQMarketAggregateTests
         populatedMarketAggregate.HasUpdates = false;
         var pqFieldUpdates =
             populatedMarketAggregate.GetDeltaUpdateFields
-                (new DateTime(2017, 12, 17, 12, 33, 1), StorageFlags.Snapshot).ToList();
+                (new DateTime(2017, 12, 17, 12, 33, 1), PQMessageFlags.Snapshot).ToList();
         AssertContainsAllOpenInterestFields(pqFieldUpdates, PQFeedFields.ParentContextRemapped, populatedMarketAggregate);
     }
 
@@ -440,7 +441,7 @@ public class PQMarketAggregateTests
         populatedMarketAggregate.HasUpdates = false;
         var pqFieldUpdates =
             populatedMarketAggregate.GetDeltaUpdateFields
-                (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
+                (new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
         Assert.AreEqual(0, pqFieldUpdates.Count);
     }
 
@@ -450,7 +451,7 @@ public class PQMarketAggregateTests
         var pqFieldUpdates =
             populatedMarketAggregate.GetDeltaUpdateFields
                 (new DateTime(2017, 11, 04, 13, 33, 3)
-               , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
+               , PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
         var newEmpty = new PQMarketAggregate();
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         Assert.AreEqual(populatedMarketAggregate, newEmpty);
@@ -510,10 +511,10 @@ public class PQMarketAggregateTests
         marketAgg.IsDataSourceUpdated = false;
         marketAgg.HasUpdates          = false;
 
-        Assert.AreEqual(0, marketAgg.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (bsNotNull) Assert.AreEqual(0, orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0, marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (bsNotNull) Assert.AreEqual(0, orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
         var expectedDataSource = MarketDataSource.Venue;
         marketAgg.DataSource = expectedDataSource;
@@ -522,19 +523,19 @@ public class PQMarketAggregateTests
         Assert.IsTrue(marketAgg.IsDataSourceUpdated);
         var precisionSettings = l2Quote?.SourceTickerInfo ?? PQSourceTickerInfoTests.OrdersCountL3TraderNamePaidOrGivenSti;
         var l2QUpdates = l2QNotNull
-            ? l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         var bkUpdates = bkNotNull
-            ? orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         var bsUpdates = bsNotNull
-            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         if (l2QNotNull) Assert.AreEqual(3, l2QUpdates.Count);
         if (bkNotNull) Assert.AreEqual(1, bkUpdates.Count);
         if (bsNotNull) Assert.AreEqual(1, bsUpdates.Count);
         var mktAggUpdates = marketAgg
-                            .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
+                            .GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList();
         Assert.AreEqual(1, mktAggUpdates.Count);
         var expectedMktAgg
             = new PQFieldUpdate(mktAggQtField, PQPricingSubFieldKeys.MarketAggregateSource, (uint)marketAgg.DataSource);
@@ -557,14 +558,14 @@ public class PQMarketAggregateTests
             l2Quote.IsAdapterSentTimeDateUpdated    = false;
             l2Quote.IsAdapterSentTimeSub2MinUpdated = false;
             Assert.IsFalse(l2Quote.HasUpdates);
-            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).Count());
+            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(marketAgg.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
 
         if (l2QNotNull)
         {
             l2QUpdates =
-                (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update.Id == qtQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateSource
                                                  && update.DepthId == sidedDepth
                     select update).ToList();
@@ -593,7 +594,7 @@ public class PQMarketAggregateTests
         if (bkNotNull)
         {
             bkUpdates =
-                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update.Id == bkQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateSource
                                                  && update.DepthId == sidedDepth
                     select update).ToList();
@@ -621,7 +622,7 @@ public class PQMarketAggregateTests
         if (bsNotNull)
         {
             bsUpdates =
-                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update.Id == bkSideQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateSource
                     select update).ToList();
             Assert.AreEqual(1, bsUpdates.Count);
@@ -636,7 +637,7 @@ public class PQMarketAggregateTests
             Assert.IsTrue(newEmpty.HasUpdates);
         }
         mktAggUpdates =
-            (from update in marketAgg.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+            (from update in marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                 where update.Id == mktAggQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateSource
                 select update).ToList();
         Assert.AreEqual(1, mktAggUpdates.Count);
@@ -692,10 +693,10 @@ public class PQMarketAggregateTests
         marketAgg.IsUpdatedSub2MinTimeUpdated = false;
         marketAgg.HasUpdates                  = false;
 
-        Assert.AreEqual(0, marketAgg.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (bsNotNull) Assert.AreEqual(0, orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0, marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (bsNotNull) Assert.AreEqual(0, orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
         var expectedUpdateTime = new DateTime(2025, 7, 8, 19, 27, 53);
         marketAgg.UpdateTime = expectedUpdateTime;
@@ -705,19 +706,19 @@ public class PQMarketAggregateTests
         Assert.IsTrue(marketAgg.IsUpdatedSub2MinTimeUpdated);
         var precisionSettings = l2Quote?.SourceTickerInfo ?? PQSourceTickerInfoTests.OrdersCountL3TraderNamePaidOrGivenSti;
         var l2QUpdates = l2QNotNull
-            ? l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         var bkUpdates = bkNotNull
-            ? orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         var bsUpdates = bsNotNull
-            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         if (l2QNotNull) Assert.AreEqual(4, l2QUpdates.Count);
         if (bkNotNull) Assert.AreEqual(2, bkUpdates.Count);
         if (bsNotNull) Assert.AreEqual(2, bsUpdates.Count);
         var orderInfoUpdates = marketAgg
-                               .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
+                               .GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList();
         Assert.AreEqual(2, orderInfoUpdates.Count);
         var hoursSinceUnixEpoch = expectedUpdateTime.Get2MinIntervalsFromUnixEpoch();
         var expectedMktAggDate
@@ -758,14 +759,14 @@ public class PQMarketAggregateTests
             l2Quote.IsAdapterSentTimeDateUpdated    = false;
             l2Quote.IsAdapterSentTimeSub2MinUpdated = false;
             Assert.IsFalse(l2Quote.HasUpdates);
-            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).Count());
+            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(marketAgg.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
 
         if (l2QNotNull)
         {
             l2QUpdates =
-                (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update.Id == bkQtField
                        && update is { PricingSubId: PQPricingSubFieldKeys.MarketAggregateUpdateDate or PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime }
                        && update.DepthId == sidedDepth
@@ -800,7 +801,7 @@ public class PQMarketAggregateTests
         if (bkNotNull)
         {
             bkUpdates =
-                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update.Id == bkQtField
                        && update is { PricingSubId: PQPricingSubFieldKeys.MarketAggregateUpdateDate or PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime }
                        && update.DepthId == sidedDepth
@@ -834,7 +835,7 @@ public class PQMarketAggregateTests
         if (bsNotNull)
         {
             bsUpdates =
-                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update.Id == bkSideQtField
                        && update is { PricingSubId: PQPricingSubFieldKeys.MarketAggregateUpdateDate or PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime }
                     select update).ToList();
@@ -855,7 +856,7 @@ public class PQMarketAggregateTests
             Assert.IsTrue(newEmpty.HasUpdates);
         }
         orderInfoUpdates =
-            (from update in marketAgg.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+            (from update in marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                 where update is { PricingSubId: PQPricingSubFieldKeys.MarketAggregateUpdateDate or PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime }
                 select update).ToList();
         Assert.AreEqual(2, orderInfoUpdates.Count);
@@ -915,10 +916,10 @@ public class PQMarketAggregateTests
         marketAgg.IsVolumeUpdated = false;
         marketAgg.HasUpdates      = false;
 
-        Assert.AreEqual(0, marketAgg.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (bsNotNull) Assert.AreEqual(0, orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0, marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (bsNotNull) Assert.AreEqual(0, orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
         var expectedVolume = 987_567m;
         marketAgg.Volume = expectedVolume;
@@ -927,19 +928,19 @@ public class PQMarketAggregateTests
         Assert.IsTrue(marketAgg.IsVolumeUpdated);
         var precisionSettings = l2Quote?.SourceTickerInfo ?? PQSourceTickerInfoTests.OrdersCountL3TraderNamePaidOrGivenSti;
         var l2QUpdates = l2QNotNull
-            ? l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         var bkUpdates = bkNotNull
-            ? orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         var bsUpdates = bsNotNull
-            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         if (l2QNotNull) Assert.AreEqual(3, l2QUpdates.Count);
         if (bkNotNull) Assert.AreEqual(1, bkUpdates.Count);
         if (bsNotNull) Assert.AreEqual(1, bsUpdates.Count);
         var mktAggUpdates = marketAgg
-                            .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
+                            .GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList();
         Assert.AreEqual(1, mktAggUpdates.Count);
         var expectedMktAgg
             = new PQFieldUpdate(mktAggQtField, PQPricingSubFieldKeys.MarketAggregateVolume, expectedVolume, precisionSettings.VolumeScalingPrecision);
@@ -962,14 +963,14 @@ public class PQMarketAggregateTests
             l2Quote.IsAdapterSentTimeDateUpdated    = false;
             l2Quote.IsAdapterSentTimeSub2MinUpdated = false;
             Assert.IsFalse(l2Quote.HasUpdates);
-            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).Count());
+            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(marketAgg.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
 
         if (l2QNotNull)
         {
             l2QUpdates =
-                (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update.Id == qtQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateVolume
                                                  && update.DepthId == sidedDepth
                     select update).ToList();
@@ -1000,7 +1001,7 @@ public class PQMarketAggregateTests
         if (bkNotNull)
         {
             bkUpdates =
-                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update.Id == bkQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateVolume
                                                  && update.DepthId == sidedDepth
                     select update).ToList();
@@ -1030,7 +1031,7 @@ public class PQMarketAggregateTests
         if (bsNotNull)
         {
             bsUpdates =
-                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update.Id == bkSideQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateVolume
                     select update).ToList();
             Assert.AreEqual(1, bsUpdates.Count);
@@ -1047,7 +1048,7 @@ public class PQMarketAggregateTests
             Assert.IsTrue(newEmpty.HasUpdates);
         }
         mktAggUpdates =
-            (from update in marketAgg.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+            (from update in marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                 where update.Id == mktAggQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateVolume
                 select update).ToList();
         Assert.AreEqual(1, mktAggUpdates.Count);
@@ -1104,10 +1105,10 @@ public class PQMarketAggregateTests
         marketAgg.IsVwapUpdated = false;
         marketAgg.HasUpdates    = false;
 
-        Assert.AreEqual(0, marketAgg.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (bsNotNull) Assert.AreEqual(0, orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0, marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (bsNotNull) Assert.AreEqual(0, orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (bkNotNull) Assert.AreEqual(0, orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
         var expectedVwap = 567m;
         marketAgg.Vwap = expectedVwap;
@@ -1116,19 +1117,19 @@ public class PQMarketAggregateTests
         Assert.IsTrue(marketAgg.IsVwapUpdated);
         var precisionSettings = l2Quote?.SourceTickerInfo ?? PQSourceTickerInfoTests.OrdersCountL3TraderNamePaidOrGivenSti;
         var l2QUpdates = l2QNotNull
-            ? l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         var bkUpdates = bkNotNull
-            ? orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         var bsUpdates = bsNotNull
-            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         if (l2QNotNull) Assert.AreEqual(3, l2QUpdates.Count);
         if (bkNotNull) Assert.AreEqual(1, bkUpdates.Count);
         if (bsNotNull) Assert.AreEqual(1, bsUpdates.Count);
         var mktAggUpdates = marketAgg
-                            .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
+                            .GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList();
         Assert.AreEqual(1, mktAggUpdates.Count);
         var expectedMktAgg
             = new PQFieldUpdate(mktAggQtField, PQPricingSubFieldKeys.MarketAggregateVwap, expectedVwap, precisionSettings.PriceScalingPrecision);
@@ -1151,14 +1152,14 @@ public class PQMarketAggregateTests
             l2Quote.IsAdapterSentTimeDateUpdated    = false;
             l2Quote.IsAdapterSentTimeSub2MinUpdated = false;
             Assert.IsFalse(l2Quote.HasUpdates);
-            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).Count());
+            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(marketAgg.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
 
         if (l2QNotNull)
         {
             l2QUpdates =
-                (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update.Id == qtQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateVwap
                                                  && update.DepthId == sidedDepth
                     select update).ToList();
@@ -1189,7 +1190,7 @@ public class PQMarketAggregateTests
         if (bkNotNull)
         {
             bkUpdates =
-                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update.Id == bkQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateVwap
                                                  && update.DepthId == sidedDepth
                     select update).ToList();
@@ -1219,7 +1220,7 @@ public class PQMarketAggregateTests
         if (bsNotNull)
         {
             bsUpdates =
-                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in orderBookSide!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update.Id == bkSideQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateVwap
                     select update).ToList();
             Assert.AreEqual(1, bsUpdates.Count);
@@ -1236,7 +1237,7 @@ public class PQMarketAggregateTests
             Assert.IsTrue(newEmpty.HasUpdates);
         }
         mktAggUpdates =
-            (from update in marketAgg.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+            (from update in marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                 where update.Id == mktAggQtField && update.PricingSubId == PQPricingSubFieldKeys.MarketAggregateVwap
                 select update).ToList();
         Assert.AreEqual(1, mktAggUpdates.Count);

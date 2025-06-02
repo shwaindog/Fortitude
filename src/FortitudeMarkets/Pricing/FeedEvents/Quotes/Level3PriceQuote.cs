@@ -340,5 +340,6 @@ public class PublishableLevel3PriceQuote : PublishableLevel2PriceQuote, IMutable
 
     public override string QuoteToStringMembers => $"{base.QuoteToStringMembers}, {nameof(OnTickLastTraded)}: {OnTickLastTraded}";
 
-    public override string ToString() => $"{nameof(PublishableLevel3PriceQuote)}{{{QuoteToStringMembers}, {AsNonPublishable.QuoteToStringMembers}}}";
+    public override string ToString() => $"{nameof(PublishableLevel3PriceQuote)}{{{QuoteToStringMembers}, {AsNonPublishable.QuoteToStringMembers}, " +
+                                         $"{JustFeedSyncConnectivityStatusToStringMembers}}}";
 }

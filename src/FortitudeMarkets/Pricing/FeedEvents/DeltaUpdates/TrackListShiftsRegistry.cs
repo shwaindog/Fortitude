@@ -8,7 +8,7 @@ using static FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates.ListShiftCommandTy
 
 namespace FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 
-public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<TrackShiftsListRegistry<TElement, TCompare>>
+public class TrackListShiftsRegistry<TElement, TCompare> : ITrackableReset<TrackListShiftsRegistry<TElement, TCompare>>
   , ITransferState<IEnumerable<ListShiftCommand>>, IMutableTracksShiftsList<TElement, TCompare>
     where TElement : class, TCompare, ITrackableReset<TElement>, IReusableObject<TElement>, IShowsEmpty
 {
@@ -25,7 +25,7 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
     protected readonly List<ListShiftCommand> CandidateRightShiftFirstCommands = new();
     protected readonly List<ListShiftCommand> CandidateLeftShiftFirstCommands  = new();
 
-    public TrackShiftsListRegistry
+    public TrackListShiftsRegistry
         (IMutableTracksShiftsList<TElement, TCompare> shiftedList, Func<TElement> newElementFactory, Func<TCompare, TCompare, bool> comparison)
     {
         ShiftedList       = shiftedList;
@@ -657,10 +657,10 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
             var currentHashCode = ShiftedList.GetHashCode();
             if (previousCopyHashCode != null)
             {
-                HasUnreliableListTracking = previousCopyHashCode.Value == currentHashCode;
+                HasUnreliableListTracking = previousCopyHashCode.Value != currentHashCode;
             }
             previousCopyHashCode = currentHashCode;
-            if (isFullReplace || !HasUnreliableListTracking && !sourceTracksShifts.HasUnreliableListTracking)
+            if (sourceTracksShifts.ShiftCommands.Any() && (isFullReplace || !HasUnreliableListTracking && !sourceTracksShifts.HasUnreliableListTracking))
             {
                 HasUnreliableListTracking = sourceTracksShifts.HasUnreliableListTracking;
                 CopyFrom(sourceTracksShifts.ShiftCommands, CopyMergeFlags.KeepCachedItems);
@@ -712,7 +712,7 @@ public class TrackShiftsListRegistry<TElement, TCompare> : ITrackableReset<Track
 
     ITracksResetCappedCapacityList<TElement> ITrackableReset<ITracksResetCappedCapacityList<TElement>>.ResetWithTracking() => ResetWithTracking();
 
-    public TrackShiftsListRegistry<TElement, TCompare> ResetWithTracking()
+    public TrackListShiftsRegistry<TElement, TCompare> ResetWithTracking()
     {
         RegisteredShiftCommands.Clear();
         HasUnreliableListTracking = false;

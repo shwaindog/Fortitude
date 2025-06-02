@@ -1,5 +1,4 @@
-﻿using System.Text.Unicode;
-using FortitudeCommon.DataStructures.Memory;
+﻿using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 
@@ -18,7 +17,9 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
 
     protected FeedEventStatusUpdate(IFeedEventStatusUpdate toClone)
     {
-        FeedSyncStatus = toClone.FeedSyncStatus;
+        FeedSyncStatus   = toClone.FeedSyncStatus;
+        IsCompleteUpdate = toClone.IsCompleteUpdate;
+        UpdateSequenceId = toClone.UpdateSequenceId;
 
         FeedMarketConnectivityStatus = toClone.FeedMarketConnectivityStatus;
 
@@ -33,7 +34,6 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
     public FeedConnectivityStatusFlags FeedMarketConnectivityStatus { get; set; }
         = FeedConnectivityStatusFlagsExtensions.ClientDefaultConnectionState;
 
-
     public FeedSyncStatus FeedSyncStatus { get; set; } = FeedSyncStatus.NotStarted;
 
     public DateTime ClientReceivedTime         { get; set; }
@@ -43,23 +43,27 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
     public DateTime AdapterSentTime            { get; set; }
     public DateTime AdapterReceivedTime        { get; set; }
 
+    public bool IsCompleteUpdate { get; set; }
+
     public uint UpdateSequenceId { get; set; }
 
     public abstract override FeedEventStatusUpdate Clone();
 
-    IFeedEventStatusUpdate ICloneable<IFeedEventStatusUpdate>.              Clone() => Clone();
+    IFeedEventStatusUpdate ICloneable<IFeedEventStatusUpdate>.Clone() => Clone();
+
     IMutableFeedEventStatusUpdate ICloneable<IMutableFeedEventStatusUpdate>.Clone() => Clone();
 
     IMutableFeedEventStatusUpdate IMutableFeedEventStatusUpdate.Clone() => Clone();
 
     public override FeedEventStatusUpdate CopyFrom(IFeedEventStatusUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        UpdateComplete(UpdateSequenceId);
+        var originalSequenceId = UpdateSequenceId;
+        UpdateComplete(originalSequenceId);
         UpdateStarted(source.UpdateSequenceId);
 
-        UpdateSequenceId = source.UpdateSequenceId;
+        FeedSyncStatus   = source.FeedSyncStatus;
+        IsCompleteUpdate = source.IsCompleteUpdate;
 
-        FeedSyncStatus               = source.FeedSyncStatus;
         FeedMarketConnectivityStatus = source.FeedMarketConnectivityStatus;
 
         ClientReceivedTime         = source.ClientReceivedTime;
@@ -68,15 +72,24 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
         AdapterReceivedTime        = source.AdapterReceivedTime;
         AdapterSentTime            = source.AdapterSentTime;
 
+        // Responsibility
+        // UpdatesAppliedAllDeltas(originalSequenceId, UpdateSequenceId);
+
         return this;
     }
 
-    public virtual void UpdateComplete(uint updateSequenceId = 0)
+
+
+    public virtual void UpdateComplete(uint updateSequenceId = 0) { }
+
+    public virtual void UpdatesAppliedToAllDeltas(uint startSequenceId, uint updatedSequenceId)
     {
+        UpdateSequenceId = updatedSequenceId;
     }
 
     public virtual void UpdateStarted(uint updateSequenceId)
     {
+        UpdateSequenceId = updateSequenceId;
     }
 
     public virtual uint UpdateCount => UpdateSequenceId;
@@ -100,13 +113,13 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
         if (other == null) return false;
         if (exactTypes && GetType() != other.GetType()) return false;
 
-        var feedSyncSame       = FeedSyncStatus == other.FeedSyncStatus;
-        var connectStatusSame  = FeedMarketConnectivityStatus == other.FeedMarketConnectivityStatus;
-        var clientReceivedSame = true;
+        var feedSyncSame          = FeedSyncStatus == other.FeedSyncStatus;
+        var connectStatusSame     = FeedMarketConnectivityStatus == other.FeedMarketConnectivityStatus;
+        var clientReceivedSame    = true;
         var inboundSocketRecvSame = true;
-        var subrDispatchSame = true;
-        var adptrRecvSame = true;
-        var adptrSentSame = true;
+        var subrDispatchSame      = true;
+        var adptrRecvSame         = true;
+        var adptrSentSame         = true;
         if (exactTypes)
         {
             clientReceivedSame    = ClientReceivedTime == other.ClientReceivedTime;
@@ -115,19 +128,18 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
             adptrRecvSame         = AdapterReceivedTime == other.AdapterReceivedTime;
             adptrSentSame         = AdapterSentTime == other.AdapterSentTime;
         }
-        var allAreSame = feedSyncSame && connectStatusSame && clientReceivedSame && inboundSocketRecvSame && subrDispatchSame && adptrRecvSame && adptrSentSame;
+        var allAreSame = feedSyncSame && connectStatusSame && clientReceivedSame && inboundSocketRecvSame && subrDispatchSame && adptrRecvSame &&
+                         adptrSentSame;
 
         return allAreSame;
     }
 
     public override bool Equals(object? other) => ReferenceEquals(this, other) || AreEquivalent(other as IFeedEventStatusUpdate, true);
 
-    
     protected string AllFeedEventStatusToStringMembers =>
-        $"{nameof(FeedMarketConnectivityStatus)}: {FeedMarketConnectivityStatus}, {nameof(FeedSyncStatus)}: {FeedSyncStatus}, {nameof(ClientReceivedTime)}: " +
-        $"{ClientReceivedTime:O}, {nameof(InboundSocketReceivingTime)}: {InboundSocketReceivingTime:O}, {nameof(InboundProcessedTime)}: {InboundProcessedTime:O}, " +
-        $"{nameof(SubscriberDispatchedTime)}: {SubscriberDispatchedTime:O}, {nameof(AdapterSentTime)}: {AdapterSentTime:O}, " +
-        $"{nameof(AdapterReceivedTime)}: {AdapterReceivedTime:O}";
+        $"{nameof(ClientReceivedTime)}: {ClientReceivedTime:O}, {nameof(InboundSocketReceivingTime)}: {InboundSocketReceivingTime:O}, " +
+        $"{nameof(InboundProcessedTime)}: {InboundProcessedTime:O}, {nameof(SubscriberDispatchedTime)}: {SubscriberDispatchedTime:O}, " +
+        $"{nameof(AdapterSentTime)}: {AdapterSentTime:O}, {nameof(AdapterReceivedTime)}: {AdapterReceivedTime:O}, {nameof(IsCompleteUpdate)}: {IsCompleteUpdate}";
 
     protected string JustFeedSyncConnectivityStatusToStringMembers =>
         $"{nameof(FeedMarketConnectivityStatus)}: {FeedMarketConnectivityStatus}, {nameof(FeedSyncStatus)}: {FeedSyncStatus}";
@@ -137,7 +149,7 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
         return HashCode.Combine(FeedMarketConnectivityStatus, (int)FeedSyncStatus);
     }
 
-    public override string ToString() => $"{nameof(FeedMarketConnectivityStatus)}{{{AllFeedEventStatusToStringMembers}}}";
+    public override string ToString() => $"{nameof(FeedMarketConnectivityStatus)}{{{JustFeedSyncConnectivityStatusToStringMembers}, {AllFeedEventStatusToStringMembers}}}";
 }
 
 public static class FeedEventStatusUpdateExtensions
@@ -150,7 +162,7 @@ public static class FeedEventStatusUpdateExtensions
     {
         var toToggle = FeedConnectivityStatusFlags.IsSourceReplay;
         var flags    = feedUpdate.FeedMarketConnectivityStatus;
-        feedUpdate.FeedMarketConnectivityStatus =  newSourceReplay ?  flags.Set(toToggle) : flags.Unset(toToggle);
+        feedUpdate.FeedMarketConnectivityStatus = newSourceReplay ? flags.Set(toToggle) : flags.Unset(toToggle);
 
         return feedUpdate;
     }
@@ -159,7 +171,7 @@ public static class FeedEventStatusUpdateExtensions
     {
         var toToggle = FeedConnectivityStatusFlags.IsAdapterReplay;
         var flags    = feedUpdate.FeedMarketConnectivityStatus;
-        feedUpdate.FeedMarketConnectivityStatus =  newAdapterReplay ?  flags.Set(toToggle) : flags.Unset(toToggle);
+        feedUpdate.FeedMarketConnectivityStatus = newAdapterReplay ? flags.Set(toToggle) : flags.Unset(toToggle);
         return feedUpdate;
     }
 

@@ -840,10 +840,10 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
     }
 
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags messageFlags,
+    (DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
         if (!updatedOnly || IsOrderSequenceIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalSequenceId, OrderSequenceId);
         if (!updatedOnly || IsParentOrderIdUpdated)
@@ -1058,7 +1058,7 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
         return NameIdLookup.UpdateFieldString(stringUpdate);
     }
 
-    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
+    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags)
     {
         foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate;
     }

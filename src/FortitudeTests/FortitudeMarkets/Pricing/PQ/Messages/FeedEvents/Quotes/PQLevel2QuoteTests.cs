@@ -28,6 +28,7 @@ using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.Laye
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
 #endregion
 
@@ -959,7 +960,7 @@ public class PQLevel2QuoteTests
             var precisionSettings = (PQSourceTickerInfo)populatedL2Quote.SourceTickerInfo!;
             var pqFieldUpdates =
                 populatedL2Quote.GetDeltaUpdateFields
-                    (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Update, precisionSettings).ToList();
+                    (new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Update, precisionSettings).ToList();
             AssertContainsAllLevel2Fields(precisionSettings, pqFieldUpdates, populatedL2Quote);
         }
     }
@@ -970,7 +971,7 @@ public class PQLevel2QuoteTests
         var pqFieldUpdates =
             ordersCountFullyPopulatedLevel2Quote
                 .GetDeltaUpdateFields
-                    (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Update).ToList();
+                    (new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Update).ToList();
         AssertContainsAllLevel2Fields
             ((PQSourceTickerInfo)ordersCountFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates
            , ordersCountFullyPopulatedLevel2Quote);
@@ -985,7 +986,7 @@ public class PQLevel2QuoteTests
             var pqFieldUpdates =
                 populatedL2Quote
                     .GetDeltaUpdateFields
-                        (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
+                        (new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Snapshot).ToList();
             AssertContainsAllLevel2Fields
                 ((PQSourceTickerInfo)populatedL2Quote.SourceTickerInfo!, pqFieldUpdates, populatedL2Quote);
         }
@@ -998,7 +999,7 @@ public class PQLevel2QuoteTests
         var pqFieldUpdates =
             ordersCountFullyPopulatedLevel2Quote
                 .GetDeltaUpdateFields
-                    (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
+                    (new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Snapshot).ToList();
         AssertContainsAllLevel2Fields
             ((PQSourceTickerInfo)ordersCountFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates, ordersCountFullyPopulatedLevel2Quote);
     }
@@ -1010,7 +1011,7 @@ public class PQLevel2QuoteTests
         var pqFieldUpdates =
             ordersAnonFullyPopulatedLevel2Quote
                 .GetDeltaUpdateFields
-                    (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
+                    (new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Snapshot).ToList();
         AssertContainsAllLevel2Fields
             ((PQSourceTickerInfo)ordersAnonFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates, ordersAnonFullyPopulatedLevel2Quote);
     }
@@ -1022,7 +1023,7 @@ public class PQLevel2QuoteTests
         var pqFieldUpdates =
             ordersCountFullyPopulatedLevel2Quote
                 .GetDeltaUpdateFields
-                    (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
+                    (new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Snapshot).ToList();
         AssertContainsAllLevel2Fields
             ((PQSourceTickerInfo)ordersCountFullyPopulatedLevel2Quote.SourceTickerInfo!, pqFieldUpdates, ordersCountFullyPopulatedLevel2Quote);
     }
@@ -1036,10 +1037,10 @@ public class PQLevel2QuoteTests
             populatedL2Quote.HasUpdates = false;
             var pqFieldUpdates =
                 populatedL2Quote.GetDeltaUpdateFields
-                    (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
+                    (new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
             var pqStringUpdates =
                 populatedL2Quote.GetStringUpdates
-                    (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
+                    (new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
             Assert.AreEqual(0, pqFieldUpdates.Count);
             Assert.AreEqual(0, pqStringUpdates.Count);
         }
@@ -1053,15 +1054,15 @@ public class PQLevel2QuoteTests
             var pqFieldUpdates =
                 populatedL2Quote.GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 13, 33, 3)
-                   , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
+                   , PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
             var pqStringUpdates =
                 populatedL2Quote.GetStringUpdates
                     (new DateTime(2017, 11, 04, 13, 33, 3)
-                   , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
+                   , PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
             var emptyQuoteSourceTickerInfo
                 = new PQSourceTickerInfo(populatedL2Quote.SourceTickerInfo!)
                 {
-                    NameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates)
+                    NameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerNames)
                 };
             var newEmpty = new PQPublishableLevel2Quote(emptyQuoteSourceTickerInfo);
             foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);

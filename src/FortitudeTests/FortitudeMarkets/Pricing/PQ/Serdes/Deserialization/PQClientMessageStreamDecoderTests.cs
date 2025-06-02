@@ -21,6 +21,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.PQMessageFlags;
 
 #endregion
 
@@ -34,7 +35,7 @@ public class PQClientMessageStreamDecoderTests
     private const ushort ExpectedTickerId      = ushort.MaxValue;
     private const uint   ExpectedStreamId      = uint.MaxValue;
 
-    private const uint MessageSizeToQuoteSerializer = 186 + PQQuoteMessageHeader.HeaderSize;
+    private const uint MessageSizeToQuoteSerializer = 198 + PQQuoteMessageHeader.HeaderSize;
 
     private Mock<IPQClientQuoteDeserializerRepository> clientDeserializerRepo = null!;
 
@@ -132,7 +133,7 @@ public class PQClientMessageStreamDecoderTests
           , FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay
         };
 
-        var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
+        var quoteSerializer = new PQMessageSerializer(PQMessageFlags.Snapshot);
         var amountWritten   = quoteSerializer.Serialize(readWriteBuffer, expectedTickInstant);
         readWriteBuffer.WriteCursor = BufferReadWriteOffset + amountWritten;
 
@@ -197,7 +198,7 @@ public class PQClientMessageStreamDecoderTests
             })
             .Returns(null!).Verifiable();
 
-        var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
+        var quoteSerializer = new PQMessageSerializer(PQMessageFlags.Snapshot);
         amtWritten                  =  quoteSerializer.Serialize(readWriteBuffer, expectedTickInstant);
         readWriteBuffer.WriteCursor += amtWritten;
 
@@ -225,7 +226,7 @@ public class PQClientMessageStreamDecoderTests
             SingleTickValue = 0.78568m, SourceTime = new DateTime(2017, 07, 01, 19, 35, 00)
           , FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay
         };
-        var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
+        var quoteSerializer = new PQMessageSerializer(PQMessageFlags.Snapshot);
         var amtWritten      = quoteSerializer.Serialize(readWriteBuffer, expectedTickInstant);
         readWriteBuffer.WriteCursor = BufferReadWriteOffset + amtWritten;
 

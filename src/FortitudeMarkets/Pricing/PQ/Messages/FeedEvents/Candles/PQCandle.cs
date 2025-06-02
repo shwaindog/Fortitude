@@ -616,10 +616,10 @@ public class PQCandle : ReusableObject<ICandle>, IPQCandle, ICloneable<PQCandle>
 
     [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
     public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags messageFlags,
+    (DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
-        var updatedOnly = (messageFlags & StorageFlags.Update) > 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Update) > 0;
         if (!updatedOnly || IsCandlePeriodUpdated)
             yield return new PQFieldUpdate(PQFeedFields.PriceCandleStick, PQPricingSubFieldKeys.CandlePeriod, (uint)timeBoundaryPeriod);
         if (!updatedOnly || IsStartTimeDateUpdated)

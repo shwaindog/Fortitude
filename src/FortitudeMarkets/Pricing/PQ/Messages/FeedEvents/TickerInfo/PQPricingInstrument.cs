@@ -249,12 +249,12 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
 
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags updateStyle,
+    (DateTime snapShotTime, PQMessageFlags updateStyle,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         foreach (var deltaUpdateField in base.GetDeltaUpdateFields(snapShotTime, updateStyle, quotePublicationPrecisionSettings))
             yield return deltaUpdateField;
-        var updatedOnly = (updateStyle & StorageFlags.Complete) == 0;
+        var updatedOnly = (updateStyle & PQMessageFlags.Complete) == 0;
 
         if (!updatedOnly || IsMarketClassificationUpdated)
             yield return new PQFieldUpdate(PQFeedFields.MarketClassification, MarketClassification.CompoundedClassification);
@@ -277,16 +277,20 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
         base.CopyFrom(source, copyMergeFlags);
         if (source is IPQPricingInstrumentId pqPricingInstrumentId)
         {
-            if (copyMergeFlags == CopyMergeFlags.JustDifferences)
+            var isFullReplace = copyMergeFlags.HasFullReplace();
+
+            if (pqPricingInstrumentId.IsMarketClassificationUpdated || isFullReplace)
             {
-                if (pqPricingInstrumentId.IsMarketClassificationUpdated) MarketClassification = pqPricingInstrumentId.MarketClassification;
-            }
-            else
-            {
+                IsMarketClassificationUpdated = true;
+
+                MarketClassification = pqPricingInstrumentId.MarketClassification;
+                
                 CoveringPeriod = pqPricingInstrumentId.CoveringPeriod;
                 InstrumentType = pqPricingInstrumentId.InstrumentType;
                 foreach (var instrumentFields in pqPricingInstrumentId.FilledAttributes) this[instrumentFields.Key] = instrumentFields.Value;
             }
+
+            if(isFullReplace) SetFlagsSame(pqPricingInstrumentId);
         }
         else if(source is IPricingInstrumentId pricingInstrumentId)
         {
@@ -314,13 +318,13 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
         (IReusableObject<IPricingInstrumentId> source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((ISourceTickerId)source, copyMergeFlags);
 
-    public override bool AreEquivalent(ISourceTickerInfo? other, bool exactTypes = false)
+    public override bool AreEquivalent(ISourceTickerId? other, bool exactTypes = false)
     {
-        if (other == null || (exactTypes && other is not IPQSourceTickerInfo srcTkrInfo)) return false;
-
+        if (other is not IPricingInstrumentId pricingInstrumentId) return false;
+        if (exactTypes && pricingInstrumentId is not IPQPricingInstrumentId) return false;
         var baseIsSame = base.AreEquivalent(other, exactTypes);
 
-        var marketClassificationSame = Equals(MarketClassification, other.MarketClassification);
+        var marketClassificationSame = Equals(MarketClassification, pricingInstrumentId.MarketClassification);
 
         var coveringPeriodSame = true;
         var instrumentTypeSame = true;

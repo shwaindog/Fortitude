@@ -1,5 +1,5 @@
 ﻿// Licensed under the MIT license.
-// Copyright Alexis Sawenko 2024 all rights reserved
+// Copyright Alexis Sawenko 2025 all rights reserved
 
 #region
 
@@ -14,6 +14,7 @@ using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
+using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.State;
 
 #endregion
@@ -22,18 +23,23 @@ namespace FortitudeIO.Transports.Network.Publishing;
 
 public interface ISocketSender : IStreamPublisher
 {
-    int                             Id                             { get; }
-    string                          Name                           { get; }
-    bool                            CanSend                        { get; }
     IMessageSerializationRepository MessageSerializationRepository { get; }
-    bool                            AttemptCloseOnSendComplete     { get; set; }
-    IOSSocket                       Socket                         { get; set; }
-    void                            SetCloseReason(CloseReason closeReason, string? reasonText);
-    void                            SendExpectSessionCloseMessageAndClose();
+
+    bool AttemptCloseOnSendComplete { get; set; }
+
+    int       Id      { get; }
+    string    Name    { get; }
+    bool      CanSend { get; }
+    IOSSocket Socket  { get; set; }
+
+    void SetCloseReason(CloseReason closeReason, string? reasonText);
+    void SendExpectSessionCloseMessageAndClose();
 }
 
 public sealed class SocketSender : ISocketSender
 {
+    private const ushort MaxUdpDatagramPayloadSize = 65_507;
+
     private readonly IDirectOSNetworkingApi directOSNetworkingApi;
 
     private readonly StaticRing<SocketEncoder> encoders =
@@ -45,13 +51,14 @@ public sealed class SocketSender : ISocketSender
 
     private readonly ISocketSessionContext socketSessionContext;
 
-    private readonly BufferContext writeBufferContext;
+    private readonly MessageBufferContext writeBufferContext;
 
-    private          CloseReason closeReason;
-    private          string?     closeReasonText;
-    private          bool        haveClosedSocket;
-    private          bool        haveSentExpectSessionCloseMessage;
-    private volatile bool        sendActive;
+    private volatile bool sendActive;
+
+    private CloseReason closeReason;
+    private string?     closeReasonText;
+    private bool        haveClosedSocket;
+    private bool        haveSentExpectSessionCloseMessage;
 
     public SocketSender(ISocketSessionContext socketSessionContext, IMessageSerializationRepository messageSerializationRepository)
     {
@@ -60,7 +67,13 @@ public sealed class SocketSender : ISocketSender
         MessageSerializationRepository = messageSerializationRepository;
         directOSNetworkingApi = socketSessionContext.SocketFactoryResolver.NetworkingController!
                                                     .DirectOSNetworkingApi;
-        writeBufferContext = new BufferContext(new CircularReadWriteBuffer(new byte[Socket.SendBufferSize]))
+        var circularReadWriteBuffer = new CircularReadWriteBuffer(new byte[Socket.SendBufferSize]);
+        if (this.socketSessionContext.SocketConversationProtocol == SocketConversationProtocol.UdpPublisher)
+        {
+            circularReadWriteBuffer.EnforceCappedMessageSize = true;
+            circularReadWriteBuffer.MaximumMessageSize       = MaxUdpDatagramPayloadSize;
+        }
+        writeBufferContext = new MessageBufferContext(circularReadWriteBuffer)
             { Direction = ContextDirection.Write };
     }
 
@@ -243,17 +256,31 @@ public sealed class SocketSender : ISocketSender
     {
         using var fixedBuffer = writeBufferContext.EncodedBuffer!;
         if (fixedBuffer.AllRead) return false;
-        var readStartPtr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
-        var amtDataSent  = (int)fixedBuffer.UnreadBytesRemaining;
-        var sentSize     = directOSNetworkingApi.Send(Socket.Handle, readStartPtr, amtDataSent, SocketFlags.None);
+        int sentSize = 0;
+        if (fixedBuffer is { EnforceCappedMessageSize: true, HasAnotherMessage: true })
+        {
+            while (fixedBuffer.HasAnotherMessage)
+            {
+                var nextMessage = fixedBuffer.PopNextMessage();
 
+                var readStartPtr = fixedBuffer.ReadBuffer + nextMessage.BufferAdjustedMessageStart;
+                var amtDataSent  = nextMessage.MessageSize;
+                sentSize += directOSNetworkingApi.Send(Socket.Handle, readStartPtr, amtDataSent, SocketFlags.None);
+            }
+        }
+        else
+        {
+            var readStartPtr = fixedBuffer.ReadBuffer + fixedBuffer.BufferRelativeReadCursor;
+            var amtDataSent  = (int)fixedBuffer.UnreadBytesRemaining;
+            sentSize = directOSNetworkingApi.Send(Socket.Handle, readStartPtr, amtDataSent, SocketFlags.None);
+        }
         // logger.Info("Socket Sender has sent {0} bytes on {1}", sentSize, Thread.CurrentThread.Name);
         if (sentSize < 0)
             throw new SocketSendException("Win32 error " +
                                           directOSNetworkingApi.GetLastCallError() + " on send call", socketSessionContext);
         fixedBuffer.ReadCursor += sentSize;
         if (fixedBuffer.AllRead) fixedBuffer.SetAllRead();
-        if (!fixedBuffer.HasStorageForBytes(400)) fixedBuffer.TryHandleRemainingWriteBufferRunningLow();
+        if (!fixedBuffer.HasStorageForBytes(512 * 1024)) fixedBuffer.TryHandleRemainingWriteBufferRunningLow();
 
         return sentSize > 0;
     }

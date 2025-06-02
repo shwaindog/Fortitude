@@ -361,5 +361,6 @@ public class PublishableTickInstant : FeedEventStatusUpdate, IMutablePublishable
         $"{nameof(SourceTickerInfo)}: {SourceTickerInfo}, {nameof(FeedSyncStatus)}: {FeedSyncStatus}, " +
         $"{nameof(ClientReceivedTime)}: {ClientReceivedTime:O}, {AllFeedEventStatusToStringMembers}";
 
-    public override string ToString() => $"{nameof(PublishableTickInstant)} {{{QuoteToStringMembers}, {QuoteContainer.QuoteToStringMembers}}}";
+    public override string ToString() => 
+        $"{nameof(PublishableTickInstant)} {{{QuoteToStringMembers}, {JustFeedSyncConnectivityStatusToStringMembers}, {QuoteContainer.QuoteToStringMembers}}}";
 }

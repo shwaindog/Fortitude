@@ -85,7 +85,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
 {
     protected PQLastTradedListUpdatedFlags UpdatedFlags;
 
-    private TracksReorderingListRegistry<IPQLastTrade, ILastTrade>? elementShiftRegistry;
+    private TracksListReorderingRegistry<IPQLastTrade, ILastTrade>? elementShiftRegistry;
 
     private DateTime updateTime = DateTime.MinValue;
 
@@ -93,7 +93,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
 
     public PQRecentlyTraded()
     {
-        elementShiftRegistry = new TracksReorderingListRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
 
 
         if (GetType() == typeof(PQRecentlyTraded)) SequenceId = 0;
@@ -103,7 +103,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
     (IPQNameIdLookupGenerator nameIdLookup, LastTradedTransmissionFlags transmissionFlags
       , ushort maxAllowedSize = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount) : base(nameIdLookup)
     {
-        elementShiftRegistry = new TracksReorderingListRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         MaxAllowedSize       = maxAllowedSize;
         TransferFlags        = transmissionFlags;
 
@@ -113,7 +113,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
     public PQRecentlyTraded
         (LastTradedTransmissionFlags transmissionFlags, ushort maxAllowedSize = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount)
     {
-        elementShiftRegistry = new TracksReorderingListRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         MaxAllowedSize       = maxAllowedSize;
         TransferFlags        = transmissionFlags;
 
@@ -124,7 +124,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
     (ISourceTickerInfo sourceTickerInfo, LastTradedTransmissionFlags transmissionFlags
       , ushort maxAllowedSize = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount) : base(sourceTickerInfo)
     {
-        elementShiftRegistry = new TracksReorderingListRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         MaxAllowedSize       = maxAllowedSize;
         TransferFlags        = transmissionFlags;
 
@@ -135,7 +135,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
     (ISourceTickerInfo sourceTickerInfo, IPQNameIdLookupGenerator nameIdLookup, LastTradedTransmissionFlags transmissionFlags
       , ushort maxAllowedSize = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount) : base(sourceTickerInfo, nameIdLookup)
     {
-        elementShiftRegistry = new TracksReorderingListRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         MaxAllowedSize       = maxAllowedSize;
         TransferFlags        = transmissionFlags;
 
@@ -146,7 +146,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
     (LastTradedTransmissionFlags transmissionFlags, IEnumerable<IPQLastTrade> lastTrades
       , ushort maxAllowedSize = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount) : base(lastTrades)
     {
-        elementShiftRegistry = new TracksReorderingListRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         MaxAllowedSize       = maxAllowedSize;
         TransferFlags        = transmissionFlags;
 
@@ -157,7 +157,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
     (LastTradedTransmissionFlags transmissionFlags, IList<IPQLastTrade> lastTrades
       , ushort maxAllowedSize = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount) : base(lastTrades)
     {
-        elementShiftRegistry = new TracksReorderingListRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         MaxAllowedSize       = maxAllowedSize;
         TransferFlags        = transmissionFlags;
 
@@ -166,7 +166,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
 
     public PQRecentlyTraded(IRecentlyTraded toClone, IPQNameIdLookupGenerator? nameIdLookup = null) : base(toClone, nameIdLookup)
     {
-        elementShiftRegistry = new TracksReorderingListRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         elementShiftRegistry.CopyFrom(toClone.ShiftCommands);
 
         TransferFlags  = toClone.TransferFlags;
@@ -427,9 +427,9 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
     bool IInterfacesComparable<IRecentlyTraded>.AreEquivalent(IRecentlyTraded? other, bool exactTypes) => AreEquivalent(other, exactTypes);
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-        (DateTime snapShotTime, StorageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
+        (DateTime snapShotTime, PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
 
         // Potentially only send this with a snapshot TBD
 
@@ -508,8 +508,9 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
         (ILastTradedList source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         var isFullReplace = copyMergeFlags.HasFullReplace();
-        elementShiftRegistry ??= new TracksReorderingListRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry ??= new TracksListReorderingRegistry<IPQLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
 
+        if (TransferFlags.HasOnlyWhenCopyMergeFlagsKeepCacheItemsFlag() && !copyMergeFlags.HasKeepCachedItems()) return this;
         elementShiftRegistry.CopyFrom(source, copyMergeFlags);
         base.CopyFrom(source, copyMergeFlags);
         if (source is IRecentlyTraded recentTraded)

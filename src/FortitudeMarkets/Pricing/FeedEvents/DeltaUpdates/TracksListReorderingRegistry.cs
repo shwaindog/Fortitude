@@ -5,9 +5,9 @@ using static FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates.ListShiftCommandTy
 
 namespace FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 
-public class TracksReorderingListRegistry<TElement, TCompare>
+public class TracksListReorderingRegistry<TElement, TCompare>
     (IMutableTracksShiftsList<TElement, TCompare> shiftedList, Func<TElement> newElementFactory, Func<TCompare, TCompare, bool> comparison) 
-    : TrackShiftsListRegistry<TElement, TCompare>(shiftedList, newElementFactory, comparison), IMutableTracksReorderingList<TElement, TCompare>
+    : TrackListShiftsRegistry<TElement, TCompare>(shiftedList, newElementFactory, comparison), IMutableTracksReorderingList<TElement, TCompare>
     where TElement : class, TCompare, ITrackableReset<TElement>, IReusableObject<TElement>, IShowsEmpty
 {
     public DateTime UpdateTime { get; set; }

@@ -28,7 +28,7 @@ public unsafe class TestLevel1HourlyQuoteStructBucket : DataBucket<Level1QuoteSt
 
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.OneHour;
 
-    public override IEnumerable<Level1QuoteStruct> ReadEntries(IBuffer readBuffer, IReaderContext<Level1QuoteStruct> readerContext)
+    public override IEnumerable<Level1QuoteStruct> ReadEntries(IMessageQueueBuffer readBuffer, IReaderContext<Level1QuoteStruct> readerContext)
     {
         if (!IsOpen) yield break;
 

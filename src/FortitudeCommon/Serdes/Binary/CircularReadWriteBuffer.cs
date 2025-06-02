@@ -3,22 +3,26 @@
 
 #region
 
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 #endregion
 
 namespace FortitudeCommon.Serdes.Binary;
 
-public unsafe class CircularReadWriteBuffer : IBuffer
+public unsafe class CircularReadWriteBuffer : IMessageQueueBuffer
 {
     public const int LargeObjectHeapAllocationSize = 85_000;
 
-    private long      bufferShifted;
     private GCHandle? handle;
-    private int       pinCount;
-    private long      readCursor;
-    private bool      shouldUnpin = true;
-    private long      writeCursor;
+
+    private long bufferShifted;
+    private int  pinCount;
+    private long readCursor = 0;
+    private bool shouldUnpin = true;
+    private long writeCursor = 0;
+
+    private List<MessageBufferEntry> messageQueue = new();
 
     public CircularReadWriteBuffer(byte[] buffer)
     {
@@ -138,19 +142,16 @@ public unsafe class CircularReadWriteBuffer : IBuffer
         switch (origin)
         {
             case SeekOrigin.Begin:
-                if (offset > Buffer.Length || offset < 0)
-                    throw new Exception("Attempted to seek beyond the end of the Buffer");
+                if (offset > Buffer.Length || offset < 0) throw new Exception("Attempted to seek beyond the end of the Buffer");
                 Position = (int)offset;
                 break;
             case SeekOrigin.End:
-                if (offset > Buffer.Length || offset < 0)
-                    throw new Exception("Attempted to seek beyond the end of the Buffer");
+                if (offset > Buffer.Length || offset < 0) throw new Exception("Attempted to seek beyond the end of the Buffer");
                 Position = Buffer.Length - (int)offset;
                 break;
             default:
                 var proposedCursor = Position + (int)offset;
-                if (proposedCursor > Buffer.Length || proposedCursor < 0)
-                    throw new Exception("Attempted to seek beyond the end of the Buffer");
+                if (proposedCursor > Buffer.Length || proposedCursor < 0) throw new Exception("Attempted to seek beyond the end of the Buffer");
                 Position = proposedCursor;
                 break;
         }
@@ -181,6 +182,10 @@ public unsafe class CircularReadWriteBuffer : IBuffer
 
     public void SetAllRead()
     {
+        if (messageQueue.Any())
+        {
+            Debugger.Break();
+        }
         bufferShifted = ReadCursor = WriteCursor;
     }
 
@@ -188,8 +193,15 @@ public unsafe class CircularReadWriteBuffer : IBuffer
     {
         if (BufferRelativeReadCursor > 0 && BufferRelativeWriteCursor > 0)
         {
+            var moveBackBy = (int)BufferRelativeReadCursor;
+            var length     = BufferRelativeWriteCursor - BufferRelativeReadCursor;
             System.Buffer.BlockCopy(Buffer, (int)BufferRelativeReadCursor, Buffer, 0,
-                                    (int)(BufferRelativeWriteCursor - BufferRelativeReadCursor));
+                                    (int)length);
+            for (var i = 0; i < messageQueue.Count; i++)
+            {
+                var messageBufferEntry = messageQueue[i];
+                messageQueue[i] = new MessageBufferEntry(messageBufferEntry.MessageStartFromBufferOrigin - moveBackBy, messageBufferEntry.MessageSize);
+            }
             bufferShifted = ReadCursor;
         }
     }
@@ -202,6 +214,24 @@ public unsafe class CircularReadWriteBuffer : IBuffer
     public long Length => Buffer.Length;
 
     public bool CanWriteSize(int size) => RemainingStorage > size;
+
+    public bool EnforceCappedMessageSize { get; set; }
+
+    public long MaximumMessageSize { get; set; }
+
+    public bool HasAnotherMessage => messageQueue.Count > 0;
+
+    public MessageBufferEntry PopNextMessage()
+    {
+        var next = messageQueue[0];
+        messageQueue.RemoveAt(0);
+        return next;
+    }
+
+    public void QueueMessage(MessageBufferEntry messageEntry)
+    {
+        messageQueue.Add(messageEntry);
+    }
 
     ~CircularReadWriteBuffer()
     {

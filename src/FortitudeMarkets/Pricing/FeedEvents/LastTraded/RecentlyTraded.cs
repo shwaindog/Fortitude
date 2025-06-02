@@ -18,14 +18,14 @@ namespace FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 
 public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
 {
-    private TracksReorderingListRegistry<IMutableLastTrade, ILastTrade>? elementShiftRegistry;
+    private TracksListReorderingRegistry<IMutableLastTrade, ILastTrade>? elementShiftRegistry;
 
     public RecentlyTraded() =>
-        elementShiftRegistry = new TracksReorderingListRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
 
     public RecentlyTraded(LastTradedTransmissionFlags transmissionFlags, ushort maxAllowedSize = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount)
     {
-        elementShiftRegistry = new TracksReorderingListRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         MaxAllowedSize       = maxAllowedSize;
         TransferFlags        = transmissionFlags;
     }
@@ -34,14 +34,14 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
     (LastTradedTransmissionFlags transmissionFlags, IEnumerable<ILastTrade> lastTrades
       , ushort maxAllowedSize = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount) : base(lastTrades)
     {
-        elementShiftRegistry = new TracksReorderingListRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         MaxAllowedSize       = maxAllowedSize;
         TransferFlags        = transmissionFlags;
     }
 
     public RecentlyTraded(IRecentlyTraded toClone) : base(toClone)
     {
-        elementShiftRegistry   = new TracksReorderingListRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry   = new TracksListReorderingRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         TransferFlags          = toClone.TransferFlags;
         MaxAllowedSize         = toClone.MaxAllowedSize;
         HasUnreliableListTracking = toClone.HasUnreliableListTracking;
@@ -51,7 +51,7 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
     (ISourceTickerInfo sourceTickerInfo, LastTradedTransmissionFlags transmissionFlags
       , ushort maxAllowedSize = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount) : base(sourceTickerInfo)
     {
-        elementShiftRegistry = new TracksReorderingListRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         MaxAllowedSize       = maxAllowedSize;
         TransferFlags        = transmissionFlags;
     }
@@ -236,7 +236,10 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
     public override RecentlyTraded CopyFrom
         (ILastTradedList source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        elementShiftRegistry ??= new TracksReorderingListRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry ??= new TracksListReorderingRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
+
+        if (TransferFlags.HasOnlyWhenCopyMergeFlagsKeepCacheItemsFlag() && !copyMergeFlags.HasKeepCachedItems()) return this;
+
         MaxAllowedSize = source.MaxAllowedSize;
         elementShiftRegistry.CopyFrom(source, copyMergeFlags);
         base.CopyFrom(source, copyMergeFlags);

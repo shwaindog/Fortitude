@@ -8,13 +8,23 @@ namespace FortitudeCommon.Serdes.Binary;
 
 public interface IMessageBufferContext : IBufferContext
 {
-    MessageHeader MessageHeader { get; set; }
-    DateTime DeserializerTime { get; set; }
+    new IMessageQueueBuffer EncodedBuffer    { get; set; }
+
+    MessageHeader        MessageHeader    { get; set; }
+    DateTime             DeserializerTime { get; set; }
 }
 
 public class MessageBufferContext : BufferContext, IMessageBufferContext
 {
-    public MessageBufferContext(IBuffer buffer) : base(buffer) { }
+    public MessageBufferContext(IMessageQueueBuffer buffer) : base(buffer) { }
+
+    public new IMessageQueueBuffer EncodedBuffer
+    {
+        get => (IMessageQueueBuffer)base.EncodedBuffer!;
+        set => base.EncodedBuffer = value;
+    }
+
     public MessageHeader MessageHeader { get; set; }
-    public DateTime DeserializerTime { get; set; } = DateTimeConstants.UnixEpoch;
+
+    public DateTime DeserializerTime { get; set; } = DateTime.MinValue;
 }

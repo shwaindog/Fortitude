@@ -535,5 +535,6 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
     public override string QuoteToStringMembers =>
         $"{base.QuoteToStringMembers}, {nameof(ConflatedTicksCandle)}: {ConflatedTicksCandle}";
 
-    public override string ToString() => $"{nameof(PublishableLevel1PriceQuote)}{{{QuoteToStringMembers}, {AsNonPublishable.QuoteToStringMembers}}}";
+    public override string ToString() => $"{nameof(PublishableLevel1PriceQuote)}{{{QuoteToStringMembers}, {AsNonPublishable.QuoteToStringMembers}, " +
+                                         $"{JustFeedSyncConnectivityStatusToStringMembers}}}";
 }
