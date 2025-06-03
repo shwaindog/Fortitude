@@ -908,7 +908,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
             return (base.GetHashCode() * 397) ^ orders.GetHashCode();
         }
     }
-    
+
     public string EachOrderByIndexOnNewLines()
     {
         var countFromOrders = CountFromOrders();
@@ -916,7 +916,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         for (var i = 0; i < countFromOrders; i++)
         {
             var order = orders[i];
-            sb.Append("[").Append(i).Append("] = ").Append(order);
+            sb.Append("\t\tOrders[").Append(i).Append("] = ").Append(order);
             if (i < countFromOrders - 1)
             {
                 sb.AppendLine(",");
@@ -925,7 +925,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         return sb.ToString();
     }
 
-    protected string PQJustOrdersToStringMembers => $"{nameof(Orders)}: [{EachOrderByIndexOnNewLines()}]";
+    protected string PQJustOrdersToStringMembers => $"{nameof(Orders)}: [\n{EachOrderByIndexOnNewLines()}]";
 
     protected string PQOrdersPriceVolumeLayerToStringMembers => 
         $"{PQOrdersCountVolumeLayerToStringMembers}, {nameof(MaxAllowedSize)}: {MaxAllowedSize:N0}, {PQJustOrdersToStringMembers}";

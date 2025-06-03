@@ -4,6 +4,7 @@
 #region
 
 using System.Collections;
+using System.Text;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Maps.IdMap;
@@ -55,7 +56,7 @@ public interface IPQOrderBookSide : IMutableOrderBookSide, IPQSupportsNumberPrec
 
     new int Count { get; set; }
 
-    IReadOnlyList<IPQPriceVolumeLayer> AllLayers { get; }
+    new IReadOnlyList<IPQPriceVolumeLayer> AllLayers { get; }
 
     new bool HasUpdates { get; set; }
 
@@ -315,14 +316,14 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     {
         get
         {
-            if (level < AllLayers.Count) return AllLayers[level];
+            if (level < allLayers.Count) return allLayers[level];
             if (level >= MaxAllowedSize) throw new ArgumentException("Error attempted to update a level beyond the maximum allowed book size");
             while (Capacity <= level)
             {
                 var pqLayer = LayerSelector.CreateExpectedImplementation(LayerSupportedType, NameIdLookup);
                 allLayers.Add(pqLayer);
             }
-            return AllLayers[level];
+            return allLayers[level];
         }
         set
         {
@@ -335,7 +336,9 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         }
     }
 
-    public IReadOnlyList<IPQPriceVolumeLayer> AllLayers => allLayers.AsReadOnly();
+    IReadOnlyList<IPriceVolumeLayer> IOrderBookSide.AllLayers => AllLayers;
+
+    public IReadOnlyList<IPQPriceVolumeLayer> AllLayers => allLayers.Take(Count).ToList().AsReadOnly();
 
     public IPQNameIdLookupGenerator NameIdLookup
     {
@@ -352,16 +355,16 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public int Capacity
     {
-        get => Math.Min(MaxAllowedSize, AllLayers.Count);
+        get => Math.Min(MaxAllowedSize, allLayers.Count);
         set
         {
             if (value > PQFeedFieldsExtensions.SingleByteFieldIdMaxBookDepth)
                 throw new ArgumentException("Expected PQOrderBook Capacity to be less than or equal to " +
                                             PQFeedFieldsExtensions.SingleByteFieldIdMaxBookDepth);
 
-            for (var i = AllLayers.Count; i < value && AllLayers.Count > 0; i++)
+            for (var i = allLayers.Count; i < value && allLayers.Count > 0; i++)
             {
-                var clonedFirstLayer = AllLayers[0].Clone();
+                var clonedFirstLayer = allLayers[0].Clone();
                 clonedFirstLayer.StateReset();
                 allLayers.Add(clonedFirstLayer);
             }
@@ -372,9 +375,9 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     {
         get
         {
-            for (var i = Math.Min(MaxAllowedSize, AllLayers.Count - 1); i >= 0; i--)
+            for (var i = Math.Min(MaxAllowedSize, allLayers.Count - 1); i >= 0; i--)
             {
-                var layerAtLevel = AllLayers[i];
+                var layerAtLevel = allLayers[i];
                 if ((layerAtLevel.Price) > 0) return i + 1;
             }
 
@@ -384,7 +387,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         {
             for (var i = Capacity; i >= value; i--)
             {
-                var layerAtLevel = AllLayers[i];
+                var layerAtLevel = allLayers[i];
                 layerAtLevel.IsEmpty = true;
             }
         }
@@ -392,10 +395,10 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public bool IsEmpty
     {
-        get => AllLayers.All(pvl => pvl.IsEmpty);
+        get => allLayers.All(pvl => pvl.IsEmpty);
         set
         {
-            foreach (var priceVolumeLayer in AllLayers)
+            foreach (var priceVolumeLayer in allLayers)
             {
                 priceVolumeLayer.IsEmpty = value;
             }
@@ -638,11 +641,11 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
             return UpdatedFlags != OrderBookUpdatedFlags.None
                 || (HasNonEmptyOpenInterest
                  && pqOpenInterestSide is { DataSource: not (MarketDataSource.None or MarketDataSource.Published), HasUpdates: true })
-                || AllLayers.Any(pqpvl => pqpvl.HasUpdates);
+                || allLayers.Any(pqpvl => pqpvl.HasUpdates);
         }
         set
         {
-            foreach (var pqPvLayer in AllLayers) pqPvLayer.HasUpdates = value;
+            foreach (var pqPvLayer in allLayers) pqPvLayer.HasUpdates = value;
             NameIdLookup.HasUpdates = value;
             if (pqOpenInterestSide != null)
             {
@@ -658,7 +661,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
     public void UpdateStarted(uint updateSequenceId)
     {
         SequenceId = updateSequenceId;
-        foreach (var priceVolumeLayer in AllLayers)
+        foreach (var priceVolumeLayer in allLayers)
         {
             priceVolumeLayer.UpdateStarted(updateSequenceId);
         }
@@ -666,7 +669,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public void UpdateComplete(uint updateSequenceId = 0)
     {
-        foreach (var pqPriceVolumeLayer in AllLayers) pqPriceVolumeLayer.UpdateComplete();
+        foreach (var pqPriceVolumeLayer in allLayers) pqPriceVolumeLayer.UpdateComplete();
         elementListShiftRegistry.ClearShiftCommands();
         NameIdLookup.UpdateComplete(updateSequenceId);
         pqOpenInterestSide?.UpdateComplete(updateSequenceId);
@@ -679,7 +682,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public int AppendEntryAtEnd()
     {
-        var index = AllLayers.Count;
+        var index = allLayers.Count;
         allLayers.Add(LayerSelector.CreateExpectedImplementation(LayerSupportedType, NameIdLookup));
         return index;
     }
@@ -706,7 +709,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
                 yield return oiUpdates.WithFieldId(PQFeedFields.QuoteOpenInterestSided);
             }
         }
-        for (var i = 0; i < AllLayers.Count; i++)
+        for (var i = 0; i < allLayers.Count; i++)
             if (this[i] is { } currentLayer)
                 foreach (var layerFields in currentLayer.GetDeltaUpdateFields(snapShotTime,
                                                                               messageFlags, quotePublicationPrecisionSetting))
@@ -788,8 +791,8 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
             destinationLayer.CopyFrom(sourceLayer, copyMergeFlags);
         }
 
-        for (var i = source.Count; i < AllLayers.Count; i++)
-            if (AllLayers[i] is IMutablePriceVolumeLayer mutablePvl)
+        for (var i = source.Count; i < allLayers.Count; i++)
+            if (allLayers[i] is IMutablePriceVolumeLayer mutablePvl)
                 mutablePvl.IsEmpty = true;
         return this;
     }
@@ -811,13 +814,13 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         var layerFactory = LayerSelector.FindForLayerFlags(LayerSupportedFlags);
 
         for (var i = 0; i < MaxAllowedSize; i++)
-            if (i >= AllLayers.Count)
+            if (i >= allLayers.Count)
                 allLayers.Add(layerFactory.CreateNewLayer());
-            else if (i < AllLayers.Count && AllLayers[i] is { } currentLayer
+            else if (i < allLayers.Count && allLayers[i] is { } currentLayer
                                          && !LayerSelector.OriginalCanWhollyContain(LayerSupportedFlags
                                                                                   , currentLayer.SupportsLayerFlags))
                 allLayers[i] = layerFactory.UpgradeLayer(currentLayer);
-        for (var i = MaxAllowedSize; i < AllLayers.Count; i++) allLayers.RemoveAt(i);
+        for (var i = MaxAllowedSize; i < allLayers.Count; i++) allLayers.RemoveAt(i);
     }
 
     public virtual bool AreEquivalent(IOrderBookSide? other, bool exactTypes = false)
@@ -851,7 +854,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
         return allAreSame;
     }
 
-    public IEnumerator<IPQPriceVolumeLayer> GetEnumerator() => AllLayers.Take(Count).GetEnumerator();
+    public IEnumerator<IPQPriceVolumeLayer> GetEnumerator() => allLayers.Take(Count).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -874,7 +877,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public PQOrderBookSide ResetWithTracking()
     {
-        for (var i = 0; i < AllLayers.Count; i++) AllLayers[i].ResetWithTracking();
+        for (var i = 0; i < allLayers.Count; i++) allLayers[i].ResetWithTracking();
         pqOpenInterestSide?.ResetWithTracking();
         DailyTickUpdateCount = 0;
 
@@ -883,7 +886,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public override void StateReset()
     {
-        for (var i = 0; i < AllLayers.Count; i++) AllLayers[i].StateReset();
+        for (var i = 0; i < allLayers.Count; i++) allLayers[i].StateReset();
         DailyTickUpdateCount = 0;
         NameIdLookup.Clear();
         pqOpenInterestSide?.StateReset();
@@ -894,7 +897,7 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags)
     {
-        if (AllLayers.Count <= 0) return [];
+        if (allLayers.Count <= 0) return [];
         // All layers share same dictionary or should do anyway
         return NameIdLookup.GetStringUpdates(snapShotTime, messageFlags);
     }
@@ -933,12 +936,28 @@ public class PQOrderBookSide : ReusableObject<IOrderBookSide>, IPQOrderBookSide
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IOrderBookSide, true);
 
-    public override int GetHashCode() => AllLayers.GetHashCode();
+    public override int GetHashCode() => allLayers.GetHashCode();
+    
+    public string EachLayerByIndexOnNewLines()
+    {
+        var countOfLayers = Count;
+        var sb            = new StringBuilder(100 * countOfLayers);
+        for (var i = 0; i < countOfLayers; i++)
+        {
+            var layer = allLayers[i];
+            sb.Append("\t").Append(BookSide).Append("[").Append(i).Append("] = ").Append(layer);
+            if (i < countOfLayers - 1)
+            {
+                sb.AppendLine(",");
+            }
+        }
+        return sb.ToString();
+    }
 
     protected string PQOrderBookSideToStringMembers =>
         $"{nameof(Capacity)}: {Capacity}, {nameof(MaxAllowedSize)}: {MaxAllowedSize}, {nameof(Count)}: {Count}, {nameof(IsLadder)}: {IsLadder}, " +
         $"{nameof(OpenInterestSide)}: {OpenInterestSide}, {nameof(DailyTickUpdateCount)}: {DailyTickUpdateCount}, " +
-        $"{nameof(AllLayers)}:[{string.Join(", ", AllLayers.Take(Count))}]";
+        $"{nameof(AllLayers)}: [\n{EachLayerByIndexOnNewLines()}]";
 
     public override string ToString() => $"{GetType().Name}({PQOrderBookSideToStringMembers})";
 }

@@ -21,7 +21,7 @@ public class TrackListShiftsRegistry<TElement, TCompare> : ITrackableReset<Track
 
     protected List<ListShiftCommand> RegisteredShiftCommands = new();
 
-    private int? previousCopyHashCode = null;
+    private int? previousCopyHashCode;
 
     protected readonly List<ListShiftCommand> CandidateRightShiftFirstCommands = new();
     protected readonly List<ListShiftCommand> CandidateLeftShiftFirstCommands  = new();
@@ -180,12 +180,9 @@ public class TrackListShiftsRegistry<TElement, TCompare> : ITrackableReset<Track
     private void ApplyMoveSingleElement(ListShiftCommand shiftCommandToApply)
     {
         var (destinationIndex, originIndex) = shiftCommandToApply;
-        var lastTradeAt    = ShiftedList[originIndex];
         var shiftListCount = ShiftedList.Count;
-        if (shiftListCount == 0)
-        {
-            Debugger.Break();
-        }
+        if (destinationIndex >= shiftListCount && originIndex >= shiftListCount) return;
+        var lastTradeAt    = ShiftedList[originIndex];
         RemoveAt(originIndex);
         if (destinationIndex > ShiftedList.Capacity)
         {
@@ -674,7 +671,6 @@ public class TrackListShiftsRegistry<TElement, TCompare> : ITrackableReset<Track
     {
         var isFullReplace = copyMergeFlags.HasFullReplace();
         var wasEmpty      = ShiftedList.All(e => e.IsEmpty);
-        var dumpList      = ShiftedList.ToString();
         if (source is IMutableTracksShiftsList<TElement, TCompare> sourceTracksShifts)
         {
             if (isFullReplace) ClearShiftCommands();

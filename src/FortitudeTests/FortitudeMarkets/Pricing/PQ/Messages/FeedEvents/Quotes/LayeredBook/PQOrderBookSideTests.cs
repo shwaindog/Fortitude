@@ -436,7 +436,7 @@ public class PQOrderBookSideTests
             Assert.AreEqual(MaxNumberOfLayers, populatedOrderBook.Capacity);
             populatedOrderBook[MaxNumberOfLayers - 1] = populatedOrderBook[MaxNumberOfLayers - 1].ResetWithTracking();
             Assert.AreEqual(MaxNumberOfLayers, populatedOrderBook.Capacity);
-            Assert.AreEqual(populatedOrderBook.AllLayers.Count, populatedOrderBook.Capacity);
+            Assert.AreEqual(populatedOrderBook.AllLayers.Count + 1, populatedOrderBook.Capacity);
         }
     }
 
@@ -983,8 +983,7 @@ public class PQOrderBookSideTests
             Assert.IsTrue(toString.Contains(q.GetType().Name));
             Assert.IsTrue(toString.Contains($"{nameof(q.Capacity)}: {q.Capacity}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.Count)}: {q.Count}"));
-            Assert.IsTrue(toString.Contains($"AllLayers:[" +
-                                            $"{string.Join(", ", (IEnumerable<IPQPriceVolumeLayer>)q)}]"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.AllLayers)}: [\n{q.EachLayerByIndexOnNewLines()}]"));
         }
     }
 

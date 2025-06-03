@@ -467,7 +467,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         for (var i = 0; i < countFromOrders; i++)
         {
             var order = orders[i];
-            sb.Append("[").Append(i).Append("] = ").Append(order);
+            sb.Append("\t\tOrders[").Append(i).Append("] = ").Append(order);
             if (i < countFromOrders - 1)
             {
                 sb.AppendLine(",");
@@ -478,7 +478,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
 
     protected string OrdersPriceVolumeLayerToStringMembers => $"{OrdersCountPriceVolumeLayerToStringMembers}, {JustOrdersToString}";
 
-    protected string JustOrdersToString => $"{nameof(Orders)}: [{EachOrderByIndexOnNewLines()}]";
+    protected string JustOrdersToString => $"{nameof(Orders)}: [\n{EachOrderByIndexOnNewLines()}]";
 
     public override string ToString() => $"{nameof(OrdersPriceVolumeLayer)}{{{OrdersPriceVolumeLayerToStringMembers}}}";
 }
