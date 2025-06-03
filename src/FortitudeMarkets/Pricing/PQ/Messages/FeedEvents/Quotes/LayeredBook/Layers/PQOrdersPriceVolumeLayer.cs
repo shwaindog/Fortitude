@@ -701,7 +701,10 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
                 {
                     var elementShift = (ListShiftCommand)(pqFieldUpdate);
                     elementShiftRegistry.AppendShiftCommand(elementShift);
-                    ApplyListShiftCommand(elementShift);
+                    if (orders.Any(ao => !ao.IsEmpty))
+                    {
+                        ApplyListShiftCommand(elementShift);
+                    }
                 }
                 else
                 {
@@ -912,7 +915,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         var sb              = new StringBuilder(100 * countFromOrders);
         for (var i = 0; i < countFromOrders; i++)
         {
-            var order = Orders[i];
+            var order = orders[i];
             sb.Append("[").Append(i).Append("] = ").Append(order);
             if (i < countFromOrders - 1)
             {

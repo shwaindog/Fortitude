@@ -34,8 +34,8 @@ public enum PQMessageFlags
   , Snapshot = 3
   , Update   = 4
 
-  , CompleteUpdate       = 5
-  , IncludeReceiverTimes = 8
+  , CompleteUpdate           = 5
+  , IncludeReceiverTimes     = 8
   , IsNotLastMessageOfUpdate = 16
     // end from PQMessageFlags
   , OneByteMessageSize   = 32
@@ -62,7 +62,9 @@ public static class PQMessageFlagsExtensions
 
     public static bool HasTwoByteMessageSizeFlag(this PQMessageFlags flags) => (flags & PQMessageFlags.TwoByteMessageSize) > 0;
 
-    public static bool HasThreeByteMessageSizeFlag(this PQMessageFlags flags) => (flags & PQMessageFlags.ThreeByteMessageSize) == PQMessageFlags.ThreeByteMessageSize;
+    public static bool HasThreeByteMessageSizeFlag
+        (this PQMessageFlags flags) =>
+        (flags & PQMessageFlags.ThreeByteMessageSize) == PQMessageFlags.ThreeByteMessageSize;
 
     public static bool HasIncludesSequenceIdFlag(this PQMessageFlags flags) => (flags & PQMessageFlags.IncludesSequenceId) > 0;
 }
@@ -72,19 +74,21 @@ public sealed class PQMessageSerializer : IMessageSerializer<PQPublishableTickIn
     // ReSharper disable once UnusedMember.Local
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQMessageSerializer));
 
-    private const int    ThreeByteInt       = 0xFF_FF_FF;
+    private const int ThreeByteInt = 0xFF_FF_FF;
 
     private readonly Messages.FeedEvents.Quotes.PQMessageFlags messageFlags;
-    private readonly PQSerializationFlags                      serializationFlags;
-    private readonly List<PQFieldUpdate>                       fieldsToSerialize        = new();
-    private readonly List<PQFieldStringUpdate>                 stringUpdatesToSerialize = new();
+
+    private readonly PQSerializationFlags      serializationFlags;
+    private readonly List<PQFieldUpdate>       fieldsToSerialize        = new();
+    private readonly List<PQFieldStringUpdate> stringUpdatesToSerialize = new();
 
     //                                          version + flags +    streamId   + messageSize  + sequenceId
     private const int SocketPublishHeaderSize = 2 * sizeof(byte) + sizeof(uint) + sizeof(uint) + sizeof(uint);
 
     private uint previousSerializedSequenceId;
 
-    public PQMessageSerializer(Messages.FeedEvents.Quotes.PQMessageFlags messageFlags, PQSerializationFlags serializationFlags = PQSerializationFlags.ForSocketPublish)
+    public PQMessageSerializer
+        (Messages.FeedEvents.Quotes.PQMessageFlags messageFlags, PQSerializationFlags serializationFlags = PQSerializationFlags.ForSocketPublish)
     {
         this.messageFlags       = messageFlags;
         this.serializationFlags = serializationFlags;
@@ -176,8 +180,7 @@ public sealed class PQMessageSerializer : IMessageSerializer<PQPublishableTickIn
                 if (serializationFlags == PQSerializationFlags.ForSocketPublish) *currentPtr++ = message.Version; //protocol version
 
                 var flagsPtr = currentPtr++;
-                if (serializationFlags == PQSerializationFlags.ForSocketPublish)
-                    StreamByteOps.ToBytes(ref currentPtr, pqMessage.StreamId);
+                if (serializationFlags == PQSerializationFlags.ForSocketPublish) StreamByteOps.ToBytes(ref currentPtr, pqMessage.StreamId);
 
                 var messageSizePtr  = currentPtr;
                 var sequenceIdBytes = 4;
@@ -345,7 +348,7 @@ public sealed class PQMessageSerializer : IMessageSerializer<PQPublishableTickIn
                 }
                 totalWritten += written;
             } while (fieldIndex < fieldsToSerialize.Count || stringIndex < stringUpdatesToSerialize.Count);
-            pqMessage.HasUpdates     = false;
+            pqMessage.HasUpdates = false;
             return FinishProcessingMessageReturnValue(message, totalWritten);
         }
         finally

@@ -18,7 +18,6 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
-using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
@@ -155,29 +154,27 @@ public class PQOrderBookSideTests
                 fullSupportPvL.Add
                     (new PQExternalCounterPartyOrder
                         (new PQAnonymousOrder
-                            (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderType
+                            (nameIdLookupGenerator, ExpectedOrderId + j, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderType
                            , ExpectedGenesisFlags, ExpectedLifecycleState, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId)
                             {
-                                ExternalCounterPartyOrderInfo
-                                    = new PQAdditionalExternalCounterPartyInfo
+                                ExternalCounterPartyOrderInfo = new PQAdditionalExternalCounterPartyInfo
                                         (nameIdLookupGenerator, i + 1, ExpectedCounterPartyBase + i
                                        , i + 1, ExpectedTraderNameBase + i)
                             }));
                 anonOrdersPvL.Add
                     (new PQAnonymousOrder
-                        (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderType
-                       , ExpectedGenesisFlags
-                       , ExpectedLifecycleState, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId));
+                        (nameIdLookupGenerator, ExpectedOrderId + j, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderType
+                       , ExpectedGenesisFlags, ExpectedLifecycleState, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId));
                 counterPartyOrdersPvL.Add
                     (new PQExternalCounterPartyOrder
                         (new PQAnonymousOrder
-                            (nameIdLookupGenerator, ExpectedOrderId, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderType
-                           , ExpectedGenesisFlags
-                           , ExpectedLifecycleState, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume, ExpectedTrackingId)
+                            (nameIdLookupGenerator, ExpectedOrderId + j, ExpectedOrderCreatedTime, ExpectedOrderVolume, ExpectedOrderType
+                           , ExpectedGenesisFlags , ExpectedLifecycleState, ExpectedOrderUpdatedTime, ExpectedOrderRemainingVolume
+                           , ExpectedTrackingId)
                             {
-                                ExternalCounterPartyOrderInfo
-                                    = new PQAdditionalExternalCounterPartyInfo(nameIdLookupGenerator, i + 1, ExpectedCounterPartyBase + i, i + 1
-                                                                             , ExpectedTraderNameBase + i)
+                                ExternalCounterPartyOrderInfo = new PQAdditionalExternalCounterPartyInfo
+                                        (nameIdLookupGenerator, i + 1, ExpectedCounterPartyBase + i
+                                       , i + 1 , ExpectedTraderNameBase + i)
                             }));
             }
         }
@@ -650,7 +647,7 @@ public class PQOrderBookSideTests
                 if (pvl is IPQOrdersPriceVolumeLayer ordersPvl)
                     for (var i = 0; i < ExpectedOrdersCount; i++)
                     {
-                        var orderLayerInfo = ordersPvl[i]!;
+                        var orderLayerInfo = ordersPvl[i];
 
                         orderLayerInfo.OrderId = 321;
                         Assert.IsTrue(populatedOrderBook.HasUpdates);

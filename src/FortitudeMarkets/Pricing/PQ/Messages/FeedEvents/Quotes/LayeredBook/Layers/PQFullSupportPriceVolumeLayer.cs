@@ -70,11 +70,6 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
         if (GetType() == typeof(PQFullSupportPriceVolumeLayer)) SequenceId = 0;
     }
 
-    protected string PQFullSupportVolumeLayerToStringMembers =>
-        $"{PQOrdersCountVolumeLayerToStringMembers}, {nameof(SourceId)}: {SourceId}, {nameof(SourceName)}: {SourceName}, " +
-        $"{nameof(Executable)}: {Executable}, {nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}, {nameof(ValueDate)}: {ValueDate}, " +
-        $"{PQJustOrdersToStringMembers}";
-
     [JsonIgnore]
     public bool IsValueDateUpdated
     {
@@ -244,29 +239,29 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
         base.UpdateComplete(updateSequenceId);
     }
 
-    IMutableValueDatePriceVolumeLayer ITrackableReset<IMutableValueDatePriceVolumeLayer>.          ResetWithTracking() => ResetWithTracking();
+    IMutableValueDatePriceVolumeLayer ITrackableReset<IMutableValueDatePriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
 
-    IMutableValueDatePriceVolumeLayer IMutableValueDatePriceVolumeLayer.                           ResetWithTracking() => ResetWithTracking();
+    IMutableValueDatePriceVolumeLayer IMutableValueDatePriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
 
-    IPQValueDatePriceVolumeLayer ITrackableReset<IPQValueDatePriceVolumeLayer>.                    ResetWithTracking() => ResetWithTracking();
+    IPQValueDatePriceVolumeLayer ITrackableReset<IPQValueDatePriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
 
-    IPQValueDatePriceVolumeLayer IPQValueDatePriceVolumeLayer.                                     ResetWithTracking() => ResetWithTracking();
+    IPQValueDatePriceVolumeLayer IPQValueDatePriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
 
-    IMutableSourcePriceVolumeLayer ITrackableReset<IMutableSourcePriceVolumeLayer>.                ResetWithTracking() => ResetWithTracking();
+    IMutableSourcePriceVolumeLayer ITrackableReset<IMutableSourcePriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
 
-    IMutableSourcePriceVolumeLayer IMutableSourcePriceVolumeLayer.                                 ResetWithTracking() => ResetWithTracking();
+    IMutableSourcePriceVolumeLayer IMutableSourcePriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
 
     IMutableSourceQuoteRefPriceVolumeLayer ITrackableReset<IMutableSourceQuoteRefPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
 
-    IMutableSourceQuoteRefPriceVolumeLayer IMutableSourceQuoteRefPriceVolumeLayer.       ResetWithTracking() => ResetWithTracking();
+    IMutableSourceQuoteRefPriceVolumeLayer IMutableSourceQuoteRefPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
 
-    IPQSourcePriceVolumeLayer ITrackableReset<IPQSourcePriceVolumeLayer>.                ResetWithTracking() => ResetWithTracking();
+    IPQSourcePriceVolumeLayer ITrackableReset<IPQSourcePriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
 
-    IPQSourcePriceVolumeLayer IPQSourcePriceVolumeLayer.                                 ResetWithTracking() => ResetWithTracking();
+    IPQSourcePriceVolumeLayer IPQSourcePriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
 
     IPQSourceQuoteRefPriceVolumeLayer ITrackableReset<IPQSourceQuoteRefPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
 
-    IPQSourceQuoteRefPriceVolumeLayer IPQSourceQuoteRefPriceVolumeLayer.           ResetWithTracking() => ResetWithTracking();
+    IPQSourceQuoteRefPriceVolumeLayer IPQSourceQuoteRefPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
 
     IPQFullSupportPriceVolumeLayer ITrackableReset<IPQFullSupportPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
 
@@ -274,7 +269,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
 
     IMutableFullSupportPriceVolumeLayer ITrackableReset<IMutableFullSupportPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
 
-    IMutableFullSupportPriceVolumeLayer IMutableFullSupportPriceVolumeLayer.                 ResetWithTracking() => ResetWithTracking();
+    IMutableFullSupportPriceVolumeLayer IMutableFullSupportPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
 
     public override PQFullSupportPriceVolumeLayer ResetWithTracking()
     {
@@ -299,18 +294,21 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
+    (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags
+      , IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                 quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
-        if (!updatedOnly || IsValueDateUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteLayerValueDate, valueDate.Get2MinIntervalsFromUnixEpoch());
+        if (!updatedOnly || IsValueDateUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerValueDate, valueDate.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsSourceNameUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteLayerSourceId, SourceId);
         if (!updatedOnly || IsExecutableUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerBooleanFlags
                                          , (uint)(Executable ? LayerBooleanFlags.IsExecutableFlag : LayerBooleanFlags.None));
-        if (!updatedOnly || IsSourceQuoteReferenceUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteLayerSourceQuoteRef, sourceQuoteReference);
+        if (!updatedOnly || IsSourceQuoteReferenceUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerSourceQuoteRef, sourceQuoteReference);
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
@@ -373,7 +371,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
         {
             // IPQOrdersPriceVolumeLayer && IPQOrdersCountPriceVolumeLayer are done in base
             case IPQFullSupportPriceVolumeLayer fullSupportPvLayer:
-                if(!isSkipRefLookups)  NameIdLookup.CopyFrom(fullSupportPvLayer.NameIdLookup);
+                if (!isSkipRefLookups) NameIdLookup.CopyFrom(fullSupportPvLayer.NameIdLookup);
                 if (fullSupportPvLayer.IsValueDateUpdated || isFullReplace)
                 {
                     IsValueDateUpdated = true;
@@ -383,7 +381,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
                 {
                     IsSourceQuoteReferenceUpdated = true;
 
-                    SourceQuoteReference          = fullSupportPvLayer.SourceQuoteReference;
+                    SourceQuoteReference = fullSupportPvLayer.SourceQuoteReference;
                 }
                 if (fullSupportPvLayer.IsSourceNameUpdated || isFullReplace)
                 {
@@ -399,7 +397,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
                 if (isFullReplace) SetFlagsSame(fullSupportPvLayer);
                 break;
             case IPQSourceQuoteRefPriceVolumeLayer pqSrcQtRefPvLayer:
-                if(!isSkipRefLookups) NameIdLookup.CopyFrom(pqSrcQtRefPvLayer.NameIdLookup);
+                if (!isSkipRefLookups) NameIdLookup.CopyFrom(pqSrcQtRefPvLayer.NameIdLookup);
                 if (pqSrcQtRefPvLayer.IsSourceQuoteReferenceUpdated || isFullReplace)
                 {
                     IsSourceQuoteReferenceUpdated = true;
@@ -421,12 +419,12 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
                 if (isFullReplace) SetFlagsSame(pqSrcQtRefPvLayer);
                 break;
             case IPQSourcePriceVolumeLayer pqSourcePvLayer:
-                if(!isSkipRefLookups) NameIdLookup.CopyFrom(pqSourcePvLayer.NameIdLookup);
+                if (!isSkipRefLookups) NameIdLookup.CopyFrom(pqSourcePvLayer.NameIdLookup);
                 if (pqSourcePvLayer.IsSourceNameUpdated || isFullReplace)
                 {
                     IsSourceNameUpdated = true;
 
-                    SourceId   = pqSourcePvLayer.SourceId;
+                    SourceId = pqSourcePvLayer.SourceId;
                 }
                 if (pqSourcePvLayer.IsExecutableUpdated || isFullReplace)
                 {
@@ -539,6 +537,10 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
         }
     }
 
-    public override string ToString() =>
-        $"{GetType().Name}({PQFullSupportVolumeLayerToStringMembers}, {UpdatedFlagsToString})";
+    protected string PQFullSupportVolumeLayerToStringMembers =>
+        $"{PQOrdersCountVolumeLayerToStringMembers}, {nameof(SourceId)}: {SourceId}, {nameof(SourceName)}: {SourceName}, " +
+        $"{nameof(Executable)}: {Executable}, {nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}, {nameof(ValueDate)}: {ValueDate}, " +
+        $"{PQJustOrdersToStringMembers}";
+
+    public override string ToString() => $"{GetType().Name}({PQFullSupportVolumeLayerToStringMembers}, {UpdatedFlagsToString})";
 }

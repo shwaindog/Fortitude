@@ -33,3 +33,9 @@ public interface IStagedDeltaUpdatePhase : IScopedDiscreetUpdatable, IMutablePar
 {
     void UpdatesAppliedToAllDeltas(uint startSequenceId, uint latestSequenceId);
 }
+
+
+public interface IScopedTimedUpdatable : IDiscreetUpdatable, ISequencedUpdates
+{
+    void UpdateAt(DateTime atDateTime, uint previousSequenceId, uint latestSequenceId);
+}

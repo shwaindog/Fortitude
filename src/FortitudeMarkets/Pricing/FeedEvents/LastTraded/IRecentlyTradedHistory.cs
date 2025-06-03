@@ -39,7 +39,7 @@ public interface IRecentlyTradedHistory : IReusableObject<IRecentlyTradedHistory
 }
 
 public interface IMutableRecentlyTradedHistory : IRecentlyTradedHistory, ITrackableReset<IMutableRecentlyTradedHistory>, IEmptyable
-  , ICloneable<IMutableRecentlyTradedHistory>, IScopedDiscreetUpdatable
+  , ICloneable<IMutableRecentlyTradedHistory>, IScopedTimedUpdatable
 {
     new IMutableOnTickLastTraded OnTickLastTraded            { get; set; }
     new IMutableRecentlyTraded   AllLimitedHistoryLastTrades { get; set; }

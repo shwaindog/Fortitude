@@ -230,6 +230,11 @@ public class PQRecentlyTradedHistory : ReusableObject<IRecentlyTradedHistory>, I
         SequenceId = updateSequenceId;
     }
 
+    public void UpdateAt(DateTime atDateTime, uint previousSequenceId, uint latestSequenceId)
+    {
+        throw new NotImplementedException();
+    }
+
     public void UpdateComplete(uint updateSequenceId = 0)
     {
         OnTickLastTraded.UpdateComplete(updateSequenceId);
