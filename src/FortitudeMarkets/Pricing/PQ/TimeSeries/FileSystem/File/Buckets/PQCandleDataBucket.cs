@@ -54,14 +54,14 @@ public abstract class PQCandleDataBucket<TBucket, TEntry> : DataBucket<TEntry, T
     }
 
     public PQStorageCandleSerializer IndexEntryMessageSerializer =>
-        indexEntrySerializer ??= new PQStorageCandleSerializer(StorageFlags.Complete);
+        indexEntrySerializer ??= new PQStorageCandleSerializer(PQMessageFlags.Complete);
 
     public PQStorageCandleSerializer RepeatedEntryMessageSerializer =>
-        repeatedEntrySerializer ??= new PQStorageCandleSerializer(StorageFlags.Update);
+        repeatedEntrySerializer ??= new PQStorageCandleSerializer(PQMessageFlags.Update);
 
     public IPricingInstrumentId PricingInstrumentId { get; set; } = null!;
 
-    public override IEnumerable<TEntry> ReadEntries(IBuffer readBuffer, IReaderContext<TEntry> readerContext)
+    public override IEnumerable<TEntry> ReadEntries(IMessageQueueBuffer readBuffer, IReaderContext<TEntry> readerContext)
     {
         bufferContext ??= new MessageBufferContext(readBuffer);
 

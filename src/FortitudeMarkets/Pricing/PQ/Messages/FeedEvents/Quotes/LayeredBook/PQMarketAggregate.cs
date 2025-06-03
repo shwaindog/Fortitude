@@ -244,10 +244,10 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
         }
 
         public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-        (DateTime snapShotTime, StorageFlags messageFlags
+        (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags
           , IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
         {
-            var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
+            var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
             if (!updatedOnly || IsDataSourceUpdated)
                 yield return new PQFieldUpdate(PQFeedFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateSource, (uint)DataSource);
 

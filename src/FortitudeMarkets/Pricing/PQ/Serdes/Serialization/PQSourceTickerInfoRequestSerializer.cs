@@ -55,7 +55,7 @@ public class PQSourceTickerInfoRequestSerializer : IMessageSerializer<PQSourceTi
         if (AddMessageHeader)
         {
             *currPtr++ = sourceTickerInfoRequest.Version;
-            *currPtr++ = (byte)PQMessageFlags.None;
+            *currPtr++ = (byte)Messages.FeedEvents.Quotes.PQMessageFlags.None;
             StreamByteOps.ToBytes(ref currPtr, sourceTickerInfoRequest.MessageId);
             messageSize =  currPtr;
             currPtr     += sizeof(uint);

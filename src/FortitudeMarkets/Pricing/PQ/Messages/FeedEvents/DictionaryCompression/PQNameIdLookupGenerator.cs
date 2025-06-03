@@ -14,6 +14,8 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 public interface IPQNameIdLookupGenerator : INameIdLookupGenerator,
     IPQSupportsStringUpdates<INameIdLookup>
 {
+    int VerifyDictionaryAndExtractSize(PQFieldUpdate toCheckAndExtract);
+
     new IPQNameIdLookupGenerator Clone();
 
     void Clear();
@@ -75,9 +77,9 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
         }
     }
 
-    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags) =>
+    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags) =>
         from kvp in this
-        where (messageFlags & StorageFlags.Complete) > 0 || IsIdUpdated(kvp.Key) || kvp.Key > HighestIdSerialized
+        where (messageFlags & PQMessageFlags.Complete) > 0 || IsIdUpdated(kvp.Key) || kvp.Key > HighestIdSerialized
         let sideEffect = HighestIdSerialized = Math.Max(HighestIdSerialized, kvp.Key)
         select new PQFieldStringUpdate
         {
@@ -87,6 +89,13 @@ public class PQNameIdLookupGenerator : NameIdLookupGenerator, IPQNameIdLookupGen
                 DictionaryId = kvp.Key, Value = kvp.Value, Command = CrudCommand.Upsert
             }
         };
+
+
+    public int VerifyDictionaryAndExtractSize(PQFieldUpdate checkIsStringUpdate)
+    {
+        if (checkIsStringUpdate.Id != dictionaryFieldKey) return -1;
+        return (int)checkIsStringUpdate.Payload;
+    }
 
     public bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
     {

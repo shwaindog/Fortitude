@@ -96,7 +96,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
 
     private IPQNameIdLookupGenerator nameIdLookup = null!;
 
-    private readonly TracksReorderingListRegistry<IPQAnonymousOrder, IAnonymousOrder> elementShiftRegistry;
+    private readonly TracksListReorderingRegistry<IPQAnonymousOrder, IAnonymousOrder> elementShiftRegistry;
 
     public PQOrdersPriceVolumeLayer(LayerType layerType, IPQNameIdLookupGenerator initialDictionary)
     {
@@ -112,7 +112,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         NameIdLookup = initialDictionary;
         orders       = new List<IPQAnonymousOrder>(0);
 
-        elementShiftRegistry = new TracksReorderingListRegistry<IPQAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IPQAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
 
         if (GetType() == typeof(PQOrdersPriceVolumeLayer)) SequenceId = 0;
     }
@@ -135,7 +135,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
         NameIdLookup = traderIdToNameLookup;
         orders       = new List<IPQAnonymousOrder>(0);
 
-        elementShiftRegistry = new TracksReorderingListRegistry<IPQAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IPQAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
 
         if (layerOrders is not null)
             foreach (var orderLayerInfo in layerOrders)
@@ -165,7 +165,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
             orders = new List<IPQAnonymousOrder>(0);
         }
 
-        elementShiftRegistry = new TracksReorderingListRegistry<IPQAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IPQAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
         SetFlagsSame(toClone);
         if (GetType() == typeof(PQOrdersPriceVolumeLayer)) SequenceId = 0;
     }
@@ -663,10 +663,10 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags messageFlags
+    (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags
       , IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
 
 
         foreach (var shiftCommand in elementShiftRegistry!.ShiftCommands)
@@ -692,26 +692,30 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the book has already forwarded this through to the correct layer
-        if (pqFieldUpdate.Id is PQFeedFields.QuoteLayerOrders)
+        switch (pqFieldUpdate.Id)
         {
-            if (pqFieldUpdate.PricingSubId is PQPricingSubFieldKeys.CommandElementsShift)
-            {
-                var elementShift = (ListShiftCommand)(pqFieldUpdate);
-                elementShiftRegistry.AppendShiftCommand(elementShift);
-                ApplyListShiftCommand(elementShift);
-            }
-            else
-            {
-                var index          = pqFieldUpdate.AuxiliaryPayload;
-                var orderLayerInfo = this[index];
-                return orderLayerInfo.UpdateField(pqFieldUpdate);
-            }
+            case PQFeedFields.QuoteLayerStringUpdates:
+                return NameIdLookup.VerifyDictionaryAndExtractSize(pqFieldUpdate);
+            case PQFeedFields.QuoteLayerOrders:
+                if (pqFieldUpdate.PricingSubId is PQPricingSubFieldKeys.CommandElementsShift)
+                {
+                    var elementShift = (ListShiftCommand)(pqFieldUpdate);
+                    elementShiftRegistry.AppendShiftCommand(elementShift);
+                    ApplyListShiftCommand(elementShift);
+                }
+                else
+                {
+                    var index          = pqFieldUpdate.AuxiliaryPayload;
+                    var orderLayerInfo = this[index];
+                    return orderLayerInfo.UpdateField(pqFieldUpdate);
+                }
+                break;
         }
 
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
+    public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags)
     {
         var numberOfTraderInfos = Math.Min(ushort.MaxValue, Capacity);
         for (ushort i = 0; i < numberOfTraderInfos && i < Capacity; i++)

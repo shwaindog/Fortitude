@@ -247,6 +247,8 @@ public static unsafe class StreamByteOps
         return strSize + 2;
     }
 
+    public static int RequiredBytes(string? estimateSerialize) => Encoding.UTF8.GetEncoder().GetByteCount(estimateSerialize, true);
+
     public static int ToBytes(ref byte* ptr, string? value, long availableBytes)
     {
         if (value != null)

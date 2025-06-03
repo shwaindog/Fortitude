@@ -27,5 +27,5 @@ public interface IPQSupportsStringUpdates<T> : ITracksChanges<T> where T : class
 {
     bool UpdateFieldString(PQFieldStringUpdate stringUpdate);
 
-    IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags);
+    IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags);
 }

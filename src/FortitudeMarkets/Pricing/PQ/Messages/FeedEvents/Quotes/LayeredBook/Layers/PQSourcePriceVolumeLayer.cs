@@ -223,10 +223,10 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags messageFlags,
+    (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                 quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
@@ -239,24 +239,25 @@ public class PQSourcePriceVolumeLayer : PQPriceVolumeLayer, IPQSourcePriceVolume
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the book has already forwarded this through to the correct layer
-        if (pqFieldUpdate.Id == PQFeedFields.QuoteLayerSourceId)
+        switch (pqFieldUpdate.Id)
         {
-            IsSourceNameUpdated = true; // incase of reset and sending 0;
-            SourceId            = (ushort)pqFieldUpdate.Payload;
-            return 0;
-        }
-        else if (pqFieldUpdate.Id == PQFeedFields.QuoteLayerBooleanFlags)
-        {
-            IsExecutableUpdated = true; // incase of reset and sending 0;
-            var newFlags = (LayerBooleanFlags)pqFieldUpdate.Payload;
-            Executable = (newFlags & LayerBooleanFlags.IsExecutableFlag) != 0;
-            return 0;
+            case PQFeedFields.QuoteLayerStringUpdates:
+                return NameIdLookup.VerifyDictionaryAndExtractSize(pqFieldUpdate);
+            case PQFeedFields.QuoteLayerSourceId:
+                IsSourceNameUpdated = true; // incase of reset and sending 0;
+                SourceId            = (ushort)pqFieldUpdate.Payload;
+                return 0;
+            case PQFeedFields.QuoteLayerBooleanFlags:
+                IsExecutableUpdated = true; // incase of reset and sending 0;
+                var newFlags = (LayerBooleanFlags)pqFieldUpdate.Payload;
+                Executable = (newFlags & LayerBooleanFlags.IsExecutableFlag) != 0;
+                return 0;
         }
 
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
+    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags)
     {
         foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate;
     }

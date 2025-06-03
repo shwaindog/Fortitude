@@ -53,13 +53,13 @@ public class PQNameIdLookupGeneratorTests
     public void NewlyPopulatedPQNameIdLookup_HasUpdates_ExpectNoStringUpdatesWhenSetFalse()
     {
         Assert.IsTrue(firstGeneratorSubKey1.HasUpdates);
-        Assert.IsTrue(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).Any());
+        Assert.IsTrue(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Update).Any());
 
         firstGeneratorSubKey1.HasUpdates = false;
-        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).Any());
+        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Update).Any());
 
         firstGeneratorSubKey1.HasUpdates = true;
-        Assert.IsTrue(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).Any());
+        Assert.IsTrue(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Update).Any());
     }
 
     [TestMethod]
@@ -67,7 +67,7 @@ public class PQNameIdLookupGeneratorTests
     {
         var firstSubKey1AsType = (PQNameIdLookupGenerator)firstGeneratorSubKey1;
         firstGeneratorSubKey1.HasUpdates = false;
-        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).Any());
+        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Update).Any());
 
         Assert.IsFalse(firstSubKey1AsType.IsIdUpdated(4));
 
@@ -83,7 +83,7 @@ public class PQNameIdLookupGeneratorTests
             }
         };
 
-        var retrieved = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).First();
+        var retrieved = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Update).First();
 
         Assert.AreEqual(expectedStringUpdates, retrieved);
     }
@@ -106,7 +106,7 @@ public class PQNameIdLookupGeneratorTests
                 Command = CrudCommand.Upsert, DictionaryId = 1, Value = "FirstItem"
             }
         };
-        var retrieved = secondGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).First();
+        var retrieved = secondGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Update).First();
         Assert.AreEqual(expectedStringUpdates, retrieved);
     }
 
@@ -114,9 +114,9 @@ public class PQNameIdLookupGeneratorTests
     public void NoNewlyPopulatedLookups_GetStringUpdatesAsFullSnapshot_ReturnsAllEntries()
     {
         firstGeneratorSubKey1.HasUpdates = false;
-        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).Any());
+        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Update).Any());
 
-        var allFields = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Snapshot).ToList();
+        var allFields = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Snapshot).ToList();
 
         Assert.AreEqual(3, allFields.Count);
 
@@ -130,9 +130,9 @@ public class PQNameIdLookupGeneratorTests
     public void NoNewlyPopulatedLookups_UpdateFieldStringDifferentSubKey_IgnoresAllUpdates()
     {
         firstGeneratorSubKey1.HasUpdates = false;
-        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).Any());
+        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Update).Any());
 
-        var allFields = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Snapshot).ToList();
+        var allFields = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Snapshot).ToList();
 
         Assert.AreEqual(3, allFields.Count);
 
@@ -144,9 +144,9 @@ public class PQNameIdLookupGeneratorTests
     public void NoNewlyPopulatedLookups_UpdateFieldStringDifferentDictId_IgnoresAllUpdates()
     {
         firstGeneratorSubKey1.HasUpdates = false;
-        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).Any());
+        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Update).Any());
 
-        var allFields = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Snapshot).ToList();
+        var allFields = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Snapshot).ToList();
 
         Assert.AreEqual(3, allFields.Count);
 
@@ -176,12 +176,12 @@ public class PQNameIdLookupGeneratorTests
     public void EmptyPQLookupGenerator_CopyFromSameInstance_NoChange()
     {
         Assert.AreEqual(3, firstGeneratorSubKey1.Count);
-        var beforeCopyFrom = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Snapshot).ToList();
+        var beforeCopyFrom = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Snapshot).ToList();
 
         firstGeneratorSubKey1.CopyFrom(firstGeneratorSubKey1);
 
         Assert.AreEqual(3, firstGeneratorSubKey1.Count);
-        var afterCopyFrom = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Snapshot).ToList();
+        var afterCopyFrom = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Snapshot).ToList();
         Assert.IsTrue(beforeCopyFrom.SequenceEqual(afterCopyFrom));
     }
 
@@ -199,7 +199,7 @@ public class PQNameIdLookupGeneratorTests
     public void UpdatedDicttionary_CopyFromOnlyUpdated_OnlyChangesCopiedAcross()
     {
         firstGeneratorSubKey1.HasUpdates = false;
-        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).Any());
+        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Update).Any());
         var empty = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerId);
 
         empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1, CopyMergeFlags.JustDifferences);
@@ -223,7 +223,7 @@ public class PQNameIdLookupGeneratorTests
     public void UpdatedDicttionary_CopyFromNonUpdatedAsWell_OnlyChangesCopiedAcross()
     {
         firstGeneratorSubKey1.HasUpdates = false;
-        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).Any());
+        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Update).Any());
 
         firstGeneratorSubKey1.GetOrAddId("FourthItem");
 
@@ -238,7 +238,7 @@ public class PQNameIdLookupGeneratorTests
     public void PopulatedPQLookupGenerator_CopyFromNoAppend_ClearsPreviousValuesBeforeCopy()
     {
         firstGeneratorSubKey1.HasUpdates = false;
-        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).Any());
+        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Update).Any());
 
         secondGeneratorSubKey1.CopyFrom(firstGeneratorSubKey1);
 
@@ -255,25 +255,25 @@ public class PQNameIdLookupGeneratorTests
     public void UpdatedPQLookupGenerator_CopyFrom_CopyKeepsUpdatedTracking()
     {
         firstGeneratorSubKey1.Clear();
-        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).Any());
+        Assert.IsFalse(firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Update).Any());
 
         firstGeneratorSubKey1.GetOrAddId("FourthItem");
 
-        var originalUpdate = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, StorageFlags.Update).First();
+        var originalUpdate = firstGeneratorSubKey1.GetStringUpdates(snapshotTime, PQMessageFlags.Update).First();
 
         var empty = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerSourceId);
         empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1);
-        var copyUpdate = empty.GetStringUpdates(snapshotTime, StorageFlags.Update).First();
+        var copyUpdate = empty.GetStringUpdates(snapshotTime, PQMessageFlags.Update).First();
         Assert.AreEqual(originalUpdate, copyUpdate);
 
         empty = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerSourceId);
         empty.CopyFrom((INameIdLookup)firstGeneratorSubKey1, CopyMergeFlags.FullReplace);
-        copyUpdate = empty.GetStringUpdates(snapshotTime, StorageFlags.Update).First();
+        copyUpdate = empty.GetStringUpdates(snapshotTime, PQMessageFlags.Update).First();
         Assert.AreEqual(originalUpdate, copyUpdate);
 
         empty = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerSourceId);
         empty.CopyFrom(firstGeneratorSubKey1);
-        copyUpdate = empty.GetStringUpdates(snapshotTime, StorageFlags.Update).First();
+        copyUpdate = empty.GetStringUpdates(snapshotTime, PQMessageFlags.Update).First();
         Assert.AreEqual(originalUpdate, copyUpdate);
     }
 

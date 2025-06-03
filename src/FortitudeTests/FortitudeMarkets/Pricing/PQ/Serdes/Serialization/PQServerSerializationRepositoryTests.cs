@@ -7,6 +7,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.PQMessageFlags;
 
 #endregion
 
@@ -28,7 +29,7 @@ public class PQServerSerializationRepositoryTests
     {
         snapshotServerSerializationRepository.RegisterSerializer<PQPublishableTickInstant>();
         var quoteSerializer = snapshotServerSerializationRepository.GetSerializer((uint)PQMessageIds.Quote);
-        Assert.IsInstanceOfType(quoteSerializer, typeof(PQQuoteSerializer));
+        Assert.IsInstanceOfType(quoteSerializer, typeof(PQMessageSerializer));
 
         snapshotServerSerializationRepository.RegisterSerializer<PQHeartBeatQuotesMessage>();
         var heartBeatSerializer = snapshotServerSerializationRepository.GetSerializer<PQHeartBeatQuotesMessage>((uint)PQMessageIds.HeartBeat);

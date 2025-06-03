@@ -207,10 +207,10 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags messageFlags,
+    (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
 
         foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime,
                                                                messageFlags, quotePublicationPrecisionSetting))
@@ -612,7 +612,7 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
     // must include this event though it looks like it does the same as default inherited.  It ensures that subtypes forward to the next level
     // down and not it's immediate parent
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags messageFlags,
+    (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         foreach (var level2QuoteUpdates in base.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSettings))
@@ -635,7 +635,7 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
+    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags)
     {
         foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, messageFlags)) yield return pqFieldStringUpdate;
         if (onTickLastTraded != null)

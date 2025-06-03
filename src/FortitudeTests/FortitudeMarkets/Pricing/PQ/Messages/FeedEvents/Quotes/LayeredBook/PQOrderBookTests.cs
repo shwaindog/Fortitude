@@ -15,6 +15,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
 namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 
@@ -469,8 +470,8 @@ public class PQOrderBookTests
         orderBook.IsDailyTickUpdateCountUpdated = false;
         orderBook.HasUpdates                    = false;
 
-        Assert.AreEqual(0, orderBook.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
-        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0, orderBook.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
+        if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
         var expectedDailyTickCount = 128u;
         orderBook.DailyTickUpdateCount = expectedDailyTickCount;
@@ -479,11 +480,11 @@ public class PQOrderBookTests
         Assert.IsTrue(orderBook.IsDailyTickUpdateCountUpdated);
         var precisionSettings = l2Quote?.SourceTickerInfo ?? PQSourceTickerInfoTests.OrdersCountL3TraderNamePaidOrGivenSti;
         var l2QUpdates = l2QNotNull
-            ? l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         if (l2QNotNull) Assert.AreEqual(3, l2QUpdates.Count);
         var layerUpdates = orderBook
-                           .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
+                           .GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList();
         Assert.AreEqual(1, layerUpdates.Count);
         var expectedUpdate
             = new PQFieldUpdate(PQFeedFields.QuoteDailyTotalTickCount, expectedDailyTickCount);
@@ -498,14 +499,14 @@ public class PQOrderBookTests
             l2Quote.IsAdapterSentTimeDateUpdated    = false;
             l2Quote.IsAdapterSentTimeSub2MinUpdated = false;
             Assert.IsFalse(l2Quote.HasUpdates);
-            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).Count());
+            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(orderBook.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(orderBook.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
 
         if (l2QNotNull)
         {
             l2QUpdates =
-                (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update.Id == PQFeedFields.QuoteDailyTotalTickCount
                     select update).ToList();
             Assert.AreEqual(1, l2QUpdates.Count);
@@ -520,7 +521,7 @@ public class PQOrderBookTests
             Assert.IsTrue(newEmpty.HasUpdates);
         }
         layerUpdates =
-            (from update in orderBook.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+            (from update in orderBook.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                 where update.Id == PQFeedFields.QuoteDailyTotalTickCount
                 select update).ToList();
         Assert.AreEqual(1, layerUpdates.Count);

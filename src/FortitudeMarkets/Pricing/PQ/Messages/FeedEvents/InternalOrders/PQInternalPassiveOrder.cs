@@ -13,14 +13,14 @@ public interface IPQInternalPassiveOrder : IPQAnonymousOrder, IPQAdditionalInter
   , IInterfacesComparable<IPQInternalPassiveOrder>
 {
     new IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags messageFlags,
+    (DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null);
 
     new int UpdateField(PQFieldUpdate pqFieldUpdate);
 
     new bool UpdateFieldString(PQFieldStringUpdate stringUpdate);
 
-    new IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags);
+    new IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags);
 
     new bool HasUpdates { get; set; }
 
@@ -629,19 +629,19 @@ public class PQInternalPassiveOrder : ReusableObject<IAnonymousOrder>, IPQIntern
     public virtual bool UpdateFieldString(PQFieldStringUpdate stringUpdate) => owner.UpdateFieldString(stringUpdate);
 
     public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates
-        (DateTime snapShotTime, StorageFlags messageFlags) =>
+        (DateTime snapShotTime, PQMessageFlags messageFlags) =>
         owner.GetStringUpdates(snapShotTime, messageFlags);
 
     IEnumerable<PQFieldUpdate> IPQSupportsNumberPrecisionFieldUpdates<IPQAdditionalInternalPassiveOrderInfo>.GetDeltaUpdateFields
-        (DateTime snapShotTime, StorageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings) =>
+        (DateTime snapShotTime, PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings) =>
         GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSettings);
 
     IEnumerable<PQFieldUpdate> IPQSupportsNumberPrecisionFieldUpdates<IPQAnonymousOrder>.GetDeltaUpdateFields
-        (DateTime snapShotTime, StorageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings) =>
+        (DateTime snapShotTime, PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings) =>
         owner.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSettings);
 
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-        (DateTime snapShotTime, StorageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting) =>
+        (DateTime snapShotTime, PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting) =>
         owner.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSetting);
 
     int IPQSupportsNumberPrecisionFieldUpdates<IPQAdditionalInternalPassiveOrderInfo>.UpdateField(PQFieldUpdate fieldUpdate) =>

@@ -28,8 +28,8 @@ public class PQStorageCandleDeserializerTests
     private PQStorageCandle pqStorageCandle = null!;
     private CircularReadWriteBuffer     readWriteBuffer             = null!;
 
-    private PQStorageCandleSerializer snapshotSerializer = new(StorageFlags.Snapshot);
-    private PQStorageCandleSerializer updateSerializer   = new(StorageFlags.Update);
+    private PQStorageCandleSerializer snapshotSerializer = new(PQMessageFlags.Snapshot);
+    private PQStorageCandleSerializer updateSerializer   = new(PQMessageFlags.Update);
 
 
     [TestInitialize]
@@ -40,8 +40,8 @@ public class PQStorageCandleDeserializerTests
 
         pqStorageCandle = new PQStorageCandle();
 
-        snapshotSerializer = new PQStorageCandleSerializer(StorageFlags.Snapshot);
-        updateSerializer   = new PQStorageCandleSerializer(StorageFlags.Update);
+        snapshotSerializer = new PQStorageCandleSerializer(PQMessageFlags.Snapshot);
+        updateSerializer   = new PQStorageCandleSerializer(PQMessageFlags.Update);
 
         originalSummaries = new List<ICandle>(6);
         var startDateTime = new DateTime(2024, 6, 17, 16, 0, 0);

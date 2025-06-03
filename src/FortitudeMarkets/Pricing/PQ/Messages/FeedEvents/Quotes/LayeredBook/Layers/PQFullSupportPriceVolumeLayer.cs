@@ -299,9 +299,9 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
+    (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                 quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
@@ -348,7 +348,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
+    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags)
     {
         foreach (var baseUpdates in base.GetStringUpdates(snapShotTime, messageFlags)) yield return baseUpdates;
         if (NameIdLookup is { } pqNameIdLookupGenerator)

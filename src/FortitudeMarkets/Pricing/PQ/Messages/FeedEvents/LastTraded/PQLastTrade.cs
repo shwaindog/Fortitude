@@ -445,10 +445,10 @@ public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
     }
 
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags messageFlags,
+    (DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
         if (!updatedOnly || IsTradeIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTradeId, TradeId);
         if (!updatedOnly || IsBatchIdUpdated)

@@ -238,7 +238,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags messageFlags,
+    (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSetting))
@@ -297,7 +297,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
         return allAreSame;
     }
 
-    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
+    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags)
     {
         foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, messageFlags)) yield return pqFieldStringUpdate;
         foreach (var pqFieldStringUpdate in orderBook.GetStringUpdates(snapShotTime, messageFlags)) yield return pqFieldStringUpdate;
@@ -650,7 +650,7 @@ public class PQPublishableLevel2Quote : PQPublishableLevel1Quote, IPQPublishable
     // must include this event though it looks like it does the same as inherited.  It ensures that subtypes forward to the next level
     // down and not it's immediate parent
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags messageFlags,
+    (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         foreach (var level1QuoteUpdates in base.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSettings))
@@ -659,7 +659,7 @@ public class PQPublishableLevel2Quote : PQPublishableLevel1Quote, IPQPublishable
         }
     }
 
-    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
+    public override IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags)
     {
         foreach (var pqFieldStringUpdate in base.GetStringUpdates(snapShotTime, messageFlags)) yield return pqFieldStringUpdate;
         foreach (var pqFieldStringUpdate in AsNonPublishable.GetStringUpdates(snapShotTime, messageFlags)) yield return pqFieldStringUpdate;

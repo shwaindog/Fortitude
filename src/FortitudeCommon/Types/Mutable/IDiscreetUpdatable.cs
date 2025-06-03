@@ -9,9 +9,27 @@ public interface IDiscreetUpdatable
     void UpdateComplete(uint updateSequenceId = 0);
 }
 
-
-public interface IScopedDiscreetUpdatable : IDiscreetUpdatable
+public interface ISequencedUpdates 
 {
     uint UpdateSequenceId { get; }
+}
+
+public interface IScopedDiscreetUpdatable : IDiscreetUpdatable, ISequencedUpdates
+{
     void UpdateStarted(uint updateSequenceId);
+}
+
+public interface IPartialSequenceUpdates : ISequencedUpdates
+{
+    bool IsCompleteUpdate { get; }
+}
+
+public interface IMutablePartialSequenceUpdates : IPartialSequenceUpdates
+{
+    new bool IsCompleteUpdate { get; set; }
+}
+
+public interface IStagedDeltaUpdatePhase : IScopedDiscreetUpdatable, IMutablePartialSequenceUpdates
+{
+    void UpdatesAppliedToAllDeltas(uint startSequenceId, uint latestSequenceId);
 }

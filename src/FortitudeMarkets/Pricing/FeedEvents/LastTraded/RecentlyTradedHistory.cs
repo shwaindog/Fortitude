@@ -129,6 +129,18 @@ public class RecentlyTradedHistory : ReusableObject<IRecentlyTradedHistory>, IMu
         return this;
     }
 
+    public void UpdateComplete(uint updateSequenceId = 0)
+    {
+        throw new NotImplementedException();
+    }
+
+    public uint UpdateSequenceId                     { get; private set; }
+
+    public void UpdateStarted(uint updateSequenceId)
+    {
+        UpdateSequenceId = updateSequenceId;
+    }
+
     IMutableRecentlyTradedHistory ICloneable<IMutableRecentlyTradedHistory>.Clone() => Clone();
 
     IMutableRecentlyTradedHistory IMutableRecentlyTradedHistory.Clone() => Clone();

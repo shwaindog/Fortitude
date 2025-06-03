@@ -10,6 +10,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.PQMessageFlags;
 
 #endregion
 
@@ -57,7 +58,7 @@ public class PQQuoteDeserializationSequencedTestDataBuilder
         IList<IPQPublishableTickInstant> serializeQuotes, PQMessageFlags feedType, uint sequenceId)
     {
         var deserializeContexts = new List<SocketBufferReadContext>(serializeQuotes.Count);
-        var quoteSerializer = new PQQuoteSerializer(feedType);
+        var quoteSerializer = new PQMessageSerializer(feedType);
         foreach (var quote in serializeQuotes)
         {
             quote.PQSequenceId = sequenceId;

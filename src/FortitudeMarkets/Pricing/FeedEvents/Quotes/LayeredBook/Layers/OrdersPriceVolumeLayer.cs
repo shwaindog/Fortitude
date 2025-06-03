@@ -22,7 +22,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
 {
     private readonly bool isCounterPartyOrders;
 
-    private readonly TracksReorderingListRegistry<IMutableAnonymousOrder, IAnonymousOrder> elementShiftRegistry;
+    private readonly TracksListReorderingRegistry<IMutableAnonymousOrder, IAnonymousOrder> elementShiftRegistry;
 
     private readonly IList<IMutableAnonymousOrder> orders;
 
@@ -30,7 +30,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
     {
         orders = new List<IMutableAnonymousOrder>();
 
-        elementShiftRegistry = new TracksReorderingListRegistry<IMutableAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IMutableAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
     }
 
     public OrdersPriceVolumeLayer(LayerType layerType)
@@ -46,7 +46,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
 
         orders = new List<IMutableAnonymousOrder>();
 
-        elementShiftRegistry = new TracksReorderingListRegistry<IMutableAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IMutableAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
     }
 
     public OrdersPriceVolumeLayer
@@ -64,7 +64,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
             };
         orders = layerOrders?.OfType<IMutableAnonymousOrder>().ToList() ?? new List<IMutableAnonymousOrder>();
 
-        elementShiftRegistry = new TracksReorderingListRegistry<IMutableAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IMutableAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
     }
 
     public OrdersPriceVolumeLayer(IPriceVolumeLayer toClone, LayerType layerType) : base(toClone)
@@ -91,7 +91,7 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
             orders = new List<IMutableAnonymousOrder>(0);
         }
 
-        elementShiftRegistry = new TracksReorderingListRegistry<IMutableAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
+        elementShiftRegistry = new TracksListReorderingRegistry<IMutableAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
     }
 
     protected static Func<IAnonymousOrder, IAnonymousOrder, bool> SameTradeId = (lhs, rhs) => lhs.OrderId == rhs.OrderId;

@@ -361,5 +361,6 @@ public class PublishableLevel2PriceQuote : PublishableLevel1PriceQuote, IMutable
         }
     }
 
-    public override string ToString() => $"{nameof(PublishableLevel2PriceQuote)}{{{QuoteToStringMembers}, {AsNonPublishable.QuoteToStringMembers}}}";
+    public override string ToString() => $"{nameof(PublishableLevel2PriceQuote)}{{{QuoteToStringMembers}, {AsNonPublishable.QuoteToStringMembers}, " +
+                                         $"{JustFeedSyncConnectivityStatusToStringMembers}}}";
 }

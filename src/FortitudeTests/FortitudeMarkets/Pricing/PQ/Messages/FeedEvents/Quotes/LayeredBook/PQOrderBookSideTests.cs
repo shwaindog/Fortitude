@@ -23,6 +23,7 @@ using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.Laye
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
 #endregion
 
@@ -481,10 +482,10 @@ public class PQOrderBookSideTests
         orderBookSide.IsDailyTickUpdateCountUpdated = false;
         orderBookSide.HasUpdates                    = false;
 
-        Assert.AreEqual(0, orderBookSide.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).Count());
+        Assert.AreEqual(0, orderBookSide.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
         if (l2QNotNull)
         {
-            var deltaUpdateFields = l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update).ToList();
+            var deltaUpdateFields = l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
             Assert.AreEqual(2, deltaUpdateFields.Count);
         }
 
@@ -495,15 +496,15 @@ public class PQOrderBookSideTests
         Assert.IsTrue(orderBookSide.IsDailyTickUpdateCountUpdated);
         var precisionSettings = l2Quote?.SourceTickerInfo ?? PQSourceTickerInfoTests.OrdersCountL3TraderNamePaidOrGivenSti;
         var l2QUpdates = l2QNotNull
-            ? l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         var bkUpdates = bkNotNull
-            ? orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList()
+            ? orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList()
             : [];
         if (l2QNotNull) Assert.AreEqual(3, l2QUpdates.Count);
         if (bkNotNull) Assert.AreEqual(1, bkUpdates.Count);
         var layerUpdates = orderBookSide
-                           .GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).ToList();
+                           .GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).ToList();
         Assert.AreEqual(1, layerUpdates.Count);
         var expectedUpdate
             = new PQFieldUpdate(PQFeedFields.QuoteDailySidedTickCount, expectedDailyTickCount);
@@ -520,14 +521,14 @@ public class PQOrderBookSideTests
             l2Quote.IsAdapterSentTimeDateUpdated    = false;
             l2Quote.IsAdapterSentTimeSub2MinUpdated = false;
             Assert.IsFalse(l2Quote.HasUpdates);
-            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).Count());
+            Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(orderBookSide.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(orderBookSide.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
 
         if (l2QNotNull)
         {
             l2QUpdates =
-                (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update.Id == PQFeedFields.QuoteDailySidedTickCount && update.DepthId == sidedDepth
                     select update).ToList();
             Assert.AreEqual(1, l2QUpdates.Count);
@@ -544,7 +545,7 @@ public class PQOrderBookSideTests
         if (bkNotNull)
         {
             bkUpdates =
-                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+                (from update in orderBook!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                     where update.Id == PQFeedFields.QuoteDailySidedTickCount && update.DepthId == sidedDepth
                     select update).ToList();
             Assert.AreEqual(1, bkUpdates.Count);
@@ -559,7 +560,7 @@ public class PQOrderBookSideTests
             Assert.IsTrue(newEmpty.HasUpdates);
         }
         layerUpdates =
-            (from update in orderBookSide.GetDeltaUpdateFields(testDateTime, StorageFlags.Snapshot, precisionSettings)
+            (from update in orderBookSide.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, precisionSettings)
                 where update.Id == PQFeedFields.QuoteDailySidedTickCount
                 select update).ToList();
         Assert.AreEqual(1, layerUpdates.Count);
@@ -721,7 +722,7 @@ public class PQOrderBookSideTests
         {
             var pqFieldUpdates =
                 populatedOrderBook.GetDeltaUpdateFields
-                    (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Update, publicationPrecisionSettings).ToList();
+                    (new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Update, publicationPrecisionSettings).ToList();
             AssertContainsAllOrderBookFields(publicationPrecisionSettings, pqFieldUpdates, populatedOrderBook);
         }
     }
@@ -734,7 +735,7 @@ public class PQOrderBookSideTests
             populatedOrderBook.HasUpdates = false;
             var pqFieldUpdates =
                 populatedOrderBook.GetDeltaUpdateFields
-                    (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot, publicationPrecisionSettings).ToList();
+                    (new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Snapshot, publicationPrecisionSettings).ToList();
             AssertContainsAllOrderBookFields(publicationPrecisionSettings, pqFieldUpdates, populatedOrderBook);
         }
     }
@@ -747,10 +748,10 @@ public class PQOrderBookSideTests
             populatedOrderBook.HasUpdates = false;
             var pqFieldUpdates =
                 populatedOrderBook.GetDeltaUpdateFields
-                    (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
+                    (new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
             var pqStringUpdates =
                 populatedOrderBook.GetStringUpdates
-                    (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
+                    (new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
             Assert.AreEqual(0, pqFieldUpdates.Count);
             Assert.AreEqual(0, pqStringUpdates.Count);
         }
@@ -764,11 +765,11 @@ public class PQOrderBookSideTests
             var pqFieldUpdates =
                 populatedOrderBook.GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 13, 33, 3)
-                   , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
+                   , PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
             var pqStringUpdates =
                 populatedOrderBook.GetStringUpdates
                     (new DateTime(2017, 11, 04, 13, 33, 3)
-                   , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
+                   , PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
             var newEmpty = CreateNewEmpty(populatedOrderBook);
             Assert.AreNotEqual(populatedOrderBook, newEmpty);
             foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
@@ -1469,7 +1470,7 @@ public class PQOrderBookSideTests
         Assert.AreEqual(ordersAnonFullyPopulatedOrderBookSide.Count, toShift.Count + halfListSize);
 
         var shiftViaDeltaUpdates = ordersAnonFullyPopulatedOrderBookSide.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1501,7 +1502,7 @@ public class PQOrderBookSideTests
         Assert.AreEqual(0, toShift.IndexOf(newPvl));
 
         var shiftViaDeltaUpdates = simpleFullyPopulatedOrderBookSide.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1547,7 +1548,7 @@ public class PQOrderBookSideTests
 
 
         var shiftViaDeltaUpdates = sourceFullyPopulatedOrderBookSide.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1582,7 +1583,7 @@ public class PQOrderBookSideTests
         Assert.AreEqual(0, toShift.IndexOf(newLastTrade));
 
         var shiftViaDeltaUpdates = valueDateFullyPopulatedOrderBookSide.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1618,7 +1619,7 @@ public class PQOrderBookSideTests
         Assert.AreEqual(toShift.Count - 1, toShift.IndexOf(newLastTrade));
 
         var shiftViaDeltaUpdates = ordersAnonFullyPopulatedOrderBookSide.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1662,7 +1663,7 @@ public class PQOrderBookSideTests
         Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide.Count, toShift.Count + halfListSize);
 
         var shiftViaDeltaUpdates = fullSupportFullyPopulatedOrderBookSide.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1692,7 +1693,7 @@ public class PQOrderBookSideTests
         Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide.Count, toShift.Count + halfListSize);
 
         var shiftViaDeltaUpdates = fullSupportFullyPopulatedOrderBookSide.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1725,7 +1726,7 @@ public class PQOrderBookSideTests
         Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide.Count, toShift.Count - halfListSize);
 
         var shiftViaDeltaUpdates = fullSupportFullyPopulatedOrderBookSide.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1759,7 +1760,7 @@ public class PQOrderBookSideTests
         Assert.AreEqual(fullSupportFullyPopulatedOrderBookSide.Count, toShift.Count);
 
         var shiftViaDeltaUpdates = fullSupportFullyPopulatedOrderBookSide.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }

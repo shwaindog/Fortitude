@@ -16,6 +16,7 @@ using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.PQMessageFlags;
 
 #endregion
 
@@ -27,11 +28,11 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
     where TSerializeType : PQPublishableTickInstant, new()
 {
     private IMessageBufferContext? bufferContext;
-    private PQQuoteSerializer?     indexEntrySerializer;
+    private PQMessageSerializer?     indexEntrySerializer;
 
     private IPQMessageDeserializer<TSerializeType>? messageDeserializer;
 
-    private PQQuoteSerializer? repeatedEntrySerializer;
+    private PQMessageSerializer? repeatedEntrySerializer;
 
     protected PQQuoteDataBucket
     (IMutableBucketContainer bucketContainer, long bucketFileCursorOffset, bool writable,
@@ -52,15 +53,15 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
         }
     }
 
-    public PQQuoteSerializer IndexEntryMessageSerializer =>
-        indexEntrySerializer ??= new PQQuoteSerializer(PQMessageFlags.Complete, PQSerializationFlags.ForStorageIncludeReceiverTimes);
+    public PQMessageSerializer IndexEntryMessageSerializer =>
+        indexEntrySerializer ??= new PQMessageSerializer(PQMessageFlags.Complete, PQSerializationFlags.ForStorageIncludeReceiverTimes);
 
-    public PQQuoteSerializer RepeatedEntryMessageSerializer =>
-        repeatedEntrySerializer ??= new PQQuoteSerializer(PQMessageFlags.Update, PQSerializationFlags.ForStorageIncludeReceiverTimes);
+    public PQMessageSerializer RepeatedEntryMessageSerializer =>
+        repeatedEntrySerializer ??= new PQMessageSerializer(PQMessageFlags.Update, PQSerializationFlags.ForStorageIncludeReceiverTimes);
 
     public IPricingInstrumentId PricingInstrumentId { get; set; } = null!;
 
-    public override IEnumerable<TEntry> ReadEntries(IBuffer readBuffer, IReaderContext<TEntry> readerContext)
+    public override IEnumerable<TEntry> ReadEntries(IMessageQueueBuffer readBuffer, IReaderContext<TEntry> readerContext)
     {
         bufferContext         ??= new MessageBufferContext(readBuffer);
         readBuffer.ReadCursor =   0;
@@ -142,7 +143,7 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
 
     public virtual AppendResult AppendEntry
     (IMessageBufferContext bufferContext,
-        TSerializeType lastEntryLevel, PQQuoteSerializer useSerializer, AppendResult appendResult)
+        TSerializeType lastEntryLevel, PQMessageSerializer useSerializer, AppendResult appendResult)
     {
         useSerializer.Serialize(lastEntryLevel, bufferContext);
         if (bufferContext.LastWriteLength <= 0) return new AppendResult(StorageAttemptResult.StorageSizeFailure);

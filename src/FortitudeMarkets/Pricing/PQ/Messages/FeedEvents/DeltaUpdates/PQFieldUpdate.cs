@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Memory;
 using static FortitudeCommon.Extensions.NumberFormattingExtensions;
 
 #endregion
@@ -438,6 +439,48 @@ public struct PQFieldStringUpdate
     public override string ToString() => $"PQFieldStringUpdate {{ {nameof(Field)}: {Field}, {nameof(StringUpdate)}: {StringUpdate} }}";
 }
 
+public static class PQFieldStringUpdateExtensions
+{
+    public static PQFieldStringUpdate WithDepth(this PQFieldStringUpdate original, PQDepthKey depthKey)
+    {
+        var updated = original;
+        updated.Field = original.Field.WithDepth(depthKey);
+        return updated;
+    }
+
+    public static int RequiredBytes(this PQFieldStringUpdate fieldUpdate)
+    {
+        var fieldSize   = fieldUpdate.Field.RequiredBytes();
+        var stringBytes = fieldUpdate.StringUpdate.RequiredBytes();
+        return fieldSize + stringBytes;
+    }
+
+    public static PQFieldStringUpdate WithAuxiliary(this PQFieldStringUpdate original, ushort auxiliaryPayload)
+    {
+        var updated = original;
+        updated.Field = original.Field.WithAuxiliary(auxiliaryPayload);
+        return updated;
+    }
+
+    public static PQFieldStringUpdate SetIsAsk(this PQFieldStringUpdate original)
+    {
+        var updated = original;
+        updated.Field = original.Field.SetIsAsk();
+        return updated;
+    }
+
+    public static PQFieldStringUpdate WithDictionaryId(this PQFieldStringUpdate original, int dictionaryId)
+    {
+        var updated = original;
+        updated.StringUpdate = original.StringUpdate.WithDictionaryId(dictionaryId);
+        return updated;
+    }
+
+    public static bool IsBid(this PQFieldStringUpdate original) => original.Field.IsBid();
+
+    public static bool IsAsk(this PQFieldStringUpdate original) => original.Field.IsAsk();
+}
+
 public struct PQStringUpdate
 {
     public int         DictionaryId;
@@ -468,32 +511,21 @@ public struct PQStringUpdate
         $"{nameof(Value)}: {Value} }}";
 }
 
-public static class PQFieldStringUpdateExtensions
+public static class PQStringUpdateExtensions
 {
-    public static PQFieldStringUpdate WithDepth(this PQFieldStringUpdate original, PQDepthKey depthKey)
+    public static int RequiredBytes(this PQStringUpdate stringUpdate)
     {
-        var updated = original;
-        updated.Field = original.Field.WithDepth(depthKey);
-        return updated;
+        var fixedSize   = sizeof(int) + sizeof(int);
+        var stringBytes = StreamByteOps.RequiredBytes(stringUpdate.Value);
+        return fixedSize + stringBytes;
     }
 
-    public static PQFieldStringUpdate WithAuxiliary(this PQFieldStringUpdate original, ushort auxiliaryPayload)
+    public static PQStringUpdate WithDictionaryId(this PQStringUpdate original, int dictionaryId)
     {
         var updated = original;
-        updated.Field = original.Field.WithAuxiliary(auxiliaryPayload);
+        updated.DictionaryId = dictionaryId;
         return updated;
     }
-
-    public static PQFieldStringUpdate SetIsAsk(this PQFieldStringUpdate original)
-    {
-        var updated = original;
-        updated.Field = original.Field.SetIsAsk();
-        return updated;
-    }
-
-    public static bool IsBid(this PQFieldStringUpdate original) => original.Field.IsBid();
-
-    public static bool IsAsk(this PQFieldStringUpdate original) => original.Field.IsAsk();
 }
 
 public enum CrudCommand : byte

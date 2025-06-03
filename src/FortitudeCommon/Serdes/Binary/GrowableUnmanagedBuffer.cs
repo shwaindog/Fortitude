@@ -13,11 +13,13 @@ namespace FortitudeCommon.Serdes.Binary;
 
 public interface IGrowableUnmanagedBuffer : IFixedByteArrayBuffer, IGrowable<IGrowableUnmanagedBuffer>, IVirtualMemoryAddressRange
 {
-    new long                     Length                      { get; }
-    new long                     DefaultGrowSize             { get; }
-    int                          GrowRemainingBytesThreshold { get; set; }
+    new long Length                      { get; }
+    new long DefaultGrowSize             { get; }
+    int      GrowRemainingBytesThreshold { get; set; }
+
+    new void Flush();
+
     new IGrowableUnmanagedBuffer GrowByDefaultSize();
-    new void                     Flush();
 }
 
 public class GrowableUnmanagedBuffer : FixedByteArrayBuffer, IGrowableUnmanagedBuffer

@@ -18,6 +18,7 @@ using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
 #endregion
 
@@ -28,6 +29,8 @@ public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQ
 {
     private const byte SupportFromVersion = 1;
     private const byte SupportToVersion   = 1;
+
+    private uint incompleteMessageStartSequenceId = 0;
 
     private readonly PQSerializationFlags serializationFlags;
 
@@ -64,15 +67,13 @@ public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQ
 
     public T PublishedQuote { get; protected set; }
 
-    public ISourceTickerInfo     Identifier { get; }
+    public ISourceTickerInfo       Identifier { get; }
     public IPQMessageDeserializer? Previous   { get; set; }
     public IPQMessageDeserializer? Next       { get; set; }
-
 
     public event Action<IPQMessageDeserializer>? ReceivedUpdate;
     public event Action<IPQMessageDeserializer>? SyncOk;
     public event Action<IPQMessageDeserializer>? OutOfSync;
-
 
     public void OnReceivedUpdate(IPQMessageDeserializer quoteDeserializer)
     {
@@ -129,7 +130,7 @@ public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQ
         var fptr   = fixedBuffer.ReadBuffer;
         var offset = readContext.EncodedBuffer!.BufferRelativeReadCursor;
         //Console.Out.WriteLine($"{TimeContext.LocalTimeNow:O} Deserializing {sequenceId} with {length} bytes.");
-        var   storageFlags = StorageFlags.IncludesSequenceId;
+        var   messageFlags = PQMessageFlags.IncludesSequenceId;
         byte  version;
         byte* end;
         uint  msgSize;
@@ -139,9 +140,9 @@ public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQ
 
         if (serializationFlags != PQSerializationFlags.ForSocketPublish)
         {
-            storageFlags = (StorageFlags)(*ptr++);
+            messageFlags = (PQMessageFlags)(*ptr++);
 
-            if ((storageFlags & StorageFlags.ThreeByteMessageSize) == StorageFlags.ThreeByteMessageSize)
+            if ((messageFlags & PQMessageFlags.ThreeByteMessageSize) == PQMessageFlags.ThreeByteMessageSize)
             {
                 uint firstByte = *ptr++;
                 if (BitConverter.IsLittleEndian)
@@ -156,7 +157,7 @@ public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQ
                     msgSize |= StreamByteOps.ToUShort(ref ptr);
                 }
             }
-            else if ((storageFlags & StorageFlags.OneByteMessageSize) > 0)
+            else if ((messageFlags & PQMessageFlags.OneByteMessageSize) > 0)
             {
                 msgSize = *ptr++;
             }
@@ -181,21 +182,22 @@ public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQ
             return (int)msgSize;
         }
 
-        if (serializationFlags == PQSerializationFlags.ForSocketPublish || (storageFlags & StorageFlags.IncludesSequenceId) > 0)
+        if (serializationFlags == PQSerializationFlags.ForSocketPublish || (messageFlags & PQMessageFlags.IncludesSequenceId) > 0)
             sequenceId = StreamByteOps.ToUInt(ref ptr);
         ent.UpdateStarted(sequenceId);
-        if (readContext is SocketBufferReadContext sockBuffContext)
+        if (readContext is SocketBufferReadContext sockBuffContext && serializationFlags == PQSerializationFlags.ForSocketPublish)
         {
             ent.ClientReceivedTime         = sockBuffContext.DetectTimestamp;
             ent.InboundSocketReceivingTime = sockBuffContext.ReceivingTimestamp;
             ent.InboundProcessedTime       = sockBuffContext.DeserializerTime;
         }
-        ent.PQSequenceId = sequenceId;
+        ent.IsCompleteUpdate = !messageFlags.HasIsNotLastMessageOfUpdateFlag();
+        ent.PQSequenceId     = sequenceId;
 
         while (ptr < end)
         {
-            var flags = (PQFieldFlags)(*ptr++);
-            var id    = (PQFeedFields)(*ptr++);
+            var flags     = (PQFieldFlags)(*ptr++);
+            var id        = (PQFeedFields)(*ptr++);
 
             var hasDepth = false;
             var depthKey = PQDepthKey.None;
@@ -238,6 +240,13 @@ public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQ
             // logger.Info("de-{1}-{0}", sequenceId, fieldStringUpdate);
             ent.UpdateFieldString(fieldStringUpdate);
         }
+        if (serializationFlags == PQSerializationFlags.ForSocketPublish)
+        {
+            ent.FeedMarketConnectivityStatus |= messageFlags.HasSnapshotFlag() 
+                ? FeedConnectivityStatusFlags.FromAdapterSnapshot 
+                : FeedConnectivityStatusFlags.None;
+        }
+
         // logger.Info("Deserialized Quote {0}: SequenceId:{1} on Deserializer.InstanceNum {2}",
         //     ent.GetType().Name, ent.PQSequenceId, InstanceNumber);
         return (int)msgSize;
@@ -247,7 +256,20 @@ public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQ
     (FeedSyncStatus syncStatus,
         IPerfLogger? detectionToPublishLatencyTraceLogger = null)
     {
+        if (!PublishedQuote.IsCompleteUpdate)
+        {
+            if (incompleteMessageStartSequenceId == 0)
+            {
+                incompleteMessageStartSequenceId = PublishedQuote.PQSequenceId;
+            }
+            return;
+        }
         if (!Subscribers.Any() && !AllDeserializedNotifiers.Any()) return;
+        var fromSequenceId = !PublishedQuote.FeedMarketConnectivityStatus.HasFromAdapterSnapshot() && incompleteMessageStartSequenceId == 0
+            ? PublishedQuote.PQSequenceId
+            : incompleteMessageStartSequenceId;
+        PublishedQuote.UpdatesAppliedToAllDeltas(fromSequenceId, PublishedQuote.PQSequenceId);
+        incompleteMessageStartSequenceId = 0;
         var tl = PublishPQQuoteDeserializerLatencyTraceLoggerPool.StartNewTrace();
         PublishedQuote.Lock.Acquire();
         try

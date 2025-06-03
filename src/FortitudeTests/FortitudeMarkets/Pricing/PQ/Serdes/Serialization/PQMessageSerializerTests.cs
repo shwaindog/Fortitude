@@ -23,13 +23,14 @@ using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
 #endregion
 
 namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 [TestClass]
-public class PQQuoteSerializerTests
+public class PQMessageSerializerTests
 {
     private const int BufferReadWriteOffset = 5;
 
@@ -53,7 +54,7 @@ public class PQQuoteSerializerTests
 
     private ISourceTickerInfo simpleNoRecentlyTradedInfo         = null!;
     private PQPublishableLevel3Quote     simpleNoRecentlyTradedL3Quote      = null!;
-    private PQQuoteSerializer snapshotQuoteSerializer            = null!;
+    private PQMessageSerializer snapshotMessageSerializer            = null!;
     private ISourceTickerInfo srcNmLstTrdInfo                    = null!;
     private PQPublishableLevel3Quote     srcNmSmplRctlyTrdedL3Quote         = null!;
     private PQPublishableLevel3Quote     srcQtRefPdGvnVlmRcntlyTrdedL3Quote = null!;
@@ -63,7 +64,7 @@ public class PQQuoteSerializerTests
     private ISourceTickerInfo tickInstantInfo                    = null!;
     private ISourceTickerInfo trdrLyrTrdrPdGvnVlmDtlsInfo        = null!;
     private PQPublishableLevel3Quote     trdrPdGvnVlmRcntlyTrdedL3Quote     = null!;
-    private PQQuoteSerializer updateQuoteSerializer              = null!;
+    private PQMessageSerializer updateMessageSerializer              = null!;
     private ISourceTickerInfo valueDateInfo                      = null!;
     private PQPublishableLevel2Quote     valueDateL2Quote                   = null!;
 
@@ -73,8 +74,8 @@ public class PQQuoteSerializerTests
     public void SetUp()
     {
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
-        updateQuoteSerializer         = new PQQuoteSerializer(PQMessageFlags.Update);
-        snapshotQuoteSerializer       = new PQQuoteSerializer(PQMessageFlags.Snapshot);
+        updateMessageSerializer       = new PQMessageSerializer(global::FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.PQMessageFlags.Update);
+        snapshotMessageSerializer     = new PQMessageSerializer(global::FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.PQMessageFlags.Snapshot);
 
         tickInstantInfo =
             new SourceTickerInfo
@@ -212,16 +213,16 @@ public class PQQuoteSerializerTests
         foreach (var pqQuote in differingQuotes)
         {
             var expectedFieldUpdates =
-                pqQuote.GetDeltaUpdateFields(frozenDateTime, StorageFlags.Update).ToList();
+                pqQuote.GetDeltaUpdateFields(frozenDateTime, PQMessageFlags.Update).ToList();
             var expectedStringUpdates =
-                pqQuote.GetStringUpdates(frozenDateTime, StorageFlags.Update).ToList();
+                pqQuote.GetStringUpdates(frozenDateTime, PQMessageFlags.Update).ToList();
 
             // so that adapterSentTime is changed.
             // ReSharper disable once UnusedVariable
-            var ignored = pqQuote.GetDeltaUpdateFields(DateTimeConstants.UnixEpoch, StorageFlags.Update);
+            var ignored = pqQuote.GetDeltaUpdateFields(DateTimeConstants.UnixEpoch, PQMessageFlags.Update);
 
             readWriteBuffer.WriteCursor = BufferReadWriteOffset;
-            var amtWritten = updateQuoteSerializer
+            var amtWritten = updateMessageSerializer
                 .Serialize(readWriteBuffer, pqQuote);
             readWriteBuffer.WriteCursor += amtWritten;
 
@@ -236,16 +237,16 @@ public class PQQuoteSerializerTests
         {
             pqQuote.HasUpdates = false;
             var expectedFieldUpdates =
-                pqQuote.GetDeltaUpdateFields(frozenDateTime, StorageFlags.Snapshot).ToList();
+                pqQuote.GetDeltaUpdateFields(frozenDateTime, PQMessageFlags.Snapshot).ToList();
             var expectedStringUpdates =
-                pqQuote.GetStringUpdates(frozenDateTime, StorageFlags.Snapshot).ToList();
+                pqQuote.GetStringUpdates(frozenDateTime, PQMessageFlags.Snapshot).ToList();
 
             // so that adapterSentTime is changed.
             // ReSharper disable once UnusedVariable
-            var ignored = pqQuote.GetDeltaUpdateFields(DateTimeConstants.UnixEpoch, StorageFlags.Update);
+            var ignored = pqQuote.GetDeltaUpdateFields(DateTimeConstants.UnixEpoch, PQMessageFlags.Update);
 
             readWriteBuffer.WriteCursor = BufferReadWriteOffset;
-            var amtWritten = snapshotQuoteSerializer
+            var amtWritten = snapshotMessageSerializer
                 .Serialize(readWriteBuffer, pqQuote);
             readWriteBuffer.WriteCursor += amtWritten;
 
@@ -262,7 +263,7 @@ public class PQQuoteSerializerTests
             pqQuote.PQSequenceId = 0;
 
             readWriteBuffer.WriteCursor = BufferReadWriteOffset;
-            var amtWritten = updateQuoteSerializer
+            var amtWritten = updateMessageSerializer
                 .Serialize(readWriteBuffer, pqQuote);
             readWriteBuffer.WriteCursor += amtWritten;
 
@@ -333,7 +334,7 @@ public class PQQuoteSerializerTests
         var messageFlags   = *currPtr++;
         var extendedFields = (originalQuote.SourceTickerInfo!.LayerFlags & LayerFlags.ValueDate) > 0;
 
-        Assert.AreEqual((byte)(isSnapshot ? PQMessageFlags.Snapshot : PQMessageFlags.Update), messageFlags);
+        Assert.AreEqual((byte)(isSnapshot ? global::FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.PQMessageFlags.Snapshot : global::FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.PQMessageFlags.Update), messageFlags);
         var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
         Assert.AreEqual(originalQuote.SourceTickerInfo.SourceTickerId, sourceTickerId);
         var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);

@@ -16,6 +16,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
 #endregion
 
@@ -296,7 +297,7 @@ public class PQRecentlyTradedTests
         {
             var pqFieldUpdates =
                 populatedRecentlyTraded.GetDeltaUpdateFields
-                    (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Update).ToList();
+                    (new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Update).ToList();
             AssertContainsAllLevelRecentlyTradedFields(pqFieldUpdates, populatedRecentlyTraded);
         }
     }
@@ -309,7 +310,7 @@ public class PQRecentlyTradedTests
             populatedRecentlyTraded.HasUpdates = false;
             var pqFieldUpdates =
                 populatedRecentlyTraded.GetDeltaUpdateFields
-                    (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
+                    (new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Snapshot).ToList();
             AssertContainsAllLevelRecentlyTradedFields(pqFieldUpdates, populatedRecentlyTraded);
         }
     }
@@ -322,10 +323,10 @@ public class PQRecentlyTradedTests
             populatedRecentlyTraded.HasUpdates = false;
             var pqFieldUpdates =
                 populatedRecentlyTraded.GetDeltaUpdateFields
-                    (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
+                    (new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
             var pqStringUpdates =
                 populatedRecentlyTraded.GetStringUpdates
-                    (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
+                    (new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
             Assert.AreEqual(0, pqFieldUpdates.Count);
             Assert.AreEqual(0, pqStringUpdates.Count);
         }
@@ -339,11 +340,11 @@ public class PQRecentlyTradedTests
             var pqFieldUpdates =
                 populatedRecentlyTraded.GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 13, 33, 3)
-                   , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
+                   , PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
             var pqStringUpdates =
                 populatedRecentlyTraded.GetStringUpdates
                     (new DateTime(2017, 11, 04, 13, 33, 3)
-                   , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
+                   , PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
             var newEmpty = CreateNewEmpty(populatedRecentlyTraded);
             foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
             foreach (var pqStringUpdate in pqStringUpdates) newEmpty.UpdateFieldString(pqStringUpdate);
@@ -887,7 +888,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(halfListSize, toShift.Count);
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -924,7 +925,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(0, toShift.IndexOf(newLastTrade));
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -972,7 +973,7 @@ public class PQRecentlyTradedTests
 
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1010,7 +1011,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(0, toShift.IndexOf(newLastTrade));
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1048,7 +1049,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(toShift.Count - 1, toShift.IndexOf(newLastTrade));
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1117,7 +1118,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(0, toShift.IndexOf(middleElement));
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1167,7 +1168,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(0, toShift.IndexOf(middleElement));
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1216,7 +1217,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(toShift.Count - 1, toShift.IndexOf(middleElement));
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1266,7 +1267,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(toShift.Count - 1, toShift.IndexOf(middleElement));
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1314,7 +1315,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1365,7 +1366,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1413,7 +1414,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1464,7 +1465,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(midIndex + shiftAmount, toShift.IndexOf(middleElement));
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1498,7 +1499,7 @@ public class PQRecentlyTradedTests
         }
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1532,7 +1533,7 @@ public class PQRecentlyTradedTests
         }
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1566,7 +1567,7 @@ public class PQRecentlyTradedTests
         }
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1600,7 +1601,7 @@ public class PQRecentlyTradedTests
         }
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1635,7 +1636,7 @@ public class PQRecentlyTradedTests
         }
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1671,7 +1672,7 @@ public class PQRecentlyTradedTests
         }
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1706,7 +1707,7 @@ public class PQRecentlyTradedTests
         }
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1742,7 +1743,7 @@ public class PQRecentlyTradedTests
         }
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1772,7 +1773,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(halfListSize, toShift.Count);
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1804,7 +1805,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated.Count, toShift.Count + halfListSize);
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1839,7 +1840,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated.Count, toShift.Count - halfListSize);
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }
@@ -1875,7 +1876,7 @@ public class PQRecentlyTradedTests
         Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated.Count, toShift.Count);
 
         var shiftViaDeltaUpdates = fullSupportRecentlyTradedFullyPopulated.Clone();
-        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, StorageFlags.Update, forGetDeltaUpdates))
+        foreach (var deltaUpdateField in toShift.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update, forGetDeltaUpdates))
         {
             shiftViaDeltaUpdates.UpdateField(deltaUpdateField);
         }

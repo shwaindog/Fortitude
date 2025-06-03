@@ -11,7 +11,7 @@ using FortitudeCommon.Monitoring.Logging;
 
 namespace FortitudeCommon.Serdes.Binary;
 
-public interface IMemoryMappedFileBuffer : IBuffer, IGrowable<IBuffer>
+public interface IMemoryMappedFileBuffer : IMessageQueueBuffer, IGrowable<IBuffer>
 {
     void SetFileWriterAt(ShiftableMemoryMappedFileView fileShiftableView, long fileCursorOffset);
     void ClearFileView();
@@ -31,6 +31,8 @@ public class MemoryMappedFileBuffer : IMemoryMappedFileBuffer
     private nint originalBufferRelativeWriteCursor;
     private long readCursor;
     private long writeCursor;
+
+    private List<MessageBufferEntry> messageQueue = new();
 
     public MemoryMappedFileBuffer(ShiftableMemoryMappedFileView fileShiftableView, bool shouldCloseView = true)
     {
@@ -270,6 +272,24 @@ public class MemoryMappedFileBuffer : IMemoryMappedFileBuffer
     public void ClearFileView()
     {
         mappedFileShiftableView = null;
+    }
+
+    public bool EnforceCappedMessageSize { get; set; }
+
+    public long MaximumMessageSize { get; set; }
+
+    public bool HasAnotherMessage => messageQueue.Count > 0;
+
+    public MessageBufferEntry PopNextMessage()
+    {
+        var next = messageQueue[0];
+        messageQueue.RemoveAt(0);
+        return next;
+    }
+
+    public void QueueMessage(MessageBufferEntry messageEntry)
+    {
+        messageQueue.Add(messageEntry);
     }
 
     ~MemoryMappedFileBuffer()

@@ -25,6 +25,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using Moq;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.PQMessageFlags;
 
 #endregion
 
@@ -299,7 +300,7 @@ public class PQMessageDeserializerBaseTests
           , PQSequenceId                 = expectedSequenceId
         };
 
-        var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
+        var quoteSerializer = new PQMessageSerializer(PQMessageFlags.Snapshot);
         var amountWritten   = quoteSerializer.Serialize(readWriteBuffer, expectedTickInstant);
         socketBufferReadContext.MessageHeader              = new MessageHeader(1, 0, 0, (uint)amountWritten);
         socketBufferReadContext.EncodedBuffer!.WriteCursor = BufferReadWriteOffset + amountWritten;
@@ -332,7 +333,7 @@ public class PQMessageDeserializerBaseTests
           , AdapterSentTime              = new DateTime(2017, 07, 01, 19, 27, 39), BidPriceTop = 0.79324m, AskPriceTop = 0.79326m
         };
 
-        var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
+        var quoteSerializer = new PQMessageSerializer(PQMessageFlags.Snapshot);
         var amountWritten   = quoteSerializer.Serialize(readWriteBuffer, expectedL1Quote);
         socketBufferReadContext.MessageHeader              = new MessageHeader(1, 0, 0, (uint)amountWritten);
         socketBufferReadContext.EncodedBuffer!.WriteCursor = BufferReadWriteOffset + amountWritten;
@@ -370,7 +371,7 @@ public class PQMessageDeserializerBaseTests
             askBookLayer.Volume = 30000 + 10000 * i;
         }
 
-        var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
+        var quoteSerializer = new PQMessageSerializer(PQMessageFlags.Snapshot);
         var amountWritten   = quoteSerializer.Serialize(readWriteBuffer, expectedL2Quote);
         socketBufferReadContext.MessageHeader              = new MessageHeader(1, 0, 0, (uint)amountWritten);
         socketBufferReadContext.EncodedBuffer!.WriteCursor = BufferReadWriteOffset + amountWritten;
@@ -417,7 +418,7 @@ public class PQMessageDeserializerBaseTests
                 lastTradeInfo.ExternalTraderName  = "NewTraderName " + i;
             }
 
-        var quoteSerializer = new PQQuoteSerializer(PQMessageFlags.Snapshot);
+        var quoteSerializer = new PQMessageSerializer(PQMessageFlags.Snapshot);
         var amountWritten   = quoteSerializer.Serialize(readWriteBuffer, expectedL3Quote);
         socketBufferReadContext.MessageHeader              = new MessageHeader(1, 0, 0, (uint)amountWritten);
         socketBufferReadContext.EncodedBuffer!.WriteCursor = BufferReadWriteOffset + amountWritten;
@@ -676,6 +677,7 @@ public class PQMessageDeserializerBaseTests
 
         public void InvokePushQuoteToSubscribers(FeedSyncStatus syncStatus, IPerfLogger? detectionToPublishLatencyTraceLogger = null)
         {
+            PublishedQuote.IsCompleteUpdate = true;
             PushQuoteToSubscribers(syncStatus, detectionToPublishLatencyTraceLogger);
         }
 

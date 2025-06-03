@@ -13,6 +13,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
+using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
 #endregion
 
@@ -285,7 +286,7 @@ public class PQOnTickLastTradedTests
         {
             var pqFieldUpdates =
                 populatedOnTickLastTraded.GetDeltaUpdateFields
-                    (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Update).ToList();
+                    (new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Update).ToList();
             AssertContainsAllLevelOnTickLastTradedFields(pqFieldUpdates, populatedOnTickLastTraded);
         }
     }
@@ -298,7 +299,7 @@ public class PQOnTickLastTradedTests
             populatedOnTickLastTraded.HasUpdates = false;
             var pqFieldUpdates =
                 populatedOnTickLastTraded.GetDeltaUpdateFields
-                    (new DateTime(2017, 11, 04, 12, 33, 1), StorageFlags.Snapshot).ToList();
+                    (new DateTime(2017, 11, 04, 12, 33, 1), PQMessageFlags.Snapshot).ToList();
             AssertContainsAllLevelOnTickLastTradedFields(pqFieldUpdates, populatedOnTickLastTraded);
         }
     }
@@ -311,10 +312,10 @@ public class PQOnTickLastTradedTests
             populatedOnTickLastTraded.HasUpdates = false;
             var pqFieldUpdates =
                 populatedOnTickLastTraded.GetDeltaUpdateFields
-                    (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
+                    (new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
             var pqStringUpdates =
                 populatedOnTickLastTraded.GetStringUpdates
-                    (new DateTime(2017, 11, 04, 16, 33, 59), StorageFlags.Update).ToList();
+                    (new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
             Assert.AreEqual(0, pqFieldUpdates.Count);
             Assert.AreEqual(0, pqStringUpdates.Count);
         }
@@ -329,11 +330,11 @@ public class PQOnTickLastTradedTests
             var pqFieldUpdates =
                 populatedOnTickLastTraded.GetDeltaUpdateFields
                     (new DateTime(2017, 11, 04, 13, 33, 3)
-                   , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
+                   , PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
             var pqStringUpdates =
                 populatedOnTickLastTraded.GetStringUpdates
                     (new DateTime(2017, 11, 04, 13, 33, 3)
-                   , StorageFlags.Update | StorageFlags.IncludeReceiverTimes).ToList();
+                   , PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
             var newEmpty = CreateNewEmpty(populatedOnTickLastTraded);
             foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
             foreach (var pqStringUpdate in pqStringUpdates) newEmpty.UpdateFieldString(pqStringUpdate);

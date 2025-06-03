@@ -20,12 +20,12 @@ public class PQStorageCandleSerializer : ISerializer<IPQStorageCandle>
     private const byte Lowest7BitsInByteMask = 0x7F;
     private const byte HighestBitInByteMask  = 0x80;
 
-    private readonly StorageFlags serializationFlags;
+    private readonly PQMessageFlags serializationFlags;
 
     // ReSharper disable once UnusedMember.Local
     private IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQStorageCandleSerializer));
 
-    public PQStorageCandleSerializer(StorageFlags serializationFlags) => this.serializationFlags = serializationFlags;
+    public PQStorageCandleSerializer(PQMessageFlags serializationFlags) => this.serializationFlags = serializationFlags;
 
     public MarshalType MarshalType => MarshalType.Binary;
 
@@ -50,7 +50,7 @@ public class PQStorageCandleSerializer : ISerializer<IPQStorageCandle>
     public unsafe int Serialize(IBuffer buffer, IPQStorageCandle pqStorageCandle)
     {
         var resolvedFlags = serializationFlags;
-        var publishAll = (resolvedFlags & StorageFlags.Complete) > 0
+        var publishAll = (resolvedFlags & PQMessageFlags.Complete) > 0
                       || pqStorageCandle.CandleStorageFlags.HasSnapshotFlag();
 
         using var fixedBuffer = buffer;

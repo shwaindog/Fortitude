@@ -330,10 +330,10 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
     }
 
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags messageFlags,
+    (DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & StorageFlags.Complete) == 0;
+        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
         if (!updatedOnly || IsExternalCounterPartyIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderExternalCounterPartyId
                                          , (uint)ExternalCounterPartyId);
@@ -406,7 +406,7 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
         return NameIdLookup.UpdateFieldString(stringUpdate);
     }
 
-    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
+    public IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags)
     {
         foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate;
     }

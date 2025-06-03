@@ -281,7 +281,7 @@ public class PQRecentlyTradedHistory : ReusableObject<IRecentlyTradedHistory>, I
 
 
     public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-        (DateTime snapShotTime, StorageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
+        (DateTime snapShotTime, PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         foreach (var onTickLastTraded in OnTickLastTraded.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSettings))
         {
@@ -319,7 +319,7 @@ public class PQRecentlyTradedHistory : ReusableObject<IRecentlyTradedHistory>, I
         return -1;
     }
 
-    public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
+    public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags)
     {
         return NameIdLookup.GetStringUpdates(snapShotTime, messageFlags);
     }

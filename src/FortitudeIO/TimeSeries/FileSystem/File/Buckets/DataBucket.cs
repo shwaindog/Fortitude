@@ -28,15 +28,15 @@ public struct DataBucketHeader
 
 public interface IDataBucket : IBucket
 {
-    bool    IsDataCompressed { get; }
-    ulong   ExpandedDataSize { get; }
-    IBuffer ResolveDataReader(long? atFileCursorOffset = null);
+    bool                IsDataCompressed { get; }
+    ulong               ExpandedDataSize { get; }
+    IMessageQueueBuffer ResolveDataReader(long? atFileCursorOffset = null);
 }
 
 public interface IDataBucket<TEntry> : IDataBucket
     where TEntry : ITimeSeriesEntry
 {
-    IEnumerable<TEntry> ReadEntries(IBuffer readBuffer, IReaderContext<TEntry> readerContext);
+    IEnumerable<TEntry> ReadEntries(IMessageQueueBuffer readBuffer, IReaderContext<TEntry> readerContext);
 }
 
 public interface IMutableDataBucket<TEntry> : IBucket<TEntry>, IMutableBucket where TEntry : ITimeSeriesEntry
@@ -151,9 +151,9 @@ public abstract unsafe class DataBucket<TEntry, TBucket> : BucketBase<TEntry, TB
         }
     }
 
-    public abstract IEnumerable<TEntry> ReadEntries(IBuffer readBuffer, IReaderContext<TEntry> readerContext);
+    public abstract IEnumerable<TEntry> ReadEntries(IMessageQueueBuffer readBuffer, IReaderContext<TEntry> readerContext);
 
-    public IBuffer ResolveDataReader(long? atFileCursorOffset = null)
+    public IMessageQueueBuffer ResolveDataReader(long? atFileCursorOffset = null)
     {
         if (readerBuffer != null)
         {
@@ -324,7 +324,7 @@ public class ProxyDataBucket<TEntry, TBucket> : DataBucket<TEntry, TBucket>, IDa
 
     public override TimeBoundaryPeriod TimeBoundaryPeriod => TimeBoundaryPeriod.Tick;
 
-    public override IEnumerable<TEntry> ReadEntries(IBuffer readBuffer, IReaderContext<TEntry> readerContext) =>
+    public override IEnumerable<TEntry> ReadEntries(IMessageQueueBuffer readBuffer, IReaderContext<TEntry> readerContext) =>
         // should never be called;
         Enumerable.Empty<TEntry>();
 
@@ -357,7 +357,7 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : IndexedBucket<
         set => dualMappedBucket!.ExpandedDataSize = value;
     }
 
-    public IBuffer ResolveDataReader(long? atFileCursorOffset = null) => dualMappedBucket!.ResolveDataReader(atFileCursorOffset);
+    public IMessageQueueBuffer ResolveDataReader(long? atFileCursorOffset = null) => dualMappedBucket!.ResolveDataReader(atFileCursorOffset);
 
     public override IBucket OpenBucket(ShiftableMemoryMappedFileView? alternativeHeaderAndDataFileView = null, bool asWritable = false)
     {
@@ -392,7 +392,7 @@ public abstract unsafe class IndexedDataBucket<TEntry, TBucket> : IndexedBucket<
         return Enumerable.Empty<TEntry>();
     }
 
-    public abstract IEnumerable<TEntry> ReadEntries(IBuffer buffer, IReaderContext<TEntry> readerContext);
+    public abstract IEnumerable<TEntry> ReadEntries(IMessageQueueBuffer buffer, IReaderContext<TEntry> readerContext);
 
     public override AppendResult AppendEntry(IAppendContext<TEntry> entryContext)
     {

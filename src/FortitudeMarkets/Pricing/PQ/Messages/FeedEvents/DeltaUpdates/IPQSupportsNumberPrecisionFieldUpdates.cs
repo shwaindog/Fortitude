@@ -14,7 +14,7 @@ public interface IPQSupportsFieldUpdates<T> : ITracksChanges<T> where T : class
 {
     int UpdateField(PQFieldUpdate fieldUpdate);
 
-    IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, StorageFlags messageFlags);
+    IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags);
 }
 
 public interface IPQSupportsNumberPrecisionFieldUpdates<T> : ITracksChanges<T> where T : class
@@ -22,6 +22,6 @@ public interface IPQSupportsNumberPrecisionFieldUpdates<T> : ITracksChanges<T> w
     int UpdateField(PQFieldUpdate fieldUpdate);
 
     IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, StorageFlags messageFlags,
+    (DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null);
 }

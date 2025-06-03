@@ -19,14 +19,17 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 public interface IPQSourceTickerId : ISourceTickerId
   , IHasNameIdLookup, IPQSupportsNumberPrecisionFieldUpdates<IPQSourceTickerId>, IPQSupportsStringUpdates<IPQSourceTickerId>
 {
-    new ushort SourceId       { get; set; }
-    new ushort InstrumentId   { get; set; }
-    new string SourceName     { get; set; }
-    new string InstrumentName { get; set; }
+    new ushort SourceId     { get; set; }
+    new ushort InstrumentId { get; set; }
 
-    bool IsIdUpdated     { get; set; }
-    bool IsSourceUpdated { get; set; }
-    bool IsTickerUpdated { get; set; }
+    int        SourceNameId     { get; set; }
+    new string SourceName       { get; set; }
+    int        InstrumentNameId { get; set; }
+    new string InstrumentName   { get; set; }
+
+    bool IsIdUpdated             { get; set; }
+    bool IsSourceNameUpdated     { get; set; }
+    bool IsInstrumentNameUpdated { get; set; }
 
     new IPQNameIdLookupGenerator NameIdLookup { get; set; }
 
@@ -38,9 +41,10 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
     protected uint SequenceId = uint.MaxValue;
 
     private ushort sourceId;
-    private string sourceName = "";
-    private string ticker     = "";
     private ushort tickerId;
+
+    private int sourceNameId;
+    private int instrumentNameId;
 
     protected SourceTickerInfoUpdatedFlags UpdatedFlags;
 
@@ -67,9 +71,9 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         InstrumentName = toClone.InstrumentName;
         if (toClone is IPQSourceTickerId pqSourceTickerId)
         {
-            IsIdUpdated     = pqSourceTickerId.IsIdUpdated;
-            IsSourceUpdated = pqSourceTickerId.IsSourceUpdated;
-            IsTickerUpdated = pqSourceTickerId.IsTickerUpdated;
+            IsIdUpdated             = pqSourceTickerId.IsIdUpdated;
+            IsSourceNameUpdated     = pqSourceTickerId.IsSourceNameUpdated;
+            IsInstrumentNameUpdated = pqSourceTickerId.IsInstrumentNameUpdated;
         }
 
         if (GetType() == typeof(PQSourceTickerId)) SequenceId = 0;
@@ -96,6 +100,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
     }
 
     public uint SourceTickerId => ((uint)SourceId << 16) | InstrumentId;
+
     public ushort SourceId
     {
         get => sourceId;
@@ -116,23 +121,47 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         }
     }
 
-    public string SourceName
+    public int SourceNameId
     {
-        get => sourceName;
+        get => sourceNameId;
         set
         {
-            IsSourceUpdated |= sourceName != value || SequenceId == 0;
-            sourceName      =  value;
+            IsSourceNameUpdated |= sourceNameId != value || SequenceId == 0;
+            sourceNameId        =  value;
+        }
+    }
+
+    public string SourceName
+    {
+        get => NameIdLookup[sourceNameId]!;
+        set
+        {
+            if (value == NameIdLookup[sourceNameId]) return;
+
+            var nameId = value.IsNullOrEmpty() ? 0 : NameIdLookup.GetOrAddId(value);
+            SourceNameId = nameId;
+        }
+    }
+
+    public int InstrumentNameId
+    {
+        get => instrumentNameId;
+        set
+        {
+            IsInstrumentNameUpdated |= instrumentNameId != value || SequenceId == 0;
+            instrumentNameId        =  value;
         }
     }
 
     public string InstrumentName
     {
-        get => ticker;
+        get => NameIdLookup[instrumentNameId]!;
         set
         {
-            IsTickerUpdated |= ticker != value || SequenceId == 0;
-            ticker          =  value;
+            if (value == NameIdLookup[instrumentNameId]) return;
+            
+            var nameId = value.IsNullOrEmpty() ? 0 : NameIdLookup.GetOrAddId(value);
+            InstrumentNameId = nameId;
         }
     }
 
@@ -148,7 +177,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         }
     }
 
-    public bool IsSourceUpdated
+    public bool IsSourceNameUpdated
     {
         get => (UpdatedFlags & SourceTickerInfoUpdatedFlags.SourceName) > 0;
         set
@@ -156,31 +185,35 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
             if (value)
                 UpdatedFlags |= SourceTickerInfoUpdatedFlags.SourceName;
 
-            else if (IsSourceUpdated) UpdatedFlags ^= SourceTickerInfoUpdatedFlags.SourceName;
+            else if (IsSourceNameUpdated) UpdatedFlags ^= SourceTickerInfoUpdatedFlags.SourceName;
         }
     }
 
-    public bool IsTickerUpdated
+    public bool IsInstrumentNameUpdated
     {
-        get => (UpdatedFlags & SourceTickerInfoUpdatedFlags.TickerName) > 0;
+        get => (UpdatedFlags & SourceTickerInfoUpdatedFlags.InstrumentName) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= SourceTickerInfoUpdatedFlags.TickerName;
+                UpdatedFlags |= SourceTickerInfoUpdatedFlags.InstrumentName;
 
-            else if (IsTickerUpdated) UpdatedFlags ^= SourceTickerInfoUpdatedFlags.TickerName;
+            else if (IsInstrumentNameUpdated) UpdatedFlags ^= SourceTickerInfoUpdatedFlags.InstrumentName;
         }
     }
 
     public virtual bool HasUpdates
     {
-        get => UpdatedFlags > 0;
-        set => UpdatedFlags = value ? UpdatedFlags.AllFlags() : SourceTickerInfoUpdatedFlags.None;
+        get => UpdatedFlags != SourceTickerInfoUpdatedFlags.None;
+        set
+        {
+            NameIdLookup.HasUpdates = value;
+            UpdatedFlags            = value ? UpdatedFlags.AllFlags() : SourceTickerInfoUpdatedFlags.None;
+        }
     }
 
     public IPQNameIdLookupGenerator NameIdLookup { get; set; } = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerNames);
 
-    INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
+    INameIdLookup IHasNameIdLookup.NameIdLookup => NameIdLookup;
 
     public uint UpdateSequenceId => SequenceId;
 
@@ -200,10 +233,11 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
 
     public override void StateReset()
     {
-        sourceId   = 0;
-        tickerId   = 0;
-        ticker     = "";
-        sourceName = "";
+        sourceId = 0;
+        tickerId = 0;
+
+        sourceNameId     = 0;
+        instrumentNameId = 0;
 
         SequenceId   = 0;
         UpdatedFlags = SourceTickerInfoUpdatedFlags.None;
@@ -211,49 +245,26 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
     }
 
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-        (DateTime snapShotTime, StorageFlags updateStyle, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
+        (DateTime snapShotTime, PQMessageFlags updateStyle, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
-        var updatedOnly = (updateStyle & StorageFlags.Complete) == 0;
+        var updatedOnly = (updateStyle & PQMessageFlags.Complete) == 0;
 
         if (!updatedOnly || IsIdUpdated) yield return new PQFieldUpdate(PQFeedFields.SourceTickerId, SourceTickerId);
+
+        if (!updatedOnly || IsSourceNameUpdated) yield return new PQFieldUpdate(PQFeedFields.SourceNameId, SourceNameId);
+
+        if (!updatedOnly || IsInstrumentNameUpdated) yield return new PQFieldUpdate(PQFeedFields.InstrumentNameId, InstrumentNameId);
     }
 
-    public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, StorageFlags messageFlags)
+    public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags)
     {
-        var isUpdateOnly = (messageFlags & StorageFlags.Complete) == 0;
-        if (!isUpdateOnly || IsSourceUpdated)
-            yield return new PQFieldStringUpdate
-            {
-                Field = new PQFieldUpdate(PQFeedFields.SourceTickerNames, CrudCommand.Upsert.ToPQSubFieldId(), 0), StringUpdate
-                    = new PQStringUpdate
-                    {
-                        DictionaryId = 0, Value = SourceName, Command = CrudCommand.Upsert
-                    }
-            };
-        if (!isUpdateOnly || IsTickerUpdated)
-            yield return new PQFieldStringUpdate
-            {
-                Field = new PQFieldUpdate(PQFeedFields.SourceTickerNames, CrudCommand.Upsert.ToPQSubFieldId(), 0), StringUpdate
-                    = new PQStringUpdate
-                    {
-                        DictionaryId = 1, Value = InstrumentName, Command = CrudCommand.Upsert
-                    }
-            };
+        return NameIdLookup.GetStringUpdates(snapShotTime, messageFlags);
     }
 
-    public bool UpdateFieldString(PQFieldStringUpdate updates)
+    public bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
     {
-        if (updates.Field.Id == PQFeedFields.SourceTickerNames)
-        {
-            var stringUpdt = updates.StringUpdate;
-            var upsert     = stringUpdt.Command == CrudCommand.Upsert;
-
-            if (stringUpdt.DictionaryId == 0 && upsert) SourceName     = updates.StringUpdate.Value;
-            if (stringUpdt.DictionaryId == 1 && upsert) InstrumentName = updates.StringUpdate.Value;
-            return true;
-        }
-
-        return false;
+        if (stringUpdate.Field.Id != PQFeedFields.SourceTickerNames) return false;
+        return NameIdLookup.UpdateFieldString(stringUpdate);
     }
 
     public virtual int UpdateField(PQFieldUpdate fieldUpdate)
@@ -264,20 +275,47 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
                 SourceId     = (ushort)(fieldUpdate.Payload >> 16);
                 InstrumentId = (ushort)(fieldUpdate.Payload & 0xFFFF);
                 return 0;
-            case PQFeedFields.SourceTickerNames: return (int)fieldUpdate.Payload;
+            case PQFeedFields.SourceTickerNames:
+                return NameIdLookup.VerifyDictionaryAndExtractSize(fieldUpdate);
+            case PQFeedFields.SourceNameId: 
+                SourceNameId = (int)fieldUpdate.Payload;
+                return 0;
+            case PQFeedFields.InstrumentNameId: 
+                InstrumentNameId = (int)fieldUpdate.Payload;
+                return 0;
         }
         return -1;
     }
 
     public override PQSourceTickerId CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        if (source is IPQSourceTickerInfo pqSrcTkrInfo)
+        if (source is IPQSourceTickerId pqSrcTkrId)
         {
-            if (copyMergeFlags == CopyMergeFlags.JustDifferences)
+            var isFullReplace = copyMergeFlags.HasFullReplace();
+
+            NameIdLookup.CopyFrom(pqSrcTkrId.NameIdLookup, copyMergeFlags);
+
+            if (pqSrcTkrId.IsIdUpdated || isFullReplace)
             {
-                if (pqSrcTkrInfo.IsSourceUpdated) SourceName     = source.SourceName;
-                if (pqSrcTkrInfo.IsTickerUpdated) InstrumentName = source.InstrumentName;
+                IsIdUpdated  = true;
+
+                SourceId     = source.SourceId;
+                InstrumentId = source.InstrumentId;
             }
+            if (pqSrcTkrId.IsSourceNameUpdated || isFullReplace)
+            {
+                IsSourceNameUpdated = true;
+
+                SourceNameId         = pqSrcTkrId.SourceNameId;
+            }
+            if (pqSrcTkrId.IsInstrumentNameUpdated || isFullReplace)
+            {
+                IsInstrumentNameUpdated = true;
+
+                InstrumentNameId = pqSrcTkrId.InstrumentNameId;
+            }
+
+            if(isFullReplace) SetFlagsSame(pqSrcTkrId);
         }
         else
         {
@@ -293,33 +331,18 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
 
 
     ISourceTickerId ICloneable<ISourceTickerId>.Clone() => Clone();
-    
+
     IReusableObject<ISourceTickerId> ITransferState<IReusableObject<ISourceTickerId>>.CopyFrom
         (IReusableObject<ISourceTickerId> source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((ISourceTickerId)source, copyMergeFlags);
 
-    public IPQSourceTickerId CopyFrom(IPQSourceTickerId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => 
+    public IPQSourceTickerId CopyFrom(IPQSourceTickerId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CopyFrom((ISourceTickerId)source, copyMergeFlags);
 
-    ISourceTickerId ITransferState<ISourceTickerId>.CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags)
-    {
-        if (source is IPQSourceTickerId pqSrcTkrId && copyMergeFlags == CopyMergeFlags.JustDifferences)
-        {
-            if (pqSrcTkrId.IsSourceUpdated) SourceName     = pqSrcTkrId.SourceName;
-            if (pqSrcTkrId.IsTickerUpdated) InstrumentName = pqSrcTkrId.InstrumentName;
-        }
-        else
-        {
-            SourceId       = source.SourceId;
-            SourceName     = source.SourceName;
-            InstrumentId   = source.InstrumentId;
-            InstrumentName = source.InstrumentName;
-        }
+    ISourceTickerId ITransferState<ISourceTickerId>.CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags) => 
+        CopyFrom(source, copyMergeFlags);
 
-        return this;
-    }
-
-    public virtual bool AreEquivalent(ISourceTickerInfo? other, bool exactTypes = false)
+    public virtual bool AreEquivalent(ISourceTickerId? other, bool exactTypes = false)
     {
         if (other == null) return false;
 
@@ -336,12 +359,17 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         {
             var pqSrcTkrId = other as IPQSourceTickerId;
             idUpdateSame     = IsIdUpdated == pqSrcTkrId?.IsIdUpdated;
-            sourceUpdateSame = IsSourceUpdated == pqSrcTkrId?.IsSourceUpdated;
-            tickerUpdateSame = IsTickerUpdated == pqSrcTkrId?.IsTickerUpdated;
+            sourceUpdateSame = IsSourceNameUpdated == pqSrcTkrId?.IsSourceNameUpdated;
+            tickerUpdateSame = IsInstrumentNameUpdated == pqSrcTkrId?.IsInstrumentNameUpdated;
         }
 
         var allAreSame = sourceIdSame && tickerIdSame && sourceNameSame && tickerNameSame && idUpdateSame && sourceUpdateSame && tickerUpdateSame;
         return allAreSame;
+    }
+
+    protected void SetFlagsSame(ISourceTickerId toSetSame)
+    {
+        if (toSetSame is PQSourceTickerId pqSourceTickerId) UpdatedFlags = pqSourceTickerId.UpdatedFlags;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((ISourceTickerInfo?)obj, true);
@@ -359,5 +387,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
     }
 
     public override string ToString() =>
-        $"{nameof(PQSourceTickerId)}({nameof(SourceId)}: {SourceId}, {nameof(SourceName)}: {SourceName}, {nameof(InstrumentId)}: {InstrumentId})";
+        $"{nameof(PQSourceTickerId)}({nameof(SourceId)}: {SourceId}, {nameof(SourceName)}: {SourceName}, " +
+        $"{nameof(SourceNameId)}: {SourceNameId}, {nameof(InstrumentId)}: {InstrumentId} {nameof(InstrumentName)}: {InstrumentName}, " +
+        $"{nameof(InstrumentNameId)}: {InstrumentNameId})";
 }
