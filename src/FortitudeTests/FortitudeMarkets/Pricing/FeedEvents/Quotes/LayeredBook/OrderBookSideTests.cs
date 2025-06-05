@@ -568,7 +568,7 @@ public class OrderBookSideTests
             Assert.IsTrue(toString.Contains($"{nameof(q.Count)}: {q.Count}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.LayerSupportedFlags)}: {q.LayerSupportedFlags}"));
             Assert.IsTrue(toString.Contains($"{nameof(q.OpenInterestSide)}: {q.OpenInterestSide}"));
-            Assert.IsTrue(toString.Contains($"AllLayers: [{string.Join(", ", ((IEnumerable<IMutablePriceVolumeLayer>)q))}]"));
+            Assert.IsTrue(toString.Contains($"{nameof(q.AllLayers)}: [\n{q.EachLayerByIndexOnNewLines()}]"));
         }
     }
 

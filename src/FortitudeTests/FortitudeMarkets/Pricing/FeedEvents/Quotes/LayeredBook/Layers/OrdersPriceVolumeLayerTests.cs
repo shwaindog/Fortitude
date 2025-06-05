@@ -549,14 +549,14 @@ public class OrdersPriceVolumeLayerTests
     {
         var toString = populatedCounterPartyOrdersPvl.ToString();
 
-        Assert.IsTrue(toString.Contains(populatedCounterPartyOrdersPvl.GetType().Name));
-        Assert.IsTrue(toString.Contains($"{nameof(populatedCounterPartyOrdersPvl.Price)}: {populatedCounterPartyOrdersPvl.Price:N5}"));
-        Assert.IsTrue(toString.Contains($"{nameof(populatedCounterPartyOrdersPvl.Volume)}: {populatedCounterPartyOrdersPvl.Volume:N2}"));
-        Assert.IsTrue(toString.Contains($"{nameof(populatedCounterPartyOrdersPvl.OrdersCount)}: {populatedCounterPartyOrdersPvl.OrdersCount}"));
-        Assert.IsTrue(toString.Contains($"{nameof(populatedCounterPartyOrdersPvl.InternalVolume)}: {populatedCounterPartyOrdersPvl.InternalVolume:N2}"));
-        Assert.IsTrue(toString.Contains("Orders: ["));
-        for (var i = 0; i < populatedCounterPartyOrdersPvl.OrdersCount; i++)
-            Assert.IsTrue(toString.Contains(populatedCounterPartyOrdersPvl[i].ToString()!));
+        var opvl = populatedCounterPartyOrdersPvl;
+
+        Assert.IsTrue(toString.Contains(opvl.GetType().Name));
+        Assert.IsTrue(toString.Contains($"{nameof(opvl.Price)}: {opvl.Price:N5}"));
+        Assert.IsTrue(toString.Contains($"{nameof(opvl.Volume)}: {opvl.Volume:N2}"));
+        Assert.IsTrue(toString.Contains($"{nameof(opvl.OrdersCount)}: {opvl.OrdersCount}"));
+        Assert.IsTrue(toString.Contains($"{nameof(opvl.InternalVolume)}: {opvl.InternalVolume:N2}"));
+        Assert.IsTrue(toString.Contains($"{nameof(opvl.Orders)}: [\n{opvl.EachOrderByIndexOnNewLines()}]"));
     }
 
     [TestMethod]

@@ -6,7 +6,7 @@ using static FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates.ListShiftCommandTy
 namespace FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 
 public class TracksListReorderingRegistry<TElement, TCompare>
-    (IMutableTracksShiftsList<TElement, TCompare> shiftedList, Func<TElement> newElementFactory, Func<TCompare, TCompare, bool> comparison) 
+    (IMutableTracksShiftsList<TElement, TCompare> shiftedList, Func<TElement> newElementFactory, Func<TCompare, TCompare, bool> comparison)
     : TrackListShiftsRegistry<TElement, TCompare>(shiftedList, newElementFactory, comparison), IMutableTracksReorderingList<TElement, TCompare>
     where TElement : class, TCompare, ITrackableReset<TElement>, IReusableObject<TElement>, IShowsEmpty
 {
@@ -50,12 +50,12 @@ public class TracksListReorderingRegistry<TElement, TCompare>
         return RegisteredShiftCommands.LastShift();
     }
 
-    private readonly List<(short From, short To)> exitingMoves = new ();
+    private readonly List<(short From, short To)> exitingMoves = new();
 
     public override bool CalculateShift(DateTime asAtTime, IReadOnlyList<TCompare> updatedCollection)
     {
         UpdateTime = asAtTime;
-        
+
         var wasRecalculated = base.CalculateShift(asAtTime, updatedCollection);
         if (!wasRecalculated)
         {
@@ -74,10 +74,10 @@ public class TracksListReorderingRegistry<TElement, TCompare>
 
                 for (var j = updatedCollection.Count - 1; j >= 0; j--)
                 {
-                    var updateItem        = updatedCollection[j];
+                    var updateItem = updatedCollection[j];
                     var finalShiftApplied = CandidateRightShiftFirstCommands
-                                            .Where(lsc => lsc.FromIndex < i 
-                                                        && lsc.ShiftCommandType == ShiftAllElementsAwayFromPinnedIndex)
+                                            .Where(lsc => lsc.FromIndex < i
+                                                       && lsc.ShiftCommandType == ShiftAllElementsAwayFromPinnedIndex)
                                             .Sum(lsc => lsc.Shift);
 
                     if (Comparison(prevItem, updateItem) && (i + finalShiftApplied) != j)
@@ -92,14 +92,17 @@ public class TracksListReorderingRegistry<TElement, TCompare>
                                         .Count(pi => pi.From > updatedOrigin && pi.To <= i) -
                             exitingMoves.TakeWhile(pi => (foundMoveOriginal |= pi.To != i) && pi.To != i)
                                         .Count(pi => pi.From <= updatedOrigin && pi.To > i);
-                        CandidateRightShiftFirstCommands.AppendSwapMoveSingleElement((short)(updatedOrigin + hasLowerIndexInserts), (short)j);
-                        exitingMoves.Add((From: (short)(updatedOrigin + hasLowerIndexInserts), To: (short)j));
+                        if (updatedOrigin + hasLowerIndexInserts != j)
+                        {
+                            CandidateRightShiftFirstCommands.AppendSwapMoveSingleElement((short)(updatedOrigin + hasLowerIndexInserts), (short)j);
+                            exitingMoves.Add((From: (short)(updatedOrigin + hasLowerIndexInserts), To: (short)j));
+                        }
                         break;
                     }
                 }
             }
         }
-        
+
         exitingMoves.Clear();
         var shiftLeftSingleElementMoves = 0;
         var shiftLeftCommandCount       = CandidateLeftShiftFirstCommands.Count;
@@ -111,9 +114,9 @@ public class TracksListReorderingRegistry<TElement, TCompare>
 
                 for (var j = 0; j < updatedCollection.Count; j++)
                 {
-                    var updateItem        = updatedCollection[j];
+                    var updateItem = updatedCollection[j];
                     var finalShiftApplied = CandidateLeftShiftFirstCommands
-                                            .Where(lsc => lsc.FromIndex < j 
+                                            .Where(lsc => lsc.FromIndex < j
                                                        && lsc.ShiftCommandType == ShiftAllElementsTowardPinnedIndex)
                                             .Sum(lsc => lsc.Shift);
 
@@ -129,29 +132,66 @@ public class TracksListReorderingRegistry<TElement, TCompare>
                                         .Count(pi => pi.From > updatedOrigin && pi.To <= i) -
                             exitingMoves.TakeWhile(pi => (foundMoveOriginal |= pi.To != i) && pi.To != i)
                                         .Count(pi => pi.From <= updatedOrigin && pi.To > i);
-                        CandidateLeftShiftFirstCommands.AppendSwapMoveSingleElement((short)(updatedOrigin + hasLowerIndexInserts), (short)j);
-                        exitingMoves.Add((From: (short)(updatedOrigin + hasLowerIndexInserts), To: (short)j));
+                        if (updatedOrigin + hasLowerIndexInserts != j)
+                        {
+                            CandidateLeftShiftFirstCommands.AppendSwapMoveSingleElement((short)(updatedOrigin + hasLowerIndexInserts), (short)j);
+                            exitingMoves.Add((From: (short)(updatedOrigin + hasLowerIndexInserts), To: (short)j));
+                        }
                         break;
                     }
                 }
             }
         }
 
-        if (shiftLeftCommandCount > shiftRightCommandCount &&
-            (shiftLeftSingleElementMoves < shiftRightSingleElementMoves || shiftRightCommandCount == 0))
+        if (shiftLeftCommandCount > shiftRightCommandCount && CountLeftShiftFirstUnmoved < CountLeftShiftFirstMovedRescued &&
+            (shiftLeftSingleElementMoves <= shiftRightSingleElementMoves || shiftRightSingleElementMoves == 0))
         {
             RegisteredShiftCommands.AddRange(CandidateLeftShiftFirstCommands);
             return true;
         }
-        if (shiftLeftCommandCount <= shiftRightCommandCount || shiftRightSingleElementMoves > shiftLeftSingleElementMoves ||
-            CandidateRightShiftFirstCommands.Any())
+        if (shiftLeftCommandCount <= shiftRightCommandCount && CountRightShiftFirstUnmoved < CountRightShiftFirstMovedRescued)
         {
             RegisteredShiftCommands.AddRange(CandidateRightShiftFirstCommands);
             return true;
         }
+
+        // See if there are any single moves that without any shifts applied that rescue moved elements
+        CandidateLeftShiftFirstCommands.Clear();
+        exitingMoves.Clear();
+        shiftLeftSingleElementMoves = 0;
+        for (var i = 0; i < ShiftedList.Count; i++)
+        {
+            var prevItem = ShiftedList[i];
+
+            for (var j = 0; j < updatedCollection.Count; j++)
+            {
+                var updateItem = updatedCollection[j];
+
+                if (Comparison(prevItem, updateItem) && i != j)
+                { // found new shift
+                    shiftLeftSingleElementMoves++;
+                    var  updatedOrigin = exitingMoves.Any(pi => pi.To == i) ? exitingMoves.First(pi => pi.To == i).From : i;
+                    bool wasMoved      = updatedOrigin != i;
+
+                    var foundMoveOriginal = !wasMoved;
+                    var hasLowerIndexInserts =
+                        exitingMoves.TakeWhile(pi => (foundMoveOriginal |= pi.To != i) && pi.To != i)
+                                    .Count(pi => pi.From > updatedOrigin && pi.To <= i) -
+                        exitingMoves.TakeWhile(pi => (foundMoveOriginal |= pi.To != i) && pi.To != i)
+                                    .Count(pi => pi.From <= updatedOrigin && pi.To > i);
+                    if (updatedOrigin + hasLowerIndexInserts != j)
+                    {
+                        CandidateLeftShiftFirstCommands.AppendSwapMoveSingleElement((short)(updatedOrigin + hasLowerIndexInserts), (short)j);
+                        exitingMoves.Add((From: (short)(updatedOrigin + hasLowerIndexInserts), To: (short)j));
+                    }
+                    break;
+                }
+            }
+        }
         if (CandidateLeftShiftFirstCommands.Any())
         {
             RegisteredShiftCommands.AddRange(CandidateLeftShiftFirstCommands);
+            return true;
         }
         return true;
     }

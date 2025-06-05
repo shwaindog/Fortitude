@@ -25,6 +25,8 @@ public interface IOrderBookSide : ITracksShiftsList<IPriceVolumeLayer, IPriceVol
 {
     new IPriceVolumeLayer this[int index] { get; }
 
+    IReadOnlyList<IPriceVolumeLayer> AllLayers { get; }
+
     LayerType LayerSupportedType { get; }
 
     LayerFlags LayerSupportedFlags { get; }
@@ -38,6 +40,8 @@ public interface IOrderBookSide : ITracksShiftsList<IPriceVolumeLayer, IPriceVol
     IMarketAggregate OpenInterestSide { get; }
 
     BookSide BookSide { get; }
+
+    string EachLayerByIndexOnNewLines();
 }
 
 public interface IMutableOrderBookSide : IOrderBookSide, IMutableTracksShiftsList<IMutablePriceVolumeLayer, IPriceVolumeLayer>,

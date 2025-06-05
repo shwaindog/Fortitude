@@ -65,12 +65,10 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         if (GetType() == typeof(PQPriceVolumeLayer)) SequenceId = 0;
     }
 
-    protected string PQPriceVolumeLayerToStringMembers => $"{nameof(Price)}: {Price:N5}, {nameof(Volume)}: {Volume:N2}";
-
-    protected string UpdatedFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
-
     [JsonIgnore] public virtual LayerType  LayerType          => LayerType.PriceVolume;
+
     [JsonIgnore] public virtual LayerFlags SupportsLayerFlags => LayerFlagsExtensions.PriceVolumeLayerFlags;
+
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public decimal Price
@@ -309,6 +307,10 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
             return hash;
         }
     }
+
+    protected string PQPriceVolumeLayerToStringMembers => $"{nameof(Price)}: {Price:N5}, {nameof(Volume)}: {Volume:N2}";
+
+    protected string UpdatedFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
 
     public override string ToString() => $"{GetType().Name}({PQPriceVolumeLayerToStringMembers}, {UpdatedFlagsToString})";
 }

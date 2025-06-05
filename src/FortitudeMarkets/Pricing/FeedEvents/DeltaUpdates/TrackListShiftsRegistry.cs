@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Lists;
@@ -20,7 +21,7 @@ public class TrackListShiftsRegistry<TElement, TCompare> : ITrackableReset<Track
 
     protected List<ListShiftCommand> RegisteredShiftCommands = new();
 
-    private int? previousCopyHashCode = null;
+    private int? previousCopyHashCode;
 
     protected readonly List<ListShiftCommand> CandidateRightShiftFirstCommands = new();
     protected readonly List<ListShiftCommand> CandidateLeftShiftFirstCommands  = new();
@@ -179,7 +180,9 @@ public class TrackListShiftsRegistry<TElement, TCompare> : ITrackableReset<Track
     private void ApplyMoveSingleElement(ListShiftCommand shiftCommandToApply)
     {
         var (destinationIndex, originIndex) = shiftCommandToApply;
-        var lastTradeAt = ShiftedList[originIndex];
+        var shiftListCount = ShiftedList.Count;
+        if (destinationIndex >= shiftListCount && originIndex >= shiftListCount) return;
+        var lastTradeAt    = ShiftedList[originIndex];
         RemoveAt(originIndex);
         if (destinationIndex > ShiftedList.Capacity)
         {
@@ -190,11 +193,18 @@ public class TrackListShiftsRegistry<TElement, TCompare> : ITrackableReset<Track
             if (shiftCommandToApply.IsSwapWithDestination())
             {
                 var adjustedDestIndex = Math.Clamp(originIndex < destinationIndex ? destinationIndex - 1 : destinationIndex, 0
-                                                 , ShiftedList.Capacity - 1);
+                                                 , shiftListCount - 1);
                 var adjustedOriginIndex = Math.Clamp(originIndex > destinationIndex ? originIndex - 1 : originIndex, 0, ShiftedList.Capacity - 1);
                 var destinationElement  = ShiftedList[adjustedDestIndex];
                 RemoveAt(adjustedDestIndex);
-                Insert(adjustedOriginIndex, destinationElement);
+                if (adjustedDestIndex < ShiftedList.Capacity)
+                {
+                    Insert(adjustedOriginIndex, destinationElement);
+                }
+                else
+                {
+                    Add(destinationElement);
+                }
             }
             Insert(destinationIndex, lastTradeAt);
         }
@@ -332,43 +342,46 @@ public class TrackListShiftsRegistry<TElement, TCompare> : ITrackableReset<Track
         var shiftLeftCommandCount  = CandidateLeftShiftFirstCommands.Count;
 
 
-        if (shiftLeftCommandCount > shiftRightCommandCount || shiftRightCommandCount == 0)
+        if (shiftLeftCommandCount > shiftRightCommandCount && CountLeftShiftFirstUnmoved < CountLeftShiftFirstMovedRescued)
         {
             RegisteredShiftCommands.AddRange(CandidateLeftShiftFirstCommands);
             return true;
         }
-        if (shiftLeftCommandCount <= shiftRightCommandCount || CandidateRightShiftFirstCommands.Any())
+        if (shiftLeftCommandCount <= shiftRightCommandCount && CountRightShiftFirstUnmoved < CountRightShiftFirstMovedRescued)
         {
             RegisteredShiftCommands.AddRange(CandidateRightShiftFirstCommands);
             return true;
         }
-        if (CandidateLeftShiftFirstCommands.Any())
-        {
-            RegisteredShiftCommands.AddRange(CandidateLeftShiftFirstCommands);
-        }
         return true;
     }
+    
+    protected int CountLeftShiftFirstUnmoved;
+    protected int CountLeftShiftFirstMovedRescued;
 
     protected void CandidateRunLeftShiftFirstCommands(IReadOnlyList<TCompare> updatedCollection)
     {
         CandidateLeftShiftFirstCommands.Clear();
+        CountLeftShiftFirstUnmoved      = 0;
+        CountLeftShiftFirstMovedRescued = 0;
         var isFirstShift           = true;
         var appliedShiftLeft       = 0;
         int highestMatchedPrevious = 0;
         for (var i = 0; i < ShiftedList.Count; i++)
         {
             var prevItem = ShiftedList[i];
-            for (var j = Math.Min(i - appliedShiftLeft, updatedCollection.Count - 1); j >= 0; j--)
+            for (var j = Math.Min(i, updatedCollection.Count - 1); j >= 0; j--)
             {
                 var updateItem = updatedCollection[j];
                 if (Comparison(prevItem, updateItem))
-                { 
+                {
+                    if (j == i) CountLeftShiftFirstUnmoved++;
                     if (isFirstShift && j > 0 && i > 0)
                     {
                         CandidateLeftShiftFirstCommands.AppendClearRangeFromIndex(0, (short)i);
                     }
                     isFirstShift     =  false;
                     var indexDiff = (short)(j - i - appliedShiftLeft);
+                    if (indexDiff <= 0 && j != i) CountLeftShiftFirstMovedRescued++;
                     if (indexDiff < 0)
                     {
                         CandidateLeftShiftFirstCommands.AppendShiftTowardFromIndex((short)(j - 1), indexDiff);
@@ -407,9 +420,14 @@ public class TrackListShiftsRegistry<TElement, TCompare> : ITrackableReset<Track
         // Only RightShiftsFirstCommands can have potential readjusted 0 shifts
     }
 
+    protected int CountRightShiftFirstUnmoved;
+    protected int CountRightShiftFirstMovedRescued;
+
     protected void CandidateRunRightShiftFirstCommands(IReadOnlyList<TCompare> updatedCollection)
     {
         CandidateRightShiftFirstCommands.Clear();
+        CountRightShiftFirstUnmoved      = 0;
+        CountRightShiftFirstMovedRescued = 0;
         var isFirstShift          = true;
         int lastMoveFromIndex     = updatedCollection.Count;
         int lowestMatchedPrevious = updatedCollection.Count;
@@ -423,6 +441,7 @@ public class TrackListShiftsRegistry<TElement, TCompare> : ITrackableReset<Track
 
                 if (Comparison(prevItem, updateItem))
                 { // found new shift
+                    if (j == i) CountRightShiftFirstUnmoved++;
                     var indexDiff = (short)(j - i);
                     if (isFirstShift && i + 1 < ShiftedList.Count)
                     {
@@ -431,6 +450,7 @@ public class TrackListShiftsRegistry<TElement, TCompare> : ITrackableReset<Track
                     isFirstShift      = false;
                     if (indexDiff > 0)
                     {
+                        CountRightShiftFirstMovedRescued++;
                         CandidateRightShiftFirstCommands.ChangeLastCommandShiftBy((short)-indexDiff);
                         CandidateRightShiftFirstCommands.AppendShiftAwayFromIndex((short)(i - 1), indexDiff);
 
@@ -650,7 +670,7 @@ public class TrackListShiftsRegistry<TElement, TCompare> : ITrackableReset<Track
         (IReadOnlyList<TCompare> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         var isFullReplace = copyMergeFlags.HasFullReplace();
-        var wasEmpty      = ShiftedList.IsEmpty;
+        var wasEmpty      = ShiftedList.All(e => e.IsEmpty);
         if (source is IMutableTracksShiftsList<TElement, TCompare> sourceTracksShifts)
         {
             if (isFullReplace) ClearShiftCommands();

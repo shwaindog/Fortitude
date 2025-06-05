@@ -131,10 +131,15 @@ public class RecentlyTradedHistory : ReusableObject<IRecentlyTradedHistory>, IMu
 
     public void UpdateComplete(uint updateSequenceId = 0)
     {
+        
+    }
+
+    public void UpdateAt(DateTime atDateTime, uint previousSequenceId, uint latestSequenceId)
+    {
         throw new NotImplementedException();
     }
 
-    public uint UpdateSequenceId                     { get; private set; }
+    public uint UpdateSequenceId { get; private set; }
 
     public void UpdateStarted(uint updateSequenceId)
     {
