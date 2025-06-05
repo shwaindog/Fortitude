@@ -20,7 +20,6 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
-using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
@@ -875,7 +874,7 @@ public class PQLevel2QuoteTests
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
-                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j]!;
+                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j];
                         PQExternalCounterPartyOrderTests.AssertOrdersCounterPartyNameFieldUpdatesReturnAsExpected
                             (cpOrderInfo, j, ordersLayer, i, bidBook, orderBook, emptyQuote);
                     }
@@ -888,7 +887,7 @@ public class PQLevel2QuoteTests
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
-                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j]!;
+                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j];
                         PQExternalCounterPartyOrderTests.AssertOrdersCounterPartyNameFieldUpdatesReturnAsExpected
                             (cpOrderInfo, j, ordersLayer, i, askBook, orderBook, emptyQuote);
                     }
@@ -913,7 +912,7 @@ public class PQLevel2QuoteTests
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
-                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j]!;
+                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j];
                         PQExternalCounterPartyOrderTests.AssertOrdersTraderNameFieldUpdatesReturnAsExpected(cpOrderInfo, j, ordersLayer, i, bidBook
                        , orderBook, emptyQuote);
                     }
@@ -926,7 +925,7 @@ public class PQLevel2QuoteTests
                     for (ushort j = 0; j < 7; j++)
                     {
                         if (j == 2) j   = 4;
-                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j]!;
+                        var cpOrderInfo = (IPQExternalCounterPartyOrder)ordersLayer[j];
                         PQExternalCounterPartyOrderTests.AssertOrdersTraderNameFieldUpdatesReturnAsExpected(cpOrderInfo, j, ordersLayer, i, askBook
                        , orderBook, emptyQuote);
                     }
@@ -1514,9 +1513,9 @@ public class PQLevel2QuoteTests
         var bidSrcExecutable = PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteLayerBooleanFlags, bidDepthId);
         var askSrcExecutable = PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteLayerBooleanFlags, askDepthId);
 
-        var bidExecutable = (uint)(pqBidL2Pvl.Executable ? LayerBooleanFlags.IsExecutableFlag : LayerBooleanFlags.None);
+        var bidExecutable = (uint)(pqBidL2Pvl.Executable ? LayerBooleanValues.Executable : LayerBooleanValues.None);
         Assert.AreEqual(new PQFieldUpdate(PQFeedFields.QuoteLayerBooleanFlags, bidDepthId, bidExecutable), bidSrcExecutable);
-        var askExecutable = (uint)(pqAskL2Pvl.Executable ? LayerBooleanFlags.IsExecutableFlag : LayerBooleanFlags.None);
+        var askExecutable = (uint)(pqAskL2Pvl.Executable ? LayerBooleanValues.Executable : LayerBooleanValues.None);
         Assert.AreEqual(new PQFieldUpdate(PQFeedFields.QuoteLayerBooleanFlags, askDepthId, askExecutable), askSrcExecutable);
     }
 
@@ -1557,7 +1556,7 @@ public class PQLevel2QuoteTests
         var depthId = (PQDepthKey)depthIndex | (isAskSide ? PQDepthKey.AskSide : PQDepthKey.None);
         for (var j = 0; j < ordersPvl.OrdersCount; j++)
         {
-            var anonOrderLayerInfo = ordersPvl[j]!;
+            var anonOrderLayerInfo = ordersPvl[j];
             var orderIndex         = (ushort)j;
 
             var orderId = (uint)anonOrderLayerInfo.OrderId;

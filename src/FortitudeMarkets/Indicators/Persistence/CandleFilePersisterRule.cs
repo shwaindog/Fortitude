@@ -65,7 +65,7 @@ public class CandleFilePersisterRule<TEntry> : TimeSeriesRepositoryAccessRule wh
 
     public CandleFilePersisterRule(CandlePersisterParams persisterParams)
         : base(persisterParams.RepositoryParams
-             , $"{nameof(CandleFilePersisterRule<TEntry>)}_{persisterParams.TickerId.SourceTickerShortName()}_{persisterParams.CoveringPeriod.ShortName()}")
+             , $"{nameof(CandleFilePersisterRule<TEntry>)}_{persisterParams.TickerId.SourceInstrumentShortName()}_{persisterParams.CoveringPeriod.ShortName()}")
     {
         this.persisterParams = persisterParams;
         tickerInfo           = persisterParams.TickerId;

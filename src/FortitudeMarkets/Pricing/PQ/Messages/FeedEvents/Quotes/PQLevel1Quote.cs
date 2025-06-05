@@ -14,7 +14,6 @@ using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
-using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
@@ -84,7 +83,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
 
     public PQLevel1Quote
     (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, decimal bidPriceTop = 0m, decimal askPriceTop = 0m
-     ,  bool isBidPriceTopChanged = false, bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null
+      , bool isBidPriceTopChanged = false, bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null
       , DateTime? validFrom = null, DateTime? validTo = null, bool executable = true, decimal singlePrice = 0m)
         : base(sourceTickerInfo, singlePrice, sourceTime)
     {
@@ -144,23 +143,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         if (GetType() == typeof(PQLevel1Quote)) SequenceId = 0;
     }
 
-    public override string QuoteToStringMembers =>
-        $"{base.QuoteToStringMembers}, {nameof(SourceTime)}: {SourceTime}, " +
-        $"{nameof(SourceAskTime)}: {SourceAskTime}, {nameof(SourceBidTime)}: {SourceBidTime}, " +
-        $"{nameof(BidPriceTop)}: {BidPriceTop}, {nameof(IsBidPriceTopChanged)}: {IsBidPriceTopChanged}, " +
-        $"{nameof(AskPriceTop)}: {AskPriceTop}, {nameof(IsAskPriceTopChanged)}: {IsAskPriceTopChanged}, " +
-        $"{nameof(Executable)}: {Executable}";
-
-
-    public override PQLevel1Quote Clone() => Recycler?.Borrow<PQLevel1Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new PQLevel1Quote(this);
-
-    ILevel1Quote ICloneable<ILevel1Quote>.Clone() => Clone();
-
-    ILevel1Quote ILevel1Quote.Clone() => Clone();
-
-    IMutableLevel1Quote IMutableLevel1Quote.Clone() => Clone();
-
-    IPQLevel1Quote IPQLevel1Quote.Clone() => Clone();
+    public QuoteInstantBehaviorFlags QuoteBehavior { get; set; }
 
     [JsonIgnore] decimal IBidAskPair.BidPrice => BidPriceTop;
 
@@ -168,10 +151,137 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
 
     [JsonIgnore] DateTime IBidAskInstant.AtTime => SourceTime;
 
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public override DateTime SourceTime
+    {
+        get =>
+            new(Math.Max(base.SourceTime.Ticks,
+                         Math.Max(sourceBidTime.Ticks, sourceAskTime.Ticks)));
+        set => base.SourceTime = value;
+    }
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime SourceAskTime
+    {
+        get => sourceAskTime;
+        set
+        {
+            IsSourceAskTimeDateUpdated |= sourceAskTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
+            IsSourceAskTimeSub2MinUpdated |= sourceAskTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
+            sourceAskTime = value == DateTime.UnixEpoch ? default : value;
+        }
+    }
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime SourceBidTime
+    {
+        get => sourceBidTime;
+        set
+        {
+            IsSourceBidTimeDateUpdated |= sourceBidTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
+            IsSourceBidTimeSub2MinUpdated |= sourceBidTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
+            sourceBidTime = value == DateTime.UnixEpoch ? default : value;
+        }
+    }
+
+    public BidAskPair BidAskTop => new(BidPriceTop, AskPriceTop);
+
+    [JsonIgnore]
+    public virtual decimal BidPriceTop
+    {
+        get => bidPriceTop;
+        set
+        {
+            IsBidPriceTopUpdated |= bidPriceTop != value || SequenceId == 0;
+            IsBidPriceTopChanged =  bidPriceTop != value;
+            bidPriceTop          =  value;
+        }
+    }
+
+    [JsonIgnore]
+    public bool IsBidPriceTopUpdated
+    {
+        get => (UpdatedFlags & QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag;
+
+            else if (IsBidPriceTopUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag;
+        }
+    }
+
+    [JsonIgnore]
+    public virtual decimal AskPriceTop
+    {
+        get => askPriceTop;
+        set
+        {
+            IsAskPriceTopUpdated |= askPriceTop != value || SequenceId == 0;
+            IsAskPriceTopChanged =  askPriceTop != value;
+            askPriceTop          =  value;
+        }
+    }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool Executable
+    {
+        get => (QuoteBooleanFields & PQQuoteBooleanValues.IsExecutableSetFlag) > 0;
+        set
+        {
+            IsExecutableUpdated |= Executable != value || SequenceId == 0;
+            if (value)
+                QuoteBooleanFields |= PQQuoteBooleanValues.IsExecutableSetFlag;
+
+            else if (Executable) QuoteBooleanFields ^= PQQuoteBooleanValues.IsExecutableSetFlag;
+        }
+    }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime ValidFrom
+    {
+        get => validFromTime;
+        set
+        {
+            IsValidFromTimeDateUpdated |= validFromTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
+            IsValidFromTimeSub2MinUpdated |= validFromTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
+            validFromTime = value == DateTime.UnixEpoch ? default : value;
+        }
+    }
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime ValidTo
+    {
+        get => validToTime;
+        set
+        {
+            IsValidToTimeDateUpdated    |= validToTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
+            IsValidToTimeSub2MinUpdated |= validToTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
+            validToTime                 =  value == DateTime.UnixEpoch ? default : value;
+        }
+    }
+
+    [JsonIgnore]
+    public bool IsAskPriceTopUpdated
+    {
+        get => (UpdatedFlags & QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag;
+
+            else if (IsAskPriceTopUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag;
+        }
+    }
+
     [JsonIgnore]
     public bool IsSourceAskTimeDateUpdated
     {
-        get => (UpdatedFlags & QuoteFieldUpdatedFlags.SourceAskTimeDateUpdatedFlag) > 0;
+        get => !QuoteBehavior.HasNoSideDateTimesUpdatesFlag() && (UpdatedFlags & QuoteFieldUpdatedFlags.SourceAskTimeDateUpdatedFlag) > 0;
         set
         {
             if (value)
@@ -184,7 +294,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
     [JsonIgnore]
     public bool IsSourceAskTimeSub2MinUpdated
     {
-        get => (UpdatedFlags & QuoteFieldUpdatedFlags.SourceAskTimeSub2MinUpdatedFlag) > 0;
+        get => !QuoteBehavior.HasNoSideDateTimesUpdatesFlag() && (UpdatedFlags & QuoteFieldUpdatedFlags.SourceAskTimeSub2MinUpdatedFlag) > 0;
         set
         {
             if (value)
@@ -197,7 +307,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
     [JsonIgnore]
     public bool IsSourceBidTimeDateUpdated
     {
-        get => (UpdatedFlags & QuoteFieldUpdatedFlags.SourceBidTimeDateUpdatedFlag) > 0;
+        get => !QuoteBehavior.HasNoSideDateTimesUpdatesFlag() && (UpdatedFlags & QuoteFieldUpdatedFlags.SourceBidTimeDateUpdatedFlag) > 0;
         set
         {
             if (value)
@@ -210,7 +320,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
     [JsonIgnore]
     public bool IsSourceBidTimeSub2MinUpdated
     {
-        get => (UpdatedFlags & QuoteFieldUpdatedFlags.SourceBidTimeSub2MinUpdatedFlag) > 0;
+        get => !QuoteBehavior.HasNoSideDateTimesUpdatesFlag() && (UpdatedFlags & QuoteFieldUpdatedFlags.SourceBidTimeSub2MinUpdatedFlag) > 0;
         set
         {
             if (value)
@@ -290,7 +400,9 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
     [JsonIgnore]
     public bool IsValidFromTimeDateUpdated
     {
-        get => (UpdatedFlags & QuoteFieldUpdatedFlags.ValidFromDateUpdatedFlag) > 0 && ValidFrom != default;
+        get =>
+            !QuoteBehavior.HasNoValidDateTimeUpdatesFlag()
+         && (UpdatedFlags & QuoteFieldUpdatedFlags.ValidFromDateUpdatedFlag) > 0 && ValidFrom != default;
         set
         {
             if (value)
@@ -303,7 +415,9 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
     [JsonIgnore]
     public bool IsValidFromTimeSub2MinUpdated
     {
-        get => (UpdatedFlags & QuoteFieldUpdatedFlags.ValidFromTimeSub2MinUpdatedFlag) > 0 && ValidFrom != default;
+        get =>
+            !QuoteBehavior.HasNoValidDateTimeUpdatesFlag()
+         && (UpdatedFlags & QuoteFieldUpdatedFlags.ValidFromTimeSub2MinUpdatedFlag) > 0 && ValidFrom != default;
         set
         {
             if (value)
@@ -316,7 +430,9 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
     [JsonIgnore]
     public bool IsValidToTimeDateUpdated
     {
-        get => (UpdatedFlags & QuoteFieldUpdatedFlags.ValidToDateUpdatedFlag) > 0 && ValidTo != default;
+        get =>
+            !QuoteBehavior.HasNoValidDateTimeUpdatesFlag()
+         && (UpdatedFlags & QuoteFieldUpdatedFlags.ValidToDateUpdatedFlag) > 0 && ValidTo != default;
         set
         {
             if (value)
@@ -329,7 +445,9 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
     [JsonIgnore]
     public bool IsValidToTimeSub2MinUpdated
     {
-        get => (UpdatedFlags & QuoteFieldUpdatedFlags.ValidToSub2MinUpdatedFlag) > 0 && ValidTo != default;
+        get =>
+            !QuoteBehavior.HasNoValidDateTimeUpdatesFlag()
+         && (UpdatedFlags & QuoteFieldUpdatedFlags.ValidToSub2MinUpdatedFlag) > 0 && ValidTo != default;
         set
         {
             if (value)
@@ -339,135 +457,8 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         }
     }
 
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public override DateTime SourceTime
-    {
-        get =>
-            new(Math.Max(base.SourceTime.Ticks,
-                         Math.Max(sourceBidTime.Ticks, sourceAskTime.Ticks)));
-        set => base.SourceTime = value;
-    }
-
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTime SourceAskTime
-    {
-        get => sourceAskTime;
-        set
-        {
-            IsSourceAskTimeDateUpdated |= sourceAskTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
-            IsSourceAskTimeSub2MinUpdated |= sourceAskTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
-            sourceAskTime = value == DateTime.UnixEpoch ? default : value;
-        }
-    }
-
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTime SourceBidTime
-    {
-        get => sourceBidTime;
-        set
-        {
-            IsSourceBidTimeDateUpdated |= sourceBidTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
-            IsSourceBidTimeSub2MinUpdated |= sourceBidTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
-            sourceBidTime = value == DateTime.UnixEpoch ? default : value;
-        }
-    }
-
     [JsonIgnore] IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Previous { get; set; }
     [JsonIgnore] IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Next     { get; set; }
-
-    public BidAskPair BidAskTop => new(BidPriceTop, AskPriceTop);
-
-    [JsonIgnore]
-    public virtual decimal BidPriceTop
-    {
-        get => bidPriceTop;
-        set
-        {
-            IsBidPriceTopUpdated |= bidPriceTop != value || SequenceId == 0;
-            IsBidPriceTopChanged =  bidPriceTop != value;
-            bidPriceTop          =  value;
-        }
-    }
-
-    [JsonIgnore]
-    public bool IsBidPriceTopUpdated
-    {
-        get => (UpdatedFlags & QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag) > 0;
-        set
-        {
-            if (value)
-                UpdatedFlags |= QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag;
-
-            else if (IsBidPriceTopUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.BidTopPriceUpdatedFlag;
-        }
-    }
-
-    [JsonIgnore]
-    public virtual decimal AskPriceTop
-    {
-        get => askPriceTop;
-        set
-        {
-            IsAskPriceTopUpdated |= askPriceTop != value || SequenceId == 0;
-            IsAskPriceTopChanged =  askPriceTop != value;
-            askPriceTop          =  value;
-        }
-    }
-
-    [JsonIgnore]
-    public bool IsAskPriceTopUpdated
-    {
-        get => (UpdatedFlags & QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag) > 0;
-        set
-        {
-            if (value)
-                UpdatedFlags |= QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag;
-
-            else if (IsAskPriceTopUpdated) UpdatedFlags ^= QuoteFieldUpdatedFlags.AskTopPriceUpdatedFlag;
-        }
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool Executable
-    {
-        get => (QuoteBooleanFields & PQQuoteBooleanValues.IsExecutableSetFlag) > 0;
-        set
-        {
-            IsExecutableUpdated |= Executable != value || SequenceId == 0;
-            if (value)
-                QuoteBooleanFields |= PQQuoteBooleanValues.IsExecutableSetFlag;
-
-            else if (Executable) QuoteBooleanFields ^= PQQuoteBooleanValues.IsExecutableSetFlag;
-        }
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTime ValidFrom
-    {
-        get => validFromTime;
-        set
-        {
-            IsValidFromTimeDateUpdated |= validFromTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
-            IsValidFromTimeSub2MinUpdated |= validFromTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
-            validFromTime = value == DateTime.UnixEpoch ? default : value;
-        }
-    }
-
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTime ValidTo
-    {
-        get => validToTime;
-        set
-        {
-            IsValidToTimeDateUpdated    |= validToTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || SequenceId == 0;
-            IsValidToTimeSub2MinUpdated |= validToTime.GetSub2MinComponent() != value.GetSub2MinComponent() || SequenceId == 0;
-            validToTime                 =  value == DateTime.UnixEpoch ? default : value;
-        }
-    }
 
     public override void IncrementTimeBy(TimeSpan toChangeBy)
     {
@@ -511,39 +502,54 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
         var precisionSettings = quotePublicationPrecisionSettings;
-        var updatedOnly       = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
+        var fullPicture       = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) > 0;
         foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime, messageFlags, precisionSettings)) yield return updatedField;
 
-        if (!updatedOnly || IsSourceBidTimeDateUpdated)
+        var allowSideTimes  = !QuoteBehavior.HasNoSideDateTimesUpdatesFlag();
+        var allowValidTimes = !QuoteBehavior.HasNoValidDateTimeUpdatesFlag();
+        if (allowSideTimes && fullPicture || IsSourceBidTimeDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.SourceQuoteBidDateTime, sourceBidTime.Get2MinIntervalsFromUnixEpoch());
-        if (!updatedOnly || IsSourceBidTimeSub2MinUpdated)
+        if (allowSideTimes && fullPicture || IsSourceBidTimeSub2MinUpdated)
         {
             var extended = sourceBidTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQFeedFields.SourceQuoteBidSub2MinTime, value, extended);
         }
-        if (!updatedOnly || IsSourceAskTimeDateUpdated)
+        if (allowSideTimes && fullPicture || IsSourceAskTimeDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.SourceQuoteAskDateTime, sourceAskTime.Get2MinIntervalsFromUnixEpoch());
-        if (!updatedOnly || IsSourceAskTimeSub2MinUpdated)
+        if (allowSideTimes && fullPicture || IsSourceAskTimeSub2MinUpdated)
         {
             var extended = sourceAskTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQFeedFields.SourceQuoteAskSub2MinTime, value, extended);
         }
-        if (!updatedOnly || IsValidFromTimeDateUpdated)
+        if (allowValidTimes && fullPicture || IsValidFromTimeDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteValidFromDate, validFromTime.Get2MinIntervalsFromUnixEpoch());
-        if (!updatedOnly || IsValidFromTimeSub2MinUpdated)
+        if (allowValidTimes && fullPicture || IsValidFromTimeSub2MinUpdated)
         {
             var extended = validFromTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQFeedFields.QuoteValidFromSub2MinTime, value, extended);
         }
-        if (!updatedOnly || IsValidToTimeDateUpdated)
+        if (allowValidTimes && fullPicture || IsValidToTimeDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteValidToDate, validToTime.Get2MinIntervalsFromUnixEpoch());
-        if (!updatedOnly || IsValidToTimeSub2MinUpdated)
+        if (allowValidTimes && fullPicture || IsValidToTimeSub2MinUpdated)
         {
             var extended = validToTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQFeedFields.QuoteValidToSub2MinTime, value, extended);
         }
 
-        foreach (var updatedField in GetDeltaUpdateTopBookPriceFields(snapShotTime, updatedOnly, precisionSettings)) yield return updatedField;
+        foreach (var updatedField in GetDeltaUpdateTopBookPriceFields(snapShotTime, fullPicture, precisionSettings)) yield return updatedField;
+    }
+
+    protected virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateTopBookPriceFields
+        (DateTime snapShotTime, bool fullPicture, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
+    {
+        if (fullPicture || IsBidPriceTopUpdated)
+            yield return new PQFieldUpdate
+                (PQFeedFields.QuoteLayerPrice, PQDepthKey.None, BidPriceTop
+               , quotePublicationPrecisionSettings?.PriceScalingPrecision ?? PriceScalingPrecision);
+        if (fullPicture || IsAskPriceTopUpdated)
+            yield return new PQFieldUpdate
+                (PQFeedFields.QuoteLayerPrice, PQDepthKey.AskSide, AskPriceTop
+               , quotePublicationPrecisionSettings?.PriceScalingPrecision ?? PriceScalingPrecision);
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
@@ -551,45 +557,53 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         switch (pqFieldUpdate.Id)
         {
             case PQFeedFields.SourceQuoteBidDateTime:
-                IsSourceBidTimeDateUpdated = true; // incase of reset and sending 0;
+                if (QuoteBehavior.HasNoSideDateTimesUpdatesFlag()) return 0;
+                IsSourceBidTimeDateUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref sourceBidTime, pqFieldUpdate.Payload);
                 if (sourceBidTime == DateTime.UnixEpoch) sourceBidTime = default;
                 return 0;
             case PQFeedFields.SourceQuoteBidSub2MinTime:
-                IsSourceBidTimeSub2MinUpdated = true; // incase of reset and sending 0;
+                if (QuoteBehavior.HasNoSideDateTimesUpdatesFlag()) return 0;
+                IsSourceBidTimeSub2MinUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref sourceBidTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
                 if (sourceBidTime == DateTime.UnixEpoch) sourceBidTime = default;
                 return 0;
             case PQFeedFields.SourceQuoteAskDateTime:
-                IsSourceAskTimeDateUpdated = true; // incase of reset and sending 0;
+                if (QuoteBehavior.HasNoSideDateTimesUpdatesFlag()) return 0;
+                IsSourceAskTimeDateUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref sourceAskTime, pqFieldUpdate.Payload);
                 if (sourceAskTime == DateTime.UnixEpoch) sourceAskTime = default;
                 return 0;
             case PQFeedFields.SourceQuoteAskSub2MinTime:
-                IsSourceAskTimeSub2MinUpdated = true; // incase of reset and sending 0;
+                if (QuoteBehavior.HasNoSideDateTimesUpdatesFlag()) return 0;
+                IsSourceAskTimeSub2MinUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref sourceAskTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
                 if (sourceAskTime == DateTime.UnixEpoch) sourceAskTime = default;
                 return 0;
             case PQFeedFields.QuoteValidFromDate:
-                IsValidFromTimeDateUpdated = true; // incase of reset and sending 0;
+                if (QuoteBehavior.HasNoValidDateTimeUpdatesFlag()) return 0;
+                IsValidFromTimeDateUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref validFromTime, pqFieldUpdate.Payload);
                 if (validFromTime == DateTime.UnixEpoch) validFromTime = default;
                 return 0;
             case PQFeedFields.QuoteValidFromSub2MinTime:
-                IsValidFromTimeSub2MinUpdated = true; // incase of reset and sending 0;
+                if (QuoteBehavior.HasNoValidDateTimeUpdatesFlag()) return 0;
+                IsValidFromTimeSub2MinUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref validFromTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
                 if (validFromTime == DateTime.UnixEpoch) validFromTime = default;
                 return 0;
             case PQFeedFields.QuoteValidToDate:
-                IsValidToTimeDateUpdated = true; // incase of reset and sending 0;
+                if (QuoteBehavior.HasNoValidDateTimeUpdatesFlag()) return 0;
+                IsValidToTimeDateUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref validToTime, pqFieldUpdate.Payload);
                 if (validToTime == DateTime.UnixEpoch) validToTime = default;
                 return 0;
             case PQFeedFields.QuoteValidToSub2MinTime:
-                IsValidToTimeSub2MinUpdated = true; // incase of reset and sending 0;
+                if (QuoteBehavior.HasNoValidDateTimeUpdatesFlag()) return 0;
+                IsValidToTimeSub2MinUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.UpdateSub2MinComponent
                     (ref validToTime, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
                 if (validToTime == DateTime.UnixEpoch) validToTime = default;
@@ -610,51 +624,55 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         }
     }
 
+    protected override bool IsBooleanFlagsChanged() =>
+        base.IsBooleanFlagsChanged() || IsExecutableUpdated || IsBidPriceTopChangedUpdated || IsAskPriceTopChangedUpdated;
+
+    protected override PQQuoteBooleanValues GenerateBooleanFlags(bool fullUpdate)
+    {
+        var resultSoFar = base.GenerateBooleanFlags(fullUpdate);
+        return resultSoFar | (IsExecutableUpdated || fullUpdate ? PQQuoteBooleanValues.IsExecutableUpdatedFlag : PQQuoteBooleanValues.None)
+                           | (Executable ? PQQuoteBooleanValues.IsExecutableSetFlag : PQQuoteBooleanValues.None)
+                           | (IsBidPriceTopChangedUpdated || fullUpdate
+                                 ? PQQuoteBooleanValues.IsBidPriceTopChangedUpdatedFlag
+                                 : PQQuoteBooleanValues.None)
+                           | (IsBidPriceTopChanged ? PQQuoteBooleanValues.IsBidPriceTopChangedSetFlag : PQQuoteBooleanValues.None)
+                           | (IsAskPriceTopChangedUpdated || fullUpdate
+                                 ? PQQuoteBooleanValues.IsAskPriceTopChangedUpdatedFlag
+                                 : PQQuoteBooleanValues.None)
+                           | (IsAskPriceTopChanged ? PQQuoteBooleanValues.IsAskPriceTopChangedSetFlag : PQQuoteBooleanValues.None);
+    }
+
+    protected override void SetBooleanFields(PQQuoteBooleanValues quoteBooleanFlags)
+    {
+        base.SetBooleanFields(quoteBooleanFlags);
+        IsExecutableUpdated = (quoteBooleanFlags & PQQuoteBooleanValues.IsExecutableUpdatedFlag) > 0;
+        Executable          = (quoteBooleanFlags & PQQuoteBooleanValues.IsExecutableSetFlag) > 0;
+        IsBidPriceTopChangedUpdated = quoteBooleanFlags.HasBidTopPriceChangedUpdated()
+                                   || IsBidPriceTopChanged != quoteBooleanFlags.HasBidTopPriceChangedSet();
+        IsBidPriceTopChanged = quoteBooleanFlags.HasBidTopPriceChangedSet();
+        IsAskPriceTopChangedUpdated = quoteBooleanFlags.HasAskTopPriceChangedUpdated()
+                                   || IsAskPriceTopChanged != quoteBooleanFlags.HasAskTopPriceChangedSet();
+        IsAskPriceTopChanged = quoteBooleanFlags.HasAskTopPriceChangedSet();
+    }
+
+    IBidAskInstant ICloneable<IBidAskInstant>.Clone() => Clone();
+
+    ILevel1Quote ICloneable<ILevel1Quote>.Clone() => Clone();
+
+    ILevel1Quote ILevel1Quote.Clone() => Clone();
+
+    IMutableLevel1Quote IMutableLevel1Quote.Clone() => Clone();
+
+    IPQLevel1Quote IPQLevel1Quote.Clone() => Clone();
+
+    public override PQLevel1Quote Clone() => Recycler?.Borrow<PQLevel1Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new PQLevel1Quote(this);
+
     IReusableObject<IBidAskInstant> ITransferState<IReusableObject<IBidAskInstant>>.CopyFrom
         (IReusableObject<IBidAskInstant> source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IPublishableLevel1Quote)source, copyMergeFlags);
 
     IBidAskInstant ITransferState<IBidAskInstant>.CopyFrom(IBidAskInstant source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IPublishableLevel1Quote)source, copyMergeFlags);
-
-    IBidAskInstant ICloneable<IBidAskInstant>.Clone() => Clone();
-
-    bool IInterfacesComparable<IBidAskInstant>.AreEquivalent(IBidAskInstant? other, bool exactTypes)
-    {
-        if (other == null) return false;
-        if (exactTypes && other.GetType() != GetType()) return false;
-        var startTimeSame       = SourceTime.Equals(other.AtTime);
-        var averageBidPriceSame = BidPriceTop == other.BidPrice;
-        var averageAskPriceSame = AskPriceTop == other.AskPrice;
-
-        var allAreSame = startTimeSame && averageBidPriceSame && averageAskPriceSame;
-        return allAreSame;
-    }
-
-    public override bool AreEquivalent(ITickInstant? other, bool exactTypes = false)
-    {
-        if (other is not IPQLevel1Quote && exactTypes) return false;
-        if (other is not ILevel1Quote otherL1) return false;
-        var baseSame          = base.AreEquivalent(other, exactTypes);
-        var sourceAskTimeSame = sourceAskTime.Equals(otherL1.SourceAskTime);
-        var sourceBidTimeSame = sourceBidTime.Equals(otherL1.SourceBidTime);
-        var validFromTimeSame = ValidFrom.Equals(otherL1.ValidFrom);
-        var validToTimeSame   = ValidTo.Equals(otherL1.ValidTo);
-        var executableSame    = Executable == otherL1.Executable;
-        var bidPriceTopSame   = BidPriceTop == otherL1.BidPriceTop;
-        var askPriceTopSame   = AskPriceTop == otherL1.AskPriceTop;
-        var bidPriceTopChange = IsBidPriceTopChanged == otherL1.IsBidPriceTopChanged;
-        var askPriceTopChange = IsAskPriceTopChanged == otherL1.IsAskPriceTopChanged;
-
-        var isExecutableUpdatedSame = true;
-
-        if (exactTypes && other is IPQLevel1Quote otherIPQL1) isExecutableUpdatedSame = IsExecutableUpdated == otherIPQL1.IsExecutableUpdated;
-
-        var allAreSame = baseSame && sourceAskTimeSame && validFromTimeSame && validToTimeSame
-                      && sourceBidTimeSame && executableSame && bidPriceTopSame && askPriceTopSame && bidPriceTopChange && askPriceTopChange
-                      && isExecutableUpdatedSame;
-        return allAreSame;
-    }
 
     IPQLevel1Quote IPQLevel1Quote.CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
 
@@ -792,49 +810,41 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         return this;
     }
 
-    protected override bool IsBooleanFlagsChanged() =>
-        base.IsBooleanFlagsChanged() || IsExecutableUpdated || IsBidPriceTopChangedUpdated || IsAskPriceTopChangedUpdated;
-
-    protected override PQQuoteBooleanValues GenerateBooleanFlags(bool fullUpdate)
+    bool IInterfacesComparable<IBidAskInstant>.AreEquivalent(IBidAskInstant? other, bool exactTypes)
     {
-        var resultSoFar = base.GenerateBooleanFlags(fullUpdate);
-        return resultSoFar | (IsExecutableUpdated || fullUpdate ? PQQuoteBooleanValues.IsExecutableUpdatedFlag : PQQuoteBooleanValues.None)
-                           | (Executable ? PQQuoteBooleanValues.IsExecutableSetFlag : PQQuoteBooleanValues.None)
-                           | (IsBidPriceTopChangedUpdated || fullUpdate
-                                 ? PQQuoteBooleanValues.IsBidPriceTopChangedUpdatedFlag
-                                 : PQQuoteBooleanValues.None)
-                           | (IsBidPriceTopChanged ? PQQuoteBooleanValues.IsBidPriceTopChangedSetFlag : PQQuoteBooleanValues.None)
-                           | (IsAskPriceTopChangedUpdated || fullUpdate
-                                 ? PQQuoteBooleanValues.IsAskPriceTopChangedUpdatedFlag
-                                 : PQQuoteBooleanValues.None)
-                           | (IsAskPriceTopChanged ? PQQuoteBooleanValues.IsAskPriceTopChangedSetFlag : PQQuoteBooleanValues.None);
+        if (other == null) return false;
+        if (exactTypes && other.GetType() != GetType()) return false;
+        var startTimeSame       = SourceTime.Equals(other.AtTime);
+        var averageBidPriceSame = BidPriceTop == other.BidPrice;
+        var averageAskPriceSame = AskPriceTop == other.AskPrice;
+
+        var allAreSame = startTimeSame && averageBidPriceSame && averageAskPriceSame;
+        return allAreSame;
     }
 
-    protected override void SetBooleanFields(PQQuoteBooleanValues quoteBooleanFlags)
+    public override bool AreEquivalent(ITickInstant? other, bool exactTypes = false)
     {
-        base.SetBooleanFields(quoteBooleanFlags);
-        IsExecutableUpdated = (quoteBooleanFlags & PQQuoteBooleanValues.IsExecutableUpdatedFlag) > 0;
-        Executable          = (quoteBooleanFlags & PQQuoteBooleanValues.IsExecutableSetFlag) > 0;
-        IsBidPriceTopChangedUpdated = quoteBooleanFlags.HasBidTopPriceChangedUpdated()
-                                   || IsBidPriceTopChanged != quoteBooleanFlags.HasBidTopPriceChangedSet();
-        IsBidPriceTopChanged = quoteBooleanFlags.HasBidTopPriceChangedSet();
-        IsAskPriceTopChangedUpdated = quoteBooleanFlags.HasAskTopPriceChangedUpdated()
-                                   || IsAskPriceTopChanged != quoteBooleanFlags.HasAskTopPriceChangedSet();
-        IsAskPriceTopChanged = quoteBooleanFlags.HasAskTopPriceChangedSet();
-    }
+        if (other is not IPQLevel1Quote && exactTypes) return false;
+        if (other is not ILevel1Quote otherL1) return false;
+        var baseSame          = base.AreEquivalent(other, exactTypes);
+        var sourceAskTimeSame = sourceAskTime.Equals(otherL1.SourceAskTime);
+        var sourceBidTimeSame = sourceBidTime.Equals(otherL1.SourceBidTime);
+        var validFromTimeSame = ValidFrom.Equals(otherL1.ValidFrom);
+        var validToTimeSame   = ValidTo.Equals(otherL1.ValidTo);
+        var executableSame    = Executable == otherL1.Executable;
+        var bidPriceTopSame   = BidPriceTop == otherL1.BidPriceTop;
+        var askPriceTopSame   = AskPriceTop == otherL1.AskPriceTop;
+        var bidPriceTopChange = IsBidPriceTopChanged == otherL1.IsBidPriceTopChanged;
+        var askPriceTopChange = IsAskPriceTopChanged == otherL1.IsAskPriceTopChanged;
 
-    protected virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateTopBookPriceFields
-    (DateTime snapShotTime,
-        bool updatedOnly, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
-    {
-        if (!updatedOnly || IsBidPriceTopUpdated)
-            yield return new PQFieldUpdate
-                (PQFeedFields.QuoteLayerPrice, PQDepthKey.None, BidPriceTop
-               , quotePublicationPrecisionSettings?.PriceScalingPrecision ?? PriceScalingPrecision);
-        if (!updatedOnly || IsAskPriceTopUpdated)
-            yield return new PQFieldUpdate
-                (PQFeedFields.QuoteLayerPrice, PQDepthKey.AskSide, AskPriceTop
-               , quotePublicationPrecisionSettings?.PriceScalingPrecision ?? PriceScalingPrecision);
+        var isExecutableUpdatedSame = true;
+
+        if (exactTypes && other is IPQLevel1Quote pqL1Q) isExecutableUpdatedSame = IsExecutableUpdated == pqL1Q.IsExecutableUpdated;
+
+        var allAreSame = baseSame && sourceAskTimeSame && validFromTimeSame && validToTimeSame
+                      && sourceBidTimeSame && executableSame && bidPriceTopSame && askPriceTopSame && bidPriceTopChange && askPriceTopChange
+                      && isExecutableUpdatedSame;
+        return allAreSame;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPublishableTickInstant?)obj, true);
@@ -855,22 +865,28 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         }
     }
 
+    public override string QuoteToStringMembers =>
+        $"{base.QuoteToStringMembers}, {nameof(SourceTime)}: {SourceTime}, " +
+        $"{nameof(SourceAskTime)}: {SourceAskTime}, {nameof(SourceBidTime)}: {SourceBidTime}, " +
+        $"{nameof(BidPriceTop)}: {BidPriceTop}, {nameof(IsBidPriceTopChanged)}: {IsBidPriceTopChanged}, " +
+        $"{nameof(AskPriceTop)}: {AskPriceTop}, {nameof(IsAskPriceTopChanged)}: {IsAskPriceTopChanged}, " +
+        $"{nameof(Executable)}: {Executable}";
+
     public override string ToString() => $"{GetType().Name}({QuoteToStringMembers}, {UpdatedFlagsToString})";
 }
 
 public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishableLevel1Quote, ICloneable<PQPublishableLevel1Quote>
   , IDoublyLinkedListNode<PQPublishableLevel1Quote>
 {
-    public PQPublishableLevel1Quote()
-    {
-    }
+    public PQPublishableLevel1Quote() { }
 
     // Reflection invoked constructor (PQServer<T>)
     public PQPublishableLevel1Quote(ISourceTickerInfo sourceTickerInfo) : this(sourceTickerInfo, singlePrice: 0m) { }
 
     public PQPublishableLevel1Quote
-    (ISourceTickerInfo sourceTickerInfo,  DateTime? sourceTime = null, decimal bidPriceTop = 0m, decimal askPriceTop = 0m
-      , bool isBidPriceTopChanged = false, bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null, DateTime? validFrom = null
+    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, decimal bidPriceTop = 0m, decimal askPriceTop = 0m
+      , bool isBidPriceTopChanged = false, bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null
+      , DateTime? validFrom = null
       , DateTime? validTo = null, bool executable = true, FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good
       , FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None, decimal singlePrice = 0m
       , ICandle? conflationTicksCandle = null)
@@ -919,100 +935,12 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
 
     protected override IPQLevel1Quote CreateQuoteContainerFromTickerInfo(ISourceTickerInfo tickerInfo) => new PQLevel1Quote(tickerInfo);
 
-    public override string QuoteToStringMembers =>
-        $"{base.QuoteToStringMembers}, {nameof(AdapterSentTime)}: {AdapterSentTime}, " +
-        $"{nameof(AdapterReceivedTime)}: {AdapterReceivedTime}, {nameof(ConflatedTicksCandle)}: {ConflatedTicksCandle}";
 
+    ILevel1Quote IPublishableLevel1Quote.AsNonPublishable => AsNonPublishable;
 
-    public override PQPublishableLevel1Quote Clone() =>
-        Recycler?.Borrow<PQPublishableLevel1Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) ??
-        new PQPublishableLevel1Quote(this, PQQuoteContainer.Clone());
-
-    ILevel1Quote ICloneable<ILevel1Quote>.Clone() => Clone();
-
-    ILevel1Quote ILevel1Quote.Clone() => Clone();
-
-    IMutableLevel1Quote IMutableLevel1Quote.Clone() => Clone();
-
-    IPQLevel1Quote IPQLevel1Quote.Clone() => Clone();
-
-
-    [JsonIgnore]
-    public new PQPublishableLevel1Quote? Previous
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as PQPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
-    }
-
-    [JsonIgnore]
-    public new PQPublishableLevel1Quote? Next
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as PQPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
-    }
-
-    [JsonIgnore]
-    IPQPublishableLevel1Quote? IPQPublishableLevel1Quote.Previous
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPQPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
-    }
-
-    [JsonIgnore]
-    IPQPublishableLevel1Quote? IPQPublishableLevel1Quote.Next
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPQPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
-    }
-
-    [JsonIgnore]
-    IPublishableLevel1Quote? IPublishableLevel1Quote.Previous
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
-    }
-
-    [JsonIgnore]
-    IPublishableLevel1Quote? IPublishableLevel1Quote.Next
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
-    }
-
-    [JsonIgnore]
-    IPublishableLevel1Quote? IDoublyLinkedListNode<IPublishableLevel1Quote>.Previous
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
-    }
-
-    [JsonIgnore]
-    IPublishableLevel1Quote? IDoublyLinkedListNode<IPublishableLevel1Quote>.Next
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
-    }
-
-    [JsonIgnore]
-    IPQPublishableLevel1Quote? IDoublyLinkedListNode<IPQPublishableLevel1Quote>.Previous
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPQPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
-    }
-
-    [JsonIgnore]
-    IPQPublishableLevel1Quote? IDoublyLinkedListNode<IPQPublishableLevel1Quote>.Next
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPQPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
-    }
-
-    [JsonIgnore] IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Previous { get; set; }
-    [JsonIgnore] IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Next     { get; set; }
-
-    ILevel1Quote IPublishableLevel1Quote.              AsNonPublishable => AsNonPublishable;
     IMutableLevel1Quote IMutablePublishableLevel1Quote.AsNonPublishable => AsNonPublishable;
-    public override IPQLevel1Quote                     AsNonPublishable => (IPQLevel1Quote)PQQuoteContainer;
+
+    public override IPQLevel1Quote AsNonPublishable => (IPQLevel1Quote)PQQuoteContainer;
 
     [JsonIgnore] decimal IBidAskPair.BidPrice => AsNonPublishable.BidPriceTop;
 
@@ -1148,6 +1076,102 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IPQCandle? ConflatedTicksCandle { get; set; }
 
+    QuoteInstantBehaviorFlags ILevel1Quote.QuoteBehavior => AsNonPublishable.QuoteBehavior;
+
+    QuoteInstantBehaviorFlags IMutableLevel1Quote.QuoteBehavior
+    {
+        get => AsNonPublishable.QuoteBehavior;
+        set => AsNonPublishable.QuoteBehavior = value;
+    }
+
+    public override PublishableQuoteInstantBehaviorFlags QuoteBehavior
+    {
+        get => base.QuoteBehavior;
+        set
+        {
+            if (value.HasRestoreAndOverlayOriginalQuoteFlagsFlag())
+            {
+                AsNonPublishable.QuoteBehavior |= (QuoteInstantBehaviorFlags)value;
+            }
+            base.QuoteBehavior = value;
+        }
+    }
+
+    [JsonIgnore]
+    public new PQPublishableLevel1Quote? Next
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as PQPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
+    }
+
+    [JsonIgnore]
+    public new PQPublishableLevel1Quote? Previous
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as PQPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
+    }
+
+    [JsonIgnore]
+    IPQPublishableLevel1Quote? IPQPublishableLevel1Quote.Previous
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPQPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
+    }
+
+    [JsonIgnore]
+    IPQPublishableLevel1Quote? IPQPublishableLevel1Quote.Next
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPQPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
+    }
+
+    [JsonIgnore]
+    IPublishableLevel1Quote? IPublishableLevel1Quote.Previous
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
+    }
+
+    [JsonIgnore]
+    IPublishableLevel1Quote? IPublishableLevel1Quote.Next
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
+    }
+
+    [JsonIgnore]
+    IPublishableLevel1Quote? IDoublyLinkedListNode<IPublishableLevel1Quote>.Previous
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
+    }
+
+    [JsonIgnore]
+    IPublishableLevel1Quote? IDoublyLinkedListNode<IPublishableLevel1Quote>.Next
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
+    }
+
+    [JsonIgnore]
+    IPQPublishableLevel1Quote? IDoublyLinkedListNode<IPQPublishableLevel1Quote>.Previous
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPQPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
+    }
+
+    [JsonIgnore]
+    IPQPublishableLevel1Quote? IDoublyLinkedListNode<IPQPublishableLevel1Quote>.Next
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPQPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
+    }
+
+    [JsonIgnore] IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Previous { get; set; }
+
+    [JsonIgnore] IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Next { get; set; }
+
+
     [JsonIgnore]
     public override bool HasUpdates
     {
@@ -1159,7 +1183,7 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
         }
     }
 
-    public override void UpdateStarted(uint updateSequenceId)
+    public override void UpdateStarted(uint updateSequenceId = 0)
     {
         ConflatedTicksCandle?.UpdateStarted(updateSequenceId);
         base.UpdateStarted(updateSequenceId);
@@ -1186,7 +1210,7 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
 
     IPQLevel1Quote ITrackableReset<IPQLevel1Quote>.ResetWithTracking() => ResetWithTracking();
 
-    IPQLevel1Quote IPQLevel1Quote.                 ResetWithTracking() => ResetWithTracking();
+    IPQLevel1Quote IPQLevel1Quote.ResetWithTracking() => ResetWithTracking();
 
     public override PQPublishableLevel1Quote ResetWithTracking()
     {
@@ -1236,21 +1260,17 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
 
     IBidAskInstant ICloneable<IBidAskInstant>.Clone() => Clone();
 
-    bool IInterfacesComparable<IBidAskInstant>.AreEquivalent(IBidAskInstant? other, bool exactTypes) =>
-        AreEquivalent(other as IPublishableLevel1Quote, exactTypes);
+    ILevel1Quote ICloneable<ILevel1Quote>.Clone() => Clone();
 
-    public override bool AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false)
-    {
-        if (other is not IPublishableLevel1Quote otherL1) return false;
-        var baseSame            = base.AreEquivalent(otherL1, exactTypes);
-        var conflationTicksCandleSame
-            = ((ConflatedTicksCandle == null || ConflatedTicksCandle.IsEmpty) &&
-               (otherL1.ConflatedTicksCandle == null || otherL1.ConflatedTicksCandle.IsEmpty)) ||
-              (ConflatedTicksCandle?.AreEquivalent(otherL1.ConflatedTicksCandle, exactTypes) ?? otherL1.ConflatedTicksCandle == null);
+    ILevel1Quote ILevel1Quote.Clone() => Clone();
 
-        var allAreSame = baseSame && conflationTicksCandleSame;
-        return allAreSame;
-    }
+    IMutableLevel1Quote IMutableLevel1Quote.Clone() => Clone();
+
+    IPQLevel1Quote IPQLevel1Quote.Clone() => Clone();
+
+    public override PQPublishableLevel1Quote Clone() =>
+        Recycler?.Borrow<PQPublishableLevel1Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) ??
+        new PQPublishableLevel1Quote(this, PQQuoteContainer.Clone());
 
     IPQLevel1Quote IPQLevel1Quote.CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags)
     {
@@ -1307,6 +1327,22 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
         return this;
     }
 
+    bool IInterfacesComparable<IBidAskInstant>.AreEquivalent(IBidAskInstant? other, bool exactTypes) =>
+        AreEquivalent(other as IPublishableLevel1Quote, exactTypes);
+
+    public override bool AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false)
+    {
+        if (other is not IPublishableLevel1Quote otherL1) return false;
+        var baseSame = base.AreEquivalent(otherL1, exactTypes);
+        var conflationTicksCandleSame
+            = ((ConflatedTicksCandle == null || ConflatedTicksCandle.IsEmpty) &&
+               (otherL1.ConflatedTicksCandle == null || otherL1.ConflatedTicksCandle.IsEmpty)) ||
+              (ConflatedTicksCandle?.AreEquivalent(otherL1.ConflatedTicksCandle, exactTypes) ?? otherL1.ConflatedTicksCandle == null);
+
+        var allAreSame = baseSame && conflationTicksCandleSame;
+        return allAreSame;
+    }
+
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPublishableTickInstant?)obj, true);
 
     public override int GetHashCode()
@@ -1318,6 +1354,10 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
             return hashCode;
         }
     }
+
+    public override string QuoteToStringMembers =>
+        $"{base.QuoteToStringMembers}, {nameof(AdapterSentTime)}: {AdapterSentTime}, " +
+        $"{nameof(AdapterReceivedTime)}: {AdapterReceivedTime}, {nameof(ConflatedTicksCandle)}: {ConflatedTicksCandle}";
 
     public override string ToString() => $"{GetType().Name}({QuoteToStringMembers}, {PQQuoteContainer.QuoteToStringMembers}, {UpdatedFlagsToString})";
 }

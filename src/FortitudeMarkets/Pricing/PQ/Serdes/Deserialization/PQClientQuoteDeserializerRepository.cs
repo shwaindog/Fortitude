@@ -45,16 +45,16 @@ public sealed class PQClientQuoteDeserializerRepository
     IMessageStreamDecoder IMessageStreamDecoderFactory.Supply(string name) => Supply(name);
 
     public IPQMessageDeserializer? GetDeserializer(ISourceTickerInfo identifier) =>
-        TryGetDeserializer(identifier.SourceTickerId, out var quoteDeserializer)
+        TryGetDeserializer(identifier.SourceInstrumentId, out var quoteDeserializer)
             ? quoteDeserializer as IPQMessageDeserializer
-            : CascadingFallbackDeserializationRepo?.GetDeserializer(identifier.SourceTickerId) as IPQMessageDeserializer;
+            : CascadingFallbackDeserializationRepo?.GetDeserializer(identifier.SourceInstrumentId) as IPQMessageDeserializer;
 
-    public bool UnregisterDeserializer(ISourceTickerInfo identifier) => UnregisterDeserializer(identifier.SourceTickerId);
+    public bool UnregisterDeserializer(ISourceTickerInfo identifier) => UnregisterDeserializer(identifier.SourceInstrumentId);
 
     public IPQMessageDeserializer CreateQuoteDeserializer<T>(ITickerPricingSubscriptionConfig streamPubConfig) where T : class, IPQMessage
     {
         IPQMessageDeserializer quoteDeserializer = new PQMessageDeserializer<T>(streamPubConfig);
-        RegisteredDeserializers.Add(streamPubConfig.SourceTickerInfo.SourceTickerId, quoteDeserializer);
+        RegisteredDeserializers.Add(streamPubConfig.SourceTickerInfo.SourceInstrumentId, quoteDeserializer);
         return quoteDeserializer;
     }
 

@@ -5,6 +5,7 @@
 
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 #endregion
 
@@ -17,7 +18,7 @@ public class OrderBookLayerFactorySelector : LayerFlagsSelector<IMutablePriceVol
         foreach (var layerType in Enum.GetValues<LayerType>())
         {
             if (layerType == LayerType.None) continue;
-            AllowedImplementations.Add(LayerFlagToImplementation(layerType).GetType());
+            AllowedImplementations.Add(LayerFlagToImplementation(layerType, QuoteInstantBehaviorFlags.None).GetType());
         }
     }
 
@@ -32,23 +33,25 @@ public class OrderBookLayerFactorySelector : LayerFlagsSelector<IMutablePriceVol
 
     protected override IMutablePriceVolumeLayer SelectOrdersCountPriceVolumeLayer() => new OrdersCountPriceVolumeLayer();
 
-    protected override IMutablePriceVolumeLayer SelectAnonymousOrdersPriceVolumeLayer() => new OrdersPriceVolumeLayer(LayerType.OrdersAnonymousPriceVolume);
+    protected override IMutablePriceVolumeLayer SelectAnonymousOrdersPriceVolumeLayer(QuoteLayerInstantBehaviorFlags layerBehavior) =>
+        new OrdersPriceVolumeLayer(LayerType.OrdersAnonymousPriceVolume, layerBehavior);
 
-    protected override IMutablePriceVolumeLayer SelectCounterPartyOrdersPriceVolumeLayer () => new OrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume);
+    protected override IMutablePriceVolumeLayer SelectCounterPartyOrdersPriceVolumeLayer (QuoteLayerInstantBehaviorFlags layerBehavior) => 
+        new OrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, layerBehavior);
 
-    protected override IMutablePriceVolumeLayer SelectSourceQuoteRefTraderValueDatePriceVolumeLayer() =>
-        new FullSupportPriceVolumeLayer();
+    protected override IMutablePriceVolumeLayer SelectFullSupportPriceVolumeLayer(QuoteLayerInstantBehaviorFlags layerBehavior) =>
+        new FullSupportPriceVolumeLayer(layerBehavior);
 
     public override IMutablePriceVolumeLayer CreateExpectedImplementation
-    (LayerType desiredLayerType, IPriceVolumeLayer? copy = null
+    (LayerType desiredLayerType, QuoteLayerInstantBehaviorFlags layerBehavior, IPriceVolumeLayer? copy = null
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        var implementation = LayerFlagToImplementation(desiredLayerType);
-        if (copy != null) implementation.CopyFrom(copy, copyMergeFlags);
+        var implementation = LayerFlagToImplementation(desiredLayerType, (QuoteInstantBehaviorFlags)layerBehavior);
+        if (copy != null) implementation.CopyFrom(copy, (QuoteInstantBehaviorFlags)layerBehavior, copyMergeFlags);
         return implementation;
     }
 
-    public static IMutablePriceVolumeLayer LayerFlagToImplementation(LayerType desiredLayerType)
+    public static IMutablePriceVolumeLayer LayerFlagToImplementation(LayerType desiredLayerType, QuoteInstantBehaviorFlags quoteBehavior)
     {
         var newLayer =
             desiredLayerType switch

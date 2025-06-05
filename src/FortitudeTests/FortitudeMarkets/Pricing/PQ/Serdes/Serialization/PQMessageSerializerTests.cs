@@ -165,34 +165,34 @@ public class PQMessageSerializerTests
 
         deserializerRepository = new PQClientQuoteDeserializerRepository("PQClientTest1", new Recycler());
         deserializerRepository.RegisterDeserializer
-            (tickInstantInfo.SourceTickerId,
+            (tickInstantInfo.SourceInstrumentId,
              new PQMessageDeserializer<PQPublishableTickInstant>
                  (new TickerPricingSubscriptionConfig(tickInstantInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
-            (level1Info.SourceTickerId
+            (level1Info.SourceInstrumentId
            , new PQMessageDeserializer<PQPublishableLevel1Quote>(new TickerPricingSubscriptionConfig(level1Info, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
-            (valueDateInfo.SourceTickerId,
+            (valueDateInfo.SourceInstrumentId,
              new PQMessageDeserializer<PQPublishableLevel2Quote>
                  (new TickerPricingSubscriptionConfig(valueDateInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
-            (everyLayerInfo.SourceTickerId,
+            (everyLayerInfo.SourceInstrumentId,
              new PQMessageDeserializer<PQPublishableLevel2Quote>
                  (new TickerPricingSubscriptionConfig(everyLayerInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
-            (simpleNoRecentlyTradedInfo.SourceTickerId,
+            (simpleNoRecentlyTradedInfo.SourceInstrumentId,
              new PQMessageDeserializer<PQPublishableLevel3Quote>
                  (new TickerPricingSubscriptionConfig(simpleNoRecentlyTradedInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
-            (srcNmLstTrdInfo.SourceTickerId,
+            (srcNmLstTrdInfo.SourceInstrumentId,
              new PQMessageDeserializer<PQPublishableLevel3Quote>
                  (new TickerPricingSubscriptionConfig(srcNmLstTrdInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
-            (srcQtRfPdGvnVlmInfo.SourceTickerId,
+            (srcQtRfPdGvnVlmInfo.SourceInstrumentId,
              new PQMessageDeserializer<PQPublishableLevel3Quote>
                  (new TickerPricingSubscriptionConfig(srcQtRfPdGvnVlmInfo, pricingServerConfig)));
         deserializerRepository.RegisterDeserializer
-            (trdrLyrTrdrPdGvnVlmDtlsInfo.SourceTickerId,
+            (trdrLyrTrdrPdGvnVlmDtlsInfo.SourceInstrumentId,
              new PQMessageDeserializer<PQPublishableLevel3Quote>
                  (new TickerPricingSubscriptionConfig(trdrLyrTrdrPdGvnVlmDtlsInfo, pricingServerConfig)));
 
@@ -279,7 +279,7 @@ public class PQMessageSerializerTests
 
             Assert.AreEqual(amtWritten, bytesConsumed);
 
-            var deserializedQuote = deserializerRepository.GetDeserializer(pqQuote.SourceTickerInfo!.SourceTickerId);
+            var deserializedQuote = deserializerRepository.GetDeserializer(pqQuote.SourceTickerInfo!.SourceInstrumentId);
 
             Assert.IsNotNull(deserializedQuote);
             IPQPublishableTickInstant? clientSideQuote = null;
@@ -336,7 +336,7 @@ public class PQMessageSerializerTests
 
         Assert.AreEqual((byte)(isSnapshot ? global::FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.PQMessageFlags.Snapshot : global::FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.PQMessageFlags.Update), messageFlags);
         var sourceTickerId = StreamByteOps.ToUInt(ref currPtr);
-        Assert.AreEqual(originalQuote.SourceTickerInfo.SourceTickerId, sourceTickerId);
+        Assert.AreEqual(originalQuote.SourceTickerInfo.SourceInstrumentId, sourceTickerId);
         var messagesTotalSize = StreamByteOps.ToUInt(ref currPtr);
         Assert.AreEqual((uint)amtWritten, messagesTotalSize);
         var sequenceNumber = StreamByteOps.ToUInt(ref currPtr);

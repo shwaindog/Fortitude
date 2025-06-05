@@ -13,11 +13,11 @@ using FortitudeMarkets.Pricing.FeedEvents.Candles;
 
 namespace FortitudeMarkets.Indicators.Pricing.Candles.Construction;
 
-public class ResolverState(PricingInstrumentId pricingInstrumentId)
+public class ResolverState(PricingInstrumentIdValue pricingInstrumentId)
 {
     public readonly IDoublyLinkedList<Candle> Cache = new DoublyLinkedList<Candle>();
 
-    public readonly PricingInstrumentId PricingInstrumentId = pricingInstrumentId;
+    public readonly PricingInstrumentIdValue PricingInstrumentId = pricingInstrumentId;
 
     public TimeSpan            CacheTimeSpan;
     public InstrumentFileInfo? ExistingRepoInfo;
@@ -27,8 +27,8 @@ public class ResolverState(PricingInstrumentId pricingInstrumentId)
     public InstrumentFileInfo? SubCandleRepoInfo;
     public BoundedTimeRange    SubCandleRepoRange;
 
-    public string Ticker => PricingInstrumentId.Ticker;
-    public string Source => PricingInstrumentId.Source;
+    public string Ticker => PricingInstrumentId.InstrumentName;
+    public string Source => PricingInstrumentId.SourceName;
 
     public TimeBoundaryPeriod CandlePeriod => PricingInstrumentId.CoveringPeriod.Period;
 }

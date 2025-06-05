@@ -15,6 +15,8 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 [TestClass]
 public class OrderBookTests
 {
+    private const QuoteInstantBehaviorFlags QuoteBehavior = QuoteInstantBehaviorFlags.None;
+
     private IList<OrderBook> allEmptyOrderBooks          = null!;
     private IList<OrderBook> allFullyPopulatedOrderBooks = null!;
 
@@ -324,7 +326,7 @@ public class OrderBookTests
         foreach (var fullyPopulatedQuote in allFullyPopulatedOrderBooks)
         {
             var emptyQuote = new OrderBook();
-            emptyQuote.CopyFrom(fullyPopulatedQuote);
+            emptyQuote.CopyFrom(fullyPopulatedQuote, QuoteBehavior);
 
             Assert.AreEqual(fullyPopulatedQuote, emptyQuote);
         }
@@ -336,7 +338,7 @@ public class OrderBookTests
     {
         foreach (var emptyInitialised in allFullyPopulatedOrderBooks)
         {
-            emptyInitialised.CopyFrom(fullSupportFullyPopulatedOrderBook);
+            emptyInitialised.CopyFrom(fullSupportFullyPopulatedOrderBook, QuoteBehavior);
             Assert.IsTrue(emptyInitialised.AreEquivalent(fullSupportFullyPopulatedOrderBook));
         }
     }

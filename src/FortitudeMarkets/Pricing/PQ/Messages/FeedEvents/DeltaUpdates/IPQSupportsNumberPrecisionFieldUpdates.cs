@@ -10,14 +10,14 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 
-public interface IPQSupportsFieldUpdates<T> : ITracksChanges<T> where T : class
+public interface IPQSupportsFieldUpdates : ITracksChanges
 {
     int UpdateField(PQFieldUpdate fieldUpdate);
 
     IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags);
 }
 
-public interface IPQSupportsNumberPrecisionFieldUpdates<T> : ITracksChanges<T> where T : class
+public interface IPQSupportsNumberPrecisionFieldUpdates : ITracksChanges
 {
     int UpdateField(PQFieldUpdate fieldUpdate);
 

@@ -3,7 +3,6 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
@@ -20,8 +19,8 @@ public enum BookSide
   , AskBook
 }
 
-public interface IOrderBookSide : ITracksShiftsList<IPriceVolumeLayer, IPriceVolumeLayer>, IReusableObject<IOrderBookSide>,
-    IInterfacesComparable<IOrderBookSide>
+public interface IOrderBookSide : IReusableQuoteElement<IOrderBookSide>, ITracksShiftsList<IPriceVolumeLayer, IPriceVolumeLayer>
+  , IParentQuoteElement, IChildQuoteElement
 {
     new IPriceVolumeLayer this[int index] { get; }
 
@@ -45,7 +44,7 @@ public interface IOrderBookSide : ITracksShiftsList<IPriceVolumeLayer, IPriceVol
 }
 
 public interface IMutableOrderBookSide : IOrderBookSide, IMutableTracksShiftsList<IMutablePriceVolumeLayer, IPriceVolumeLayer>,
-    ICloneable<IMutableOrderBookSide>, ITrackableReset<IMutableOrderBookSide>, IEmptyable
+    ICloneable<IMutableOrderBookSide>, ITrackableReset<IMutableOrderBookSide>, IMutableChildQuoteElement
 {
     new IMutablePriceVolumeLayer this[int index] { get; set; }
 

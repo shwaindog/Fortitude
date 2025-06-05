@@ -17,7 +17,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
 public interface IPQLastExternalCounterPartyTrade : IPQLastPaidGivenTrade, IMutableLastExternalCounterPartyTrade,
-    IPQSupportsStringUpdates<ILastTrade>, ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQLastExternalCounterPartyTrade>, ICloneable<IPQLastExternalCounterPartyTrade>
+    IPQSupportsStringUpdates, ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQLastExternalCounterPartyTrade>, ICloneable<IPQLastExternalCounterPartyTrade>
 {
     bool IsExternalCounterPartyIdUpdated   { get; set; }
     int  ExternalCounterPartyNameId        { get; set; }
@@ -327,21 +327,21 @@ public class PQLastExternalCounterPartyTrade : PQLastPaidGivenTrade, IPQLastExte
     (DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
+        var fullPicture = (messageFlags & PQMessageFlags.Complete) > 0;
         foreach (var deltaUpdateField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                    quotePublicationPrecisionSetting))
             yield return deltaUpdateField;
 
-        if (!updatedOnly || IsExternalCounterPartyIdUpdated)
+        if (fullPicture || IsExternalCounterPartyIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedExternalCounterPartyId
                                          , (uint)externalCounterPartyId);
-        if (!updatedOnly || IsExternalCounterPartyNameUpdated)
+        if (fullPicture || IsExternalCounterPartyNameUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedExternalCounterPartyNameId
                                          , (uint)externalCounterPartyNameId);
-        if (!updatedOnly || IsExternalTraderIdUpdated)
+        if (fullPicture || IsExternalTraderIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedExternalTraderId
                                          , (uint)externalTraderId);
-        if (!updatedOnly || IsExternalTraderNameUpdated)
+        if (fullPicture || IsExternalTraderNameUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedExternalTraderNameId
                                          , (uint)externalTraderNameId);
     }

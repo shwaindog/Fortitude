@@ -22,6 +22,8 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.
 [TestClass]
 public class PQOrderBookTests
 {
+    private const QuoteInstantBehaviorFlags QuoteBehavior = QuoteInstantBehaviorFlags.None;
+
     private IList<PQOrderBook> allEmptyOrderBooks          = null!;
     private IList<PQOrderBook> allFullyPopulatedOrderBooks = null!;
 
@@ -345,7 +347,7 @@ public class PQOrderBookTests
         foreach (var fullyPopulatedQuote in allFullyPopulatedOrderBooks)
         {
             var emptyQuote = new PQOrderBook();
-            emptyQuote.CopyFrom(fullyPopulatedQuote);
+            emptyQuote.CopyFrom(fullyPopulatedQuote, QuoteBehavior);
 
             Assert.AreEqual(fullyPopulatedQuote, emptyQuote);
         }
@@ -361,7 +363,7 @@ public class PQOrderBookTests
             {
                 populatedOrderBook.NameIdLookup.Clear();
             }
-            populatedOrderBook.CopyFrom(fullSupportFullyPopulatedOrderBook);
+            populatedOrderBook.CopyFrom(fullSupportFullyPopulatedOrderBook, QuoteBehavior);
             Assert.IsTrue(populatedOrderBook.AreEquivalent(fullSupportFullyPopulatedOrderBook));
         }
     }

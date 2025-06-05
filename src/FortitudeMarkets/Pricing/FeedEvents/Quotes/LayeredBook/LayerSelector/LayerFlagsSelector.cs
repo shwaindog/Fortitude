@@ -16,15 +16,15 @@ public interface ILayerFlagsSelector<out T> where T : class
     bool OriginalCanWhollyContain(LayerFlags copySourceRequiredFlags, LayerFlags copyDestinationSupportedFlags);
 
     T FindForLayerFlags(ISourceTickerInfo sourceTickerInfo);
-    T FindForLayerFlags(LayerFlags layerFlags);
+    T FindForLayerFlags(LayerFlags layerFlags, QuoteLayerInstantBehaviorFlags layerBehavior);
 
     IMutablePriceVolumeLayer CreateExpectedImplementation
-    (LayerType desiredLayerType, IPriceVolumeLayer? copy = null,
+    (LayerType desiredLayerType, QuoteLayerInstantBehaviorFlags layerBehavior, IPriceVolumeLayer? copy = null,
         CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 
     IMutablePriceVolumeLayer UpgradeExistingLayer
-    (IPriceVolumeLayer? original, LayerType desiredLayerType,
-        IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
+    (IPriceVolumeLayer? original, LayerType desiredLayerType, QuoteLayerInstantBehaviorFlags layerBehavior
+       , IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 }
 
 public abstract class LayerFlagsSelector<T> : ILayerFlagsSelector<T> where T : class
@@ -33,10 +33,10 @@ public abstract class LayerFlagsSelector<T> : ILayerFlagsSelector<T> where T : c
 
     public T FindForLayerFlags(ISourceTickerInfo sourceTickerInfo)
     {
-        return FindForLayerFlags(sourceTickerInfo.LayerFlags);
+        return FindForLayerFlags(sourceTickerInfo.LayerFlags, (QuoteLayerInstantBehaviorFlags)sourceTickerInfo.QuoteBehaviorFlags);
     }
 
-    public T FindForLayerFlags(LayerFlags layerFlags)
+    public T FindForLayerFlags(LayerFlags layerFlags, QuoteLayerInstantBehaviorFlags layerBehavior)
     {
         var mostCompactLayerType = layerFlags.MostCompactLayerType();
         return mostCompactLayerType switch
@@ -46,10 +46,9 @@ public abstract class LayerFlagsSelector<T> : ILayerFlagsSelector<T> where T : c
                  , LayerType.SourceQuoteRefPriceVolume  => SelectSourceQuoteRefPriceVolumeLayer()
                  , LayerType.ValueDatePriceVolume       => SelectValueDatePriceVolumeLayer()
                  , LayerType.OrdersCountPriceVolume     => SelectOrdersCountPriceVolumeLayer()
-                 , LayerType.OrdersAnonymousPriceVolume => SelectAnonymousOrdersPriceVolumeLayer()
-                 , LayerType.OrdersFullPriceVolume      => SelectCounterPartyOrdersPriceVolumeLayer()
-
-                 , LayerType.FullSupportPriceVolume => SelectSourceQuoteRefTraderValueDatePriceVolumeLayer()
+                 , LayerType.OrdersAnonymousPriceVolume => SelectAnonymousOrdersPriceVolumeLayer(layerBehavior)
+                 , LayerType.OrdersFullPriceVolume      => SelectCounterPartyOrdersPriceVolumeLayer(layerBehavior)
+                 , LayerType.FullSupportPriceVolume => SelectFullSupportPriceVolumeLayer(layerBehavior)
 
                  , _ => SelectSimplePriceVolumeLayer()
                };
@@ -59,13 +58,13 @@ public abstract class LayerFlagsSelector<T> : ILayerFlagsSelector<T> where T : c
         copyDestinationSupportedFlags.HasAllOf(copySourceRequiredFlags);
 
     public virtual IMutablePriceVolumeLayer UpgradeExistingLayer
-    (IPriceVolumeLayer? original, LayerType desiredLayerType,
-        IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    (IPriceVolumeLayer? original, LayerType desiredLayerType, QuoteLayerInstantBehaviorFlags layerBehavior
+       , IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (original == null)
         {
-            var cloneOfSrc = CreateExpectedImplementation(desiredLayerType);
-            if (copy != null) cloneOfSrc.CopyFrom(copy, copyMergeFlags);
+            var cloneOfSrc = CreateExpectedImplementation(desiredLayerType, layerBehavior);
+            if (copy != null) cloneOfSrc.CopyFrom(copy, (QuoteInstantBehaviorFlags)layerBehavior, copyMergeFlags);
             return cloneOfSrc;
         }
 
@@ -74,18 +73,18 @@ public abstract class LayerFlagsSelector<T> : ILayerFlagsSelector<T> where T : c
         {
             var mergeOriginalDesiredLayerFlags = original.SupportsLayerFlags | desiredLayerType.SupportedLayerFlags();
             var mostCompatibleSupportsBoth    = mergeOriginalDesiredLayerFlags.MostCompactLayerType();
-            var upgradedLayer                 = CreateExpectedImplementation(mostCompatibleSupportsBoth);
-            upgradedLayer.CopyFrom(original);
-            if (copy != null) upgradedLayer.CopyFrom(copy, copyMergeFlags);
+            var upgradedLayer                 = CreateExpectedImplementation(mostCompatibleSupportsBoth, layerBehavior);
+            upgradedLayer.CopyFrom(original, (QuoteInstantBehaviorFlags)layerBehavior);
+            if (copy != null) upgradedLayer.CopyFrom(copy, (QuoteInstantBehaviorFlags)layerBehavior, copyMergeFlags);
             return upgradedLayer;
         }
 
-        if (copy != null) original.CopyFrom(copy, copyMergeFlags);
+        if (copy != null) original.CopyFrom(copy, (QuoteInstantBehaviorFlags)layerBehavior, copyMergeFlags);
         return (IMutablePriceVolumeLayer)original;
     }
 
     public abstract IMutablePriceVolumeLayer CreateExpectedImplementation
-    (LayerType desiredLayerType, IPriceVolumeLayer? copy = null,
+    (LayerType desiredLayerType, QuoteLayerInstantBehaviorFlags layerBehavior, IPriceVolumeLayer? copy = null,
         CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 
     protected abstract T SelectSimplePriceVolumeLayer();
@@ -93,7 +92,7 @@ public abstract class LayerFlagsSelector<T> : ILayerFlagsSelector<T> where T : c
     protected abstract T SelectSourcePriceVolumeLayer();
     protected abstract T SelectSourceQuoteRefPriceVolumeLayer();
     protected abstract T SelectOrdersCountPriceVolumeLayer();
-    protected abstract T SelectAnonymousOrdersPriceVolumeLayer();
-    protected abstract T SelectCounterPartyOrdersPriceVolumeLayer();
-    protected abstract T SelectSourceQuoteRefTraderValueDatePriceVolumeLayer();
+    protected abstract T SelectAnonymousOrdersPriceVolumeLayer(QuoteLayerInstantBehaviorFlags layerBehavior);
+    protected abstract T SelectCounterPartyOrdersPriceVolumeLayer(QuoteLayerInstantBehaviorFlags layerBehavior);
+    protected abstract T SelectFullSupportPriceVolumeLayer(QuoteLayerInstantBehaviorFlags layerBehavior);
 }

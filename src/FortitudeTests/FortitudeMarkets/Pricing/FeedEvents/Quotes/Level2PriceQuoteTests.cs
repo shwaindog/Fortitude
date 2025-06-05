@@ -149,8 +149,10 @@ public class Level2PriceQuoteTests
         var expectedBidPriceTop        = 2.34567m;
         var expectedSourceAskTime      = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop        = 3.45678m;
-        var expectedCandle      = new Candle();
+        var expectedCandle             = new Candle();
         var expectedDailyTickCount     = 10u;
+        var quoteBehavior              = PublishableQuoteInstantBehaviorFlags.None;
+
         var expectedBidBook =
             new OrderBookSide(BookSide.BidBook, simpleSourceTickerInfo)
             {
@@ -165,8 +167,9 @@ public class Level2PriceQuoteTests
         var fromConstructor =
             new PublishableLevel2PriceQuote
                 (simpleSourceTickerInfo, expectedSourceTime, new OrderBook(expectedBidBook, expectedAskBook, expectedDailyTickCount, true)
-               , true, true, expectedSourceBidTime, expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2)
-               , true,  FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay, expectedSingleValue, expectedCandle)
+               , quoteBehavior, true, true, expectedSourceBidTime, expectedSourceAskTime, expectedSourceTime
+               , expectedSourceTime.AddSeconds(2), true,  FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay
+               , expectedSingleValue, expectedCandle)
                 {
                     ClientReceivedTime = expectedClientReceivedTime,
                     AdapterReceivedTime = expectedAdapterReceiveTime,
@@ -208,7 +211,8 @@ public class Level2PriceQuoteTests
         var expectedSourceAskTime      = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop        = 3.45678m;
         var expectedDailyTickCount     = 10u;
-        var expectedCandle      = new Candle();
+        var quoteBehavior              = PublishableQuoteInstantBehaviorFlags.None;
+        var expectedCandle             = new Candle();
         var convertedBidBook =
             new PQOrderBookSide(BookSide.BidBook, new PQSourceTickerInfo(simpleSourceTickerInfo))
             {
@@ -225,8 +229,9 @@ public class Level2PriceQuoteTests
         var fromConstructor =
             new PublishableLevel2PriceQuote
                 (simpleSourceTickerInfo, expectedSourceTime, new OrderBook(convertedBidBook, convertedAskBook, expectedDailyTickCount, true)
-               , true, true, expectedSourceBidTime, expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2)
-               , true, FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay, expectedSingleValue, expectedCandle)
+               , quoteBehavior, true, true, expectedSourceBidTime, expectedSourceAskTime, expectedSourceTime
+               , expectedSourceTime.AddSeconds(2), true, FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay
+               , expectedSingleValue, expectedCandle)
                 {
                     ClientReceivedTime = expectedClientReceivedTime,
                     AdapterReceivedTime = expectedAdapterReceiveTime,
@@ -330,9 +335,9 @@ public class Level2PriceQuoteTests
         foreach (var emptyQuote in allEmptyQuotes)
         {
             var expectedBidOrderBook = emptyQuote.BidBook.Clone();
-            expectedBidOrderBook[0]!.Price = expectedBidPriceTop;
+            expectedBidOrderBook[0].Price = expectedBidPriceTop;
             var expectedAskOrderBook = emptyQuote.AskBook.Clone();
-            expectedAskOrderBook[0]!.Price = expectedAskPriceTop;
+            expectedAskOrderBook[0].Price = expectedAskPriceTop;
 
             emptyQuote.SourceTime                   = expectedSourceTime;
             emptyQuote.FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay;
@@ -569,7 +574,8 @@ public class Level2PriceQuoteTests
                                          (price, volume) => new SourcePriceVolumeLayer(price, volume, "SourceName" + i++, true));
         var sourceAskBook = GenerateBook(BookSide.AskBook, 20, 1.1125m, 0.0001m, 100000m, 10000m,
                                          (price, volume) => new SourcePriceVolumeLayer(price, volume, "SourceName" + i++, true));
-
+        
+        var quoteBehavior              = PublishableQuoteInstantBehaviorFlags.None;
         UpdateSourceQuoteBook(sourceBidBook, 20, 20, 1);
         UpdateSourceQuoteBook(sourceAskBook, 20, 20, 1);
 
@@ -577,7 +583,7 @@ public class Level2PriceQuoteTests
         return new PublishableLevel2PriceQuote
             (sourceTickerInfo, new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(123)
            , new OrderBook(sourceBidBook, sourceAskBook, 15, true)
-           , false, true
+           , quoteBehavior, false, true
            , new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(234)
            , new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(345)
            , DateTime.Parse("2015-08-06 22:07:23.123")
@@ -610,7 +616,7 @@ public class Level2PriceQuoteTests
         var currentVolume = startingVolume;
         for (var i = 0; i < numberOfLayers; i++)
         {
-            var sourceLayer = (IMutableSourcePriceVolumeLayer)toUpdate[i]!;
+            var sourceLayer = (IMutableSourcePriceVolumeLayer)toUpdate[i];
 
             string? traderName                                                = null;
             if (startingVolume != 0m && deltaVolumePerLayer != 0m) traderName = $"SourceNameUpdate{i}";
@@ -638,12 +644,12 @@ public class Level2PriceQuoteTests
         foreach (var level2Quote in quotesToCheck)
             for (var i = 0; i < level2Quote.SourceTickerInfo!.MaximumPublishedLayers; i++)
             {
-                Assert.AreEqual(expectedType, level2Quote.BidBook[i]?.GetType(),
+                Assert.AreEqual(expectedType, level2Quote.BidBook[i].GetType(),
                                 $"BidBook[{i}] expectedType: {expectedType.Name} " +
-                                $"actualType: {level2Quote.BidBook[i]?.GetType()?.Name ?? "null"}");
-                Assert.AreEqual(expectedType, level2Quote.AskBook[i]?.GetType(),
+                                $"actualType: {level2Quote.BidBook[i].GetType().Name}");
+                Assert.AreEqual(expectedType, level2Quote.AskBook[i].GetType(),
                                 $"BidBook[{i}] expectedType: {expectedType.Name} " +
-                                $"actualType: {level2Quote.BidBook[i]?.GetType()?.Name ?? "null"}");
+                                $"actualType: {level2Quote.BidBook[i].GetType().Name}");
             }
     }
 }

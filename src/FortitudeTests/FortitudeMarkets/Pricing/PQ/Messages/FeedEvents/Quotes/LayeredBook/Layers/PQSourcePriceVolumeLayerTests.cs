@@ -8,12 +8,12 @@ using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
@@ -25,6 +25,8 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.
 [TestClass]
 public class PQSourcePriceVolumeLayerTests
 {
+    private const QuoteInstantBehaviorFlags QuoteBehavior = QuoteInstantBehaviorFlags.None;
+
     private static IPQNameIdLookupGenerator emptyNameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates);
 
     private PQSourcePriceVolumeLayer emptyPvl     = null!;
@@ -40,12 +42,12 @@ public class PQSourcePriceVolumeLayerTests
     public void SetUp()
     {
         wellKnownSourceName = "TestSourceName";
+        emptyNameIdLookup   = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates);
 
-        emptyNameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates);
-        nameIdLookup      = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates);
-        emptyPvl          = new PQSourcePriceVolumeLayer(nameIdLookup.Clone(), 0m, 0m);
-        testDateTime      = new DateTime(2017, 12, 17, 18, 54, 52);
-        populatedPvl      = new PQSourcePriceVolumeLayer(nameIdLookup, 4.2949_672m, 42_949_672m, wellKnownSourceName, true);
+        nameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerStringUpdates);
+        emptyPvl     = new PQSourcePriceVolumeLayer(nameIdLookup.Clone());
+        testDateTime = new DateTime(2017, 12, 17, 18, 54, 52);
+        populatedPvl = new PQSourcePriceVolumeLayer(nameIdLookup, 4.2949_672m, 42_949_672m, wellKnownSourceName, true);
     }
 
     [TestMethod]
@@ -374,7 +376,7 @@ public class PQSourcePriceVolumeLayerTests
             }
             newEmpty.UpdateField(l2QUpdates[0]);
             var foundLayer =
-                (IPQSourcePriceVolumeLayer)(isBid ? newEmpty.BidBook : newEmpty.AskBook)[bookDepth]!;
+                (IPQSourcePriceVolumeLayer)(isBid ? newEmpty.BidBook : newEmpty.AskBook)[bookDepth];
             Assert.AreEqual(expectedSourceName, foundLayer.SourceName);
             Assert.IsTrue(foundLayer.IsSourceNameUpdated);
             Assert.IsTrue(foundLayer.HasUpdates);
@@ -397,7 +399,7 @@ public class PQSourcePriceVolumeLayerTests
             }
             newEmpty.UpdateField(bkUpdates[0]);
             var foundLayer =
-                (IPQSourcePriceVolumeLayer)(isBid ? newEmpty.BidSide : newEmpty.AskSide)[bookDepth]!;
+                (IPQSourcePriceVolumeLayer)(isBid ? newEmpty.BidSide : newEmpty.AskSide)[bookDepth];
             Assert.AreEqual(expectedSourceName, foundLayer.SourceName);
             Assert.IsTrue(foundLayer.IsSourceNameUpdated);
             Assert.IsTrue(foundLayer.HasUpdates);
@@ -419,7 +421,7 @@ public class PQSourcePriceVolumeLayerTests
                 newEmpty.UpdateFieldString(stringUpdate);
             }
             newEmpty.UpdateField(bsUpdates[0]);
-            var foundLayer         = (IPQSourcePriceVolumeLayer)newEmpty[bookDepth]!;
+            var foundLayer = (IPQSourcePriceVolumeLayer)newEmpty[bookDepth];
             Assert.AreEqual(expectedSourceName, foundLayer.SourceName);
             Assert.IsTrue(foundLayer.IsSourceNameUpdated);
             Assert.IsTrue(foundLayer.HasUpdates);
@@ -489,7 +491,7 @@ public class PQSourcePriceVolumeLayerTests
         if (l2QNotNull) Assert.AreEqual(2, l2Quote!.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).Count());
 
         var expectedExecutable   = !sourcePvl.Executable;
-        var expectedBooleanFlags = expectedExecutable ? LayerBooleanFlags.IsExecutableFlag : LayerBooleanFlags.None;
+        var expectedBooleanFlags = expectedExecutable ? LayerBooleanValues.Executable : LayerBooleanValues.None;
         sourcePvl.Executable = expectedExecutable;
         Assert.IsTrue(sourcePvl.HasUpdates);
         Assert.AreEqual(expectedExecutable, sourcePvl.Executable);
@@ -550,7 +552,7 @@ public class PQSourcePriceVolumeLayerTests
             }
             newEmpty.UpdateField(l2QUpdates[0]);
             var foundLayer =
-                (IPQSourcePriceVolumeLayer)(isBid ? newEmpty.BidBook : newEmpty.AskBook)[bookDepth]!;
+                (IPQSourcePriceVolumeLayer)(isBid ? newEmpty.BidBook : newEmpty.AskBook)[bookDepth];
             Assert.AreEqual(expectedExecutable, foundLayer.Executable);
             Assert.IsTrue(foundLayer.IsExecutableUpdated);
             Assert.IsTrue(foundLayer.HasUpdates);
@@ -573,7 +575,7 @@ public class PQSourcePriceVolumeLayerTests
             }
             newEmpty.UpdateField(bkUpdates[0]);
             var foundLayer =
-                (IPQSourcePriceVolumeLayer)(isBid ? newEmpty.BidSide : newEmpty.AskSide)[bookDepth]!;
+                (IPQSourcePriceVolumeLayer)(isBid ? newEmpty.BidSide : newEmpty.AskSide)[bookDepth];
             Assert.AreEqual(expectedExecutable, foundLayer.Executable);
             Assert.IsTrue(foundLayer.IsExecutableUpdated);
             Assert.IsTrue(foundLayer.HasUpdates);
@@ -595,7 +597,7 @@ public class PQSourcePriceVolumeLayerTests
                 newEmpty.UpdateFieldString(stringUpdate);
             }
             newEmpty.UpdateField(bsUpdates[0]);
-            var foundLayer         = (IPQSourcePriceVolumeLayer)newEmpty[bookDepth]!;
+            var foundLayer = (IPQSourcePriceVolumeLayer)newEmpty[bookDepth];
             Assert.AreEqual(expectedExecutable, foundLayer.Executable);
             Assert.IsTrue(foundLayer.IsExecutableUpdated);
             Assert.IsTrue(foundLayer.HasUpdates);
@@ -627,7 +629,7 @@ public class PQSourcePriceVolumeLayerTests
     public void FullyPopulatedPvl_CopyFromToEmptyQuote_PvlsEqualEachOther()
     {
         var nonPQPriceVolume = new SourcePriceVolumeLayer(populatedPvl);
-        emptyPvl.CopyFrom(nonPQPriceVolume);
+        emptyPvl.CopyFrom(nonPQPriceVolume, QuoteBehavior);
         Assert.AreEqual(populatedPvl, emptyPvl);
     }
 
@@ -636,7 +638,7 @@ public class PQSourcePriceVolumeLayerTests
     {
         var emptyPriceVolumeLayer = new PQSourcePriceVolumeLayer(emptyNameIdLookup);
         populatedPvl.HasUpdates = false;
-        emptyPriceVolumeLayer.CopyFrom(populatedPvl);
+        emptyPriceVolumeLayer.CopyFrom(populatedPvl, QuoteBehavior);
         Assert.AreEqual(0m, emptyPriceVolumeLayer.Price);
         Assert.AreEqual(0m, emptyPriceVolumeLayer.Volume);
         Assert.AreEqual(null, emptyPriceVolumeLayer.SourceName);
@@ -720,7 +722,7 @@ public class PQSourcePriceVolumeLayerTests
                         $"For {pvl.GetType().Name} at {bookIndex} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
 
         Assert.AreEqual(new PQFieldUpdate(PQFeedFields.QuoteLayerBooleanFlags, depthId,
-                                          pvl.Executable ? LayerBooleanFlags.IsExecutableFlag.ToUInt() : 0u),
+                                          pvl.Executable ? LayerBooleanValues.Executable.JustLayerBooleanValuesMask() : 0u),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteLayerBooleanFlags, depthId),
                         $"For {pvl.GetType().Name} at {bookIndex} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
     }

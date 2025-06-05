@@ -23,7 +23,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 
 public interface IPQSourceTickerInfo : ISourceTickerInfo, IPQPricingInstrumentId, IPQPriceVolumePublicationPrecisionSettings
-  , ICloneable<IPQSourceTickerInfo>, IPQSupportsNumberPrecisionFieldUpdates<IPQSourceTickerInfo>, IPQSupportsStringUpdates<IPQSourceTickerInfo>
+  , ICloneable<IPQSourceTickerInfo>
 {
     bool IsPublishedTickerDetailLevelUpdated { get; set; }
     bool IsRoundingPrecisionUpdated          { get; set; }
@@ -43,7 +43,6 @@ public interface IPQSourceTickerInfo : ISourceTickerInfo, IPQPricingInstrumentId
     new ushort InstrumentId   { get; set; }
     new string SourceName     { get; set; }
     new string InstrumentName { get; set; }
-    new bool   HasUpdates     { get; set; }
 
     new IPQNameIdLookupGenerator NameIdLookup { get; set; }
 
@@ -60,7 +59,7 @@ public interface IPQSourceTickerInfo : ISourceTickerInfo, IPQPricingInstrumentId
     new IPQSourceTickerInfo Clone();
 }
 
-public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
+public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
 {
     private SourceTickerInfoBooleanFlags booleanFlags = SourceTickerInfoBooleanFlags.SubscribeToPricesSet;
 
@@ -85,28 +84,32 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
     {
         IsPublishedTickerDetailLevelUpdated = true;
 
-        Pip = 0.0001m;
+        Pip = SourceTickerInfo.DefaultPip;
 
-        RoundingPrecision      = 0.00001m;
-        DefaultMaxValidMs      = 10_000;
-        SubscribeToPrices      = true;
-        TradingEnabled         = false;
-        RoundingPrecision      = 0.00001m;
-        MaximumPublishedLayers = 1;
-        MinSubmitSize          = 0.01m;
-        MaxSubmitSize          = 1_000_000m;
-        IncrementSize          = 0.01m;
-        MinimumQuoteLife       = 100;
-        LayerFlags             = LayerFlags.None;
-        LastTradedFlags        = LastTradedFlags.None;
+        RoundingPrecision      = SourceTickerInfo.DefaultRoundingPrecision;
+        DefaultMaxValidMs      = SourceTickerInfo.DefaultDefaultMaxValidMs;
+        SubscribeToPrices      = SourceTickerInfo.DefaultSubscribeToPrices;
+        TradingEnabled         = SourceTickerInfo.DefaultTradingEnabled;
+        MaximumPublishedLayers = SourceTickerInfo.DefaultMaximumPublishedLayers;
+        MinSubmitSize          = SourceTickerInfo.DefaultMinSubmitSize;
+        MaxSubmitSize          = SourceTickerInfo.DefaultMaxSubmitSize;
+        IncrementSize          = SourceTickerInfo.DefaultIncrementSize;
+        MinimumQuoteLife       = SourceTickerInfo.DefaultMinimumQuoteLife;
+        LayerFlags             = SourceTickerInfo.DefaultLayerFlags;
+        LastTradedFlags        = SourceTickerInfo.DefaultLastTradedFlags;
+        QuoteBehaviorFlags     = SourceTickerInfo.DefaultQuoteBehaviorFlags;
     }
 
     public PQSourceTickerInfo
     (ushort sourceId, string sourceName, ushort tickerId, string ticker, TickerQuoteDetailLevel publishedTickerQuoteDetailLevel
-      , MarketClassification marketClassification, ushort maximumPublishedLayers = 20, decimal roundingPrecision = 0.0001m
-      , decimal pip = 0.0001m, decimal minSubmitSize = 0.01m, decimal maxSubmitSize = 1_000_000m, decimal incrementSize = 0.01m
-      , ushort minimumQuoteLife = 100, uint defaultMaxValidMs = 10_000, bool subscribeToPrices = true, bool tradingEnabled = false
-      , LayerFlags layerFlags = LayerFlags.Price | LayerFlags.Volume, LastTradedFlags lastTradedFlags = LastTradedFlags.None)
+      , MarketClassification marketClassification, ushort maximumPublishedLayers = SourceTickerInfo.DefaultMaximumPublishedLayers
+      , decimal roundingPrecision = SourceTickerInfo.DefaultRoundingPrecision
+      , decimal pip = SourceTickerInfo.DefaultPip, decimal minSubmitSize = SourceTickerInfo.DefaultMinSubmitSize
+      , decimal maxSubmitSize = SourceTickerInfo.DefaultMaxSubmitSize, decimal incrementSize = SourceTickerInfo.DefaultIncrementSize
+      , ushort minimumQuoteLife = SourceTickerInfo.DefaultMinimumQuoteLife, uint defaultMaxValidMs = SourceTickerInfo.DefaultDefaultMaxValidMs
+      , bool subscribeToPrices = SourceTickerInfo.DefaultSubscribeToPrices, bool tradingEnabled = SourceTickerInfo.DefaultTradingEnabled
+      , LayerFlags layerFlags = SourceTickerInfo.DefaultLayerFlags, LastTradedFlags lastTradedFlags = SourceTickerInfo.DefaultLastTradedFlags
+      , PublishableQuoteInstantBehaviorFlags quoteBehaviorFlags = SourceTickerInfo.DefaultQuoteBehaviorFlags )
         : base(sourceId, tickerId, sourceName, ticker, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick), InstrumentType.Price, marketClassification)
     {
         PublishedTickerQuoteDetailLevel     = publishedTickerQuoteDetailLevel;
@@ -127,6 +130,8 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         MinimumQuoteLife = minimumQuoteLife;
         LayerFlags       = layerFlags;
         LastTradedFlags  = lastTradedFlags;
+
+        QuoteBehaviorFlags = quoteBehaviorFlags;
 
         PriceScalingPrecision  = PQScaling.FindPriceScaleFactor(RoundingPrecision);
         VolumeScalingPrecision = PQScaling.FindPriceScaleFactor(Math.Min(MinSubmitSize, IncrementSize));
@@ -152,6 +157,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         LayerFlags       = toClone.LayerFlags;
         LastTradedFlags  = toClone.LastTradedFlags;
 
+        QuoteBehaviorFlags = toClone.QuoteBehaviorFlags;
 
         PriceScalingPrecision  = PQScaling.FindPriceScaleFactor(RoundingPrecision);
         VolumeScalingPrecision = PQScaling.FindVolumeScaleFactor(Math.Min(MinSubmitSize, IncrementSize));
@@ -174,7 +180,7 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
     public PQFieldFlags PriceScalingPrecision  { get; } = (PQFieldFlags)3;
     public PQFieldFlags VolumeScalingPrecision { get; } = (PQFieldFlags)6;
 
-    public uint MessageId => SourceTickerId;
+    public uint MessageId => SourceInstrumentId;
     public byte Version   => 1;
 
     public TickerQuoteDetailLevel PublishedTickerQuoteDetailLevel
@@ -315,6 +321,8 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
             lastTradedFlags          =  value;
         }
     }
+
+    public PublishableQuoteInstantBehaviorFlags QuoteBehaviorFlags { get; set; }
 
     public string FormatPrice =>
         formatPrice ??= RoundingPrecision
@@ -642,9 +650,6 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
 
     ISourceTickerInfo ISourceTickerInfo.CopyFrom(ISourceTickerInfo source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
 
-    IPQSourceTickerInfo ITransferState<IPQSourceTickerInfo>.CopyFrom(IPQSourceTickerInfo source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom((ISourceTickerId)source, copyMergeFlags);
-
     IPQSourceTickerInfo IPQSourceTickerInfo.CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags) => 
        CopyFrom(source, copyMergeFlags);
 
@@ -818,13 +823,15 @@ public class PQSourceTickerInfo : PQPricingInstrument, IPQSourceTickerInfo
         }
     }
 
-    public override string ToString() =>
-        $"{nameof(PQSourceTickerInfo)}({nameof(SourceId)}: {SourceId}, {nameof(SourceName)}: {SourceName}, {nameof(InstrumentId)}: {InstrumentId}, {nameof(InstrumentName)}: {InstrumentName},  " +
-        $"{nameof(PublishedTickerQuoteDetailLevel)}: {PublishedTickerQuoteDetailLevel},  {nameof(MarketClassification)}: {MarketClassification}, " +
-        $"{nameof(RoundingPrecision)}: {RoundingPrecision}, {nameof(Pip)}: {Pip}, {nameof(MinSubmitSize)}: {MinSubmitSize}, " +
-        $"{nameof(MaxSubmitSize)}: {MaxSubmitSize}, {nameof(IncrementSize)}: {IncrementSize}, {nameof(MinimumQuoteLife)}: {MinimumQuoteLife}, " +
-        $"{nameof(DefaultMaxValidMs)}: {DefaultMaxValidMs}, {nameof(SubscribeToPrices)}: {SubscribeToPrices}, {nameof(TradingEnabled)}: {TradingEnabled}, " +
-        $"{nameof(LayerFlags)}: {LayerFlags:F}, {nameof(MaximumPublishedLayers)}: {MaximumPublishedLayers}, {nameof(LastTradedFlags)}: {LastTradedFlags})";
+    protected string PQSourceTickerInfoToStringMembers =>
+        $"{PQPricingInstrumentIdToStringMembers}, {nameof(RoundingPrecision)}: {RoundingPrecision}, {nameof(Pip)}: {Pip}, " +
+        $"{nameof(MinSubmitSize)}: {MinSubmitSize}, {nameof(MaxSubmitSize)}: {MaxSubmitSize}, {nameof(IncrementSize)}: {IncrementSize}, " +
+        $"{nameof(MinimumQuoteLife)}: {MinimumQuoteLife}, {nameof(DefaultMaxValidMs)}: {DefaultMaxValidMs}, " +
+        $"{nameof(SubscribeToPrices)}: {SubscribeToPrices}, {nameof(TradingEnabled)}: {TradingEnabled}, {nameof(LayerFlags)}: {LayerFlags:F}, " +
+        $"{nameof(MaximumPublishedLayers)}: {MaximumPublishedLayers}, {nameof(LastTradedFlags)}: {LastTradedFlags}, " +
+        $"{nameof(QuoteBehaviorFlags)}: {QuoteBehaviorFlags}";
+
+    public override string ToString() => $"{nameof(PQSourceTickerInfo)}{{{PQSourceTickerInfoToStringMembers}, {UpdateFlagsToString}}}";
 }
 
 public static class PQSourceTickerInfoExtensions

@@ -4,13 +4,12 @@
 #region
 
 using System.Text.Json.Serialization;
-using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
-using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
@@ -30,8 +29,6 @@ public interface IPQOrdersCountPriceVolumeLayer : IMutableOrdersCountPriceVolume
 
 public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountPriceVolumeLayer
 {
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQOrdersPriceVolumeLayer));
-
     private decimal internalVolume;
     private uint    ordersCount;
 
@@ -163,14 +160,14 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
     (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags
       , IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
+        var fullPicture = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) > 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                 quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
 
-        if (!updatedOnly || IsOrdersCountUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrdersCount, OrdersCount);
+        if (fullPicture || IsOrdersCountUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrdersCount, OrdersCount);
 
-        if (!updatedOnly || IsInternalVolumeUpdated)
+        if (fullPicture || IsInternalVolumeUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerInternalVolume, InternalVolume,
                                            quotePublicationPrecisionSetting?.VolumeScalingPrecision ?? (PQFieldFlags)6);
     }
@@ -180,14 +177,14 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
         // assume the book has already forwarded this through to the correct layer
         if (pqFieldUpdate.Id == PQFeedFields.QuoteLayerOrdersCount)
         {
-            IsOrdersCountUpdated = true; // incase of reset and sending 0;
+            IsOrdersCountUpdated = true; // in-case of reset and sending 0;
             OrdersCount          = pqFieldUpdate.Payload;
             return 0;
         }
 
         if (pqFieldUpdate.Id == PQFeedFields.QuoteLayerInternalVolume)
         {
-            IsInternalVolumeUpdated = true; // incase of reset and sending 0;
+            IsInternalVolumeUpdated = true; // in-case of reset and sending 0;
             InternalVolume          = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
             return 0;
         }
@@ -195,32 +192,33 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public override PQOrdersCountPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override PQOrdersCountPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, QuoteInstantBehaviorFlags behaviorFlags
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(source, copyMergeFlags);
+        base.CopyFrom(source, behaviorFlags, copyMergeFlags);
         var isFullReplace = copyMergeFlags.HasFullReplace();
-        var pqocpvl       = source as IPQOrdersCountPriceVolumeLayer;
-        if (source is IOrdersCountPriceVolumeLayer ocpvl && pqocpvl == null)
+        var pqOcPvl       = source as IPQOrdersCountPriceVolumeLayer;
+        if (source is IOrdersCountPriceVolumeLayer ocPvl && pqOcPvl == null)
         {
-            OrdersCount    = ocpvl.OrdersCount;
-            InternalVolume = ocpvl.InternalVolume;
+            OrdersCount    = ocPvl.OrdersCount;
+            InternalVolume = ocPvl.InternalVolume;
         }
-        else if (pqocpvl != null)
+        else if (pqOcPvl != null)
         {
-            if (pqocpvl.IsOrdersCountUpdated || isFullReplace)
+            if (pqOcPvl.IsOrdersCountUpdated || isFullReplace)
             {
                 IsOrdersCountUpdated = true;
 
-                OrdersCount       = pqocpvl.OrdersCount;
+                OrdersCount       = pqOcPvl.OrdersCount;
             }
-            if (pqocpvl.IsInternalVolumeUpdated || isFullReplace)
+            if (pqOcPvl.IsInternalVolumeUpdated || isFullReplace)
             {
                 IsInternalVolumeUpdated = true;
 
-                InternalVolume = pqocpvl.InternalVolume;
+                InternalVolume = pqOcPvl.InternalVolume;
             }
         }
-        if (pqocpvl != null && isFullReplace) SetFlagsSame(source);
+        if (pqOcPvl != null && isFullReplace) SetFlagsSame(source);
 
         return this;
     }

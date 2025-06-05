@@ -8,6 +8,7 @@ using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
@@ -23,11 +24,13 @@ public class FullSupportPriceVolumeLayerTests
     private const uint    OrderCount     = 2;
     private const decimal InternalVolume = 1_949_672m;
 
-    private IPQNameIdLookupGenerator                      emptyNameIdLookup  = null!;
-    private FullSupportPriceVolumeLayer emptyPvl           = null!;
+    private IPQNameIdLookupGenerator    emptyNameIdLookup = null!;
+    private FullSupportPriceVolumeLayer emptyPvl          = null!;
 
-    private bool[]                                        expectNotPopulated = null!;
-    private bool[]                                        expectPopulated    = null!;
+    private bool[] expectNotPopulated = null!;
+    private bool[] expectPopulated    = null!;
+
+    private const QuoteInstantBehaviorFlags QuoteBehavior = QuoteInstantBehaviorFlags.None;
 
     private FullSupportPriceVolumeLayer populatedPvl = null!;
 
@@ -216,7 +219,7 @@ public class FullSupportPriceVolumeLayerTests
         Assert.AreEqual(populatedQuoteRef, populatedPvl.SourceQuoteReference);
         for (var i = 0; i < NumOfOrders; i++)
         {
-            var anonOrderLayerInfo = populatedPvl[i]!;
+            var anonOrderLayerInfo = populatedPvl[i];
             Assert.AreNotEqual(0m, anonOrderLayerInfo.OrderDisplayVolume);
             Assert.IsFalse(anonOrderLayerInfo.IsEmpty);
             if (anonOrderLayerInfo is IExternalCounterPartyOrder counterPartyOrderLayerInfo)
@@ -236,7 +239,7 @@ public class FullSupportPriceVolumeLayerTests
         Assert.AreEqual(0u, populatedPvl.SourceQuoteReference);
         for (var i = 0; i < NumOfOrders; i++)
         {
-            var anonOrderLayerInfo = populatedPvl[i]!;
+            var anonOrderLayerInfo = populatedPvl[i];
             Assert.AreEqual(0m, anonOrderLayerInfo.OrderDisplayVolume);
             Assert.IsTrue(anonOrderLayerInfo.IsEmpty);
             if (anonOrderLayerInfo is IExternalCounterPartyOrder counterPartyOrderLayerInfo)
@@ -248,7 +251,7 @@ public class FullSupportPriceVolumeLayerTests
     public void FullyPopulatedPvl_CopyFromNonPQSrcQtRefOrderVlDtToEmptyQuote_PvlsEqualEachOther()
     {
         var pqPriceVolume = new PQFullSupportPriceVolumeLayer(populatedPvl, emptyNameIdLookup);
-        emptyPvl.CopyFrom(pqPriceVolume);
+        emptyPvl.CopyFrom(pqPriceVolume, QuoteBehavior);
         Assert.AreEqual(populatedPvl, emptyPvl);
 
         var fromConstructor = new FullSupportPriceVolumeLayer(pqPriceVolume);
@@ -260,12 +263,12 @@ public class FullSupportPriceVolumeLayerTests
     {
         var pqNonExactQuote = new PQSourceQuoteRefPriceVolumeLayer(populatedPvl, emptyNameIdLookup);
         var emptyClone      = (IMutableFullSupportPriceVolumeLayer)emptyPvl.Clone();
-        emptyClone.CopyFrom(pqNonExactQuote);
+        emptyClone.CopyFrom(pqNonExactQuote, QuoteBehavior);
         pqNonExactQuote.AreEquivalent(emptyClone);
 
         var pqSrcQtRefTrdVlDtPvl = new SourceQuoteRefPriceVolumeLayer(populatedPvl);
         emptyClone = emptyPvl.Clone();
-        emptyClone.CopyFrom(pqSrcQtRefTrdVlDtPvl);
+        emptyClone.CopyFrom(pqSrcQtRefTrdVlDtPvl, QuoteBehavior);
         pqNonExactQuote.AreEquivalent(emptyClone);
     }
 
@@ -274,12 +277,12 @@ public class FullSupportPriceVolumeLayerTests
     {
         var pqNonExactPriceVolume = new PQSourcePriceVolumeLayer(populatedPvl, emptyNameIdLookup);
         var emptyClone            = (IMutableFullSupportPriceVolumeLayer)emptyPvl.Clone();
-        emptyClone.CopyFrom(pqNonExactPriceVolume);
+        emptyClone.CopyFrom(pqNonExactPriceVolume, QuoteBehavior);
         pqNonExactPriceVolume.AreEquivalent(emptyClone);
 
         var srcPvl = new SourcePriceVolumeLayer(populatedPvl);
         emptyClone = emptyPvl.Clone();
-        emptyClone.CopyFrom(srcPvl);
+        emptyClone.CopyFrom(srcPvl, QuoteBehavior);
         pqNonExactPriceVolume.AreEquivalent(emptyClone);
     }
 
@@ -288,12 +291,12 @@ public class FullSupportPriceVolumeLayerTests
     {
         var pqNonExactPriceVolume = new PQValueDatePriceVolumeLayer(populatedPvl);
         var emptyClone            = (IMutableFullSupportPriceVolumeLayer)emptyPvl.Clone();
-        emptyClone.CopyFrom(pqNonExactPriceVolume);
+        emptyClone.CopyFrom(pqNonExactPriceVolume, QuoteBehavior);
         pqNonExactPriceVolume.AreEquivalent(emptyClone);
 
         var valueDatePvl = new ValueDatePriceVolumeLayer(populatedPvl);
         emptyClone = emptyPvl.Clone();
-        emptyClone.CopyFrom(valueDatePvl);
+        emptyClone.CopyFrom(valueDatePvl, QuoteBehavior);
         pqNonExactPriceVolume.AreEquivalent(emptyClone);
     }
 
@@ -302,12 +305,12 @@ public class FullSupportPriceVolumeLayerTests
     {
         var pqNonExactPriceVolume = new PQOrdersPriceVolumeLayer(populatedPvl, LayerType.OrdersFullPriceVolume, emptyNameIdLookup);
         var emptyClone            = (IMutableFullSupportPriceVolumeLayer)emptyPvl.Clone();
-        emptyClone.CopyFrom(pqNonExactPriceVolume);
+        emptyClone.CopyFrom(pqNonExactPriceVolume, QuoteBehavior);
         pqNonExactPriceVolume.AreEquivalent(emptyClone);
 
         var trdPvl = new OrdersPriceVolumeLayer(populatedPvl, populatedPvl.LayerType);
         emptyClone = emptyPvl.Clone();
-        emptyClone.CopyFrom(trdPvl);
+        emptyClone.CopyFrom(trdPvl, QuoteBehavior);
         pqNonExactPriceVolume.AreEquivalent(emptyClone);
     }
 
@@ -397,7 +400,7 @@ public class FullSupportPriceVolumeLayerTests
             (toString.Contains($"{nameof(populatedPvl.SourceQuoteReference)}: {populatedPvl.SourceQuoteReference:N0}"));
         Assert.IsTrue(toString.Contains($"{nameof(populatedPvl.ValueDate)}: {populatedPvl.ValueDate}"));
         Assert.IsTrue(toString.Contains("Orders: ["));
-        for (var i = 0; i < populatedPvl.OrdersCount; i++) Assert.IsTrue(toString.Contains(populatedPvl[i]!.ToString()!));
+        for (var i = 0; i < populatedPvl.OrdersCount; i++) Assert.IsTrue(toString.Contains(populatedPvl[i].ToString()!));
     }
 
     public static void AssertAreEquivalentMeetsExpectedExactComparisonType
@@ -416,8 +419,8 @@ public class FullSupportPriceVolumeLayerTests
         Assert.IsNotNull(changingPriceVolumeLayer);
 
         OrdersPriceVolumeLayerTests.AssertAreEquivalentMeetsExpectedExactComparisonType
-            (exactComparison, original, changingPriceVolumeLayer, originalOrderBookSide, 
-             changingOrderBookSide, originalOrderBook,  changingOrderBook, originalQuote, changingQuote);
+            (exactComparison, original, changingPriceVolumeLayer, originalOrderBookSide,
+             changingOrderBookSide, originalOrderBook, changingOrderBook, originalQuote, changingQuote);
 
         changingPriceVolumeLayer.SourceName = "TestChangedSourceName";
         Assert.IsFalse(original.AreEquivalent(changingPriceVolumeLayer, exactComparison));

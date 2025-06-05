@@ -3,7 +3,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Accounts;
 
-public interface IPQPublishedAccounts : IMutablePublishedAccounts, IPQSupportsNumberPrecisionFieldUpdates<IPublishedAccounts>, IPQSupportsStringUpdates<IPublishedAccounts>
+public interface IPQPublishedAccounts : IMutablePublishedAccounts, IPQSupportsNumberPrecisionFieldUpdates, IPQSupportsStringUpdates
 {
 
 }

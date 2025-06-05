@@ -199,19 +199,19 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
     public override void Insert(int index, IMutableLastTrade item)
     {
         HasUnreliableListTracking = ShiftCommands.Any();
-        LastTrades.Insert(index, item);
+        TradesList.Insert(index, item);
     }
 
     public override bool Remove(IMutableLastTrade toRemove)
     {
         HasUnreliableListTracking = ShiftCommands.Any();
-        return LastTrades.Remove(toRemove);
+        return TradesList.Remove(toRemove);
     }
 
     public override void RemoveAt(int index)
     {
         HasUnreliableListTracking = ShiftCommands.Any();
-        LastTrades.RemoveAt(index);
+        TradesList.RemoveAt(index);
     }
 
     public override void Clear()

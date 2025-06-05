@@ -6,6 +6,7 @@
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 
 #endregion
@@ -15,6 +16,8 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.
 [TestClass]
 public class PriceVolumeLayerTests
 {
+    private const QuoteInstantBehaviorFlags QuoteBehavior = QuoteInstantBehaviorFlags.None;
+
     private PriceVolumeLayer emptyPvl     = null!;
     private PriceVolumeLayer populatedPvl = null!;
 
@@ -82,7 +85,7 @@ public class PriceVolumeLayerTests
     [TestMethod]
     public void FullyPopulatedPvl_CopyFromToEmptyPvl_PvlsEqualEachOther()
     {
-        emptyPvl.CopyFrom(populatedPvl);
+        emptyPvl.CopyFrom(populatedPvl, QuoteBehavior);
         Assert.AreEqual(populatedPvl, emptyPvl);
     }
 
@@ -91,7 +94,7 @@ public class PriceVolumeLayerTests
     {
         var pqPvl    = new PQPriceVolumeLayer(populatedPvl);
         var newEmpty = new PriceVolumeLayer();
-        newEmpty.CopyFrom(pqPvl);
+        newEmpty.CopyFrom(pqPvl, QuoteBehavior);
         Assert.AreEqual(populatedPvl, newEmpty);
     }
 

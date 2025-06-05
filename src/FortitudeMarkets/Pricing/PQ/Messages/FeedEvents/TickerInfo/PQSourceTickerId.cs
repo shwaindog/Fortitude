@@ -16,8 +16,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 
-public interface IPQSourceTickerId : ISourceTickerId
-  , IHasNameIdLookup, IPQSupportsNumberPrecisionFieldUpdates<IPQSourceTickerId>, IPQSupportsStringUpdates<IPQSourceTickerId>
+public interface IPQSourceTickerId : ISourceTickerId, IHasNameIdLookup, IPQSupportsNumberPrecisionFieldUpdates, IPQSupportsStringUpdates
 {
     new ushort SourceId     { get; set; }
     new ushort InstrumentId { get; set; }
@@ -82,9 +81,9 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
     public PQSourceTickerId(SourceTickerIdentifier toClone)
     {
         SourceId       = toClone.SourceId;
-        InstrumentId   = toClone.TickerId;
-        SourceName     = toClone.Source;
-        InstrumentName = toClone.Ticker;
+        InstrumentId   = toClone.InstrumentId;
+        SourceName     = toClone.SourceName;
+        InstrumentName = toClone.InstrumentName;
 
         if (GetType() == typeof(PQSourceTickerId)) SequenceId = 0;
     }
@@ -92,14 +91,14 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
     public PQSourceTickerId(SourceTickerIdValue toClone)
     {
         SourceId       = toClone.SourceId;
-        InstrumentId   = toClone.TickerId;
-        SourceName     = toClone.Source;
-        InstrumentName = toClone.Ticker;
+        InstrumentId   = toClone.InstrumentId;
+        SourceName     = toClone.SourceName;
+        InstrumentName = toClone.InstrumentName;
 
         if (GetType() == typeof(PQSourceTickerId)) SequenceId = 0;
     }
 
-    public uint SourceTickerId => ((uint)SourceId << 16) | InstrumentId;
+    public uint SourceInstrumentId => ((uint)SourceId << 16) | InstrumentId;
 
     public ushort SourceId
     {
@@ -249,7 +248,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
     {
         var updatedOnly = (updateStyle & PQMessageFlags.Complete) == 0;
 
-        if (!updatedOnly || IsIdUpdated) yield return new PQFieldUpdate(PQFeedFields.SourceTickerId, SourceTickerId);
+        if (!updatedOnly || IsIdUpdated) yield return new PQFieldUpdate(PQFeedFields.SourceTickerId, SourceInstrumentId);
 
         if (!updatedOnly || IsSourceNameUpdated) yield return new PQFieldUpdate(PQFeedFields.SourceNameId, SourceNameId);
 
@@ -386,8 +385,13 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         }
     }
 
-    public override string ToString() =>
-        $"{nameof(PQSourceTickerId)}({nameof(SourceId)}: {SourceId}, {nameof(SourceName)}: {SourceName}, " +
-        $"{nameof(SourceNameId)}: {SourceNameId}, {nameof(InstrumentId)}: {InstrumentId} {nameof(InstrumentName)}: {InstrumentName}, " +
-        $"{nameof(InstrumentNameId)}: {InstrumentNameId})";
+    protected string PQSourceTickerIdToStringMembers =>
+        $"{nameof(SourceId)}: {SourceId}, {nameof(SourceName)}: {SourceName}, {nameof(SourceNameId)}: {SourceNameId}, " +
+        $"{nameof(InstrumentId)}: {InstrumentId} {nameof(InstrumentName)}: {InstrumentName}, {nameof(InstrumentNameId)}: {InstrumentNameId}";
+
+    protected string SourceInstrumentIdToString => $"{nameof(SourceInstrumentId)}: {SourceInstrumentId}";
+
+    protected string UpdateFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
+
+    public override string ToString() => $"{nameof(PQSourceTickerId)}{{{PQSourceTickerIdToStringMembers}, {SourceInstrumentIdToString}, {UpdateFlagsToString}}}";
 }

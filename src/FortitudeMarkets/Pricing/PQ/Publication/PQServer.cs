@@ -82,11 +82,11 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQMessage
     {
         var tickerInfo = marketConnectionConfig.GetSourceTickerInfo(ticker);
         if (tickerInfo != null)
-            if (!entities.TryGetValue(tickerInfo.SourceTickerId, out var ent))
+            if (!entities.TryGetValue(tickerInfo.SourceInstrumentId, out var ent))
             {
                 ent              = quoteFactory(tickerInfo);
                 ent.PQSequenceId = uint.MaxValue;
-                entities.Add(tickerInfo.SourceTickerId, ent);
+                entities.Add(tickerInfo.SourceInstrumentId, ent);
                 // publish identical quote leaving next quote to also be zero.
                 var quote = quoteFactory(tickerInfo);
                 quote.PQSequenceId = uint.MaxValue;
@@ -105,7 +105,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQMessage
     {
         var tickerInfo = marketConnectionConfig.GetSourceTickerInfo(ticker);
         if (tickerInfo != null)
-            if (entities.TryGetValue(tickerInfo.SourceTickerId, out var ent))
+            if (entities.TryGetValue(tickerInfo.SourceInstrumentId, out var ent))
                 ent!.PQSequenceId = uint.MaxValue;
     }
 
@@ -214,7 +214,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQMessage
     {
         var tickerInfo = marketConnectionConfig.GetSourceTickerInfo(ticker);
         if (tickerInfo != null)
-            if (entities.TryGetValue(tickerInfo.SourceTickerId, out var ent))
+            if (entities.TryGetValue(tickerInfo.SourceInstrumentId, out var ent))
                 ent!.HasUpdates = true;
     }
 

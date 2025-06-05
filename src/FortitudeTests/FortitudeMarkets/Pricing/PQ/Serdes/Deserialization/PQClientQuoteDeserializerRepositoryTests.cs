@@ -121,7 +121,7 @@ public class PQClientQuoteDeserializerRepositoryTests
         Assert.IsNotNull(quoteDeserializer);
 
         var getQuoteDeserializer = pqClientQuoteDeserializerRepository
-            .GetDeserializer<PQPublishableTickInstant>(sourceTickerInfo.SourceTickerId);
+            .GetDeserializer<PQPublishableTickInstant>(sourceTickerInfo.SourceInstrumentId);
         Assert.IsNotNull(getQuoteDeserializer);
 
         Assert.AreSame(getQuoteDeserializer, quoteDeserializer);
@@ -130,7 +130,7 @@ public class PQClientQuoteDeserializerRepositoryTests
     [TestMethod]
     public void NoEnteredDeserializer_GetDeserializer_ReturnsNull()
     {
-        var result = pqClientQuoteDeserializerRepository.GetDeserializer<PQPublishableTickInstant>(sourceTickerInfo.SourceTickerId);
+        var result = pqClientQuoteDeserializerRepository.GetDeserializer<PQPublishableTickInstant>(sourceTickerInfo.SourceInstrumentId);
         Assert.IsNull(result);
     }
 }

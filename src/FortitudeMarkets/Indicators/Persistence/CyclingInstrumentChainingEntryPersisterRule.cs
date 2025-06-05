@@ -42,15 +42,15 @@ public struct CyclingInstrumentChainingEntryPersisterParams
     public int  AutoAdjustTargetRunMs   { get; set; } = 2_000;
 }
 
-public readonly struct ChainableInstrumentPayload<TEntry>(PricingInstrumentId instrumentId, TEntry entry)
+public readonly struct ChainableInstrumentPayload<TEntry>(PricingInstrumentIdValue instrumentId, TEntry entry)
     where TEntry : class, ITimeSeriesEntry, IDoublyLinkedListNode<TEntry>, new()
 {
-    public PricingInstrumentId PricingInstrumentId { get; } = instrumentId;
+    public PricingInstrumentIdValue PricingInstrumentId { get; } = instrumentId;
 
     public TEntry Entry { get; } = entry;
 }
 
-public class InstrumentPersistenceState<TEntry>(InstrumentFileInfo instrumentFileInfo, PricingInstrumentId pricingInstrumentId)
+public class InstrumentPersistenceState<TEntry>(InstrumentFileInfo instrumentFileInfo, PricingInstrumentIdValue pricingInstrumentId)
     where TEntry : class, ITimeSeriesEntry, IDoublyLinkedListNode<TEntry>, new()
 {
     public double   AverageBatchSize;
@@ -63,7 +63,7 @@ public class InstrumentPersistenceState<TEntry>(InstrumentFileInfo instrumentFil
     public List<string>?       LastFailures;
     public DateTime            LastPersistTime     = DateTime.MinValue;
     public DateTime            LastQueueTime       = DateTime.MinValue;
-    public PricingInstrumentId PricingInstrumentId = pricingInstrumentId;
+    public PricingInstrumentIdValue PricingInstrumentId = pricingInstrumentId;
 
     public IDoublyLinkedList<TEntry> Queue = new DoublyLinkedList<TEntry>();
     public int                       SessionPersistCounter;
@@ -82,10 +82,10 @@ public class CyclingInstrumentChainingEntryPersisterRule<TEntry> : TimeSeriesRep
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(CyclingInstrumentChainingEntryPersisterRule<>));
 
-    private readonly List<PricingInstrumentId> entriesToPersist  = new();
-    private readonly List<PricingInstrumentId> forNextRunPersist = new();
+    private readonly List<PricingInstrumentIdValue> entriesToPersist  = new();
+    private readonly List<PricingInstrumentIdValue> forNextRunPersist = new();
 
-    private readonly Dictionary<PricingInstrumentId, InstrumentPersistenceState<TEntry>> persistBacklog = new();
+    private readonly Dictionary<PricingInstrumentIdValue, InstrumentPersistenceState<TEntry>> persistBacklog = new();
 
     private readonly CyclingInstrumentChainingEntryPersisterParams persisterParams;
 
@@ -166,7 +166,7 @@ public class CyclingInstrumentChainingEntryPersisterRule<TEntry> : TimeSeriesRep
         if (!persistBacklog.TryGetValue(pricingId, out var state))
         {
             var existingInstruments =
-                InstrumentFileInfos(pricingId.Ticker, pricingId.Source, pricingId.InstrumentType, pricingId.CoveringPeriod)
+                InstrumentFileInfos(pricingId.InstrumentName, pricingId.SourceName, pricingId.InstrumentType, pricingId.CoveringPeriod)
                     .ToList();
             InstrumentFileInfo instrumentFileInfo = default;
             if (existingInstruments.Any())
@@ -175,18 +175,18 @@ public class CyclingInstrumentChainingEntryPersisterRule<TEntry> : TimeSeriesRep
                     instrumentFileInfo = existingInstruments[0];
                 else
                     throw new Exception
-                        ($"More than one instrument exists for {pricingId.Ticker}, {pricingId.Source}, {pricingId.InstrumentType}, {pricingId.CoveringPeriod.ShortName()}");
+                        ($"More than one instrument exists for {pricingId.InstrumentName}, {pricingId.SourceName}, {pricingId.InstrumentType}, {pricingId.CoveringPeriod.ShortName()}");
             }
             else
             {
-                var instrument = new PricingInstrument(pricingId);
+                var instrument = new PricingInstrumentId(pricingId);
                 var fileInfo   = TimeSeriesRepository.GetInstrumentFileInfo(instrument);
 
                 if (fileInfo.FilePeriod > TimeBoundaryPeriod.Tick) instrumentFileInfo = new InstrumentFileInfo(instrument, fileInfo.FilePeriod);
             }
             if (Equals(instrumentFileInfo, default(InstrumentFileInfo)))
                 throw new
-                    Exception($"Could not locate a repository structure for {pricingId.Ticker}, {pricingId.Source}, {pricingId.InstrumentType}, {pricingId.CoveringPeriod.ShortName()}");
+                    Exception($"Could not locate a repository structure for {pricingId.InstrumentName}, {pricingId.SourceName}, {pricingId.InstrumentType}, {pricingId.CoveringPeriod.ShortName()}");
             state = new InstrumentPersistenceState<TEntry>(instrumentFileInfo, pricingId);
             persistBacklog.Add(pricingId, state);
         }

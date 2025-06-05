@@ -37,7 +37,7 @@ public class PublishableLevel1PriceQuoteTests
 
         sourceTickerInfo = new SourceTickerInfo
             (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+           , 20, 0.00001m, 30000m, 50000000m, 1000m
            , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
            , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                               LastTradedFlags.LastTradedTime);
@@ -65,7 +65,7 @@ public class PublishableLevel1PriceQuoteTests
     }
 
     [TestMethod]
-    public void IntializedFromConstructor_New_InitializesFieldsAsExpected()
+    public void InitializedFromConstructor_New_InitializesFieldsAsExpected()
     {
         var expectedSourceTime         = new DateTime(2018, 02, 04, 23, 56, 59);
         var expectedClientReceivedTime = new DateTime(2018, 02, 04, 19, 56, 9);
@@ -76,12 +76,13 @@ public class PublishableLevel1PriceQuoteTests
         var expectedBidPriceTop        = 2.34567m;
         var expectedSourceAskTime      = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop        = 3.45678m;
-        var expectedCandle      = new Candle();
+        var quoteBehavior              = PublishableQuoteInstantBehaviorFlags.None;
+        var expectedCandle             = new Candle();
 
         var fromConstructor =
             new PublishableLevel1PriceQuote
                 (sourceTickerInfo, expectedSourceTime, expectedBidPriceTop, expectedAskPriceTop
-               , true, true, expectedSourceBidTime , expectedSourceAskTime , expectedSourceTime
+               , quoteBehavior, true, true, expectedSourceBidTime , expectedSourceAskTime , expectedSourceTime
                , expectedSourceTime.AddSeconds(2), true, FeedSyncStatus.Good, FeedConnectivityStatusFlags.AboutToRestart
                , expectedSingleValue, expectedCandle)
                 {
@@ -110,11 +111,12 @@ public class PublishableLevel1PriceQuoteTests
     [TestMethod]
     public void PQCandle_New_ConvertsToCandle()
     {
-        var pqCandle = new PQCandle();
+        var pqCandle      = new PQCandle();
+        var quoteBehavior = PublishableQuoteInstantBehaviorFlags.None;
 
         var nonSourceTickerInfoL1Quote =
             new PublishableLevel1PriceQuote
-                (sourceTickerInfo, DateTime.Now, 1m, 1m, true, true, DateTime.Now, DateTime.Now
+                (sourceTickerInfo, DateTime.Now, 1m, 1m, quoteBehavior,  true, true, DateTime.Now, DateTime.Now
                , DateTime.Now, DateTime.Now.AddSeconds(2), true, FeedSyncStatus.Good
                , FeedConnectivityStatusFlags.None, 1m, pqCandle);
 
@@ -375,12 +377,13 @@ public static class PublishableLevel1PriceQuoteTestExtensions
     public static PublishableLevel1PriceQuote CreatePublishableLevel1Quote
         (this ISourceTickerInfo tickerId, DateTime sourceTime, decimal mid, decimal openCloseSpread = 0.02m)
     {
-        var halfSpread = openCloseSpread / 2;
+        var halfSpread    = openCloseSpread / 2;
+        var quoteBehavior = PublishableQuoteInstantBehaviorFlags.None;
 
         var bid1 = mid - halfSpread;
         var ask1 = mid + halfSpread;
         return new PublishableLevel1PriceQuote
-            (tickerId, sourceTime, bid1, ask1, false, false, sourceTime, sourceTime, sourceTime
+            (tickerId, sourceTime, bid1, ask1, quoteBehavior, false, false, sourceTime, sourceTime, sourceTime
            , sourceTime.AddSeconds(10));
     }
 }

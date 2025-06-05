@@ -15,5 +15,5 @@ public enum LayerFieldUpdatedFlags : ushort
   , ValueDateUpdatedFlag            = 0x20
   , OrdersCountUpdatedFlag          = 0x40
   , OrdersInternalVolumeUpdatedFlag = 0x80
-  , OrdersIndexesShiftedFlag        = 0x01_00
+  , LayerBehaviorUpdatedFlag        = 0x01_00
 }

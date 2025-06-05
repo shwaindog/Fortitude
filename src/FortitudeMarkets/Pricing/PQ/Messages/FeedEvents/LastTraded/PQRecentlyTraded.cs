@@ -429,7 +429,7 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
         (DateTime snapShotTime, PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
+        var fullPicture = (messageFlags & PQMessageFlags.Complete) > 0;
 
         // Potentially only send this with a snapshot TBD
 
@@ -444,14 +444,14 @@ public class PQRecentlyTraded : PQLastTradedList, IPQRecentlyTraded
             yield return lastTradeUpdates.WithFieldId(PQFeedFields.LastTradedAllRecentlyLimitedHistory);
         }
 
-        if (!updatedOnly || IsDuringPeriodUpdated)
+        if (fullPicture || IsDuringPeriodUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedAllRecentlyLimitedHistory, PQTradingSubFieldKeys.LastTradedSummaryPeriod
                                          , (uint)DuringPeriod);
 
-        if (!updatedOnly || IsPeriodUpdateDateUpdated)
+        if (fullPicture || IsPeriodUpdateDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedAllRecentlyLimitedHistory, PQTradingSubFieldKeys.LastTradedPeriodUpdateDate
                                          , updateTime.Get2MinIntervalsFromUnixEpoch());
-        if (!updatedOnly || IsPeriodUpdateSub2MinTimeUpdated)
+        if (fullPicture || IsPeriodUpdateSub2MinTimeUpdated)
         {
             var extended = updateTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQFeedFields.LastTradedAllRecentlyLimitedHistory, PQTradingSubFieldKeys.LastTradedPeriodUpdateSub2MinTime

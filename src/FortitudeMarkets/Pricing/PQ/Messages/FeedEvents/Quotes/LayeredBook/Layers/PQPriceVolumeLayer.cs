@@ -4,13 +4,13 @@
 #region
 
 using System.Text.Json.Serialization;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
-using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
@@ -23,9 +23,8 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Lay
 [JsonDerivedType(typeof(PQValueDatePriceVolumeLayer))]
 [JsonDerivedType(typeof(PQOrdersCountPriceVolumeLayer))]
 [JsonDerivedType(typeof(PQOrdersPriceVolumeLayer))]
-public interface IPQPriceVolumeLayer : IReusableObject<IPQPriceVolumeLayer>, IMutablePriceVolumeLayer
-  , IPQSupportsNumberPrecisionFieldUpdates<IPriceVolumeLayer>
-  , ITrackableReset<IPQPriceVolumeLayer>
+public interface IPQPriceVolumeLayer : IReusableQuoteElement<IPQPriceVolumeLayer>, IMutablePriceVolumeLayer
+  , IPQSupportsNumberPrecisionFieldUpdates, ITrackableReset<IPQPriceVolumeLayer>
 {
     [JsonIgnore] bool IsPriceUpdated  { get; set; }
     [JsonIgnore] bool IsVolumeUpdated { get; set; }
@@ -34,7 +33,7 @@ public interface IPQPriceVolumeLayer : IReusableObject<IPQPriceVolumeLayer>, IMu
     new IPQPriceVolumeLayer ResetWithTracking();
 }
 
-public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVolumeLayer
+public class PQPriceVolumeLayer : ReusableQuoteElement<IPriceVolumeLayer>, IPQPriceVolumeLayer
 {
     protected uint    SequenceId = uint.MaxValue;
     private   decimal price;
@@ -65,7 +64,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         if (GetType() == typeof(PQPriceVolumeLayer)) SequenceId = 0;
     }
 
-    [JsonIgnore] public virtual LayerType  LayerType          => LayerType.PriceVolume;
+    [JsonIgnore] public virtual LayerType LayerType => LayerType.PriceVolume;
 
     [JsonIgnore] public virtual LayerFlags SupportsLayerFlags => LayerFlagsExtensions.PriceVolumeLayerFlags;
 
@@ -122,18 +121,7 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
     public virtual bool HasUpdates
     {
         get => UpdatedFlags != LayerFieldUpdatedFlags.None;
-        set
-        {
-            if (value)
-            {
-                UpdatedFlags = UpdatedFlags.AllFlags();
-                return;
-            }
-            else
-            {
-                UpdatedFlags = LayerFieldUpdatedFlags.None;
-            }
-        }
+        set => UpdatedFlags = value ? UpdatedFlags.AllFlags() : LayerFieldUpdatedFlags.None;
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -188,11 +176,11 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
     (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
-        if (!updatedOnly || IsPriceUpdated)
+        var fullPicture = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) > 0;
+        if (fullPicture || IsPriceUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerPrice, Price,
                                            quotePublicationPrecisionSetting?.PriceScalingPrecision ?? (PQFieldFlags)1);
-        if (!updatedOnly || IsVolumeUpdated)
+        if (fullPicture || IsVolumeUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerVolume, Volume,
                                            quotePublicationPrecisionSetting?.VolumeScalingPrecision ?? (PQFieldFlags)6);
     }
@@ -202,66 +190,19 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
         // assume the book has already forwarded this through to the correct layer
         if (pqFieldUpdate.Id == PQFeedFields.QuoteLayerPrice)
         {
-            IsPriceUpdated = true; // incase of reset and sending 0;
+            IsPriceUpdated = true; // in-case of reset and sending 0;
 
             Price = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
             return 0;
         }
         else if (pqFieldUpdate.Id == PQFeedFields.QuoteLayerVolume)
         {
-            IsVolumeUpdated = true; // incase of reset and sending 0;
+            IsVolumeUpdated = true; // in-case of reset and sending 0;
 
             Volume = PQScaling.Unscale(pqFieldUpdate.Payload, pqFieldUpdate.Flag);
             return 0;
         }
         return -1;
-    }
-
-    IReusableObject<IPQPriceVolumeLayer> ITransferState<IReusableObject<IPQPriceVolumeLayer>>.CopyFrom
-        (IReusableObject<IPQPriceVolumeLayer> source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom((IPriceVolumeLayer)source, copyMergeFlags);
-
-    IPQPriceVolumeLayer ITransferState<IPQPriceVolumeLayer>.CopyFrom
-        (IPQPriceVolumeLayer source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom(source, copyMergeFlags);
-
-    IReusableObject<IMutablePriceVolumeLayer> ITransferState<IReusableObject<IMutablePriceVolumeLayer>>.CopyFrom
-        (IReusableObject<IMutablePriceVolumeLayer> source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom((IPriceVolumeLayer)source, copyMergeFlags);
-
-    IMutablePriceVolumeLayer ITransferState<IMutablePriceVolumeLayer>.CopyFrom
-        (IMutablePriceVolumeLayer source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom(source, copyMergeFlags);
-
-    public override PQPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        if (source is not PQPriceVolumeLayer pqpvl)
-        {
-            Price  = source.Price;
-            Volume = source.Volume;
-        }
-        else
-        {
-            var isFullReplace = copyMergeFlags.HasFullReplace();
-
-            if (pqpvl.IsPriceUpdated || isFullReplace)
-            {
-                IsPriceUpdated = true;
-
-                Price = pqpvl.Price;
-            }
-
-            if (pqpvl.IsVolumeUpdated || isFullReplace)
-            {
-                IsVolumeUpdated = true;
-
-                Volume = pqpvl.Volume;
-            }
-
-            if (isFullReplace) UpdatedFlags = pqpvl.UpdatedFlags;
-        }
-
-        return this;
     }
 
     IMutablePriceVolumeLayer ICloneable<IMutablePriceVolumeLayer>.Clone() => Clone();
@@ -273,7 +214,60 @@ public class PQPriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IPQPriceVol
     public override IPQPriceVolumeLayer Clone() =>
         (IPQPriceVolumeLayer?)Recycler?.Borrow<PQPriceVolumeLayer>().CopyFrom(this) ?? new PQPriceVolumeLayer(this);
 
-    public virtual bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
+    IReusableQuoteElement<IPQPriceVolumeLayer> ITransferQuoteState<IReusableQuoteElement<IPQPriceVolumeLayer>>.CopyFrom
+        (IReusableQuoteElement<IPQPriceVolumeLayer> source, QuoteInstantBehaviorFlags behaviorFlags, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPriceVolumeLayer)source, behaviorFlags, copyMergeFlags);
+
+    IPQPriceVolumeLayer ITransferQuoteState<IPQPriceVolumeLayer>.CopyFrom
+        (IPQPriceVolumeLayer source, QuoteInstantBehaviorFlags behaviorFlags, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom(source, behaviorFlags, copyMergeFlags);
+
+    IReusableQuoteElement<IMutablePriceVolumeLayer> ITransferQuoteState<IReusableQuoteElement<IMutablePriceVolumeLayer>>.CopyFrom
+        (IReusableQuoteElement<IMutablePriceVolumeLayer> source, QuoteInstantBehaviorFlags behaviorFlags, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPriceVolumeLayer)source, behaviorFlags, copyMergeFlags);
+
+    IMutablePriceVolumeLayer ITransferQuoteState<IMutablePriceVolumeLayer>.CopyFrom
+        (IMutablePriceVolumeLayer source, QuoteInstantBehaviorFlags behaviorFlags, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom(source, behaviorFlags, copyMergeFlags);
+
+    public override PQPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, QuoteInstantBehaviorFlags behaviorFlags
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if (source is not PQPriceVolumeLayer pqPvl)
+        {
+            Price  = source.Price;
+            Volume = source.Volume;
+        }
+        else
+        {
+            var isFullReplace = copyMergeFlags.HasFullReplace();
+
+            if (pqPvl.IsPriceUpdated || isFullReplace)
+            {
+                IsPriceUpdated = true;
+
+                Price = pqPvl.Price;
+            }
+
+            if (pqPvl.IsVolumeUpdated || isFullReplace)
+            {
+                IsVolumeUpdated = true;
+
+                Volume = pqPvl.Volume;
+            }
+
+            if (isFullReplace) UpdatedFlags = pqPvl.UpdatedFlags;
+        }
+
+        return this;
+    }
+
+    bool IInterfacesComparable<IPQPriceVolumeLayer>.AreEquivalent(IPQPriceVolumeLayer? other, bool exactTypes) => AreEquivalent(other, exactTypes);
+
+    bool IInterfacesComparable<IMutablePriceVolumeLayer>.AreEquivalent(IMutablePriceVolumeLayer? other, bool exactTypes) =>
+        AreEquivalent(other, exactTypes);
+
+    public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;

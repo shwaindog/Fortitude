@@ -6,7 +6,6 @@
 using System.Collections;
 using System.Text;
 using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
@@ -19,9 +18,9 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 
-public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSide
+public class OrderBookSide : ReusableQuoteElement<IOrderBookSide>, IMutableOrderBookSide
 {
-    private IList<IMutablePriceVolumeLayer> allLayers;
+    private readonly IList<IMutablePriceVolumeLayer> allLayers;
 
     private readonly TrackListShiftsRegistry<IMutablePriceVolumeLayer, IPriceVolumeLayer> elementListShiftRegistry;
 
@@ -31,6 +30,8 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
     private IMutableMarketAggregate? openInterestSide;
 
+    private QuoteInstantBehaviorFlags cacheBehaviorFlags = QuoteInstantBehaviorFlags.None;
+
     public OrderBookSide()
     {
         elementListShiftRegistry = new TrackListShiftsRegistry<IMutablePriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
@@ -38,13 +39,14 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         BookSide  = BookSide.Unknown;
         allLayers = new List<IMutablePriceVolumeLayer>();
 
-        allLayers.Add(LayerSelector.CreateExpectedImplementation(LayerSupportedType));
+        allLayers.Add(LayerSelector.CreateExpectedImplementation(LayerSupportedType, (QuoteLayerInstantBehaviorFlags)cacheBehaviorFlags));
     }
 
     public OrderBookSide
-    (BookSide bookSide, LayerType layerType = LayerType.PriceVolume, ushort maxPublishDepth = SourceTickerInfo.DefaultMaximumPublishedLayers
-      , bool isLadder = false)
+    (BookSide bookSide, LayerType layerType = LayerType.PriceVolume, QuoteInstantBehaviorFlags quoteBehavior = QuoteInstantBehaviorFlags.None
+      , ushort maxPublishDepth = SourceTickerInfo.DefaultMaximumPublishedLayers, bool isLadder = false)
     {
+        cacheBehaviorFlags       = quoteBehavior;
         elementListShiftRegistry = new TrackListShiftsRegistry<IMutablePriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
         LayerSupportedFlags = allLayers?.FirstOrDefault()?.SupportsLayerFlags ?? LayerFlagsExtensions.PriceVolumeLayerFlags |
             (isLadder ? LayerFlags.Ladder : LayerFlags.None);
@@ -53,39 +55,44 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
         BookSide   =  bookSide;
         layerFlags |= LayerSupportedType.SupportedLayerFlags();
-        allLayers  =  Enumerable.Repeat(LayerSelector.CreateExpectedImplementation(layerType), maxPublishDepth).ToList();
+        allLayers  =  Enumerable.Repeat(LayerSelector.CreateExpectedImplementation(layerType, (QuoteLayerInstantBehaviorFlags)quoteBehavior), maxPublishDepth).ToList();
         IsLadder   =  isLadder;
     }
 
-    public OrderBookSide(BookSide bookSide, ushort numBookLayers, bool isLadder = false)
+    public OrderBookSide
+        (BookSide bookSide, ushort numBookLayers, QuoteInstantBehaviorFlags quoteBehavior = QuoteInstantBehaviorFlags.None, bool isLadder = false)
     {
+        cacheBehaviorFlags       = quoteBehavior;
         elementListShiftRegistry = new TrackListShiftsRegistry<IMutablePriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
-        LayerSupportedFlags  = (isLadder ? LayerFlags.Ladder : LayerFlags.None);
+        LayerSupportedFlags      = (isLadder ? LayerFlags.Ladder : LayerFlags.None);
 
         MaxAllowedSize = numBookLayers;
 
         BookSide  = bookSide;
-        allLayers = Enumerable.Repeat(LayerSelector.CreateExpectedImplementation(LayerSupportedType), numBookLayers).ToList();
+        allLayers = Enumerable.Repeat(LayerSelector.CreateExpectedImplementation(LayerSupportedType, (QuoteLayerInstantBehaviorFlags)cacheBehaviorFlags), numBookLayers).ToList();
         IsLadder  = isLadder;
     }
 
-    public OrderBookSide(BookSide bookSide, IEnumerable<IPriceVolumeLayer> bookLayers)
+    public OrderBookSide
+        (BookSide bookSide, IEnumerable<IPriceVolumeLayer> bookLayers, QuoteInstantBehaviorFlags quoteBehavior = QuoteInstantBehaviorFlags.None)
     {
+        cacheBehaviorFlags       = quoteBehavior;
         elementListShiftRegistry = new TrackListShiftsRegistry<IMutablePriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
-        LayerSupportedFlags  = bookLayers.FirstOrDefault()?.SupportsLayerFlags ?? LayerFlagsExtensions.PriceVolumeLayerFlags;
+        LayerSupportedFlags      = bookLayers.FirstOrDefault()?.SupportsLayerFlags ?? LayerFlagsExtensions.PriceVolumeLayerFlags;
 
         MaxAllowedSize = (ushort)bookLayers.Count();
 
         BookSide = bookSide;
         allLayers =
             (bookLayers
-             .Select(pvl => LayerSelector.UpgradeExistingLayer(pvl, pvl.LayerType, pvl, CopyMergeFlags.FullReplace))
+             .Select(pvl => LayerSelector.UpgradeExistingLayer(pvl, pvl.LayerType, (QuoteLayerInstantBehaviorFlags)quoteBehavior, pvl, CopyMergeFlags.FullReplace))
              .ToList()
             );
     }
 
     public OrderBookSide(IOrderBookSide toClone)
     {
+        cacheBehaviorFlags       = toClone.QuoteBehavior;
         elementListShiftRegistry = new TrackListShiftsRegistry<IMutablePriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
         elementListShiftRegistry.CopyFrom(toClone.ShiftCommands);
 
@@ -107,15 +114,16 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         allLayers =
             toClone
                 .Select
-                    (pvl => LayerSelector.CreateExpectedImplementation(pvl.LayerType, pvl))
+                    (pvl => LayerSelector.CreateExpectedImplementation(pvl.LayerType, (QuoteLayerInstantBehaviorFlags)cacheBehaviorFlags, pvl))
                 .ToList();
         Capacity = toClone.Capacity;
     }
 
     public OrderBookSide(BookSide bookSide, ISourceTickerInfo sourceTickerInfo)
     {
+        cacheBehaviorFlags       = (QuoteInstantBehaviorFlags)sourceTickerInfo.QuoteBehaviorFlags;
         elementListShiftRegistry = new TrackListShiftsRegistry<IMutablePriceVolumeLayer, IPriceVolumeLayer>(this, NewElementFactory, SamePrice);
-        LayerSupportedFlags  = sourceTickerInfo.LayerFlags;
+        LayerSupportedFlags      = sourceTickerInfo.LayerFlags;
 
         MaxAllowedSize = sourceTickerInfo.MaximumPublishedLayers;
 
@@ -123,14 +131,18 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         layerFlags |= LayerSupportedType.SupportedLayerFlags();
         allLayers =
             Enumerable
-                .Repeat(LayerSelector.CreateExpectedImplementation(LayerSupportedType), MaxAllowedSize)
+                .Repeat(LayerSelector.CreateExpectedImplementation(LayerSupportedType, (QuoteLayerInstantBehaviorFlags)cacheBehaviorFlags), MaxAllowedSize)
                 .ToList();
     }
 
 
     protected static Func<IPriceVolumeLayer, IPriceVolumeLayer, bool> SamePrice = (lhs, rhs) => lhs.Price == rhs.Price;
 
-    protected Func<IMutablePriceVolumeLayer> NewElementFactory => () => LayerSelector.CreateExpectedImplementation(LayerSupportedType);
+    protected Func<IMutablePriceVolumeLayer> NewElementFactory => () => LayerSelector.CreateExpectedImplementation(LayerSupportedType, (QuoteLayerInstantBehaviorFlags)QuoteBehavior);
+
+    public QuoteInstantBehaviorFlags QuoteBehavior => cacheBehaviorFlags = Parent?.QuoteBehavior ?? cacheBehaviorFlags;
+
+    public IParentQuoteElement? Parent { get; set; }
 
     public ushort MaxAllowedSize
     {
@@ -140,11 +152,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
     public static ILayerFlagsSelector<IMutablePriceVolumeLayer> LayerSelector { get; set; } = new OrderBookLayerFactorySelector();
 
-    public LayerType LayerSupportedType
-    {
-        get => LayerSupportedFlags.MostCompactLayerType();
-        private set => LayerSupportedFlags |= value.SupportedLayerFlags();
-    }
+    public LayerType LayerSupportedType => LayerSupportedFlags.MostCompactLayerType();
 
     public LayerFlags LayerSupportedFlags
     {
@@ -207,7 +215,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     }
 
     public uint DailyTickUpdateCount { get; set; }
-    
+
     public IReadOnlyList<IPriceVolumeLayer> AllLayers => allLayers.Take(Count).ToList().AsReadOnly();
 
 
@@ -234,7 +242,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         get => elementListShiftRegistry.ClearRemainingElementsFromIndex;
         set => elementListShiftRegistry.ClearRemainingElementsFromIndex = (ushort?)value;
     }
-    
+
     public bool HasUnreliableListTracking
     {
         get => elementListShiftRegistry.HasUnreliableListTracking;
@@ -262,7 +270,9 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
 
     public bool AppendAtEnd(IMutablePriceVolumeLayer toAppendAtEnd) => elementListShiftRegistry.AppendAtEnd(toAppendAtEnd);
 
-    public ListShiftCommand InsertAt(int index, IMutablePriceVolumeLayer toInsertAtStart) => elementListShiftRegistry.InsertAt(index, toInsertAtStart);
+    public ListShiftCommand InsertAt
+        (int index, IMutablePriceVolumeLayer toInsertAtStart) =>
+        elementListShiftRegistry.InsertAt(index, toInsertAtStart);
 
     public ListShiftCommand DeleteAt(int index) => elementListShiftRegistry.DeleteAt(index);
 
@@ -282,9 +292,10 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         {
             if (level < allLayers.Count) return allLayers[level];
             if (level >= MaxAllowedSize) throw new ArgumentException("Error attempted to update a level beyond the maximum allowed book size");
+            cacheBehaviorFlags = QuoteBehavior;
             while (Capacity <= level)
             {
-                var pqLayer = LayerSelector.CreateExpectedImplementation(LayerSupportedType);
+                var pqLayer = LayerSelector.CreateExpectedImplementation(LayerSupportedType, (QuoteLayerInstantBehaviorFlags)cacheBehaviorFlags);
                 allLayers.Add(pqLayer);
             }
             return allLayers[level];
@@ -330,9 +341,10 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
             if (value > PQFeedFieldsExtensions.SingleByteFieldIdMaxBookDepth)
                 throw new ArgumentException("Expected OrderBook Capacity to be less than or equal to " +
                                             PQFeedFieldsExtensions.SingleByteFieldIdMaxBookDepth);
+            cacheBehaviorFlags = QuoteBehavior;
             while (allLayers.Count < value)
             {
-                var cloneFirstLayer = LayerSelector.CreateExpectedImplementation(LayerSupportedType);
+                var cloneFirstLayer = LayerSelector.CreateExpectedImplementation(LayerSupportedType, (QuoteLayerInstantBehaviorFlags)cacheBehaviorFlags);
                 cloneFirstLayer.StateReset();
                 allLayers.Add(cloneFirstLayer);
             }
@@ -387,23 +399,9 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     {
         HasUnreliableListTracking = ShiftCommands.Any();
         var index = allLayers.Count;
-        allLayers.Add(LayerSelector.CreateExpectedImplementation(LayerSupportedType));
+        allLayers.Add(LayerSelector.CreateExpectedImplementation(LayerSupportedType, (QuoteLayerInstantBehaviorFlags)QuoteBehavior));
         return index;
     }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    IEnumerator<IPriceVolumeLayer> IEnumerable<IPriceVolumeLayer>.GetEnumerator() => GetEnumerator();
-
-    public IEnumerator<IMutablePriceVolumeLayer> GetEnumerator() => allLayers.Take(Count).GetEnumerator();
-
-    IMutableOrderBookSide ICloneable<IMutableOrderBookSide>.Clone() => Clone();
-
-    IMutableOrderBookSide IMutableOrderBookSide.Clone() => Clone();
-
-    IOrderBookSide ICloneable<IOrderBookSide>.Clone() => Clone();
-
-    public override OrderBookSide Clone() => Recycler?.Borrow<OrderBookSide>().CopyFrom(this) ?? new OrderBookSide(this);
 
     IMutableOrderBookSide ITrackableReset<IMutableOrderBookSide>.ResetWithTracking() => ResetWithTracking();
 
@@ -429,8 +427,26 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         base.StateReset();
     }
 
-    public override OrderBookSide CopyFrom(IOrderBookSide source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    IEnumerator<IPriceVolumeLayer> IEnumerable<IPriceVolumeLayer>.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<IMutablePriceVolumeLayer> GetEnumerator() => allLayers.Take(Count).GetEnumerator();
+
+    IMutableOrderBookSide ICloneable<IMutableOrderBookSide>.Clone() => Clone();
+
+    IMutableOrderBookSide IMutableOrderBookSide.Clone() => Clone();
+
+    IOrderBookSide ICloneable<IOrderBookSide>.Clone() => Clone();
+
+    public override OrderBookSide Clone() =>
+        Recycler?.Borrow<OrderBookSide>().CopyFrom(this, QuoteInstantBehaviorFlags.DisableUpgradeLayer) ?? new OrderBookSide(this);
+
+    public override OrderBookSide CopyFrom
+    (IOrderBookSide source, QuoteInstantBehaviorFlags behaviorFlags
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
+        cacheBehaviorFlags  = behaviorFlags;
         LayerSupportedFlags = source.LayerSupportedFlags;
         MaxAllowedSize      = source.MaxAllowedSize;
         elementListShiftRegistry.CopyFrom(source, copyMergeFlags);
@@ -446,19 +462,20 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         var allSourceLayers = source.Capacity;
         for (var i = 0; i < allSourceLayers; i++)
         {
-            var sourceLayer = source[i];
+            var sourceLayer      = source[i];
             var destinationLayer = this[i];
 
-            allLayers[i] = LayerSelector.UpgradeExistingLayer(destinationLayer, LayerSupportedType, sourceLayer);
-            
-            destinationLayer.CopyFrom(sourceLayer, copyMergeFlags);
+            allLayers[i] = LayerSelector.UpgradeExistingLayer
+                (destinationLayer, LayerSupportedType, (QuoteLayerInstantBehaviorFlags)cacheBehaviorFlags, sourceLayer);
+
+            destinationLayer.CopyFrom(sourceLayer, behaviorFlags, copyMergeFlags);
         }
 
         for (var i = source.Count; i < allLayers.Count; i++) allLayers[i].IsEmpty = true;
         return this;
     }
 
-    public bool AreEquivalent(IOrderBookSide? other, bool exactTypes = false)
+    public override bool AreEquivalent(IOrderBookSide? other, bool exactTypes = false)
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;
@@ -486,7 +503,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IOrderBookSide?)obj, true);
 
     public override int GetHashCode() => allLayers.GetHashCode();
-    
+
     public string EachLayerByIndexOnNewLines()
     {
         var countOfLayers = Count;
@@ -502,7 +519,7 @@ public class OrderBookSide : ReusableObject<IOrderBookSide>, IMutableOrderBookSi
         }
         return sb.ToString();
     }
-    
+
 
     protected string OrderBookSideToStringMembers =>
         $"{nameof(Capacity)}: {Capacity}, {nameof(MaxAllowedSize)}: {MaxAllowedSize}, {nameof(Count)}: {Count}, {nameof(LayerSupportedFlags)}: {LayerSupportedFlags}, " +

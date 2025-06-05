@@ -19,10 +19,10 @@ public static class MovingAverageConstants
     public const string MovingAverageTimeWeightedShortPeriodRequest = $"{MovingAverageBase}.Live.{{0}}.{{1}}.TimeWeighted.ShortPeriod";
 
     public static string MovingAverageTimeWeightedLiveShortPeriodRequest(this SourceTickerIdentifier sourceTicker) =>
-        string.Format(MovingAverageTimeWeightedShortPeriodRequest, sourceTicker.Source, sourceTicker.Ticker);
+        string.Format(MovingAverageTimeWeightedShortPeriodRequest, sourceTicker.SourceName, sourceTicker.InstrumentName);
 
     public static string MovingAverageTimeWeightedLiveShortPeriodPublishTemplate(this SourceTickerIdentifier sourceTicker) =>
-        string.Format(MovingAverageTimeWeightedLiveTemplate, sourceTicker.Source, sourceTicker.Ticker) + ".{0}";
+        string.Format(MovingAverageTimeWeightedLiveTemplate, sourceTicker.SourceName, sourceTicker.InstrumentName) + ".{0}";
 
     public static string MovingAverageTimeWeightedLiveShortPeriodPublish
         (this SourceTickerIdentifier sourceTicker, DiscreetTimePeriod discreetTimePeriod) =>

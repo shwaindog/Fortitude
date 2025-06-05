@@ -216,16 +216,16 @@ public class PQLastPaidGivenTrade : PQLastTrade, IPQLastPaidGivenTrade
     (DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
+        var fullPicture = (messageFlags & PQMessageFlags.Complete) > 0;
         foreach (var deltaUpdateField in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                    quotePublicationPrecisionSetting))
             yield return deltaUpdateField;
-        if (!updatedOnly || IsOrderIdUpdated)
+        if (fullPicture || IsOrderIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedOrderId, OrderId);
-        if (!updatedOnly || IsBooleanFlagsChanged())
+        if (fullPicture || IsBooleanFlagsChanged())
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedBooleanFlags
                                          , (uint)LastTradeBooleanFlags);
-        if (!updatedOnly || IsTradeVolumeUpdated)
+        if (fullPicture || IsTradeVolumeUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTradeVolume, TradeVolume,
                                            quotePublicationPrecisionSetting?.VolumeScalingPrecision ?? (PQFieldFlags)6);
     }

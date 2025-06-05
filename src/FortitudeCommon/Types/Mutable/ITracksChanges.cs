@@ -9,12 +9,12 @@ using System.Text.Json.Serialization;
 
 namespace FortitudeCommon.Types.Mutable;
 
-public interface ITracksChanges<T> : ITransferState<T>, IScopedDiscreetUpdatable where T : class
+public interface ITracksChanges : IScopedDiscreetUpdatable
 {
     [JsonIgnore] bool HasUpdates { get; set; }
 }
 
-public interface ITrackableReset<T> where T : ITrackableReset<T>
+public interface ITrackableReset<out T> where T : ITrackableReset<T>
 {
     T ResetWithTracking();
 }

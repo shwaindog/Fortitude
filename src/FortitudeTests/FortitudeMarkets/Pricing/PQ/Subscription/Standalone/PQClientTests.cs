@@ -119,7 +119,7 @@ public class PQClientTests
         moqFirstTestSourceTickerInfo.SetupGet(stqi => stqi.FilledAttributes).Returns([]);
         moqFirstTestSourceTickerInfo.SetupGet(stqi => stqi.SourceName).Returns(firstTestSourceName);
         moqFirstTestSourceTickerInfo.SetupGet(stqi => stqi.InstrumentName).Returns(firstTestTicker);
-        moqFirstTestSourceTickerInfo.SetupGet(stqi => stqi.SourceTickerId).Returns(FirstSourceTickerId);
+        moqFirstTestSourceTickerInfo.SetupGet(stqi => stqi.SourceInstrumentId).Returns(FirstSourceTickerId);
         moqFirstTestSourceTickerInfo.SetupGet(stqi => stqi.SourceId).Returns(FirstSourceId);
         moqFirstTestSourceTickerInfo.SetupGet(stqi => stqi.InstrumentId).Returns(FirstTickerId);
 
@@ -127,7 +127,7 @@ public class PQClientTests
 
         moqSecondTestSourceTickerInfo.SetupGet(stqi => stqi.SourceName).Returns(secondTestSourceName);
         moqSecondTestSourceTickerInfo.SetupGet(stqi => stqi.InstrumentName).Returns(secondTestTicker);
-        moqSecondTestSourceTickerInfo.SetupGet(stqi => stqi.SourceTickerId).Returns(SecondSourceTickerId);
+        moqSecondTestSourceTickerInfo.SetupGet(stqi => stqi.SourceInstrumentId).Returns(SecondSourceTickerId);
         moqSecondTestSourceTickerInfo.SetupGet(stqi => stqi.SourceId).Returns(SecondSourceId);
         moqSecondTestSourceTickerInfo.SetupGet(stqi => stqi.InstrumentId).Returns(SecondTickerId);
 
@@ -400,7 +400,7 @@ public class PQClientTests
         moqFirstTestSourceTickerInfo.Reset();
         moqFirstTestSourceTickerInfo.SetupGet(stqi => stqi.InstrumentName)
                                     .Returns(firstTestTicker);
-        moqFirstTestSourceTickerInfo.SetupGet(stqi => stqi.SourceTickerId).Returns(FirstSourceTickerId);
+        moqFirstTestSourceTickerInfo.SetupGet(stqi => stqi.SourceInstrumentId).Returns(FirstSourceTickerId);
 
         moqFirstTestSourceTickerInfo.SetupGet(stqi => stqi.SourceName).Returns(secondTestSourceName);
         moqPQQuoteDeserializerRepo.Setup(qdr => qdr.GetDeserializer(
@@ -439,12 +439,12 @@ public class PQClientTests
         moqPQQuoteSerializer.Reset();
         moqFirstTestSourceTickerInfo.SetupGet(stqi => stqi.InstrumentName)
                                     .Returns(firstTestTicker);
-        moqFirstTestSourceTickerInfo.SetupGet(stqi => stqi.SourceTickerId).Returns(FirstSourceTickerId);
+        moqFirstTestSourceTickerInfo.SetupGet(stqi => stqi.SourceInstrumentId).Returns(FirstSourceTickerId);
 
         moqFirstTestSourceTickerInfo.SetupGet(stqi => stqi.SourceName).Returns(firstTestSourceName);
         moqSecondTestSourceTickerInfo.SetupGet(stqi => stqi.InstrumentName)
                                      .Returns(secondTestSourceName);
-        moqSecondTestSourceTickerInfo.SetupGet(stqi => stqi.SourceTickerId).Returns(SecondSourceTickerId);
+        moqSecondTestSourceTickerInfo.SetupGet(stqi => stqi.SourceInstrumentId).Returns(SecondSourceTickerId);
 
         moqSecondTestSourceTickerInfo.SetupGet(stqi => stqi.SourceName).Returns(secondTestSourceName);
         moqPQQuoteDeserializerRepo.SetupGet(qdr => qdr.RegisteredMessageIds).Returns(Array.Empty<uint>()).Verifiable();

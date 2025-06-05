@@ -69,7 +69,7 @@ public enum ServiceRunStatus
 public struct TickerPeriodServiceRequest
 {
     public TickerPeriodServiceRequest
-    (RequestType requestType, ServiceType serviceType, PricingInstrumentId pricingInstrumentId
+    (RequestType requestType, ServiceType serviceType, PricingInstrumentIdValue pricingInstrumentId
       , TickerQuoteDetailLevel tickerQuoteDetailLevel = TickerQuoteDetailLevel.Level1Quote, bool usePqQuote = false)
     {
         RequestType = requestType;
@@ -113,7 +113,7 @@ public struct GlobalServiceRequest
 public struct TickerPeriodServiceInfo
 {
     public TickerPeriodServiceInfo
-    (ServiceType serviceType, PricingInstrumentId pricingInstrumentId
+    (ServiceType serviceType, PricingInstrumentIdValue pricingInstrumentId
       , TickerQuoteDetailLevel tickerQuoteDetailLevel = TickerQuoteDetailLevel.Level1Quote, bool usePqQuote = false)
     {
         ServiceType         = serviceType;
@@ -127,7 +127,7 @@ public struct TickerPeriodServiceInfo
       , TickerQuoteDetailLevel tickerQuoteDetailLevel = TickerQuoteDetailLevel.Level1Quote, bool usePqQuote = false)
     {
         ServiceType = serviceType;
-        PricingInstrumentId = new PricingInstrumentId(sourceTickerIdentifier
+        PricingInstrumentId = new PricingInstrumentIdValue(sourceTickerIdentifier
                                                     , new PeriodInstrumentTypePair(InstrumentType.Custom, period ?? new DiscreetTimePeriod(Tick)));
         TickerQuoteDetailLevel = tickerQuoteDetailLevel;
         UsePqQuote        = usePqQuote;
@@ -135,7 +135,7 @@ public struct TickerPeriodServiceInfo
 
     public ServiceType ServiceType { get; }
 
-    public PricingInstrumentId PricingInstrumentId { get; }
+    public PricingInstrumentIdValue PricingInstrumentId { get; }
     public TickerQuoteDetailLevel   TickerQuoteDetailLevel   { get; set; }
 
     public bool UsePqQuote { get; set; }

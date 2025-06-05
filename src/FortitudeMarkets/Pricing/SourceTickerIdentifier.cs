@@ -15,18 +15,19 @@ namespace FortitudeMarkets.Pricing;
 
 public interface ISourceTickerId : IReusableObject<ISourceTickerId>
 {
-    [JsonIgnore] uint SourceTickerId { get; }
-    ushort            SourceId       { get; }
-    ushort            InstrumentId   { get; }
-    string            SourceName     { get; }
-    string            InstrumentName { get; }
+    [JsonIgnore] uint SourceInstrumentId { get; }
+
+    ushort SourceId       { get; }
+    ushort InstrumentId   { get; }
+    string SourceName     { get; }
+    string InstrumentName { get; }
 }
 
-public class SourceTicker : ReusableObject<ISourceTickerId>, ISourceTickerId, IInterfacesComparable<ISourceTickerId>
+public class SourceTickerId : ReusableObject<ISourceTickerId>, ISourceTickerId, IInterfacesComparable<ISourceTickerId>
 {
-    public SourceTicker() { }
+    public SourceTickerId() { }
 
-    public SourceTicker(ushort sourceId, ushort tickerId, string sourceName, string ticker)
+    public SourceTickerId(ushort sourceId, ushort tickerId, string sourceName, string ticker)
     {
         SourceId       = sourceId;
         InstrumentId   = tickerId;
@@ -34,7 +35,7 @@ public class SourceTicker : ReusableObject<ISourceTickerId>, ISourceTickerId, II
         InstrumentName = ticker;
     }
 
-    public SourceTicker(ISourceTickerId toClone)
+    public SourceTickerId(ISourceTickerId toClone)
     {
         SourceId       = toClone.SourceId;
         InstrumentId   = toClone.InstrumentId;
@@ -42,12 +43,12 @@ public class SourceTicker : ReusableObject<ISourceTickerId>, ISourceTickerId, II
         InstrumentName = toClone.InstrumentName;
     }
 
-    public SourceTicker(SourceTickerIdentifier toClone)
+    public SourceTickerId(SourceTickerIdentifier toClone)
     {
         SourceId       = toClone.SourceId;
-        InstrumentId   = toClone.TickerId;
-        SourceName     = toClone.Source;
-        InstrumentName = toClone.Ticker;
+        InstrumentId   = toClone.InstrumentId;
+        SourceName     = toClone.SourceName;
+        InstrumentName = toClone.InstrumentName;
     }
 
     public virtual bool AreEquivalent(ISourceTickerId? other, bool exactTypes = false)
@@ -61,20 +62,11 @@ public class SourceTicker : ReusableObject<ISourceTickerId>, ISourceTickerId, II
         return sourceIdSame && tickerIdSame && sourceSame && tickerSame;
     }
 
-    public uint   SourceTickerId => (uint)((SourceId << 16) | InstrumentId);
-    public ushort SourceId       { get; set; }
-    public ushort InstrumentId   { get; set; }
-    public string SourceName     { get; set; } = null!;
-    public string InstrumentName { get; set; } = null!;
-
-    public override ISourceTickerId CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        SourceId       = source.SourceId;
-        InstrumentId   = source.InstrumentId;
-        SourceName     = source.SourceName;
-        InstrumentName = source.InstrumentName;
-        return this;
-    }
+    public uint   SourceInstrumentId => (uint)((SourceId << 16) | InstrumentId);
+    public ushort SourceId           { get; set; }
+    public ushort InstrumentId       { get; set; }
+    public string SourceName         { get; set; } = null!;
+    public string InstrumentName     { get; set; } = null!;
 
     public override void StateReset()
     {
@@ -85,64 +77,81 @@ public class SourceTicker : ReusableObject<ISourceTickerId>, ISourceTickerId, II
         base.StateReset();
     }
 
-    public override ISourceTickerId Clone() => Recycler?.Borrow<SourceTicker>().CopyFrom(this) ?? new SourceTicker((ISourceTickerId)this);
+    public override ISourceTickerId Clone() => Recycler?.Borrow<SourceTickerId>().CopyFrom(this) ?? new SourceTickerId((ISourceTickerId)this);
 
-    protected bool Equals(SourceTicker other) => AreEquivalent(other, true);
+    public override ISourceTickerId CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        SourceId       = source.SourceId;
+        InstrumentId   = source.InstrumentId;
+        SourceName     = source.SourceName;
+        InstrumentName = source.InstrumentName;
+        return this;
+    }
+
+    protected bool Equals(SourceTickerId other) => AreEquivalent(other, true);
 
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((SourceTicker)obj);
+        return Equals((SourceTickerId)obj);
     }
+
+    protected string SourceTickerIdToStringMembers =>
+        $"{nameof(SourceId)}: {SourceId}, {nameof(SourceName)}: {SourceName}, {nameof(InstrumentId)}: {InstrumentId}, " +
+        $"{nameof(InstrumentName)}: {InstrumentName}";
+
+    protected string SourceInstrumentIdToString => $"{nameof(SourceInstrumentId)}: {SourceInstrumentId}";
+
+    public override string ToString() => $"{nameof(SourceTickerId)}{{{SourceTickerIdToStringMembers}, {SourceInstrumentIdToString}}}";
 
     public override int GetHashCode() => HashCode.Combine(SourceId, InstrumentId, SourceName, InstrumentName);
 
-    public static implicit operator SourceTickerIdentifier(SourceTicker sourceTickerId) => new(sourceTickerId);
+    public static implicit operator SourceTickerIdentifier(SourceTickerId sourceTickerId) => new(sourceTickerId);
 }
 
 public readonly struct SourceTickerIdentifier // not inheriting from ISourceTickerId to prevent accidental boxing unboxing
 {
-    public SourceTickerIdentifier(ushort sourceId, ushort tickerId)
+    public SourceTickerIdentifier(ushort sourceId, ushort instrumentId)
     {
-        SourceId = sourceId;
-        TickerId = tickerId;
+        SourceId     = sourceId;
+        InstrumentId = instrumentId;
     }
 
     public SourceTickerIdentifier(ISourceTickerId sourceTickerId)
     {
-        SourceId = sourceTickerId.SourceId;
-        TickerId = sourceTickerId.InstrumentId;
+        SourceId     = sourceTickerId.SourceId;
+        InstrumentId = sourceTickerId.InstrumentId;
     }
 
-    public uint   SourceTickerId => (uint)((SourceId << 16) | TickerId);
-    public ushort SourceId       { get; }
-    public ushort TickerId       { get; }
-    public string Ticker         => SourceTickerIdentifierExtensions.GetRegisteredTickerName(SourceTickerId);
-    public string Source         => SourceTickerIdentifierExtensions.GetRegisteredSourceName(SourceId);
+    public uint   SourceInstrumentId => (uint)((SourceId << 16) | InstrumentId);
+    public ushort SourceId           { get; }
+    public ushort InstrumentId       { get; }
+    public string InstrumentName     => SourceTickerIdentifierExtensions.GetRegisteredInstrumentName(SourceInstrumentId);
+    public string SourceName         => SourceTickerIdentifierExtensions.GetRegisteredSourceName(SourceId);
 }
 
 public readonly struct SourceTickerIdValue // not inheriting from ISourceTickerId to prevent accidental boxing unboxing
 {
-    public SourceTickerIdValue(ushort sourceId, ushort tickerId, string source, string ticker)
+    public SourceTickerIdValue(ushort sourceId, ushort instrumentId, string sourceName, string instrumentName)
     {
-        SourceId = sourceId;
-        TickerId = tickerId;
-        Source   = source;
-        Ticker   = ticker;
+        SourceId       = sourceId;
+        InstrumentId   = instrumentId;
+        SourceName     = sourceName;
+        InstrumentName = instrumentName;
     }
 
-    public uint   SourceTickerId => (uint)((SourceId << 16) | TickerId);
+    public uint   SourceTickerId => (uint)((SourceId << 16) | InstrumentId);
     public ushort SourceId       { get; }
-    public ushort TickerId       { get; }
-    public string Source         { get; }
-    public string Ticker         { get; }
+    public ushort InstrumentId   { get; }
+    public string SourceName     { get; }
+    public string InstrumentName { get; }
 
 
     public static implicit operator SourceTickerIdentifier
         (SourceTickerIdValue sourceTickerId) =>
-        new(sourceTickerId.SourceId, sourceTickerId.TickerId);
+        new(sourceTickerId.SourceId, sourceTickerId.InstrumentId);
 }
 
 public static class SourceTickerIdentifierExtensions
@@ -155,13 +164,13 @@ public static class SourceTickerIdentifierExtensions
     private static readonly ConcurrentMap<ushort, string> IdToSourceNameLookup        = new();
     private static readonly ConcurrentMap<uint, string>   IdsToTickerNameLookup       = new();
 
-    public static string SourceTickerShortName(this ISourceTickerId id)
+    public static string SourceInstrumentShortName(this ISourceTickerId id)
     {
-        if (!SingleStringShortNameLookup.TryGetValue(id.SourceTickerId, out var shortName))
+        if (!SingleStringShortNameLookup.TryGetValue(id.SourceInstrumentId, out var shortName))
             if (id.SourceName != NoSourceNameValue && id.InstrumentName != NoTickerNameValue)
             {
                 shortName = $"{id.SourceName}-{id.InstrumentName}";
-                SingleStringShortNameLookup.Add(id.SourceTickerId, shortName);
+                SingleStringShortNameLookup.Add(id.SourceInstrumentId, shortName);
             }
         return shortName!;
     }
@@ -169,9 +178,9 @@ public static class SourceTickerIdentifierExtensions
     public static bool Register(this ISourceTickerId id)
     {
         if (!IdToSourceNameLookup.ContainsKey(id.SourceId)) IdToSourceNameLookup.AddOrUpdate(id.SourceId, id.SourceName);
-        if (!IdsToTickerNameLookup.TryGetValue(id.SourceTickerId, out var tickerMap))
+        if (!IdsToTickerNameLookup.TryGetValue(id.SourceInstrumentId, out var tickerMap))
         {
-            IdsToTickerNameLookup.Add(id.SourceTickerId, id.InstrumentName);
+            IdsToTickerNameLookup.Add(id.SourceInstrumentId, id.InstrumentName);
             return true;
         }
         return false;
@@ -179,10 +188,10 @@ public static class SourceTickerIdentifierExtensions
 
     public static bool Register(this SourceTickerIdValue id)
     {
-        if (!IdToSourceNameLookup.ContainsKey(id.SourceId)) IdToSourceNameLookup.AddOrUpdate(id.SourceId, id.Source);
+        if (!IdToSourceNameLookup.ContainsKey(id.SourceId)) IdToSourceNameLookup.AddOrUpdate(id.SourceId, id.SourceName);
         if (!IdsToTickerNameLookup.TryGetValue(id.SourceTickerId, out var tickerMap))
         {
-            IdsToTickerNameLookup.Add(id.SourceTickerId, id.Ticker);
+            IdsToTickerNameLookup.Add(id.SourceTickerId, id.InstrumentName);
             return true;
         }
         return false;
@@ -194,26 +203,26 @@ public static class SourceTickerIdentifierExtensions
         return NoSourceNameValue;
     }
 
-    public static string GetRegisteredTickerName(uint sourceTickerId)
+    public static string GetRegisteredInstrumentName(uint sourceTickerId)
     {
         if (IdsToTickerNameLookup.TryGetValue(sourceTickerId, out var tickerName)) return tickerName!;
         return NoTickerNameValue;
     }
 
-    public static string SourceTickerShortName(uint sourceTickerId)
+    public static string SourceInstrumentShortName(uint sourceTickerId)
     {
         if (!SingleStringShortNameLookup.TryGetValue(sourceTickerId, out var shortName)) shortName = NoSourceTickerShortNameValue;
         return shortName!;
     }
 
-    public static string SourceTickerShortName(this SourceTickerIdentifier id)
+    public static string SourceInstrumentShortName(this SourceTickerIdentifier id)
     {
-        if (!SingleStringShortNameLookup.TryGetValue(id.SourceTickerId, out var shortName))
+        if (!SingleStringShortNameLookup.TryGetValue(id.SourceInstrumentId, out var shortName))
         {
-            if (id.Source != NoSourceNameValue && id.Ticker != NoTickerNameValue)
+            if (id.SourceName != NoSourceNameValue && id.InstrumentName != NoTickerNameValue)
             {
-                shortName = $"{id.Source}-{id.Ticker}";
-                SingleStringShortNameLookup.Add(id.SourceTickerId, shortName);
+                shortName = $"{id.SourceName}-{id.InstrumentName}";
+                SingleStringShortNameLookup.Add(id.SourceInstrumentId, shortName);
             }
             else
             {
@@ -223,13 +232,13 @@ public static class SourceTickerIdentifierExtensions
         return shortName!;
     }
 
-    public static string SourceTickerShortName(this SourceTickerIdValue id)
+    public static string SourceInstrumentShortName(this SourceTickerIdValue id)
     {
         if (!SingleStringShortNameLookup.TryGetValue(id.SourceTickerId, out var shortName))
         {
-            if (id.Source != NoSourceNameValue && id.Ticker != NoTickerNameValue)
+            if (id.SourceName != NoSourceNameValue && id.InstrumentName != NoTickerNameValue)
             {
-                shortName = $"{id.Source}-{id.Ticker}";
+                shortName = $"{id.SourceName}-{id.InstrumentName}";
                 SingleStringShortNameLookup.Add(id.SourceTickerId, shortName);
             }
             else

@@ -67,7 +67,7 @@ public class PQPricingClientBusTopicPublicationAmenderRule : RemoteMessageBusTop
         if (newlyRegisteredMessageDeserializer is IPQMessageDeserializer)
         {
             var foundTicker
-                = feedSourceTickerInfos.FirstOrDefault(stqi => stqi.SourceTickerId == newlyRegisteredMessageDeserializer.RegisteredForMessageId);
+                = feedSourceTickerInfos.FirstOrDefault(stqi => stqi.SourceInstrumentId == newlyRegisteredMessageDeserializer.RegisteredForMessageId);
             if (foundTicker == null)
             {
                 logger.Warn("Could not resolve the feed source ticker requiring a snapshot for message id {0} with [\n{1}\n]",
@@ -140,7 +140,7 @@ public class PQPricingClientBusTopicPublicationAmenderRule : RemoteMessageBusTop
             (tickerPricingSubscriptionConfig, messageDeserializerResolveRun.DeserializedType ?? messageDeserializerResolveRun.PublishType);
         pqQuoteDeserializer!.RemoveOnZeroNotifiers        = true;
         messageDeserializerResolveRun.MessageDeserializer = pqQuoteDeserializer;
-        messageDeserializerResolveRun.MessageId           = foundTicker.SourceTickerId;
+        messageDeserializerResolveRun.MessageId           = foundTicker.SourceInstrumentId;
         if (messageDeserializerResolveRun.MessageDeserializer == null || messageDeserializerResolveRun.MessageId == null)
         {
             messageDeserializerResolveRun.FailureMessage

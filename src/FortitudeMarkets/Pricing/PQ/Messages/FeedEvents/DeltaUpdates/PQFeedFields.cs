@@ -27,11 +27,12 @@ public enum PQFeedFields : byte
   , MaxSubmitSize            = 12 // 0x0C 
   , IncrementSize            = 13 // 0x0D 
   , DefaultMaxValidMs        = 14 // 0x0E
-  , MinimumQuoteLifeMs       = 15 // 0x0F
-  , FeedAdditionalFlags      = 16 // 0x10
-  , QuoteLayerFlags          = 17 // 0x11
-  , LastTradedFlags          = 18
-  , ExecutionUpdateFlags     = 19
+  , MinimumQuoteLifeMs       = 15 // 0x0Fk
+  , QuoteLayerFlags          = 16 // 0x11
+  , LastTradedFlags          = 17
+  , ExecutionUpdateFlags     = 18
+  , ConfigQuoteBehaviorFlags = 19 // 0x10
+  , ConfigFeedBehaviorFlags  = 20 // 0x10
 
   , PQSyncStatus                    = 22 // 0x16
   , FeedMarketConnectivityStatus    = 23 // 0x17
@@ -64,74 +65,76 @@ public enum PQFeedFields : byte
   , SourceQuoteSentSub2MinTime = 47 // 0x2F 
   , QuoteBooleanFlags          = 48 // 0x30 
     // Level 1 Quote Fields
-  , SourceQuoteBidDateTime    = 49 // 0x31
-  , SourceQuoteBidSub2MinTime = 50 // 0x32
-  , SourceQuoteAskDateTime    = 51 // 0x33
-  , SourceQuoteAskSub2MinTime = 52 // 0x34
-  , QuoteValidFromDate        = 53 // 0x35
-  , QuoteValidFromSub2MinTime = 54 // 0x37
-  , QuoteValidToDate          = 55 // 0x38
-  , QuoteValidToSub2MinTime   = 56 // 0x39
+  , InstantQuoteBehaviorFlags = 49 // 0x31
+  , InstantFeedBehaviorFlags  = 50 // 0x32
+  , SourceQuoteBidDateTime    = 51 // 0x33
+  , SourceQuoteBidSub2MinTime = 52 // 0x34
+  , SourceQuoteAskDateTime    = 53 // 0x35
+  , SourceQuoteAskSub2MinTime = 54 // 0x37
+  , QuoteValidFromDate        = 55 // 0x38
+  , QuoteValidFromSub2MinTime = 56 // 0x39
+  , QuoteValidToDate          = 57 // 0x39 
+  , QuoteValidToSub2MinTime   = 58 // 0x3A 
     // Best Bid Ask Price Sent a Depth 0 from Level 2 Quote Field "QuoteLayerPrice" below
 
-  , FeedStringUpdates          = 57 // 0x39 
-  , TrackingDownStream         = 58 // 0x3A 
-  , TickerRegionDetails        = 59 // 0x3B
-  , TickerPnLConversionDetails = 60 // 0x3C
-  , TickerMarginDetails        = 61 // 0x3D
+  , FeedStringUpdates          = 59 // 0x3B
+  , TrackingDownStream         = 60 // 0x3C
+  , TickerRegionDetails        = 61 // 0x3D
+  , TickerPnLConversionDetails = 63 // 0x3F
+  , TickerMarginDetails        = 64 // 0x40 
 
-  , ContinuousPriceAdjustmentOriginalAtPublish    = 63 // 0x3F
-  , ContinuousPriceAdjustmentTargetReplayOverride = 64 // 0x40 
-  , ContinuousPriceAdjustmentToAppliedToPrices    = 65 // 0x41
-  , ContinuousPriceAdjustmentPreviousAtPublish    = 66 // 0x42
-  , ContinuousPriceAdjustmentHistorical           = 67 // 0x43
+  , ContinuousPriceAdjustmentOriginalAtPublish    = 65 // 0x41
+  , ContinuousPriceAdjustmentTargetReplayOverride = 66 // 0x42
+  , ContinuousPriceAdjustmentToAppliedToPrices    = 67 // 0x43
+  , ContinuousPriceAdjustmentPreviousAtPublish    = 68 // 0x44
+  , ContinuousPriceAdjustmentHistorical           = 69 // 0x45
 
     // price period summary fields
-  , PriceCandleStick        = 68 // 0x44
-  , CandleConflationSummary = 69 // 0x45
-  , CandleRecent            = 70 // 0x46
-  , CandleShortTerm         = 71 // 0x47
-  , CandleMediumTerm        = 72 // 0x48
-  , CandleCurrentDay        = 73 // 0x49
-  , CandlePreviousDay       = 74 // 0x4A
-  , CandleHistoricalDaily   = 75 // 0x4B
-  , CandleLongTerm          = 76 // 0x4C
+  , PriceCandleStick        = 70 // 0x46
+  , CandleConflationSummary = 71 // 0x47
+  , CandleRecent            = 72 // 0x48
+  , CandleShortTerm         = 73 // 0x49
+  , CandleMediumTerm        = 74 // 0x4A
+  , CandleCurrentDay        = 75 // 0x4B
+  , CandlePreviousDay       = 76 // 0x4C
+  , CandleHistoricalDaily   = 77 // 0x4D
+  , CandleLongTerm          = 78 // 0x4E
 
-  , IndicatorsStringUpdates = 77 // 0x4D
+  , IndicatorsStringUpdates = 79 // 0x62
 
-  , IndicatorMovingAverageCurrentPeriodSlidingWindow    = 78 // 0x4E
-  , IndicatorMovingAverageCurrentTickCountSlidingWindow = 79 // 0x62
-  , IndicatorMovingAverageDiscreetShortTerm             = 80 //0x50
-  , IndicatorMovingAverageDiscreetMediumTerm            = 81 //0x51
-  , IndicatorMovingAverageRecentDaily                   = 82 //0x52
-  , IndicatorMovingAverageLongTerm                      = 83 //0x53
-  , IndicatorMovingAverageHistorical                    = 84 //0x54
+  , IndicatorMovingAverageCurrentPeriodSlidingWindow    = 80 //0x50
+  , IndicatorMovingAverageCurrentTickCountSlidingWindow = 81 //0x51
+  , IndicatorMovingAverageDiscreetShortTerm             = 82 //0x52
+  , IndicatorMovingAverageDiscreetMediumTerm            = 83 //0x53
+  , IndicatorMovingAverageRecentDaily                   = 84 //0x54
+  , IndicatorMovingAverageLongTerm                      = 85 //0x55
+  , IndicatorMovingAverageHistorical                    = 86 //0x56
 
-  , IndicatorVolatilityCurrentSlidingWindow           = 85 //0x55
-  , IndicatorVolatilityDiscreetTickCountSlidingWindow = 86 //0x56
-  , IndicatorVolatilityDiscreetShortTerm              = 87 // 0x57
-  , IndicatorVolatilityDiscreetMediumTerm             = 88 // 0x58
-  , IndicatorVolatilityRecentDaily                    = 89 // 0x59
-  , IndicatorVolatilityHistoricalDaily                = 90 // 0x5A
-  , IndicatorVolatilityHistoricalLongTerm             = 91 // 0x5B
+  , IndicatorVolatilityCurrentSlidingWindow           = 87 // 0x57
+  , IndicatorVolatilityDiscreetTickCountSlidingWindow = 88 // 0x58
+  , IndicatorVolatilityDiscreetShortTerm              = 89 // 0x59
+  , IndicatorVolatilityDiscreetMediumTerm             = 90 // 0x5A
+  , IndicatorVolatilityRecentDaily                    = 91 // 0x5B
+  , IndicatorVolatilityHistoricalDaily                = 92 // 0x5C
+  , IndicatorVolatilityHistoricalLongTerm             = 93 // 0x5D
 
-  , IndicatorPivotShortTerm  = 92 // 0x5C
-  , IndicatorPivotMediumTerm = 93 // 0x5D
-  , IndicatorPivotLongTerm   = 94 // 0x5E
+  , IndicatorPivotShortTerm  = 94 // 0x5E
+  , IndicatorPivotMediumTerm = 95 // 0x5F
+  , IndicatorPivotLongTerm   = 96 // 0x60
 
-  , IndicatorPriceBoundaryLineClosest           = 95 // 0x5F
-  , IndicatorPriceBoundaryLinesActiveShortTerm  = 96 // 0x60
-  , IndicatorPriceBoundaryLinesActiveMediumTerm = 97 // 0x61
-  , IndicatorPriceBoundaryLinesActiveLongTerm   = 98 // 0x62
-  , IndicatorPriceBoundaryLinesRecentlyBreached = 99 // 0x63
+  , IndicatorPriceBoundaryLineClosest           = 97  // 0x61
+  , IndicatorPriceBoundaryLinesActiveShortTerm  = 98  // 0x62
+  , IndicatorPriceBoundaryLinesActiveMediumTerm = 99  // 0x63
+  , IndicatorPriceBoundaryLinesActiveLongTerm   = 100 // 0x64
+  , IndicatorPriceBoundaryLinesRecentlyBreached = 101 // 0x65
 
-  , MarketEventStringUpdates = 100 // 0x64
+  , MarketEventStringUpdates = 102 // 0x66
 
-  , MarketEventCurrent   = 101 // 0x5F
-  , MarketEventsRecent   = 102 // 0x60
-  , MarketEventsUpcoming = 103 // 0x61
+  , MarketEventCurrent   = 103 // 0x67
+  , MarketEventsRecent   = 104 // 0x68
+  , MarketEventsUpcoming = 105 // 0x69
 
-  , SignalStringUpdates = 106 // 0x5E
+  , SignalStringUpdates = 106 // 0x6A
 
   , SignalsActive             = 107 // 0x6B
   , SignalAggregate           = 108 // 0x6C

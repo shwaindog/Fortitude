@@ -1,6 +1,7 @@
 ﻿using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 namespace FortitudeMarkets.Pricing.FeedEvents;
 
@@ -29,6 +30,8 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
         SubscriberDispatchedTime   = toClone.SubscriberDispatchedTime;
         AdapterReceivedTime        = toClone.AdapterReceivedTime;
         AdapterSentTime            = toClone.AdapterSentTime;
+
+        QuoteBehavior = toClone.QuoteBehavior;
     }
 
     public FeedConnectivityStatusFlags FeedMarketConnectivityStatus { get; set; }
@@ -42,6 +45,8 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
     public DateTime SubscriberDispatchedTime   { get; set; }
     public DateTime AdapterSentTime            { get; set; }
     public DateTime AdapterReceivedTime        { get; set; }
+
+    public virtual PublishableQuoteInstantBehaviorFlags QuoteBehavior { get; set; }
 
     public bool IsCompleteUpdate { get; set; }
 
@@ -57,6 +62,10 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
 
     public override FeedEventStatusUpdate CopyFrom(IFeedEventStatusUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
+        if (QuoteBehavior.HasInheritAdditionalPublishedFlagsFlag())
+        {
+            QuoteBehavior |= source.QuoteBehavior;
+        }
         var originalSequenceId = UpdateSequenceId;
         UpdateComplete(originalSequenceId);
         UpdateStarted(source.UpdateSequenceId);

@@ -6,6 +6,8 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 #endregion
 
@@ -15,11 +17,17 @@ public class FullSupportPriceVolumeLayer : OrdersPriceVolumeLayer, IMutableFullS
 {
     public FullSupportPriceVolumeLayer() : base(LayerType.OrdersFullPriceVolume) => ValueDate = DateTime.MinValue;
 
+    public FullSupportPriceVolumeLayer(QuoteLayerInstantBehaviorFlags layerBehavior = QuoteLayerInstantBehaviorFlags.None)
+        : base(LayerType.OrdersFullPriceVolume, layerBehavior) =>
+        ValueDate = DateTime.MinValue;
+
     public FullSupportPriceVolumeLayer
     (decimal price = 0m, decimal volume = 0m,
-        DateTime? valueDate = null, string? sourceName = null, bool executable = false,
-        uint quoteRef = 0u, uint ordersCount = 0, decimal internalVolume = 0)
-        : base(LayerType.OrdersFullPriceVolume, price, volume, ordersCount, internalVolume)
+        DateTime? valueDate = null, string? sourceName = null, bool executable = false
+      , uint quoteRef = 0u, uint ordersCount = 0, decimal internalVolume = 0
+      , IEnumerable<IAnonymousOrder>? layerOrders = null
+      , QuoteLayerInstantBehaviorFlags layerBehavior = QuoteLayerInstantBehaviorFlags.None)
+        : base(LayerType.OrdersFullPriceVolume, price, volume, ordersCount, internalVolume, layerOrders, layerBehavior)
     {
         SourceName = sourceName;
         Executable = executable;
@@ -59,11 +67,6 @@ public class FullSupportPriceVolumeLayer : OrdersPriceVolumeLayer, IMutableFullS
         }
     }
 
-
-    protected string FullSupportPriceVolumeLayerToStringMembers =>
-        $"{OrdersCountPriceVolumeLayerToStringMembers}, {nameof(SourceName)}: {SourceName}, {nameof(Executable)}: {Executable}, " +
-        $"{nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}, {nameof(ValueDate)}: {ValueDate}, {JustOrdersToString}";
-
     [JsonIgnore] public override LayerType LayerType => LayerType.FullSupportPriceVolume;
 
     [JsonIgnore] public override LayerFlags SupportsLayerFlags => LayerFlagsExtensions.AdditionalFullSupportLayerFlags | base.SupportsLayerFlags;
@@ -72,7 +75,17 @@ public class FullSupportPriceVolumeLayer : OrdersPriceVolumeLayer, IMutableFullS
     public string? SourceName { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool Executable { get; set; }
+    public bool Executable
+    {
+        get => BooleanValues.HasExecutable();
+        set
+        {
+            if (value)
+                BooleanValues |= LayerBooleanValues.Executable;
+
+            else if (Executable) BooleanValues ^= LayerBooleanValues.Executable;
+        }
+    }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public DateTime ValueDate { get; set; }
@@ -172,25 +185,14 @@ public class FullSupportPriceVolumeLayer : OrdersPriceVolumeLayer, IMutableFullS
 
     ISourcePriceVolumeLayer ISourcePriceVolumeLayer.Clone() => Clone();
 
-    public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
-    {
-        if (!(other is IFullSupportPriceVolumeLayer fullSupportPvLayer)) return false;
-
-        var baseSame       = base.AreEquivalent(other, exactTypes);
-        var sourceNameSame = SourceName == fullSupportPvLayer.SourceName;
-        var executableSame = Executable == fullSupportPvLayer.Executable;
-        var valueDateSame  = ValueDate == fullSupportPvLayer.ValueDate;
-
-        var sourceQuoteReferenceSame = SourceQuoteReference == fullSupportPvLayer.SourceQuoteReference;
-
-        var allAreSame = baseSame && sourceNameSame && executableSame && sourceQuoteReferenceSame && valueDateSame;
-        return allAreSame;
-    }
+    public override FullSupportPriceVolumeLayer Clone() =>
+        Recycler?.Borrow<FullSupportPriceVolumeLayer>().CopyFrom(this, QuoteInstantBehaviorFlags.DisableUpgradeLayer) ??
+        new FullSupportPriceVolumeLayer(this);
 
     public override FullSupportPriceVolumeLayer CopyFrom
-    (IPriceVolumeLayer source , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+        (IPriceVolumeLayer source, QuoteInstantBehaviorFlags behaviorFlags, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(source, copyMergeFlags);
+        base.CopyFrom(source, behaviorFlags, copyMergeFlags);
         if (source is IFullSupportPriceVolumeLayer fullSupportPriceVolumeLayer)
         {
             SourceName = fullSupportPriceVolumeLayer.SourceName;
@@ -220,9 +222,20 @@ public class FullSupportPriceVolumeLayer : OrdersPriceVolumeLayer, IMutableFullS
         return this;
     }
 
-    public override FullSupportPriceVolumeLayer Clone() =>
-        Recycler?.Borrow<FullSupportPriceVolumeLayer>().CopyFrom(this) ??
-        new FullSupportPriceVolumeLayer(this);
+    public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
+    {
+        if (!(other is IFullSupportPriceVolumeLayer fullSupportPvLayer)) return false;
+
+        var baseSame       = base.AreEquivalent(other, exactTypes);
+        var sourceNameSame = SourceName == fullSupportPvLayer.SourceName;
+        var executableSame = Executable == fullSupportPvLayer.Executable;
+        var valueDateSame  = ValueDate == fullSupportPvLayer.ValueDate;
+
+        var sourceQuoteReferenceSame = SourceQuoteReference == fullSupportPvLayer.SourceQuoteReference;
+
+        var allAreSame = baseSame && sourceNameSame && executableSame && sourceQuoteReferenceSame && valueDateSame;
+        return allAreSame;
+    }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IPriceVolumeLayer?)obj, true);
 
@@ -238,6 +251,10 @@ public class FullSupportPriceVolumeLayer : OrdersPriceVolumeLayer, IMutableFullS
             return hashCode;
         }
     }
+
+    protected string FullSupportPriceVolumeLayerToStringMembers =>
+        $"{OrdersCountPriceVolumeLayerToStringMembers}, {nameof(SourceName)}: {SourceName}, {nameof(Executable)}: {Executable}, " +
+        $"{nameof(SourceQuoteReference)}: {SourceQuoteReference:N0}, {nameof(ValueDate)}: {ValueDate}, {JustOrdersToString}";
 
     public override string ToString() => $"{nameof(FullSupportPriceVolumeLayer)}{{{FullSupportPriceVolumeLayerToStringMembers}}}";
 }

@@ -371,8 +371,8 @@ public class RecentlyTradedTests
 
             Assert.IsTrue(toString.Contains(rt.GetType().Name));
             Assert.IsTrue(toString.Contains($"{nameof(rt.MaxAllowedSize)}: {rt.MaxAllowedSize:N0}"));
-            Assert.IsTrue(toString.Contains($"LastTrades: [{rt.EachLastTradeByIndexOnNewLines()}]"));
             Assert.IsTrue(toString.Contains($"{nameof(rt.Count)}: {rt.Count}"));
+            Assert.IsTrue(toString.Contains($"{nameof(rt.LastTrades)}: [\n{rt.EachLastTradeByIndexOnNewLines()}]"));
         }
     }
 
@@ -501,6 +501,67 @@ public class RecentlyTradedTests
                 oldIndex++;
                 actualIndex++;
             }
+        }
+
+        toShift.ShiftCommands = new List<ListShiftCommand>();
+
+        var shiftedNext = fullSupportRecentlyTradedFullyPopulated.Clone();
+        toShift.CalculateShift(ExpectedTradeTime, shiftedNext);
+        
+        Console.Out.WriteLine($"{toShift.ShiftCommands.JoinShiftCommandsOnNewLine()}");
+        Assert.AreEqual(6, toShift.ShiftCommands.Count);
+        AssertExpectedShiftCommands();
+
+        void AssertExpectedShiftCommands()
+        {
+            for (int i = 0; i < toShift.ShiftCommands.Count; i++)
+            {
+                var shift = toShift.ShiftCommands[i];
+                Console.Out.WriteLine($"shift: {shift}");
+                switch (i)
+                {
+                    case 0:
+                        Assert.AreEqual(5, shift.PinnedFromIndex);
+                        Assert.AreEqual(1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 1:
+                        Assert.AreEqual(4, shift.PinnedFromIndex);
+                        Assert.AreEqual(1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 2:
+                        Assert.AreEqual(3, shift.PinnedFromIndex);
+                        Assert.AreEqual(1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 3:
+                        Assert.AreEqual(2, shift.PinnedFromIndex);
+                        Assert.AreEqual(1, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.ShiftAllElementsAwayFromPinnedIndex, shift.ShiftCommandType);
+                        break;
+                    case 4:
+                        Assert.AreEqual(1, shift.PinnedFromIndex);
+                        Assert.AreEqual(0, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.MoveSingleElement | ListShiftCommandType.InsertElementsRange, shift.ShiftCommandType);
+                        break;
+                    case 5:
+                        Assert.AreEqual(1, shift.PinnedFromIndex);
+                        Assert.AreEqual(7, shift.Shift);
+                        Assert.AreEqual(ListShiftCommandType.MoveSingleElement | ListShiftCommandType.InsertElementsRange, shift.ShiftCommandType);
+                        break;
+                }
+            }
+        }
+
+        foreach (var shiftElementShift in toShift.ShiftCommands)
+        {
+            toShift.ApplyListShiftCommand(shiftElementShift);
+        }
+        for (int i = 0; i < expectedIndices.Length; i++)
+        {
+            Assert.AreEqual(fullSupportRecentlyTradedFullyPopulated[expectedIndices[i]], toShift[expectedIndices[i]]);
+            Assert.AreSame(instances[expectedIndices[i]], toShift[expectedIndices[i]]);
         }
     }
 

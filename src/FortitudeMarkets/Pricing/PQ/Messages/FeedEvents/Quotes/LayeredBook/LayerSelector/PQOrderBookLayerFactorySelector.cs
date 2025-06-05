@@ -8,6 +8,7 @@ using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.LayerSelector;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
@@ -18,12 +19,10 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Lay
 
 public interface IPQOrderBookLayerFactorySelector : ILayerFlagsSelector<IPQOrderBookLayerFactory>
 {
-    IPQPriceVolumeLayer UpgradeExistingLayer
-    (IPQPriceVolumeLayer? original, IPQNameIdLookupGenerator nameIdLookupGenerator
+    IPQPriceVolumeLayer UpgradeExistingLayer(IPQPriceVolumeLayer? original, IPQNameIdLookupGenerator nameIdLookupGenerator, QuoteLayerInstantBehaviorFlags layerBehavior
       , LayerType desiredLayerType, IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 
-    IPQPriceVolumeLayer CreateExpectedImplementation
-    (LayerType checkForConvert, IPQNameIdLookupGenerator nameIdLookup
+    IPQPriceVolumeLayer CreateExpectedImplementation(LayerType checkForConvert, IPQNameIdLookupGenerator nameIdLookup, QuoteLayerInstantBehaviorFlags layerBehavior
       , IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 }
 
@@ -43,13 +42,13 @@ public class PQOrderBookLayerFactorySelector : LayerFlagsSelector<IPQOrderBookLa
     public PQOrderBookLayerFactorySelector(IPQNameIdLookupGenerator nameIdLookup) => NameIdLookup = nameIdLookup;
 
     public IPQPriceVolumeLayer UpgradeExistingLayer
-    (IPQPriceVolumeLayer? original, IPQNameIdLookupGenerator nameIdLookupGenerator
+    (IPQPriceVolumeLayer? original, IPQNameIdLookupGenerator nameIdLookupGenerator, QuoteLayerInstantBehaviorFlags layerBehavior
       , LayerType desiredLayerType, IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (original == null)
         {
-            var cloneOfSrc = CreateExpectedImplementation(desiredLayerType, nameIdLookupGenerator);
-            if (copy != null) cloneOfSrc.CopyFrom(copy, copyMergeFlags);
+            var cloneOfSrc = CreateExpectedImplementation(desiredLayerType, nameIdLookupGenerator, layerBehavior);
+            if (copy != null) cloneOfSrc.CopyFrom(copy, (QuoteInstantBehaviorFlags)layerBehavior, copyMergeFlags);
             return cloneOfSrc;
         }
 
@@ -59,36 +58,37 @@ public class PQOrderBookLayerFactorySelector : LayerFlagsSelector<IPQOrderBookLa
         {
             var mergeOrginalDesiredLayerFlags = original.SupportsLayerFlags | desiredLayerType.SupportedLayerFlags();
             var mostCompatibleSupportsBoth    = mergeOrginalDesiredLayerFlags.MostCompactLayerType();
-            var upgradeLayer                  = CreateExpectedImplementation(mostCompatibleSupportsBoth, nameIdLookupGenerator);
-            upgradeLayer.CopyFrom(original, copyMergeFlags);
-            if (copy != null) upgradeLayer.CopyFrom(copy, copyMergeFlags);
+            var upgradeLayer                  = CreateExpectedImplementation(mostCompatibleSupportsBoth, nameIdLookupGenerator, layerBehavior);
+            upgradeLayer.CopyFrom(original, (QuoteInstantBehaviorFlags)layerBehavior, copyMergeFlags);
+            if (copy != null) upgradeLayer.CopyFrom(copy, (QuoteInstantBehaviorFlags)layerBehavior, copyMergeFlags);
             return upgradeLayer;
         }
 
-        if (copy != null) original.CopyFrom(copy, copyMergeFlags);
+        if (copy != null) original.CopyFrom(copy, (QuoteInstantBehaviorFlags)layerBehavior, copyMergeFlags);
 
         return original;
     }
 
     public IPQPriceVolumeLayer CreateExpectedImplementation
-    (LayerType checkForConvert, IPQNameIdLookupGenerator nameIdLookup, IPriceVolumeLayer? copy = null
+    (LayerType checkForConvert, IPQNameIdLookupGenerator nameIdLookup, QuoteLayerInstantBehaviorFlags layerBehavior, IPriceVolumeLayer? copy = null
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         var newLayer = LayerFlagToImplementation(checkForConvert, nameIdLookup);
-        if (copy != null) newLayer.CopyFrom(copy, copyMergeFlags);
+        if (copy != null) newLayer.CopyFrom(copy, (QuoteInstantBehaviorFlags)layerBehavior, copyMergeFlags);
         return newLayer;
     }
 
     public override IMutablePriceVolumeLayer CreateExpectedImplementation
-        (LayerType desiredLayerType, IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        CreateExpectedImplementation(desiredLayerType, NameIdLookup, copy, copyMergeFlags);
+        (LayerType desiredLayerType, QuoteLayerInstantBehaviorFlags layerBehavior, IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        CreateExpectedImplementation(desiredLayerType, NameIdLookup, layerBehavior, copy, copyMergeFlags);
 
     public override IMutablePriceVolumeLayer UpgradeExistingLayer
-    (IPriceVolumeLayer? original, LayerType desiredLayerType, IPriceVolumeLayer? copy = null
+    (IPriceVolumeLayer? original, LayerType desiredLayerType, QuoteLayerInstantBehaviorFlags layerBehavior, IPriceVolumeLayer? copy = null
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-        UpgradeExistingLayer(original as IPQPriceVolumeLayer, NameIdLookup, desiredLayerType, copy, copyMergeFlags);
+        UpgradeExistingLayer(original as IPQPriceVolumeLayer, NameIdLookup, layerBehavior, desiredLayerType, copy, copyMergeFlags);
 
-    INameIdLookup? IHasNameIdLookup.NameIdLookup => NameIdLookup;
+    INameIdLookup IHasNameIdLookup.NameIdLookup => NameIdLookup;
+
     public IPQNameIdLookupGenerator NameIdLookup { get; set; }
 
     public static IPQPriceVolumeLayer LayerFlagToImplementation(LayerType checkForConvert, IPQNameIdLookupGenerator nameIdLookup)
@@ -125,14 +125,13 @@ public class PQOrderBookLayerFactorySelector : LayerFlagsSelector<IPQOrderBookLa
     protected override IPQOrderBookLayerFactory SelectOrdersCountPriceVolumeLayer() =>
         new PQOrdersCountPriceVolumeLayerFactory();
 
-    protected override IPQOrderBookLayerFactory SelectAnonymousOrdersPriceVolumeLayer() =>
-        new PQOrdersPriceVolumeLayerFactory(LayerType.OrdersAnonymousPriceVolume, NameIdLookup);
+    protected override IPQOrderBookLayerFactory SelectAnonymousOrdersPriceVolumeLayer(QuoteLayerInstantBehaviorFlags layerBehavior) =>
+        new PQOrdersPriceVolumeLayerFactory(LayerType.OrdersAnonymousPriceVolume, NameIdLookup, layerBehavior);
 
-    protected override IPQOrderBookLayerFactory SelectCounterPartyOrdersPriceVolumeLayer() =>
-        new PQOrdersPriceVolumeLayerFactory(LayerType.OrdersFullPriceVolume, NameIdLookup);
+    protected override IPQOrderBookLayerFactory SelectCounterPartyOrdersPriceVolumeLayer(QuoteLayerInstantBehaviorFlags layerBehavior) =>
+        new PQOrdersPriceVolumeLayerFactory(LayerType.OrdersFullPriceVolume, NameIdLookup, layerBehavior);
 
 
-    protected override IPQOrderBookLayerFactory SelectSourceQuoteRefTraderValueDatePriceVolumeLayer() =>
-        new PQFullSupportPriceVolumeLayerFactory(NameIdLookup);
-
+    protected override IPQOrderBookLayerFactory SelectFullSupportPriceVolumeLayer(QuoteLayerInstantBehaviorFlags layerBehavior) =>
+        new PQFullSupportPriceVolumeLayerFactory(NameIdLookup, layerBehavior);
 }

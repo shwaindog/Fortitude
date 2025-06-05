@@ -18,7 +18,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 [JsonDerivedType(typeof(PQLastTrade))]
 [JsonDerivedType(typeof(PQLastPaidGivenTrade))]
 [JsonDerivedType(typeof(PQLastExternalCounterPartyTrade))]
-public interface IPQLastTrade : IReusableObject<IPQLastTrade>, IMutableLastTrade, IPQSupportsNumberPrecisionFieldUpdates<ILastTrade>,
+public interface IPQLastTrade : IReusableObject<IPQLastTrade>, IMutableLastTrade, IPQSupportsNumberPrecisionFieldUpdates,
     ITrackableReset<IPQLastTrade>
 {
     [JsonIgnore] bool IsTradeIdUpdated                    { get; set; }
@@ -448,50 +448,50 @@ public class PQLastTrade : ReusableObject<IPQLastTrade>, IPQLastTrade
     (DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
-        if (!updatedOnly || IsTradeIdUpdated)
+        var fullPicture = (messageFlags & PQMessageFlags.Complete) > 0;
+        if (fullPicture || IsTradeIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTradeId, TradeId);
-        if (!updatedOnly || IsBatchIdUpdated)
+        if (fullPicture || IsBatchIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedBatchId, BatchId);
-        if (!updatedOnly || IsTradePriceUpdated)
+        if (fullPicture || IsTradePriceUpdated)
             yield return new PQFieldUpdate
                 (PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedAtPrice, TradePrice
                , quotePublicationPrecisionSetting?.PriceScalingPrecision ?? (PQFieldFlags)1);
-        if (!updatedOnly || IsTradeTimeDateUpdated)
+        if (fullPicture || IsTradeTimeDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTradeTimeDate
                                          , TradeTime.Get2MinIntervalsFromUnixEpoch());
-        if (!updatedOnly || IsTradeTimeSub2MinUpdated)
+        if (fullPicture || IsTradeTimeSub2MinUpdated)
         {
             var extended = TradeTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTradeSub2MinTime, value, extended);
         }
-        if (!updatedOnly || IsTradeTypeFlagsUpdated)
+        if (fullPicture || IsTradeTypeFlagsUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedTypeFlags, (uint)TradeTypeFlags);
-        if (!updatedOnly || IsBatchIdUpdated)
+        if (fullPicture || IsBatchIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedLifeCycleStatus
                                          , (uint)TradeLifeCycleStatus);
-        if (!updatedOnly || IsFirstNotifiedDateUpdated)
+        if (fullPicture || IsFirstNotifiedDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedFirstNotifiedDate
                                          , FirstNotifiedTime.Get2MinIntervalsFromUnixEpoch());
-        if (!updatedOnly || IsFirstNotifiedSub2MinTimeUpdated)
+        if (fullPicture || IsFirstNotifiedSub2MinTimeUpdated)
         {
             var extended = FirstNotifiedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedFirstNotifiedSub2MinTime, value
                                          , extended);
         }
-        if (!updatedOnly || IsAdapterReceivedDateUpdated)
+        if (fullPicture || IsAdapterReceivedDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedAdapterReceivedDate
                                          , AdapterReceivedTime.Get2MinIntervalsFromUnixEpoch());
-        if (!updatedOnly || IsAdapterReceivedSub2MinTimeUpdated)
+        if (fullPicture || IsAdapterReceivedSub2MinTimeUpdated)
         {
             var extended = AdapterReceivedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedAdapterReceivedSub2MinTime, value
                                          , extended);
         }
-        if (!updatedOnly || IsUpdatedDateUpdated)
+        if (fullPicture || IsUpdatedDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedUpdateDate
                                          , UpdateTime.Get2MinIntervalsFromUnixEpoch());
-        if (!updatedOnly || IsUpdateSub2MinTimeUpdated)
+        if (fullPicture || IsUpdateSub2MinTimeUpdated)
         {
             var extended = UpdateTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQFeedFields.LastTradedTickTrades, PQTradingSubFieldKeys.LastTradedUpdateSub2MinTime, value, extended);

@@ -11,6 +11,7 @@ using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;
@@ -41,7 +42,6 @@ public class PQOrdersPriceVolumeLayerTests
     private const string  TraderNameBase       = "TestTraderName";
     private const uint    TrackingId           = 1234567;
 
-
     private const int ExpectedTraderId       = 2;
     private const int ExpectedCounterPartyId = 1;
 
@@ -50,6 +50,8 @@ public class PQOrdersPriceVolumeLayerTests
     private const OrderType ExpectedOrderType = OrderType.PassiveLimit;
 
     private const OrderLifeCycleState ExpectedLifecycleState = OrderLifeCycleState.ConfirmedActiveOnMarket;
+
+    private const QuoteInstantBehaviorFlags QuoteBehavior = QuoteInstantBehaviorFlags.None;
 
     private static readonly DateTime CreatedTime = new DateTime(2025, 4, 21, 6, 27, 23).AddMilliseconds(123).AddMicroseconds(456);
     private static readonly DateTime UpdatedTime = new DateTime(2025, 4, 21, 12, 8, 59).AddMilliseconds(789).AddMicroseconds(213);
@@ -1264,7 +1266,7 @@ public class PQOrdersPriceVolumeLayerTests
     public void FullyPopulatedPvl_CopyFromNonPQToEmptyQuote_PvlsEqualEachOther()
     {
         var nonPQPriceVolume = new OrdersPriceVolumeLayer(populatedCounterPartyOrdersPvl, populatedCounterPartyOrdersPvl.LayerType);
-        emptyCounterPartyOrdersPvl.CopyFrom(nonPQPriceVolume);
+        emptyCounterPartyOrdersPvl.CopyFrom(nonPQPriceVolume, QuoteBehavior);
         Assert.AreEqual(populatedCounterPartyOrdersPvl, emptyCounterPartyOrdersPvl);
     }
 
@@ -1273,7 +1275,7 @@ public class PQOrdersPriceVolumeLayerTests
     {
         var emptyPriceVolumeLayer = new PQOrdersPriceVolumeLayer(emptyNameIdLookup, LayerType.OrdersAnonymousPriceVolume);
         populatedCounterPartyOrdersPvl.HasUpdates = false;
-        emptyPriceVolumeLayer.CopyFrom(populatedCounterPartyOrdersPvl);
+        emptyPriceVolumeLayer.CopyFrom(populatedCounterPartyOrdersPvl, QuoteBehavior);
         Assert.AreEqual(0, emptyPriceVolumeLayer.Price);
         Assert.AreEqual(0, emptyPriceVolumeLayer.Volume);
         Assert.AreEqual(0u, emptyPriceVolumeLayer.OrdersCount);
@@ -1296,7 +1298,7 @@ public class PQOrdersPriceVolumeLayerTests
         AddCounterPartyOrders(smallerPvl, 1);
         Assert.AreEqual(1u, smallerPvl.OrdersCount);
 
-        lotsOfTraders.CopyFrom(smallerPvl);
+        lotsOfTraders.CopyFrom(smallerPvl, QuoteBehavior);
 
         Assert.AreEqual(1u, lotsOfTraders.OrdersCount);
     }
@@ -1311,7 +1313,7 @@ public class PQOrdersPriceVolumeLayerTests
         AddCounterPartyOrders(smallerPvl, 1);
         Assert.AreEqual(1u, smallerPvl.OrdersCount);
 
-        lotsOfTraders.CopyFrom(smallerPvl);
+        lotsOfTraders.CopyFrom(smallerPvl, QuoteBehavior);
 
         Assert.AreEqual(1u, lotsOfTraders.OrdersCount);
     }
@@ -1331,7 +1333,7 @@ public class PQOrdersPriceVolumeLayerTests
         clonePopulated[1].IsOrderIdUpdated = false;
 
         populatedAnonymousOrdersPvl.HasUpdates = false;
-        populatedAnonymousOrdersPvl.CopyFrom(clonePopulated);
+        populatedAnonymousOrdersPvl.CopyFrom(clonePopulated, QuoteBehavior);
 
         Assert.AreEqual(0, populatedAnonymousOrdersPvl[0].OrderId);
         Assert.AreEqual(0, populatedAnonymousOrdersPvl[0].OrderDisplayVolume);
@@ -1439,15 +1441,15 @@ public class PQOrdersPriceVolumeLayerTests
     {
         var toString = populatedCounterPartyOrdersPvl.ToString()!;
 
-        var opvl = populatedCounterPartyOrdersPvl;
+        var oPvl = populatedCounterPartyOrdersPvl;
 
-        Assert.IsTrue(toString.Contains(opvl.GetType().Name));
-        Assert.IsTrue(toString.Contains($"{nameof(opvl.Price)}: {opvl.Price:N5}"));
-        Assert.IsTrue(toString.Contains($"{nameof(opvl.Volume)}: {opvl.Volume:N2}"));
-        Assert.IsTrue(toString.Contains($"{nameof(opvl.OrdersCount)}: {opvl.OrdersCount}"));
-        Assert.IsTrue(toString.Contains($"{nameof(opvl.InternalVolume)}: {opvl.InternalVolume:N2}"));
-        Assert.IsTrue(toString.Contains($"{nameof(opvl.MaxAllowedSize)}: {opvl.MaxAllowedSize:N0}"));
-        Assert.IsTrue(toString.Contains($"{nameof(opvl.Orders)}: [\n{opvl.EachOrderByIndexOnNewLines()}]"));
+        Assert.IsTrue(toString.Contains(oPvl.GetType().Name));
+        Assert.IsTrue(toString.Contains($"{nameof(oPvl.Price)}: {oPvl.Price:N5}"));
+        Assert.IsTrue(toString.Contains($"{nameof(oPvl.Volume)}: {oPvl.Volume:N2}"));
+        Assert.IsTrue(toString.Contains($"{nameof(oPvl.OrdersCount)}: {oPvl.OrdersCount}"));
+        Assert.IsTrue(toString.Contains($"{nameof(oPvl.InternalVolume)}: {oPvl.InternalVolume:N2}"));
+        Assert.IsTrue(toString.Contains($"{nameof(oPvl.MaxAllowedSize)}: {oPvl.MaxAllowedSize:N0}"));
+        Assert.IsTrue(toString.Contains($"{nameof(oPvl.Orders)}: [\n{oPvl.EachOrderByIndexOnNewLines()}]"));
     }
 
     [TestMethod]
@@ -1759,7 +1761,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
@@ -1790,7 +1792,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
@@ -1838,7 +1840,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(NumOfOrders - 1, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
@@ -1874,7 +1876,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(NumOfOrders, toShift.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
@@ -1907,7 +1909,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(NumOfOrders + 1, toShift.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
@@ -1972,7 +1974,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
@@ -2023,7 +2025,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(NumOfOrders, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
@@ -2071,7 +2073,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
@@ -2121,7 +2123,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
@@ -2169,7 +2171,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
@@ -2220,7 +2222,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
@@ -2268,7 +2270,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
@@ -2320,7 +2322,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(NumOfOrders, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
@@ -2353,7 +2355,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
@@ -2388,7 +2390,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(NumOfOrders, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
@@ -2421,7 +2423,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
 
@@ -2456,7 +2458,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(NumOfOrders, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
@@ -2491,7 +2493,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(NumOfOrders - 1, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
@@ -2527,7 +2529,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(NumOfOrders, shiftCopyFrom.Count + 1);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
@@ -2562,7 +2564,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(NumOfOrders, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
@@ -2598,7 +2600,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(NumOfOrders, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
@@ -2628,7 +2630,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(halfListSize, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
@@ -2660,7 +2662,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(halfListSize, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
@@ -2695,7 +2697,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(NumOfOrders + halfListSize, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }
@@ -2731,7 +2733,7 @@ public class PQOrdersPriceVolumeLayerTests
         Assert.AreEqual(toShift, shiftViaDeltaUpdates);
 
         var shiftCopyFrom = populatedCounterPartyOrdersPvl.Clone();
-        shiftCopyFrom.CopyFrom(toShift);
+        shiftCopyFrom.CopyFrom(toShift, QuoteBehavior);
         Assert.AreEqual(NumOfOrders, shiftCopyFrom.Count);
         Assert.AreEqual(toShift, shiftCopyFrom);
     }

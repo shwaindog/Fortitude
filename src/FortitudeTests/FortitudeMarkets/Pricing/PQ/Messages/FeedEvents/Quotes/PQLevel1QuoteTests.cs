@@ -838,6 +838,12 @@ public class PQLevel1QuoteTests
         public decimal  AskPriceTop     { get; set; }
         public bool     Executable      { get; set; }
 
+        public QuoteInstantBehaviorFlags QuoteBehavior
+        {
+            get => (QuoteInstantBehaviorFlags)base.QuoteBehavior;
+            set => base.QuoteBehavior |= (PublishableQuoteInstantBehaviorFlags)value;
+        }
+
         public bool IsAskPriceTopChanged       { get; set; }
         public bool IsBidPriceTopChanged       { get; set; }
         public bool IsSourceAskTimeDateUpdated { get; set; }

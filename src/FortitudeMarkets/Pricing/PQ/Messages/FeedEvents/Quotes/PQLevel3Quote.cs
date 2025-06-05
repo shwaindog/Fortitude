@@ -5,7 +5,6 @@
 
 using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
-using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents;
@@ -16,7 +15,6 @@ using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
-using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
@@ -55,8 +53,6 @@ public interface IPQPublishableLevel3Quote : IPQPublishableLevel2Quote, IMutable
 
 public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Quote>
 {
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQLevel3Quote));
-
     private uint batchId;
 
     private uint     sourceQuoteRef;
@@ -89,11 +85,11 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
 
     public PQLevel3Quote(ITickInstant toClone) : base(toClone)
     {
-        if (toClone is IPQLevel3Quote ipql3QToClone)
+        if (toClone is IPQLevel3Quote pqL3Q)
         {
-            BatchId              = ipql3QToClone.BatchId;
-            SourceQuoteReference = ipql3QToClone.SourceQuoteReference;
-            ValueDate            = ipql3QToClone.ValueDate;
+            BatchId              = pqL3Q.BatchId;
+            SourceQuoteReference = pqL3Q.SourceQuoteReference;
+            ValueDate            = pqL3Q.ValueDate;
         }
         else if (toClone is ILevel3Quote l3QToClone)
         {
@@ -210,15 +206,15 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
     (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
+        var fullPicture = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) > 0;
 
         foreach (var updatedField in base.GetDeltaUpdateFields(snapShotTime,
                                                                messageFlags, quotePublicationPrecisionSetting))
             yield return updatedField;
-        if (!updatedOnly || IsBatchIdUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteBatchId, BatchId);
+        if (fullPicture || IsBatchIdUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteBatchId, BatchId);
 
-        if (!updatedOnly || IsSourceQuoteReferenceUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteSourceQuoteRef, SourceQuoteReference);
-        if (!updatedOnly || IsValueDateUpdated)
+        if (fullPicture || IsSourceQuoteReferenceUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteSourceQuoteRef, SourceQuoteReference);
+        if (fullPicture || IsValueDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteValueDate, valueDate.Get2MinIntervalsFromUnixEpoch());
     }
 
@@ -227,15 +223,15 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         switch (pqFieldUpdate.Id)
         {
             case PQFeedFields.QuoteBatchId:
-                IsBatchIdUpdated = true; // incase of reset and sending 0;
+                IsBatchIdUpdated = true; // in-case of reset and sending 0;
                 BatchId          = pqFieldUpdate.Payload;
                 return 0;
             case PQFeedFields.QuoteSourceQuoteRef:
-                IsSourceQuoteReferenceUpdated = true; // incase of reset and sending 0;
+                IsSourceQuoteReferenceUpdated = true; // in-case of reset and sending 0;
                 SourceQuoteReference          = pqFieldUpdate.Payload;
                 return 0;
             case PQFeedFields.QuoteValueDate:
-                IsValueDateUpdated = true; // incase of reset and sending 0;
+                IsValueDateUpdated = true; // in-case of reset and sending 0;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref valueDate, pqFieldUpdate.Payload);
                 if (valueDate == DateTime.UnixEpoch) valueDate = default;
                 return 0;
@@ -267,18 +263,6 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
 
     public override PQLevel3Quote Clone() => Recycler?.Borrow<PQLevel3Quote>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new PQLevel3Quote(this);
 
-    public override bool AreEquivalent(ITickInstant? other, bool exactTypes = false)
-    {
-        if (other is not IPQLevel3Quote && exactTypes) return false;
-        if (other is not ILevel3Quote otherL3) return false;
-        var baseSame             = base.AreEquivalent(otherL3, exactTypes);
-        var batchIdSame          = batchId == otherL3.BatchId;
-        var sourceSequenceIdSame = sourceQuoteRef == otherL3.SourceQuoteReference;
-        var valueDateSame        = ValueDate == otherL3.ValueDate;
-        var allAreSame           = baseSame && batchIdSame && sourceSequenceIdSame && valueDateSame;
-        return allAreSame;
-    }
-
     IPQLevel3Quote IPQLevel3Quote.CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
 
     public override PQLevel3Quote CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
@@ -306,6 +290,18 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         return this;
     }
 
+    public override bool AreEquivalent(ITickInstant? other, bool exactTypes = false)
+    {
+        if (other is not IPQLevel3Quote && exactTypes) return false;
+        if (other is not ILevel3Quote otherL3) return false;
+        var baseSame             = base.AreEquivalent(otherL3, exactTypes);
+        var batchIdSame          = batchId == otherL3.BatchId;
+        var sourceSequenceIdSame = sourceQuoteRef == otherL3.SourceQuoteReference;
+        var valueDateSame        = ValueDate == otherL3.ValueDate;
+        var allAreSame           = baseSame && batchIdSame && sourceSequenceIdSame && valueDateSame;
+        return allAreSame;
+    }
+
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IPublishableTickInstant, true);
 
     public override int GetHashCode()
@@ -330,13 +326,10 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
 public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishableLevel3Quote, ICloneable<PQPublishableLevel3Quote>
   , IDoublyLinkedListNode<PQPublishableLevel3Quote>
 {
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQPublishableLevel3Quote));
-
     private IPQOnTickLastTraded? onTickLastTraded;
 
     public PQPublishableLevel3Quote()
     {
-        // recentlyTraded = new PQRecentlyTraded();
     }
 
     // Reflection invoked constructor (PQServer<T>)
@@ -385,9 +378,9 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
     protected PQPublishableLevel3Quote(IPublishableTickInstant toClone, IPQTickInstant? initializedQuoteContainer)
         : base(toClone, initializedQuoteContainer)
     {
-        if (toClone is IPQPublishableLevel3Quote ipql3QToClone)
+        if (toClone is IPQPublishableLevel3Quote pql3Q)
         {
-            onTickLastTraded = ipql3QToClone?.OnTickLastTraded?.Clone();
+            onTickLastTraded = pql3Q.OnTickLastTraded?.Clone();
         }
         else if (toClone is IPublishableLevel3Quote { OnTickLastTraded: not null } l3QToClone)
         {
@@ -691,7 +684,7 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
         return this;
     }
 
-    public override PQPublishableLevel3Quote CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override PQPublishableLevel3Quote CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags)
     {
         base.CopyFrom(source, copyMergeFlags);
         var pql3Q = source as IPQPublishableLevel3Quote;

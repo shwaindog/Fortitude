@@ -70,13 +70,15 @@ public class Level1PriceQuoteTests
         var expectedBidPriceTop        = 2.34567m;
         var expectedSourceAskTime      = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop        = 3.45678m;
-        var expectedCandle      = new Candle();
+        var expectedCandle             = new Candle();
+        var quoteBehavior              = PublishableQuoteInstantBehaviorFlags.None;
 
         var fromConstructor =
             new PublishableLevel1PriceQuote
-                (sourceTickerInfo, expectedSourceTime, expectedBidPriceTop, expectedAskPriceTop
-               ,true, true, expectedSourceBidTime, expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2), true
-               , FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay, expectedSingleValue, expectedCandle)
+                (sourceTickerInfo, expectedSourceTime, expectedBidPriceTop, expectedAskPriceTop, quoteBehavior
+               ,true, true, expectedSourceBidTime, expectedSourceAskTime, expectedSourceTime
+               , expectedSourceTime.AddSeconds(2), true, FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay
+               , expectedSingleValue, expectedCandle)
                 {
                     ClientReceivedTime = expectedClientReceivedTime,
                     AdapterReceivedTime = expectedAdapterReceiveTime,
@@ -103,11 +105,13 @@ public class Level1PriceQuoteTests
     [TestMethod]
     public void PQCandle_New_ConvertsToCandle()
     {
-        var pqCandle = new PQCandle();
+        var pqCandle      = new PQCandle();
+        var quoteBehavior = PublishableQuoteInstantBehaviorFlags.None;
 
         var nonSourceTickerInfoL1Quote =
             new PublishableLevel1PriceQuote
-                (sourceTickerInfo, DateTime.Now, 1m, 1m, true, true, DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now.AddSeconds(2), true
+                (sourceTickerInfo, DateTime.Now, 1m, 1m, quoteBehavior, true, true
+               , DateTime.Now, DateTime.Now, DateTime.Now, DateTime.Now.AddSeconds(2), true
                , FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay, 1m, pqCandle);
 
         Assert.IsInstanceOfType(nonSourceTickerInfoL1Quote.ConflatedTicksCandle, typeof(Candle));
@@ -321,8 +325,10 @@ public static class Level1PriceQuoteTestExtensions
     {
         var halfSpread = openCloseSpread / 2;
 
+        var quoteBehavior = QuoteInstantBehaviorFlags.None;
+
         var bid1 = mid - halfSpread;
         var ask1 = mid + halfSpread;
-        return new Level1PriceQuote(sourceTime, bid1, ask1, false, false, sourceTime, sourceTime, sourceTime, sourceTime);
+        return new Level1PriceQuote(sourceTime, bid1, ask1, quoteBehavior, false, false, sourceTime, sourceTime, sourceTime, sourceTime);
     }
 }

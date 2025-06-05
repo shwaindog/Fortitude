@@ -11,7 +11,6 @@ using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeMarkets.Configuration.ClientServerConfig;
-using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
@@ -31,7 +30,7 @@ public interface IPQPricingInstrumentId : IPQSourceTickerId, IPricingInstrumentI
     new IPQPricingInstrumentId Clone();
 }
 
-public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
+public class PQPricingInstrumentId : PQSourceTickerId, IPQPricingInstrumentId
 {
     private InstrumentType?      instrumentType;
     private MarketClassification marketClassification;
@@ -39,13 +38,13 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
     private string[]? optionalKeys;
     private string[]? requiredKeys;
 
-    public PQPricingInstrument()
+    public PQPricingInstrumentId()
     {
         marketClassification = MarketClassificationExtensions.Unknown;
         instrumentType       = InstrumentType.Price;
     }
 
-    public PQPricingInstrument
+    public PQPricingInstrumentId
     (ushort sourceId, ushort tickerId, string sourceName, string ticker, DiscreetTimePeriod period, InstrumentType instrumentType
       , MarketClassification marketClassification, string? category = null) : base(sourceId, sourceName, tickerId, ticker)
     {
@@ -55,7 +54,7 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
         InstrumentType       = instrumentType;
     }
 
-    public PQPricingInstrument(IPricingInstrumentId toClone) : base(toClone)
+    public PQPricingInstrumentId(IPricingInstrumentId toClone) : base(toClone)
     {
         CoveringPeriod       = toClone.CoveringPeriod;
         MarketClassification = toClone.MarketClassification;
@@ -67,14 +66,14 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
         if (toClone is IPQPricingInstrumentId pubToClone) IsMarketClassificationUpdated = pubToClone.IsMarketClassificationUpdated;
     }
 
-    public PQPricingInstrument(SourceTickerIdentifier toClone) : base(toClone)
+    public PQPricingInstrumentId(SourceTickerIdentifier toClone) : base(toClone)
     {
         CoveringPeriod       = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
         marketClassification = MarketClassificationExtensions.Unknown;
         instrumentType       = InstrumentType.Price;
     }
 
-    public PQPricingInstrument(SourceTickerIdValue toClone) : base(toClone)
+    public PQPricingInstrumentId(SourceTickerIdValue toClone) : base(toClone)
     {
         CoveringPeriod       = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
         marketClassification = MarketClassificationExtensions.Unknown;
@@ -272,7 +271,7 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
         return base.UpdateField(fieldUpdate);
     }
 
-    public override PQPricingInstrument CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override PQPricingInstrumentId CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
         if (source is IPQPricingInstrumentId pqPricingInstrumentId)
@@ -312,7 +311,7 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
     IPricingInstrumentId IPricingInstrumentId.Clone() => Clone();
 
     public override IPQPricingInstrumentId Clone() =>
-        Recycler?.Borrow<PQPricingInstrument>().CopyFrom(this) as PQPricingInstrument ?? new PQPricingInstrument(this);
+        Recycler?.Borrow<PQPricingInstrumentId>().CopyFrom(this) as PQPricingInstrumentId ?? new PQPricingInstrumentId(this);
 
     IReusableObject<IPricingInstrumentId> ITransferState<IReusableObject<IPricingInstrumentId>>.CopyFrom
         (IReusableObject<IPricingInstrumentId> source, CopyMergeFlags copyMergeFlags) =>
@@ -338,4 +337,10 @@ public class PQPricingInstrument : PQSourceTickerId, IPQPricingInstrumentId
         var allAreSame = baseIsSame && marketClassificationSame && coveringPeriodSame && instrumentTypeSame;
         return allAreSame;
     }
+
+    protected string PQPricingInstrumentIdToStringMembers =>
+        $"{PQSourceTickerIdToStringMembers}, {nameof(CoveringPeriod)}: {CoveringPeriod}, {nameof(InstrumentType)}: {InstrumentType}, " +
+        $"{nameof(MarketClassification)}: {MarketClassification}, {nameof(Category)}: {Category}";
+
+    public override string ToString() => $"{nameof(PQPricingInstrumentId)}{{{PQPricingInstrumentIdToStringMembers}, {UpdateFlagsToString}}}";
 }

@@ -4,7 +4,6 @@
 #region
 
 using System.Text.Json.Serialization;
-using System.Linq;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
@@ -25,10 +24,11 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
     }
 
     public Level2PriceQuote
-    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, IOrderBook? orderBookParam = null 
-      , bool isBidPriceTopChanged = false, bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null, DateTime? validFrom = null
+    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, IOrderBook? orderBookParam = null
+      , QuoteInstantBehaviorFlags quoteBehaviorFlags = QuoteInstantBehaviorFlags.None, bool isBidPriceTopChanged = false
+      , bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null, DateTime? validFrom = null
       , DateTime? validTo = null, bool executable = false, decimal singlePrice = 0m) :
-        base( sourceTime, 0m, 0m, isBidPriceTopChanged, isAskPriceTopChanged, sourceBidTime, 
+        base( sourceTime, 0m, 0m, quoteBehaviorFlags, isBidPriceTopChanged, isAskPriceTopChanged, sourceBidTime, 
              sourceAskTime, validFrom, validTo, executable, singlePrice)
     {
         if (orderBookParam is OrderBook mutOrderBook)
@@ -108,7 +108,7 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
 
         if (source is ILevel2Quote level2Quote)
         {
-            OrderBook.CopyFrom(level2Quote.OrderBook, copyMergeFlags);
+            OrderBook.CopyFrom(level2Quote.OrderBook, QuoteBehavior, copyMergeFlags);
         }
         if (source is ILevel1Quote level1Quote)
         {
@@ -125,7 +125,6 @@ public class Level2PriceQuote : Level1PriceQuote, IMutableLevel2Quote, ICloneabl
         var baseIsSame = base.AreEquivalent(otherL2, exactTypes);
 
         var orderBookSame = OrderBook.AreEquivalent(otherL2.OrderBook, exactTypes);
-
 
         var allAreSame = baseIsSame && orderBookSame;
         return allAreSame;
@@ -158,11 +157,12 @@ public class PublishableLevel2PriceQuote : PublishableLevel1PriceQuote, IMutable
     }
 
     public PublishableLevel2PriceQuote
-    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, IOrderBook? orderBook = null
-      , bool isBidPriceTopChanged = false, bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null, DateTime? validFrom = null
+    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null,IOrderBook? orderBook = null
+       ,PublishableQuoteInstantBehaviorFlags quoteBehavior = PublishableQuoteInstantBehaviorFlags.None, bool isBidPriceTopChanged = false
+      , bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null, DateTime? validFrom = null
       , DateTime? validTo = null, bool executable = false, FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good
       , FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None, decimal singlePrice = 0m, ICandle? conflationTicksCandle = null) :
-        this(new Level2PriceQuote(sourceTickerInfo,  sourceTime, orderBook, isBidPriceTopChanged, isAskPriceTopChanged, 
+        this(new Level2PriceQuote(sourceTickerInfo,  sourceTime, orderBook, (QuoteInstantBehaviorFlags)quoteBehavior, isBidPriceTopChanged, isAskPriceTopChanged, 
                                   sourceBidTime, sourceAskTime, validFrom, validTo, executable,  singlePrice), sourceTickerInfo,
              feedSyncStatus, feedConnectivityStatus, conflationTicksCandle) { }
 
@@ -174,13 +174,9 @@ public class PublishableLevel2PriceQuote : PublishableLevel1PriceQuote, IMutable
 
     public PublishableLevel2PriceQuote(IPublishableTickInstant toClone) : this(toClone, null) { }
 
-    protected PublishableLevel2PriceQuote
-        (IPublishableTickInstant toClone, IMutableTickInstant? initializedQuoteContainer) : base(toClone, initializedQuoteContainer)
+    protected PublishableLevel2PriceQuote(IPublishableTickInstant toClone, IMutableTickInstant? initializedQuoteContainer) 
+        : base(toClone, initializedQuoteContainer)
     {
-        if (toClone is not IPublishableLevel2Quote && toClone.SourceTickerInfo != null)
-        {
-            OrderBook = new OrderBook(toClone.SourceTickerInfo);
-        }
     }
 
     protected override IMutableLevel2Quote CreateEmptyQuoteContainerInstant() => new Level2PriceQuote();

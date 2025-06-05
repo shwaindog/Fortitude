@@ -55,7 +55,7 @@ public static class PQStorageCandleFlagsExtensions
     public static int SignMultiplier(this PQStorageCandleFlags flags, PQStorageCandleFlags checkNegative) => (flags & checkNegative) > 0 ? -1 : 1;
 }
 
-public interface IPQStorageCandle : IMutableCandle, ITracksChanges<IPQStorageCandle>, ITrackableReset<IPQStorageCandle>
+public interface IPQStorageCandle : IMutableCandle, ITracksChanges, ITrackableReset<IPQStorageCandle>
 {
     PQStorageCandleFlags CandleStorageFlags { get; }
 

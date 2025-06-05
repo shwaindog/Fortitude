@@ -259,7 +259,7 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
     }
 
     private class TestLiveShortPeriodMovingAverageClient
-        (PricingInstrumentId instrumentSourceTickerIdentifier, int waitNumberForPublish = 1) : Rule
+        (PricingInstrumentIdValue instrumentSourceTickerIdentifier, int waitNumberForPublish = 1) : Rule
     {
         private const string LivePeriodTestClientPublishPricesAddress
             = "TestClient.LiveShortPeriodMovingAverage.Publish.Quotes";
@@ -298,7 +298,7 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
 
         public override async ValueTask StartAsync()
         {
-            quoteListenAddress = instrumentSourceTickerIdentifier.Source.SubscribeToTickerQuotes(instrumentSourceTickerIdentifier.Ticker);
+            quoteListenAddress = instrumentSourceTickerIdentifier.SourceName.SubscribeToTickerQuotes(instrumentSourceTickerIdentifier.InstrumentName);
             listenForPublishPricesSubscription = await this.RegisterRequestListenerAsync<PublishQuotesWithTimeProgress, ValueTask>
                 (LivePeriodTestClientPublishPricesAddress, PublishPriceQuotesHandler);
             live15SMovingAveragePublishSubscription = await this.RegisterListenerAsync<IndicatorValidRangeBidAskPeriodValue>

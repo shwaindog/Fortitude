@@ -3,7 +3,6 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
@@ -12,30 +11,35 @@ using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 
-public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
+public class OrderBook : ReusableQuoteElement<IOrderBook>, IMutableOrderBook
 {
-    private LayerFlags    layerFlags;
+    private LayerFlags               layerFlags;
     private IMutableMarketAggregate? openInterest;
+
+    private QuoteInstantBehaviorFlags cacheBehaviorFlags;
+    private IMutableOrderBookSide     askSide = null!;
+    private IMutableOrderBookSide     bidSide = null!;
     public OrderBook() : this(LayerType.PriceVolume) { }
 
-    public OrderBook
-    (LayerType layerType = LayerType.PriceVolume,
+    public OrderBook(LayerType layerType = LayerType.PriceVolume, QuoteInstantBehaviorFlags quoteBehavior = QuoteInstantBehaviorFlags.None,
         int numBookLayers = SourceTickerInfo.DefaultMaximumPublishedLayers, bool isLadder = false)
     {
-        layerFlags      = layerType.SupportedLayerFlags();
-        layerFlags      |= isLadder ? LayerFlags.Ladder : LayerFlags.None;
-        MaxAllowedSize = (ushort)numBookLayers;
+        cacheBehaviorFlags =  quoteBehavior;
+        layerFlags         =  layerType.SupportedLayerFlags();
+        layerFlags         |= isLadder ? LayerFlags.Ladder : LayerFlags.None;
+        MaxAllowedSize     =  (ushort)numBookLayers;
 
-        AskSide = new OrderBookSide(BookSide.AskBook, layerType, MaxAllowedSize, isLadder);
-        BidSide = new OrderBookSide(BookSide.BidBook, layerType, MaxAllowedSize, isLadder);
+        AskSide = new OrderBookSide(BookSide.AskBook, layerType, cacheBehaviorFlags, MaxAllowedSize, isLadder);
+        BidSide = new OrderBookSide(BookSide.BidBook, layerType, cacheBehaviorFlags, MaxAllowedSize, isLadder);
     }
 
     public OrderBook(IOrderBook toClone)
     {
-        layerFlags          =  toClone.LayerSupportedFlags;
-        layerFlags          |= LayersSupportedType.SupportedLayerFlags();
-        MaxAllowedSize     =  toClone.MaxAllowedSize;
-        DailyTickUpdateCount = toClone.DailyTickUpdateCount;
+        cacheBehaviorFlags   =  toClone.QuoteBehavior;
+        layerFlags           =  toClone.LayerSupportedFlags;
+        layerFlags           |= LayersSupportedType.SupportedLayerFlags();
+        MaxAllowedSize       =  toClone.MaxAllowedSize;
+        DailyTickUpdateCount =  toClone.DailyTickUpdateCount;
         if (toClone.HasNonEmptyOpenInterest)
         {
             openInterest = new MarketAggregate(toClone.OpenInterest);
@@ -67,7 +71,7 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 
         layerFlags =  bidSide.LayerSupportedFlags | askBookSide.LayerSupportedFlags;
         layerFlags |= LayersSupportedType.SupportedLayerFlags();
-        layerFlags |=  isLadder ? LayerFlags.Ladder : LayerFlags.None;
+        layerFlags |= isLadder ? LayerFlags.Ladder : LayerFlags.None;
 
         MaxAllowedSize = Math.Max(((IOrderBookSide)BidSide).MaxAllowedSize, ((IOrderBookSide)AskSide).MaxAllowedSize);
     }
@@ -82,6 +86,10 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         AskSide = new OrderBookSide(BookSide.AskBook, sourceTickerInfo);
         BidSide = new OrderBookSide(BookSide.BidBook, sourceTickerInfo);
     }
+
+    public QuoteInstantBehaviorFlags QuoteBehavior => cacheBehaviorFlags = Parent?.QuoteBehavior ?? cacheBehaviorFlags;
+
+    public IParentQuoteElement? Parent { get; set; }
 
     public LayerType LayersSupportedType
     {
@@ -103,19 +111,37 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     IOrderBookSide IOrderBook.AskSide => AskSide;
     IOrderBookSide IOrderBook.BidSide => BidSide;
 
-    public IMutableOrderBookSide AskSide { get; set; }
-    public IMutableOrderBookSide BidSide { get; set; }
+    public IMutableOrderBookSide AskSide
+    {
+        get => askSide;
+        set
+        {
+            askSide = value;
+
+            askSide.Parent = this;
+        }
+    }
+    public IMutableOrderBookSide BidSide
+    {
+        get => bidSide;
+        set
+        {
+            bidSide = value;
+
+            bidSide.Parent = this;
+        }
+    }
 
     public bool IsBidBookChanged { get; set; }
     public bool IsAskBookChanged { get; set; }
 
     public ushort MaxAllowedSize { get; private set; }
 
-    public decimal? MidPrice => (BidSide[0].Price + AskSide[0].Price) / 2;
+    public decimal MidPrice => (BidSide[0].Price + AskSide[0].Price) / 2;
 
     public bool HasNonEmptyOpenInterest
     {
-        get => openInterest is {IsEmpty: false};
+        get => openInterest is { IsEmpty: false };
         set
         {
             if (value) return;
@@ -133,14 +159,15 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
     {
         get
         {
-            if (HasNonEmptyOpenInterest && openInterest is not {DataSource: (MarketDataSource.Published or MarketDataSource.None)}) return openInterest;
+            if (HasNonEmptyOpenInterest && openInterest is not { DataSource: (MarketDataSource.Published or MarketDataSource.None) })
+                return openInterest;
 
             var bidOpenInterest = BidSide.OpenInterestSide;
             var askOpenInterest = AskSide.OpenInterestSide;
 
             var totalVolume = (bidOpenInterest?.Volume + askOpenInterest?.Volume) ?? 0;
             var totalPriceVolume = totalVolume != 0
-                ? ((bidOpenInterest?.Volume ?? 0) * (bidOpenInterest?.Vwap ?? 0) 
+                ? ((bidOpenInterest?.Volume ?? 0) * (bidOpenInterest?.Vwap ?? 0)
                  + (askOpenInterest?.Volume ?? 0) * (askOpenInterest?.Vwap ?? 0)) / totalVolume
                 : 0m;
             openInterest            ??= new MarketAggregate();
@@ -206,7 +233,36 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
 
     IMutableOrderBook IMutableOrderBook.Clone() => Clone();
 
-    public virtual bool AreEquivalent(IOrderBook? other, bool exactTypes = false)
+    public override OrderBook Clone() =>
+        Recycler?.Borrow<OrderBook>().CopyFrom(this, QuoteInstantBehaviorFlags.DisableUpgradeLayer) ?? new OrderBook(this);
+
+    public override OrderBook CopyFrom
+    (IOrderBook source, QuoteInstantBehaviorFlags behaviorFlags,
+        CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        cacheBehaviorFlags  = behaviorFlags;
+        LayerSupportedFlags = source.LayerSupportedFlags;
+        if (source.HasNonEmptyOpenInterest)
+        {
+            openInterest ??= new MarketAggregate();
+            openInterest.CopyFrom(source.OpenInterest, copyMergeFlags);
+        }
+        else if (openInterest != null)
+        {
+            openInterest.IsEmpty = true;
+        }
+        MaxAllowedSize       = source.MaxAllowedSize;
+        IsBidBookChanged     = source.IsBidBookChanged;
+        IsAskBookChanged     = source.IsAskBookChanged;
+        DailyTickUpdateCount = source.DailyTickUpdateCount;
+        BidSide.CopyFrom(source.BidSide, behaviorFlags, copyMergeFlags);
+        AskSide.CopyFrom(source.AskSide, behaviorFlags, copyMergeFlags);
+        return this;
+    }
+
+    public bool AreEquivalent(IMutableOrderBook? other, bool exactTypes = false) => AreEquivalent((IOrderBook?)other, exactTypes);
+
+    public override bool AreEquivalent(IOrderBook? other, bool exactTypes = false)
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != typeof(OrderBook)) return false;
@@ -219,55 +275,28 @@ public class OrderBook : ReusableObject<IOrderBook>, IMutableOrderBook
         {
             openInterestSame = openInterest?.AreEquivalent(other.OpenInterest, exactTypes) ?? false;
         }
-        var askSideSame        = AskSide.AreEquivalent(other.AskSide, exactTypes);
-        var bidSideSame        = BidSide.AreEquivalent(other.BidSide, exactTypes);
+        var askSideSame = AskSide.AreEquivalent(other.AskSide, exactTypes);
+        var bidSideSame = BidSide.AreEquivalent(other.BidSide, exactTypes);
 
         var allSame = layerFlagsSame && maxDepthSame && dailyTickCountSame && askSideSame && bidSideSame && openInterestSame;
         return allSame;
     }
 
-    public bool AreEquivalent(IMutableOrderBook? other, bool exactTypes = false) => AreEquivalent((IOrderBook?)other, exactTypes);
-
-    public override OrderBook CopyFrom(IOrderBook source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        LayerSupportedFlags           = source.LayerSupportedFlags;
-        if (source.HasNonEmptyOpenInterest)
-        {
-            openInterest ??= new MarketAggregate();
-            openInterest.CopyFrom(source.OpenInterest, copyMergeFlags);
-        } else if (openInterest != null)
-        {
-            openInterest.IsEmpty = true;
-        }
-        MaxAllowedSize      = source.MaxAllowedSize;
-        IsBidBookChanged     = source.IsBidBookChanged;
-        IsAskBookChanged     = source.IsAskBookChanged;
-        DailyTickUpdateCount = source.DailyTickUpdateCount;
-        BidSide.CopyFrom(source.BidSide, copyMergeFlags);
-        AskSide.CopyFrom(source.AskSide, copyMergeFlags);
-        return this;
-    }
-
-    public override OrderBook Clone() => Recycler?.Borrow<OrderBook>().CopyFrom(this) ?? new OrderBook(this);
-
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IOrderBook?)obj, true);
 
     public override int GetHashCode()
     {
-        unchecked
-        {
-            var hashCode = new HashCode();
-            hashCode.Add(LayersSupportedType);
-            hashCode.Add(IsLadder);
-            hashCode.Add(MaxAllowedSize);
-            hashCode.Add(IsBidBookChanged);
-            hashCode.Add(IsAskBookChanged);
-            hashCode.Add(DailyTickUpdateCount);
-            hashCode.Add(AskSide);
-            hashCode.Add(BidSide);
+        var hashCode = new HashCode();
+        hashCode.Add(LayersSupportedType);
+        hashCode.Add(IsLadder);
+        hashCode.Add(MaxAllowedSize);
+        hashCode.Add(IsBidBookChanged);
+        hashCode.Add(IsAskBookChanged);
+        hashCode.Add(DailyTickUpdateCount);
+        hashCode.Add(AskSide);
+        hashCode.Add(BidSide);
 
-            return hashCode.ToHashCode();
-        }
+        return hashCode.ToHashCode();
     }
 
     protected string OrderBookToStringMembers =>

@@ -30,12 +30,12 @@ namespace FortitudeMarkets.Indicators.Pricing.Candles.Construction;
 public struct HistoricalCandleParams(SourceTickerIdentifier sourceTickerIdentifier, TimeBoundaryPeriod period, TimeLength cacheLength)
 {
     public HistoricalCandleParams
-        (PricingInstrumentId pricingInstrumentId, TimeLength cacheLength) :
+        (PricingInstrumentIdValue pricingInstrumentId, TimeLength cacheLength) :
         this(pricingInstrumentId, pricingInstrumentId.CoveringPeriod.Period, cacheLength) { }
 
     public SourceTickerIdentifier SourceTickerIdentifier { get; set; } = sourceTickerIdentifier;
     public TimeBoundaryPeriod     Period                 { get; set; } = period;
-    public PricingInstrumentId PricingInstrumentId =>
+    public PricingInstrumentIdValue PricingInstrumentId =>
         new(SourceTickerIdentifier, new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(Period)));
 
     public TimeLength CacheLength { get; set; } = cacheLength;
@@ -66,7 +66,7 @@ public class HistoricalCandlesResolverRule<TQuote> : Rule, IHistoricalCandleReso
     private readonly ICandleConstructionRequestDispatcher attendantDispatcher;
 
     private readonly TimeBoundaryPeriod  buildPeriod;
-    private readonly PricingInstrumentId priceInstrumentId;
+    private readonly PricingInstrumentIdValue priceInstrumentId;
 
     private ISubscription? historicalPriceResponseRequestSubscription;
     private ISubscription? historicalPriceStreamRequestSubscription;
@@ -196,12 +196,12 @@ public class HistoricalCandlesResolverRule<TQuote> : Rule, IHistoricalCandleReso
     private async ValueTask GetRepositoryExistingSummariesInfo(DateTime maxPreviousTimeRange)
     {
         var existingRangeRequest = new TimeSeriesRepositoryInstrumentFileInfoRequest
-            (State.PricingInstrumentId.Ticker, State.PricingInstrumentId.Source, InstrumentType.Candle, new DiscreetTimePeriod(State.CandlePeriod));
+            (State.PricingInstrumentId.InstrumentName, State.PricingInstrumentId.SourceName, InstrumentType.Candle, new DiscreetTimePeriod(State.CandlePeriod));
         var candidateInstrumentFileInfo = await this.RequestAsync<TimeSeriesRepositoryInstrumentFileInfoRequest, List<InstrumentFileInfo>>
             (TimeSeriesRepositoryConstants.TimeSeriesInstrumentFileInfoRequestResponse, existingRangeRequest);
         if (candidateInstrumentFileInfo.Count > 1)
             throw new
-                Exception($"Received More than one instrument type for {State.PricingInstrumentId.Ticker} from the repository for period {State.CandlePeriod}");
+                Exception($"Received More than one instrument type for {State.PricingInstrumentId.InstrumentName} from the repository for period {State.CandlePeriod}");
         nextStorageCheckTime = TimeContext.UtcNow + State.CacheTimeSpan;
         if (candidateInstrumentFileInfo.Count == 1)
         {
@@ -216,11 +216,11 @@ public class HistoricalCandlesResolverRule<TQuote> : Rule, IHistoricalCandleReso
     private async ValueTask GetRepositoryQuoteInfo(DateTime now)
     {
         var quotesRangeRequest = new TimeSeriesRepositoryInstrumentFileInfoRequest
-            (State.PricingInstrumentId.Ticker, State.PricingInstrumentId.Source, Price, new DiscreetTimePeriod(Tick));
+            (State.PricingInstrumentId.InstrumentName, State.PricingInstrumentId.SourceName, Price, new DiscreetTimePeriod(Tick));
         var candidateInstrumentFileInfo = await this.RequestAsync<TimeSeriesRepositoryInstrumentFileInfoRequest, List<InstrumentFileInfo>>
             (TimeSeriesRepositoryConstants.TimeSeriesInstrumentFileInfoRequestResponse, quotesRangeRequest);
         if (candidateInstrumentFileInfo.Count > 1)
-            throw new Exception($"Received More than one instrument for {State.PricingInstrumentId.Ticker} type from the repository for quotes");
+            throw new Exception($"Received More than one instrument for {State.PricingInstrumentId.InstrumentName} type from the repository for quotes");
         if (candidateInstrumentFileInfo.Count == 1)
         {
             State.QuotesRepoInfo = candidateInstrumentFileInfo[0];
@@ -250,12 +250,12 @@ public class HistoricalCandlesResolverRule<TQuote> : Rule, IHistoricalCandleReso
     {
         var existingPeriodsRangeRequest
             = new TimeSeriesRepositoryInstrumentFileInfoRequest
-                (State.PricingInstrumentId.Ticker, State.PricingInstrumentId.Source, InstrumentType.Candle, new DiscreetTimePeriod(buildPeriod));
+                (State.PricingInstrumentId.InstrumentName, State.PricingInstrumentId.SourceName, InstrumentType.Candle, new DiscreetTimePeriod(buildPeriod));
         var candidateInstrumentFileInfo = await this.RequestAsync<TimeSeriesRepositoryInstrumentFileInfoRequest, List<InstrumentFileInfo>>
             (TimeSeriesRepositoryConstants.TimeSeriesInstrumentFileInfoRequestResponse, existingPeriodsRangeRequest);
         if (candidateInstrumentFileInfo.Count > 1)
             throw new
-                Exception($"Received More than one instrument type for {State.PricingInstrumentId.Ticker} from the repository for subPeriod {buildPeriod}");
+                Exception($"Received More than one instrument type for {State.PricingInstrumentId.InstrumentName} from the repository for subPeriod {buildPeriod}");
         if (candidateInstrumentFileInfo.Count == 1)
         {
             State.SubCandleRepoInfo = candidateInstrumentFileInfo[0];
@@ -292,7 +292,7 @@ public class HistoricalCandlesResolverRule<TQuote> : Rule, IHistoricalCandleReso
             {
                 var maxHistoricalTimeRange = State.CandlePeriod.ContainingPeriodBoundaryStart(now);
                 var existingRangeRequest = new TimeSeriesRepositoryInstrumentFileInfoRequest
-                    (State.PricingInstrumentId.Ticker, State.PricingInstrumentId.Source, InstrumentType.Candle, new DiscreetTimePeriod(State.CandlePeriod));
+                    (State.PricingInstrumentId.InstrumentName, State.PricingInstrumentId.SourceName, InstrumentType.Candle, new DiscreetTimePeriod(State.CandlePeriod));
                 var candidateInstrumentFileInfo = await this.RequestAsync<TimeSeriesRepositoryInstrumentFileInfoRequest, List<InstrumentFileInfo>>
                     (TimeSeriesRepositoryConstants.TimeSeriesInstrumentFileInfoRequestResponse, existingRangeRequest);
 

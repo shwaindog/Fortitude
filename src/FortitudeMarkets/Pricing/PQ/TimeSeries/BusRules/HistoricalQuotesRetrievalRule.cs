@@ -124,7 +124,7 @@ public class HistoricalQuotesRetrievalRule : TimeSeriesRepositoryAccessRule
     {
         var matchingInstruments =
             TimeSeriesRepository!.InstrumentFilesMap.Keys
-                                 .Where(i => i.InstrumentName == sourceTickerIdentifier.Ticker && i.SourceName == sourceTickerIdentifier.Source)
+                                 .Where(i => i.InstrumentName == sourceTickerIdentifier.InstrumentName && i.SourceName == sourceTickerIdentifier.SourceName)
                                  .ToList();
         return matchingInstruments.Count != 1 ? null : matchingInstruments[0];
     }

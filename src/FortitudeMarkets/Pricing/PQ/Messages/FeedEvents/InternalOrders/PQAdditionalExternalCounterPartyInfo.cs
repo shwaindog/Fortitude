@@ -29,8 +29,7 @@ public enum PQAdditionalCounterPartyInfoFlags : byte
 }
 
 public interface IPQAdditionalExternalCounterPartyOrderInfo : IMutableAdditionalExternalCounterPartyOrderInfo
-  , ISupportsPQNameIdLookupGenerator, IPQSupportsStringUpdates<IPQAdditionalExternalCounterPartyOrderInfo>
-  , IPQSupportsNumberPrecisionFieldUpdates<IPQAdditionalExternalCounterPartyOrderInfo>
+  , ISupportsPQNameIdLookupGenerator, IPQSupportsStringUpdates, IPQSupportsNumberPrecisionFieldUpdates
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     int ExternalCounterPartyNameId { get; set; }
@@ -333,17 +332,17 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
     (DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
-        if (!updatedOnly || IsExternalCounterPartyIdUpdated)
+        var fullPicture = (messageFlags & PQMessageFlags.Complete) > 0;
+        if (fullPicture || IsExternalCounterPartyIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderExternalCounterPartyId
                                          , (uint)ExternalCounterPartyId);
-        if (!updatedOnly || IsExternalCounterPartyNameUpdated)
+        if (fullPicture || IsExternalCounterPartyNameUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderExternalCounterPartyNameId
                                          , (uint)ExternalCounterPartyNameId);
 
-        if (!updatedOnly || IsExternalTraderNameUpdated)
+        if (fullPicture || IsExternalTraderNameUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderExternalTraderNameId, (uint)ExternalTraderNameId);
-        if (!updatedOnly || IsExternalTraderIdUpdated)
+        if (fullPicture || IsExternalTraderIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderExternalTraderId, (uint)ExternalTraderId);
     }
 
@@ -410,10 +409,6 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
     {
         foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate;
     }
-
-    IPQAdditionalExternalCounterPartyOrderInfo ITransferState<IPQAdditionalExternalCounterPartyOrderInfo>.CopyFrom
-        (IPQAdditionalExternalCounterPartyOrderInfo source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom(source, copyMergeFlags);
 
     IMutableAdditionalExternalCounterPartyOrderInfo ITransferState<IMutableAdditionalExternalCounterPartyOrderInfo>.CopyFrom
         (IMutableAdditionalExternalCounterPartyOrderInfo source, CopyMergeFlags copyMergeFlags) =>

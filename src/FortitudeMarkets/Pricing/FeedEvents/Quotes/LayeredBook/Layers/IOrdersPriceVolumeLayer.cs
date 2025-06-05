@@ -5,6 +5,7 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 
@@ -12,6 +13,9 @@ public interface IOrdersPriceVolumeLayer : IOrdersCountPriceVolumeLayer, ITracks
     ICloneable<IOrdersPriceVolumeLayer>
 {
     IReadOnlyList<IAnonymousOrder> Orders { get; }
+
+    QuoteLayerInstantBehaviorFlags LayerBehavior { get; }
+
     new IOrdersPriceVolumeLayer    Clone();
 }
 
@@ -19,6 +23,8 @@ public interface IMutableOrdersPriceVolumeLayer : IOrdersPriceVolumeLayer, IMuta
   , ITrackableReset<IMutableOrdersPriceVolumeLayer>, IMutableTracksReorderingList<IMutableAnonymousOrder, IAnonymousOrder>
 {
     new IMutableAnonymousOrder this[int i] { get; set; }
+
+    new QuoteLayerInstantBehaviorFlags LayerBehavior { get; set; }
 
     new int Count { get; set; }
 

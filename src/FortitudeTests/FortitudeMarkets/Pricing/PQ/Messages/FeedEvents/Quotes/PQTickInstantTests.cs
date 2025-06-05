@@ -608,6 +608,8 @@ public class PQTickInstantTests
         public bool FromStorage         { get; set; }
         public bool IsSourceReplay      { get; set; }
 
+        public PublishableQuoteInstantBehaviorFlags QuoteBehavior { get; set; }
+
         public DateTime SourceTime => DateTime.Now;
 
         public DateTime ClientReceivedTime { get; set; }
@@ -643,6 +645,8 @@ public class PQTickInstantTests
         public bool IsFromAdapterSnapshotUpdated { get; set; }
         public bool IsFromStorageUpdated         { get; set; }
 
+        public bool IsQuoteBehaviorFlagsUpdated         { get; set; }
+        public bool IsFeedBehaviorFlagsUpdated          { get; set; }
         public bool IsFeedConnectivityStatusUpdated     { get; set; }
         public bool IsAdapterSentTimeDateUpdated        { get; set; }
         public bool IsAdapterSentTimeSub2MinUpdated     { get; set; }
@@ -667,7 +671,7 @@ public class PQTickInstantTests
 
         public bool IsEmpty { get; set; }
 
-        public uint   StreamId   => SourceTickerInfo?.SourceTickerId ?? throw new ArgumentException("Expected SourceTickerInfo to be set");
+        public uint   StreamId   => SourceTickerInfo?.SourceInstrumentId ?? throw new ArgumentException("Expected SourceTickerInfo to be set");
         public string StreamName => SourceTickerInfo?.InstrumentName ?? throw new ArgumentException("Expected SourceTickerInfo to be set");
 
         public string QuoteToStringMembers => "";
@@ -732,14 +736,8 @@ public class PQTickInstantTests
 
         public bool UpdateFieldString(PQFieldStringUpdate stringUpdate) => false;
 
-
-        IEnumerable<PQFieldUpdate> IPQSupportsNumberPrecisionFieldUpdates<IPQTickInstant>.GetDeltaUpdateFields
-            (DateTime snapShotTime, PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings) =>
-            [];
-
-        IEnumerable<PQFieldUpdate> IPQPublishableTickInstant.GetDeltaUpdateFields
-            (DateTime snapShotTime, PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings) =>
-            [];
+        public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
+            (DateTime snapShotTime, PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings) => [];
 
         public IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags) => [];
 

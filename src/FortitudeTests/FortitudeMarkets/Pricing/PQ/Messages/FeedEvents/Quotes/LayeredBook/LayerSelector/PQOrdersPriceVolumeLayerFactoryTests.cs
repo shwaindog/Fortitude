@@ -4,6 +4,7 @@
 #region
 
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
@@ -17,9 +18,10 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.
 public class PQOrdersPriceVolumeLayerFactoryTests : PQPriceVolumeFactoryTestsBase
 {
     [TestMethod]
-    public void NewPQLastTradeFactory_EntryCreationTypeAndCreateNewLastTradeEnty_ReturnExpected()
+    public void NewPQLastTradeFactory_EntryCreationTypeAndCreateNewLastTradeEntry_ReturnExpected()
     {
-        var pvlFactory = new PQOrdersPriceVolumeLayerFactory(LayerType.OrdersFullPriceVolume, NameIdLookupGenerator.Clone());
+        var pvlFactory = new PQOrdersPriceVolumeLayerFactory
+            (LayerType.OrdersFullPriceVolume, NameIdLookupGenerator.Clone(), QuoteLayerInstantBehaviorFlags.None);
 
         var emptyPvl = new PQOrdersPriceVolumeLayer(LayerType.OrdersFullPriceVolume, NameIdLookupGenerator.Clone());
 
@@ -30,8 +32,9 @@ public class PQOrdersPriceVolumeLayerFactoryTests : PQPriceVolumeFactoryTestsBas
     [TestMethod]
     public void InitialisedOtherTypes_UpgradeLayer_PreservesAsMuchCommonSupportedFields()
     {
-        var pvlFactory = new PQOrdersPriceVolumeLayerFactory(LayerType.OrdersFullPriceVolume
-                                                           , new PQNameIdLookupGenerator(PQFeedFields.SourceTickerNames));
+        var pvlFactory = new PQOrdersPriceVolumeLayerFactory
+            (LayerType.OrdersFullPriceVolume, new PQNameIdLookupGenerator(PQFeedFields.SourceTickerNames)
+           , QuoteLayerInstantBehaviorFlags.None);
 
         var simplePvl = pvlFactory.UpgradeLayer(SimplePvl);
         Assert.IsTrue(SimplePvl.AreEquivalent(simplePvl));

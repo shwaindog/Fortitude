@@ -10,10 +10,9 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages;
 
-public interface IPQMessage : IMutableFeedEventStatusUpdate, IVersionedMessage, IPQSupportsStringUpdates<IPQMessage>
-  , IPQSupportsFieldUpdates<IPQMessage>,
-    ITrackableReset<IPQMessage>, IRelatedItems<IPQMessage>, IDoublyLinkedListNode<IPQMessage>, IInterfacesComparable<IPQMessage>
-  , ICloneable<IPQMessage>, IEmptyable
+public interface IPQMessage : IMutableFeedEventStatusUpdate, IVersionedMessage, IPQSupportsStringUpdates, ITransferState<IPQMessage>
+  , IPQSupportsFieldUpdates, ITrackableReset<IPQMessage>, IRelatedItems<IPQMessage>, IDoublyLinkedListNode<IPQMessage>
+  , IInterfacesComparable<IPQMessage>, ICloneable<IPQMessage>, IEmptyable
 {
     PQMessageFlags? OverrideSerializationFlags { get; set; }
 
@@ -23,6 +22,8 @@ public interface IPQMessage : IMutableFeedEventStatusUpdate, IVersionedMessage, 
     uint      PQSequenceId        { get; set; }
     DateTime  LastPublicationTime { get; set; }
 
+    public bool IsQuoteBehaviorFlagsUpdated { get; set; }
+    public bool IsFeedBehaviorFlagsUpdated { get; set; }
     public bool IsFeedConnectivityStatusUpdated { get; set; }
 
     bool IsSocketReceivedTimeDateUpdated     { get; set; }

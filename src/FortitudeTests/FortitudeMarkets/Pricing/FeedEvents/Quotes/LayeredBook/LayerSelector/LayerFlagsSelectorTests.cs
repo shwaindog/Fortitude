@@ -227,9 +227,9 @@ public class LayerFlagsSelectorTests
     }
 
     [TestMethod]
-    public void VariosLayerFlags_Select_CallsSrcQtRefTrdrVlDtSelector()
+    public void VariousLayerFlags_Select_CallsFullSupportSelector()
     {
-        var expectedSelectorCalled = "SelectSourceQuoteRefTraderValueDatePriceVolumeLayer";
+        var expectedSelectorCalled = "SelectFullSupportPriceVolumeLayer";
         sourceTickerInfo.LayerFlags = LayerFlags.SourceQuoteReference | LayerFlags.OrderTraderName;
         var selectorCalled = layerSelector.FindForLayerFlags(sourceTickerInfo);
         Assert.AreEqual(expectedSelectorCalled, selectorCalled);
@@ -291,14 +291,14 @@ public class LayerFlagsSelectorTests
 
         protected override string SelectOrdersCountPriceVolumeLayer() => nameof(SelectOrdersCountPriceVolumeLayer);
 
-        protected override string SelectAnonymousOrdersPriceVolumeLayer() => nameof(SelectAnonymousOrdersPriceVolumeLayer);
+        protected override string SelectAnonymousOrdersPriceVolumeLayer(QuoteLayerInstantBehaviorFlags layerBehavior) => nameof(SelectAnonymousOrdersPriceVolumeLayer);
 
-        protected override string SelectCounterPartyOrdersPriceVolumeLayer() => nameof(SelectCounterPartyOrdersPriceVolumeLayer);
+        protected override string SelectCounterPartyOrdersPriceVolumeLayer(QuoteLayerInstantBehaviorFlags layerBehavior) => nameof(SelectCounterPartyOrdersPriceVolumeLayer);
 
-        protected override string SelectSourceQuoteRefTraderValueDatePriceVolumeLayer() => nameof(SelectSourceQuoteRefTraderValueDatePriceVolumeLayer);
+        protected override string SelectFullSupportPriceVolumeLayer(QuoteLayerInstantBehaviorFlags layerBehavior) => nameof(SelectFullSupportPriceVolumeLayer);
 
         public override IMutablePriceVolumeLayer CreateExpectedImplementation
-        (LayerType desiredLayerType, IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
+        (LayerType desiredLayerType, QuoteLayerInstantBehaviorFlags layerBehavior, IPriceVolumeLayer? copy = null, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
             throw new NotImplementedException();
     }
 }
