@@ -736,14 +736,14 @@ public class PQOrderBookSide : ReusableQuoteElement<IOrderBookSide>, IPQOrderBoo
     (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
+        var fullPicture = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) > 0;
 
         foreach (var shiftCommand in elementListShiftRegistry.ShiftCommands)
         {
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayers, PQPricingSubFieldKeys.CommandElementsShift
                                          , (uint)shiftCommand, (PQFieldFlags)shiftCommand);
         }
-        if (!updatedOnly || IsDailyTickUpdateCountUpdated)
+        if (fullPicture || IsDailyTickUpdateCountUpdated)
         {
             yield return new PQFieldUpdate(PQFeedFields.QuoteDailySidedTickCount, DailyTickUpdateCount);
         }

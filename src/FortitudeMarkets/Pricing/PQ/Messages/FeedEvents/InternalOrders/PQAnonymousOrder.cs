@@ -723,40 +723,40 @@ public class PQAnonymousOrder : ReusableObject<IAnonymousOrder>, IPQAnonymousOrd
     (DateTime snapShotTime, PQMessageFlags messageFlags
       , IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
-        if (!updatedOnly || IsOrderIdUpdated)
+        var fullPicture = (messageFlags & PQMessageFlags.Complete) > 0;
+        if (fullPicture || IsOrderIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderId, (uint)OrderId);
-        if (!updatedOnly || IsOrderTypeUpdated)
+        if (fullPicture || IsOrderTypeUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderType, (uint)OrderType);
-        if (!updatedOnly || IsGenesisFlagsUpdated)
+        if (fullPicture || IsGenesisFlagsUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderGenesisFlags, (uint)GenesisFlags);
-        if (!updatedOnly || IsOrderLifecycleStateUpdated)
+        if (fullPicture || IsOrderLifecycleStateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderLifecycleStateFlags, (uint)OrderLifeCycleState);
 
-        if (!updatedOnly || IsCreatedTimeDateUpdated)
+        if (fullPicture || IsCreatedTimeDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderCreatedDate
                                          , createdTime.Get2MinIntervalsFromUnixEpoch());
-        if (!updatedOnly || IsCreatedTimeSub2MinUpdated)
+        if (fullPicture || IsCreatedTimeSub2MinUpdated)
         {
             var extended = createdTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderCreatedSub2MinTime, value, extended);
         }
-        if (!updatedOnly || IsUpdateTimeDateUpdated)
+        if (fullPicture || IsUpdateTimeDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderUpdatedDate
                                          , updateTime.Get2MinIntervalsFromUnixEpoch());
 
-        if (!updatedOnly || IsUpdateTimeSub2MinUpdated)
+        if (fullPicture || IsUpdateTimeSub2MinUpdated)
         {
             var extended = updateTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderUpdatedSub2MinTime, value, extended);
         }
-        if (!updatedOnly || IsOrderVolumeUpdated)
+        if (fullPicture || IsOrderVolumeUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderDisplayVolume, OrderDisplayVolume,
                                            quotePublicationPrecisionSettings?.VolumeScalingPrecision ?? (PQFieldFlags)6);
-        if (!updatedOnly || IsOrderRemainingVolumeUpdated)
+        if (fullPicture || IsOrderRemainingVolumeUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderRemainingVolume, OrderRemainingVolume,
                                            quotePublicationPrecisionSettings?.VolumeScalingPrecision ?? (PQFieldFlags)6);
-        if (!updatedOnly || IsTrackingIdUpdated)
+        if (fullPicture || IsTrackingIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderTrackingId, TrackingId);
 
         if (additionalInternalPassiveOrderInfo != null)

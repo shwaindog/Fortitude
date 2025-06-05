@@ -16,10 +16,11 @@ namespace FortitudeMarkets.Pricing;
 public interface ISourceTickerId : IReusableObject<ISourceTickerId>
 {
     [JsonIgnore] uint SourceInstrumentId { get; }
-    ushort            SourceId           { get; }
-    ushort            InstrumentId       { get; }
-    string            SourceName         { get; }
-    string            InstrumentName     { get; }
+
+    ushort SourceId       { get; }
+    ushort InstrumentId   { get; }
+    string SourceName     { get; }
+    string InstrumentName { get; }
 }
 
 public class SourceTickerId : ReusableObject<ISourceTickerId>, ISourceTickerId, IInterfacesComparable<ISourceTickerId>

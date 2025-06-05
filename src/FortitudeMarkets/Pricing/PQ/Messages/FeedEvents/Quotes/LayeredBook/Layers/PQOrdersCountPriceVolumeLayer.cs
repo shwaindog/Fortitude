@@ -160,14 +160,14 @@ public class PQOrdersCountPriceVolumeLayer : PQPriceVolumeLayer, IPQOrdersCountP
     (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags
       , IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
+        var fullPicture = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) > 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                 quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
 
-        if (!updatedOnly || IsOrdersCountUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrdersCount, OrdersCount);
+        if (fullPicture || IsOrdersCountUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrdersCount, OrdersCount);
 
-        if (!updatedOnly || IsInternalVolumeUpdated)
+        if (fullPicture || IsInternalVolumeUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerInternalVolume, InternalVolume,
                                            quotePublicationPrecisionSetting?.VolumeScalingPrecision ?? (PQFieldFlags)6);
     }

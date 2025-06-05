@@ -127,13 +127,26 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
     (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
+        var fullPicture = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) > 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                 quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
-        if (!updatedOnly || IsSourceQuoteReferenceUpdated)
+        if (fullPicture || IsSourceQuoteReferenceUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerSourceQuoteRef, SourceQuoteReference);
     }
+
+    IPQSourceQuoteRefPriceVolumeLayer IPQSourceQuoteRefPriceVolumeLayer.Clone() => (IPQSourceQuoteRefPriceVolumeLayer)Clone();
+
+    ISourceQuoteRefPriceVolumeLayer ICloneable<ISourceQuoteRefPriceVolumeLayer>.Clone() => (ISourceQuoteRefPriceVolumeLayer)Clone();
+
+    ISourceQuoteRefPriceVolumeLayer ISourceQuoteRefPriceVolumeLayer.Clone() => (ISourceQuoteRefPriceVolumeLayer)Clone();
+
+    IMutableSourceQuoteRefPriceVolumeLayer ICloneable<IMutableSourceQuoteRefPriceVolumeLayer>.Clone() =>
+        (IMutableSourceQuoteRefPriceVolumeLayer)Clone();
+
+    IMutableSourceQuoteRefPriceVolumeLayer IMutableSourceQuoteRefPriceVolumeLayer.Clone() => (IMutableSourceQuoteRefPriceVolumeLayer)Clone();
+
+    public override IPQPriceVolumeLayer Clone() => new PQSourceQuoteRefPriceVolumeLayer(this, NameIdLookup);
 
     public override PQSourceQuoteRefPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, QuoteInstantBehaviorFlags behaviorFlags
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
@@ -158,19 +171,6 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
 
         return this;
     }
-
-    IPQSourceQuoteRefPriceVolumeLayer IPQSourceQuoteRefPriceVolumeLayer.Clone() => (IPQSourceQuoteRefPriceVolumeLayer)Clone();
-
-    ISourceQuoteRefPriceVolumeLayer ICloneable<ISourceQuoteRefPriceVolumeLayer>.Clone() => (ISourceQuoteRefPriceVolumeLayer)Clone();
-
-    ISourceQuoteRefPriceVolumeLayer ISourceQuoteRefPriceVolumeLayer.Clone() => (ISourceQuoteRefPriceVolumeLayer)Clone();
-
-    IMutableSourceQuoteRefPriceVolumeLayer ICloneable<IMutableSourceQuoteRefPriceVolumeLayer>.Clone() =>
-        (IMutableSourceQuoteRefPriceVolumeLayer)Clone();
-
-    IMutableSourceQuoteRefPriceVolumeLayer IMutableSourceQuoteRefPriceVolumeLayer.Clone() => (IMutableSourceQuoteRefPriceVolumeLayer)Clone();
-
-    public override IPQPriceVolumeLayer Clone() => new PQSourceQuoteRefPriceVolumeLayer(this, NameIdLookup);
 
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {

@@ -411,8 +411,8 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
         (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags,
             IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
         {
-            var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
-            if (!updatedOnly || IsDailyTickUpdateCountUpdated)
+            var fullPicture = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) > 0;
+            if (fullPicture || IsDailyTickUpdateCountUpdated)
             {
                 yield return new PQFieldUpdate(PQFeedFields.QuoteDailyTotalTickCount, DailyTickUpdateCount);
             }

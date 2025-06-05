@@ -176,11 +176,11 @@ public class PQPriceVolumeLayer : ReusableQuoteElement<IPriceVolumeLayer>, IPQPr
     (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
-        if (!updatedOnly || IsPriceUpdated)
+        var fullPicture = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) > 0;
+        if (fullPicture || IsPriceUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerPrice, Price,
                                            quotePublicationPrecisionSetting?.PriceScalingPrecision ?? (PQFieldFlags)1);
-        if (!updatedOnly || IsVolumeUpdated)
+        if (fullPicture || IsVolumeUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerVolume, Volume,
                                            quotePublicationPrecisionSetting?.VolumeScalingPrecision ?? (PQFieldFlags)6);
     }

@@ -246,23 +246,23 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
         (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags
           , IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings = null)
         {
-            var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
-            if (!updatedOnly || IsDataSourceUpdated)
+            var fullPicture = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) > 0;
+            if (fullPicture || IsDataSourceUpdated)
                 yield return new PQFieldUpdate(PQFeedFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateSource, (uint)DataSource);
 
-            if (!updatedOnly || IsUpdatedDateUpdated)
+            if (fullPicture || IsUpdatedDateUpdated)
                 yield return new PQFieldUpdate(PQFeedFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateUpdateDate
                                              , updateTime.Get2MinIntervalsFromUnixEpoch());
-            if (!updatedOnly || IsUpdatedSub2MinTimeUpdated)
+            if (fullPicture || IsUpdatedSub2MinTimeUpdated)
             {
                 var extended = updateTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
                 yield return new PQFieldUpdate(PQFeedFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateUpdateSub2MinTime, value, extended);
             }
-            if (!updatedOnly || IsVolumeUpdated)
+            if (fullPicture || IsVolumeUpdated)
                 yield return new PQFieldUpdate(PQFeedFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateVolume, Volume,
                                                quotePublicationPrecisionSettings?.VolumeScalingPrecision ?? (PQFieldFlags)6);
 
-            if (!updatedOnly || IsVwapUpdated)
+            if (fullPicture || IsVwapUpdated)
             {
                 yield return new PQFieldUpdate(PQFeedFields.ParentContextRemapped, PQPricingSubFieldKeys.MarketAggregateVwap, Vwap,
                                                quotePublicationPrecisionSettings?.PriceScalingPrecision ?? (PQFieldFlags)2);

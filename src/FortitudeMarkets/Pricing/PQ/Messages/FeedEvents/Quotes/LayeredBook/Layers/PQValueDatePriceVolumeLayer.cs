@@ -112,11 +112,11 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
     (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
+        var fullPicture = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) > 0;
         foreach (var pqFieldUpdate in base.GetDeltaUpdateFields(snapShotTime, messageFlags,
                                                                 quotePublicationPrecisionSetting))
             yield return pqFieldUpdate;
-        if (!updatedOnly || IsValueDateUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteLayerValueDate, valueDate.Get2MinIntervalsFromUnixEpoch());
+        if (fullPicture || IsValueDateUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteLayerValueDate, valueDate.Get2MinIntervalsFromUnixEpoch());
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)

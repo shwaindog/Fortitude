@@ -332,17 +332,17 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
     (DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
-        if (!updatedOnly || IsExternalCounterPartyIdUpdated)
+        var fullPicture = (messageFlags & PQMessageFlags.Complete) > 0;
+        if (fullPicture || IsExternalCounterPartyIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderExternalCounterPartyId
                                          , (uint)ExternalCounterPartyId);
-        if (!updatedOnly || IsExternalCounterPartyNameUpdated)
+        if (fullPicture || IsExternalCounterPartyNameUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderExternalCounterPartyNameId
                                          , (uint)ExternalCounterPartyNameId);
 
-        if (!updatedOnly || IsExternalTraderNameUpdated)
+        if (fullPicture || IsExternalTraderNameUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderExternalTraderNameId, (uint)ExternalTraderNameId);
-        if (!updatedOnly || IsExternalTraderIdUpdated)
+        if (fullPicture || IsExternalTraderIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderExternalTraderId, (uint)ExternalTraderId);
     }
 

@@ -552,10 +552,10 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
 
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
+        var fullPicture = (messageFlags & PQMessageFlags.Complete) > 0;
         // only copy if changed
 
-        if (!updatedOnly || IsQuoteBehaviorFlagsUpdated)
+        if (fullPicture || IsQuoteBehaviorFlagsUpdated)
         {
             if (QuoteBehavior.HasPublishPublishableQuoteInstantBehaviorFlagsFlag())
             {
@@ -566,19 +566,19 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
                 yield return new PQFieldUpdate(PQFeedFields.InstantQuoteBehaviorFlags, (uint)(QuoteBehavior.ToQuoteInstantBehaviorMask()));
             }
         }
-        if (!updatedOnly || IsFeedConnectivityStatusUpdated)
+        if (fullPicture || IsFeedConnectivityStatusUpdated)
             yield return new PQFieldUpdate(PQFeedFields.FeedMarketConnectivityStatus, (uint)FeedMarketConnectivityStatus);
         if (!FeedMarketConnectivityStatus.HasIsAdapterReplay()) AdapterSentTime = snapShotTime;
-        if (!QuoteBehavior.HasNoAdapterSentTimeUpdatesFlag() && !updatedOnly || IsAdapterSentTimeDateUpdated)
+        if (!QuoteBehavior.HasNoAdapterSentTimeUpdatesFlag() && fullPicture || IsAdapterSentTimeDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.AdapterSentDateTime, AdapterSentTimeField.Get2MinIntervalsFromUnixEpoch());
-        if (!QuoteBehavior.HasNoAdapterSentTimeUpdatesFlag() && !updatedOnly || IsAdapterSentTimeSub2MinUpdated)
+        if (!QuoteBehavior.HasNoAdapterSentTimeUpdatesFlag() && fullPicture || IsAdapterSentTimeSub2MinUpdated)
         {
             var extended = AdapterSentTimeField.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQFeedFields.AdapterSentSub2MinTime, value, extended);
         }
-        if (!QuoteBehavior.HasNoAdapterReceiveTimeUpdatesFlag() && !updatedOnly || IsAdapterReceivedTimeDateUpdated)
+        if (!QuoteBehavior.HasNoAdapterReceiveTimeUpdatesFlag() && fullPicture || IsAdapterReceivedTimeDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.AdapterReceivedDateTime, AdapterReceivedTimeField.Get2MinIntervalsFromUnixEpoch());
-        if (!QuoteBehavior.HasNoAdapterReceiveTimeUpdatesFlag() && !updatedOnly || IsAdapterReceivedTimeSub2MinUpdated)
+        if (!QuoteBehavior.HasNoAdapterReceiveTimeUpdatesFlag() && fullPicture || IsAdapterReceivedTimeSub2MinUpdated)
         {
             var extended = AdapterReceivedTimeField.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQFeedFields.AdapterReceivedSub2MinTime, value, extended);
@@ -586,40 +586,40 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         var includeReceiverTimes = (messageFlags & PQMessageFlags.IncludeReceiverTimes) > 0;
         if (includeReceiverTimes)
         {
-            if (!updatedOnly || IsFeedSyncStatusUpdated) yield return new PQFieldUpdate(PQFeedFields.PQSyncStatus, (byte)FeedSyncStatus);
-            if (!QuoteBehavior.HasNoClientInboundSocketTimeUpdatesFlag() && !updatedOnly || IsSocketReceivedTimeDateUpdated)
+            if (fullPicture || IsFeedSyncStatusUpdated) yield return new PQFieldUpdate(PQFeedFields.PQSyncStatus, (byte)FeedSyncStatus);
+            if (!QuoteBehavior.HasNoClientInboundSocketTimeUpdatesFlag() && fullPicture || IsSocketReceivedTimeDateUpdated)
                 yield return new PQFieldUpdate(PQFeedFields.ClientSocketReceivingDateTime
                                              , InboundSocketReceivingTime.Get2MinIntervalsFromUnixEpoch());
 
-            if (!QuoteBehavior.HasNoClientInboundSocketTimeUpdatesFlag() && !updatedOnly || IsSocketReceivedTimeSub2MinUpdated)
+            if (!QuoteBehavior.HasNoClientInboundSocketTimeUpdatesFlag() && fullPicture || IsSocketReceivedTimeSub2MinUpdated)
             {
                 var extended = InboundSocketReceivingTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lower4Bytes);
                 yield return new PQFieldUpdate(PQFeedFields.ClientSocketReceivingSub2MinTime, lower4Bytes, extended);
             }
 
-            if (!QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag() && !updatedOnly || IsProcessedTimeDateUpdated)
+            if (!QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag() && fullPicture || IsProcessedTimeDateUpdated)
                 yield return new PQFieldUpdate(PQFeedFields.ClientProcessedDateTime, InboundProcessedTime.Get2MinIntervalsFromUnixEpoch());
 
-            if (!QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag() && !updatedOnly || IsProcessedTimeSub2MinUpdated)
+            if (!QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag() && fullPicture || IsProcessedTimeSub2MinUpdated)
             {
                 var extended = InboundProcessedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lower4Bytes);
                 yield return new PQFieldUpdate(PQFeedFields.ClientProcessedSub2MinTime, lower4Bytes, extended);
             }
 
-            if (!QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag() && !updatedOnly || IsDispatchedTimeDateUpdated)
+            if (!QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag() && fullPicture || IsDispatchedTimeDateUpdated)
                 yield return new PQFieldUpdate(PQFeedFields.ClientDispatchedDateTime, SubscriberDispatchedTime.Get2MinIntervalsFromUnixEpoch());
 
-            if (!QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag() && !updatedOnly || IsDispatchedTimeSub2MinUpdated)
+            if (!QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag() && fullPicture || IsDispatchedTimeSub2MinUpdated)
             {
                 var extended = SubscriberDispatchedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lower4Bytes);
                 yield return new PQFieldUpdate(PQFeedFields.ClientDispatchedSub2MinTime, lower4Bytes, extended);
             }
 
-            if (!QuoteBehavior.HasNoClientReceiveTimeUpdatesFlag() && !updatedOnly || IsClientReceivedTimeDateUpdated)
+            if (!QuoteBehavior.HasNoClientReceiveTimeUpdatesFlag() && fullPicture || IsClientReceivedTimeDateUpdated)
                 yield return new PQFieldUpdate(PQFeedFields.ClientReceivedDateTime
                                              , ClientReceivedTime.Get2MinIntervalsFromUnixEpoch());
 
-            if (!QuoteBehavior.HasNoClientReceiveTimeUpdatesFlag() && !updatedOnly || IsClientReceivedTimeSub2MinUpdated)
+            if (!QuoteBehavior.HasNoClientReceiveTimeUpdatesFlag() && fullPicture || IsClientReceivedTimeSub2MinUpdated)
             {
                 var extended = ClientReceivedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lower4Bytes);
                 yield return new PQFieldUpdate(PQFeedFields.ClientReceivedSub2MinTime, lower4Bytes, extended);
@@ -657,106 +657,82 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
                 FeedMarketConnectivityStatus    = (FeedConnectivityStatusFlags)pqFieldUpdate.Payload;
                 return 0;
             case PQFeedFields.AdapterSentDateTime:
-                if (!QuoteBehavior.HasNoAdapterSentTimeUpdatesFlag())
-                {
-                    IsAdapterSentTimeDateUpdated = true; // in-case of reset and sending 0;
-                    PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref AdapterSentTimeField, pqFieldUpdate.Payload);
-                    if (AdapterSentTimeField == DateTime.UnixEpoch) AdapterSentTimeField = default;
-                }
+                if (QuoteBehavior.HasNoAdapterSentTimeUpdatesFlag()) return 0;
+                IsAdapterSentTimeDateUpdated = true; // in-case of reset and sending 0;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref AdapterSentTimeField, pqFieldUpdate.Payload);
+                if (AdapterSentTimeField == DateTime.UnixEpoch) AdapterSentTimeField = default;
                 return 0;
             case PQFeedFields.AdapterSentSub2MinTime:
-                if (!QuoteBehavior.HasNoAdapterSentTimeUpdatesFlag())
-                {
-                    IsAdapterSentTimeSub2MinUpdated = true; // in-case of reset and sending 0;
-                    PQFieldConverters.UpdateSub2MinComponent
-                        (ref AdapterSentTimeField, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
-                    if (AdapterSentTimeField == DateTime.UnixEpoch) AdapterSentTimeField = default;
-                }
+                if (QuoteBehavior.HasNoAdapterSentTimeUpdatesFlag()) return 0;
+                IsAdapterSentTimeSub2MinUpdated = true; // in-case of reset and sending 0;
+                PQFieldConverters.UpdateSub2MinComponent
+                    (ref AdapterSentTimeField, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
+                if (AdapterSentTimeField == DateTime.UnixEpoch) AdapterSentTimeField = default;
                 return 0;
             case PQFeedFields.AdapterReceivedDateTime:
-                if (!QuoteBehavior.HasNoAdapterReceiveTimeUpdatesFlag())
-                {
-                    IsAdapterReceivedTimeDateUpdated = true; // in-case of reset and sending 0;
-                    PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref AdapterReceivedTimeField, pqFieldUpdate.Payload);
-                    if (AdapterReceivedTimeField == DateTime.UnixEpoch) AdapterReceivedTimeField = default;
-                }
+                if (QuoteBehavior.HasNoAdapterReceiveTimeUpdatesFlag()) return 0;
+                IsAdapterReceivedTimeDateUpdated = true; // in-case of reset and sending 0;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref AdapterReceivedTimeField, pqFieldUpdate.Payload);
+                if (AdapterReceivedTimeField == DateTime.UnixEpoch) AdapterReceivedTimeField = default;
                 return 0;
             case PQFeedFields.AdapterReceivedSub2MinTime:
-                if (!QuoteBehavior.HasNoAdapterReceiveTimeUpdatesFlag())
-                {
-                    IsAdapterReceivedTimeSub2MinUpdated = true; // in-case of reset and sending 0;
-                    PQFieldConverters.UpdateSub2MinComponent
-                        (ref AdapterReceivedTimeField, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
-                    if (AdapterReceivedTimeField == DateTime.UnixEpoch) AdapterReceivedTimeField = default;
-                }
+                if (QuoteBehavior.HasNoAdapterReceiveTimeUpdatesFlag()) return 0;
+                IsAdapterReceivedTimeSub2MinUpdated = true; // in-case of reset and sending 0;
+                PQFieldConverters.UpdateSub2MinComponent
+                    (ref AdapterReceivedTimeField, pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
+                if (AdapterReceivedTimeField == DateTime.UnixEpoch) AdapterReceivedTimeField = default;
                 return 0;
             case PQFeedFields.ClientSocketReceivingDateTime:
-                if (!QuoteBehavior.HasNoClientInboundSocketTimeUpdatesFlag())
-                {
-                    IsSocketReceivedTimeDateUpdated = true; // in-case of reset and sending 0;
-                    PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref InboundSocketReceivingTimeField, pqFieldUpdate.Payload);
-                    if (InboundSocketReceivingTimeField == DateTime.UnixEpoch) InboundSocketReceivingTimeField = default;
-                }
+                if (QuoteBehavior.HasNoClientInboundSocketTimeUpdatesFlag()) return 0;
+                IsSocketReceivedTimeDateUpdated = true; // in-case of reset and sending 0;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref InboundSocketReceivingTimeField, pqFieldUpdate.Payload);
+                if (InboundSocketReceivingTimeField == DateTime.UnixEpoch) InboundSocketReceivingTimeField = default;
                 return 0;
             case PQFeedFields.ClientSocketReceivingSub2MinTime:
-                if (!QuoteBehavior.HasNoClientInboundSocketTimeUpdatesFlag())
-                {
-                    IsSocketReceivedTimeSub2MinUpdated = true; // in-case of reset and sending 0;
-                    PQFieldConverters.UpdateSub2MinComponent(ref InboundSocketReceivingTimeField,
-                                                             pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
-                    if (InboundSocketReceivingTimeField == DateTime.UnixEpoch) InboundSocketReceivingTimeField = default;
-                }
+                if (QuoteBehavior.HasNoClientInboundSocketTimeUpdatesFlag()) return 0;
+                IsSocketReceivedTimeSub2MinUpdated = true; // in-case of reset and sending 0;
+                PQFieldConverters.UpdateSub2MinComponent(ref InboundSocketReceivingTimeField,
+                                                         pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
+                if (InboundSocketReceivingTimeField == DateTime.UnixEpoch) InboundSocketReceivingTimeField = default;
                 return 0;
             case PQFeedFields.ClientProcessedDateTime:
-                if (!QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag())
-                {
-                    IsProcessedTimeDateUpdated = true; // in-case of reset and sending 0;
-                    PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref InboundProcessedTimeField, pqFieldUpdate.Payload);
-                    if (InboundProcessedTimeField == DateTime.UnixEpoch) InboundProcessedTimeField = default;
-                }
+                if (QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag()) return 0;
+                IsProcessedTimeDateUpdated = true; // in-case of reset and sending 0;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref InboundProcessedTimeField, pqFieldUpdate.Payload);
+                if (InboundProcessedTimeField == DateTime.UnixEpoch) InboundProcessedTimeField = default;
                 return 0;
             case PQFeedFields.ClientProcessedSub2MinTime:
-                if (!QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag())
-                {
-                    IsProcessedTimeSub2MinUpdated = true; // in-case of reset and sending 0;
-                    PQFieldConverters.UpdateSub2MinComponent(ref InboundProcessedTimeField,
-                                                             pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
-                    if (InboundProcessedTimeField == DateTime.UnixEpoch) InboundProcessedTimeField = default;
-                }
+                if (QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag()) return 0;
+                IsProcessedTimeSub2MinUpdated = true; // in-case of reset and sending 0;
+                PQFieldConverters.UpdateSub2MinComponent(ref InboundProcessedTimeField,
+                                                         pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
+                if (InboundProcessedTimeField == DateTime.UnixEpoch) InboundProcessedTimeField = default;
                 return 0;
             case PQFeedFields.ClientDispatchedDateTime:
-                if (!QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag())
-                {
-                    IsDispatchedTimeDateUpdated = true; // in-case of reset and sending 0;
-                    PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref DispatchedTimeField, pqFieldUpdate.Payload);
-                    if (DispatchedTimeField == DateTime.UnixEpoch) DispatchedTimeField = default;
-                }
+                if (QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag()) return 0;
+                IsDispatchedTimeDateUpdated = true; // in-case of reset and sending 0;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref DispatchedTimeField, pqFieldUpdate.Payload);
+                if (DispatchedTimeField == DateTime.UnixEpoch) DispatchedTimeField = default;
                 return 0;
             case PQFeedFields.ClientDispatchedSub2MinTime:
-                if (!QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag())
-                {
-                    IsDispatchedTimeSub2MinUpdated = true; // in-case of reset and sending 0;
-                    PQFieldConverters.UpdateSub2MinComponent(ref DispatchedTimeField,
-                                                             pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
-                    if (DispatchedTimeField == DateTime.UnixEpoch) DispatchedTimeField = default;
-                }
+                if (QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag()) return 0;
+                IsDispatchedTimeSub2MinUpdated = true; // in-case of reset and sending 0;
+                PQFieldConverters.UpdateSub2MinComponent(ref DispatchedTimeField,
+                                                         pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
+                if (DispatchedTimeField == DateTime.UnixEpoch) DispatchedTimeField = default;
                 return 0;
             case PQFeedFields.ClientReceivedDateTime:
-                if (!QuoteBehavior.HasNoClientReceiveTimeUpdatesFlag())
-                {
-                    IsClientReceivedTimeDateUpdated = true; // in-case of reset and sending 0;
-                    PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref ClientReceivedTimeField, pqFieldUpdate.Payload);
-                    if (ClientReceivedTimeField == DateTime.UnixEpoch) ClientReceivedTimeField = default;
-                }
+                if (QuoteBehavior.HasNoClientReceiveTimeUpdatesFlag()) return 0;
+                IsClientReceivedTimeDateUpdated = true; // in-case of reset and sending 0;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref ClientReceivedTimeField, pqFieldUpdate.Payload);
+                if (ClientReceivedTimeField == DateTime.UnixEpoch) ClientReceivedTimeField = default;
                 return 0;
             case PQFeedFields.ClientReceivedSub2MinTime:
-                if (!QuoteBehavior.HasNoClientReceiveTimeUpdatesFlag())
-                {
-                    IsClientReceivedTimeSub2MinUpdated = true; // in-case of reset and sending 0;
-                    PQFieldConverters.UpdateSub2MinComponent(ref ClientReceivedTimeField,
-                                                             pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
-                    if (ClientReceivedTimeField == DateTime.UnixEpoch) ClientReceivedTimeField = default;
-                }
+                if (QuoteBehavior.HasNoClientReceiveTimeUpdatesFlag()) return 0;
+                IsClientReceivedTimeSub2MinUpdated = true; // in-case of reset and sending 0;
+                PQFieldConverters.UpdateSub2MinComponent(ref ClientReceivedTimeField,
+                                                         pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
+                if (ClientReceivedTimeField == DateTime.UnixEpoch) ClientReceivedTimeField = default;
                 return 0;
         }
 

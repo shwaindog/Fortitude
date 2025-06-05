@@ -842,59 +842,59 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
     (DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & PQMessageFlags.Complete) == 0;
-        if (!updatedOnly || IsOrderSequenceIdUpdated)
+        var fullPicture = (messageFlags & PQMessageFlags.Complete) > 0;
+        if (fullPicture || IsOrderSequenceIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalSequenceId, OrderSequenceId);
-        if (!updatedOnly || IsParentOrderIdUpdated)
+        if (fullPicture || IsParentOrderIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalParentOrderId, ParentOrderId);
-        if (!updatedOnly || IsClosingOrderIdUpdated)
+        if (fullPicture || IsClosingOrderIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalClosingOrderId, ClosingOrderId);
-        if (!updatedOnly || IsClosingOrderPriceUpdated)
+        if (fullPicture || IsClosingOrderPriceUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalClosingOrderOpenPrice, ClosingOrderPrice
                                          , quotePublicationPrecisionSetting?.PriceScalingPrecision ?? (PQFieldFlags)1);
-        if (!updatedOnly || IsDecisionCreatedDateUpdated)
+        if (fullPicture || IsDecisionCreatedDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalDecisionCreateDate
                                          , decisionCreatedTime.Get2MinIntervalsFromUnixEpoch());
-        if (!updatedOnly || IsDecisionCreatedSub2MinTimeUpdated)
+        if (fullPicture || IsDecisionCreatedSub2MinTimeUpdated)
         {
             var extended = decisionCreatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalDecisionCreateSub2MinTime, value
                                          , extended);
         }
-        if (!updatedOnly || IsDecisionAmendDateUpdated)
+        if (fullPicture || IsDecisionAmendDateUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalDecisionAmendDate
                                          , decisionAmendTime.Get2MinIntervalsFromUnixEpoch());
-        if (!updatedOnly || IsDecisionAmendSub2MinTimeUpdated)
+        if (fullPicture || IsDecisionAmendSub2MinTimeUpdated)
         {
             var extended = decisionCreatedTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var value);
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalDecisionAmendSub2MinTime, value
                                          , extended);
         }
 
-        if (!updatedOnly || IsDivisionIdUpdated)
+        if (fullPicture || IsDivisionIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalDivisionId, DivisionId);
-        if (!updatedOnly || IsDivisionNameUpdated)
+        if (fullPicture || IsDivisionNameUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalDivisionNameId, DivisionNameId);
-        if (!updatedOnly || IsDeskIdUpdated)
+        if (fullPicture || IsDeskIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalDeskId, DeskId);
-        if (!updatedOnly || IsDeskNameUpdated)
+        if (fullPicture || IsDeskNameUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalDeskNameId, DeskNameId);
-        if (!updatedOnly || IsStrategyIdUpdated)
+        if (fullPicture || IsStrategyIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalStrategyId, StrategyId);
-        if (!updatedOnly || IsStrategyNameUpdated)
+        if (fullPicture || IsStrategyNameUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalStrategyNameId, StrategyNameId);
-        if (!updatedOnly || IsStrategyDecisionIdUpdated)
+        if (fullPicture || IsStrategyDecisionIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalStrategyDecisionId, StrategyDecisionId);
-        if (!updatedOnly || IsStrategyDecisionNameUpdated)
+        if (fullPicture || IsStrategyDecisionNameUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalStrategyDecisionNameId
                                          , StrategyDecisionNameId);
-        if (!updatedOnly || IsPortfolioIdUpdated)
+        if (fullPicture || IsPortfolioIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalPortfolioId, PortfolioId);
-        if (!updatedOnly || IsPortfolioNameUpdated)
+        if (fullPicture || IsPortfolioNameUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalPortfolioNameId, PortfolioNameId);
-        if (!updatedOnly || IsInternalTraderIdUpdated)
+        if (fullPicture || IsInternalTraderIdUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalTraderId, InternalTraderId);
-        if (!updatedOnly || IsInternalTraderNameUpdated)
+        if (fullPicture || IsInternalTraderNameUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQOrdersSubFieldKeys.OrderInternalTraderNameId, InternalTraderNameId);
     }
 

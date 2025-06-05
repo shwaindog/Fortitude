@@ -753,9 +753,6 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
     (DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags
       , IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
-        var updatedOnly = (messageFlags & Serdes.Serialization.PQMessageFlags.Complete) == 0;
-
-
         foreach (var shiftCommand in elementShiftRegistry.ShiftCommands)
         {
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerOrders, PQPricingSubFieldKeys.CommandElementsShift
@@ -891,7 +888,7 @@ public class PQOrdersPriceVolumeLayer : PQOrdersCountPriceVolumeLayer, IPQOrders
 
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {
-        if (!(other is IOrdersPriceVolumeLayer traderPvLayer)) return false;
+        if (other is not IOrdersPriceVolumeLayer traderPvLayer) return false;
         var baseSame        = base.AreEquivalent(other, exactTypes);
         var countFromOrders = CountFromOrders();
         var ordersCountSame = countFromOrders == traderPvLayer.Orders.Count;

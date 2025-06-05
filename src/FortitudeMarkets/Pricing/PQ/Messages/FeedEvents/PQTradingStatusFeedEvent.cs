@@ -26,7 +26,6 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.MarketEvents;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TradingConversions;
-using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeMarkets.Pricing.TimeSeries;
 using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
@@ -704,7 +703,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
     }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags) =>
-        GetDeltaUpdateFields(snapShotTime, messageFlags, null);
+        GetDeltaUpdateFields(snapShotTime, messageFlags);
 
     // ReSharper disable once MethodOverloadWithOptionalParameter
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
@@ -771,9 +770,9 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
 
     public override bool AreEquivalent(IFeedEventStatusUpdate? other, bool exactTypes = false)
     {
-        if (other is ITradingStatusFeedEvent trdingStsFeedEvt)
+        if (other is ITradingStatusFeedEvent tradingStatusFeedEvent)
         {
-            return AreEquivalent(trdingStsFeedEvt, exactTypes);
+            return AreEquivalent(tradingStatusFeedEvent, exactTypes);
         }
         return false;
     }
