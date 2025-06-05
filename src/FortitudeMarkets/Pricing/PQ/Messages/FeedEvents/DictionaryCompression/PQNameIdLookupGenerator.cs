@@ -11,8 +11,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 
-public interface IPQNameIdLookupGenerator : INameIdLookupGenerator,
-    IPQSupportsStringUpdates<INameIdLookup>
+public interface IPQNameIdLookupGenerator : INameIdLookupGenerator, IPQSupportsStringUpdates
 {
     int VerifyDictionaryAndExtractSize(PQFieldUpdate toCheckAndExtract);
 

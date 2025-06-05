@@ -126,13 +126,13 @@ public class Level3PriceQuoteTests
     }
 
     [TestMethod]
-    public void IntializedFromConstructor_New_InitializesFieldsAsExpected()
+    public void InitializedFromConstructor_New_InitializesFieldsAsExpected()
     {
         var expectedTradeId            = 10u;
         var expectedBatchId            = 234567u;
         var expectedTradePrice         = 1.23156m;
         var expectedTradeFlags         = LastTradedTypeFlags.HasPaidGivenDetails;
-        var expectedTradeLifeCycle         = LastTradedLifeCycleFlags.DropCopyReceived;
+        var expectedTradeLifeCycle     = LastTradedLifeCycleFlags.DropCopyReceived;
         var expectedSourceTime         = new DateTime(2018, 02, 04, 23, 56, 59);
         var expectedClientReceivedTime = new DateTime(2018, 02, 04, 19, 56, 9);
         var expectedSingleValue        = 1.23456m;
@@ -142,6 +142,7 @@ public class Level3PriceQuoteTests
         var expectedBidPriceTop        = 2.34567m;
         var expectedSourceAskTime      = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop        = 3.45678m;
+        var quoteBehavior              = PublishableQuoteInstantBehaviorFlags.NoPublishableQuoteUpdates;
         var expectedCandle             = new Candle();
         var expectedBidBook =
             new OrderBookSide(BookSide.BidBook, simpleOnTickLastTradedSrcTkrInfo)
@@ -165,7 +166,7 @@ public class Level3PriceQuoteTests
         var fromConstructor =
             new PublishableLevel3PriceQuote
                 (simpleOnTickLastTradedSrcTkrInfo, expectedSourceTime, new OrderBook(expectedBidBook, expectedAskBook)
-               , expectedOnTickLastTraded, expectedBatchId, expectedSourceQuoteRef, expectedValueDate, true, true
+               , expectedOnTickLastTraded, quoteBehavior, expectedBatchId, expectedSourceQuoteRef, expectedValueDate, true, true
                , expectedSourceBidTime, expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2), true
                , FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay, expectedSingleValue, expectedCandle)
                 {
@@ -215,6 +216,7 @@ public class Level3PriceQuoteTests
         var expectedBidPriceTop        = 2.34567m;
         var expectedSourceAskTime      = new DateTime(2018, 02, 04, 23, 56, 9);
         var expectedAskPriceTop        = 3.45678m;
+        var quoteBehavior              = PublishableQuoteInstantBehaviorFlags.NoPublishableQuoteUpdates;
         var expectedCandle             = new Candle();
         var expectedBidBook =
             new OrderBookSide(BookSide.BidBook, simpleOnTickLastTradedSrcTkrInfo)
@@ -239,7 +241,7 @@ public class Level3PriceQuoteTests
         var fromConstructor =
             new PublishableLevel3PriceQuote
                 (simpleOnTickLastTradedSrcTkrInfo, expectedSourceTime, new OrderBook(expectedBidBook, expectedAskBook), convertedOnTickLastTraded
-               , expectedBatchId, expectedSourceQuoteRef, expectedValueDate, true, true, expectedSourceBidTime
+               , quoteBehavior,  expectedBatchId, expectedSourceQuoteRef, expectedValueDate, true, true, expectedSourceBidTime
                , expectedSourceAskTime, expectedSourceTime, expectedSourceTime.AddSeconds(2), true
                , FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay, expectedSingleValue, expectedCandle)
                 {
@@ -335,11 +337,11 @@ public class Level3PriceQuoteTests
         foreach (var emptyQuote in allEmptyQuotes)
         {
             var expectedBidOrderBook = emptyQuote.BidBook.Clone();
-            expectedBidOrderBook[0]!.Price = expectedBidPriceTop;
+            expectedBidOrderBook[0].Price = expectedBidPriceTop;
             var expectedAskOrderBook = emptyQuote.AskBook.Clone();
-            expectedAskOrderBook[0]!.Price = expectedAskPriceTop;
+            expectedAskOrderBook[0].Price = expectedAskPriceTop;
             var expectedOnTickLastTraded                                                  = emptyQuote.OnTickLastTraded;
-            if (expectedOnTickLastTraded != null) expectedOnTickLastTraded[0]!.TradePrice = 12345m;
+            if (expectedOnTickLastTraded != null) expectedOnTickLastTraded[0].TradePrice = 12345m;
 
             emptyQuote.SourceTime                   = expectedSourceTime;
             emptyQuote.FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay;
@@ -586,11 +588,12 @@ public class Level3PriceQuoteTests
         var volStart = i * 1_000m;
         UpdateOrdersQuoteBook(sourceBidBook, 20, 1, 10000 + volStart, 1000 + volDiff);
         UpdateOrdersQuoteBook(sourceAskBook, 20, 1, 20000 + volStart, 500 + volDiff);
-        var     toggleBool             = false;
-        decimal growVolume             = 10000;
-        var     traderNumber           = 1;
-        var     expectedTradeId        = 10u;
-        var     expectedBatchId        = 234567u;
+        var     toggleBool      = false;
+        decimal growVolume      = 10000;
+        var     traderNumber    = 1;
+        var     expectedTradeId = 10u;
+        var     expectedBatchId = 234567u;
+        var     quoteBehavior   = PublishableQuoteInstantBehaviorFlags.NoPublishableQuoteUpdates;
 
         var onTickLastTraded =
             GenerateOnTickLastTraded
@@ -607,7 +610,7 @@ public class Level3PriceQuoteTests
         return new PublishableLevel3PriceQuote
             (sourceTickerInfo, new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(123 + i)
            , new OrderBook(sourceBidBook, sourceAskBook)
-           , onTickLastTraded, 1008 + (uint)i, 43749887 + (uint)i
+           , onTickLastTraded, quoteBehavior, 1008 + (uint)i, 43749887 + (uint)i
            , new DateTime(2017, 12, 29, 21, 0, 0).AddMilliseconds(i), false, true
            , new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(234 + 1)
            , new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(345 + 1)
@@ -662,7 +665,7 @@ public class Level3PriceQuoteTests
         var currentVolume = startingVolume;
         for (var i = 0; i < numberOfLayers; i++)
         {
-            var traderLayer = (IMutableOrdersPriceVolumeLayer)toUpdate[i]!;
+            var traderLayer = (IMutableOrdersPriceVolumeLayer)toUpdate[i];
             for (var j = 0; j < numberOfOrdersPerLayer; j++)
             {
                 string? traderName                                                = null;
@@ -680,7 +683,7 @@ public class Level3PriceQuoteTests
                 }
                 else
                 {
-                    var traderLayerInfo = (IMutableExternalCounterPartyOrder)traderLayer[j]!;
+                    var traderLayerInfo = (IMutableExternalCounterPartyOrder)traderLayer[j];
                     traderLayerInfo.ExternalTraderName = traderName;
                     traderLayerInfo.OrderDisplayVolume = currentVolume + j * deltaVolumePerLayer;
                 }
@@ -706,6 +709,6 @@ public class Level3PriceQuoteTests
     {
         foreach (var level3Quote in quotesToCheck)
             for (var i = 0; i < QuoteSequencedTestDataBuilder.GeneratedNumberOfLastTrades; i++)
-                Assert.AreEqual(expectedType, level3Quote.OnTickLastTraded![i]!.GetType());
+                Assert.AreEqual(expectedType, level3Quote.OnTickLastTraded![i].GetType());
     }
 }

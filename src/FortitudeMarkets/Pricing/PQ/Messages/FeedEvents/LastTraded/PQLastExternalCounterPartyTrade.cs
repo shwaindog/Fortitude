@@ -17,7 +17,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
 public interface IPQLastExternalCounterPartyTrade : IPQLastPaidGivenTrade, IMutableLastExternalCounterPartyTrade,
-    IPQSupportsStringUpdates<ILastTrade>, ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQLastExternalCounterPartyTrade>, ICloneable<IPQLastExternalCounterPartyTrade>
+    IPQSupportsStringUpdates, ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQLastExternalCounterPartyTrade>, ICloneable<IPQLastExternalCounterPartyTrade>
 {
     bool IsExternalCounterPartyIdUpdated   { get; set; }
     int  ExternalCounterPartyNameId        { get; set; }

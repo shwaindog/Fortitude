@@ -8,9 +8,9 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
-using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
@@ -116,7 +116,7 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
         // assume the book has already forwarded this through to the correct layer
         if (pqFieldUpdate.Id == PQFeedFields.QuoteLayerSourceQuoteRef)
         {
-            IsSourceQuoteReferenceUpdated = true; // incase of reset and sending 0;
+            IsSourceQuoteReferenceUpdated = true; // in-case of reset and sending 0;
             SourceQuoteReference          = pqFieldUpdate.Payload;
             return 0;
         }
@@ -135,24 +135,25 @@ public class PQSourceQuoteRefPriceVolumeLayer : PQSourcePriceVolumeLayer, IPQSou
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerSourceQuoteRef, SourceQuoteReference);
     }
 
-    public override PQSourceQuoteRefPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override PQSourceQuoteRefPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, QuoteInstantBehaviorFlags behaviorFlags
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(source, copyMergeFlags);
-        var pqSourcePvl   = source as IPQSourceQuoteRefPriceVolumeLayer;
+        base.CopyFrom(source, behaviorFlags, copyMergeFlags);
+        var pqSqrPvl   = source as IPQSourceQuoteRefPriceVolumeLayer;
         var isFullReplace = copyMergeFlags.HasFullReplace();
-        if (source is ISourceQuoteRefPriceVolumeLayer sqrpvl && pqSourcePvl == null)
+        if (source is ISourceQuoteRefPriceVolumeLayer sqrPvl && pqSqrPvl == null)
         {
-            SourceQuoteReference = sqrpvl.SourceQuoteReference;
+            SourceQuoteReference = sqrPvl.SourceQuoteReference;
         }
-        else if (pqSourcePvl != null)
+        else if (pqSqrPvl != null)
         {
-            if (pqSourcePvl.IsSourceQuoteReferenceUpdated || isFullReplace)
+            if (pqSqrPvl.IsSourceQuoteReferenceUpdated || isFullReplace)
             {
                 IsSourceQuoteReferenceUpdated = true;
 
-                SourceQuoteReference = pqSourcePvl.SourceQuoteReference;
+                SourceQuoteReference = pqSqrPvl.SourceQuoteReference;
             }
-            if (isFullReplace) SetFlagsSame(pqSourcePvl);
+            if (isFullReplace) SetFlagsSame(pqSqrPvl);
         }
 
         return this;

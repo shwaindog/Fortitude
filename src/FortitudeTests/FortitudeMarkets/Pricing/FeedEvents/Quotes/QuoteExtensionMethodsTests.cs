@@ -48,6 +48,7 @@ public class QuoteExtensionMethodsTests
     [TestInitialize]
     public void TestSetup()
     {
+        var quoteBehavior              = PublishableQuoteInstantBehaviorFlags.None;
         originalQuote =
             new PublishableLevel3PriceQuote
                 (originalSourceTickerInfo, originalQuoteExchangeTime
@@ -61,7 +62,7 @@ public class QuoteExtensionMethodsTests
                               new PriceVolumeLayer(OriginalAskTopPrice, OriginalAskTopVolume), new PriceVolumeLayer(1.1126m, 40000)
                           ])
                      )
-               , null, 0, 0, new DateTime(2017, 12, 29, 21, 0, 0)
+               , null, quoteBehavior, 0, 0, new DateTime(2017, 12, 29, 21, 0, 0)
                , true, true, originalQuoteBidDateTime, originalQuoteAskDateTime
                , originalQuoteExchangeTime, originalQuoteExchangeTime.AddSeconds(2), true
                , FeedSyncStatus.Good, OriginalFeedConnectivityStatusFlags, 1.1124m, new Candle())
@@ -205,16 +206,16 @@ public class QuoteExtensionMethodsTests
 
         var newBidTopPrice = OriginalBidTopPrice + 0.0003m;
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (q2.BidBook[0]!, (PriceVolumeLayer pvl) => pvl.Price, newBidTopPrice);
+            (q2.BidBook[0], (PriceVolumeLayer pvl) => pvl.Price, newBidTopPrice);
         var differences = originalQuote.DiffQuotes(q2);
         Console.Out.WriteLine(differences);
         var expectedOriginal = OriginalBidTopPrice.ToString(PricingConstants.UniversalPriceFormating);
         var expectedNew      = newBidTopPrice.ToString(PricingConstants.UniversalPriceFormating);
         Assert.IsTrue
             (differences.Contains(nameof(q2.BidPriceTop))
-          && differences.Select((c, i) => differences.Substring(i))
+          && differences.Select((_, i) => differences.Substring(i))
                         .Count(sub => sub.StartsWith(expectedOriginal)) == 2
-          && differences.Select((c, i) => differences.Substring(i))
+          && differences.Select((_, i) => differences.Substring(i))
                         .Count(sub => sub.StartsWith(expectedNew)) == 2);
         Assert.IsTrue
             (differences.Contains(nameof(q2.OrderBook.BidSide))
@@ -228,16 +229,16 @@ public class QuoteExtensionMethodsTests
 
         var newAskTopPrice = OriginalAskTopPrice - 0.0004m;
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (q2.AskBook[0]!, (PriceVolumeLayer pvl) => pvl.Price, newAskTopPrice);
+            (q2.AskBook[0], (PriceVolumeLayer pvl) => pvl.Price, newAskTopPrice);
         var differences = originalQuote.DiffQuotes(q2);
         Console.Out.WriteLine(differences);
 
         var expectedOriginal = OriginalAskTopPrice.ToString(PricingConstants.UniversalPriceFormating);
         var expectedNew      = newAskTopPrice.ToString(PricingConstants.UniversalPriceFormating);
         Assert.IsTrue(differences.Contains(nameof(q2.AskPriceTop))
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 2);
         Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.AskSide))
                    && differences.Contains("[ 0]") && differences.Contains("PriceVolumeLayer"));
@@ -249,81 +250,79 @@ public class QuoteExtensionMethodsTests
         var q2 = originalQuote.Clone();
 
         var newBidTopDateTime = new OrderBookSide(BookSide.BidBook, new List<IPriceVolumeLayer>());
-        NonPublicInvocator.SetAutoPropertyInstanceField(q2.OrderBook, (OrderBook pq) => pq.BidSide, newBidTopDateTime);
+        NonPublicInvocator.SetInstanceField(q2.OrderBook, "bidSide",  newBidTopDateTime);
         var differences = originalQuote.DiffQuotes(q2);
         Console.Out.WriteLine(differences);
         var expectedOriginal = OriginalBidTopPrice.ToString(PricingConstants.UniversalPriceFormating);
         var expectedNew      = "=0";
         Assert.IsTrue(differences.Contains(nameof(q2.BidPriceTop)) &&
-                      differences.Select((c, i) => differences.Substring(i))
+                      differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1);
         Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.BidSide))
                    && differences.Contains("[ 0]")
                    && differences.Contains("[ 1]")
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith("PriceVolumeLayer")) == 2);
-        NonPublicInvocator.SetAutoPropertyInstanceField
-            (q2.OrderBook, (OrderBook pq) => pq.BidSide, new OrderBookSide(BookSide.BidBook, 2));
+        NonPublicInvocator.SetInstanceField(q2.OrderBook, "bidSide", new OrderBookSide(BookSide.BidBook, 2));
 
         differences = q2.DiffQuotes(originalQuote);
         Console.Out.WriteLine(differences);
         Assert.IsTrue(differences.Contains(nameof(q2.BidPriceTop))
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1);
         Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.BidSide))
                    && differences.Contains("[ 0]")
                    && differences.Contains("[ 1]")
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith("PriceVolumeLayer")) == 4);
-        NonPublicInvocator.SetAutoPropertyInstanceField
-            (q2.OrderBook, (OrderBook pq) => pq.BidSide, new OrderBookSide(BookSide.BidBook, 1));
+        NonPublicInvocator.SetInstanceField(q2.OrderBook, "bidSide", new OrderBookSide(BookSide.BidBook, 1));
 
         differences = originalQuote.DiffQuotes(q2);
         Console.Out.WriteLine(differences);
         Assert.IsTrue(differences.Contains(nameof(q2.BidPriceTop))
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1);
         Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.BidSide))
                    && differences.Contains("[ 0]")
                    && differences.Contains("[ 1]")
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith("l2=null")) == 1
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith("PriceVolumeLayer")) == 3);
 
         differences = q2.DiffQuotes(originalQuote);
         Console.Out.WriteLine(differences);
         Assert.IsTrue(differences.Contains(nameof(q2.BidPriceTop))
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1);
         Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.BidSide))
                    && differences.Contains("[ 0]")
                    && differences.Contains("[ 1]")
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith("l1=null")) == 1
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith("PriceVolumeLayer")) == 3);
 
         var newBidTopVolume = OriginalBidTopVolume + 10000;
         q2 = originalQuote.Clone();
         NonPublicInvocator.SetAutoPropertyInstanceField
-            (q2.BidBook[0]!, (PriceVolumeLayer pvl) => pvl.Volume, newBidTopVolume);
+            (q2.BidBook[0], (PriceVolumeLayer pvl) => pvl.Volume, newBidTopVolume);
         differences = originalQuote.DiffQuotes(q2);
         Console.Out.WriteLine(differences);
         expectedOriginal = OriginalBidTopVolume.ToString(PricingConstants.UniversalVolumeFormating);
         expectedNew      = newBidTopVolume.ToString(PricingConstants.UniversalVolumeFormating);
         Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.BidSide))
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 1
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1
                    && differences.Contains("PriceVolumeLayer"));
     }
@@ -333,81 +332,79 @@ public class QuoteExtensionMethodsTests
     {
         var q2                = originalQuote.Clone();
         var newAskTopDateTime = new OrderBookSide(BookSide.AskBook, new List<IPriceVolumeLayer>());
-        NonPublicInvocator.SetAutoPropertyInstanceField(q2.OrderBook, (OrderBook pq) => pq.AskSide, newAskTopDateTime);
+        NonPublicInvocator.SetInstanceField(q2.OrderBook, "askSide", newAskTopDateTime);
         var differences = originalQuote.DiffQuotes(q2);
         Console.Out.WriteLine(differences);
         var expectedOriginal = OriginalAskTopPrice.ToString(PricingConstants.UniversalPriceFormating);
         var expectedNew      = "=0";
         Assert.IsTrue(differences.Contains(nameof(q2.AskPriceTop))
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1);
         Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.AskSide))
                    && differences.Contains("[ 0]")
                    && differences.Contains("[ 1]")
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith("PriceVolumeLayer")) == 2);
-        NonPublicInvocator.SetAutoPropertyInstanceField
-            (q2.OrderBook, (OrderBook pq) => pq.AskSide, new OrderBookSide(BookSide.AskBook, 2));
+        NonPublicInvocator.SetInstanceField(q2.OrderBook, "askSide",  new OrderBookSide(BookSide.AskBook, 2));
 
         differences = q2.DiffQuotes(originalQuote);
         Console.Out.WriteLine(differences);
         Assert.IsTrue(differences.Contains(nameof(q2.AskPriceTop))
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1);
         Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.AskSide))
                    && differences.Contains("[ 0]")
                    && differences.Contains("[ 1]")
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith("PriceVolumeLayer")) == 4);
-        NonPublicInvocator.SetAutoPropertyInstanceField
-            (q2.OrderBook, (OrderBook pq) => pq.AskSide, new OrderBookSide(BookSide.AskBook, 1));
+        NonPublicInvocator.SetInstanceField(q2.OrderBook, "askSide",  new OrderBookSide(BookSide.AskBook, 1));
 
         differences = originalQuote.DiffQuotes(q2);
         Console.Out.WriteLine(differences);
         Assert.IsTrue(differences.Contains(nameof(q2.AskPriceTop))
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1);
         Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.AskSide))
                    && differences.Contains("[ 0]")
                    && differences.Contains("[ 1]")
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith("l2=null")) == 1
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith("PriceVolumeLayer")) == 3);
 
         differences = q2.DiffQuotes(originalQuote);
         Console.Out.WriteLine(differences);
         Assert.IsTrue(differences.Contains(nameof(q2.AskPriceTop))
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 2
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1);
         Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.AskSide))
                    && differences.Contains("[ 0]")
                    && differences.Contains("[ 1]")
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith("l1=null")) == 1
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith("PriceVolumeLayer")) == 3);
 
         var newAskTopVolume = OriginalAskTopVolume + 10000;
         q2 = originalQuote.Clone();
-        NonPublicInvocator.SetAutoPropertyInstanceField(q2.AskBook[0]!,
+        NonPublicInvocator.SetAutoPropertyInstanceField(q2.AskBook[0],
                                                         (PriceVolumeLayer pvl) => pvl.Volume, newAskTopVolume);
         differences = originalQuote.DiffQuotes(q2);
         Console.Out.WriteLine(differences);
         expectedOriginal = OriginalAskTopVolume.ToString(PricingConstants.UniversalVolumeFormating);
         expectedNew      = newAskTopVolume.ToString(PricingConstants.UniversalVolumeFormating);
         Assert.IsTrue(differences.Contains(nameof(q2.OrderBook.AskSide))
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedOriginal)) == 1
-                   && differences.Select((c, i) => differences.Substring(i))
+                   && differences.Select((_, i) => differences.Substring(i))
                                  .Count(sub => sub.StartsWith(expectedNew)) == 1
                    && differences.Contains("PriceVolumeLayer"));
     }

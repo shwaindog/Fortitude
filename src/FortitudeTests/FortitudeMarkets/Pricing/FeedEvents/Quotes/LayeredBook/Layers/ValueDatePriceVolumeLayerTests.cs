@@ -7,6 +7,7 @@ using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 
 #endregion
@@ -16,6 +17,8 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.
 [TestClass]
 public class ValueDatePriceVolumeLayerTests
 {
+    private const QuoteInstantBehaviorFlags QuoteBehavior = QuoteInstantBehaviorFlags.None;
+
     private ValueDatePriceVolumeLayer emptyPvl     = null!;
     private ValueDatePriceVolumeLayer populatedPvl = null!;
 
@@ -104,7 +107,7 @@ public class ValueDatePriceVolumeLayerTests
     [TestMethod]
     public void FullyPopulatedPvl_CopyFromToEmptyPvl_PvlsEqualEachOther()
     {
-        emptyPvl.CopyFrom(populatedPvl);
+        emptyPvl.CopyFrom(populatedPvl, QuoteBehavior);
         Assert.AreEqual(populatedPvl, emptyPvl);
     }
 
@@ -113,7 +116,7 @@ public class ValueDatePriceVolumeLayerTests
     {
         var pqPvl    = new PQValueDatePriceVolumeLayer(populatedPvl);
         var newEmpty = new ValueDatePriceVolumeLayer();
-        newEmpty.CopyFrom(pqPvl);
+        newEmpty.CopyFrom(pqPvl, QuoteBehavior);
         Assert.AreEqual(populatedPvl, newEmpty);
     }
 

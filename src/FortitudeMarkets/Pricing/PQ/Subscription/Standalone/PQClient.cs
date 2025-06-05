@@ -186,10 +186,10 @@ public class PQClient : IDisposable
 
             var updateClient
                 = updateClientFactory.RetrieveOrCreateConversation(pricingServerConfig.UpdateConnectionConfig);
-            updateClient.DeserializerRepository.RegisterDeserializer(sourceTickerInfo.SourceTickerId, pqQuoteDeserializer);
+            updateClient.DeserializerRepository.RegisterDeserializer(sourceTickerInfo.SourceInstrumentId, pqQuoteDeserializer);
             var snapShotClient
                 = snapshotClientFactory.RetrieveOrCreateConversation(pricingServerConfig.SnapshotConnectionConfig);
-            snapShotClient.DeserializerRepository.RegisterDeserializer(sourceTickerInfo.SourceTickerId, pqQuoteDeserializer);
+            snapShotClient.DeserializerRepository.RegisterDeserializer(sourceTickerInfo.SourceInstrumentId, pqQuoteDeserializer);
 
             pqClientSyncMonitoring.CheckStartMonitoring();
 

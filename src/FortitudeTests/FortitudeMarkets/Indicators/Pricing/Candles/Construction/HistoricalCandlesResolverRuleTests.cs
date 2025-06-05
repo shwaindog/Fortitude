@@ -247,15 +247,15 @@ public class HistoricalCandlesResolverRuleTests : OneOfEachMessageQueueTypeTestS
     private IEnumerable<Candle> GetStubSummaries
         (SourceTickerIdentifier srcTickerIdentifier, TimeBoundaryPeriod requestPeriod, UnboundedTimeRange? requestTimeRange)
     {
-        if (srcTickerIdentifier.TickerId == tickerId5SPeriod.InstrumentId) return Enumerable.Empty<Candle>();
-        if (srcTickerIdentifier.TickerId == tickerId30SPeriod.InstrumentId && requestPeriod == FifteenSeconds)
+        if (srcTickerIdentifier.InstrumentId == tickerId5SPeriod.InstrumentId) return Enumerable.Empty<Candle>();
+        if (srcTickerIdentifier.InstrumentId == tickerId30SPeriod.InstrumentId && requestPeriod == FifteenSeconds)
             return lastSummariesRetrieved =
                 fifteenSecondPeriodSummaries
                     .Where(q => q.PeriodEndTime >= restrictedRetrievalRange.FromTime
                              && q.PeriodEndTime <= restrictedRetrievalRange.ToTime
                              && q.PeriodEndTime >= (requestTimeRange?.FromTime ?? DateTime.MinValue)
                              && q.PeriodEndTime <= (requestTimeRange?.ToTime ?? DateTime.MaxValue)).ToList();
-        if (srcTickerIdentifier.TickerId == tickerId30SPeriod.InstrumentId && requestPeriod == ThirtySeconds)
+        if (srcTickerIdentifier.InstrumentId == tickerId30SPeriod.InstrumentId && requestPeriod == ThirtySeconds)
             return lastSummariesRetrieved =
                 thirtySecondPeriodSummaries
                     .Where(q => q.PeriodEndTime >= restrictedRetrievalRange.FromTime

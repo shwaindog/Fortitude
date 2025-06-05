@@ -8,11 +8,11 @@ using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
-using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
@@ -28,6 +28,8 @@ public class PQOrdersCountPriceVolumeLayerTests
     private const decimal Volume         = 100_000m;
     private const uint    OrdersCount    = 732;
     private const decimal InternalVolume = 50_000m;
+
+    private const QuoteInstantBehaviorFlags QuoteBehavior = QuoteInstantBehaviorFlags.None;
 
     private IPQOrdersCountPriceVolumeLayer emptyPvl     = null!;
     private IPQOrdersCountPriceVolumeLayer populatedPvl = null!;
@@ -174,7 +176,7 @@ public class PQOrdersCountPriceVolumeLayerTests
         var bsNotNull     = orderBookSide != null;
         var bkNotNull     = orderBook != null;
         var l2QNotNull    = l2Quote != null;
-        var isBid         = orderBookSide == null || orderBookSide?.BookSide == BookSide.BidBook;
+        var isBid         = orderBookSide == null || orderBookSide.BookSide == BookSide.BidBook;
         var depthNoSide   = (PQDepthKey)bookDepth;
         var depthWithSide = (PQDepthKey)bookDepth | (isBid ? PQDepthKey.None : PQDepthKey.AskSide);
 
@@ -250,7 +252,7 @@ public class PQOrdersCountPriceVolumeLayerTests
             var newEmpty = new PQPublishableLevel2Quote(l2Quote.SourceTickerInfo ?? precisionSettings);
             newEmpty.UpdateField(l2QUpdates[0]);
             var foundLayer =
-                (IPQOrdersCountPriceVolumeLayer)(isBid ? newEmpty.BidBook : newEmpty.AskBook)[bookDepth]!;
+                (IPQOrdersCountPriceVolumeLayer)(isBid ? newEmpty.BidBook : newEmpty.AskBook)[bookDepth];
             Assert.AreEqual(expectedOrdersCount, foundLayer.OrdersCount);
             Assert.IsTrue(foundLayer.IsOrdersCountUpdated);
             Assert.IsTrue(foundLayer.HasUpdates);
@@ -268,7 +270,7 @@ public class PQOrdersCountPriceVolumeLayerTests
             var newEmpty = new PQOrderBook(l2Quote?.SourceTickerInfo ?? precisionSettings);
             newEmpty.UpdateField(bkUpdates[0]);
             var foundLayer =
-                (IPQOrdersCountPriceVolumeLayer)(isBid ? newEmpty.BidSide : newEmpty.AskSide)[bookDepth]!;
+                (IPQOrdersCountPriceVolumeLayer)(isBid ? newEmpty.BidSide : newEmpty.AskSide)[bookDepth];
             Assert.AreEqual(expectedOrdersCount, foundLayer.OrdersCount);
             Assert.IsTrue(foundLayer.IsOrdersCountUpdated);
             Assert.IsTrue(foundLayer.HasUpdates);
@@ -285,7 +287,7 @@ public class PQOrdersCountPriceVolumeLayerTests
 
             var newEmpty = new PQOrderBookSide(orderBookSide.BookSide, l2Quote?.SourceTickerInfo ?? precisionSettings);
             newEmpty.UpdateField(bsUpdates[0]);
-            var foundLayer = (IPQOrdersCountPriceVolumeLayer)newEmpty[bookDepth]!;
+            var foundLayer = (IPQOrdersCountPriceVolumeLayer)newEmpty[bookDepth];
             Assert.AreEqual(expectedOrdersCount, foundLayer.OrdersCount);
             Assert.IsTrue(foundLayer.IsOrdersCountUpdated);
             Assert.IsTrue(foundLayer.HasUpdates);
@@ -407,7 +409,7 @@ public class PQOrdersCountPriceVolumeLayerTests
             var newEmpty = new PQPublishableLevel2Quote(l2Quote.SourceTickerInfo ?? precisionSettings);
             newEmpty.UpdateField(l2QUpdates[0]);
             var foundLayer =
-                (IPQOrdersCountPriceVolumeLayer)(isBid ? newEmpty.BidBook : newEmpty.AskBook)[bookDepth]!;
+                (IPQOrdersCountPriceVolumeLayer)(isBid ? newEmpty.BidBook : newEmpty.AskBook)[bookDepth];
             Assert.AreEqual(expectedInternalVolume, foundLayer.InternalVolume);
             Assert.IsTrue(foundLayer.IsInternalVolumeUpdated);
             Assert.IsTrue(foundLayer.HasUpdates);
@@ -425,7 +427,7 @@ public class PQOrdersCountPriceVolumeLayerTests
             var newEmpty = new PQOrderBook(l2Quote?.SourceTickerInfo ?? precisionSettings);
             newEmpty.UpdateField(bkUpdates[0]);
             var foundLayer =
-                (IPQOrdersCountPriceVolumeLayer)(isBid ? newEmpty.BidSide : newEmpty.AskSide)[bookDepth]!;
+                (IPQOrdersCountPriceVolumeLayer)(isBid ? newEmpty.BidSide : newEmpty.AskSide)[bookDepth];
             Assert.AreEqual(expectedInternalVolume, foundLayer.InternalVolume);
             Assert.IsTrue(foundLayer.IsInternalVolumeUpdated);
             Assert.IsTrue(foundLayer.HasUpdates);
@@ -442,7 +444,7 @@ public class PQOrdersCountPriceVolumeLayerTests
 
             var newEmpty = new PQOrderBookSide(orderBookSide.BookSide, l2Quote?.SourceTickerInfo ?? precisionSettings);
             newEmpty.UpdateField(bsUpdates[0]);
-            var foundLayer = (IPQOrdersCountPriceVolumeLayer)newEmpty[bookDepth]!;
+            var foundLayer = (IPQOrdersCountPriceVolumeLayer)newEmpty[bookDepth];
             Assert.AreEqual(expectedInternalVolume, foundLayer.InternalVolume);
             Assert.IsTrue(foundLayer.IsInternalVolumeUpdated);
             Assert.IsTrue(foundLayer.HasUpdates);
@@ -612,7 +614,7 @@ public class PQOrdersCountPriceVolumeLayerTests
     public void FullyPopulatedPvl_CopyFromNonPQToEmptyQuote_PvlsEqualEachOther()
     {
         var nonPQPriceVolume = new OrdersCountPriceVolumeLayer(populatedPvl);
-        emptyPvl.CopyFrom(nonPQPriceVolume);
+        emptyPvl.CopyFrom(nonPQPriceVolume, QuoteInstantBehaviorFlags.None);
         Assert.AreEqual(populatedPvl, emptyPvl);
     }
 
@@ -621,7 +623,7 @@ public class PQOrdersCountPriceVolumeLayerTests
     {
         var emptyPriceVolumeLayer = new PQOrdersCountPriceVolumeLayer();
         populatedPvl.HasUpdates = false;
-        emptyPriceVolumeLayer.CopyFrom(populatedPvl);
+        emptyPriceVolumeLayer.CopyFrom(populatedPvl, QuoteBehavior);
         Assert.AreEqual(0m, emptyPriceVolumeLayer.Price);
         Assert.AreEqual(0m, emptyPriceVolumeLayer.Volume);
         Assert.AreEqual(0u, emptyPriceVolumeLayer.OrdersCount);

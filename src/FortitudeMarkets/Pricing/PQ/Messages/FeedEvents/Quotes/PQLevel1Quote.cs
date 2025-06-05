@@ -375,9 +375,6 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
         }
     }
 
-    [JsonIgnore] IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Previous { get; set; }
-    [JsonIgnore] IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Next     { get; set; }
-
     public BidAskPair BidAskTop => new(BidPriceTop, AskPriceTop);
 
     [JsonIgnore]
@@ -468,6 +465,11 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
             validToTime                 =  value == DateTime.UnixEpoch ? default : value;
         }
     }
+
+    public QuoteInstantBehaviorFlags QuoteBehavior { get; set; }
+
+    [JsonIgnore] IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Previous { get; set; }
+    [JsonIgnore] IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Next     { get; set; }
 
     public override void IncrementTimeBy(TimeSpan toChangeBy)
     {
@@ -861,9 +863,7 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
 public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishableLevel1Quote, ICloneable<PQPublishableLevel1Quote>
   , IDoublyLinkedListNode<PQPublishableLevel1Quote>
 {
-    public PQPublishableLevel1Quote()
-    {
-    }
+    public PQPublishableLevel1Quote() { }
 
     // Reflection invoked constructor (PQServer<T>)
     public PQPublishableLevel1Quote(ISourceTickerInfo sourceTickerInfo) : this(sourceTickerInfo, singlePrice: 0m) { }
@@ -943,72 +943,6 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
         get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as PQPublishableLevel1Quote;
         set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
     }
-
-    [JsonIgnore]
-    public new PQPublishableLevel1Quote? Next
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as PQPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
-    }
-
-    [JsonIgnore]
-    IPQPublishableLevel1Quote? IPQPublishableLevel1Quote.Previous
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPQPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
-    }
-
-    [JsonIgnore]
-    IPQPublishableLevel1Quote? IPQPublishableLevel1Quote.Next
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPQPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
-    }
-
-    [JsonIgnore]
-    IPublishableLevel1Quote? IPublishableLevel1Quote.Previous
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
-    }
-
-    [JsonIgnore]
-    IPublishableLevel1Quote? IPublishableLevel1Quote.Next
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
-    }
-
-    [JsonIgnore]
-    IPublishableLevel1Quote? IDoublyLinkedListNode<IPublishableLevel1Quote>.Previous
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
-    }
-
-    [JsonIgnore]
-    IPublishableLevel1Quote? IDoublyLinkedListNode<IPublishableLevel1Quote>.Next
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
-    }
-
-    [JsonIgnore]
-    IPQPublishableLevel1Quote? IDoublyLinkedListNode<IPQPublishableLevel1Quote>.Previous
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPQPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
-    }
-
-    [JsonIgnore]
-    IPQPublishableLevel1Quote? IDoublyLinkedListNode<IPQPublishableLevel1Quote>.Next
-    {
-        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPQPublishableLevel1Quote;
-        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
-    }
-
-    [JsonIgnore] IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Previous { get; set; }
-    [JsonIgnore] IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Next     { get; set; }
 
     ILevel1Quote IPublishableLevel1Quote.              AsNonPublishable => AsNonPublishable;
     IMutableLevel1Quote IMutablePublishableLevel1Quote.AsNonPublishable => AsNonPublishable;
@@ -1147,6 +1081,93 @@ public class PQPublishableLevel1Quote : PQPublishableTickInstant, IPQPublishable
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public IPQCandle? ConflatedTicksCandle { get; set; }
+
+    QuoteInstantBehaviorFlags ILevel1Quote.QuoteBehavior => AsNonPublishable.QuoteBehavior;
+
+    QuoteInstantBehaviorFlags IMutableLevel1Quote.QuoteBehavior
+    {
+        get => AsNonPublishable.QuoteBehavior;
+        set => AsNonPublishable.QuoteBehavior = value;
+    }
+
+    public override PublishableQuoteInstantBehaviorFlags QuoteBehavior
+    {
+        get => base.QuoteBehavior;
+        set 
+        {
+            if (value.HasRestoreAndOverlayOriginalQuoteFlagsFlag())
+            {
+                AsNonPublishable.QuoteBehavior |= (QuoteInstantBehaviorFlags)value;
+            }
+            base.QuoteBehavior = value;
+        }
+    }
+
+    [JsonIgnore]
+    public new PQPublishableLevel1Quote? Next
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as PQPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
+    }
+
+    [JsonIgnore]
+    IPQPublishableLevel1Quote? IPQPublishableLevel1Quote.Previous
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPQPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
+    }
+
+    [JsonIgnore]
+    IPQPublishableLevel1Quote? IPQPublishableLevel1Quote.Next
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPQPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
+    }
+
+    [JsonIgnore]
+    IPublishableLevel1Quote? IPublishableLevel1Quote.Previous
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
+    }
+
+    [JsonIgnore]
+    IPublishableLevel1Quote? IPublishableLevel1Quote.Next
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
+    }
+
+    [JsonIgnore]
+    IPublishableLevel1Quote? IDoublyLinkedListNode<IPublishableLevel1Quote>.Previous
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
+    }
+
+    [JsonIgnore]
+    IPublishableLevel1Quote? IDoublyLinkedListNode<IPublishableLevel1Quote>.Next
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
+    }
+
+    [JsonIgnore]
+    IPQPublishableLevel1Quote? IDoublyLinkedListNode<IPQPublishableLevel1Quote>.Previous
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous as IPQPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Previous = value;
+    }
+
+    [JsonIgnore]
+    IPQPublishableLevel1Quote? IDoublyLinkedListNode<IPQPublishableLevel1Quote>.Next
+    {
+        get => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next as IPQPublishableLevel1Quote;
+        set => ((IDoublyLinkedListNode<IBidAskInstant>)this).Next = value;
+    }
+
+    [JsonIgnore] IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Previous { get; set; }
+    [JsonIgnore] IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Next     { get; set; }
 
     [JsonIgnore]
     public override bool HasUpdates

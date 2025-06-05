@@ -9,6 +9,7 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 #endregion
 
@@ -26,6 +27,8 @@ public interface ILevel1Quote : ITickInstant, IBidAskInstant, ICloneable<ILevel1
     decimal  AskPriceTop          { get; }
     bool     IsAskPriceTopChanged { get; }
 
+    QuoteInstantBehaviorFlags QuoteBehavior { get; }
+
     bool     Executable { get; }
     DateTime ValidFrom  { get; }
     DateTime ValidTo    { get; }
@@ -40,12 +43,14 @@ public interface IPublishableLevel1Quote : IPublishableTickInstant, ILevel1Quote
     new IPublishableLevel1Quote? Next     { get; set; }
     new IPublishableLevel1Quote? Previous { get; set; }
 
+    new PublishableQuoteInstantBehaviorFlags QuoteBehavior { get; }
+
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     ICandle? ConflatedTicksCandle { get; }
 
-    
-    new bool         AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false);
+
+    new bool AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false);
 
     new ILevel1Quote AsNonPublishable { get; }
 
@@ -64,6 +69,8 @@ public interface IMutableLevel1Quote : ILevel1Quote, IMutableTickInstant, ITrack
     new DateTime ValidFrom            { get; set; }
     new DateTime ValidTo              { get; set; }
 
+    new QuoteInstantBehaviorFlags QuoteBehavior { get; set; }
+
     new bool AreEquivalent(ITickInstant? other, bool exactTypes = false);
 
     new IMutableLevel1Quote ResetWithTracking();
@@ -71,11 +78,13 @@ public interface IMutableLevel1Quote : ILevel1Quote, IMutableTickInstant, ITrack
     new IMutableLevel1Quote Clone();
 }
 
-public interface IMutablePublishableLevel1Quote : IPublishableLevel1Quote, 
+public interface IMutablePublishableLevel1Quote : IPublishableLevel1Quote,
     IMutableLevel1Quote, IMutablePublishableTickInstant, ITrackableReset<IMutablePublishableLevel1Quote>
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     new IMutableCandle? ConflatedTicksCandle { get; set; }
+
+    new PublishableQuoteInstantBehaviorFlags QuoteBehavior { get; set; }
 
     new bool AreEquivalent(IPublishableTickInstant? other, bool exactTypes = false);
 

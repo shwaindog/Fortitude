@@ -6,6 +6,7 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 #endregion
 
@@ -31,7 +32,6 @@ public class OrdersCountPriceVolumeLayer : PriceVolumeLayer, IMutableOrdersCount
         }
     }
 
-
     protected string OrdersCountPriceVolumeLayerToStringMembers =>
         $"{PriceVolumeLayerToStringMembers}, {nameof(OrdersCount)}: {OrdersCount}, {nameof(InternalVolume)}: {InternalVolume:N2}";
 
@@ -45,7 +45,6 @@ public class OrdersCountPriceVolumeLayer : PriceVolumeLayer, IMutableOrdersCount
 
     public decimal ExternalVolume => Volume - InternalVolume;
 
-
     public override bool IsEmpty
     {
         get => OrdersCount == 0 && InternalVolume == 0m && base.IsEmpty;
@@ -57,19 +56,6 @@ public class OrdersCountPriceVolumeLayer : PriceVolumeLayer, IMutableOrdersCount
             InternalVolume = 0;
         }
     }
-
-    IOrdersCountPriceVolumeLayer ICloneable<IOrdersCountPriceVolumeLayer>.Clone() => Clone();
-
-    IOrdersCountPriceVolumeLayer IOrdersCountPriceVolumeLayer.Clone() => Clone();
-
-    IMutableOrdersCountPriceVolumeLayer IMutableOrdersCountPriceVolumeLayer.Clone() => Clone();
-
-    public override OrdersCountPriceVolumeLayer Clone() =>
-        Recycler?.Borrow<OrdersCountPriceVolumeLayer>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new OrdersCountPriceVolumeLayer(this);
-
-    IMutableOrdersCountPriceVolumeLayer ITrackableReset<IMutableOrdersCountPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
-
-    IMutableOrdersCountPriceVolumeLayer IMutableOrdersCountPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
 
     public override OrdersCountPriceVolumeLayer ResetWithTracking()
     {
@@ -86,6 +72,33 @@ public class OrdersCountPriceVolumeLayer : PriceVolumeLayer, IMutableOrdersCount
         base.StateReset();
     }
 
+    IOrdersCountPriceVolumeLayer ICloneable<IOrdersCountPriceVolumeLayer>.Clone() => Clone();
+
+    IOrdersCountPriceVolumeLayer IOrdersCountPriceVolumeLayer.Clone() => Clone();
+
+    IMutableOrdersCountPriceVolumeLayer IMutableOrdersCountPriceVolumeLayer.Clone() => Clone();
+
+    public override OrdersCountPriceVolumeLayer Clone() =>
+        Recycler?.Borrow<OrdersCountPriceVolumeLayer>().CopyFrom(this, QuoteInstantBehaviorFlags.DisableUpgradeLayer, CopyMergeFlags.FullReplace) 
+     ?? new OrdersCountPriceVolumeLayer(this);
+
+    IMutableOrdersCountPriceVolumeLayer ITrackableReset<IMutableOrdersCountPriceVolumeLayer>.ResetWithTracking() => ResetWithTracking();
+
+    IMutableOrdersCountPriceVolumeLayer IMutableOrdersCountPriceVolumeLayer.ResetWithTracking() => ResetWithTracking();
+
+    public override OrdersCountPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, QuoteInstantBehaviorFlags behaviorFlags
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(source, behaviorFlags, copyMergeFlags);
+
+        if (source is IOrdersCountPriceVolumeLayer ordersCountPvl)
+        {
+            OrdersCount    = ordersCountPvl.OrdersCount;
+            InternalVolume = ordersCountPvl.InternalVolume;
+        }
+        return this;
+    }
+
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {
         var baseSame = base.AreEquivalent(other, exactTypes);
@@ -96,18 +109,6 @@ public class OrdersCountPriceVolumeLayer : PriceVolumeLayer, IMutableOrdersCount
         var internalVolumeSame = InternalVolume == ordersCountPvl.InternalVolume;
 
         return baseSame && ordersCountSame && internalVolumeSame;
-    }
-
-    public override OrdersCountPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        base.CopyFrom(source, copyMergeFlags);
-
-        if (source is IOrdersCountPriceVolumeLayer ordersCountPvl)
-        {
-            OrdersCount    = ordersCountPvl.OrdersCount;
-            InternalVolume = ordersCountPvl.InternalVolume;
-        }
-        return this;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IOrdersCountPriceVolumeLayer?)obj, true);

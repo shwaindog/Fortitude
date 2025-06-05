@@ -11,8 +11,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;
 
 public interface IPQAdditionalInternalPassiveOrderInfo : IMutableAdditionalInternalPassiveOrderInfo, ISupportsPQNameIdLookupGenerator
-  , IPQSupportsStringUpdates<IPQAdditionalInternalPassiveOrderInfo>, IPQSupportsNumberPrecisionFieldUpdates<IPQAdditionalInternalPassiveOrderInfo>
-  , ICloneable<IPQAdditionalInternalPassiveOrderInfo>
+  , IPQSupportsStringUpdates, IPQSupportsNumberPrecisionFieldUpdates, ICloneable<IPQAdditionalInternalPassiveOrderInfo>
 {
     bool IsOrderSequenceIdUpdated      { get; set; }
     bool IsParentOrderIdUpdated        { get; set; }
@@ -1062,10 +1061,6 @@ public class PQAdditionalInternalPassiveOrderInfo : ReusableObject<IAdditionalIn
     {
         foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate;
     }
-
-    IPQAdditionalInternalPassiveOrderInfo ITransferState<IPQAdditionalInternalPassiveOrderInfo>.CopyFrom
-        (IPQAdditionalInternalPassiveOrderInfo source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom(source, copyMergeFlags);
 
     IMutableAdditionalInternalPassiveOrderInfo ITransferState<IMutableAdditionalInternalPassiveOrderInfo>.CopyFrom
         (IMutableAdditionalInternalPassiveOrderInfo source, CopyMergeFlags copyMergeFlags) =>

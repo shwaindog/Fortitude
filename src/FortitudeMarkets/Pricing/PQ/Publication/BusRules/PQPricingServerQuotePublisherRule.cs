@@ -90,7 +90,7 @@ public class PQPricingServerQuotePublisherRule : Rule
         var tickerInfo             = quoteToPublish.SourceTickerInfo;
         var overrideSequenceNumber = quotePublishEvent.OverrideSequenceNumber;
         var overrideMessageFlags   = quotePublishEvent.MessageFlags;
-        if (!publishedQuotesMap.TryGetValue(tickerInfo!.SourceTickerId, out var sendToSerializer))
+        if (!publishedQuotesMap.TryGetValue(tickerInfo!.SourceInstrumentId, out var sendToSerializer))
         {
             sendToSerializer                            = tickerInfo.PublishedTypePQInstance();
             sendToSerializer.PQSequenceId               = uint.MaxValue;
@@ -98,7 +98,7 @@ public class PQPricingServerQuotePublisherRule : Rule
             sendToSerializer.AutoRecycleAtRefCountZero  = false;
             sendToSerializer.Recycler                   = Context.PooledRecycler;
             sendToSerializer.CopyFrom(quoteToPublish, CopyMergeFlags.Default);
-            publishedQuotesMap.Add(tickerInfo.SourceTickerId, sendToSerializer);
+            publishedQuotesMap.Add(tickerInfo.SourceInstrumentId, sendToSerializer);
             if (quoteToPublish.TickerQuoteDetailLevel.LessThan(sendToSerializer!.TickerQuoteDetailLevel))
             {
                 Logger.Warn("Received a quote lower than the published level.  This would result in unset fields and so wil NOT be published");

@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 
 #endregion
@@ -29,7 +30,7 @@ namespace FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 [JsonDerivedType(typeof(PQOrdersPriceVolumeLayer))]
 [JsonDerivedType(typeof(PQOrdersCountPriceVolumeLayer))]
 [JsonDerivedType(typeof(PQFullSupportPriceVolumeLayer))]
-public interface IPriceVolumeLayer : IReusableObject<IPriceVolumeLayer>, IInterfacesComparable<IPriceVolumeLayer>, IShowsEmpty
+public interface IPriceVolumeLayer : IReusableQuoteElement<IPriceVolumeLayer>, IShowsEmpty
 {
     [JsonIgnore] LayerType  LayerType          { get; }
     [JsonIgnore] LayerFlags SupportsLayerFlags { get; }
@@ -38,7 +39,8 @@ public interface IPriceVolumeLayer : IReusableObject<IPriceVolumeLayer>, IInterf
     decimal Volume { get; }
 }
 
-public interface IMutablePriceVolumeLayer : IReusableObject<IMutablePriceVolumeLayer>, IPriceVolumeLayer, ITrackableReset<IMutablePriceVolumeLayer>, IEmptyable
+public interface IMutablePriceVolumeLayer : IReusableQuoteElement<IMutablePriceVolumeLayer>, IPriceVolumeLayer
+  , ITrackableReset<IMutablePriceVolumeLayer>, IEmptyable
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new decimal Price { get; set; }

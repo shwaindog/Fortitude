@@ -8,7 +8,7 @@ namespace FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 public class TracksListReorderingRegistry<TElement, TCompare>
     (IMutableTracksShiftsList<TElement, TCompare> shiftedList, Func<TElement> newElementFactory, Func<TCompare, TCompare, bool> comparison)
     : TrackListShiftsRegistry<TElement, TCompare>(shiftedList, newElementFactory, comparison), IMutableTracksReorderingList<TElement, TCompare>
-    where TElement : class, TCompare, ITrackableReset<TElement>, IReusableObject<TElement>, IShowsEmpty
+    where TElement : class, TCompare, ITrackableReset<TElement>, IRecyclableObject, IShowsEmpty
 {
     public DateTime UpdateTime { get; set; }
 

@@ -40,6 +40,10 @@ public class PQOrderBookLayerFactorySelectorTests
     private const int ExpectedTraderId       = 2;
     private const int ExpectedCounterPartyId = 1;
 
+    
+    private const QuoteInstantBehaviorFlags      QuoteBehavior = QuoteInstantBehaviorFlags.None;
+    private const QuoteLayerInstantBehaviorFlags LayerBehavior = QuoteLayerInstantBehaviorFlags.None;
+
     private const OrderGenesisFlags ExpectedGenesisFlags = OrderGenesisFlags.FromAdapter | OrderGenesisFlags.IsInternal;
     private const OrderType         ExpectedOrderType    = OrderType.PassiveLimit;
 
@@ -104,11 +108,9 @@ public class PQOrderBookLayerFactorySelectorTests
 
     private PQFullSupportPriceVolumeLayer pqFullSupportPvl = null!;
 
-    private LayerType pqFullSupportPvlType =
-        new PQFullSupportPriceVolumeLayer(nameIdGenerator).LayerType;
+    private readonly LayerType pqFullSupportPvlType = new PQFullSupportPriceVolumeLayer(nameIdGenerator).LayerType;
 
-    private LayerFlags pqFullSupportPvlTypeSupportedFlags =
-        new PQFullSupportPriceVolumeLayer(nameIdGenerator).SupportsLayerFlags;
+    private readonly LayerFlags pqFullSupportPvlTypeSupportedFlags = new PQFullSupportPriceVolumeLayer(nameIdGenerator).SupportsLayerFlags;
     private PQValueDatePriceVolumeLayer pqValueDatePriceVolumeLayer = null!;
 
 
@@ -118,11 +120,9 @@ public class PQOrderBookLayerFactorySelectorTests
 
     private FullSupportPriceVolumeLayer fullSupportPvl = null!;
 
-    private LayerType fullSupportPvlType =
-        new FullSupportPriceVolumeLayer().LayerType;
+    private readonly LayerType fullSupportPvlType = new FullSupportPriceVolumeLayer().LayerType;
 
-    private LayerFlags fullSupportPvlTypeSupportedFlags =
-        new FullSupportPriceVolumeLayer().SupportsLayerFlags;
+    private readonly LayerFlags fullSupportPvlTypeSupportedFlags = new FullSupportPriceVolumeLayer().SupportsLayerFlags;
     private ValueDatePriceVolumeLayer valueDatePriceVolumeLayer = null!;
 
 
@@ -442,12 +442,12 @@ public class PQOrderBookLayerFactorySelectorTests
     [TestMethod]
     public void NonPQPriceVolumeLayerTypes_UpgradeExistingLayer_ConvertsToPQPriceVolumeLayerType()
     {
-        var pqPvl = layerSelector.UpgradeExistingLayer(priceVolumeLayer, priceVolumeLayerType, priceVolumeLayer);
+        var pqPvl = layerSelector.UpgradeExistingLayer(priceVolumeLayer, priceVolumeLayerType, LayerBehavior, priceVolumeLayer);
         Assert.AreEqual(pqPvl.GetType(), typeof(PQPriceVolumeLayer));
         Assert.AreEqual(ExpectedPrice, pqPvl.Price);
         Assert.AreEqual(ExpectedVolume, pqPvl.Volume);
 
-        pqPvl = layerSelector.UpgradeExistingLayer(sourcePriceVolumeLayer, sourcePriceVolumeLayerType, sourcePriceVolumeLayer);
+        pqPvl = layerSelector.UpgradeExistingLayer(sourcePriceVolumeLayer, sourcePriceVolumeLayerType, LayerBehavior, sourcePriceVolumeLayer);
         var pqSrcPvl = pqPvl as PQSourcePriceVolumeLayer;
         Assert.IsNotNull(pqSrcPvl);
         Assert.AreEqual(ExpectedPrice, pqSrcPvl.Price);
@@ -455,8 +455,8 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(ExpectedSourceName, pqSrcPvl.SourceName);
         Assert.AreEqual(true, pqSrcPvl.Executable);
 
-        pqPvl = layerSelector.UpgradeExistingLayer(sourcePriceVolumeLayer, sourceQuoteRefPriceVolumeLayerType, sourcePriceVolumeLayer)
-                             .CopyFrom(sourceQuoteRefPriceVolumeLayer);
+        pqPvl = layerSelector.UpgradeExistingLayer(sourcePriceVolumeLayer, sourceQuoteRefPriceVolumeLayerType, LayerBehavior, sourcePriceVolumeLayer)
+                             .CopyFrom(sourceQuoteRefPriceVolumeLayer, QuoteBehavior);
         var pqSrcQtRefPvl = pqPvl as PQSourceQuoteRefPriceVolumeLayer;
         Assert.IsNotNull(pqSrcQtRefPvl);
         Assert.AreEqual(ExpectedPrice, pqSrcQtRefPvl.Price);
@@ -465,14 +465,14 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(true, pqSrcQtRefPvl.Executable);
         Assert.AreEqual(ExpectedQuoteRef, pqSrcQtRefPvl.SourceQuoteReference);
 
-        pqPvl = layerSelector.UpgradeExistingLayer(valueDatePriceVolumeLayer, valueDatePriceVolumeLayerType, valueDatePriceVolumeLayer);
+        pqPvl = layerSelector.UpgradeExistingLayer(valueDatePriceVolumeLayer, valueDatePriceVolumeLayerType, LayerBehavior, valueDatePriceVolumeLayer);
         var pqVlDtPvl = pqPvl as PQValueDatePriceVolumeLayer;
         Assert.IsNotNull(pqVlDtPvl);
         Assert.AreEqual(ExpectedPrice, pqVlDtPvl.Price);
         Assert.AreEqual(ExpectedVolume, pqVlDtPvl.Volume);
         Assert.AreEqual(expectedValueDate, pqVlDtPvl.ValueDate);
 
-        pqPvl = layerSelector.UpgradeExistingLayer(ordersCountPriceVolumeLayer, ordersCountPriceVolumeLayerType, ordersCountPriceVolumeLayer);
+        pqPvl = layerSelector.UpgradeExistingLayer(ordersCountPriceVolumeLayer, ordersCountPriceVolumeLayerType, LayerBehavior, ordersCountPriceVolumeLayer);
         var pqOrdCntPvl = pqPvl as PQOrdersCountPriceVolumeLayer;
         Assert.IsNotNull(pqOrdCntPvl);
         Assert.AreEqual(ExpectedPrice, pqOrdCntPvl.Price);
@@ -480,21 +480,21 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(ExpectedOrdersCount, pqOrdCntPvl.OrdersCount);
         Assert.AreEqual(ExpectedInternalVolume, pqOrdCntPvl.InternalVolume);
 
-        pqPvl = layerSelector.UpgradeExistingLayer(ordersAnonPriceVolumeLayer, ordersAnonPriceVolumeLayerType, ordersAnonPriceVolumeLayer);
+        pqPvl = layerSelector.UpgradeExistingLayer(ordersAnonPriceVolumeLayer, ordersAnonPriceVolumeLayerType, LayerBehavior, ordersAnonPriceVolumeLayer);
         var pqOrdersAnonPvl = pqPvl as PQOrdersPriceVolumeLayer;
         Assert.IsNotNull(pqOrdersAnonPvl);
         Assert.AreEqual(ExpectedPrice, pqOrdersAnonPvl.Price);
         Assert.AreEqual(ExpectedVolume, pqOrdersAnonPvl.Volume);
         Assert.AreEqual(ExpectedOrdersCount, pqOrdersAnonPvl.OrdersCount);
         Assert.AreEqual(ExpectedInternalVolume, pqOrdersAnonPvl.InternalVolume);
-        Assert.AreEqual(ExpectedOrderId, pqOrdersAnonPvl[0]!.OrderId);
-        Assert.AreEqual(ExpectedGenesisFlags, pqOrdersAnonPvl[0]!.GenesisFlags);
-        Assert.AreEqual(ExpectedOrderCreatedTime, pqOrdersAnonPvl[0]!.CreatedTime);
-        Assert.AreEqual(ExpectedOrderUpdatedTime, pqOrdersAnonPvl[0]!.UpdateTime);
-        Assert.AreEqual(ExpectedOrderVolume, pqOrdersAnonPvl[0]!.OrderDisplayVolume);
-        Assert.AreEqual(ExpectedOrderRemainingVolume, pqOrdersAnonPvl[0]!.OrderRemainingVolume);
+        Assert.AreEqual(ExpectedOrderId, pqOrdersAnonPvl[0].OrderId);
+        Assert.AreEqual(ExpectedGenesisFlags, pqOrdersAnonPvl[0].GenesisFlags);
+        Assert.AreEqual(ExpectedOrderCreatedTime, pqOrdersAnonPvl[0].CreatedTime);
+        Assert.AreEqual(ExpectedOrderUpdatedTime, pqOrdersAnonPvl[0].UpdateTime);
+        Assert.AreEqual(ExpectedOrderVolume, pqOrdersAnonPvl[0].OrderDisplayVolume);
+        Assert.AreEqual(ExpectedOrderRemainingVolume, pqOrdersAnonPvl[0].OrderRemainingVolume);
 
-        pqPvl = layerSelector.UpgradeExistingLayer(ordersCounterPartyPriceVolumeLayer, ordersCounterPartyPriceVolumeLayerType
+        pqPvl = layerSelector.UpgradeExistingLayer(ordersCounterPartyPriceVolumeLayer, ordersCounterPartyPriceVolumeLayerType, LayerBehavior
                                                  , ordersCounterPartyPriceVolumeLayer);
         var pqOrdersCpPvl = pqPvl as PQOrdersPriceVolumeLayer;
         Assert.IsNotNull(pqOrdersCpPvl);
@@ -502,16 +502,16 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(ExpectedVolume, pqOrdersCpPvl.Volume);
         Assert.AreEqual(ExpectedOrdersCount, pqOrdersCpPvl.OrdersCount);
         Assert.AreEqual(ExpectedInternalVolume, pqOrdersCpPvl.InternalVolume);
-        Assert.AreEqual(ExpectedOrderId, pqOrdersCpPvl[0]!.OrderId);
-        Assert.AreEqual(ExpectedGenesisFlags | IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags, pqOrdersCpPvl[0]!.GenesisFlags);
-        Assert.AreEqual(ExpectedOrderCreatedTime, pqOrdersCpPvl[0]!.CreatedTime);
-        Assert.AreEqual(ExpectedOrderUpdatedTime, pqOrdersCpPvl[0]!.UpdateTime);
-        Assert.AreEqual(ExpectedOrderVolume, pqOrdersCpPvl[0]!.OrderDisplayVolume);
-        Assert.AreEqual(ExpectedOrderRemainingVolume, pqOrdersCpPvl[0]!.OrderRemainingVolume);
-        Assert.AreEqual(ExpectedOrderCounterPartyName, ((IExternalCounterPartyOrder)pqOrdersCpPvl[0]!).ExternalCounterPartyName);
-        Assert.AreEqual(ExpectedOrderTraderName, ((IExternalCounterPartyOrder)pqOrdersCpPvl[0]!).ExternalTraderName);
+        Assert.AreEqual(ExpectedOrderId, pqOrdersCpPvl[0].OrderId);
+        Assert.AreEqual(ExpectedGenesisFlags | IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags, pqOrdersCpPvl[0].GenesisFlags);
+        Assert.AreEqual(ExpectedOrderCreatedTime, pqOrdersCpPvl[0].CreatedTime);
+        Assert.AreEqual(ExpectedOrderUpdatedTime, pqOrdersCpPvl[0].UpdateTime);
+        Assert.AreEqual(ExpectedOrderVolume, pqOrdersCpPvl[0].OrderDisplayVolume);
+        Assert.AreEqual(ExpectedOrderRemainingVolume, pqOrdersCpPvl[0].OrderRemainingVolume);
+        Assert.AreEqual(ExpectedOrderCounterPartyName, ((IExternalCounterPartyOrder)pqOrdersCpPvl[0]).ExternalCounterPartyName);
+        Assert.AreEqual(ExpectedOrderTraderName, ((IExternalCounterPartyOrder)pqOrdersCpPvl[0]).ExternalTraderName);
 
-        pqPvl = layerSelector.UpgradeExistingLayer(fullSupportPvl, fullSupportPvlType, fullSupportPvl);
+        pqPvl = layerSelector.UpgradeExistingLayer(fullSupportPvl, fullSupportPvlType, LayerBehavior, fullSupportPvl);
         var convertedPqFullSupportPvl = pqPvl as PQFullSupportPriceVolumeLayer;
         Assert.IsNotNull(convertedPqFullSupportPvl);
         Assert.AreEqual(ExpectedPrice, pqPvl.Price);
@@ -522,26 +522,26 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(expectedValueDate, convertedPqFullSupportPvl.ValueDate);
         Assert.AreEqual(ExpectedOrdersCount, convertedPqFullSupportPvl.OrdersCount);
         Assert.AreEqual(ExpectedInternalVolume, convertedPqFullSupportPvl.InternalVolume);
-        Assert.AreEqual(ExpectedOrderId, convertedPqFullSupportPvl[0]!.OrderId);
-        Assert.AreEqual(ExpectedGenesisFlags | IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags, convertedPqFullSupportPvl[0]!.GenesisFlags);
-        Assert.AreEqual(ExpectedOrderCreatedTime, convertedPqFullSupportPvl[0]!.CreatedTime);
-        Assert.AreEqual(ExpectedOrderUpdatedTime, convertedPqFullSupportPvl[0]!.UpdateTime);
-        Assert.AreEqual(ExpectedOrderVolume, convertedPqFullSupportPvl[0]!.OrderDisplayVolume);
-        Assert.AreEqual(ExpectedOrderRemainingVolume, convertedPqFullSupportPvl[0]!.OrderRemainingVolume);
-        Assert.AreEqual(ExpectedOrderCounterPartyName, ((IExternalCounterPartyOrder)convertedPqFullSupportPvl[0]!).ExternalCounterPartyName);
-        Assert.AreEqual(ExpectedOrderTraderName, ((IExternalCounterPartyOrder)convertedPqFullSupportPvl[0]!).ExternalTraderName);
+        Assert.AreEqual(ExpectedOrderId, convertedPqFullSupportPvl[0].OrderId);
+        Assert.AreEqual(ExpectedGenesisFlags | IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags, convertedPqFullSupportPvl[0].GenesisFlags);
+        Assert.AreEqual(ExpectedOrderCreatedTime, convertedPqFullSupportPvl[0].CreatedTime);
+        Assert.AreEqual(ExpectedOrderUpdatedTime, convertedPqFullSupportPvl[0].UpdateTime);
+        Assert.AreEqual(ExpectedOrderVolume, convertedPqFullSupportPvl[0].OrderDisplayVolume);
+        Assert.AreEqual(ExpectedOrderRemainingVolume, convertedPqFullSupportPvl[0].OrderRemainingVolume);
+        Assert.AreEqual(ExpectedOrderCounterPartyName, ((IExternalCounterPartyOrder)convertedPqFullSupportPvl[0]).ExternalCounterPartyName);
+        Assert.AreEqual(ExpectedOrderTraderName, ((IExternalCounterPartyOrder)convertedPqFullSupportPvl[0]).ExternalTraderName);
     }
 
     [TestMethod]
     public void PQPriceVolumeLayerTypes_CreateExpectedImplementation_ClonesPQPriceVolumeLayerType()
     {
-        var pqPvl = layerSelector.CreateExpectedImplementation(priceVolumeLayerType, nameIdGenerator).CopyFrom(pqPriceVolumeLayer);
+        var pqPvl = layerSelector.CreateExpectedImplementation(priceVolumeLayerType, nameIdGenerator, LayerBehavior).CopyFrom(pqPriceVolumeLayer, QuoteBehavior);
         Assert.AreEqual(pqPvl.GetType(), typeof(PQPriceVolumeLayer));
         Assert.AreNotSame(pqPriceVolumeLayer, pqPvl);
         Assert.AreEqual(ExpectedPrice, pqPvl.Price);
         Assert.AreEqual(ExpectedVolume, pqPvl.Volume);
 
-        pqPvl = layerSelector.CreateExpectedImplementation(sourcePriceVolumeLayerType, nameIdGenerator).CopyFrom(pqSourcePriceVolumeLayer);
+        pqPvl = layerSelector.CreateExpectedImplementation(sourcePriceVolumeLayerType, nameIdGenerator, LayerBehavior).CopyFrom(pqSourcePriceVolumeLayer, QuoteBehavior);
         var pqSrcPvl = pqPvl as PQSourcePriceVolumeLayer;
         Assert.IsNotNull(pqSrcPvl);
         Assert.AreNotSame(pqSourcePriceVolumeLayer, pqSrcPvl);
@@ -550,8 +550,8 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(ExpectedSourceName, pqSrcPvl.SourceName);
         Assert.AreEqual(true, pqSrcPvl.Executable);
 
-        pqPvl = layerSelector.CreateExpectedImplementation(sourceQuoteRefPriceVolumeLayerType, nameIdGenerator)
-                             .CopyFrom(pqSourceQuoteRefPriceVolumeLayer);
+        pqPvl = layerSelector.CreateExpectedImplementation(sourceQuoteRefPriceVolumeLayerType, nameIdGenerator, LayerBehavior)
+                             .CopyFrom(pqSourceQuoteRefPriceVolumeLayer, QuoteBehavior);
         var pqSrcQtRefPvl = pqPvl as PQSourceQuoteRefPriceVolumeLayer;
         Assert.IsNotNull(pqSrcQtRefPvl);
         Assert.AreNotSame(pqSourceQuoteRefPriceVolumeLayer, pqSrcQtRefPvl);
@@ -561,7 +561,7 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(true, pqSrcQtRefPvl.Executable);
         Assert.AreEqual(ExpectedQuoteRef, pqSrcQtRefPvl.SourceQuoteReference);
 
-        pqPvl = layerSelector.CreateExpectedImplementation(valueDatePriceVolumeLayerType, nameIdGenerator).CopyFrom(pqValueDatePriceVolumeLayer);
+        pqPvl = layerSelector.CreateExpectedImplementation(valueDatePriceVolumeLayerType, nameIdGenerator, LayerBehavior).CopyFrom(pqValueDatePriceVolumeLayer, QuoteBehavior);
         var pqVlDtPvl = pqPvl as PQValueDatePriceVolumeLayer;
         Assert.IsNotNull(pqVlDtPvl);
         Assert.AreNotSame(pqValueDatePriceVolumeLayer, pqVlDtPvl);
@@ -569,7 +569,7 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(ExpectedVolume, pqVlDtPvl.Volume);
         Assert.AreEqual(expectedValueDate, pqVlDtPvl.ValueDate);
 
-        pqPvl = layerSelector.CreateExpectedImplementation(ordersCountPriceVolumeLayerType, nameIdGenerator).CopyFrom(pqOrdersCountPriceVolumeLayer);
+        pqPvl = layerSelector.CreateExpectedImplementation(ordersCountPriceVolumeLayerType, nameIdGenerator, LayerBehavior).CopyFrom(pqOrdersCountPriceVolumeLayer, QuoteBehavior);
         var pqOrdCntPvl = pqPvl as PQOrdersCountPriceVolumeLayer;
         Assert.IsNotNull(pqOrdCntPvl);
         Assert.AreEqual(ExpectedPrice, pqOrdCntPvl.Price);
@@ -577,38 +577,38 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(ExpectedOrdersCount, pqOrdCntPvl.OrdersCount);
         Assert.AreEqual(ExpectedInternalVolume, pqOrdCntPvl.InternalVolume);
 
-        pqPvl = layerSelector.CreateExpectedImplementation(ordersAnonPriceVolumeLayerType, nameIdGenerator).CopyFrom(pqOrdersAnonPriceVolumeLayer);
+        pqPvl = layerSelector.CreateExpectedImplementation(ordersAnonPriceVolumeLayerType, nameIdGenerator, LayerBehavior).CopyFrom(pqOrdersAnonPriceVolumeLayer, QuoteBehavior);
         var pqOrdersAnonPvl = pqPvl as PQOrdersPriceVolumeLayer;
         Assert.IsNotNull(pqOrdersAnonPvl);
         Assert.AreEqual(ExpectedPrice, pqOrdersAnonPvl.Price);
         Assert.AreEqual(ExpectedVolume, pqOrdersAnonPvl.Volume);
         Assert.AreEqual(ExpectedOrdersCount, pqOrdersAnonPvl.OrdersCount);
         Assert.AreEqual(ExpectedInternalVolume, pqOrdersAnonPvl.InternalVolume);
-        Assert.AreEqual(ExpectedOrderId, pqOrdersAnonPvl[0]!.OrderId);
-        Assert.AreEqual(ExpectedGenesisFlags, pqOrdersAnonPvl[0]!.GenesisFlags);
-        Assert.AreEqual(ExpectedOrderCreatedTime, pqOrdersAnonPvl[0]!.CreatedTime);
-        Assert.AreEqual(ExpectedOrderUpdatedTime, pqOrdersAnonPvl[0]!.UpdateTime);
-        Assert.AreEqual(ExpectedOrderVolume, pqOrdersAnonPvl[0]!.OrderDisplayVolume);
-        Assert.AreEqual(ExpectedOrderRemainingVolume, pqOrdersAnonPvl[0]!.OrderRemainingVolume);
+        Assert.AreEqual(ExpectedOrderId, pqOrdersAnonPvl[0].OrderId);
+        Assert.AreEqual(ExpectedGenesisFlags, pqOrdersAnonPvl[0].GenesisFlags);
+        Assert.AreEqual(ExpectedOrderCreatedTime, pqOrdersAnonPvl[0].CreatedTime);
+        Assert.AreEqual(ExpectedOrderUpdatedTime, pqOrdersAnonPvl[0].UpdateTime);
+        Assert.AreEqual(ExpectedOrderVolume, pqOrdersAnonPvl[0].OrderDisplayVolume);
+        Assert.AreEqual(ExpectedOrderRemainingVolume, pqOrdersAnonPvl[0].OrderRemainingVolume);
 
-        pqPvl = layerSelector.CreateExpectedImplementation(ordersCounterPartyPriceVolumeLayerType, nameIdGenerator)
-                             .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer);
+        pqPvl = layerSelector.CreateExpectedImplementation(ordersCounterPartyPriceVolumeLayerType, nameIdGenerator, LayerBehavior)
+                             .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer, QuoteBehavior);
         var pqOrdersCpPvl = pqPvl as PQOrdersPriceVolumeLayer;
         Assert.IsNotNull(pqOrdersCpPvl);
         Assert.AreEqual(ExpectedPrice, pqOrdersCpPvl.Price);
         Assert.AreEqual(ExpectedVolume, pqOrdersCpPvl.Volume);
         Assert.AreEqual(ExpectedOrdersCount, pqOrdersCpPvl.OrdersCount);
         Assert.AreEqual(ExpectedInternalVolume, pqOrdersCpPvl.InternalVolume);
-        Assert.AreEqual(ExpectedOrderId, pqOrdersCpPvl[0]!.OrderId);
-        Assert.AreEqual(ExpectedGenesisFlags | IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags, pqOrdersCpPvl[0]!.GenesisFlags);
-        Assert.AreEqual(ExpectedOrderCreatedTime, pqOrdersCpPvl[0]!.CreatedTime);
-        Assert.AreEqual(ExpectedOrderUpdatedTime, pqOrdersCpPvl[0]!.UpdateTime);
-        Assert.AreEqual(ExpectedOrderVolume, pqOrdersCpPvl[0]!.OrderDisplayVolume);
-        Assert.AreEqual(ExpectedOrderRemainingVolume, pqOrdersCpPvl[0]!.OrderRemainingVolume);
-        Assert.AreEqual(ExpectedOrderCounterPartyName, ((IExternalCounterPartyOrder)pqOrdersCpPvl[0]!).ExternalCounterPartyName);
-        Assert.AreEqual(ExpectedOrderTraderName, ((IExternalCounterPartyOrder)pqOrdersCpPvl[0]!).ExternalTraderName);
+        Assert.AreEqual(ExpectedOrderId, pqOrdersCpPvl[0].OrderId);
+        Assert.AreEqual(ExpectedGenesisFlags | IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags, pqOrdersCpPvl[0].GenesisFlags);
+        Assert.AreEqual(ExpectedOrderCreatedTime, pqOrdersCpPvl[0].CreatedTime);
+        Assert.AreEqual(ExpectedOrderUpdatedTime, pqOrdersCpPvl[0].UpdateTime);
+        Assert.AreEqual(ExpectedOrderVolume, pqOrdersCpPvl[0].OrderDisplayVolume);
+        Assert.AreEqual(ExpectedOrderRemainingVolume, pqOrdersCpPvl[0].OrderRemainingVolume);
+        Assert.AreEqual(ExpectedOrderCounterPartyName, ((IExternalCounterPartyOrder)pqOrdersCpPvl[0]).ExternalCounterPartyName);
+        Assert.AreEqual(ExpectedOrderTraderName, ((IExternalCounterPartyOrder)pqOrdersCpPvl[0]).ExternalTraderName);
 
-        pqPvl = layerSelector.CreateExpectedImplementation(fullSupportPvlType, nameIdGenerator).CopyFrom(pqFullSupportPvl);
+        pqPvl = layerSelector.CreateExpectedImplementation(fullSupportPvlType, nameIdGenerator, LayerBehavior).CopyFrom(pqFullSupportPvl, QuoteBehavior);
         var convertedPqFullSupportPvl = pqPvl as PQFullSupportPriceVolumeLayer;
         Assert.IsNotNull(convertedPqFullSupportPvl);
         Assert.AreNotSame(pqFullSupportPvl, convertedPqFullSupportPvl);
@@ -621,14 +621,14 @@ public class PQOrderBookLayerFactorySelectorTests
         Assert.AreEqual(expectedValueDate, convertedPqFullSupportPvl.ValueDate);
         Assert.AreEqual(ExpectedOrdersCount, convertedPqFullSupportPvl.OrdersCount);
         Assert.AreEqual(ExpectedInternalVolume, convertedPqFullSupportPvl.InternalVolume);
-        Assert.AreEqual(ExpectedOrderId, convertedPqFullSupportPvl[0]!.OrderId);
-        Assert.AreEqual(ExpectedGenesisFlags | IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags, convertedPqFullSupportPvl[0]!.GenesisFlags);
-        Assert.AreEqual(ExpectedOrderCreatedTime, convertedPqFullSupportPvl[0]!.CreatedTime);
-        Assert.AreEqual(ExpectedOrderUpdatedTime, convertedPqFullSupportPvl[0]!.UpdateTime);
-        Assert.AreEqual(ExpectedOrderVolume, convertedPqFullSupportPvl[0]!.OrderDisplayVolume);
-        Assert.AreEqual(ExpectedOrderRemainingVolume, convertedPqFullSupportPvl[0]!.OrderRemainingVolume);
-        Assert.AreEqual(ExpectedOrderCounterPartyName, ((IExternalCounterPartyOrder)convertedPqFullSupportPvl[0]!).ExternalCounterPartyName);
-        Assert.AreEqual(ExpectedOrderTraderName, ((IExternalCounterPartyOrder)convertedPqFullSupportPvl[0]!).ExternalTraderName);
+        Assert.AreEqual(ExpectedOrderId, convertedPqFullSupportPvl[0].OrderId);
+        Assert.AreEqual(ExpectedGenesisFlags | IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags, convertedPqFullSupportPvl[0].GenesisFlags);
+        Assert.AreEqual(ExpectedOrderCreatedTime, convertedPqFullSupportPvl[0].CreatedTime);
+        Assert.AreEqual(ExpectedOrderUpdatedTime, convertedPqFullSupportPvl[0].UpdateTime);
+        Assert.AreEqual(ExpectedOrderVolume, convertedPqFullSupportPvl[0].OrderDisplayVolume);
+        Assert.AreEqual(ExpectedOrderRemainingVolume, convertedPqFullSupportPvl[0].OrderRemainingVolume);
+        Assert.AreEqual(ExpectedOrderCounterPartyName, ((IExternalCounterPartyOrder)convertedPqFullSupportPvl[0]).ExternalCounterPartyName);
+        Assert.AreEqual(ExpectedOrderTraderName, ((IExternalCounterPartyOrder)convertedPqFullSupportPvl[0]).ExternalTraderName);
     }
 
     [TestMethod]
@@ -807,625 +807,629 @@ public class PQOrderBookLayerFactorySelectorTests
     [TestMethod]
     public void NonPQLastTradeEntries_SelectLastTradeEntry_UpgradesLayerToMostCompactSupportedType()
     {
-        IPriceVolumeLayer result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, priceVolumeLayerType);
+        IPriceVolumeLayer result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, LayerBehavior, priceVolumeLayerType);
         Assert.AreSame(result, pqPriceVolumeLayer);
-        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, priceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, LayerBehavior, priceVolumeLayerType);
         Assert.AreSame(result, pqSourcePriceVolumeLayer);
-        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, priceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, LayerBehavior, priceVolumeLayerType);
         Assert.AreSame(result, pqSourceQuoteRefPriceVolumeLayer);
-        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, priceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, LayerBehavior, priceVolumeLayerType);
         Assert.AreSame(result, pqValueDatePriceVolumeLayer);
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, priceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, LayerBehavior, priceVolumeLayerType);
         Assert.AreSame(result, pqOrdersCountPriceVolumeLayer);
-        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, priceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, LayerBehavior, priceVolumeLayerType);
         Assert.AreSame(result, pqOrdersAnonPriceVolumeLayer);
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, priceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, LayerBehavior, priceVolumeLayerType);
         Assert.AreSame(result, pqOrdersCounterPartyPriceVolumeLayer);
-        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, priceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, LayerBehavior, priceVolumeLayerType);
         Assert.AreSame(result, pqFullSupportPvl);
 
-        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, sourcePriceVolumeLayerType).CopyFrom(pqPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, LayerBehavior, sourcePriceVolumeLayerType).CopyFrom(pqPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourcePriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, sourcePriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, LayerBehavior, sourcePriceVolumeLayerType);
         Assert.AreSame(result, pqSourcePriceVolumeLayer);
-        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, sourcePriceVolumeLayerType)
-                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, LayerBehavior, sourcePriceVolumeLayerType)
+                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefPriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, sourcePriceVolumeLayerType)
-                              .CopyFrom(pqValueDatePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, LayerBehavior, sourcePriceVolumeLayerType)
+                              .CopyFrom(pqValueDatePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqValueDatePriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, sourcePriceVolumeLayerType)
-                              .CopyFrom(pqOrdersCountPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, LayerBehavior, sourcePriceVolumeLayerType)
+                              .CopyFrom(pqOrdersCountPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersCountPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCountPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, sourcePriceVolumeLayerType)
-                              .CopyFrom(pqOrdersAnonPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, LayerBehavior, sourcePriceVolumeLayerType)
+                              .CopyFrom(pqOrdersAnonPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersAnonPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersAnonPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, sourcePriceVolumeLayerType)
-                              .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, LayerBehavior,  sourcePriceVolumeLayerType)
+                              .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersCounterPartyPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCounterPartyPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, sourcePriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, LayerBehavior, sourcePriceVolumeLayerType);
         Assert.AreSame(result, pqFullSupportPvl);
 
-        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, sourceQuoteRefPriceVolumeLayerType)
-                              .CopyFrom(pqPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, LayerBehavior, sourceQuoteRefPriceVolumeLayerType)
+                              .CopyFrom(pqPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefPriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, sourceQuoteRefPriceVolumeLayerType)
-                              .CopyFrom(pqSourcePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, LayerBehavior, sourceQuoteRefPriceVolumeLayerType)
+                              .CopyFrom(pqSourcePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqSourcePriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefPriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, sourceQuoteRefPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, LayerBehavior, sourceQuoteRefPriceVolumeLayerType);
         Assert.AreSame(result, pqSourceQuoteRefPriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, sourceQuoteRefPriceVolumeLayerType)
-                              .CopyFrom(pqValueDatePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, LayerBehavior, sourceQuoteRefPriceVolumeLayerType)
+                              .CopyFrom(pqValueDatePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqValueDatePriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, sourceQuoteRefPriceVolumeLayerType)
-                              .CopyFrom(pqOrdersCountPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, LayerBehavior, sourceQuoteRefPriceVolumeLayerType)
+                              .CopyFrom(pqOrdersCountPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersCountPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCountPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, sourceQuoteRefPriceVolumeLayerType)
-                              .CopyFrom(pqOrdersAnonPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, LayerBehavior, sourceQuoteRefPriceVolumeLayerType)
+                              .CopyFrom(pqOrdersAnonPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersAnonPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersAnonPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, sourceQuoteRefPriceVolumeLayerType)
-                              .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, LayerBehavior, sourceQuoteRefPriceVolumeLayerType)
+                              .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersCounterPartyPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCounterPartyPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, sourceQuoteRefPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, LayerBehavior, sourceQuoteRefPriceVolumeLayerType);
         Assert.AreSame(result, pqFullSupportPvl);
 
-        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, valueDatePriceVolumeLayerType)
-                              .CopyFrom(pqPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, LayerBehavior, valueDatePriceVolumeLayerType)
+                              .CopyFrom(pqPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQValueDatePriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, valueDatePriceVolumeLayerType)
-                              .CopyFrom(pqSourcePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, LayerBehavior, valueDatePriceVolumeLayerType)
+                              .CopyFrom(pqSourcePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqSourcePriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, valueDatePriceVolumeLayerType)
-                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, LayerBehavior, valueDatePriceVolumeLayerType)
+                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqSourceQuoteRefPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourceQuoteRefPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, valueDatePriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, LayerBehavior, valueDatePriceVolumeLayerType);
         Assert.AreSame(result, pqValueDatePriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, valueDatePriceVolumeLayerType)
-                              .CopyFrom(pqOrdersCountPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, LayerBehavior, valueDatePriceVolumeLayerType)
+                              .CopyFrom(pqOrdersCountPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersCountPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCountPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, valueDatePriceVolumeLayerType)
-                              .CopyFrom(pqOrdersAnonPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, LayerBehavior, valueDatePriceVolumeLayerType)
+                              .CopyFrom(pqOrdersAnonPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersAnonPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersAnonPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, valueDatePriceVolumeLayerType)
-                              .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, LayerBehavior, valueDatePriceVolumeLayerType)
+                              .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersCounterPartyPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCounterPartyPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, valueDatePriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, LayerBehavior, valueDatePriceVolumeLayerType);
         Assert.AreSame(result, pqFullSupportPvl);
 
-        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, ordersCountPriceVolumeLayerType)
-                              .CopyFrom(pqPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersCountPriceVolumeLayerType)
+                              .CopyFrom(pqPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQOrdersCountPriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, ordersCountPriceVolumeLayerType)
-                              .CopyFrom(pqSourcePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersCountPriceVolumeLayerType)
+                              .CopyFrom(pqSourcePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqSourcePriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, ordersCountPriceVolumeLayerType)
-                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersCountPriceVolumeLayerType)
+                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqSourceQuoteRefPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourceQuoteRefPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, ordersCountPriceVolumeLayerType)
-                              .CopyFrom(pqValueDatePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersCountPriceVolumeLayerType)
+                              .CopyFrom(pqValueDatePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqValueDatePriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, ordersCountPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersCountPriceVolumeLayerType);
         Assert.AreSame(result, pqOrdersCountPriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, ordersCountPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersCountPriceVolumeLayerType);
         Assert.AreSame(result, pqOrdersAnonPriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, ordersCountPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersCountPriceVolumeLayerType);
         Assert.AreSame(result, pqOrdersCounterPartyPriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, ordersCountPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, LayerBehavior, ordersCountPriceVolumeLayerType);
         Assert.AreSame(result, pqFullSupportPvl);
 
-        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, ordersAnonPriceVolumeLayerType).CopyFrom(pqPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersAnonPriceVolumeLayerType)
+                              .CopyFrom(pqPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQOrdersPriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, ordersAnonPriceVolumeLayerType)
-                              .CopyFrom(pqSourcePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersAnonPriceVolumeLayerType)
+                              .CopyFrom(pqSourcePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqSourcePriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, ordersAnonPriceVolumeLayerType)
-                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersAnonPriceVolumeLayerType)
+                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqSourceQuoteRefPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourceQuoteRefPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, ordersAnonPriceVolumeLayerType)
-                              .CopyFrom(pqValueDatePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersAnonPriceVolumeLayerType)
+                              .CopyFrom(pqValueDatePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqValueDatePriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, ordersAnonPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, LayerBehavior,  ordersAnonPriceVolumeLayerType);
         Assert.AreNotSame(result, pqOrdersCountPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQOrdersPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCountPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, ordersAnonPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersAnonPriceVolumeLayerType);
         Assert.AreSame(result, pqOrdersAnonPriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, ordersAnonPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersAnonPriceVolumeLayerType);
         Assert.AreSame(result, pqOrdersCounterPartyPriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, ordersAnonPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, LayerBehavior, ordersAnonPriceVolumeLayerType);
         Assert.AreSame(result, pqFullSupportPvl);
 
-        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, ordersCounterPartyPriceVolumeLayerType)
-                              .CopyFrom(pqPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersCounterPartyPriceVolumeLayerType)
+                              .CopyFrom(pqPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQOrdersPriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, ordersCounterPartyPriceVolumeLayerType)
-                              .CopyFrom(pqSourcePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersCounterPartyPriceVolumeLayerType)
+                              .CopyFrom(pqSourcePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqSourcePriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, ordersCounterPartyPriceVolumeLayerType)
-                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersCounterPartyPriceVolumeLayerType)
+                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqSourceQuoteRefPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourceQuoteRefPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, ordersCounterPartyPriceVolumeLayerType)
-                              .CopyFrom(pqValueDatePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersCounterPartyPriceVolumeLayerType)
+                              .CopyFrom(pqValueDatePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqValueDatePriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, ordersCounterPartyPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersCounterPartyPriceVolumeLayerType);
         Assert.AreNotSame(result, pqOrdersCountPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQOrdersPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCountPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, ordersCounterPartyPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersCounterPartyPriceVolumeLayerType);
         Assert.AreNotSame(result, pqOrdersAnonPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQOrdersPriceVolumeLayer));
         Assert.IsTrue(pqOrdersAnonPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, ordersCounterPartyPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, LayerBehavior, ordersCounterPartyPriceVolumeLayerType);
         Assert.AreSame(result, pqOrdersCounterPartyPriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, ordersCounterPartyPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, LayerBehavior, ordersCounterPartyPriceVolumeLayerType);
         Assert.AreSame(result, pqFullSupportPvl);
 
-        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, fullSupportPvlType).CopyFrom(pqPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, LayerBehavior, fullSupportPvlType)
+                              .CopyFrom(pqPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, fullSupportPvlType)
-                              .CopyFrom(pqSourcePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, LayerBehavior, fullSupportPvlType)
+                              .CopyFrom(pqSourcePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqSourcePriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, fullSupportPvlType)
-                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, LayerBehavior, fullSupportPvlType)
+                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqSourceQuoteRefPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourceQuoteRefPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, fullSupportPvlType)
-                              .CopyFrom(pqValueDatePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, LayerBehavior, fullSupportPvlType)
+                              .CopyFrom(pqValueDatePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqValueDatePriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, fullSupportPvlType)
-                              .CopyFrom(pqOrdersCountPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, LayerBehavior, fullSupportPvlType)
+                              .CopyFrom(pqOrdersCountPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersCountPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCountPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, fullSupportPvlType)
-                              .CopyFrom(pqOrdersAnonPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, LayerBehavior, fullSupportPvlType)
+                              .CopyFrom(pqOrdersAnonPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersAnonPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersAnonPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, fullSupportPvlType)
-                              .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, LayerBehavior, fullSupportPvlType)
+                              .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersCounterPartyPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCounterPartyPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, fullSupportPvlType);
+        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, LayerBehavior, fullSupportPvlType);
         Assert.AreSame(result, pqFullSupportPvl);
     }
 
     [TestMethod]
     public void PQLastTradeEntries_SelectLastTradeEntry_UpgradesLayerToFullSupportPVLIfCantContain()
     {
-        IPriceVolumeLayer result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, pqPriceVolumeLayerType);
+        IPriceVolumeLayer result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqPriceVolumeLayerType);
         Assert.AreSame(result, pqPriceVolumeLayer);
-        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, pqPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, LayerBehavior, pqPriceVolumeLayerType);
         Assert.AreSame(result, pqSourcePriceVolumeLayer);
-        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, pqPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqPriceVolumeLayerType);
         Assert.AreSame(result, pqSourceQuoteRefPriceVolumeLayer);
-        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, pqPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, LayerBehavior, pqPriceVolumeLayerType);
         Assert.AreSame(result, pqValueDatePriceVolumeLayer);
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, pqPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqPriceVolumeLayerType);
         Assert.AreSame(result, pqOrdersCountPriceVolumeLayer);
-        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, pqPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqPriceVolumeLayerType);
         Assert.AreSame(result, pqOrdersAnonPriceVolumeLayer);
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, pqPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqPriceVolumeLayerType);
         Assert.AreSame(result, pqOrdersCounterPartyPriceVolumeLayer);
-        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, pqPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, LayerBehavior, pqPriceVolumeLayerType);
         Assert.AreSame(result, pqFullSupportPvl);
 
-        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, pqSourcePriceVolumeLayerType).CopyFrom(pqPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqSourcePriceVolumeLayerType)
+                              .CopyFrom(pqPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourcePriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, pqSourcePriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, LayerBehavior, pqSourcePriceVolumeLayerType);
         Assert.AreSame(result, pqSourcePriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, pqSourcePriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqSourcePriceVolumeLayerType);
         Assert.AreSame(result, pqSourceQuoteRefPriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, pqSourcePriceVolumeLayerType)
-                              .CopyFrom(pqValueDatePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, LayerBehavior, pqSourcePriceVolumeLayerType)
+                              .CopyFrom(pqValueDatePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqValueDatePriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, pqSourcePriceVolumeLayerType)
-                              .CopyFrom(pqOrdersCountPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqSourcePriceVolumeLayerType)
+                              .CopyFrom(pqOrdersCountPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersCountPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCountPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, pqSourcePriceVolumeLayerType)
-                              .CopyFrom(pqOrdersAnonPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqSourcePriceVolumeLayerType)
+                              .CopyFrom(pqOrdersAnonPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersAnonPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersAnonPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, pqSourcePriceVolumeLayerType)
-                              .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqSourcePriceVolumeLayerType)
+                              .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersCounterPartyPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCounterPartyPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, pqSourcePriceVolumeLayerType)
-                              .CopyFrom(pqFullSupportPvl);
+        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, LayerBehavior, pqSourcePriceVolumeLayerType)
+                              .CopyFrom(pqFullSupportPvl, QuoteBehavior);
         Assert.AreSame(result, pqFullSupportPvl);
 
-        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, pqSourceQuoteRefPriceVolumeLayerType)
-                              .CopyFrom(pqPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqSourceQuoteRefPriceVolumeLayerType)
+                              .CopyFrom(pqPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefPriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, pqSourceQuoteRefPriceVolumeLayerType)
-                              .CopyFrom(pqSourcePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, LayerBehavior, pqSourceQuoteRefPriceVolumeLayerType)
+                              .CopyFrom(pqSourcePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQSourceQuoteRefPriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, pqSourceQuoteRefPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqSourceQuoteRefPriceVolumeLayerType);
         Assert.AreSame(result, pqSourceQuoteRefPriceVolumeLayer);
-        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, pqSourceQuoteRefPriceVolumeLayerType)
-                              .CopyFrom(pqValueDatePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, LayerBehavior, pqSourceQuoteRefPriceVolumeLayerType)
+                              .CopyFrom(pqValueDatePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, pqSourceQuoteRefPriceVolumeLayerType)
-                              .CopyFrom(pqOrdersCountPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqSourceQuoteRefPriceVolumeLayerType)
+                              .CopyFrom(pqOrdersCountPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersCountPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCountPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, pqSourceQuoteRefPriceVolumeLayerType)
-                              .CopyFrom(pqOrdersAnonPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqSourceQuoteRefPriceVolumeLayerType)
+                              .CopyFrom(pqOrdersAnonPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersAnonPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, pqSourceQuoteRefPriceVolumeLayerType)
-                              .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqSourceQuoteRefPriceVolumeLayerType)
+                              .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersCounterPartyPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCounterPartyPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, pqSourceQuoteRefPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, LayerBehavior, pqSourceQuoteRefPriceVolumeLayerType);
         Assert.AreSame(result, pqFullSupportPvl);
 
-        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, pqValueDatePriceVolumeLayerType)
-                              .CopyFrom(pqPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqValueDatePriceVolumeLayerType)
+                              .CopyFrom(pqPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQValueDatePriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, pqValueDatePriceVolumeLayerType)
-                              .CopyFrom(pqSourcePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, LayerBehavior, pqValueDatePriceVolumeLayerType)
+                              .CopyFrom(pqSourcePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, pqValueDatePriceVolumeLayerType)
-                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqValueDatePriceVolumeLayerType)
+                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourceQuoteRefPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, pqValueDatePriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, LayerBehavior, pqValueDatePriceVolumeLayerType);
         Assert.AreSame(result, pqValueDatePriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, pqValueDatePriceVolumeLayerType)
-                              .CopyFrom(pqOrdersCountPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqValueDatePriceVolumeLayerType)
+                              .CopyFrom(pqOrdersCountPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersCountPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCountPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, pqValueDatePriceVolumeLayerType)
-                              .CopyFrom(pqOrdersAnonPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqValueDatePriceVolumeLayerType)
+                              .CopyFrom(pqOrdersAnonPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersAnonPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, pqValueDatePriceVolumeLayerType)
-                              .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqValueDatePriceVolumeLayerType)
+                              .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersCounterPartyPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCounterPartyPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, pqValueDatePriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, LayerBehavior, pqValueDatePriceVolumeLayerType);
         Assert.AreSame(result, pqFullSupportPvl);
 
-        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, pqOrdersCountPriceVolumeLayerType)
-                              .CopyFrom(pqPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersCountPriceVolumeLayerType)
+                              .CopyFrom(pqPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQOrdersCountPriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, pqOrdersCountPriceVolumeLayerType)
-                              .CopyFrom(pqSourcePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersCountPriceVolumeLayerType)
+                              .CopyFrom(pqSourcePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, pqOrdersCountPriceVolumeLayerType)
-                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersCountPriceVolumeLayerType)
+                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourceQuoteRefPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, pqOrdersCountPriceVolumeLayerType)
-                              .CopyFrom(pqValueDatePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersCountPriceVolumeLayerType)
+                              .CopyFrom(pqValueDatePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, pqOrdersCountPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersCountPriceVolumeLayerType);
         Assert.AreSame(result, pqOrdersCountPriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, pqOrdersCountPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersCountPriceVolumeLayerType);
         Assert.AreSame(result, pqOrdersAnonPriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, pqOrdersCountPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersCountPriceVolumeLayerType);
         Assert.AreSame(result, pqOrdersCounterPartyPriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, pqOrdersCountPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, LayerBehavior, pqOrdersCountPriceVolumeLayerType);
         Assert.AreSame(result, pqFullSupportPvl);
 
-        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, pqOrdersAnonPriceVolumeLayerType)
-                              .CopyFrom(pqPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersAnonPriceVolumeLayerType)
+                              .CopyFrom(pqPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQOrdersPriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, pqOrdersAnonPriceVolumeLayerType)
-                              .CopyFrom(pqSourcePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersAnonPriceVolumeLayerType)
+                              .CopyFrom(pqSourcePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, pqOrdersAnonPriceVolumeLayerType)
-                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersAnonPriceVolumeLayerType)
+                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourceQuoteRefPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, pqOrdersAnonPriceVolumeLayerType)
-                              .CopyFrom(pqValueDatePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersAnonPriceVolumeLayerType)
+                              .CopyFrom(pqValueDatePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, pqOrdersAnonPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersAnonPriceVolumeLayerType);
         Assert.AreNotSame(result, pqOrdersCountPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQOrdersPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCountPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, pqOrdersAnonPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersAnonPriceVolumeLayerType);
         Assert.AreSame(result, pqOrdersAnonPriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, pqOrdersAnonPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersAnonPriceVolumeLayerType);
         Assert.AreSame(result, pqOrdersCounterPartyPriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, pqOrdersAnonPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, LayerBehavior, pqOrdersAnonPriceVolumeLayerType);
         Assert.AreSame(result, pqFullSupportPvl);
 
-        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, pqOrdersCounterPartyPriceVolumeLayerType)
-                              .CopyFrom(pqPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersCounterPartyPriceVolumeLayerType)
+                              .CopyFrom(pqPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQOrdersPriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, pqOrdersCounterPartyPriceVolumeLayerType)
-                              .CopyFrom(pqSourcePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersCounterPartyPriceVolumeLayerType)
+                              .CopyFrom(pqSourcePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, pqOrdersCounterPartyPriceVolumeLayerType)
-                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersCounterPartyPriceVolumeLayerType)
+                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourceQuoteRefPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, pqOrdersCounterPartyPriceVolumeLayerType)
-                              .CopyFrom(pqValueDatePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersCounterPartyPriceVolumeLayerType)
+                              .CopyFrom(pqValueDatePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, pqOrdersCounterPartyPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersCounterPartyPriceVolumeLayerType);
         Assert.AreNotSame(result, pqOrdersCountPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQOrdersPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCountPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, pqOrdersCounterPartyPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersCounterPartyPriceVolumeLayerType);
         Assert.AreNotSame(result, pqOrdersAnonPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQOrdersPriceVolumeLayer));
         Assert.IsTrue(pqOrdersAnonPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, pqOrdersCounterPartyPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqOrdersCounterPartyPriceVolumeLayerType);
         Assert.AreSame(result, pqOrdersCounterPartyPriceVolumeLayer);
 
-        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, pqOrdersCounterPartyPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, LayerBehavior, pqOrdersCounterPartyPriceVolumeLayerType);
         Assert.AreSame(result, pqFullSupportPvl);
 
-        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, pqFullSupportPvlType).CopyFrom(pqPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqFullSupportPvlType)
+                              .CopyFrom(pqPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, pqFullSupportPvlType)
-                              .CopyFrom(pqSourcePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourcePriceVolumeLayer, nameIdGenerator, LayerBehavior, pqFullSupportPvlType)
+                              .CopyFrom(pqSourcePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourcePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, pqFullSupportPvlType)
-                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqSourceQuoteRefPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqFullSupportPvlType)
+                              .CopyFrom(pqSourceQuoteRefPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqSourceQuoteRefPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, pqFullSupportPvlType)
-                              .CopyFrom(pqValueDatePriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqValueDatePriceVolumeLayer, nameIdGenerator, LayerBehavior, pqFullSupportPvlType)
+                              .CopyFrom(pqValueDatePriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqValueDatePriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, pqFullSupportPvlType)
-                              .CopyFrom(pqOrdersCountPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCountPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqFullSupportPvlType)
+                              .CopyFrom(pqOrdersCountPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersCountPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCountPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, pqFullSupportPvlType)
-                              .CopyFrom(pqOrdersAnonPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersAnonPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqFullSupportPvlType)
+                              .CopyFrom(pqOrdersAnonPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersAnonPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersAnonPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, pqFullSupportPvlType)
-                              .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer);
+        result = layerSelector.UpgradeExistingLayer(pqOrdersCounterPartyPriceVolumeLayer, nameIdGenerator, LayerBehavior, pqFullSupportPvlType)
+                              .CopyFrom(pqOrdersCounterPartyPriceVolumeLayer, QuoteBehavior);
         Assert.AreNotSame(result, pqOrdersCounterPartyPriceVolumeLayer);
         Assert.IsInstanceOfType(result, typeof(PQFullSupportPriceVolumeLayer));
         Assert.IsTrue(pqOrdersCounterPartyPriceVolumeLayer.AreEquivalent(result));
 
-        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, pqFullSupportPvlType);
+        result = layerSelector.UpgradeExistingLayer(pqFullSupportPvl, nameIdGenerator, LayerBehavior, pqFullSupportPvlType);
         Assert.AreSame(result, pqFullSupportPvl);
     }
 
     [TestMethod]
     public void NullPriceVolumeLayerEntries_SelectPriceDesiredLayerType_HandlesEmptyValues()
     {
-        var result = layerSelector.UpgradeExistingLayer(null, nameIdGenerator, priceVolumeLayerType);
+        var result = layerSelector.UpgradeExistingLayer(null, nameIdGenerator, LayerBehavior, priceVolumeLayerType);
         Assert.AreEqual(typeof(PQPriceVolumeLayer), result.GetType());
         Assert.IsTrue(result.IsEmpty);
-        result = layerSelector.UpgradeExistingLayer(null, nameIdGenerator, sourcePriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(null, nameIdGenerator, LayerBehavior, sourcePriceVolumeLayerType);
         Assert.AreEqual(typeof(PQSourcePriceVolumeLayer), result.GetType());
         Assert.IsTrue(result.IsEmpty);
-        result = layerSelector.UpgradeExistingLayer(null, nameIdGenerator, sourceQuoteRefPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(null, nameIdGenerator, LayerBehavior, sourceQuoteRefPriceVolumeLayerType);
         Assert.AreEqual(typeof(PQSourceQuoteRefPriceVolumeLayer), result.GetType());
         Assert.IsTrue(result.IsEmpty);
-        result = layerSelector.UpgradeExistingLayer(null, nameIdGenerator, valueDatePriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(null, nameIdGenerator, LayerBehavior, valueDatePriceVolumeLayerType);
         Assert.AreEqual(typeof(PQValueDatePriceVolumeLayer), result.GetType());
         Assert.IsTrue(result.IsEmpty);
-        result = layerSelector.UpgradeExistingLayer(null, nameIdGenerator, ordersCounterPartyPriceVolumeLayerType);
+        result = layerSelector.UpgradeExistingLayer(null, nameIdGenerator, LayerBehavior, ordersCounterPartyPriceVolumeLayerType);
         Assert.AreEqual(typeof(PQOrdersPriceVolumeLayer), result.GetType());
         Assert.IsTrue(result.IsEmpty);
-        result = layerSelector.UpgradeExistingLayer(null, nameIdGenerator, fullSupportPvlType);
+        result = layerSelector.UpgradeExistingLayer(null, nameIdGenerator, LayerBehavior, fullSupportPvlType);
         Assert.AreEqual(typeof(PQFullSupportPriceVolumeLayer), result.GetType());
         Assert.IsTrue(result.IsEmpty);
     }

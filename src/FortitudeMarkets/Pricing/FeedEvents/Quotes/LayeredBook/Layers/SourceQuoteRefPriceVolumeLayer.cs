@@ -6,6 +6,7 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 #endregion
 
@@ -67,16 +68,6 @@ public class SourceQuoteRefPriceVolumeLayer : SourcePriceVolumeLayer, IMutableSo
         SourceQuoteReference = 0;
     }
 
-    public override SourceQuoteRefPriceVolumeLayer CopyFrom
-    (IPriceVolumeLayer source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        base.CopyFrom(source, copyMergeFlags);
-        if (source is ISourceQuoteRefPriceVolumeLayer sourceSourcePriceVolumeLayer)
-            SourceQuoteReference = sourceSourcePriceVolumeLayer.SourceQuoteReference;
-        return this;
-    }
-
     IMutableSourceQuoteRefPriceVolumeLayer ICloneable<IMutableSourceQuoteRefPriceVolumeLayer>.Clone() => Clone();
 
     IMutableSourceQuoteRefPriceVolumeLayer IMutableSourceQuoteRefPriceVolumeLayer.Clone() => Clone();
@@ -86,7 +77,16 @@ public class SourceQuoteRefPriceVolumeLayer : SourcePriceVolumeLayer, IMutableSo
     ISourceQuoteRefPriceVolumeLayer ISourceQuoteRefPriceVolumeLayer.Clone() => Clone();
 
     public override SourceQuoteRefPriceVolumeLayer Clone() =>
-        Recycler?.Borrow<SourceQuoteRefPriceVolumeLayer>().CopyFrom(this) ?? new SourceQuoteRefPriceVolumeLayer(this);
+        Recycler?.Borrow<SourceQuoteRefPriceVolumeLayer>().CopyFrom(this, QuoteInstantBehaviorFlags.DisableUpgradeLayer) ?? new SourceQuoteRefPriceVolumeLayer(this);
+
+    public override SourceQuoteRefPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, QuoteInstantBehaviorFlags behaviorFlags
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(source, behaviorFlags, copyMergeFlags);
+        if (source is ISourceQuoteRefPriceVolumeLayer sourceSourcePriceVolumeLayer)
+            SourceQuoteReference = sourceSourcePriceVolumeLayer.SourceQuoteReference;
+        return this;
+    }
 
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {

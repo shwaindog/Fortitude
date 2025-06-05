@@ -72,5 +72,7 @@ public class LocalHostPQTestSetupCommon
         DefaultServerMarketConnectionConfig ??= new MarketConnectionConfig(1, ExchangeName, MarketConnectionType.Pricing
                                                                          , SourceTickersConfig, PricingServerConfig);
         DefaultServerMarketsConfig ??= new MarketsConfig("LocalHostPQTestSetupServer", DefaultServerMarketConnectionConfig);
+
+        
     }
 }

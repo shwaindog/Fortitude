@@ -38,7 +38,7 @@ public interface IPricingInstrumentId : IReusableObject<IPricingInstrumentId>, I
     new IPricingInstrumentId Clone();
 }
 
-public class PricingInstrument : SourceTicker, IPricingInstrumentId
+public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
 {
     private DiscreetTimePeriod? coveringPeriod;
 
@@ -47,14 +47,14 @@ public class PricingInstrument : SourceTicker, IPricingInstrumentId
 
     private InstrumentType? timeSeriesType;
 
-    public PricingInstrument()
+    public PricingInstrumentId()
     {
         CoveringPeriod       = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
         MarketClassification = MarketClassificationExtensions.Unknown;
         InstrumentType       = InstrumentType.Price;
     }
 
-    public PricingInstrument
+    public PricingInstrumentId
     (ushort sourceId, ushort tickerId, string sourceName, string ticker, DiscreetTimePeriod coveringPeriod, InstrumentType instrumentType
       , MarketClassification marketClassification, string? category = null) :
         base(sourceId, tickerId, sourceName, ticker)
@@ -65,7 +65,7 @@ public class PricingInstrument : SourceTicker, IPricingInstrumentId
         InstrumentType       = instrumentType;
     }
 
-    public PricingInstrument(IPricingInstrumentId toClone) : base(toClone)
+    public PricingInstrumentId(IPricingInstrumentId toClone) : base(toClone)
     {
         CoveringPeriod       = toClone.CoveringPeriod;
         InstrumentType       = toClone.InstrumentType;
@@ -73,21 +73,21 @@ public class PricingInstrument : SourceTicker, IPricingInstrumentId
         Category             = toClone.Category;
     }
 
-    public PricingInstrument(SourceTickerIdentifier toClone) : base(toClone)
+    public PricingInstrumentId(SourceTickerIdentifier toClone) : base(toClone)
     {
         CoveringPeriod       = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
         MarketClassification = MarketClassificationExtensions.Unknown;
         InstrumentType       = InstrumentType.Price;
     }
 
-    public PricingInstrument(SourceTickerIdValue toClone) : base(toClone)
+    public PricingInstrumentId(SourceTickerIdValue toClone) : base(toClone)
     {
         CoveringPeriod       = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
         MarketClassification = MarketClassificationExtensions.Unknown;
         InstrumentType       = InstrumentType.Price;
     }
 
-    public PricingInstrument(PricingInstrumentId toClone) : base(toClone)
+    public PricingInstrumentId(PricingInstrumentIdValue toClone) : base(toClone)
     {
         CoveringPeriod       = toClone.CoveringPeriod;
         InstrumentType       = toClone.InstrumentType;
@@ -95,7 +95,7 @@ public class PricingInstrument : SourceTicker, IPricingInstrumentId
         Category             = toClone.Category;
     }
 
-    public PricingInstrument(Instrument toClone)
+    public PricingInstrumentId(Instrument toClone)
     {
         CoveringPeriod = toClone.CoveringPeriod;
         InstrumentType = toClone.InstrumentType;
@@ -260,25 +260,6 @@ public class PricingInstrument : SourceTicker, IPricingInstrumentId
 
     public string? Category { get; set; }
 
-
-    public IPricingInstrumentId CopyFrom(IPricingInstrumentId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        base.CopyFrom(source, copyMergeFlags);
-        CoveringPeriod       = source.CoveringPeriod;
-        MarketClassification = source.MarketClassification;
-        InstrumentType       = source.InstrumentType;
-        return this;
-    }
-
-    IReusableObject<IPricingInstrumentId> ITransferState<IReusableObject<IPricingInstrumentId>>.CopyFrom
-        (IReusableObject<IPricingInstrumentId> source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom((IPricingInstrumentId)source, copyMergeFlags);
-
-    IPricingInstrumentId ICloneable<IPricingInstrumentId>.Clone() => Clone();
-
-    public override IPricingInstrumentId Clone() =>
-        Recycler?.Borrow<PricingInstrument>().CopyFrom(this) ?? new PricingInstrument((IPricingInstrumentId)this);
-
     public override void StateReset()
     {
         MarketClassification = new MarketClassification();
@@ -287,6 +268,35 @@ public class PricingInstrument : SourceTicker, IPricingInstrumentId
         CoveringPeriod = new DiscreetTimePeriod();
 
         base.StateReset();
+    }
+
+    IPricingInstrumentId ICloneable<IPricingInstrumentId>.Clone() => Clone();
+
+    public override IPricingInstrumentId Clone() =>
+        Recycler?.Borrow<PricingInstrumentId>().CopyFrom(this) ?? new PricingInstrumentId((IPricingInstrumentId)this);
+
+    IPricingInstrumentId ITransferState<IPricingInstrumentId>.CopyFrom(IPricingInstrumentId source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom(source, copyMergeFlags);
+
+    IReusableObject<IPricingInstrumentId> ITransferState<IReusableObject<IPricingInstrumentId>>.CopyFrom
+        (IReusableObject<IPricingInstrumentId> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPricingInstrumentId)source, copyMergeFlags);
+
+    public override PricingInstrumentId CopyFrom(ISourceTickerId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(source, copyMergeFlags);
+        if (source is IPricingInstrumentId pricingInstrumentId)
+        {
+            CoveringPeriod       = pricingInstrumentId.CoveringPeriod;
+            MarketClassification = pricingInstrumentId.MarketClassification;
+            InstrumentType       = pricingInstrumentId.InstrumentType;
+
+            foreach (var sourceAttributes in pricingInstrumentId.FilledAttributes)
+            {
+                this[sourceAttributes.Key] = sourceAttributes.Value;
+            }
+        }
+        return this;
     }
 
 
@@ -304,25 +314,31 @@ public class PricingInstrument : SourceTicker, IPricingInstrumentId
         return baseSame && coveringPeriodSame && marketClassificationSame && instrumentTypeSame && categorySame;
     }
 
-    protected bool Equals(PricingInstrument other) => AreEquivalent(other, true);
+    protected bool Equals(PricingInstrumentId other) => AreEquivalent(other, true);
 
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
-        return Equals((PricingInstrument)obj);
+        return Equals((PricingInstrumentId)obj);
     }
 
     public override int GetHashCode() => HashCode.Combine(coveringPeriod, timeSeriesType, MarketClassification);
+
+    protected string PricingInstrumentIdToStringMembers =>
+        $"{SourceTickerIdToStringMembers}, {nameof(CoveringPeriod)}: {CoveringPeriod}, {nameof(InstrumentType)}: {InstrumentType}, " +
+        $"{nameof(MarketClassification)}: {MarketClassification}, {nameof(Category)}: {Category}";
+
+    public override string ToString() => $"{nameof(PricingInstrumentId)}{{{PricingInstrumentIdToStringMembers}}}";
 }
 
-public readonly struct PricingInstrumentId // not inheriting from IPricingInstrumentId to prevent accidental boxing unboxing
+public readonly struct PricingInstrumentIdValue // not inheriting from IPricingInstrumentId to prevent accidental boxing unboxing
 {
-    public PricingInstrumentId(IPricingInstrumentId pricingInstrumentId)
+    public PricingInstrumentIdValue(IPricingInstrumentId pricingInstrumentId)
     {
         SourceId       = pricingInstrumentId.SourceId;
-        TickerId       = pricingInstrumentId.InstrumentId;
+        InstrumentId       = pricingInstrumentId.InstrumentId;
         CoveringPeriod = pricingInstrumentId.CoveringPeriod;
         Category       = pricingInstrumentId.Category;
 
@@ -331,12 +347,12 @@ public readonly struct PricingInstrumentId // not inheriting from IPricingInstru
         InstrumentType = pricingInstrumentId.InstrumentType;
     }
 
-    public PricingInstrumentId
-    (ushort sourceId, ushort tickerId, DiscreetTimePeriod coveringPeriod, InstrumentType instrumentType
+    public PricingInstrumentIdValue
+    (ushort sourceId, ushort instrumentId, DiscreetTimePeriod coveringPeriod, InstrumentType instrumentType
       , MarketClassification marketClassification = default, string? category = null)
     {
         SourceId       = sourceId;
-        TickerId       = tickerId;
+        InstrumentId       = instrumentId;
         CoveringPeriod = coveringPeriod;
         Category       = category;
 
@@ -345,12 +361,12 @@ public readonly struct PricingInstrumentId // not inheriting from IPricingInstru
         MarketClassification = marketClassification;
     }
 
-    public PricingInstrumentId
+    public PricingInstrumentIdValue
     (SourceTickerIdentifier sourceTickerIdentifier, DiscreetTimePeriod coveringPeriod, InstrumentType instrumentType
       , MarketClassification marketClassification = default, string? category = null)
     {
         SourceId       = sourceTickerIdentifier.SourceId;
-        TickerId       = sourceTickerIdentifier.TickerId;
+        InstrumentId       = sourceTickerIdentifier.InstrumentId;
         CoveringPeriod = coveringPeriod;
         Category       = category;
 
@@ -359,12 +375,12 @@ public readonly struct PricingInstrumentId // not inheriting from IPricingInstru
         MarketClassification = marketClassification;
     }
 
-    public PricingInstrumentId
-    (ushort sourceId, ushort tickerId, PeriodInstrumentTypePair periodInstrumentTypePair
+    public PricingInstrumentIdValue
+    (ushort sourceId, ushort instrumentId, PeriodInstrumentTypePair periodInstrumentTypePair
       , MarketClassification marketClassification = default, string? category = null)
     {
         SourceId       = sourceId;
-        TickerId       = tickerId;
+        InstrumentId       = instrumentId;
         CoveringPeriod = periodInstrumentTypePair.CoveringPeriod;
         Category       = category;
 
@@ -373,12 +389,12 @@ public readonly struct PricingInstrumentId // not inheriting from IPricingInstru
         MarketClassification = marketClassification;
     }
 
-    public PricingInstrumentId
+    public PricingInstrumentIdValue
     (ISourceTickerId sourceTickerId, PeriodInstrumentTypePair periodInstrumentTypePair
       , MarketClassification marketClassification = default, string? category = null)
     {
         SourceId       = sourceTickerId.SourceId;
-        TickerId       = sourceTickerId.InstrumentId;
+        InstrumentId       = sourceTickerId.InstrumentId;
         CoveringPeriod = periodInstrumentTypePair.CoveringPeriod;
         Category       = category;
 
@@ -387,12 +403,12 @@ public readonly struct PricingInstrumentId // not inheriting from IPricingInstru
         MarketClassification = marketClassification;
     }
 
-    public PricingInstrumentId
+    public PricingInstrumentIdValue
     (SourceTickerIdentifier sourceTickerIdentifier, PeriodInstrumentTypePair periodInstrumentTypePair
       , MarketClassification marketClassification = default, string? category = null)
     {
         SourceId       = sourceTickerIdentifier.SourceId;
-        TickerId       = sourceTickerIdentifier.TickerId;
+        InstrumentId       = sourceTickerIdentifier.InstrumentId;
         CoveringPeriod = periodInstrumentTypePair.CoveringPeriod;
         Category       = category;
 
@@ -401,10 +417,10 @@ public readonly struct PricingInstrumentId // not inheriting from IPricingInstru
         MarketClassification = marketClassification;
     }
 
-    public uint SourceTickerId => (uint)((SourceId << 16) | TickerId);
+    public uint SourceTickerId => (uint)((SourceId << 16) | InstrumentId);
 
     public ushort SourceId { get; }
-    public ushort TickerId { get; }
+    public ushort InstrumentId { get; }
 
     public DiscreetTimePeriod CoveringPeriod { get; }
     public InstrumentType     InstrumentType { get; }
@@ -413,19 +429,19 @@ public readonly struct PricingInstrumentId // not inheriting from IPricingInstru
 
     public string? Category { get; }
 
-    public string Ticker => SourceTickerIdentifierExtensions.GetRegisteredTickerName(SourceTickerId);
-    public string Source => SourceTickerIdentifierExtensions.GetRegisteredSourceName(SourceId);
+    public string InstrumentName => SourceTickerIdentifierExtensions.GetRegisteredInstrumentName(SourceTickerId);
+    public string SourceName => SourceTickerIdentifierExtensions.GetRegisteredSourceName(SourceId);
 
     public override string ToString() =>
-        $"{nameof(PricingInstrumentId)}({nameof(SourceId)}: {SourceId}, {nameof(TickerId)}: {TickerId}, {nameof(Ticker)}: {Ticker}, " +
-        $"{nameof(Source)}: {Source}, {nameof(CoveringPeriod)}: {CoveringPeriod}, {nameof(InstrumentType)}: {InstrumentType}, " +
+        $"{nameof(PricingInstrumentIdValue)}({nameof(SourceId)}: {SourceId}, {nameof(InstrumentId)}: {InstrumentId}, {nameof(InstrumentName)}: {InstrumentName}, " +
+        $"{nameof(SourceName)}: {SourceName}, {nameof(CoveringPeriod)}: {CoveringPeriod}, {nameof(InstrumentType)}: {InstrumentType}, " +
         $"{nameof(MarketClassification)}: {MarketClassification}, {nameof(Category)}: {Category})";
 
 
-    public static implicit operator SourceTickerIdentifier(PricingInstrumentId sourceTickerId) =>
-        new(sourceTickerId.SourceId, sourceTickerId.TickerId);
+    public static implicit operator SourceTickerIdentifier(PricingInstrumentIdValue sourceTickerId) =>
+        new(sourceTickerId.SourceId, sourceTickerId.InstrumentId);
 
-    public static implicit operator PeriodInstrumentTypePair(PricingInstrumentId sourceTickerId) =>
+    public static implicit operator PeriodInstrumentTypePair(PricingInstrumentIdValue sourceTickerId) =>
         new(sourceTickerId.InstrumentType, sourceTickerId.CoveringPeriod);
 }
 
@@ -433,20 +449,32 @@ public static class PricingInstrumentIdExtensions
 {
     private static readonly ConcurrentMap<uint, string> SingleStringShortNameLookup = new();
 
-    private static readonly ConcurrentMap<uint, PricingInstrumentId> PricingInstrumentIdLookup = new();
+    private static readonly ConcurrentMap<uint, PricingInstrumentIdValue> PricingInstrumentIdLookup = new();
 
     public static bool Register(this IPricingInstrumentId id)
     {
         SourceTickerIdentifierExtensions.Register(id);
-        if (!PricingInstrumentIdLookup.ContainsKey(id.SourceTickerId))
+        if (!PricingInstrumentIdLookup.ContainsKey(id.SourceInstrumentId))
         {
             var pricingInstrumentId
-                = new PricingInstrumentId(id.SourceId, id.InstrumentId, new PeriodInstrumentTypePair(id.InstrumentType, id.CoveringPeriod));
-            PricingInstrumentIdLookup.Add(id.SourceTickerId, pricingInstrumentId);
+                = new PricingInstrumentIdValue(id.SourceId, id.InstrumentId, new PeriodInstrumentTypePair(id.InstrumentType, id.CoveringPeriod));
+            PricingInstrumentIdLookup.Add(id.SourceInstrumentId, pricingInstrumentId);
         }
-        if (!SingleStringShortNameLookup.TryGetValue(id.SourceTickerId, out var shortName))
+        if (!SingleStringShortNameLookup.TryGetValue(id.SourceInstrumentId, out var shortName))
             if (id.SourceName != SourceTickerIdentifierExtensions.NoSourceNameValue &&
                 id.InstrumentName != SourceTickerIdentifierExtensions.NoTickerNameValue)
+            {
+                shortName = $"{id.SourceName}-{id.InstrumentName}_{id.InstrumentType}-{id.CoveringPeriod.ShortName()}";
+                SingleStringShortNameLookup.Add(id.SourceInstrumentId, shortName);
+                return true;
+            }
+        return false;
+    }
+
+    public static bool Register(this PricingInstrumentIdValue id)
+    {
+        if (!SingleStringShortNameLookup.TryGetValue(id.SourceTickerId, out var shortName))
+            if (id.SourceName != SourceTickerIdentifierExtensions.NoSourceNameValue && id.InstrumentName != SourceTickerIdentifierExtensions.NoTickerNameValue)
             {
                 shortName = $"{id.SourceName}-{id.InstrumentName}_{id.InstrumentType}-{id.CoveringPeriod.ShortName()}";
                 SingleStringShortNameLookup.Add(id.SourceTickerId, shortName);
@@ -455,27 +483,15 @@ public static class PricingInstrumentIdExtensions
         return false;
     }
 
-    public static bool Register(this PricingInstrumentId id)
-    {
-        if (!SingleStringShortNameLookup.TryGetValue(id.SourceTickerId, out var shortName))
-            if (id.Source != SourceTickerIdentifierExtensions.NoSourceNameValue && id.Ticker != SourceTickerIdentifierExtensions.NoTickerNameValue)
-            {
-                shortName = $"{id.Source}-{id.Ticker}_{id.InstrumentType}-{id.CoveringPeriod.ShortName()}";
-                SingleStringShortNameLookup.Add(id.SourceTickerId, shortName);
-                return true;
-            }
-        return false;
-    }
-
     public static string GetReferenceShortName(this IPricingInstrumentId id) => GetReferenceShortName(id.ToPricingInstrumentId());
 
-    public static string GetReferenceShortName(this PricingInstrumentId id)
+    public static string GetReferenceShortName(this PricingInstrumentIdValue id)
     {
         if (!SingleStringShortNameLookup.TryGetValue(id.SourceTickerId, out var shortName))
         {
-            if (id.Source != SourceTickerIdentifierExtensions.NoSourceNameValue && id.Ticker != SourceTickerIdentifierExtensions.NoTickerNameValue)
+            if (id.SourceName != SourceTickerIdentifierExtensions.NoSourceNameValue && id.InstrumentName != SourceTickerIdentifierExtensions.NoTickerNameValue)
             {
-                shortName = $"{id.Source}-{id.Ticker}_{id.InstrumentType}-{id.CoveringPeriod.ShortName()}";
+                shortName = $"{id.SourceName}-{id.InstrumentName}_{id.InstrumentType}-{id.CoveringPeriod.ShortName()}";
                 SingleStringShortNameLookup.Add(id.SourceTickerId, shortName);
             }
             else
@@ -486,21 +502,21 @@ public static class PricingInstrumentIdExtensions
         return shortName!;
     }
 
-    public static PricingInstrumentId ToPricingInstrumentId(this IPricingInstrumentId pricingInstrumentId) => new(pricingInstrumentId);
+    public static PricingInstrumentIdValue ToPricingInstrumentId(this IPricingInstrumentId pricingInstrumentId) => new(pricingInstrumentId);
 
-    public static PricingInstrumentId ToPricingInstrumentId(this ISourceTickerId id, PeriodInstrumentTypePair periodInstrumentType) =>
+    public static PricingInstrumentIdValue ToPricingInstrumentId(this ISourceTickerId id, PeriodInstrumentTypePair periodInstrumentType) =>
         new(id, periodInstrumentType);
 
-    public static PricingInstrumentId ToPricingInstrumentId(this SourceTickerIdentifier id, PeriodInstrumentTypePair periodInstrumentType) =>
+    public static PricingInstrumentIdValue ToPricingInstrumentId(this SourceTickerIdentifier id, PeriodInstrumentTypePair periodInstrumentType) =>
         new(id, periodInstrumentType);
 
-    public static PricingInstrumentId ToPricingInstrumentId(this SourceTickerIdValue id, PeriodInstrumentTypePair periodInstrumentType) =>
-        new(id.SourceId, id.TickerId, periodInstrumentType);
+    public static PricingInstrumentIdValue ToPricingInstrumentId(this SourceTickerIdValue id, PeriodInstrumentTypePair periodInstrumentType) =>
+        new(id.SourceId, id.InstrumentId, periodInstrumentType);
 
-    public static PricingInstrumentId ToPricingInstrumentId
+    public static PricingInstrumentIdValue ToPricingInstrumentId
         (this SourceTickerIdentifier id, DiscreetTimePeriod period, InstrumentType instrumentType) =>
         new(id, period, instrumentType);
 
-    public static PricingInstrumentId ToPricingInstrumentId(this SourceTickerIdValue id, DiscreetTimePeriod period, InstrumentType instrumentType) =>
-        new(id.SourceId, id.TickerId, period, instrumentType);
+    public static PricingInstrumentIdValue ToPricingInstrumentId(this SourceTickerIdValue id, DiscreetTimePeriod period, InstrumentType instrumentType) =>
+        new(id.SourceId, id.InstrumentId, period, instrumentType);
 }

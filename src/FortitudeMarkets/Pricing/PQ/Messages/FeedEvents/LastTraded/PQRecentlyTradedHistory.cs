@@ -10,8 +10,8 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 
-public interface IPQRecentlyTradedHistory : IMutableRecentlyTradedHistory, IPQSupportsNumberPrecisionFieldUpdates<IRecentlyTradedHistory>
-  , IPQSupportsStringUpdates<IRecentlyTradedHistory>, ITrackableReset<IPQRecentlyTradedHistory>, ISupportsPQNameIdLookupGenerator
+public interface IPQRecentlyTradedHistory : IMutableRecentlyTradedHistory, IPQSupportsNumberPrecisionFieldUpdates
+  , IPQSupportsStringUpdates, ITrackableReset<IPQRecentlyTradedHistory>, ISupportsPQNameIdLookupGenerator
 {
     new IPQOnTickLastTraded OnTickLastTraded            { get; set; }
     new IPQRecentlyTraded   AllLimitedHistoryLastTrades { get; set; }

@@ -241,7 +241,7 @@ public class PQSourceTickerInfoTests
     {
         Assert.IsFalse(emptySrcTkrInfo.IsIdUpdated);
         Assert.IsFalse(emptySrcTkrInfo.HasUpdates);
-        Assert.AreEqual(0u, emptySrcTkrInfo.SourceTickerId);
+        Assert.AreEqual(0u, emptySrcTkrInfo.SourceInstrumentId);
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         var expectedId = ushort.MaxValue;
@@ -249,7 +249,7 @@ public class PQSourceTickerInfoTests
         Assert.IsTrue(emptySrcTkrInfo.IsIdUpdated);
         Assert.IsTrue(emptySrcTkrInfo.HasUpdates);
         var expectedStreamId = (uint)expectedId << 16;
-        Assert.AreEqual(expectedStreamId, emptySrcTkrInfo.SourceTickerId);
+        Assert.AreEqual(expectedStreamId, emptySrcTkrInfo.SourceInstrumentId);
         var sourceUpdates = emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, sourceUpdates.Count);
         var expectedFieldUpdate = new PQFieldUpdate(PQFeedFields.SourceTickerId, expectedStreamId);
@@ -268,7 +268,7 @@ public class PQSourceTickerInfoTests
 
         var newEmpty = new PQSourceTickerInfo(emptySrcTkrInfo);
         newEmpty.UpdateField(sourceUpdates[0]);
-        Assert.AreEqual(expectedStreamId, newEmpty.SourceTickerId);
+        Assert.AreEqual(expectedStreamId, newEmpty.SourceInstrumentId);
         Assert.IsFalse(newEmpty.IsIdUpdated);
     }
 
@@ -857,7 +857,7 @@ public class PQSourceTickerInfoTests
     (IList<PQFieldUpdate> checkFieldUpdates,
         IPQSourceTickerInfo srcTkrInfo)
     {
-        Assert.AreEqual(new PQFieldUpdate(PQFeedFields.SourceTickerId, srcTkrInfo.SourceTickerId),
+        Assert.AreEqual(new PQFieldUpdate(PQFeedFields.SourceTickerId, srcTkrInfo.SourceInstrumentId),
                         PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.SourceTickerId),
                         $"For {srcTkrInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         var decimalPlaces = BitConverter.GetBytes(decimal.GetBits(

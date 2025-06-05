@@ -583,9 +583,8 @@ public class PQOnTickLastTradedTests
 
             Assert.IsTrue(toString.Contains(otlt.GetType().Name));
             Assert.IsTrue(toString.Contains($"{nameof(otlt.MaxAllowedSize)}: {otlt.MaxAllowedSize}"));
-
-            Assert.IsTrue(toString.Contains($"LastTrades: [{otlt.EachLastTradeByIndexOnNewLines()}]"));
             Assert.IsTrue(toString.Contains($"{nameof(otlt.Count)}: {otlt.Count}"));
+            Assert.IsTrue(toString.Contains($"{nameof(otlt.LastTrades)}: [\n{otlt.EachLastTradeByIndexOnNewLines()}]"));
         }
     }
 

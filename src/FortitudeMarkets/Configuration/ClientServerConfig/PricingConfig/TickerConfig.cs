@@ -20,8 +20,8 @@ public interface ITickerConfig : IInterfacesComparable<ITickerConfig>
     string? Ticker            { get; set; }
     string  TickerDescription { get; set; }
 
-    TickerAvailability? TickerAvailability   { get; set; }
-    TickerQuoteDetailLevel?  PublishedDetailLevel { get; set; }
+    TickerAvailability?     TickerAvailability   { get; set; }
+    TickerQuoteDetailLevel? PublishedDetailLevel { get; set; }
 
     MarketClassificationConfig? MarketClassificationConfig { get; set; }
 
@@ -32,10 +32,12 @@ public interface ITickerConfig : IInterfacesComparable<ITickerConfig>
     decimal? IncrementSize          { get; set; }
     ushort?  MinimumQuoteLife       { get; set; }
     uint?    DefaultMaxValidMs      { get; set; }
-    byte?    MaximumPublishedLayers { get; set; }
+    ushort?    MaximumPublishedLayers { get; set; }
 
     LayerFlags?      LayerFlags      { get; set; }
     LastTradedFlags? LastTradedFlags { get; set; }
+
+    PublishableQuoteInstantBehaviorFlags? QuoteBehaviorFlags { get; set; }
 }
 
 public class TickerConfig : ConfigSection, ITickerConfig
@@ -49,7 +51,8 @@ public class TickerConfig : ConfigSection, ITickerConfig
     (ushort tickerId, string ticker, TickerAvailability? tickerAvailability = null, TickerQuoteDetailLevel? publishedQuoteLevel = null
       , MarketClassification? marketClassification = null, decimal? roundingPrecision = null, decimal? pip = null, decimal? minSubmitSize = null
       , decimal? maxSubmitSize = null, decimal? incrementSize = null, ushort? minimumQuoteLife = null, uint? defaultMaxValidMs = null
-      , LayerFlags? layerFlags = null, byte? maximumPublisherLayers = null, LastTradedFlags? lastTradedFlags = null)
+      , LayerFlags? layerFlags = null, byte? maximumPublisherLayers = null, LastTradedFlags? lastTradedFlags = null
+      , PublishableQuoteInstantBehaviorFlags? quoteInstantBehaviorFlags = null)
     {
         TickerId             = tickerId;
         Ticker               = ticker;
@@ -66,6 +69,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         LayerFlags             = layerFlags;
         MaximumPublishedLayers = maximumPublisherLayers;
         LastTradedFlags        = lastTradedFlags;
+        QuoteBehaviorFlags     = quoteInstantBehaviorFlags;
     }
 
     public TickerConfig(ITickerConfig toClone, IConfigurationRoot root, string path) : base(root, path)
@@ -85,6 +89,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         LayerFlags                 = toClone.LayerFlags;
         MaximumPublishedLayers     = toClone.MaximumPublishedLayers;
         LastTradedFlags            = toClone.LastTradedFlags;
+        QuoteBehaviorFlags         = toClone.QuoteBehaviorFlags;
     }
 
     public TickerConfig(ITickerConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
@@ -94,7 +99,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(SubscribeToPrices)];
-            return checkValue != null ? bool.Parse(checkValue) : null;
+            return checkValue.IsNotNullOrEmpty() ? bool.Parse(checkValue!) : null;
         }
         set => this[nameof(SubscribeToPrices)] = value.ToString();
     }
@@ -104,7 +109,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(TradingEnabled)];
-            return checkValue != null ? bool.Parse(checkValue) : null;
+            return checkValue.IsNotNullOrEmpty() ? bool.Parse(checkValue!) : null;
         }
         set => this[nameof(TradingEnabled)] = value.ToString();
     }
@@ -114,7 +119,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(Pip)];
-            return checkValue != null ? decimal.Parse(checkValue) : null;
+            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue!) : null;
         }
         set => this[nameof(Pip)] = value.ToString();
     }
@@ -124,7 +129,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(DefaultMaxValidMs)];
-            return checkValue != null ? uint.Parse(checkValue) : null;
+            return checkValue.IsNotNullOrEmpty() ? uint.Parse(checkValue!) : null;
         }
         set => this[nameof(DefaultMaxValidMs)] = value.ToString();
     }
@@ -169,7 +174,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(TickerAvailability)];
-            return checkValue != null ? Enum.Parse<TickerAvailability>(checkValue) : null;
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<TickerAvailability>(checkValue!) : null;
         }
         set => this[nameof(TickerAvailability)] = value.ToString();
     }
@@ -179,7 +184,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(PublishedDetailLevel)];
-            return checkValue != null ? Enum.Parse<TickerQuoteDetailLevel>(checkValue) : null;
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<TickerQuoteDetailLevel>(checkValue!) : null;
         }
         set => this[nameof(PublishedDetailLevel)] = value.ToString();
     }
@@ -189,7 +194,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(RoundingPrecision)];
-            return checkValue != null ? decimal.Parse(checkValue) : null;
+            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue!) : null;
         }
         set => this[nameof(RoundingPrecision)] = value?.ToString();
     }
@@ -199,7 +204,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(MinSubmitSize)];
-            return checkValue != null ? decimal.Parse(checkValue) : null;
+            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue!) : null;
         }
         set => this[nameof(MinSubmitSize)] = value?.ToString();
     }
@@ -209,7 +214,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(MaxSubmitSize)];
-            return checkValue != null ? decimal.Parse(checkValue) : null;
+            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue!) : null;
         }
         set => this[nameof(MaxSubmitSize)] = value?.ToString();
     }
@@ -219,7 +224,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(IncrementSize)];
-            return checkValue != null ? decimal.Parse(checkValue) : null;
+            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue!) : null;
         }
         set => this[nameof(IncrementSize)] = value?.ToString();
     }
@@ -229,7 +234,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(MinimumQuoteLife)];
-            return checkValue != null ? ushort.Parse(checkValue) : null;
+            return checkValue.IsNotNullOrEmpty() ? ushort.Parse(checkValue!) : null;
         }
         set => this[nameof(MinimumQuoteLife)] = value?.ToString();
     }
@@ -239,17 +244,17 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(LayerFlags)];
-            return checkValue != null ? Enum.Parse<LayerFlags>(checkValue) : null;
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<LayerFlags>(checkValue!) : null;
         }
         set => this[nameof(LayerFlags)] = value.ToString();
     }
 
-    public byte? MaximumPublishedLayers
+    public ushort? MaximumPublishedLayers
     {
         get
         {
             var checkValue = this[nameof(MaximumPublishedLayers)];
-            return checkValue != null ? byte.Parse(checkValue) : null;
+            return checkValue.IsNotNullOrEmpty() ? ushort.Parse(checkValue!) : null;
         }
         set => this[nameof(MaximumPublishedLayers)] = value?.ToString();
     }
@@ -259,9 +264,19 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(LastTradedFlags)];
-            return checkValue != null ? Enum.Parse<LastTradedFlags>(checkValue) : null;
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<LastTradedFlags>(checkValue!) : null;
         }
         set => this[nameof(LastTradedFlags)] = value.ToString();
+    }
+
+    public PublishableQuoteInstantBehaviorFlags? QuoteBehaviorFlags 
+    {
+        get
+        {
+            var checkValue = this[nameof(QuoteBehaviorFlags)];
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<PublishableQuoteInstantBehaviorFlags>(checkValue!) : null;
+        }
+        set => this[nameof(QuoteBehaviorFlags)] = value.ToString();
     }
 
     public bool AreEquivalent(ITickerConfig? other, bool exactTypes = false)
@@ -282,10 +297,11 @@ public class TickerConfig : ConfigSection, ITickerConfig
         var layerFlagsSizeSame       = LayerFlags == other.LayerFlags;
         var maxLayersSame            = MaximumPublishedLayers == other.MaximumPublishedLayers;
         var lastTradedFlagsSame      = LastTradedFlags == other.LastTradedFlags;
+        var quoteBehaviorFlagsSame      = QuoteBehaviorFlags == other.QuoteBehaviorFlags;
 
         return tickerIdSame && tickerSame && availabilitySame && quoteLevelSame && marketClassificationSame && roundingSame && pipSame
             && minSubitSizeSame && maxSubitSizeSame && incrementSizeSame && minQuoteLifeSizeSame && maxValidMsSame && layerFlagsSizeSame
-            && maxLayersSame && lastTradedFlagsSame;
+            && maxLayersSame && lastTradedFlagsSame && quoteBehaviorFlagsSame;
     }
 
     public static void ClearValues(IConfigurationRoot root, string path)
@@ -307,17 +323,11 @@ public class TickerConfig : ConfigSection, ITickerConfig
         root[path + ":" + nameof(LayerFlags)]                 = null;
         root[path + ":" + nameof(MaximumPublishedLayers)]     = null;
         root[path + ":" + nameof(LastTradedFlags)]            = null;
+        root[path + ":" + nameof(QuoteBehaviorFlags)]         = null;
     }
 
-    protected bool Equals(ITickerConfig other) => AreEquivalent(other, true);
 
-    public override bool Equals(object? obj)
-    {
-        if (ReferenceEquals(null, obj)) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != GetType()) return false;
-        return Equals((ITickerConfig)obj);
-    }
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ITickerConfig, true);
 
     public override int GetHashCode()
     {
@@ -336,6 +346,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         hashCode.Add(LayerFlags);
         hashCode.Add(MaximumPublishedLayers);
         hashCode.Add(LastTradedFlags);
+        hashCode.Add(QuoteBehaviorFlags);
         return hashCode.ToHashCode();
     }
 
@@ -346,5 +357,5 @@ public class TickerConfig : ConfigSection, ITickerConfig
         $"{nameof(RoundingPrecision)}: {RoundingPrecision}, {nameof(Pip)}: {Pip}, {nameof(MinSubmitSize)}: {MinSubmitSize}, " +
         $"{nameof(MaxSubmitSize)}: {MaxSubmitSize}, {nameof(IncrementSize)}: {IncrementSize}, {nameof(MinimumQuoteLife)}: {MinimumQuoteLife}, " +
         $"{nameof(DefaultMaxValidMs)}: {DefaultMaxValidMs}, {nameof(SubscribeToPrices)}: {SubscribeToPrices}, {nameof(TradingEnabled)}: {TradingEnabled}, " +
-        $"{nameof(LayerFlags)}: {LayerFlags}, {nameof(LastTradedFlags)}: {LastTradedFlags}, {nameof(Path)}: {Path})";
+        $"{nameof(LayerFlags)}: {LayerFlags}, {nameof(LastTradedFlags)}: {LastTradedFlags}, , {nameof(QuoteBehaviorFlags)}: {QuoteBehaviorFlags}, {nameof(Path)}: {Path})";
 }

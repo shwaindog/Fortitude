@@ -435,28 +435,14 @@ public class PQExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IPQE
 
     public IPQExternalCounterPartyOrder ToExternalCounterPartyInfoOrder() => this;
 
-    int IPQSupportsNumberPrecisionFieldUpdates<IPQAnonymousOrder>.UpdateField(PQFieldUpdate fieldUpdate) => owner.UpdateField(fieldUpdate);
-
     public virtual bool UpdateFieldString(PQFieldStringUpdate stringUpdate) => owner.UpdateFieldString(stringUpdate);
 
-    public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates
-        (DateTime snapShotTime, PQMessageFlags messageFlags) =>
+    public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags) =>
         owner.GetStringUpdates(snapShotTime, messageFlags);
-
-    IEnumerable<PQFieldUpdate> IPQSupportsNumberPrecisionFieldUpdates<IPQAdditionalExternalCounterPartyOrderInfo>.GetDeltaUpdateFields
-        (DateTime snapShotTime, PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings) =>
-        GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSettings);
-
-    IEnumerable<PQFieldUpdate> IPQSupportsNumberPrecisionFieldUpdates<IPQAnonymousOrder>.GetDeltaUpdateFields
-        (DateTime snapShotTime, PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings) =>
-        owner.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSettings);
 
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
         (DateTime snapShotTime, PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting) =>
         owner.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSetting);
-
-    int IPQSupportsNumberPrecisionFieldUpdates<IPQAdditionalExternalCounterPartyOrderInfo>.UpdateField(PQFieldUpdate fieldUpdate) =>
-        UpdateField(fieldUpdate);
 
     public virtual int UpdateField(PQFieldUpdate pqFieldUpdate) => owner.UpdateField(pqFieldUpdate);
 
@@ -499,10 +485,6 @@ public class PQExternalCounterPartyOrder : ReusableObject<IAnonymousOrder>, IPQE
 
     IAdditionalExternalCounterPartyOrderInfo ITransferState<IAdditionalExternalCounterPartyOrderInfo>.CopyFrom
         (IAdditionalExternalCounterPartyOrderInfo source, CopyMergeFlags copyMergeFlags) =>
-        TryCopyAdditionalCounterPartyOrderInfo(source, copyMergeFlags);
-
-    IPQAdditionalExternalCounterPartyOrderInfo ITransferState<IPQAdditionalExternalCounterPartyOrderInfo>.CopyFrom
-        (IPQAdditionalExternalCounterPartyOrderInfo source, CopyMergeFlags copyMergeFlags) =>
         TryCopyAdditionalCounterPartyOrderInfo(source, copyMergeFlags);
 
     IMutableAdditionalExternalCounterPartyOrderInfo ITransferState<IMutableAdditionalExternalCounterPartyOrderInfo>.CopyFrom

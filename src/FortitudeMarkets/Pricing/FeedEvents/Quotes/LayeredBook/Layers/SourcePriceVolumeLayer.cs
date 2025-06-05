@@ -6,6 +6,7 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 #endregion
 
@@ -13,6 +14,7 @@ namespace FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 
 public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolumeLayer
 {
+    protected LayerBooleanValues BooleanValues;
     public SourcePriceVolumeLayer() { }
 
     public SourcePriceVolumeLayer
@@ -44,7 +46,17 @@ public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolum
     public string? SourceName { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool Executable { get; set; }
+    public bool Executable
+    {
+        get => BooleanValues.HasExecutable();
+        set
+        {
+            if (value)
+                BooleanValues |= LayerBooleanValues.Executable;
+
+            else if (Executable) BooleanValues ^= LayerBooleanValues.Executable;
+        }
+    }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public override bool IsEmpty
@@ -78,11 +90,20 @@ public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolum
         Executable = false;
     }
 
+    ISourcePriceVolumeLayer ICloneable<ISourcePriceVolumeLayer>.Clone() => Clone();
+
+    IMutableSourcePriceVolumeLayer IMutableSourcePriceVolumeLayer.Clone() => Clone();
+
+    ISourcePriceVolumeLayer ISourcePriceVolumeLayer.Clone() => Clone();
+
+    public override SourcePriceVolumeLayer Clone() =>
+        Recycler?.Borrow<SourcePriceVolumeLayer>().CopyFrom(this, QuoteInstantBehaviorFlags.DisableUpgradeLayer) ?? new SourcePriceVolumeLayer(this);
+
     public override SourcePriceVolumeLayer CopyFrom
-    (IPriceVolumeLayer source
+    (IPriceVolumeLayer source, QuoteInstantBehaviorFlags behaviorFlags
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(source, copyMergeFlags);
+        base.CopyFrom(source, behaviorFlags, copyMergeFlags);
         if (source is ISourcePriceVolumeLayer sourceSourcePriceVolumeLayer)
         {
             SourceName = sourceSourcePriceVolumeLayer.SourceName;
@@ -91,14 +112,6 @@ public class SourcePriceVolumeLayer : PriceVolumeLayer, IMutableSourcePriceVolum
 
         return this;
     }
-
-    ISourcePriceVolumeLayer ICloneable<ISourcePriceVolumeLayer>.Clone() => Clone();
-
-    IMutableSourcePriceVolumeLayer IMutableSourcePriceVolumeLayer.Clone() => Clone();
-
-    ISourcePriceVolumeLayer ISourcePriceVolumeLayer.Clone() => Clone();
-
-    public override SourcePriceVolumeLayer Clone() => Recycler?.Borrow<SourcePriceVolumeLayer>().CopyFrom(this) ?? new SourcePriceVolumeLayer(this);
 
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {

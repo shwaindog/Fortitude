@@ -37,7 +37,7 @@ public struct HistoricalCandleStreamRequest
     }
 
     public HistoricalCandleStreamRequest
-    (PricingInstrumentId pricingInstrument, ChannelPublishRequest<Candle> channelRequest
+    (PricingInstrumentIdValue pricingInstrument, ChannelPublishRequest<Candle> channelRequest
       , UnboundedTimeRange? timeRange = null, bool inReverseChronologicalOrder = false)
     {
         SourceTickerIdentifier      = pricingInstrument;
@@ -72,7 +72,7 @@ public struct HistoricalCandleRequestResponse
     }
 
     public HistoricalCandleRequestResponse
-        (PricingInstrumentId pricingInstrument, UnboundedTimeRange? timeRange = null, bool inReverseChronologicalOrder = false)
+        (PricingInstrumentIdValue pricingInstrument, UnboundedTimeRange? timeRange = null, bool inReverseChronologicalOrder = false)
     {
         SourceTickerIdentifier      = pricingInstrument;
         InReverseChronologicalOrder = inReverseChronologicalOrder;
@@ -141,8 +141,8 @@ public class HistoricalCandlesRetrievalRule : TimeSeriesRepositoryAccessRule
         var matchingInstruments =
             TimeSeriesRepository
                 !.InstrumentFilesMap.Keys
-                 .Where(i => i.InstrumentName == sourceTickerIdentifier.Ticker
-                          && i.SourceName == sourceTickerIdentifier.Source && i.CoveringPeriod == candlePeriod)
+                 .Where(i => i.InstrumentName == sourceTickerIdentifier.InstrumentName
+                          && i.SourceName == sourceTickerIdentifier.SourceName && i.CoveringPeriod == candlePeriod)
                  .ToList();
         return matchingInstruments.Count != 1 ? null : matchingInstruments[0];
     }

@@ -8,8 +8,8 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
-using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 #endregion
 
@@ -126,15 +126,16 @@ public class PQValueDatePriceVolumeLayer : PQPriceVolumeLayer, IPQValueDatePrice
         {
             var originalValueDate = valueDate;
             PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref valueDate, pqFieldUpdate.Payload);
-            IsValueDateUpdated = originalValueDate != valueDate; // incase of reset and sending 0;
+            IsValueDateUpdated = originalValueDate != valueDate; // in-case of reset and sending 0;
             return 0;
         }
         return base.UpdateField(pqFieldUpdate);
     }
 
-    public override PQValueDatePriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override PQValueDatePriceVolumeLayer CopyFrom(IPriceVolumeLayer source, QuoteInstantBehaviorFlags behaviorFlags
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(source, copyMergeFlags);
+        base.CopyFrom(source, behaviorFlags, copyMergeFlags);
         var pqValueDate   = source as IPQValueDatePriceVolumeLayer;
         var isFullReplace = copyMergeFlags.HasFullReplace();
         if (source is IValueDatePriceVolumeLayer vlDtPvLayer && pqValueDate == null)

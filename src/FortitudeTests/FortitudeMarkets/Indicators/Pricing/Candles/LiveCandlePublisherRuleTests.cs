@@ -249,7 +249,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
     public async Task NewLiveCandle_SendTwoPeriodsOfQuotes_PublishingNextTickSendsCompleteOfFirstPeriod()
     {
         var test5SLivePeriodClient = new TestLivePeriodClient
-            (new PricingInstrumentId
+            (new PricingInstrumentIdValue
                 ((SourceTickerIdentifier)tickerId5SPeriod
                , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(FiveSeconds))));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
@@ -270,7 +270,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
     public async Task NewLiveCandle_SendOnePeriodsOfQuotes_IncrementingTimeTriggersOnCompleteTimer()
     {
         var test5SLivePeriodClient = new TestLivePeriodClient
-            (new PricingInstrumentId
+            (new PricingInstrumentIdValue
                 ((SourceTickerIdentifier)tickerId5SPeriod
                , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(FiveSeconds))));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
@@ -298,7 +298,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
     public async Task NewLiveCandle_SendSingleQuotes_LivePeriodUpdateReceivedBetweenEach()
     {
         var test5SLivePeriodClient = new TestLivePeriodClient
-            (new PricingInstrumentId
+            (new PricingInstrumentIdValue
                 ((SourceTickerIdentifier)tickerId5SPeriod
                , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(FiveSeconds))));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
@@ -334,7 +334,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
     {
         await stubTimeContext.AddSecondsAsync(45);
         var test1MLivePeriodClient = new TestLivePeriodClient
-            (new PricingInstrumentId
+            (new PricingInstrumentIdValue
                 ((SourceTickerIdentifier)tickerId1MPeriod
                , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(OneMinute))));
         test1MLivePeriodClient.RegisterSubPeriodResponse
@@ -379,7 +379,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
     {
         await stubTimeContext.AddSecondsAsync(15);
         var test30SLivePeriodClient = new TestLivePeriodClient
-            (new PricingInstrumentId
+            (new PricingInstrumentIdValue
                 ((SourceTickerIdentifier)tickerId30SPeriod
                , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(ThirtySeconds))));
         var taskCompletionsSource = new TaskCompletionSource<int>();
@@ -427,7 +427,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
     {
         await stubTimeContext.AddSecondsAsync(15);
         var test30SLivePeriodClient = new TestLivePeriodClient
-            (new PricingInstrumentId
+            (new PricingInstrumentIdValue
                 ((SourceTickerIdentifier)tickerId30SPeriod
                , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(ThirtySeconds))));
         test30SLivePeriodClient.RegisterSubPeriodResponse
@@ -467,7 +467,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
     public async Task NewLiveCandleOnStartup_ReceivesNoQuotesOrSubPeriods_PublishesNothing()
     {
         var test5SLivePeriodClient = new TestLivePeriodClient
-            (new PricingInstrumentId
+            (new PricingInstrumentIdValue
                 ((SourceTickerIdentifier)tickerId5SPeriod
                , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(FiveSeconds))));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
@@ -489,7 +489,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
     public async Task NewLiveCandleOnStartup_ReceivesNoQuotesOrSubPeriods_StartReceivingAndPublishing()
     {
         var test5SLivePeriodClient = new TestLivePeriodClient
-            (new PricingInstrumentId
+            (new PricingInstrumentIdValue
                 ((SourceTickerIdentifier)tickerId5SPeriod
                , new PeriodInstrumentTypePair(InstrumentType.Candle, new DiscreetTimePeriod(FiveSeconds))));
         await indicatorRegistryStubRule.DeployChildRuleAsync(test5SLivePeriodClient);
@@ -542,7 +542,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
     }
 
     private class TestLivePeriodClient
-        (PricingInstrumentId pricingInstrumentId, int waitNumberForCompleted = 1, int waitNumberForLive = 1) : Rule
+        (PricingInstrumentIdValue pricingInstrumentId, int waitNumberForCompleted = 1, int waitNumberForLive = 1) : Rule
     {
         private const string LivePeriodTestClientPublishPricesAddress
             = "TestClient.LiveCandle.Publish.Quotes";
@@ -576,7 +576,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
 
         public override async ValueTask StartAsync()
         {
-            quoteListenAddress = pricingInstrumentId.Source.SubscribeToTickerQuotes(pricingInstrumentId.Ticker);
+            quoteListenAddress = pricingInstrumentId.SourceName.SubscribeToTickerQuotes(pricingInstrumentId.InstrumentName);
             listenForPublishPricesSubscription = await this.RegisterRequestListenerAsync<PublishQuotesWithTimeProgress, ValueTask>
                 (LivePeriodTestClientPublishPricesAddress, PublishPriceQuotesHandler);
             livePublishSubscription = await this.RegisterListenerAsync<Candle>

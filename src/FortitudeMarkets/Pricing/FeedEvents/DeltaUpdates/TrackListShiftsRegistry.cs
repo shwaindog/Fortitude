@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Diagnostics;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Lists;
@@ -11,7 +10,7 @@ namespace FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 
 public class TrackListShiftsRegistry<TElement, TCompare> : ITrackableReset<TrackListShiftsRegistry<TElement, TCompare>>
   , ITransferState<IEnumerable<ListShiftCommand>>, IMutableTracksShiftsList<TElement, TCompare>
-    where TElement : class, TCompare, ITrackableReset<TElement>, IReusableObject<TElement>, IShowsEmpty
+    where TElement : class, TCompare, ITrackableReset<TElement>, IRecyclableObject, IShowsEmpty
 {
     protected readonly IMutableTracksShiftsList<TElement, TCompare> ShiftedList;
 

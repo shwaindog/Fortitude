@@ -576,8 +576,8 @@ public class PQRecentlyTradedTests
 
             Assert.IsTrue(toString.Contains(rt.GetType().Name));
             Assert.IsTrue(toString.Contains($"{nameof(rt.MaxAllowedSize)}: {rt.MaxAllowedSize:N0}"));
-            Assert.IsTrue(toString.Contains($"LastTrades: [{rt.EachLastTradeByIndexOnNewLines()}]"));
             Assert.IsTrue(toString.Contains($"{nameof(rt.Count)}: {rt.Count}"));
+            Assert.IsTrue(toString.Contains($"{nameof(rt.LastTrades)}: [\n{rt.EachLastTradeByIndexOnNewLines()}]"));
         }
     }
 

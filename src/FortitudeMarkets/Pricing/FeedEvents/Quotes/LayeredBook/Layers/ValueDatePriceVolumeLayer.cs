@@ -6,6 +6,7 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 #endregion
 
@@ -69,15 +70,6 @@ public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePric
         ValueDate = DateTime.MinValue;
     }
 
-    public override ValueDatePriceVolumeLayer CopyFrom
-    (IPriceVolumeLayer source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        base.CopyFrom(source, copyMergeFlags);
-        if (source is IValueDatePriceVolumeLayer sourceSourcePriceVolumeLayer) ValueDate = sourceSourcePriceVolumeLayer.ValueDate;
-        return this;
-    }
-
     IValueDatePriceVolumeLayer ICloneable<IValueDatePriceVolumeLayer>.Clone() => ((IValueDatePriceVolumeLayer)this).Clone();
 
     IValueDatePriceVolumeLayer IValueDatePriceVolumeLayer.Clone() => Clone();
@@ -86,7 +78,17 @@ public class ValueDatePriceVolumeLayer : PriceVolumeLayer, IMutableValueDatePric
 
     IMutableValueDatePriceVolumeLayer IMutableValueDatePriceVolumeLayer.Clone() => Clone();
 
-    public override ValueDatePriceVolumeLayer Clone() => Recycler?.Borrow<ValueDatePriceVolumeLayer>().CopyFrom(this) ?? new ValueDatePriceVolumeLayer(this);
+    public override ValueDatePriceVolumeLayer Clone() => 
+        Recycler?.Borrow<ValueDatePriceVolumeLayer>().CopyFrom(this, QuoteInstantBehaviorFlags.DisableUpgradeLayer) 
+     ?? new ValueDatePriceVolumeLayer(this);
+
+    public override ValueDatePriceVolumeLayer CopyFrom(IPriceVolumeLayer source, QuoteInstantBehaviorFlags behaviorFlags
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(source, behaviorFlags, copyMergeFlags);
+        if (source is IValueDatePriceVolumeLayer sourceSourcePriceVolumeLayer) ValueDate = sourceSourcePriceVolumeLayer.ValueDate;
+        return this;
+    }
 
     public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {

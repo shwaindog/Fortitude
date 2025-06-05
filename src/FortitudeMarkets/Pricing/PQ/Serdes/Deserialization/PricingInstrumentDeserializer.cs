@@ -30,7 +30,7 @@ internal class PricingInstrumentDeserializer : IDeserializer<IPricingInstrumentI
         if ((readContext.MarshalType & MarshalType.Binary) == 0) throw new ArgumentException("Expected readContext to be a binary buffer context");
         if (readContext is IBufferContext messageBufferContext)
         {
-            var pricingInstrument = recycler.Borrow<PricingInstrument>();
+            var pricingInstrument = recycler.Borrow<PricingInstrumentId>();
 
             using var fixedBuffer = messageBufferContext.EncodedBuffer!;
 

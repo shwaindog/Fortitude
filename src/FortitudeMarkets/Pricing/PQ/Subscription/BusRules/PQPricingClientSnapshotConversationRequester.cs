@@ -112,8 +112,8 @@ public sealed class PQPricingClientSnapshotConversationRequester : ConversationR
         if (started)
         {
             logger.Info("Sending snapshot request for streams {0}",
-                        string.Join(",", sourceTickerIds.Select(sti => sti.SourceTickerId)));
-            var allStreams = sourceTickerIds.Select(x => x.SourceTickerId).ToArray();
+                        string.Join(",", sourceTickerIds.Select(sti => sti.SourceInstrumentId)));
+            var allStreams = sourceTickerIds.Select(x => x.SourceInstrumentId).ToArray();
             Send(new PQSnapshotIdsRequest(allStreams));
             return true;
         }

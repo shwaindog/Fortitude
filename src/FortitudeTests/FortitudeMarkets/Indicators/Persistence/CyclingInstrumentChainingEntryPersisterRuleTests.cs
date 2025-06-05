@@ -178,7 +178,7 @@ public class CyclingInstrumentChainingEntryPersisterRuleTests : OneOfEachMessage
                                        .ToList();
 
             Console.Out.WriteLine($"Persisted {pricingInstrumentId} it has {entriesForInstrument.Count} instruments");
-            var instrument = new PricingInstrument(pricingInstrumentId);
+            var instrument = new PricingInstrumentId(pricingInstrumentId);
 
             var fileInfo = timeSeriesRepository.GetInstrumentFileEntryInfo(instrument);
             Assert.IsTrue(fileInfo.HasInstrument);

@@ -27,7 +27,7 @@ public class PriceListenerIndicatorRule<TQuoteType> : Rule
     {
         SourceTickerIdentifier = sourceTickerIdentifier;
 
-        feedTickerListenAddress = sourceTickerIdentifier.Source.SubscribeToTickerQuotes(sourceTickerIdentifier.Ticker);
+        feedTickerListenAddress = sourceTickerIdentifier.SourceName.SubscribeToTickerQuotes(sourceTickerIdentifier.InstrumentName);
     }
 
     public override async ValueTask StartAsync()

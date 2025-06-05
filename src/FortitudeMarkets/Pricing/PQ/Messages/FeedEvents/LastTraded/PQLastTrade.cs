@@ -18,7 +18,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
 [JsonDerivedType(typeof(PQLastTrade))]
 [JsonDerivedType(typeof(PQLastPaidGivenTrade))]
 [JsonDerivedType(typeof(PQLastExternalCounterPartyTrade))]
-public interface IPQLastTrade : IReusableObject<IPQLastTrade>, IMutableLastTrade, IPQSupportsNumberPrecisionFieldUpdates<ILastTrade>,
+public interface IPQLastTrade : IReusableObject<IPQLastTrade>, IMutableLastTrade, IPQSupportsNumberPrecisionFieldUpdates,
     ITrackableReset<IPQLastTrade>
 {
     [JsonIgnore] bool IsTradeIdUpdated                    { get; set; }

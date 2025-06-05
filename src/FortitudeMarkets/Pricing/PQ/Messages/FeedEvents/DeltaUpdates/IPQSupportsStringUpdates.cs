@@ -23,7 +23,7 @@ public interface ISupportsPQNameIdLookupGenerator : IHasNameIdLookup
     [JsonIgnore] new IPQNameIdLookupGenerator NameIdLookup { get; set; }
 }
 
-public interface IPQSupportsStringUpdates<T> : ITracksChanges<T> where T : class
+public interface IPQSupportsStringUpdates : ITracksChanges
 {
     bool UpdateFieldString(PQFieldStringUpdate stringUpdate);
 

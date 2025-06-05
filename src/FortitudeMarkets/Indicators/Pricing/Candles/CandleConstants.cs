@@ -25,40 +25,40 @@ public static class CandleConstants
     public const TimeBoundaryPeriod PersistPeriodsFrom = TimeBoundaryPeriod.FifteenSeconds;
     public const TimeBoundaryPeriod PersistPeriodsTo   = TimeBoundaryPeriod.OneYear;
 
-    public static string LiveCandleAddress(this PricingInstrumentId pricingInstrumentId) =>
-        string.Format(CandleLiveTemplate, pricingInstrumentId.Source, pricingInstrumentId.Ticker
+    public static string LiveCandleAddress(this PricingInstrumentIdValue pricingInstrumentId) =>
+        string.Format(CandleLiveTemplate, pricingInstrumentId.SourceName, pricingInstrumentId.InstrumentName
                     , pricingInstrumentId.CoveringPeriod.ShortName());
 
-    public static string CompleteCandleAddress(this PricingInstrumentId pricingInstrumentId) =>
-        string.Format(CandleCompleteTemplate, pricingInstrumentId.Source, pricingInstrumentId.Ticker
+    public static string CompleteCandleAddress(this PricingInstrumentIdValue pricingInstrumentId) =>
+        string.Format(CandleCompleteTemplate, pricingInstrumentId.SourceName, pricingInstrumentId.InstrumentName
                     , pricingInstrumentId.CoveringPeriod.ShortName());
 
     public static string CompleteCandleAddress(this SourceTickerIdentifier sourceTickerIdentifier, TimeBoundaryPeriod period) =>
-        string.Format(CandleCompleteTemplate, sourceTickerIdentifier.Source, sourceTickerIdentifier.Ticker, period.ShortName());
+        string.Format(CandleCompleteTemplate, sourceTickerIdentifier.SourceName, sourceTickerIdentifier.InstrumentName, period.ShortName());
 
-    public static string PersistPrepareCandlePublish(this PricingInstrumentId pricingInstrumentId) =>
-        string.Format(CandlePersistPreparePublish, pricingInstrumentId.Source, pricingInstrumentId.Ticker
+    public static string PersistPrepareCandlePublish(this PricingInstrumentIdValue pricingInstrumentId) =>
+        string.Format(CandlePersistPreparePublish, pricingInstrumentId.SourceName, pricingInstrumentId.InstrumentName
                     , pricingInstrumentId.CoveringPeriod.ShortName());
 
     public static string PersistAppendCandlePublish() => string.Format(CandlePersistAppendPublish);
 
-    public static string CandlePublish(this PricingInstrumentId pricingInstrumentId) =>
-        string.Format(CandleDefaultPublishAddress, pricingInstrumentId.Source, pricingInstrumentId.Ticker
+    public static string CandlePublish(this PricingInstrumentIdValue pricingInstrumentId) =>
+        string.Format(CandleDefaultPublishAddress, pricingInstrumentId.SourceName, pricingInstrumentId.InstrumentName
                     , pricingInstrumentId.CoveringPeriod.ShortName());
 
-    public static string HistoricalCandleStreamRequest(this PricingInstrumentId pricingInstrumentId) =>
-        string.Format(CandleHistoricalStreamRequest, pricingInstrumentId.Source, pricingInstrumentId.Ticker
+    public static string HistoricalCandleStreamRequest(this PricingInstrumentIdValue pricingInstrumentId) =>
+        string.Format(CandleHistoricalStreamRequest, pricingInstrumentId.SourceName, pricingInstrumentId.InstrumentName
                     , pricingInstrumentId.CoveringPeriod.ShortName());
 
     public static string HistoricalCandleStreamRequest(this SourceTickerIdentifier sourceTickerIdentifier, TimeBoundaryPeriod period) =>
-        string.Format(CandleHistoricalStreamRequest, sourceTickerIdentifier.Source, sourceTickerIdentifier.Ticker, period.ShortName());
+        string.Format(CandleHistoricalStreamRequest, sourceTickerIdentifier.SourceName, sourceTickerIdentifier.InstrumentName, period.ShortName());
 
-    public static string HistoricalCandleResponseRequest(this PricingInstrumentId pricingInstrumentId) =>
-        string.Format(CandleHistoricalResponseRequest, pricingInstrumentId.Source, pricingInstrumentId.Ticker
+    public static string HistoricalCandleResponseRequest(this PricingInstrumentIdValue pricingInstrumentId) =>
+        string.Format(CandleHistoricalResponseRequest, pricingInstrumentId.SourceName, pricingInstrumentId.InstrumentName
                     , pricingInstrumentId.CoveringPeriod.ShortName());
 
     public static string HistoricalCandleResponseRequest(this SourceTickerIdentifier sourceTickerIdentifier, TimeBoundaryPeriod period) =>
-        string.Format(CandleHistoricalResponseRequest, sourceTickerIdentifier.Source, sourceTickerIdentifier.Ticker, period.ShortName());
+        string.Format(CandleHistoricalResponseRequest, sourceTickerIdentifier.SourceName, sourceTickerIdentifier.InstrumentName, period.ShortName());
 
     public static TimeBoundaryPeriod RoundNonPersistPeriodsToTick(this TimeBoundaryPeriod checkSmallPeriod)
     {

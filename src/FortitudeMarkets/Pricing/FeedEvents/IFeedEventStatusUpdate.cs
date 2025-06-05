@@ -1,7 +1,7 @@
 ﻿using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 namespace FortitudeMarkets.Pricing.FeedEvents;
 
@@ -10,6 +10,8 @@ public interface IFeedEventStatusUpdate : IReusableObject<IFeedEventStatusUpdate
     FeedConnectivityStatusFlags FeedMarketConnectivityStatus { get; }
 
     FeedSyncStatus FeedSyncStatus { get; }
+
+    PublishableQuoteInstantBehaviorFlags QuoteBehavior { get; }
 
     DateTime ClientReceivedTime         { get; }
     DateTime InboundSocketReceivingTime { get; }
@@ -24,6 +26,8 @@ public interface IMutableFeedEventStatusUpdate : IFeedEventStatusUpdate, IClonea
     new FeedConnectivityStatusFlags FeedMarketConnectivityStatus { get; set; }
 
     new FeedSyncStatus FeedSyncStatus { get; set; }
+
+    new PublishableQuoteInstantBehaviorFlags QuoteBehavior { get; set; }
 
     new DateTime ClientReceivedTime         { get; set; }
     new DateTime InboundSocketReceivingTime { get; set; }

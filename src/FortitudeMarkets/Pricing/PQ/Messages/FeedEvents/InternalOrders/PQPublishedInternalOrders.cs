@@ -6,7 +6,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;
 
-public interface IPQPublishedInternalOrders : IMutablePublishedInternalOrders, IPQSupportsNumberPrecisionFieldUpdates<IPublishedInternalOrders>, IPQSupportsStringUpdates<IPublishedInternalOrders>
+public interface IPQPublishedInternalOrders : IMutablePublishedInternalOrders, IPQSupportsNumberPrecisionFieldUpdates, IPQSupportsStringUpdates
 {
 
 }

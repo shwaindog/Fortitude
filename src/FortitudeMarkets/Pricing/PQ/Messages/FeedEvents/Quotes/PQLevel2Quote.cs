@@ -320,7 +320,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
         base.CopyFrom(source, copyMergeFlags);
 
         if (source is not ILevel2Quote l2Q) return this;
-        orderBook.CopyFrom(l2Q.OrderBook, copyMergeFlags);
+        orderBook.CopyFrom(l2Q.OrderBook, QuoteBehavior, copyMergeFlags);
         if (source is not IPQLevel1Quote pq1)
         {
             BidPriceTop          = l2Q.BidPriceTop;

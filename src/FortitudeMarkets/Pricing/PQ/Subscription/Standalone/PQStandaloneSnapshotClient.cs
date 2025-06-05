@@ -123,8 +123,8 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
         if (IsStarted)
         {
             logger.Info("Sending snapshot request for streams {0}",
-                        string.Join(",", sourceTickerIds.Select(sti => sti.SourceTickerId)));
-            var allStreams = sourceTickerIds.Select(x => x.SourceTickerId).ToArray();
+                        string.Join(",", sourceTickerIds.Select(sti => sti.SourceInstrumentId)));
+            var allStreams = sourceTickerIds.Select(x => x.SourceInstrumentId).ToArray();
             Send(new PQSnapshotIdsRequest(allStreams));
             lastSnapshotSent = TimeContext.UtcNow;
         }
@@ -134,10 +134,10 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
             lock (requestsQueue)
             {
                 foreach (var srcTkr in sourceTickerIds)
-                    if (!requestsQueue.ContainsKey(srcTkr.SourceTickerId))
+                    if (!requestsQueue.ContainsKey(srcTkr.SourceInstrumentId))
                     {
-                        requestsQueue[srcTkr.SourceTickerId] =  srcTkr;
-                        queuing                              += queuing.Length > 0 ? "," + srcTkr.SourceTickerId : srcTkr.SourceTickerId.ToString();
+                        requestsQueue[srcTkr.SourceInstrumentId] =  srcTkr;
+                        queuing                              += queuing.Length > 0 ? "," + srcTkr.SourceInstrumentId : srcTkr.SourceInstrumentId.ToString();
                     }
             }
 
@@ -145,7 +145,7 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
                 logger.Info("Queuing snapshot request for ticker ids {0}", queuing);
             else
                 logger.Info("Snapshot request already queued for ticker ids {0}, last snapshot sent at {1}",
-                            string.Join(",", sourceTickerIds.Select(sti => sti.SourceTickerId)), lastSnapshotSent.ToString("O"));
+                            string.Join(",", sourceTickerIds.Select(sti => sti.SourceInstrumentId)), lastSnapshotSent.ToString("O"));
         }
     }
 
@@ -157,8 +157,8 @@ public sealed class PQStandaloneSnapshotClient : ConversationRequester, IPQSnaps
         if (started)
         {
             logger.Info("Sending snapshot request for streams {0}",
-                        string.Join(",", sourceTickerIds.Select(sti => sti.SourceTickerId)));
-            var allStreams = sourceTickerIds.Select(x => x.SourceTickerId).ToArray();
+                        string.Join(",", sourceTickerIds.Select(sti => sti.SourceInstrumentId)));
+            var allStreams = sourceTickerIds.Select(x => x.SourceInstrumentId).ToArray();
             Send(new PQSnapshotIdsRequest(allStreams));
             return true;
         }

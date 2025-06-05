@@ -26,7 +26,7 @@ namespace FortitudeMarkets.Indicators.Pricing.Candles;
 
 public struct LivePublishCandleParams
 {
-    public LivePublishCandleParams(PricingInstrumentId pricingInstrument)
+    public LivePublishCandleParams(PricingInstrumentIdValue pricingInstrument)
     {
         SourceTickerIdentifier = pricingInstrument;
 
@@ -37,7 +37,7 @@ public struct LivePublishCandleParams
         CompletePublishParams = new ResponsePublishParams();
     }
 
-    public LivePublishCandleParams(PricingInstrumentId pricingInstrument, IndicatorPublishInterval livePublishInterval)
+    public LivePublishCandleParams(PricingInstrumentIdValue pricingInstrument, IndicatorPublishInterval livePublishInterval)
     {
         SourceTickerIdentifier = pricingInstrument;
 
@@ -61,7 +61,7 @@ public struct LivePublishCandleParams
     }
 
     public LivePublishCandleParams
-        (PricingInstrumentId pricingInstrument, IndicatorPublishInterval livePublishInterval, ResponsePublishParams livePublishParams)
+        (PricingInstrumentIdValue pricingInstrument, IndicatorPublishInterval livePublishInterval, ResponsePublishParams livePublishParams)
     {
         SourceTickerIdentifier = pricingInstrument;
 
@@ -108,7 +108,7 @@ public class LiveCandlePublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote
     private readonly int logInterval;
 
     private readonly TimeBoundaryPeriod     periodToPublish;
-    private readonly PricingInstrumentId    pricingInstrumentId;
+    private readonly PricingInstrumentIdValue    pricingInstrumentId;
     private readonly SourceTickerIdentifier sourceTickerIdentifier;
 
     private List<ValueTask>? asyncSubPeriodExecutions = new();
@@ -125,10 +125,10 @@ public class LiveCandlePublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote
     public LiveCandlePublisherRule(LivePublishCandleParams livePublishCandleParams)
         : base(livePublishCandleParams.SourceTickerIdentifier
              , nameof(LiveCandlePublisherRule<TQuote>)
-             + $"_{livePublishCandleParams.SourceTickerIdentifier.Source}_{livePublishCandleParams.SourceTickerIdentifier.Ticker}" +
+             + $"_{livePublishCandleParams.SourceTickerIdentifier.SourceName}_{livePublishCandleParams.SourceTickerIdentifier.InstrumentName}" +
                $"_{livePublishCandleParams.Period.ShortName()}")
     {
-        pricingInstrumentId = new PricingInstrumentId
+        pricingInstrumentId = new PricingInstrumentIdValue
             (livePublishCandleParams.SourceTickerIdentifier, new PeriodInstrumentTypePair(InstrumentType.Candle
            , new DiscreetTimePeriod(livePublishCandleParams.Period)));
         sourceTickerIdentifier    = livePublishCandleParams.SourceTickerIdentifier;
@@ -234,7 +234,7 @@ public class LiveCandlePublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote
         if (!response.IsRunning())
         {
             Logger.Info("Problem starting LiveCandlePublisherRule for ticker {0} sub period {1} got {2}",
-                        sourceTickerIdentifier.SourceTickerShortName(), subPeriod.ShortName(), response.RunStatus);
+                        sourceTickerIdentifier.SourceInstrumentShortName(), subPeriod.ShortName(), response.RunStatus);
             return;
         }
         var completeLiveSubSummarySubscription
@@ -287,7 +287,7 @@ public class LiveCandlePublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote
         }
         if (continuousEmptyPeriod > 0 && continuousEmptyPeriod % logInterval == 0)
             Logger.Warn("Have received {0} empty live price periods for {1} {2}", continuousEmptyPeriod
-                      , sourceTickerIdentifier.SourceTickerShortName()
+                      , sourceTickerIdentifier.SourceInstrumentShortName()
                       , periodToPublish);
     }
 
@@ -318,7 +318,7 @@ public class LiveCandlePublisherRule<TQuote> : PriceListenerIndicatorRule<TQuote
         if (!response.IsRunning())
         {
             Logger.Info("Problem starting HistoricalCandleResolverRule for ticker {0} sub period {1} got {2}",
-                        sourceTickerIdentifier.SourceTickerShortName(), liveConstructingSubPeriod.ShortName(), response.RunStatus);
+                        sourceTickerIdentifier.SourceInstrumentShortName(), liveConstructingSubPeriod.ShortName(), response.RunStatus);
             return;
         }
         var subPeriods = await this.RequestAsync<HistoricalCandleResponseRequest, List<Candle>>

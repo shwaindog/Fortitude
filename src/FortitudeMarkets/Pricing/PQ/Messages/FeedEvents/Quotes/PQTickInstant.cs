@@ -24,7 +24,7 @@ using FortitudeMarkets.Pricing.TimeSeries;
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 public interface IPQTickInstant : IMutableTickInstant, IRelatedItems<ISourceTickerInfo>, IRelatedItems<ITickInstant>,
-    IPQSupportsNumberPrecisionFieldUpdates<IPQTickInstant>, IPQSupportsStringUpdates<IPQTickInstant>, IEmptyable
+    IPQSupportsNumberPrecisionFieldUpdates, IPQSupportsStringUpdates, IEmptyable
 {
     bool IsSourceTimeDateUpdated    { get; set; }
     bool IsSourceTimeSub2MinUpdated { get; set; }
@@ -44,8 +44,6 @@ public interface IPQPublishableTickInstant : IPQTickInstant, IMutablePublishable
     new IPQSourceTickerInfo? SourceTickerInfo { get; set; }
 
     new IPQTickInstant AsNonPublishable { get; }
-
-    new bool HasUpdates { get; set; }
 
     new int UpdateField(PQFieldUpdate pqFieldUpdate);
 
@@ -361,8 +359,6 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
 
     IPQTickInstant IPQTickInstant.CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
 
-    IPQTickInstant ITransferState<IPQTickInstant>.CopyFrom(IPQTickInstant source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
-
     public override PQTickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is IPQTickInstant ipq0)
@@ -536,7 +532,7 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
     IMutableTickInstant IMutablePublishableTickInstant.AsNonPublishable => AsNonPublishable;
     public virtual IPQTickInstant                      AsNonPublishable => PQQuoteContainer;
 
-    public override uint StreamId => SourceTickerInfo!.SourceTickerId;
+    public override uint StreamId => SourceTickerInfo!.SourceInstrumentId;
     public override string StreamName => SourceTickerInfo!.InstrumentName;
 
     [JsonIgnore] public virtual TickerQuoteDetailLevel TickerQuoteDetailLevel => TickerQuoteDetailLevel.SingleValue;
@@ -874,10 +870,6 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
 
     ITransferState IPublishableTickInstant.CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IPQMessage)source, copyMergeFlags);
-
-
-    IPQTickInstant ITransferState<IPQTickInstant>.CopyFrom(IPQTickInstant source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom((IPublishableTickInstant)source, copyMergeFlags);
 
     IPQTickInstant IPQTickInstant.CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IPublishableTickInstant)source, copyMergeFlags);

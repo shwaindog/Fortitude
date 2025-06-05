@@ -69,25 +69,25 @@ public static class IndicatorConstants
         switch (indicatorId)
         {
             case MidPriceQuotesId:
-                return new Indicator(MidPriceQuotesId, PriceMidQuotes, sourceTickerId.Source, IndicatorType.MarketPrice
+                return new Indicator(MidPriceQuotesId, PriceMidQuotes, sourceTickerId.SourceName, IndicatorType.MarketPrice
                                    , coveringPeriod, PriceMidQuotesDescription);
             case BidAskPriceQuotesId:
-                return new Indicator(BidAskPriceQuotesId, PriceBidAskQuotes, sourceTickerId.Source, IndicatorType.MarketPrice
+                return new Indicator(BidAskPriceQuotesId, PriceBidAskQuotes, sourceTickerId.SourceName, IndicatorType.MarketPrice
                                    , coveringPeriod, PriceBidAskQuotesDescription);
             case PriceLevel2QuotesId:
-                return new Indicator(PriceLevel2QuotesId, PriceLevel2Quotes, sourceTickerId.Source, IndicatorType.MarketPrice
+                return new Indicator(PriceLevel2QuotesId, PriceLevel2Quotes, sourceTickerId.SourceName, IndicatorType.MarketPrice
                                    , coveringPeriod, PriceLevel2QuotesDescription);
             case PriceLevel3QuotesId:
-                return new Indicator(PriceLevel3QuotesId, PriceLevel3Quotes, sourceTickerId.Source, IndicatorType.MarketPrice
+                return new Indicator(PriceLevel3QuotesId, PriceLevel3Quotes, sourceTickerId.SourceName, IndicatorType.MarketPrice
                                    , coveringPeriod, PriceLevel3QuotesDescription);
             case CandlesId:
-                return new Indicator(CandlesId, Candles, sourceTickerId.Source, IndicatorType.MarketPrice
+                return new Indicator(CandlesId, Candles, sourceTickerId.SourceName, IndicatorType.MarketPrice
                                    , coveringPeriod, CandlesDescription);
             case MovingAverageTimeWeightedMidId:
-                return new Indicator(MovingAverageTimeWeightedMidId, MovingAverageTimeWeightedMid, sourceTickerId.Source, IndicatorType.MarketPrice
+                return new Indicator(MovingAverageTimeWeightedMidId, MovingAverageTimeWeightedMid, sourceTickerId.SourceName, IndicatorType.MarketPrice
                                    , coveringPeriod, MovingAverageTimeWeightedMidDescription);
             case MovingAverageTimeWeightedBidAskId:
-                return new Indicator(MovingAverageTimeWeightedBidAskId, MovingAverageTimeWeightedBidAsk, sourceTickerId.Source
+                return new Indicator(MovingAverageTimeWeightedBidAskId, MovingAverageTimeWeightedBidAsk, sourceTickerId.SourceName
                                    , IndicatorType.MarketPrice
                                    , coveringPeriod, MovingAverageTimeWeightedBidAskDescription);
         }

@@ -88,7 +88,7 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
               , ReceivedUpdate = SingleParamActionWrapper<IPQMessageDeserializer>.WrapAndAttach(OnReceivedUpdate)
               , OutOfSync      = SingleParamActionWrapper<IPQMessageDeserializer>.WrapAndAttach(OnOutOfSync)
             };
-            registeredDeserializers[pqDeserializer.Identifier.SourceTickerId] = deserializerRegistration;
+            registeredDeserializers[pqDeserializer.Identifier.SourceInstrumentId] = deserializerRegistration;
 
             pqDeserializer.SyncOk         += deserializerRegistration.SyncOk;
             pqDeserializer.ReceivedUpdate += deserializerRegistration.ReceivedUpdate;
@@ -102,7 +102,7 @@ public class PQPricingClientFeedSyncMonitorRule : Rule
     {
         if (removedMessageDeserializer is IPQMessageDeserializer pqDeserializer)
         {
-            if (registeredDeserializers.TryGetValue(pqDeserializer.Identifier.SourceTickerId, out var deserializerRegistration))
+            if (registeredDeserializers.TryGetValue(pqDeserializer.Identifier.SourceInstrumentId, out var deserializerRegistration))
             {
                 pqDeserializer.SyncOk         -= deserializerRegistration.SyncOk;
                 pqDeserializer.ReceivedUpdate -= deserializerRegistration.ReceivedUpdate;

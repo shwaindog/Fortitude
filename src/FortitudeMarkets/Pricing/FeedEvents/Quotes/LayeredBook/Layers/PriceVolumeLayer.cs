@@ -4,15 +4,15 @@
 #region
 
 using System.Text.Json.Serialization;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 #endregion
 
 namespace FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 
-public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePriceVolumeLayer
+public class PriceVolumeLayer : ReusableQuoteElement<IPriceVolumeLayer>, IMutablePriceVolumeLayer
 {
     public PriceVolumeLayer() { }
 
@@ -67,17 +67,15 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
         base.StateReset();
     }
 
-    IReusableObject<IMutablePriceVolumeLayer> ITransferState<IReusableObject<IMutablePriceVolumeLayer>>.CopyFrom
-        (IReusableObject<IMutablePriceVolumeLayer> source, CopyMergeFlags copyMergeFlags) => 
-        CopyFrom((IPriceVolumeLayer)source, copyMergeFlags);
+    IMutablePriceVolumeLayer ITransferQuoteState<IMutablePriceVolumeLayer>.CopyFrom
+        (IMutablePriceVolumeLayer source, QuoteInstantBehaviorFlags behaviorFlags, CopyMergeFlags copyMergeFlags) => 
+        CopyFrom(source, behaviorFlags, copyMergeFlags);
 
-    IMutablePriceVolumeLayer ITransferState<IMutablePriceVolumeLayer>.CopyFrom
-        (IMutablePriceVolumeLayer source, CopyMergeFlags copyMergeFlags) => 
-        CopyFrom(source, copyMergeFlags);
+    IReusableQuoteElement<IMutablePriceVolumeLayer> ITransferQuoteState<IReusableQuoteElement<IMutablePriceVolumeLayer>>.CopyFrom
+        (IReusableQuoteElement<IMutablePriceVolumeLayer> source, QuoteInstantBehaviorFlags behaviorFlags, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IPriceVolumeLayer)source, behaviorFlags, copyMergeFlags);
 
-    public override PriceVolumeLayer CopyFrom
-    (IPriceVolumeLayer source
-      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override PriceVolumeLayer CopyFrom (IPriceVolumeLayer source, QuoteInstantBehaviorFlags behaviorFlags, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         Price  = source.Price;
         Volume = source.Volume;
@@ -88,10 +86,13 @@ public class PriceVolumeLayer : ReusableObject<IPriceVolumeLayer>, IMutablePrice
 
     IMutablePriceVolumeLayer IMutablePriceVolumeLayer.Clone() => Clone();
 
-    public override PriceVolumeLayer Clone() => Recycler?.Borrow<PriceVolumeLayer>().CopyFrom(this) ?? new PriceVolumeLayer(this);
+    public override PriceVolumeLayer Clone() => 
+        Recycler?.Borrow<PriceVolumeLayer>().CopyFrom(this, QuoteInstantBehaviorFlags.DisableUpgradeLayer) ?? new PriceVolumeLayer(this);
 
+    bool IInterfacesComparable<IMutablePriceVolumeLayer>.AreEquivalent(IMutablePriceVolumeLayer? other, bool exactTypes) => 
+        AreEquivalent(other, exactTypes);
 
-    public virtual bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
+    public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
     {
         if (other == null) return false;
         if (exactTypes && other.GetType() != GetType()) return false;

@@ -6,8 +6,10 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 
@@ -27,22 +29,22 @@ public interface IPQFullSupportPriceVolumeLayer : IPQOrdersPriceVolumeLayer,
 
 public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSupportPriceVolumeLayer
 {
-    protected LayerBooleanFlags LayerBooleanFlags;
-
     private ushort   sourceId;
     private uint     sourceQuoteReference;
     private DateTime valueDate = DateTime.MinValue;
 
-    public PQFullSupportPriceVolumeLayer(IPQNameIdLookupGenerator initialDict)
-        : base(LayerType.FullSupportPriceVolume, initialDict)
+    public PQFullSupportPriceVolumeLayer(IPQNameIdLookupGenerator initialDict, QuoteLayerInstantBehaviorFlags layerBehavior)
+        : base(LayerType.FullSupportPriceVolume, initialDict, layerBehavior)
     {
         if (GetType() == typeof(PQFullSupportPriceVolumeLayer)) SequenceId = 0;
     }
 
     public PQFullSupportPriceVolumeLayer
     (IPQNameIdLookupGenerator nameIdLookup, decimal price = 0m, decimal volume = 0m, DateTime? valueDate = null
-      , string? sourceName = null, bool executable = false, uint sourceQuoteReference = 0u, uint ordersCount = 0, decimal internalVolume = 0m)
-        : base(nameIdLookup, LayerType.FullSupportPriceVolume, price, volume, ordersCount, internalVolume)
+      , string? sourceName = null, bool executable = false, uint sourceQuoteReference = 0u, uint ordersCount = 0, decimal internalVolume = 0m
+      , IEnumerable<IAnonymousOrder>? layerOrders = null,
+        QuoteLayerInstantBehaviorFlags layerBehavior = QuoteLayerInstantBehaviorFlags.None)
+        : base(nameIdLookup, LayerType.FullSupportPriceVolume, price, volume, ordersCount, internalVolume, layerOrders, layerBehavior)
     {
         ValueDate  = valueDate ?? DateTime.MinValue;
         SourceName = sourceName;
@@ -162,14 +164,14 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool Executable
     {
-        get => (LayerBooleanFlags & LayerBooleanFlags.IsExecutableFlag) != 0;
+        get => (BooleanValues & LayerBooleanValues.Executable) > 0;
         set
         {
-            IsExecutableUpdated |= (LayerBooleanFlags & LayerBooleanFlags.IsExecutableFlag) > 0 != value || SequenceId == 0;
+            IsExecutableUpdated |= Executable != value || SequenceId == 0;
             if (value)
-                LayerBooleanFlags |= LayerBooleanFlags.IsExecutableFlag;
+                BooleanValues |= LayerBooleanValues.Executable;
 
-            else if (Executable) LayerBooleanFlags ^= LayerBooleanFlags.IsExecutableFlag;
+            else if (Executable) BooleanValues ^= LayerBooleanValues.Executable;
         }
     }
 
@@ -228,7 +230,7 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
         set
         {
             base.HasUpdates          = value;
-            NameIdLookup!.HasUpdates = value;
+            NameIdLookup.HasUpdates = value;
         }
     }
 
@@ -304,8 +306,12 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerValueDate, valueDate.Get2MinIntervalsFromUnixEpoch());
         if (!updatedOnly || IsSourceNameUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteLayerSourceId, SourceId);
         if (!updatedOnly || IsExecutableUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerBooleanFlags
-                                         , (uint)(Executable ? LayerBooleanFlags.IsExecutableFlag : LayerBooleanFlags.None));
+        {
+            var boolValues = LayerBehavior.HasPublishQuoteInstantBehaviorFlagsFlag()
+                ? (uint)BooleanValues
+                : BooleanValues.JustLayerBooleanValuesMask();
+            yield return new PQFieldUpdate(PQFeedFields.QuoteLayerBooleanFlags, boolValues);
+        }
         if (!updatedOnly || IsSourceQuoteReferenceUpdated)
             yield return new PQFieldUpdate(PQFeedFields.QuoteLayerSourceQuoteRef, sourceQuoteReference);
     }
@@ -313,33 +319,26 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
         // assume the book has already forwarded this through to the correct layer
-        if (pqFieldUpdate.Id == PQFeedFields.QuoteLayerValueDate)
+        switch (pqFieldUpdate.Id)
         {
-            var originalValueDate = valueDate;
-            PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref valueDate, pqFieldUpdate.Payload);
-            IsValueDateUpdated = originalValueDate != valueDate;
-            return 0;
-        }
-
-        if (pqFieldUpdate.Id == PQFeedFields.QuoteLayerSourceId)
-        {
-            IsSourceNameUpdated = true; // incase of reset and sending 0;
-            SourceId            = (ushort)pqFieldUpdate.Payload;
-            return 0;
-        }
-
-        if (pqFieldUpdate.Id == PQFeedFields.QuoteLayerBooleanFlags)
-        {
-            IsExecutableUpdated = true; // incase of reset and sending 0;
-            Executable          = ((LayerBooleanFlags)pqFieldUpdate.Payload & LayerBooleanFlags.IsExecutableFlag) != 0;
-            return 0;
-        }
-
-        if (pqFieldUpdate.Id == PQFeedFields.QuoteLayerSourceQuoteRef)
-        {
-            IsSourceQuoteReferenceUpdated = true; // incase of reset and sending 0;
-            SourceQuoteReference          = pqFieldUpdate.Payload;
-            return 0;
+            case PQFeedFields.QuoteLayerValueDate:
+                var originalValueDate = valueDate;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref valueDate, pqFieldUpdate.Payload);
+                IsValueDateUpdated = originalValueDate != valueDate;
+                return 0;
+            case PQFeedFields.QuoteLayerSourceId:
+                IsSourceNameUpdated = true; // in-case of reset and sending 0;
+                SourceId            = (ushort)pqFieldUpdate.Payload;
+                return 0;
+            case PQFeedFields.QuoteLayerBooleanFlags:
+                IsExecutableUpdated = true; // in-case of reset and sending 0;
+                var newFlags = pqFieldUpdate.Payload.JustLayerBooleanValuesMask();
+                Executable = (newFlags & LayerBooleanValues.Executable) != 0;
+                return 0;
+            case PQFeedFields.QuoteLayerSourceQuoteRef:
+                IsSourceQuoteReferenceUpdated = true; // in-case of reset and sending 0;
+                SourceQuoteReference          = pqFieldUpdate.Payload;
+                return 0;
         }
 
         return base.UpdateField(pqFieldUpdate);
@@ -360,10 +359,10 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
         return NameIdLookup.UpdateFieldString(stringUpdate);
     }
 
-    public override PQFullSupportPriceVolumeLayer CopyFrom
-        (IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override PQFullSupportPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, QuoteInstantBehaviorFlags behaviorFlags
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(source, copyMergeFlags);
+        base.CopyFrom(source, behaviorFlags, copyMergeFlags);
         var isFullReplace    = copyMergeFlags.HasFullReplace();
         var isSkipRefLookups = copyMergeFlags.HasSkipReferenceLookups();
         switch (source)
@@ -442,13 +441,13 @@ public class PQFullSupportPriceVolumeLayer : PQOrdersPriceVolumeLayer, IPQFullSu
                 }
                 if (isFullReplace) SetFlagsSame(pqValueDate);
                 break;
-            case IFullSupportPriceVolumeLayer srcQtRefTrdrVlPvLayer:
+            case IFullSupportPriceVolumeLayer fullSupportPvLayer:
 
-                ValueDate  = srcQtRefTrdrVlPvLayer.ValueDate;
-                SourceName = srcQtRefTrdrVlPvLayer.SourceName;
-                Executable = srcQtRefTrdrVlPvLayer.Executable;
+                ValueDate  = fullSupportPvLayer.ValueDate;
+                SourceName = fullSupportPvLayer.SourceName;
+                Executable = fullSupportPvLayer.Executable;
 
-                SourceQuoteReference = srcQtRefTrdrVlPvLayer.SourceQuoteReference;
+                SourceQuoteReference = fullSupportPvLayer.SourceQuoteReference;
                 break;
             case ISourceQuoteRefPriceVolumeLayer srcQtRefPvLayer:
                 SourceName = srcQtRefPvLayer.SourceName;

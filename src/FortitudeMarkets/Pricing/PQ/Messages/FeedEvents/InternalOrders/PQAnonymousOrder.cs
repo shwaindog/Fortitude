@@ -28,8 +28,8 @@ public enum PQAnonymousOrderUpdatedFlags : ushort
   , TrackingIdFlag           = 0x04_00
 }
 
-public interface IPQAnonymousOrder : IReusableObject<IPQAnonymousOrder>, IMutableAnonymousOrder, IPQSupportsStringUpdates<IPQAnonymousOrder>
-  , IPQSupportsNumberPrecisionFieldUpdates<IPQAnonymousOrder>, ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQAnonymousOrder>
+public interface IPQAnonymousOrder : IReusableObject<IPQAnonymousOrder>, IMutableAnonymousOrder, IPQSupportsStringUpdates
+  , IPQSupportsNumberPrecisionFieldUpdates, ISupportsPQNameIdLookupGenerator, ITrackableReset<IPQAnonymousOrder>
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     bool IsOrderIdUpdated { get; set; }
@@ -63,9 +63,6 @@ public interface IPQAnonymousOrder : IReusableObject<IPQAnonymousOrder>, IMutabl
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     bool IsTrackingIdUpdated { get; set; }
-
-
-    new bool HasUpdates { get; set; }
 
     PQAnonymousOrderUpdatedFlags AnonymousOrderUpdatedFlags { get; set; }
 

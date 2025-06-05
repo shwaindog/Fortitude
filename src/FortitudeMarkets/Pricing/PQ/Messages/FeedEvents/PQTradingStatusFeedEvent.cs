@@ -148,7 +148,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         if (GetType() == typeof(PQTradingStatusFeedEvent)) PQSequenceId = 0;
     }
 
-    public override uint StreamId => SourceTickerInfo!.SourceTickerId;
+    public override uint StreamId => SourceTickerInfo!.SourceInstrumentId;
     public override string StreamName => SourceTickerInfo!.InstrumentName;
 
     [JsonIgnore] public virtual TickerQuoteDetailLevel TickerQuoteDetailLevel => TickerQuoteDetailLevel.SingleValue;

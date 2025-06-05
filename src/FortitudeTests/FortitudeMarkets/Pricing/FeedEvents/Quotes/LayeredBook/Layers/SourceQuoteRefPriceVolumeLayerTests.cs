@@ -7,6 +7,7 @@ using FortitudeCommon.Types;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
@@ -18,6 +19,8 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.
 [TestClass]
 public class SourceQuoteRefPriceVolumeLayerTests
 {
+    private const QuoteInstantBehaviorFlags QuoteBehavior = QuoteInstantBehaviorFlags.None;
+
     private SourceQuoteRefPriceVolumeLayer emptyPvl              = null!;
     private IPQNameIdLookupGenerator       nameIdLookupGenerator = null!;
     private SourceQuoteRefPriceVolumeLayer populatedPvl          = null!;
@@ -136,7 +139,7 @@ public class SourceQuoteRefPriceVolumeLayerTests
     [TestMethod]
     public void FullyPopulatedPvl_CopyFromToEmptyPvl_PvlsEqualEachOther()
     {
-        emptyPvl.CopyFrom(populatedPvl);
+        emptyPvl.CopyFrom(populatedPvl, QuoteBehavior);
         Assert.AreEqual(populatedPvl, emptyPvl);
     }
 
@@ -145,7 +148,7 @@ public class SourceQuoteRefPriceVolumeLayerTests
     {
         var pqPvl    = new PQSourceQuoteRefPriceVolumeLayer(populatedPvl, nameIdLookupGenerator);
         var newEmpty = new SourceQuoteRefPriceVolumeLayer();
-        newEmpty.CopyFrom(pqPvl);
+        newEmpty.CopyFrom(pqPvl, QuoteBehavior);
         Assert.AreEqual(populatedPvl, newEmpty);
     }
 

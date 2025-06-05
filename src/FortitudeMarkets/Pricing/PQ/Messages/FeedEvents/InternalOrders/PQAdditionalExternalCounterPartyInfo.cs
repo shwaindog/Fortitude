@@ -29,8 +29,7 @@ public enum PQAdditionalCounterPartyInfoFlags : byte
 }
 
 public interface IPQAdditionalExternalCounterPartyOrderInfo : IMutableAdditionalExternalCounterPartyOrderInfo
-  , ISupportsPQNameIdLookupGenerator, IPQSupportsStringUpdates<IPQAdditionalExternalCounterPartyOrderInfo>
-  , IPQSupportsNumberPrecisionFieldUpdates<IPQAdditionalExternalCounterPartyOrderInfo>
+  , ISupportsPQNameIdLookupGenerator, IPQSupportsStringUpdates, IPQSupportsNumberPrecisionFieldUpdates
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     int ExternalCounterPartyNameId { get; set; }
@@ -410,10 +409,6 @@ public class PQAdditionalExternalCounterPartyInfo : ReusableObject<IAdditionalEx
     {
         foreach (var stringUpdate in NameIdLookup.GetStringUpdates(snapShotTime, messageFlags)) yield return stringUpdate;
     }
-
-    IPQAdditionalExternalCounterPartyOrderInfo ITransferState<IPQAdditionalExternalCounterPartyOrderInfo>.CopyFrom
-        (IPQAdditionalExternalCounterPartyOrderInfo source, CopyMergeFlags copyMergeFlags) =>
-        CopyFrom(source, copyMergeFlags);
 
     IMutableAdditionalExternalCounterPartyOrderInfo ITransferState<IMutableAdditionalExternalCounterPartyOrderInfo>.CopyFrom
         (IMutableAdditionalExternalCounterPartyOrderInfo source, CopyMergeFlags copyMergeFlags) =>

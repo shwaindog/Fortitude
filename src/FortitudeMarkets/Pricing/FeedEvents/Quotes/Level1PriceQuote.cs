@@ -20,16 +20,24 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
     public Level1PriceQuote() { }
 
     public Level1PriceQuote
-    (DateTime? sourceTime = null, decimal bidPriceTop = 0m,  decimal askPriceTop = 0m, bool isBidPriceTopChanged = false, 
-        bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null, DateTime? validFrom = null
-      , DateTime? validTo = null, bool executable = false, decimal singlePrice = 0m)
+    (DateTime? sourceTime = null, decimal bidPriceTop = 0m, decimal askPriceTop = 0m, QuoteInstantBehaviorFlags quoteBehavior = QuoteInstantBehaviorFlags.None
+      , bool isBidPriceTopChanged = false, bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null
+      , DateTime? validFrom = null, DateTime? validTo = null, bool executable = false, decimal singlePrice = 0m)
         : base(singlePrice, sourceTime)
     {
-        ValidFrom            = validFrom ?? DateTime.MinValue;
-        ValidTo              = validTo ?? DateTime.MinValue;
-        SourceBidTime        = sourceBidTime ?? DateTime.MinValue;
+        QuoteBehavior = quoteBehavior;
+
+        if (!QuoteBehavior.HasNoValidDateTimeUpdatesFlag())
+        {
+            ValidFrom = validFrom ?? DateTime.MinValue;
+            ValidTo   = validTo ?? DateTime.MinValue;
+        }
+        if (!QuoteBehavior.HasNoSideDateTimesUpdatesFlag())
+        {
+            SourceBidTime = sourceBidTime ?? DateTime.MinValue;
+            SourceAskTime = sourceAskTime ?? DateTime.MinValue;
+        }
         IsBidPriceTopChanged = isBidPriceTopChanged;
-        SourceAskTime        = sourceAskTime ?? DateTime.MinValue;
         IsAskPriceTopChanged = isAskPriceTopChanged;
         Executable           = executable;
 
@@ -44,11 +52,19 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
     {
         if (toClone is ILevel1Quote lvl1Quote)
         {
-            ValidFrom            = lvl1Quote.ValidFrom;
-            ValidTo              = lvl1Quote.ValidTo;
-            SourceBidTime        = lvl1Quote.SourceBidTime;
+            QuoteBehavior        = lvl1Quote.QuoteBehavior;
+
+            if (!QuoteBehavior.HasNoValidDateTimeUpdatesFlag())
+            {
+                ValidFrom = lvl1Quote.ValidFrom;
+                ValidTo   = lvl1Quote.ValidTo;
+            }
+            if (!QuoteBehavior.HasNoSideDateTimesUpdatesFlag())
+            {
+                SourceBidTime = lvl1Quote.SourceBidTime;
+                SourceAskTime = lvl1Quote.SourceAskTime;
+            }
             IsBidPriceTopChanged = lvl1Quote.IsBidPriceTopChanged;
-            SourceAskTime        = lvl1Quote.SourceAskTime;
             IsAskPriceTopChanged = lvl1Quote.IsAskPriceTopChanged;
             Executable           = lvl1Quote.Executable;
 
@@ -103,6 +119,8 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool Executable { get; set; }
 
+    public QuoteInstantBehaviorFlags QuoteBehavior { get; set; }
+
     [JsonIgnore] public bool IsBidPriceTopChanged { get; set; }
     [JsonIgnore] public bool IsAskPriceTopChanged { get; set; }
 
@@ -118,10 +136,16 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
     {
         base.IncrementTimeBy(toChangeBy);
 
-        SourceBidTime += toChangeBy;
-        SourceAskTime += toChangeBy;
-        ValidFrom     += toChangeBy;
-        ValidTo       += toChangeBy;
+        if (!QuoteBehavior.HasNoSideDateTimesUpdatesFlag())
+        {
+            SourceBidTime += toChangeBy;
+            SourceAskTime += toChangeBy;
+        }
+        if (!QuoteBehavior.HasNoValidDateTimeUpdatesFlag())
+        {
+            ValidFrom += toChangeBy;
+            ValidTo   += toChangeBy;
+        }
     }
 
     IReusableObject<IBidAskInstant> ITransferState<IReusableObject<IBidAskInstant>>.CopyFrom
@@ -137,10 +161,16 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
 
         if (source is ILevel1Quote level1Quote)
         {
-            SourceBidTime = level1Quote.SourceBidTime;
-            SourceAskTime = level1Quote.SourceAskTime;
-            ValidFrom     = level1Quote.ValidFrom;
-            ValidTo       = level1Quote.ValidTo;
+            if (!QuoteBehavior.HasNoSideDateTimesUpdatesFlag())
+            {
+                SourceBidTime = level1Quote.SourceBidTime;
+                SourceAskTime = level1Quote.SourceAskTime;
+            }
+            if (!QuoteBehavior.HasNoValidDateTimeUpdatesFlag())
+            {
+                ValidFrom = level1Quote.ValidFrom;
+                ValidTo   = level1Quote.ValidTo;
+            }
             if (this is not ILevel2Quote)
             {
                 BidPriceTop = level1Quote.BidPriceTop;
@@ -192,11 +222,21 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
         if (other is not ILevel1Quote otherL1) return false;
         var baseIsSame = base.AreEquivalent(otherL1, exactTypes);
 
-        var sourceBidTimeSame = SourceBidTime.Equals(otherL1.SourceBidTime);
-        var validFromTimeSame = ValidFrom.Equals(otherL1.ValidFrom);
-        var validToTimeSame   = ValidTo.Equals(otherL1.ValidTo);
+        var sourceBidTimeSame = true;
+        var sourceAskTimeSame = true;
+        if (!QuoteBehavior.HasIgnoreSideDateTimesCompareFlag())
+        {
+            sourceBidTimeSame = SourceBidTime.Equals(otherL1.SourceBidTime);
+            sourceAskTimeSame = SourceAskTime.Equals(otherL1.SourceAskTime);
+        }
+        var validFromTimeSame = true;
+        var validToTimeSame   = true;
+        if (!QuoteBehavior.HasIgnoreValidDateTimesCompareFlag())
+        {
+            validFromTimeSame = ValidFrom.Equals(otherL1.ValidFrom);
+            validToTimeSame   = ValidTo.Equals(otherL1.ValidTo);
+        }
         var bidPriceTopSame   = BidPriceTop == otherL1.BidPriceTop;
-        var sourceAskTimeSame = SourceAskTime.Equals(otherL1.SourceAskTime);
         var askPriceTopSame   = AskPriceTop == otherL1.AskPriceTop;
         var executableSame    = Executable == otherL1.Executable;
 
@@ -243,12 +283,15 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
     public PublishableLevel1PriceQuote() { }
 
     public PublishableLevel1PriceQuote
-    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, decimal bidPriceTop = 0m, decimal askPriceTop = 0m, bool isBidPriceTopChanged = false
-      , bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null, DateTime? validFrom = null, DateTime? validTo = null
-      , bool executable = false, FeedSyncStatus syncStatus = FeedSyncStatus.Good, FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None
+    (ISourceTickerInfo sourceTickerInfo, DateTime? sourceTime = null, decimal bidPriceTop = 0m, decimal askPriceTop = 0m,
+        PublishableQuoteInstantBehaviorFlags quoteBehavior = PublishableQuoteInstantBehaviorFlags.None, bool isBidPriceTopChanged = false
+      , bool isAskPriceTopChanged = false, DateTime? sourceBidTime = null, DateTime? sourceAskTime = null, DateTime? validFrom = null
+      , DateTime? validTo = null
+      , bool executable = false, FeedSyncStatus syncStatus = FeedSyncStatus.Good
+      , FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None
       , decimal singlePrice = 0m, ICandle? conflationTicksCandle = null)
-        : this(new Level1PriceQuote( sourceTime, bidPriceTop, askPriceTop, isBidPriceTopChanged, isAskPriceTopChanged, 
-                                    sourceBidTime, sourceAskTime, validFrom, validTo,  executable, singlePrice),
+        : this(new Level1PriceQuote(sourceTime, bidPriceTop, askPriceTop, (QuoteInstantBehaviorFlags)quoteBehavior, isBidPriceTopChanged, isAskPriceTopChanged,
+                                    sourceBidTime, sourceAskTime, validFrom, validTo, executable, singlePrice),
                sourceTickerInfo, syncStatus, feedConnectivityStatus, conflationTicksCandle) { }
 
     protected PublishableLevel1PriceQuote
@@ -257,6 +300,8 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
       , ICandle? conflationTicksCandle = null)
         : base(initialisedQuoteContainer, sourceTickerInfo, syncStatus, feedConnectivityStatus)
     {
+        QuoteBehavior = sourceTickerInfo.QuoteBehaviorFlags;
+        if (QuoteBehavior.HasNoPublishableQuoteUpdatesFlag()) return;
         if (conflationTicksCandle is not null) ConflatedTicksCandle = new Candle(conflationTicksCandle);
     }
 
@@ -267,15 +312,11 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
     {
         if (toClone is IPublishableLevel1Quote lvl1Quote)
         {
+            QuoteBehavior = lvl1Quote.QuoteBehavior;
+            if (QuoteBehavior.HasNoPublishableQuoteUpdatesFlag()) return;
             if (lvl1Quote.ConflatedTicksCandle is { IsEmpty: false }) ConflatedTicksCandle = new Candle(lvl1Quote.ConflatedTicksCandle);
         }
     }
-
-    IBidAskInstant ICloneable<IBidAskInstant>.Clone() => Clone();
-
-
-    public override PublishableLevel1PriceQuote Clone() =>
-        Recycler?.Borrow<PublishableLevel1PriceQuote>().CopyFrom(this) ?? new PublishableLevel1PriceQuote(this, QuoteContainer.Clone());
 
     protected override IMutableLevel1Quote CreateEmptyQuoteContainerInstant() => new Level1PriceQuote();
 
@@ -287,12 +328,107 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
 
     public override IMutableLevel1Quote AsNonPublishable => (IMutableLevel1Quote)QuoteContainer;
 
-    ILevel1Quote ICloneable<ILevel1Quote>.Clone() => Clone();
+    public decimal BidPrice => AsNonPublishable.BidPriceTop;
 
-    ILevel1Quote ILevel1Quote.Clone() => Clone();
+    public decimal AskPrice => AsNonPublishable.AskPriceTop;
 
-    IMutableLevel1Quote IMutableLevel1Quote.Clone() => Clone();
+    public DateTime AtTime => AsNonPublishable.AtTime;
 
+    [JsonIgnore] public override TickerQuoteDetailLevel TickerQuoteDetailLevel => TickerQuoteDetailLevel.Level1Quote;
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime SourceAskTime
+    {
+        get => AsNonPublishable.SourceAskTime;
+        set => AsNonPublishable.SourceAskTime = value;
+    }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime SourceBidTime
+    {
+        get => AsNonPublishable.SourceBidTime;
+        set => AsNonPublishable.SourceBidTime = value;
+    }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime ValidFrom
+    {
+        get => AsNonPublishable.ValidFrom;
+        set => AsNonPublishable.ValidFrom = value;
+    }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public DateTime ValidTo
+    {
+        get => AsNonPublishable.ValidTo;
+        set => AsNonPublishable.ValidTo = value;
+    }
+
+    [JsonIgnore]
+    public virtual decimal BidPriceTop
+    {
+        get => AsNonPublishable.BidPriceTop;
+        set => AsNonPublishable.BidPriceTop = value;
+    }
+
+    [JsonIgnore]
+    public virtual decimal AskPriceTop
+    {
+        get => AsNonPublishable.AskPriceTop;
+        set => AsNonPublishable.AskPriceTop = value;
+    }
+
+    public BidAskPair BidAskTop => new(BidPriceTop, AskPriceTop);
+
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public bool Executable
+    {
+        get => AsNonPublishable.Executable;
+        set => AsNonPublishable.Executable = value;
+    }
+
+    [JsonIgnore]
+    public bool IsBidPriceTopChanged
+    {
+        get => AsNonPublishable.IsBidPriceTopChanged;
+        set => AsNonPublishable.IsBidPriceTopChanged = value;
+    }
+
+    [JsonIgnore]
+    public bool IsAskPriceTopChanged
+    {
+        get => AsNonPublishable.IsAskPriceTopChanged;
+        set => AsNonPublishable.IsAskPriceTopChanged = value;
+    }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IMutableCandle? ConflatedTicksCandle { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    ICandle? IPublishableLevel1Quote.ConflatedTicksCandle => ConflatedTicksCandle;
+
+    QuoteInstantBehaviorFlags ILevel1Quote.QuoteBehavior => AsNonPublishable.QuoteBehavior;
+
+    QuoteInstantBehaviorFlags IMutableLevel1Quote.QuoteBehavior
+    {
+        get => AsNonPublishable.QuoteBehavior;
+        set => AsNonPublishable.QuoteBehavior = value;
+    }
+
+    public override PublishableQuoteInstantBehaviorFlags QuoteBehavior
+    {
+        get => base.QuoteBehavior;
+        set
+        {
+            if (value.HasRestoreAndOverlayOriginalQuoteFlagsFlag())
+            {
+                AsNonPublishable.QuoteBehavior |= (QuoteInstantBehaviorFlags)value;
+            }
+            base.QuoteBehavior = value;
+        }
+    }
 
     [JsonIgnore]
     public new PublishableLevel1PriceQuote? Previous
@@ -346,85 +482,6 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
         set => AsNonPublishable.Next = value;
     }
 
-    public decimal  BidPrice => AsNonPublishable.BidPriceTop;
-    public decimal  AskPrice => AsNonPublishable.AskPriceTop;
-    public DateTime AtTime   => AsNonPublishable.AtTime;
-
-    [JsonIgnore] public override TickerQuoteDetailLevel TickerQuoteDetailLevel => TickerQuoteDetailLevel.Level1Quote;
-
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTime SourceAskTime
-    {
-        get => AsNonPublishable.SourceAskTime;
-        set => AsNonPublishable.SourceAskTime = value;
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTime SourceBidTime
-    {
-        get => AsNonPublishable.SourceBidTime;
-        set => AsNonPublishable.SourceBidTime = value;
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTime ValidFrom
-    {
-        get => AsNonPublishable.ValidFrom;
-        set => AsNonPublishable.ValidFrom = value;
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public DateTime ValidTo
-    {
-        get => AsNonPublishable.ValidTo;
-        set => AsNonPublishable.ValidTo = value;
-    }
-
-
-    [JsonIgnore]
-    public virtual decimal BidPriceTop
-    {
-        get => AsNonPublishable.BidPriceTop;
-        set => AsNonPublishable.BidPriceTop = value;
-    }
-    [JsonIgnore]
-    public virtual decimal AskPriceTop
-    {
-        get => AsNonPublishable.AskPriceTop;
-        set => AsNonPublishable.AskPriceTop = value;
-    }
-
-    public BidAskPair BidAskTop => new(BidPriceTop, AskPriceTop);
-
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool Executable
-    {
-        get => AsNonPublishable.Executable;
-        set => AsNonPublishable.Executable = value;
-    }
-
-    [JsonIgnore]
-    public bool IsBidPriceTopChanged
-    {
-        get => AsNonPublishable.IsBidPriceTopChanged;
-        set => AsNonPublishable.IsBidPriceTopChanged = value;
-    }
-
-    [JsonIgnore]
-    public bool IsAskPriceTopChanged
-    {
-        get => AsNonPublishable.IsAskPriceTopChanged;
-        set => AsNonPublishable.IsAskPriceTopChanged = value;
-    }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public IMutableCandle? ConflatedTicksCandle { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    ICandle? IPublishableLevel1Quote.ConflatedTicksCandle => ConflatedTicksCandle;
-
     IMutableLevel1Quote ITrackableReset<IMutableLevel1Quote>.ResetWithTracking() => ResetWithTracking();
 
     IMutableLevel1Quote IMutableLevel1Quote.ResetWithTracking() => ResetWithTracking();
@@ -438,6 +495,17 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
         base.ResetWithTracking();
         return this;
     }
+
+    IBidAskInstant ICloneable<IBidAskInstant>.Clone() => Clone();
+
+    ILevel1Quote ICloneable<ILevel1Quote>.Clone() => Clone();
+
+    ILevel1Quote ILevel1Quote.Clone() => Clone();
+
+    IMutableLevel1Quote IMutableLevel1Quote.Clone() => Clone();
+
+    public override PublishableLevel1PriceQuote Clone() =>
+        Recycler?.Borrow<PublishableLevel1PriceQuote>().CopyFrom(this) ?? new PublishableLevel1PriceQuote(this, QuoteContainer.Clone());
 
     IReusableObject<IBidAskInstant> ITransferState<IReusableObject<IBidAskInstant>>.CopyFrom
         (IReusableObject<IBidAskInstant> source, CopyMergeFlags copyMergeFlags)
@@ -472,6 +540,7 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
 
         if (source is IPublishableLevel1Quote level1Quote)
         {
+            if (QuoteBehavior.HasNoPublishableQuoteUpdatesFlag()) return this;
             if (level1Quote.ConflatedTicksCandle is { IsEmpty: false })
             {
                 ConflatedTicksCandle ??= new Candle();
@@ -532,9 +601,9 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
         }
     }
 
-    public override string QuoteToStringMembers =>
-        $"{base.QuoteToStringMembers}, {nameof(ConflatedTicksCandle)}: {ConflatedTicksCandle}";
+    public override string QuoteToStringMembers => $"{base.QuoteToStringMembers}, {nameof(ConflatedTicksCandle)}: {ConflatedTicksCandle}";
 
-    public override string ToString() => $"{nameof(PublishableLevel1PriceQuote)}{{{QuoteToStringMembers}, {AsNonPublishable.QuoteToStringMembers}, " +
-                                         $"{JustFeedSyncConnectivityStatusToStringMembers}}}";
+    public override string ToString() =>
+        $"{nameof(PublishableLevel1PriceQuote)}{{{QuoteToStringMembers}, {AsNonPublishable.QuoteToStringMembers}, " +
+        $"{JustFeedSyncConnectivityStatusToStringMembers}}}";
 }

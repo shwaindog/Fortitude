@@ -622,30 +622,16 @@ public class PQInternalPassiveOrder : ReusableObject<IAnonymousOrder>, IPQIntern
 
     public IExternalCounterPartyOrder? ToExternalCounterPartyInfoOrder() => owner.ToExternalCounterPartyInfoOrder();
 
-
-    int IPQSupportsNumberPrecisionFieldUpdates<IPQAnonymousOrder>.UpdateField(PQFieldUpdate fieldUpdate) => owner.UpdateField(fieldUpdate);
-
-
     public virtual bool UpdateFieldString(PQFieldStringUpdate stringUpdate) => owner.UpdateFieldString(stringUpdate);
 
     public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates
         (DateTime snapShotTime, PQMessageFlags messageFlags) =>
         owner.GetStringUpdates(snapShotTime, messageFlags);
 
-    IEnumerable<PQFieldUpdate> IPQSupportsNumberPrecisionFieldUpdates<IPQAdditionalInternalPassiveOrderInfo>.GetDeltaUpdateFields
-        (DateTime snapShotTime, PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings) =>
-        GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSettings);
-
-    IEnumerable<PQFieldUpdate> IPQSupportsNumberPrecisionFieldUpdates<IPQAnonymousOrder>.GetDeltaUpdateFields
-        (DateTime snapShotTime, PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSettings) =>
-        owner.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSettings);
-
     public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
         (DateTime snapShotTime, PQMessageFlags messageFlags, IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting) =>
         owner.GetDeltaUpdateFields(snapShotTime, messageFlags, quotePublicationPrecisionSetting);
 
-    int IPQSupportsNumberPrecisionFieldUpdates<IPQAdditionalInternalPassiveOrderInfo>.UpdateField(PQFieldUpdate fieldUpdate) =>
-        UpdateField(fieldUpdate);
 
     public virtual int UpdateField(PQFieldUpdate pqFieldUpdate) => owner.UpdateField(pqFieldUpdate);
 
@@ -681,10 +667,6 @@ public class PQInternalPassiveOrder : ReusableObject<IAnonymousOrder>, IPQIntern
     public override PQInternalPassiveOrder Clone() =>
         Recycler?.Borrow<PQInternalPassiveOrder>().CopyFrom(this, CopyMergeFlags.FullReplace) ??
         new PQInternalPassiveOrder(owner.Clone(), addInternalOrderInfo.Clone());
-
-    IPQAdditionalInternalPassiveOrderInfo ITransferState<IPQAdditionalInternalPassiveOrderInfo>.CopyFrom
-        (IPQAdditionalInternalPassiveOrderInfo source, CopyMergeFlags copyMergeFlags) =>
-        TryCopyAdditionalInternalPassiveOrderInfo(source, copyMergeFlags);
 
     IMutableAdditionalInternalPassiveOrderInfo ITransferState<IMutableAdditionalInternalPassiveOrderInfo>.CopyFrom
         (IMutableAdditionalInternalPassiveOrderInfo source, CopyMergeFlags copyMergeFlags) =>

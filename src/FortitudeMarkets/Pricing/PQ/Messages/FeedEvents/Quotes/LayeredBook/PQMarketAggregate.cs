@@ -3,11 +3,10 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
-using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
 {
-    public interface IPQMarketAggregate : IMutableMarketAggregate, IPQSupportsNumberPrecisionFieldUpdates<IPQMarketAggregate>
+    public interface IPQMarketAggregate : IMutableMarketAggregate, IPQSupportsNumberPrecisionFieldUpdates
       , ICloneable<IPQMarketAggregate>, ITrackableReset<IPQMarketAggregate>
     {
         bool IsDataSourceUpdated         { get; set; }
@@ -298,11 +297,6 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook
         IPQMarketAggregate IPQMarketAggregate.Clone() => Clone();
 
         public override PQMarketAggregate Clone() => Recycler?.Borrow<PQMarketAggregate>().CopyFrom(this) ?? new PQMarketAggregate(this);
-
-        IPQMarketAggregate ITransferState<IPQMarketAggregate>.CopyFrom
-            (IPQMarketAggregate source, CopyMergeFlags copyMergeFlags) =>
-            CopyFrom(source, copyMergeFlags);
-
 
         public override PQMarketAggregate CopyFrom(IMarketAggregate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
         {

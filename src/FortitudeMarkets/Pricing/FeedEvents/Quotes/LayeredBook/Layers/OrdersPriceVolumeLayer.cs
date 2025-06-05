@@ -12,6 +12,7 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 
 #endregion
@@ -20,6 +21,8 @@ namespace FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 
 public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrdersPriceVolumeLayer
 {
+    protected LayerBooleanValues BooleanValues;
+
     private readonly bool isCounterPartyOrders;
 
     private readonly TracksListReorderingRegistry<IMutableAnonymousOrder, IAnonymousOrder> elementShiftRegistry;
@@ -28,20 +31,26 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
 
     public OrdersPriceVolumeLayer()
     {
-        orders = new List<IMutableAnonymousOrder>();
+        orders        = new List<IMutableAnonymousOrder>();
+        LayerBehavior = QuoteLayerInstantBehaviorFlags.None;
 
         elementShiftRegistry = new TracksListReorderingRegistry<IMutableAnonymousOrder, IAnonymousOrder>(this, NewElementFactory, SameTradeId);
     }
 
-    public OrdersPriceVolumeLayer(LayerType layerType)
+    public OrdersPriceVolumeLayer(LayerType layerType, QuoteLayerInstantBehaviorFlags layerBehavior)
     {
+        LayerBehavior = layerBehavior;
+
         isCounterPartyOrders =
             layerType switch
             {
                 LayerType.OrdersAnonymousPriceVolume => false
-              , LayerType.OrdersFullPriceVolume => true
-              , LayerType.FullSupportPriceVolume => true
-              , _ => throw new ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {layerType}")
+              ,
+                LayerType.OrdersFullPriceVolume => true
+              ,
+                LayerType.FullSupportPriceVolume => true
+              ,
+                _ => throw new ArgumentException($"Only expected to receive OrdersAnonymousPriceVolume or OrdersFullPriceVolume but got {layerType}")
             };
 
         orders = new List<IMutableAnonymousOrder>();
@@ -52,8 +61,10 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
     public OrdersPriceVolumeLayer
     (LayerType layerType = LayerType.OrdersAnonymousPriceVolume
       , decimal price = 0m, decimal volume = 0m, uint ordersCount = 0, decimal internalVolume = 0
-      , IEnumerable<IAnonymousOrder>? layerOrders = null) : base(price, volume, ordersCount, internalVolume)
+      , IEnumerable<IAnonymousOrder>? layerOrders = null
+      , QuoteLayerInstantBehaviorFlags layerBehavior = QuoteLayerInstantBehaviorFlags.None) : base(price, volume, ordersCount, internalVolume)
     {
+        LayerBehavior = layerBehavior;
         isCounterPartyOrders =
             layerType switch
             {
@@ -82,8 +93,9 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
                 };
         if (toClone is IOrdersPriceVolumeLayer ordersToClone)
         {
+            LayerBehavior  = ordersToClone.LayerBehavior;
             MaxAllowedSize = ordersToClone.MaxAllowedSize;
-            orders = new List<IMutableAnonymousOrder>((int)ordersToClone.OrdersCount);
+            orders         = new List<IMutableAnonymousOrder>((int)ordersToClone.OrdersCount);
             foreach (var orderLayerInfo in ordersToClone.Orders) AddLayer(orderLayerInfo);
         }
         else
@@ -102,7 +114,6 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
 
     IReadOnlyList<IAnonymousOrder> IOrdersPriceVolumeLayer.Orders => orders.Take(CountFromOrders()).ToList().AsReadOnly();
 
-
     [JsonIgnore] public override LayerType LayerType => isCounterPartyOrders ? LayerType.OrdersFullPriceVolume : LayerType.OrdersAnonymousPriceVolume;
 
 
@@ -111,6 +122,12 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         isCounterPartyOrders
             ? LayerFlagsExtensions.AdditionalCounterPartyOrderFlags | base.SupportsLayerFlags
             : LayerFlagsExtensions.AdditionalAnonymousOrderFlags | base.SupportsLayerFlags;
+
+    public QuoteLayerInstantBehaviorFlags LayerBehavior
+    {
+        get => BooleanValues.ExtractLayerBehaviorFlags();
+        set => BooleanValues = (LayerBooleanValues)(((uint)BooleanValues & 0xFF_FF_00_00) | (uint)value);
+    }
 
     public ushort MaxAllowedSize { get; set; } = PQFeedFieldsExtensions.TwoByteFieldIdMaxBookDepth;
 
@@ -233,7 +250,6 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
     public bool CalculateShift(DateTime asAtTime, IReadOnlyList<IAnonymousOrder> updatedCollection) =>
         elementShiftRegistry.CalculateShift(asAtTime, updatedCollection);
 
-
     public ListShiftCommand AppendShiftCommand(ListShiftCommand toAppendAtEnd) => elementShiftRegistry.AppendShiftCommand(toAppendAtEnd);
 
     public void ClearShiftCommands() => elementShiftRegistry.ClearShiftCommands();
@@ -248,7 +264,9 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
 
     public ListShiftCommand Delete(IMutableAnonymousOrder toDelete) => elementShiftRegistry.Delete(toDelete);
 
-    public ListShiftCommand ApplyListShiftCommand(ListShiftCommand shiftCommandToApply) => elementShiftRegistry.ApplyListShiftCommand(shiftCommandToApply);
+    public ListShiftCommand ApplyListShiftCommand
+        (ListShiftCommand shiftCommandToApply) =>
+        elementShiftRegistry.ApplyListShiftCommand(shiftCommandToApply);
 
     public ListShiftCommand ClearAll() => elementShiftRegistry.ClearAll();
 
@@ -267,9 +285,13 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
 
     public ListShiftCommand MoveToEnd(IMutableAnonymousOrder existingItem) => elementShiftRegistry.MoveToEnd(existingItem);
 
-    public ListShiftCommand ShiftElementsFrom(int byElements, int pinElementsFromIndex) => elementShiftRegistry.ShiftElementsFrom(byElements, pinElementsFromIndex);
+    public ListShiftCommand ShiftElementsFrom
+        (int byElements, int pinElementsFromIndex) =>
+        elementShiftRegistry.ShiftElementsFrom(byElements, pinElementsFromIndex);
 
-    public ListShiftCommand ShiftElementsUntil(int byElements, int pinElementsFromIndex) => elementShiftRegistry.ShiftElementsUntil(byElements, pinElementsFromIndex);
+    public ListShiftCommand ShiftElementsUntil
+        (int byElements, int pinElementsFromIndex) =>
+        elementShiftRegistry.ShiftElementsUntil(byElements, pinElementsFromIndex);
 
     public void Add(IMutableAnonymousOrder item)
     {
@@ -333,16 +355,6 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
         foreach (var orderLayerInfo in Orders) orderLayerInfo.StateReset();
         base.StateReset();
     }
-
-    IOrdersPriceVolumeLayer ICloneable<IOrdersPriceVolumeLayer>.Clone() => Clone();
-
-    IOrdersPriceVolumeLayer IOrdersPriceVolumeLayer.Clone() => Clone();
-
-    IMutableOrdersPriceVolumeLayer IMutableOrdersPriceVolumeLayer.Clone() => Clone();
-
-    public override OrdersPriceVolumeLayer Clone() =>
-        Recycler?.Borrow<OrdersPriceVolumeLayer>().CopyFrom(this)
-     ?? new OrdersPriceVolumeLayer(this, LayerType);
 
     private void AddLayer(IAnonymousOrder toAdd)
     {
@@ -411,19 +423,22 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
                .Sum(aoli => aoli.OrderRemainingVolume);
     }
 
-    public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
-    {
-        if (!(other is IOrdersPriceVolumeLayer otherTvl)) return false;
-        var baseSame = base.AreEquivalent(other, exactTypes);
-        var traderDetailsSame = orders.Zip(otherTvl.Orders,
-                                           (ftd, std) => ftd.AreEquivalent(std, exactTypes))
-                                      .All(same => same);
-        return baseSame && traderDetailsSame;
-    }
+    IOrdersPriceVolumeLayer ICloneable<IOrdersPriceVolumeLayer>.Clone() => Clone();
 
-    public override OrdersPriceVolumeLayer CopyFrom(IPriceVolumeLayer source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    IOrdersPriceVolumeLayer IOrdersPriceVolumeLayer.Clone() => Clone();
+
+    IMutableOrdersPriceVolumeLayer IMutableOrdersPriceVolumeLayer.Clone() => Clone();
+
+    public override OrdersPriceVolumeLayer Clone() =>
+        Recycler?.Borrow<OrdersPriceVolumeLayer>().CopyFrom(this, QuoteInstantBehaviorFlags.DisableUpgradeLayer)
+     ?? new OrdersPriceVolumeLayer(this, LayerType);
+
+    public override OrdersPriceVolumeLayer CopyFrom
+    (IPriceVolumeLayer source, QuoteInstantBehaviorFlags behaviorFlags
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        base.CopyFrom(source, copyMergeFlags);
+        LayerBehavior = (QuoteLayerInstantBehaviorFlags)behaviorFlags;
+        base.CopyFrom(source, behaviorFlags, copyMergeFlags);
         var thisLayerGenesisFlags = LayerType.SupportsOrdersFullPriceVolume()
             ? IExternalCounterPartyOrder.HasExternalCounterPartyOrderInfoFlags
             : OrderGenesisFlags.None;
@@ -454,6 +469,16 @@ public class OrdersPriceVolumeLayer : OrdersCountPriceVolumeLayer, IMutableOrder
             for (var i = orders.Count - 1; i >= ordersCountPriceVolumeLayer.OrdersCount; i--) orders[i].StateReset();
         }
         return this;
+    }
+
+    public override bool AreEquivalent(IPriceVolumeLayer? other, bool exactTypes = false)
+    {
+        if (!(other is IOrdersPriceVolumeLayer otherTvl)) return false;
+        var baseSame = base.AreEquivalent(other, exactTypes);
+        var traderDetailsSame = orders.Zip(otherTvl.Orders,
+                                           (ftd, std) => ftd.AreEquivalent(std, exactTypes))
+                                      .All(same => same);
+        return baseSame && traderDetailsSame;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent((IOrdersPriceVolumeLayer?)obj, true);
