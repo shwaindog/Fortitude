@@ -36,7 +36,7 @@ public class TradingStatusFeedEvent : FeedEventStatusUpdate, IMutableTradingStat
         ClientReceivedTime       = toClone.ClientReceivedTime;
         InboundProcessedTime     = toClone.InboundProcessedTime;
         SubscriberDispatchedTime = toClone.SubscriberDispatchedTime;
-        AdapterReceivedTime  = toClone.AdapterReceivedTime;
+        AdapterReceivedTime      = toClone.AdapterReceivedTime;
         AdapterSentTime          = toClone.AdapterSentTime;
         DownstreamTime           = toClone.DownstreamTime;
         SourceSequenceNumber     = toClone.SourceSequenceNumber;
@@ -49,7 +49,9 @@ public class TradingStatusFeedEvent : FeedEventStatusUpdate, IMutableTradingStat
 
         var mutableClone = (IMutableTradingStatusFeedEvent?)toClone;
 
-        MarketEvents               = mutableClone?.MarketEvents;
+        MarketNewsPanel            = mutableClone?.MarketNewsPanel;
+        MarketCalendarPanel        = mutableClone?.MarketCalendarPanel;
+        MarketTradingStatusPanel   = mutableClone?.MarketTradingStatusPanel;
         RecentTradedHistory        = mutableClone?.RecentTradedHistory;
         PublishedInternalOrders    = mutableClone?.PublishedInternalOrders;
         PublishedAccounts          = mutableClone?.PublishedAccounts;
@@ -61,19 +63,23 @@ public class TradingStatusFeedEvent : FeedEventStatusUpdate, IMutableTradingStat
         AdapterExecutionStatistics = mutableClone?.AdapterExecutionStatistics;
     }
 
+    public override DateTime SourceTime { get; set; }
+
     public ISourceTickerInfo? SourceTickerInfo { get; set; }
 
     public DateTime LastSourceFeedUpdateTime { get; set; }
-    public DateTime DownstreamTime             { get; set; }
+    public DateTime DownstreamTime           { get; set; }
 
     public uint SourceSequenceNumber  { get; set; }
     public uint AdapterSequenceNumber { get; set; }
     public uint ClientSequenceNumber  { get; set; }
     public uint FeedSequenceNumber    { get; set; }
 
-    public FeedEventUpdateFlags        EventUpdateFlags             { get; set; } = FeedEventUpdateFlags.NoDataYetReceived;
+    public FeedEventUpdateFlags EventUpdateFlags { get; set; } = FeedEventUpdateFlags.NoDataYetReceived;
 
-    public IMutablePublishedMarketEvents?      MarketEvents               { get; set; }
+    public IMutableMarketNewsPanel?            MarketNewsPanel            { get; set; }
+    public IMutableMarketCalendarPanel?        MarketCalendarPanel        { get; set; }
+    public IMutableMarketTradingStatusPanel?   MarketTradingStatusPanel   { get; set; }
     public IMutableRecentlyTradedHistory?      RecentTradedHistory        { get; set; }
     public IMutablePublishedInternalOrders?    PublishedInternalOrders    { get; set; }
     public IMutablePublishedAccounts?          PublishedAccounts          { get; set; }
@@ -91,7 +97,11 @@ public class TradingStatusFeedEvent : FeedEventStatusUpdate, IMutableTradingStat
     IPnLConversions? ITradingStatusFeedEvent.   TickerPnLConversionRate => TickerPnLConversionRate;
     ITickerRegionInfo? ITradingStatusFeedEvent. TickerRegionInfo        => TickerRegionInfo;
 
-    IPublishedMarketEvents? ITradingStatusFeedEvent.MarketEvents => MarketEvents;
+    IMarketNewsPanel? ITradingStatusFeedEvent.MarketNewsPanel => MarketNewsPanel;
+
+    IMarketCalendarPanel? ITradingStatusFeedEvent.MarketCalendarPanel => MarketCalendarPanel;
+
+    IMarketTradingStatusPanel? ITradingStatusFeedEvent.MarketTradingStatusPanel => MarketTradingStatusPanel;
 
     IRecentlyTradedHistory? ITradingStatusFeedEvent.RecentTradedHistory => RecentTradedHistory;
 
@@ -146,7 +156,7 @@ public class TradingStatusFeedEvent : FeedEventStatusUpdate, IMutableTradingStat
         LastSourceFeedUpdateTime = source.LastSourceFeedUpdateTime;
         InboundProcessedTime     = source.InboundProcessedTime;
         SubscriberDispatchedTime = source.SubscriberDispatchedTime;
-        AdapterReceivedTime  = source.AdapterReceivedTime;
+        AdapterReceivedTime      = source.AdapterReceivedTime;
         AdapterSentTime          = source.AdapterSentTime;
         DownstreamTime           = source.DownstreamTime;
         SourceSequenceNumber     = source.SourceSequenceNumber;
@@ -159,10 +169,19 @@ public class TradingStatusFeedEvent : FeedEventStatusUpdate, IMutableTradingStat
 
         var mutableSource = (IMutableLevel1FeedEvent)source;
 
-        MarketEvents = mutableSource.MarketEvents != null
-            ? (MarketEvents?.CopyFrom(mutableSource.MarketEvents, copyMergeFlags) ?? mutableSource.MarketEvents?.Clone()) as
-            IMutablePublishedMarketEvents
-            : MarketEvents?.ResetWithTracking();
+        MarketNewsPanel = mutableSource.MarketNewsPanel != null
+            ? (MarketNewsPanel?.CopyFrom(mutableSource.MarketNewsPanel, copyMergeFlags) ?? mutableSource.MarketNewsPanel?.Clone()) as
+            IMutableMarketNewsPanel
+            : MarketNewsPanel?.ResetWithTracking();
+        MarketCalendarPanel = mutableSource.MarketCalendarPanel != null
+            ? (MarketCalendarPanel?.CopyFrom(mutableSource.MarketCalendarPanel, copyMergeFlags) ?? mutableSource.MarketCalendarPanel?.Clone()) as
+            IMutableMarketCalendarPanel
+            : MarketCalendarPanel?.ResetWithTracking();
+        MarketTradingStatusPanel = mutableSource.MarketTradingStatusPanel != null
+            ? (MarketTradingStatusPanel?.CopyFrom(mutableSource.MarketTradingStatusPanel, copyMergeFlags) ??
+               mutableSource.MarketTradingStatusPanel?.Clone()) as
+            IMutableMarketTradingStatusPanel
+            : MarketTradingStatusPanel?.ResetWithTracking();
         RecentTradedHistory = mutableSource.RecentTradedHistory != null
             ? (RecentTradedHistory?.CopyFrom(mutableSource.RecentTradedHistory, copyMergeFlags) ?? mutableSource.RecentTradedHistory?.Clone()) as
             IMutableRecentlyTradedHistory
@@ -209,7 +228,7 @@ public class TradingStatusFeedEvent : FeedEventStatusUpdate, IMutableTradingStat
         LastSourceFeedUpdateTime = DateTime.MinValue;
         InboundProcessedTime     = DateTime.MinValue;
         SubscriberDispatchedTime = DateTime.MinValue;
-        AdapterReceivedTime  = DateTime.MinValue;
+        AdapterReceivedTime      = DateTime.MinValue;
         AdapterSentTime          = DateTime.MinValue;
         DownstreamTime           = DateTime.MinValue;
         SourceSequenceNumber     = 0;
@@ -219,7 +238,9 @@ public class TradingStatusFeedEvent : FeedEventStatusUpdate, IMutableTradingStat
 
         FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.AwaitingConnectionStart;
         EventUpdateFlags             = FeedEventUpdateFlags.NoDataYetReceived;
-        MarketEvents?.StateReset();
+        MarketNewsPanel?.StateReset();
+        MarketCalendarPanel?.StateReset();
+        MarketTradingStatusPanel?.StateReset();
         RecentTradedHistory?.StateReset();
         PublishedInternalOrders?.StateReset();
         PublishedAccounts?.StateReset();
@@ -256,30 +277,32 @@ public class TradingStatusFeedEvent : FeedEventStatusUpdate, IMutableTradingStat
         var downStreamTimeSameSame = DownstreamTime == other.DownstreamTime;
         var srcSeqNumSame          = SourceSequenceNumber == other.SourceSequenceNumber;
         var adapterSeqNumSame      = AdapterSequenceNumber == other.AdapterSequenceNumber;
-        var clntSeqNumSame         = ClientSequenceNumber == other.ClientSequenceNumber;
+        var clientSeqNumSame       = ClientSequenceNumber == other.ClientSequenceNumber;
         var feedSeqNumSame         = FeedSequenceNumber == other.FeedSequenceNumber;
 
-        var mktEvtsSame   = MarketEvents?.AreEquivalent(mutOther.MarketEvents, exactTypes) ?? mutOther.MarketEvents is null;
-        var trdHistrySame = RecentTradedHistory?.AreEquivalent(mutOther.RecentTradedHistory, exactTypes) ?? mutOther.RecentTradedHistory is null;
+        var mktNewsSame     = MarketNewsPanel?.AreEquivalent(mutOther.MarketNewsPanel, exactTypes) ?? mutOther.MarketNewsPanel is null;
+        var mktCalendarSame = MarketCalendarPanel?.AreEquivalent(mutOther.MarketCalendarPanel, exactTypes) ?? mutOther.MarketCalendarPanel is null;
+        var mktTradingSame = MarketTradingStatusPanel?.AreEquivalent(mutOther.MarketTradingStatusPanel, exactTypes) ??
+                             mutOther.MarketTradingStatusPanel is null;
+        var trdHistorySame = RecentTradedHistory?.AreEquivalent(mutOther.RecentTradedHistory, exactTypes) ?? mutOther.RecentTradedHistory is null;
         var pubIntOrdersSame = PublishedInternalOrders?.AreEquivalent(mutOther.PublishedInternalOrders, exactTypes) ??
                                mutOther.PublishedInternalOrders is null;
-        var pubAcctsSame    = PublishedAccounts?.AreEquivalent(mutOther.PublishedAccounts, exactTypes) ?? mutOther.PublishedAccounts is null;
+        var accountsSame    = PublishedAccounts?.AreEquivalent(mutOther.PublishedAccounts, exactTypes) ?? mutOther.PublishedAccounts is null;
         var pubLimitsSame   = PublishedLimits?.AreEquivalent(mutOther.PublishedLimits, exactTypes) ?? mutOther.PublishedLimits is null;
         var lmtBreachesSame = LimitBreaches?.AreEquivalent(mutOther.LimitBreaches, exactTypes) ?? mutOther.LimitBreaches is null;
-        var mrgnDetsSame    = MarginDetails?.AreEquivalent(mutOther.MarginDetails, exactTypes) ?? mutOther.MarginDetails is null;
+        var marginsSame     = MarginDetails?.AreEquivalent(mutOther.MarginDetails, exactTypes) ?? mutOther.MarginDetails is null;
         var pnlConRateSame = TickerPnLConversionRate?.AreEquivalent(mutOther.TickerPnLConversionRate, exactTypes) ??
                              mutOther.TickerPnLConversionRate is null;
         var tkrRegInfoSame = TickerRegionInfo?.AreEquivalent(mutOther.TickerRegionInfo, exactTypes) ?? mutOther.TickerRegionInfo is null;
-        var adptrExeStatsSame = AdapterExecutionStatistics?.AreEquivalent(mutOther.AdapterExecutionStatistics, exactTypes) ??
-                                mutOther.AdapterExecutionStatistics is null;
+        var adapterExeStatsSame = AdapterExecutionStatistics?.AreEquivalent(mutOther.AdapterExecutionStatistics, exactTypes) ??
+                                  mutOther.AdapterExecutionStatistics is null;
 
 
         var allAreSame = srcTkrInfoSame && sourceFeedUpdateSame && clientProcTimeSame
-                      && clientPubTimeSame && adapterRecTimeSame && adapterSentTimeSame && downStreamTimeSameSame && srcSeqNumSame &&
-                         adapterSeqNumSame
-                      && clntSeqNumSame && feedSeqNumSame && mktEvtsSame && trdHistrySame
-                      && pubIntOrdersSame && pubAcctsSame && pubLimitsSame && lmtBreachesSame && mrgnDetsSame && pnlConRateSame
-                      && tkrRegInfoSame && adptrExeStatsSame && baseSame;
+                      && clientPubTimeSame && adapterRecTimeSame && adapterSentTimeSame && downStreamTimeSameSame && srcSeqNumSame
+                      && adapterSeqNumSame && clientSeqNumSame && feedSeqNumSame && mktNewsSame && mktCalendarSame && mktTradingSame
+                      && trdHistorySame && pubIntOrdersSame && accountsSame && pubLimitsSame && lmtBreachesSame && marginsSame
+                      && pnlConRateSame && tkrRegInfoSame && adapterExeStatsSame && baseSame;
 
         return allAreSame;
     }
@@ -305,7 +328,9 @@ public class TradingStatusFeedEvent : FeedEventStatusUpdate, IMutableTradingStat
         hashCode.Add(FeedSequenceNumber);
         hashCode.Add((int)FeedMarketConnectivityStatus);
         hashCode.Add((int)EventUpdateFlags);
-        hashCode.Add(MarketEvents);
+        hashCode.Add(MarketNewsPanel);
+        hashCode.Add(MarketCalendarPanel);
+        hashCode.Add(MarketTradingStatusPanel);
         hashCode.Add(RecentTradedHistory);
         hashCode.Add(PublishedInternalOrders);
         hashCode.Add(PublishedAccounts);

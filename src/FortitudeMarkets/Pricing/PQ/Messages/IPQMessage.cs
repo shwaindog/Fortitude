@@ -16,16 +16,18 @@ public interface IPQMessage : IMutableFeedEventStatusUpdate, IVersionedMessage, 
 {
     PQMessageFlags? OverrideSerializationFlags { get; set; }
 
-    uint      StreamId            { get; }
-    string    StreamName          { get; }
-    ISyncLock Lock                { get; }
-    uint      PQSequenceId        { get; set; }
-    DateTime  LastPublicationTime { get; set; }
+    uint         StreamId            { get; }
+    string       StreamName          { get; }
+    ISyncLock    Lock                { get; }
+    uint         PQSequenceId        { get; set; }
+    DateTime     LastPublicationTime { get; set; }
 
     public bool IsQuoteBehaviorFlagsUpdated { get; set; }
     public bool IsFeedBehaviorFlagsUpdated { get; set; }
     public bool IsFeedConnectivityStatusUpdated { get; set; }
-
+    
+    bool IsSourceTimeDateUpdated             { get; set; }
+    bool IsSourceTimeSub2MinUpdated          { get; set; }
     bool IsSocketReceivedTimeDateUpdated     { get; set; }
     bool IsSocketReceivedTimeSub2MinUpdated  { get; set; }
     bool IsProcessedTimeDateUpdated          { get; set; }

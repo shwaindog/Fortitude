@@ -1061,7 +1061,7 @@ public class PQLevel2QuoteTests
             var emptyQuoteSourceTickerInfo
                 = new PQSourceTickerInfo(populatedL2Quote.SourceTickerInfo!)
                 {
-                    NameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerNames)
+                    NameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerDefinitionStringUpdates)
                 };
             var newEmpty = new PQPublishableLevel2Quote(emptyQuoteSourceTickerInfo);
             foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);

@@ -26,6 +26,8 @@ public interface ITickInstant : IReusableObject<ITickInstant>, IInterfacesCompar
 public interface IPublishableTickInstant : IReusableObject<IPublishableTickInstant>, ITickInstant,
     IInterfacesComparable<IPublishableTickInstant>, IDoublyLinkedListNode<IPublishableTickInstant>, IFeedEventStatusUpdate
 {
+    new DateTime SourceTime { get; }
+
     [JsonIgnore] TickerQuoteDetailLevel TickerQuoteDetailLevel { get; }
 
     public ITickInstant AsNonPublishable { get; }
@@ -68,8 +70,10 @@ public interface IMutableTickInstant : ITickInstant, ITrackableReset<IMutableTic
     new IMutableTickInstant Clone();
 }
 
-public interface IMutablePublishableTickInstant : IPublishableTickInstant, IMutableTickInstant, IMutableFeedEventStatusUpdate, ITrackableReset<IMutablePublishableTickInstant>
+public interface IMutablePublishableTickInstant : IPublishableTickInstant, IMutableTickInstant, IMutableFeedEventStatusUpdate
+  , ITrackableReset<IMutablePublishableTickInstant>
 {
+    new DateTime           SourceTime       { get; set; }
     new ISourceTickerInfo? SourceTickerInfo { get; set; }
 
     new IMutableTickInstant AsNonPublishable { get; }

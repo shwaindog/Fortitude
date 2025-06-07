@@ -520,121 +520,124 @@ public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
         var updatedOnly = (updateStyle & PQMessageFlags.Complete) == 0;
 
         if (!updatedOnly || IsPublishedTickerDetailLevelUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.TickerDetailLevelType, (byte)PublishedTickerQuoteDetailLevel);
+            yield return new PQFieldUpdate(PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.TickerDetailLevelType, (byte)PublishedTickerQuoteDetailLevel);
         if (!updatedOnly || IsRoundingPrecisionUpdated)
         {
             var decimalPlaces     = BitConverter.GetBytes(decimal.GetBits(RoundingPrecision)[3])[2];
             var roundingNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) * RoundingPrecision);
-            yield return new PQFieldUpdate(PQFeedFields.PriceRoundingPrecision, roundingNoDecimal, (PQFieldFlags)decimalPlaces);
+            yield return new PQFieldUpdate(PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.PriceRoundingPrecision, roundingNoDecimal, (PQFieldFlags)decimalPlaces);
         }
         if (!updatedOnly || IsPipUpdated)
         {
             var decimalPlaces     = BitConverter.GetBytes(decimal.GetBits(Pip)[3])[2];
             var roundingNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) * Pip);
-            yield return new PQFieldUpdate(PQFeedFields.Pip, roundingNoDecimal, (PQFieldFlags)decimalPlaces);
+            yield return new PQFieldUpdate(PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.Pip, roundingNoDecimal, (PQFieldFlags)decimalPlaces);
         }
         if (!updatedOnly || IsBooleanFlagsChanged())
         {
             var booleanFields = GenerateBooleanFlags(!updatedOnly);
-            yield return new PQFieldUpdate(PQFeedFields.TickerDetailBooleanFlags, (uint)booleanFields);
+            yield return new PQFieldUpdate(PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.TickerDetailBooleanFlags, (uint)booleanFields);
         }
         if (!updatedOnly || IsMaximumPublishedLayersUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.MaximumPublishedLayers, MaximumPublishedLayers);
+            yield return new PQFieldUpdate(PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.MaximumPublishedLayers, MaximumPublishedLayers);
 
         if (!updatedOnly || IsMinSubmitSizeUpdated)
         {
             var decimalPlaces      = BitConverter.GetBytes(decimal.GetBits(MinSubmitSize)[3])[2];
             var minSubmitNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) * MinSubmitSize);
-            yield return new PQFieldUpdate(PQFeedFields.MinSubmitSize, minSubmitNoDecimal, (PQFieldFlags)decimalPlaces);
+            yield return new PQFieldUpdate(PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.MinSubmitSize, minSubmitNoDecimal, (PQFieldFlags)decimalPlaces);
         }
 
         if (!updatedOnly || IsMaxSubmitSizeUpdated)
         {
             var decimalPlaces      = BitConverter.GetBytes(decimal.GetBits(MaxSubmitSize)[3])[2];
             var maxSubmitNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) * MaxSubmitSize);
-            yield return new PQFieldUpdate(PQFeedFields.MaxSubmitSize, maxSubmitNoDecimal, (PQFieldFlags)decimalPlaces);
+            yield return new PQFieldUpdate(PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.MaxSubmitSize, maxSubmitNoDecimal, (PQFieldFlags)decimalPlaces);
         }
 
         if (!updatedOnly || IsIncrementSizeUpdated)
         {
             var decimalPlaces          = BitConverter.GetBytes(decimal.GetBits(IncrementSize)[3])[2];
             var incrementSizeNoDecimal = (uint)((decimal)Math.Pow(10, decimalPlaces) * IncrementSize);
-            yield return new PQFieldUpdate(PQFeedFields.IncrementSize, incrementSizeNoDecimal, (PQFieldFlags)decimalPlaces);
+            yield return new PQFieldUpdate(PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.IncrementSize, incrementSizeNoDecimal, (PQFieldFlags)decimalPlaces);
         }
 
-        if (!updatedOnly || IsDefaultMaxValidMsUpdated) yield return new PQFieldUpdate(PQFeedFields.DefaultMaxValidMs, DefaultMaxValidMs);
-        if (!updatedOnly || IsMinimumQuoteLifeUpdated) yield return new PQFieldUpdate(PQFeedFields.MinimumQuoteLifeMs, MinimumQuoteLife);
-        if (!updatedOnly || IsLayerFlagsUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteLayerFlags, (uint)LayerFlags);
-        if (!updatedOnly || IsLastTradedFlagsUpdated) yield return new PQFieldUpdate(PQFeedFields.LastTradedFlags, (uint)LastTradedFlags);
+        if (!updatedOnly || IsDefaultMaxValidMsUpdated) yield return new PQFieldUpdate(PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.DefaultMaxValidMs, DefaultMaxValidMs);
+        if (!updatedOnly || IsMinimumQuoteLifeUpdated) yield return new PQFieldUpdate(PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.MinimumQuoteLifeMs, MinimumQuoteLife);
+        if (!updatedOnly || IsLayerFlagsUpdated) yield return new PQFieldUpdate(PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.QuoteLayerFlags, (uint)LayerFlags);
+        if (!updatedOnly || IsLastTradedFlagsUpdated) yield return new PQFieldUpdate(PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.LastTradedFlags, (uint)LastTradedFlags);
     }
 
     public override int UpdateField(PQFieldUpdate fieldUpdate)
     {
-        switch (fieldUpdate.Id)
+        if (fieldUpdate.Id == PQFeedFields.SourceTickerDefinition)
         {
-            case PQFeedFields.TickerDetailLevelType:
-                IsPublishedTickerDetailLevelUpdated = true;
-                PublishedTickerQuoteDetailLevel     = (TickerQuoteDetailLevel)fieldUpdate.Payload;
-                return 0;
-            case PQFeedFields.PriceRoundingPrecision:
-                IsRoundingPrecisionUpdated = true;
-                var decimalPlaces              = (byte)(fieldUpdate.Flag & PQFieldFlags.DecimalScaleBits);
-                var convertedRoundingPrecision = (decimal)Math.Pow(10, -decimalPlaces) * fieldUpdate.Payload;
-                RoundingPrecision = convertedRoundingPrecision;
-                return 0;
-            case PQFeedFields.Pip:
-                IsPipUpdated  = true;
-                decimalPlaces = (byte)(fieldUpdate.Flag & PQFieldFlags.DecimalScaleBits);
-                var convertedPip = (decimal)Math.Pow(10, -decimalPlaces) * fieldUpdate.Payload;
-                Pip = convertedPip;
-                return 0;
-            case PQFeedFields.TickerDetailBooleanFlags:
-                SetBooleanFields((SourceTickerInfoBooleanFlags)fieldUpdate.Payload);
-                return 0;
-            case PQFeedFields.MaximumPublishedLayers:
-                IsMaximumPublishedLayersUpdated = true;
-                MaximumPublishedLayers = (byte)fieldUpdate.Payload;
-                return 0;
-            case PQFeedFields.MinSubmitSize:
-                IsMinSubmitSizeUpdated = true;
-                decimalPlaces          = (byte)(fieldUpdate.Flag & PQFieldFlags.DecimalScaleBits);
-                var convertedMinSubmitSize = (decimal)Math.Pow(10, -decimalPlaces) * fieldUpdate.Payload;
-                MinSubmitSize = convertedMinSubmitSize;
-                return 0;
-            case PQFeedFields.MaxSubmitSize:
-                IsMaxSubmitSizeUpdated = true;
+            switch (fieldUpdate.DefinitionSubId)
+            {
+                case PQTickerDefSubFieldKeys.TickerDetailLevelType:
+                    IsPublishedTickerDetailLevelUpdated = true;
+                    PublishedTickerQuoteDetailLevel     = (TickerQuoteDetailLevel)fieldUpdate.Payload;
+                    return 0;
+                case PQTickerDefSubFieldKeys.PriceRoundingPrecision:
+                    IsRoundingPrecisionUpdated = true;
+                    var decimalPlaces              = (byte)(fieldUpdate.Flag & PQFieldFlags.DecimalScaleBits);
+                    var convertedRoundingPrecision = (decimal)Math.Pow(10, -decimalPlaces) * fieldUpdate.Payload;
+                    RoundingPrecision = convertedRoundingPrecision;
+                    return 0;
+                case PQTickerDefSubFieldKeys.Pip:
+                    IsPipUpdated  = true;
+                    decimalPlaces = (byte)(fieldUpdate.Flag & PQFieldFlags.DecimalScaleBits);
+                    var convertedPip = (decimal)Math.Pow(10, -decimalPlaces) * fieldUpdate.Payload;
+                    Pip = convertedPip;
+                    return 0;
+                case PQTickerDefSubFieldKeys.TickerDetailBooleanFlags:
+                    SetBooleanFields((SourceTickerInfoBooleanFlags)fieldUpdate.Payload);
+                    return 0;
+                case PQTickerDefSubFieldKeys.MaximumPublishedLayers:
+                    IsMaximumPublishedLayersUpdated = true;
+                    MaximumPublishedLayers          = (byte)fieldUpdate.Payload;
+                    return 0;
+                case PQTickerDefSubFieldKeys.MinSubmitSize:
+                    IsMinSubmitSizeUpdated = true;
+                    decimalPlaces          = (byte)(fieldUpdate.Flag & PQFieldFlags.DecimalScaleBits);
+                    var convertedMinSubmitSize = (decimal)Math.Pow(10, -decimalPlaces) * fieldUpdate.Payload;
+                    MinSubmitSize = convertedMinSubmitSize;
+                    return 0;
+                case PQTickerDefSubFieldKeys.MaxSubmitSize:
+                    IsMaxSubmitSizeUpdated = true;
 
-                decimalPlaces = (byte)(fieldUpdate.Flag & PQFieldFlags.DecimalScaleBits);
-                var convertedMaxSubmitSize = (decimal)Math.Pow(10, -decimalPlaces) * fieldUpdate.Payload;
-                MaxSubmitSize = convertedMaxSubmitSize;
-                return 0;
-            case PQFeedFields.IncrementSize:
-                IsIncrementSizeUpdated = true;
+                    decimalPlaces = (byte)(fieldUpdate.Flag & PQFieldFlags.DecimalScaleBits);
+                    var convertedMaxSubmitSize = (decimal)Math.Pow(10, -decimalPlaces) * fieldUpdate.Payload;
+                    MaxSubmitSize = convertedMaxSubmitSize;
+                    return 0;
+                case PQTickerDefSubFieldKeys.IncrementSize:
+                    IsIncrementSizeUpdated = true;
 
-                decimalPlaces          = (byte)(fieldUpdate.Flag & PQFieldFlags.DecimalScaleBits);
-                var convertedIncrementSize = (decimal)Math.Pow(10, -decimalPlaces) * fieldUpdate.Payload;
-                IncrementSize = convertedIncrementSize;
-                return 0;
-            case PQFeedFields.DefaultMaxValidMs:
-                IsDefaultMaxValidMsUpdated = true;
+                    decimalPlaces = (byte)(fieldUpdate.Flag & PQFieldFlags.DecimalScaleBits);
+                    var convertedIncrementSize = (decimal)Math.Pow(10, -decimalPlaces) * fieldUpdate.Payload;
+                    IncrementSize = convertedIncrementSize;
+                    return 0;
+                case PQTickerDefSubFieldKeys.DefaultMaxValidMs:
+                    IsDefaultMaxValidMsUpdated = true;
 
-                DefaultMaxValidMs = fieldUpdate.Payload;
-                return 0;
-            case PQFeedFields.MinimumQuoteLifeMs:
-                IsMinimumQuoteLifeUpdated = true;
+                    DefaultMaxValidMs = fieldUpdate.Payload;
+                    return 0;
+                case PQTickerDefSubFieldKeys.MinimumQuoteLifeMs:
+                    IsMinimumQuoteLifeUpdated = true;
 
-                MinimumQuoteLife = (ushort)fieldUpdate.Payload;
-                return 0;
-            case PQFeedFields.QuoteLayerFlags:
-                IsLayerFlagsUpdated = true;
+                    MinimumQuoteLife = (ushort)fieldUpdate.Payload;
+                    return 0;
+                case PQTickerDefSubFieldKeys.QuoteLayerFlags:
+                    IsLayerFlagsUpdated = true;
 
-                LayerFlags = (LayerFlags)fieldUpdate.Payload;
-                return 0;
-            case PQFeedFields.LastTradedFlags:
-                IsLastTradedFlagsUpdated = true;
+                    LayerFlags = (LayerFlags)fieldUpdate.Payload;
+                    return 0;
+                case PQTickerDefSubFieldKeys.LastTradedFlags:
+                    IsLastTradedFlagsUpdated = true;
 
-                LastTradedFlags = (LastTradedFlags)fieldUpdate.Payload;
-                return 0;
+                    LastTradedFlags = (LastTradedFlags)fieldUpdate.Payload;
+                    return 0;
+            }
         }
 
         return base.UpdateField(fieldUpdate);

@@ -8,6 +8,7 @@ using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
+using FortitudeMarkets.Pricing.FeedEvents.MarketEvents;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 #endregion
@@ -21,14 +22,14 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
     public RecentlyTraded() =>
         elementShiftRegistry = new TracksListReorderingRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
 
-    public RecentlyTraded(LastTradedTransmissionFlags transmissionFlags, ushort maxAllowedSize = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount)
+    public RecentlyTraded(ListTransmissionFlags transmissionFlags, ushort maxAllowedSize = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount)
     {
         elementShiftRegistry = new TracksListReorderingRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
         MaxAllowedSize       = maxAllowedSize;
         TransferFlags        = transmissionFlags;
     }
 
-    public RecentlyTraded(LastTradedTransmissionFlags transmissionFlags, IEnumerable<ILastTrade> lastTrades
+    public RecentlyTraded(ListTransmissionFlags transmissionFlags, IEnumerable<ILastTrade> lastTrades
       , ushort maxAllowedSize = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount) : base(lastTrades)
     {
         elementShiftRegistry = new TracksListReorderingRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
@@ -44,7 +45,7 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
         HasUnreliableListTracking = toClone.HasUnreliableListTracking;
     }
 
-    public RecentlyTraded(ISourceTickerInfo sourceTickerInfo, LastTradedTransmissionFlags transmissionFlags
+    public RecentlyTraded(ISourceTickerInfo sourceTickerInfo, ListTransmissionFlags transmissionFlags
       , ushort maxAllowedSize = IRecentlyTradedHistory.PublishedHistoryMaxTradeCount) : base(sourceTickerInfo)
     {
         elementShiftRegistry = new TracksListReorderingRegistry<IMutableLastTrade, ILastTrade>(this, NewElementFactory, SameTradeId);
@@ -71,7 +72,7 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
         return this;
     }
 
-    public LastTradedTransmissionFlags TransferFlags { get; set; } = IRecentlyTradedHistory.DefaultAlertTradesTransmissionFlags;
+    public ListTransmissionFlags TransferFlags { get; set; } = IRecentlyTradedHistory.DefaultAlertTradesTransmissionFlags;
 
     public IReadOnlyList<ListShiftCommand> ShiftCommands
     {
@@ -140,6 +141,14 @@ public class RecentlyTraded : LastTradedList, IMutableRecentlyTraded
             HasUnreliableListTracking = ShiftCommands.Any();
 
             base[i] = value;
+        }
+    }
+
+    public void ReceiveEventLifeCycleChange(IMarketTradingStateEvent updatedItem, EventStateLifecycle eventType)
+    {
+        if (TransferFlags.HasResetOnNewTradingDayFlag() && eventType.IsActive() && updatedItem.MarketTradingStatus.HasMarketOpenFlag())
+        {
+            ClearAll();
         }
     }
 

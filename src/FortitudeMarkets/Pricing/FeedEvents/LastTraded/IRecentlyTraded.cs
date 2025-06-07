@@ -7,6 +7,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
+using FortitudeMarkets.Pricing.FeedEvents.MarketEvents;
 
 #endregion
 
@@ -19,13 +20,13 @@ public interface IRecentlyTraded : ILastTradedList, IInterfacesComparable<IRecen
 {
     new ILastTrade this[int index] { get; }
 
-    LastTradedTransmissionFlags TransferFlags { get; }
+    ListTransmissionFlags TransferFlags { get; }
 
     new IRecentlyTraded Clone();
 }
 
 public interface IMutableRecentlyTraded : IRecentlyTraded, IMutableLastTradedList, ITrackableReset<IMutableRecentlyTraded>
-  , IMutableExpiringCachedPeriodUpdateHistory<IMutableLastTrade, ILastTrade>
+  , IMutableExpiringCachedPeriodUpdateHistory<IMutableLastTrade, ILastTrade>, IAlertLifeCycleChanges<IMarketTradingStateEvent>
 {
     new IMutableLastTrade this[int index] { get; set; }
 
@@ -39,7 +40,7 @@ public interface IMutableRecentlyTraded : IRecentlyTraded, IMutableLastTradedLis
 
     new ushort MaxAllowedSize { get; set; }
 
-    new LastTradedTransmissionFlags TransferFlags { get; set; }
+    new ListTransmissionFlags TransferFlags { get; set; }
 
     new TimeBoundaryPeriod DuringPeriod { get; set; }
     

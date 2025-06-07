@@ -31,7 +31,7 @@ public class PQNameIdLookupGeneratorTests
         };
 
         firstGeneratorSubKey1  = new PQNameIdLookupGenerator(PQFeedFields.QuoteLayerSourceId);
-        secondGeneratorSubKey1 = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerNames);
+        secondGeneratorSubKey1 = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerDefinitionStringUpdates);
 
         foreach (var kvp in initialValues)
         {
@@ -101,7 +101,7 @@ public class PQNameIdLookupGeneratorTests
 
         expectedStringUpdates = new PQFieldStringUpdate
         {
-            Field = new PQFieldUpdate(PQFeedFields.SourceTickerNames, CrudCommand.Upsert.ToPQSubFieldId(), 0u), StringUpdate = new PQStringUpdate
+            Field = new PQFieldUpdate(PQFeedFields.SourceTickerDefinitionStringUpdates, CrudCommand.Upsert.ToPQSubFieldId(), 0u), StringUpdate = new PQStringUpdate
             {
                 Command = CrudCommand.Upsert, DictionaryId = 1, Value = "FirstItem"
             }
@@ -150,7 +150,7 @@ public class PQNameIdLookupGeneratorTests
 
         Assert.AreEqual(3, allFields.Count);
 
-        var newEmptyFirstDictSubKey1 = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerNames);
+        var newEmptyFirstDictSubKey1 = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerDefinitionStringUpdates);
         foreach (var pqFieldStringUpdate in allFields) Assert.IsFalse(newEmptyFirstDictSubKey1.UpdateFieldString(pqFieldStringUpdate));
 
         Assert.AreEqual(0, newEmptyFirstDictSubKey1.Count);
@@ -381,7 +381,7 @@ public class PQNameIdLookupGeneratorTests
         PopulateGenerator(subFirstSubKey2, removedLastEntry);
         Assert.IsTrue(secondGeneratorSubKey1.AreEquivalent(subFirstSubKey2));
 
-        var subSecondSubKey1 = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerNames);
+        var subSecondSubKey1 = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerDefinitionStringUpdates);
         PopulateGenerator(subSecondSubKey1, removedLastEntry);
         Assert.IsTrue(secondGeneratorSubKey1.AreEquivalent(subSecondSubKey1));
         Assert.IsFalse(secondGeneratorSubKey1.AreEquivalent(subSecondSubKey1, true));

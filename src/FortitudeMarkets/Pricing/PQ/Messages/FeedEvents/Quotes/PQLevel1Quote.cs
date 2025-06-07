@@ -21,6 +21,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 public interface IPQLevel1Quote : IPQTickInstant, IMutableLevel1Quote, ITrackableReset<IPQLevel1Quote>
 {
+
     bool IsSourceAskTimeDateUpdated    { get; set; }
     bool IsSourceAskTimeSub2MinUpdated { get; set; }
     bool IsSourceBidTimeDateUpdated    { get; set; }

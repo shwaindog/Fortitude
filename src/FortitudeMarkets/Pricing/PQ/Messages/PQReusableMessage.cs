@@ -92,7 +92,7 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
 
     public abstract uint MessageId { get; }
 
-    public abstract uint   StreamId   { get; }
+    public abstract uint StreamId { get; }
 
     public abstract string StreamName { get; }
 
@@ -114,6 +114,8 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
             feedMarketConnectivityStatus    = value;
         }
     }
+
+    public abstract DateTime SourceTime { get; set; }
 
     public DateTime SubscriberDispatchedTime
     {
@@ -254,11 +256,15 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         }
     }
 
+    public abstract bool IsSourceTimeDateUpdated    { get; set; }
+    public abstract bool IsSourceTimeSub2MinUpdated { get; set; }
+
     [JsonIgnore]
     public bool IsSocketReceivedTimeDateUpdated
     {
-        get => !QuoteBehavior.HasNoClientInboundSocketTimeUpdatesFlag() 
-             && (MessageUpdatedFlags & PQMessageUpdatedFlags.SocketReceivedDateUpdatedFlag) > 0;
+        get =>
+            !QuoteBehavior.HasNoClientInboundSocketTimeUpdatesFlag()
+         && (MessageUpdatedFlags & PQMessageUpdatedFlags.SocketReceivedDateUpdatedFlag) > 0;
         set
         {
             if (value)
@@ -271,8 +277,9 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     [JsonIgnore]
     public bool IsSocketReceivedTimeSub2MinUpdated
     {
-        get => !QuoteBehavior.HasNoClientInboundSocketTimeUpdatesFlag() 
-             && (MessageUpdatedFlags & PQMessageUpdatedFlags.SocketReceivedSub2MinUpdatedFlag) > 0;
+        get =>
+            !QuoteBehavior.HasNoClientInboundSocketTimeUpdatesFlag()
+         && (MessageUpdatedFlags & PQMessageUpdatedFlags.SocketReceivedSub2MinUpdatedFlag) > 0;
         set
         {
             if (value)
@@ -350,8 +357,9 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     [JsonIgnore]
     public bool IsClientReceivedTimeSub2MinUpdated
     {
-        get => !QuoteBehavior.HasNoClientReceiveTimeUpdatesFlag() 
-            && (MessageUpdatedFlags & PQMessageUpdatedFlags.ClientReceivedSub2MinUpdatedFlag) > 0;
+        get =>
+            !QuoteBehavior.HasNoClientReceiveTimeUpdatesFlag()
+         && (MessageUpdatedFlags & PQMessageUpdatedFlags.ClientReceivedSub2MinUpdatedFlag) > 0;
         set
         {
             if (value)
@@ -364,8 +372,9 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     [JsonIgnore]
     public bool IsAdapterSentTimeDateUpdated
     {
-        get => !QuoteBehavior.HasNoAdapterSentTimeUpdatesFlag() 
-             && (MessageUpdatedFlags & PQMessageUpdatedFlags.AdapterSentTimeDateUpdatedFlag) > 0;
+        get =>
+            !QuoteBehavior.HasNoAdapterSentTimeUpdatesFlag()
+         && (MessageUpdatedFlags & PQMessageUpdatedFlags.AdapterSentTimeDateUpdatedFlag) > 0;
         set
         {
             if (value)
@@ -378,8 +387,9 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     [JsonIgnore]
     public bool IsAdapterSentTimeSub2MinUpdated
     {
-        get => !QuoteBehavior.HasNoAdapterSentTimeUpdatesFlag() 
-             && (MessageUpdatedFlags & PQMessageUpdatedFlags.AdapterSentTimeSub2MinUpdatedFlag) > 0;
+        get =>
+            !QuoteBehavior.HasNoAdapterSentTimeUpdatesFlag()
+         && (MessageUpdatedFlags & PQMessageUpdatedFlags.AdapterSentTimeSub2MinUpdatedFlag) > 0;
         set
         {
             if (value)
@@ -392,8 +402,9 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     [JsonIgnore]
     public bool IsAdapterReceivedTimeDateUpdated
     {
-        get => !QuoteBehavior.HasNoAdapterReceiveTimeUpdatesFlag() 
-             && (MessageUpdatedFlags & PQMessageUpdatedFlags.AdapterReceivedTimeDateUpdatedFlag) > 0;
+        get =>
+            !QuoteBehavior.HasNoAdapterReceiveTimeUpdatesFlag()
+         && (MessageUpdatedFlags & PQMessageUpdatedFlags.AdapterReceivedTimeDateUpdatedFlag) > 0;
         set
         {
             if (value)
@@ -406,8 +417,9 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     [JsonIgnore]
     public bool IsAdapterReceivedTimeSub2MinUpdated
     {
-        get => !QuoteBehavior.HasNoAdapterReceiveTimeUpdatesFlag() 
-             && (MessageUpdatedFlags & PQMessageUpdatedFlags.AdapterReceivedTimeSub2MinUpdatedFlag) > 0;
+        get =>
+            !QuoteBehavior.HasNoAdapterReceiveTimeUpdatesFlag()
+         && (MessageUpdatedFlags & PQMessageUpdatedFlags.AdapterReceivedTimeSub2MinUpdatedFlag) > 0;
         set
         {
             if (value)
@@ -479,7 +491,8 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     public virtual bool IsEmpty
     {
         get =>
-            ClientReceivedTimeField == DateTime.MinValue
+            SourceTime == DateTime.MinValue
+         && ClientReceivedTimeField == DateTime.MinValue
          && DispatchedTimeField == DateTime.MinValue
          && InboundProcessedTimeField == DateTime.MinValue
          && InboundSocketReceivingTimeField == DateTime.MinValue
@@ -492,20 +505,7 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         set
         {
             if (!value) return;
-            OverrideSerializationFlags = null;
-
-            ClientReceivedTimeField         = default;
-            DispatchedTimeField             = default;
-            InboundProcessedTimeField       = default;
-            LastPublicationTime             = default;
-            InboundSocketReceivingTimeField = default;
-            AdapterSentTimeField            = default;
-            AdapterReceivedTimeField        = default;
-
-            FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.None;
-
-            PQSequenceId   = 0;
-            feedSyncStatus = FeedSyncStatus.NotStarted;
+            ResetWithTracking();
         }
     }
 
@@ -530,6 +530,7 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     {
         OverrideSerializationFlags = null;
 
+        SourceTime                      = default;
         ClientReceivedTimeField         = default;
         LastPublicationTime             = default;
         InboundSocketReceivingTimeField = default;
@@ -542,8 +543,14 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
 
         PQSequenceId   = 0;
         feedSyncStatus = FeedSyncStatus.Good;
-        HasUpdates     = false;
         return this;
+    }
+
+    public override void StateReset()
+    {
+        ResetWithTracking();
+        HasUpdates = false;
+        base.StateReset();
     }
 
     public abstract IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags);
@@ -555,6 +562,13 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         var fullPicture = (messageFlags & PQMessageFlags.Complete) > 0;
         // only copy if changed
 
+        if (fullPicture || IsSourceTimeDateUpdated)
+            yield return new PQFieldUpdate(PQFeedFields.SourceQuoteSentDateTime, SourceTime.Get2MinIntervalsFromUnixEpoch());
+        if (fullPicture || IsSourceTimeSub2MinUpdated)
+        {
+            var extended = SourceTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lower4Bytes);
+            yield return new PQFieldUpdate(PQFeedFields.SourceQuoteSentSub2MinTime, lower4Bytes, extended);
+        }
         if (fullPicture || IsQuoteBehaviorFlagsUpdated)
         {
             if (QuoteBehavior.HasPublishPublishableQuoteInstantBehaviorFlagsFlag())
@@ -634,6 +648,29 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
             case PQFeedFields.PQSyncStatus:
                 IsFeedSyncStatusUpdated = true; // in-case of reset and sending 0;
                 FeedSyncStatus          = (FeedSyncStatus)pqFieldUpdate.Payload;
+                return 0;
+            case PQFeedFields.SourceQuoteSentDateTime:
+                IsSourceTimeDateUpdated = true; // in-case of reset and sending 0;
+                var originalSourceTime         = SourceTime;
+                var updateSourceTime           = SourceTime;
+                var previousSubSecondIsUpdated = IsSourceTimeSub2MinUpdated;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref updateSourceTime, pqFieldUpdate.Payload);
+                if (updateSourceTime == DateTime.UnixEpoch) updateSourceTime = default;
+                SourceTime                 = updateSourceTime;
+                IsSourceTimeSub2MinUpdated = previousSubSecondIsUpdated;
+                IsSourceTimeDateUpdated    = originalSourceTime != updateSourceTime;
+                return 0;
+            case PQFeedFields.SourceQuoteSentSub2MinTime:
+                IsSourceTimeSub2MinUpdated = true; // in-case of reset and sending 0;
+                originalSourceTime         = SourceTime;
+                updateSourceTime           = SourceTime;
+                var previousDateIsUpdated = IsSourceTimeDateUpdated;
+                PQFieldConverters.UpdateSub2MinComponent(ref updateSourceTime,
+                                                         pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
+                if (updateSourceTime == DateTime.UnixEpoch) updateSourceTime = default;
+                SourceTime                 = updateSourceTime;
+                IsSourceTimeDateUpdated    = previousDateIsUpdated;
+                IsSourceTimeSub2MinUpdated = originalSourceTime != updateSourceTime;
                 return 0;
             case PQFeedFields.InstantQuoteBehaviorFlags:
                 IsQuoteBehaviorFlagsUpdated = true; // in-case of reset and sending 0;
@@ -787,6 +824,26 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         if (source is IPQMessage pqMessage)
         {
             var isFullReplace = copyMergeFlags.HasFullReplace();
+            if (pqMessage.IsSourceTimeDateUpdated || isFullReplace)
+            {
+                var updateSourceTime           = SourceTime;
+                var previousSubSecondIsUpdated = IsSourceTimeSub2MinUpdated;
+                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref updateSourceTime, pqMessage.SourceTime.Get2MinIntervalsFromUnixEpoch());
+                if (updateSourceTime == DateTime.UnixEpoch) updateSourceTime = default;
+                SourceTime                 = updateSourceTime;
+                IsSourceTimeSub2MinUpdated = previousSubSecondIsUpdated;
+                IsSourceTimeDateUpdated    = true;
+            }
+            if (pqMessage.IsSourceTimeSub2MinUpdated || isFullReplace)
+            {
+                var updateSourceTime      = SourceTime;
+                var previousDateIsUpdated = IsSourceTimeDateUpdated;
+                PQFieldConverters.UpdateSub2MinComponent(ref updateSourceTime, pqMessage.SourceTime.GetSub2MinComponent());
+                if (updateSourceTime == DateTime.UnixEpoch) updateSourceTime = default;
+                SourceTime                 = updateSourceTime;
+                IsSourceTimeDateUpdated    = previousDateIsUpdated;
+                IsSourceTimeSub2MinUpdated = true;
+            }
             if (pqMessage.IsFeedConnectivityStatusUpdated || isFullReplace)
             {
                 IsFeedConnectivityStatusUpdated = true;
@@ -836,7 +893,7 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
             {
                 var originalSocketReceivingTime = InboundSocketReceivingTimeField;
                 PQFieldConverters.UpdateSub2MinComponent
-                    (ref InboundSocketReceivingTimeField , pqMessage.InboundSocketReceivingTime.GetSub2MinComponent());
+                    (ref InboundSocketReceivingTimeField, pqMessage.InboundSocketReceivingTime.GetSub2MinComponent());
                 IsSocketReceivedTimeSub2MinUpdated = originalSocketReceivingTime != InboundSocketReceivingTimeField;
                 if (InboundSocketReceivingTimeField == DateTime.UnixEpoch) InboundSocketReceivingTimeField = default;
             }
@@ -844,7 +901,7 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
             {
                 var originalProcessedTime = InboundProcessedTimeField;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch
-                    (ref InboundProcessedTimeField , pqMessage.InboundProcessedTime.Get2MinIntervalsFromUnixEpoch());
+                    (ref InboundProcessedTimeField, pqMessage.InboundProcessedTime.Get2MinIntervalsFromUnixEpoch());
                 IsProcessedTimeDateUpdated = originalProcessedTime != InboundProcessedTimeField;
                 if (InboundProcessedTimeField == DateTime.UnixEpoch) InboundProcessedTimeField = default;
             }
@@ -859,7 +916,7 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
             {
                 var originalDispatchedTime = DispatchedTimeField;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch
-                    (ref DispatchedTimeField , pqMessage.SubscriberDispatchedTime.Get2MinIntervalsFromUnixEpoch());
+                    (ref DispatchedTimeField, pqMessage.SubscriberDispatchedTime.Get2MinIntervalsFromUnixEpoch());
                 IsDispatchedTimeDateUpdated = originalDispatchedTime != DispatchedTimeField;
                 if (DispatchedTimeField == DateTime.UnixEpoch) DispatchedTimeField = default;
             }
@@ -874,7 +931,7 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
             {
                 var originalClientReceivedTime = ClientReceivedTimeField;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch
-                    (ref ClientReceivedTimeField , pqMessage.ClientReceivedTime.Get2MinIntervalsFromUnixEpoch());
+                    (ref ClientReceivedTimeField, pqMessage.ClientReceivedTime.Get2MinIntervalsFromUnixEpoch());
                 IsClientReceivedTimeDateUpdated = originalClientReceivedTime != ClientReceivedTimeField;
                 if (ClientReceivedTimeField == DateTime.UnixEpoch) ClientReceivedTimeField = default;
             }

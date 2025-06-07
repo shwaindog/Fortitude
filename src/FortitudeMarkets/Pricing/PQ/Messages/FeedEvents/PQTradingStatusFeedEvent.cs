@@ -32,42 +32,69 @@ using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessag
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents;
 
 public interface IPQTradingStatusFeedEvent : IMutableTradingStatusFeedEvent, IPQMessage, IDoublyLinkedListNode<IPQTradingStatusFeedEvent>
-   , ITransferState<IPQTradingStatusFeedEvent>
+  , ITransferState<IPQTradingStatusFeedEvent>
 {
     new IPQSourceTickerInfo? SourceTickerInfo { get; set; }
 
-    new IPQPublishedAccounts?          PublishedAccounts          { get; set; }
-    new IPQPublishedMarketEvents?      MarketEvents               { get; set; }
-    new IPQRecentlyTradedHistory?      RecentTradedHistory        { get; set; }
-    new IPQPublishedInternalOrders?    PublishedInternalOrders    { get; set; }
-    new IPQPublishedLimits?            PublishedLimits            { get; set; }
-    new IPQLimitBreaches?              LimitBreaches              { get; set; }
-    new IPQMarginDetails?              MarginDetails              { get; set; }
-    new IPQPnLConversions?             TickerPnLConversionRate    { get; set; }
-    new IPQTickerRegionInfo?           TickerRegionInfo           { get; set; }
+    new IPQPublishedAccounts? PublishedAccounts { get; set; }
+
+    new IPQMarketNewsPanel? MarketNewsPanel { get; set; }
+
+    new IPQMarketCalendarPanel? MarketCalendarPanel { get; set; }
+
+    new IPQMarketTradingStatusPanel? MarketTradingStatusPanel { get; set; }
+
+    new IPQRecentlyTradedHistory? RecentTradedHistory { get; set; }
+
+    new IPQPublishedInternalOrders? PublishedInternalOrders { get; set; }
+
+    new IPQPublishedLimits? PublishedLimits { get; set; }
+
+    new IPQLimitBreaches? LimitBreaches { get; set; }
+
+    new IPQMarginDetails? MarginDetails { get; set; }
+
+    new IPQPnLConversions? TickerPnLConversionRate { get; set; }
+
+    new IPQTickerRegionInfo? TickerRegionInfo { get; set; }
+
     new IPQAdapterExecutionStatistics? AdapterExecutionStatistics { get; set; }
 
-    
     new DateTime InboundSocketReceivingTime { get; set; }
-    new DateTime InboundProcessedTime       { get; set; }
-    new DateTime SubscriberDispatchedTime   { get; set; }
 
-    bool IsLastSourceFeedUpdateDateUpdated        { get; set; }
+    new DateTime InboundProcessedTime { get; set; }
+
+    new DateTime SubscriberDispatchedTime { get; set; }
+
+    bool IsLastSourceFeedUpdateDateUpdated { get; set; }
+
     bool IsLastSourceFeedUpdateSub2MinTimeUpdated { get; set; }
-    bool IsDownstreamDateUpdated                  { get; set; }
-    bool IsDownstreamSub2MinTimeUpdated           { get; set; }
-    bool IsLastAdapterReceivedDateUpdated         { get; set; }
-    bool IsLastAdapterReceivedSub2MinTimeUpdated  { get; set; }
-    bool IsAdapterSentDateUpdated                 { get; set; }
-    bool IsAdapterSentSub2MinTimeUpdated          { get; set; }
-    bool IsSourceSequenceNumberUpdated            { get; set; }
-    bool IsAdapterSequenceNumberUpdated           { get; set; }
-    bool IsClientSequenceNumberUpdated            { get; set; }
-    bool IsFeedSequenceNumberUpdated              { get; set; }
-    bool IsFeedMarketConnectivityStatusUpdated    { get; set; }
-    bool IsEventUpdateFlagsUpdated                { get; set; }
 
-    new IPQTradingStatusFeedEvent Clone(); 
+    bool IsDownstreamDateUpdated { get; set; }
+
+    bool IsDownstreamSub2MinTimeUpdated { get; set; }
+
+    bool IsLastAdapterReceivedDateUpdated { get; set; }
+
+    bool IsLastAdapterReceivedSub2MinTimeUpdated { get; set; }
+
+    bool IsAdapterSentDateUpdated { get; set; }
+
+    bool IsAdapterSentSub2MinTimeUpdated { get; set; }
+
+    bool IsSourceSequenceNumberUpdated { get; set; }
+
+    bool IsAdapterSequenceNumberUpdated { get; set; }
+
+    bool IsClientSequenceNumberUpdated { get; set; }
+
+    bool IsFeedSequenceNumberUpdated { get; set; }
+
+    bool IsFeedMarketConnectivityStatusUpdated { get; set; }
+
+    bool IsEventUpdateFlagsUpdated { get; set; }
+
+    new IPQTradingStatusFeedEvent Clone();
 
     new IPQTradingStatusFeedEvent? Next     { get; set; }
     new IPQTradingStatusFeedEvent? Previous { get; set; }
@@ -82,14 +109,15 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
     protected IPQSourceTickerInfo? PQSourceTickerInfo;
 
     private DateTime lastSourceFeedUpdateTime = DateTime.MinValue;
-    private DateTime downstreamTime  = DateTime.MinValue;
+    private DateTime downstreamTime           = DateTime.MinValue;
 
     private uint sourceSeqNum;
     private uint adapterSeqNum;
     private uint clientSeqNum;
     private uint feedSeqNum;
 
-    private FeedEventUpdateFlags        eventUpdateFlags;
+    private FeedEventUpdateFlags eventUpdateFlags;
+    private DateTime             sourceTime;
 
     public PQTradingStatusFeedEvent()
     {
@@ -110,7 +138,6 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         }
     }
 
-
     protected PQTradingStatusFeedEvent
     (ISourceTickerInfo sourceTickerInfo,
         FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good, DateTime? clientReceivedTime = null)
@@ -129,8 +156,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         if (GetType() == typeof(PQPublishableTickInstant)) PQSequenceId = 0;
     }
 
-
-    public PQTradingStatusFeedEvent(ITradingStatusFeedEvent toClone) 
+    public PQTradingStatusFeedEvent(ITradingStatusFeedEvent toClone)
     {
         base.CopyFrom(toClone);
 
@@ -138,7 +164,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         {
             PQSourceTickerInfo = pqSrcTickerInfo;
         }
-        else if(toClone.SourceTickerInfo is not null)
+        else if (toClone.SourceTickerInfo is not null)
         {
             PQSourceTickerInfo = new PQSourceTickerInfo(toClone.SourceTickerInfo);
         }
@@ -148,6 +174,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
     }
 
     public override uint StreamId => SourceTickerInfo!.SourceInstrumentId;
+
     public override string StreamName => SourceTickerInfo!.InstrumentName;
 
     [JsonIgnore] public virtual TickerQuoteDetailLevel TickerQuoteDetailLevel => TickerQuoteDetailLevel.SingleValue;
@@ -176,12 +203,24 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         }
     }
 
+    public override DateTime SourceTime
+    {
+        get => sourceTime;
+        set
+        {
+            IsSourceTimeDateUpdated
+                |= sourceTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || PQSequenceId == 0;
+            IsSourceTimeSub2MinUpdated |= sourceTime.GetSub2MinComponent() != value.GetSub2MinComponent() || PQSequenceId == 0;
+
+            sourceTime = value;
+        }
+    }
+
     public DateTime DownstreamTime
     {
         get => downstreamTime;
         set
         {
-            if (downstreamTime == value) return;
             IsDownstreamDateUpdated
                 |= downstreamTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || PQSequenceId == 0;
             IsDownstreamSub2MinTimeUpdated |= downstreamTime.GetSub2MinComponent() != value.GetSub2MinComponent() || PQSequenceId == 0;
@@ -194,7 +233,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         set
         {
             IsSourceSequenceNumberUpdated |= sourceSeqNum != value || PQSequenceId == 0;
-            sourceSeqNum = value;
+            sourceSeqNum                  =  value;
         }
     }
     public uint AdapterSequenceNumber
@@ -203,7 +242,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         set
         {
             IsAdapterSequenceNumberUpdated |= adapterSeqNum != value || PQSequenceId == 0;
-            adapterSeqNum                 =  value;
+            adapterSeqNum                  =  value;
         }
     }
     public uint ClientSequenceNumber
@@ -212,7 +251,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         set
         {
             IsClientSequenceNumberUpdated |= clientSeqNum != value || PQSequenceId == 0;
-            clientSeqNum                   =  value;
+            clientSeqNum                  =  value;
         }
     }
 
@@ -232,32 +271,63 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         set
         {
             IsEventUpdateFlagsUpdated |= eventUpdateFlags != value || PQSequenceId == 0;
-            eventUpdateFlags                      =  value;
+            eventUpdateFlags          =  value;
         }
     }
-    IPublishedMarketEvents? ITradingStatusFeedEvent.     MarketEvents               => MarketEvents;
-    IRecentlyTradedHistory? ITradingStatusFeedEvent.     RecentTradedHistory        => RecentTradedHistory;
-    IPublishedInternalOrders? ITradingStatusFeedEvent.   PublishedInternalOrders    => PublishedInternalOrders;
-    IPublishedAccounts? ITradingStatusFeedEvent.         PublishedAccounts          => PublishedAccounts;
-    IPublishedLimits? ITradingStatusFeedEvent.           PublishedLimits            => PublishedLimits;
-    ILimitBreaches? ITradingStatusFeedEvent.             LimitBreaches              => LimitBreaches;
-    IMarginDetails? ITradingStatusFeedEvent.             MarginDetails              => MarginDetails;
-    IPnLConversions? ITradingStatusFeedEvent.            TickerPnLConversionRate    => TickerPnLConversionRate;
-    ITickerRegionInfo? ITradingStatusFeedEvent.          TickerRegionInfo           => TickerRegionInfo;
+
+    IMarketNewsPanel? ITradingStatusFeedEvent.MarketNewsPanel => MarketNewsPanel;
+
+    IMarketCalendarPanel? ITradingStatusFeedEvent.MarketCalendarPanel => MarketCalendarPanel;
+
+    IMarketTradingStatusPanel? ITradingStatusFeedEvent.MarketTradingStatusPanel => MarketTradingStatusPanel;
+
+    IRecentlyTradedHistory? ITradingStatusFeedEvent.RecentTradedHistory => RecentTradedHistory;
+
+    IPublishedInternalOrders? ITradingStatusFeedEvent.PublishedInternalOrders => PublishedInternalOrders;
+
+    IPublishedAccounts? ITradingStatusFeedEvent.PublishedAccounts => PublishedAccounts;
+
+    IPublishedLimits? ITradingStatusFeedEvent.PublishedLimits => PublishedLimits;
+
+    ILimitBreaches? ITradingStatusFeedEvent.LimitBreaches => LimitBreaches;
+
+    IMarginDetails? ITradingStatusFeedEvent.MarginDetails => MarginDetails;
+
+    IPnLConversions? ITradingStatusFeedEvent.TickerPnLConversionRate => TickerPnLConversionRate;
+
+    ITickerRegionInfo? ITradingStatusFeedEvent.TickerRegionInfo => TickerRegionInfo;
+
     IAdapterExecutionStatistics? ITradingStatusFeedEvent.AdapterExecutionStatistics => AdapterExecutionStatistics;
-    
+
     ISourceTickerInfo? IMutableTradingStatusFeedEvent.SourceTickerInfo
     {
         get => SourceTickerInfo!;
         set => SourceTickerInfo = value as IPQSourceTickerInfo;
     }
 
-    IMutablePublishedMarketEvents? IMutableTradingStatusFeedEvent.MarketEvents
+    IMutableMarketNewsPanel? IMutableTradingStatusFeedEvent.MarketNewsPanel
     {
-        get => MarketEvents;
-        set => MarketEvents = value as IPQPublishedMarketEvents;
+        get => MarketNewsPanel;
+        set => MarketNewsPanel = value as IPQMarketNewsPanel;
     }
-    public IPQPublishedMarketEvents? MarketEvents { get; set; }
+
+    public IPQMarketNewsPanel? MarketNewsPanel { get; set; }
+
+    IMutableMarketCalendarPanel? IMutableTradingStatusFeedEvent.MarketCalendarPanel
+    {
+        get => MarketCalendarPanel;
+        set => MarketCalendarPanel = value as IPQMarketCalendarPanel;
+    }
+
+    public IPQMarketCalendarPanel? MarketCalendarPanel { get; set; }
+
+    IMutableMarketTradingStatusPanel? IMutableTradingStatusFeedEvent.MarketTradingStatusPanel
+    {
+        get => MarketTradingStatusPanel;
+        set => MarketTradingStatusPanel = value as IPQMarketTradingStatusPanel;
+    }
+
+    public IPQMarketTradingStatusPanel? MarketTradingStatusPanel { get; set; }
 
     IMutableRecentlyTradedHistory? IMutableTradingStatusFeedEvent.RecentTradedHistory
     {
@@ -331,17 +401,42 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
 
     public IPQAdapterExecutionStatistics? AdapterExecutionStatistics { get; set; }
 
-    public bool IsDownstreamDateUpdated
+    public override bool IsSourceTimeDateUpdated
     {
-        get => (UpdatedFlags & FeedEventFieldUpdatedFlags.DownstreamDateUpdatedFlag) > 0;
+        get => (UpdatedFlags & FeedEventFieldUpdatedFlags.SourceTimeDateUpdatedFlag) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= FeedEventFieldUpdatedFlags.DownstreamDateUpdatedFlag;
+                UpdatedFlags |= FeedEventFieldUpdatedFlags.SourceTimeDateUpdatedFlag;
 
-            else if (IsDownstreamDateUpdated) UpdatedFlags ^= FeedEventFieldUpdatedFlags.DownstreamDateUpdatedFlag;
+            else if (IsSourceTimeDateUpdated) UpdatedFlags ^= FeedEventFieldUpdatedFlags.SourceTimeDateUpdatedFlag;
         }
     }
+
+    public override bool IsSourceTimeSub2MinUpdated
+    {
+        get => (UpdatedFlags & FeedEventFieldUpdatedFlags.SourceSub2MinTimeUpdatedFlag) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= FeedEventFieldUpdatedFlags.SourceSub2MinTimeUpdatedFlag;
+
+            else if (IsSourceTimeSub2MinUpdated) UpdatedFlags ^= FeedEventFieldUpdatedFlags.SourceSub2MinTimeUpdatedFlag;
+        }
+    }
+
+    public bool IsDownstreamDateUpdated
+    {
+        get => (UpdatedFlags & FeedEventFieldUpdatedFlags.DownstreamTimeDateUpdatedFlag) > 0;
+        set
+        {
+            if (value)
+                UpdatedFlags |= FeedEventFieldUpdatedFlags.DownstreamTimeDateUpdatedFlag;
+
+            else if (IsDownstreamDateUpdated) UpdatedFlags ^= FeedEventFieldUpdatedFlags.DownstreamTimeDateUpdatedFlag;
+        }
+    }
+
     public bool IsDownstreamSub2MinTimeUpdated
     {
         get => (UpdatedFlags & FeedEventFieldUpdatedFlags.DownstreamSub2MinTimeUpdatedFlag) > 0;
@@ -366,13 +461,13 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
     }
     public bool IsLastAdapterReceivedSub2MinTimeUpdated
     {
-        get => (UpdatedFlags & FeedEventFieldUpdatedFlags.LastAdapterReceivedTimeSub2MinUpdatedFlag) > 0;
+        get => (UpdatedFlags & FeedEventFieldUpdatedFlags.LastAdapterReceivedSub2TimeMinUpdatedFlag) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= FeedEventFieldUpdatedFlags.LastAdapterReceivedTimeSub2MinUpdatedFlag;
+                UpdatedFlags |= FeedEventFieldUpdatedFlags.LastAdapterReceivedSub2TimeMinUpdatedFlag;
 
-            else if (IsLastAdapterReceivedSub2MinTimeUpdated) UpdatedFlags ^= FeedEventFieldUpdatedFlags.LastAdapterReceivedTimeSub2MinUpdatedFlag;
+            else if (IsLastAdapterReceivedSub2MinTimeUpdated) UpdatedFlags ^= FeedEventFieldUpdatedFlags.LastAdapterReceivedSub2TimeMinUpdatedFlag;
         }
     }
     public bool IsAdapterSentDateUpdated
@@ -388,13 +483,13 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
     }
     public bool IsAdapterSentSub2MinTimeUpdated
     {
-        get => (UpdatedFlags & FeedEventFieldUpdatedFlags.AdapterSentTimeSub2MinUpdatedFlag) > 0;
+        get => (UpdatedFlags & FeedEventFieldUpdatedFlags.AdapterSentSub2MinTimeUpdatedFlag) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= FeedEventFieldUpdatedFlags.AdapterSentTimeSub2MinUpdatedFlag;
+                UpdatedFlags |= FeedEventFieldUpdatedFlags.AdapterSentSub2MinTimeUpdatedFlag;
 
-            else if (IsAdapterSentSub2MinTimeUpdated) UpdatedFlags ^= FeedEventFieldUpdatedFlags.AdapterSentTimeSub2MinUpdatedFlag;
+            else if (IsAdapterSentSub2MinTimeUpdated) UpdatedFlags ^= FeedEventFieldUpdatedFlags.AdapterSentSub2MinTimeUpdatedFlag;
         }
     }
     public bool IsSourceSequenceNumberUpdated
@@ -481,26 +576,26 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IsLastSourceFeedUpdateDateUpdated
     {
-        get => (UpdatedFlags & FeedEventFieldUpdatedFlags.LastSourceFeedSentDateUpdatedFlag) > 0;
+        get => (UpdatedFlags & FeedEventFieldUpdatedFlags.LastSourceFeedSentTimeDateUpdatedFlag) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= FeedEventFieldUpdatedFlags.LastSourceFeedSentDateUpdatedFlag;
+                UpdatedFlags |= FeedEventFieldUpdatedFlags.LastSourceFeedSentTimeDateUpdatedFlag;
 
-            else if (IsLastSourceFeedUpdateDateUpdated) UpdatedFlags ^= FeedEventFieldUpdatedFlags.LastSourceFeedSentDateUpdatedFlag;
+            else if (IsLastSourceFeedUpdateDateUpdated) UpdatedFlags ^= FeedEventFieldUpdatedFlags.LastSourceFeedSentTimeDateUpdatedFlag;
         }
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IsLastSourceFeedUpdateSub2MinTimeUpdated
     {
-        get => (UpdatedFlags & FeedEventFieldUpdatedFlags.LastSourceFeedSentSub2MinUpdatedFlag) > 0;
+        get => (UpdatedFlags & FeedEventFieldUpdatedFlags.LastSourceFeedSentSub2MinTimeUpdatedFlag) > 0;
         set
         {
             if (value)
-                UpdatedFlags |= FeedEventFieldUpdatedFlags.LastSourceFeedSentSub2MinUpdatedFlag;
+                UpdatedFlags |= FeedEventFieldUpdatedFlags.LastSourceFeedSentSub2MinTimeUpdatedFlag;
 
-            else if (IsLastSourceFeedUpdateSub2MinTimeUpdated) UpdatedFlags ^= FeedEventFieldUpdatedFlags.LastSourceFeedSentSub2MinUpdatedFlag;
+            else if (IsLastSourceFeedUpdateSub2MinTimeUpdated) UpdatedFlags ^= FeedEventFieldUpdatedFlags.LastSourceFeedSentSub2MinTimeUpdatedFlag;
         }
     }
 
@@ -523,6 +618,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         get => GetPrevious<IPQTradingStatusFeedEvent?>();
         set => SetPrevious(value);
     }
+
     IPQTradingStatusFeedEvent? IDoublyLinkedListNode<IPQTradingStatusFeedEvent>.Next
     {
         get => GetNext<IPQTradingStatusFeedEvent?>();
@@ -549,6 +645,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         get => GetPrevious<ITradingStatusFeedEvent?>();
         set => SetPrevious(value);
     }
+
     [JsonIgnore]
     ITradingStatusFeedEvent? IDoublyLinkedListNode<ITradingStatusFeedEvent>.Next
     {
@@ -564,28 +661,30 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
             var baseEmpty             = base.IsEmpty;
             var downstreamTimeEmpty   = DownstreamTime == DateTime.MinValue;
             var srcSeqNumEmpty        = SourceSequenceNumber == 0;
-            var adptrSeqNumEmpty      = AdapterSequenceNumber == 0;
-            var clntSeqNumEmpty       = ClientSequenceNumber == 0;
+            var adapterSeqNumEmpty    = AdapterSequenceNumber == 0;
+            var clientSeqNumEmpty     = ClientSequenceNumber == 0;
             var feedSeqNumEmpty       = FeedSequenceNumber == 0;
             var feedMktConStatusEmpty = FeedMarketConnectivityStatus == FeedConnectivityStatusFlags.AwaitingConnectionStart;
             var feedEvtUpdateEmpty    = EventUpdateFlags == FeedEventUpdateFlags.NoDataYetReceived;
-            var mktEvtsEmpty          = MarketEvents?.IsEmpty ?? true;
+            var mktNewsEmpty          = MarketNewsPanel?.IsEmpty ?? true;
+            var mktCalEmpty           = MarketCalendarPanel?.IsEmpty ?? false;
+            var mktTradingStateEmpty  = MarketTradingStatusPanel?.IsEmpty ?? false;
             var trdHistEmpty          = RecentTradedHistory?.IsEmpty ?? true;
-            var pubIntrnlOrdsEmpty    = PublishedInternalOrders?.IsEmpty ?? true;
-            var pubAcctsEmpty         = PublishedAccounts?.IsEmpty ?? true;
-            var pubLmtsEmpty          = PublishedLimits?.IsEmpty ?? true;
-            var pubLmtBrchsEmpty      = LimitBreaches?.IsEmpty ?? true;
-            var mrgnDetsEmpty         = MarginDetails?.IsEmpty ?? true;
+            var internalOrdersEmpty   = PublishedInternalOrders?.IsEmpty ?? true;
+            var accountsEmpty         = PublishedAccounts?.IsEmpty ?? true;
+            var limitsEmpty           = PublishedLimits?.IsEmpty ?? true;
+            var limitBreachesEmpty    = LimitBreaches?.IsEmpty ?? true;
+            var marginDetailsEmpty    = MarginDetails?.IsEmpty ?? true;
             var pnlConvEmpty          = TickerPnLConversionRate?.IsEmpty ?? true;
             var tkrRegEmpty           = TickerRegionInfo?.IsEmpty ?? true;
-            var adptrExecStatsEmpty   = AdapterExecutionStatistics?.IsEmpty ?? true;
+            var adapterExecStatsEmpty = AdapterExecutionStatistics?.IsEmpty ?? true;
 
 
-            var allAreEmpty = baseEmpty && downstreamTimeEmpty && srcSeqNumEmpty && adptrSeqNumEmpty &&
-                              clntSeqNumEmpty
-                           && feedSeqNumEmpty && feedMktConStatusEmpty && feedEvtUpdateEmpty && mktEvtsEmpty && trdHistEmpty && pubIntrnlOrdsEmpty &&
-                              pubAcctsEmpty && pubLmtsEmpty
-                           && pubLmtBrchsEmpty && mrgnDetsEmpty && pnlConvEmpty && tkrRegEmpty && adptrExecStatsEmpty;
+            var allAreEmpty = baseEmpty && downstreamTimeEmpty && srcSeqNumEmpty && adapterSeqNumEmpty &&
+                              clientSeqNumEmpty
+                           && feedSeqNumEmpty && feedMktConStatusEmpty && feedEvtUpdateEmpty && mktNewsEmpty && mktCalEmpty && mktTradingStateEmpty
+                           && trdHistEmpty && internalOrdersEmpty && accountsEmpty && limitsEmpty
+                           && limitBreachesEmpty && marginDetailsEmpty && pnlConvEmpty && tkrRegEmpty && adapterExecStatsEmpty;
 
             return allAreEmpty;
         }
@@ -594,7 +693,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
             base.IsEmpty = value;
             if (!value) return;
 
-            AdapterReceivedTime      = DateTime.MinValue;
+            AdapterReceivedTime          = DateTime.MinValue;
             AdapterSentTime              = DateTime.MinValue;
             DownstreamTime               = DateTime.MinValue;
             SourceSequenceNumber         = 0;
@@ -603,7 +702,9 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
             FeedSequenceNumber           = 0;
             FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.AwaitingConnectionStart;
             EventUpdateFlags             = FeedEventUpdateFlags.NoDataYetReceived;
-            if (MarketEvents != null) MarketEvents!.IsEmpty                             = true;
+            if (MarketNewsPanel != null) MarketNewsPanel!.IsEmpty                       = true;
+            if (MarketCalendarPanel != null) MarketCalendarPanel!.IsEmpty               = true;
+            if (MarketTradingStatusPanel != null) MarketTradingStatusPanel!.IsEmpty     = true;
             if (RecentTradedHistory != null) RecentTradedHistory!.IsEmpty               = true;
             if (PublishedInternalOrders != null) PublishedInternalOrders!.IsEmpty       = true;
             if (PublishedAccounts != null) PublishedAccounts!.IsEmpty                   = true;
@@ -616,7 +717,6 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         }
     }
 
-
     [JsonIgnore]
     public override bool HasUpdates
     {
@@ -624,36 +724,41 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         {
             var localUpdates = UpdatedFlags != FeedEventFieldUpdatedFlags.None;
 
-            var mktEvtsHasUpdates        = MarketEvents?.HasUpdates ?? false;
-            var trdHistHasUpdates        = RecentTradedHistory?.HasUpdates ?? false;
-            var pubIntrnlOrdsHasUpdates  = PublishedInternalOrders?.HasUpdates ?? false;
-            var pubAcctsHasUpdates       = PublishedAccounts?.HasUpdates ?? false;
-            var pubLmtsHasUpdates        = PublishedLimits?.HasUpdates ?? false;
-            var pubLmtBrchsHasUpdates    = LimitBreaches?.HasUpdates ?? false;
-            var mrgnDetsHasUpdates       = MarginDetails?.HasUpdates ?? false;
-            var pnlConvHasUpdates        = TickerPnLConversionRate?.HasUpdates ?? false;
-            var tkrRegHasUpdates         = TickerRegionInfo?.HasUpdates ?? false;
-            var adptrExecStatsHasUpdates = AdapterExecutionStatistics?.HasUpdates ?? false;
+            var mktNewsHasUpdates          = MarketNewsPanel?.HasUpdates ?? false;
+            var mktCalHasUpdates           = MarketCalendarPanel?.HasUpdates ?? false;
+            var mktTradingStateHasUpdates  = MarketTradingStatusPanel?.HasUpdates ?? false;
+            var trdHistHasUpdates          = RecentTradedHistory?.HasUpdates ?? false;
+            var internalOrdersHasUpdates   = PublishedInternalOrders?.HasUpdates ?? false;
+            var accountsHasUpdates         = PublishedAccounts?.HasUpdates ?? false;
+            var limitsHasUpdates           = PublishedLimits?.HasUpdates ?? false;
+            var limitBreachesHasUpdates    = LimitBreaches?.HasUpdates ?? false;
+            var marginDetailsHasUpdates    = MarginDetails?.HasUpdates ?? false;
+            var pnlConvHasUpdates          = TickerPnLConversionRate?.HasUpdates ?? false;
+            var tkrRegHasUpdates           = TickerRegionInfo?.HasUpdates ?? false;
+            var adapterExecStatsHasUpdates = AdapterExecutionStatistics?.HasUpdates ?? false;
 
             var allHasUpdates =
-                localUpdates && mktEvtsHasUpdates && trdHistHasUpdates && pubIntrnlOrdsHasUpdates && pubAcctsHasUpdates && pubLmtsHasUpdates
-             && pubLmtBrchsHasUpdates && mrgnDetsHasUpdates && pnlConvHasUpdates && tkrRegHasUpdates &&
-                adptrExecStatsHasUpdates;
+                localUpdates && mktNewsHasUpdates && mktCalHasUpdates && mktTradingStateHasUpdates && trdHistHasUpdates && internalOrdersHasUpdates
+             && accountsHasUpdates && limitsHasUpdates && limitBreachesHasUpdates && marginDetailsHasUpdates && pnlConvHasUpdates &&
+                tkrRegHasUpdates &&
+                adapterExecStatsHasUpdates;
 
             return allHasUpdates;
         }
         set
         {
-            if (PQSourceTickerInfo != null) PQSourceTickerInfo.HasUpdates = value;
-            if (MarketEvents != null) MarketEvents!.HasUpdates = value;
-            if (RecentTradedHistory != null) RecentTradedHistory!.HasUpdates = value;
-            if (PublishedInternalOrders != null) PublishedInternalOrders!.HasUpdates = value;
-            if (PublishedAccounts != null) PublishedAccounts!.HasUpdates = value;
-            if (PublishedLimits != null) PublishedLimits!.HasUpdates = value;
-            if (LimitBreaches != null) LimitBreaches!.HasUpdates = value;
-            if (MarginDetails != null) MarginDetails!.HasUpdates = value;
-            if (TickerPnLConversionRate != null) TickerPnLConversionRate!.HasUpdates = value;
-            if (TickerRegionInfo != null) TickerRegionInfo!.HasUpdates = value;
+            if (PQSourceTickerInfo != null) PQSourceTickerInfo.HasUpdates                  = value;
+            if (MarketNewsPanel != null) MarketNewsPanel!.HasUpdates                       = value;
+            if (MarketCalendarPanel != null) MarketCalendarPanel!.HasUpdates               = value;
+            if (MarketTradingStatusPanel != null) MarketTradingStatusPanel!.HasUpdates     = value;
+            if (RecentTradedHistory != null) RecentTradedHistory!.HasUpdates               = value;
+            if (PublishedInternalOrders != null) PublishedInternalOrders!.HasUpdates       = value;
+            if (PublishedAccounts != null) PublishedAccounts!.HasUpdates                   = value;
+            if (PublishedLimits != null) PublishedLimits!.HasUpdates                       = value;
+            if (LimitBreaches != null) LimitBreaches!.HasUpdates                           = value;
+            if (MarginDetails != null) MarginDetails!.HasUpdates                           = value;
+            if (TickerPnLConversionRate != null) TickerPnLConversionRate!.HasUpdates       = value;
+            if (TickerRegionInfo != null) TickerRegionInfo!.HasUpdates                     = value;
             if (AdapterExecutionStatistics != null) AdapterExecutionStatistics!.HasUpdates = value;
             if (value) return;
             UpdatedFlags = FeedEventFieldUpdatedFlags.None;
@@ -664,7 +769,9 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
     {
         PQSourceTickerInfo?.UpdateComplete(updateSequenceId);
         base.UpdateComplete(updateSequenceId);
-        MarketEvents?.UpdateComplete(updateSequenceId);
+        MarketNewsPanel?.UpdateComplete(updateSequenceId);
+        MarketCalendarPanel?.UpdateComplete(updateSequenceId);
+        MarketTradingStatusPanel?.UpdateComplete(updateSequenceId);
         RecentTradedHistory?.UpdateComplete(updateSequenceId);
         PublishedInternalOrders?.UpdateComplete(updateSequenceId);
         PublishedAccounts?.UpdateComplete(updateSequenceId);
@@ -679,11 +786,11 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
 
     public virtual void IncrementTimeBy(TimeSpan toChangeBy)
     {
-        ClientReceivedTime            += toChangeBy;
-        SubscriberDispatchedTime += toChangeBy;
-        InboundProcessedTime     += toChangeBy;
-        InboundSocketReceivingTime    += toChangeBy;
-        ClientReceivedTime            += toChangeBy;
+        ClientReceivedTime         += toChangeBy;
+        SubscriberDispatchedTime   += toChangeBy;
+        InboundProcessedTime       += toChangeBy;
+        InboundSocketReceivingTime += toChangeBy;
+        ClientReceivedTime         += toChangeBy;
     }
 
     public override void SetPublisherStateToConnectivityStatus(PublisherStates publisherStates, DateTime atDateTime)
@@ -692,7 +799,6 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.Disconnecting | FeedConnectivityStatusFlags.AdapterReporting;
         AdapterSentTime              = atDateTime;
     }
-
 
     public override IPQTradingStatusFeedEvent ResetWithTracking()
     {
@@ -714,12 +820,11 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
             yield return quoteContainerUpdates;
         }
 
-        if(PQSourceTickerInfo != null)
+        if (PQSourceTickerInfo != null)
             foreach (var field in PQSourceTickerInfo.GetDeltaUpdateFields
                          (snapShotTime, messageFlags, quotePublicationPrecisionSettings ?? PQSourceTickerInfo))
                 yield return field;
     }
-
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
     {
@@ -734,16 +839,13 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         if (item is ITradingStatusFeedEvent trdStsFeedEvt)
         {
             EnsureRelatedItemsAreConfigured(trdStsFeedEvt.SourceTickerInfo);
-            if (item is PQTradingStatusFeedEvent pqPubTickInstant)
-            {
-            }
+            if (item is PQTradingStatusFeedEvent pqPubTickInstant) { }
         }
     }
 
     public virtual void EnsureRelatedItemsAreConfigured(ITradingStatusFeedEvent? referenceInstance)
     {
-        if (referenceInstance is { SourceTickerInfo: IPQSourceTickerInfo pqSrcTkrQuoteInfo })
-            SourceTickerInfo = pqSrcTkrQuoteInfo;
+        if (referenceInstance is { SourceTickerInfo: IPQSourceTickerInfo pqSrcTkrQuoteInfo }) SourceTickerInfo = pqSrcTkrQuoteInfo;
     }
 
     public virtual void EnsureRelatedItemsAreConfigured(ISourceTickerInfo? srcTickerInfo)
@@ -790,8 +892,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
                 yield return field;
     }
 
-    public override bool UpdateFieldString(PQFieldStringUpdate stringUpdate) =>
-        PQSourceTickerInfo?.UpdateFieldString(stringUpdate) ?? false;
+    public override bool UpdateFieldString(PQFieldStringUpdate stringUpdate) => PQSourceTickerInfo?.UpdateFieldString(stringUpdate) ?? false;
 
     IReusableObject<IFeedEventStatusUpdate> ITransferState<IReusableObject<IFeedEventStatusUpdate>>.CopyFrom
         (IReusableObject<IFeedEventStatusUpdate> source, CopyMergeFlags copyMergeFlags) =>
@@ -805,9 +906,9 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         (IReusableObject<ITradingStatusFeedEvent> source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((ITradingStatusFeedEvent)source, copyMergeFlags);
 
-    IMutableTradingStatusFeedEvent ITransferState<IMutableTradingStatusFeedEvent>.CopyFrom(IMutableTradingStatusFeedEvent source, CopyMergeFlags copyMergeFlags) =>
+    IMutableTradingStatusFeedEvent ITransferState<IMutableTradingStatusFeedEvent>.CopyFrom
+        (IMutableTradingStatusFeedEvent source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom(source, copyMergeFlags);
-
 
     IPQTradingStatusFeedEvent ITransferState<IPQTradingStatusFeedEvent>.CopyFrom(IPQTradingStatusFeedEvent source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom(source, copyMergeFlags);
@@ -816,7 +917,9 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         (IFeedEventStatusUpdate source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom(source, copyMergeFlags);
 
-    ITradingStatusFeedEvent ITransferState<ITradingStatusFeedEvent>.CopyFrom(ITradingStatusFeedEvent source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
+    ITradingStatusFeedEvent ITransferState<ITradingStatusFeedEvent>.CopyFrom
+        (ITradingStatusFeedEvent source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom(source, copyMergeFlags);
 
     public virtual PQTradingStatusFeedEvent CopyFrom(ITradingStatusFeedEvent source, CopyMergeFlags copyMergeFlags)
     {
@@ -870,9 +973,9 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
 
     IPQTradingStatusFeedEvent IPQTradingStatusFeedEvent.Clone() => Clone();
 
-    ITradingStatusFeedEvent ICloneable<ITradingStatusFeedEvent>.  Clone() => Clone();
+    ITradingStatusFeedEvent ICloneable<ITradingStatusFeedEvent>.Clone() => Clone();
 
-    ITradingStatusFeedEvent ITradingStatusFeedEvent.              Clone() => Clone();
+    ITradingStatusFeedEvent ITradingStatusFeedEvent.Clone() => Clone();
 
     IMutableTradingStatusFeedEvent IMutableTradingStatusFeedEvent.Clone() => Clone();
 
@@ -915,13 +1018,13 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         }
     }
 
-    
     protected string TradingStatusToStringMembers =>
         $"{nameof(SourceTickerInfo)}: {SourceTickerInfo}, {nameof(AdapterReceivedTime)}: {AdapterReceivedTime}, {nameof(AdapterSentTime)}: {AdapterSentTime}, " +
         $"{nameof(DownstreamTime)}: {DownstreamTime}, {nameof(SourceSequenceNumber)}: {SourceSequenceNumber}, {nameof(AdapterSequenceNumber)}: {AdapterSequenceNumber}, " +
         $"{nameof(ClientSequenceNumber)}: {ClientSequenceNumber}, {nameof(FeedSequenceNumber)}: {FeedSequenceNumber}, " +
         $"{nameof(FeedMarketConnectivityStatus)}: {FeedMarketConnectivityStatus}, {nameof(EventUpdateFlags)}: {EventUpdateFlags}, " +
-        $"{nameof(SourceTickerInfo)}: {SourceTickerInfo}, {nameof(MarketEvents)}: {MarketEvents}, {nameof(RecentTradedHistory)}: {RecentTradedHistory}, " +
+        $"{nameof(SourceTickerInfo)}: {SourceTickerInfo}, {nameof(MarketNewsPanel)}: {MarketNewsPanel}, {nameof(MarketCalendarPanel)}: {MarketCalendarPanel}, " +
+        $"{nameof(MarketTradingStatusPanel)}: {MarketTradingStatusPanel}, {nameof(RecentTradedHistory)}: {RecentTradedHistory}, " +
         $"{nameof(PublishedInternalOrders)}: {PublishedInternalOrders}, {nameof(PublishedAccounts)}: {PublishedAccounts}, " +
         $"{nameof(PublishedLimits)}: {PublishedLimits}, {nameof(LimitBreaches)}: {LimitBreaches}, {nameof(MarginDetails)}: {MarginDetails}, " +
         $"{nameof(TickerPnLConversionRate)}: {TickerPnLConversionRate}, {nameof(TickerRegionInfo)}: {TickerRegionInfo}, " +

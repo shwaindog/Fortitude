@@ -1,5 +1,39 @@
 ﻿namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates
 {
+    public enum PQTickerDefSubFieldKeys : byte
+    {
+        None = 0
+
+        // Aligns with CrudCommand enum values
+      , CommandInsert        = 1 // Create
+      , CommandRead          = 2 // Read
+      , CommandUpdate        = 3 // Update
+      , CommandDelete        = 4 // Delete or remove element
+      , CommandUpsert        = 5 // Create or Update
+      , CommandReset         = 6 // Clear/Wipe keep position
+      , CommandElementsShift = 7 // Similar to bit shift but for list elements
+        // ( to include a list virtual fix/drop index and will shift above or below the point)
+
+      , SourceNameId             = 20 // 0x14
+      , InstrumentNameId         = 21 // 0x15
+      , MarketClassification     = 22 // 0x16
+      , TickerDetailLevelType    = 23 // 0x17
+      , PriceRoundingPrecision   = 24 // 0x18
+      , Pip                      = 25 // 0x19
+      , TickerDetailBooleanFlags = 26 // 0x1A
+      , MaximumPublishedLayers   = 27 // 0x1B
+      , MinSubmitSize            = 28 // 0x1C
+      , MaxSubmitSize            = 29 // 0x1D
+      , IncrementSize            = 30 // 0x1E 
+      , DefaultMaxValidMs        = 31 // 0x1F
+      , MinimumQuoteLifeMs       = 32 // 0x20
+      , QuoteLayerFlags          = 33 // 0x21
+      , LastTradedFlags          = 34 // 0x22
+      , ExecutionUpdateFlags     = 35 // 0x23
+      , ConfigQuoteBehaviorFlags = 36 // 0x24
+      , ConfigFeedBehaviorFlags  = 37 // 0x25
+    }
+
     public enum PQPricingSubFieldKeys : byte
     {
         None = 0
@@ -121,60 +155,37 @@
       , IndicatorPricePointPrice              = 137 // 0x89
       , IndicatorPricePointScalarValue        = 138 // 0x8A
 
-      , IndicatorPivotId                       = 150 // 0x96
-      , IndicatorPivotPeriodType               = 151 // 0x97
-      , IndicatorPivotType                     = 152 // 0x98
-      , IndicatorPivotLinkedMarketEventId      = 153 // 0x99
-      , IndicatorPivotState                    = 154 // 0x9A
-      , IndicatorPivotPricePoint               = 155 // 0x9B
-      , IndicatorPivotMinimumPriceDistance     = 156 // 0x9C
-      , IndicatorPivotMinimumTimeDistanceMs    = 157 // 0x9D
-      , IndicatorPivotStrength                 = 158 // 0x9E
-      , IndicatorPivotPreviousCrossDate        = 159 // 0x9F
-      , IndicatorPivotPreviousCrossSub2MinTime = 160 // 0xA0
-      , IndicatorPivotBreachDate               = 161 // 0xA1
-      , IndicatorPivotBreachSub2MinTime        = 162 // 0xA2
+      , IndicatorPivotId                       = 160 // 0xA0
+      , IndicatorPivotPeriodType               = 161 // 0xA1
+      , IndicatorPivotType                     = 162 // 0xA2
+      , IndicatorPivotLinkedMarketEventId      = 163 // 0xA3
+      , IndicatorPivotState                    = 164 // 0xA4
+      , IndicatorPivotPricePoint               = 165 // 0xA5
+      , IndicatorPivotMinimumPriceDistance     = 166 // 0xA6
+      , IndicatorPivotMinimumTimeDistanceMs    = 167 // 0xA7
+      , IndicatorPivotStrength                 = 168 // 0xA8
+      , IndicatorPivotPreviousCrossDate        = 169 // 0xA9
+      , IndicatorPivotPreviousCrossSub2MinTime = 170 // 0xAA
+      , IndicatorPivotBreachDate               = 171 // 0xAB
+      , IndicatorPivotBreachSub2MinTime        = 172 // 0xAC
 
-      , IndicatorPriceBoundaryLineId                       = 170 // 0xAA
-      , IndicatorPriceBoundaryLinePeriodType               = 171 // 0xAB
-      , IndicatorPriceBoundaryLineType                     = 172 // 0xAC
-      , IndicatorPriceBoundaryLineBreachState              = 173 // 0xAD
-      , IndicatorPriceBoundaryLineStrength                 = 174 // 0xAE
-      , IndicatorPriceBoundaryLineSourceType               = 175 // 0xAF
-      , IndicatorPriceBoundaryLineSource                   = 176 // 0xB0
-      , IndicatorPriceBoundaryLineSourceNameId             = 177 // 0xB1
-      , IndicatorPriceBoundaryLineDescriptionTextId        = 178 // 0xB2
-      , IndicatorPriceBoundaryLineNameId                   = 179 // 0xB3
-      , IndicatorPriceBoundaryLineMaxBreachPriceThreshold  = 180 // 0xB4
-      , IndicatorPriceBoundaryLineMaxBreachPeriod          = 181 // 0xB5
-      , IndicatorPriceBoundaryLinePricePoints              = 182 // 0xB6
-      , IndicatorPriceBoundaryLinePreviousCrossDate        = 183 // 0xB7
-      , IndicatorPriceBoundaryLinePreviousCrossSub2MinTime = 184 // 0xB8
-      , IndicatorPriceBoundaryLineBreachDateDate           = 185 // 0xB9
-      , IndicatorPriceBoundaryLineBreachSub2MinTime        = 186 // 0xBA
-
-      , MarketEventId                          = 200 // 0xC8
-      , MarketEventSource                      = 201 // 0xC9
-      , MarketEventSourceNameId                = 202 // 0xCA
-      , MarketEventType                        = 203 // 0xCB
-      , MarketEventDescriptionTextId           = 204 // 0xCC
-      , MarketEventStartDate                   = 205 // 0xCD
-      , MarketEventStartSub2MinTime            = 206 // 0xCE
-      , MarketEventEstimateReceivedDate        = 207 // 0xCF
-      , MarketEventEstimateReceivedSub2MinTime = 208 // 0xD0
-      , MarketEventEstimateSource              = 209 // 0xD1
-      , MarketEventEstimateDescriptionTextId   = 210 // 0xD2
-      , MarketEventEstimateSeverity            = 211 // 0xD3
-      , MarketEventEstimatedActiveTimeMs       = 212 // 0xD4
-      , MarketEventEstimatedValue              = 213 // 0xD5
-      , MarketEventEstimatedProbability        = 214 // 0xD6
-      , MarketEventOutcome                     = 215 // 0xD7
-      , MarketEventActualSeverity              = 216 // 0xD8
-      , MarketEventOutcomeDescriptionTextId    = 217 // 0xD9
-      , MarketEventEndAtDate                   = 218 // 0xDA
-      , MarketEventEndAtSub2MinTime            = 219 // 0xDB
-      , MarketEventActualValue                 = 220 // 0xDC
-      , MarketEventFeedState                   = 221 // 0xDD
+      , IndicatorPriceBoundaryLineId                       = 180 // 0xB4
+      , IndicatorPriceBoundaryLinePeriodType               = 181 // 0xB5
+      , IndicatorPriceBoundaryLineType                     = 182 // 0xB6
+      , IndicatorPriceBoundaryLineBreachState              = 183 // 0xB7
+      , IndicatorPriceBoundaryLineStrength                 = 184 // 0xB8
+      , IndicatorPriceBoundaryLineSourceType               = 185 // 0xB9
+      , IndicatorPriceBoundaryLineSource                   = 186 // 0xBA
+      , IndicatorPriceBoundaryLineSourceNameId             = 187 // 0xBB
+      , IndicatorPriceBoundaryLineDescriptionTextId        = 188 // 0xBC
+      , IndicatorPriceBoundaryLineNameId                   = 189 // 0xBD
+      , IndicatorPriceBoundaryLineMaxBreachPriceThreshold  = 190 // 0xBE
+      , IndicatorPriceBoundaryLineMaxBreachPeriod          = 191 // 0xBF
+      , IndicatorPriceBoundaryLinePricePoints              = 192 // 0xC0
+      , IndicatorPriceBoundaryLinePreviousCrossDate        = 193 // 0xC1
+      , IndicatorPriceBoundaryLinePreviousCrossSub2MinTime = 194 // 0xC2
+      , IndicatorPriceBoundaryLineBreachDateDate           = 195 // 0xC3
+      , IndicatorPriceBoundaryLineBreachSub2MinTime        = 196 // 0xC4
 
         // Used by OpenInterest and Daily Traded Volume
       , MarketAggregateSource            = 230 // 0xE6
@@ -448,14 +459,39 @@
       , LastTradedExternalCounterPartyNameId               = 185 // 0xB9
       , LastTradedExternalTraderId                         = 186 // 0xBA
       , LastTradedExternalTraderNameId                     = 187 // 0xBB
+
+      , MarketEventId                          = 210 // 0xD2
+      , MarketEventTradingState                = 211 // 0xD3
+      , MarketEventSource                      = 212 // 0xD4
+      , MarketEventSourceNameId                = 213 // 0xD5
+      , MarketEventType                        = 214 // 0xD6
+      , MarketEventDescriptionTextId           = 215 // 0xD7
+      , MarketEventStartDate                   = 216 // 0xD8
+      , MarketEventStartSub2MinTime            = 217 // 0xD9
+      , MarketEventEstimateReceivedDate        = 218 // 0xDA
+      , MarketEventEstimateReceivedSub2MinTime = 219 // 0xDB
+      , MarketEventEstimateSource              = 220 // 0xDC
+      , MarketEventEstimateDescriptionTextId   = 221 // 0xDD
+      , MarketEventEstimateSeverity            = 222 // 0xDE
+      , MarketEventEstimatedActiveTimeMs       = 223 // 0xDF
+      , MarketEventEstimatedValue              = 224 // 0xE0
+      , MarketEventEstimatedProbability        = 225 // 0xE1
+      , MarketEventOutcome                     = 226 // 0xE2
+      , MarketEventActualSeverity              = 227 // 0xE3
+      , MarketEventOutcomeDescriptionTextId    = 228 // 0xE4
+      , MarketEventEndAtDate                   = 229 // 0xE5
+      , MarketEventEndAtSub2MinTime            = 230 // 0xE6
+      , MarketEventActualValue                 = 231 // 0xE7
+      , MarketEventFeedState                   = 232 // 0xE8
     }
 
     public enum SubKeyType
     {
         PricingSubKey   = 0
-      , DecisionsSubKey = 1
-      , OrdersSubKey    = 2
-      , TradingSubKey   = 3
+      , TickerDefSubKey = 1
+      , DecisionsSubKey = 2
+      , OrdersSubKey    = 3
+      , TradingSubKey   = 4
     }
 
     public static class PQSubFieldKeyExtensions
@@ -465,33 +501,42 @@
             return parentId.GetSubKeyType() switch
                    {
                        SubKeyType.PricingSubKey   => ((PQPricingSubFieldKeys)subId).ToString()
+                     , SubKeyType.TickerDefSubKey => ((PQTickerDefSubFieldKeys)subId).ToString()
                      , SubKeyType.DecisionsSubKey => ((PQDecisionsSubFieldKeys)subId).ToString()
                      , SubKeyType.OrdersSubKey    => ((PQOrdersSubFieldKeys)subId).ToString()
                      , SubKeyType.TradingSubKey   => ((PQTradingSubFieldKeys)subId).ToString()
-                     , _ => throw new ArgumentException($"Unexpected subKey type {parentId.GetSubKeyType()}")
+                     , _                          => throw new ArgumentException($"Unexpected subKey type {parentId.GetSubKeyType()}")
                    };
         }
 
         public static SubKeyType GetSubKeyType(this PQFeedFields parentId)
         {
-            return parentId switch
-                   {
-                       _ when parentId <= PQFeedFields.MarketEventsUpcoming                 => SubKeyType.PricingSubKey
-                     , _ when parentId <= PQFeedFields.StrategyDecisionsWithActivePositions => SubKeyType.DecisionsSubKey
-                     , _ when parentId <= PQFeedFields.PortfolioLimitApproachingAlert       => SubKeyType.TradingSubKey
-                     , _ when parentId <= PQFeedFields.QuoteLayerOrdersCount                => SubKeyType.PricingSubKey
-                     , _ when parentId <= PQFeedFields.QuoteLayerOrders                     => SubKeyType.OrdersSubKey
-                     , _ when parentId <= PQFeedFields.QuoteLayersRangeEnd                  => SubKeyType.PricingSubKey
-                     , _ when parentId <= PQFeedFields.LastTradedMarketDailyAggregates      => SubKeyType.TradingSubKey
-                     , _ when parentId <= PQFeedFields.AdapterInternalOrdersSimulatorOpen   => SubKeyType.OrdersSubKey
-                     , _ when parentId <= PQFeedFields.QuoteExpiryDate                      => SubKeyType.PricingSubKey
-                     , _                                                                    => SubKeyType.PricingSubKey
-                   };
+            return
+                parentId
+                switch
+                {
+                    _ when parentId == PQFeedFields.SourceTickerDefinition                      => SubKeyType.TickerDefSubKey
+                  , _ when parentId <= PQFeedFields.IndicatorPriceBoundaryLinesRecentlyBreached => SubKeyType.PricingSubKey
+                  , _ when parentId <= PQFeedFields.StrategyDecisionsWithActivePositions        => SubKeyType.DecisionsSubKey
+                  , _ when parentId <= PQFeedFields.PortfolioLimitApproachingAlert              => SubKeyType.TradingSubKey
+                  , _ when parentId <= PQFeedFields.QuoteLayerOrdersCount                       => SubKeyType.PricingSubKey
+                  , _ when parentId <= PQFeedFields.QuoteLayerOrders                            => SubKeyType.OrdersSubKey
+                  , _ when parentId <= PQFeedFields.QuoteLayersRangeEnd                         => SubKeyType.PricingSubKey
+                  , _ when parentId <= PQFeedFields.LastTradedMarketDailyAggregates             => SubKeyType.TradingSubKey
+                  , _ when parentId <= PQFeedFields.AdapterInternalOrdersSimulatorOpen          => SubKeyType.OrdersSubKey
+                  , _ when parentId <= PQFeedFields.QuoteExpiryDate                             => SubKeyType.PricingSubKey
+                  , _                                                                           => SubKeyType.PricingSubKey
+                };
         }
 
         public static bool IsPricingSubKey(this PQFeedFields parentId)
         {
             return parentId.GetSubKeyType() == SubKeyType.PricingSubKey;
+        }
+
+        public static bool IsTickerDefSubKey(this PQFeedFields parentId)
+        {
+            return parentId.GetSubKeyType() == SubKeyType.TickerDefSubKey;
         }
 
         public static bool IsOrdersSubKey(this PQFeedFields parentId)

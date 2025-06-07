@@ -75,6 +75,8 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
             IsInstrumentNameUpdated = pqSourceTickerId.IsInstrumentNameUpdated;
         }
 
+        SetFlagsSame(toClone);
+
         if (GetType() == typeof(PQSourceTickerId)) SequenceId = 0;
     }
 
@@ -210,7 +212,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         }
     }
 
-    public IPQNameIdLookupGenerator NameIdLookup { get; set; } = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerNames);
+    public IPQNameIdLookupGenerator NameIdLookup { get; set; } = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerDefinitionStringUpdates);
 
     INameIdLookup IHasNameIdLookup.NameIdLookup => NameIdLookup;
 
@@ -250,9 +252,13 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
 
         if (!updatedOnly || IsIdUpdated) yield return new PQFieldUpdate(PQFeedFields.SourceTickerId, SourceInstrumentId);
 
-        if (!updatedOnly || IsSourceNameUpdated) yield return new PQFieldUpdate(PQFeedFields.SourceNameId, SourceNameId);
+        if (!updatedOnly || IsSourceNameUpdated) 
+            yield return new PQFieldUpdate
+            (PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.SourceNameId,  SourceNameId);
 
-        if (!updatedOnly || IsInstrumentNameUpdated) yield return new PQFieldUpdate(PQFeedFields.InstrumentNameId, InstrumentNameId);
+        if (!updatedOnly || IsInstrumentNameUpdated) 
+            yield return new PQFieldUpdate
+            (PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.InstrumentNameId, InstrumentNameId);
     }
 
     public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, PQMessageFlags messageFlags)
@@ -262,7 +268,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
 
     public bool UpdateFieldString(PQFieldStringUpdate stringUpdate)
     {
-        if (stringUpdate.Field.Id != PQFeedFields.SourceTickerNames) return false;
+        if (stringUpdate.Field.Id != PQFeedFields.SourceTickerDefinitionStringUpdates) return false;
         return NameIdLookup.UpdateFieldString(stringUpdate);
     }
 
@@ -274,14 +280,19 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
                 SourceId     = (ushort)(fieldUpdate.Payload >> 16);
                 InstrumentId = (ushort)(fieldUpdate.Payload & 0xFFFF);
                 return 0;
-            case PQFeedFields.SourceTickerNames:
+            case PQFeedFields.SourceTickerDefinitionStringUpdates:
                 return NameIdLookup.VerifyDictionaryAndExtractSize(fieldUpdate);
-            case PQFeedFields.SourceNameId: 
-                SourceNameId = (int)fieldUpdate.Payload;
-                return 0;
-            case PQFeedFields.InstrumentNameId: 
-                InstrumentNameId = (int)fieldUpdate.Payload;
-                return 0;
+            case PQFeedFields.SourceTickerDefinition:
+                switch (fieldUpdate.DefinitionSubId)
+                {
+                    case PQTickerDefSubFieldKeys.SourceNameId: 
+                        SourceNameId = (int)fieldUpdate.Payload;
+                        return 0;
+                    case PQTickerDefSubFieldKeys.InstrumentNameId: 
+                        InstrumentNameId = (int)fieldUpdate.Payload;
+                        return 0;   
+                }
+                break;
         }
         return -1;
     }

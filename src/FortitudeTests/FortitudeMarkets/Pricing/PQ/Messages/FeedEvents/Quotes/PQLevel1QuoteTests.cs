@@ -58,7 +58,10 @@ public class PQLevel1QuoteTests
                , 20, 0.0000001m, 0.0001m, 30000m, 50000000m, 1000m, 1
                , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
                , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
-                                  LastTradedFlags.LastTradedTime);
+                                  LastTradedFlags.LastTradedTime)
+                {
+                    HasUpdates = true
+                };
         blankSourceTickerInfo       = new SourceTickerInfo(0, "", 0, "", Level1Quote, Unknown);
         fullyPopulatedPqLevel1Quote = new PQPublishableLevel1Quote(new PQSourceTickerInfo(sourceTickerInfo));
         emptyQuote                  = new PQPublishableLevel1Quote(new PQSourceTickerInfo(sourceTickerInfo))
@@ -532,7 +535,7 @@ public class PQLevel1QuoteTests
 
         emptyQuote.ResetWithTracking();
 
-        Assert.IsFalse(emptyQuote.HasUpdates);
+        Assert.IsTrue(emptyQuote.HasUpdates);
         Assert.AreEqual(FeedConnectivityStatusFlags.None, emptyQuote.FeedMarketConnectivityStatus);
         Assert.AreEqual(FeedSyncStatus.Good, emptyQuote.FeedSyncStatus);
         Assert.AreEqual(default, emptyQuote.SourceTime);
@@ -838,7 +841,7 @@ public class PQLevel1QuoteTests
         public decimal  AskPriceTop     { get; set; }
         public bool     Executable      { get; set; }
 
-        public QuoteInstantBehaviorFlags QuoteBehavior
+        public new QuoteInstantBehaviorFlags QuoteBehavior
         {
             get => (QuoteInstantBehaviorFlags)base.QuoteBehavior;
             set => base.QuoteBehavior |= (PublishableQuoteInstantBehaviorFlags)value;

@@ -213,7 +213,7 @@ public class PQTickInstantTests
 
         emptyQuote.ResetWithTracking();
 
-        Assert.IsFalse(emptyQuote.HasUpdates);
+        Assert.IsTrue(emptyQuote.HasUpdates);
         Assert.AreEqual(FeedConnectivityStatusFlags.None, emptyQuote.FeedMarketConnectivityStatus);
         Assert.AreEqual(FeedSyncStatus.Good, emptyQuote.FeedSyncStatus);
         Assert.AreEqual(default, emptyQuote.SourceTime);
@@ -289,10 +289,10 @@ public class PQTickInstantTests
            , PQMessageFlags.Update).ToList();
         Assert.AreEqual(PQSourceTickerInfoTests.ExpectedSourceStringUpdate
                             (fullyPopulatedPQTickInstant.SourceTickerInfo!.SourceName),
-                        ExtractFieldStringUpdateWithId(pqFieldUpdates, PQFeedFields.SourceTickerNames, 1));
+                        ExtractFieldStringUpdateWithId(pqFieldUpdates, PQFeedFields.SourceTickerDefinitionStringUpdates, 1));
         Assert.AreEqual(PQSourceTickerInfoTests.ExpectedTickerStringUpdate
                             (fullyPopulatedPQTickInstant.SourceTickerInfo.InstrumentName),
-                        ExtractFieldStringUpdateWithId(pqFieldUpdates, PQFeedFields.SourceTickerNames, 2));
+                        ExtractFieldStringUpdateWithId(pqFieldUpdates, PQFeedFields.SourceTickerDefinitionStringUpdates, 2));
     }
 
 
@@ -305,10 +305,10 @@ public class PQTickInstantTests
         var tickerStringUpdate = PQSourceTickerInfoTests.ExpectedTickerStringUpdate(expectedNewTicker);
         var sourceStringUpdate = PQSourceTickerInfoTests.ExpectedSourceStringUpdate(expectedNewSource);
 
-        emptyQuote.UpdateField(new PQFieldUpdate(PQFeedFields.InstrumentNameId, 3));
+        emptyQuote.UpdateField(new PQFieldUpdate(PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.InstrumentNameId, 3));
         emptyQuote.UpdateFieldString(tickerStringUpdate.WithDictionaryId(3));
         Assert.AreEqual(expectedNewTicker, emptyQuote.SourceTickerInfo!.InstrumentName);
-        emptyQuote.UpdateField(new PQFieldUpdate(PQFeedFields.SourceNameId, 4));
+        emptyQuote.UpdateField(new PQFieldUpdate(PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.SourceNameId, 4));
         emptyQuote.UpdateFieldString(sourceStringUpdate.WithDictionaryId(4));
         Assert.AreEqual(expectedNewSource, emptyQuote.SourceTickerInfo.SourceName);
     }
@@ -495,7 +495,7 @@ public class PQTickInstantTests
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.SingleTickValue),
                         $"For {originalQuote.GetType().Name} and {originalQuote.SourceTickerInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
         var quoteContainer = originalQuote.AsNonPublishable;
-        var sourceTime     = NonPublicInvocator.GetInstanceField<DateTime>(quoteContainer, "sourceTime");
+        var sourceTime     = quoteContainer.SourceTime;
         Assert.AreEqual(new PQFieldUpdate(PQFeedFields.SourceQuoteSentDateTime, sourceTime.Get2MinIntervalsFromUnixEpoch()),
                         ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.SourceQuoteSentDateTime),
                         $"For {originalQuote.GetType().Name} and {originalQuote.SourceTickerInfo} with these fields\n{string.Join(",\n", checkFieldUpdates)}");
@@ -518,6 +518,12 @@ public class PQTickInstantTests
 
     public static PQFieldUpdate ExtractFieldUpdateWithId
         (IList<PQFieldUpdate> allUpdates, PQFeedFields id, PQPricingSubFieldKeys subId, PQFieldFlags flagValue = PQFieldFlags.None)
+    {
+        return ExtractFieldUpdateWithId(allUpdates, id, (byte)subId, flagValue);
+    }
+
+    public static PQFieldUpdate ExtractFieldUpdateWithId
+        (IList<PQFieldUpdate> allUpdates, PQFeedFields id, PQTickerDefSubFieldKeys subId, PQFieldFlags flagValue = PQFieldFlags.None)
     {
         return ExtractFieldUpdateWithId(allUpdates, id, (byte)subId, flagValue);
     }
@@ -610,7 +616,7 @@ public class PQTickInstantTests
 
         public PublishableQuoteInstantBehaviorFlags QuoteBehavior { get; set; }
 
-        public DateTime SourceTime => DateTime.Now;
+        public DateTime SourceTime { get; set; } = DateTime.Now;
 
         public DateTime ClientReceivedTime { get; set; }
 

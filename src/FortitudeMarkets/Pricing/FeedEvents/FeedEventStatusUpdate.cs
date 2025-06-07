@@ -39,6 +39,8 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
 
     public FeedSyncStatus FeedSyncStatus { get; set; } = FeedSyncStatus.NotStarted;
 
+    public abstract DateTime SourceTime { get; set; }
+
     public DateTime ClientReceivedTime         { get; set; }
     public DateTime InboundSocketReceivingTime { get; set; }
     public DateTime InboundProcessedTime       { get; set; }
@@ -62,6 +64,7 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
 
     public override FeedEventStatusUpdate CopyFrom(IFeedEventStatusUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
+        SourceTime = source.SourceTime;
         if (QuoteBehavior.HasInheritAdditionalPublishedFlagsFlag())
         {
             QuoteBehavior |= source.QuoteBehavior;
@@ -103,6 +106,7 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
 
     public override void StateReset()
     {
+        SourceTime                 = DateTime.MinValue;
         ClientReceivedTime         = DateTime.MinValue;
         InboundSocketReceivingTime = DateTime.MinValue;
         SubscriberDispatchedTime   = DateTime.MinValue;
@@ -120,23 +124,24 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
         if (other == null) return false;
         if (exactTypes && GetType() != other.GetType()) return false;
 
+        var sourceTimeSame          = SourceTime == other.SourceTime;
         var feedSyncSame          = FeedSyncStatus == other.FeedSyncStatus;
         var connectStatusSame     = FeedMarketConnectivityStatus == other.FeedMarketConnectivityStatus;
         var clientReceivedSame    = true;
         var inboundSocketRecvSame = true;
-        var subrDispatchSame      = true;
-        var adptrRecvSame         = true;
-        var adptrSentSame         = true;
+        var dispatchSame      = true;
+        var adapterRecvSame         = true;
+        var adapterSentSame         = true;
         if (exactTypes)
         {
             clientReceivedSame    = ClientReceivedTime == other.ClientReceivedTime;
             inboundSocketRecvSame = InboundSocketReceivingTime == other.InboundSocketReceivingTime;
-            subrDispatchSame      = SubscriberDispatchedTime == other.SubscriberDispatchedTime;
-            adptrRecvSame         = AdapterReceivedTime == other.AdapterReceivedTime;
-            adptrSentSame         = AdapterSentTime == other.AdapterSentTime;
+            dispatchSame      = SubscriberDispatchedTime == other.SubscriberDispatchedTime;
+            adapterRecvSame         = AdapterReceivedTime == other.AdapterReceivedTime;
+            adapterSentSame         = AdapterSentTime == other.AdapterSentTime;
         }
-        var allAreSame = feedSyncSame && connectStatusSame && clientReceivedSame && inboundSocketRecvSame && subrDispatchSame && adptrRecvSame &&
-                         adptrSentSame;
+        var allAreSame = sourceTimeSame && feedSyncSame && connectStatusSame && clientReceivedSame && inboundSocketRecvSame 
+                      && dispatchSame && adapterRecvSame && adapterSentSame;
 
         return allAreSame;
     }

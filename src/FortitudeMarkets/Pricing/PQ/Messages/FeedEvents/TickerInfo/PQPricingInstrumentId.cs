@@ -63,6 +63,8 @@ public class PQPricingInstrumentId : PQSourceTickerId, IPQPricingInstrumentId
 
         foreach (var instrumentFields in toClone.FilledAttributes) this[instrumentFields.Key] = instrumentFields.Value;
 
+        SetFlagsSame(toClone);
+
         if (toClone is IPQPricingInstrumentId pubToClone) IsMarketClassificationUpdated = pubToClone.IsMarketClassificationUpdated;
     }
 
@@ -256,16 +258,19 @@ public class PQPricingInstrumentId : PQSourceTickerId, IPQPricingInstrumentId
         var updatedOnly = (updateStyle & PQMessageFlags.Complete) == 0;
 
         if (!updatedOnly || IsMarketClassificationUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.MarketClassification, MarketClassification.CompoundedClassification);
+            yield return new PQFieldUpdate(PQFeedFields.SourceTickerDefinition, PQTickerDefSubFieldKeys.MarketClassification, MarketClassification.CompoundedClassification);
     }
 
     public override int UpdateField(PQFieldUpdate fieldUpdate)
     {
-        switch (fieldUpdate.Id)
+        if (fieldUpdate.Id == PQFeedFields.SourceTickerDefinition)
         {
-            case PQFeedFields.MarketClassification:
-                MarketClassification = new MarketClassification(fieldUpdate.Payload);
-                return 0;
+            switch (fieldUpdate.DefinitionSubId)
+            {
+                case PQTickerDefSubFieldKeys.MarketClassification:
+                    MarketClassification = new MarketClassification(fieldUpdate.Payload);
+                    return 0;
+            }
         }
 
         return base.UpdateField(fieldUpdate);

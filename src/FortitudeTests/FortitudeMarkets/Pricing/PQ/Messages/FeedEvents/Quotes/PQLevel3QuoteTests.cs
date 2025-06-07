@@ -1033,7 +1033,7 @@ public class PQLevel3QuoteTests
             var emptyQuoteSourceTickerInfo
                 = new PQSourceTickerInfo(populatedL3Quote.SourceTickerInfo!)
                 {
-                    NameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerNames)
+                    NameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerDefinitionStringUpdates)
                 };
             var newEmpty = new PQPublishableLevel3Quote(emptyQuoteSourceTickerInfo);
             foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);

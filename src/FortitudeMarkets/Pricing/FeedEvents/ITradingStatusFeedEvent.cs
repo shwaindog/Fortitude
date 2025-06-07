@@ -28,7 +28,9 @@ public interface ITradingStatusFeedEvent : IReusableObject<ITradingStatusFeedEve
     uint     FeedSequenceNumber       { get; }
 
     FeedEventUpdateFlags         EventUpdateFlags           { get; }
-    IPublishedMarketEvents?      MarketEvents               { get; }
+    IMarketNewsPanel?            MarketNewsPanel            { get; }
+    IMarketCalendarPanel?        MarketCalendarPanel        { get; }
+    IMarketTradingStatusPanel?   MarketTradingStatusPanel   { get; }
     IRecentlyTradedHistory?      RecentTradedHistory        { get; }
     IPublishedInternalOrders?    PublishedInternalOrders    { get; }
     IPublishedAccounts?          PublishedAccounts          { get; }
@@ -60,7 +62,9 @@ public interface IMutableTradingStatusFeedEvent : ITradingStatusFeedEvent, IMuta
     new uint     FeedSequenceNumber         { get; set; }
 
     new FeedEventUpdateFlags                EventUpdateFlags           { get; set; }
-    new IMutablePublishedMarketEvents?      MarketEvents               { get; set; }
+    new IMutableMarketNewsPanel?            MarketNewsPanel            { get; set; }
+    new IMutableMarketCalendarPanel?        MarketCalendarPanel        { get; set; }
+    new IMutableMarketTradingStatusPanel?   MarketTradingStatusPanel   { get; set; }
     new IMutableRecentlyTradedHistory?      RecentTradedHistory        { get; set; }
     new IMutablePublishedInternalOrders?    PublishedInternalOrders    { get; set; }
     new IMutablePublishedAccounts?          PublishedAccounts          { get; set; }
