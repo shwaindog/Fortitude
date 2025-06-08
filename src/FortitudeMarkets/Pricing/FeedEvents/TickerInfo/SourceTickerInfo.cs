@@ -49,6 +49,17 @@ public interface ISourceTickerInfo : IPricingInstrumentId, IInterfacesComparable
     new ISourceTickerInfo Clone();
 }
 
+
+public interface ICanHaveSourceTickerDefinition
+{
+    ISourceTickerInfo? SourceTickerInfo { get; }
+}
+
+public interface IMutableCanHaveSourceTickerDefinition : ICanHaveSourceTickerDefinition
+{
+    new ISourceTickerInfo? SourceTickerInfo { get; set; }
+}
+
 public class SourceTickerInfo : PricingInstrumentId, ISourceTickerInfo, ICloneable<SourceTickerInfo>
 {
     public const decimal DefaultPip                    = 0.0001m;
@@ -187,8 +198,8 @@ public class SourceTickerInfo : PricingInstrumentId, ISourceTickerInfo, ICloneab
     }
 
     public SourceTickerInfo
-    (ushort sourceId, string sourceName, ushort tickerId, string ticker, TickerQuoteDetailLevel publishedTickerQuoteDetailLevel
-      , MarketClassification marketClassification, ushort maximumPublishedLayers = DefaultMaximumPublishedLayers
+    (ushort sourceId, string sourceName, ushort tickerId, string ticker, TickerQuoteDetailLevel publishedTickerQuoteDetailLevel = DefaultQuoteLevel
+      , MarketClassification marketClassification = default, ushort maximumPublishedLayers = DefaultMaximumPublishedLayers
       , decimal roundingPrecision = DefaultRoundingPrecision
       , decimal pip = DefaultPip, decimal minSubmitSize = DefaultMinSubmitSize, decimal maxSubmitSize = DefaultMaxSubmitSize
       , decimal incrementSize = DefaultIncrementSize

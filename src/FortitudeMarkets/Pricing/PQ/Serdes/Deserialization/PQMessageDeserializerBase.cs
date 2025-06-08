@@ -30,8 +30,6 @@ public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQ
     private const byte SupportFromVersion = 1;
     private const byte SupportToVersion   = 1;
 
-    private uint incompleteMessageStartSequenceId = 0;
-
     private readonly PQSerializationFlags serializationFlags;
 
     protected readonly IList<IObserver<T>> Subscribers = new List<IObserver<T>>();
@@ -258,18 +256,9 @@ public abstract class PQMessageDeserializerBase<T> : MessageDeserializer<T>, IPQ
     {
         if (!PublishedQuote.IsCompleteUpdate)
         {
-            if (incompleteMessageStartSequenceId == 0)
-            {
-                incompleteMessageStartSequenceId = PublishedQuote.PQSequenceId;
-            }
             return;
         }
         if (!Subscribers.Any() && !AllDeserializedNotifiers.Any()) return;
-        var fromSequenceId = !PublishedQuote.FeedMarketConnectivityStatus.HasFromAdapterSnapshot() && incompleteMessageStartSequenceId == 0
-            ? PublishedQuote.PQSequenceId
-            : incompleteMessageStartSequenceId;
-        PublishedQuote.UpdatesAppliedToAllDeltas(fromSequenceId, PublishedQuote.PQSequenceId);
-        incompleteMessageStartSequenceId = 0;
         var tl = PublishPQQuoteDeserializerLatencyTraceLoggerPool.StartNewTrace();
         PublishedQuote.Lock.Acquire();
         try

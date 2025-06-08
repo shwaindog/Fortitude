@@ -37,9 +37,9 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
     public FeedConnectivityStatusFlags FeedMarketConnectivityStatus { get; set; }
         = FeedConnectivityStatusFlagsExtensions.ClientDefaultConnectionState;
 
-    public FeedSyncStatus FeedSyncStatus { get; set; } = FeedSyncStatus.NotStarted;
+    public abstract ISourceTickerInfo? SourceTickerInfo { get; set; }
 
-    public abstract DateTime SourceTime { get; set; }
+    public FeedSyncStatus FeedSyncStatus { get; set; } = FeedSyncStatus.NotStarted;
 
     public DateTime ClientReceivedTime         { get; set; }
     public DateTime InboundSocketReceivingTime { get; set; }
@@ -64,7 +64,6 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
 
     public override FeedEventStatusUpdate CopyFrom(IFeedEventStatusUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        SourceTime = source.SourceTime;
         if (QuoteBehavior.HasInheritAdditionalPublishedFlagsFlag())
         {
             QuoteBehavior |= source.QuoteBehavior;
@@ -92,10 +91,10 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
 
     public virtual void UpdateComplete(uint updateSequenceId = 0) { }
 
-    public virtual void UpdatesAppliedToAllDeltas(uint startSequenceId, uint updatedSequenceId)
+    public virtual void TriggerTimeUpdates(DateTime atDateTime)
     {
-        UpdateSequenceId = updatedSequenceId;
     }
+
 
     public virtual void UpdateStarted(uint updateSequenceId)
     {
@@ -106,7 +105,6 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
 
     public override void StateReset()
     {
-        SourceTime                 = DateTime.MinValue;
         ClientReceivedTime         = DateTime.MinValue;
         InboundSocketReceivingTime = DateTime.MinValue;
         SubscriberDispatchedTime   = DateTime.MinValue;
@@ -124,7 +122,6 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
         if (other == null) return false;
         if (exactTypes && GetType() != other.GetType()) return false;
 
-        var sourceTimeSame          = SourceTime == other.SourceTime;
         var feedSyncSame          = FeedSyncStatus == other.FeedSyncStatus;
         var connectStatusSame     = FeedMarketConnectivityStatus == other.FeedMarketConnectivityStatus;
         var clientReceivedSame    = true;
@@ -140,7 +137,7 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
             adapterRecvSame         = AdapterReceivedTime == other.AdapterReceivedTime;
             adapterSentSame         = AdapterSentTime == other.AdapterSentTime;
         }
-        var allAreSame = sourceTimeSame && feedSyncSame && connectStatusSame && clientReceivedSame && inboundSocketRecvSame 
+        var allAreSame = feedSyncSame && connectStatusSame && clientReceivedSame && inboundSocketRecvSame 
                       && dispatchSame && adapterRecvSame && adapterSentSame;
 
         return allAreSame;

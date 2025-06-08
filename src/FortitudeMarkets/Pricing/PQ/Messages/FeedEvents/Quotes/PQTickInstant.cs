@@ -7,7 +7,6 @@ using System.Text.Json.Serialization;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
@@ -38,10 +37,12 @@ public interface IPQTickInstant : IMutableTickInstant, IRelatedItems<ISourceTick
 public interface IPQPublishableTickInstant : IPQTickInstant, IMutablePublishableTickInstant, IPQMessage,
     IDoublyLinkedListNode<IPQPublishableTickInstant>, ITrackableReset<IPQPublishableTickInstant>
 {
-    new bool IsSourceTimeDateUpdated    { get; set; }
+    new bool IsSourceTimeDateUpdated { get; set; }
+
     new bool IsSourceTimeSub2MinUpdated { get; set; }
 
-    new IPQPublishableTickInstant? Next     { get; set; }
+    new IPQPublishableTickInstant? Next { get; set; }
+
     new IPQPublishableTickInstant? Previous { get; set; }
 
     new IPQSourceTickerInfo? SourceTickerInfo { get; set; }
@@ -67,8 +68,6 @@ public interface IPQPublishableTickInstant : IPQTickInstant, IMutablePublishable
 
 public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, ICloneable<IPQTickInstant>
 {
-    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQPublishableTickInstant));
-
     protected QuoteFieldUpdatedFlags UpdatedFlags;
     protected PQQuoteBooleanValues   QuoteBooleanFields = PQQuoteBooleanValues.DefaultEmptyQuoteFlags;
 
@@ -118,7 +117,6 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
         SetFlagsSame(toClone);
     }
 
-
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public virtual decimal SingleTickValue
     {
@@ -129,7 +127,6 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
             singleValue          =  value;
         }
     }
-
 
     [JsonIgnore]
     public bool IsSingleValueUpdated
@@ -143,7 +140,6 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
                 UpdatedFlags &= ~QuoteFieldUpdatedFlags.SingleValueUpdatedFlag;
         }
     }
-
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public virtual DateTime SourceTime
@@ -329,14 +325,12 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
         }
     }
 
-
     public virtual IEnumerable<PQFieldStringUpdate> GetStringUpdates(DateTime snapShotTime, Serdes.Serialization.PQMessageFlags messageFlags)
     {
         return [];
     }
 
     public virtual bool UpdateFieldString(PQFieldStringUpdate stringUpdate) => false;
-
 
     public virtual PQTickInstant SetSourceTickerInfo(ISourceTickerInfo toSet)
     {
@@ -388,14 +382,14 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
                 IsSingleValueUpdated = true;
                 SingleTickValue      = ipq0.SingleTickValue;
             }
-            if (!copyMergeFlags.HasExcludeCoreTimeStamp() && ipq0.IsSourceTimeDateUpdated || isFullReplace)
+            if (ipq0.IsSourceTimeDateUpdated || isFullReplace)
             {
                 var originalSourceTime = sourceTime;
                 PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref sourceTime, ipq0.SourceTime.Get2MinIntervalsFromUnixEpoch());
                 IsSourceTimeDateUpdated = originalSourceTime != sourceTime;
                 if (sourceTime == DateTime.UnixEpoch) sourceTime = default;
             }
-            if (!copyMergeFlags.HasExcludeCoreTimeStamp() && ipq0.IsSourceTimeSub2MinUpdated || isFullReplace)
+            if (ipq0.IsSourceTimeSub2MinUpdated || isFullReplace)
             {
                 var originalSourceTime = sourceTime;
                 PQFieldConverters.UpdateSub2MinComponent(ref sourceTime, ipq0.SourceTime.GetSub2MinComponent());
@@ -480,8 +474,8 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
         : this(initializedQuoteContainer, sourceTickerInfo, feedSyncStatus: FeedSyncStatus.Good) { }
 
     public PQPublishableTickInstant
-    (ISourceTickerInfo sourceTickerInfo, decimal singlePrice = 0m, DateTime? sourceTime = null, FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good,
-        FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None)
+    (ISourceTickerInfo sourceTickerInfo, decimal singlePrice = 0m, DateTime? sourceTime = null
+      , FeedSyncStatus feedSyncStatus = FeedSyncStatus.Good, FeedConnectivityStatusFlags feedConnectivityStatus = FeedConnectivityStatusFlags.None)
         : this(new PQTickInstant(sourceTickerInfo, singlePrice, sourceTime), sourceTickerInfo, feedSyncStatus, feedConnectivityStatus) { }
 
     protected PQPublishableTickInstant
@@ -543,11 +537,10 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
     protected virtual IPQTickInstant CreateQuoteContainerFromTickerInfo(ISourceTickerInfo tickerInfo) => new PQTickInstant(tickerInfo);
 
     ITickInstant IPublishableTickInstant.              AsNonPublishable => AsNonPublishable;
-    IMutableTickInstant IMutablePublishableTickInstant.AsNonPublishable => AsNonPublishable;
-    public virtual IPQTickInstant                      AsNonPublishable => PQQuoteContainer;
 
-    public override uint   StreamId   => SourceTickerInfo!.SourceInstrumentId;
-    public override string StreamName => SourceTickerInfo!.InstrumentName;
+    IMutableTickInstant IMutablePublishableTickInstant.AsNonPublishable => AsNonPublishable;
+
+    public virtual IPQTickInstant                      AsNonPublishable => PQQuoteContainer;
 
     [JsonIgnore] public virtual TickerQuoteDetailLevel TickerQuoteDetailLevel => TickerQuoteDetailLevel.SingleValue;
 
@@ -555,15 +548,15 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
 
     [JsonIgnore] public override byte Version => 1;
 
-    [JsonIgnore] ISourceTickerInfo? IPublishableTickInstant.SourceTickerInfo => PQSourceTickerInfo;
+    [JsonIgnore] ISourceTickerInfo? ICanHaveSourceTickerDefinition.SourceTickerInfo => PQSourceTickerInfo;
 
-    ISourceTickerInfo? IMutablePublishableTickInstant.SourceTickerInfo
+    ISourceTickerInfo? IMutableCanHaveSourceTickerDefinition.SourceTickerInfo
     {
         get => SourceTickerInfo;
         set => SourceTickerInfo = ConvertToPQSourceTickerInfo(value!, PQSourceTickerInfo);
     }
 
-    public IPQSourceTickerInfo? SourceTickerInfo
+    public override IPQSourceTickerInfo? SourceTickerInfo
     {
         get => PQSourceTickerInfo;
         set
@@ -597,21 +590,21 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public override DateTime SourceTime
+    public DateTime SourceTime
     {
         get => PQQuoteContainer.SourceTime;
         set => PQQuoteContainer.SourceTime = value;
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public override bool IsSourceTimeDateUpdated
+    public bool IsSourceTimeDateUpdated
     {
         get => PQQuoteContainer.IsSourceTimeDateUpdated;
         set => PQQuoteContainer.IsSourceTimeDateUpdated = value;
     }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public override bool IsSourceTimeSub2MinUpdated
+    public bool IsSourceTimeSub2MinUpdated
     {
         get => PQQuoteContainer.IsSourceTimeSub2MinUpdated;
         set => PQQuoteContainer.IsSourceTimeSub2MinUpdated = value;
@@ -752,10 +745,7 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
         foreach (var quoteContainerUpdates in PQQuoteContainer.GetDeltaUpdateFields
                      (snapShotTime, messageFlags, quotePublicationPrecisionSettings ?? PQSourceTickerInfo))
         {
-            if (quoteContainerUpdates is not ({ Id: PQFeedFields.SourceQuoteSentDateTime } or { Id: PQFeedFields.SourceQuoteSentSub2MinTime }))
-            {
-                yield return quoteContainerUpdates;
-            }
+            yield return quoteContainerUpdates;
         }
     }
 
@@ -811,13 +801,15 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
     {
         PQQuoteContainer.IncrementTimeBy(toChangeBy);
 
-        ClientReceivedTime         += toChangeBy;
-        SubscriberDispatchedTime   += toChangeBy;
-        InboundProcessedTime       += toChangeBy;
-        InboundSocketReceivingTime += toChangeBy;
-        ClientReceivedTime         += toChangeBy;
-        AdapterReceivedTime        += toChangeBy;
-        AdapterSentTime            += toChangeBy;
+        if (!QuoteBehavior.HasNoClientInboundSocketTimeUpdatesFlag()) InboundSocketReceivingTime += toChangeBy;
+        if (!QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag())
+        {
+            InboundProcessedTime     += toChangeBy;
+            SubscriberDispatchedTime += toChangeBy;
+        }
+        if (!QuoteBehavior.HasNoClientReceiveTimeUpdatesFlag()) ClientReceivedTime   += toChangeBy;
+        if (!QuoteBehavior.HasNoAdapterReceiveTimeUpdatesFlag()) AdapterReceivedTime += toChangeBy;
+        if (!QuoteBehavior.HasNoAdapterSentTimeUpdatesFlag()) AdapterSentTime        += toChangeBy;
     }
 
     public DateTime StorageTime(IStorageTimeResolver? resolver)
@@ -924,7 +916,7 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
             }
             if (source is PQPublishableTickInstant pq0)
             {
-                PQQuoteContainer.CopyFrom(pq0.PQQuoteContainer, copyMergeFlags | CopyMergeFlags.ExcludeCoreTimeStamp);
+                PQQuoteContainer.CopyFrom(pq0.PQQuoteContainer, copyMergeFlags);
                 // only copy if changed
                 if (isFullReplace) UpdatedFlags = pq0.UpdatedFlags;
             }

@@ -7,6 +7,7 @@ using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Maps;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
@@ -16,9 +17,10 @@ using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeMarkets.Configuration.ClientServerConfig;
 using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages;
-using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 
 #endregion
 
@@ -35,14 +37,15 @@ public interface IPQServer<T> : IDisposable where T : IPQMessage
     void SetNextSequenceNumberToFullUpdate(string ticker);
 }
 
-public class PQServer<T> : IPQServer<T> where T : class, IPQMessage
+public class PQServer<T> : IPQServer<T> where T : class, IPQMessage, new()
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PQServer<T>));
 
-    private readonly ISocketDispatcherResolver            dispatcherResolver;
-    private readonly IMap<uint, T>                        entities        = new ConcurrentMap<uint, T>();
-    private readonly IDoublyLinkedList<IPQMessage> heartbeatQuotes = new DoublyLinkedList<IPQMessage>();
-    private readonly ISyncLock                            heartBeatSync   = new YieldLockLight();
+    private readonly ISocketDispatcherResolver     dispatcherResolver;
+    private readonly IMap<uint, IPQMessage>        lastPubEntities          = new ConcurrentMap<uint, IPQMessage>();
+    private readonly Recycler                      dispatchEntitiesRecycler = new();
+    private readonly IDoublyLinkedList<IPQMessage> heartbeatQuotes          = new DoublyLinkedList<IPQMessage>();
+    private readonly ISyncLock                     heartBeatSync            = new YieldLockLight();
 
     private readonly IMarketConnectionConfig    marketConnectionConfig;
     private readonly IPricingServerConfig       pricingServerConfig;
@@ -55,18 +58,19 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQMessage
     private readonly Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer>
         updateServerFactory;
 
+    private readonly Func<ISourceTickerInfo, T> freshInstanceFactory = ReflectionHelper.CtorBinder<ISourceTickerInfo, T>();
+
     private IPQSnapshotServer? snapshotServer;
     private IPQUpdateServer?   updateServer;
 
-    public PQServer
-    (IMarketConnectionConfig marketConnectionConfig,
+    public PQServer(IMarketConnectionConfig marketConnectionConfig,
         IPQServerHeartBeatSender serverHeartBeatSender,
         ISocketDispatcherResolver socketDispatcherResolver,
         Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQSnapshotServer> snapShotServerFactory,
         Func<INetworkTopicConnectionConfig, ISocketDispatcherResolver, IPQUpdateServer> updateServerFactory,
         Func<ISourceTickerInfo, T>? quoteFactory = null)
     {
-        this.quoteFactory           = quoteFactory ?? ReflectionHelper.CtorBinder<ISourceTickerInfo, T>();
+        this.quoteFactory           = quoteFactory ?? DefaultRecyclerFactory;
         dispatcherResolver          = socketDispatcherResolver;
         this.marketConnectionConfig = marketConnectionConfig;
         pricingServerConfig         = marketConnectionConfig.PricingServerConfig!;
@@ -78,25 +82,44 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQMessage
         serverHeartBeatSender.ServerLinkedQuotes = heartbeatQuotes;
     }
 
+    private T DefaultRecyclerFactory(ISourceTickerInfo sourceTickerInfo)
+    {
+        var borrowed = dispatchEntitiesRecycler.Borrow<T>();
+        if (borrowed.SourceTickerInfo is not PQSourceTickerInfo)
+        {
+            borrowed.SourceTickerInfo = new PQSourceTickerInfo(sourceTickerInfo);
+        }
+        else
+        {
+            borrowed.SourceTickerInfo.StateReset();
+            borrowed.SourceTickerInfo.CopyFrom(sourceTickerInfo, CopyMergeFlags.FullReplace);
+        }
+        return borrowed;
+    }
+
     public T? Register(string ticker)
     {
         var tickerInfo = marketConnectionConfig.GetSourceTickerInfo(ticker);
         if (tickerInfo != null)
-            if (!entities.TryGetValue(tickerInfo.SourceInstrumentId, out var ent))
+        {
+            if (!lastPubEntities.TryGetValue(tickerInfo.SourceInstrumentId, out var updateEnt))
             {
-                ent              = quoteFactory(tickerInfo);
-                ent.PQSequenceId = uint.MaxValue;
-                entities.Add(tickerInfo.SourceInstrumentId, ent);
+                updateEnt = freshInstanceFactory(tickerInfo);
+
+                updateEnt.PQSequenceId = uint.MaxValue;
+                lastPubEntities.Add(tickerInfo.SourceInstrumentId, updateEnt);
                 // publish identical quote leaving next quote to also be zero.
                 var quote = quoteFactory(tickerInfo);
                 quote.PQSequenceId = uint.MaxValue;
                 quote.HasUpdates   = true;
+
                 Publish(quote);
 
                 if (!serverHeartBeatSender.HasStarted) serverHeartBeatSender.StartSendingHeartBeats();
 
                 return quote;
             }
+        }
 
         return null;
     }
@@ -105,18 +128,18 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQMessage
     {
         var tickerInfo = marketConnectionConfig.GetSourceTickerInfo(ticker);
         if (tickerInfo != null)
-            if (entities.TryGetValue(tickerInfo.SourceInstrumentId, out var ent))
+            if (lastPubEntities.TryGetValue(tickerInfo.SourceInstrumentId, out var ent))
                 ent!.PQSequenceId = uint.MaxValue;
     }
 
     public void Unregister(T quote)
     {
-        if (entities.TryGetValue(quote.StreamId, out var ent))
+        if (lastPubEntities.TryGetValue(quote.StreamId, out var ent))
         {
             quote.ResetWithTracking();
             quote.HasUpdates = true;
             Publish(quote);
-            entities.Remove(quote.StreamId);
+            lastPubEntities.Remove(quote.StreamId);
             heartBeatSync.Acquire();
             try
             {
@@ -127,7 +150,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQMessage
                 heartBeatSync.Release();
             }
 
-            if (entities.Count == 0)
+            if (lastPubEntities.Count == 0)
                 if (serverHeartBeatSender.HasStarted)
                     serverHeartBeatSender.StopAndWaitUntilFinished();
         }
@@ -136,31 +159,37 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQMessage
     public void Publish(T quote)
     {
         if (!quote.HasUpdates) return;
-        if (entities.TryGetValue(quote.StreamId, out var ent))
+        if (lastPubEntities.TryGetValue(quote.StreamId, out var ent))
         {
-            ent!.Lock.Acquire();
+            var pubUpdate = DefaultRecyclerFactory(ent!.SourceTickerInfo!);
+            pubUpdate.Lock.Acquire();
+            ent.Lock.Acquire();
             try
             {
                 var seqId = ent.PQSequenceId;
                 ent.CopyFrom(quote);
-                quote.UpdateComplete(seqId);
                 ent.PQSequenceId = seqId;
+                pubUpdate.CopyFrom(ent, CopyMergeFlags.FullReplace);
+                quote.UpdateComplete(seqId);
+                ent.UpdateComplete(seqId);
             }
             finally
             {
                 ent.Lock.Release();
+                pubUpdate.Lock.Release();
             }
-            if (ent.PQSequenceId == uint.MaxValue) ent.HasUpdates = true;
+            if (pubUpdate.PQSequenceId == uint.MaxValue) pubUpdate.HasUpdates = true;
 
-            if (ent.HasUpdates)
+            if (pubUpdate.HasUpdates)
             {
-                if (updateServer != null && updateServer.IsStarted) updateServer.Send(ent);
+                if (updateServer is { IsStarted: true }) updateServer.Send(pubUpdate);
                 // Logger.Info("Published {0}", ent);
             }
             else
             {
                 Logger.Warn("Publish request has no changes so will not be published.");
             }
+            pubUpdate.DecrementRefCount();
 
             heartBeatSync.Acquire();
             try
@@ -183,7 +212,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQMessage
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-        entities.Clear();
+        lastPubEntities.Clear();
         heartBeatSync.Acquire();
         try
         {
@@ -214,15 +243,33 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQMessage
     {
         var tickerInfo = marketConnectionConfig.GetSourceTickerInfo(ticker);
         if (tickerInfo != null)
-            if (entities.TryGetValue(tickerInfo.SourceInstrumentId, out var ent))
+            if (lastPubEntities.TryGetValue(tickerInfo.SourceInstrumentId, out var ent))
                 ent!.HasUpdates = true;
     }
 
     private void OnSnapshotContextRequest(IConversationRequester cx, PQSnapshotIdsRequest snapshotIdsRequest)
     {
         foreach (var streamId in snapshotIdsRequest.RequestSourceTickerIds)
-            if (entities.TryGetValue(streamId, out var ent))
-                cx.Send(ent!);
+            if (lastPubEntities.TryGetValue(streamId, out var lastPubEnt))
+            {
+                var snapshotEnt = DefaultRecyclerFactory(lastPubEnt!.SourceTickerInfo!);
+                snapshotEnt.Lock.Acquire();
+                lastPubEnt.Lock.Acquire();
+                try
+                {
+                    snapshotEnt.QuoteBehavior = lastPubEnt.QuoteBehavior;
+                    snapshotEnt.CopyFrom(lastPubEnt, CopyMergeFlags.FullReplace);
+                    snapshotEnt.FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.FromAdapterSnapshot;
+                    snapshotEnt.FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.IsAdapterReplay;
+                    cx.Send(snapshotEnt);
+                }
+                finally
+                {
+                    lastPubEnt.Lock.Release();
+                    snapshotEnt.Lock.Release();
+                }
+                snapshotEnt.DecrementRefCount();
+            }
     }
 
     #region FeedReferential management
@@ -233,12 +280,12 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQMessage
     {
         if (!IsStarted)
         {
-            snapshotServer = snapShotServerFactory(pricingServerConfig.SnapshotConnectionConfig!
+            snapshotServer = snapShotServerFactory(pricingServerConfig.SnapshotConnectionConfig
                                                  , dispatcherResolver);
             snapshotServer.OnSnapshotRequest               += OnSnapshotContextRequest;
             snapshotServer.ReceivedSourceTickerInfoRequest += OnReceivedSourceTickerInfoRequest;
             snapshotServer.Start();
-            updateServer = updateServerFactory(pricingServerConfig.UpdateConnectionConfig!
+            updateServer = updateServerFactory(pricingServerConfig.UpdateConnectionConfig
                                              , dispatcherResolver);
             updateServer.Start();
             serverHeartBeatSender.UpdateServer = updateServer;

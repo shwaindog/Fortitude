@@ -68,10 +68,7 @@ public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, IC
     public override TickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         SingleTickValue = source.SingleTickValue;
-        if (!copyMergeFlags.HasExcludeCoreTimeStamp())
-        {
-            SourceTime = source.SourceTime;
-        }
+        SourceTime = source.SourceTime;
         return this;
     }
 
@@ -183,15 +180,15 @@ public class PublishableTickInstant : FeedEventStatusUpdate, IMutablePublishable
 
     [JsonIgnore] public virtual TickerQuoteDetailLevel TickerQuoteDetailLevel => TickerQuoteDetailLevel.SingleValue;
 
-    [JsonIgnore] ISourceTickerInfo? IPublishableTickInstant.SourceTickerInfo => SourceTickerInfo;
+    [JsonIgnore] ISourceTickerInfo? ICanHaveSourceTickerDefinition.SourceTickerInfo => SourceTickerInfo;
 
-    public ISourceTickerInfo? SourceTickerInfo { get; set; }
+    public override ISourceTickerInfo? SourceTickerInfo { get; set; }
 
     ITickInstant IPublishableTickInstant.AsNonPublishable => AsNonPublishable;
 
     public virtual IMutableTickInstant   AsNonPublishable => QuoteContainer;
 
-    public override DateTime SourceTime
+    public DateTime SourceTime
     {
         get => QuoteContainer.SourceTime;
         set => QuoteContainer.SourceTime = value;
@@ -286,7 +283,7 @@ public class PublishableTickInstant : FeedEventStatusUpdate, IMutablePublishable
     public virtual PublishableTickInstant CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
-        QuoteContainer.CopyFrom(source, copyMergeFlags | CopyMergeFlags.ExcludeCoreTimeStamp);
+        QuoteContainer.CopyFrom(source, copyMergeFlags);
 
         if (SourceTickerInfo == null)
             SourceTickerInfo = source.SourceTickerInfo is SourceTickerInfo

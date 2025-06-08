@@ -38,7 +38,7 @@ public interface IPQPublishableLevel3Quote : IPQPublishableLevel2Quote, IMutable
   , IDoublyLinkedListNode<IPQPublishableLevel3Quote>, ITrackableReset<IPQPublishableLevel3Quote>
 {
     new IPQOnTickLastTraded? OnTickLastTraded { get; set; }
-    
+
     new IPQLevel3Quote AsNonPublishable { get; }
 
     new IPQPublishableLevel3Quote? Next     { get; set; }
@@ -214,8 +214,7 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         if (fullPicture || IsBatchIdUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteBatchId, BatchId);
 
         if (fullPicture || IsSourceQuoteReferenceUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteSourceQuoteRef, SourceQuoteReference);
-        if (fullPicture || IsValueDateUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.QuoteValueDate, valueDate.Get2MinIntervalsFromUnixEpoch());
+        if (fullPicture || IsValueDateUpdated) yield return new PQFieldUpdate(PQFeedFields.QuoteValueDate, valueDate.Get2MinIntervalsFromUnixEpoch());
     }
 
     public override int UpdateField(PQFieldUpdate pqFieldUpdate)
@@ -279,9 +278,24 @@ public class PQLevel3Quote : PQLevel2Quote, IPQLevel3Quote, ICloneable<PQLevel3Q
         {
             var hasFullReplace = copyMergeFlags.HasFullReplace();
 
-            if (pql3Q.IsBatchIdUpdated || hasFullReplace) BatchId                           = pql3Q.BatchId;
-            if (pql3Q.IsSourceQuoteReferenceUpdated || hasFullReplace) SourceQuoteReference = pql3Q.SourceQuoteReference;
-            if (pql3Q.IsValueDateUpdated || hasFullReplace) ValueDate                       = pql3Q.ValueDate;
+            if (pql3Q.IsBatchIdUpdated || hasFullReplace)
+            {
+                IsBatchIdUpdated = true;
+
+                BatchId = pql3Q.BatchId;
+            }
+            if (pql3Q.IsSourceQuoteReferenceUpdated || hasFullReplace)
+            {
+                IsSourceQuoteReferenceUpdated = true;
+
+                SourceQuoteReference = pql3Q.SourceQuoteReference;
+            }
+            if (pql3Q.IsValueDateUpdated || hasFullReplace)
+            {
+                IsValueDateUpdated = true;
+
+                ValueDate = pql3Q.ValueDate;
+            }
             // ensure flags still match source
 
             if (hasFullReplace) SetFlagsSame(pql3Q);
@@ -328,9 +342,7 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
 {
     private IPQOnTickLastTraded? onTickLastTraded;
 
-    public PQPublishableLevel3Quote()
-    {
-    }
+    public PQPublishableLevel3Quote() { }
 
     // Reflection invoked constructor (PQServer<T>)
     public PQPublishableLevel3Quote(ISourceTickerInfo sourceTickerInfo) : this(sourceTickerInfo, singlePrice: 0m)
@@ -588,7 +600,6 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
         return this;
     }
 
-
     public override void EnsureRelatedItemsAreConfigured(ITickInstant? quote)
     {
         base.EnsureRelatedItemsAreConfigured(quote);
@@ -613,8 +624,8 @@ public class PQPublishableLevel3Quote : PQPublishableLevel2Quote, IPQPublishable
             yield return level2QuoteUpdates;
         }
         if (onTickLastTraded != null)
-            foreach (var recentlyTradedFields in onTickLastTraded.GetDeltaUpdateFields(snapShotTime,
-                                                                                       messageFlags, quotePublicationPrecisionSettings))
+            foreach (var recentlyTradedFields in onTickLastTraded.GetDeltaUpdateFields
+                         (snapShotTime, messageFlags, quotePublicationPrecisionSettings))
                 yield return recentlyTradedFields;
     }
 

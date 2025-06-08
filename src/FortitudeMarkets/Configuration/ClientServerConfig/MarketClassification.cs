@@ -4,6 +4,7 @@
 #region
 
 using System.Text.Json.Serialization;
+using FortitudeMarkets.Pricing;
 
 #endregion
 
@@ -104,7 +105,7 @@ public struct MarketClassification
 
 public static class MarketClassificationExtensions
 {
-    public static readonly MarketClassification Unknown    = new(0);
+    public static readonly MarketClassification Unknown    = PricingInstrumentId.DefaultMarketClassification;
     public static readonly MarketClassification FxMajor    = new(MarketType.FXMajor, ProductType.Spot);
     public static readonly MarketClassification FxEmerging = new(MarketType.FXEmerging, ProductType.Spot);
     public static readonly MarketClassification FxExotic   = new(MarketType.FXExotic, ProductType.Spot);

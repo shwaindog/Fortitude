@@ -23,6 +23,7 @@ public interface ISourceTickerId : IReusableObject<ISourceTickerId>
     string InstrumentName { get; }
 }
 
+
 public class SourceTickerId : ReusableObject<ISourceTickerId>, ISourceTickerId, IInterfacesComparable<ISourceTickerId>
 {
     public SourceTickerId() { }

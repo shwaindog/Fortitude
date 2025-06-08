@@ -47,10 +47,12 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
 
     private InstrumentType? timeSeriesType;
 
+    public static readonly MarketClassification DefaultMarketClassification = new (0);
+
     public PricingInstrumentId()
     {
         CoveringPeriod       = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
-        MarketClassification = MarketClassificationExtensions.Unknown;
+        MarketClassification = DefaultMarketClassification;
         InstrumentType       = InstrumentType.Price;
     }
 
@@ -76,14 +78,14 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
     public PricingInstrumentId(SourceTickerIdentifier toClone) : base(toClone)
     {
         CoveringPeriod       = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
-        MarketClassification = MarketClassificationExtensions.Unknown;
+        MarketClassification = DefaultMarketClassification;
         InstrumentType       = InstrumentType.Price;
     }
 
     public PricingInstrumentId(SourceTickerIdValue toClone) : base(toClone)
     {
         CoveringPeriod       = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
-        MarketClassification = MarketClassificationExtensions.Unknown;
+        MarketClassification = DefaultMarketClassification;
         InstrumentType       = InstrumentType.Price;
     }
 
@@ -262,7 +264,7 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
 
     public override void StateReset()
     {
-        MarketClassification = new MarketClassification();
+        MarketClassification = DefaultMarketClassification;
 
         Category       = null;
         CoveringPeriod = new DiscreetTimePeriod();

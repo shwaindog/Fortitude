@@ -11,6 +11,7 @@ using FortitudeIO.Protocols;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages;
@@ -92,9 +93,19 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
 
     public abstract uint MessageId { get; }
 
-    public abstract uint StreamId { get; }
+    ISourceTickerInfo? ICanHaveSourceTickerDefinition.SourceTickerInfo => SourceTickerInfo;
 
-    public abstract string StreamName { get; }
+    ISourceTickerInfo? IMutableCanHaveSourceTickerDefinition.SourceTickerInfo
+    {
+        get => SourceTickerInfo;
+        set => SourceTickerInfo = (IPQSourceTickerInfo?)value;
+    }
+
+    public abstract IPQSourceTickerInfo? SourceTickerInfo { get; set; }
+
+    public virtual uint StreamId => SourceTickerInfo!.SourceInstrumentId;
+
+    public virtual string StreamName => SourceTickerInfo!.InstrumentName;
 
     public uint PQSequenceId { get; set; }
 
@@ -114,8 +125,6 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
             feedMarketConnectivityStatus    = value;
         }
     }
-
-    public abstract DateTime SourceTime { get; set; }
 
     public DateTime SubscriberDispatchedTime
     {
@@ -255,9 +264,6 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
             else if (IsFeedConnectivityStatusUpdated) MessageUpdatedFlags ^= PQMessageUpdatedFlags.FeedConnectivityStatusUpdatedFlag;
         }
     }
-
-    public abstract bool IsSourceTimeDateUpdated    { get; set; }
-    public abstract bool IsSourceTimeSub2MinUpdated { get; set; }
 
     [JsonIgnore]
     public bool IsSocketReceivedTimeDateUpdated
@@ -491,8 +497,7 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     public virtual bool IsEmpty
     {
         get =>
-            SourceTime == DateTime.MinValue
-         && ClientReceivedTimeField == DateTime.MinValue
+            ClientReceivedTimeField == DateTime.MinValue
          && DispatchedTimeField == DateTime.MinValue
          && InboundProcessedTimeField == DateTime.MinValue
          && InboundSocketReceivingTimeField == DateTime.MinValue
@@ -522,7 +527,10 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         PQSequenceId = updateSequenceId;
     }
 
-    public virtual void UpdatesAppliedToAllDeltas(uint startSequenceId, uint latestSequenceId) { }
+    public virtual void TriggerTimeUpdates(DateTime atDateTime)
+    {
+    }
+
 
     public virtual void UpdateComplete(uint updateSequenceId = 0) { }
 
@@ -530,7 +538,6 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     {
         OverrideSerializationFlags = null;
 
-        SourceTime                      = default;
         ClientReceivedTimeField         = default;
         LastPublicationTime             = default;
         InboundSocketReceivingTimeField = default;
@@ -562,13 +569,6 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         var fullPicture = (messageFlags & PQMessageFlags.Complete) > 0;
         // only copy if changed
 
-        if (fullPicture || IsSourceTimeDateUpdated)
-            yield return new PQFieldUpdate(PQFeedFields.SourceQuoteSentDateTime, SourceTime.Get2MinIntervalsFromUnixEpoch());
-        if (fullPicture || IsSourceTimeSub2MinUpdated)
-        {
-            var extended = SourceTime.GetSub2MinComponent().BreakLongToUShortAndScaleFlags(out var lower4Bytes);
-            yield return new PQFieldUpdate(PQFeedFields.SourceQuoteSentSub2MinTime, lower4Bytes, extended);
-        }
         if (fullPicture || IsQuoteBehaviorFlagsUpdated)
         {
             if (QuoteBehavior.HasPublishPublishableQuoteInstantBehaviorFlagsFlag())
@@ -648,29 +648,6 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
             case PQFeedFields.PQSyncStatus:
                 IsFeedSyncStatusUpdated = true; // in-case of reset and sending 0;
                 FeedSyncStatus          = (FeedSyncStatus)pqFieldUpdate.Payload;
-                return 0;
-            case PQFeedFields.SourceQuoteSentDateTime:
-                IsSourceTimeDateUpdated = true; // in-case of reset and sending 0;
-                var originalSourceTime         = SourceTime;
-                var updateSourceTime           = SourceTime;
-                var previousSubSecondIsUpdated = IsSourceTimeSub2MinUpdated;
-                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref updateSourceTime, pqFieldUpdate.Payload);
-                if (updateSourceTime == DateTime.UnixEpoch) updateSourceTime = default;
-                SourceTime                 = updateSourceTime;
-                IsSourceTimeSub2MinUpdated = previousSubSecondIsUpdated;
-                IsSourceTimeDateUpdated    = originalSourceTime != updateSourceTime;
-                return 0;
-            case PQFeedFields.SourceQuoteSentSub2MinTime:
-                IsSourceTimeSub2MinUpdated = true; // in-case of reset and sending 0;
-                originalSourceTime         = SourceTime;
-                updateSourceTime           = SourceTime;
-                var previousDateIsUpdated = IsSourceTimeDateUpdated;
-                PQFieldConverters.UpdateSub2MinComponent(ref updateSourceTime,
-                                                         pqFieldUpdate.Flag.AppendScaleFlagsToUintToMakeLong(pqFieldUpdate.Payload));
-                if (updateSourceTime == DateTime.UnixEpoch) updateSourceTime = default;
-                SourceTime                 = updateSourceTime;
-                IsSourceTimeDateUpdated    = previousDateIsUpdated;
-                IsSourceTimeSub2MinUpdated = originalSourceTime != updateSourceTime;
                 return 0;
             case PQFeedFields.InstantQuoteBehaviorFlags:
                 IsQuoteBehaviorFlagsUpdated = true; // in-case of reset and sending 0;
@@ -824,26 +801,6 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
         if (source is IPQMessage pqMessage)
         {
             var isFullReplace = copyMergeFlags.HasFullReplace();
-            if (pqMessage.IsSourceTimeDateUpdated || isFullReplace)
-            {
-                var updateSourceTime           = SourceTime;
-                var previousSubSecondIsUpdated = IsSourceTimeSub2MinUpdated;
-                PQFieldConverters.Update2MinuteIntervalsFromUnixEpoch(ref updateSourceTime, pqMessage.SourceTime.Get2MinIntervalsFromUnixEpoch());
-                if (updateSourceTime == DateTime.UnixEpoch) updateSourceTime = default;
-                SourceTime                 = updateSourceTime;
-                IsSourceTimeSub2MinUpdated = previousSubSecondIsUpdated;
-                IsSourceTimeDateUpdated    = true;
-            }
-            if (pqMessage.IsSourceTimeSub2MinUpdated || isFullReplace)
-            {
-                var updateSourceTime      = SourceTime;
-                var previousDateIsUpdated = IsSourceTimeDateUpdated;
-                PQFieldConverters.UpdateSub2MinComponent(ref updateSourceTime, pqMessage.SourceTime.GetSub2MinComponent());
-                if (updateSourceTime == DateTime.UnixEpoch) updateSourceTime = default;
-                SourceTime                 = updateSourceTime;
-                IsSourceTimeDateUpdated    = previousDateIsUpdated;
-                IsSourceTimeSub2MinUpdated = true;
-            }
             if (pqMessage.IsFeedConnectivityStatusUpdated || isFullReplace)
             {
                 IsFeedConnectivityStatusUpdated = true;

@@ -6,6 +6,7 @@
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
@@ -44,7 +45,7 @@ public class PQImplementationFactoryTests
 
     [TestMethod]
     [ExpectedException(typeof(ArgumentOutOfRangeException))]
-    public void NonSupportedPQType_GetConcreteMapping_GetsConcreateImplementationOfInterface()
+    public void NonSupportedPQType_GetConcreteMapping_GetsConcreteImplementationOfInterface()
     {
         var sourceTickerInfo =
             new SourceTickerInfo
@@ -55,6 +56,6 @@ public class PQImplementationFactoryTests
                                   LastTradedFlags.LastTradedTime);
         var pqImplementationFactory = new PQImplementationFactory();
 
-        pqImplementationFactory.GetConcreteMapping<PQLevel1QuoteTests.DummyLevel1Quote>(sourceTickerInfo);
+        pqImplementationFactory.GetConcreteMapping<PQTradingStatusFeedEvent>(sourceTickerInfo);
     }
 }

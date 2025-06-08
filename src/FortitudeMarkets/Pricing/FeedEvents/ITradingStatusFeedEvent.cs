@@ -16,10 +16,8 @@ using FortitudeMarkets.Pricing.FeedEvents.TradingConversions;
 namespace FortitudeMarkets.Pricing.FeedEvents;
 
 public interface ITradingStatusFeedEvent : IReusableObject<ITradingStatusFeedEvent>, IFeedEventStatusUpdate
-  , IDoublyLinkedListNode<ITradingStatusFeedEvent>
+  , IDoublyLinkedListNode<ITradingStatusFeedEvent>, ICanHaveSourceTickerDefinition
 {
-    ISourceTickerInfo? SourceTickerInfo { get; }
-
     DateTime LastSourceFeedUpdateTime { get; }
     DateTime DownstreamTime           { get; }
     uint     SourceSequenceNumber     { get; }
@@ -45,10 +43,8 @@ public interface ITradingStatusFeedEvent : IReusableObject<ITradingStatusFeedEve
 }
 
 public interface IMutableTradingStatusFeedEvent : ITradingStatusFeedEvent, IMutableFeedEventStatusUpdate
-  , ITransferState<IMutableTradingStatusFeedEvent>
+  , ITransferState<IMutableTradingStatusFeedEvent>, IMutableCanHaveSourceTickerDefinition
 {
-    new ISourceTickerInfo? SourceTickerInfo { get; set; }
-
     new DateTime LastSourceFeedUpdateTime   { get; set; }
     new DateTime InboundSocketReceivingTime { get; set; }
     new DateTime InboundProcessedTime       { get; set; }

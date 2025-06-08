@@ -22,15 +22,18 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerI
 [TestClass]
 public class PQSourceTickerInfoTests
 {
+    public static readonly PQSourceTickerInfo DefaultSti =
+        new(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker");
+
     public static readonly PQSourceTickerInfo BaseL2PriceVolumeSti =
         new(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level2Quote, Unknown
-          , 20, 0.000001m, 0.0001m, 1m, 10_000_000m, 1000m
+          , 20, 0.000001m, 0.0001m, 0.1m, 10_000_000m, 1000m
           , layerFlags: LayerFlagsExtensions.PriceVolumeLayerFlags
           , lastTradedFlags: LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags);
 
     public static readonly PQSourceTickerInfo BaseL3PriceVolumeSti =
         new(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
-          , 20, 0.000001m, 0.0001m, 1m, 10_000_000m, 1000m
+          , 20, 0.000001m, 0.0001m, 0.1m, 10_000_000m, 1000m
           , layerFlags: LayerFlagsExtensions.PriceVolumeLayerFlags
           , lastTradedFlags: LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags);
 
@@ -223,15 +226,11 @@ public class PQSourceTickerInfoTests
             new PQSourceTickerInfo
                 (new SourceTickerInfo
                     (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, FxMajor
-                   , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+                   , 20, 0.00002m, 30000m, 50000000m, 1000m, 0.01m
                    , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
                    , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                                       LastTradedFlags.LastTradedTime));
-        emptySrcTkrInfo =
-            new PQSourceTickerInfo
-                (new SourceTickerInfo
-                    (0, "", 0, "", Level2Quote, Unknown, 0,
-                     0m, 0m, 0m, 0m, 0m, 0, 0, true, false, LayerFlags.None));
+        emptySrcTkrInfo = new PQSourceTickerInfo (0, "", 0, "");
 
         testDateTime = new DateTime(2017, 11, 07, 18, 33, 24);
     }
@@ -269,7 +268,7 @@ public class PQSourceTickerInfoTests
         var newEmpty = new PQSourceTickerInfo(emptySrcTkrInfo);
         newEmpty.UpdateField(sourceUpdates[0]);
         Assert.AreEqual(expectedStreamId, newEmpty.SourceInstrumentId);
-        Assert.IsFalse(newEmpty.IsIdUpdated);
+        Assert.IsTrue(newEmpty.IsIdUpdated);
     }
 
     [TestMethod]
@@ -358,7 +357,7 @@ public class PQSourceTickerInfoTests
     {
         Assert.IsFalse(emptySrcTkrInfo.IsRoundingPrecisionUpdated);
         Assert.IsFalse(emptySrcTkrInfo.HasUpdates);
-        Assert.AreEqual(0m, emptySrcTkrInfo.RoundingPrecision);
+        Assert.AreEqual(SourceTickerInfo.DefaultRoundingPrecision, emptySrcTkrInfo.RoundingPrecision);
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         var expectedRoundPrecision = 0.001m;
@@ -395,7 +394,7 @@ public class PQSourceTickerInfoTests
     {
         Assert.IsFalse(emptySrcTkrInfo.IsMinSubmitSizeUpdated);
         Assert.IsFalse(emptySrcTkrInfo.HasUpdates);
-        Assert.AreEqual(0m, emptySrcTkrInfo.MinSubmitSize);
+        Assert.AreEqual(SourceTickerInfo.DefaultMinSubmitSize, emptySrcTkrInfo.MinSubmitSize);
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         var expectedMinSubmitSize = 0.01m;
@@ -433,7 +432,7 @@ public class PQSourceTickerInfoTests
     {
         Assert.IsFalse(emptySrcTkrInfo.IsMaxSubmitSizeUpdated);
         Assert.IsFalse(emptySrcTkrInfo.HasUpdates);
-        Assert.AreEqual(0m, emptySrcTkrInfo.MaxSubmitSize);
+        Assert.AreEqual(SourceTickerInfo.DefaultMaxSubmitSize, emptySrcTkrInfo.MaxSubmitSize);
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         var expectedMaxSubmitSize = 100m;
@@ -471,7 +470,7 @@ public class PQSourceTickerInfoTests
     {
         Assert.IsFalse(emptySrcTkrInfo.IsIncrementSizeUpdated);
         Assert.IsFalse(emptySrcTkrInfo.HasUpdates);
-        Assert.AreEqual(0m, emptySrcTkrInfo.IncrementSize);
+        Assert.AreEqual(SourceTickerInfo.DefaultIncrementSize, emptySrcTkrInfo.IncrementSize);
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         var expectedIncrementSize = 100m;
@@ -509,7 +508,7 @@ public class PQSourceTickerInfoTests
     {
         Assert.IsFalse(emptySrcTkrInfo.IsMinimumQuoteLifeUpdated);
         Assert.IsFalse(emptySrcTkrInfo.HasUpdates);
-        Assert.AreEqual(0, emptySrcTkrInfo.MinimumQuoteLife);
+        Assert.AreEqual(SourceTickerInfo.DefaultMinimumQuoteLife, emptySrcTkrInfo.MinimumQuoteLife);
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         var expectedMinimumQuoteLife = (ushort)1000;
@@ -579,7 +578,7 @@ public class PQSourceTickerInfoTests
     {
         Assert.IsFalse(emptySrcTkrInfo.IsMaximumPublishedLayersUpdated);
         Assert.IsFalse(emptySrcTkrInfo.HasUpdates);
-        Assert.AreEqual(0, emptySrcTkrInfo.MaximumPublishedLayers);
+        Assert.AreEqual(SourceTickerInfo.DefaultMaximumPublishedLayers, emptySrcTkrInfo.MaximumPublishedLayers);
         Assert.IsTrue(emptySrcTkrInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
 
         var expectedMaximumPublishedLayers = (byte)100;

@@ -16,7 +16,8 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 
-public interface IPQSourceTickerId : ISourceTickerId, IHasNameIdLookup, IPQSupportsNumberPrecisionFieldUpdates, IPQSupportsStringUpdates
+public interface IPQSourceTickerId : ISourceTickerId, IHasNameIdLookup, IPQSupportsNumberPrecisionFieldUpdates
+  , IPQSupportsStringUpdates, IEmptyable, ITrackableReset<IPQSourceTickerId>
 {
     new ushort SourceId     { get; set; }
     new ushort InstrumentId { get; set; }
@@ -202,6 +203,10 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         }
     }
 
+    public IPQNameIdLookupGenerator NameIdLookup { get; set; } = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerDefinitionStringUpdates);
+
+    INameIdLookup IHasNameIdLookup.NameIdLookup => NameIdLookup;
+
     public virtual bool HasUpdates
     {
         get => UpdatedFlags != SourceTickerInfoUpdatedFlags.None;
@@ -212,9 +217,34 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         }
     }
 
-    public IPQNameIdLookupGenerator NameIdLookup { get; set; } = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerDefinitionStringUpdates);
+    public virtual bool IsEmpty
+    {
+        get => SourceId == 0
+            && InstrumentId == 0
+            && SourceNameId == 0
+            && InstrumentNameId == 0;
+        set
+        {
+            if (!value) return;
+            ResetWithTracking();
+        }
+    }
 
-    INameIdLookup IHasNameIdLookup.NameIdLookup => NameIdLookup;
+    IPQSourceTickerId ITrackableReset<IPQSourceTickerId>.ResetWithTracking() => ResetWithTracking();
+
+    public virtual PQSourceTickerId ResetWithTracking()
+    {
+        SourceId = 0;
+        InstrumentId = 0;
+
+        SourceNameId     = 0;
+        InstrumentNameId = 0;
+
+        SequenceId   = 0;
+
+        return this;
+    }
+
 
     public uint UpdateSequenceId => SequenceId;
 
@@ -234,13 +264,9 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
 
     public override void StateReset()
     {
-        sourceId = 0;
-        tickerId = 0;
-
-        sourceNameId     = 0;
-        instrumentNameId = 0;
-
-        SequenceId   = 0;
+        ResetWithTracking();
+      
+        NameIdLookup.Clear();
         UpdatedFlags = SourceTickerInfoUpdatedFlags.None;
         base.StateReset();
     }
@@ -277,6 +303,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
         switch (fieldUpdate.Id)
         {
             case PQFeedFields.SourceTickerId:
+                IsIdUpdated  = true;
                 SourceId     = (ushort)(fieldUpdate.Payload >> 16);
                 InstrumentId = (ushort)(fieldUpdate.Payload & 0xFFFF);
                 return 0;
@@ -285,10 +312,12 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
             case PQFeedFields.SourceTickerDefinition:
                 switch (fieldUpdate.DefinitionSubId)
                 {
-                    case PQTickerDefSubFieldKeys.SourceNameId: 
-                        SourceNameId = (int)fieldUpdate.Payload;
+                    case PQTickerDefSubFieldKeys.SourceNameId:
+                        IsSourceNameUpdated = true;
+                        SourceNameId        = (int)fieldUpdate.Payload;
                         return 0;
                     case PQTickerDefSubFieldKeys.InstrumentNameId: 
+                        IsInstrumentNameUpdated = true;
                         InstrumentNameId = (int)fieldUpdate.Payload;
                         return 0;   
                 }

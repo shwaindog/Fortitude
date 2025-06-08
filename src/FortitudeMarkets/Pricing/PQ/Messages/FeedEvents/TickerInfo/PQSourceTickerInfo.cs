@@ -63,46 +63,31 @@ public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
 {
     private SourceTickerInfoBooleanFlags booleanFlags = SourceTickerInfoBooleanFlags.SubscribeToPricesSet;
 
-    private uint    defaultMaxValidMs;
+    private uint    defaultMaxValidMs = SourceTickerInfo.DefaultDefaultMaxValidMs;
     private string? formatPrice;
-    private decimal incrementSize;
+    private decimal incrementSize = SourceTickerInfo.DefaultIncrementSize;
 
-    private LastTradedFlags lastTradedFlags;
-    private LayerFlags      layerFlags;
+    private LastTradedFlags lastTradedFlags = SourceTickerInfo.DefaultLastTradedFlags;
+    private LayerFlags      layerFlags      = SourceTickerInfo.DefaultLayerFlags;
 
-    private ushort  maximumPublishedLayers;
-    private decimal maxSubmitSize;
-    private ushort  minimumQuoteLife;
-    private decimal minSubmitSize;
-    private decimal pip;
+    private ushort  maximumPublishedLayers = SourceTickerInfo.DefaultMaximumPublishedLayers;
+    private decimal maxSubmitSize          = SourceTickerInfo.DefaultMaxSubmitSize;
+    private ushort  minimumQuoteLife       = SourceTickerInfo.DefaultMinimumQuoteLife;
+    private decimal minSubmitSize          = SourceTickerInfo.DefaultMinSubmitSize;
+    private decimal pip                    = SourceTickerInfo.DefaultPip;
 
-    private TickerQuoteDetailLevel publishedTickerQuoteDetailLevel = TickerQuoteDetailLevel.Level2Quote;
+    private TickerQuoteDetailLevel publishedTickerQuoteDetailLevel = SourceTickerInfo.DefaultQuoteLevel;
 
-    private decimal roundingPrecision;
+    private decimal roundingPrecision = SourceTickerInfo.DefaultRoundingPrecision;
 
     public PQSourceTickerInfo()
     {
-        IsPublishedTickerDetailLevelUpdated = true;
-
-        Pip = SourceTickerInfo.DefaultPip;
-
-        RoundingPrecision      = SourceTickerInfo.DefaultRoundingPrecision;
-        DefaultMaxValidMs      = SourceTickerInfo.DefaultDefaultMaxValidMs;
-        SubscribeToPrices      = SourceTickerInfo.DefaultSubscribeToPrices;
-        TradingEnabled         = SourceTickerInfo.DefaultTradingEnabled;
-        MaximumPublishedLayers = SourceTickerInfo.DefaultMaximumPublishedLayers;
-        MinSubmitSize          = SourceTickerInfo.DefaultMinSubmitSize;
-        MaxSubmitSize          = SourceTickerInfo.DefaultMaxSubmitSize;
-        IncrementSize          = SourceTickerInfo.DefaultIncrementSize;
-        MinimumQuoteLife       = SourceTickerInfo.DefaultMinimumQuoteLife;
-        LayerFlags             = SourceTickerInfo.DefaultLayerFlags;
-        LastTradedFlags        = SourceTickerInfo.DefaultLastTradedFlags;
-        QuoteBehaviorFlags     = SourceTickerInfo.DefaultQuoteBehaviorFlags;
+        if (GetType() == typeof(PQSourceTickerInfo)) SequenceId = 0;
     }
 
     public PQSourceTickerInfo
-    (ushort sourceId, string sourceName, ushort tickerId, string ticker, TickerQuoteDetailLevel publishedTickerQuoteDetailLevel
-      , MarketClassification marketClassification, ushort maximumPublishedLayers = SourceTickerInfo.DefaultMaximumPublishedLayers
+    (ushort sourceId, string sourceName, ushort tickerId, string ticker, TickerQuoteDetailLevel publishedTickerQuoteDetailLevel = SourceTickerInfo.DefaultQuoteLevel
+      , MarketClassification marketClassification = default , ushort maximumPublishedLayers = SourceTickerInfo.DefaultMaximumPublishedLayers
       , decimal roundingPrecision = SourceTickerInfo.DefaultRoundingPrecision
       , decimal pip = SourceTickerInfo.DefaultPip, decimal minSubmitSize = SourceTickerInfo.DefaultMinSubmitSize
       , decimal maxSubmitSize = SourceTickerInfo.DefaultMaxSubmitSize, decimal incrementSize = SourceTickerInfo.DefaultIncrementSize
@@ -113,7 +98,6 @@ public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
         : base(sourceId, tickerId, sourceName, ticker, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick), InstrumentType.Price, marketClassification)
     {
         PublishedTickerQuoteDetailLevel     = publishedTickerQuoteDetailLevel;
-        IsPublishedTickerDetailLevelUpdated = true;
 
         Pip = pip;
 
@@ -135,6 +119,8 @@ public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
 
         PriceScalingPrecision  = PQScaling.FindPriceScaleFactor(RoundingPrecision);
         VolumeScalingPrecision = PQScaling.FindPriceScaleFactor(Math.Min(MinSubmitSize, IncrementSize));
+
+        if (GetType() == typeof(PQSourceTickerInfo)) SequenceId = 0;
     }
 
     public PQSourceTickerInfo(ISourceTickerInfo toClone) : base(toClone)
@@ -163,6 +149,8 @@ public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
         VolumeScalingPrecision = PQScaling.FindVolumeScaleFactor(Math.Min(MinSubmitSize, IncrementSize));
 
         SetFlagsSame(toClone);
+
+        if (GetType() == typeof(PQSourceTickerInfo)) SequenceId = 0;
     }
 
     public bool IsPipUpdated
@@ -177,8 +165,8 @@ public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
         }
     }
 
-    public PQFieldFlags PriceScalingPrecision  { get; } = (PQFieldFlags)3;
-    public PQFieldFlags VolumeScalingPrecision { get; } = (PQFieldFlags)6;
+    public PQFieldFlags PriceScalingPrecision  { get; private set; } = (PQFieldFlags)3;
+    public PQFieldFlags VolumeScalingPrecision { get; private set; } = (PQFieldFlags)6;
 
     public uint MessageId => SourceInstrumentId;
     public byte Version   => 1;
@@ -642,6 +630,53 @@ public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
 
         return base.UpdateField(fieldUpdate);
     }
+    
+    public override bool IsEmpty
+    {
+        get =>
+            base.IsEmpty
+         && PublishedTickerQuoteDetailLevel == SourceTickerInfo.DefaultQuoteLevel
+         && Pip == SourceTickerInfo.DefaultPip
+         && RoundingPrecision == SourceTickerInfo.DefaultRoundingPrecision
+         && DefaultMaxValidMs == SourceTickerInfo.DefaultDefaultMaxValidMs
+         && SubscribeToPrices == SourceTickerInfo.DefaultSubscribeToPrices
+         && TradingEnabled == SourceTickerInfo.DefaultTradingEnabled
+         && MaximumPublishedLayers == SourceTickerInfo.DefaultMaximumPublishedLayers
+         && MinSubmitSize == SourceTickerInfo.DefaultMinSubmitSize
+         && MaxSubmitSize == SourceTickerInfo.DefaultMaxSubmitSize
+         && IncrementSize == SourceTickerInfo.DefaultIncrementSize
+         && MinimumQuoteLife == SourceTickerInfo.DefaultMinimumQuoteLife
+         && LayerFlags == SourceTickerInfo.DefaultLayerFlags
+         && LastTradedFlags == SourceTickerInfo.DefaultLastTradedFlags
+         && QuoteBehaviorFlags == SourceTickerInfo.DefaultQuoteBehaviorFlags;
+        set => base.IsEmpty = value;
+    }
+
+    public override PQSourceTickerId ResetWithTracking()
+    {
+        PublishedTickerQuoteDetailLevel = SourceTickerInfo.DefaultQuoteLevel;
+        
+        Pip = SourceTickerInfo.DefaultPip;
+
+        RoundingPrecision      = SourceTickerInfo.DefaultRoundingPrecision;
+        DefaultMaxValidMs      = SourceTickerInfo.DefaultDefaultMaxValidMs;
+        SubscribeToPrices      = SourceTickerInfo.DefaultSubscribeToPrices;
+        TradingEnabled         = SourceTickerInfo.DefaultTradingEnabled;
+        MaximumPublishedLayers = SourceTickerInfo.DefaultMaximumPublishedLayers;
+        MinSubmitSize          = SourceTickerInfo.DefaultMinSubmitSize;
+        MaxSubmitSize          = SourceTickerInfo.DefaultMaxSubmitSize;
+        IncrementSize          = SourceTickerInfo.DefaultIncrementSize;
+        MinimumQuoteLife       = SourceTickerInfo.DefaultMinimumQuoteLife;
+        LayerFlags             = SourceTickerInfo.DefaultLayerFlags;
+        LastTradedFlags        = SourceTickerInfo.DefaultLastTradedFlags;
+        QuoteBehaviorFlags     = SourceTickerInfo.DefaultQuoteBehaviorFlags;
+
+        PriceScalingPrecision  = PQFieldFlags.None;
+        VolumeScalingPrecision = PQFieldFlags.None;
+        base.ResetWithTracking();
+
+        return this;
+    }
 
     IReusableObject<IVersionedMessage> ITransferState<IReusableObject<IVersionedMessage>>.CopyFrom
         (IReusableObject<IVersionedMessage> source, CopyMergeFlags copyMergeFlags) =>
@@ -746,7 +781,12 @@ public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
                 LastTradedFlags = pqSrcTickerInfo.LastTradedFlags;
             }
 
-            if(hasFullReplace) SetFlagsSame(pqSrcTickerInfo);
+            if (hasFullReplace)
+            {
+                PriceScalingPrecision  = PQScaling.FindPriceScaleFactor(RoundingPrecision);
+                VolumeScalingPrecision = PQScaling.FindPriceScaleFactor(Math.Min(MinSubmitSize, IncrementSize));
+                SetFlagsSame(pqSrcTickerInfo);
+            }
         }
         else if (source is ISourceTickerInfo srcTickerInfo)
         {
@@ -760,12 +800,15 @@ public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
             DefaultMaxValidMs = srcTickerInfo.DefaultMaxValidMs;
             MinimumQuoteLife  = srcTickerInfo.MinimumQuoteLife;
 
-            TradingEnabled  = srcTickerInfo.TradingEnabled;
-            MinSubmitSize   = srcTickerInfo.MinSubmitSize;
-            MaxSubmitSize   = srcTickerInfo.MaxSubmitSize;
-            IncrementSize   = srcTickerInfo.IncrementSize;
-            LayerFlags      = srcTickerInfo.LayerFlags;
-            LastTradedFlags = srcTickerInfo.LastTradedFlags;
+            TradingEnabled         = srcTickerInfo.TradingEnabled;
+            MinSubmitSize          = srcTickerInfo.MinSubmitSize;
+            MaxSubmitSize          = srcTickerInfo.MaxSubmitSize;
+            IncrementSize          = srcTickerInfo.IncrementSize;
+            LayerFlags             = srcTickerInfo.LayerFlags;
+            LastTradedFlags        = srcTickerInfo.LastTradedFlags;
+
+            PriceScalingPrecision  = PQScaling.FindPriceScaleFactor(RoundingPrecision);
+            VolumeScalingPrecision = PQScaling.FindPriceScaleFactor(Math.Min(MinSubmitSize, IncrementSize));
         }
         return this;
     }

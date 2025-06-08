@@ -63,9 +63,7 @@ public class TradingStatusFeedEvent : FeedEventStatusUpdate, IMutableTradingStat
         AdapterExecutionStatistics = mutableClone?.AdapterExecutionStatistics;
     }
 
-    public override DateTime SourceTime { get; set; }
-
-    public ISourceTickerInfo? SourceTickerInfo { get; set; }
+    public override ISourceTickerInfo? SourceTickerInfo { get; set; }
 
     public DateTime LastSourceFeedUpdateTime { get; set; }
     public DateTime DownstreamTime           { get; set; }
@@ -112,6 +110,11 @@ public class TradingStatusFeedEvent : FeedEventStatusUpdate, IMutableTradingStat
     public ITradingStatusFeedEvent? Previous { get; set; }
 
     public ITradingStatusFeedEvent? Next { get; set; }
+
+    public override void TriggerTimeUpdates(DateTime atDateTime)
+    {
+        MarketTradingStatusPanel?.CheckStartTimeAndExpiryTransitionThroughLifecycle(atDateTime);
+    }
 
     ITradingStatusFeedEvent ICloneable<ITradingStatusFeedEvent>.Clone() => Clone();
 

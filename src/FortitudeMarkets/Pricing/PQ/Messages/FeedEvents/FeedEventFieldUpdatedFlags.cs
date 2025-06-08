@@ -7,8 +7,6 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents;
 public enum FeedEventFieldUpdatedFlags : uint
 {
     None                                      = 0x00_00_00_00
-  , SourceTimeDateUpdatedFlag                 = 0x00_00_00_01
-  , SourceSub2MinTimeUpdatedFlag              = 0x00_00_00_02
   , LastSourceFeedSentTimeDateUpdatedFlag     = 0x00_00_00_01
   , LastSourceFeedSentSub2MinTimeUpdatedFlag  = 0x00_00_00_02
   , LastAdapterReceivedTimeDateUpdatedFlag    = 0x00_00_00_04

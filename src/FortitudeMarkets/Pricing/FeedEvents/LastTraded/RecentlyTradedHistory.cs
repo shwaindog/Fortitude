@@ -140,10 +140,6 @@ public class RecentlyTradedHistory : ReusableObject<IRecentlyTradedHistory>, IMu
         ClientOnlyReceivedCache.UpdateComplete(updateSequenceId);
     }
 
-    public void UpdateAt(DateTime atDateTime, uint previousSequenceId, uint latestSequenceId)
-    {
-    }
-
     public uint UpdateSequenceId { get; private set; }
 
     public void UpdateStarted(uint updateSequenceId)

@@ -116,8 +116,8 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
     private uint clientSeqNum;
     private uint feedSeqNum;
 
-    private FeedEventUpdateFlags eventUpdateFlags;
-    private DateTime             sourceTime;
+    private FeedEventUpdateFlags     eventUpdateFlags;
+    private FeedInstantBehaviorFlags feedBehavior;
 
     public PQTradingStatusFeedEvent()
     {
@@ -173,19 +173,14 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         if (GetType() == typeof(PQTradingStatusFeedEvent)) PQSequenceId = 0;
     }
 
-    public override uint StreamId => SourceTickerInfo!.SourceInstrumentId;
-
-    public override string StreamName => SourceTickerInfo!.InstrumentName;
-
     [JsonIgnore] public virtual TickerQuoteDetailLevel TickerQuoteDetailLevel => TickerQuoteDetailLevel.SingleValue;
 
     [JsonIgnore] public override uint MessageId => (uint)PQMessageIds.FeedEvent;
 
     [JsonIgnore] public override byte Version => 1;
 
-    [JsonIgnore] ISourceTickerInfo? ITradingStatusFeedEvent.SourceTickerInfo => PQSourceTickerInfo;
 
-    public IPQSourceTickerInfo? SourceTickerInfo
+    public override IPQSourceTickerInfo? SourceTickerInfo
     {
         get => PQSourceTickerInfo;
         set
@@ -200,19 +195,6 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
             }
 
             PQSourceTickerInfo = ConvertToPQSourceTickerInfo(value!, PQSourceTickerInfo);
-        }
-    }
-
-    public override DateTime SourceTime
-    {
-        get => sourceTime;
-        set
-        {
-            IsSourceTimeDateUpdated
-                |= sourceTime.Get2MinIntervalsFromUnixEpoch() != value.Get2MinIntervalsFromUnixEpoch() || PQSequenceId == 0;
-            IsSourceTimeSub2MinUpdated |= sourceTime.GetSub2MinComponent() != value.GetSub2MinComponent() || PQSequenceId == 0;
-
-            sourceTime = value;
         }
     }
 
@@ -298,12 +280,6 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
     ITickerRegionInfo? ITradingStatusFeedEvent.TickerRegionInfo => TickerRegionInfo;
 
     IAdapterExecutionStatistics? ITradingStatusFeedEvent.AdapterExecutionStatistics => AdapterExecutionStatistics;
-
-    ISourceTickerInfo? IMutableTradingStatusFeedEvent.SourceTickerInfo
-    {
-        get => SourceTickerInfo!;
-        set => SourceTickerInfo = value as IPQSourceTickerInfo;
-    }
 
     IMutableMarketNewsPanel? IMutableTradingStatusFeedEvent.MarketNewsPanel
     {
@@ -400,30 +376,6 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
     }
 
     public IPQAdapterExecutionStatistics? AdapterExecutionStatistics { get; set; }
-
-    public override bool IsSourceTimeDateUpdated
-    {
-        get => (UpdatedFlags & FeedEventFieldUpdatedFlags.SourceTimeDateUpdatedFlag) > 0;
-        set
-        {
-            if (value)
-                UpdatedFlags |= FeedEventFieldUpdatedFlags.SourceTimeDateUpdatedFlag;
-
-            else if (IsSourceTimeDateUpdated) UpdatedFlags ^= FeedEventFieldUpdatedFlags.SourceTimeDateUpdatedFlag;
-        }
-    }
-
-    public override bool IsSourceTimeSub2MinUpdated
-    {
-        get => (UpdatedFlags & FeedEventFieldUpdatedFlags.SourceSub2MinTimeUpdatedFlag) > 0;
-        set
-        {
-            if (value)
-                UpdatedFlags |= FeedEventFieldUpdatedFlags.SourceSub2MinTimeUpdatedFlag;
-
-            else if (IsSourceTimeSub2MinUpdated) UpdatedFlags ^= FeedEventFieldUpdatedFlags.SourceSub2MinTimeUpdatedFlag;
-        }
-    }
 
     public bool IsDownstreamDateUpdated
     {
@@ -765,6 +717,11 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
         }
     }
 
+    public override void TriggerTimeUpdates(DateTime atDateTime)
+    {
+        MarketTradingStatusPanel?.CheckStartTimeAndExpiryTransitionThroughLifecycle(atDateTime);
+    }
+
     public override void UpdateComplete(uint updateSequenceId = 0)
     {
         PQSourceTickerInfo?.UpdateComplete(updateSequenceId);
@@ -786,11 +743,15 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
 
     public virtual void IncrementTimeBy(TimeSpan toChangeBy)
     {
-        ClientReceivedTime         += toChangeBy;
-        SubscriberDispatchedTime   += toChangeBy;
-        InboundProcessedTime       += toChangeBy;
-        InboundSocketReceivingTime += toChangeBy;
-        ClientReceivedTime         += toChangeBy;
+        if (!QuoteBehavior.HasNoClientInboundSocketTimeUpdatesFlag()) InboundSocketReceivingTime += toChangeBy;
+        if (!QuoteBehavior.HasNoClientProcessedTimeUpdatesFlag())
+        {
+            InboundProcessedTime     += toChangeBy;
+            SubscriberDispatchedTime += toChangeBy;
+        }
+        if (!QuoteBehavior.HasNoClientReceiveTimeUpdatesFlag()) ClientReceivedTime   += toChangeBy;
+        if (!QuoteBehavior.HasNoAdapterReceiveTimeUpdatesFlag()) AdapterReceivedTime += toChangeBy;
+        if (!QuoteBehavior.HasNoAdapterSentTimeUpdatesFlag()) AdapterSentTime        += toChangeBy;
     }
 
     public override void SetPublisherStateToConnectivityStatus(PublisherStates publisherStates, DateTime atDateTime)

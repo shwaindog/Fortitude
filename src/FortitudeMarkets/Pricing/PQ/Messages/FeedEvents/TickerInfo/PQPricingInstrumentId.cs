@@ -42,6 +42,8 @@ public class PQPricingInstrumentId : PQSourceTickerId, IPQPricingInstrumentId
     {
         marketClassification = MarketClassificationExtensions.Unknown;
         instrumentType       = InstrumentType.Price;
+        
+        if (GetType() == typeof(PQPricingInstrumentId)) SequenceId = 0;
     }
 
     public PQPricingInstrumentId
@@ -52,6 +54,8 @@ public class PQPricingInstrumentId : PQSourceTickerId, IPQPricingInstrumentId
         MarketClassification = marketClassification;
         Category             = category;
         InstrumentType       = instrumentType;
+        
+        if (GetType() == typeof(PQPricingInstrumentId)) SequenceId = 0;
     }
 
     public PQPricingInstrumentId(IPricingInstrumentId toClone) : base(toClone)
@@ -66,6 +70,8 @@ public class PQPricingInstrumentId : PQSourceTickerId, IPQPricingInstrumentId
         SetFlagsSame(toClone);
 
         if (toClone is IPQPricingInstrumentId pubToClone) IsMarketClassificationUpdated = pubToClone.IsMarketClassificationUpdated;
+        
+        if (GetType() == typeof(PQPricingInstrumentId)) SequenceId = 0;
     }
 
     public PQPricingInstrumentId(SourceTickerIdentifier toClone) : base(toClone)
@@ -73,6 +79,8 @@ public class PQPricingInstrumentId : PQSourceTickerId, IPQPricingInstrumentId
         CoveringPeriod       = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
         marketClassification = MarketClassificationExtensions.Unknown;
         instrumentType       = InstrumentType.Price;
+        
+        if (GetType() == typeof(PQPricingInstrumentId)) SequenceId = 0;
     }
 
     public PQPricingInstrumentId(SourceTickerIdValue toClone) : base(toClone)
@@ -80,6 +88,8 @@ public class PQPricingInstrumentId : PQSourceTickerId, IPQPricingInstrumentId
         CoveringPeriod       = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
         marketClassification = MarketClassificationExtensions.Unknown;
         instrumentType       = InstrumentType.Price;
+        
+        if (GetType() == typeof(PQPricingInstrumentId)) SequenceId = 0;
     }
 
     public DiscreetTimePeriod CoveringPeriod { get; set; } = new(TimeBoundaryPeriod.Tick);
@@ -248,6 +258,19 @@ public class PQPricingInstrumentId : PQSourceTickerId, IPQPricingInstrumentId
      && MarketClassification.MarketType != MarketType.Unknown
      && MarketClassification.ProductType != ProductType.Unknown && MarketClassification.MarketRegion != MarketRegion.Unknown;
 
+    public override bool IsEmpty
+    {
+        get => base.IsEmpty && Equals(MarketClassification, MarketClassificationExtensions.Unknown);
+        set => base.IsEmpty = value;
+    }
+
+    public override PQSourceTickerId ResetWithTracking()
+    {
+        MarketClassification = MarketClassificationExtensions.Unknown;
+        base.ResetWithTracking();
+
+        return this;
+    }
 
     public override IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
     (DateTime snapShotTime, PQMessageFlags updateStyle,

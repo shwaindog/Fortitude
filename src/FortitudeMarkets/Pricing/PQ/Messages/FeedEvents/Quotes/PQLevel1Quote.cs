@@ -786,6 +786,9 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 IsBidPriceTopChangedUpdated = pq1.IsBidPriceTopChangedUpdated;
                 IsAskPriceTopChangedUpdated = pq1.IsAskPriceTopChangedUpdated;
                 IsExecutableUpdated         = pq1.IsExecutableUpdated;
+            } else if (isFullReplace)
+            {
+                SetFlagsSame(pq1);
             }
         }
         else if (source is ILevel1Quote l1Q) // normal copy
