@@ -8,7 +8,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeIO.TimeSeries;
-using FortitudeMarkets.Configuration.ClientServerConfig;
+using FortitudeMarkets.Configuration;
 
 #endregion
 
@@ -55,6 +55,7 @@ internal class PricingInstrumentDeserializer : IDeserializer<IPricingInstrumentI
         pricingInstrument.InstrumentName = StreamByteOps.ToStringWithAutoSizeHeader(ref ptr, Math.Min(fixedBuffer.UnreadBytesRemaining, 255))!;
 
         pricingInstrument.MarketClassification = new MarketClassification(StreamByteOps.ToUInt(ref ptr));
+        pricingInstrument.ApplyCompoundLocations(StreamByteOps.ToUInt(ref ptr));
         pricingInstrument.InstrumentType       = (InstrumentType)(*ptr++);
         pricingInstrument.CoveringPeriod       = new DiscreetTimePeriod((TimeBoundaryPeriod)StreamByteOps.ToUInt(ref ptr));
         var numberOfAttributes = *ptr++;

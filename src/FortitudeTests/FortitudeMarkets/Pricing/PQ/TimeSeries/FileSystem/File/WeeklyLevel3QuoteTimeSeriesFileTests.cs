@@ -14,17 +14,19 @@ using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents.Generators.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.Generators.Quotes;
+using FortitudeMarkets.Pricing.Generators.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Generators.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 using static FortitudeTests.FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.TestWeeklyDataGeneratorFixture;
 
@@ -57,7 +59,6 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
         PagedMemoryMappedFile.LogMappingMessages = true;
 
         var dateToGenerate = DateTime.UtcNow.Date.TruncToMonthBoundary().AddDays(15);
-        ;
         var currentDayOfWeek = dateToGenerate.DayOfWeek;
         var dayDiff          = DayOfWeek.Sunday - currentDayOfWeek;
         startOfWeek = dateToGenerate.AddDays(dayDiff);
@@ -65,17 +66,30 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
 
     private void CreateLevel3File
     (FileFlags fileFlags = FileFlags.WriterOpened | FileFlags.HasInternalIndexInHeader,
-        LayerType layerType = LayerType.PriceVolume, byte numberOfLayers = 20, LastTradeType lastTradeType = LastTradeType.Price)
+        LayerType layerType = LayerType.PriceVolume, byte numberOfLayers = 5, LastTradeType lastTradeType = LastTradeType.Price)
     {
         level3SrcTkrInfo =
             new SourceTickerInfo
-                (19, "WeeklyLevel3QuoteTimeSeriesFileTests", 79, "PersistTest", Level3Quote, Unknown
+                (19, "WeeklyLevel3QuoteTimeSeriesFileTests", 79, "PersistTest", Level3Quote, MarketClassification.Unknown
+               , AUinMEL, AUinMEL, AUinMEL
                , numberOfLayers, layerFlags: layerType.SupportedLayerFlags(), lastTradedFlags: lastTradeType.SupportedLastTradedFlags()
                , roundingPrecision: 0.000001m, minSubmitSize: 0.01m, incrementSize: 0.01m);
 
-        var generateQuoteInfo = new GenerateQuoteInfo(level3SrcTkrInfo);
-        generateQuoteInfo.MidPriceGenerator!.StartTime  = startOfWeek;
-        generateQuoteInfo.MidPriceGenerator!.StartPrice = 1.332211m;
+        var generateQuoteInfo = new GenerateQuoteInfo(level3SrcTkrInfo)
+        {
+            MidPriceGenerator =
+            {
+                StartTime = startOfWeek, StartPrice = 1.332211m
+            },
+            BookGenerationInfo = new BookGenerationInfo()
+            {
+                NumberOfBookLayers = 5,
+                GenerateBookLayerInfo = new GenerateBookLayerInfo()
+                {
+                    AverageOrdersPerLayer = 5
+                }
+            }
+        };
 
         level3QuoteGenerator   = new PublishableLevel3QuoteGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
         pqLevel3QuoteGenerator = new PQPublishableLevel3QuoteGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
@@ -86,7 +100,7 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
         if (timeSeriesFile.Exists) timeSeriesFile.Delete();
         var instrumentFields = new Dictionary<string, string>
         {
-            { nameof(RepositoryPathName.MarketType), "Unknown" }
+            { nameof(RepositoryPathName.AssetType), "Unknown" }
           , { nameof(RepositoryPathName.MarketProductType), "Unknown" }
           , { nameof(RepositoryPathName.MarketRegion), "Unknown" }
         };
@@ -140,14 +154,14 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
     [TestMethod]
     public void CreateNewPaidGivenLastTradeQuote_TwoSmallCompressedPeriods_OriginalValuesAreReturned()
     {
-        CreateLevel3File(FileFlags.WriteDataCompressed, LayerType.PriceVolume, lastTradeType: LastTradeType.PricePaidOrGivenVolume);
+        CreateLevel3File(FileFlags.WriteDataCompressed, lastTradeType: LastTradeType.PricePaidOrGivenVolume);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned(level3QuoteGenerator, asLevel3PriceQuoteFactory);
     }
 
     [TestMethod]
     public void CreateNewPQPaidGivenLastTradeQuote_TwoSmallCompressedPeriods_OriginalValuesAreReturned()
     {
-        CreateLevel3File(FileFlags.WriteDataCompressed, LayerType.PriceVolume, lastTradeType: LastTradeType.PricePaidOrGivenVolume);
+        CreateLevel3File(FileFlags.WriteDataCompressed, lastTradeType: LastTradeType.PricePaidOrGivenVolume);
         CreateNewTyped_TwoSmallPeriods_OriginalValuesAreReturned(pqLevel3QuoteGenerator, asPQLevel3QuoteFactory);
     }
 
@@ -275,9 +289,9 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
             GenerateQuotesForEachDayAndHourOfCurrentWeek<IPublishableLevel3Quote, TEntry>
                 (0, 10, tickGenerator).ToList();
 
-        foreach (var Level3QuoteStruct in toPersistAndCheck)
+        foreach (var level3QuoteStruct in toPersistAndCheck)
         {
-            var result = level3SessionWriter.AppendEntry(Level3QuoteStruct);
+            var result = level3SessionWriter.AppendEntry(level3QuoteStruct);
             Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         }
         level3OneWeekFile.AutoCloseOnZeroSessions = false;
@@ -313,9 +327,9 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
             GenerateQuotesForEachDayAndHourOfCurrentWeek<IPublishableLevel3Quote, TEntry>
                 (0, 10, tickGenerator).ToList();
 
-        foreach (var Level3QuoteStruct in toPersistAndCheck)
+        foreach (var level3QuoteStruct in toPersistAndCheck)
         {
-            var result = level3SessionWriter.AppendEntry(Level3QuoteStruct);
+            var result = level3SessionWriter.AppendEntry(level3QuoteStruct);
             Assert.AreEqual(StorageAttemptResult.PeriodRangeMatched, result.StorageAttemptResult);
         }
         level3OneWeekFile.AutoCloseOnZeroSessions = false;
@@ -351,7 +365,7 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
             var compareEntry  = toCompareList[i];
             if (!originalEntry.AreEquivalent(compareEntry))
             {
-                Logger.Warn("Entries at {0} differ test failed \ndiff {1}", i, originalEntry.DiffQuotes(compareEntry, false));
+                Logger.Warn("Entries at {0} differ test failed \ndiff {1}", i, originalEntry.DiffQuotes(compareEntry));
                 FLoggerFactory.WaitUntilDrained();
                 Assert.Fail($"Entries at {i} differ test failed \ndiff {originalEntry.DiffQuotes(compareEntry)}.");
             }

@@ -3,16 +3,13 @@
 
 #region
 
-using FortitudeCommon.Types.Mutable;
-using FortitudeMarkets.Configuration.ClientServerConfig;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Publication;
-using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using Moq;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
@@ -37,9 +34,9 @@ public class PQPublisherTests
         moqPqServer               = new Mock<IPQServer<IPQPublishableLevel1Quote>>();
 
         moqMarketConnectionConfig = new Mock<IMarketConnectionConfig>();
-        firstSourceTickerInfo     = new PQSourceTickerInfo(1, "First", 1, "First", Level3Quote, Unknown);
-        secondSourceTickerInfo    = new PQSourceTickerInfo(1, "First", 2, "Second", Level3Quote, Unknown);
-        thirdSourceTickerInfo     = new PQSourceTickerInfo(2, "Second", 1, "First", Level3Quote, Unknown);
+        firstSourceTickerInfo     = new PQSourceTickerInfo(1, "First", 1, "First", Level3Quote, MarketClassification.Unknown);
+        secondSourceTickerInfo    = new PQSourceTickerInfo(1, "First", 2, "Second", Level3Quote, MarketClassification.Unknown);
+        thirdSourceTickerInfo     = new PQSourceTickerInfo(2, "Second", 1, "First", Level3Quote, MarketClassification.Unknown);
         moqMarketConnectionConfig
             .Setup
                 (stpcr => stpcr.AllSourceTickerInfos)

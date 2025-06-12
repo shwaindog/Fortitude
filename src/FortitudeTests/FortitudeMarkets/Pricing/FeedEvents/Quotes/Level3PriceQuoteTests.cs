@@ -616,7 +616,7 @@ public class Level3PriceQuoteTests
            , new DateTime(2015, 08, 06, 22, 07, 23).AddMilliseconds(345 + 1)
            , DateTime.Parse("2015-08-06 22:07:23.123")
            , new DateTime(2015, 08, 06, 22, 07, 22).AddMilliseconds(i)
-           , true, FeedSyncStatus.Good, FeedConnectivityStatusFlags.IsAdapterReplay, 1.234538m + priceDiff, new Candle());
+           , true, FeedSyncStatus.Good, FeedConnectivityStatusFlags.None, 1.234538m + priceDiff, new Candle());
     }
 
     private static OrderBookSide GenerateBook<T>

@@ -12,7 +12,8 @@ namespace FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 public enum TickerQuoteDetailLevel : byte
 {
-    SingleValue // used for publishing metrics, indicators or single values not exchange quotes
+    None
+  , SingleValue // used for publishing metrics, indicators or single values not exchange quotes
   , Level1Quote
   , Level2Quote
   , Level3Quote

@@ -3,11 +3,12 @@
 
 #region
 
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded.EntrySelector;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
 
 #endregion
 
@@ -26,15 +27,16 @@ public class LastTradeEntryFlagsSelectorTests
         layerSelector = new DummyLastTradeEntryFlagsSelector();
 
         sourceTickerInfo = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", TickerQuoteDetailLevel.Level3Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", TickerQuoteDetailLevel.Level3Quote
+           , MarketClassification.Unknown, AUinMEL, AUinMEL, AUinMEL
+           , 20, 0.00001m, 30000m, 50000000m, 1000m
            , layerFlags: LayerFlags.Volume | LayerFlags.Price
            , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                               LastTradedFlags.LastTradedTime);
     }
 
     [TestMethod]
-    public void VariosLayerFlags_Select_CallsSimpleLastTradeSelector()
+    public void VariousLayerFlags_Select_CallsSimpleLastTradeSelector()
     {
         var expectedSelectorCalled = "SelectSimpleLastTradeEntry";
         sourceTickerInfo.LastTradedFlags = LastTradedFlags.None;
@@ -52,7 +54,7 @@ public class LastTradeEntryFlagsSelectorTests
     }
 
     [TestMethod]
-    public void VariosLayerFlags_Select_CallsLastPaidGivenTradeSelector()
+    public void VariousLayerFlags_Select_CallsLastPaidGivenTradeSelector()
     {
         var expectedSelectorCalled = "SelectLastPaidGivenTradeEntry";
         sourceTickerInfo.LastTradedFlags = LastTradedFlags.LastTradedVolume;
@@ -97,7 +99,7 @@ public class LastTradeEntryFlagsSelectorTests
     }
 
     [TestMethod]
-    public void VariosLayerFlags_Select_CallsLastTraderPaidGivenTradeSelector()
+    public void VariousLayerFlags_Select_CallsLastTraderPaidGivenTradeSelector()
     {
         var expectedSelectorCalled = "SelectTraderLastTradeEntry";
 

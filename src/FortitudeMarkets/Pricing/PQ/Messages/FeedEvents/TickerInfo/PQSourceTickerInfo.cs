@@ -10,7 +10,8 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
-using FortitudeMarkets.Configuration.ClientServerConfig;
+using FortitudeIO.Transports.Network.Config;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
@@ -87,7 +88,11 @@ public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
 
     public PQSourceTickerInfo
     (ushort sourceId, string sourceName, ushort tickerId, string ticker, TickerQuoteDetailLevel publishedTickerQuoteDetailLevel = SourceTickerInfo.DefaultQuoteLevel
-      , MarketClassification marketClassification = default , ushort maximumPublishedLayers = SourceTickerInfo.DefaultMaximumPublishedLayers
+      , MarketClassification marketClassification = default 
+      , CountryCityCodes sourcePublishLocation = CountryCityCodes.Unknown  
+      , CountryCityCodes adapterReceiveLocation = CountryCityCodes.Unknown  
+      , CountryCityCodes clientReceiveLocation = CountryCityCodes.Unknown  
+      , ushort maximumPublishedLayers = SourceTickerInfo.DefaultMaximumPublishedLayers
       , decimal roundingPrecision = SourceTickerInfo.DefaultRoundingPrecision
       , decimal pip = SourceTickerInfo.DefaultPip, decimal minSubmitSize = SourceTickerInfo.DefaultMinSubmitSize
       , decimal maxSubmitSize = SourceTickerInfo.DefaultMaxSubmitSize, decimal incrementSize = SourceTickerInfo.DefaultIncrementSize
@@ -95,7 +100,8 @@ public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
       , bool subscribeToPrices = SourceTickerInfo.DefaultSubscribeToPrices, bool tradingEnabled = SourceTickerInfo.DefaultTradingEnabled
       , LayerFlags layerFlags = SourceTickerInfo.DefaultLayerFlags, LastTradedFlags lastTradedFlags = SourceTickerInfo.DefaultLastTradedFlags
       , PublishableQuoteInstantBehaviorFlags quoteBehaviorFlags = SourceTickerInfo.DefaultQuoteBehaviorFlags )
-        : base(sourceId, tickerId, sourceName, ticker, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick), InstrumentType.Price, marketClassification)
+        : base(sourceId, tickerId, sourceName, ticker, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick), InstrumentType.Price, marketClassification, null,
+               sourcePublishLocation, adapterReceiveLocation, clientReceiveLocation)
     {
         PublishedTickerQuoteDetailLevel     = publishedTickerQuoteDetailLevel;
 
@@ -882,6 +888,9 @@ public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
 
 public static class PQSourceTickerInfoExtensions
 {
+
+
+
     public static PQSourceTickerInfo WithRoundingPrecision(this PQSourceTickerInfo toCopy, decimal roundingPrecision) =>
         new(toCopy) { RoundingPrecision = roundingPrecision };
 

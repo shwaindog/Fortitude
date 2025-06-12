@@ -74,7 +74,7 @@ public class PQSnapshotServerTests
         var socketConConfig = new NetworkTopicConnectionConfig("PQSnapshotServerTests"
             , SocketConversationProtocol.TcpAcceptor, new[]
             {
-                new EndpointConfig("testHostName", 3333)
+                new EndpointConfig("testHostName", 3333, CountryCityCodes.AUinMEL)
             });
 
         var socketSessionContext = new SocketSessionContext("PQSnapshotServerTests", ConversationType.Responder

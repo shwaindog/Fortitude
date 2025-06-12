@@ -3,6 +3,7 @@
 
 #region
 
+using System.Text;
 using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
@@ -12,7 +13,8 @@ using FortitudeCommon.Types.Mutable;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
-using FortitudeMarkets.Configuration.ClientServerConfig;
+using FortitudeIO.Transports.Network.Config;
+using FortitudeMarkets.Configuration;
 
 #endregion
 
@@ -20,6 +22,8 @@ namespace FortitudeMarkets.Pricing;
 
 public interface IPricingInstrumentId : IReusableObject<IPricingInstrumentId>, ISourceTickerId, IInstrument
 {
+    static readonly MarketClassification DefaultMarketClassification = new(0);
+
     [JsonIgnore] MarketClassification MarketClassification { get; set; }
 
     [JsonIgnore] string? Category { get; set; }
@@ -29,8 +33,14 @@ public interface IPricingInstrumentId : IReusableObject<IPricingInstrumentId>, I
     new string SourceName     { get; set; }
     new string InstrumentName { get; set; }
 
+    CountryCityCodes SourcePublishLocation  { get; set; }
+    CountryCityCodes AdapterReceiveLocation { get; set; }
+    CountryCityCodes ClientReceiveLocation  { get; set; }
+
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new DiscreetTimePeriod CoveringPeriod { get; set; }
+
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     new InstrumentType InstrumentType { get; set; }
@@ -47,24 +57,35 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
 
     private InstrumentType? timeSeriesType;
 
-    public static readonly MarketClassification DefaultMarketClassification = new (0);
-
     public PricingInstrumentId()
     {
         CoveringPeriod       = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
-        MarketClassification = DefaultMarketClassification;
+        MarketClassification = IPricingInstrumentId.DefaultMarketClassification;
         InstrumentType       = InstrumentType.Price;
     }
 
     public PricingInstrumentId
-    (ushort sourceId, ushort tickerId, string sourceName, string ticker, DiscreetTimePeriod coveringPeriod, InstrumentType instrumentType
-      , MarketClassification marketClassification, string? category = null) :
+    (ushort sourceId, ushort tickerId
+      , string sourceName
+      , string ticker
+      , DiscreetTimePeriod coveringPeriod
+      , InstrumentType instrumentType
+      , MarketClassification marketClassification
+      , string? category = null
+      , CountryCityCodes sourcePublishLocation = CountryCityCodes.Unknown
+      , CountryCityCodes adapterReceiveLocation = CountryCityCodes.Unknown
+      , CountryCityCodes clientReceiveLocation = CountryCityCodes.Unknown
+    ) :
         base(sourceId, tickerId, sourceName, ticker)
     {
         CoveringPeriod       = coveringPeriod;
         MarketClassification = marketClassification;
         Category             = category;
         InstrumentType       = instrumentType;
+
+        SourcePublishLocation  = sourcePublishLocation;
+        AdapterReceiveLocation = adapterReceiveLocation;
+        ClientReceiveLocation  = clientReceiveLocation;
     }
 
     public PricingInstrumentId(IPricingInstrumentId toClone) : base(toClone)
@@ -73,19 +94,23 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
         InstrumentType       = toClone.InstrumentType;
         MarketClassification = toClone.MarketClassification;
         Category             = toClone.Category;
+
+        SourcePublishLocation  = toClone.SourcePublishLocation;
+        AdapterReceiveLocation = toClone.AdapterReceiveLocation;
+        ClientReceiveLocation  = toClone.ClientReceiveLocation;
     }
 
     public PricingInstrumentId(SourceTickerIdentifier toClone) : base(toClone)
     {
         CoveringPeriod       = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
-        MarketClassification = DefaultMarketClassification;
+        MarketClassification = IPricingInstrumentId.DefaultMarketClassification;
         InstrumentType       = InstrumentType.Price;
     }
 
     public PricingInstrumentId(SourceTickerIdValue toClone) : base(toClone)
     {
         CoveringPeriod       = new DiscreetTimePeriod(TimeBoundaryPeriod.Tick);
-        MarketClassification = DefaultMarketClassification;
+        MarketClassification = IPricingInstrumentId.DefaultMarketClassification;
         InstrumentType       = InstrumentType.Price;
     }
 
@@ -95,19 +120,27 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
         InstrumentType       = toClone.InstrumentType;
         MarketClassification = toClone.MarketClassification;
         Category             = toClone.Category;
+
+        SourcePublishLocation  = toClone.SourcePublishLocation;
+        AdapterReceiveLocation = toClone.AdapterReceiveLocation;
+        ClientReceiveLocation  = toClone.ClientReceiveLocation;
     }
 
     public PricingInstrumentId(Instrument toClone)
     {
         CoveringPeriod = toClone.CoveringPeriod;
         InstrumentType = toClone.InstrumentType;
-        var marketType   = toClone[nameof(RepositoryPathName.MarketType)] ?? "Unknown";
-        var productType  = toClone[nameof(RepositoryPathName.MarketProductType)] ?? "Unknown";
-        var marketRegion = toClone[nameof(RepositoryPathName.MarketRegion)] ?? "Unknown";
+        var assetType     = toClone[nameof(RepositoryPathName.AssetType)] ?? "Unknown";
+        var assetCategory = toClone[nameof(RepositoryPathName.AssetCategory)] ?? "Unknown";
+        var productType   = toClone[nameof(RepositoryPathName.MarketProductType)] ?? "Unknown";
+        var marketRegion  = toClone[nameof(RepositoryPathName.MarketRegion)] ?? "Unknown";
         var marketClassification = new MarketClassification
-            (Enum.Parse<MarketType>(marketType), Enum.Parse<ProductType>(productType), Enum.Parse<MarketRegion>(marketRegion));
+            (Enum.Parse<AssetType>(assetType), Enum.Parse<AssetCategory>(assetCategory)
+           , productType.ExpandProductTypeToProductTypeFlags(), Enum.Parse<MarketRegion>(marketRegion));
         MarketClassification = marketClassification;
         Category             = toClone[nameof(RepositoryPathName.Category)];
+
+        this[nameof(RepositoryPathName.MarketRoute)] = toClone[nameof(RepositoryPathName.MarketRoute)];
     }
 
     public DiscreetTimePeriod CoveringPeriod
@@ -117,7 +150,14 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
     }
 
     [JsonIgnore] string IInstrument.InstrumentName => InstrumentName;
+
     [JsonIgnore] string IInstrument.SourceName     => SourceName;
+
+    public CountryCityCodes SourcePublishLocation { get; set; }
+
+    public CountryCityCodes AdapterReceiveLocation { get; set; }
+
+    public CountryCityCodes ClientReceiveLocation { get; set; }
 
     public InstrumentType InstrumentType
     {
@@ -132,9 +172,11 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
         {
             switch (key)
             {
-                case nameof(RepositoryPathName.MarketType):        return MarketClassification.MarketType.ToString();
-                case nameof(RepositoryPathName.MarketProductType): return MarketClassification.ProductType.ToString();
+                case nameof(RepositoryPathName.AssetType):         return MarketClassification.AssetType.ToString();
+                case nameof(RepositoryPathName.AssetCategory):     return MarketClassification.AssetCategory.ToString();
+                case nameof(RepositoryPathName.MarketProductType): return MarketClassification.ProductType.SquashProductTypeString();
                 case nameof(RepositoryPathName.MarketRegion):      return MarketClassification.MarketRegion.ToString();
+                case nameof(RepositoryPathName.MarketRoute):       return JoinMarketRouteCountryCityCodes();
                 case nameof(RepositoryPathName.Category):          return Category;
             }
             return null;
@@ -143,20 +185,49 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
         {
             switch (key)
             {
-                case nameof(RepositoryPathName.MarketType):
-                    if (Enum.TryParse<MarketType>(value, true, out var marketType))
-                        if (MarketClassification.MarketType == MarketType.Unknown)
-                            MarketClassification = MarketClassification.SetMarketType(marketType);
+                case nameof(RepositoryPathName.AssetType):
+                    if (Enum.TryParse<AssetType>(value, true, out var marketType))
+                        if (MarketClassification.AssetType == AssetType.Unknown)
+                            MarketClassification = MarketClassification.SetAssetType(marketType);
+                    break;
+                case nameof(RepositoryPathName.AssetCategory):
+                    if (Enum.TryParse<AssetCategory>(value, true, out var assetCategory))
+                        if (MarketClassification.AssetType == AssetType.Unknown)
+                            MarketClassification = MarketClassification.SetAssetCategory(assetCategory);
                     break;
                 case nameof(RepositoryPathName.MarketProductType):
-                    if (Enum.TryParse<ProductType>(value, true, out var productType))
+                    if (value != null)
+                    {
+                        var productTypeFlags = value.ExpandProductTypeToProductTypeFlags();
                         if (MarketClassification.ProductType == ProductType.Unknown)
-                            MarketClassification = MarketClassification.SetProductType(productType);
+                            MarketClassification = MarketClassification.SetProductType(productTypeFlags);
+                    }
                     break;
                 case nameof(RepositoryPathName.MarketRegion):
                     if (Enum.TryParse<MarketRegion>(value, true, out var marketRegion))
                         if (MarketClassification.MarketRegion == MarketRegion.Unknown)
                             MarketClassification = MarketClassification.SetMarketRegion(marketRegion);
+                    break;
+                case nameof(RepositoryPathName.MarketRoute):
+                    var split = value!.Split("-");
+                    switch (split.Length)
+                    {
+                        case 3:
+                            ClientReceiveLocation  = Enum.Parse<CountryCityCodes>(split[2]);
+                            AdapterReceiveLocation = Enum.Parse<CountryCityCodes>(split[1]);
+                            SourcePublishLocation  = Enum.Parse<CountryCityCodes>(split[0]);
+                            break;
+                        case 2:
+                            ClientReceiveLocation  = Enum.Parse<CountryCityCodes>(split[1]);
+                            AdapterReceiveLocation = Enum.Parse<CountryCityCodes>(split[1]);
+                            SourcePublishLocation  = Enum.Parse<CountryCityCodes>(split[0]);
+                            break;
+                        case 1:
+                            ClientReceiveLocation  = Enum.Parse<CountryCityCodes>(split[0]);
+                            AdapterReceiveLocation = Enum.Parse<CountryCityCodes>(split[0]);
+                            SourcePublishLocation  = Enum.Parse<CountryCityCodes>(split[0]);
+                            break;
+                    }
                     break;
                 case nameof(RepositoryPathName.Category):
                     if (Category.IsNullOrEmpty()) Category = value ?? "";
@@ -165,19 +236,21 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
         }
     }
 
-
     public IEnumerable<KeyValuePair<string, string>> FilledAttributes
     {
         get
         {
             if (Category != null) yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.Category), Category);
-            if (MarketClassification.MarketType != MarketType.Unknown)
-                yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketType), MarketClassification.MarketType.ToString());
+            if (MarketClassification.AssetType != AssetType.Unknown)
+                yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.AssetType), MarketClassification.AssetType.ToString());
             if (MarketClassification.ProductType != ProductType.Unknown)
-                yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketProductType)
-                                                            , MarketClassification.ProductType.ToString());
+                yield return new KeyValuePair<string, string>
+                    (nameof(RepositoryPathName.MarketProductType), MarketClassification.ProductType.SquashProductTypeString());
             if (MarketClassification.MarketRegion != MarketRegion.Unknown)
                 yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketRegion), MarketClassification.MarketRegion.ToString());
+            if (SourcePublishLocation != CountryCityCodes.Unknown || AdapterReceiveLocation != CountryCityCodes.Unknown ||
+                ClientReceiveLocation != CountryCityCodes.Unknown)
+                yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketRoute), JoinMarketRouteCountryCityCodes());
         }
     }
 
@@ -195,14 +268,22 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
     {
         switch (name)
         {
-            case nameof(RepositoryPathName.MarketType):
-                MarketClassification = MarketClassification.SetMarketType(MarketType.Unknown);
+            case nameof(RepositoryPathName.AssetType):
+                MarketClassification = MarketClassification.SetAssetType(AssetType.Unknown);
+                return true;
+            case nameof(RepositoryPathName.AssetCategory):
+                MarketClassification = MarketClassification.SetAssetCategory(AssetCategory.Unknown);
                 return true;
             case nameof(RepositoryPathName.MarketProductType):
                 MarketClassification = MarketClassification.SetProductType(ProductType.Unknown);
                 return true;
             case nameof(RepositoryPathName.MarketRegion):
                 MarketClassification = MarketClassification.SetMarketRegion(MarketRegion.Unknown);
+                return true;
+            case nameof(RepositoryPathName.MarketRoute):
+                SourcePublishLocation  = CountryCityCodes.Unknown;
+                AdapterReceiveLocation = CountryCityCodes.Unknown;
+                ClientReceiveLocation  = CountryCityCodes.Unknown;
                 return true;
             case nameof(RepositoryPathName.Category):
                 Category = null;
@@ -227,9 +308,11 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
     {
         get
         {
-            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketType), MarketClassification.MarketType.ToString());
-            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketProductType), MarketClassification.ProductType.ToString());
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.AssetType), MarketClassification.AssetType.ToString());
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketProductType), MarketClassification.ProductType.SquashProductTypeString());
             yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketRegion), MarketClassification.MarketRegion.ToString());
+            if (SourcePublishLocation != CountryCityCodes.Unknown || AdapterReceiveLocation != CountryCityCodes.Unknown || ClientReceiveLocation != CountryCityCodes.Unknown)
+                yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketRoute), JoinMarketRouteCountryCityCodes());
             if (Category != null) yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.Category), Category);
         }
     }
@@ -238,8 +321,8 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
     {
         get
         {
-            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketType), MarketClassification.MarketType.ToString());
-            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketProductType), MarketClassification.ProductType.ToString());
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.AssetType), MarketClassification.AssetType.ToString());
+            yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketProductType), MarketClassification.ProductType.SquashProductTypeString());
             yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketRegion), MarketClassification.MarketRegion.ToString());
         }
     }
@@ -249,14 +332,17 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
         get
         {
             if (Category != null) yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.Category), Category);
+            if (SourcePublishLocation != CountryCityCodes.Unknown || AdapterReceiveLocation != CountryCityCodes.Unknown || ClientReceiveLocation != CountryCityCodes.Unknown)
+                yield return new KeyValuePair<string, string>(nameof(RepositoryPathName.MarketRoute), JoinMarketRouteCountryCityCodes());
         }
     }
 
 
     public bool HasAllRequiredKeys =>
-        SourceName.IsNotNullOrEmpty() && MarketClassification.MarketType != MarketType.Unknown
-                                      && MarketClassification.ProductType != ProductType.Unknown &&
-                                         MarketClassification.MarketRegion != MarketRegion.Unknown;
+        SourceName.IsNotNullOrEmpty()
+     && MarketClassification.AssetType != AssetType.Unknown
+     && MarketClassification.ProductType != ProductType.Unknown
+     && MarketClassification.MarketRegion != MarketRegion.Unknown;
 
     public MarketClassification MarketClassification { get; set; }
 
@@ -264,12 +350,35 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
 
     public override void StateReset()
     {
-        MarketClassification = DefaultMarketClassification;
+        MarketClassification   = IPricingInstrumentId.DefaultMarketClassification;
+        SourcePublishLocation  = CountryCityCodes.Unknown;
+        AdapterReceiveLocation = CountryCityCodes.Unknown;
+        ClientReceiveLocation  = CountryCityCodes.Unknown;
 
         Category       = null;
         CoveringPeriod = new DiscreetTimePeriod();
 
         base.StateReset();
+    }
+
+    private string JoinMarketRouteCountryCityCodes()
+    {
+        var sb = new StringBuilder(16);
+        if (SourcePublishLocation != CountryCityCodes.Unknown)
+        {
+            sb.Append(SourcePublishLocation.ToString());
+        }
+        if (AdapterReceiveLocation != CountryCityCodes.Unknown && AdapterReceiveLocation != SourcePublishLocation)
+        {
+            if (sb.Length > 0) sb.Append("-");
+            sb.Append(AdapterReceiveLocation.ToString());
+        }
+        if (ClientReceiveLocation != CountryCityCodes.Unknown && ClientReceiveLocation != AdapterReceiveLocation)
+        {
+            if (sb.Length > 0) sb.Append("-");
+            sb.Append(ClientReceiveLocation.ToString());
+        }
+        return sb.ToString();
     }
 
     IPricingInstrumentId ICloneable<IPricingInstrumentId>.Clone() => Clone();
@@ -289,11 +398,17 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
         base.CopyFrom(source, copyMergeFlags);
         if (source is IPricingInstrumentId pricingInstrumentId)
         {
-            CoveringPeriod       = pricingInstrumentId.CoveringPeriod;
-            MarketClassification = pricingInstrumentId.MarketClassification;
-            InstrumentType       = pricingInstrumentId.InstrumentType;
-
-            foreach (var sourceAttributes in pricingInstrumentId.FilledAttributes)
+            CoveringPeriod         = pricingInstrumentId.CoveringPeriod;
+            MarketClassification   = pricingInstrumentId.MarketClassification;
+            InstrumentType         = pricingInstrumentId.InstrumentType;
+            SourcePublishLocation  = pricingInstrumentId.SourcePublishLocation;
+            AdapterReceiveLocation = pricingInstrumentId.AdapterReceiveLocation;
+            ClientReceiveLocation  = pricingInstrumentId.ClientReceiveLocation;
+            Category               = pricingInstrumentId.Category;
+        }
+        else if (source is IInstrument instrument)
+        {
+            foreach (var sourceAttributes in instrument.FilledAttributes)
             {
                 this[sourceAttributes.Key] = sourceAttributes.Value;
             }
@@ -301,19 +416,31 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
         return this;
     }
 
-
     public override bool AreEquivalent(ISourceTickerId? other, bool exactTypes = false)
     {
         if (other is not IPricingInstrumentId pricingInstrumentId) return false;
         var baseSame = base.AreEquivalent(other, exactTypes);
 
-        var marketClassificationSame = Equals(MarketClassification, pricingInstrumentId?.MarketClassification);
-        var coveringPeriodSame       = coveringPeriod == pricingInstrumentId?.CoveringPeriod;
-        var instrumentTypeSame       = timeSeriesType == pricingInstrumentId?.InstrumentType;
-        var categorySame             = true;
-        if (exactTypes) categorySame = Category == pricingInstrumentId?.Category;
+        var marketClassificationSame   = Equals(MarketClassification, pricingInstrumentId.MarketClassification);
+        var coveringPeriodSame         = coveringPeriod == pricingInstrumentId.CoveringPeriod;
+        var instrumentTypeSame         = timeSeriesType == pricingInstrumentId.InstrumentType;
 
-        return baseSame && coveringPeriodSame && marketClassificationSame && instrumentTypeSame && categorySame;
+        var publishLocationSame        = true;
+        var adapterReceiveLocationSame = true;
+        var clientReceiveLocationSame  = true;
+        var categorySame               = true;
+        if (exactTypes)
+        {
+            categorySame               = Category == pricingInstrumentId.Category;
+            publishLocationSame        = SourcePublishLocation == pricingInstrumentId.SourcePublishLocation;
+            adapterReceiveLocationSame = AdapterReceiveLocation == pricingInstrumentId.AdapterReceiveLocation;
+            clientReceiveLocationSame  = ClientReceiveLocation == pricingInstrumentId.ClientReceiveLocation;
+        }
+
+        var allAreSame = baseSame && coveringPeriodSame && marketClassificationSame && instrumentTypeSame && categorySame
+                      && publishLocationSame && adapterReceiveLocationSame && clientReceiveLocationSame;
+
+        return allAreSame;
     }
 
     protected bool Equals(PricingInstrumentId other) => AreEquivalent(other, true);
@@ -330,7 +457,8 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
 
     protected string PricingInstrumentIdToStringMembers =>
         $"{SourceTickerIdToStringMembers}, {nameof(CoveringPeriod)}: {CoveringPeriod}, {nameof(InstrumentType)}: {InstrumentType}, " +
-        $"{nameof(MarketClassification)}: {MarketClassification}, {nameof(Category)}: {Category}";
+        $"{nameof(MarketClassification)}: {MarketClassification}, {nameof(Category)}: {Category}, {nameof(SourcePublishLocation)}: {SourcePublishLocation}, " +
+        $"{nameof(AdapterReceiveLocation)}: {AdapterReceiveLocation}, {nameof(ClientReceiveLocation)}: {ClientReceiveLocation}";
 
     public override string ToString() => $"{nameof(PricingInstrumentId)}{{{PricingInstrumentIdToStringMembers}}}";
 }
@@ -340,104 +468,151 @@ public readonly struct PricingInstrumentIdValue // not inheriting from IPricingI
     public PricingInstrumentIdValue(IPricingInstrumentId pricingInstrumentId)
     {
         SourceId       = pricingInstrumentId.SourceId;
-        InstrumentId       = pricingInstrumentId.InstrumentId;
+        InstrumentId   = pricingInstrumentId.InstrumentId;
         CoveringPeriod = pricingInstrumentId.CoveringPeriod;
         Category       = pricingInstrumentId.Category;
 
         MarketClassification = pricingInstrumentId.MarketClassification;
 
         InstrumentType = pricingInstrumentId.InstrumentType;
+
+        SourcePublishLocation  = pricingInstrumentId.SourcePublishLocation;
+        AdapterReceiveLocation = pricingInstrumentId.AdapterReceiveLocation;
+        ClientReceiveLocation  = pricingInstrumentId.ClientReceiveLocation;
     }
 
     public PricingInstrumentIdValue
     (ushort sourceId, ushort instrumentId, DiscreetTimePeriod coveringPeriod, InstrumentType instrumentType
-      , MarketClassification marketClassification = default, string? category = null)
+      , MarketClassification marketClassification = default, string? category = null
+      , CountryCityCodes sourcePublishLocation = CountryCityCodes.Unknown
+      , CountryCityCodes adapterReceiveLocation = CountryCityCodes.Unknown
+      , CountryCityCodes clientReceiveLocation = CountryCityCodes.Unknown)
     {
         SourceId       = sourceId;
-        InstrumentId       = instrumentId;
+        InstrumentId   = instrumentId;
         CoveringPeriod = coveringPeriod;
         Category       = category;
 
         InstrumentType = instrumentType;
 
         MarketClassification = marketClassification;
+
+        SourcePublishLocation  = sourcePublishLocation;
+        AdapterReceiveLocation = adapterReceiveLocation;
+        ClientReceiveLocation  = clientReceiveLocation;
     }
 
     public PricingInstrumentIdValue
     (SourceTickerIdentifier sourceTickerIdentifier, DiscreetTimePeriod coveringPeriod, InstrumentType instrumentType
-      , MarketClassification marketClassification = default, string? category = null)
+      , MarketClassification marketClassification = default, string? category = null
+      , CountryCityCodes sourcePublishLocation = CountryCityCodes.Unknown
+      , CountryCityCodes adapterReceiveLocation = CountryCityCodes.Unknown
+      , CountryCityCodes clientReceiveLocation = CountryCityCodes.Unknown)
     {
         SourceId       = sourceTickerIdentifier.SourceId;
-        InstrumentId       = sourceTickerIdentifier.InstrumentId;
+        InstrumentId   = sourceTickerIdentifier.InstrumentId;
         CoveringPeriod = coveringPeriod;
         Category       = category;
 
         InstrumentType = instrumentType;
 
         MarketClassification = marketClassification;
+
+        SourcePublishLocation  = sourcePublishLocation;
+        AdapterReceiveLocation = adapterReceiveLocation;
+        ClientReceiveLocation  = clientReceiveLocation;
     }
 
     public PricingInstrumentIdValue
     (ushort sourceId, ushort instrumentId, PeriodInstrumentTypePair periodInstrumentTypePair
-      , MarketClassification marketClassification = default, string? category = null)
+      , MarketClassification marketClassification = default, string? category = null
+      , CountryCityCodes sourcePublishLocation = CountryCityCodes.Unknown
+      , CountryCityCodes adapterReceiveLocation = CountryCityCodes.Unknown
+      , CountryCityCodes clientReceiveLocation = CountryCityCodes.Unknown)
     {
         SourceId       = sourceId;
-        InstrumentId       = instrumentId;
+        InstrumentId   = instrumentId;
         CoveringPeriod = periodInstrumentTypePair.CoveringPeriod;
         Category       = category;
 
         InstrumentType = periodInstrumentTypePair.InstrumentType;
 
         MarketClassification = marketClassification;
+
+        SourcePublishLocation  = sourcePublishLocation;
+        AdapterReceiveLocation = adapterReceiveLocation;
+        ClientReceiveLocation  = clientReceiveLocation;
     }
 
     public PricingInstrumentIdValue
     (ISourceTickerId sourceTickerId, PeriodInstrumentTypePair periodInstrumentTypePair
-      , MarketClassification marketClassification = default, string? category = null)
+      , MarketClassification marketClassification = default, string? category = null
+      , CountryCityCodes sourcePublishLocation = CountryCityCodes.Unknown
+      , CountryCityCodes adapterReceiveLocation = CountryCityCodes.Unknown
+      , CountryCityCodes clientReceiveLocation = CountryCityCodes.Unknown)
     {
         SourceId       = sourceTickerId.SourceId;
-        InstrumentId       = sourceTickerId.InstrumentId;
+        InstrumentId   = sourceTickerId.InstrumentId;
         CoveringPeriod = periodInstrumentTypePair.CoveringPeriod;
         Category       = category;
 
         InstrumentType = periodInstrumentTypePair.InstrumentType;
 
         MarketClassification = marketClassification;
+
+        SourcePublishLocation  = sourcePublishLocation;
+        AdapterReceiveLocation = adapterReceiveLocation;
+        ClientReceiveLocation  = clientReceiveLocation;
     }
 
     public PricingInstrumentIdValue
     (SourceTickerIdentifier sourceTickerIdentifier, PeriodInstrumentTypePair periodInstrumentTypePair
-      , MarketClassification marketClassification = default, string? category = null)
+      , MarketClassification marketClassification = default, string? category = null
+      , CountryCityCodes sourcePublishLocation = CountryCityCodes.Unknown
+      , CountryCityCodes adapterReceiveLocation = CountryCityCodes.Unknown
+      , CountryCityCodes clientReceiveLocation = CountryCityCodes.Unknown
+    )
     {
         SourceId       = sourceTickerIdentifier.SourceId;
-        InstrumentId       = sourceTickerIdentifier.InstrumentId;
+        InstrumentId   = sourceTickerIdentifier.InstrumentId;
         CoveringPeriod = periodInstrumentTypePair.CoveringPeriod;
         Category       = category;
 
         InstrumentType = periodInstrumentTypePair.InstrumentType;
 
         MarketClassification = marketClassification;
+
+        SourcePublishLocation  = sourcePublishLocation;
+        AdapterReceiveLocation = adapterReceiveLocation;
+        ClientReceiveLocation  = clientReceiveLocation;
     }
 
     public uint SourceTickerId => (uint)((SourceId << 16) | InstrumentId);
 
-    public ushort SourceId { get; }
+    public ushort SourceId     { get; }
     public ushort InstrumentId { get; }
 
     public DiscreetTimePeriod CoveringPeriod { get; }
     public InstrumentType     InstrumentType { get; }
+
+    public CountryCityCodes SourcePublishLocation { get; }
+
+    public CountryCityCodes AdapterReceiveLocation { get; }
+
+    public CountryCityCodes ClientReceiveLocation { get; }
 
     public MarketClassification MarketClassification { get; }
 
     public string? Category { get; }
 
     public string InstrumentName => SourceTickerIdentifierExtensions.GetRegisteredInstrumentName(SourceTickerId);
-    public string SourceName => SourceTickerIdentifierExtensions.GetRegisteredSourceName(SourceId);
+    public string SourceName     => SourceTickerIdentifierExtensions.GetRegisteredSourceName(SourceId);
 
     public override string ToString() =>
         $"{nameof(PricingInstrumentIdValue)}({nameof(SourceId)}: {SourceId}, {nameof(InstrumentId)}: {InstrumentId}, {nameof(InstrumentName)}: {InstrumentName}, " +
         $"{nameof(SourceName)}: {SourceName}, {nameof(CoveringPeriod)}: {CoveringPeriod}, {nameof(InstrumentType)}: {InstrumentType}, " +
-        $"{nameof(MarketClassification)}: {MarketClassification}, {nameof(Category)}: {Category})";
+        $"{nameof(MarketClassification)}: {MarketClassification}, {nameof(Category)}: {Category}, {nameof(SourcePublishLocation)}: {SourcePublishLocation}, " +
+        $"{nameof(AdapterReceiveLocation)}: {AdapterReceiveLocation} ,{nameof(ClientReceiveLocation)}: {ClientReceiveLocation})";
 
 
     public static implicit operator SourceTickerIdentifier(PricingInstrumentIdValue sourceTickerId) =>
@@ -447,11 +622,75 @@ public readonly struct PricingInstrumentIdValue // not inheriting from IPricingI
         new(sourceTickerId.InstrumentType, sourceTickerId.CoveringPeriod);
 }
 
+[Flags]
+public enum CompoundLocationSetFlags : byte
+{
+    None              = 0
+  , SourcePublishSet  = 0x01
+  , AdapterReceiveSet = 0x02
+  , ClientReceiveSet  = 0x04
+}
+
 public static class PricingInstrumentIdExtensions
 {
     private static readonly ConcurrentMap<uint, string> SingleStringShortNameLookup = new();
 
     private static readonly ConcurrentMap<uint, PricingInstrumentIdValue> PricingInstrumentIdLookup = new();
+
+    public static uint CompoundLocations(this IPricingInstrumentId pricingInstrumentId, CompoundLocationSetFlags? onlyThese = null)
+    {
+        CompoundLocationSetFlags setFlags = onlyThese ?? CompoundLocationSetFlags.None;
+        if (onlyThese == null)
+        {
+            setFlags = pricingInstrumentId.SourcePublishLocation != CountryCityCodes.Unknown
+                ? CompoundLocationSetFlags.SourcePublishSet
+                : CompoundLocationSetFlags.None;
+            setFlags |= pricingInstrumentId.AdapterReceiveLocation != CountryCityCodes.Unknown
+                ? CompoundLocationSetFlags.AdapterReceiveSet
+                : CompoundLocationSetFlags.None;
+            setFlags |= pricingInstrumentId.ClientReceiveLocation != CountryCityCodes.Unknown
+                ? CompoundLocationSetFlags.ClientReceiveSet
+                : CompoundLocationSetFlags.None;
+        }
+        var payload = 0u;
+        if ((setFlags & CompoundLocationSetFlags.ClientReceiveSet) > 0)
+        {
+            payload = (uint)pricingInstrumentId.ClientReceiveLocation;
+        }
+        payload <<= 8;
+        if ((setFlags & CompoundLocationSetFlags.AdapterReceiveSet) > 0)
+        {
+            payload |= (uint)pricingInstrumentId.AdapterReceiveLocation;
+        }
+        payload <<= 8;
+        if ((setFlags & CompoundLocationSetFlags.SourcePublishSet) > 0)
+        {
+            payload |= (uint)pricingInstrumentId.SourcePublishLocation;
+        }
+        payload <<= 8;
+        payload |=  (uint)setFlags;
+        return payload;
+    }
+
+    public static void ApplyCompoundLocations(this IPricingInstrumentId pricingInstrumentId, uint compoundedLocation)
+    {
+        var setFlags = (CompoundLocationSetFlags)(compoundedLocation & 0xFF);
+        compoundedLocation >>= 8;
+        if ((setFlags & CompoundLocationSetFlags.SourcePublishSet) > 0)
+        {
+            pricingInstrumentId.SourcePublishLocation  = (CountryCityCodes)(compoundedLocation & 0xFF);
+        }
+        compoundedLocation >>= 8;
+        if ((setFlags & CompoundLocationSetFlags.AdapterReceiveSet) > 0)
+        {
+            pricingInstrumentId.AdapterReceiveLocation          = (CountryCityCodes)(compoundedLocation & 0xFF);
+        }
+        compoundedLocation >>= 8;
+        if ((setFlags & CompoundLocationSetFlags.ClientReceiveSet) > 0)
+        {
+            pricingInstrumentId.ClientReceiveLocation = (CountryCityCodes)(compoundedLocation & 0xFF);
+        }
+    }
 
     public static bool Register(this IPricingInstrumentId id)
     {
@@ -476,7 +715,8 @@ public static class PricingInstrumentIdExtensions
     public static bool Register(this PricingInstrumentIdValue id)
     {
         if (!SingleStringShortNameLookup.TryGetValue(id.SourceTickerId, out var shortName))
-            if (id.SourceName != SourceTickerIdentifierExtensions.NoSourceNameValue && id.InstrumentName != SourceTickerIdentifierExtensions.NoTickerNameValue)
+            if (id.SourceName != SourceTickerIdentifierExtensions.NoSourceNameValue &&
+                id.InstrumentName != SourceTickerIdentifierExtensions.NoTickerNameValue)
             {
                 shortName = $"{id.SourceName}-{id.InstrumentName}_{id.InstrumentType}-{id.CoveringPeriod.ShortName()}";
                 SingleStringShortNameLookup.Add(id.SourceTickerId, shortName);
@@ -491,7 +731,8 @@ public static class PricingInstrumentIdExtensions
     {
         if (!SingleStringShortNameLookup.TryGetValue(id.SourceTickerId, out var shortName))
         {
-            if (id.SourceName != SourceTickerIdentifierExtensions.NoSourceNameValue && id.InstrumentName != SourceTickerIdentifierExtensions.NoTickerNameValue)
+            if (id.SourceName != SourceTickerIdentifierExtensions.NoSourceNameValue &&
+                id.InstrumentName != SourceTickerIdentifierExtensions.NoTickerNameValue)
             {
                 shortName = $"{id.SourceName}-{id.InstrumentName}_{id.InstrumentType}-{id.CoveringPeriod.ShortName()}";
                 SingleStringShortNameLookup.Add(id.SourceTickerId, shortName);
@@ -519,6 +760,7 @@ public static class PricingInstrumentIdExtensions
         (this SourceTickerIdentifier id, DiscreetTimePeriod period, InstrumentType instrumentType) =>
         new(id, period, instrumentType);
 
-    public static PricingInstrumentIdValue ToPricingInstrumentId(this SourceTickerIdValue id, DiscreetTimePeriod period, InstrumentType instrumentType) =>
+    public static PricingInstrumentIdValue ToPricingInstrumentId
+        (this SourceTickerIdValue id, DiscreetTimePeriod period, InstrumentType instrumentType) =>
         new(id.SourceId, id.InstrumentId, period, instrumentType);
 }

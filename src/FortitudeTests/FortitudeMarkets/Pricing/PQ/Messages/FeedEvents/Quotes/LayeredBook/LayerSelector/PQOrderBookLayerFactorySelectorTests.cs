@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
@@ -14,7 +15,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.LayerSelector;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
@@ -220,7 +221,8 @@ public class PQOrderBookLayerFactorySelectorTests
         ipqSourceTickerInfo =
             new PQSourceTickerInfo
                 (new SourceTickerInfo
-                    (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
+                    (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, MarketClassification.Unknown
+                  ,  AUinMEL, AUinMEL, AUinMEL
                    , 20, 0.00001m, 30000m, 50000000m, 1000m
                    , layerFlags: LayerFlags.Volume | LayerFlags.Price
                    , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |

@@ -5,6 +5,7 @@
 
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
@@ -12,7 +13,8 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
+using static FortitudeMarkets.Configuration.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
@@ -26,13 +28,15 @@ public class PQSourceTickerInfoTests
         new(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker");
 
     public static readonly PQSourceTickerInfo BaseL2PriceVolumeSti =
-        new(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level2Quote, Unknown
+        new(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level2Quote, MarketClassification.Unknown
+          , AUinMEL, AUinMEL, AUinMEL
           , 20, 0.000001m, 0.0001m, 0.1m, 10_000_000m, 1000m
           , layerFlags: LayerFlagsExtensions.PriceVolumeLayerFlags
           , lastTradedFlags: LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags);
 
     public static readonly PQSourceTickerInfo BaseL3PriceVolumeSti =
-        new(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
+        new(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, MarketClassification.Unknown
+          , AUinMEL, AUinMEL, AUinMEL
           , 20, 0.000001m, 0.0001m, 0.1m, 10_000_000m, 1000m
           , layerFlags: LayerFlagsExtensions.PriceVolumeLayerFlags
           , lastTradedFlags: LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags);
@@ -226,6 +230,7 @@ public class PQSourceTickerInfoTests
             new PQSourceTickerInfo
                 (new SourceTickerInfo
                     (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, FxMajor
+                   , AUinMEL, AUinMEL, Unknown
                    , 20, 0.00002m, 30000m, 50000000m, 1000m, 0.01m
                    , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
                    , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
@@ -700,15 +705,33 @@ public class PQSourceTickerInfoTests
     [TestMethod]
     public void PopulatedQuote_GetDeltaUpdatesUpdateThenUpdateFieldNewQuote_CopiesAllFieldsToNewQuote()
     {
-        fullyPopulatedSrcTkrInfo.HasUpdates = true;
+        fullyPopulatedSrcTkrInfo.HasUpdates = true;  // will set ClientReceiveLocation true
         var pqFieldUpdates =
             fullyPopulatedSrcTkrInfo.GetDeltaUpdateFields
                 (new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update).ToList();
-        var newEmpty = new PQSourceTickerInfo(new SourceTickerInfo(0, "", 0, "", Level3Quote, Unknown));
+        var newEmpty = new PQSourceTickerInfo(new SourceTickerInfo(0, "", 0, "", Level3Quote, MarketClassification.Unknown));
         foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
         var stringFieldUpdates =
             fullyPopulatedSrcTkrInfo.GetStringUpdates
                 (new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update);
+        foreach (var stringUpdate in stringFieldUpdates) newEmpty.UpdateFieldString(stringUpdate);
+        newEmpty.IsClientReceiveLocationUpdated = true;  // so it won't be updated so set to true also
+        Assert.AreEqual(fullyPopulatedSrcTkrInfo, newEmpty);
+    }
+
+    [TestMethod]
+    public void PopulatedQuote_GetDeltaUpdatesWithIncludeReceiverTimes_CopiesAllFieldsToNewQuote()
+    {
+        fullyPopulatedSrcTkrInfo.ClientReceiveLocation = AUinSYD;
+        fullyPopulatedSrcTkrInfo.HasUpdates            = true;
+        var pqFieldUpdates =
+            fullyPopulatedSrcTkrInfo.GetDeltaUpdateFields
+                (new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update | PQMessageFlags.IncludeReceiverTimes).ToList();
+        var newEmpty = new PQSourceTickerInfo(new SourceTickerInfo(0, "", 0, "", Level3Quote, MarketClassification.Unknown));
+        foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);
+        var stringFieldUpdates =
+            fullyPopulatedSrcTkrInfo.GetStringUpdates
+                (new DateTime(2017, 11, 04, 16, 33, 59), PQMessageFlags.Update| PQMessageFlags.IncludeReceiverTimes);
         foreach (var stringUpdate in stringFieldUpdates) newEmpty.UpdateFieldString(stringUpdate);
         Assert.AreEqual(fullyPopulatedSrcTkrInfo, newEmpty);
     }
@@ -772,7 +795,7 @@ public class PQSourceTickerInfoTests
     [TestMethod]
     public void TwoFullyPopulatedQuotes_OneDifferenceAtATimeAreEquivalentExact_CorrectlyReturnsWhenDifferent()
     {
-        var fullyPopulatedClone = (PQSourceTickerInfo)fullyPopulatedSrcTkrInfo.Clone();
+        var fullyPopulatedClone = fullyPopulatedSrcTkrInfo.Clone();
         AssertAreEquivalentMeetsExpectedExactComparisonType(true, fullyPopulatedSrcTkrInfo, fullyPopulatedClone);
         AssertAreEquivalentMeetsExpectedExactComparisonType(false, fullyPopulatedSrcTkrInfo, fullyPopulatedClone);
     }

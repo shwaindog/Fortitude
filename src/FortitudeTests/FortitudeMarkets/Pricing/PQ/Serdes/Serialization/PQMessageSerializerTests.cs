@@ -9,7 +9,8 @@ using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Configuration.PricingConfig;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
@@ -21,7 +22,7 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeIO.Transports.Network.Config;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using Moq;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
@@ -56,8 +57,8 @@ public class PQMessageSerializerTests
     private PQPublishableLevel3Quote     simpleNoRecentlyTradedL3Quote      = null!;
     private PQMessageSerializer snapshotMessageSerializer            = null!;
     private ISourceTickerInfo srcNmLstTrdInfo                    = null!;
-    private PQPublishableLevel3Quote     srcNmSmplRctlyTrdedL3Quote         = null!;
-    private PQPublishableLevel3Quote     srcQtRefPdGvnVlmRcntlyTrdedL3Quote = null!;
+    private PQPublishableLevel3Quote     srcNmSmplRecentlyTradedL3Quote         = null!;
+    private PQPublishableLevel3Quote     srcQtRefPdGvnVlmRecentlyTradedL3Quote = null!;
     private ISourceTickerInfo srcQtRfPdGvnVlmInfo                = null!;
     private byte[]            testBuffer                         = null!;
     private PQPublishableTickInstant     tickInstant                        = null!;
@@ -79,44 +80,52 @@ public class PQMessageSerializerTests
 
         tickInstantInfo =
             new SourceTickerInfo
-                (1, "TestSource1", 1, "TestTicker1", Level3Quote, Unknown
+                (1, "TestSource1", 1, "TestTicker1", Level3Quote, MarketClassification.Unknown
+               , AUinMEL, AUinMEL, AUinMEL
                , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1);
         level1Info =
             new SourceTickerInfo
-                (2, "TestSource2", 2, "TestTicker2", Level3Quote, Unknown
+                (2, "TestSource2", 2, "TestTicker2", Level3Quote, MarketClassification.Unknown
+               , AUinMEL, AUinMEL, AUinMEL
                , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1);
         valueDateInfo =
             new SourceTickerInfo
-                (7, "TestSource", 7, "TestTicker", Level3Quote, Unknown
+                (7, "TestSource", 7, "TestTicker", Level3Quote, MarketClassification.Unknown
+               , AUinMEL, AUinMEL, AUinMEL
                , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1
                , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.ValueDate
                , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                                   LastTradedFlags.LastTradedTime);
         everyLayerInfo =
             new SourceTickerInfo
-                (8, "TestSource", 8, "TestTicker", Level3Quote, Unknown
+                (8, "TestSource", 8, "TestTicker", Level3Quote, MarketClassification.Unknown
+               , AUinMEL, AUinMEL, AUinMEL
                , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1
                , layerFlags: LayerFlags.Volume.AllFlags()
                , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                                   LastTradedFlags.LastTradedTime);
         simpleNoRecentlyTradedInfo
             = new SourceTickerInfo
-                (3, "TestSource", 3, "TestTicker", Level3Quote, Unknown
+                (3, "TestSource", 3, "TestTicker", Level3Quote, MarketClassification.Unknown
+               , AUinMEL, AUinMEL, AUinMEL
                , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1);
         srcNmLstTrdInfo =
             new SourceTickerInfo
-                (4, "TestSource", 4, "TestTicker", Level3Quote, Unknown
+                (4, "TestSource", 4, "TestTicker", Level3Quote, MarketClassification.Unknown
+               , AUinMEL, AUinMEL, AUinMEL
                , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1
                , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.SourceName
                , lastTradedFlags: LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime);
         srcQtRfPdGvnVlmInfo =
             new SourceTickerInfo
-                (5, "TestSource", 5, "TestTicker", Level3Quote, Unknown
+                (5, "TestSource", 5, "TestTicker", Level3Quote, MarketClassification.Unknown
+               , AUinMEL, AUinMEL, AUinMEL
                , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1
                , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.SourceQuoteReference, lastTradedFlags: LastTradedFlags.PaidOrGiven);
         trdrLyrTrdrPdGvnVlmDtlsInfo =
             new SourceTickerInfo
-                (6, "TestSource", 6, "TestTicker", Level3Quote, Unknown
+                (6, "TestSource", 6, "TestTicker", Level3Quote, MarketClassification.Unknown
+               , AUinMEL, AUinMEL, AUinMEL
                , 20, 0.000001m, 0.00001m, 1m, 50000000m, 1000m, 1
                , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
                , lastTradedFlags: LastTradedFlags.TraderName);
@@ -126,9 +135,9 @@ public class PQMessageSerializerTests
         everyLayerL2Quote = new PQPublishableLevel2Quote(everyLayerInfo);
 
         simpleNoRecentlyTradedL3Quote = new PQPublishableLevel3Quote(simpleNoRecentlyTradedInfo);
-        srcNmSmplRctlyTrdedL3Quote    = new PQPublishableLevel3Quote(srcNmLstTrdInfo);
+        srcNmSmplRecentlyTradedL3Quote    = new PQPublishableLevel3Quote(srcNmLstTrdInfo);
 
-        srcQtRefPdGvnVlmRcntlyTrdedL3Quote = new PQPublishableLevel3Quote(srcQtRfPdGvnVlmInfo);
+        srcQtRefPdGvnVlmRecentlyTradedL3Quote = new PQPublishableLevel3Quote(srcQtRfPdGvnVlmInfo);
         trdrPdGvnVlmRcntlyTrdedL3Quote     = new PQPublishableLevel3Quote(trdrLyrTrdrPdGvnVlmDtlsInfo);
 
         quoteSequencedTestDataBuilder.InitializeQuote(tickInstant, 0);
@@ -136,14 +145,14 @@ public class PQMessageSerializerTests
         quoteSequencedTestDataBuilder.InitializeQuote(valueDateL2Quote, 0);
         quoteSequencedTestDataBuilder.InitializeQuote(everyLayerL2Quote, 0);
         quoteSequencedTestDataBuilder.InitializeQuote(simpleNoRecentlyTradedL3Quote, 0);
-        quoteSequencedTestDataBuilder.InitializeQuote(srcNmSmplRctlyTrdedL3Quote, 0);
-        quoteSequencedTestDataBuilder.InitializeQuote(srcQtRefPdGvnVlmRcntlyTrdedL3Quote, 0);
+        quoteSequencedTestDataBuilder.InitializeQuote(srcNmSmplRecentlyTradedL3Quote, 0);
+        quoteSequencedTestDataBuilder.InitializeQuote(srcQtRefPdGvnVlmRecentlyTradedL3Quote, 0);
         quoteSequencedTestDataBuilder.InitializeQuote(trdrPdGvnVlmRcntlyTrdedL3Quote, 0);
 
         differingQuotes = new List<IPQPublishableTickInstant>
             {
                 tickInstant, level1Quote, valueDateL2Quote, everyLayerL2Quote, simpleNoRecentlyTradedL3Quote
-              , srcNmSmplRctlyTrdedL3Quote, srcQtRefPdGvnVlmRcntlyTrdedL3Quote, trdrPdGvnVlmRcntlyTrdedL3Quote
+              , srcNmSmplRecentlyTradedL3Quote, srcQtRefPdGvnVlmRecentlyTradedL3Quote, trdrPdGvnVlmRcntlyTrdedL3Quote
             };
             // {
             //     srcNmSmplRctlyTrdedL3Quote
@@ -226,7 +235,7 @@ public class PQMessageSerializerTests
                 .Serialize(readWriteBuffer, pqQuote);
             readWriteBuffer.WriteCursor += amtWritten;
 
-            AssertExpectedBytesWriten(amtWritten, false, expectedFieldUpdates, expectedStringUpdates, pqQuote);
+            AssertExpectedBytesWritten(amtWritten, false, expectedFieldUpdates, expectedStringUpdates, pqQuote);
         }
     }
 
@@ -250,7 +259,7 @@ public class PQMessageSerializerTests
                 .Serialize(readWriteBuffer, pqQuote);
             readWriteBuffer.WriteCursor += amtWritten;
 
-            AssertExpectedBytesWriten(amtWritten, true, expectedFieldUpdates, expectedStringUpdates, pqQuote);
+            AssertExpectedBytesWritten(amtWritten, true, expectedFieldUpdates, expectedStringUpdates, pqQuote);
         }
     }
 
@@ -319,7 +328,7 @@ public class PQMessageSerializerTests
         }
     }
 
-    private unsafe void AssertExpectedBytesWriten
+    private unsafe void AssertExpectedBytesWritten
     (int amtWritten, bool isSnapshot, List<PQFieldUpdate> expectedFieldUpdates, List<PQFieldStringUpdate> expectedStringUpdates
       , IPQPublishableTickInstant originalQuote)
     {

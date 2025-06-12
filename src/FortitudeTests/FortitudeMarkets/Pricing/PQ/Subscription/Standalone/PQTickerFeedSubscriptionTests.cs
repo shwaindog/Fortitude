@@ -4,12 +4,13 @@
 #region
 
 using FortitudeIO.Transports.Network.Config;
-using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Configuration.PricingConfig;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Subscription.Standalone;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
@@ -19,9 +20,10 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Subscription.Standalone;
 [TestClass]
 public class PQTickerFeedSubscriptionTests
 {
-    private IPricingServerConfig          feedConfig               = null!;
     private DummyPQTickerFeedSubscription pqTickerFeedSubscription = null!;
-    private ISourceTickerInfo             sourceTickerInfo         = null!;
+
+    private IPricingServerConfig feedConfig       = null!;
+    private ISourceTickerInfo    sourceTickerInfo = null!;
 
 
     [TestInitialize]
@@ -30,20 +32,17 @@ public class PQTickerFeedSubscriptionTests
         feedConfig = new PricingServerConfig
             (new NetworkTopicConnectionConfig
                  ("testConnectionName", SocketConversationProtocol.TcpClient
-                , new[]
-                  {
-                      new EndpointConfig("testhost", 9090)
-                  }, "testConnectionName")
+                , [new EndpointConfig("testHost", 9090, AUinMEL)]
+                , "testConnectionName")
            , new NetworkTopicConnectionConfig
                  ("testConnectionName", SocketConversationProtocol.TcpClient
-                , new[]
-                  {
-                      new EndpointConfig("testhost", 9090)
-                  }, "testConnectionName"));
+                , [new EndpointConfig("testHost", 9090, AUinMEL)]
+                , "testConnectionName"));
 
         sourceTickerInfo = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, MarketClassification.Unknown
+           , AUinMEL, AUinMEL, AUinMEL
+           , 20, 0.00001m, 30000m, 50000000m, 1000m
            , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
            , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName |
                               LastTradedFlags.LastTradedVolume | LastTradedFlags.LastTradedTime);
@@ -61,12 +60,9 @@ public class PQTickerFeedSubscriptionTests
     }
 
 
-    public class DummyPQTickerFeedSubscription : PQTickerFeedSubscription
+    public class DummyPQTickerFeedSubscription(IPricingServerConfig feedServerConfig, ISourceTickerInfo sourceTickerInfo)
+        : PQTickerFeedSubscription(feedServerConfig, sourceTickerInfo)
     {
-        public DummyPQTickerFeedSubscription
-        (IPricingServerConfig feedServerConfig,
-            ISourceTickerInfo sourceTickerInfo) : base(feedServerConfig, sourceTickerInfo) { }
-
         public bool UnsubscribeHasBeenCalled { get; set; }
 
         public override void Unsubscribe()

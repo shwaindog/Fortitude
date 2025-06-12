@@ -11,6 +11,7 @@ using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Indicators;
 using FortitudeMarkets.Indicators.Pricing;
 using FortitudeMarkets.Indicators.Pricing.MovingAverage;
@@ -29,7 +30,7 @@ using FortitudeTests.FortitudeMarkets.Indicators.Config;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using MathNet.Numerics;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
@@ -45,7 +46,8 @@ public class LiveShortPeriodMovingAveragePublisherRuleTests : OneOfEachMessageQu
     private readonly DateTime testEpoch   = new(2024, 7, 11, 0, 10, 0);
 
     private readonly SourceTickerInfo tickerInfo = new
-        (2, "SourceName", 2, "TickerName2", Level1Quote, Unknown
+        (2, "SourceName", 2, "TickerName2", Level1Quote, MarketClassification.Unknown
+       , AUinMEL, AUinMEL, AUinMEL
        , 1, 0.001m, 10m, 100m, 10m);
 
     private decimal highLowSpread;

@@ -10,12 +10,18 @@ using Microsoft.Extensions.Configuration.Memory;
 
 namespace FortitudeIO.Transports.Network.Config;
 
+
+
+
 public interface IEndpointConfig : ICloneable<IEndpointConfig>
 {
-    string Hostname { get; set; }
-    ushort Port { get; set; }
-    string InstanceName { get; set; }
-    string? SubnetMask { get; set; }
+    string  Hostname     { get; set; }
+    ushort  Port         { get; set; }
+    string  InstanceName { get; set; }
+    string? SubnetMask   { get; set; }
+
+    CountryCityCodes HostLocationCode { get; set; }
+
     IPAddress? SubnetMaskIpAddress { get; }
 }
 
@@ -23,22 +29,24 @@ public class EndpointConfig : ConfigSection, IEndpointConfig
 {
     public EndpointConfig(IConfigurationRoot root, string path) : base(root, path) { }
 
-    public EndpointConfig(string hostname, ushort port, string? instanceName = null, string? subnetMask = null)
+    public EndpointConfig(string hostname, ushort port, CountryCityCodes hostCountryCityCode, string? instanceName = null, string? subnetMask = null)
     {
-        Hostname = hostname;
-        Port = port;
-        SubnetMask = subnetMask;
-        InstanceName = instanceName ?? $"{hostname}:{port}";
+        Hostname         = hostname;
+        Port             = port;
+        HostLocationCode = hostCountryCityCode;
+        SubnetMask       = subnetMask;
+        InstanceName     = instanceName ?? $"{hostname}:{port}";
     }
 
     public EndpointConfig(IEndpointConfig toClone) : this(toClone, new ConfigurationBuilder().Add(new MemoryConfigurationSource()).Build(), "") { }
 
     public EndpointConfig(IEndpointConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        Hostname = toClone.Hostname;
-        Port = toClone.Port;
-        SubnetMask = toClone.SubnetMask;
-        InstanceName = toClone.InstanceName;
+        Hostname         = toClone.Hostname;
+        Port             = toClone.Port;
+        SubnetMask       = toClone.SubnetMask;
+        InstanceName     = toClone.InstanceName;
+        HostLocationCode = toClone.HostLocationCode;
     }
 
     public string InstanceName
@@ -67,24 +75,31 @@ public class EndpointConfig : ConfigSection, IEndpointConfig
         set => this[nameof(Port)] = value.ToString();
     }
 
+    public CountryCityCodes HostLocationCode
+    {
+        get => Enum.Parse<CountryCityCodes>(this[nameof(HostLocationCode)]!);
+        set => this[nameof(HostLocationCode)] = value.ToString();
+    }
+
     object ICloneable.Clone() => Clone();
 
     public IEndpointConfig Clone() => new EndpointConfig(this);
 
     public static void ClearValues(IConfigurationRoot root, string path)
     {
-        root[path + ":" + nameof(InstanceName)] = null;
-        root[path + ":" + nameof(Hostname)] = null;
-        root[path + ":" + nameof(SubnetMask)] = null;
-        root[path + ":" + nameof(SubnetMask)] = null;
-        root[path + ":" + nameof(Port)] = null;
+        root[path + ":" + nameof(InstanceName)]     = null;
+        root[path + ":" + nameof(Hostname)]         = null;
+        root[path + ":" + nameof(SubnetMask)]       = null;
+        root[path + ":" + nameof(SubnetMask)]       = null;
+        root[path + ":" + nameof(Port)]             = null;
+        root[path + ":" + nameof(HostLocationCode)] = CountryCityCodes.Unknown.ToString();
     }
 
     protected bool Equals(IEndpointConfig other)
     {
-        var hostNameSame = Equals(Hostname, other.Hostname);
-        var portSame = Port == other.Port;
-        var subNetSame = Equals(SubnetMask, other.SubnetMask);
+        var hostNameSame     = Equals(Hostname, other.Hostname);
+        var portSame         = Port == other.Port;
+        var subNetSame       = Equals(SubnetMask, other.SubnetMask);
         var instanceNameSame = Equals(InstanceName, other.InstanceName);
 
         return hostNameSame && portSame && instanceNameSame && subNetSame;
@@ -109,6 +124,6 @@ public class EndpointConfig : ConfigSection, IEndpointConfig
     }
 
     public override string ToString() =>
-        $"SocketConnectionConfig ({nameof(Hostname)}: {Hostname}, {nameof(Port)}: {Port}, {nameof(InstanceName)}: {InstanceName}, " +
+        $"{nameof(EndpointConfig)} ({nameof(Hostname)}: {Hostname}, {nameof(Port)}: {Port}, {nameof(InstanceName)}: {InstanceName}, " +
         $"{nameof(SubnetMask)}: {SubnetMask})";
 }

@@ -12,7 +12,7 @@ public class NetworkTopicConnectionConfigTests
 {
     public static NetworkTopicConnectionConfig DummyTopicConnectionConfig =>
         new("TestConnectionName", SocketConversationProtocol.TcpClient
-            , new List<IEndpointConfig> { new EndpointConfig("TestHostname", 9090) },
+            , new List<IEndpointConfig> { new EndpointConfig("TestHostname", 9090, CountryCityCodes.AUinMEL) },
             "TestDescription");
 
     [TestMethod]
@@ -49,7 +49,7 @@ public class NetworkTopicConnectionConfigTests
 
         var newEndPoints = new List<IEndpointConfig>
         {
-            new EndpointConfig("MyFirstChangedHostname", 10, "MyFirstChangedInstance", "192.168.1.1")
+            new EndpointConfig("MyFirstChangedHostname", 10, CountryCityCodes.AUinMEL, "MyFirstChangedInstance", "192.168.1.1")
         };
         networkTopicConnectionConfig.AvailableConnections = newEndPoints;
         Assert.AreEqual(1, networkTopicConnectionConfig.AvailableConnections.Count());
@@ -59,11 +59,11 @@ public class NetworkTopicConnectionConfigTests
     }
 
     public static NetworkTopicConnectionConfig ServerConnectionConfigWithValues(string connectionName, string hostname,
-        ushort port, string networkSubAddress, uint reconnectInterval,
+        ushort port, CountryCityCodes hostLocation,  string networkSubAddress, uint reconnectInterval,
         IObservable<IConnectionUpdate>? updateStream = null) =>
         new(connectionName, SocketConversationProtocol.TcpClient
             , new List<IEndpointConfig>
-                { new EndpointConfig(hostname, port, subnetMask: networkSubAddress) },
+                { new EndpointConfig(hostname, port, hostLocation, subnetMask: networkSubAddress) },
             connectionName, reconnectConfig: new SocketReconnectConfig(reconnectInterval));
 
     public static void AssertIsExpected(INetworkTopicConnectionConfig subjectToBeVerified, string name

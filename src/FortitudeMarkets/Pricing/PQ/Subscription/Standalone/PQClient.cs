@@ -9,8 +9,8 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
-using FortitudeMarkets.Configuration.ClientServerConfig;
-using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Configuration.PricingConfig;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
@@ -73,7 +73,7 @@ public class PQClient : IDisposable
                     foreach (var sub in ssc.Subscriptions) Unsubscribe(ssc.MarketConnectionConfig, sub.Ticker);
                     ssc.Subscriptions.Clear();
                 }
-
+            deserializationRepository.StateReset();
             sourceSubscriptions.Clear();
             missingRefs = 0;
             shutDownSignal.Set();

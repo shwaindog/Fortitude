@@ -13,7 +13,7 @@ using FortitudeIO.Protocols.Serdes.Binary.Deserialization;
 
 namespace FortitudeIO.Protocols.Serdes.Binary;
 
-public interface IMessageDeserializationRepository : IMessageSerdesRepository, ITransferState<IMessageDeserializationRepository>
+public interface IMessageDeserializationRepository : IMessageSerdesRepository, ITransferState<IMessageDeserializationRepository>, IResetable
 {
     string Name { get; }
 
@@ -73,6 +73,12 @@ public class MessageDeserializationRepository : IMessageDeserializationRepositor
     public string Name { get; }
 
     public bool IsRegistered(uint msgId) => RegisteredDeserializers.ContainsKey(msgId);
+
+
+    public void StateReset()
+    {
+        RegisteredDeserializers.Clear();
+    }
 
     public IEnumerable<KeyValuePair<uint, IMessageDeserializer>> RegisteredDeserializersOfType(Type messageType) =>
         AllRegisteredDeserializers.Where(kvp => kvp.Value.MessageType == messageType);

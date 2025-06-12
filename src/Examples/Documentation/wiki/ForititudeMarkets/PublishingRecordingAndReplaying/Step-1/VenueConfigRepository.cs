@@ -37,7 +37,7 @@ public class VenueConfigRepository
                , new List<IEndpointConfig>
                  {
                      new EndpointConfig(LoopbackAdapterBindingIpAddress.ToString()
-                                      , GetTcpSnapshotPort(forVenue))
+                                      , GetTcpSnapshotPort(forVenue), CountryCityCodes.USinNY)
                  }, $"TcpSnapshotServerFor_{forVenue}")
           , _ => throw new ArgumentException($"Unexpected venue {forVenue} received")
         };

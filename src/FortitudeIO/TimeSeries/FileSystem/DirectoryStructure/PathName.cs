@@ -6,6 +6,7 @@
 using System.Globalization;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Extensions;
+using FortitudeIO.Transports.Network.Config;
 using static FortitudeIO.TimeSeries.FileSystem.DirectoryStructure.RepositoryPathName;
 
 #endregion
@@ -37,7 +38,8 @@ public class PathName
                                               or RepositoryPathName.InstrumentType
                                               or MarketRegion
                                               or MarketProductType
-                                              or MarketType => "{0}"
+                                              or MarketRoute
+                                              or AssetType => "{0}"
                              , _ => throw new Exception($"No default formatting defined for {pathPart}")
                            };
         else
@@ -95,7 +97,9 @@ public class PathName
             case RepositoryPathName.InstrumentType: return string.Format(FormatString, instrument.InstrumentType);
             case MarketProductType: return string.Format(FormatString, instrument[nameof(MarketProductType)]);
             case MarketRegion: return string.Format(FormatString, instrument[nameof(MarketRegion)]);
-            case MarketType: return string.Format(FormatString, instrument[nameof(MarketType)]);
+            case AssetType: return string.Format(FormatString, instrument[nameof(AssetType)]);
+            case AssetCategory: return string.Format(FormatString, instrument[nameof(AssetCategory)]);
+            case MarketRoute: return string.Format(FormatString, instrument[nameof(MarketRoute)]);
             case Category: return instrument[nameof(Category)] != null ? string.Format(FormatString, instrument[nameof(Category)]) : null;
             case CoveringPeriod: return string.Format(FormatString, instrument.CoveringPeriod.ShortName());
             case Constant: return FormatString;
@@ -137,6 +141,9 @@ public class PathName
             case InstrumentSource:
             case Constant:
                 return true;
+            case MarketRoute:
+                var checkCountryCityCode = check.Split("-").First();
+                return Enum.TryParse<CountryCityCodes>(checkCountryCityCode, out var codes);
             case RepositoryPathName.InstrumentType: return Enum.TryParse<InstrumentType>(check, true, out var ignored);
             case FilePeriod:
             case CoveringPeriod:

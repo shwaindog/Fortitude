@@ -12,17 +12,17 @@ using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
-using FortitudeMarkets.Configuration.ClientServerConfig;
-using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Configuration.PricingConfig;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Publication;
-using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using Moq;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
+using static FortitudeMarkets.Configuration.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 using static FortitudeTests.TestEnvironment.TestMachineConfig;
 
@@ -68,36 +68,35 @@ public class PQServerTests
     {
         sourceTickerConfig1 =
             new TickerConfig
-                (TickerId1, TestTicker1, TickerAvailability.PricingAndTradingEnabled, Level3Quote, Unknown
-               , 0.00001m, 0.0001m, 0.1m, 100, 0.1m, 250, 10_000
-               , layerDetails, 20, lastTradedFlags);
+                (TickerId1, TestTicker1, TickerAvailability.PricingAndTradingEnabled, Level3Quote, MarketClassification.Unknown
+                , 0.00001m, 0.0001m, 0.1m, 100, 0.1m, 250, 10_000, layerDetails, 20, lastTradedFlags);
         sourceTickerConfig2 =
             new TickerConfig
-                (TickerId2, TestTicker2, TickerAvailability.PricingAndTradingEnabled, Level3Quote, Unknown
+                (TickerId2, TestTicker2, TickerAvailability.PricingAndTradingEnabled, Level3Quote, MarketClassification.Unknown
                , 0.00001m, 0.0001m, 0.1m, 100, 0.1m, 250, 10_000
                , layerDetails, 20, lastTradedFlags);
         sourceTickerConfig3 =
-            new TickerConfig(TickerId3, TestTicker3, TickerAvailability.PricingAndTradingEnabled, Level3Quote, Unknown
+            new TickerConfig(TickerId3, TestTicker3, TickerAvailability.PricingAndTradingEnabled, Level3Quote, MarketClassification.Unknown
                            , 0.00001m, 0.0001m, 0.1m, 100, 0.1m, 250, 10_000
                            , layerDetails, 20, lastTradedFlags);
-        sourceTickerConfigs = new SourceTickersConfig(sourceTickerConfig1, sourceTickerConfig2, sourceTickerConfig3);
+        sourceTickerConfigs = new SourceTickersConfig(AUinSYD, sourceTickerConfig1, sourceTickerConfig2, sourceTickerConfig3);
         pricingServerConfig =
             new PricingServerConfig
                 (new NetworkTopicConnectionConfig
                      ("TestSnapshotServer", SocketConversationProtocol.TcpAcceptor
                     , new[]
                       {
-                          new EndpointConfig(LoopBackIpAddress, ServerSnapshotPort)
+                          new EndpointConfig(LoopBackIpAddress, ServerSnapshotPort, AUinMEL)
                       })
                , new NetworkTopicConnectionConfig
                      ("TestUpdateServer", SocketConversationProtocol.UdpPublisher
                     , new[]
                       {
-                          new EndpointConfig(LoopBackIpAddress, ServerUpdatePort, NetworkSubAddress)
+                          new EndpointConfig(LoopBackIpAddress, ServerUpdatePort, AUinMEL, NetworkSubAddress)
                       }
                     , connectionAttributes: SocketConnectionAttributes.Multicast | SocketConnectionAttributes.Fast));
         marketConnectionConfig
-            = new MarketConnectionConfig(ExchangeId, ExchangeName, MarketConnectionType.Pricing, sourceTickerConfigs, pricingServerConfig);
+            = new MarketConnectionConfig(ExchangeId, ExchangeName, MarketConnectionType.Pricing, AUinMEL, sourceTickerConfigs, pricingServerConfig);
         sourceTickerInfo1 = new PQSourceTickerInfo(marketConnectionConfig.GetSourceTickerInfo(TestTicker1)!);
         sourceTickerInfo2 = new PQSourceTickerInfo(marketConnectionConfig.GetSourceTickerInfo(TestTicker2)!);
         sourceTickerInfo3 = new PQSourceTickerInfo(marketConnectionConfig.GetSourceTickerInfo(TestTicker3)!);

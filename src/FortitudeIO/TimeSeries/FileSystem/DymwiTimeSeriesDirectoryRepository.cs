@@ -18,7 +18,7 @@ namespace FortitudeIO.TimeSeries.FileSystem;
 public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
 {
     public static readonly string[]  DymwiRequiredInstrumentKeys = ["SourceName", "MarketType", "MarketProductType", "MarketRegion"];
-    public static readonly string[]  DymwiOptionalInstrumentKeys = ["Category"];
+    public static readonly string[]  DymwiOptionalInstrumentKeys = ["Category", "MarketRoute"];
 
     protected DymwiTimeSeriesDirectoryRepository(RepositoryInfo repositoryInfo) : base(repositoryInfo) { }
 
@@ -36,7 +36,7 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
         {
             new PathDirectory(new PathName(Constant, "Summaries"))
             {
-                new PathDirectory(new PathName(MarketType),
+                new PathDirectory(new PathName(AssetType),
                                   new PathName(MarketRegion))
                 {
                     new PathDirectory(new PathName(InstrumentName))
@@ -50,7 +50,7 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
             {
                 new PathDirectory(new PathName(Constant, "Summaries"))
                 {
-                    new PathDirectory(new PathName(MarketType),
+                    new PathDirectory(new PathName(AssetType),
                                       new PathName(MarketRegion))
                     {
                         new PathDirectory(new PathName(InstrumentName))
@@ -64,7 +64,7 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
                 {
                     new PathDirectory(new PathName(Constant, "Summaries"))
                     {
-                        new PathDirectory(new PathName(MarketType),
+                        new PathDirectory(new PathName(AssetType),
                                           new PathName(MarketRegion))
                         {
                             new PathDirectory(new PathName(InstrumentName))
@@ -78,7 +78,7 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
                     {
                         new PathDirectory(new PathName(Constant, "Summaries"))
                         {
-                            new PathDirectory(new PathName(MarketType),
+                            new PathDirectory(new PathName(AssetType),
                                               new PathName(MarketRegion))
                             {
                                 new PathDirectory(new PathName(InstrumentName))
@@ -94,7 +94,7 @@ public class DymwiTimeSeriesDirectoryRepository : TimeSeriesDirectoryRepository
                         }
                       , new PathDirectory(new PathName(WeekOfMonth))
                         {
-                            new PathDirectory(new PathName(MarketType),
+                            new PathDirectory(new PathName(AssetType),
                                               new PathName(MarketRegion))
                             {
                                 new PathDirectory(new PathName(InstrumentName))

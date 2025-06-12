@@ -28,16 +28,30 @@ public enum ConnectionSelectionOrder
 public interface INetworkTopicConnectionConfig : ITopicConnectionConfig, IConnection, IEnumerable<IEndpointConfig>
   , ICloneable<INetworkTopicConnectionConfig>
 {
-    SocketConversationProtocol    ConversationProtocol     { get; set; }
-    IEnumerable<IEndpointConfig>  AvailableConnections     { get; set; }
-    public int                    ReceiveBufferSize        { get; set; }
-    public int                    SendBufferSize           { get; set; }
-    int                           NumberOfReceivesPerPoll  { get; set; }
-    SocketConnectionAttributes    ConnectionAttributes     { get; set; }
-    ConnectionSelectionOrder      ConnectionSelectionOrder { get; set; }
-    uint                          ConnectionTimeoutMs      { get; set; }
-    uint                          ResponseTimeoutMs        { get; set; }
-    ISocketReconnectConfig        ReconnectConfig          { get; set; }
+    const int  DefaultReceiveBufferSize       = 1024 * 1024 * 4;
+    const int  DefaultSendBufferSize          = 1024 * 1024 * 4;
+    const int  DefaultNumberOfReceivesPerPoll = 50;
+    const uint DefaultConnectionTimeoutMs     = 60_000;
+    const uint DefaultResponseTimeoutMs       = 60_000;
+
+
+    const SocketConnectionAttributes DefaultConnectionAttributes     = SocketConnectionAttributes.None;
+    const ConnectionSelectionOrder   DefaultConnectionSelectionOrder = ConnectionSelectionOrder.ListedOrder;
+
+    SocketConversationProtocol   ConversationProtocol     { get; set; }
+    SocketConnectionAttributes   ConnectionAttributes     { get; set; }
+    IEnumerable<IEndpointConfig> AvailableConnections     { get; set; }
+    ConnectionSelectionOrder     ConnectionSelectionOrder { get; set; }
+
+    IConnectedEndpoint? ConnectedEndpoint { get; set; }
+
+    int  ReceiveBufferSize       { get; set; }
+    int  SendBufferSize          { get; set; }
+    int  NumberOfReceivesPerPoll { get; set; }
+    uint ConnectionTimeoutMs     { get; set; }
+    uint ResponseTimeoutMs       { get; set; }
+
+    ISocketReconnectConfig        ReconnectConfig { get; set; }
     INetworkTopicConnectionConfig ShiftPortsBy(ushort deltaPorts);
     INetworkTopicConnectionConfig ToggleProtocolDirection();
 }
@@ -46,13 +60,14 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
 {
     private static readonly Dictionary<string, string?> Defaults = new()
     {
-        { nameof(ReceiveBufferSize), (1024 * 1024 * 4).ToString() }, { nameof(SendBufferSize), (1024 * 1024 * 4).ToString() }
-      , { nameof(NumberOfReceivesPerPoll), "50" }, { nameof(ConnectionAttributes), SocketConnectionAttributes.None.ToString() }
-      , { nameof(ConnectionSelectionOrder), ConnectionSelectionOrder.ListedOrder.ToString() }, { nameof(ConnectionTimeoutMs), "2000" }
-      , { nameof(ResponseTimeoutMs), "10000" }
+        { nameof(ReceiveBufferSize), INetworkTopicConnectionConfig.DefaultReceiveBufferSize.ToString() }
+      , { nameof(SendBufferSize), INetworkTopicConnectionConfig.DefaultSendBufferSize.ToString() }
+      , { nameof(NumberOfReceivesPerPoll), INetworkTopicConnectionConfig.DefaultNumberOfReceivesPerPoll.ToString() }
+      , { nameof(ConnectionAttributes), INetworkTopicConnectionConfig.DefaultConnectionAttributes.ToString() }
+      , { nameof(ConnectionSelectionOrder), INetworkTopicConnectionConfig.DefaultConnectionSelectionOrder.ToString() }
+      , { nameof(ConnectionTimeoutMs), INetworkTopicConnectionConfig.DefaultConnectionTimeoutMs.ToString() }
+      , { nameof(ResponseTimeoutMs), INetworkTopicConnectionConfig.DefaultResponseTimeoutMs.ToString() }
     };
-
-    private object? ignoreSuppressWarnings;
 
     public NetworkTopicConnectionConfig(IConfigurationRoot configRoot, string path) : base(configRoot, path)
     {
@@ -61,12 +76,15 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
 
     public NetworkTopicConnectionConfig
     (string connectionName, string topicName, SocketConversationProtocol conversationProtocol
-      , IEnumerable<IEndpointConfig> availableConnections,
-        string? topicDescription = null, int receiveBufferSize = 1024 * 1024 * 4, int sendBufferSize = 1024 * 1024 * 4,
-        int numberOfReceivesPerPoll = 50
-      , SocketConnectionAttributes connectionAttributes = SocketConnectionAttributes.None,
-        ConnectionSelectionOrder connectionSelectionOrder = ConnectionSelectionOrder.ListedOrder,
-        uint connectionTimeoutMs = 10_000, uint responseTimeoutMs = 10_000
+      , IEnumerable<IEndpointConfig> availableConnections
+      , string? topicDescription = null
+      , int receiveBufferSize = INetworkTopicConnectionConfig.DefaultReceiveBufferSize
+      , int sendBufferSize = INetworkTopicConnectionConfig.DefaultSendBufferSize
+      , int numberOfReceivesPerPoll = INetworkTopicConnectionConfig.DefaultNumberOfReceivesPerPoll
+      , SocketConnectionAttributes connectionAttributes = INetworkTopicConnectionConfig.DefaultConnectionAttributes
+      , ConnectionSelectionOrder connectionSelectionOrder = INetworkTopicConnectionConfig.DefaultConnectionSelectionOrder
+      , uint connectionTimeoutMs = INetworkTopicConnectionConfig.DefaultConnectionTimeoutMs
+      , uint responseTimeoutMs = INetworkTopicConnectionConfig.DefaultResponseTimeoutMs
       , ISocketReconnectConfig? reconnectConfig = null)
         : this(topicName, conversationProtocol, availableConnections, topicDescription, receiveBufferSize, sendBufferSize, numberOfReceivesPerPoll,
                connectionAttributes, connectionSelectionOrder, connectionTimeoutMs, responseTimeoutMs, reconnectConfig) =>
@@ -74,12 +92,15 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
 
     public NetworkTopicConnectionConfig
     (string topicName, SocketConversationProtocol conversationProtocol
-      , IEnumerable<IEndpointConfig> availableConnections,
-        string? topicDescription = null, int receiveBufferSize = 1024 * 1024 * 4, int sendBufferSize = 1024 * 1024 * 4,
-        int numberOfReceivesPerPoll = 50
-      , SocketConnectionAttributes connectionAttributes = SocketConnectionAttributes.None,
-        ConnectionSelectionOrder connectionSelectionOrder = ConnectionSelectionOrder.ListedOrder,
-        uint connectionTimeoutMs = 10_000, uint responseTimeoutMs = 10_000
+      , IEnumerable<IEndpointConfig> availableConnections
+      , string? topicDescription = null
+      , int receiveBufferSize = INetworkTopicConnectionConfig.DefaultReceiveBufferSize
+      , int sendBufferSize = INetworkTopicConnectionConfig.DefaultSendBufferSize
+      , int numberOfReceivesPerPoll = INetworkTopicConnectionConfig.DefaultNumberOfReceivesPerPoll
+      , SocketConnectionAttributes connectionAttributes = INetworkTopicConnectionConfig.DefaultConnectionAttributes
+      , ConnectionSelectionOrder connectionSelectionOrder = INetworkTopicConnectionConfig.DefaultConnectionSelectionOrder
+      , uint connectionTimeoutMs = INetworkTopicConnectionConfig.DefaultConnectionTimeoutMs
+      , uint responseTimeoutMs = INetworkTopicConnectionConfig.DefaultResponseTimeoutMs
       , ISocketReconnectConfig? reconnectConfig = null)
     {
         TopicName                = topicName;
@@ -117,7 +138,8 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
 
     public INetworkTopicConnectionConfig ShiftPortsBy(ushort deltaPorts)
     {
-        var shiftedPorts                                                                                = new NetworkTopicConnectionConfig(this);
+        var shiftedPorts = new NetworkTopicConnectionConfig(this);
+
         foreach (var availableConnection in shiftedPorts.AvailableConnections) availableConnection.Port += deltaPorts;
         return shiftedPorts;
     }
@@ -140,6 +162,30 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         set => this[nameof(ConversationProtocol)] = value.ToString();
     }
 
+    public SocketConnectionAttributes ConnectionAttributes
+    {
+        get
+        {
+            var checkValue = this[nameof(ConnectionAttributes)];
+            return checkValue != null ? Enum.Parse<SocketConnectionAttributes>(checkValue) : SocketConnectionAttributes.Reliable;
+        }
+        set
+        {
+            if (value.HasMulticastFlag())
+            {
+                if (ConversationProtocol == SocketConversationProtocol.Unknown)
+                {
+                    ConversationProtocol = SocketConversationProtocol.UdpPublisher;
+                }
+                else if (ConversationProtocol is not (SocketConversationProtocol.UdpPublisher or SocketConversationProtocol.UdpSubscriber))
+                {
+                    throw new ArgumentException("Expected ConversationProtocol to be UdpPublisher or UdpSubscriber when setting ConnectionAttributes to Multicast");
+                }
+            }
+            this[nameof(ConnectionAttributes)] = value.ToString();
+        }
+    }
+
     public IEnumerable<IEndpointConfig> AvailableConnections
     {
         get
@@ -156,8 +202,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
             var i        = 0;
             foreach (var remoteServiceConfig in value)
             {
-                ignoreSuppressWarnings = new EndpointConfig(remoteServiceConfig, ConfigRoot
-                                                          , Path + ":" + nameof(AvailableConnections) + $":{i}");
+                _ = new EndpointConfig(remoteServiceConfig, ConfigRoot, Path + ":" + nameof(AvailableConnections) + $":{i}");
                 i++;
             }
 
@@ -176,7 +221,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         get
         {
             var checkValue = this[nameof(ReceiveBufferSize)];
-            return checkValue != null ? int.Parse(checkValue) : 2 * 1024 * 1024;
+            return checkValue != null ? int.Parse(checkValue) : INetworkTopicConnectionConfig.DefaultReceiveBufferSize;
         }
         set => this[nameof(ReceiveBufferSize)] = value.ToString();
     }
@@ -186,7 +231,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         get
         {
             var checkValue = this[nameof(SendBufferSize)];
-            return checkValue != null ? int.Parse(checkValue) : 2 * 1024 * 1024;
+            return checkValue != null ? int.Parse(checkValue) : INetworkTopicConnectionConfig.DefaultSendBufferSize;
         }
         set => this[nameof(SendBufferSize)] = value.ToString();
     }
@@ -196,19 +241,9 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         get
         {
             var checkValue = this[nameof(NumberOfReceivesPerPoll)];
-            return checkValue != null ? int.Parse(checkValue) : 10;
+            return checkValue != null ? int.Parse(checkValue) : INetworkTopicConnectionConfig.DefaultNumberOfReceivesPerPoll;
         }
         set => this[nameof(NumberOfReceivesPerPoll)] = value.ToString();
-    }
-
-    public SocketConnectionAttributes ConnectionAttributes
-    {
-        get
-        {
-            var checkValue = this[nameof(ConnectionAttributes)];
-            return checkValue != null ? Enum.Parse<SocketConnectionAttributes>(checkValue) : SocketConnectionAttributes.Reliable;
-        }
-        set => this[nameof(ConnectionAttributes)] = value.ToString();
     }
 
     public ConnectionSelectionOrder ConnectionSelectionOrder
@@ -216,7 +251,9 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         get
         {
             var checkValue = this[nameof(ConnectionSelectionOrder)];
-            return checkValue != null ? Enum.Parse<ConnectionSelectionOrder>(checkValue) : ConnectionSelectionOrder.ListedOrder;
+            return checkValue != null
+                ? Enum.Parse<ConnectionSelectionOrder>(checkValue)
+                : INetworkTopicConnectionConfig.DefaultConnectionSelectionOrder;
         }
         set => this[nameof(ConnectionSelectionOrder)] = value.ToString();
     }
@@ -226,7 +263,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         get
         {
             var checkValue = this[nameof(ConnectionTimeoutMs)];
-            return checkValue != null ? uint.Parse(checkValue) : 2_000_000u;
+            return checkValue != null ? uint.Parse(checkValue) : INetworkTopicConnectionConfig.DefaultConnectionTimeoutMs;
         }
         set => this[nameof(ConnectionTimeoutMs)] = value.ToString();
     }
@@ -236,7 +273,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         get
         {
             var checkValue = this[nameof(ResponseTimeoutMs)];
-            return checkValue != null ? uint.Parse(checkValue) : 2_000_000u;
+            return checkValue != null ? uint.Parse(checkValue) : INetworkTopicConnectionConfig.DefaultResponseTimeoutMs;
         }
         set => this[nameof(ResponseTimeoutMs)] = value.ToString();
     }
@@ -244,8 +281,10 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
     public ISocketReconnectConfig ReconnectConfig
     {
         get => new SocketReconnectConfig(ConfigRoot, Path + $":{nameof(ReconnectConfig)}");
-        set => ignoreSuppressWarnings = new SocketReconnectConfig(value, ConfigRoot, Path + $":{nameof(ReconnectConfig)}");
+        set => _ = new SocketReconnectConfig(value, ConfigRoot, Path + $":{nameof(ReconnectConfig)}");
     }
+
+    public IConnectedEndpoint? ConnectedEndpoint { get; set; }
 
     public TransportType TransportType => TransportType.Sockets;
 
@@ -265,22 +304,20 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
     public INetworkTopicConnectionConfig ToggleProtocolDirection()
     {
         var oppositeConnectionConfig = new NetworkTopicConnectionConfig(this);
-        oppositeConnectionConfig.ConversationProtocol = oppositeConnectionConfig.ConversationProtocol switch
-                                                        {
-                                                            SocketConversationProtocol.TcpAcceptor   => SocketConversationProtocol.TcpClient
-                                                          , SocketConversationProtocol.TcpClient     => SocketConversationProtocol.TcpAcceptor
-                                                          , SocketConversationProtocol.UdpPublisher  => SocketConversationProtocol.UdpSubscriber
-                                                          , SocketConversationProtocol.UdpSubscriber => SocketConversationProtocol.UdpPublisher
-                                                          , _ => throw new
-                                                                NotSupportedException($"Did not expect to receive SocketConversationProtocol unknown")
-                                                        };
+        oppositeConnectionConfig.ConversationProtocol =
+            oppositeConnectionConfig.ConversationProtocol switch
+            {
+                SocketConversationProtocol.TcpAcceptor   => SocketConversationProtocol.TcpClient
+              , SocketConversationProtocol.TcpClient     => SocketConversationProtocol.TcpAcceptor
+              , SocketConversationProtocol.UdpPublisher  => SocketConversationProtocol.UdpSubscriber
+              , SocketConversationProtocol.UdpSubscriber => SocketConversationProtocol.UdpPublisher
+              , _ => throw new
+                    NotSupportedException("Did not expect to receive SocketConversationProtocol unknown")
+            };
         return oppositeConnectionConfig;
     }
 
-    public INetworkTopicConnectionConfig Clone() =>
-        new NetworkTopicConnectionConfig(TopicName, ConversationProtocol,
-                                         AvailableConnections.ToList(), TopicDescription, ReceiveBufferSize, SendBufferSize, NumberOfReceivesPerPoll,
-                                         ConnectionAttributes, ConnectionSelectionOrder, ConnectionTimeoutMs, ResponseTimeoutMs, ReconnectConfig);
+    public INetworkTopicConnectionConfig Clone() => new NetworkTopicConnectionConfig(this);
 
 
     public static void ClearValues(IConfigurationRoot root, string path)
@@ -309,7 +346,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         var receivedBufferSizeSame    = ReceiveBufferSize == other.ReceiveBufferSize;
         var sendBufferSizeSame        = SendBufferSize == other.SendBufferSize;
         var numReceivesPerPollSame    = NumberOfReceivesPerPoll == other.NumberOfReceivesPerPoll;
-        var connectionAttsSame        = ConnectionAttributes == other.ConnectionAttributes;
+        var connectionAttribsSame        = ConnectionAttributes == other.ConnectionAttributes;
         var connectionSelectOrderSame = ConnectionSelectionOrder == other.ConnectionSelectionOrder;
         var connTimeoutMsSame         = ConnectionTimeoutMs == other.ConnectionTimeoutMs;
         var responseTimeoutMsSame     = ResponseTimeoutMs == other.ResponseTimeoutMs;
@@ -317,7 +354,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
 
         return connectionNameSame && topicNameSame && conversationProtocolSame && availableConnectionsSame
             && topicDescriptionSame && receivedBufferSizeSame
-            && sendBufferSizeSame && numReceivesPerPollSame && connectionAttsSame && connectionSelectOrderSame
+            && sendBufferSizeSame && numReceivesPerPollSame && connectionAttribsSame && connectionSelectOrderSame
             && connTimeoutMsSame && responseTimeoutMsSame && reconnectConfigSame;
     }
 
@@ -337,7 +374,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
     }
 
     public override string ToString() =>
-        $"SocketTopicConnectionConfig({nameof(ConnectionName)}: {ConnectionName}, {nameof(TopicName)}: {TopicName}, " +
+        $"{nameof(NetworkTopicConnectionConfig)}({nameof(ConnectionName)}: {ConnectionName}, {nameof(TopicName)}: {TopicName}, " +
         $"{nameof(ConversationProtocol)}: {ConversationProtocol}, {nameof(AvailableConnections)}: {AvailableConnections}, " +
         $"{nameof(TopicDescription)}: {TopicDescription}, {nameof(ReceiveBufferSize)}: {ReceiveBufferSize}, {nameof(SendBufferSize)}: {SendBufferSize}, " +
         $"{nameof(NumberOfReceivesPerPoll)}: {NumberOfReceivesPerPoll}, {nameof(ConnectionAttributes)}: {ConnectionAttributes}, " +

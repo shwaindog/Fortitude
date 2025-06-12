@@ -6,6 +6,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Types;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
@@ -20,7 +21,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
@@ -98,7 +99,7 @@ public class OrderBookSideTests
     private OrderBookSide ordersCounterPartyFullyPopulatedOrderBookSide = null!;
     private OrderBookSide fullSupportFullyPopulatedOrderBookSide        = null!;
 
-    private static DateTime testDateTime = new(2025, 5, 31, 10, 33, 24);
+    private static readonly DateTime TestDateTime = new(2025, 5, 31, 10, 33, 24);
 
     [TestInitialize]
     public void SetUp()
@@ -220,7 +221,8 @@ public class OrderBookSideTests
           , ordersCounterPartyFullyPopulatedOrderBookSide, fullSupportFullyPopulatedOrderBookSide
         ];
         publicationPrecisionSettings = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
+            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, MarketClassification.Unknown
+          ,  AUinMEL, AUinMEL, AUinMEL
            , 20, 0.00001m, 30000m, 50000000m, 1000m
            , layerFlags: LayerFlags.Volume | LayerFlags.Price
            , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
@@ -618,7 +620,7 @@ public class OrderBookSideTests
         toShift.ShiftCommands = new List<ListShiftCommand>();
 
         var shiftedNext = fullSupportFullyPopulatedOrderBookSide.Clone();
-        toShift.CalculateShift(testDateTime, shiftedNext);
+        toShift.CalculateShift(TestDateTime, shiftedNext);
 
         Assert.AreEqual(3, toShift.ShiftCommands.Count);
         AssertExpectedShiftCommands();
@@ -704,7 +706,7 @@ public class OrderBookSideTests
         toShift.ShiftCommands = new List<ListShiftCommand>();
 
         var shiftedNext = fullSupportFullyPopulatedOrderBookSide.Clone();
-        toShift.CalculateShift(testDateTime, shiftedNext);
+        toShift.CalculateShift(TestDateTime, shiftedNext);
 
         Console.Out.WriteLine($"{toShift.ShiftCommands.JoinShiftCommandsOnNewLine()}");
 
@@ -795,7 +797,7 @@ public class OrderBookSideTests
         toShift.ShiftCommands = new List<ListShiftCommand>();
 
         var shiftedNext = fullSupportFullyPopulatedOrderBookSide.Clone();
-        shiftedNext.CalculateShift(testDateTime, toShift);
+        shiftedNext.CalculateShift(TestDateTime, toShift);
 
         Console.Out.WriteLine($"{shiftedNext.ShiftCommands.JoinShiftCommandsOnNewLine()}");
 
@@ -903,7 +905,7 @@ public class OrderBookSideTests
         instances[expectedExistingIndices[5]] = shiftedNext[expectedExistingIndices[5]];
         instances[expectedExistingIndices[6]] = shiftedNext[expectedExistingIndices[6]];
         instances[expectedExistingIndices[7]] = shiftedNext[expectedExistingIndices[7]];
-        shiftedNext.CalculateShift(testDateTime, toShift);
+        shiftedNext.CalculateShift(TestDateTime, toShift);
 
         Console.Out.WriteLine($"{shiftedNext.ShiftCommands.JoinShiftCommandsOnNewLine()}");
 

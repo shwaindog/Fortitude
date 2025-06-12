@@ -5,6 +5,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;
@@ -12,7 +13,7 @@ using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
@@ -40,7 +41,8 @@ public class QuoteExtensionMethodsTests
     private readonly DateTime originalQuoteExchangeTime      = new(2015, 11, 17, 22, 07, 23);
 
     private readonly SourceTickerInfo originalSourceTickerInfo =
-        new(1, OriginalQuoteExchangeName, 1, OriginalQuoteTickerName, Level3Quote, Unknown
+        new(1, OriginalQuoteExchangeName, 1, OriginalQuoteTickerName, Level3Quote, MarketClassification.Unknown
+          , AUinMEL, AUinMEL, AUinMEL
           , 20, 0.0001m, 1m, 1000000m, 1m);
 
     private IPublishableLevel3Quote originalQuote = null!;
@@ -102,7 +104,8 @@ public class QuoteExtensionMethodsTests
 
         var newExchangerName = "DifferentExchangeName";
         var newSourceTickerInfo = new SourceTickerInfo
-            (1, newExchangerName, 1, OriginalQuoteTickerName, Level3Quote, Unknown
+            (1, newExchangerName, 1, OriginalQuoteTickerName, Level3Quote, MarketClassification.Unknown
+           , AUinMEL, AUinMEL, AUinMEL
            , 20, 0.0001m, 1m, 1000000m, 1m);
         NonPublicInvocator.SetAutoPropertyInstanceField
             (q2, (PublishableLevel3PriceQuote pq) => pq.SourceTickerInfo, newSourceTickerInfo);
@@ -125,7 +128,8 @@ public class QuoteExtensionMethodsTests
         var q2            = originalQuote.Clone();
         var newTickerName = "DifferentTicker";
         var newSourceTickerInfo = new SourceTickerInfo
-            (1, OriginalQuoteExchangeName, 1, newTickerName, Level3Quote, Unknown
+            (1, OriginalQuoteExchangeName, 1, newTickerName, Level3Quote, MarketClassification.Unknown
+           , AUinMEL, AUinMEL, AUinMEL
            , 20, 0.0001m, 1m, 1000000m, 1m);
         NonPublicInvocator.SetAutoPropertyInstanceField
             (q2, (PublishableLevel3PriceQuote pq) => pq.SourceTickerInfo, newSourceTickerInfo);

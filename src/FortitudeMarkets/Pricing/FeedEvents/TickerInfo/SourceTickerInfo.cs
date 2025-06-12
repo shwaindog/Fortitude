@@ -11,7 +11,8 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
-using FortitudeMarkets.Configuration.ClientServerConfig;
+using FortitudeIO.Transports.Network.Config;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
@@ -175,8 +176,7 @@ public class SourceTickerInfo : PricingInstrumentId, ISourceTickerInfo, ICloneab
         QuoteBehaviorFlags     = DefaultQuoteBehaviorFlags;
     }
 
-    public SourceTickerInfo
-        (PricingInstrumentIdValue pricingInstrumentId, TickerQuoteDetailLevel tickerQuoteDetailLevel = DefaultQuoteLevel)
+    public SourceTickerInfo(PricingInstrumentIdValue pricingInstrumentId, TickerQuoteDetailLevel tickerQuoteDetailLevel = DefaultQuoteLevel)
         : base(pricingInstrumentId)
     {
         PublishedTickerQuoteDetailLevel = tickerQuoteDetailLevel;
@@ -199,7 +199,11 @@ public class SourceTickerInfo : PricingInstrumentId, ISourceTickerInfo, ICloneab
 
     public SourceTickerInfo
     (ushort sourceId, string sourceName, ushort tickerId, string ticker, TickerQuoteDetailLevel publishedTickerQuoteDetailLevel = DefaultQuoteLevel
-      , MarketClassification marketClassification = default, ushort maximumPublishedLayers = DefaultMaximumPublishedLayers
+      , MarketClassification marketClassification = default
+      , CountryCityCodes sourcePublishLocation = CountryCityCodes.Unknown  
+      , CountryCityCodes adapterReceiveLocation = CountryCityCodes.Unknown  
+      , CountryCityCodes clientReceiveLocation = CountryCityCodes.Unknown  
+      , ushort maximumPublishedLayers = DefaultMaximumPublishedLayers
       , decimal roundingPrecision = DefaultRoundingPrecision
       , decimal pip = DefaultPip, decimal minSubmitSize = DefaultMinSubmitSize, decimal maxSubmitSize = DefaultMaxSubmitSize
       , decimal incrementSize = DefaultIncrementSize
@@ -207,7 +211,8 @@ public class SourceTickerInfo : PricingInstrumentId, ISourceTickerInfo, ICloneab
       , bool subscribeToPrices = DefaultSubscribeToPrices, bool tradingEnabled = DefaultTradingEnabled
       , LayerFlags layerFlags = PriceVolumeFlags, LastTradedFlags lastTradedFlags = DefaultLastTradedFlags
       , PublishableQuoteInstantBehaviorFlags quoteBehaviorFlags = DefaultQuoteBehaviorFlags)
-        : base(sourceId, tickerId, sourceName, ticker, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick), InstrumentType.Price, marketClassification)
+        : base(sourceId, tickerId, sourceName, ticker, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick), InstrumentType.Price
+             , marketClassification, null, sourcePublishLocation, adapterReceiveLocation, clientReceiveLocation)
     {
         PublishedTickerQuoteDetailLevel = publishedTickerQuoteDetailLevel;
 

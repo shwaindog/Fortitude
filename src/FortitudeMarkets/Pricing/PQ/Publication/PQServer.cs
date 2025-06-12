@@ -15,8 +15,8 @@ using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
-using FortitudeMarkets.Configuration.ClientServerConfig;
-using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Configuration.PricingConfig;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages;
@@ -172,6 +172,7 @@ public class PQServer<T> : IPQServer<T> where T : class, IPQMessage, new()
                 pubUpdate.CopyFrom(ent, CopyMergeFlags.FullReplace);
                 quote.UpdateComplete(seqId);
                 ent.UpdateComplete(seqId);
+                ent.PQSequenceId++;
             }
             finally
             {

@@ -51,6 +51,11 @@ public class BusRulesMessageDeserializationRepository : IMessageDeserializationR
         set => backingDeserializationRepository.CascadingFallbackDeserializationRepo = value;
     }
 
+    public void StateReset()
+    {
+        backingDeserializationRepository.StateReset();
+    }
+
     public INotifyingMessageDeserializer<TM>?
         RegisterDeserializer<TM>(INotifyingMessageDeserializer<TM>? messageDeserializer = null, bool forceOverride = false)
         where TM : class, IVersionedMessage, new() =>

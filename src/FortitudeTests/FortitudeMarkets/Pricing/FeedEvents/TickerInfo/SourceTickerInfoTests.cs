@@ -1,7 +1,8 @@
-﻿using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
+﻿using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 namespace FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
@@ -10,14 +11,16 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 public class SourceTickerInfoTests
 {
     public static readonly SourceTickerInfo BaseL2PriceVolumeSti = 
-        new(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level2Quote, Unknown
-       , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+        new(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level2Quote, MarketClassification.Unknown
+          , AUinMEL, AUinMEL, AUinMEL
+       , 20, 0.00001m, 30000m, 50000000m, 1000m
        , layerFlags: LayerFlagsExtensions.PriceVolumeLayerFlags
           , lastTradedFlags: LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags);
 
     public static readonly SourceTickerInfo BaseL3PriceVolumeSti = 
-        new(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
-       , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+        new(ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, MarketClassification.Unknown
+          , AUinMEL, AUinMEL, AUinMEL
+       , 20, 0.00001m, 30000m, 50000000m, 1000m
        , layerFlags: LayerFlagsExtensions.PriceVolumeLayerFlags
           , lastTradedFlags: LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags);
 
@@ -202,8 +205,9 @@ public class SourceTickerInfoTests
     private SourceTickerInfo sourceTickerInfo = null!;
 
     public static SourceTickerInfo DummySourceTickerInfo =>
-        new(1, "TestSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown, 10
-          , 0.00001m, 0.0001m, 30_000m, 10_000_000m, 10_000m, 250, 10_000
+        new(1, "TestSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, MarketClassification.Unknown
+          , AUinMEL, AUinMEL, AUinMEL, 10
+          , 0.00001m, 0.0001m, 30_000m, 10_000_000m, 10_000m, 250
           , layerFlags: LayerFlags.Price | LayerFlags.Volume | LayerFlags.SourceName
           , lastTradedFlags: LastTradedFlags.LastTradedPrice | LastTradedFlags.LastTradedTime | LastTradedFlags.LastTradedVolume);
 
@@ -214,13 +218,13 @@ public class SourceTickerInfoTests
     }
 
     [TestMethod]
-    public void NewUniqueSourceTickerIdentifer_New_IdGeneratedIsExpected()
+    public void NewUniqueSourceTickerIdentifier_New_IdGeneratedIsExpected()
     {
         ushort srcId = 123;
         ushort tkrId = 234;
 
         var firstUniSrcTkrId = new SourceTickerInfo
-            (srcId, "TestSource", tkrId, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown);
+            (srcId, "TestSource", tkrId, "TestTicker", TickerQuoteDetailLevel.Level2Quote, MarketClassification.Unknown);
 
         expectedId = ((uint)srcId << 16) + tkrId;
 
@@ -229,7 +233,7 @@ public class SourceTickerInfoTests
         Assert.AreEqual("TestSource", firstUniSrcTkrId.SourceName);
 
         var secondUniSrcTkrId = new SourceTickerInfo
-            (srcId, "TestSource", tkrId, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown);
+            (srcId, "TestSource", tkrId, "TestTicker", TickerQuoteDetailLevel.Level2Quote, MarketClassification.Unknown);
         Assert.AreEqual(firstUniSrcTkrId, secondUniSrcTkrId);
     }
 
@@ -258,12 +262,12 @@ public class SourceTickerInfoTests
     public void EmptySourceTickerInfo_New_DefaultAreAsExpected()
     {
         var minimalSrcTkrInfo = new SourceTickerInfo
-            (1, "MinimalSource", 1, "MinalTicker", TickerQuoteDetailLevel.Level2Quote, Unknown);
+            (1, "MinimalSource", 1, "MinimalTicker", Level2Quote, MarketClassification.Unknown);
 
         expectedId = ((uint)minimalSrcTkrInfo.SourceId << 16) + minimalSrcTkrInfo.InstrumentId;
         Assert.AreEqual(expectedId, minimalSrcTkrInfo.SourceInstrumentId);
         Assert.AreEqual("MinimalSource", minimalSrcTkrInfo.SourceName);
-        Assert.AreEqual("MinalTicker", minimalSrcTkrInfo.InstrumentName);
+        Assert.AreEqual("MinimalTicker", minimalSrcTkrInfo.InstrumentName);
         Assert.AreEqual(SourceTickerInfo.DefaultMaximumPublishedLayers, minimalSrcTkrInfo.MaximumPublishedLayers);
         Assert.AreEqual(SourceTickerInfo.DefaultRoundingPrecision, minimalSrcTkrInfo.RoundingPrecision);
         Assert.AreEqual(SourceTickerInfo.DefaultPip, minimalSrcTkrInfo.Pip);
@@ -283,7 +287,8 @@ public class SourceTickerInfoTests
         Assert.AreEqual("0.00000", formatPriceString);
 
         var twoDecimalPrecision = new SourceTickerInfo
-            (1, "TestSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown,
+            (1, "TestSource", 1, "TestTicker", Level2Quote, MarketClassification.Unknown
+           , AUinMEL, AUinMEL, AUinMEL,
              10, 0.01m);
         formatPriceString = twoDecimalPrecision.FormatPrice;
         Assert.AreEqual("0.00", formatPriceString);
@@ -309,10 +314,10 @@ public class SourceTickerInfoTests
     public void NonExactUniqueSourceTickerId_AreEquivalent_EquivalentWhenSamePartsSame()
     {
         var commonStqi = new SourceTickerInfo
-            (12345, "TestSource", 12345, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown);
+            (12345, "TestSource", 12345, "TestTicker", Level2Quote, MarketClassification.Unknown);
 
         var nonStqi = new SourceTickerInfo
-            (12345, "TestSource", 12345, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown);
+            (12345, "TestSource", 12345, "TestTicker", Level2Quote, MarketClassification.Unknown);
 
         Assert.IsTrue(commonStqi.AreEquivalent(nonStqi));
     }
@@ -321,62 +326,70 @@ public class SourceTickerInfoTests
     public void OneDifferenceAtATime_AreEquivalent_ReturnsFalseWhenDifferent()
     {
         var commonStqi = new SourceTickerInfo
-            (1, "TestSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown);
+            (1, "TestSource", 1, "TestTicker", Level2Quote, MarketClassification.Unknown);
 
         var sourceIdDiffStqi = new SourceTickerInfo
-            (2, "TestSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown);
+            (2, "TestSource", 1, "TestTicker", Level2Quote, MarketClassification.Unknown);
         Assert.AreNotEqual(commonStqi, sourceIdDiffStqi);
 
         var tickerIdDiffStqi = new SourceTickerInfo
-            (1, "TestSource", 2, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown);
+            (1, "TestSource", 2, "TestTicker", Level2Quote, MarketClassification.Unknown);
         Assert.AreNotEqual(commonStqi, tickerIdDiffStqi);
 
         var srcDiffStqi = new SourceTickerInfo
-            (1, "DiffSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown);
+            (1, "DiffSource", 1, "TestTicker", Level2Quote, MarketClassification.Unknown);
         Assert.AreNotEqual(commonStqi, srcDiffStqi);
 
         var tkrDiffStqi = new SourceTickerInfo
-            (1, "TestSource", 1, "DiffTicker", TickerQuoteDetailLevel.Level2Quote, Unknown);
+            (1, "TestSource", 1, "DiffTicker", Level2Quote, MarketClassification.Unknown);
         Assert.AreNotEqual(commonStqi, tkrDiffStqi);
 
         var numLayersDiffStqi = new SourceTickerInfo
-            (1, "TestSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown
+            (1, "TestSource", 1, "TestTicker", Level2Quote, MarketClassification.Unknown
+           , AUinMEL, AUinMEL, AUinMEL
            , 4);
         Assert.AreNotEqual(commonStqi, numLayersDiffStqi);
 
         var roundingPrecisionDiffStqi = new SourceTickerInfo
-            (1, "TestSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown
+            (1, "TestSource", 1, "TestTicker", Level2Quote, MarketClassification.Unknown
+           , AUinMEL, AUinMEL, AUinMEL
            , 20, 0.01m);
         Assert.AreNotEqual(commonStqi, roundingPrecisionDiffStqi);
 
         var minSubSizeDiffStqi = new SourceTickerInfo
-            (1, "TestSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown
+            (1, "TestSource", 1, "TestTicker", Level2Quote, MarketClassification.Unknown
+           , AUinMEL, AUinMEL, AUinMEL
            , 20, 0.0001m, 1m);
         Assert.AreNotEqual(commonStqi, minSubSizeDiffStqi);
 
         var maxSubSizeDiffStqi = new SourceTickerInfo
-            (1, "TestSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown
+            (1, "TestSource", 1, "TestTicker", Level2Quote, MarketClassification.Unknown
+           , AUinMEL, AUinMEL, AUinMEL
            , 20, 0.0001m, 0.01m, 1_000_000_000);
         Assert.AreNotEqual(commonStqi, maxSubSizeDiffStqi);
 
         var incrementSizeDiffStqi = new SourceTickerInfo
-            (1, "TestSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown
+            (1, "TestSource", 1, "TestTicker", Level2Quote, MarketClassification.Unknown
+           , AUinMEL, AUinMEL, AUinMEL
            , 20, 0.0001m, 0.01m, 1_000_000, 1m);
         Assert.AreNotEqual(commonStqi, incrementSizeDiffStqi);
 
         var minQuoteLifeDiffStqi = new SourceTickerInfo
-            (1, "TestSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown
+            (1, "TestSource", 1, "TestTicker", Level2Quote, MarketClassification.Unknown
+           , AUinMEL, AUinMEL, AUinMEL
            , 20, 0.0001m, 0.01m, 1_000_000, 0.01m, 250);
         Assert.AreNotEqual(commonStqi, minQuoteLifeDiffStqi);
 
         var layerFlagsDiffStqi = new SourceTickerInfo
-            (1, "TestSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown
+            (1, "TestSource", 1, "TestTicker", Level2Quote, MarketClassification.Unknown
+           , AUinMEL, AUinMEL, AUinMEL
            , 20, 0.0001m, 0.01m, 1_000_000, 0.01m, 100
            , layerFlags: LayerFlags.SourceQuoteReference | LayerFlags.ValueDate);
         Assert.AreNotEqual(commonStqi, layerFlagsDiffStqi);
 
         var lastTradeFlagsDiffStqi = new SourceTickerInfo
-            (1, "TestSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown
+            (1, "TestSource", 1, "TestTicker", Level2Quote, MarketClassification.Unknown
+           , AUinMEL, AUinMEL, AUinMEL
            , 20, 0.0001m, 0.01m, 1_000_000, 0.01m, 100
            , layerFlags: LayerFlags.Price | LayerFlags.Volume
            , lastTradedFlags: LastTradedFlags.TraderName);
@@ -384,7 +397,8 @@ public class SourceTickerInfoTests
 
         // ReSharper disable RedundantArgumentDefaultValue
         var matchingStqi = new SourceTickerInfo
-            (1, "TestSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown
+            (1, "TestSource", 1, "TestTicker", Level2Quote, MarketClassification.Unknown
+           , Unknown, Unknown, Unknown
            , SourceTickerInfo.DefaultMaximumPublishedLayers, SourceTickerInfo.DefaultRoundingPrecision, SourceTickerInfo.DefaultPip,
              SourceTickerInfo.DefaultMinSubmitSize, SourceTickerInfo.DefaultMaxSubmitSize, SourceTickerInfo.DefaultIncrementSize,
              SourceTickerInfo.DefaultMinimumQuoteLife, SourceTickerInfo.DefaultDefaultMaxValidMs, SourceTickerInfo.DefaultSubscribeToPrices,
@@ -397,7 +411,7 @@ public class SourceTickerInfoTests
     public void PopulatedSti_GetHashCode_NotEqualTo0()
     {
         var firstSrcTkrQuoteInfo = new SourceTickerInfo
-            (1, "TestSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown);
+            (1, "TestSource", 1, "TestTicker", Level2Quote, MarketClassification.Unknown);
 
         Assert.AreNotEqual(0, firstSrcTkrQuoteInfo.GetHashCode());
     }
@@ -406,7 +420,7 @@ public class SourceTickerInfoTests
     public void FullyPopulatedSti_ToString_ReturnsNameAndValues()
     {
         var srcTkrInfo = new SourceTickerInfo
-            (1, "TestSource", 1, "TestTicker", TickerQuoteDetailLevel.Level2Quote, Unknown);
+            (1, "TestSource", 1, "TestTicker", Level2Quote, MarketClassification.Unknown);
         var toString = srcTkrInfo.ToString();
 
         Assert.IsTrue(toString.Contains(srcTkrInfo.GetType().Name));
@@ -431,5 +445,4 @@ public class SourceTickerInfoTests
         Assert.IsTrue(toString.Contains($"{nameof(srcTkrInfo.TradingEnabled)}: " +
                                         $"{srcTkrInfo.TradingEnabled}"));
     }
-
 }

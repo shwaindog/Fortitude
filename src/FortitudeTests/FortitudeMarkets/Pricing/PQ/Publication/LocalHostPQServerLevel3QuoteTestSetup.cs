@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeMarkets.Configuration.ClientServerConfig;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
@@ -23,7 +23,7 @@ public class LocalHostPQServerLevel3QuoteTestSetup : LocalHostPQServerTestSetupB
     public PQPublisher<PQPublishableLevel3Quote> PqPublisher      = null!;
     public PQServer<PQPublishableLevel3Quote>    PqServer         = null!;
 
-    public string Ticker = TestTicker;
+    public string Ticker = FirstTestTicker;
 
     [TestInitialize]
     public void SetupPQServer()

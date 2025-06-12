@@ -532,7 +532,10 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     }
 
 
-    public virtual void UpdateComplete(uint updateSequenceId = 0) { }
+    public virtual void UpdateComplete(uint updateSequenceId = 0)
+    {
+        FeedMarketConnectivityStatus &= ~(FeedConnectivityStatusFlags.FromAdapterSnapshot | FeedConnectivityStatusFlags.IsAdapterReplay);
+    }
 
     public virtual IPQMessage ResetWithTracking()
     {

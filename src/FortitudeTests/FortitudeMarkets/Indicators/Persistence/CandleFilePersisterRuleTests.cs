@@ -10,13 +10,14 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Indicators.Persistence;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
 using FortitudeTests.FortitudeMarkets.Indicators.Config;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
 using static FortitudeTests.FortitudeCommon.Extensions.DirectoryInfoExtensionsTests;
 using static FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Candles.CandleTests;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
@@ -33,7 +34,8 @@ public class CandleFilePersisterRuleTests : OneOfEachMessageQueueTypeTestSetup
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(CandleFilePersisterRuleTests));
 
     private readonly ISourceTickerInfo tickerInfo = new SourceTickerInfo
-        (1, "SourceName", 1, "TickerName", Level1Quote, Unknown
+        (1, "SourceName", 1, "TickerName", Level1Quote, MarketClassification.Unknown
+       , AUinMEL, AUinMEL, AUinMEL
        , 1, 0.001m, 0.1m, 10m, 100m, 10m);
 
     private decimal highLowSpread;

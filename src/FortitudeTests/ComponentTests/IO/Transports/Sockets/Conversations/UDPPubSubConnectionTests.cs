@@ -28,7 +28,7 @@ public class UdpPubSubConnectionTests
         , SocketConversationProtocol.UdpPublisher,
         new List<IEndpointConfig>(new List<IEndpointConfig>
         {
-            new EndpointConfig(TestMachineConfig.LoopBackIpAddress, TestMachineConfig.ServerUpdatePort
+            new EndpointConfig(TestMachineConfig.LoopBackIpAddress, TestMachineConfig.ServerUpdatePort, CountryCityCodes.AUinMEL
                 , subnetMask: TestMachineConfig.NetworkSubAddress)
         }), "TestTCPReqRespConn", 1024 * 1024 * 2, 1024 * 1024 * 2, 50,
         SocketConnectionAttributes.Fast | SocketConnectionAttributes.Multicast);

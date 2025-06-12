@@ -21,7 +21,8 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeTests.FortitudeCommon.Extensions;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
+using static FortitudeMarkets.Configuration.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
@@ -35,16 +36,16 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
 
     private readonly Func<IPublishableLevel3Quote> asPQLevel3QuoteFactory = () => new PQPublishableLevel3Quote();
 
-    private readonly string expectedFileNameFormat = "Price_tick_Spot_DymwiTest_RepoTest_{0:yyyy-MM-dd}_1W_Level3Quote.tsf";
+    private readonly string expectedFileNameFormat = "Price_tick_Spot_DymwiTest_RepoTest_{0:yyyy-MM-dd}_1W_AUinMEL_Level3Quote.tsf";
 
     private readonly DateTime week1                = new(2024, 5, 24);
-    private readonly string   week1ExpectedDirPath = "2020s/24/05-May/Week-3/FXMajor_Global/RepoTest";
+    private readonly string   week1ExpectedDirPath = "2020s/24/05-May/Week-3/FX_Global/RepoTest";
     private readonly DateTime week2                = new(2024, 5, 31);
-    private readonly string   week2ExpectedDirPath = "2020s/24/05-May/Week-4/FXMajor_Global/RepoTest";
+    private readonly string   week2ExpectedDirPath = "2020s/24/05-May/Week-4/FX_Global/RepoTest";
     private readonly DateTime week3                = new(2024, 6, 6);
-    private readonly string   week3ExpectedDirPath = "2020s/24/06-Jun/Week-1/FXMajor_Global/RepoTest";
+    private readonly string   week3ExpectedDirPath = "2020s/24/06-Jun/Week-1/FX_Global/RepoTest";
     private readonly DateTime week4                = new(2024, 6, 13);
-    private readonly string   week4ExpectedDirPath = "2020s/24/06-Jun/Week-2/FXMajor_Global/RepoTest";
+    private readonly string   week4ExpectedDirPath = "2020s/24/06-Jun/Week-2/FX_Global/RepoTest";
 
     private SourceTickerInfo       level3SrcTkrInfo       = null!;
     private PQPublishableLevel3QuoteGenerator pqLevel3QuoteGenerator = null!;
@@ -63,12 +64,17 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
         level3SrcTkrInfo =
             new SourceTickerInfo
                 (19, "DymwiTest", 79, "RepoTest", Level3Quote, FxMajor
+               , AUinMEL, AUinMEL, AUinMEL
                , 5, layerFlags: LayerFlags.SourceQuoteReference, lastTradedFlags: LastTradedFlags.PaidOrGiven, roundingPrecision: 0.000001m,
                  minSubmitSize: 0.01m, incrementSize: 0.01m);
 
-        var generateQuoteInfo = new GenerateQuoteInfo(level3SrcTkrInfo);
-        generateQuoteInfo.MidPriceGenerator!.StartTime  = week1.Date;
-        generateQuoteInfo.MidPriceGenerator!.StartPrice = 1.332211m;
+        var generateQuoteInfo = new GenerateQuoteInfo(level3SrcTkrInfo)
+        {
+            MidPriceGenerator =
+            {
+                StartTime = week1.Date, StartPrice = 1.332211m
+            }
+        };
 
         pqLevel3QuoteGenerator = new PQPublishableLevel3QuoteGenerator(new CurrentQuoteInstantValueGenerator(generateQuoteInfo));
 
@@ -147,7 +153,7 @@ public class DymwiTimeSeriesDirectoryRepositoryTests
             var compareEntry  = toCompareList[i];
             if (!originalEntry.AreEquivalent(compareEntry))
             {
-                Logger.Warn("Entries at {0} differ test failed \ndiff {1}", i, originalEntry.DiffQuotes(compareEntry, false));
+                Logger.Warn("Entries at {0} differ test failed \ndiff {1}", i, originalEntry.DiffQuotes(compareEntry));
                 FLoggerFactory.WaitUntilDrained();
                 Assert.Fail($"Entries at {i} differ test failed \ndiff {originalEntry.DiffQuotes(compareEntry)}.");
             }
