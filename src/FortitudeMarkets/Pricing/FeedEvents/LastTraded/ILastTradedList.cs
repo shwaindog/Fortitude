@@ -15,8 +15,6 @@ public interface ILastTradedList : IReusableObject<ILastTradedList>, IInterfaces
     LastTradedFlags LastTradesSupportFlags { get; }
 
     IReadOnlyList<ILastTrade> LastTrades { get; }
-
-    new int Capacity { get; }
 }
 
 public interface IMutableLastTradedList : ILastTradedList, ITrackableReset<IMutableLastTradedList>

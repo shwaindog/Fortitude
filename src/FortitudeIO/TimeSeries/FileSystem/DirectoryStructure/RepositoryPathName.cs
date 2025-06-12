@@ -18,9 +18,11 @@ public enum RepositoryPathName
   , InstrumentSource
   , InstrumentType
   , CoveringPeriod
-  , MarketType
+  , AssetType
+  , AssetCategory
   , MarketProductType
   , MarketRegion
+  , MarketRoute
   , Category
   , FilePeriod
   , DirectoryStartDate

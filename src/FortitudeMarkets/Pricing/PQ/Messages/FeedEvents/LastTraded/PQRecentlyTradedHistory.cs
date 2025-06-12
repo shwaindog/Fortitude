@@ -3,6 +3,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
+using FortitudeMarkets.Pricing.FeedEvents.MarketEvents;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
@@ -203,48 +204,6 @@ public class PQRecentlyTradedHistory : ReusableObject<IRecentlyTradedHistory>, I
         }
     }
 
-    public bool IsEmpty
-    {
-        get =>
-            OnTickLastTraded.IsEmpty
-         && AllLimitedHistoryLastTrades.IsEmpty
-         && RecentInternalOrdersTrades.IsEmpty
-         && OpenPositionTrades.IsEmpty
-         && AlertTrades.IsEmpty
-         && ClientOnlyReceivedCache.IsEmpty;
-        set
-        {
-            OnTickLastTraded.IsEmpty            = value;
-            AllLimitedHistoryLastTrades.IsEmpty = value;
-            RecentInternalOrdersTrades.IsEmpty  = value;
-            OpenPositionTrades.IsEmpty          = value;
-            AlertTrades.IsEmpty                 = value;
-            ClientOnlyReceivedCache.IsEmpty     = value;
-        }
-    }
-
-    public uint UpdateSequenceId => SequenceId;
-
-    public void UpdateStarted(uint updateSequenceId)
-    {
-        SequenceId = updateSequenceId;
-    }
-
-    public void UpdateAt(DateTime atDateTime, uint previousSequenceId, uint latestSequenceId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void UpdateComplete(uint updateSequenceId = 0)
-    {
-        OnTickLastTraded.UpdateComplete(updateSequenceId);
-        AllLimitedHistoryLastTrades.UpdateComplete(updateSequenceId);
-        RecentInternalOrdersTrades.UpdateComplete(updateSequenceId);
-        OpenPositionTrades.UpdateComplete(updateSequenceId);
-        AlertTrades.UpdateComplete(updateSequenceId);
-        ClientOnlyReceivedCache.UpdateComplete(updateSequenceId);
-    }
-
     public bool HasUpdates
     {
         get =>
@@ -265,6 +224,22 @@ public class PQRecentlyTradedHistory : ReusableObject<IRecentlyTradedHistory>, I
         }
     }
 
+    public bool IsEmpty
+    {
+        get =>
+            OnTickLastTraded.IsEmpty
+         && AllLimitedHistoryLastTrades.IsEmpty
+         && RecentInternalOrdersTrades.IsEmpty
+         && OpenPositionTrades.IsEmpty
+         && AlertTrades.IsEmpty
+         && ClientOnlyReceivedCache.IsEmpty;
+        set
+        {
+            if (!value) return;
+            ResetWithTracking();
+        }
+    }
+
     IMutableRecentlyTradedHistory ITrackableReset<IMutableRecentlyTradedHistory>.ResetWithTracking() => ResetWithTracking();
 
     IPQRecentlyTradedHistory ITrackableReset<IPQRecentlyTradedHistory>.ResetWithTracking() => ResetWithTracking();
@@ -282,6 +257,40 @@ public class PQRecentlyTradedHistory : ReusableObject<IRecentlyTradedHistory>, I
 
         SequenceId = 0;
         return this;
+    }
+
+    public uint UpdateSequenceId => SequenceId;
+
+    public void UpdateStarted(uint updateSequenceId)
+    {
+        SequenceId = updateSequenceId;
+    }
+
+    public void UpdateComplete(uint updateSequenceId = 0)
+    {
+        OnTickLastTraded.UpdateComplete(updateSequenceId);
+        AllLimitedHistoryLastTrades.UpdateComplete(updateSequenceId);
+        RecentInternalOrdersTrades.UpdateComplete(updateSequenceId);
+        OpenPositionTrades.UpdateComplete(updateSequenceId);
+        AlertTrades.UpdateComplete(updateSequenceId);
+        ClientOnlyReceivedCache.UpdateComplete(updateSequenceId);
+    }
+
+    public void ReceiveEventLifeCycleChange(IMarketTradingStateEvent updatedItem, EventStateLifecycle eventType)
+    {
+        if (eventType.IsActive() && updatedItem.MarketTradingStatus.HasMarketOpenFlag())
+        {
+            AllLimitedHistoryLastTrades.ReceiveEventLifeCycleChange(updatedItem, eventType);
+            RecentInternalOrdersTrades.ReceiveEventLifeCycleChange(updatedItem, eventType);
+            OpenPositionTrades.ReceiveEventLifeCycleChange(updatedItem, eventType);
+            AlertTrades.ReceiveEventLifeCycleChange(updatedItem, eventType);
+            ClientOnlyReceivedCache.ReceiveEventLifeCycleChange(updatedItem, eventType);
+        }
+    }
+
+    public void SubscribeToUpdates(IFiresOnTickLifeCycleChanges<IMarketTradingStateEvent> eventSource)
+    {
+        eventSource.NewlyActiveOnTick += ReceiveEventLifeCycleChange;
     }
 
 

@@ -5,27 +5,29 @@ using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeMarkets.Pricing.FeedEvents;
+using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 
 namespace FortitudeMarkets.Pricing.PQ.Messages;
 
 public interface IPQMessage : IMutableFeedEventStatusUpdate, IVersionedMessage, IPQSupportsStringUpdates, ITransferState<IPQMessage>
   , IPQSupportsFieldUpdates, ITrackableReset<IPQMessage>, IRelatedItems<IPQMessage>, IDoublyLinkedListNode<IPQMessage>
-  , IInterfacesComparable<IPQMessage>, ICloneable<IPQMessage>, IEmptyable
+  , IInterfacesComparable<IPQMessage>, ICloneable<IPQMessage>, IEmptyable, IMutablePartialSequenceUpdates, IPQCanHaveSourceTickerDefinition
 {
     PQMessageFlags? OverrideSerializationFlags { get; set; }
 
-    uint      StreamId            { get; }
-    string    StreamName          { get; }
-    ISyncLock Lock                { get; }
-    uint      PQSequenceId        { get; set; }
-    DateTime  LastPublicationTime { get; set; }
+    uint         StreamId            { get; }
+    string       StreamName          { get; }
+    ISyncLock    Lock                { get; }
+    uint         PQSequenceId        { get; set; }
+    DateTime     LastPublicationTime { get; set; }
 
     public bool IsQuoteBehaviorFlagsUpdated { get; set; }
     public bool IsFeedBehaviorFlagsUpdated { get; set; }
     public bool IsFeedConnectivityStatusUpdated { get; set; }
-
+    
     bool IsSocketReceivedTimeDateUpdated     { get; set; }
     bool IsSocketReceivedTimeSub2MinUpdated  { get; set; }
     bool IsProcessedTimeDateUpdated          { get; set; }

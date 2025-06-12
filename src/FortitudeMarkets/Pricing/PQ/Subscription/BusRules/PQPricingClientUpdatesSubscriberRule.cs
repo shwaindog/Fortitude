@@ -12,7 +12,7 @@ using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
-using FortitudeMarkets.Configuration.ClientServerConfig;
+using FortitudeMarkets.Configuration;
 
 #endregion
 

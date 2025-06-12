@@ -10,7 +10,7 @@ using FortitudeBusRules.Rules;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Conversations;
 using FortitudeIO.Transports.Network.Config;
-using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarkets.Configuration.PricingConfig;
 
 #endregion
 

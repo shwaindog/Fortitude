@@ -38,10 +38,15 @@ public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, IC
         SingleTickValue = toClone.SingleTickValue;
     }
 
-    public override TickInstant Clone() => Recycler?.Borrow<TickInstant>().CopyFrom(this) ?? new TickInstant(this);
-
     public virtual decimal  SingleTickValue { get; set; }
     public virtual DateTime SourceTime      { get; set; }
+
+    public virtual IMutableTickInstant ResetWithTracking()
+    {
+        SingleTickValue = 0m;
+        SourceTime      = DateTime.MinValue;
+        return this;
+    }
 
     public DateTime StorageTime(IStorageTimeResolver? resolver)
     {
@@ -54,21 +59,16 @@ public class TickInstant : ReusableObject<ITickInstant>, IMutableTickInstant, IC
         SourceTime += toChangeBy;
     }
 
-    public override TickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        SingleTickValue = source.SingleTickValue;
-        SourceTime      = source.SourceTime;
-        return this;
-    }
-
     ITickInstant ICloneable<ITickInstant>.Clone() => Clone();
 
     IMutableTickInstant IMutableTickInstant.Clone() => Clone();
 
-    public virtual IMutableTickInstant ResetWithTracking()
+    public override TickInstant Clone() => Recycler?.Borrow<TickInstant>().CopyFrom(this) ?? new TickInstant(this);
+
+    public override TickInstant CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        SingleTickValue = 0m;
-        SourceTime      = DateTime.MinValue;
+        SingleTickValue = source.SingleTickValue;
+        SourceTime = source.SourceTime;
         return this;
     }
 
@@ -180,9 +180,9 @@ public class PublishableTickInstant : FeedEventStatusUpdate, IMutablePublishable
 
     [JsonIgnore] public virtual TickerQuoteDetailLevel TickerQuoteDetailLevel => TickerQuoteDetailLevel.SingleValue;
 
-    [JsonIgnore] ISourceTickerInfo? IPublishableTickInstant.SourceTickerInfo => SourceTickerInfo;
+    [JsonIgnore] ISourceTickerInfo? ICanHaveSourceTickerDefinition.SourceTickerInfo => SourceTickerInfo;
 
-    public ISourceTickerInfo? SourceTickerInfo { get; set; }
+    public override ISourceTickerInfo? SourceTickerInfo { get; set; }
 
     ITickInstant IPublishableTickInstant.AsNonPublishable => AsNonPublishable;
 

@@ -349,7 +349,7 @@ public class PQLevel2Quote : PQLevel1Quote, IPQLevel2Quote, ICloneable<PQLevel2Q
                 IsAskPriceTopChangedUpdated = true;
             }
 
-            if (isFullReplace && pq1 is PQLevel2Quote pq2) UpdatedFlags = pq2.UpdatedFlags;
+            if (isFullReplace) SetFlagsSame(pq1);
         }
         return this;
     }

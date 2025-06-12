@@ -29,13 +29,7 @@ public interface IMutablePartialSequenceUpdates : IPartialSequenceUpdates
     new bool IsCompleteUpdate { get; set; }
 }
 
-public interface IStagedDeltaUpdatePhase : IScopedDiscreetUpdatable, IMutablePartialSequenceUpdates
+public interface IScopedTimedUpdatable : IDiscreetUpdatable
 {
-    void UpdatesAppliedToAllDeltas(uint startSequenceId, uint latestSequenceId);
-}
-
-
-public interface IScopedTimedUpdatable : IDiscreetUpdatable, ISequencedUpdates
-{
-    void UpdateAt(DateTime atDateTime, uint previousSequenceId, uint latestSequenceId);
+    void TriggerTimeUpdates(DateTime atDateTime);
 }

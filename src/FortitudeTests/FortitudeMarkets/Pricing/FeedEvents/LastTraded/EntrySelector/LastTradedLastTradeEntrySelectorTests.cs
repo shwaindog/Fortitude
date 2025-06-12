@@ -3,13 +3,15 @@
 
 #region
 
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded.EntrySelector;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DictionaryCompression;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.LastTraded;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
+using static FortitudeMarkets.Configuration.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
@@ -91,7 +93,8 @@ public class LastTradedLastTradeEntrySelectorTests
                 };
 
         sourceTickerInfo = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
+            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, MarketClassification.Unknown
+            , AUinMEL, AUinMEL, AUinMEL
            , 20, 0.00001m, 30000m, 50000000m, 1000m);
     }
 

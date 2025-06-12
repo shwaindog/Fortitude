@@ -13,6 +13,7 @@ using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.FeedEvents.Generators.Candles;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
@@ -20,7 +21,8 @@ using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Generators.Candles;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
+using static FortitudeMarkets.Configuration.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 using static FortitudeTests.FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.TestWeeklyDataGeneratorFixture;
 
@@ -56,7 +58,8 @@ public class CandleTimeSeriesFileTests
         PagedMemoryMappedFile.LogMappingMessages = true;
         srcTkrInfo =
             new SourceTickerInfo
-                (19, nameof(CandleTimeSeriesFileTests), 79, "CandleTests", SingleValue, Unknown
+                (19, nameof(CandleTimeSeriesFileTests), 79, "CandleTests", SingleValue, MarketClassification.Unknown
+               , AUinMEL, AUinMEL, AUinMEL
                , 1, 0.1m, 1m, 10_000m, 100_000_000m, 10_000m, 1, 10_000
                , true, false, LayerFlags.None);
 
@@ -98,7 +101,7 @@ public class CandleTimeSeriesFileTests
 
         var instrumentFields = new Dictionary<string, string>
         {
-            { nameof(RepositoryPathName.MarketType), "Unknown" }, { nameof(RepositoryPathName.MarketProductType), "Unknown" }
+            { nameof(RepositoryPathName.AssetType), "Unknown" }, { nameof(RepositoryPathName.MarketProductType), "Unknown" }
           , { nameof(RepositoryPathName.MarketRegion), "Unknown" }
         };
         var optionalInstrumentFields = new Dictionary<string, string>

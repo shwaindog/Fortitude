@@ -12,6 +12,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Indicators;
 using FortitudeMarkets.Indicators.Persistence;
 using FortitudeMarkets.Indicators.Pricing.Candles;
@@ -27,7 +28,7 @@ using FortitudeTests.FortitudeMarkets.Indicators.Config;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
 using static FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Candles.CandleTests;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
@@ -43,15 +44,18 @@ public class HistoricalCandlesResolverRuleTests : OneOfEachMessageQueueTypeTestS
     private readonly DateTime                      testEpochTime              = new(2024, 6, 19);
 
     private readonly SourceTickerInfo tickerId15SPeriod = new
-        (2, "SourceName", 2, "TickerName2", Level1Quote, Unknown
+        (2, "SourceName", 2, "TickerName2", Level1Quote, MarketClassification.Unknown
+       , AUinMEL, AUinMEL, AUinMEL
        , 1, 0.001m, 10m, 100m, 10m);
 
     private readonly SourceTickerInfo tickerId30SPeriod =
-        new(3, "SourceName", 3, "TickerName3", Level1Quote, Unknown
+        new(3, "SourceName", 3, "TickerName3", Level1Quote, MarketClassification.Unknown
+          , AUinMEL, AUinMEL, AUinMEL
           , 1, 0.001m, 10m, 100m, 10m);
 
     private readonly SourceTickerInfo tickerId5SPeriod =
-        new(1, "SourceName", 1, "TickerName1", Level1Quote, Unknown
+        new(1, "SourceName", 1, "TickerName1", Level1Quote, MarketClassification.Unknown
+          , AUinMEL, AUinMEL, AUinMEL
           , 1, 0.001m, 10m, 100m, 10m);
 
     private List<Candle>           fifteenSecondPeriodSummaries = null!;

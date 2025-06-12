@@ -11,8 +11,8 @@ using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.Types;
 using FortitudeIO.Protocols;
 using FortitudeMarkets.Pricing.PQ.Messages;
+using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Publication;
-using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using Moq;
 
 #endregion
@@ -28,19 +28,19 @@ public class PQServerHeartBeatSenderTests
 
     private Mock<IDoublyLinkedList<IPQMessage>> moqQuotesList = null!;
 
-    private Mock<ISyncLock>                       moqSyncLock             = null!;
-    private Mock<IPQUpdateServer>                 moqUpdateServer         = null!;
-    private PQServerHeartBeatSender               pqServerHeartBeatSender = null!;
-    private PQTickInstantTests.DummyPQTickInstant tickInstant1            = null!;
-    private PQTickInstantTests.DummyPQTickInstant tickInstant2            = null!;
-    private PQTickInstantTests.DummyPQTickInstant tickInstant3            = null!;
+    private Mock<ISyncLock>          moqSyncLock             = null!;
+    private Mock<IPQUpdateServer>    moqUpdateServer         = null!;
+    private PQServerHeartBeatSender  pqServerHeartBeatSender = null!;
+    private PQPublishableTickInstant tickInstant1            = null!;
+    private PQPublishableTickInstant tickInstant2            = null!;
+    private PQPublishableTickInstant tickInstant3            = null!;
 
     [TestInitialize]
     public void SetUp()
     {
-        tickInstant1 = new PQTickInstantTests.DummyPQTickInstant();
-        tickInstant2 = new PQTickInstantTests.DummyPQTickInstant();
-        tickInstant3 = new PQTickInstantTests.DummyPQTickInstant();
+        tickInstant1 = new PQPublishableTickInstant();
+        tickInstant2 = new PQPublishableTickInstant();
+        tickInstant3 = new PQPublishableTickInstant();
 
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqOsParallelController      = new Mock<IOSParallelController>();

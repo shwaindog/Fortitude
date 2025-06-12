@@ -1,9 +1,11 @@
 ﻿#region
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Protocols;
+using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Sockets;
 using FortitudeIO.Transports.Network.State;
 
@@ -80,6 +82,7 @@ public class InitiateControls : SocketStreamControls
                     ReconnectConfig.NextReconnectIntervalMs = ReconnectConfig.StartReconnectIntervalMs;
                     logger.Info("Connection {0} was accepted by host {1}:{2}",
                         SocketSessionContext.Name, socketConConfig.Hostname, socketConConfig.Port);
+                    SocketSessionContext.NetworkTopicConnectionConfig.ConnectedEndpoint = new ConnectedEndpoint(TimeContext.UtcNow, socketConConfig);
                     return true;
                 }
             }
@@ -117,6 +120,7 @@ public class InitiateControls : SocketStreamControls
             if (SocketSessionContext.SocketConnection?.IsConnected ?? false)
             {
                 SocketSessionContext.OnDisconnected(closeReason, reason);
+                SocketSessionContext.NetworkTopicConnectionConfig.ConnectedEndpoint = null;
                 logger.Info("Connection to {0} closed. {1}", SocketSessionContext.Name, reason);
             }
         }

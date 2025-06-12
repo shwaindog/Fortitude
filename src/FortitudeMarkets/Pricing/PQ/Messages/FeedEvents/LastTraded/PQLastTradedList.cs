@@ -235,17 +235,6 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         }
     }
 
-    public bool HasUpdates
-    {
-        get { return TradesList.Any(pqLt => pqLt.HasUpdates); }
-        set
-        {
-            foreach (var pqLastTrade in TradesList) pqLastTrade.HasUpdates = value;
-        }
-    }
-
-    public bool HasLastTrades => Count > 0;
-
     IReadOnlyList<ILastTrade> ILastTradedList.LastTrades => LastTrades;
 
     public IReadOnlyList<IPQLastTrade> LastTrades => TradesList.Take(Count).ToList().AsReadOnly();
@@ -254,6 +243,14 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
 
     public bool IsReadOnly => false;
 
+    public bool HasUpdates
+    {
+        get { return TradesList.Any(pqLt => pqLt.HasUpdates); }
+        set
+        {
+            foreach (var pqLastTrade in TradesList) pqLastTrade.HasUpdates = value;
+        }
+    }
 
     public virtual bool IsEmpty
     {
@@ -268,6 +265,35 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
             if (!value) return;
             SequenceId = 0;
         }
+    }
+
+    IMutableLastTradedList ITrackableReset<IMutableLastTradedList>.ResetWithTracking() => ResetWithTracking();
+
+    IPQLastTradedList ITrackableReset<IPQLastTradedList>.ResetWithTracking() => ResetWithTracking();
+
+    IPQLastTradedList IPQLastTradedList.ResetWithTracking() => ResetWithTracking();
+
+    ITracksResetCappedCapacityList<IMutableLastTrade> ITrackableReset<ITracksResetCappedCapacityList<IMutableLastTrade>>.ResetWithTracking() =>
+        ResetWithTracking();
+
+    IMutableLastTradedList IMutableLastTradedList.ResetWithTracking() => ResetWithTracking();
+
+    public virtual PQLastTradedList ResetWithTracking()
+    {
+        foreach (var mutableLastTrade in TradesList)
+        {
+            mutableLastTrade.ResetWithTracking();
+        }
+        return this;
+    }
+
+    public override void StateReset()
+    {
+        foreach (var lastTrade in TradesList) lastTrade.StateReset();
+        NameIdLookup.Clear();
+
+        SequenceId = 0;
+        base.StateReset();
     }
 
     protected Func<IPQLastTrade> NewElementFactory =>
@@ -314,7 +340,6 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         SequenceId = updateSequenceId;
     }
 
-
     public void UpdateComplete(uint updateSequenceId = 0)
     {
         if (HasUpdates) SequenceId++;
@@ -325,35 +350,6 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         var index = Count;
         TradesList.Add(LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags).CreateNewLastTradeEntry());
         return index;
-    }
-
-    IMutableLastTradedList ITrackableReset<IMutableLastTradedList>.ResetWithTracking() => ResetWithTracking();
-
-    IPQLastTradedList ITrackableReset<IPQLastTradedList>.ResetWithTracking() => ResetWithTracking();
-
-    IPQLastTradedList IPQLastTradedList.ResetWithTracking() => ResetWithTracking();
-
-    ITracksResetCappedCapacityList<IMutableLastTrade> ITrackableReset<ITracksResetCappedCapacityList<IMutableLastTrade>>.ResetWithTracking() =>
-        ResetWithTracking();
-
-    IMutableLastTradedList IMutableLastTradedList.ResetWithTracking() => ResetWithTracking();
-
-    public virtual PQLastTradedList ResetWithTracking()
-    {
-        foreach (var mutableLastTrade in TradesList)
-        {
-            mutableLastTrade.ResetWithTracking();
-        }
-        return this;
-    }
-
-    public override void StateReset()
-    {
-        foreach (var lastTrade in TradesList) lastTrade.StateReset();
-        NameIdLookup.Clear();
-
-        SequenceId = 0;
-        base.StateReset();
     }
 
     void ICollection<IMutableLastTrade>.Add(IMutableLastTrade item) => Add((IPQLastTrade)item);
@@ -367,8 +363,7 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
             TradesList[nonEmptyCount] = newLastTrade;
     }
 
-    public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields
-    (DateTime snapShotTime, PQMessageFlags messageFlags,
+    public virtual IEnumerable<PQFieldUpdate> GetDeltaUpdateFields(DateTime snapShotTime, PQMessageFlags messageFlags,
         IPQPriceVolumePublicationPrecisionSettings? quotePublicationPrecisionSetting = null)
     {
         for (var i = 0; i < TradesList.Count; i++)
@@ -404,6 +399,89 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         if (stringUpdate.Field.Id != PQFeedFields.LastTradedStringUpdates) return false;
         return NameIdLookup.UpdateFieldString(stringUpdate);
     }
+
+    public void EnsureRelatedItemsAreConfigured(ISourceTickerInfo? referenceInstance)
+    {
+        LastTradesSupportFlags |= referenceInstance?.LastTradedFlags ?? LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags;
+        var entriesFactory = LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags);
+        var maxEntries     = PQFeedFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades;
+
+        for (var i = 0; i < maxEntries; i++)
+        {
+            var currLastTrade = i < TradesList.Count ? TradesList[i] : null;
+            if (i >= TradesList.Count || currLastTrade is not null)
+                TradesList.Add(entriesFactory.CreateNewLastTradeEntry());
+            else if (i < TradesList.Count && currLastTrade != null
+                                          && !LastTradeEntrySelector.TypeCanWhollyContain
+                                                 (entriesFactory.EntryCreationType, currLastTrade.GetType()))
+                TradesList[i] = entriesFactory.UpgradeLayer(currLastTrade);
+        }
+
+        for (var i = TradesList.Count; i < maxEntries; i++) TradesList[i].StateReset();
+    }
+
+    IEnumerator<IMutableLastTrade> IEnumerable<IMutableLastTrade>.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<IPQLastTrade> GetEnumerator() => TradesList.Take(Count).GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    IEnumerator<ILastTrade> IEnumerable<ILastTrade>.GetEnumerator() => GetEnumerator();
+
+    IEnumerator<IMutableLastTrade> IMutableLastTradedList.GetEnumerator() => GetEnumerator();
+
+    public void EnsureRelatedItemsAreConfigured(IPQNameIdLookupGenerator? otherNameIdLookupGenerator)
+    {
+        if (otherNameIdLookupGenerator != null)
+        {
+            NameIdLookup.CopyFrom(otherNameIdLookupGenerator);
+            if (NameIdLookup.Count != otherNameIdLookupGenerator.Count) NameIdLookup.CopyFrom(otherNameIdLookupGenerator, CopyMergeFlags.FullReplace);
+        }
+    }
+
+    public void EnsureRelatedItemsAreConfigured(ILastTradedList? referenceInstance, INameIdLookup? nameIdLookup)
+    {
+        NameIdLookup = nameIdLookup as IPQNameIdLookupGenerator ?? NameIdLookup;
+        if (referenceInstance != null)
+        {
+            LastTradesSupportFlags |= referenceInstance.LastTradesSupportFlags;
+            var entriesFactory = LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags);
+            var maxEntries     = PQFeedFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades;
+
+            for (var i = 0; i < maxEntries; i++)
+            {
+                var currLastTrade = i < TradesList.Count ? TradesList[i] : null;
+                if (i >= TradesList.Count || currLastTrade is not null)
+                    TradesList.Add(entriesFactory.CreateNewLastTradeEntry());
+                else if (i < TradesList.Count && currLastTrade != null
+                                              && !LastTradeEntrySelector.TypeCanWhollyContain
+                                                     (entriesFactory.EntryCreationType, currLastTrade.GetType()))
+                    TradesList[i] = entriesFactory.UpgradeLayer(currLastTrade);
+            }
+        }
+        else
+            TradesList.Clear();
+    }
+
+    private IPQNameIdLookupGenerator SourcePopulatedNameIdGeneratorFrom(IEnumerable<ILastTrade?> existing)
+    {
+        if (existing is IPQLastTradedList pqLastTradedList)
+            return new PQNameIdLookupGenerator(pqLastTradedList.NameIdLookup, PQFeedFields.LastTradedStringUpdates);
+        return existing.OfType<ISupportsPQNameIdLookupGenerator>().Any()
+            ? new PQNameIdLookupGenerator(existing.OfType<ISupportsPQNameIdLookupGenerator>().Select(spqnilg => spqnilg.NameIdLookup).First())
+            : new PQNameIdLookupGenerator(PQFeedFields.LastTradedStringUpdates);
+    }
+
+    object ICloneable.Clone() => Clone();
+
+    ILastTradedList ICloneable<ILastTradedList>.Clone() => Clone();
+
+    IPQLastTradedList IPQLastTradedList.Clone() => Clone();
+
+    IMutableLastTradedList IMutableLastTradedList.Clone() => Clone();
+
+    public override PQLastTradedList Clone() =>
+        Recycler?.Borrow<PQLastTradedList>().CopyFrom(this) ?? new PQLastTradedList((ILastTradedList)this);
 
     public override PQLastTradedList CopyFrom(ILastTradedList source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
@@ -445,36 +523,6 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
         return this;
     }
 
-    public void EnsureRelatedItemsAreConfigured(ISourceTickerInfo? referenceInstance)
-    {
-        LastTradesSupportFlags |= referenceInstance?.LastTradedFlags ?? LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags;
-        var entriesFactory = LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags);
-        var maxEntries     = PQFeedFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades;
-
-        for (var i = 0; i < maxEntries; i++)
-        {
-            var currLastTrade = i < TradesList.Count ? TradesList[i] : null;
-            if (i >= TradesList.Count || currLastTrade is not null)
-                TradesList.Add(entriesFactory.CreateNewLastTradeEntry());
-            else if (i < TradesList.Count && currLastTrade != null
-                                          && !LastTradeEntrySelector.TypeCanWhollyContain
-                                                 (entriesFactory.EntryCreationType, currLastTrade.GetType()))
-                TradesList[i] = entriesFactory.UpgradeLayer(currLastTrade);
-        }
-
-        for (var i = TradesList.Count; i < maxEntries; i++) TradesList[i].StateReset();
-    }
-
-    object ICloneable.Clone() => Clone();
-
-    ILastTradedList ICloneable<ILastTradedList>.Clone() => Clone();
-
-    IPQLastTradedList IPQLastTradedList.Clone() => Clone();
-
-    IMutableLastTradedList IMutableLastTradedList.Clone() => Clone();
-
-    IEnumerator<IMutableLastTrade> IEnumerable<IMutableLastTrade>.GetEnumerator() => GetEnumerator();
-
     public bool AreEquivalent(ILastTradedList? other, bool exactTypes = false)
     {
         if (other == null) return false;
@@ -492,60 +540,6 @@ public class PQLastTradedList : ReusableObject<ILastTradedList>, IPQLastTradedLi
 
         return allAreSame;
     }
-
-    public IEnumerator<IPQLastTrade> GetEnumerator() => TradesList.Take(Count).GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    IEnumerator<ILastTrade> IEnumerable<ILastTrade>.GetEnumerator() => GetEnumerator();
-
-    IEnumerator<IMutableLastTrade> IMutableLastTradedList.GetEnumerator() => GetEnumerator();
-
-    public void EnsureRelatedItemsAreConfigured(IPQNameIdLookupGenerator? otherNameIdLookupGenerator)
-    {
-        if (otherNameIdLookupGenerator != null)
-        {
-            NameIdLookup.CopyFrom(otherNameIdLookupGenerator);
-            if (NameIdLookup.Count != otherNameIdLookupGenerator.Count) NameIdLookup.CopyFrom(otherNameIdLookupGenerator, CopyMergeFlags.FullReplace);
-        }
-    }
-
-    public void EnsureRelatedItemsAreConfigured(ILastTradedList? referenceInstance, INameIdLookup? nameIdLookup)
-    {
-        NameIdLookup = nameIdLookup as IPQNameIdLookupGenerator ?? NameIdLookup;
-        if (referenceInstance != null)
-        {
-            LastTradesSupportFlags |= referenceInstance?.LastTradesSupportFlags ?? LastTradedFlagsExtensions.LastTradedPriceAndTimeFlags;
-            var entriesFactory = LastTradeEntrySelector.FindForLastTradeFlags(LastTradesSupportFlags);
-            var maxEntries     = PQFeedFieldsExtensions.SingleByteFieldIdMaxPossibleLastTrades;
-
-            for (var i = 0; i < maxEntries; i++)
-            {
-                var currLastTrade = i < TradesList.Count ? TradesList[i] : null;
-                if (i >= TradesList.Count || currLastTrade is not null)
-                    TradesList.Add(entriesFactory.CreateNewLastTradeEntry());
-                else if (i < TradesList.Count && currLastTrade != null
-                                              && !LastTradeEntrySelector.TypeCanWhollyContain
-                                                     (entriesFactory.EntryCreationType, currLastTrade.GetType()))
-                    TradesList[i] = entriesFactory.UpgradeLayer(currLastTrade);
-            }
-        }
-        else
-            TradesList.Clear();
-    }
-
-    private IPQNameIdLookupGenerator SourcePopulatedNameIdGeneratorFrom(IEnumerable<ILastTrade?> existing)
-    {
-        if (existing is IPQLastTradedList pqLastTradedList)
-            return new PQNameIdLookupGenerator(pqLastTradedList.NameIdLookup, PQFeedFields.LastTradedStringUpdates);
-        return existing.OfType<ISupportsPQNameIdLookupGenerator>().Any()
-            ? new PQNameIdLookupGenerator(existing.OfType<ISupportsPQNameIdLookupGenerator>().Select(snilg => snilg.NameIdLookup).First())
-            : new PQNameIdLookupGenerator(PQFeedFields.LastTradedStringUpdates);
-    }
-
-    public override PQLastTradedList Clone() =>
-        Recycler?.Borrow<PQLastTradedList>().CopyFrom(this) ??
-        new PQLastTradedList((ILastTradedList)this);
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ILastTradedList, true);
     

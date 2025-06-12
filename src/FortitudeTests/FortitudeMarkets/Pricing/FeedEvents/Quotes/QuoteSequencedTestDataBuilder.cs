@@ -44,7 +44,7 @@ public class QuoteSequencedTestDataBuilder
 
     public void InitializeQuoteSeries(IMutableTickInstant initializeQuote, uint batchId)
     {
-        initializeQuote.StateReset();
+        initializeQuote.ResetWithTracking();
         SetupTickInstant(initializeQuote, batchId);
         SetupLevel1Quote(initializeQuote as IMutableLevel1Quote, batchId);
         SetupLevel2Quote(initializeQuote as IMutableLevel2Quote, batchId);

@@ -14,6 +14,7 @@ using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents.Generators.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
@@ -24,7 +25,7 @@ using FortitudeMarkets.Pricing.PQ.Generators.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File;
 using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.Buckets;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeMarkets.Configuration.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 using static FortitudeTests.FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File.TestWeeklyDataGeneratorFixture;
 
@@ -57,7 +58,8 @@ public class WeeklyTickInstantTimeSeriesFileTests
         PagedMemoryMappedFile.LogMappingMessages = true;
         tickInstantSrcTkrInfo =
             new SourceTickerInfo
-                (19, "WeeklyTickInstantTimeSeriesFileTests", 79, "PersistTest", SingleValue, Unknown
+                (19, "WeeklyTickInstantTimeSeriesFileTests", 79, "PersistTest", SingleValue
+               , MarketClassification.Unknown
                , layerFlags: LayerFlags.None, lastTradedFlags: LastTradedFlags.None, roundingPrecision: 0.000001m);
 
         var dateToGenerate = DateTime.UtcNow.Date.TruncToMonthBoundary().AddDays(15);
@@ -85,7 +87,7 @@ public class WeeklyTickInstantTimeSeriesFileTests
         if (timeSeriesFile.Exists) timeSeriesFile.Delete();
         var instrumentFields = new Dictionary<string, string>
         {
-            { nameof(RepositoryPathName.MarketType), "Unknown" }
+            { nameof(RepositoryPathName.AssetType), "Unknown" }
           , { nameof(RepositoryPathName.MarketProductType), "Unknown" }
           , { nameof(RepositoryPathName.MarketRegion), "Unknown" }
         };

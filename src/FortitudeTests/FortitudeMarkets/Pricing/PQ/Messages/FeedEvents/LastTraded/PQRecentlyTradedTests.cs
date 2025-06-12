@@ -65,9 +65,9 @@ public class PQRecentlyTradedTests
     private PQRecentlyTraded simpleRecentlyTradedFullyPopulatedLastTrades      = null!;
     private PQRecentlyTraded fullSupportRecentlyTradedFullyPopulated = null!;
     // test being less than max.
-    private const LastTradedTransmissionFlags AllLimitedAllPublishing
-        = LastTradedTransmissionFlags.LimitByPeriodTime | LastTradedTransmissionFlags.LimitByTradeCount |
-          LastTradedTransmissionFlags.PublishesOnDeltaUpdates | LastTradedTransmissionFlags.PublishOnCompleteOrSnapshot;
+    private const ListTransmissionFlags AllLimitedAllPublishing
+        = ListTransmissionFlags.LimitByPeriodTime | ListTransmissionFlags.LimitByTradeCount |
+          ListTransmissionFlags.PublishesOnDeltaUpdates | ListTransmissionFlags.PublishOnCompleteOrSnapshot;
 
     private readonly PQSourceTickerInfo forGetDeltaUpdates = PQSourceTickerInfoTests.FullSupportL3TraderNamePaidOrGivenSti;
 

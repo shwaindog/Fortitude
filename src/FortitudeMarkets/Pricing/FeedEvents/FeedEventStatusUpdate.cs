@@ -37,6 +37,8 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
     public FeedConnectivityStatusFlags FeedMarketConnectivityStatus { get; set; }
         = FeedConnectivityStatusFlagsExtensions.ClientDefaultConnectionState;
 
+    public abstract ISourceTickerInfo? SourceTickerInfo { get; set; }
+
     public FeedSyncStatus FeedSyncStatus { get; set; } = FeedSyncStatus.NotStarted;
 
     public DateTime ClientReceivedTime         { get; set; }
@@ -87,12 +89,15 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
         return this;
     }
 
-    public virtual void UpdateComplete(uint updateSequenceId = 0) { }
-
-    public virtual void UpdatesAppliedToAllDeltas(uint startSequenceId, uint updatedSequenceId)
+    public virtual void UpdateComplete(uint updateSequenceId = 0)
     {
-        UpdateSequenceId = updatedSequenceId;
+        FeedMarketConnectivityStatus &= ~(FeedConnectivityStatusFlags.FromAdapterSnapshot | FeedConnectivityStatusFlags.IsAdapterReplay);
     }
+
+    public virtual void TriggerTimeUpdates(DateTime atDateTime)
+    {
+    }
+
 
     public virtual void UpdateStarted(uint updateSequenceId)
     {
@@ -124,19 +129,19 @@ public abstract class FeedEventStatusUpdate : ReusableObject<IFeedEventStatusUpd
         var connectStatusSame     = FeedMarketConnectivityStatus == other.FeedMarketConnectivityStatus;
         var clientReceivedSame    = true;
         var inboundSocketRecvSame = true;
-        var subrDispatchSame      = true;
-        var adptrRecvSame         = true;
-        var adptrSentSame         = true;
+        var dispatchSame      = true;
+        var adapterRecvSame         = true;
+        var adapterSentSame         = true;
         if (exactTypes)
         {
             clientReceivedSame    = ClientReceivedTime == other.ClientReceivedTime;
             inboundSocketRecvSame = InboundSocketReceivingTime == other.InboundSocketReceivingTime;
-            subrDispatchSame      = SubscriberDispatchedTime == other.SubscriberDispatchedTime;
-            adptrRecvSame         = AdapterReceivedTime == other.AdapterReceivedTime;
-            adptrSentSame         = AdapterSentTime == other.AdapterSentTime;
+            dispatchSame      = SubscriberDispatchedTime == other.SubscriberDispatchedTime;
+            adapterRecvSame         = AdapterReceivedTime == other.AdapterReceivedTime;
+            adapterSentSame         = AdapterSentTime == other.AdapterSentTime;
         }
-        var allAreSame = feedSyncSame && connectStatusSame && clientReceivedSame && inboundSocketRecvSame && subrDispatchSame && adptrRecvSame &&
-                         adptrSentSame;
+        var allAreSame = feedSyncSame && connectStatusSame && clientReceivedSame && inboundSocketRecvSame 
+                      && dispatchSame && adapterRecvSame && adapterSentSame;
 
         return allAreSame;
     }

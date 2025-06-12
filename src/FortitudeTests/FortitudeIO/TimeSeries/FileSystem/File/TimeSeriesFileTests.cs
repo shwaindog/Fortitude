@@ -56,7 +56,7 @@ public class TimeSeriesFileTests
         if (timeSeriesFile.Exists) timeSeriesFile.Delete();
         var instrumentFields = new Dictionary<string, string>
         {
-            { nameof(RepositoryPathName.MarketType), "Unknown" }
+            { nameof(RepositoryPathName.AssetType), "Unknown" }
           , { nameof(RepositoryPathName.MarketProductType), "Unknown" }
           , { nameof(RepositoryPathName.MarketRegion), "Unknown" }
         };

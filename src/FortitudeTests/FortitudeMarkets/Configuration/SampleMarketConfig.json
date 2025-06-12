@@ -1,0 +1,120 @@
+{
+  "Markets": {
+    "SimplePricingOnlyConfig": {
+      "SourceId": 1,
+      "SourceName": "SimplePricingOnlyConfig",
+      "MarketConnectionType": "Pricing",
+      "SourceTickerConfig": {
+        "DefaultTickerAvailability": "PricingEnabled",
+        "DefaultPublishTickerQuoteDetailLevel": "Level2Quote",
+        "DefaultMarketClassification": {
+          "AssetType": "Equity",
+          "AssetCategory": "Emerging",
+          "MarketRegion": "US",
+          "ProductType": "Spot"
+        },
+        "DefaultPip": 0.01,
+        "DefaultMaxSubmitSize": 100,
+        "DefaultMaximumPublishedLayers": 4,
+        "Tickers": {
+          "AAPL" {
+            "TickerId": 1
+          },
+          "ADBE": {
+            "TickerId": 2
+          }
+        }
+      },
+      "PricingServerConfig": {
+        "SnapshotConnectionConfig": {
+          "AvailableConnections": {
+            "InstanceName": "PrimarySnapshot",
+            "Hostname": "169.254.224.238",
+            "Port": 4100
+          }
+        },
+        "UpdateConnectionConfig": {
+          "AvailableConnections": {
+            "InstanceName": "PrimaryUpdate",
+            "Hostname": "169.254.224.238",
+            "Port": 4100
+          }
+        }
+      } 
+    },
+    "SimpleTradingOnlyConfig": {
+      "SourceId": 2,
+      "SourceName": "SimpleTradingOnlyConfig",
+      "MarketConnectionType": "Trading",
+      "SourceTickerConfig": {
+        "DefaultTickerAvailability": "TradingEnabled",
+        "DefaultPublishTickerQuoteDetailLevel": "None",
+        "DefaultMarketClassification": {
+          "AssetType": "FXMajor",
+          "AssetCategory": "Major",
+          "MarketRegion": "UK",
+          "ProductType": "Spot"
+        },
+        "DefaultPip": 0.0001,
+        "DefaultMaxSubmitSize": 1000000,
+        "DefaultMaximumPublishedLayers": 0,
+        "Tickers": {
+          "EURUSD" {
+            "TickerId": 1
+          },
+          "USDJPY": {
+            "TickerId": 2
+          }
+        }
+      },
+      "TradingServerConfig": {
+        "TradingServerConnectionConfig": {
+          "AvailableConnections": {
+            "InstanceName": "PrimaryTradingServer",
+            "Hostname": "169.254.224.238",
+            "Port": 4110
+          }
+        },
+        "SupportedOrderTypes": "Market, Limit",
+        "SupportedTimeInForce": "GoodTillCancelled",
+        "SupportedVenueFeatures": "Amends"
+      }
+    },
+    "SimpleConfig": {
+      "SourceId": 3,
+      "SourceName": "SimpleConfig",
+      "MarketConnectionType": "Pricing, Trading",
+      "SourceTickerConfig": {
+        "DefaultTickerAvailability": "PricingEnabled, TradingEnabled",
+        "DefaultPublishTickerQuoteDetailLevel": "Level1Quote",
+        "DefaultMarketClassification": {
+          "MarketType": "FXMajor",
+          "MarketRegion": "UK",
+          "ProductType": "Spot"
+        },
+        "DefaultPip": 0.0001,
+        "DefaultMaxSubmitSize": 1000000,
+        "DefaultMaximumPublishedLayers": 0,
+        "Tickers": {
+          "EURUSD" {
+            "TickerId": 1
+          },
+          "USDJPY": {
+            "TickerId": 2
+          }
+        }
+      },
+      "TradingServerConfig": {
+        "TradingServerConnectionConfig": {
+          "AvailableConnections": {
+            "InstanceName": "PrimaryTradingServer",
+            "Hostname": "169.254.224.238",
+            "Port": 4110
+          }
+        },
+        "SupportedOrderTypes": "Market, Limit",
+        "SupportedTimeInForce": "GoodTillCancelled",
+        "SupportedVenueFeatures": "Amends"
+      }
+    },
+}

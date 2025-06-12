@@ -5,6 +5,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Serdes.Binary;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
@@ -12,7 +13,7 @@ using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.PQMessageFlags;
 
@@ -46,26 +47,30 @@ public class PQHeartbeatSerializerTests
     public void SetUp()
     {
         firstInfo = new SourceTickerInfo
-            (1, "TestSource", 1, "TestTicker", Level3Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+            (1, "TestSource", 1, "TestTicker", Level3Quote, MarketClassification.Unknown
+           , AUinMEL, AUinMEL, AUinMEL
+           , 20, 0.00001m, 30000m, 50000000m, 1000m
            , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
            , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                               LastTradedFlags.LastTradedTime);
         secondInfo = new SourceTickerInfo
-            (2, "TestSource", 2, "TestTicker", Level3Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+            (2, "TestSource", 2, "TestTicker", Level3Quote, MarketClassification.Unknown
+           , AUinMEL, AUinMEL, AUinMEL
+           , 20, 0.00001m, 30000m, 50000000m, 1000m
            , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
            , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                               LastTradedFlags.LastTradedTime);
         thirdInfo = new SourceTickerInfo
-            (3, "TestSource", 3, "TestTicker", Level3Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+            (3, "TestSource", 3, "TestTicker", Level3Quote, MarketClassification.Unknown
+           , AUinMEL, AUinMEL, AUinMEL
+           , 20, 0.00001m, 30000m, 50000000m, 1000m
            , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
            , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                               LastTradedFlags.LastTradedTime);
         fourthInfo = new SourceTickerInfo
-            (4, "TestSource", 4, "TestTicker", Level3Quote, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+            (4, "TestSource", 4, "TestTicker", Level3Quote, MarketClassification.Unknown
+           , AUinMEL, AUinMEL, AUinMEL
+           , 20, 0.00001m, 30000m, 50000000m, 1000m
            , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
            , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                               LastTradedFlags.LastTradedTime);

@@ -3,6 +3,7 @@
 using System.Net;
 using System.Net.Sockets;
 using FortitudeCommon.AsyncProcessing;
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeIO.Conversations;
@@ -159,6 +160,7 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
             SocketSessionContext.SocketReceiver.Accept -= OnCxAccept;
 
             SocketSessionContext.OnDisconnected(closeReason, reason);
+            SocketSessionContext.NetworkTopicConnectionConfig.ConnectedEndpoint = null;
 
             logger.Info("Publisher {0} on  {1}:{2} stopped. {3}", SocketSessionContext.Name,
                 SocketSessionContext.SocketConnection?.InstanceName, SocketSessionContext.SocketConnection?.ConnectedPort, reason);
@@ -191,7 +193,8 @@ public class TcpAcceptorControls : SocketStreamControls, IAcceptorControls
                     SocketSessionContext.OnConnected(new SocketConnection(connConfig.TopicName
                         , SocketSessionContext.ConversationType,
                         listeningSocket, localEndPointIp.Address, socketConConfig.Port));
-                    SocketSessionContext.SocketReceiver!.ZeroBytesReadIsDisconnection = false;
+                    SocketSessionContext.SocketReceiver!.ZeroBytesReadIsDisconnection   = false;
+                    SocketSessionContext.NetworkTopicConnectionConfig.ConnectedEndpoint = new ConnectedEndpoint(TimeContext.UtcNow, socketConConfig);
 
                     logger.Info("Publisher {0} {1}@{2} started",
                         SocketSessionContext.Name, localEndPointIp.Address, socketConConfig.Port);

@@ -4,6 +4,7 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Pricing.FeedEvents.MarketEvents;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 namespace FortitudeMarkets.Pricing.FeedEvents.LastTraded;
@@ -131,12 +132,12 @@ public class RecentlyTradedHistory : ReusableObject<IRecentlyTradedHistory>, IMu
 
     public void UpdateComplete(uint updateSequenceId = 0)
     {
-        
-    }
-
-    public void UpdateAt(DateTime atDateTime, uint previousSequenceId, uint latestSequenceId)
-    {
-        throw new NotImplementedException();
+        OnTickLastTraded.UpdateComplete(updateSequenceId);
+        AllLimitedHistoryLastTrades.UpdateComplete(updateSequenceId);
+        RecentInternalOrdersTrades.UpdateComplete(updateSequenceId);
+        OpenPositionTrades.UpdateComplete(updateSequenceId);
+        AlertTrades.UpdateComplete(updateSequenceId);
+        ClientOnlyReceivedCache.UpdateComplete(updateSequenceId);
     }
 
     public uint UpdateSequenceId { get; private set; }
@@ -144,6 +145,23 @@ public class RecentlyTradedHistory : ReusableObject<IRecentlyTradedHistory>, IMu
     public void UpdateStarted(uint updateSequenceId)
     {
         UpdateSequenceId = updateSequenceId;
+    }
+
+    public void ReceiveEventLifeCycleChange(IMarketTradingStateEvent updatedItem, EventStateLifecycle eventType)
+    {
+        if (eventType.IsActive() && updatedItem.MarketTradingStatus.HasMarketOpenFlag())
+        {
+            AllLimitedHistoryLastTrades.ReceiveEventLifeCycleChange(updatedItem, eventType);
+            RecentInternalOrdersTrades.ReceiveEventLifeCycleChange(updatedItem, eventType);
+            OpenPositionTrades.ReceiveEventLifeCycleChange(updatedItem, eventType);
+            AlertTrades.ReceiveEventLifeCycleChange(updatedItem, eventType);
+            ClientOnlyReceivedCache.ReceiveEventLifeCycleChange(updatedItem, eventType);
+        }
+    }
+
+    public void SubscribeToUpdates(IFiresOnTickLifeCycleChanges<IMarketTradingStateEvent> eventSource)
+    {
+        eventSource.NewlyActiveOnTick += ReceiveEventLifeCycleChange;
     }
 
     IMutableRecentlyTradedHistory ICloneable<IMutableRecentlyTradedHistory>.Clone() => Clone();

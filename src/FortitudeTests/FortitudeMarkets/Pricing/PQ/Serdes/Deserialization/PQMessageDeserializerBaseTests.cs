@@ -12,6 +12,7 @@ using FortitudeCommon.Types;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeIO.Transports.Network.Logging;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
@@ -24,7 +25,8 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using Moq;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
+using static FortitudeMarkets.Configuration.MarketClassificationExtensions;
 using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.PQMessageFlags;
 
 #endregion
@@ -97,7 +99,8 @@ public class PQMessageDeserializerBaseTests
 
         sourceTickerInfo =
             new SourceTickerInfo
-                (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", TickerQuoteDetailLevel.Level3Quote, Unknown
+                (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", TickerQuoteDetailLevel.Level3Quote, MarketClassification.Unknown
+              ,  AUinMEL, AUinMEL, AUinMEL
                , 20, 0.000001m, 30000m, 50000000m, 1000m
                , layerFlags: LayerFlags.Volume | LayerFlags.Price
                , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |

@@ -24,13 +24,13 @@ public interface ITickInstant : IReusableObject<ITickInstant>, IInterfacesCompar
 }
 
 public interface IPublishableTickInstant : IReusableObject<IPublishableTickInstant>, ITickInstant,
-    IInterfacesComparable<IPublishableTickInstant>, IDoublyLinkedListNode<IPublishableTickInstant>, IFeedEventStatusUpdate
+    IInterfacesComparable<IPublishableTickInstant>, IDoublyLinkedListNode<IPublishableTickInstant>, IFeedEventStatusUpdate, ICanHaveSourceTickerDefinition
 {
+    new DateTime SourceTime { get; }
+
     [JsonIgnore] TickerQuoteDetailLevel TickerQuoteDetailLevel { get; }
 
     public ITickInstant AsNonPublishable { get; }
-
-    [JsonIgnore] ISourceTickerInfo? SourceTickerInfo { get; }
 
     new IPublishableTickInstant CopyFrom(IPublishableTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
     new ITransferState          CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
@@ -68,9 +68,10 @@ public interface IMutableTickInstant : ITickInstant, ITrackableReset<IMutableTic
     new IMutableTickInstant Clone();
 }
 
-public interface IMutablePublishableTickInstant : IPublishableTickInstant, IMutableTickInstant, IMutableFeedEventStatusUpdate, ITrackableReset<IMutablePublishableTickInstant>
+public interface IMutablePublishableTickInstant : IPublishableTickInstant, IMutableTickInstant, IMutableFeedEventStatusUpdate
+  , ITrackableReset<IMutablePublishableTickInstant>, IMutableCanHaveSourceTickerDefinition
 {
-    new ISourceTickerInfo? SourceTickerInfo { get; set; }
+    new DateTime           SourceTime       { get; set; }
 
     new IMutableTickInstant AsNonPublishable { get; }
 

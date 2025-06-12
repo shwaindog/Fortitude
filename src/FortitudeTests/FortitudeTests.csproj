@@ -31,9 +31,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="FortitudeCommon\Configuration\" />
     <Folder Include="FortitudeCommon\OSWrapper\Memory\" />
     <Folder Include="FortitudeMarkets\Pricing\FeedEvents\DeltaUpdates\" />
-    <Folder Include="FortitudeMarkets\Pricing\FeedEvents\Quotes\LayeredBook\Layers\LayerOrders\" />
     <Folder Include="FortitudeMarkets\Pricing\PQ\Messages\FeedEvents\Quotes\LayeredBook\Layers\LayerOrders\" />
   </ItemGroup>
 

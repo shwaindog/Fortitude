@@ -21,6 +21,7 @@ namespace FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 
 public interface IPQLevel1Quote : IPQTickInstant, IMutableLevel1Quote, ITrackableReset<IPQLevel1Quote>
 {
+
     bool IsSourceAskTimeDateUpdated    { get; set; }
     bool IsSourceAskTimeSub2MinUpdated { get; set; }
     bool IsSourceBidTimeDateUpdated    { get; set; }
@@ -785,6 +786,9 @@ public class PQLevel1Quote : PQTickInstant, IPQLevel1Quote, ICloneable<PQLevel1Q
                 IsBidPriceTopChangedUpdated = pq1.IsBidPriceTopChangedUpdated;
                 IsAskPriceTopChangedUpdated = pq1.IsAskPriceTopChangedUpdated;
                 IsExecutableUpdated         = pq1.IsExecutableUpdated;
+            } else if (isFullReplace)
+            {
+                SetFlagsSame(pq1);
             }
         }
         else if (source is ILevel1Quote l1Q) // normal copy

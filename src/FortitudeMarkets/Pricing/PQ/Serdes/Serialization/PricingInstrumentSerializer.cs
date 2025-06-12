@@ -72,6 +72,7 @@ public class PricingInstrumentSerializer : ISerializer<IPricingInstrumentId>
         StreamByteOps.ToBytesWithAutoSizeHeader(ref ptr, message.SourceName, Math.Min(remainingBytes, 255));
         StreamByteOps.ToBytesWithAutoSizeHeader(ref ptr, message.InstrumentName, Math.Min(remainingBytes, 255));
         StreamByteOps.ToBytes(ref ptr, message.MarketClassification.CompoundedClassification);
+        StreamByteOps.ToBytes(ref ptr, message.CompoundLocations());
         *ptr++ = (byte)message.InstrumentType;
         StreamByteOps.ToBytes(ref ptr, (uint)message.CoveringPeriod.Period);
         *ptr++ = (byte)instrumentAttributes.Count;

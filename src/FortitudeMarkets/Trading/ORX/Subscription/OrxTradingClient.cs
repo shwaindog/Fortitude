@@ -16,7 +16,7 @@ using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.ClientServer;
 using FortitudeIO.Protocols.Serdes.Binary;
 using FortitudeIO.Transports.Network.Dispatcher;
-using FortitudeMarkets.Configuration.ClientServerConfig.TradingConfig;
+using FortitudeMarkets.Configuration.TradingConfig;
 using FortitudeMarkets.Monitoring.Logging;
 using FortitudeMarkets.Trading.Executions;
 using FortitudeMarkets.Trading.Orders;

@@ -5,13 +5,15 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeIO.Transports.Network.Config;
-using FortitudeMarkets.Configuration.ClientServerConfig.PricingConfig;
+using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Configuration.PricingConfig;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
+using static FortitudeMarkets.Configuration.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
@@ -34,7 +36,8 @@ public class PQClientQuoteDeserializerRepositoryTests
     {
         sourceTickerInfo =
             new SourceTickerInfo
-                (ExpectedSourceId, "TestSource", ExpectedTickerd, "TestTicker", Level3Quote, Unknown
+                (ExpectedSourceId, "TestSource", ExpectedTickerd, "TestTicker", Level3Quote, MarketClassification.Unknown
+               , AUinMEL, AUinMEL, AUinMEL
                , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
                , layerFlags: LayerFlags.Volume | LayerFlags.Price
                , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
@@ -47,13 +50,13 @@ public class PQClientQuoteDeserializerRepositoryTests
                           ("ConnectionName", SocketConversationProtocol.TcpClient
                          , new[]
                            {
-                               new EndpointConfig("ConnectionName", 9090)
+                               new EndpointConfig("ConnectionName", 9090, AUinMEL)
                            }),
                       new NetworkTopicConnectionConfig
                           ("ConnectionName", SocketConversationProtocol.TcpClient
                          , new[]
                            {
-                               new EndpointConfig("ConnectionName", 9090)
+                               new EndpointConfig("ConnectionName", 9090, AUinMEL)
                            })));
 
         pqClientQuoteDeserializerRepository = new PQClientQuoteDeserializerRepository("PQClientTest", new Recycler());

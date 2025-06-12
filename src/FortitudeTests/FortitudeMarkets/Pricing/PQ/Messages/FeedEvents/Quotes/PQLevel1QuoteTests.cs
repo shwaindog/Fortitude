@@ -5,14 +5,10 @@
 
 using System.Text.Json;
 using FortitudeCommon.DataStructures.Collections;
-using FortitudeCommon.DataStructures.Lists.LinkedLists;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeIO.TimeSeries;
-using FortitudeMarkets.Pricing;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents;
-using FortitudeMarkets.Pricing.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
@@ -21,11 +17,9 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.DeltaUpdates;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
-using FortitudeMarkets.Pricing.PQ.Serdes.Serialization;
-using FortitudeMarkets.Pricing.TimeSeries;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Candles;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 using static FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.PQQuoteBooleanValues;
 using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
@@ -54,12 +48,16 @@ public class PQLevel1QuoteTests
 
         sourceTickerInfo =
             new PQSourceTickerInfo
-                (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
+                (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, MarketClassification.Unknown
+               , AUinMEL, AUinMEL, AUinMEL
                , 20, 0.0000001m, 0.0001m, 30000m, 50000000m, 1000m, 1
                , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
                , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
-                                  LastTradedFlags.LastTradedTime);
-        blankSourceTickerInfo       = new SourceTickerInfo(0, "", 0, "", Level1Quote, Unknown);
+                                  LastTradedFlags.LastTradedTime)
+                {
+                    HasUpdates = true
+                };
+        blankSourceTickerInfo       = new SourceTickerInfo(0, "", 0, "", Level1Quote, MarketClassification.Unknown);
         fullyPopulatedPqLevel1Quote = new PQPublishableLevel1Quote(new PQSourceTickerInfo(sourceTickerInfo));
         emptyQuote                  = new PQPublishableLevel1Quote(new PQSourceTickerInfo(sourceTickerInfo))
         {
@@ -532,7 +530,7 @@ public class PQLevel1QuoteTests
 
         emptyQuote.ResetWithTracking();
 
-        Assert.IsFalse(emptyQuote.HasUpdates);
+        Assert.IsTrue(emptyQuote.HasUpdates);
         Assert.AreEqual(FeedConnectivityStatusFlags.None, emptyQuote.FeedMarketConnectivityStatus);
         Assert.AreEqual(FeedSyncStatus.Good, emptyQuote.FeedSyncStatus);
         Assert.AreEqual(default, emptyQuote.SourceTime);
@@ -812,126 +810,5 @@ public class PQLevel1QuoteTests
         Assert.AreEqual
             (new PQFieldUpdate(PQFeedFields.QuoteLayerPrice, PQDepthKey.AskSide, PQScaling.Scale(l1Q.AskPriceTop, priceScale), priceScale)
            , PQTickInstantTests.ExtractFieldUpdateWithId(checkFieldUpdates, PQFeedFields.QuoteLayerPrice, PQDepthKey.AskSide, priceScale));
-    }
-
-    internal class DummyLevel1Quote : PQTickInstantTests.DummyPQTickInstant, IPQPublishableLevel1Quote
-    {
-        public bool IsBidPriceTopChangedUpdated { get; set; }
-        public bool IsAskPriceTopChangedUpdated { get; set; }
-
-        public override TickerQuoteDetailLevel TickerQuoteDetailLevel => Level1Quote;
-
-        IMutableCandle? IMutablePublishableLevel1Quote.ConflatedTicksCandle
-        {
-            get => ConflatedTicksCandle;
-            set => ConflatedTicksCandle = value as IPQCandle;
-        }
-
-        ICandle? IPublishableLevel1Quote.ConflatedTicksCandle => ConflatedTicksCandle;
-        public IPQCandle?                ConflatedTicksCandle { get; set; }
-
-        public BidAskPair BidAskTop => new(BidPriceTop, AskPriceTop);
-
-        public DateTime SourceBidTime   { get; set; }
-        public decimal  BidPriceTop     { get; set; }
-        public DateTime SourceAskTime   { get; set; }
-        public decimal  AskPriceTop     { get; set; }
-        public bool     Executable      { get; set; }
-
-        public QuoteInstantBehaviorFlags QuoteBehavior
-        {
-            get => (QuoteInstantBehaviorFlags)base.QuoteBehavior;
-            set => base.QuoteBehavior |= (PublishableQuoteInstantBehaviorFlags)value;
-        }
-
-        public bool IsAskPriceTopChanged       { get; set; }
-        public bool IsBidPriceTopChanged       { get; set; }
-        public bool IsSourceAskTimeDateUpdated { get; set; }
-
-        public bool IsSourceAskTimeSub2MinUpdated { get; set; }
-        public bool IsSourceBidTimeDateUpdated    { get; set; }
-        public bool IsSourceBidTimeSub2MinUpdated { get; set; }
-
-        public bool IsBidPriceTopUpdated { get; set; }
-        public bool IsAskPriceTopUpdated { get; set; }
-        public bool IsExecutableUpdated  { get; set; }
-
-        public DateTime ValidFrom { get; set; }
-        public DateTime ValidTo   { get; set; }
-
-        public bool IsValidFromTimeDateUpdated    { get; set; }
-        public bool IsValidFromTimeSub2MinUpdated { get; set; }
-        public bool IsValidToTimeDateUpdated      { get; set; }
-        public bool IsValidToTimeSub2MinUpdated   { get; set; }
-
-        IMutablePublishableLevel1Quote IMutablePublishableLevel1Quote.Clone() => (IMutablePublishableLevel1Quote)Clone();
-        IPQPublishableLevel1Quote IPQPublishableLevel1Quote.          Clone() => this;
-        IPublishableLevel1Quote IPublishableLevel1Quote.              Clone() => this;
-        IPublishableLevel1Quote ICloneable<IPublishableLevel1Quote>.  Clone() => this;
-        ILevel1Quote ICloneable<ILevel1Quote>.                        Clone() => this;
-        ILevel1Quote ILevel1Quote.                                    Clone() => this;
-        IMutableLevel1Quote IMutableLevel1Quote.                      Clone() => this;
-        IPQLevel1Quote IPQLevel1Quote.                                Clone() => this;
-
-        IMutableLevel1Quote ITrackableReset<IMutableLevel1Quote>.                      ResetWithTracking() => this;
-                                                                                                              
-        IMutableLevel1Quote IMutableLevel1Quote.                                       ResetWithTracking() => this;
-                                                                                                              
-        IMutablePublishableLevel1Quote ITrackableReset<IMutablePublishableLevel1Quote>.ResetWithTracking() => this;
-
-        IMutablePublishableLevel1Quote IMutablePublishableLevel1Quote.       ResetWithTracking() => this;
-                                                                                                    
-        IPQLevel1Quote ITrackableReset<IPQLevel1Quote>.                      ResetWithTracking() => this;
-                                                                                                    
-        IPQLevel1Quote IPQLevel1Quote.                                       ResetWithTracking() => this;
-                                                                                                    
-        IPQPublishableLevel1Quote ITrackableReset<IPQPublishableLevel1Quote>.ResetWithTracking() => this;
-                                                                                                    
-        IPQPublishableLevel1Quote IPQPublishableLevel1Quote.                 ResetWithTracking() => this;
-
-        IMutableLevel1Quote IMutablePublishableLevel1Quote.AsNonPublishable => AsNonPublishable;
-        ILevel1Quote IPublishableLevel1Quote.              AsNonPublishable => AsNonPublishable;
-        public override IPQLevel1Quote                              AsNonPublishable => this;
-
-        public IPQLevel1Quote CopyFrom(ITickInstant source, CopyMergeFlags copyMergeFlags) => this;
-
-        IPublishableLevel1Quote? IDoublyLinkedListNode<IPublishableLevel1Quote>.    Previous { get; set; }
-        IPublishableLevel1Quote? IDoublyLinkedListNode<IPublishableLevel1Quote>.    Next     { get; set; }
-        IPQPublishableLevel1Quote? IDoublyLinkedListNode<IPQPublishableLevel1Quote>.Previous { get; set; }
-        IPQPublishableLevel1Quote? IDoublyLinkedListNode<IPQPublishableLevel1Quote>.Next     { get; set; }
-
-        public decimal BidPrice => BidPriceTop;
-        public decimal AskPrice => AskPriceTop;
-
-        IReusableObject<IBidAskInstant> ITransferState<IReusableObject<IBidAskInstant>>.CopyFrom
-            (IReusableObject<IBidAskInstant> source, CopyMergeFlags copyMergeFlags) =>
-            this;
-
-        public override IPQPublishableLevel1Quote CopyFrom
-            (IPublishableTickInstant source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
-            this;
-
-        IBidAskInstant ICloneable<IBidAskInstant>.Clone() => (IPublishableLevel1Quote)Clone();
-
-        IBidAskInstant ITransferState<IBidAskInstant>.CopyFrom(IBidAskInstant source, CopyMergeFlags copyMergeFlags) => this;
-
-        public bool AreEquivalent(IBidAskInstant? other, bool exactTypes = false) => throw new NotImplementedException();
-
-        IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Previous { get; set; }
-        IBidAskInstant? IDoublyLinkedListNode<IBidAskInstant>.Next     { get; set; }
-
-        public DateTime AtTime => SourceTime;
-
-        IPublishableLevel1Quote? IPublishableLevel1Quote.Next     { get; set; }
-        IPublishableLevel1Quote? IPublishableLevel1Quote.Previous { get; set; }
-
-        IPQPublishableLevel1Quote? IPQPublishableLevel1Quote.Next     { get; set; }
-        IPQPublishableLevel1Quote? IPQPublishableLevel1Quote.Previous { get; set; }
-
-        public DateTime StorageTime(IStorageTimeResolver<IPublishableLevel1Quote>? resolver = null)
-        {
-            resolver ??= QuoteStorageTimeResolver.Instance;
-            return resolver.ResolveStorageTime(this);
-        }
     }
 }

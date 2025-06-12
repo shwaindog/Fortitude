@@ -75,6 +75,7 @@ public class Recycler : IRecycler
         return borrowed;
     }
 
+
     public object Borrow(Type type)
     {
         if (!poolFactoryMap.TryGetValue(type, out var poolFactoryContainer))

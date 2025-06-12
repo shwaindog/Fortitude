@@ -6,17 +6,17 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeMarkets.Configuration.ClientServerConfig;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-
+using FortitudeMarkets.Pricing.FeedEvents;
 #endregion
 
 namespace FortitudeMarkets.Pricing.PQ.Publication;
 
-public interface IQuotePublisher<in T> : IDisposable where T : IPublishableTickInstant
+public interface IQuotePublisher<in T> : IDisposable where T : IMutablePublishableTickInstant
 {
     void PublishReset(string ticker, DateTime exchangeTs, DateTime exchangeSentTs, DateTime adapterRecvTs);
     void PublishQuoteUpdate(T quote);
@@ -82,6 +82,7 @@ public class PQPublisher<T> : IPQPublisher where T : IPQMessage
             picture.ResetWithTracking();
             picture.SetPublisherStateToConnectivityStatus(PublisherStates.DisconnectionImmanent, now);
             picture.ClientReceivedTime = now;
+            picture.HasUpdates         = true;
             if (picture is IMutablePublishableLevel1Quote pq1) pq1.AdapterSentTime = now;
             pqServer.Publish(picture);
         }
@@ -96,12 +97,13 @@ public class PQPublisher<T> : IPQPublisher where T : IPQMessage
             pqPicture!.ResetWithTracking();
             pqPicture.SetPublisherStateToConnectivityStatus(PublisherStates.DisconnectionImmanent, exchangeTs);
             pqPicture.ClientReceivedTime = adapterRecvTs;
+            pqPicture.HasUpdates         = true;
             if (pqPicture is IMutablePublishableLevel1Quote pq1) pq1.AdapterSentTime = exchangeSentTs;
             pqServer.Publish(pqPicture);
         }
     }
 
-    public void PublishQuoteUpdate(IPublishableTickInstant quote)
+    public void PublishQuoteUpdate(IMutablePublishableTickInstant quote)
     {
         PublishQuoteUpdateAs(quote);
     }
@@ -110,20 +112,36 @@ public class PQPublisher<T> : IPQPublisher where T : IPQMessage
     {
         if (pictures.TryGetValue(quote.StreamName, out var pqPicture))
         {
+            if (!quote.FeedMarketConnectivityStatus.HasIsAdapterReplay())
+            {
+                quote.TriggerTimeUpdates(TimeContext.UtcNow);
+            }
             // logger.Info("About to publish quote: {0}", quote);
             pqPicture!.CopyFrom(quote);
+            if (withMessageFlags.HasCompleteFlag() || withMessageFlags.HasSnapshotFlag())
+            {
+                pqPicture.HasUpdates = true;
+            }
             pqPicture.OverrideSerializationFlags = withMessageFlags;
             pqServer.Publish(pqPicture);
             pqPicture.OverrideSerializationFlags = null;
         }
     }
 
-    public void PublishQuoteUpdateAs(IPublishableTickInstant quote, PQMessageFlags? withMessageFlags = null)
+    public void PublishQuoteUpdateAs(IMutablePublishableTickInstant quote, PQMessageFlags? withMessageFlags = null)
     {
         if (pictures.TryGetValue(quote.SourceTickerInfo!.InstrumentName, out var pqPicture))
         {
+            if (!quote.FeedMarketConnectivityStatus.HasIsAdapterReplay())
+            {
+                quote.TriggerTimeUpdates(TimeContext.UtcNow);
+            }
             // logger.Info("About to publish quote: {0}", quote);
             pqPicture!.CopyFrom(quote);
+            if (withMessageFlags.HasCompleteFlag() || withMessageFlags.HasSnapshotFlag())
+            {
+                pqPicture.HasUpdates = true;
+            }
             pqPicture.OverrideSerializationFlags = withMessageFlags;
             pqServer.Publish(pqPicture);
             pqPicture.OverrideSerializationFlags = null;
@@ -139,8 +157,16 @@ public class PQPublisher<T> : IPQPublisher where T : IPQMessage
     {
         if (pictures.TryGetValue(quote.SourceTickerInfo!.InstrumentName, out var pqPicture))
         {
+            if (!quote.FeedMarketConnectivityStatus.HasIsAdapterReplay())
+            {
+                quote.TriggerTimeUpdates(TimeContext.UtcNow);
+            }
             // logger.Info("About to publish quote: {0}", quote);
             pqPicture!.CopyFrom(quote);
+            if (withMessageFlags.HasCompleteFlag() || withMessageFlags.HasSnapshotFlag())
+            {
+                pqPicture.HasUpdates = true;
+            }
             pqPicture.OverrideSerializationFlags = withMessageFlags;
             pqServer.Publish(pqPicture);
             pqPicture.OverrideSerializationFlags = null;

@@ -7,7 +7,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
-using FortitudeMarkets.Configuration.ClientServerConfig;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing;
 
 #endregion

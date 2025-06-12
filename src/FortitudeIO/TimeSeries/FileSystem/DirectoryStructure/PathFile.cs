@@ -5,6 +5,7 @@
 
 using System.Collections.Concurrent;
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using static FortitudeIO.TimeSeries.FileSystem.DirectoryStructure.RepositoryPathName;
@@ -29,7 +30,8 @@ public interface IPathFile : IPathPart
 public class PathFile : PathPart, IPathFile
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PathFile));
-    private readonly        string   fileExtension;
+
+    private readonly string fileExtension;
 
     public PathFile(string fileExtension, InstrumentEntryRangeMatch instrumentEntryRangeFileMatch)
         : base(new PathName(RepositoryPathName.InstrumentType),
@@ -39,10 +41,15 @@ public class PathFile : PathPart, IPathFile
                new PathName(InstrumentName),
                new PathName(DirectoryStartDate),
                new PathName(FilePeriod),
+               new PathName(MarketRoute),
                new PathName(Category))
     {
         this.fileExtension            = fileExtension;
         InstrumentEntryRangeFileMatch = instrumentEntryRangeFileMatch;
+
+        if (NameParts.Any(np => np.PathPart == MarketRoute))
+            if (NameParts[^1] is not ({ PathPart: MarketRoute } or { PathPart: Category}) )
+                throw new Exception("MarketRoute must be the last or second last part of the name as it is optional");
 
         if (NameParts.Any(np => np.PathPart == Category))
             if (NameParts[^1].PathPart != Category)
@@ -123,6 +130,14 @@ public class PathFile : PathPart, IPathFile
         return currentMatch;
     }
 
-    public override string PathName(IInstrument instrument, DateTime timeInPeriod, TimeBoundaryPeriod forPeriod) =>
-        string.Join(NamePartSeparator, NameParts.Select(tsfpf => tsfpf.GetString(instrument, timeInPeriod, forPeriod))) + fileExtension;
+    public override string PathName(IInstrument instrument, DateTime timeInPeriod, TimeBoundaryPeriod forPeriod)
+    {
+        var fileName = string.Join(NamePartSeparator
+                         , NameParts
+                           .Select(pn => pn.GetString(instrument, timeInPeriod, forPeriod))
+                           .Where(s => s.IsNotNullOrEmpty())
+                          ) + fileExtension;
+
+        return fileName;
+    }
 }

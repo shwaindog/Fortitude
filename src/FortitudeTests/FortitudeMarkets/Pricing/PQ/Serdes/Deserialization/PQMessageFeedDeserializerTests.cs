@@ -5,6 +5,7 @@
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
@@ -13,7 +14,8 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using Moq;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
+using static FortitudeMarkets.Configuration.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
@@ -105,7 +107,8 @@ public class PQMessageFeedDeserializerTests
     }
 
     private SourceTickerInfo BuildSourceTickerInfo(ushort sourceId, ushort tickerId, string ticker) =>
-        new(sourceId, "TestSource", tickerId, ticker, Level3Quote, Unknown
+        new(sourceId, "TestSource", tickerId, ticker, Level3Quote, MarketClassification.Unknown
+         ,  AUinMEL, AUinMEL, AUinMEL
           , 20, 0.00001m, 0.0001m, 30000m, 50000000m, 1000m, 1
           , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
           , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |

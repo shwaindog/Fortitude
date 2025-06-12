@@ -22,6 +22,7 @@ using FortitudeIO.Transports.Network.Publishing;
 using FortitudeIO.Transports.Network.Receiving;
 using FortitudeIO.Transports.Network.Sockets;
 using FortitudeIO.Transports.Network.State;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
@@ -30,7 +31,6 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeMarkets.Pricing.PQ.Subscription.Standalone;
 using FortitudeTests.FortitudeCommon.Chronometry;
 using Moq;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
@@ -40,9 +40,10 @@ namespace FortitudeTests.FortitudeMarkets.Pricing.PQ.Subscription.Standalone;
 [TestClass]
 public class PQStandaloneSnapshotClientTests
 {
-    private uint   connectionTimeoutMs = 10_000;
-    private string expectedHost        = null!;
-    private byte[] expectedIpAddress   = null!;
+    private readonly uint connectionTimeoutMs = 10_000;
+
+    private string expectedHost      = null!;
+    private byte[] expectedIpAddress = null!;
     private ushort expectedPort;
 
     private Mock<IPQClientMessageStreamDecoder> moqClientMessageStreamDecoder = null!;
@@ -129,8 +130,7 @@ public class PQStandaloneSnapshotClientTests
         FLoggerFactory.Instance = moqFloggerFactory.Object;
 
         var moqSocketConnectivityChanged = new Mock<ISocketConnectivityChanged>();
-        Func<ISocketSessionContext, ISocketConnectivityChanged> moqCallback = context =>
-            moqSocketConnectivityChanged.Object;
+        Func<ISocketSessionContext, ISocketConnectivityChanged> moqCallback = _ => moqSocketConnectivityChanged.Object;
         moqSocketConnection.SetupGet(sc => sc.IsConnected).Returns(false);
         moqParallelController.Setup(pc => pc.SingleOSThreadActivateSignal(false))
                              .Returns(moqIntraOsThreadSignal.Object).Verifiable();
@@ -144,11 +144,11 @@ public class PQStandaloneSnapshotClientTests
         moqSocketSessionContext.SetupAdd(ssc => ssc.SocketConnected += null);
         expectedHost      = "TestHostname";
         expectedPort      = 1979;
-        expectedIpAddress = new byte[] { 61, 26, 5, 6 };
+        expectedIpAddress = [61, 26, 5, 6];
         moqSocketConnectionConfig.SetupGet(scc => scc.InstanceName).Returns("PQSnapshotClientTests");
         moqSocketConnectionConfig.SetupGet(scc => scc.Hostname).Returns(expectedHost);
         moqSocketConnectionConfig.SetupGet(scc => scc.Port).Returns(expectedPort);
-        moqEndpointEnumerator.SetupGet(stcc => stcc.Current).Returns(moqSocketConnectionConfig.Object);
+        moqEndpointEnumerator.SetupGet(ec => ec.Current).Returns(moqSocketConnectionConfig.Object);
         moqSocketTopicConnectionConfig.SetupGet(scc => scc.TopicDescription).Returns("PQSnapshotClientTests");
         moqSocketTopicConnectionConfig.SetupGet(scc => scc.ConnectionTimeoutMs).Returns(connectionTimeoutMs);
         moqSocketFactories.SetupGet(pcf => pcf.SocketFactory).Returns(moqSocketFactory.Object);
@@ -175,17 +175,17 @@ public class PQStandaloneSnapshotClientTests
 
         sendSrcTkrIds = new List<ISourceTickerInfo>
         {
-            new SourceTickerInfo(7, "FirstSource", 7, "FirstTicker", Level3Quote, Unknown)
-          , new SourceTickerInfo(77, "FirstSource", 77, "SecondTicker", Level3Quote, Unknown)
-          , new SourceTickerInfo(15, "FirstSource", 16, "ThirdTicker", Level3Quote, Unknown)
-          , new SourceTickerInfo(19, "FirstSource", 19, "FourthTicker", Level3Quote, Unknown)
-          , new SourceTickerInfo(798, "FirstSource", 798, "FifthTicker", Level3Quote, Unknown)
+            new SourceTickerInfo(7, "FirstSource", 7, "FirstTicker", Level3Quote, MarketClassification.Unknown)
+          , new SourceTickerInfo(77, "FirstSource", 77, "SecondTicker", Level3Quote, MarketClassification.Unknown)
+          , new SourceTickerInfo(15, "FirstSource", 16, "ThirdTicker", Level3Quote, MarketClassification.Unknown)
+          , new SourceTickerInfo(19, "FirstSource", 19, "FourthTicker", Level3Quote, MarketClassification.Unknown)
+          , new SourceTickerInfo(798, "FirstSource", 798, "FifthTicker", Level3Quote, MarketClassification.Unknown)
         };
 
         moqSocketBinaryDeserializer.SetupAllProperties();
 
         moqPQQuoteDeserializationRepo
-            .Setup(pqqsf => pqqsf.GetDeserializer<PQPublishableTickInstant>(uint.MaxValue))
+            .Setup(pqCqDr => pqCqDr.GetDeserializer<PQPublishableTickInstant>(uint.MaxValue))
             .Returns(moqSocketBinaryDeserializer.Object).Verifiable();
 
         pqStandaloneSnapshotClient = new PQStandaloneSnapshotClient(moqSocketSessionContext.Object, moqStreamControls.Object);
@@ -302,10 +302,7 @@ public class PQStandaloneSnapshotClientTests
 
         decoder.Process(new SocketBufferReadContext
         {
-            EncodedBuffer = new CircularReadWriteBuffer(new byte[]
-            {
-                1, (byte)PQMessageFlags.None, 0, 0, 0x4C, 0x7B, 0, 0, 0, 14, 0, 0, 0, 1
-            })
+            EncodedBuffer = new CircularReadWriteBuffer([1, (byte)PQMessageFlags.None, 0, 0, 0x4C, 0x7B, 0, 0, 0, 14, 0, 0, 0, 1])
             {
                 WriteCursor = 14
             }
@@ -324,7 +321,7 @@ public class PQStandaloneSnapshotClientTests
         moqParallelController
             .Setup(pc => pc.ScheduleWithEarlyTrigger(It.IsAny<IIntraOSThreadSignal>(),
                                                      It.IsAny<WaitOrTimerCallback>(), connectionTimeoutMs, false))
-            .Callback((IIntraOSThreadSignal iosts, WaitOrTimerCallback wotc, uint period, bool repeat) => { callback = wotc; })
+            .Callback((IIntraOSThreadSignal _, WaitOrTimerCallback woTc, uint _, bool _) => { callback = woTc; })
             .Returns(moqTimerCallbackSubscription.Object).Verifiable();
         moqFlogger.Reset();
         DisconnectMoqSetup();

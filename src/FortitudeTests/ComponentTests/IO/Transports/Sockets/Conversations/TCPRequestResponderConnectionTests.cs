@@ -33,8 +33,7 @@ public class TcpRequestResponderConnectionTests
           , SocketConversationProtocol.TcpAcceptor,
             new List<IEndpointConfig>
             {
-                new EndpointConfig(TestMachineConfig.LoopBackIpAddress
-                                 , TestMachineConfig.ServerUpdatePort)
+                new EndpointConfig(TestMachineConfig.LoopBackIpAddress, TestMachineConfig.ServerUpdatePort, CountryCityCodes.AUinMEL)
             }, "TcpRequestResponderConnectionTests",
             1024 * 1024 * 2, 1024 * 1024 * 2, 50,
             SocketConnectionAttributes.Reliable |

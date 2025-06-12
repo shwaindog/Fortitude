@@ -5,7 +5,8 @@ using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 
 namespace FortitudeMarkets.Pricing.FeedEvents;
 
-public interface IFeedEventStatusUpdate : IReusableObject<IFeedEventStatusUpdate>, IInterfacesComparable<IFeedEventStatusUpdate>, IPartialSequenceUpdates
+public interface IFeedEventStatusUpdate : IReusableObject<IFeedEventStatusUpdate>, IInterfacesComparable<IFeedEventStatusUpdate>
+  , IPartialSequenceUpdates, ICanHaveSourceTickerDefinition
 {
     FeedConnectivityStatusFlags FeedMarketConnectivityStatus { get; }
 
@@ -21,7 +22,8 @@ public interface IFeedEventStatusUpdate : IReusableObject<IFeedEventStatusUpdate
     DateTime AdapterReceivedTime        { get; }
 }
 
-public interface IMutableFeedEventStatusUpdate : IFeedEventStatusUpdate, ICloneable<IMutableFeedEventStatusUpdate>, IStagedDeltaUpdatePhase
+public interface IMutableFeedEventStatusUpdate : IFeedEventStatusUpdate, ICloneable<IMutableFeedEventStatusUpdate>
+  , IScopedTimedUpdatable, IMutableCanHaveSourceTickerDefinition
 {
     new FeedConnectivityStatusFlags FeedMarketConnectivityStatus { get; set; }
 

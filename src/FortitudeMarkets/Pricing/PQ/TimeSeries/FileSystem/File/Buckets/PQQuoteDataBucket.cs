@@ -146,6 +146,7 @@ public abstract class PQQuoteDataBucket<TEntry, TBucket, TSerializeType> : DataB
         TSerializeType lastEntryLevel, PQMessageSerializer useSerializer, AppendResult appendResult)
     {
         useSerializer.Serialize(lastEntryLevel, bufferContext);
+        lastEntryLevel.UpdateComplete();
         if (bufferContext.LastWriteLength <= 0) return new AppendResult(StorageAttemptResult.StorageSizeFailure);
         appendResult.SerializedSize = bufferContext.LastWriteLength;
 

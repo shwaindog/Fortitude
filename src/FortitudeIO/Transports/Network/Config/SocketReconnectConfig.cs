@@ -13,6 +13,11 @@ namespace FortitudeIO.Transports.Network.Config;
 
 public interface ISocketReconnectConfig : ICloneable<ISocketReconnectConfig>
 {
+    const uint DefaultStartReconnectIntervalMs = 1_000;
+    const uint DefaultMaxReconnectIntervalMs   = 60_000;
+    const uint DefaultIncrementReconnectIntervalMs    = 10_000;
+    const uint DefaultNextReconnectIntervalMs  = 1_000;
+
     uint StartReconnectIntervalMs     { get; set; }
     uint MaxReconnectIntervalMs       { get; set; }
     uint IncrementReconnectIntervalMs { get; set; }
@@ -23,11 +28,12 @@ public class SocketReconnectConfig : ConfigurationSection, ISocketReconnectConfi
 {
     private static readonly Dictionary<string, string?> Defaults = new()
     {
-        { nameof(StartReconnectIntervalMs), "1000" }, { nameof(MaxReconnectIntervalMs), "60000" }
-      , { nameof(IncrementReconnectIntervalMs), "10009" }
+        { nameof(StartReconnectIntervalMs), ISocketReconnectConfig.DefaultStartReconnectIntervalMs.ToString() }
+      , { nameof(MaxReconnectIntervalMs), ISocketReconnectConfig.DefaultMaxReconnectIntervalMs.ToString() }
+      , { nameof(IncrementReconnectIntervalMs), ISocketReconnectConfig.DefaultIncrementReconnectIntervalMs.ToString() }
     };
 
-    private uint nextReconnectInterval = 1_000;
+    private uint nextReconnectInterval = ISocketReconnectConfig.DefaultNextReconnectIntervalMs;
 
     public SocketReconnectConfig(IConfigurationRoot root, string path) : base(root, path)
     {
@@ -41,9 +47,8 @@ public class SocketReconnectConfig : ConfigurationSection, ISocketReconnectConfi
         StartReconnectIntervalMs   = nextReconnectInterval;
     }
 
-    public SocketReconnectConfig(ISocketReconnectConfig toClone) : this(toClone
-                                                                      , new ConfigurationBuilder().Add(new MemoryConfigurationSource()).Build()
-                                                                      , "") { }
+    public SocketReconnectConfig(ISocketReconnectConfig toClone) : 
+        this(toClone, new ConfigurationBuilder().Add(new MemoryConfigurationSource()).Build(), "") { }
 
     public SocketReconnectConfig(ISocketReconnectConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
@@ -64,7 +69,7 @@ public class SocketReconnectConfig : ConfigurationSection, ISocketReconnectConfi
         get
         {
             var checkValue = this[nameof(StartReconnectIntervalMs)];
-            return checkValue != null ? uint.Parse(checkValue) : 2_000_000u;
+            return checkValue.IsNotNullOrEmpty() ? uint.Parse(checkValue!) : ISocketReconnectConfig.DefaultStartReconnectIntervalMs;
         }
         set => this[nameof(StartReconnectIntervalMs)] = value.ToString();
     }
@@ -74,7 +79,7 @@ public class SocketReconnectConfig : ConfigurationSection, ISocketReconnectConfi
         get
         {
             var checkValue = this[nameof(MaxReconnectIntervalMs)];
-            return checkValue != null ? uint.Parse(checkValue) : 60_000_000u;
+            return checkValue.IsNotNullOrEmpty()  ? uint.Parse(checkValue!) : ISocketReconnectConfig.DefaultMaxReconnectIntervalMs;
         }
         set => this[nameof(MaxReconnectIntervalMs)] = value.ToString();
     }
@@ -84,7 +89,7 @@ public class SocketReconnectConfig : ConfigurationSection, ISocketReconnectConfi
         get
         {
             var checkValue = this[nameof(IncrementReconnectIntervalMs)];
-            return checkValue != null ? uint.Parse(checkValue) : 2_000_000u;
+            return checkValue != null ? uint.Parse(checkValue) : ISocketReconnectConfig.DefaultIncrementReconnectIntervalMs;
         }
         set => this[nameof(IncrementReconnectIntervalMs)] = value.ToString();
     }

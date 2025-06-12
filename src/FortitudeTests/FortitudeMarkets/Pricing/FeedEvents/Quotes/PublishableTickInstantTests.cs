@@ -5,6 +5,7 @@
 
 using System.Text.Json;
 using FortitudeCommon.Types;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
@@ -12,7 +13,7 @@ using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion
@@ -36,8 +37,9 @@ public class PublishableTickInstantTests
         quoteSequencedTestDataBuilder = new QuoteSequencedTestDataBuilder();
 
         sourceTickerInfo = new SourceTickerInfo
-            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", SingleValue, Unknown
-           , 20, 0.00001m, 30000m, 50000000m, 1000m, 1
+            (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", SingleValue, MarketClassification.Unknown
+          ,  AUinMEL, AUinMEL, AUinMEL
+           , 20, 0.00001m, 30000m, 50000000m, 1000m
            , layerFlags: LayerFlags.Volume | LayerFlags.Price | LayerFlags.OrderTraderName | LayerFlags.OrderSize | LayerFlags.OrdersCount
            , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
                               LastTradedFlags.LastTradedTime);
@@ -59,7 +61,7 @@ public class PublishableTickInstantTests
     }
 
     [TestMethod]
-    public void IntializedFromConstructor_New_InitializesFieldsAsExpected()
+    public void InitializedFromConstructor_New_InitializesFieldsAsExpected()
     {
         var expectedSourceTime         = new DateTime(2018, 02, 04, 18, 56, 9);
         var expectedClientReceivedTime = new DateTime(2018, 02, 04, 19, 56, 9);
@@ -67,7 +69,7 @@ public class PublishableTickInstantTests
         var expectedSinglePrice = 1.23456m;
 
         var fromConstructor = new PublishableTickInstant
-            (sourceTickerInfo,  expectedSinglePrice, expectedSourceTime, FeedSyncStatus.Good)
+            (sourceTickerInfo,  expectedSinglePrice, expectedSourceTime)
             {
                 ClientReceivedTime = expectedClientReceivedTime
             };

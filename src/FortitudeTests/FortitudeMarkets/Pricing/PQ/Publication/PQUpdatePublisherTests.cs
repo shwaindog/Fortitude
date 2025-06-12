@@ -95,7 +95,7 @@ public class PQUpdatePublisherTests
             ("PQUpdatePublisherTests", SocketConversationProtocol.UdpPublisher
            , new[]
              {
-                 new EndpointConfig("testHostName", 3333, "127.0.0.1")
+                 new EndpointConfig("testHostName", 3333, CountryCityCodes.AUinMEL , "127.0.0.1")
              }, connectionAttributes: SocketConnectionAttributes.Multicast | SocketConnectionAttributes.Fast);
         var socketSessionContext = new SocketSessionContext
             ("PQUpdatePublisherTests", ConversationType.Responder, SocketConversationProtocol.TcpAcceptor

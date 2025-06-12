@@ -6,6 +6,7 @@
 using System.Text.Json;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Configuration;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.InternalOrders;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
@@ -25,7 +26,7 @@ using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.InternalOrd
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes.LayeredBook.Layers;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
-using static FortitudeMarkets.Configuration.ClientServerConfig.MarketClassificationExtensions;
+using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 
@@ -145,7 +146,8 @@ public class PQLevel2QuoteTests
     {
         var tooLargeMaxDepth =
             new SourceTickerInfo
-                (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
+                (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, MarketClassification.Unknown
+               , AUinMEL, AUinMEL, AUinMEL
                , ushort.MaxValue, 0.00001m, 0.0001m, 30000m, 50000000m, 1000m, 1
                , layerFlags: LayerFlags.Volume | LayerFlags.Price
                , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
@@ -160,7 +162,8 @@ public class PQLevel2QuoteTests
     {
         var tooLargeMaxDepth =
             new SourceTickerInfo
-                (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, Unknown
+                (ushort.MaxValue, "TestSource", ushort.MaxValue, "TestTicker", Level3Quote, MarketClassification.Unknown
+               , AUinMEL, AUinMEL, AUinMEL
                , 0, 0.00001m, 0.0001m, 30000m, 50000000m, 1000m, 1
                , layerFlags: LayerFlags.Volume | LayerFlags.Price
                , lastTradedFlags: LastTradedFlags.PaidOrGiven | LastTradedFlags.TraderName | LastTradedFlags.LastTradedVolume |
@@ -1061,7 +1064,7 @@ public class PQLevel2QuoteTests
             var emptyQuoteSourceTickerInfo
                 = new PQSourceTickerInfo(populatedL2Quote.SourceTickerInfo!)
                 {
-                    NameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerNames)
+                    NameIdLookup = new PQNameIdLookupGenerator(PQFeedFields.SourceTickerDefinitionStringUpdates)
                 };
             var newEmpty = new PQPublishableLevel2Quote(emptyQuoteSourceTickerInfo);
             foreach (var pqFieldUpdate in pqFieldUpdates) newEmpty.UpdateField(pqFieldUpdate);

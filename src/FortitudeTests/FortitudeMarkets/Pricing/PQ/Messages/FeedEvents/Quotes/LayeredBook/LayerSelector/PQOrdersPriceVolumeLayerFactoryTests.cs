@@ -33,7 +33,7 @@ public class PQOrdersPriceVolumeLayerFactoryTests : PQPriceVolumeFactoryTestsBas
     public void InitialisedOtherTypes_UpgradeLayer_PreservesAsMuchCommonSupportedFields()
     {
         var pvlFactory = new PQOrdersPriceVolumeLayerFactory
-            (LayerType.OrdersFullPriceVolume, new PQNameIdLookupGenerator(PQFeedFields.SourceTickerNames)
+            (LayerType.OrdersFullPriceVolume, new PQNameIdLookupGenerator(PQFeedFields.SourceTickerDefinitionStringUpdates)
            , QuoteLayerInstantBehaviorFlags.None);
 
         var simplePvl = pvlFactory.UpgradeLayer(SimplePvl);
