@@ -7,7 +7,7 @@ using System.Text.Json;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Config;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
@@ -19,7 +19,7 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
-using static FortitudeMarkets.Configuration.MarketClassificationExtensions;
+using static FortitudeMarkets.Config.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 using PQMessageFlags = FortitudeMarkets.Pricing.PQ.Serdes.Serialization.PQMessageFlags;
 

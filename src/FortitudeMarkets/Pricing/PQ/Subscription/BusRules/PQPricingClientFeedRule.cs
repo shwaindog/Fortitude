@@ -10,7 +10,7 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Config;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Subscription.BusRules.BusMessages;
 

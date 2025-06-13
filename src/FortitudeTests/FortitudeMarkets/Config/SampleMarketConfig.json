@@ -1,0 +1,252 @@
+{
+  "MarketsConfig": {
+    "MyLocation": "AUinMEL",
+    "Markets": {
+      "SimplePricingOnlyConfig": {
+        "SourceId": 1,
+        "MarketConnectionType": "Pricing",
+        "SourceTickerConfig": {
+          "SourcePublishLocation": "USinNY",
+          "DefaultTickerAvailability": "PricingEnabled",
+          "DefaultPublishTickerQuoteDetailLevel": "Level2Quote",
+          "DefaultMarketClassificationConfig": {
+            "AssetType": "Equity",
+            "AssetCategory": "Emerging",
+            "MarketRegion": "UnitedStates",
+            "ProductType": "Spot"
+          },
+          "DefaultPip": 0.01,
+          "DefaultMaxSubmitSize": 100,
+          "DefaultMaximumPublishedLayers": 4,
+          "Tickers": {
+            "AAPL": {
+              "InstrumentId": 1
+            },
+            "ADBE": {
+              "InstrumentId": 2
+            }
+          }
+        },
+        "PricingServerConfig": {
+          "SnapshotConnectionConfig": {
+            "ConversationProtocol": "TcpAcceptor",
+            "AvailableConnections": [
+              {
+                "InstanceName": "PrimarySnapshot",
+                "Hostname": "169.254.224.238",
+                "Port": 4100
+              }
+            ]
+          },
+          "UpdateConnectionConfig": {
+            "ConversationProtocol": "UdpPublisher",
+            "AvailableConnections": [
+              {
+                "InstanceName": "PrimaryUpdate",
+                "Hostname": "169.254.224.238",
+                "Port": 4100
+              }
+            ]
+          }
+        }
+      },
+      "SimpleTradingOnlyConfig": {
+        "SourceId": 2,
+        "MarketConnectionType": "Trading",
+        "SourceTickerConfig": {
+          "SourcePublishLocation": "GBinLON",
+          "DefaultTickerAvailability": "TradingEnabled",
+          "DefaultPublishTickerQuoteDetailLevel": "None",
+          "DefaultMarketClassificationConfig": {
+            "AssetType": "FX",
+            "AssetCategory": "Major",
+            "MarketRegion": "UnitedKingdom",
+            "ProductType": "Spot"
+          },
+          "DefaultPip": 0.0001,
+          "DefaultMaxSubmitSize": 1000000,
+          "DefaultMaximumPublishedLayers": 0,
+          "Tickers": {
+            "EURUSD": {
+              "InstrumentId": 1
+            },
+            "USDJPY": {
+              "InstrumentId": 2
+            }
+          }
+        },
+        "TradingServerConfig": {
+          "TradingServerConnectionConfig": {
+            "ConversationProtocol": "TcpAcceptor",
+            "AvailableConnections": [
+              {
+                "InstanceName": "PrimaryTradingServer",
+                "Hostname": "169.254.224.238",
+                "Port": 4111
+              }
+            ]
+          },
+          "SupportedOrderTypes": "Market, Limit",
+          "SupportedTimeInForce": "GoodTillCancelled",
+          "SupportedVenueFeatures": "Amends"
+        }
+      },
+      "SimpleConfigWithAvailability": {
+        "SourceId": 3,
+        "MarketConnectionType": "Pricing, Trading",
+        "VenueOperatingTimeTableConfig": {
+          "OperatingTimeZone": "America/Chicago",
+          "WeeklyTimeTableConfig": {
+            "DaysOfWeek": "Monday, Tuesday, Wednesday, Thursday, Friday",
+            "StartTimes": {
+              "TimeOfDay": "9:00:00"
+            },
+            "StopTimes": {
+              "TimeOfDay": "17:00:00"
+            }
+          },
+          "CalendarHolidays": [
+            {
+              "HolidayName": "NewYearsDay",
+              "Month": "January",
+              "Day": 1
+            },
+            {
+              "HolidayName": "MemorialDay",
+              "Month": "May",
+              "FloatingWeekday": {
+                "Weekday": "Monday",
+                "OccurenceInMonth": "LastInMonth"
+              }
+            },
+            {
+              "HolidayName": "IndependenceDay",
+              "Month": "July",
+              "Day": 4
+            },
+            {
+              "HolidayName": "LaborDay",
+              "Month": "September",
+              "FloatingWeekday": {
+                "Weekday": "Monday",
+                "OccurenceInMonth": "FirstInMonth"
+              }
+            },
+            {
+              "HolidayName": "Thanksgiving",
+              "Month": "November",
+              "FloatingWeekday": {
+                "Weekday": "Thursday",
+                "OccurenceInMonth": "FourthInMonth"
+              }
+            },
+            {
+              "HolidayName": "ChristmasDay",
+              "Month": "December",
+              "Day": 25
+            }
+          ],
+          "FollowsIrregularHolidays": [ "EasterGoodFriday" ],
+          "UpcomingIrregularHolidays": [
+            {
+              "HolidayName": "EasterGoodFriday",
+              "Year":  2026,
+              "Month": "April",
+              "Day": 3
+            }
+          ]
+        },
+        "SourceTickerConfig": {
+          "SourcePublishLocation": "USinCH",
+          "DefaultTickerAvailability": "PricingAndTradingEnabled",
+          "DefaultPublishTickerQuoteDetailLevel": "Level3Quote",
+          "DefaultTickerTradingTimeTableConfig": {
+            "TradingScheduleConfig": {
+              "TradingStartsFromOpenTimeSpan": "00:02:00",
+              "OverridePreferredTradingTimes": {
+                "OverrideTimeZone": "Australia/Melbourne",
+                "StartTime": "14:00:00",
+                "StopTime": "20:00:00"
+              },
+              "HighActivityTimes": {
+                "StartTime": "9:00:00",
+                "StopTime": "17:00:00"
+              },
+              "AnnounceClosingSoonFromCloseTimeSpan": "00:02:00"
+            },
+            "HighLiquidityTimeTable": {
+              "OperatingTimeZone": "America/Chicago",
+              "WeeklyTimeTableConfig": {
+                "DaysOfWeek": "Tuesday, Wednesday, Thursday",
+                "StartTimes": {
+                  "TimeOfDay": "10:00:00"
+                },
+                "StopTimes": {
+                  "TimeOfDay": "16:00:00"
+                }
+              }
+            }
+          },
+          "DefaultMarketClassificationConfig": {
+            "AssetType": "Commodity",
+            "AssetCategory": "Soft",
+            "MarketRegion": "UnitedStates",
+            "ProductType": "Spot"
+          },
+          "DefaultPip": 0.01,
+          "DefaultMaxSubmitSize": 1000,
+          "DefaultMaximumPublishedLayers": 20,
+          "DefaultLayerFlags": "Price, Volume, OrdersCount, InternalVolume, OrderId, OrderCreated, OrderUpdated, OrderSize, OrderRemainingSize",
+          "DefaultLastTradedFlags": "LastTradedPrice, LastTradedTime, PaidOrGiven, LastTradedVolume, TraderName",
+          "Tickers": {
+            "CORN": {
+              "InstrumentId": 1,
+              "InstrumentDescription": "Corn Future"
+            },
+            "SOYB": {
+              "InstrumentId": 2,
+              "InstrumentDescription": "Soybean Future"
+            }
+          }
+        },
+        "PricingServerConfig": {
+          "SnapshotConnectionConfig": {
+            "ConversationProtocol": "TcpAcceptor",
+            "AvailableConnections": [
+              {
+                "InstanceName": "PrimarySnapshot",
+                "Hostname": "169.254.224.238",
+                "Port": 4120
+              }
+            ]
+          },
+          "UpdateConnectionConfig": {
+            "ConversationProtocol": "UdpPublisher",
+            "AvailableConnections": [
+              {
+                "InstanceName": "PrimaryUpdate",
+                "Hostname": "169.254.224.238",
+                "Port": 4120
+              }
+            ]
+          }
+        },
+        "TradingServerConfig": {
+          "TradingServerConnectionConfig": {
+            "ConversationProtocol": "TcpAcceptor",
+            "AvailableConnections": [
+              {
+                "InstanceName": "PrimaryTradingServer",
+                "Hostname": "169.254.224.238",
+                "Port": 4121
+              }
+            ]
+          },
+          "SupportedOrderTypes": "Market, Limit",
+          "SupportedTimeInForce": "GoodTillCancelled",
+          "SupportedVenueFeatures": "Amends"
+        }
+      }
+    }
+  }
+}

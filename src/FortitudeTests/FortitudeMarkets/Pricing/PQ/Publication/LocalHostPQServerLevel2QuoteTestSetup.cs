@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Config;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Publication;

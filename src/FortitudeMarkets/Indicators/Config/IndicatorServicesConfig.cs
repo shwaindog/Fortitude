@@ -5,7 +5,7 @@
 
 using FortitudeCommon.Configuration;
 using FortitudeIO.TimeSeries.FileSystem.Config;
-using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Config;
 using Microsoft.Extensions.Configuration;
 
 #endregion

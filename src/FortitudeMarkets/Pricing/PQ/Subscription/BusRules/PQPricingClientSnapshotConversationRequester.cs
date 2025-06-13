@@ -24,7 +24,7 @@ using FortitudeIO.Transports.Network.Controls;
 using FortitudeIO.Transports.Network.Conversations;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.State;
-using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Config;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages;
 using FortitudeMarkets.Pricing.PQ.Serdes;

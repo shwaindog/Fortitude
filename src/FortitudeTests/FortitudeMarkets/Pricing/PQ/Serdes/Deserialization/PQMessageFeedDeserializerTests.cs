@@ -5,7 +5,7 @@
 
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Config;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
@@ -15,7 +15,6 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using Moq;
 using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
-using static FortitudeMarkets.Configuration.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion

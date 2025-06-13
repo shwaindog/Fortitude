@@ -12,8 +12,10 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeCommon.DataStructures.Lists;
 
-public interface IReusableList<T> : IReusableObject<IReusableList<T>>, IList<T>, IReadOnlyCollection<T>
+public interface IReusableList<T> : IReusableObject<IReusableList<T>>, IList<T>, IReadOnlyList<T>
 {
+    new T this[int index] { get; set; }
+
     new int Count { get; }
 
     IReusableList<T> AddRange(IEnumerable<T> addAll);
@@ -23,7 +25,7 @@ public interface IReusableList<T> : IReusableObject<IReusableList<T>>, IList<T>,
     void ShiftToEnd(int indexToBeAtEnd);
 }
 
-public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T>, IReadOnlyList<T>
+public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T>
 {
     private readonly List<T> backingList;
 
