@@ -7,8 +7,8 @@ using Castle.Components.DictionaryAdapter;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Configuration;
-using FortitudeMarkets.Configuration.PricingConfig;
+using FortitudeMarkets.Config;
+using FortitudeMarkets.Config.PricingConfig;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
@@ -19,7 +19,6 @@ using FortitudeMarkets.Pricing.PQ.Serdes.Deserialization.SyncState;
 using FortitudeTests.FortitudeIO.Transports.Network.Config;
 using Moq;
 using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
-using static FortitudeMarkets.Configuration.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion

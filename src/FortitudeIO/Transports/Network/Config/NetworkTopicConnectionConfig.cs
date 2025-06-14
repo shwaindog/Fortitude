@@ -120,6 +120,15 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
     public NetworkTopicConnectionConfig(INetworkTopicConnectionConfig toClone, IConfigurationRoot configRoot, string path)
         : base(configRoot, path)
     {
+        if (toClone is NetworkTopicConnectionConfig networkTopicConnConfig)
+        {
+            ConnectionName       = networkTopicConnConfig[nameof(ConnectionName)];
+            ParentConnectionName = networkTopicConnConfig.ParentConnectionName;
+        }
+        else
+        {
+            ConnectionName = toClone.ConnectionName;
+        }
         TopicName                = toClone.TopicName;
         ConversationProtocol     = toClone.ConversationProtocol;
         AvailableConnections     = toClone.AvailableConnections.Select(scc => scc.Clone()).ToList();
@@ -146,9 +155,11 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
 
     public string? ConnectionName
     {
-        get => this[nameof(ConnectionName)];
+        get => this[nameof(ConnectionName)] ?? ParentConnectionName;
         set => this[nameof(ConnectionName)] = value;
     }
+
+    public string? ParentConnectionName { get ; set ; }
 
     public string TopicName
     {
@@ -158,7 +169,11 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
 
     public SocketConversationProtocol ConversationProtocol
     {
-        get => Enum.Parse<SocketConversationProtocol>(this[nameof(ConversationProtocol)]!);
+        get
+        {
+            var checkValue = this[nameof(ConversationProtocol)];
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<SocketConversationProtocol>(checkValue!) : SocketConversationProtocol.Unknown;
+        }
         set => this[nameof(ConversationProtocol)] = value.ToString();
     }
 
@@ -191,9 +206,17 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         get
         {
             var autoRecycleList = Recycler.Borrow<AutoRecycledEnumerable<IEndpointConfig>>();
+            int i      = 0;
             foreach (var configurationSection in GetSection(nameof(AvailableConnections)).GetChildren())
+            {
                 if (configurationSection["HostName"] != null)
-                    autoRecycleList.Add(new EndpointConfig(ConfigRoot, configurationSection.Path));
+                {
+                    var endpointConfig = new EndpointConfig(ConfigRoot, configurationSection.Path);
+                    UpdateEndpointConnectionName(endpointConfig, i);
+                    autoRecycleList.Add(endpointConfig);
+                }
+                i++;
+            }
             return autoRecycleList;
         }
         set
@@ -202,11 +225,28 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
             var i        = 0;
             foreach (var remoteServiceConfig in value)
             {
-                _ = new EndpointConfig(remoteServiceConfig, ConfigRoot, Path + ":" + nameof(AvailableConnections) + $":{i}");
+                var endpointConfig = new EndpointConfig(remoteServiceConfig, ConfigRoot, Path + ":" + nameof(AvailableConnections) + $":{i}");
+                UpdateEndpointConnectionName(endpointConfig, i);
                 i++;
             }
 
             for (var j = i; j < oldCount; j++) EndpointConfig.ClearValues(ConfigRoot, Path + ":" + nameof(AvailableConnections) + $":{i}");
+        }
+    }
+
+    private void UpdateEndpointConnectionName(EndpointConfig endpointConfig, int i)
+    {
+        if (ConnectionName.IsNotNullOrEmpty() && (endpointConfig.InstanceName.IsNullOrEmpty() || !endpointConfig.InstanceName.Contains(ConnectionName!)))
+        {
+            if (endpointConfig.InstanceName.IsNotNullOrEmpty())
+            {
+                var lastInstanceNamePart = endpointConfig.InstanceName.Split("_").Last();
+                endpointConfig.InstanceName = ConnectionName! + "_" + lastInstanceNamePart;
+            }
+            else
+            {
+                endpointConfig.InstanceName = ConnectionName! + "_" + i;
+            }
         }
     }
 

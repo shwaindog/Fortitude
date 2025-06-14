@@ -6,7 +6,7 @@
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
 using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
-using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Config;
 using FortitudeMarkets.Pricing.PQ.Subscription.BusRules.BusMessages;
 using static FortitudeMarkets.Pricing.PQ.Subscription.BusRules.PricingClientSubscriptionConstants;
 

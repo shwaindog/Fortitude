@@ -12,8 +12,8 @@ using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Dispatcher;
-using FortitudeMarkets.Configuration;
-using FortitudeMarkets.Configuration.PricingConfig;
+using FortitudeMarkets.Config;
+using FortitudeMarkets.Config.PricingConfig;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages;
@@ -22,7 +22,6 @@ using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Publication;
 using Moq;
 using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
-using static FortitudeMarkets.Configuration.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 using static FortitudeTests.TestEnvironment.TestMachineConfig;
 
@@ -709,7 +708,7 @@ public class PQServerTests
         var pqServer = new PQServer<T>(marketConnectionConfig, moqHeartBeatSender.Object,
                                        moqSocketDispatcherResolver.Object, pqSnapshotFactory, pqUpdateFactory);
         pqServer.StartServices();
-        var pqLevelTQuote = pqServer.Register(sourceTickerConfig1.Ticker!);
+        var pqLevelTQuote = pqServer.Register(sourceTickerConfig1.InstrumentName!);
         Assert.IsNotNull(pqLevelTQuote);
     }
 }

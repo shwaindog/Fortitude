@@ -6,7 +6,7 @@
 using FortitudeBusRules.Messages;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeIO.Transports.Network.Construction;
-using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Config;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Publication.BusRules;

@@ -14,7 +14,7 @@ using FortitudeIO.TimeSeries.FileSystem.File;
 using FortitudeIO.TimeSeries.FileSystem.File.Buckets;
 using FortitudeIO.TimeSeries.FileSystem.Session;
 using FortitudeIO.TimeSeries.FileSystem.Session.Retrieval;
-using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Config;
 using FortitudeMarkets.Pricing.FeedEvents.Generators.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
@@ -49,16 +49,17 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
     private IReaderSession<IPublishableLevel3Quote>? level3SessionReader;
     private IWriterSession<IPublishableLevel3Quote>  level3SessionWriter = null!;
 
-    private SourceTickerInfo       level3SrcTkrInfo       = null!;
     private PQPublishableLevel3QuoteGenerator pqLevel3QuoteGenerator = null!;
-    private DateTime               startOfWeek;
+
+    private DateTime         startOfWeek;
+    private SourceTickerInfo level3SrcTkrInfo = null!;
 
     [TestInitialize]
     public void Setup()
     {
         PagedMemoryMappedFile.LogMappingMessages = true;
 
-        var dateToGenerate = DateTime.UtcNow.Date.TruncToMonthBoundary().AddDays(15);
+        var dateToGenerate   = DateTime.UtcNow.Date.TruncToMonthBoundary().AddDays(15);
         var currentDayOfWeek = dateToGenerate.DayOfWeek;
         var dayDiff          = DayOfWeek.Sunday - currentDayOfWeek;
         startOfWeek = dateToGenerate.AddDays(dayDiff);
@@ -80,11 +81,10 @@ public class WeeklyLevel3QuoteTimeSeriesFileTests
             MidPriceGenerator =
             {
                 StartTime = startOfWeek, StartPrice = 1.332211m
-            },
-            BookGenerationInfo = new BookGenerationInfo()
+            }
+          , BookGenerationInfo = new BookGenerationInfo()
             {
-                NumberOfBookLayers = 5,
-                GenerateBookLayerInfo = new GenerateBookLayerInfo()
+                NumberOfBookLayers = 5, GenerateBookLayerInfo = new GenerateBookLayerInfo()
                 {
                     AverageOrdersPerLayer = 5
                 }

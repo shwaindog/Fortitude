@@ -24,7 +24,7 @@ public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
 {
     private readonly IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(PQPricingClientFeedRuleTests));
 
-    private ManualResetEvent haveReceivedPriceAutoResetEvent = null!;
+    private ManualResetEvent haveReceivedPriceManualResetEvent = null!;
 
     private PQPricingClientFeedRule pqPricingClientFeedRule = null!;
 
@@ -47,8 +47,8 @@ public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
             = pqServerL3QuoteServerSetup.DefaultServerMarketConnectionConfig.ToggleProtocolDirection("PQClientSourceFeedRuleTestsClient");
         clientMarketConfig.SourceName   = "PQClientSourceFeedRuleTests";
         pqPricingClientFeedRule         = new PQPricingClientFeedRule(clientMarketConfig);
-        haveReceivedPriceAutoResetEvent = new ManualResetEvent(false);
-        testSubscribeToTickerRule       = new TestSubscribeToTickerRule(clientMarketConfig.SourceName, "EUR/USD", haveReceivedPriceAutoResetEvent);
+        haveReceivedPriceManualResetEvent = new ManualResetEvent(false);
+        testSubscribeToTickerRule       = new TestSubscribeToTickerRule(clientMarketConfig.SourceName, "EUR/USD", haveReceivedPriceManualResetEvent);
     }
 
     [TestCleanup]
@@ -71,14 +71,14 @@ public class PQPricingClientFeedRuleTests : OneOfEachMessageQueueTypeTestSetup
         await using var testSubscribeDeploy
             = await CustomQueue1.LaunchRuleAsync(pqPricingClientFeedRule, testSubscribeToTickerRule, CustomQueue1SelectionResult);
         logger.Info("Deployed client listening rule");
-        await Task.Delay(1); // NEED this to allow tasks above to dispatch any callbacks
-        var receivedSnapshotTick = haveReceivedPriceAutoResetEvent.WaitOne(8_000);
+        await Task.Delay(20); // NEED this to allow tasks above to dispatch any callbacks
+        var receivedSnapshotTick = haveReceivedPriceManualResetEvent.WaitOne(8_000);
         Assert.IsTrue(receivedSnapshotTick, "Did not receive snapshot response tick from the client before timeout was reached");
-        haveReceivedPriceAutoResetEvent.Reset();
+        haveReceivedPriceManualResetEvent.Reset();
         logger.Info("Received snapshot await update");
         var sourcePriceQuote = Level3PriceQuoteTests.GenerateL3QuoteWithTraderLayerAndLastTrade(pqServerL3QuoteServerSetup.FirstTickerInfo, 3);
         pqPublisher.PublishQuoteUpdate(sourcePriceQuote);
-        var receivedUpdateTick = haveReceivedPriceAutoResetEvent.WaitOne(8_000);
+        var receivedUpdateTick = haveReceivedPriceManualResetEvent.WaitOne(8_000);
         logger.Info("Received update ");
         Assert.IsTrue(receivedUpdateTick, "Did not receive update tick from the client before timeout was reached");
     }

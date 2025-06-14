@@ -5,7 +5,7 @@
 
 using System.Text.Json;
 using FortitudeCommon.Types;
-using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Config;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;

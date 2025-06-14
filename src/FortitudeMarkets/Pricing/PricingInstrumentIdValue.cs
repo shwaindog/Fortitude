@@ -14,7 +14,7 @@ using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
 using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.Transports.Network.Config;
-using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Config;
 
 #endregion
 
