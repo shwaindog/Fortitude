@@ -12,7 +12,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
-using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Config;
 using FortitudeMarkets.Indicators;
 using FortitudeMarkets.Indicators.Persistence;
 using FortitudeMarkets.Indicators.Pricing.Candles;

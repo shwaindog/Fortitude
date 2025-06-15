@@ -22,7 +22,7 @@ using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeTests.FortitudeCommon.Extensions;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.File;
 using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
-using static FortitudeMarkets.Configuration.MarketClassificationExtensions;
+using static FortitudeMarkets.Config.MarketClassificationExtensions;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 
 #endregion

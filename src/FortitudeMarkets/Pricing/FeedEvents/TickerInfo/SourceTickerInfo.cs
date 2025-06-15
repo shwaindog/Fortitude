@@ -12,7 +12,7 @@ using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.Transports.Network.Config;
-using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Config;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.TickerInfo;
@@ -49,7 +49,6 @@ public interface ISourceTickerInfo : IPricingInstrumentId, IInterfacesComparable
 
     new ISourceTickerInfo Clone();
 }
-
 
 public interface ICanHaveSourceTickerDefinition
 {
@@ -171,7 +170,7 @@ public class SourceTickerInfo : PricingInstrumentId, ISourceTickerInfo, ICloneab
         MaxSubmitSize          = DefaultMaxSubmitSize;
         IncrementSize          = DefaultIncrementSize;
         MinimumQuoteLife       = DefaultMinimumQuoteLife;
-        LayerFlags             = DefaultLayerFlags;
+        LayerFlags             = tickerQuoteDetailLevel >= TickerQuoteDetailLevel.Level2Quote ? PriceVolumeFlags : DefaultLayerFlags;
         LastTradedFlags        = DefaultLastTradedFlags;
         QuoteBehaviorFlags     = DefaultQuoteBehaviorFlags;
     }
@@ -192,7 +191,7 @@ public class SourceTickerInfo : PricingInstrumentId, ISourceTickerInfo, ICloneab
         MaxSubmitSize          = DefaultMaxSubmitSize;
         IncrementSize          = DefaultIncrementSize;
         MinimumQuoteLife       = DefaultMinimumQuoteLife;
-        LayerFlags             = DefaultLayerFlags;
+        LayerFlags             = tickerQuoteDetailLevel >= TickerQuoteDetailLevel.Level2Quote ? PriceVolumeFlags : DefaultLayerFlags;
         LastTradedFlags        = DefaultLastTradedFlags;
         QuoteBehaviorFlags     = DefaultQuoteBehaviorFlags;
     }
@@ -200,16 +199,16 @@ public class SourceTickerInfo : PricingInstrumentId, ISourceTickerInfo, ICloneab
     public SourceTickerInfo
     (ushort sourceId, string sourceName, ushort tickerId, string ticker, TickerQuoteDetailLevel publishedTickerQuoteDetailLevel = DefaultQuoteLevel
       , MarketClassification marketClassification = default
-      , CountryCityCodes sourcePublishLocation = CountryCityCodes.Unknown  
-      , CountryCityCodes adapterReceiveLocation = CountryCityCodes.Unknown  
-      , CountryCityCodes clientReceiveLocation = CountryCityCodes.Unknown  
+      , CountryCityCodes sourcePublishLocation = CountryCityCodes.Unknown
+      , CountryCityCodes adapterReceiveLocation = CountryCityCodes.Unknown
+      , CountryCityCodes clientReceiveLocation = CountryCityCodes.Unknown
       , ushort maximumPublishedLayers = DefaultMaximumPublishedLayers
       , decimal roundingPrecision = DefaultRoundingPrecision
       , decimal pip = DefaultPip, decimal minSubmitSize = DefaultMinSubmitSize, decimal maxSubmitSize = DefaultMaxSubmitSize
       , decimal incrementSize = DefaultIncrementSize
       , ushort minimumQuoteLife = DefaultMinimumQuoteLife, uint defaultMaxValidMs = DefaultDefaultMaxValidMs
       , bool subscribeToPrices = DefaultSubscribeToPrices, bool tradingEnabled = DefaultTradingEnabled
-      , LayerFlags layerFlags = PriceVolumeFlags, LastTradedFlags lastTradedFlags = DefaultLastTradedFlags
+      , LayerFlags layerFlags = DefaultLayerFlags, LastTradedFlags lastTradedFlags = DefaultLastTradedFlags
       , PublishableQuoteInstantBehaviorFlags quoteBehaviorFlags = DefaultQuoteBehaviorFlags)
         : base(sourceId, tickerId, sourceName, ticker, new DiscreetTimePeriod(TimeBoundaryPeriod.Tick), InstrumentType.Price
              , marketClassification, null, sourcePublishLocation, adapterReceiveLocation, clientReceiveLocation)
@@ -227,9 +226,12 @@ public class SourceTickerInfo : PricingInstrumentId, ISourceTickerInfo, ICloneab
         MaxSubmitSize          = maxSubmitSize;
         IncrementSize          = incrementSize;
         MinimumQuoteLife       = minimumQuoteLife;
-        LayerFlags             = layerFlags;
-        LastTradedFlags        = lastTradedFlags;
-        QuoteBehaviorFlags     = quoteBehaviorFlags;
+        LayerFlags = publishedTickerQuoteDetailLevel >= TickerQuoteDetailLevel.Level2Quote
+                  && layerFlags == LayerFlags.None
+            ? PriceVolumeFlags
+            : layerFlags;
+        LastTradedFlags    = lastTradedFlags;
+        QuoteBehaviorFlags = quoteBehaviorFlags;
 
         Category = PublishedTickerQuoteDetailLevel.ToString();
     }
@@ -259,10 +261,6 @@ public class SourceTickerInfo : PricingInstrumentId, ISourceTickerInfo, ICloneab
     public SourceTickerInfo(SourceTickerInfo toClone) : this((ISourceTickerInfo)toClone) { }
     public SourceTickerInfo(PQSourceTickerInfo toClone) : this((ISourceTickerInfo)toClone) { }
 
-    public override SourceTickerInfo Clone() =>
-        Recycler?.Borrow<SourceTickerInfo>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new SourceTickerInfo((ISourceTickerInfo)this);
-
-    object ICloneable.Clone() => Clone();
 
     public uint MessageId => SourceInstrumentId;
     public byte Version   => 1;
@@ -305,8 +303,12 @@ public class SourceTickerInfo : PricingInstrumentId, ISourceTickerInfo, ICloneab
     IVersionedMessage ICloneable<IVersionedMessage>.Clone() => Clone();
 
     IPricingInstrumentId IPricingInstrumentId.Clone() => Clone();
-    ISourceTickerInfo ISourceTickerInfo.      Clone() => Clone();
 
+    ISourceTickerInfo ISourceTickerInfo.Clone() => Clone();
+
+
+    public override SourceTickerInfo Clone() =>
+        Recycler?.Borrow<SourceTickerInfo>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new SourceTickerInfo((ISourceTickerInfo)this);
 
     IVersionedMessage ITransferState<IVersionedMessage>.CopyFrom(IVersionedMessage source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((ISourceTickerInfo)source, copyMergeFlags);
@@ -342,8 +344,7 @@ public class SourceTickerInfo : PricingInstrumentId, ISourceTickerInfo, ICloneab
         return this;
     }
 
-    bool IInterfacesComparable<ISourceTickerInfo>.AreEquivalent(ISourceTickerInfo? other, bool exactTypes) => 
-        AreEquivalent(other, exactTypes);
+    bool IInterfacesComparable<ISourceTickerInfo>.AreEquivalent(ISourceTickerInfo? other, bool exactTypes) => AreEquivalent(other, exactTypes);
 
     public override bool AreEquivalent(ISourceTickerId? other, bool exactTypes = false)
     {

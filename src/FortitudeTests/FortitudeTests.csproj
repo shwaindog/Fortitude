@@ -47,6 +47,9 @@
     <None Update="FortitudeIO\Transports\Network\Config\TestNetworkTopicConnectConfigLoads.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="FortitudeMarkets\Config\SampleMarketConfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

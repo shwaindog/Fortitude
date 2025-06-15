@@ -12,7 +12,7 @@ using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.Extensions;
 using FortitudeIO.TimeSeries;
 using FortitudeIO.TimeSeries.FileSystem;
-using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Config;
 using FortitudeMarkets.Indicators;
 using FortitudeMarkets.Indicators.Pricing;
 using FortitudeMarkets.Indicators.Pricing.Candles;
@@ -30,7 +30,6 @@ using FortitudeTests.FortitudeMarkets.Indicators.Config;
 using FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 using static FortitudeIO.Transports.Network.Config.CountryCityCodes;
-using static FortitudeMarkets.Configuration.MarketClassificationExtensions;
 using static FortitudeTests.FortitudeMarkets.Pricing.FeedEvents.Candles.CandleTests;
 using static FortitudeMarkets.Pricing.FeedEvents.TickerInfo.TickerQuoteDetailLevel;
 

@@ -11,7 +11,7 @@ using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeMarkets.Configuration;
+using FortitudeMarkets.Config;
 using FortitudeMarkets.Indicators;
 using FortitudeMarkets.Indicators.Pricing;
 using FortitudeMarkets.Indicators.Pricing.MovingAverage;

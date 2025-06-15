@@ -4,8 +4,8 @@
 #region
 
 using FortitudeIO.Transports.Network.Config;
-using FortitudeMarkets.Configuration;
-using FortitudeMarkets.Configuration.PricingConfig;
+using FortitudeMarkets.Config;
+using FortitudeMarkets.Config.PricingConfig;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
