@@ -527,7 +527,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             orderLayerInfo.IsOrderIdUpdated = false;
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
             expectedLayerField = new PQFieldUpdate(expectedLayerField.Id, expectedLayerField.TradingSubId, orderIndex, expectedLayerField.Payload);
 
@@ -580,7 +580,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             orderLayerInfo.IsGenesisFlagsUpdated = false;
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
 
             orderLayerInfo.IsGenesisFlagsUpdated = true;
@@ -638,7 +638,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             orderLayerInfo.IsCreatedTimeDateUpdated = false;
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
             orderLayerInfo.IsCreatedTimeDateUpdated = true;
             layerUpdates =
@@ -697,7 +697,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             orderLayerInfo.IsCreatedTimeSub2MinUpdated = false;
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
             orderLayerInfo.IsCreatedTimeSub2MinUpdated = true;
             layerUpdates =
@@ -756,7 +756,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             orderLayerInfo.IsUpdateTimeDateUpdated = false;
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
             orderLayerInfo.IsUpdateTimeDateUpdated = true;
             layerUpdates =
@@ -816,7 +816,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             orderLayerInfo.IsUpdateTimeSub2MinUpdated = false;
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
             orderLayerInfo.IsUpdateTimeSub2MinUpdated = true;
             layerUpdates =
@@ -869,7 +869,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             traderLayerInfo.IsOrderVolumeUpdated = false;
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
             traderLayerInfo.IsOrderVolumeUpdated = true;
             layerUpdates =
@@ -919,7 +919,7 @@ public class PQOrdersPriceVolumeLayerTests
 
             traderLayerInfo.IsOrderRemainingVolumeUpdated = false;
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
             traderLayerInfo.IsOrderRemainingVolumeUpdated = true;
             layerUpdates =
@@ -987,7 +987,7 @@ public class PQOrdersPriceVolumeLayerTests
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
             cpOrderLayerInfo.NameIdLookup.HasUpdates = false;
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
             cpOrderLayerInfo.IsExternalCounterPartyNameUpdated = true;
             layerUpdates =
                 (from update in emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)
@@ -1054,7 +1054,7 @@ public class PQOrdersPriceVolumeLayerTests
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
             cpOrderLayerInfo.NameIdLookup.HasUpdates = false;
             Assert.IsFalse(emptyCounterPartyOrdersPvl.HasUpdates);
-            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+            Assert.IsTrue(emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
             cpOrderLayerInfo.IsExternalTraderNameUpdated = true;
             layerUpdates =
                 (from update in emptyCounterPartyOrdersPvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update)

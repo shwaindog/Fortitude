@@ -1,5 +1,6 @@
 #region
 
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Configuration;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.Config;
@@ -174,7 +175,7 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
         get
         {
             var checkValue = this[nameof(HeartBeatPublishIntervalMs)];
-            return checkValue.IsNotNullOrEmpty() ? int.Parse(checkValue!) : IPricingServerConfig.DefaultHeartBeatPublishIntervalMs;
+            return checkValue.IsNotNullOrEmpty() ? int.Parse(checkValue) : IPricingServerConfig.DefaultHeartBeatPublishIntervalMs;
         }
         set => this[nameof(HeartBeatPublishIntervalMs)] = value.ToString();
     }
@@ -184,7 +185,7 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
         get
         {
             var checkValue = this[nameof(HeartBeatServerToleranceRangeMs)];
-            return checkValue.IsNotNullOrEmpty() ? int.Parse(checkValue!) : IPricingServerConfig.DefaultHeartBeatServerToleranceRangeMs;
+            return checkValue.IsNotNullOrEmpty() ? int.Parse(checkValue) : IPricingServerConfig.DefaultHeartBeatServerToleranceRangeMs;
         }
         set => this[nameof(HeartBeatServerToleranceRangeMs)] = value.ToString();
     }
@@ -194,7 +195,7 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
         get
         {
             var checkValue = this[nameof(MaxMissedHeartBeats)];
-            return checkValue.IsNotNullOrEmpty() ? int.Parse(checkValue!) : IPricingServerConfig.DefaultMaxMissedHeartBeats;
+            return checkValue.IsNotNullOrEmpty() ? int.Parse(checkValue) : IPricingServerConfig.DefaultMaxMissedHeartBeats;
         }
         set => this[nameof(MaxMissedHeartBeats)] = value.ToString();
     }
@@ -214,7 +215,7 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
         get
         {
             var checkValue = this[nameof(SupportsIceBergs)];
-            return checkValue.IsNotNullOrEmpty() && bool.Parse(checkValue!);
+            return checkValue.IsNotNullOrEmpty() && bool.Parse(checkValue);
         }
         set => this[nameof(SupportsIceBergs)] = value.ToString();
     }
@@ -224,7 +225,7 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
         get
         {
             var checkValue = this[nameof(SyncRetryIntervalMs)];
-            return checkValue.IsNotNullOrEmpty() ? uint.Parse(checkValue!) : IPricingServerConfig.DefaultSyncRetryIntervalMs;
+            return checkValue.IsNotNullOrEmpty() ? uint.Parse(checkValue) : IPricingServerConfig.DefaultSyncRetryIntervalMs;
         }
         set => this[nameof(SyncRetryIntervalMs)] = value.ToString();
     }
@@ -234,7 +235,7 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
         get
         {
             var checkValue = this[nameof(AllowUpdatesCatchup)];
-            return checkValue.IsNotNullOrEmpty() || bool.Parse(checkValue!);
+            return checkValue.IsNotNullOrEmpty() && bool.Parse(checkValue);
         }
         set => this[nameof(AllowUpdatesCatchup)] = value.ToString();
     }

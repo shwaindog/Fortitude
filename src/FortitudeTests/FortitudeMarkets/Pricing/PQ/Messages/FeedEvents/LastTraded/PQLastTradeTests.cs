@@ -148,7 +148,7 @@ public class PQLastTradeTests
         emptyLt.IsTradePriceUpdated = false;
         Assert.IsFalse(emptyLt.IsTradePriceUpdated);
         Assert.IsFalse(emptyLt.HasUpdates);
-        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).IsNullOrNone());
 
         const decimal nextExpectedPrice = 2.345677m;
         emptyLt.TradePrice = nextExpectedPrice;
@@ -208,7 +208,7 @@ public class PQLastTradeTests
         emptyLt.IsTradeTimeDateUpdated = false;
         Assert.IsFalse(emptyLt.IsTradeTimeDateUpdated);
         Assert.IsFalse(emptyLt.HasUpdates);
-        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).IsNullOrNone());
 
         var nextExpectedPrice = new DateTime(2018, 1, 6, 15, 35, 35);
         emptyLt.TradeTime = nextExpectedPrice;

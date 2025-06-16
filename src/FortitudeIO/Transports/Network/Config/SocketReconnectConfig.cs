@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;

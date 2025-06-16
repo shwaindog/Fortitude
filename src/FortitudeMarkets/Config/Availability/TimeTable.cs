@@ -5,24 +5,26 @@
 
 using FortitudeCommon.Configuration;
 using FortitudeCommon.DataStructures.Lists;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using Microsoft.Extensions.Configuration;
+using static FortitudeMarkets.Config.Availability.TradingPeriodTypeFlags;
 
 #endregion
 
 namespace FortitudeMarkets.Config.Availability;
 
-public interface ITimeTableConfig : IAvailability, IInterfacesComparable<ITimeTableConfig>
+public interface ITimeTableConfig : ICalendarAvailability, IInterfacesComparable<ITimeTableConfig>
 {
     TimeZoneInfo OperatingTimeZone { get; set; }
 
     IWeeklyTimeTableConfig WeeklyTimeTableConfig { get; set; }
 
-    IReadOnlyList<ICalendarDateMatchConfig> CalendarHolidays { get; set; }
+    IReadOnlyList<ICalendarDateHolidayConfig> CalendarHolidays { get; set; }
 
     IReadOnlyList<NamedHoliday>? FollowsIrregularHolidays { get; set; }
 
-    IReadOnlyList<ICalendarDateMatchConfig>? UpcomingIrregularHolidays { get; set; }
+    IReadOnlyList<ICalendarDateHolidayConfig>? UpcomingIrregularHolidays { get; set; }
 
     bool IsInHoliday(DateTimeOffset atThisDateTime);
 
@@ -33,21 +35,21 @@ public readonly struct TimeTable
 (
     TimeZoneInfo operatingTimeZone
   , WeeklyTimeTable weeklyTimeTableConfig
-  , CalendarDateMatch[]? consistentCalendarHolidays = null
+  , CalendarDateHoliday[]? consistentCalendarHolidays = null
   , NamedHoliday[]? followsIrregularHolidays = null
-  , CalendarDateMatch[]? upcomingIrregularHolidays = null)
+  , CalendarDateHoliday[]? upcomingIrregularHolidays = null)
 {
-    private static readonly CalendarDateMatch[] EmptyReadonlyHoliday = [];
+    private static readonly CalendarDateHoliday[] EmptyReadonlyHoliday = [];
 
     public TimeZoneInfo OperatingTimeZone { get; } = operatingTimeZone;
 
     public WeeklyTimeTable WeeklyTimeTableConfig { get; } = weeklyTimeTableConfig;
 
-    public CalendarDateMatch[] CalendarHolidays { get; } = consistentCalendarHolidays ?? EmptyReadonlyHoliday;
+    public CalendarDateHoliday[] CalendarHolidays { get; } = consistentCalendarHolidays ?? EmptyReadonlyHoliday;
 
     public NamedHoliday[]? FollowsIrregularHolidays { get; } = followsIrregularHolidays;
 
-    public CalendarDateMatch[] UpcomingIrregularHolidays { get; } = upcomingIrregularHolidays ?? EmptyReadonlyHoliday;
+    public CalendarDateHoliday[] UpcomingIrregularHolidays { get; } = upcomingIrregularHolidays ?? EmptyReadonlyHoliday;
 }
 
 public class TimeTableConfig : ConfigSection, ITimeTableConfig
@@ -57,16 +59,16 @@ public class TimeTableConfig : ConfigSection, ITimeTableConfig
     public TimeTableConfig(IConfigurationRoot root, string path) : base(root, path) { }
 
     public TimeTableConfig
-    (TimeZoneInfo operatingTimeZone, IWeeklyTimeTableConfig regularTimeTable, IReadOnlyList<ICalendarDateMatchConfig> consistentCalendarHolidays
-      , IReadOnlyList<NamedHoliday>? followsIrregularHolidays = null, IReadOnlyList<ICalendarDateMatchConfig>? upcomingIrregularHolidays = null)
+    (TimeZoneInfo operatingTimeZone, IWeeklyTimeTableConfig regularTimeTable, IReadOnlyList<ICalendarDateHolidayConfig> consistentCalendarHolidays
+      , IReadOnlyList<NamedHoliday>? followsIrregularHolidays = null, IReadOnlyList<ICalendarDateHolidayConfig>? upcomingIrregularHolidays = null)
         : this(operatingTimeZone, regularTimeTable, consistentCalendarHolidays, InMemoryConfigRoot, InMemoryPath, followsIrregularHolidays
              , upcomingIrregularHolidays) { }
 
     public TimeTableConfig
-    (TimeZoneInfo operatingTimeZone, IWeeklyTimeTableConfig regularTimeTable, IReadOnlyList<ICalendarDateMatchConfig> consistentCalendarHolidays
+    (TimeZoneInfo operatingTimeZone, IWeeklyTimeTableConfig regularTimeTable, IReadOnlyList<ICalendarDateHolidayConfig> consistentCalendarHolidays
       , IConfigurationRoot root, string path
       , IReadOnlyList<NamedHoliday>? followsIrregularHolidays = null
-      , IReadOnlyList<ICalendarDateMatchConfig>? upcomingIrregularHolidays = null) : base(root, path)
+      , IReadOnlyList<ICalendarDateHolidayConfig>? upcomingIrregularHolidays = null) : base(root, path)
     {
         OperatingTimeZone         = operatingTimeZone;
         WeeklyTimeTableConfig     = regularTimeTable;
@@ -113,14 +115,14 @@ public class TimeTableConfig : ConfigSection, ITimeTableConfig
         set => this[nameof(OperatingTimeZone)] = value.Id;
     }
 
-    public IReadOnlyList<ICalendarDateMatchConfig> CalendarHolidays
+    public IReadOnlyList<ICalendarDateHolidayConfig> CalendarHolidays
     {
         get
         {
-            var autoRecycleList = Recycler.Borrow<ReusableList<ICalendarDateMatchConfig>>();
+            var autoRecycleList = Recycler.Borrow<ReusableList<ICalendarDateHolidayConfig>>();
             foreach (var calendarDay in GetSection(nameof(CalendarHolidays)).GetChildren())
                 if (calendarDay["Month"] != null)
-                    autoRecycleList.Add(new CalendarDateMatchConfig(ConfigRoot, calendarDay.Path));
+                    autoRecycleList.Add(new CalendarDateHolidayConfig(ConfigRoot, calendarDay.Path));
             return autoRecycleList;
         }
         set
@@ -132,7 +134,7 @@ public class TimeTableConfig : ConfigSection, ITimeTableConfig
             foreach (var calendarDay in value)
                 _ = new CalendarDateMatchConfig(calendarDay, ConfigRoot, Path + ":" + nameof(CalendarHolidays) + ":" + i++);
 
-            for (var j = i; j < oldCount; j++) CalendarDateMatchConfig.ClearValues(ConfigRoot, Path + ":" + nameof(CalendarHolidays) + $":{j++}");
+            for (var j = i; j < oldCount; j++) CalendarDateHolidayConfig.ClearValues(ConfigRoot, Path + ":" + nameof(CalendarHolidays) + $":{j++}");
         }
     }
 
@@ -154,24 +156,24 @@ public class TimeTableConfig : ConfigSection, ITimeTableConfig
             int i = 0;
             foreach (var namedHoliday in value ?? [])
             {
-                this[nameof(FollowsIrregularHolidays) + ConfigurationPath.KeyDelimiter + i++] = namedHoliday.ToString();   
+                this[nameof(FollowsIrregularHolidays) + ConfigurationPath.KeyDelimiter + i++] = namedHoliday.ToString();
             }
 
             for (int j = 0; j < previousCount; j++)
             {
-                this[nameof(FollowsIrregularHolidays) + ConfigurationPath.KeyDelimiter + i++] = "";   
+                this[nameof(FollowsIrregularHolidays) + ConfigurationPath.KeyDelimiter + i++] = "";
             }
         }
     }
 
-    public IReadOnlyList<ICalendarDateMatchConfig>? UpcomingIrregularHolidays
+    public IReadOnlyList<ICalendarDateHolidayConfig>? UpcomingIrregularHolidays
     {
         get
         {
-            var autoRecycleList = Recycler.Borrow<ReusableList<ICalendarDateMatchConfig>>();
+            var autoRecycleList = Recycler.Borrow<ReusableList<ICalendarDateHolidayConfig>>();
             foreach (var calendarDay in GetSection(nameof(UpcomingIrregularHolidays)).GetChildren())
                 if (calendarDay["Month"] != null)
-                    autoRecycleList.Add(new CalendarDateMatchConfig(ConfigRoot, calendarDay.Path));
+                    autoRecycleList.Add(new CalendarDateHolidayConfig(ConfigRoot, calendarDay.Path));
             return autoRecycleList;
         }
         set
@@ -187,36 +189,212 @@ public class TimeTableConfig : ConfigSection, ITimeTableConfig
                     {
                         throw new ArgumentException($"{nameof(UpcomingIrregularHolidays)} must have Year set on CalendarDateMatchConfig");
                     }
-                    _ = new CalendarDateMatchConfig(calendarDay, ConfigRoot, Path + ":" + nameof(UpcomingIrregularHolidays) + ":" + i);
+                    _ = new CalendarDateHolidayConfig(calendarDay, ConfigRoot, Path + ":" + nameof(UpcomingIrregularHolidays) + ":" + i);
                 }
 
             for (var j = i; j < oldCount; j++)
-                CalendarDateMatchConfig.ClearValues(ConfigRoot, Path + ":" + nameof(UpcomingIrregularHolidays) + $":{j}");
+                CalendarDateHolidayConfig.ClearValues(ConfigRoot, Path + ":" + nameof(UpcomingIrregularHolidays) + $":{j}");
         }
     }
 
-    // public bool ShouldBeUp(DateTimeOffset atThisDateTime) => WeeklyTimeTableConfig.GetExpectedAvailability(atThisDateTime) && !IsInHoliday(atThisDateTime);
-
-    public TradingPeriodTypeFlags GetExpectedAvailability(DateTimeOffset atThisDateTime) => throw new NotImplementedException();
-
-    public bool IsInHoliday(DateTimeOffset atThisDateTime) => CalendarHolidays.Any(fcd => fcd.DateMatches(atThisDateTime));
-
-    public TimeSpan ExpectedRemainingUpTime(DateTimeOffset fromNow)
+    public TradingPeriodTypeFlags GetExpectedAvailability(DateTimeOffset atThisDateTime)
     {
-        if (WeeklyTimeTableConfig.GetExpectedAvailability(fromNow).IsMarketClose()) return TimeSpan.Zero;
-        return WeeklyTimeTableConfig.ExpectedRemainingUpTime(fromNow);
+        var fullSchedule = WeeklySchedule(atThisDateTime);
+        var marketState  = fullSchedule.CurrentActiveAvailabilityTransition(atThisDateTime).MarketState;
+        fullSchedule.DecrementRefCount();
+        return marketState;
     }
 
-    public DateTimeOffset NextScheduledOpeningTime(DateTimeOffset fromNow)
+    public void AddWeeklyOnOffTradingState(WeeklyTradingSchedule tradingSchedule, TradingPeriodTypeFlags onState, TradingPeriodTypeFlags offState)
     {
-        var nextScheduledOpeningTime = WeeklyTimeTableConfig.NextScheduledOpeningTime(fromNow);
-
-        while (!IsInHoliday(nextScheduledOpeningTime))
+        var prevTransition = tradingSchedule[0];
+        for (var i = 0; i < tradingSchedule.Count; i++)
         {
-            var atClose = nextScheduledOpeningTime + ExpectedRemainingUpTime(nextScheduledOpeningTime);
-            nextScheduledOpeningTime = WeeklyTimeTableConfig.NextScheduledOpeningTime(atClose);
+            var currentTransition = tradingSchedule[i];
+            if (prevTransition.IsOpenTransition(currentTransition))
+            {
+                var openingTransition = currentTransition;
+
+
+                AvailabilityTransitionTime closeTransition = openingTransition;
+
+                var untilClosePrev = openingTransition;
+                for (int j = i + 1; j < tradingSchedule.Count; j++)
+                {
+                    var untilCloseCurrent = tradingSchedule[j];
+                    if (untilClosePrev.IsClosedTransition(untilCloseCurrent))
+                    {
+                        closeTransition = untilCloseCurrent;
+                        break;
+                    }
+                    untilClosePrev = untilCloseCurrent;
+                }
+
+                foreach (var startStopTimes in WeeklyTimeTableConfig.ToStartStopTimesInWeek(openingTransition.AtTime, closeTransition.AtTime))
+                {
+                    var startTime = startStopTimes.StartTime;
+                    var stopTime  = startStopTimes.StopTime;
+                    if (startTime < openingTransition.AtTime)
+                    {
+                        startTime = openingTransition.AtTime;
+                    }
+
+                    var foundIndex = tradingSchedule.FindTimeMatchAt(startTime);
+                    if (foundIndex > 0)
+                    {
+                        tradingSchedule[foundIndex] = tradingSchedule[foundIndex].AddTradingState(onState);
+                    }
+                    else
+                    {
+                        var entryBeforeNew = tradingSchedule.FindEntryActiveAt(stopTime);
+                        var highActivityOpenTransition = new AvailabilityTransitionTime
+                            (startTime, (entryBeforeNew.MarketState & ~(offState)) | onState);
+                        tradingSchedule.Add(highActivityOpenTransition);
+                    }
+                    foundIndex = tradingSchedule.FindTimeMatchAt(openingTransition.AtTime);
+                    if (foundIndex > 0)
+                    {
+                        untilClosePrev = openingTransition;
+                        for (int j = foundIndex; j < tradingSchedule.Count; j++)
+                        {
+                            var untilCloseCurrent = tradingSchedule[j];
+                            if (untilCloseCurrent.AtTime < startTime)
+                            {
+                                tradingSchedule[j] = untilCloseCurrent.AddTradingState(offState);
+                            }
+                            else if (untilCloseCurrent.AtTime > startTime && untilCloseCurrent.AtTime < stopTime &&
+                                     !untilClosePrev.IsClosedTransition(untilCloseCurrent))
+                            {
+                                tradingSchedule[j] = untilCloseCurrent.WithNewState
+                                    ((untilCloseCurrent.MarketState & ~(offState)) | onState);
+                            }
+                            if (untilClosePrev.IsClosedTransition(untilCloseCurrent))
+                            {
+                                break;
+                            }
+                            untilClosePrev = untilCloseCurrent;
+                        }
+                    }
+                    if (stopTime > closeTransition.AtTime)
+                    {
+                        stopTime = closeTransition.AtTime;
+                    }
+
+                    foundIndex = tradingSchedule.FindTimeMatchAt(stopTime);
+                    if (foundIndex > 0)
+                    {
+                        tradingSchedule[foundIndex] = tradingSchedule[foundIndex]
+                            .WithNewState((tradingSchedule[foundIndex].MarketState & ~(onState)) | offState);
+                    }
+                    else
+                    {
+                        var entryBeforeNew = tradingSchedule.FindEntryActiveAt(stopTime);
+                        var highActivityOpenTransition = new AvailabilityTransitionTime
+                            (stopTime, (entryBeforeNew.MarketState & ~(onState)) | offState);
+                        tradingSchedule.Add(highActivityOpenTransition);
+                    }
+                    foundIndex = tradingSchedule.FindTimeMatchAt(openingTransition.AtTime);
+                    if (foundIndex > 0)
+                    {
+                        untilClosePrev = openingTransition;
+                        for (int j = foundIndex; j < tradingSchedule.Count; j++)
+                        {
+                            var untilCloseCurrent = tradingSchedule[j];
+                            if (untilCloseCurrent.AtTime > stopTime && !untilClosePrev.IsClosedTransition(untilCloseCurrent))
+                            {
+                                tradingSchedule[j] = untilCloseCurrent.WithNewState
+                                    ((untilCloseCurrent.MarketState & ~(onState)) | offState);
+                            }
+                            if (untilClosePrev.IsClosedTransition(untilCloseCurrent))
+                            {
+                                break;
+                            }
+                            untilClosePrev = untilCloseCurrent;
+                        }
+                    }
+                }
+            }
+            prevTransition = currentTransition;
         }
-        return nextScheduledOpeningTime;
+    }
+
+    public bool IsInHoliday(DateTimeOffset atThisDateTime) =>
+        CalendarHolidays.Any(cdmc => cdmc.DateMatches(atThisDateTime))
+     || (UpcomingIrregularHolidays?.Any(cdmc => cdmc.DateMatches(atThisDateTime)) ?? false);
+
+
+    public WeeklyTradingSchedule WeeklySchedule(DateTimeOffset forTimeInWeek)
+    {
+        var rawWeeklyTradingSchedule = WeeklyTimeTableConfig.WeeklySchedule(forTimeInWeek);
+        var publicHolidays           = CalculateCarriedPublicHolidays((ushort)forTimeInWeek.TruncToWeekBoundary().AddDays(1).Year);
+        var fullWeeklySchedule       = Recycler.Borrow<WeeklyTradingSchedule>().Initialise(forTimeInWeek);
+
+        var weekStartOffset = TimeZoneInfo.ConvertTime(forTimeInWeek, OperatingTimeZone).TruncToWeekBoundary();
+        fullWeeklySchedule.Add(new AvailabilityTransitionTime(weekStartOffset, IsMarketClosed | IsWeekend));
+
+        for (var i = 0; i < rawWeeklyTradingSchedule.Count; i++)
+        {
+            var availabilityTransition = rawWeeklyTradingSchedule[i];
+            if (publicHolidays.Contains(availabilityTransition.AtTime))
+            {
+                if (availabilityTransition.MarketState.IsOpen())
+                {
+                    fullWeeklySchedule.Add(new AvailabilityTransitionTime(availabilityTransition.AtTime, IsMarketClosed | IsPublicHoliday));
+                }
+                else
+                {
+                    fullWeeklySchedule.Add(availabilityTransition);
+                }
+            }
+            else
+            {
+                fullWeeklySchedule.Add(availabilityTransition);
+            }
+        }
+        publicHolidays.DecrementRefCount();
+        rawWeeklyTradingSchedule.DecrementRefCount();
+        return fullWeeklySchedule;
+    }
+
+    public CalendarDatesList CalculateCarriedPublicHolidays(ushort year)
+    {
+        var weekendsInYear = AllWeekends(year);
+        var publicHolidays = Recycler.Borrow<CalendarDatesList>();
+
+        foreach (var calendarDateMatchConfig in CalendarHolidays)
+        {
+            var thisYearDate = new CalendarDate(year, (byte)calendarDateMatchConfig.Month, calendarDateMatchConfig.ResolveDateForYear(year));
+            var isOnWeekend  = weekendsInYear.Contains(thisYearDate);
+            if (isOnWeekend && calendarDateMatchConfig.CarryWeekendDirection != 0)
+            {
+                thisYearDate = calendarDateMatchConfig.CarryWeekendDirection > 0
+                    ? weekendsInYear.NextDateNotInList(thisYearDate)
+                    : weekendsInYear.PreviousDateNotInList(thisYearDate);
+            }
+            publicHolidays.Add(thisYearDate);
+        }
+        weekendsInYear.DecrementRefCount();
+        return publicHolidays;
+    }
+
+    public CalendarDatesList AllWeekends(ushort year)
+    {
+        var weekendsInYear = Recycler.Borrow<CalendarDatesList>();
+        weekendsInYear.Capacity = 128; // base 2 growth for lists
+        var currentDayOfYear = new DateTime(year, 1, 1);
+
+        var weekdays = WeeklyTimeTableConfig.DaysOfWeek;
+        var weekends = ~(weekdays);
+
+        for (int i = 0; i < 366 && currentDayOfYear.Year == year; i++)
+        {
+            if ((currentDayOfYear.DayOfWeek.ToDayOfWeekFlags() & weekends) > 0)
+            {
+                weekendsInYear.Add(new CalendarDate((ushort)currentDayOfYear.Year, (byte)currentDayOfYear.Month, (byte)currentDayOfYear.Day));
+            }
+            currentDayOfYear = currentDayOfYear.AddDays(1);
+        }
+        return weekendsInYear;
     }
 
     public ITimeTableConfig Clone() => new TimeTableConfig(this);
@@ -260,7 +438,6 @@ public class TimeTableConfig : ConfigSection, ITimeTableConfig
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ITimeTableConfig, true);
-
 
     public override int GetHashCode()
     {

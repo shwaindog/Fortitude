@@ -3,8 +3,8 @@
 
 #region
 
-using System.Text.Json.Serialization;
 using FortitudeCommon.Configuration;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using Microsoft.Extensions.Configuration;
 
@@ -12,74 +12,19 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarkets.Config.Availability;
 
-// ReSharper disable UnusedMember.Global
-[JsonConverter(typeof(JsonStringEnumConverter<NamedHoliday>))]
-public enum NamedHoliday
+public interface ICalendarDateMatchConfig : IInterfacesComparable<ICalendarDateMatchConfig>, ICloneable<ICalendarDateMatchConfig>
 {
-    Unknown
-  , SpecialEvent
-  , SecuritySituation
-  , NationalDayOfMourning
-  , Olympics
-  , EasterGoodFriday
-  , EasterMonday
-  , NewYearsDay
-  , ChristmasDay
-  , LabourDay
-  , LaborDay
-  , MayDay
-  , VersakDay
-  , EidalFitr                // Islamic End of Ramadan -  It falls on the first day of Shawwal, the tenth month of the Islamic calendar.
-  , EidalAdha                // Islamic - It Falls on the 10th of Dhu al-Hijja, the twelfth and final month of the Islamic calendar.
-  , ChineseNewYear           // Chinese Spring Festival 1st day of 1st Luna-solar month
-  , ChineseTombSweeping      // aka Chingming 4~6 April
-  , ChineseMidAutumnFestival // 15th day of 8th Luna-solar month
-  , NationalDay              // Depending on country can be 26th Jan, 1st October...
-  , PresidentsDay
-  , MemorialDay
-  , AnzacDay
-  , Thanksgiving
-  , IndependenceDay
-  , KingsBirthday // Monarch or Martin Luther
-  , VictoryDay
-  , VictoriaDay
-  , CivicDay
-  , Armistice
-  , BoxingDay
-  , BankHoliday
-  , AssumptionDay
-  , AllSaintsDay
-  , GermanEpiphany
-  , WomensDay
-  , ChildrensDay
-  , WhitMonday
-  , CorpusChristi
-  , AugsburgerPeaceFestival
-  , ReformationDay
-  , RepentenceAndPrayerDay
-  , TruthAndReconciliationDay
-}
-// ReSharper restore UnusedMember.Global
-
-public interface ICalendarDateMatchConfig : IInterfacesComparable<ICalendarDateMatchConfig>
-{
-    public const short DefaultFirstNonWeekdayCarry  = 2;
-    public const short DefaultSecondNonWeekdayCarry = 1;
-
-    NamedHoliday HolidayName { get; set; }
-
     ushort?    Year  { get; set; }
     MonthFlags Month { get; set; }
     byte?      Day   { get; set; }
-
-    short FirstNonWeekdayCarry  { get; set; }
-    short SecondNonWeekdayCarry { get; set; }
 
     MonthFloatingWeekday? FloatingWeekday { get; set; }
 
     bool DateMatches(DateTime check);
 
     bool DateMatches(DateTimeOffset check);
+
+    byte ResolveDateForYear(ushort year);
 }
 
 public readonly struct CalendarDateMatch
@@ -91,30 +36,25 @@ public readonly struct CalendarDateMatch
         Day   = toClone.Day;
 
         FloatingWeekday = toClone.FloatingWeekday;
-
-        HolidayName = toClone.HolidayName;
     }
 
     // ReSharper disable once ConvertToPrimaryConstructor
     public CalendarDateMatch
     (ushort? year = null, MonthFlags month = MonthFlags.AllMonths, byte? dayOfMonth = null
-      , MonthFloatingWeekday? floatingWeekday = null, NamedHoliday holidayName = NamedHoliday.Unknown)
+      , MonthFloatingWeekday? floatingWeekday = null)
     {
         Year  = year;
         Month = month;
         Day   = dayOfMonth;
 
         FloatingWeekday = floatingWeekday;
-
-        HolidayName = holidayName;
     }
 
-    public NamedHoliday HolidayName { get; }
-
     public ushort?    Year  { get; }
-    public MonthFlags Month { get; }
-    public byte?      Day   { get; }
 
+    public MonthFlags Month { get; }
+
+    public byte?      Day   { get; }
 
     public MonthFloatingWeekday? FloatingWeekday { get; }
 }
@@ -125,17 +65,13 @@ public class CalendarDateMatchConfig : ConfigSection, ICalendarDateMatchConfig
 
     public CalendarDateMatchConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
-    public CalendarDateMatchConfig
-    (ushort year, MonthFlags month, byte dayOfMonth,
-        MonthFloatingWeekday? dayOccurenceInMonth = null, NamedHoliday holidayName = NamedHoliday.Unknown)
+    public CalendarDateMatchConfig(ushort year, MonthFlags month, byte dayOfMonth, MonthFloatingWeekday? dayOccurenceInMonth = null)
     {
         Year  = year;
         Month = month;
         Day   = dayOfMonth;
 
         FloatingWeekday = dayOccurenceInMonth;
-
-        HolidayName = holidayName;
     }
 
     public CalendarDateMatchConfig(ICalendarDateMatchConfig toClone, IConfigurationRoot root, string path) : base(root, path)
@@ -145,22 +81,9 @@ public class CalendarDateMatchConfig : ConfigSection, ICalendarDateMatchConfig
         Day   = toClone.Day;
 
         FloatingWeekday = toClone.FloatingWeekday;
-
-        HolidayName = toClone.HolidayName;
     }
 
     public CalendarDateMatchConfig(ICalendarDateMatchConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
-
-
-    public NamedHoliday HolidayName
-    {
-        get
-        {
-            var checkValue = this[nameof(HolidayName)];
-            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<NamedHoliday>(checkValue!) : NamedHoliday.Unknown;
-        }
-        set => this[nameof(HolidayName)] = value.ToString();
-    }
 
     public ushort? Year
     {
@@ -240,24 +163,12 @@ public class CalendarDateMatchConfig : ConfigSection, ICalendarDateMatchConfig
         }
     }
 
-    public short FirstNonWeekdayCarry
+    public byte ResolveDateForYear(ushort year)
     {
-        get
-        {
-            var checkValue = this[nameof(FirstNonWeekdayCarry)];
-            return checkValue.IsNotNullOrEmpty() ? short.Parse(checkValue!) : ICalendarDateMatchConfig.DefaultFirstNonWeekdayCarry;
-        }
-        set => this[nameof(FirstNonWeekdayCarry)] = value.ToString();
-    }
-
-    public short SecondNonWeekdayCarry
-    {
-        get
-        {
-            var checkValue = this[nameof(SecondNonWeekdayCarry)];
-            return checkValue.IsNotNullOrEmpty() ? short.Parse(checkValue!) : ICalendarDateMatchConfig.DefaultSecondNonWeekdayCarry;
-        }
-        set => this[nameof(SecondNonWeekdayCarry)] = value.ToString();
+        if (Day != null) return Day.Value;
+        var floatingWeekday = FloatingWeekday;
+        if (floatingWeekday == null) throw new ArgumentException("Expected Day or FloatingWeekday to be set");
+        return (byte)floatingWeekday.Value.DayInCurrentMonth(year, Month.ToCalendarMonth());
     }
 
     public bool DateMatches(DateTimeOffset check) => this.DateTimeMatches(check.DateTime);
@@ -270,47 +181,52 @@ public class CalendarDateMatchConfig : ConfigSection, ICalendarDateMatchConfig
         root[path + ":" + nameof(Month)]           = null;
         root[path + ":" + nameof(Day)]             = null;
         root[path + ":" + nameof(FloatingWeekday)] = null;
-        root[path + ":" + nameof(HolidayName)]     = null;
     }
 
-    public bool AreEquivalent(ICalendarDateMatchConfig? other, bool exactTypes = false)
+    object ICloneable.Clone() => Clone();
+
+    ICalendarDateMatchConfig ICloneable<ICalendarDateMatchConfig>.Clone() => Clone();
+
+    public virtual CalendarDateMatchConfig Clone() => new(this);
+
+    public virtual bool AreEquivalent(ICalendarDateMatchConfig? other, bool exactTypes = false)
     {
         if (other == null) return false;
         var yearSame         = Year == other.Year;
         var monthSame        = Month == other.Month;
         var daySame          = Day == other.Day;
         var dayOccurenceSame = Equals(FloatingWeekday, other.FloatingWeekday);
-        var holidayNameSame  = HolidayName == other.HolidayName;
 
-        var allAreSame = yearSame && monthSame && daySame && dayOccurenceSame && holidayNameSame;
+        var allAreSame = yearSame && monthSame && daySame && dayOccurenceSame;
 
         return allAreSame;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ICalendarDateMatchConfig, true);
 
-
     public override int GetHashCode()
     {
         unchecked
         {
-            var hashCode = HolidayName.GetHashCode();
+            var hashCode = Month.GetHashCode();
             hashCode = (hashCode * 397) ^ Year.GetHashCode();
-            hashCode = (hashCode * 397) ^ Month.GetHashCode();
             hashCode = (hashCode * 397) ^ (Day != null ? Day.GetHashCode() : 0);
             hashCode = (hashCode * 397) ^ (FloatingWeekday != null ? FloatingWeekday.GetHashCode() : 0);
             return hashCode;
         }
     }
 
+    protected string CalendarDateMatchConfigToStringMembers =>
+        $"{nameof(Year)}: {Year}, {nameof(Month)}: {Month}, {nameof(Day)}: {Day}, {nameof(FloatingWeekday)}: {FloatingWeekday}";
+
+
     public override string ToString() =>
-        $"{nameof(CalendarDateMatchConfig)}{{{nameof(HolidayName)}: {HolidayName}, {nameof(Year)}: {Year}, {nameof(Month)}: {Month}, " +
-        $"{nameof(Day)}: {Day}, {nameof(FloatingWeekday)}: {FloatingWeekday}}}";
+        $"{nameof(CalendarDateMatchConfig)}{{{CalendarDateMatchConfigToStringMembers}}}";
 
     public static implicit operator CalendarDateMatch(CalendarDateMatchConfig toConvert) => new(toConvert);
 }
 
-public static class CalendarDateExtensions
+public static class CalendarDateMatchConfigExtensions
 {
     public static bool DateTimeMatches
         (this CalendarDateMatchConfig yearMonthDay, DateTime check)
@@ -320,7 +236,7 @@ public static class CalendarDateExtensions
         var dayMatches   = check.Day == yearMonthDay.Day;
         if (yearMatches && monthMatches && !dayMatches && yearMonthDay.FloatingWeekday != null)
         {
-            var offsetDayInMonth = yearMonthDay.FloatingWeekday.Value.DayInCurrentMonth(check);
+            var offsetDayInMonth = yearMonthDay.FloatingWeekday.Value.DayInCurrentMonth(check.Year, check.Month);
             dayMatches = check.Day == offsetDayInMonth;
         }
         var allAreSame = yearMatches && monthMatches && dayMatches;
@@ -335,7 +251,7 @@ public static class CalendarDateExtensions
         var dayMatches   = check.Day == yearMonthDay.Day;
         if (yearMatches && monthMatches && !dayMatches && yearMonthDay.FloatingWeekday != null)
         {
-            var offsetDayInMonth = yearMonthDay.FloatingWeekday.Value.DayInCurrentMonth(check);
+            var offsetDayInMonth = yearMonthDay.FloatingWeekday.Value.DayInCurrentMonth(check.Year, check.Month);
             dayMatches = check.Day == offsetDayInMonth;
         }
         var allAreSame = yearMatches && monthMatches && dayMatches;

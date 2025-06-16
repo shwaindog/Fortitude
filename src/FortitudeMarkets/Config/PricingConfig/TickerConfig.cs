@@ -4,6 +4,7 @@
 #region
 
 using FortitudeCommon.Configuration;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeMarkets.Config.Availability;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
@@ -15,7 +16,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarkets.Config.PricingConfig;
 
-public interface ITickerConfig : IInterfacesComparable<ITickerConfig>
+public interface ITickerConfig : IInterfacesComparable<ITickerConfig>, IWeeklyAvailability
 {
     ushort  InstrumentId          { get; set; }
     string  InstrumentName        { get; set; }
@@ -181,8 +182,6 @@ public class TickerConfig : ConfigSection, ITickerConfig
 
     public ITimeTableConfig? ParentVenueOperatingTimeTableConfig { get; set; }
 
-    public ITimeTableConfig? ParentHighLiquidityTimeTableConfig { get; set; }
-
     public ITradingTimeTableConfig? TradingTimeTableConfig
     {
         get
@@ -191,22 +190,32 @@ public class TickerConfig : ConfigSection, ITickerConfig
             {
                 var tradingTimeTable = new TradingTimeTableConfig(ConfigRoot, Path + ":" + nameof(TradingTimeTableConfig))
                 {
-                    VenueOperatingTimeTable = ParentVenueOperatingTimeTableConfig, ParentHighLiquidityTimeTable = ParentHighLiquidityTimeTableConfig
+                    VenueOperatingTimeTable = ParentVenueOperatingTimeTableConfig, 
+                    ParentTradingTimeTableConfig = ParentTradingTimeTableConfig
                 };
                 return tradingTimeTable;
             }
-            return null;
+            return ParentTradingTimeTableConfig;
         }
         set
         {
+            if (value is not Availability.TradingTimeTableConfig and { HighLiquidityTimeTable: null })
+            {
+                value.HighLiquidityTimeTable = ParentTradingTimeTableConfig?.HighLiquidityTimeTable;
+            } else if (value is not Availability.TradingTimeTableConfig and { TradingScheduleConfig: null })
+            {
+                value.TradingScheduleConfig = ParentTradingTimeTableConfig?.TradingScheduleConfig;
+            }
             _ = value != null ? new TradingTimeTableConfig(value, ConfigRoot, Path + ":" + nameof(TradingTimeTableConfig)) : null;
             if (value is TradingTimeTableConfig valueTradingTimeTableConfig)
             {
                 valueTradingTimeTableConfig.VenueOperatingTimeTable      = ParentVenueOperatingTimeTableConfig;
-                valueTradingTimeTableConfig.ParentHighLiquidityTimeTable = ParentHighLiquidityTimeTableConfig;
+                valueTradingTimeTableConfig.ParentTradingTimeTableConfig = ParentTradingTimeTableConfig;
             }
         }
     }
+
+    public ITradingTimeTableConfig? ParentTradingTimeTableConfig { get; set; }
 
     public TickerAvailability? TickerAvailability
     {
@@ -330,6 +339,11 @@ public class TickerConfig : ConfigSection, ITickerConfig
         set => this[nameof(VenueTradingSymbol)] = value;
     }
 
+    public WeeklyTradingSchedule WeeklySchedule(DateTimeOffset forTimeInWeek)
+    {
+        return TradingTimeTableConfig?.WeeklySchedule(forTimeInWeek) ?? Recycler.Borrow<WeeklyTradingSchedule>();
+    }
+
     public bool AreEquivalent(ITickerConfig? other, bool exactTypes = false)
     {
         if (other == null) return false;
@@ -342,8 +356,8 @@ public class TickerConfig : ConfigSection, ITickerConfig
         var availabilitySame         = TickerAvailability == other.TickerAvailability;
         var roundingSame             = RoundingPrecision == other.RoundingPrecision;
         var pipSame                  = Pip == other.Pip;
-        var minSubitSizeSame         = MinSubmitSize == other.MinSubmitSize;
-        var maxSubitSizeSame         = MaxSubmitSize == other.MaxSubmitSize;
+        var minSubmitSizeSame         = MinSubmitSize == other.MinSubmitSize;
+        var maxSubmitSizeSame         = MaxSubmitSize == other.MaxSubmitSize;
         var incrementSizeSame        = IncrementSize == other.IncrementSize;
         var minQuoteLifeSizeSame     = MinimumQuoteLife == other.MinimumQuoteLife;
         var maxValidMsSame           = DefaultMaxValidMs == other.DefaultMaxValidMs;
@@ -355,7 +369,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         var tradingSymSame           = VenueTradingSymbol == other.VenueTradingSymbol;
 
         return tickerIdSame && tickerSame && tradingTimetableSame && availabilitySame && quoteLevelSame && marketClassificationSame
-            && roundingSame && pipSame && minSubitSizeSame && maxSubitSizeSame && incrementSizeSame && minQuoteLifeSizeSame
+            && roundingSame && pipSame && minSubmitSizeSame && maxSubmitSizeSame && incrementSizeSame && minQuoteLifeSizeSame
             && maxValidMsSame && layerFlagsSizeSame && maxLayersSame && lastTradedFlagsSame && quoteBehaviorFlagsSame
             && pricingSymSame && tradingSymSame;
     }

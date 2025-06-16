@@ -1,6 +1,8 @@
 #region
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 
 #endregion
@@ -21,13 +23,13 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
         foreach (var keyValuePair in toClone) Add(keyValuePair.Key, keyValuePair.Value);
     }
 
-    public TV? this[TK key]
+    public TV this[TK key]
     {
         get
         {
             var currentNode = Chain.Head;
             for (; currentNode != null; currentNode = currentNode.Next)
-                if (currentNode.Payload.Key?.Equals(key) ?? false)
+                if (currentNode.Payload.Key.Equals(key))
                     return currentNode.Payload.Value;
 
             throw new KeyNotFoundException($"Could not find '{key}' in SafeChainMap");
@@ -35,23 +37,33 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
         set => AddOrUpdate(key, value!);
     }
 
-    public IEnumerable<TK> Keys
+    
+    public Func<ReusableList<TK>> KeysListFactory { get; set; } = () => new ReusableList<TK>();
+
+    public Func<ReusableList<TV>> ValuesListFactory { get; set; } = () => new ReusableList<TV>();
+
+
+    public ICollection<TK> Keys
     {
         get
         {
+            var keysList    = KeysListFactory();
             var currentNode = Chain.Head;
             for (; currentNode != null; currentNode = currentNode.Next)
-                yield return currentNode.Payload.Key;
+                keysList.Add(currentNode.Payload.Key);
+            return keysList;
         }
     }
 
-    public IEnumerable<TV> Values
+    public ICollection<TV> Values
     {
         get
         {
+            var valuesList = ValuesListFactory();
             var currentNode = Chain.Head;
             for (; currentNode != null; currentNode = currentNode.Next)
-                yield return currentNode.Payload.Value;
+                valuesList.Add(currentNode.Payload.Value);
+            return valuesList;
         }
     }
 
@@ -65,9 +77,9 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
     {
         var currentNode = Chain.Head;
         for (; currentNode != null; currentNode = currentNode.Next)
-            if (currentNode.Payload.Key?.Equals(key) ?? false)
+            if (currentNode.Payload.Key.Equals(key))
             {
-                value = currentNode.Payload.Value;
+                value = currentNode.Payload.Value!;
                 return true;
             }
 
@@ -96,7 +108,7 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
             var currentNode = Chain.Head;
             var foundInExisting = false;
             for (; currentNode != null; currentNode = currentNode.Next)
-                if (currentNode.Payload.Key?.Equals(key) ?? false)
+                if (currentNode.Payload.Key.Equals(key))
                 {
                     duplicate.AddFirst(
                         new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
@@ -135,7 +147,7 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
             var foundInExisting = false;
             for (; currentNode != null; currentNode = currentNode.Next)
             {
-                if (currentNode.Payload.Key?.Equals(key) ?? false) foundInExisting = true;
+                if (currentNode.Payload.Key.Equals(key)) foundInExisting = true;
 
                 duplicate.AddFirst(
                     new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
@@ -166,7 +178,7 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
             var currentNode = Chain.Head;
 
             for (; currentNode != null; currentNode = currentNode.Next)
-                if (!(currentNode.Payload.Key?.Equals(key) ?? false))
+                if (!(currentNode.Payload.Key.Equals(key)))
                     duplicate.AddFirst(new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(currentNode.Payload));
                 else
                     foundKey = true;
@@ -193,8 +205,7 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
 
     public bool ContainsKey(TK key)
     {
-        TV? tempValue;
-        return TryGetValue(key, out tempValue);
+        return TryGetValue(key, out _);
     }
 
     public event Action<IEnumerable<KeyValuePair<TK, TV>>>? OnUpdate;

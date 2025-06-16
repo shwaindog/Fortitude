@@ -6,6 +6,7 @@ using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Products;
 using Microsoft.Extensions.Configuration;
+using FortitudeCommon.Extensions;
 
 #endregion
 

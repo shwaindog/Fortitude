@@ -189,7 +189,7 @@ public class PQMarketAggregateTests
         emptyMarketAggregate.IsDataSourceUpdated = false;
         Assert.IsFalse(emptyMarketAggregate.IsDataSourceUpdated);
         Assert.IsFalse(emptyMarketAggregate.HasUpdates);
-        Assert.IsTrue(emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
         const MarketDataSource nextExpectedDataSource = MarketDataSource.Adapter;
         emptyMarketAggregate.DataSource = nextExpectedDataSource;
@@ -244,7 +244,7 @@ public class PQMarketAggregateTests
         emptyMarketAggregate.IsUpdatedDateUpdated        = false;
         emptyMarketAggregate.IsUpdatedSub2MinTimeUpdated = false;
         Assert.IsFalse(emptyMarketAggregate.HasUpdates);
-        Assert.IsTrue(emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
         emptyMarketAggregate.IsUpdatedDateUpdated        = true;
         emptyMarketAggregate.IsUpdatedSub2MinTimeUpdated = true;
@@ -291,7 +291,7 @@ public class PQMarketAggregateTests
         emptyMarketAggregate.IsVolumeUpdated = false;
         Assert.IsFalse(emptyMarketAggregate.IsVolumeUpdated);
         Assert.IsFalse(emptyMarketAggregate.HasUpdates);
-        Assert.IsTrue(emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
         const decimal nextExpectedVolume = 221_124m;
         emptyMarketAggregate.Volume = nextExpectedVolume;
@@ -339,7 +339,7 @@ public class PQMarketAggregateTests
         emptyMarketAggregate.IsVwapUpdated = false;
         Assert.IsFalse(emptyMarketAggregate.IsVwapUpdated);
         Assert.IsFalse(emptyMarketAggregate.HasUpdates);
-        Assert.IsTrue(emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyMarketAggregate.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
         const decimal nextExpectedVwap = 124.0238m;
         emptyMarketAggregate.Vwap = nextExpectedVwap;
@@ -560,7 +560,7 @@ public class PQMarketAggregateTests
             Assert.IsFalse(l2Quote.HasUpdates);
             Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrNone());
 
         if (l2QNotNull)
         {
@@ -761,7 +761,7 @@ public class PQMarketAggregateTests
             Assert.IsFalse(l2Quote.HasUpdates);
             Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrNone());
 
         if (l2QNotNull)
         {
@@ -965,7 +965,7 @@ public class PQMarketAggregateTests
             Assert.IsFalse(l2Quote.HasUpdates);
             Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrNone());
 
         if (l2QNotNull)
         {
@@ -1154,7 +1154,7 @@ public class PQMarketAggregateTests
             Assert.IsFalse(l2Quote.HasUpdates);
             Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(marketAgg.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrNone());
 
         if (l2QNotNull)
         {

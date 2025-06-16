@@ -5,6 +5,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries;
 using FortitudeMarkets.Config;

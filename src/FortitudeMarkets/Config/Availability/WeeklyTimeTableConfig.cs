@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarkets.Config.Availability;
 
-public interface IWeeklyTimeTableConfig : IAvailability, IInterfacesComparable<IWeeklyTimeTableConfig>
+public interface IWeeklyTimeTableConfig : IWeeklyAvailability, IInterfacesComparable<IWeeklyTimeTableConfig>
 {
     TimeZoneInfo? OverrideTimeZone { get; set; }
 
@@ -21,6 +21,8 @@ public interface IWeeklyTimeTableConfig : IAvailability, IInterfacesComparable<I
     IWeeklyTimesConfig StartTimes { get; set; }
 
     IWeeklyTimesConfig StopTimes { get; set; }
+
+    WeekdayStartStopPairList ToStartStopTimesInWeek(DateTimeOffset forTimeInWeek, DateTimeOffset toTimeInWeek);
 }
 
 public readonly struct WeeklyTimeTable
@@ -41,10 +43,6 @@ public readonly struct WeeklyTimeTable
 
 public class WeeklyTimeTableConfig : ConfigSection, IWeeklyTimeTableConfig
 {
-    private static readonly WeekDayOpenClosePairComparer SortByOpenTimesComparer = new();
-
-    private List<WeekdayStartStopPair>? weeklyOpenAndCloseTimes;
-
     public WeeklyTimeTableConfig(IConfigurationRoot root, string path) : base(root, path) { }
 
     public WeeklyTimeTableConfig() { }
@@ -114,78 +112,109 @@ public class WeeklyTimeTableConfig : ConfigSection, IWeeklyTimeTableConfig
 
     public bool ShouldBeUp(DateTimeOffset atThisDateTime)
     {
-        weeklyOpenAndCloseTimes ??= GetSortedOpenCloseTimes();
-        return weeklyOpenAndCloseTimes.Any(wssp => wssp.WithinOpeningHours(atThisDateTime));
+        var weeklySchedule = WeeklySchedule(atThisDateTime);
+        var marketState = weeklySchedule.CurrentActiveAvailabilityTransition(atThisDateTime).MarketState;
+        weeklySchedule.DecrementRefCount();
+        return marketState.IsOpen();
     }
 
     public TimeSpan ExpectedRemainingUpTime(DateTimeOffset fromNow)
     {
         if (!ShouldBeUp(fromNow)) return TimeSpan.Zero;
-        weeklyOpenAndCloseTimes ??= GetSortedOpenCloseTimes();
-        var currentOpeningHours = weeklyOpenAndCloseTimes.First(wssp => wssp.WithinOpeningHours(fromNow));
-        var sinceUtcStartOfWeek = fromNow.TimeSinceUtcStartOfWeek();
-        return currentOpeningHours.CloseTime.StartOfUtcWeekTimeSpan() - sinceUtcStartOfWeek;
+        var weeklySchedule = WeeklySchedule(fromNow);
+        var nextTransition    = 
+            weeklySchedule.NextTransitionMatching
+                (fromNow, nextState => (nextState & TradingPeriodTypeFlags.IsMarketClosed) > 0);
+        weeklySchedule.DecrementRefCount();
+        return nextTransition.AtTime - fromNow;
     }
 
     public DateTimeOffset NextScheduledOpeningTime(DateTimeOffset fromNow)
     {
-        weeklyOpenAndCloseTimes ??= GetSortedOpenCloseTimes();
-        if (weeklyOpenAndCloseTimes.Count == 0) throw new ArgumentException("No configured up or down times in the WeeklyTimeTable");
-        var sinceStartOfUtcWeek = fromNow.TimeSinceUtcStartOfWeek();
-        int i;
-        for (i = 0; i < weeklyOpenAndCloseTimes.Count; i++)
+        var weeklySchedule = WeeklySchedule(fromNow);
+        if (weeklySchedule.Count == 0) throw new ArgumentException("No configured up or down times in the WeeklyTimeTable");
+        
+        var nextTransition    = 
+            weeklySchedule.NextTransitionMatching
+                (fromNow, nextState => (nextState & TradingPeriodTypeFlags.IsOpen) > 0);
+        weeklySchedule.DecrementRefCount();
+        if (nextTransition.MarketState.IsOpen())
         {
-            var currentOpenCloseTime = weeklyOpenAndCloseTimes[i];
-            var weekStartOpen        = currentOpenCloseTime.OpenTime.StartOfUtcWeekTimeSpan();
-            if (sinceStartOfUtcWeek < weekStartOpen) return fromNow + weekStartOpen - sinceStartOfUtcWeek;
-            if (sinceStartOfUtcWeek > weekStartOpen && i + 1 < weeklyOpenAndCloseTimes.Count)
-            {
-                var nextOpenCloseTime = weeklyOpenAndCloseTimes[i + 1];
-                return fromNow + nextOpenCloseTime.OpenTime.StartOfUtcWeekTimeSpan() - sinceStartOfUtcWeek;
-            }
+            weeklySchedule.DecrementRefCount();
+            return nextTransition.AtTime;
         }
         // else closed for this week
         var timeToNextWeek = fromNow.TimeToNextUtcStartOfWeek();
-        var nextWeekOpen   = weeklyOpenAndCloseTimes[0];
-        return fromNow + timeToNextWeek + nextWeekOpen.OpenTime.StartOfUtcWeekTimeSpan();
+        return NextScheduledOpeningTime(fromNow + timeToNextWeek);
     }
 
     public TradingPeriodTypeFlags GetExpectedAvailability(DateTimeOffset atThisDateTime)
     {
-        TradingPeriodTypeFlags tradingFlags = TradingPeriodTypeFlags.None;
-        weeklyOpenAndCloseTimes ??= GetSortedOpenCloseTimes();
-        if (weeklyOpenAndCloseTimes.Any(wssp => wssp.WithinOpeningHours(atThisDateTime)))
-        {
-            tradingFlags |= TradingPeriodTypeFlags.Open;
-        }
-        else
-        {
-            tradingFlags |= TradingPeriodTypeFlags.MarketClosed;
-        }
-        // TODO add other conditions
-        return tradingFlags;
+        var weeklySchedule = WeeklySchedule(atThisDateTime);
+        var marketState    = weeklySchedule.CurrentActiveAvailabilityTransition(atThisDateTime).MarketState;
+        weeklySchedule.DecrementRefCount();
+        return marketState;
     }
 
-    private List<WeekdayStartStopPair> GetSortedOpenCloseTimes()
+    public WeeklyTradingSchedule WeeklySchedule(DateTimeOffset forTimeInWeek)
     {
-        var result = new List<WeekdayStartStopPair>();
+        var weeklySchedule = Recycler.Borrow<WeeklyTradingSchedule>();
 
-        var openTimesList  = StartTimes.TimeZonedWeekDayTimes(OverrideTimeZone!).ToList();
-        var closeTimesList = StopTimes.TimeZonedWeekDayTimes(OverrideTimeZone!).ToList();
+        var timeInWeek = TimeZoneInfo.ConvertTime(forTimeInWeek.TruncToWeekBoundary().AddDays(3), OverrideTimeZone!);
+
+        var startTimesList  = StartTimes.TimeZonedWeekDayTimes();
+        var stopTimesList = StopTimes.TimeZonedWeekDayTimes();
+
+        if (startTimesList.Count != stopTimesList.Count) throw new ArgumentException("Expected opening times and closing times to match off");
+
+        for (var i = 0; i < startTimesList.Count; i++)
+        {
+            var openTime  = startTimesList[i];
+            var closeTime = stopTimesList[i];
+            if (openTime.TimeOfDay > closeTime.TimeOfDay)
+                throw new ArgumentException("Expected opening time to be less than or equal to closing time");
+            var closeReason = (i < stopTimesList.Count - 1)
+                ? TradingPeriodTypeFlags.IsMarketClosed | TradingPeriodTypeFlags.IsOutOfHours
+                : TradingPeriodTypeFlags.IsMarketClosed | TradingPeriodTypeFlags.IsWeekend;
+            weeklySchedule.Add
+                (new AvailabilityTransitionTime(openTime.ToTimeInWeek(timeInWeek), TradingPeriodTypeFlags.IsOpen));
+            weeklySchedule.Add
+                (new AvailabilityTransitionTime(closeTime.ToTimeInWeek(timeInWeek), closeReason));
+        }
+        startTimesList.DecrementRefCount();
+        stopTimesList.DecrementRefCount();
+        return weeklySchedule;
+    }
+
+    public WeekdayStartStopPairList ToStartStopTimesInWeek(DateTimeOffset forTimeInWeek, DateTimeOffset toTimeInWeek)
+    {
+        var weeklySchedule = Recycler.Borrow<WeekdayStartStopPairList>();
+
+        var openTimesList  = StartTimes.TimeZonedWeekDayTimes();
+        var closeTimesList = StopTimes.TimeZonedWeekDayTimes();
 
         if (openTimesList.Count != closeTimesList.Count) throw new ArgumentException("Expected opening times and closing times to match off");
 
         for (var i = 0; i < openTimesList.Count; i++)
         {
             var openTime  = openTimesList[i];
-            var closeTime = openTimesList[i];
+            var closeTime = closeTimesList[i];
             if (openTime.TimeOfDay > closeTime.TimeOfDay)
                 throw new ArgumentException("Expected opening time to be less than or equal to closing time");
-            result.Add(new WeekdayStartStopPair(openTime, closeTime));
+
+
+            var startTime      = openTime.ToTimeInWeek(forTimeInWeek);
+            var stopTime = closeTime.ToTimeInWeek(forTimeInWeek);
+            if (startTime < toTimeInWeek && stopTime > forTimeInWeek)
+            {
+                weeklySchedule.Add(new WeekdayStartStopPair(startTime, stopTime));
+            }
         }
-        result.Sort(0, result.Count, SortByOpenTimesComparer);
-        return result;
+        openTimesList.DecrementRefCount();
+        closeTimesList.DecrementRefCount();
+        return weeklySchedule;
     }
+
 
     public bool AreEquivalent(IWeeklyTimeTableConfig? other, bool exactTypes = false)
     {

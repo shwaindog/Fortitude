@@ -225,7 +225,7 @@ public class PQValueDatePriceVolumeLayerTests
             Assert.IsFalse(l2Quote.HasUpdates);
             Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(vlDateLayer.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(vlDateLayer.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrNone());
 
         if (l2QNotNull)
         {

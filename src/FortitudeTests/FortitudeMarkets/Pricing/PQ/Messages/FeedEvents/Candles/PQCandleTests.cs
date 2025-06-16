@@ -94,7 +94,7 @@ public class PQCandleTests
         emptyCandle.IsStartTimeSub2MinUpdated = false;
         Assert.IsFalse(emptyCandle.IsStartTimeSub2MinUpdated);
         Assert.IsFalse(emptyCandle.HasUpdates);
-        Assert.IsTrue(emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
         sourceAskUpdates = (from update in emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot,
                                                                              pricePrecisionSettings)
@@ -150,7 +150,7 @@ public class PQCandleTests
         emptyCandle.IsEndTimeSub2MinUpdated = false;
         Assert.IsFalse(emptyCandle.IsEndTimeSub2MinUpdated);
         Assert.IsFalse(emptyCandle.HasUpdates);
-        Assert.IsTrue(emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
         sourceAskUpdates = (from update in emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot,
                                                                              pricePrecisionSettings)
@@ -195,7 +195,7 @@ public class PQCandleTests
         Assert.IsFalse(emptyCandle.IsStartBidPriceUpdated);
         Assert.IsFalse(emptyCandle.HasUpdates);
         Assert.IsTrue
-            (emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrEmpty());
+            (emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrNone());
 
         sourceUpdates = (from update in emptyCandle.GetDeltaUpdateFields
                 (testDateTime, PQMessageFlags.Snapshot, pricePrecisionSettings)
@@ -236,7 +236,7 @@ public class PQCandleTests
         Assert.IsFalse(emptyCandle.IsStartAskPriceUpdated);
         Assert.IsFalse(emptyCandle.HasUpdates);
         Assert.IsTrue
-            (emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrEmpty());
+            (emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrNone());
 
         sourceUpdates = (from update in emptyCandle.GetDeltaUpdateFields
                 (testDateTime, PQMessageFlags.Snapshot, pricePrecisionSettings)
@@ -276,7 +276,7 @@ public class PQCandleTests
         Assert.IsFalse(emptyCandle.IsHighestBidPriceUpdated);
         Assert.IsFalse(emptyCandle.HasUpdates);
         Assert.IsTrue(emptyCandle.GetDeltaUpdateFields
-                          (testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrEmpty());
+                          (testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrNone());
 
         sourceUpdates = (from update in emptyCandle.GetDeltaUpdateFields
                 (testDateTime, PQMessageFlags.Snapshot, pricePrecisionSettings)
@@ -316,7 +316,7 @@ public class PQCandleTests
         emptyCandle.IsHighestAskPriceUpdated = false;
         Assert.IsFalse(emptyCandle.IsHighestAskPriceUpdated);
         Assert.IsFalse(emptyCandle.HasUpdates);
-        Assert.IsTrue(emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrNone());
 
         sourceUpdates = (from update in emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot,
                                                                           pricePrecisionSettings)
@@ -356,7 +356,7 @@ public class PQCandleTests
         Assert.IsFalse(emptyCandle.IsLowestBidPriceUpdated);
         Assert.IsFalse(emptyCandle.HasUpdates);
         Assert.IsTrue(emptyCandle.GetDeltaUpdateFields
-                          (testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrEmpty());
+                          (testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrNone());
 
         sourceUpdates = (from update in emptyCandle.GetDeltaUpdateFields
                 (testDateTime, PQMessageFlags.Snapshot, pricePrecisionSettings)
@@ -397,7 +397,7 @@ public class PQCandleTests
         Assert.IsFalse(emptyCandle.IsLowestAskPriceUpdated);
         Assert.IsFalse(emptyCandle.HasUpdates);
         Assert.IsTrue(emptyCandle.GetDeltaUpdateFields
-                          (testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrEmpty());
+                          (testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrNone());
 
         sourceUpdates = (from update in emptyCandle.GetDeltaUpdateFields
                 (testDateTime, PQMessageFlags.Snapshot, pricePrecisionSettings)
@@ -437,7 +437,7 @@ public class PQCandleTests
         Assert.IsFalse(emptyCandle.IsEndBidPriceUpdated);
         Assert.IsFalse(emptyCandle.HasUpdates);
         Assert.IsTrue(emptyCandle.GetDeltaUpdateFields
-                          (testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrEmpty());
+                          (testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrNone());
 
         sourceUpdates = (from update in emptyCandle.GetDeltaUpdateFields
                 (testDateTime, PQMessageFlags.Snapshot, pricePrecisionSettings)
@@ -480,7 +480,7 @@ public class PQCandleTests
         Assert.IsFalse(emptyCandle.IsEndAskPriceUpdated);
         Assert.IsFalse(emptyCandle.HasUpdates);
         Assert.IsTrue
-            (emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrEmpty());
+            (emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrNone());
 
         var deltaUpdateFields = emptyCandle
             .GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, pricePrecisionSettings).ToList();
@@ -502,7 +502,7 @@ public class PQCandleTests
         Assert.IsFalse(emptyCandle.IsTickCountUpdated);
         Assert.IsFalse(emptyCandle.HasUpdates);
         Assert.AreEqual(0m, emptyCandle.TickCount);
-        Assert.IsTrue(emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrNone());
 
         var expectedTickCount = uint.MaxValue;
         emptyCandle.TickCount = expectedTickCount;
@@ -519,7 +519,7 @@ public class PQCandleTests
         Assert.IsFalse(emptyCandle.IsTickCountUpdated);
         Assert.IsFalse(emptyCandle.HasUpdates);
         Assert.IsTrue(emptyCandle.GetDeltaUpdateFields
-                          (testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrEmpty());
+                          (testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrNone());
 
         sourceUpdates = (from update in emptyCandle.GetDeltaUpdateFields
                 (testDateTime, PQMessageFlags.Snapshot, pricePrecisionSettings)
@@ -561,7 +561,7 @@ public class PQCandleTests
         Assert.IsFalse(emptyCandle.IsPeriodVolumeUpdated);
         Assert.IsFalse(emptyCandle.HasUpdates);
         Assert.IsTrue
-            (emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrEmpty());
+            (emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrNone());
 
         periodVolumeUpdates = (from update in emptyCandle
                 .GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, pricePrecisionSettings)
@@ -603,7 +603,7 @@ public class PQCandleTests
         Assert.IsFalse(emptyCandle.IsCandleFlagsUpdated);
         Assert.IsFalse(emptyCandle.HasUpdates);
         Assert.IsTrue
-            (emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrEmpty());
+            (emptyCandle.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, pricePrecisionSettings).IsNullOrNone());
 
         periodFlagUpdates = (from update in emptyCandle
                 .GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot, pricePrecisionSettings)

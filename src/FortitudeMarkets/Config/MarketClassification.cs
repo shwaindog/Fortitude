@@ -232,7 +232,7 @@ public static class ProductTypeExtensions
     }
 }
 
-public struct MarketClassification
+public struct MarketClassification : IEquatable<MarketClassification>
 {
     public static readonly MarketClassification Unknown = IPricingInstrumentId.DefaultMarketClassification;
 
@@ -250,6 +250,12 @@ public struct MarketClassification
     public AssetCategory AssetCategory => (AssetCategory)((CompoundedClassification >> 8) & 0xFF);
     public ProductType   ProductType   => (ProductType)((CompoundedClassification >> 16) & 0xFF);
     public MarketRegion  MarketRegion  => (MarketRegion)((CompoundedClassification >> 24) & 0xFF);
+
+    public bool Equals(MarketClassification other) => CompoundedClassification == other.CompoundedClassification;
+
+    public override bool Equals(object? obj) => obj is MarketClassification other && Equals(other);
+
+    public override int GetHashCode() => (int)CompoundedClassification;
 
     public override string ToString() =>
         $"{nameof(MarketClassification)}({nameof(AssetType)}: {AssetType}, {nameof(AssetCategory)}: {AssetCategory}, " +

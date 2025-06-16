@@ -5,6 +5,7 @@
 
 using FortitudeBusRules.BusMessaging.Pipelines;
 using FortitudeBusRules.BusMessaging.Routing.SelectionStrategies;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 
 #endregion

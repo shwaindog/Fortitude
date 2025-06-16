@@ -6,6 +6,7 @@
 using System.Collections;
 using FortitudeCommon.Configuration;
 using FortitudeCommon.DataStructures.Lists;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeIO.Topics.Config.ConnectionConfig;
 using Microsoft.Extensions.Configuration;

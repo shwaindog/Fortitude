@@ -75,7 +75,7 @@ public class PQTickInstantTests
         Assert.IsFalse(emptyQuote.IsSourceTimeSub2MinUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.AreEqual(default, emptyQuote.SourceTime);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
         var expectedSetTime = new DateTime(2017, 10, 14, 15, 10, 59).AddTicks(9879879);
         emptyQuote.SourceTime = expectedSetTime;
@@ -101,7 +101,7 @@ public class PQTickInstantTests
         emptyQuote.IsSourceTimeSub2MinUpdated = false;
         Assert.IsFalse(emptyQuote.IsSourceTimeSub2MinUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
         sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot)
             where update.Id is >= PQFeedFields.SourceQuoteSentDateTime and <= PQFeedFields.SourceQuoteSentSub2MinTime
@@ -125,7 +125,7 @@ public class PQTickInstantTests
         Assert.IsFalse(emptyQuote.IsFeedSyncStatusUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.AreEqual(FeedSyncStatus.Good, emptyQuote.FeedSyncStatus);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
         var expectedSyncStatus = FeedSyncStatus.FeedDown;
         emptyQuote.FeedSyncStatus = expectedSyncStatus;
@@ -140,7 +140,7 @@ public class PQTickInstantTests
         emptyQuote.IsFeedSyncStatusUpdated = false;
         Assert.IsFalse(emptyQuote.IsFeedSyncStatusUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
         sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot | PQMessageFlags.IncludeReceiverTimes)
             where update.Id == PQFeedFields.PQSyncStatus
@@ -160,7 +160,7 @@ public class PQTickInstantTests
         Assert.IsFalse(emptyQuote.IsSingleValueUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.AreEqual(0m, emptyQuote.SingleTickValue);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
         var expectedSingleValue = 1.2345678m;
         var priceScale          = sourceTickerInfo.PriceScalingPrecision;
@@ -176,7 +176,7 @@ public class PQTickInstantTests
         emptyQuote.IsSingleValueUpdated = false;
         Assert.IsFalse(emptyQuote.IsSingleValueUpdated);
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
         sourceUpdates = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot)
             where update.Id == PQFeedFields.SingleTickValue
@@ -197,7 +197,7 @@ public class PQTickInstantTests
         Assert.IsFalse(emptyQuote.HasUpdates);
         Assert.AreEqual(FeedConnectivityStatusFlags.IsAdapterReplay, emptyQuote.FeedMarketConnectivityStatus);
         var deltaUpdateFields = emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
-        Assert.IsTrue(deltaUpdateFields.IsNullOrEmpty());
+        Assert.IsTrue(deltaUpdateFields.IsNullOrNone());
 
         emptyQuote.FeedMarketConnectivityStatus = FeedConnectivityStatusFlags.AboutToStop;
         emptyQuote.FeedSyncStatus               = FeedSyncStatus.Good;

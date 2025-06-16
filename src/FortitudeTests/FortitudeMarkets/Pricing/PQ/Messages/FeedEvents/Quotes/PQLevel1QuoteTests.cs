@@ -137,7 +137,7 @@ public class PQLevel1QuoteTests
         emptyQuote.IsAdapterSentTimeDateUpdated    = false;
         emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
 
         var newEmpty = new PQPublishableLevel1Quote(sourceTickerInfo);
@@ -196,7 +196,7 @@ public class PQLevel1QuoteTests
         emptyQuote.IsAdapterSentTimeDateUpdated    = false;
         emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
         var newEmpty = new PQPublishableLevel1Quote(sourceTickerInfo);
         newEmpty.UpdateField(sourceBidUpdates[0]);
@@ -242,7 +242,7 @@ public class PQLevel1QuoteTests
         Assert.IsFalse(emptyQuote.IsAdapterSentTimeSub2MinUpdated);
         emptyQuote.IsFeedConnectivityStatusUpdated = false;
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
         emptyQuote.WithIsAdapterReplay(false);
         emptyQuote.IsFeedConnectivityStatusUpdated = false;
 
@@ -311,7 +311,7 @@ public class PQLevel1QuoteTests
         emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
         Assert.IsFalse(emptyQuote.HasUpdates);
         var deltaUpdateFields = emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
-        Assert.IsTrue(deltaUpdateFields.IsNullOrEmpty());
+        Assert.IsTrue(deltaUpdateFields.IsNullOrNone());
 
         var newEmpty = new PQPublishableLevel1Quote(sourceTickerInfo);
         newEmpty.UpdateField(adapterReceivedUpdates[0]);
@@ -360,7 +360,7 @@ public class PQLevel1QuoteTests
         emptyQuote.IsAdapterSentTimeDateUpdated    = false;
         emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
         var sourceUpdatesWithoutUpdated = (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot)
             where update.Id == PQFeedFields.QuoteLayerPrice
@@ -419,7 +419,7 @@ public class PQLevel1QuoteTests
         emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
         Assert.IsFalse(emptyQuote.HasUpdates);
         var checkNoUpdates = emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).ToList();
-        Assert.IsTrue(checkNoUpdates.IsNullOrEmpty());
+        Assert.IsTrue(checkNoUpdates.IsNullOrNone());
 
         var allUpdates =
             (from update in emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Snapshot)
@@ -469,7 +469,7 @@ public class PQLevel1QuoteTests
         emptyQuote.IsAdapterSentTimeDateUpdated    = false;
         emptyQuote.IsAdapterSentTimeSub2MinUpdated = false;
         Assert.IsFalse(emptyQuote.HasUpdates);
-        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyQuote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update).IsNullOrNone());
 
         emptyQuote.Executable = true;
         Assert.IsTrue(emptyQuote.IsExecutableUpdated);

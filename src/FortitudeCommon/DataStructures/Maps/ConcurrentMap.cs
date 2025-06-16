@@ -2,6 +2,7 @@
 
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 
@@ -19,21 +20,21 @@ public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
 
     public ConcurrentMap(IMap<TK, TV> toClone) => concurrentDictionary = new ConcurrentDictionary<TK, TV>(toClone);
 
-    public TV? this[TK key]
+    public TV this[TK key]
     {
         get => concurrentDictionary[key];
         set
         {
             lock (sync)
             {
-                concurrentDictionary.AddOrUpdate(key, value!, (oldKey, oldValue) => value!);
+                concurrentDictionary.AddOrUpdate(key, value!, (_, _) => value!);
                 OnUpdate?.Invoke(concurrentDictionary);
             }
         }
     }
 
-    public IEnumerable<TK> Keys => concurrentDictionary.Keys;
-    public IEnumerable<TV> Values => concurrentDictionary.Values;
+    public ICollection<TK> Keys => concurrentDictionary.Keys;
+    public ICollection<TV> Values => concurrentDictionary.Values;
 
     public TV? GetValue(TK key)
     {
@@ -56,7 +57,7 @@ public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
 
     public TV AddOrUpdate(TK key, TV value)
     {
-        var newValue = concurrentDictionary.AddOrUpdate(key, value!, (oldKey, oldValue) => value!);
+        var newValue = concurrentDictionary.AddOrUpdate(key, value!, (_, _) => value!);
         OnUpdate?.Invoke(concurrentDictionary);
         return newValue;
     }
@@ -79,7 +80,7 @@ public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
     {
         lock (sync)
         {
-            if (concurrentDictionary.TryRemove(key, out var removedValue))
+            if (concurrentDictionary.TryRemove(key, out _))
             {
                 OnUpdate?.Invoke(concurrentDictionary);
                 return true;

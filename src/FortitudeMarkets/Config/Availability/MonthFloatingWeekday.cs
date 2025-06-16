@@ -63,10 +63,10 @@ public static class MonthFloatingWeekdayExtensions
         return $"{weekDayOccurenceInMonth.Value.OccurenceInMonth},{weekDayOccurenceInMonth.Value.Weekday}";
     }
 
-    public static int DayInCurrentMonth(this MonthFloatingWeekday monthFloatingWeekdayOffset, DateTime forThisYearAndMonth)
+    public static int DayInCurrentMonth(this MonthFloatingWeekday monthFloatingWeekdayOffset, int year, int month)
     {
-        var fromYear          = forThisYearAndMonth.Year;
-        var fromMonth         = forThisYearAndMonth.Month;
+        var fromYear          = year;
+        var fromMonth         = month;
         var fromNextMonth     = fromMonth + 1 % 12;
         var fromNextMonthYear = fromNextMonth == 1 ? fromYear + 1 : fromYear;
         var fromDate =

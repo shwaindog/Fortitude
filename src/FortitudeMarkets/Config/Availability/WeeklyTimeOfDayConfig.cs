@@ -20,7 +20,7 @@ public interface IWeeklyTimesConfig : IInterfacesComparable<IWeeklyTimesConfig>
     TimeSpan       TimeOfDay          { get; set; }
 
     IReadOnlyList<IWeeklyTimesConfig>?  OverrideWeeklyTimes { get; set; }
-    IEnumerable<TimeZonedWeekDayTime> TimeZonedWeekDayTimes(TimeZoneInfo defaultTimeZone, IList<TimeZonedWeekDayTime>? addToThis = null);
+    ReusableList<TimeZonedWeekDayTime> TimeZonedWeekDayTimes();
 }
 
 public readonly struct WeeklyTimes
@@ -30,9 +30,10 @@ public readonly struct WeeklyTimes
   , TimeZoneInfo? overrideTimeZone = null
   , IReadOnlyList<WeeklyTimes>? overrideWeeklyTimes = null)
 {
-    public TimeZoneInfo?               OverrideTimeZone    { get; } = overrideTimeZone;
-    public DayOfWeekFlags              OverrideDaysOfWeek  { get; } = overrideDaysOfWeek;
-    public TimeSpan                    TimeOfDay           { get; } = timeOfDay;
+    public TimeZoneInfo?  OverrideTimeZone   { get; } = overrideTimeZone;
+    public DayOfWeekFlags OverrideDaysOfWeek { get; } = overrideDaysOfWeek;
+    public TimeSpan       TimeOfDay          { get; } = timeOfDay;
+
     public IReadOnlyList<WeeklyTimes>? OverrideWeeklyTimes { get; } = overrideWeeklyTimes;
 }
 
@@ -68,12 +69,12 @@ public class WeeklyTimesConfig : ConfigSection, IWeeklyTimesConfig
             this[nameof(OverrideTimeZone)]    = weeklyTimesConfig[nameof(OverrideTimeZone)];
             this[nameof(OverrideWeeklyTimes)] = weeklyTimesConfig[nameof(OverrideWeeklyTimes)];
 
-            ParentDaysOfWeek                  = weeklyTimesConfig.ParentDaysOfWeek;
-            ParentTimeZone                    = weeklyTimesConfig.ParentTimeZone;
+            ParentDaysOfWeek = weeklyTimesConfig.ParentDaysOfWeek;
+            ParentTimeZone   = weeklyTimesConfig.ParentTimeZone;
         }
         else
         {
-            OverrideDaysOfWeek = toClone.OverrideDaysOfWeek;
+            OverrideDaysOfWeek  = toClone.OverrideDaysOfWeek;
             OverrideWeeklyTimes = toClone.OverrideWeeklyTimes;
         }
 
@@ -139,7 +140,7 @@ public class WeeklyTimesConfig : ConfigSection, IWeeklyTimesConfig
                 foreach (var remoteServiceConfig in value)
                 {
                     _ = new WeeklyTimesConfig(remoteServiceConfig, ConfigRoot
-                                                                 , Path + ":" + nameof(OverrideWeeklyTimes) + $":{i}");
+                                            , Path + ":" + nameof(OverrideWeeklyTimes) + $":{i}");
                     if (remoteServiceConfig is WeeklyTimesConfig valueWeeklyTimesConfig)
                     {
                         valueWeeklyTimesConfig.ParentDaysOfWeek = OverrideDaysOfWeek;
@@ -165,32 +166,31 @@ public class WeeklyTimesConfig : ConfigSection, IWeeklyTimesConfig
 
     public static void ClearValues(IConfigurationRoot root, string path)
     {
-        root[path + ":" + nameof(OverrideTimeZone)]          = null;
+        root[path + ":" + nameof(OverrideTimeZone)]   = null;
         root[path + ":" + nameof(TimeOfDay)]          = null;
         root[path + ":" + nameof(OverrideDaysOfWeek)] = null;
     }
 
-    public IEnumerable<TimeZonedWeekDayTime> TimeZonedWeekDayTimes(TimeZoneInfo defaultTimeZone, IList<TimeZonedWeekDayTime>? addToThis = null)
+    public ReusableList<TimeZonedWeekDayTime> TimeZonedWeekDayTimes()
     {
-        addToThis?.Clear();
-        addToThis ??= new List<TimeZonedWeekDayTime>();
-        if (OverrideDaysOfWeek.HasSunday()) addToThis.Add(TimeZonedDayOfWeekWeekTime(defaultTimeZone, DayOfWeekFlags.Sunday));
-        if (OverrideDaysOfWeek.HasMonday()) addToThis.Add(TimeZonedDayOfWeekWeekTime(defaultTimeZone, DayOfWeekFlags.Monday));
-        if (OverrideDaysOfWeek.HasTuesday()) addToThis.Add(TimeZonedDayOfWeekWeekTime(defaultTimeZone, DayOfWeekFlags.Tuesday));
-        if (OverrideDaysOfWeek.HasWednesday()) addToThis.Add(TimeZonedDayOfWeekWeekTime(defaultTimeZone, DayOfWeekFlags.Wednesday));
-        if (OverrideDaysOfWeek.HasThursday()) addToThis.Add(TimeZonedDayOfWeekWeekTime(defaultTimeZone, DayOfWeekFlags.Thursday));
-        if (OverrideDaysOfWeek.HasFriday()) addToThis.Add(TimeZonedDayOfWeekWeekTime(defaultTimeZone, DayOfWeekFlags.Friday));
-        if (OverrideDaysOfWeek.HasSaturday()) addToThis.Add(TimeZonedDayOfWeekWeekTime(defaultTimeZone, DayOfWeekFlags.Saturday));
+        var addToThis = Recycler.Borrow<ReusableList<TimeZonedWeekDayTime>>();
+        if (OverrideDaysOfWeek.HasSunday()) addToThis.Add(TimeZonedDayOfWeekWeekTime(OverrideTimeZone!, DayOfWeekFlags.Sunday));
+        if (OverrideDaysOfWeek.HasMonday()) addToThis.Add(TimeZonedDayOfWeekWeekTime(OverrideTimeZone!, DayOfWeekFlags.Monday));
+        if (OverrideDaysOfWeek.HasTuesday()) addToThis.Add(TimeZonedDayOfWeekWeekTime(OverrideTimeZone!, DayOfWeekFlags.Tuesday));
+        if (OverrideDaysOfWeek.HasWednesday()) addToThis.Add(TimeZonedDayOfWeekWeekTime(OverrideTimeZone!, DayOfWeekFlags.Wednesday));
+        if (OverrideDaysOfWeek.HasThursday()) addToThis.Add(TimeZonedDayOfWeekWeekTime(OverrideTimeZone!, DayOfWeekFlags.Thursday));
+        if (OverrideDaysOfWeek.HasFriday()) addToThis.Add(TimeZonedDayOfWeekWeekTime(OverrideTimeZone!, DayOfWeekFlags.Friday));
+        if (OverrideDaysOfWeek.HasSaturday()) addToThis.Add(TimeZonedDayOfWeekWeekTime(OverrideTimeZone!, DayOfWeekFlags.Saturday));
 
         return addToThis;
     }
 
     public bool AreEquivalent(IWeeklyTimesConfig? other, bool exactTypes = false)
     {
-        if(other == null) return false;
-        var overrideTzSame = Equals(OverrideTimeZone, other.OverrideTimeZone);
+        if (other == null) return false;
+        var overrideTzSame         = Equals(OverrideTimeZone, other.OverrideTimeZone);
         var overrideDaysOfWeekSame = Equals(OverrideDaysOfWeek, other.OverrideDaysOfWeek);
-        var timeOfDaySame = TimeOfDay == other.TimeOfDay;
+        var timeOfDaySame          = TimeOfDay == other.TimeOfDay;
 
         var count            = OverrideWeeklyTimes?.Count() ?? 0;
         var countSame        = (count) == (other.OverrideWeeklyTimes?.Count() ?? 0);
@@ -232,7 +232,7 @@ public class WeeklyTimesConfig : ConfigSection, IWeeklyTimesConfig
         }
     }
 
-    public override string ToString() => 
+    public override string ToString() =>
         $"{nameof(WeeklyTimesConfig)}{{{nameof(TimeOfDay)}: {TimeOfDay}, {nameof(OverrideTimeZone)}: {OverrideTimeZone}, {nameof(OverrideDaysOfWeek)}: {OverrideDaysOfWeek}, " +
         $"{nameof(OverrideWeeklyTimes)}: {OverrideWeeklyTimes}, {nameof(ParentTimeZone)}: {ParentTimeZone}, {nameof(ParentDaysOfWeek)}: {ParentDaysOfWeek}}}";
 }

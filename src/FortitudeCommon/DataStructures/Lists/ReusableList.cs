@@ -12,7 +12,7 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeCommon.DataStructures.Lists;
 
-public interface IReusableList<T> : IReusableObject<IReusableList<T>>, IList<T>, IReadOnlyList<T>
+public interface IReusableList<T> : IReusableObject<IReusableList<T>>, IMutableCapacityList<T>
 {
     new T this[int index] { get; set; }
 
@@ -37,7 +37,7 @@ public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T
         backingList = new List<T>(size);
     }
 
-    private ReusableList(ReusableList<T> toClone)
+    protected ReusableList(ReusableList<T> toClone)
     {
         backingList = new List<T>(toClone.Count);
         // ReSharper disable once VirtualMemberCallInConstructor
@@ -58,19 +58,33 @@ public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T
         backingList.Sort(comparison);
     }
 
-    public void Add(T item)
+    public virtual void Add(T item)
     {
+        if (item is IRecyclableObject recyclableObject)
+        {
+            recyclableObject.IncrementRefCount();
+        }
         backingList.Add(item);
     }
 
     public IReusableList<T> AddRange(IEnumerable<T> addAll)
     {
-        backingList.AddRange(addAll);
+        foreach (var toAdd in addAll)
+        {
+            Add(toAdd);
+        }
         return this;
     }
 
     public void Clear()
     {
+        foreach (var item in backingList)
+        {
+            if (item is IRecyclableObject recyclableObj)
+            {
+                recyclableObj.DecrementRefCount();
+            }
+        }
         backingList.Clear();
     }
 
@@ -81,21 +95,53 @@ public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T
         backingList.CopyTo(array, arrayIndex);
     }
 
-    public bool Remove(T item) => backingList.Remove(item);
+    public bool Remove(T item)
+    {
+        var result = backingList.Remove(item);
+        if (item is IRecyclableObject recyclableObject)
+        {
+            recyclableObject.DecrementRefCount();
+        }
+        return result;
+    }
 
-    public int  Count      => backingList.Count;
+    public int  Count
+    {
+        get => backingList.Count;
+        set {  /* no op */ }
+    }
+
+    public int  Capacity
+    {
+        get => backingList.Capacity;
+        set => backingList.Capacity = value;
+    }
+
     public bool IsReadOnly => false;
 
     public int IndexOf(T item) => backingList.IndexOf(item);
 
     public void Insert(int index, T item)
     {
+        if (item is IRecyclableObject recyclableObject)
+        {
+            recyclableObject.IncrementRefCount();
+        }
         backingList.Insert(index, item);
     }
 
     public void RemoveAt(int index)
     {
+        T? checkForRecycle = default;
+        if (index < backingList.Count)
+        {
+            checkForRecycle = backingList[index];
+        }
         backingList.RemoveAt(index);
+        if (checkForRecycle is IRecyclableObject recyclable)
+        {
+            recyclable.DecrementRefCount();
+        }
     }
 
     public void ShiftToEnd(int indexToBeAtEnd)
@@ -114,21 +160,42 @@ public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T
     public T this[int index]
     {
         get => backingList[index];
-        set => backingList[index] = value;
+        set
+        {
+            T? oldValue = index < backingList.Count ? backingList[index] : default;
+            if (ReferenceEquals(oldValue, value)) return;
+            if (value is IRecyclableObject valueRecyclable)
+            {
+                valueRecyclable.IncrementRefCount();
+            }
+            backingList[index] = value;
+            if (oldValue is IRecyclableObject oldRecyclable)
+            {
+                oldRecyclable.DecrementRefCount();
+            }
+        }
     }
 
     public override IReusableList<T> CopyFrom
     (IReusableList<T> source
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        backingList.Clear();
+        Clear();
+        
+        foreach (var item in source)
+        {
+            if (item is IRecyclableObject recyclableObj)
+            {
+                recyclableObj.IncrementRefCount();
+            }
+        }
         backingList.AddRange(source);
         return this;
     }
 
     public override void StateReset()
     {
-        backingList.Clear();
+        Clear();
         base.StateReset();
     }
 
@@ -141,5 +208,8 @@ public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T
         return reusableEnumerator;
     }
 
-    public override string ToString() => $"ReusableList<{typeof(T).Name}>({backingList.JoinToString()})";
+    protected string ReusableListItemsToString => $"[{backingList.JoinToString()}]";
+    protected string ReusableListItemsOnNewLineToString => $"[\n\t{backingList.JoinToString(",\n\t")}]";
+
+    public override string ToString() => $"ReusableList<{typeof(T).Name}>[{ReusableListItemsToString}]";
 }

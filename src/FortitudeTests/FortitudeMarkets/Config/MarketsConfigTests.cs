@@ -35,12 +35,12 @@ public class MarketsConfigTests
 
 
     [TestMethod]
-    public void NonEmptyRepo_FindConfig_RetirevesConfig()
+    public void NonEmptyRepo_FindConfig_RetrievesConfig()
     {
         marketsConfig.AddOrUpdate(marketConnectionConfig1);
         marketsConfig.AddOrUpdate(marketConnectionConfig2);
 
-        var foundItem = marketsConfig.Find(marketConnectionConfig2.SourceName!);
+        var foundItem = marketsConfig.Find(marketConnectionConfig2.SourceName);
 
         marketConnectionConfig2.ConnectionName = marketsConfig.ConnectionName;
 
@@ -49,7 +49,7 @@ public class MarketsConfigTests
 
 
     [TestMethod]
-    public void NonEmptyRepo_SubscribeToUpdateStream_RetirevesExistingConfig()
+    public void NonEmptyRepo_SubscribeToUpdateStream_RetrievesExistingConfig()
     {
         marketsConfig.AddOrUpdate(marketConnectionConfig1);
         marketsConfig.AddOrUpdate(marketConnectionConfig2);
@@ -62,7 +62,7 @@ public class MarketsConfigTests
         marketsConfig.AddOrUpdate(marketConnectionConfig1);
         marketsConfig.AddOrUpdate(marketConnectionConfig2);
 
-        // attempt to addorupdate a second time does nothing
+        // attempt to add or update a second time does nothing
         marketsConfig.AddOrUpdate(marketConnectionConfig2);
 
         var serverConfig21 = marketConnectionConfig2.Clone();
@@ -272,8 +272,8 @@ public class MarketsConfigTests
         var prefTradingTimes = tradingSchedule.OverridePreferredTradingTimes;
         Assert.IsNotNull(prefTradingTimes);
         Assert.AreEqual(TimeZoneInfo.FindSystemTimeZoneById("Australia/Melbourne"), prefTradingTimes.OverrideTimeZone);
-        Assert.AreEqual(TimeSpan.FromHours(14), prefTradingTimes.StartTime);
-        Assert.AreEqual(TimeSpan.FromHours(20), prefTradingTimes.StopTime);
+        Assert.AreEqual(TimeSpan.FromHours(3), prefTradingTimes.StartTime);
+        Assert.AreEqual(TimeSpan.FromHours(5), prefTradingTimes.StopTime);
         var highActivityTimes = tradingSchedule.HighActivityTimes;
         Assert.IsNotNull(highActivityTimes);
         Assert.AreEqual(TimeZoneInfo.FindSystemTimeZoneById("America/Chicago"), highActivityTimes.OverrideTimeZone);

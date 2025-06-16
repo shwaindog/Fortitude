@@ -503,7 +503,7 @@ public class PQOrderBookTests
             Assert.IsFalse(l2Quote.HasUpdates);
             Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(orderBook.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(orderBook.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrNone());
 
         if (l2QNotNull)
         {

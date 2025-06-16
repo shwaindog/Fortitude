@@ -6,6 +6,7 @@
 using System.Text;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.TimeSeries;
