@@ -165,8 +165,8 @@
               "TradingStartsFromOpenTimeSpan": "00:02:00",
               "OverridePreferredTradingTimes": {
                 "OverrideTimeZone": "Australia/Melbourne",
-                "StartTime": "14:00:00",
-                "StopTime": "20:00:00"
+                "StartTime": "3:00:00",
+                "StopTime": "5:00:00"
               },
               "HighActivityTimes": {
                 "StartTime": "9:00:00",

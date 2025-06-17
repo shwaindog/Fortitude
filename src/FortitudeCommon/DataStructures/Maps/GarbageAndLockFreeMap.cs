@@ -4,6 +4,8 @@
 #region
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
+using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 
@@ -25,6 +27,8 @@ public interface IGarbageFreeMap<TK, TV> : IMap<TK, TV> where TK : notnull
 /// <typeparam name="TV"></typeparam>
 public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : notnull
 {
+    private static readonly Func<TK, TK, bool> DefaultKeyComparisonFunc = (lhs, rhs) => Equals(lhs, rhs);
+
     private readonly GarbageAndLockFreePooledFactory<KvpEnumerator> enumeratorPool =
         new(thisPool => new KvpEnumerator(thisPool));
 
@@ -37,7 +41,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
 
     private readonly GarbageAndLockFreePooledFactory<Container> surplusContainers = new(() => new Container());
 
-    public GarbageAndLockFreeMap(Func<TK, TK, bool> keyComparison) => this.keyComparison = keyComparison;
+    public GarbageAndLockFreeMap(Func<TK, TK, bool>? keyComparison = null) => this.keyComparison = keyComparison ?? DefaultKeyComparisonFunc;
 
     public GarbageAndLockFreeMap(GarbageAndLockFreeMap<TK, TV> toClone)
     {
@@ -45,7 +49,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         foreach (var keyValuePair in toClone) Add(keyValuePair.Key, keyValuePair.Value);
     }
 
-    public TV? this[TK key]
+    public TV this[TK key]
     {
         get
         {
@@ -81,19 +85,30 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
 
     public int Count => queueWithElements.Count;
 
-    public IEnumerable<TK> Keys
+    public Func<ReusableList<TK>> KeysListFactory { get; set; } = () => new ReusableList<TK>();
+
+    public Func<ReusableList<TV>> ValuesListFactory { get; set; } = () => new ReusableList<TV>();
+
+    ICollection<TK> IMap<TK, TV>.Keys   => Keys;
+    ICollection<TV> IMap<TK, TV>.Values => Values;
+
+    public ReusableList<TK> Keys
     {
         get
         {
-            foreach (var con in queueWithElements) yield return con.KeyValuePair.Key;
+            var keysList = KeysListFactory();
+            foreach (var con in queueWithElements) keysList.Add(con.KeyValuePair.Key);
+            return keysList;
         }
     }
 
-    public IEnumerable<TV> Values
+    public ReusableList<TV> Values
     {
         get
         {
-            foreach (var con in queueWithElements) yield return con.KeyValuePair.Value;
+            var valuesList = ValuesListFactory();
+            foreach (var con in queueWithElements) valuesList.Add(con.KeyValuePair.Value);
+            return valuesList;
         }
     }
 
@@ -108,7 +123,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         foreach (var container in queueWithElements)
             if (keyComparison(container.KeyValuePair.Key, key))
             {
-                value = container.KeyValuePair.Value;
+                value = container.KeyValuePair.Value!;
                 return true;
             }
 
@@ -154,6 +169,11 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         return value;
     }
 
+    public bool Add(KeyValuePair<TK, TV> item)
+    {
+        return Add(item.Key, item.Value);
+    }
+
     public bool Add(TK key, TV value)
     {
         foreach (var container in queueWithElements)
@@ -182,6 +202,21 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         Container? foundItemToRemove = null;
         foreach (var container in queueWithElements)
             if (keyComparison(container.KeyValuePair.Key, key))
+            {
+                foundItemToRemove = container;
+                break;
+            }
+
+        if (foundItemToRemove == null) return false;
+        var foundContainer = queueWithElements.Remove(foundItemToRemove);
+        return foundContainer;
+    }
+
+    public bool Remove(KeyValuePair<TK, TV> keyValuePair)
+    {
+        Container? foundItemToRemove = null;
+        foreach (var container in queueWithElements)
+            if (keyComparison(container.KeyValuePair.Key, keyValuePair.Key) && Equals(container.KeyValuePair.Value, keyValuePair.Value))
             {
                 foundItemToRemove = container;
                 break;

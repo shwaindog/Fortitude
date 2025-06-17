@@ -357,7 +357,7 @@ public class PQSourcePriceVolumeLayerTests
             Assert.IsFalse(l2Quote.HasUpdates);
             Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(sourcePvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(sourcePvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrNone());
 
         if (l2QNotNull)
         {
@@ -533,7 +533,7 @@ public class PQSourcePriceVolumeLayerTests
             Assert.IsFalse(l2Quote.HasUpdates);
             Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(sourcePvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(sourcePvl.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrNone());
 
         if (l2QNotNull)
         {

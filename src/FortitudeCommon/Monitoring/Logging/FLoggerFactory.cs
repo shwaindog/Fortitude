@@ -2,6 +2,7 @@
 
 using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging.Diagnostics;
 using FortitudeCommon.Monitoring.Logging.NLogAdapter;
 using FortitudeCommon.Types;

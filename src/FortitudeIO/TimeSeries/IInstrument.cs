@@ -5,6 +5,7 @@
 
 using System.Text.Json.Serialization;
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeIO.TimeSeries.FileSystem;
 

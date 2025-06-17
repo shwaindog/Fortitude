@@ -258,7 +258,7 @@ public class PricingClientServerPubSubscribeTests
             FLoggerFactory.WaitUntilDrained();
         }
         Assert.IsTrue(isNotNull);
-        destinationSnapshot = alwaysUpdatedQuote.Clone();
+        destinationSnapshot = alwaysUpdatedQuote!.Clone();
         SetExpectedDiffFieldsToSame(destinationSnapshot, sourcePriceQuote);
 
         Logger.Info("Second diff");

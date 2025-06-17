@@ -435,7 +435,7 @@ public class PQExternalCounterPartyOrderTests
             Assert.IsFalse(l2Quote.HasUpdates);
             Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(cpOrderInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(cpOrderInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrNone());
 
         if (l2QNotNull)
         {
@@ -648,7 +648,7 @@ public class PQExternalCounterPartyOrderTests
             Assert.IsFalse(l2Quote.HasUpdates);
             Assert.AreEqual(2, l2Quote.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).Count());
         }
-        Assert.IsTrue(cpOrderInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrEmpty());
+        Assert.IsTrue(cpOrderInfo.GetDeltaUpdateFields(testDateTime, PQMessageFlags.Update, precisionSettings).IsNullOrNone());
 
         if (l2QNotNull)
         {

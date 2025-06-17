@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace FortitudeCommon.DataStructures.Maps;
 
 public class LinkedListUintKeyMap<Tv> : LinkedListCache<uint, Tv>
@@ -8,7 +10,7 @@ public class LinkedListUintKeyMap<Tv> : LinkedListCache<uint, Tv>
         for (; currentNode != null; currentNode = currentNode.Next)
         {
             if (currentNode.Payload.Key != key) continue;
-            value = currentNode.Payload.Value;
+            value = currentNode.Payload.Value!;
             return true;
         }
 

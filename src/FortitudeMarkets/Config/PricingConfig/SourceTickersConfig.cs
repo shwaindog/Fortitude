@@ -6,6 +6,8 @@
 using System.Globalization;
 using System.Text.Json.Serialization;
 using FortitudeCommon.Configuration;
+using FortitudeCommon.DataStructures.Maps;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Config.Availability;
@@ -42,7 +44,7 @@ public static class TickerAvailabilityExtensions
     public static bool IsPricingEnabled(this TickerAvailability tickerAvailability) => (tickerAvailability & TickerAvailability.PricingEnabled) > 0;
 }
 
-public interface ISourceTickersConfig : IInterfacesComparable<ISourceTickersConfig>
+public interface ISourceTickersConfig : IInterfacesComparable<ISourceTickersConfig>, ITradingAvailability
 {
     const decimal DefaultPipValue           = SourceTickerInfo.DefaultPip;
     const decimal DefaultMinSubmitSizeValue = SourceTickerInfo.DefaultMinSubmitSize;
@@ -59,7 +61,8 @@ public interface ISourceTickersConfig : IInterfacesComparable<ISourceTickersConf
 
     const PublishableQuoteInstantBehaviorFlags DefaultQuoteBehaviorFlagsValue = SourceTickerInfo.DefaultQuoteBehaviorFlags;
 
-    TickerAvailability     DefaultTickerAvailability            { get; set; }
+    TickerAvailability DefaultTickerAvailability { get; set; }
+
     TickerQuoteDetailLevel DefaultPublishTickerQuoteDetailLevel { get; set; }
 
     ITradingTimeTableConfig DefaultTickerTradingTimeTableConfig { get; set; }
@@ -98,19 +101,14 @@ public interface ISourceTickersConfig : IInterfacesComparable<ISourceTickersConf
 
 public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
 {
-    // ReSharper disable NotAccessedField.Local
-    private object?                     ignoreSuppressWarnings;
-    private MarketClassificationConfig? lastMarketClassificationConfig;
-    // ReSharper restore NotAccessedField.Local
-
-    private IDictionary<string, TickerConfig> tickers = new Dictionary<string, TickerConfig>();
+    private readonly IDictionary<string, ITickerConfig> tickers = new Dictionary<string, ITickerConfig>();
     public SourceTickersConfig(IConfigurationRoot root, string path) : base(root, path) { }
     public SourceTickersConfig() { }
 
     public SourceTickersConfig(CountryCityCodes sourcePublishLocation, params ITickerConfig[] tickersConfigs)
     {
         SourcePublishLocation                = sourcePublishLocation;
-        ((ISourceTickersConfig)this).Tickers = tickersConfigs.ToDictionary(tc => tc.InstrumentName!);
+        ((ISourceTickersConfig)this).Tickers = tickersConfigs.ToDictionary(tc => tc.InstrumentName);
     }
 
     public SourceTickersConfig(ISourceTickersConfig toClone, IConfigurationRoot root, string path) : base(root, path)
@@ -141,43 +139,6 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
 
     public SourceTickersConfig(ISourceTickersConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
-    public IDictionary<string, TickerConfig> Tickers
-    {
-        get
-        {
-            foreach (var configurationSection in NonEmptyConfigs)
-            {
-                var tickerConfig = new TickerConfig(ConfigRoot, configurationSection.Path);
-                if (tickerConfig.InstrumentName.IsNotNullOrEmpty() && configurationSection.Key != tickerConfig.InstrumentName)
-                    throw new
-                        ArgumentException($"The key name '{configurationSection.Key}' for a ticker config does not match the configured ticker Value {tickerConfig.InstrumentName}");
-                if (tickerConfig.InstrumentName.IsNullOrEmpty()) tickerConfig.InstrumentName = configurationSection.Key;
-                if (!tickers.ContainsKey(configurationSection.Key))
-                    tickers.TryAdd(configurationSection.Key, tickerConfig);
-                else
-                    tickers[configurationSection.Key] = tickerConfig;
-            }
-            return tickers;
-        }
-        set
-        {
-            var oldKeys = tickers.Keys.ToHashSet();
-            foreach (var tickerConfigKvp in value)
-            {
-                ignoreSuppressWarnings = new TickerConfig(tickerConfigKvp.Value, ConfigRoot
-                                                        , Path + ":" + nameof(Tickers) + $":{tickerConfigKvp.Key}");
-                if (tickerConfigKvp.Value.InstrumentName.IsNotNullOrEmpty() && tickerConfigKvp.Key != tickerConfigKvp.Value.InstrumentName)
-                    throw new
-                        ArgumentException($"The key name '{tickerConfigKvp.Key}' for a ticker config does not match the configured ticker Value {tickerConfigKvp.Value.InstrumentName}");
-                if (tickerConfigKvp.Value.InstrumentName.IsNullOrEmpty()) tickerConfigKvp.Value.InstrumentName = tickerConfigKvp.Key;
-            }
-
-            var deletedKeys = oldKeys.Except(value.Keys.ToHashSet());
-            foreach (var deletedKey in deletedKeys) TickerConfig.ClearValues(ConfigRoot, Path + ":" + nameof(Tickers) + $":{deletedKey}");
-
-            tickers = value;
-        }
-    }
 
     private IEnumerable<IConfigurationSection> NonEmptyConfigs =>
         GetSection(nameof(Tickers)).GetChildren().Where(cs => cs[nameof(ITickerConfig.InstrumentId)] != null);
@@ -187,7 +148,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(SourcePublishLocation)];
-            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<CountryCityCodes>(checkValue!) : CountryCityCodes.Unknown;
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<CountryCityCodes>(checkValue) : CountryCityCodes.Unknown;
         }
         set => this[nameof(SourcePublishLocation)] = value.ToString();
     }
@@ -209,7 +170,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultTickerAvailability)];
-            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<TickerAvailability>(checkValue!) : TickerAvailability.PricingAndTradingEnabled;
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<TickerAvailability>(checkValue) : TickerAvailability.PricingAndTradingEnabled;
         }
         set => this[nameof(DefaultTickerAvailability)] = value.ToString();
     }
@@ -219,7 +180,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultPublishTickerQuoteDetailLevel)];
-            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<TickerQuoteDetailLevel>(checkValue!) : TickerQuoteDetailLevel.Level2Quote;
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<TickerQuoteDetailLevel>(checkValue) : TickerQuoteDetailLevel.Level2Quote;
         }
         set => this[nameof(DefaultPublishTickerQuoteDetailLevel)] = value.ToString();
     }
@@ -227,9 +188,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
     public MarketClassificationConfig DefaultMarketClassificationConfig
     {
         get => new(ConfigRoot, Path + ":" + nameof(DefaultMarketClassificationConfig));
-        set =>
-            lastMarketClassificationConfig = new MarketClassificationConfig
-                (value, ConfigRoot, Path + ":" + nameof(DefaultMarketClassificationConfig));
+        set => _ = new MarketClassificationConfig(value, ConfigRoot, Path + ":" + nameof(DefaultMarketClassificationConfig));
     }
 
     public decimal DefaultRoundingPrecision
@@ -237,7 +196,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultRoundingPrecision)];
-            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue!) : ISourceTickersConfig.DefaultRoundingPrecisionValue;
+            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue) : ISourceTickersConfig.DefaultRoundingPrecisionValue;
         }
         set => this[nameof(DefaultRoundingPrecision)] = value.ToString(CultureInfo.InvariantCulture);
     }
@@ -247,7 +206,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultPip)];
-            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue!) : ISourceTickersConfig.DefaultPipValue;
+            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue) : ISourceTickersConfig.DefaultPipValue;
         }
         set => this[nameof(DefaultPip)] = value.ToString(CultureInfo.InvariantCulture);
     }
@@ -257,7 +216,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultMaximumPublishedLayers)];
-            return checkValue.IsNotNullOrEmpty() ? ushort.Parse(checkValue!) : ISourceTickersConfig.DefaultMaximumPublishedLayersValue;
+            return checkValue.IsNotNullOrEmpty() ? ushort.Parse(checkValue) : ISourceTickersConfig.DefaultMaximumPublishedLayersValue;
         }
         set => this[nameof(DefaultMaximumPublishedLayers)] = value.ToString();
     }
@@ -267,7 +226,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultMinSubmitSize)];
-            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue!) : ISourceTickersConfig.DefaultMinSubmitSizeValue;
+            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue) : ISourceTickersConfig.DefaultMinSubmitSizeValue;
         }
         set => this[nameof(DefaultMinSubmitSize)] = value.ToString(CultureInfo.InvariantCulture);
     }
@@ -277,7 +236,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultMaxSubmitSize)];
-            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue!) : ISourceTickersConfig.DefaultMaxSubmitSizeValue;
+            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue) : ISourceTickersConfig.DefaultMaxSubmitSizeValue;
         }
         set => this[nameof(DefaultMaxSubmitSize)] = value.ToString(CultureInfo.InvariantCulture);
     }
@@ -287,7 +246,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultIncrementSize)];
-            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue!) : ISourceTickersConfig.DefaultIncrementSizeValue;
+            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue) : ISourceTickersConfig.DefaultIncrementSizeValue;
         }
         set => this[nameof(DefaultIncrementSize)] = value.ToString(CultureInfo.InvariantCulture);
     }
@@ -297,7 +256,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultMinimumQuoteLifeMs)];
-            return checkValue.IsNotNullOrEmpty() ? ushort.Parse(checkValue!) : ISourceTickersConfig.DefaultMinimumQuoteLifeMsMsValue;
+            return checkValue.IsNotNullOrEmpty() ? ushort.Parse(checkValue) : ISourceTickersConfig.DefaultMinimumQuoteLifeMsMsValue;
         }
         set => this[nameof(DefaultMinimumQuoteLifeMs)] = value.ToString();
     }
@@ -307,7 +266,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultMaxValidMs)];
-            return checkValue.IsNotNullOrEmpty() ? uint.Parse(checkValue!) : ISourceTickersConfig.DefaultMaxValidMsValue;
+            return checkValue.IsNotNullOrEmpty() ? uint.Parse(checkValue) : ISourceTickersConfig.DefaultMaxValidMsValue;
         }
         set => this[nameof(DefaultMaxValidMs)] = value.ToString();
     }
@@ -317,7 +276,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultLayerFlags)];
-            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<LayerFlags>(checkValue!) : ISourceTickersConfig.DefaultLayerFlagsValue;
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<LayerFlags>(checkValue) : ISourceTickersConfig.DefaultLayerFlagsValue;
         }
         set => this[nameof(DefaultLayerFlags)] = value.ToString();
     }
@@ -327,7 +286,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         get
         {
             var checkValue = this[nameof(DefaultLastTradedFlags)];
-            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<LastTradedFlags>(checkValue!) : ISourceTickersConfig.DefaultLastTradedFlagsValue;
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<LastTradedFlags>(checkValue) : ISourceTickersConfig.DefaultLastTradedFlagsValue;
         }
         set => this[nameof(DefaultLastTradedFlags)] = value.ToString();
     }
@@ -338,35 +297,40 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         {
             var checkValue = this[nameof(DefaultQuoteBehaviorFlags)];
             return checkValue.IsNotNullOrEmpty()
-                ? Enum.Parse<PublishableQuoteInstantBehaviorFlags>(checkValue!)
+                ? Enum.Parse<PublishableQuoteInstantBehaviorFlags>(checkValue)
                 : ISourceTickersConfig.DefaultQuoteBehaviorFlagsValue;
         }
         set => this[nameof(DefaultQuoteBehaviorFlags)] = value.ToString();
     }
 
     [JsonIgnore]
-    IReadOnlyDictionary<string, ITickerConfig> ISourceTickersConfig.Tickers
+    public IReadOnlyDictionary<string, ITickerConfig> Tickers
     {
         get
         {
-            foreach (var configurationSection in NonEmptyConfigs)
+            if (!tickers.Any())
             {
-                var tickerConfig = new TickerConfig(ConfigRoot, configurationSection.Path);
-                if (tickerConfig.InstrumentName.IsNotNullOrEmpty() && configurationSection.Key != tickerConfig.InstrumentName)
-                    throw new
-                        ArgumentException($"The key name '{configurationSection.Key}' for a ticker config does not match the configured ticker Value {tickerConfig.InstrumentName}");
-                if (tickerConfig.InstrumentName.IsNullOrEmpty()) tickerConfig.InstrumentName = configurationSection.Key;
-                tickerConfig.ParentVenueOperatingTimeTableConfig = ParentVenueOperatingTimeTableConfig;
-                if (!Tickers.ContainsKey(configurationSection.Key))
-                    tickers.TryAdd(configurationSection.Key, tickerConfig);
-                else
-                    tickers[configurationSection.Key] = tickerConfig;
+                foreach (var configurationSection in NonEmptyConfigs)
+                {
+                    var tickerConfig = new TickerConfig(ConfigRoot, configurationSection.Path);
+                    if (tickerConfig.InstrumentName.IsNotNullOrEmpty() && configurationSection.Key != tickerConfig.InstrumentName)
+                        throw new
+                            ArgumentException($"The key name '{configurationSection.Key}' for a ticker config does not match the configured ticker Value {tickerConfig.InstrumentName}");
+                    if (tickerConfig.InstrumentName.IsNullOrEmpty()) tickerConfig.InstrumentName = configurationSection.Key;
+                    tickerConfig.ParentTradingTimeTableConfig        = DefaultTickerTradingTimeTableConfig;
+                    tickerConfig.ParentVenueOperatingTimeTableConfig = ParentVenueOperatingTimeTableConfig;
+                    if (!tickers.ContainsKey(configurationSection.Key))
+                        tickers.TryAdd(configurationSection.Key, tickerConfig);
+                    else
+                        tickers[configurationSection.Key] = tickerConfig;
+                }
             }
-            return tickers.ToDictionary(tc => tc.Key, tc => (ITickerConfig)tc.Value);
+            return tickers.AsReadOnly();
         }
         set
         {
             var oldKeys = tickers.Keys.ToHashSet();
+            tickers.Clear();
             foreach (var tickerConfigKvp in value)
             {
                 var checkTickerConfig = new TickerConfig(tickerConfigKvp.Value, ConfigRoot
@@ -375,9 +339,9 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
                     throw new
                         ArgumentException($"The key name '{tickerConfigKvp.Key}' for a ticker config does not match the configured ticker Value {tickerConfigKvp.Value.InstrumentName}");
                 if (tickerConfigKvp.Value.InstrumentName.IsNullOrEmpty()) checkTickerConfig.InstrumentName = tickerConfigKvp.Key;
+                checkTickerConfig.ParentTradingTimeTableConfig        = DefaultTickerTradingTimeTableConfig;
                 checkTickerConfig.ParentVenueOperatingTimeTableConfig = ParentVenueOperatingTimeTableConfig;
-                if (tickerConfigKvp.Value is TickerConfig valueTickerConfig)
-                    valueTickerConfig.ParentVenueOperatingTimeTableConfig = ParentVenueOperatingTimeTableConfig;
+                tickers.Add(tickerConfigKvp.Key, checkTickerConfig);
             }
 
             var deletedKeys = oldKeys.Except(value.Keys.ToHashSet());
@@ -385,12 +349,38 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         }
     }
 
+    public WeeklyTradingSchedule? TickerWeeklyTradingSchedule(DateTimeOffset forTimeInWeek, string instrumentName)
+    {
+        var tickersConfig = Tickers;
+        if (tickersConfig.TryGetValue(instrumentName, out var tickerConfig))
+        {
+            return tickerConfig.TradingTimeTableConfig!.WeeklySchedule(forTimeInWeek);
+        }
+        return null;
+    }
+
+    public bool HasTradingSchedule(string instrumentName)
+    {
+        return Tickers.ContainsKey(instrumentName);
+    }
+
+    public IRecyclableReadOnlyDictionary<string, WeeklyTradingSchedule> AllTickersWeeklyTradingSchedules(DateTime forTimeInWeek)
+    {
+        var tradingScheduleDict = Recycler.Borrow<ReusableDictionary<string, WeeklyTradingSchedule>>();
+        foreach (var tickerConfigKvp in Tickers)
+        {
+            tradingScheduleDict.Add(tickerConfigKvp.Key,
+                                    tickerConfigKvp.Value.TradingTimeTableConfig!.WeeklySchedule(new DateTimeOffset(forTimeInWeek)));
+        }
+        return tradingScheduleDict;
+    }
+
     public ISourceTickerInfo? GetSourceTickerInfo(ushort sourceId, string sourceName, string ticker, CountryCityCodes myLocation, bool isAdapter)
     {
         if (!Tickers.TryGetValue(ticker, out var tickerConfig)) return null;
         var sourceTickerINfo =
             new SourceTickerInfo
-                (sourceId, sourceName, tickerConfig.InstrumentId, tickerConfig.InstrumentName!
+                (sourceId, sourceName, tickerConfig.InstrumentId, tickerConfig.InstrumentName
                , tickerConfig.PublishedDetailLevel ?? DefaultPublishTickerQuoteDetailLevel
                , tickerConfig.MarketClassificationConfig?.MarketClassification ?? DefaultMarketClassificationConfig.MarketClassification
                , SourcePublishLocation
@@ -415,7 +405,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
         {
             var sourceTickerINfo =
                 new SourceTickerInfo
-                    (sourceId, sourceName, tickerConfig.InstrumentId, tickerConfig.InstrumentName!
+                    (sourceId, sourceName, tickerConfig.InstrumentId, tickerConfig.InstrumentName
                    , tickerConfig.PublishedDetailLevel ?? DefaultPublishTickerQuoteDetailLevel
                    , tickerConfig.MarketClassificationConfig?.MarketClassification ?? DefaultMarketClassificationConfig.MarketClassification
                    , SourcePublishLocation
@@ -441,7 +431,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
             {
                 var sourceTickerINfo =
                     new SourceTickerInfo
-                        (sourceId, sourceName, tickerConfig.InstrumentId, tickerConfig.InstrumentName!
+                        (sourceId, sourceName, tickerConfig.InstrumentId, tickerConfig.InstrumentName
                        , tickerConfig.PublishedDetailLevel ?? DefaultPublishTickerQuoteDetailLevel
                        , tickerConfig.MarketClassificationConfig?.MarketClassification ?? DefaultMarketClassificationConfig.MarketClassification
                        , SourcePublishLocation
@@ -467,7 +457,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
             {
                 var sourceTickerINfo =
                     new SourceTickerInfo
-                        (sourceId, sourceName, tickerConfig.InstrumentId, tickerConfig.InstrumentName!
+                        (sourceId, sourceName, tickerConfig.InstrumentId, tickerConfig.InstrumentName
                        , tickerConfig.PublishedDetailLevel ?? DefaultPublishTickerQuoteDetailLevel
                        , tickerConfig.MarketClassificationConfig?.MarketClassification ?? DefaultMarketClassificationConfig.MarketClassification
                        , SourcePublishLocation

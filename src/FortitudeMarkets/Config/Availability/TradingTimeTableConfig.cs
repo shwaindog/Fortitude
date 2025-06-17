@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Text.Json.Serialization;
 using FortitudeCommon.Configuration;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
@@ -8,9 +9,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeMarkets.Config.Availability;
 
-public interface ITradingTimeTableConfig : IInterfacesComparable<ITradingTimeTableConfig>
+public interface ITradingTimeTableConfig : IInterfacesComparable<ITradingTimeTableConfig>, IWeeklyAvailability
 {
-    IDailyTradingScheduleConfig TradingScheduleConfig { get; set; }
+    IDailyTradingScheduleConfig? TradingScheduleConfig { get; set; }
 
     ITimeTableConfig? HighLiquidityTimeTable { get; set; }
 }
@@ -48,13 +49,20 @@ public class TradingTimeTableConfig : ConfigSection, ITradingTimeTableConfig
 
     public TradingTimeTableConfig(ITradingTimeTableConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
-    public IDailyTradingScheduleConfig TradingScheduleConfig 
+    public IDailyTradingScheduleConfig? TradingScheduleConfig
     {
-        get => new DailyTradingScheduleConfig(ConfigRoot, Path + ":" + nameof(TradingScheduleConfig))
+        get
         {
-            ParentTimeZone = VenueOperatingTimeTable?.OperatingTimeZone
-        };
-        set => _ = new DailyTradingScheduleConfig(value, ConfigRoot, Path + ":" + nameof(TradingScheduleConfig));
+            if (GetSection(nameof(TradingScheduleConfig)).GetChildren().Any(cs => StringExtensions.IsNotNullOrEmpty(cs.Value)))
+            {
+                return new DailyTradingScheduleConfig(ConfigRoot, Path + ":" + nameof(TradingScheduleConfig))
+                {
+                    ParentTimeZone = VenueOperatingTimeTable?.OperatingTimeZone
+                };
+            }
+            return ParentTradingTimeTableConfig?.TradingScheduleConfig;
+        }
+        set => _ = value != null ? new DailyTradingScheduleConfig(value, ConfigRoot, Path + ":" + nameof(TradingScheduleConfig)) : null;
     }
 
     public ITimeTableConfig? HighLiquidityTimeTable
@@ -67,19 +75,36 @@ public class TradingTimeTableConfig : ConfigSection, ITradingTimeTableConfig
 
                 return timeTableConfig;
             }
-            return ParentHighLiquidityTimeTable;
+            return ParentTradingTimeTableConfig?.HighLiquidityTimeTable;
         }
         set => _ = value != null ? new TimeTableConfig(value, ConfigRoot, Path + ":" + nameof(HighLiquidityTimeTable)) : null;
     }
 
-    public ITimeTableConfig? ParentHighLiquidityTimeTable { get; set; }
+    public ITradingTimeTableConfig? ParentTradingTimeTableConfig { get; set; }
 
+    [JsonIgnore]
     public ITimeTableConfig? VenueOperatingTimeTable { get; set; }
+
+    public WeeklyTradingSchedule WeeklySchedule(DateTimeOffset forTimeInWeek)
+    {
+        var schedule = VenueOperatingTimeTable!.WeeklySchedule(forTimeInWeek);
+        if (TradingScheduleConfig != null)
+        {
+            schedule = TradingScheduleConfig.WeeklySchedule(forTimeInWeek, schedule);
+        }
+        if (HighLiquidityTimeTable != null)
+        {
+            HighLiquidityTimeTable.AddWeeklyOnOffTradingState
+                (schedule, TradingPeriodTypeFlags.IsMainTradingPeriod, TradingPeriodTypeFlags.IsGreyMarketTradingPeriod);
+        }
+
+        return schedule;
+    }
 
     public bool AreEquivalent(ITradingTimeTableConfig? other, bool exactTypes = false)
     {
         if (other == null) return false;
-        var tradingScheduleSame = TradingScheduleConfig.AreEquivalent(other.TradingScheduleConfig, exactTypes);
+        var tradingScheduleSame = TradingScheduleConfig?.AreEquivalent(other.TradingScheduleConfig, exactTypes) ?? other.TradingScheduleConfig == null;
         var highLiquidSame = HighLiquidityTimeTable?.AreEquivalent(other.HighLiquidityTimeTable, exactTypes) ?? other.HighLiquidityTimeTable == null;
 
         var allAreSame = tradingScheduleSame && highLiquidSame;
@@ -89,5 +114,5 @@ public class TradingTimeTableConfig : ConfigSection, ITradingTimeTableConfig
 
     public override string ToString() => 
         $"{nameof(TradingTimeTableConfig)}{{{nameof(TradingScheduleConfig)}: {TradingScheduleConfig}, {nameof(HighLiquidityTimeTable)}: {HighLiquidityTimeTable}, " +
-        $"{nameof(ParentHighLiquidityTimeTable)}: {ParentHighLiquidityTimeTable}, {nameof(VenueOperatingTimeTable)}: {VenueOperatingTimeTable}}}";
+        $"{nameof(ParentTradingTimeTableConfig)}: {ParentTradingTimeTableConfig}, {nameof(VenueOperatingTimeTable)}: {VenueOperatingTimeTable}}}";
 }

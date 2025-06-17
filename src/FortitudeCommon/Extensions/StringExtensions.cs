@@ -3,6 +3,7 @@
 
 #region
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 #endregion
@@ -41,11 +42,11 @@ public static class StringExtensions
         return false;
     }
 
-    public static bool IsNullOrEmpty(this string? value)    => string.IsNullOrEmpty(value);
-    public static bool IsNotNullOrEmpty(this string? value) => !string.IsNullOrEmpty(value);
-    public static bool IsEmpty(this string value)           => string.IsNullOrEmpty(value);
-    public static bool IsNotEmpty(this string value)        => !string.IsNullOrEmpty(value);
-    public static bool IsEmptyString(this object? value)    => Equals(value, string.Empty);
+    public static bool IsNullOrEmpty([NotNullWhen(false)] this string? value)   => string.IsNullOrEmpty(value);
+    public static bool IsNotNullOrEmpty([NotNullWhen(true)] this string? value) => !string.IsNullOrEmpty(value);
+    public static bool IsEmpty(this string value)                               => string.IsNullOrEmpty(value);
+    public static bool IsNotEmpty(this string value)                            => !string.IsNullOrEmpty(value);
+    public static bool IsEmptyString([NotNullWhen(true)] this object? value)   => Equals(value, string.Empty);
 
 
     public static int? SafeExtractInt(this string value)
@@ -85,4 +86,10 @@ public static class StringExtensions
 
         return sb.ToString(0, size);
     }
+
+    public static int?     ToInt(this string? parse)     => parse.IsNotNullOrEmpty() ? int.Parse(parse!) : null;
+    public static uint?    ToUInt(this string? parse)    => parse.IsNotNullOrEmpty() ? uint.Parse(parse!) : null;
+    public static float?   ToFloat(this string? parse)   => parse.IsNotNullOrEmpty() ? float.Parse(parse!) : null;
+    public static decimal? ToDecimal(this string? parse) => parse.IsNotNullOrEmpty() ? decimal.Parse(parse!) : null;
+    public static double?  ToDouble(this string? parse)  => parse.IsNotNullOrEmpty() ? double.Parse(parse!) : null;
 }

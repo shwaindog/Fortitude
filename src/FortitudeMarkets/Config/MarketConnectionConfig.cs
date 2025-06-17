@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Configuration;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.Config;
@@ -46,8 +47,6 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
 {
     private const string PricingConnectionNameSuffix = "Pricing";
     private const string TradingConnectionNameSuffix = "Trading";
-
-    private ISourceTickersConfig? sourceTickerPublicationConfigs;
 
     public MarketConnectionConfig(IConfigurationRoot root, string path) : base(root, path) { }
 
@@ -148,7 +147,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
         get
         {
             var checkValue = this[nameof(MyLocation)];
-            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<CountryCityCodes>(checkValue!) : ParentLocation ?? CountryCityCodes.Unknown;
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<CountryCityCodes>(checkValue) : ParentLocation ?? CountryCityCodes.Unknown;
         }
         set => this[nameof(MyLocation)] = value.ToString();
     }

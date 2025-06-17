@@ -279,7 +279,7 @@ public class PQLastPaidGivenTradeTests
         emptyLt.IsTradeVolumeUpdated = false;
         Assert.IsFalse(emptyLt.IsTradeVolumeUpdated);
         Assert.IsFalse(emptyLt.HasUpdates);
-        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).IsNullOrNone());
 
         const decimal nextExpectedVolume = 0.11m;
         emptyLt.TradeVolume = nextExpectedVolume;
@@ -325,7 +325,7 @@ public class PQLastPaidGivenTradeTests
 
         emptyLt.IsWasGivenUpdated = false;
         Assert.IsFalse(emptyLt.HasUpdates);
-        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).IsNullOrNone());
 
         emptyLt.IsWasGivenUpdated = true;
         sourceLayerUpdates =
@@ -362,7 +362,7 @@ public class PQLastPaidGivenTradeTests
 
         emptyLt.IsWasPaidUpdated = false;
         Assert.IsFalse(emptyLt.HasUpdates);
-        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).IsNullOrNone());
 
         emptyLt.IsWasPaidUpdated = true;
         sourceLayerUpdates =

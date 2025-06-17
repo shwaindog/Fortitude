@@ -366,7 +366,7 @@ public class PQLastExternalCounterPartyTradeTests
         emptyLt.IsExternalTraderNameUpdated = false;
         Assert.IsFalse(emptyLt.IsExternalTraderNameUpdated);
         Assert.IsFalse(emptyLt.HasUpdates);
-        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).IsNullOrEmpty());
+        Assert.IsTrue(emptyLt.GetDeltaUpdateFields(ExpectedTradeTime, PQMessageFlags.Update).IsNullOrNone());
         var stringUpdates = emptyLt.GetStringUpdates(ExpectedTradeTime, PQMessageFlags.Update).ToList();
         Assert.AreEqual(1, stringUpdates.Count);
         emptyLt.HasUpdates = false;

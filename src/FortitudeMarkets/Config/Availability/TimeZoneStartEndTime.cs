@@ -97,3 +97,35 @@ public class TimeZoneStartStopTimeConfig : ConfigSection, ITimeZoneStartStopTime
         $"{nameof(TimeZoneStartStopTimeConfig)}{{{nameof(OverrideTimeZone)}: {this[nameof(OverrideTimeZone)]}, {nameof(ParentTimeZone)}: {ParentTimeZone}, " +
         $"{nameof(StartTime)}: {StartTime}, {nameof(StopTime)}: {StopTime}}}";
 }
+
+
+public static class TimeZoneStartStopTimeConfigExtensions
+{
+    public static DateTimeOffset NextStartTimeFromDate(this ITimeZoneStartStopTimeConfig startStopTime, DateTimeOffset fromThisDate)
+    {
+        var convertedDate = new DateTimeOffset(TimeZoneInfo.ConvertTime(fromThisDate, startStopTime.OverrideTimeZone!).Date
+                                             , startStopTime.OverrideTimeZone!.GetUtcOffset(fromThisDate));
+        var convertedTime = convertedDate + startStopTime.StartTime;
+        if (convertedTime < fromThisDate)
+        {
+            convertedTime = convertedDate.AddDays(1);
+        }
+        return convertedTime;
+    }
+
+    public static DateTimeOffset NextStopTimeFromDate(this ITimeZoneStartStopTimeConfig startStopTime, DateTimeOffset fromThisDate)
+    {
+        var convertedDate = new DateTimeOffset(TimeZoneInfo.ConvertTime(fromThisDate, startStopTime.OverrideTimeZone!).Date
+                                             , startStopTime.OverrideTimeZone!.GetUtcOffset(fromThisDate));
+        if (startStopTime.StopTime < startStopTime.StartTime)
+        {
+            convertedDate = convertedDate.AddDays(1);
+        }
+        var convertedTime     = convertedDate + startStopTime.StopTime;
+        if (convertedTime < fromThisDate)
+        {
+            convertedTime = convertedDate.AddDays(1);
+        }
+        return convertedTime;
+    }
+}
