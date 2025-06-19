@@ -12,7 +12,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeIO.TimeSeries;
+using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Indicators.Pricing.Candles.Construction;
 using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;

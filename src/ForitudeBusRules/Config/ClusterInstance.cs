@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Config;
 using Microsoft.Extensions.Configuration;
 
 #endregion
@@ -13,7 +14,7 @@ public interface IClusterInstance
     IServiceEndpoint? ClusterServiceEndpoint { get; set; }
 }
 
-public class ClusterInstance : ConfigurationSection, IClusterInstance
+public class ClusterInstance : ConfigSection, IClusterInstance
 {
     private readonly IConfigurationRoot configRoot;
 
@@ -35,7 +36,7 @@ public class ClusterInstance : ConfigurationSection, IClusterInstance
 
     public IServiceEndpoint? ClusterServiceEndpoint
     {
-        get => clusterServiceEndpoint ??= new ServiceEndpoint(configRoot, Path + ":" + nameof(ClusterServiceEndpoint));
-        set => clusterServiceEndpoint = value != null ? new ServiceEndpoint(value, configRoot, Path + ":" + nameof(ClusterServiceEndpoint)) : null;
+        get => clusterServiceEndpoint ??= new ServiceEndpoint(configRoot, $"{Path}{Split}{nameof(ClusterServiceEndpoint)}");
+        set => clusterServiceEndpoint = value != null ? new ServiceEndpoint(value, configRoot, $"{Path}{Split}{nameof(ClusterServiceEndpoint)}") : null;
     }
 }

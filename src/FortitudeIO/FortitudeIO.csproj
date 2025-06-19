@@ -20,4 +20,8 @@
     <ProjectReference Include="..\FortitudeCommon\FortitudeCommon.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Storage\Config\" />
+  </ItemGroup>
+
 </Project>

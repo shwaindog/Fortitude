@@ -24,7 +24,7 @@ public class OrxExecution : ReusableObject<IExecution>, IExecution
         Venue = new OrxVenue();
         VenueOrderId = new OrxVenueOrderId();
         OrderId = new OrxOrderId();
-        CounterParty = new OrxParty();
+        CounterPartyPortfolio = new OrxPartyPortfolio();
     }
 
     public OrxExecution(IExecution toClone)
@@ -36,7 +36,7 @@ public class OrxExecution : ReusableObject<IExecution>, IExecution
         ExecutionTime = toClone.ExecutionTime;
         Price = toClone.Price;
         Quantity = toClone.Quantity;
-        CounterParty = new OrxParty(toClone.CounterParty);
+        CounterPartyPortfolio = new OrxPartyPortfolio(toClone.CounterPartyPortfolio);
         ValueDate = toClone.ValueDate;
         Type = toClone.Type;
         ExecutionStageType = toClone.ExecutionStageType;
@@ -44,7 +44,7 @@ public class OrxExecution : ReusableObject<IExecution>, IExecution
 
 
     public OrxExecution(OrxExecutionId executionId, OrxVenue venue, OrxVenueOrderId venueOrderId,
-        OrxOrderId orderId, DateTime executionTime, decimal price, decimal quantity, OrxParty counterParty,
+        OrxOrderId orderId, DateTime executionTime, decimal price, decimal quantity, OrxPartyPortfolio counterPartyPortfolio,
         DateTime valueDate, ExecutionType type, ExecutionStageType executionStageType)
     {
         ExecutionId = executionId;
@@ -54,7 +54,7 @@ public class OrxExecution : ReusableObject<IExecution>, IExecution
         ExecutionTime = executionTime;
         Price = price;
         Quantity = quantity;
-        CounterParty = counterParty;
+        CounterPartyPortfolio = counterPartyPortfolio;
         ValueDate = valueDate;
         Type = type;
         ExecutionStageType = executionStageType;
@@ -68,7 +68,7 @@ public class OrxExecution : ReusableObject<IExecution>, IExecution
 
     [OrxMandatoryField(3)] public OrxOrderId OrderId { get; set; }
 
-    [OrxOptionalField(9)] public OrxParty CounterParty { get; set; }
+    [OrxOptionalField(9)] public OrxPartyPortfolio CounterPartyPortfolio { get; set; }
 
     IExecutionId IExecution.ExecutionId
     {
@@ -104,10 +104,10 @@ public class OrxExecution : ReusableObject<IExecution>, IExecution
 
     [OrxMandatoryField(8)] public decimal CumulativeVwapPrice { get; set; }
 
-    IParty IExecution.CounterParty
+    IPartyPortfolio IExecution.CounterPartyPortfolio
     {
-        get => CounterParty;
-        set => CounterParty = (OrxParty)value;
+        get => CounterPartyPortfolio;
+        set => CounterPartyPortfolio = (OrxPartyPortfolio)value;
     }
 
     [OrxOptionalField(10)] public DateTime ValueDate { get; set; } = DateTimeConstants.UnixEpoch;
@@ -126,7 +126,7 @@ public class OrxExecution : ReusableObject<IExecution>, IExecution
         OrderId = execution.OrderId.CopyOrClone(OrderId)!;
         Price = execution.Price;
         Quantity = execution.Quantity;
-        CounterParty = execution.CounterParty.CopyOrClone(CounterParty)!;
+        CounterPartyPortfolio = execution.CounterPartyPortfolio.CopyOrClone(CounterPartyPortfolio)!;
         ValueDate = execution.ValueDate;
         Type = execution.Type;
         ExecutionStageType = execution.ExecutionStageType;
@@ -144,7 +144,7 @@ public class OrxExecution : ReusableObject<IExecution>, IExecution
         var quantitySame = Quantity == other.Quantity;
         var cumlativeQuantitySame = CumulativeQuantity == other.CumulativeQuantity;
         var cumlativeVwapPriceSame = CumulativeVwapPrice == other.CumulativeVwapPrice;
-        var counterPartySame = Equals(CounterParty, other.CounterParty);
+        var counterPartySame = Equals(CounterPartyPortfolio, other.CounterPartyPortfolio);
         var valueDateSame = ValueDate.Equals(other.ValueDate);
         var typeSame = Type == other.Type;
         var executionStageTypeSame = ExecutionStageType == other.ExecutionStageType;
@@ -175,11 +175,19 @@ public class OrxExecution : ReusableObject<IExecution>, IExecution
             hashCode = (hashCode * 397) ^ Quantity.GetHashCode();
             hashCode = (hashCode * 397) ^ CumulativeQuantity.GetHashCode();
             hashCode = (hashCode * 397) ^ CumulativeVwapPrice.GetHashCode();
-            hashCode = (hashCode * 397) ^ (CounterParty != null ? CounterParty.GetHashCode() : 0);
+            hashCode = (hashCode * 397) ^ (CounterPartyPortfolio != null ? CounterPartyPortfolio.GetHashCode() : 0);
             hashCode = (hashCode * 397) ^ ValueDate.GetHashCode();
             hashCode = (hashCode * 397) ^ (int)Type;
             hashCode = (hashCode * 397) ^ (int)ExecutionStageType;
             return hashCode;
         }
     }
+
+    public override string ToString() => 
+        $"{nameof(ExecutionId)}: {ExecutionId}, {nameof(Venue)}: {Venue}, {nameof(VenueOrderId)}: {VenueOrderId}, {nameof(OrderId)}: {OrderId}, " +
+        $"{nameof(CounterPartyPortfolio)}: {CounterPartyPortfolio}, {nameof(ExecutionId)}: {ExecutionId}, {nameof(Venue)}: {Venue}, " +
+        $"{nameof(OrderId)}: {OrderId}, {nameof(VenueOrderId)}: {VenueOrderId}, {nameof(ExecutionTime)}: {ExecutionTime}, {nameof(Price)}: {Price}, " +
+        $"{nameof(Quantity)}: {Quantity}, {nameof(CumulativeQuantity)}: {CumulativeQuantity}, {nameof(CumulativeVwapPrice)}: {CumulativeVwapPrice}, " +
+        $"{nameof(CounterPartyPortfolio)}: {CounterPartyPortfolio}, {nameof(ValueDate)}: {ValueDate}, {nameof(Type)}: {Type}, " +
+        $"{nameof(ExecutionStageType)}: {ExecutionStageType}";
 }

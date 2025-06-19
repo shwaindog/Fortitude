@@ -3,8 +3,8 @@
 
 #region
 
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Configuration;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Config.Availability;
@@ -160,11 +160,11 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
         {
             if (GetSection(nameof(VenueOperatingTimeTableConfig)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
             {
-                return new TimeTableConfig(ConfigRoot, Path + ":" + nameof(VenueOperatingTimeTableConfig));
+                return new TimeTableConfig(ConfigRoot, $"{Path}{Split}{nameof(VenueOperatingTimeTableConfig)}");
             }
             return null;
         }
-        set => _ = value != null ? new TimeTableConfig(value, ConfigRoot, Path + ":" + nameof(VenueOperatingTimeTableConfig)) : null;
+        set => _ = value != null ? new TimeTableConfig(value, ConfigRoot, $"{Path}{Split}{nameof(VenueOperatingTimeTableConfig)}") : null;
     }
 
     public MarketConnectionType MarketConnectionType
@@ -177,9 +177,9 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
     {
         get
         {
-            if (GetSection(nameof(SourceTickerConfig)).GetChildren().Any())
+            if (GetSection(nameof(SourceTickerConfig)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
             {
-                var sourceTickersConfig =  new SourceTickersConfig(ConfigRoot, Path + ":" + nameof(SourceTickerConfig))
+                var sourceTickersConfig =  new SourceTickersConfig(ConfigRoot, $"{Path}{Split}{nameof(SourceTickerConfig)}")
                 {
                     ParentVenueOperatingTimeTableConfig = VenueOperatingTimeTableConfig
                 };
@@ -193,7 +193,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
             {
                 valueSourceTickersConfig.ParentVenueOperatingTimeTableConfig = VenueOperatingTimeTableConfig;
             }
-            _ = value != null ? new SourceTickersConfig(value, ConfigRoot, Path + ":" + nameof(SourceTickerConfig)) : null;
+            _ = value != null ? new SourceTickersConfig(value, ConfigRoot, $"{Path}{Split}{nameof(SourceTickerConfig)}") : null;
         }
     }
 
@@ -204,7 +204,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
             if (GetSection(nameof(PricingServerConfig)).GetChildren()
                                                        .SelectMany(cs => cs.GetChildren()).Any(cs => cs.Value.IsNotNullOrEmpty()))
             {
-                var pricingServerConfig = new PricingServerConfig(ConfigRoot, Path + ":" + nameof(PricingServerConfig))
+                var pricingServerConfig = new PricingServerConfig(ConfigRoot, $"{Path}{Split}{nameof(PricingServerConfig)}")
                 {
                     ParentConnectionName = ConnectionName + PricingConnectionNameSuffix
                 };
@@ -223,7 +223,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
                 value.ConnectionName = ConnectionName + PricingConnectionNameSuffix;
             }
             _ = value != null
-                ? new PricingServerConfig(value, ConfigRoot, Path + ":" + nameof(PricingServerConfig))
+                ? new PricingServerConfig(value, ConfigRoot, $"{Path}{Split}{nameof(PricingServerConfig)}")
                 : null;
         }
     }
@@ -234,7 +234,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
         {
             if (GetSection(nameof(TradingServerConfig)).GetChildren().Any())
             {
-                var tradingServerConfig = new TradingServerConfig(ConfigRoot, Path + ":" + nameof(TradingServerConfig))
+                var tradingServerConfig = new TradingServerConfig(ConfigRoot, $"{Path}{Split}{nameof(TradingServerConfig)}")
                 {
                     ParentConnectionName = ConnectionName + TradingConnectionNameSuffix
                 };
@@ -258,7 +258,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
                 value.ConnectionName = ConnectionName + TradingConnectionNameSuffix;
             }
             _ = value != null
-                ? new TradingServerConfig(value, ConfigRoot, Path + ":" + nameof(TradingServerConfig))
+                ? new TradingServerConfig(value, ConfigRoot, $"{Path}{Split}{nameof(TradingServerConfig)}")
                 : null;
         }
     }
@@ -325,13 +325,13 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
 
     public static void ClearValues(IConfigurationRoot root, string path)
     {
-        root[path + ":" + nameof(ConnectionName)]       = null;
-        root[path + ":" + nameof(SourceName)]           = null;
-        root[path + ":" + nameof(SourceId)]             = "0";
-        root[path + ":" + nameof(MarketConnectionType)] = "0";
-        root[path + ":" + nameof(SourceTickerConfig)]   = null;
-        root[path + ":" + nameof(PricingServerConfig)]  = null;
-        root[path + ":" + nameof(TradingServerConfig)]  = null;
+        root[$"{path}{Split}{nameof(ConnectionName)}"]       = null;
+        root[$"{path}{Split}{nameof(SourceName)}"]           = null;
+        root[$"{path}{Split}{nameof(SourceId)}"]             = "0";
+        root[$"{path}{Split}{nameof(MarketConnectionType)}"] = "0";
+        root[$"{path}{Split}{nameof(SourceTickerConfig)}"]   = null;
+        root[$"{path}{Split}{nameof(PricingServerConfig)}"]  = null;
+        root[$"{path}{Split}{nameof(TradingServerConfig)}"]  = null;
     }
 
     protected bool Equals(IMarketConnectionConfig other) => AreEquivalent(other, true);

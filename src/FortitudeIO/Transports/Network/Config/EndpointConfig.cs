@@ -1,7 +1,7 @@
 ﻿#region
 
 using System.Net;
-using FortitudeCommon.Configuration;
+using FortitudeCommon.Config;
 using FortitudeCommon.Types;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -87,12 +87,12 @@ public class EndpointConfig : ConfigSection, IEndpointConfig
 
     public static void ClearValues(IConfigurationRoot root, string path)
     {
-        root[path + ":" + nameof(InstanceName)]     = null;
-        root[path + ":" + nameof(Hostname)]         = null;
-        root[path + ":" + nameof(SubnetMask)]       = null;
-        root[path + ":" + nameof(SubnetMask)]       = null;
-        root[path + ":" + nameof(Port)]             = null;
-        root[path + ":" + nameof(HostLocationCode)] = CountryCityCodes.Unknown.ToString();
+        root[$"{path}{Split}{nameof(InstanceName)}"]     = null;
+        root[$"{path}{Split}{nameof(Hostname)}"]         = null;
+        root[$"{path}{Split}{nameof(SubnetMask)}"]       = null;
+        root[$"{path}{Split}{nameof(SubnetMask)}"]       = null;
+        root[$"{path}{Split}{nameof(Port)}"]             = null;
+        root[$"{path}{Split}{nameof(HostLocationCode)}"] = CountryCityCodes.Unknown.ToString();
     }
 
     protected bool Equals(IEndpointConfig other)

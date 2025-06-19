@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.Configuration;
+using FortitudeCommon.Config;
 using FortitudeIO.Transports.Network.Config;
 using Microsoft.Extensions.Configuration;
 
@@ -42,23 +42,23 @@ public class ServiceEndpoint : ConfigSection, IServiceEndpoint
     {
         get =>
             clusterAccessibleClientConnectionConfig
-                = new NetworkTopicConnectionConfig(ConfigRoot, Path + ":" + nameof(ClusterAccessibleClientConnectionConfig));
+                = new NetworkTopicConnectionConfig(ConfigRoot, $"{Path}{Split}{nameof(ClusterAccessibleClientConnectionConfig)}");
         set =>
             clusterAccessibleClientConnectionConfig
-                = new NetworkTopicConnectionConfig(value, ConfigRoot, Path + ":" + nameof(ServiceStartConnectionConfig));
+                = new NetworkTopicConnectionConfig(value, ConfigRoot, $"{Path}{Split}{nameof(ServiceStartConnectionConfig)}");
     }
 
     public INetworkTopicConnectionConfig ServiceStartConnectionConfig
     {
-        get => serviceStartConnectionConfig = new NetworkTopicConnectionConfig(ConfigRoot, Path + ":" + nameof(ServiceStartConnectionConfig));
-        set => serviceStartConnectionConfig = new NetworkTopicConnectionConfig(value, ConfigRoot, Path + ":" + nameof(ServiceStartConnectionConfig));
+        get => serviceStartConnectionConfig = new NetworkTopicConnectionConfig(ConfigRoot, $"{Path}{Split}{nameof(ServiceStartConnectionConfig)}");
+        set => serviceStartConnectionConfig = new NetworkTopicConnectionConfig(value, ConfigRoot, $"{Path}{Split}{nameof(ServiceStartConnectionConfig)}");
     }
 
     public static void ClearValues(IConfigurationRoot root, string path)
     {
-        NetworkTopicConnectionConfig.ClearValues(root, path + ":" + nameof(ClusterAccessibleClientConnectionConfig));
-        NetworkTopicConnectionConfig.ClearValues(root, path + ":" + nameof(ServiceStartConnectionConfig));
-        root[path + ":" + nameof(ClusterAccessibleClientConnectionConfig)] = null;
-        root[path + ":" + nameof(ServiceStartConnectionConfig)] = null;
+        NetworkTopicConnectionConfig.ClearValues(root, $"{path}{Split}{nameof(ClusterAccessibleClientConnectionConfig)}");
+        NetworkTopicConnectionConfig.ClearValues(root, $"{path}{Split}{nameof(ServiceStartConnectionConfig)}");
+        root[$"{path}{Split}{nameof(ClusterAccessibleClientConnectionConfig)}"] = null;
+        root[$"{path}{Split}{nameof(ServiceStartConnectionConfig)}"] = null;
     }
 }

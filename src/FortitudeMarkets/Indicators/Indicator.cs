@@ -5,7 +5,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
-using FortitudeIO.TimeSeries;
+using FortitudeIO.Storage.TimeSeries;
 
 #endregion
 

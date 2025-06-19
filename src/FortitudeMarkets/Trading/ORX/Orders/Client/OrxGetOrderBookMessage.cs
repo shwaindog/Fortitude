@@ -21,9 +21,7 @@ public class OrxGetOrderBookMessage : OrxTradingMessage
 
     public OrxGetOrderBookMessage(OrxAccountEntry orxAccount) => OrxAccount = orxAccount;
 
-    public OrxGetOrderBookMessage(string account, bool getInactiveOrders = false) { }
-
-    public OrxGetOrderBookMessage(MutableString account, bool getInactiveOrders = false)
+    public OrxGetOrderBookMessage(uint account, bool getInactiveOrders = false)
     {
         OrxAccount = new OrxAccountEntry(account);
         if (getInactiveOrders) OrxInactiveTrades = new OrxInactiveTrades(getInactiveOrders);

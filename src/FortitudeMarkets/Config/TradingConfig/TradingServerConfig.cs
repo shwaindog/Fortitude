@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.Configuration;
+using FortitudeCommon.Config;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Trading.Orders;
@@ -88,7 +88,7 @@ public class TradingServerConfig : ConfigSection, ITradingServerConfig
         {
             if (GetSection(nameof(TradingServerConnectionConfig)).GetChildren().Any())
             {
-                var tradingConn = new NetworkTopicConnectionConfig(ConfigRoot, Path + ":" + nameof(TradingServerConnectionConfig))
+                var tradingConn = new NetworkTopicConnectionConfig(ConfigRoot, $"{Path}{Split}{nameof(TradingServerConnectionConfig)}")
                     {
                         ParentConnectionName = ConnectionName
                     };
@@ -98,7 +98,7 @@ public class TradingServerConfig : ConfigSection, ITradingServerConfig
         }
         set
         {
-            _ = new NetworkTopicConnectionConfig(value, ConfigRoot, Path + ":" + nameof(TradingServerConnectionConfig));
+            _ = new NetworkTopicConnectionConfig(value, ConfigRoot, $"{Path}{Split}{nameof(TradingServerConnectionConfig)}");
             if (value is NetworkTopicConnectionConfig networkTopicConnectionConfig)
             {
                 networkTopicConnectionConfig.ParentConnectionName = ConnectionName;

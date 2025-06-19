@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeCommon.Configuration;
+using FortitudeCommon.Config;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
@@ -91,13 +91,13 @@ public class TimeTableConfig : ConfigSection, ITimeTableConfig
     public IWeeklyTimeTableConfig WeeklyTimeTableConfig
     {
         get =>
-            new WeeklyTimeTableConfig(ConfigRoot, Path + ":" + nameof(WeeklyTimeTableConfig))
+            new WeeklyTimeTableConfig(ConfigRoot, $"{Path}{Split}{nameof(WeeklyTimeTableConfig)}")
             {
                 ParentTimeZone = OperatingTimeZone
             };
         set
         {
-            _ = new WeeklyTimeTableConfig(value, ConfigRoot, Path + ":" + nameof(WeeklyTimeTableConfig));
+            _ = new WeeklyTimeTableConfig(value, ConfigRoot, $"{Path}{Split}{nameof(WeeklyTimeTableConfig)}");
             if (value is WeeklyTimeTableConfig valueWeeklyTimeTableConfig)
             {
                 valueWeeklyTimeTableConfig.ParentTimeZone = OperatingTimeZone;
@@ -132,9 +132,9 @@ public class TimeTableConfig : ConfigSection, ITimeTableConfig
             var i = 0;
 
             foreach (var calendarDay in value)
-                _ = new CalendarDateMatchConfig(calendarDay, ConfigRoot, Path + ":" + nameof(CalendarHolidays) + ":" + i++);
+                _ = new CalendarDateMatchConfig(calendarDay, ConfigRoot, $"{Path}{Split}{nameof(CalendarHolidays)}{Split}{i++}");
 
-            for (var j = i; j < oldCount; j++) CalendarDateHolidayConfig.ClearValues(ConfigRoot, Path + ":" + nameof(CalendarHolidays) + $":{j++}");
+            for (var j = i; j < oldCount; j++) CalendarDateHolidayConfig.ClearValues(ConfigRoot, $"{Path}{Split}{nameof(CalendarHolidays)}{Split}{j++}");
         }
     }
 
@@ -189,11 +189,11 @@ public class TimeTableConfig : ConfigSection, ITimeTableConfig
                     {
                         throw new ArgumentException($"{nameof(UpcomingIrregularHolidays)} must have Year set on CalendarDateMatchConfig");
                     }
-                    _ = new CalendarDateHolidayConfig(calendarDay, ConfigRoot, Path + ":" + nameof(UpcomingIrregularHolidays) + ":" + i);
+                    _ = new CalendarDateHolidayConfig(calendarDay, ConfigRoot, $"{Path}{Split}{nameof(UpcomingIrregularHolidays)}{Split}{i}");
                 }
 
             for (var j = i; j < oldCount; j++)
-                CalendarDateHolidayConfig.ClearValues(ConfigRoot, Path + ":" + nameof(UpcomingIrregularHolidays) + $":{j}");
+                CalendarDateHolidayConfig.ClearValues(ConfigRoot, $"{Path}{Split}{nameof(UpcomingIrregularHolidays)}{Split}{j}");
         }
     }
 

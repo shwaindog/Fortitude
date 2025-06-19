@@ -70,7 +70,13 @@ public class OrderSubmitRequest : TradingMessage, IOrderSubmitRequest
         base.CopyFrom(source, copyMergeFlags);
         if (source is IOrderSubmitRequest orderSubmitRequest)
         {
-            OrderDetails        = orderSubmitRequest.OrderDetails.SyncOrRecycle(OrderDetails as Order);
+            if (OrderDetails == null)
+            {
+                OrderDetails = orderSubmitRequest.OrderDetails?.AsDomainOrder().Clone();
+            } else if (orderSubmitRequest.OrderDetails != null)
+            {
+                OrderDetails.CopyFrom(orderSubmitRequest.OrderDetails, copyMergeFlags);
+            }
             OriginalAttemptTime = orderSubmitRequest.OriginalAttemptTime;
             CurrentAttemptTime  = orderSubmitRequest.CurrentAttemptTime;
             AttemptNumber       = orderSubmitRequest.AttemptNumber;

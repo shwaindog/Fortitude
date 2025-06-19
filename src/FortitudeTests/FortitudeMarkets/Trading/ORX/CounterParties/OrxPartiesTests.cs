@@ -45,10 +45,10 @@ public class OrxPartiesTests
         };
 
         var messageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
-            socketBufferReadContext.EncodedBuffer!, OrxMessageHeader.HeaderSize);
+            socketBufferReadContext.EncodedBuffer, OrxMessageHeader.HeaderSize);
         socketBufferReadContext.MessageHeader
             = new MessageHeader(TradingVersionInfo.CurrentVersion, 0, 0, (uint)messageSize + MessageHeader.SerializationSize);
-        socketBufferReadContext.EncodedBuffer!.ReadCursor = MessageHeader.SerializationSize;
+        socketBufferReadContext.EncodedBuffer.ReadCursor = MessageHeader.SerializationSize;
 
         var orderSubmitRequestsDeserializer = new OrxByteDeserializer<TestParties>(new OrxDeserializerLookup(
             new Recycler()));
@@ -61,15 +61,12 @@ public class OrxPartiesTests
         Assert.AreEqual(originalClientOrderId.FourthParties, deserializedOrxClientOrderId.FourthParties);
     }
 
+    private uint partyId = 1;
+    private uint portfolioId= 10001;
+
     private OrxParties BuildSpotOrder() =>
-        new(new OrxParty("BuySidePartyId", "BuySideName",
-                new OrxParty("BuySideParentPartyId", "BuySideParentPartyName", null,
-                    "BuySideParentClientPartyId", new OrxBookingInfo("", "")),
-                "BuySideClientParty", new OrxBookingInfo("BuySidePortfolio", "BuySideSubPortfolio")),
-            new OrxParty("SellSidePartyId", "SellSideName",
-                new OrxParty("SellSideParentPartyId", "SellSideParentPartyName", null,
-                    "SellSideParentClientPartyId", new OrxBookingInfo("", "")),
-                "SellSideClientParty", new OrxBookingInfo("SellSidePortfolio", "SellSideSubPortfolio")));
+        new(partyId ++, new OrxPartyPortfolio(portfolioId++),
+            new OrxPartyPortfolio(portfolioId++));
 
     public class TestParties
     {

@@ -69,11 +69,11 @@ public class OrxVenueOrdersTests
         {
             new(
                 new OrxVenueOrderId("FirstVenueClientOrderId", "FirstVenuesOrderId"),
-                new OrxOrderId(1234, "ClientId1234", 0, null, null, "AdapterOrderId"),
+                new OrxOrderId(1234, adapterOrderId: 1234),
                 OrderStatus.New, new OrxVenue(1234, "FirstVenue"), "FirstTicker", 1.23456m, 1_234_345m)
             , new(
                 new OrxVenueOrderId("SecondVenueClientOrderId", "SecondVenuesOrderId"),
-                new OrxOrderId(1234, "ClientId1234", 0, null, null, "AdapterOrderId"),
+                new OrxOrderId(1234, adapterOrderId: 1234),
                 OrderStatus.New, new OrxVenue(2345, "SecondVenue"), "SecondTicker", 1.23456m, 1_234_345m)
         });
 

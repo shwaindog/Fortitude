@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.Configuration;
+using FortitudeCommon.Config;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeIO.Transports.Network.Config;
 using Microsoft.Extensions.Configuration;
@@ -86,12 +86,12 @@ public class RemoteServiceConfig : ConfigSection, IRemoteServiceConfig
             foreach (var remoteServiceConfig in value)
             {
                 ignoreSuppressWarnings = new NetworkTopicConnectionConfig(remoteServiceConfig, ConfigRoot
-                    , Path + ":" + nameof(RemoteServiceConnectionConfigs) + $":{i}");
+                    , $"{Path}{Split}{nameof(RemoteServiceConnectionConfigs)}{Split}{i}");
                 i++;
             }
 
             for (var j = i; j < oldCount; j++)
-                NetworkTopicConnectionConfig.ClearValues(ConfigRoot, Path + ":" + nameof(RemoteServiceConnectionConfigs) + $":{i}");
+                NetworkTopicConnectionConfig.ClearValues(ConfigRoot, $"{Path}{Split}{nameof(RemoteServiceConnectionConfigs)}{Split}{i}");
         }
     }
 
@@ -100,19 +100,19 @@ public class RemoteServiceConfig : ConfigSection, IRemoteServiceConfig
         get
         {
             if (GetSection(nameof(ServiceCustomConfig)).GetChildren().Any())
-                return serviceCustomConfig ??= new ServiceCustomConfig(ConfigRoot, Path + ":" + nameof(ServiceCustomConfig));
+                return serviceCustomConfig ??= new ServiceCustomConfig(ConfigRoot, $"{Path}{Split}{nameof(ServiceCustomConfig)}");
             return null;
         }
-        set => serviceCustomConfig = value != null ? new ServiceCustomConfig(value, ConfigRoot, Path + ":" + nameof(ServiceCustomConfig)) : null;
+        set => serviceCustomConfig = value != null ? new ServiceCustomConfig(value, ConfigRoot, $"{Path}{Split}{nameof(ServiceCustomConfig)}") : null;
     }
 
     public static void ClearValues(IConfigurationRoot root, string path)
     {
-        root[path + ":" + nameof(Name)] = null;
-        root[path + ":" + nameof(StreamType)] = null;
-        root[path + ":" + nameof(Description)] = null;
-        root[path + ":" + nameof(ClientInitiatorFullClassName)] = null;
-        root[path + ":" + nameof(RemoteServiceConnectionConfigs)] = null;
-        root[path + ":" + nameof(ServiceCustomConfig)] = null;
+        root[$"{path}{Split}{nameof(Name)}"] = null;
+        root[$"{path}{Split}{nameof(StreamType)}"] = null;
+        root[$"{path}{Split}{nameof(Description)}"] = null;
+        root[$"{path}{Split}{nameof(ClientInitiatorFullClassName)}"] = null;
+        root[$"{path}{Split}{nameof(RemoteServiceConnectionConfigs)}"] = null;
+        root[$"{path}{Split}{nameof(ServiceCustomConfig)}"] = null;
     }
 }

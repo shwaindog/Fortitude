@@ -1,7 +1,7 @@
 #region
 
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Configuration;
 using FortitudeCommon.Types;
 using FortitudeIO.Transports.Network.Config;
 using Microsoft.Extensions.Configuration;
@@ -22,13 +22,15 @@ public interface IPricingServerConfig : IInterfacesComparable<IPricingServerConf
 
     bool IsPricePublisher { get; }
 
-    int                  HeartBeatPublishIntervalMs      { get; set; }
-    int                  HeartBeatServerToleranceRangeMs { get; set; }
-    int                  MaxMissedHeartBeats             { get; set; }
-    bool                 IsLastLook                      { get; set; }
-    bool                 SupportsIceBergs                { get; set; }
-    uint                 SyncRetryIntervalMs             { get; set; }
-    bool                 AllowUpdatesCatchup             { get; set; }
+    int HeartBeatPublishIntervalMs      { get; set; }
+    int HeartBeatServerToleranceRangeMs { get; set; }
+
+    int  MaxMissedHeartBeats { get; set; }
+    bool IsLastLook          { get; set; }
+    bool SupportsIceBergs    { get; set; }
+    uint SyncRetryIntervalMs { get; set; }
+    bool AllowUpdatesCatchup { get; set; }
+
     IPricingServerConfig ToggleProtocolDirection();
     IPricingServerConfig ShiftPortsBy(ushort deltaPorts);
 }
@@ -85,7 +87,7 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
     {
         get
         {
-            var snapshotConn = new NetworkTopicConnectionConfig(ConfigRoot, Path + ":" + nameof(SnapshotConnectionConfig))
+            var snapshotConn = new NetworkTopicConnectionConfig(ConfigRoot, $"{Path}{Split}{nameof(SnapshotConnectionConfig)}")
             {
                 ParentConnectionName = ConnectionName + SnapshotConnectionNameSuffix
             };
@@ -105,7 +107,7 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
             {
                 value.ConnectionName = ConnectionName + SnapshotConnectionNameSuffix;
             }
-            _ = new NetworkTopicConnectionConfig(value, ConfigRoot, Path + ":" + nameof(SnapshotConnectionConfig));
+            _ = new NetworkTopicConnectionConfig(value, ConfigRoot, $"{Path}{Split}{nameof(SnapshotConnectionConfig)}");
         }
     }
 
@@ -113,7 +115,7 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
     {
         get
         {
-            var updatesConn = new NetworkTopicConnectionConfig(ConfigRoot, Path + ":" + nameof(UpdateConnectionConfig))
+            var updatesConn = new NetworkTopicConnectionConfig(ConfigRoot, $"{Path}{Split}{nameof(UpdateConnectionConfig)}")
             {
                 ParentConnectionName = ConnectionName + UpdatesConnectionNameSuffix
             };
@@ -133,7 +135,7 @@ public class PricingServerConfig : ConfigSection, IPricingServerConfig
             {
                 value.ConnectionName = ConnectionName + UpdatesConnectionNameSuffix;
             }
-            _ = new NetworkTopicConnectionConfig(value, ConfigRoot, Path + ":" + nameof(UpdateConnectionConfig));
+            _ = new NetworkTopicConnectionConfig(value, ConfigRoot, $"{Path}{Split}{nameof(UpdateConnectionConfig)}");
         }
     }
 

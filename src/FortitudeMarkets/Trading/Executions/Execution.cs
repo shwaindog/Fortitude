@@ -21,8 +21,8 @@ public class Execution : ReusableObject<IExecution>, IExecution
         Venue        = null!;
         VenueOrderId = null!;
         OrderId      = null!;
-        CounterParty = null!;
-        CounterParty = null!;
+        CounterPartyPortfolio = null!;
+        CounterPartyPortfolio = null!;
     }
 
     public Execution(IExecution toClone)
@@ -36,7 +36,7 @@ public class Execution : ReusableObject<IExecution>, IExecution
         Quantity            = toClone.Quantity;
         CumulativeQuantity  = toClone.CumulativeQuantity;
         CumulativeVwapPrice = toClone.CumulativeVwapPrice;
-        CounterParty        = toClone.CounterParty;
+        CounterPartyPortfolio        = toClone.CounterPartyPortfolio;
         ValueDate           = toClone.ValueDate;
         Type                = toClone.Type;
         ExecutionStageType  = toClone.ExecutionStageType;
@@ -45,7 +45,7 @@ public class Execution : ReusableObject<IExecution>, IExecution
     public Execution
     (IExecutionId executionId, IVenue venue, IVenueOrderId venueOrderId, IOrderId orderId,
         DateTime executionTime, decimal price, decimal quantity, decimal cumlativeQuantity,
-        decimal cumlativeVwapPrice, IParty counterParty, DateTime valueDate, ExecutionType type
+        decimal cumlativeVwapPrice, IPartyPortfolio counterPartyPortfolio, DateTime valueDate, ExecutionType type
       , ExecutionStageType stageType)
     {
         ExecutionId         = executionId;
@@ -57,7 +57,7 @@ public class Execution : ReusableObject<IExecution>, IExecution
         Quantity            = quantity;
         CumulativeQuantity  = cumlativeQuantity;
         CumulativeVwapPrice = cumlativeVwapPrice;
-        CounterParty        = counterParty;
+        CounterPartyPortfolio        = counterPartyPortfolio;
         ValueDate           = valueDate;
         Type                = type;
         ExecutionStageType  = stageType;
@@ -72,7 +72,7 @@ public class Execution : ReusableObject<IExecution>, IExecution
     public decimal            Quantity            { get; set; }
     public decimal            CumulativeQuantity  { get; set; }
     public decimal            CumulativeVwapPrice { get; set; }
-    public IParty             CounterParty        { get; set; }
+    public IPartyPortfolio             CounterPartyPortfolio        { get; set; }
     public DateTime           ValueDate           { get; set; }
     public ExecutionType      Type                { get; set; }
     public ExecutionStageType ExecutionStageType  { get; set; }

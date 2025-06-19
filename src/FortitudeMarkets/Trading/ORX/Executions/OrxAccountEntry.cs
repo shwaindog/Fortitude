@@ -18,10 +18,8 @@ public class OrxAccountEntry : OrxTradingMessage, ITransferState<OrxAccountEntry
 {
     public OrxAccountEntry() { }
 
-    public OrxAccountEntry(string account)
-        : this((MutableString)account) { }
 
-    public OrxAccountEntry(MutableString account) => Account = account;
+    public OrxAccountEntry(uint account) => Account = account;
 
     private OrxAccountEntry(OrxAccountEntry toClone)
     {
@@ -31,7 +29,7 @@ public class OrxAccountEntry : OrxTradingMessage, ITransferState<OrxAccountEntry
 
     public override uint MessageId => (uint)TradingMessageIds.AccountEntry;
 
-    [OrxMandatoryField(10)] public MutableString? Account { get; set; }
+    [OrxMandatoryField(10)] public uint Account { get; set; }
 
     public OrxAccountEntry CopyFrom(OrxAccountEntry source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         (OrxAccountEntry)CopyFrom((IVersionedMessage)source, copyMergeFlags);
@@ -42,15 +40,17 @@ public class OrxAccountEntry : OrxTradingMessage, ITransferState<OrxAccountEntry
     {
         base.CopyFrom(source, copyMergeFlags);
 
-        if (source is OrxAccountEntry accountEntry) Account = accountEntry.Account.SyncOrRecycle(Account);
+        if (source is OrxAccountEntry accountEntry)
+        {
+            Account = accountEntry.Account;
+        }
 
         return this;
     }
 
     public override void StateReset()
     {
-        Account?.DecrementRefCount();
-        Account = null;
+        Account = 0;
 
         base.StateReset();
     }

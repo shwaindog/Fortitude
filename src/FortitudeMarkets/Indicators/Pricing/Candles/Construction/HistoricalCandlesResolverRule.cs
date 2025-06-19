@@ -12,15 +12,15 @@ using FortitudeBusRules.Rules.Common.TimeSeries;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeIO.TimeSeries;
-using FortitudeIO.TimeSeries.FileSystem;
+using FortitudeIO.Storage.TimeSeries;
+using FortitudeIO.Storage.TimeSeries.FileSystem;
 using FortitudeMarkets.Indicators.Persistence;
 using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Converters;
-using FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules;
-using static FortitudeIO.TimeSeries.InstrumentType;
+using FortitudeMarkets.Pricing.PQ.Storage.TimeSeries.BusRules;
+using static FortitudeIO.Storage.TimeSeries.InstrumentType;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 
 #endregion

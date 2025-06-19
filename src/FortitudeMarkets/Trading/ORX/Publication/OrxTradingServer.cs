@@ -9,13 +9,11 @@ using FortitudeIO.Protocols.ORX.Authentication;
 using FortitudeIO.Protocols.ORX.ClientServer;
 using FortitudeIO.Protocols.ORX.Serdes.Deserialization;
 using FortitudeIO.Protocols.Serdes.Binary;
-using FortitudeMarkets.Trading;
 using FortitudeMarkets.Trading.Executions;
 using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Server;
 using FortitudeMarkets.Trading.Orders.Venues;
 using FortitudeMarkets.Trading.ORX.Executions;
-using FortitudeMarkets.Trading.ORX.Orders;
 using FortitudeMarkets.Trading.ORX.Orders.Client;
 using FortitudeMarkets.Trading.ORX.Orders.Server;
 using FortitudeMarkets.Trading.ORX.Orders.Venues;
@@ -32,7 +30,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
     private readonly ITradingFeed feed;
     private readonly AdapterOrderSessionTracker orderSessionTracker;
     private readonly Dictionary<string, bool> statuses = new();
-    private int adapterOrderId;
+    private uint adapterOrderId;
 
     public OrxTradingServer(IOrxMessageResponder acceptorSession, ITradingFeed feed, bool errorSupport = false)
         : base(acceptorSession, TradingVersionInfo.CurrentVersion)
@@ -126,20 +124,19 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
 
     private void OnSubmit(OrxOrderSubmitRequest orderSubmitRequest, MessageHeader messageHeader, IConversation conversation)
     {
-        var id = Interlocked.Increment(ref adapterOrderId).ToString();
+        var id = Interlocked.Increment(ref adapterOrderId);
         if (!Stopping)
         {
             var orxOrderPublisher = Recycler.Borrow<OrxOrderPublisher>();
-            orxOrderPublisher.Configure((IConversationRequester)conversation!, AcceptorSession, errorSupport);
+            orxOrderPublisher.Configure((IConversationRequester)conversation, AcceptorSession, errorSupport);
             orderSubmitRequest.OrderDetails!.OrderPublisher = orxOrderPublisher;
-            orderSubmitRequest.OrderDetails.OrderId.VenueAdapterOrderId = id;
+            orderSubmitRequest.OrderDetails.OrderId.AdapterOrderId = id;
 
             feed.SubmitOrderRequest(orderSubmitRequest);
             if (!orderSubmitRequest.OrderDetails.IsInError())
             {
-                var orxOrder = Recycler.Borrow<OrxOrder>();
-                orxOrder.CopyFrom(orderSubmitRequest.OrderDetails);
-                orderSessionTracker.RegisterOrderIdWithSession(orxOrder, conversation!);
+                var orxOrder = orderSubmitRequest.OrderDetails.AsOrxOrder().Clone();
+                orderSessionTracker.RegisterOrderIdWithSession(orxOrder, conversation);
             }
 
             orxOrderPublisher.DecrementRefCount();
@@ -161,7 +158,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
         if (!Stopping)
         {
             var previousOrder = orderSessionTracker.FindOrderFromSessionId(
-                orxAmendRequest.OrderDetails!.OrderId.VenueAdapterOrderId!, conversation!);
+                orxAmendRequest.OrderDetails!.OrderId.AdapterOrderId!.Value, conversation);
             if (previousOrder == null)
             {
                 var orxAmendReject = Recycler.Borrow<OrxAmendReject>();
@@ -183,8 +180,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
 
     private void OnCancel(OrxCancelRequest message, MessageHeader messageHeader, IConversation repositorySession)
     {
-        var order = orderSessionTracker.FindOrderFromSessionId(message.OrderId!.VenueAdapterOrderId!
-            , repositorySession!);
+        var order = orderSessionTracker.FindOrderFromSessionId(message.OrderId!.AdapterOrderId!.Value, repositorySession);
         if (order != null) feed.CancelOrder(order);
     }
 

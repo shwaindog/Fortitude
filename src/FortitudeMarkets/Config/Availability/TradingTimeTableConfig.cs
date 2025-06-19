@@ -2,7 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text.Json.Serialization;
-using FortitudeCommon.Configuration;
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using Microsoft.Extensions.Configuration;
@@ -55,14 +55,14 @@ public class TradingTimeTableConfig : ConfigSection, ITradingTimeTableConfig
         {
             if (GetSection(nameof(TradingScheduleConfig)).GetChildren().Any(cs => StringExtensions.IsNotNullOrEmpty(cs.Value)))
             {
-                return new DailyTradingScheduleConfig(ConfigRoot, Path + ":" + nameof(TradingScheduleConfig))
+                return new DailyTradingScheduleConfig(ConfigRoot, $"{Path}{Split}{nameof(TradingScheduleConfig)}")
                 {
                     ParentTimeZone = VenueOperatingTimeTable?.OperatingTimeZone
                 };
             }
             return ParentTradingTimeTableConfig?.TradingScheduleConfig;
         }
-        set => _ = value != null ? new DailyTradingScheduleConfig(value, ConfigRoot, Path + ":" + nameof(TradingScheduleConfig)) : null;
+        set => _ = value != null ? new DailyTradingScheduleConfig(value, ConfigRoot, $"{Path}{Split}{nameof(TradingScheduleConfig)}") : null;
     }
 
     public ITimeTableConfig? HighLiquidityTimeTable
@@ -71,13 +71,13 @@ public class TradingTimeTableConfig : ConfigSection, ITradingTimeTableConfig
         {
             if (GetSection(nameof(HighLiquidityTimeTable)).GetChildren().Any(cs => StringExtensions.IsNotNullOrEmpty(cs.Value)))
             {
-                var timeTableConfig = new TimeTableConfig(ConfigRoot, Path + ":" + nameof(HighLiquidityTimeTable));
+                var timeTableConfig = new TimeTableConfig(ConfigRoot, $"{Path}{Split}{nameof(HighLiquidityTimeTable)}");
 
                 return timeTableConfig;
             }
             return ParentTradingTimeTableConfig?.HighLiquidityTimeTable;
         }
-        set => _ = value != null ? new TimeTableConfig(value, ConfigRoot, Path + ":" + nameof(HighLiquidityTimeTable)) : null;
+        set => _ = value != null ? new TimeTableConfig(value, ConfigRoot, $"{Path}{Split}{nameof(HighLiquidityTimeTable)}") : null;
     }
 
     public ITradingTimeTableConfig? ParentTradingTimeTableConfig { get; set; }

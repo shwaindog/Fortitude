@@ -2,7 +2,6 @@
 
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes.Binary;
-using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeIO.Protocols.ORX.Authentication;
@@ -15,7 +14,7 @@ namespace FortitudeIO.Protocols.ORX.ClientServer;
 public abstract class OrxAuthenticatedClient
 {
     protected readonly IOrxClientRequester ClientRequester;
-    protected readonly MutableString DefaultAccount;
+    protected readonly uint DefaultAccount;
     protected readonly ILoginCredentials LoginCredentials;
     protected readonly string ServerName;
     protected bool IsLoggedIn;
@@ -23,7 +22,7 @@ public abstract class OrxAuthenticatedClient
     protected IFLogger Logger;
 
     protected OrxAuthenticatedClient(IOrxClientRequester clientRequester, string serverName,
-        ILoginCredentials loginCredentials, string defaultAccount)
+        ILoginCredentials loginCredentials, uint defaultAccount)
     {
         LoginCredentials = loginCredentials;
         DefaultAccount = defaultAccount;

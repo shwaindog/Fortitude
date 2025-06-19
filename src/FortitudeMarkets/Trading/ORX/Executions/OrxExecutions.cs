@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Collections;
+using System.Text;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serdes;
@@ -85,4 +86,20 @@ public class OrxExecutions : ReusableObject<IExecutions>, IExecutions
     }
 
     public override int GetHashCode() => ExecutionsList != null ? ExecutionsList.GetHashCode() : 0;
+
+    protected string EachExecutionOnNewLine()
+    {
+        var count = Count;
+        var sb    = new StringBuilder(count * 100);
+        for (int i = 0; i < count; i++)
+        {
+            var execution = this[i];
+            sb.Append("\n\t").Append(execution);
+            if (i < count - 1) sb.Append(",");
+        }
+        return sb.ToString();
+    }
+
+    public override string ToString() => 
+        $"{nameof(OrxExecutions)}{{{nameof(Count)}: {Count}, {nameof(ExecutionsList)}: {EachExecutionOnNewLine()}}}";
 }

@@ -42,21 +42,21 @@ public class TradingFeedHandle : ITradingFeed
 
     public void CancelOrder(IOrder order)
     {
-        var updatedOrder = Recycler.Borrow<Order>().CopyFrom(order);
+        var updatedOrder = order.Clone();
         updatedOrder.Status = OrderStatus.Dead;
         OrderUpdate?.Invoke(new OrderUpdate(updatedOrder, OrderUpdateEventType.OrderCancelled, TimeContext.UtcNow));
     }
 
     public void SuspendOrder(IOrder order)
     {
-        var updatedOrder = Recycler.Borrow<Order>().CopyFrom(order);
+        var updatedOrder = order.Clone();
         updatedOrder.Status = OrderStatus.Frozen;
         OrderUpdate?.Invoke(new OrderUpdate(updatedOrder, OrderUpdateEventType.OrderPaused, TimeContext.UtcNow));
     }
 
     public void ResumeOrder(IOrder order)
     {
-        var updatedOrder = Recycler.Borrow<Order>().CopyFrom(order);
+        var updatedOrder = order.Clone();
         updatedOrder.Status = OrderStatus.Active;
         OrderUpdate?.Invoke(new OrderUpdate(updatedOrder, OrderUpdateEventType.OrderResumed, TimeContext.UtcNow));
     }
@@ -86,7 +86,7 @@ public class TradingFeedHandle : ITradingFeed
 
     public void AmendOrderRequest(IOrder order, IOrderAmend amendOrderRequest)
     {
-        order.Product!.ApplyAmendment(amendOrderRequest);
+        order.ApplyAmendment(amendOrderRequest);
         var amendResponse = Recycler.Borrow<OrxOrderAmendResponse>();
         amendResponse.Order             = (OrxOrder)order;
         amendResponse.OrderUpdateType   = OrderUpdateEventType.OrderAmended;

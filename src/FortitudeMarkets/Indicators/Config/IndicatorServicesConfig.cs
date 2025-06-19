@@ -3,8 +3,8 @@
 
 #region
 
-using FortitudeCommon.Configuration;
-using FortitudeIO.TimeSeries.FileSystem.Config;
+using FortitudeCommon.Config;
+using FortitudeIO.Storage.TimeSeries.FileSystem.Config;
 using FortitudeMarkets.Config;
 using Microsoft.Extensions.Configuration;
 
@@ -44,10 +44,10 @@ public class IndicatorServicesConfig : ConfigSection, IIndicatorServicesConfig
     {
         get
         {
-            if (GetSection(nameof(MarketsConfig)).GetChildren().Any()) return new MarketsConfig(ConfigRoot, Path + ":" + nameof(MarketsConfig));
+            if (GetSection(nameof(MarketsConfig)).GetChildren().Any()) return new MarketsConfig(ConfigRoot, $"{Path}{Split}{nameof(MarketsConfig)}");
             return null;
         }
-        set => ignoreSuppressWarnings = value != null ? new MarketsConfig(value, ConfigRoot, Path + ":" + nameof(MarketsConfig)) : null;
+        set => ignoreSuppressWarnings = value != null ? new MarketsConfig(value, ConfigRoot, $"{Path}{Split}{nameof(MarketsConfig)}") : null;
     }
 
     public IFileRepositoryConfig? TimeSeriesFileRepositoryConfig
@@ -55,12 +55,12 @@ public class IndicatorServicesConfig : ConfigSection, IIndicatorServicesConfig
         get
         {
             if (GetSection(nameof(TimeSeriesFileRepositoryConfig)).GetChildren().Any())
-                return new FileRepositoryConfig(ConfigRoot, Path + ":" + nameof(TimeSeriesFileRepositoryConfig));
+                return new FileRepositoryConfig(ConfigRoot, $"{Path}{Split}{nameof(TimeSeriesFileRepositoryConfig)}");
             return null;
         }
         set =>
             ignoreSuppressWarnings
-                = value != null ? new FileRepositoryConfig(value, ConfigRoot, Path + ":" + nameof(TimeSeriesFileRepositoryConfig)) : null;
+                = value != null ? new FileRepositoryConfig(value, ConfigRoot, $"{Path}{Split}{nameof(TimeSeriesFileRepositoryConfig)}") : null;
     }
 
     public TimeSpan DefaultCachePricesTimeSpan
@@ -85,7 +85,7 @@ public class IndicatorServicesConfig : ConfigSection, IIndicatorServicesConfig
 
     public IPersistenceConfig PersistenceConfig
     {
-        get => new PersistenceConfig(ConfigRoot, Path + ":" + nameof(PersistenceConfig));
-        set => ignoreSuppressWarnings = new PersistenceConfig(value, ConfigRoot, Path + ":" + nameof(PersistenceConfig));
+        get => new PersistenceConfig(ConfigRoot, $"{Path}{Split}{nameof(PersistenceConfig)}");
+        set => ignoreSuppressWarnings = new PersistenceConfig(value, ConfigRoot, $"{Path}{Split}{nameof(PersistenceConfig)}");
     }
 }

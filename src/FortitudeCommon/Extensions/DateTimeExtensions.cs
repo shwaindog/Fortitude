@@ -19,6 +19,16 @@ public static class DateTimeExtensions
     public static readonly long MinTicks = DateTime.MinValue.Ticks;
     public static readonly long MaxTicks = DateTime.MaxValue.Ticks;
 
+    public static bool IsUnixEpochOrDefault(this DateTime checkDateTime) =>
+        checkDateTime == DateTime.MinValue || checkDateTime == DateTime.UnixEpoch;
+
+    public static bool IsNotUnixEpochOrDefault(this DateTime checkDateTime) => !checkDateTime.IsUnixEpochOrDefault();
+
+    public static bool IsNullOrUnixEpochOrDefault(this DateTime? checkDateTime) =>
+        checkDateTime == null || checkDateTime == DateTime.MinValue || checkDateTime == DateTime.UnixEpoch;
+
+    public static bool IsNotNullOrUnixEpochOrDefault(this DateTime? checkDateTime) => !checkDateTime.IsNullOrUnixEpochOrDefault();
+
     public static DateTime TruncToMicrosecondBoundary(this DateTime allTicks) => allTicks.AddTicks(-(allTicks.Ticks % TimeSpan.TicksPerMicrosecond));
 
     public static DateTimeOffset TruncToMicrosecondBoundary

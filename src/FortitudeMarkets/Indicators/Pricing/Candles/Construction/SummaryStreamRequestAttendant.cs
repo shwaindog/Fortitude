@@ -10,11 +10,11 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeIO.TimeSeries;
+using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Pricing;
 using FortitudeMarkets.Pricing.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules;
+using FortitudeMarkets.Pricing.PQ.Storage.TimeSeries.BusRules;
 using static FortitudeMarkets.Pricing.PQ.Converters.PQQuoteConverterExtensions;
 
 #endregion
@@ -54,12 +54,12 @@ public abstract class StreamRequestAttendant : CandleAttendantBase, ICandleStrea
         limitedRecycler.MaxTypeBorrowLimit = StreamRequest.PublishParams.MaxInflightEvents;
         var tickChannel    = ConstructingRule.CreateChannelFactory(ReceiveHistoricalPeriod, limitedRecycler);
         var channelRequest = tickChannel.ToChannelPublishRequest(-1, 50);
-        var retrieveUncachedRequest = new FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules.HistoricalCandleStreamRequest
+        var retrieveUncachedRequest = new FortitudeMarkets.Pricing.PQ.Storage.TimeSeries.BusRules.HistoricalCandleStreamRequest
             (State.PricingInstrumentId, channelRequest, requestRange);
 
         ReadCacheFromTime = requestRange.ToTime;
 
-        var expectResults = await ConstructingRule.RequestAsync<FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules.HistoricalCandleStreamRequest, bool>
+        var expectResults = await ConstructingRule.RequestAsync<FortitudeMarkets.Pricing.PQ.Storage.TimeSeries.BusRules.HistoricalCandleStreamRequest, bool>
             (HistoricalQuoteTimeSeriesRepositoryConstants.CandleRepoStreamRequest, retrieveUncachedRequest);
 
         if (!expectResults)

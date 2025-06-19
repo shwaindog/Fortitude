@@ -4,7 +4,7 @@
 #region
 
 using FortitudeBusRules.Injection;
-using FortitudeCommon.Configuration;
+using FortitudeCommon.Config;
 using Microsoft.Extensions.Configuration;
 
 #endregion
@@ -41,8 +41,8 @@ public class BusRulesConfig : ConfigSection
 
     public IQueuesConfig QueuesConfig
     {
-        get => queuesConfig ??= new QueuesConfig(ConfigRoot, Path + ":" + nameof(QueuesConfig));
-        set => queuesConfig = new QueuesConfig(value, ConfigRoot, Path + ":" + nameof(QueuesConfig));
+        get => queuesConfig ??= new QueuesConfig(ConfigRoot, $"{Path}{Split}{nameof(QueuesConfig)}");
+        set => queuesConfig = new QueuesConfig(value, ConfigRoot, $"{Path}{Split}{nameof(QueuesConfig)}");
     }
 
     public IClusterConfig? ClusterConfig
@@ -50,10 +50,10 @@ public class BusRulesConfig : ConfigSection
         get
         {
             if (GetSection(nameof(ClusterConfig)).GetChildren().Any())
-                return clusterConfig ??= new ClusterConfig(ConfigRoot, Path + ":" + nameof(ClusterConfig));
+                return clusterConfig ??= new ClusterConfig(ConfigRoot, $"{Path}{Split}{nameof(ClusterConfig)}");
             return null;
         }
-        set => clusterConfig = value != null ? new ClusterConfig(value, ConfigRoot, Path + ":" + nameof(ClusterConfig)) : null;
+        set => clusterConfig = value != null ? new ClusterConfig(value, ConfigRoot, $"{Path}{Split}{nameof(ClusterConfig)}") : null;
     }
 
     public IDependencyResolver? Resolver { get; set; }

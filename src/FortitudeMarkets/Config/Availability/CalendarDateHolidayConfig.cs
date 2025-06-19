@@ -156,7 +156,7 @@ public class CalendarDateHolidayConfig : CalendarDateMatchConfig, ICalendarDateH
 
     public new static void ClearValues(IConfigurationRoot root, string path)
     {
-        root[path + ":" + nameof(HolidayName)]     = null;
+        root[$"{path}{Split}{nameof(HolidayName)}"]     = null;
         CalendarDateMatchConfig.ClearValues(root, path);
     }
 

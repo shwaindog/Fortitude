@@ -1,4 +1,4 @@
-﻿using FortitudeCommon.Configuration;
+﻿using FortitudeCommon.Config;
 using FortitudeCommon.Types;
 using Microsoft.Extensions.Configuration;
 
