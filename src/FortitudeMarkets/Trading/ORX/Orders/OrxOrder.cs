@@ -19,7 +19,7 @@ using FortitudeMarkets.Trading.Orders.Products;
 using FortitudeMarkets.Trading.Orders.Venues;
 using FortitudeMarkets.Trading.ORX.CounterParties;
 using FortitudeMarkets.Trading.ORX.Executions;
-using FortitudeMarkets.Trading.ORX.Orders.Products.General;
+using FortitudeMarkets.Trading.ORX.Orders.SpotOrders;
 using FortitudeMarkets.Trading.ORX.Orders.Venues;
 
 #endregion
@@ -116,19 +116,19 @@ public abstract class OrxOrder : ReusableObject<IOrder>, IOrder, ITransferState<
 
     [OrxMandatoryField(4)] public OrderStatus Status { get; set; }
 
-    [OrxMandatoryField(5)] public DateTime? SubmitTime { get; set; }
+    [OrxOptionalField(6)] public DateTime? SubmitTime { get; set; }
 
-    [OrxOptionalField(6)] public DateTime? DoneTime { get; set; }
+    [OrxOptionalField(7)] public DateTime? DoneTime { get; set; }
 
-    [OrxOptionalField(7)] public OrxParties? Parties { get; set; }
+    [OrxOptionalField(8)] public OrxParties? Parties { get; set; }
 
-    [OrxOptionalField(8)] public OrxVenueCriteria? VenueSelectionCriteria { get; set; }
+    [OrxOptionalField(9)] public OrxVenueCriteria? VenueSelectionCriteria { get; set; }
 
-    [OrxOptionalField(9)] public OrxVenueOrders? VenueOrders { get; set; }
+    [OrxOptionalField(10)] public OrxVenueOrders? VenueOrders { get; set; }
 
-    [OrxOptionalField(10)] public OrxExecutions? Executions { get; set; }
+    [OrxOptionalField(11)] public OrxExecutions? Executions { get; set; }
 
-    [OrxOptionalField(11)] public MutableString? Message { get; set; } = new();
+    [OrxOptionalField(12)] public MutableString? Message { get; set; } = new();
 
     IMutableString? IOrder.Ticker
     {
@@ -136,11 +136,11 @@ public abstract class OrxOrder : ReusableObject<IOrder>, IOrder, ITransferState<
         set => Ticker = value as MutableString;
     }
 
-    [OrxOptionalField(12)] public MutableString? Ticker { get; set; }
+    [OrxOptionalField(13)] public MutableString? Ticker { get; set; }
 
-    [OrxOptionalField(13)] public bool IsError { get; set; }
+    [OrxOptionalField(14)] public bool IsError { get; set; }
 
-    [OrxOptionalField(14)] public bool IsComplete { get; set; }
+    [OrxOptionalField(15)] public bool IsComplete { get; set; }
 
     public abstract ProductType ProductType { get; }
 

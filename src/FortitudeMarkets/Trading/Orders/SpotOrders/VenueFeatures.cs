@@ -1,4 +1,4 @@
-﻿namespace FortitudeMarkets.Trading.Orders.Products;
+﻿namespace FortitudeMarkets.Trading.Orders.SpotOrders;
 
 [Flags]
 public enum VenueFeatures

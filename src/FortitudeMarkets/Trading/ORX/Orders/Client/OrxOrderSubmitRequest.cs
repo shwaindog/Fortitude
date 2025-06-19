@@ -11,7 +11,7 @@ using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarkets.Config;
 using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Client;
-using FortitudeMarkets.Trading.ORX.Orders.Products.General;
+using FortitudeMarkets.Trading.ORX.Orders.SpotOrders;
 using FortitudeMarkets.Trading.ORX.Session;
 
 #endregion

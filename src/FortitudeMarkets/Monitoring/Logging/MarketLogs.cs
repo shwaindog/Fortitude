@@ -4,7 +4,8 @@ using System.Text;
 using FortitudeMarkets.Trading.Executions;
 using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Client;
-using FortitudeMarkets.Trading.Orders.Products.General;
+using FortitudeMarkets.Trading.Orders.Products;
+using FortitudeMarkets.Trading.Orders.SpotOrders;
 using FortitudeMarkets.Trading.Orders.Venues;
 
 #endregion

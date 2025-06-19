@@ -7,6 +7,7 @@ using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Products;
 using Microsoft.Extensions.Configuration;
 using FortitudeCommon.Extensions;
+using FortitudeMarkets.Trading.Orders.SpotOrders;
 
 #endregion
 

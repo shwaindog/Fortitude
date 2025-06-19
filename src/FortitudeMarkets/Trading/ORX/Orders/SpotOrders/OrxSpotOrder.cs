@@ -8,13 +8,13 @@ using FortitudeMarkets.Trading.Executions;
 using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Client;
 using FortitudeMarkets.Trading.Orders.Products;
-using FortitudeMarkets.Trading.Orders.Products.General;
+using FortitudeMarkets.Trading.Orders.SpotOrders;
 using FortitudeMarkets.Trading.Orders.Venues;
 using FortitudeMarkets.Trading.ORX.Orders.Venues;
 
 #endregion
 
-namespace FortitudeMarkets.Trading.ORX.Orders.Products.General;
+namespace FortitudeMarkets.Trading.ORX.Orders.SpotOrders;
 
 public class OrxSpotOrder : OrxOrder, ISpotOrder
 {
@@ -76,21 +76,21 @@ public class OrxSpotOrder : OrxOrder, ISpotOrder
 
     [OrxMandatoryField(23)] public OrderType Type { get; set; }
 
-    [OrxOptionalField(16)] public decimal DisplaySize { get; set; }
+    [OrxOptionalField(20)] public decimal DisplaySize { get; set; }
 
-    [OrxOptionalField(17)] public decimal ExecutedPrice { get; set; }
+    [OrxOptionalField(21)] public decimal ExecutedPrice { get; set; }
 
-    [OrxOptionalField(18)] public decimal ExecutedSize { get; set; }
+    [OrxOptionalField(22)] public decimal ExecutedSize { get; set; }
 
-    [OrxOptionalField(19)] public decimal SizeAtRisk { get; set; }
+    [OrxOptionalField(23)] public decimal SizeAtRisk { get; set; }
 
-    [OrxOptionalField(20)] public decimal AllowedPriceSlippage { get; set; }
+    [OrxOptionalField(24)] public decimal AllowedPriceSlippage { get; set; }
 
-    [OrxOptionalField(21)] public decimal AllowedVolumeSlippage { get; set; }
+    [OrxOptionalField(25)] public decimal AllowedVolumeSlippage { get; set; }
 
-    [OrxOptionalField(22)] public FillExpectation       FillExpectation  { get; set; }
+    [OrxOptionalField(26)] public FillExpectation       FillExpectation  { get; set; }
 
-    [OrxOptionalField(23)] public OrxVenuePriceQuoteId? QuoteInformation { get; set; }
+    [OrxOptionalField(27)] public OrxVenuePriceQuoteId? QuoteInformation { get; set; }
 
     IVenuePriceQuoteId? ISpotOrder.QuoteInformation
     {

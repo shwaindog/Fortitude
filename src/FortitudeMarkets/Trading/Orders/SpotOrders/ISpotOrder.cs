@@ -1,11 +1,11 @@
 ﻿#region
 
-using FortitudeCommon.Types.Mutable;
+using FortitudeMarkets.Trading.Orders.Products;
 using FortitudeMarkets.Trading.Orders.Venues;
 
 #endregion
 
-namespace FortitudeMarkets.Trading.Orders.Products.General;
+namespace FortitudeMarkets.Trading.Orders.SpotOrders;
 
 public interface ISpotOrder : IOrder
 {

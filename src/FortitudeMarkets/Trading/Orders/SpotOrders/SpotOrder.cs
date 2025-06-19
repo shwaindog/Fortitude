@@ -5,13 +5,14 @@ using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Trading.Counterparties;
 using FortitudeMarkets.Trading.Executions;
 using FortitudeMarkets.Trading.Orders.Client;
+using FortitudeMarkets.Trading.Orders.Products;
 using FortitudeMarkets.Trading.Orders.Venues;
 using FortitudeMarkets.Trading.ORX.Orders;
-using FortitudeMarkets.Trading.ORX.Orders.Products.General;
+using FortitudeMarkets.Trading.ORX.Orders.SpotOrders;
 
 #endregion
 
-namespace FortitudeMarkets.Trading.Orders.Products.General;
+namespace FortitudeMarkets.Trading.Orders.SpotOrders;
 
 public class SpotOrder : Order, ISpotOrder
 {

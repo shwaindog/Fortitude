@@ -9,8 +9,9 @@ using FortitudeIO.Protocols.ORX.Serdes.Serialization;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
 using FortitudeMarkets.Trading.Orders.Products;
 using FortitudeMarkets.Trading;
+using FortitudeMarkets.Trading.Orders.SpotOrders;
 using FortitudeMarkets.Trading.ORX.Orders;
-using FortitudeMarkets.Trading.ORX.Orders.Products.General;
+using FortitudeMarkets.Trading.ORX.Orders.SpotOrders;
 
 #endregion
 

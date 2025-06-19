@@ -11,11 +11,12 @@ using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Products;
 using FortitudeMarkets.Trading.Orders.Venues;
 using FortitudeMarkets.Trading;
+using FortitudeMarkets.Trading.Orders.SpotOrders;
 using FortitudeMarkets.Trading.ORX.CounterParties;
 using FortitudeMarkets.Trading.ORX.Executions;
 using FortitudeMarkets.Trading.ORX.Orders;
 using FortitudeMarkets.Trading.ORX.Orders.Client;
-using FortitudeMarkets.Trading.ORX.Orders.Products.General;
+using FortitudeMarkets.Trading.ORX.Orders.SpotOrders;
 using FortitudeMarkets.Trading.ORX.Orders.Venues;
 using FortitudeMarkets.Trading.ORX.Publication;
 
