@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeCommon.Configuration;
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeMarkets.Config.Availability;
@@ -129,7 +129,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(SubscribeToPrices)];
-            return checkValue.IsNotNullOrEmpty() ? bool.Parse(checkValue!) : null;
+            return checkValue.IsNotNullOrEmpty() ? bool.Parse(checkValue) : null;
         }
         set => this[nameof(SubscribeToPrices)] = value.ToString();
     }
@@ -139,7 +139,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(TradingEnabled)];
-            return checkValue.IsNotNullOrEmpty() ? bool.Parse(checkValue!) : null;
+            return checkValue.IsNotNullOrEmpty() ? bool.Parse(checkValue) : null;
         }
         set => this[nameof(TradingEnabled)] = value.ToString();
     }
@@ -149,7 +149,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(Pip)];
-            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue!) : null;
+            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue) : null;
         }
         set => this[nameof(Pip)] = value.ToString();
     }
@@ -159,7 +159,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(DefaultMaxValidMs)];
-            return checkValue.IsNotNullOrEmpty() ? uint.Parse(checkValue!) : null;
+            return checkValue.IsNotNullOrEmpty() ? uint.Parse(checkValue) : null;
         }
         set => this[nameof(DefaultMaxValidMs)] = value.ToString();
     }
@@ -171,13 +171,13 @@ public class TickerConfig : ConfigSection, ITickerConfig
             if (GetSection(nameof(MarketClassificationConfig))
                 .GetChildren()
                 .Any(c => c.Value.IsNotNullOrEmpty() && c.Value != "Unknown"))
-                return new MarketClassificationConfig(ConfigRoot, Path + ":" + nameof(MarketClassificationConfig));
+                return new MarketClassificationConfig(ConfigRoot, $"{Path}{Split}{nameof(MarketClassificationConfig)}");
             return null;
         }
         set =>
             _ = value != null
-                ? new MarketClassificationConfig(value, ConfigRoot, Path + ":" + nameof(MarketClassificationConfig))
-                : new MarketClassificationConfig(new MarketClassification(0), ConfigRoot, Path + ":" + nameof(MarketClassificationConfig));
+                ? new MarketClassificationConfig(value, ConfigRoot, $"{Path}{Split}{nameof(MarketClassificationConfig)}")
+                : new MarketClassificationConfig(new MarketClassification(0), ConfigRoot, $"{Path}{Split}{nameof(MarketClassificationConfig)}");
     }
 
     public ITimeTableConfig? ParentVenueOperatingTimeTableConfig { get; set; }
@@ -188,7 +188,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         {
             if (GetSection(nameof(TradingTimeTableConfig)).GetChildren().SelectMany(cs => cs.GetChildren()).Any(cs => cs.Value.IsNotNullOrEmpty()))
             {
-                var tradingTimeTable = new TradingTimeTableConfig(ConfigRoot, Path + ":" + nameof(TradingTimeTableConfig))
+                var tradingTimeTable = new TradingTimeTableConfig(ConfigRoot, $"{Path}{Split}{nameof(TradingTimeTableConfig)}")
                 {
                     VenueOperatingTimeTable = ParentVenueOperatingTimeTableConfig, 
                     ParentTradingTimeTableConfig = ParentTradingTimeTableConfig
@@ -206,7 +206,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
             {
                 value.TradingScheduleConfig = ParentTradingTimeTableConfig?.TradingScheduleConfig;
             }
-            _ = value != null ? new TradingTimeTableConfig(value, ConfigRoot, Path + ":" + nameof(TradingTimeTableConfig)) : null;
+            _ = value != null ? new TradingTimeTableConfig(value, ConfigRoot, $"{Path}{Split}{nameof(TradingTimeTableConfig)}") : null;
             if (value is TradingTimeTableConfig valueTradingTimeTableConfig)
             {
                 valueTradingTimeTableConfig.VenueOperatingTimeTable      = ParentVenueOperatingTimeTableConfig;
@@ -222,7 +222,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(TickerAvailability)];
-            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<TickerAvailability>(checkValue!) : null;
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<TickerAvailability>(checkValue) : null;
         }
         set => this[nameof(TickerAvailability)] = value.ToString();
     }
@@ -232,7 +232,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(PublishedDetailLevel)];
-            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<TickerQuoteDetailLevel>(checkValue!) : null;
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<TickerQuoteDetailLevel>(checkValue) : null;
         }
         set => this[nameof(PublishedDetailLevel)] = value.ToString();
     }
@@ -242,7 +242,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(RoundingPrecision)];
-            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue!) : null;
+            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue) : null;
         }
         set => this[nameof(RoundingPrecision)] = value?.ToString();
     }
@@ -252,7 +252,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(MinSubmitSize)];
-            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue!) : null;
+            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue) : null;
         }
         set => this[nameof(MinSubmitSize)] = value?.ToString();
     }
@@ -262,7 +262,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(MaxSubmitSize)];
-            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue!) : null;
+            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue) : null;
         }
         set => this[nameof(MaxSubmitSize)] = value?.ToString();
     }
@@ -272,7 +272,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(IncrementSize)];
-            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue!) : null;
+            return checkValue.IsNotNullOrEmpty() ? decimal.Parse(checkValue) : null;
         }
         set => this[nameof(IncrementSize)] = value?.ToString();
     }
@@ -282,7 +282,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(MinimumQuoteLife)];
-            return checkValue.IsNotNullOrEmpty() ? ushort.Parse(checkValue!) : null;
+            return checkValue.IsNotNullOrEmpty() ? ushort.Parse(checkValue) : null;
         }
         set => this[nameof(MinimumQuoteLife)] = value?.ToString();
     }
@@ -292,7 +292,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(LayerFlags)];
-            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<LayerFlags>(checkValue!) : null;
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<LayerFlags>(checkValue) : null;
         }
         set => this[nameof(LayerFlags)] = value.ToString();
     }
@@ -302,7 +302,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(MaximumPublishedLayers)];
-            return checkValue.IsNotNullOrEmpty() ? ushort.Parse(checkValue!) : null;
+            return checkValue.IsNotNullOrEmpty() ? ushort.Parse(checkValue) : null;
         }
         set => this[nameof(MaximumPublishedLayers)] = value?.ToString();
     }
@@ -312,7 +312,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(LastTradedFlags)];
-            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<LastTradedFlags>(checkValue!) : null;
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<LastTradedFlags>(checkValue) : null;
         }
         set => this[nameof(LastTradedFlags)] = value.ToString();
     }
@@ -322,7 +322,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         get
         {
             var checkValue = this[nameof(QuoteBehaviorFlags)];
-            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<PublishableQuoteInstantBehaviorFlags>(checkValue!) : null;
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<PublishableQuoteInstantBehaviorFlags>(checkValue) : null;
         }
         set => this[nameof(QuoteBehaviorFlags)] = value.ToString();
     }
@@ -376,24 +376,24 @@ public class TickerConfig : ConfigSection, ITickerConfig
 
     public static void ClearValues(IConfigurationRoot root, string path)
     {
-        root[path + ":" + nameof(InstrumentId)]               = null;
-        root[path + ":" + nameof(InstrumentName)]             = null;
-        root[path + ":" + nameof(TickerAvailability)]         = null;
-        root[path + ":" + nameof(PublishedDetailLevel)]       = null;
-        root[path + ":" + nameof(MarketClassificationConfig)] = null;
-        root[path + ":" + nameof(RoundingPrecision)]          = null;
-        root[path + ":" + nameof(Pip)]                        = null;
-        root[path + ":" + nameof(MinSubmitSize)]              = null;
-        root[path + ":" + nameof(MaxSubmitSize)]              = null;
-        root[path + ":" + nameof(IncrementSize)]              = null;
-        root[path + ":" + nameof(MinimumQuoteLife)]           = null;
-        root[path + ":" + nameof(DefaultMaxValidMs)]          = null;
-        root[path + ":" + nameof(SubscribeToPrices)]          = null;
-        root[path + ":" + nameof(TradingEnabled)]             = null;
-        root[path + ":" + nameof(LayerFlags)]                 = null;
-        root[path + ":" + nameof(MaximumPublishedLayers)]     = null;
-        root[path + ":" + nameof(LastTradedFlags)]            = null;
-        root[path + ":" + nameof(QuoteBehaviorFlags)]         = null;
+        root[$"{path}{Split}{nameof(InstrumentId)}"]               = null;
+        root[$"{path}{Split}{nameof(InstrumentName)}"]             = null;
+        root[$"{path}{Split}{nameof(TickerAvailability)}"]         = null;
+        root[$"{path}{Split}{nameof(PublishedDetailLevel)}"]       = null;
+        root[$"{path}{Split}{nameof(MarketClassificationConfig)}"] = null;
+        root[$"{path}{Split}{nameof(RoundingPrecision)}"]          = null;
+        root[$"{path}{Split}{nameof(Pip)}"]                        = null;
+        root[$"{path}{Split}{nameof(MinSubmitSize)}"]              = null;
+        root[$"{path}{Split}{nameof(MaxSubmitSize)}"]              = null;
+        root[$"{path}{Split}{nameof(IncrementSize)}"]              = null;
+        root[$"{path}{Split}{nameof(MinimumQuoteLife)}"]           = null;
+        root[$"{path}{Split}{nameof(DefaultMaxValidMs)}"]          = null;
+        root[$"{path}{Split}{nameof(SubscribeToPrices)}"]          = null;
+        root[$"{path}{Split}{nameof(TradingEnabled)}"]             = null;
+        root[$"{path}{Split}{nameof(LayerFlags)}"]                 = null;
+        root[$"{path}{Split}{nameof(MaximumPublishedLayers)}"]     = null;
+        root[$"{path}{Split}{nameof(LastTradedFlags)}"]            = null;
+        root[$"{path}{Split}{nameof(QuoteBehaviorFlags)}"]         = null;
     }
 
 

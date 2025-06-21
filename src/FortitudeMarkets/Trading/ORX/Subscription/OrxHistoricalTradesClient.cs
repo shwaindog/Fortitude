@@ -32,7 +32,7 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
 
     public OrxHistoricalTradesClient
     (IOrxClientRequester clientRequester, string serverName,
-        ILoginCredentials loginCredentials, string defaultAccount)
+        ILoginCredentials loginCredentials, uint defaultAccount)
         : base(clientRequester, serverName, loginCredentials, defaultAccount)
     {
         ClientRequester.SerializationRepository.RegisterSerializer<OrxGetOrderBookMessage>();
@@ -83,7 +83,7 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
 
     private void HandleOrderReplay(OrxOrderUpdate update, MessageHeader messageHeader, IConversation cx)
     {
-        var order = new Order(update.Order!);
+        var order = update.Order?.AsDomainOrder()!;
 
         lock (PastOrders)
         {
@@ -130,7 +130,7 @@ public class OrxHistoricalTradesClient : OrxAuthenticatedClient, ITradingHistory
                      .Where(execMsg => execMsg.Execution!.OrderId.ClientOrderId.ToString() == basicOrderKvP.Key))
         {
             if (PastOrders.TryGetValue(exeMsg.Execution!.OrderId.ClientOrderId.ToString(), out _))
-                basicOrderKvP.Value.Product!.RegisterExecution(exeMsg.Execution);
+                basicOrderKvP.Value.RegisterExecution(exeMsg.Execution);
             yield return exeMsg.Execution;
         }
     }

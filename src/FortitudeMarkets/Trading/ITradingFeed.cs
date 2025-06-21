@@ -4,6 +4,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Client;
 using FortitudeMarkets.Trading.Orders.Products;
+using FortitudeMarkets.Trading.Orders.SpotOrders;
 
 #endregion
 

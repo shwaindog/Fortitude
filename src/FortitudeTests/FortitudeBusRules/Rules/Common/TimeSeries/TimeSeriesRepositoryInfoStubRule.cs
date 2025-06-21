@@ -12,8 +12,8 @@ using FortitudeBusRules.Messages;
 using FortitudeBusRules.Rules;
 using FortitudeBusRules.Rules.Common.TimeSeries;
 using FortitudeCommon.Chronometry;
-using FortitudeIO.TimeSeries;
-using FortitudeIO.TimeSeries.FileSystem;
+using FortitudeIO.Storage.TimeSeries;
+using FortitudeIO.Storage.TimeSeries.FileSystem;
 using static FortitudeBusRules.Rules.Common.TimeSeries.TimeSeriesRepositoryConstants;
 
 #endregion

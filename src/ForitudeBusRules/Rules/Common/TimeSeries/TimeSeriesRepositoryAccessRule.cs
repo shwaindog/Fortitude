@@ -4,9 +4,9 @@
 #region
 
 using FortitudeCommon.Chronometry;
-using FortitudeIO.TimeSeries;
-using FortitudeIO.TimeSeries.FileSystem;
-using FortitudeIO.TimeSeries.FileSystem.Config;
+using FortitudeIO.Storage.TimeSeries.FileSystem.Config;
+using FortitudeIO.Storage.TimeSeries;
+using FortitudeIO.Storage.TimeSeries.FileSystem;
 
 #endregion
 

@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeCommon.Configuration;
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using Microsoft.Extensions.Configuration;
@@ -85,7 +85,7 @@ public class WeeklyTimeTableConfig : ConfigSection, IWeeklyTimeTableConfig
         get
         {
             var checkValue = this[nameof(DaysOfWeek)];
-            return StringExtensions.IsNotNullOrEmpty(checkValue) ? Enum.Parse<DayOfWeekFlags>(checkValue!) : DayOfWeekFlags.None;
+            return checkValue.IsNotNullOrEmpty() ? Enum.Parse<DayOfWeekFlags>(checkValue!) : DayOfWeekFlags.None;
         }
         set => this[nameof(DaysOfWeek)] = value.ToString();
     }
@@ -93,21 +93,21 @@ public class WeeklyTimeTableConfig : ConfigSection, IWeeklyTimeTableConfig
     public IWeeklyTimesConfig StartTimes
     {
         get =>
-            new WeeklyTimesConfig(ConfigRoot, Path + ":" + nameof(StartTimes))
+            new WeeklyTimesConfig(ConfigRoot, $"{Path}{Split}{nameof(StartTimes)}")
             {
                 ParentDaysOfWeek = DaysOfWeek, ParentTimeZone = OverrideTimeZone
             };
-        set => _ = new WeeklyTimesConfig(value, ConfigRoot, Path + ":" + nameof(StartTimes));
+        set => _ = new WeeklyTimesConfig(value, ConfigRoot, $"{Path}{Split}{nameof(StartTimes)}");
     }
 
     public IWeeklyTimesConfig StopTimes
     {
         get =>
-            new WeeklyTimesConfig(ConfigRoot, Path + ":" + nameof(StopTimes))
+            new WeeklyTimesConfig(ConfigRoot, $"{Path}{Split}{nameof(StopTimes)}")
             {
                 ParentDaysOfWeek = DaysOfWeek, ParentTimeZone = OverrideTimeZone
             };
-        set => _ = new WeeklyTimesConfig(value, ConfigRoot, Path + ":" + nameof(StopTimes));
+        set => _ = new WeeklyTimesConfig(value, ConfigRoot, $"{Path}{Split}{nameof(StopTimes)}");
     }
 
     public bool ShouldBeUp(DateTimeOffset atThisDateTime)

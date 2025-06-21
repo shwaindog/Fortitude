@@ -5,7 +5,7 @@
 
 using System.Globalization;
 using System.Text.Json.Serialization;
-using FortitudeCommon.Configuration;
+using FortitudeCommon.Config;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
@@ -158,11 +158,11 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
     public ITradingTimeTableConfig DefaultTickerTradingTimeTableConfig
     {
         get =>
-            new TradingTimeTableConfig(ConfigRoot, Path + ":" + nameof(DefaultTickerTradingTimeTableConfig))
+            new TradingTimeTableConfig(ConfigRoot, $"{Path}{Split}{nameof(DefaultTickerTradingTimeTableConfig)}")
             {
                 VenueOperatingTimeTable = ParentVenueOperatingTimeTableConfig
             };
-        set => _ = new TradingTimeTableConfig(value, ConfigRoot, Path + ":" + nameof(DefaultTickerTradingTimeTableConfig));
+        set => _ = new TradingTimeTableConfig(value, ConfigRoot, $"{Path}{Split}{nameof(DefaultTickerTradingTimeTableConfig)}");
     }
 
     public TickerAvailability DefaultTickerAvailability
@@ -187,8 +187,8 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
 
     public MarketClassificationConfig DefaultMarketClassificationConfig
     {
-        get => new(ConfigRoot, Path + ":" + nameof(DefaultMarketClassificationConfig));
-        set => _ = new MarketClassificationConfig(value, ConfigRoot, Path + ":" + nameof(DefaultMarketClassificationConfig));
+        get => new(ConfigRoot, $"{Path}{Split}{nameof(DefaultMarketClassificationConfig)}");
+        set => _ = new MarketClassificationConfig(value, ConfigRoot, $"{Path}{Split}{nameof(DefaultMarketClassificationConfig)}");
     }
 
     public decimal DefaultRoundingPrecision
@@ -334,7 +334,7 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
             foreach (var tickerConfigKvp in value)
             {
                 var checkTickerConfig = new TickerConfig(tickerConfigKvp.Value, ConfigRoot
-                                                       , Path + ":" + nameof(Tickers) + $":{tickerConfigKvp.Key}");
+                                                       , $"{Path}{Split}{nameof(Tickers)}:{tickerConfigKvp.Key}");
                 if (tickerConfigKvp.Value.InstrumentName.IsNotNullOrEmpty() && tickerConfigKvp.Key != tickerConfigKvp.Value.InstrumentName)
                     throw new
                         ArgumentException($"The key name '{tickerConfigKvp.Key}' for a ticker config does not match the configured ticker Value {tickerConfigKvp.Value.InstrumentName}");
@@ -345,7 +345,8 @@ public class SourceTickersConfig : ConfigSection, ISourceTickersConfig
             }
 
             var deletedKeys = oldKeys.Except(value.Keys.ToHashSet());
-            foreach (var deletedKey in deletedKeys) TickerConfig.ClearValues(ConfigRoot, Path + ":" + nameof(Tickers) + $":{deletedKey}");
+            foreach (var deletedKey in deletedKeys)
+                TickerConfig.ClearValues(ConfigRoot, $"{Path}{Split}{nameof(Tickers)}{Split}{deletedKey}");
         }
     }
 

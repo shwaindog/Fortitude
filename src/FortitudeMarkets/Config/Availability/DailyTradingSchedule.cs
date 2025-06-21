@@ -1,4 +1,4 @@
-﻿using FortitudeCommon.Configuration;
+﻿using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using Microsoft.Extensions.Configuration;
@@ -68,7 +68,7 @@ public class DailyTradingScheduleConfig : ConfigSection, IDailyTradingScheduleCo
         {
             if (GetSection(nameof(OverridePreferredTradingTimes)).GetChildren().Any(cs => StringExtensions.IsNotNullOrEmpty(cs.Value)))
             {
-                var pricingServerConfig = new TimeZoneStartStopTimeConfig(ConfigRoot, Path + ":" + nameof(OverridePreferredTradingTimes))
+                var pricingServerConfig = new TimeZoneStartStopTimeConfig(ConfigRoot, $"{Path}{Split}{nameof(OverridePreferredTradingTimes)}")
                 {
                     ParentTimeZone = ParentTimeZone
                 };
@@ -83,7 +83,7 @@ public class DailyTradingScheduleConfig : ConfigSection, IDailyTradingScheduleCo
                 valueTrStartStopTimeConfig.ParentTimeZone = ParentTimeZone;
             }
             _ = value != null
-                ? new TimeZoneStartStopTimeConfig(value, ConfigRoot, Path + ":" + nameof(OverridePreferredTradingTimes))
+                ? new TimeZoneStartStopTimeConfig(value, ConfigRoot, $"{Path}{Split}{nameof(OverridePreferredTradingTimes)}")
                 : null;
         }
     }
@@ -94,7 +94,7 @@ public class DailyTradingScheduleConfig : ConfigSection, IDailyTradingScheduleCo
         {
             if (GetSection(nameof(HighActivityTimes)).GetChildren().Any(cs => StringExtensions.IsNotNullOrEmpty(cs.Value)))
             {
-                var pricingServerConfig = new TimeZoneStartStopTimeConfig(ConfigRoot, Path + ":" + nameof(HighActivityTimes))
+                var pricingServerConfig = new TimeZoneStartStopTimeConfig(ConfigRoot, $"{Path}{Split}{nameof(HighActivityTimes)}")
                 {
                     ParentTimeZone = ParentTimeZone
                 };
@@ -109,7 +109,7 @@ public class DailyTradingScheduleConfig : ConfigSection, IDailyTradingScheduleCo
                 valueTrStartStopTimeConfig.ParentTimeZone = ParentTimeZone;
             }
             _ = value != null
-                ? new TimeZoneStartStopTimeConfig(value, ConfigRoot, Path + ":" + nameof(HighActivityTimes))
+                ? new TimeZoneStartStopTimeConfig(value, ConfigRoot, $"{Path}{Split}{nameof(HighActivityTimes)}")
                 : null;
         }
     }

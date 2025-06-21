@@ -29,7 +29,7 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, ITransferState<Or
 
     public OrxOrderUpdate(IOrder order, OrderUpdateEventType reason, DateTime adapterUpdateTime)
     {
-        Order             = order is OrxOrder orxOrder ? orxOrder : new OrxOrder(order);
+        Order             = order.AsOrxOrder();
         OrderUpdateType   = reason;
         AdapterUpdateTime = adapterUpdateTime;
     }
@@ -40,7 +40,7 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, ITransferState<Or
         get => order;
         set
         {
-            if (value == order) return;
+            if (ReferenceEquals(value, order)) return;
             value?.IncrementRefCount();
             order?.DecrementRefCount();
             order = value;
@@ -76,7 +76,13 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, ITransferState<Or
         base.CopyFrom(versionedMessage, copyMergeFlags);
         if (versionedMessage is IOrderUpdate orderUpdate)
         {
-            Order             = orderUpdate.Order.SyncOrRecycle(Order);
+            if (Order == null)
+            {
+                Order = orderUpdate.Order?.AsOrxOrder().Clone();
+            } else if (orderUpdate.Order != null)
+            {
+                Order.CopyFrom(orderUpdate.Order, copyMergeFlags);
+            }
             AdapterUpdateTime = orderUpdate.AdapterUpdateTime;
             OrderUpdateType   = orderUpdate.OrderUpdateType;
         }
@@ -87,7 +93,13 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, ITransferState<Or
     public IOrderUpdate CopyFrom(IOrderUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
-        Order             = source.Order.CopyOrClone(Order);
+        if (Order == null)
+        {
+            Order = source.Order?.AsOrxOrder().Clone();
+        } else if (source.Order != null)
+        {
+            Order.CopyFrom(source.Order, copyMergeFlags);
+        }
         OrderUpdateType   = source.OrderUpdateType;
         AdapterUpdateTime = source.AdapterUpdateTime;
         return this;
@@ -99,7 +111,13 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, ITransferState<Or
     public OrxOrderUpdate CopyFrom(OrxOrderUpdate source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
-        Order             = source.Order.CopyOrClone(Order);
+        if (Order == null)
+        {
+            Order = source.Order?.AsOrxOrder().Clone();
+        } else if (source.Order != null)
+        {
+            Order.CopyFrom(source.Order, copyMergeFlags);
+        }
         OrderUpdateType   = source.OrderUpdateType;
         AdapterUpdateTime = source.AdapterUpdateTime;
         return this;

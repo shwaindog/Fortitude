@@ -9,7 +9,7 @@ using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeIO.TimeSeries;
+using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Pricing.FeedEvents.AdapterExecutionDetails;
 
 #endregion

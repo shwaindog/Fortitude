@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.Configuration;
+using FortitudeCommon.Config;
 using FortitudeCommon.DataStructures.Lists;
 using Microsoft.Extensions.Configuration;
 
@@ -80,11 +80,11 @@ public class LocalServiceConfig : ConfigSection, ILocalServiceConfig
             var i = 0;
             foreach (var serviceEndpoint in value)
             {
-                ignoreSuppressWarnings = new ServiceEndpoint(serviceEndpoint, ConfigRoot, Path + ":" + nameof(Endpoints) + $":{i}");
+                ignoreSuppressWarnings = new ServiceEndpoint(serviceEndpoint, ConfigRoot, $"{Path}{Split}{nameof(Endpoints)}{Split}{i}");
                 i++;
             }
 
-            for (var j = i; j < oldCount; j++) ServiceEndpoint.ClearValues(ConfigRoot, Path + ":" + nameof(Endpoints) + $":{i}");
+            for (var j = i; j < oldCount; j++) ServiceEndpoint.ClearValues(ConfigRoot, $"{Path}{Split}{nameof(Endpoints)}{Split}{i}");
         }
     }
 
@@ -93,9 +93,9 @@ public class LocalServiceConfig : ConfigSection, ILocalServiceConfig
         get
         {
             if (GetSection(nameof(ServiceCustomConfig)).GetChildren().Any())
-                return serviceCustomConfig ??= new ServiceCustomConfig(ConfigRoot, Path + ":" + nameof(ServiceCustomConfig));
+                return serviceCustomConfig ??= new ServiceCustomConfig(ConfigRoot, $"{Path}{Split}{nameof(ServiceCustomConfig)}");
             return serviceCustomConfig;
         }
-        set => serviceCustomConfig = value != null ? new ServiceCustomConfig(value, ConfigRoot, Path + ":" + nameof(ServiceCustomConfig)) : null;
+        set => serviceCustomConfig = value != null ? new ServiceCustomConfig(value, ConfigRoot, $"{Path}{Split}{nameof(ServiceCustomConfig)}") : null;
     }
 }

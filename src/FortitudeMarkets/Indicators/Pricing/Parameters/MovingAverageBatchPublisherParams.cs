@@ -5,7 +5,7 @@
 
 using FortitudeBusRules.BusMessaging.Routing.Channel;
 using FortitudeCommon.Chronometry;
-using FortitudeIO.TimeSeries;
+using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Indicators.Pricing;
 using FortitudeMarkets.Pricing;
 

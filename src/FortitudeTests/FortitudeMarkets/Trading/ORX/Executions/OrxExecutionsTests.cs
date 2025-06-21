@@ -72,21 +72,17 @@ public class OrxExecutionsTests
             new(
                 new OrxExecutionId("FirstVenueExecutionId", 1234, "FirstVenuesBookingSystemId"),
                 new OrxVenue(1234, "FirstVenue"), new OrxVenueOrderId("FirstVenueClientOrderId", "FirstVenuesOrderId"),
-                new OrxOrderId(123, "Testing 123", 234, "Testing 234", new OrxOrderId(345, "Testing 345")
-                    , "TrackingId1234"),
+                new OrxOrderId(123, 123, 234, 234, new OrxOrderId(345, 1234,345)),
                 new DateTime(2018, 4, 1, 23, 44, 54), 1.23456m, 1_234_345m,
-                new OrxParty("PartyId", "PartyName", null,
-                    "PartyId", new OrxBookingInfo("", "")), DateTimeConstants.UnixEpoch, ExecutionType.CounterPartyGave
+                new OrxPartyPortfolio(1, 2), DateTimeConstants.UnixEpoch, ExecutionType.CounterPartyGave
                 , ExecutionStageType.Trade)
             , new(
                 new OrxExecutionId("SecondVenueExecutionId", 1234, "SecondVenuesBookingSystemId"),
                 new OrxVenue(2345, "SecondVenue")
                 , new OrxVenueOrderId("SecondVenueClientOrderId", "SecondVenuesOrderId"),
-                new OrxOrderId(123, "Testing 123", 234, "Testing 234", new OrxOrderId(345, "Testing 345")
-                    , "TrackingId1234"),
+                new OrxOrderId(123, 123, 234, 234, new OrxOrderId(345, 345, 345)),
                 new DateTime(2018, 4, 1, 23, 44, 54), 1.23456m, 1_234_345m,
-                new OrxParty("PartyId", "PartyName", null,
-                    "PartyId", new OrxBookingInfo("", "")), DateTimeConstants.UnixEpoch, ExecutionType.CounterPartyGave
+                new OrxPartyPortfolio(3, 4), DateTimeConstants.UnixEpoch, ExecutionType.CounterPartyGave
                 , ExecutionStageType.Trade)
         });
 

@@ -9,7 +9,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
-using FortitudeIO.TimeSeries;
+using FortitudeIO.Storage.TimeSeries;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Config;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;

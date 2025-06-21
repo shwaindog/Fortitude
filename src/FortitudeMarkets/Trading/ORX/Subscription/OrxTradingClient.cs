@@ -22,13 +22,15 @@ using FortitudeMarkets.Trading.Executions;
 using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Client;
 using FortitudeMarkets.Trading.Orders.Products;
-using FortitudeMarkets.Trading.Orders.Products.General;
 using FortitudeMarkets.Trading.Orders.Server;
+using FortitudeMarkets.Trading.Orders.SpotOrders;
 using FortitudeMarkets.Trading.Orders.Venues;
+using FortitudeMarkets.Trading.ORX.CounterParties;
 using FortitudeMarkets.Trading.ORX.Executions;
 using FortitudeMarkets.Trading.ORX.Orders;
 using FortitudeMarkets.Trading.ORX.Orders.Client;
 using FortitudeMarkets.Trading.ORX.Orders.Server;
+using FortitudeMarkets.Trading.ORX.Orders.SpotOrders;
 using FortitudeMarkets.Trading.ORX.Orders.Venues;
 using FortitudeMarkets.Trading.ORX.Session;
 
@@ -39,22 +41,25 @@ namespace FortitudeMarkets.Trading.ORX.Subscription;
 [SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
 public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
 {
-    private new static readonly IFLogger                   Logger       = FLoggerFactory.Instance.GetLogger(typeof(OrxTradingClient));
-    protected readonly          Dictionary<string, IOrder> ActiveOrders = new();
+    private new static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(OrxTradingClient));
+
+    protected readonly Dictionary<string, IOrder> ActiveOrders = new();
 
     private readonly IAlertManager? alertMgr;
 
     protected readonly Dictionary<string, IOrderAmend> AmendingOrders = new();
 
-    protected readonly bool                  CancelOnAmendReject;
-    private readonly   bool                  forwardAllMessages;
-    private readonly   ITradingFeedWatchdog? tradingFeedWatchdog;
-    private            IRecycler?            recycler;
+    protected readonly bool CancelOnAmendReject;
+    private readonly   bool forwardAllMessages;
+
+    private readonly ITradingFeedWatchdog? tradingFeedWatchdog;
+
+    private IRecycler? recycler;
 
     public OrxTradingClient
     (ITradingServerConfig tradingServerConfig, ISocketDispatcherResolver dispatchResolver
       , string serverName,
-        ILoginCredentials loginCredentials, string defaultAccount, bool forwardAllMessages,
+        ILoginCredentials loginCredentials, uint defaultAccount, bool forwardAllMessages,
         ITradingFeedWatchdog? tradingFeedWatchdog = null,
         IAlertManager? alertMgr = null, bool cancelOnAmendReject = true)
         : base(OrxClientMessaging.BuildTcpRequester(tradingServerConfig.TradingServerConnectionConfig, dispatchResolver)
@@ -72,53 +77,45 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         ClientRequester.Connected += () =>
         {
             ClientRequester.DeserializationRepository.RegisterDeserializer<OrxStatusMessage>()
-                           .AddDeserializedNotifier(
-                                                    new PassThroughDeserializedNotifier<
-                                                        OrxStatusMessage>($"{nameof(OrxTradingClient)}.{nameof(HandleStatusUpdate)}"
-                                                                        , HandleStatusUpdate));
+                           .AddDeserializedNotifier
+                               (new PassThroughDeserializedNotifier<OrxStatusMessage>
+                                   ($"{nameof(OrxTradingClient)}.{nameof(HandleStatusUpdate)}", HandleStatusUpdate));
             ClientRequester.DeserializationRepository.RegisterDeserializer<OrxVenueOrderUpdate>()
-                           .AddDeserializedNotifier(
-                                                    new PassThroughDeserializedNotifier<
-                                                        OrxVenueOrderUpdate>($"{nameof(OrxTradingClient)}.{nameof(HandleVenueOrder)}"
-                                                                           , HandleVenueOrder));
+                           .AddDeserializedNotifier
+                               (new PassThroughDeserializedNotifier<OrxVenueOrderUpdate>
+                                   ($"{nameof(OrxTradingClient)}.{nameof(HandleVenueOrder)}", HandleVenueOrder));
 
             ClientRequester.DeserializationRepository.RegisterDeserializer<OrxSubmitReject>()
-                           .AddDeserializedNotifier(
-                                                    new PassThroughDeserializedNotifier<
-                                                        OrxSubmitReject>($"{nameof(OrxTradingClient)}.{nameof(HandleSubmitReject)}"
-                                                                       , HandleSubmitReject));
+                           .AddDeserializedNotifier
+                               (new PassThroughDeserializedNotifier<OrxSubmitReject>
+                                   ($"{nameof(OrxTradingClient)}.{nameof(HandleSubmitReject)}", HandleSubmitReject));
             ClientRequester.DeserializationRepository.RegisterDeserializer<OrxCancelReject>()
-                           .AddDeserializedNotifier(
-                                                    new PassThroughDeserializedNotifier<
-                                                        OrxCancelReject>($"{nameof(OrxTradingClient)}.{nameof(HandleCancelReject)}"
-                                                                       , HandleCancelReject));
+                           .AddDeserializedNotifier
+                               (new PassThroughDeserializedNotifier<OrxCancelReject>
+                                   ($"{nameof(OrxTradingClient)}.{nameof(HandleCancelReject)}", HandleCancelReject));
             ClientRequester.DeserializationRepository.RegisterDeserializer<OrxAmendReject>()
-                           .AddDeserializedNotifier(
-                                                    new PassThroughDeserializedNotifier<
-                                                        OrxAmendReject>($"{nameof(OrxTradingClient)}.{nameof(HandleAmendReject)}"
-                                                                      , HandleAmendReject));
+                           .AddDeserializedNotifier
+                               (new PassThroughDeserializedNotifier<OrxAmendReject>
+                                   ($"{nameof(OrxTradingClient)}.{nameof(HandleAmendReject)}", HandleAmendReject));
             ClientRequester.DeserializationRepository.RegisterDeserializer<OrxOrderUpdate>()
-                           .AddDeserializedNotifier(
-                                                    new PassThroughDeserializedNotifier<
-                                                        OrxOrderUpdate>($"{nameof(OrxTradingClient)}.{nameof(HandleOrderUpdate)}"
-                                                                      , HandleOrderUpdate));
+                           .AddDeserializedNotifier
+                               (new PassThroughDeserializedNotifier<OrxOrderUpdate>
+                                   ($"{nameof(OrxTradingClient)}.{nameof(HandleOrderUpdate)}", HandleOrderUpdate));
             ClientRequester.DeserializationRepository.RegisterDeserializer<OrxOrderAmendResponse>()
-                           .AddDeserializedNotifier(
-                                                    new PassThroughDeserializedNotifier<
-                                                        OrxOrderAmendResponse>($"{nameof(OrxTradingClient)}.{nameof(HandleOrderAmendResponse)}"
-                                                                             , HandleOrderAmendResponse));
+                           .AddDeserializedNotifier
+                               (new PassThroughDeserializedNotifier<OrxOrderAmendResponse>
+                                   ($"{nameof(OrxTradingClient)}.{nameof(HandleOrderAmendResponse)}", HandleOrderAmendResponse));
             ClientRequester.DeserializationRepository.RegisterDeserializer<OrxExecutionUpdate>()
-                           .AddDeserializedNotifier(
-                                                    new PassThroughDeserializedNotifier<
-                                                        OrxExecutionUpdate>($"{nameof(OrxTradingClient)}.{nameof(HandleExecution)}"
-                                                                          , HandleExecution));
+                           .AddDeserializedNotifier
+                               (new PassThroughDeserializedNotifier<OrxExecutionUpdate>
+                                   ($"{nameof(OrxTradingClient)}.{nameof(HandleExecution)}", HandleExecution));
 
             ClientRequester.DeserializationRepository.RegisterDeserializer<OrxTickerMessage>()
-                           .AddDeserializedNotifier(
-                                                    new PassThroughDeserializedNotifier<
-                                                        OrxTickerMessage>($"{nameof(OrxTradingClient)}.ConstructorCallback",
-                                                                          (OrxTickerMessage m, MessageHeader c, IConversation cx) =>
-                                                                              Logger.Info("Instrument update: " + m)));
+                           .AddDeserializedNotifier
+                               (new PassThroughDeserializedNotifier<OrxTickerMessage>
+                                   ($"{nameof(OrxTradingClient)}.ConstructorCallback",
+                                    (m, _, _) =>
+                                        Logger.Info("Instrument update: " + m)));
         };
 
 
@@ -141,7 +138,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         ClientRequester.Start();
 
         this.tradingFeedWatchdog = tradingFeedWatchdog;
-        OrderIdGenFunc           = prefix => IdGen.Next(ServerName);
+        OrderIdGenFunc           = _ => IdGen.Next(ServerName);
     }
 
     public IRecycler Recycler
@@ -202,7 +199,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         }
         else
         {
-            Logger.Info(new NewOrderLog((ISpotOrder)order.Product!));
+            Logger.Info(new NewOrderLog((ISpotOrder)order));
             lock (ActiveOrders)
             {
                 order.IncrementRefCount();
@@ -258,13 +255,17 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
 
             if ((SupportedVenueFeatures & VenueFeatures.Amends) > 0)
             {
-                var amendSize = amendOrderRequest.NewQuantity;
-                if (amendOrderRequest.NewDisplaySize > 0 && (SupportedVenueFeatures & VenueFeatures.IceBerg) == 0)
-                    amendSize = Math.Min(amendOrderRequest.NewDisplaySize, amendSize);
-                if (order.Product!.RequiresAmendment(amendOrderRequest))
+                if (order.RequiresAmendment(amendOrderRequest))
                 {
                     Logger.Info(new AmendOrderLog(order, amendOrderRequest));
-                    ClientRequester.Send(new OrxAmendRequest(new OrxOrder(order), 0,
+                    var orxOrder = order switch
+                                   {
+                                       ISpotOrder spotOrder => new OrxSpotOrder(spotOrder)
+                                     , _ => new OrxSpotOrder((ISpotOrder)order)
+                                   };
+
+
+                    ClientRequester.Send(new OrxAmendRequest(orxOrder, 0,
                                                              TimeContext.UtcNow,
                                                              TimeContext.UtcNow, null, new OrxOrderAmend(amendOrderRequest)));
                 }
@@ -272,7 +273,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
                 {
                     Logger.Info("No need to amend order " + order.OrderId.ClientOrderId +
                                 " on the exchange as nothing changes.");
-                    Logger.Info(new OrderAmendLog((ISpotOrder)order.Product));
+                    Logger.Info(new OrderAmendLog((ISpotOrder)order));
                     lock (AmendingOrders)
                     {
                         if (AmendingOrders.TryGetValue(orderKey, out var amendOrder))
@@ -294,7 +295,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         else
         {
             RaiseOrderError(order, "Cannot amend order: " + ServerName + " not available");
-            Logger.Warn(new AbortedOrderLog((ISpotOrder)order.Product!));
+            Logger.Warn(new AbortedOrderLog((ISpotOrder)order));
             OnOrderUpdate(new OrderUpdate(order, OrderUpdateEventType.OrderAmended, TimeContext.UtcNow));
         }
     }
@@ -304,16 +305,20 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         RaiseOrderError(order, (MutableString)errorMsg);
     }
 
-    private void RaiseOrderError(IOrder order, IMutableString errorMsg)
+    private void RaiseOrderError(IOrder order, IMutableString _)
     {
-        Logger.Warn(new AbortedOrderLog((ISpotOrder)order.Product!));
+        Logger.Warn(new AbortedOrderLog((ISpotOrder)order));
         OnOrderUpdate(new OrderUpdate(order, OrderUpdateEventType.Error, TimeContext.UtcNow));
     }
 
     protected virtual OrxOrderSubmitRequest BuildSubmitRequest(IOrderSubmitRequest orderSubmitRequest)
     {
-        if (MutableString.IsNullOrEmpty(orderSubmitRequest.OrderDetails?.Parties?.SellSide?.Portfolio?.Portfolio))
-            orderSubmitRequest.OrderDetails!.Parties!.SellSide!.Portfolio!.Portfolio = DefaultAccount;
+        if (orderSubmitRequest.OrderDetails!.Parties!.SellSide?.PortfolioId == null)
+        {
+            orderSubmitRequest.OrderDetails!.Parties!.SellSide ??= new OrxPartyPortfolio(DefaultAccount);
+
+            orderSubmitRequest.OrderDetails!.Parties!.SellSide!.PortfolioId = DefaultAccount;
+        }
         if (orderSubmitRequest is not OrxOrderSubmitRequest orxOrderSubmitRequest)
         {
             orxOrderSubmitRequest = Recycler.Borrow<OrxOrderSubmitRequest>();
@@ -328,7 +333,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
     private void OnDisconnecting()
     {
         Logger.Info("Disconnection detected, will try to cancel sent orders.");
-        for (var disconectionAttempt = 0; ActiveOrders.Count > 0 && disconectionAttempt < 5; disconectionAttempt++)
+        for (var disconnectionAttempt = 0; ActiveOrders.Count > 0 && disconnectionAttempt < 5; disconnectionAttempt++)
         {
             IEnumerable<IOrder> activeOrdersOnDisconnect;
             lock (ActiveOrders)
@@ -343,7 +348,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
                     && sentTimeout > 0)
                 {
                     Logger.Info(
-                                "Order {0} not acknowledged yet, waiting...", order.ToString());
+                                "Order {0} not acknowledged yet, waiting...", order);
                     sentTimeout--;
                     Thread.Sleep(20);
                 }
@@ -352,7 +357,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
                  && order.Status != OrderStatus.PendingNew)
                     if (order.Status == OrderStatus.Dead)
                         Logger.Info(
-                                    "Order {0} is already Dead. No need to cancel it anymore.", order.ToString());
+                                    "Order {0} is already Dead. No need to cancel it anymore.", order);
                     else
                         CancelOrder(order);
             }
@@ -360,9 +365,9 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
             if (ActiveOrders.Count > 0) Thread.Sleep(100);
             if (ActiveOrders.Count > 0)
                 Logger.Info(
-                            "Orders still not finished after disconectionAttempt {0} from Orx. There are still {1} " +
+                            "Orders still not finished after disconnectionAttempt {0} from Orx. There are still {1} " +
                             "orders active. We tried to cancel {2} of them.",
-                            disconectionAttempt, ActiveOrders.Count, activeOrdersOnDisconnect.Count());
+                            disconnectionAttempt, ActiveOrders.Count, activeOrdersOnDisconnect.Count());
         }
     }
 
@@ -418,7 +423,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         {
             foreach (var order in ActiveOrders.Values)
             {
-                Logger.Info(new OrderUpdateLog((ISpotOrder)order.Product!));
+                Logger.Info(new OrderUpdateLog((ISpotOrder)order));
                 OnOrderUpdate(new OrderUpdate(order, OrderUpdateEventType.Error, TimeContext.UtcNow));
             }
 
@@ -496,8 +501,8 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         var order    = GetActiveOrder(orderKey);
         RemoveActiveOrder(orderKey);
 
-        Logger.Info(new OrderUpdateLog((ISpotOrder)order!.Product!));
-        OnOrderUpdate(new OrderUpdate(order, OrderUpdateEventType.OrderRejected, TimeContext.UtcNow));
+        Logger.Info(new OrderUpdateLog((ISpotOrder)order!));
+        OnOrderUpdate(new OrderUpdate(order!, OrderUpdateEventType.OrderRejected, TimeContext.UtcNow));
     }
 
     private void HandleCancelReject(OrxCancelReject message, MessageHeader messageHeader, IConversation cx) { }
@@ -543,11 +548,11 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
     private void HandleOrderUpdate(OrxOrderUpdate update, MessageHeader messageHeader, IConversation cx)
     {
         var orderOrderId = update.Order!.OrderId.Clone();
-        Logger.Info("*** OrderEvt {0} {1}", update.Order.ToString(), update.OrderUpdateType);
+        Logger.Info("*** OrderEvt {0} {1}", update.Order, update.OrderUpdateType);
 
         if (update.OrderUpdateType == OrderUpdateEventType.OrderCancelSent)
         {
-            Logger.Warn("Adapter received cancel for order Id={0} ForceID={1} {2}", orderOrderId);
+            Logger.Warn("Adapter received cancel for order Id={0} ForceID={1} {2}", orderOrderId, update.Order, update.OrderUpdateType);
             return;
         }
 
@@ -566,7 +571,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
             return;
         }
 
-        Logger.Info("HandleOrderUpdate cached order is {0}", order.ToString());
+        Logger.Info("HandleOrderUpdate cached order is {0}", order);
 
         IOrderAmend? amend;
         lock (AmendingOrders)
@@ -583,7 +588,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         order.OrderId = orderOrderId;
 
         var oldStatus = order.Status;
-        order.Product?.CopyFrom(update.Order.Product!);
+        order.CopyFrom(update.Order);
         if (update.OrderUpdateType == OrderUpdateEventType.OrderUnsent
          || update.OrderUpdateType == OrderUpdateEventType.OrderRejected)
         {
@@ -598,7 +603,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         }
         else if (update.OrderUpdateType == OrderUpdateEventType.Error)
         {
-            order.Product!.CopyFrom(update.Order.Product!);
+            order.CopyFrom(update.Order);
         }
         else
         {
@@ -607,13 +612,13 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
 
         if (oldStatus != order.Status)
         {
-            Logger.Info(new OrderUpdateLog((ISpotOrder)order.Product!));
+            Logger.Info(new OrderUpdateLog((ISpotOrder)order));
             OnOrderUpdate(update);
         }
         else if (amend != null)
         {
-            order.Product!.ApplyAmendment(amend);
-            Logger.Info(new OrderAmendLog((ISpotOrder)order.Product));
+            order.ApplyAmendment(amend);
+            Logger.Info(new OrderAmendLog((ISpotOrder)order));
             OnOrderAmend(order.Clone());
         }
 
@@ -637,12 +642,12 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
             {
                 if (PreTradeAsFinal)
                 {
-                    order.Product?.RegisterExecution(update.Execution.Clone());
+                    order.RegisterExecution(update.Execution.Clone());
                     NotifyExecution(update);
-                    if (order.Product?.IsComplete ?? true) order.Status = OrderStatus.Dead;
+                    if (order.IsComplete) order.Status = OrderStatus.Dead;
                 }
 
-                if (order.Product?.IsComplete ?? true) HandleOrderEol(new OrxOrderUpdate(order, OrderUpdateEventType.Execution, TimeContext.UtcNow));
+                if (order.IsComplete) HandleOrderEol(new OrxOrderUpdate(order, OrderUpdateEventType.Execution, TimeContext.UtcNow));
             }
             else
             {
@@ -670,16 +675,16 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
                 return;
             }
 
-            if (order.Executions == null) order.Executions = new Trading.Executions.Executions();
+            order.Executions ??= new Trading.Executions.Executions();
             order.Executions.Add(update.Execution.Clone());
-            order.Product!.RegisterExecution(update.Execution);
+            order.RegisterExecution(update.Execution);
             NotifyExecution(update);
 
-            if (order.Product.IsComplete)
+            if (order.IsComplete)
                 order.Status = OrderStatus.Dead;
-            else if (order.Product.IsError)
-                order.Product.Message = (MutableString)("Overfill on order (Id=" + update.Execution.ExecutionId +
-                                                        "). Please check with the exchange");
+            else if (order.IsError)
+                order.Message = (MutableString)("Overfill on order (Id=" + update.Execution.ExecutionId +
+                                                "). Please check with the exchange");
             HandleOrderEol(new OrderUpdate(order, OrderUpdateEventType.Execution, TimeContext.UtcNow));
         }
     }
@@ -699,8 +704,8 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
     {
         if (!orderUpdate.Order!.IsPending() && !orderUpdate.Order!.HasPendingExecutions())
         {
-            Logger.Info(new OrderUpdateLog((ISpotOrder)orderUpdate.Order!.Product!));
-            RemoveActiveOrder(orderUpdate.Order.OrderId.ClientOrderId.ToString());
+            Logger.Info(new OrderUpdateLog((ISpotOrder)orderUpdate.Order!));
+            RemoveActiveOrder(orderUpdate.Order!.OrderId.ClientOrderId.ToString());
         }
     }
 

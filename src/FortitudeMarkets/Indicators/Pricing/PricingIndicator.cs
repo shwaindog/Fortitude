@@ -7,7 +7,7 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeIO.TimeSeries;
+using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Config;
 using FortitudeMarkets.Pricing;
 

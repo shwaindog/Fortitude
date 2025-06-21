@@ -1,4 +1,4 @@
-﻿using FortitudeIO.TimeSeries;
+﻿using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Pricing.FeedEvents;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using static FortitudeMarkets.Pricing.TimeSeries.QuoteTimeSeriesStorageType;

@@ -9,7 +9,7 @@ using FortitudeBusRules.Rules;
 using FortitudeBusRules.Rules.Common.TimeSeries;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeIO.TimeSeries;
+using FortitudeIO.Storage.TimeSeries;
 using FortitudeMarkets.Indicators.Config;
 using FortitudeMarkets.Indicators.Persistence;
 using FortitudeMarkets.Indicators.Pricing;
@@ -22,7 +22,7 @@ using FortitudeMarkets.Pricing.FeedEvents.Candles;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
-using FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules;
+using FortitudeMarkets.Pricing.PQ.Storage.TimeSeries.BusRules;
 using static FortitudeCommon.Chronometry.TimeBoundaryPeriod;
 
 #endregion

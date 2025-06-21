@@ -4,7 +4,8 @@ using System.Text;
 using FortitudeMarkets.Trading.Executions;
 using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Client;
-using FortitudeMarkets.Trading.Orders.Products.General;
+using FortitudeMarkets.Trading.Orders.Products;
+using FortitudeMarkets.Trading.Orders.SpotOrders;
 using FortitudeMarkets.Trading.Orders.Venues;
 
 #endregion
@@ -30,9 +31,9 @@ public class NewOrderLog
     {
         var sb = new StringBuilder(256)
             .Append("New order: ")
-            .Append(order.Order?.VenueSelectionCriteria).Append(';')
-            .Append(order.Order?.OrderId.ClientOrderId).Append(';')
-            .Append(order.Order?.Parties).Append(';')
+            .Append(order.VenueSelectionCriteria).Append(';')
+            .Append(order.OrderId.ClientOrderId).Append(';')
+            .Append(order.Parties).Append(';')
             .Append(order.Side).Append(';')
             .Append(order.Ticker).Append(';')
             .Append(price).Append(';')
@@ -51,9 +52,9 @@ public class AbortedOrderLog
     public override string ToString() =>
         new StringBuilder(256)
             .Append("Aborted order: ")
-            .Append(order.Order?.VenueSelectionCriteria).Append(';')
-            .Append(order.Order?.OrderId.ClientOrderId).Append(';')
-            .Append(order.Order?.Parties).Append(';')
+            .Append(order.VenueSelectionCriteria).Append(';')
+            .Append(order.OrderId.ClientOrderId).Append(';')
+            .Append(order.Parties).Append(';')
             .Append(order.Side).Append(';')
             .Append(order.Ticker).Append(';')
             .Append(order.Price).Append(';')
@@ -73,9 +74,9 @@ public class OrderUpdateLog
 
     public OrderUpdateLog(ISpotOrder order)
     {
-        id = order.Order?.OrderId?.VenueClientOrderId?.ToString()!;
-        venueCriteria = order.Order?.VenueSelectionCriteria;
-        status = order.Order?.Status ?? OrderStatus.New;
+        id = order.OrderId.ClientOrderId.ToString();
+        venueCriteria = order.VenueSelectionCriteria;
+        status = order.Status;
         size = order.Size;
         price = order.Price;
         message = order.Message?.ToString();
@@ -106,9 +107,9 @@ public class OrderAmendLog
 
     public OrderAmendLog(ISpotOrder order)
     {
-        id = order.Order?.OrderId?.VenueClientOrderId?.ToString()!;
-        exchangeId = order.Order?.VenueSelectionCriteria;
-        status = order.Order?.Status ?? OrderStatus.Unknown;
+        id = order.OrderId.ClientOrderId.ToString();
+        exchangeId = order.VenueSelectionCriteria;
+        status = order.Status;
         size = order.Size;
         executedSize = order.ExecutedSize;
         price = order.Price;
@@ -140,7 +141,7 @@ public class ExecutionLog
             .Append("Execution received for order (ID=").Append(execution.ExecutionId)
             .Append("): ")
             .Append(execution.Venue).Append(';')
-            .Append(execution.CounterParty).Append(';')
+            .Append(execution.CounterPartyPortfolio).Append(';')
             .Append(execution.Price).Append(';')
             .Append(execution.Quantity)
             .ToString();
@@ -150,7 +151,7 @@ public class CancelOrderLog
 {
     private readonly string id;
 
-    public CancelOrderLog(IOrder order) => id = order.OrderId.VenueClientOrderId!.ToString()!;
+    public CancelOrderLog(IOrder order) => id = order.OrderId.ToString()!;
 
     public override string ToString() =>
         new StringBuilder(128)
@@ -162,7 +163,7 @@ public class SuspendOrderLog
 {
     private readonly string id;
 
-    public SuspendOrderLog(IOrder order) => id = order.OrderId.VenueClientOrderId!.ToString()!;
+    public SuspendOrderLog(IOrder order) => id = order.OrderId.ToString()!;
 
     public override string ToString() =>
         new StringBuilder(128)
@@ -174,7 +175,7 @@ public class ResumeOrderLog
 {
     private readonly string id;
 
-    public ResumeOrderLog(IOrder order) => id = order.OrderId.VenueClientOrderId!.ToString()!;
+    public ResumeOrderLog(IOrder order) => id = order.OrderId.ToString()!;
 
     public override string ToString() =>
         new StringBuilder(128)

@@ -5,7 +5,7 @@
 
 using System.Collections;
 using System.Text.Json.Serialization;
-using FortitudeCommon.Configuration;
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeIO.Transports.Network.Config;
 using Microsoft.Extensions.Configuration;
@@ -100,7 +100,7 @@ public class MarketsConfig : ConfigSection, IMarketsConfig
             foreach (var marketConConfigKvp in value)
             {
                 _ = new MarketConnectionConfig(marketConConfigKvp.Value, ConfigRoot
-                                             , Path + ":" + nameof(Markets) + $":{marketConConfigKvp.Key}");
+                                             , $"{Path}{Split}{nameof(Markets)}{Split}{marketConConfigKvp.Key}");
                 if (marketConConfigKvp.Value.SourceName.IsNotNullOrEmpty() && marketConConfigKvp.Key != marketConConfigKvp.Value.SourceName)
                     throw new
                         ArgumentException($"The key name '{marketConConfigKvp.Key}' for a ticker config does not match the configured ticker Value {marketConConfigKvp.Value.SourceName}");
@@ -117,7 +117,7 @@ public class MarketsConfig : ConfigSection, IMarketsConfig
             }
 
             var deletedKeys = oldKeys.Except(value.Keys.ToHashSet());
-            foreach (var deletedKey in deletedKeys) MarketConnectionConfig.ClearValues(ConfigRoot, Path + ":" + nameof(Markets) + $":{deletedKey}");
+            foreach (var deletedKey in deletedKeys) MarketConnectionConfig.ClearValues(ConfigRoot, $"{Path}{Split}{nameof(Markets)}{Split}{deletedKey}");
         }
     }
 
@@ -165,7 +165,7 @@ public class MarketsConfig : ConfigSection, IMarketsConfig
             foreach (var marketConConfigKvp in value)
             {
                 var checkMarketConConfig = new MarketConnectionConfig(marketConConfigKvp.Value, ConfigRoot
-                                                                    , Path + ":" + nameof(Markets) + $":{marketConConfigKvp.Key}");
+                                                                    , $"{Path}{Split}{nameof(Markets)}{Split}{marketConConfigKvp.Key}");
                 if (marketConConfigKvp.Value.SourceName.IsNotNullOrEmpty() && marketConConfigKvp.Key != marketConConfigKvp.Value.SourceName)
                     throw new
                         ArgumentException($"The key name '{marketConConfigKvp.Key}' for a ticker config does not match the configured ticker Value {marketConConfigKvp.Value.SourceName}");
@@ -173,7 +173,7 @@ public class MarketsConfig : ConfigSection, IMarketsConfig
             }
 
             var deletedKeys = oldKeys.Except(value.Keys.ToHashSet());
-            foreach (var deletedKey in deletedKeys) MarketConnectionConfig.ClearValues(ConfigRoot, Path + ":" + nameof(Markets) + $":{deletedKey}");
+            foreach (var deletedKey in deletedKeys) MarketConnectionConfig.ClearValues(ConfigRoot, $"{Path}{Split}{nameof(Markets)}{Split}{deletedKey}");
         }
     }
 
@@ -192,7 +192,8 @@ public class MarketsConfig : ConfigSection, IMarketsConfig
     {
         var shiftedMarketsConfig = new MarketsConfig(this)
         {
-            Markets = Markets.ToDictionary(mccKvp => mccKvp.Key, mccKvp => mccKvp.Value.ShiftPortsBy(deltaPorts))
+            Markets = Markets.ToDictionary(mccKvp => 
+                                               mccKvp.Key, mccKvp => mccKvp.Value.ShiftPortsBy(deltaPorts))
         };
         return shiftedMarketsConfig;
     }
@@ -215,12 +216,12 @@ public class MarketsConfig : ConfigSection, IMarketsConfig
     public bool AddOrUpdate(IMarketConnectionConfig item)
     {
         if (Markets.ContainsKey(item.SourceName))
-            Markets[item.SourceName] = new MarketConnectionConfig(item, ConfigRoot, Path + ":" + nameof(Markets) + $":{item.SourceName}")
+            Markets[item.SourceName] = new MarketConnectionConfig(item, ConfigRoot, $"{Path}{Split}{nameof(Markets)}{Split}{item.SourceName}")
             {
                 ConnectionName = ConnectionName
             };
         else
-            Markets.Add(item.SourceName, new MarketConnectionConfig(item, ConfigRoot, Path + ":" + nameof(Markets) + $":{item.SourceName}")
+            Markets.Add(item.SourceName, new MarketConnectionConfig(item, ConfigRoot, $"{Path}{Split}{nameof(Markets)}{Split}{item.SourceName}")
             {
                 ConnectionName = ConnectionName
             });

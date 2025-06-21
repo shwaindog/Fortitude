@@ -12,9 +12,9 @@ using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
-using FortitudeIO.TimeSeries;
-using FortitudeIO.TimeSeries.FileSystem;
-using FortitudeIO.TimeSeries.FileSystem.Session;
+using FortitudeIO.Storage.TimeSeries;
+using FortitudeIO.Storage.TimeSeries.FileSystem;
+using FortitudeIO.Storage.TimeSeries.FileSystem.Session;
 using FortitudeMarkets.Pricing;
 
 #endregion

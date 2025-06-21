@@ -2,7 +2,7 @@
 
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Trading.Orders.Products;
-using FortitudeMarkets.Trading.Orders.Products.General;
+using FortitudeMarkets.Trading.Orders.SpotOrders;
 
 #endregion
 

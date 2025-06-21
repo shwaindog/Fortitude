@@ -22,7 +22,7 @@ using FortitudeMarkets.Pricing.FeedEvents.TickerInfo;
 using FortitudeMarkets.Pricing.PQ.Converters;
 using FortitudeMarkets.Pricing.PQ.Messages.FeedEvents.Quotes;
 using FortitudeMarkets.Pricing.PQ.Subscription.BusRules;
-using FortitudeMarkets.Pricing.PQ.TimeSeries.BusRules;
+using FortitudeMarkets.Pricing.PQ.Storage.TimeSeries.BusRules;
 using FortitudeTests.FortitudeBusRules.BusMessaging;
 using FortitudeTests.FortitudeCommon.Chronometry;
 using FortitudeTests.FortitudeCommon.Chronometry.Timers;

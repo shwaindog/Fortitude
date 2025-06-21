@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeCommon.Configuration;
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using Microsoft.Extensions.Configuration;
@@ -177,10 +177,10 @@ public class CalendarDateMatchConfig : ConfigSection, ICalendarDateMatchConfig
 
     public static void ClearValues(IConfigurationRoot root, string path)
     {
-        root[path + ":" + nameof(Year)]            = null;
-        root[path + ":" + nameof(Month)]           = null;
-        root[path + ":" + nameof(Day)]             = null;
-        root[path + ":" + nameof(FloatingWeekday)] = null;
+        root[$"{path}{Split}{nameof(Year)}"]            = null;
+        root[$"{path}{Split}{nameof(Month)}"]           = null;
+        root[$"{path}{Split}{nameof(Day)}"]             = null;
+        root[$"{path}{Split}{nameof(FloatingWeekday)}"] = null;
     }
 
     object ICloneable.Clone() => Clone();

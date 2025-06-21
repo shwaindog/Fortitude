@@ -11,9 +11,9 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
-using FortitudeIO.TimeSeries;
-using FortitudeIO.TimeSeries.FileSystem;
-using FortitudeIO.TimeSeries.FileSystem.DirectoryStructure;
+using FortitudeIO.Storage.TimeSeries;
+using FortitudeIO.Storage.TimeSeries.FileSystem;
+using FortitudeIO.Storage.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeMarkets.Config;
 

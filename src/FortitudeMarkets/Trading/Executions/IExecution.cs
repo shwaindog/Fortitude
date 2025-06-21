@@ -20,7 +20,7 @@ public interface IExecution : IReusableObject<IExecution>
     decimal Quantity { get; set; }
     decimal CumulativeQuantity { get; set; }
     decimal CumulativeVwapPrice { get; set; }
-    IParty CounterParty { get; set; }
+    IPartyPortfolio CounterPartyPortfolio { get; set; }
     DateTime ValueDate { get; set; }
     ExecutionType Type { get; set; }
     ExecutionStageType ExecutionStageType { get; set; }

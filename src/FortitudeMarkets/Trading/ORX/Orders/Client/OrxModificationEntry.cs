@@ -1,7 +1,7 @@
 ﻿#region
 
 using FortitudeIO.Protocols.ORX.Serdes;
-using FortitudeMarkets.Trading.Orders.Products;
+using FortitudeMarkets.Trading.Orders.SpotOrders;
 
 #endregion
 

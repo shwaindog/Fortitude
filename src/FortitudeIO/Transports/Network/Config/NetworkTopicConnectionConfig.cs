@@ -4,7 +4,7 @@
 #region
 
 using System.Collections;
-using FortitudeCommon.Configuration;
+using FortitudeCommon.Config;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
@@ -226,12 +226,12 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
             var i        = 0;
             foreach (var remoteServiceConfig in value)
             {
-                var endpointConfig = new EndpointConfig(remoteServiceConfig, ConfigRoot, Path + ":" + nameof(AvailableConnections) + $":{i}");
+                var endpointConfig = new EndpointConfig(remoteServiceConfig, ConfigRoot, $"{Path}{Split}{nameof(AvailableConnections)}{Split}{i}");
                 UpdateEndpointConnectionName(endpointConfig, i);
                 i++;
             }
 
-            for (var j = i; j < oldCount; j++) EndpointConfig.ClearValues(ConfigRoot, Path + ":" + nameof(AvailableConnections) + $":{i}");
+            for (var j = i; j < oldCount; j++) EndpointConfig.ClearValues(ConfigRoot, $"{Path}{Split}{nameof(AvailableConnections)}{Split}{i}");
         }
     }
 
@@ -321,8 +321,8 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
 
     public ISocketReconnectConfig ReconnectConfig
     {
-        get => new SocketReconnectConfig(ConfigRoot, Path + $":{nameof(ReconnectConfig)}");
-        set => _ = new SocketReconnectConfig(value, ConfigRoot, Path + $":{nameof(ReconnectConfig)}");
+        get => new SocketReconnectConfig(ConfigRoot, $"{Path}{Split}{nameof(ReconnectConfig)}");
+        set => _ = new SocketReconnectConfig(value, ConfigRoot, $"{Path}{Split}{nameof(ReconnectConfig)}");
     }
 
     public IConnectedEndpoint? ConnectedEndpoint { get; set; }
@@ -363,18 +363,18 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
 
     public static void ClearValues(IConfigurationRoot root, string path)
     {
-        root[path + ":" + nameof(ConnectionName)]          = null;
-        root[path + ":" + nameof(TopicName)]               = null;
-        root[path + ":" + nameof(ConversationProtocol)]    = null;
-        root[path + ":" + nameof(AvailableConnections)]    = null;
-        root[path + ":" + nameof(TopicDescription)]        = null;
-        root[path + ":" + nameof(ReceiveBufferSize)]       = null;
-        root[path + ":" + nameof(SendBufferSize)]          = null;
-        root[path + ":" + nameof(ConnectionAttributes)]    = null;
-        root[path + ":" + nameof(NumberOfReceivesPerPoll)] = null;
-        root[path + ":" + nameof(ConnectionTimeoutMs)]     = null;
-        root[path + ":" + nameof(ResponseTimeoutMs)]       = null;
-        root[path + ":" + nameof(ReconnectConfig)]         = null;
+        root[$"{path}{Split}{nameof(ConnectionName)}"]          = null;
+        root[$"{path}{Split}{nameof(TopicName)}"]               = null;
+        root[$"{path}{Split}{nameof(ConversationProtocol)}"]    = null;
+        root[$"{path}{Split}{nameof(AvailableConnections)}"]    = null;
+        root[$"{path}{Split}{nameof(TopicDescription)}"]        = null;
+        root[$"{path}{Split}{nameof(ReceiveBufferSize)}"]       = null;
+        root[$"{path}{Split}{nameof(SendBufferSize)}"]          = null;
+        root[$"{path}{Split}{nameof(ConnectionAttributes)}"]    = null;
+        root[$"{path}{Split}{nameof(NumberOfReceivesPerPoll)}"] = null;
+        root[$"{path}{Split}{nameof(ConnectionTimeoutMs)}"]     = null;
+        root[$"{path}{Split}{nameof(ResponseTimeoutMs)}"]       = null;
+        root[$"{path}{Split}{nameof(ReconnectConfig)}"]         = null;
     }
 
     protected bool Equals(INetworkTopicConnectionConfig other)

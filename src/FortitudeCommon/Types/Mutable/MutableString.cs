@@ -861,7 +861,8 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return true;
     }
 
-    public static implicit operator MutableString(string? initial) => new(initial);
+
+    public static implicit operator MutableString(string? initial) => initial != null ? new(initial) : null!;
 
     public static bool operator ==(string lhs, MutableString rhs)
     {

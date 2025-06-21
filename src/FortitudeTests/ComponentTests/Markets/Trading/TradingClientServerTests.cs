@@ -19,8 +19,8 @@ using FortitudeMarkets.Trading.Executions;
 using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Client;
 using FortitudeMarkets.Trading.Orders.Products;
-using FortitudeMarkets.Trading.Orders.Products.General;
 using FortitudeMarkets.Trading.Orders.Server;
+using FortitudeMarkets.Trading.Orders.SpotOrders;
 using FortitudeMarkets.Trading.Orders.Venues;
 using FortitudeMarkets.Trading.ORX.Publication;
 using FortitudeMarkets.Trading.ORX.Subscription;
@@ -94,11 +94,11 @@ public class TradingClientServerTests
             (tradingServerConfig.ToggleProtocolDirection()
            , SingletonSocketDispatcherResolver.Instance
            , "TradingClientServerTest",
-             new LoginCredentials("testLoginId", "testPassword"), "testAccount", true, new TradingFeedWatchdog(),
+             new LoginCredentials("testLoginId", "testPassword"), 12221, true, new TradingFeedWatchdog(),
              new LoggingAlertManager(), false);
         orxClient.OrderUpdate += orderUpdate =>
         {
-            clientLastOrderReceived = new Order(orderUpdate.Order!);
+            clientLastOrderReceived = orderUpdate.Order!.AsDomainOrder();
             orderStatus             = orderUpdate.Order!.Status;
             logger.Info("****** ORDER UPDATED ******** orderStatus : {0} for order {1}", orderStatus, clientLastOrderReceived);
             // Console.WriteLine("orderStatus : {0}", orderStatus);
@@ -107,32 +107,14 @@ public class TradingClientServerTests
 
         Thread.Sleep(500);
         Assert.IsTrue(orxClient.IsAvailable);
-        var orderId      = new OrderId(1234, "Test1234", 0, "", null, "Tracking1234");
+        var orderId      = new OrderId(1234);
         var timeInForce  = TimeInForce.GoodTillCancelled;
         var creationTime = new DateTime(2018, 3, 30, 2, 4, 11);
         var orderSubmitRequest =
             new OrderSubmitRequest
-                (new Order
-                     (orderId, timeInForce,
-                      creationTime, OrderStatus.New
-                    , new SpotOrder
-                          (orderId, timeInForce, creationTime,
-                           OrderSide.Bid, "TestTicker", 1.23456m, 300_000L
-                         , OrderType.Limit, 100_000m
-                         , 0.00025m, 10_000m),
-                      new DateTime(2018, 3, 30, 2, 18, 2)
-                    , new Parties
-                          (null
-                         , new Party
-                               ("TestPartyId", "TestPartyName", null, "MyClientPartyId",
-                                new BookingInfo("TestAccount", "TestSubAccount")))
-                    , new DateTime(2018, 3, 30, 2, 18, 2),
-                      new VenueCriteria
-                          (new List<IVenue>()
-                           {
-                               new Venue(23, "TestVenue")
-                           },
-                           VenueSelectionMethod.Default), null, null, "", null),
+                (new SpotOrder (orderId, (ushort)1234, accountId: 9876u, OrderSide.Bid, 1.23456m, 300_000m
+                         , OrderType.Limit, creationTime, OrderStatus.PendingNew, timeInForce, null, 100_000m
+                         , 0.00025m, 10_000m, tickerName:  "TestTicker"),
                  1, new DateTime(2018, 3, 30, 2, 18, 2)
                , new DateTime(2018, 3, 30, 2, 18, 2), "Tag")
                 {
@@ -146,7 +128,7 @@ public class TradingClientServerTests
 
         Assert.IsNotNull(clientLastOrderReceived);
         Assert.AreEqual(OrderStatus.Active, orderStatus);
-        Assert.AreEqual((MutableString)"1", clientLastOrderReceived.OrderId.VenueAdapterOrderId);
+        Assert.AreEqual(1u, clientLastOrderReceived.OrderId.AdapterOrderId!.Value);
         var serverResponseOrder = serverResponseTradingHandler.LastReceivedOrder;
         Assert.IsNotNull(serverResponseOrder);
         serverResponseOrder.AutoRecycleAtRefCountZero = false;
@@ -166,7 +148,7 @@ public class TradingClientServerTests
             new VenueOrderUpdate
                 (new VenueOrder
                      (new VenueOrderId("VenueOrderId23_0123", ""),
-                      new OrderId(1234, "Test1234", 1, "1", null, "TrackingId1234"),
+                      new OrderId(orderId.ClientOrderId, 0, 1),
                       OrderStatus.New, new Venue(1234, "TestVenueName")
                     , new DateTime(2018, 4, 4, 14, 49, 43),
                       new DateTime(2018, 4, 4, 14, 49, 43).AddMilliseconds(20), "TestTicker"
@@ -202,8 +184,7 @@ public class TradingClientServerTests
                       new Venue(23, "TestVenue"), new VenueOrderId("VenueOrderId23_0123", "")
                     , clientLastOrderReceived.OrderId,
                       new DateTime(2018, 3, 23, 20, 33, 1), 1.23456m, 10_000, 10_000, 1.23456m,
-                      new Party("TestPartyId", "TestPartyName", null, "MyClientPartyId",
-                                new BookingInfo("TestAccount", "TestSubAccount"))
+                      new PartyPortfolio(1234, 1234)
                     , new DateTime(2018, 3, 26),
                       ExecutionType.CounterPartyGave, ExecutionStageType.Trade)
                , ExecutionUpdateType.Created)
@@ -243,7 +224,7 @@ public class TradingClientServerTests
         clientOrderUpdatedResetEvent.WaitOne(2_000);
 
         Assert.IsNotNull(clientLastOrderReceived);
-        Assert.AreEqual(1_000_000, ((ISpotOrder)clientLastOrderReceived.Product!).Size);
+        Assert.AreEqual(1_000_000, ((ISpotOrder)clientLastOrderReceived!).Size);
 
         clientEditOrder         = clientLastOrderReceived;
         clientLastOrderReceived = null;

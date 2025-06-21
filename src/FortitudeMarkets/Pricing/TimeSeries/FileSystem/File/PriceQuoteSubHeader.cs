@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeIO.TimeSeries.FileSystem.File.Header;
+using FortitudeIO.Storage.TimeSeries.FileSystem.File.Header;
 
 #endregion
 

@@ -18,97 +18,111 @@ public class OrderId : ReusableObject<IOrderId>, IOrderId
 
     public OrderId(IOrderId toClone)
     {
-        ClientOrderId      = toClone.ClientOrderId;
-        VenueClientOrderId = toClone.VenueClientOrderId != null ? new MutableString(toClone.VenueClientOrderId) : null;
-        AdapterOrderId     = toClone.AdapterOrderId;
-        VenueAdapterOrderId
-            = toClone.VenueAdapterOrderId != null ? new MutableString(toClone.VenueAdapterOrderId) : null;
-        ParentOrderId = toClone.ParentOrderId != null ? new OrxOrderId(toClone.ParentOrderId) : null;
-        TrackingId    = toClone.TrackingId;
+        ClientOrderId  = toClone.ClientOrderId;
+        TrackingId     = toClone.TrackingId;
+        AdapterOrderId = toClone.AdapterOrderId;
+        ParentOrderId  = toClone.ParentOrderId;
+        OrderBookingId = toClone.OrderBookingId;
     }
 
-    public OrderId
-    (long clientOrderId, string venueClientOrderId = "", long adapterOrderId = 0,
-        string venueAdapterOrderId = "", IOrderId? parentOrderId = null, string trackingId = "")
-        : this(clientOrderId, (MutableString)venueClientOrderId, (MutableString)venueAdapterOrderId
-             , (MutableString)trackingId, adapterOrderId, parentOrderId) { }
-
-    public OrderId
-    (long clientOrderId, IMutableString venueClientOrderId,
-        IMutableString venueAdapterOrderId, IMutableString trackingId, long adapterOrderId = 0,
-        IOrderId? parentOrderId = null)
+    public OrderId(uint clientOrderId, uint? trackingId = null, uint? adapterOrderId = null
+     , long? orderBookingId = null, IOrderId? parentOrderId = null)
     {
         ClientOrderId  = clientOrderId;
+        TrackingId     = trackingId;
         AdapterOrderId = adapterOrderId;
-
-        VenueClientOrderId  = venueClientOrderId;
-        VenueAdapterOrderId = venueAdapterOrderId;
-
+        OrderBookingId      = orderBookingId;
         ParentOrderId = parentOrderId ?? new OrxOrderId();
-        TrackingId    = trackingId;
     }
 
-    public long AdapterOrderId { get; set; }
+    public uint ClientOrderId { get; set; }
 
-    public IMutableString? VenueAdapterOrderId { get; set; }
+    public uint? TrackingId { get; set; }
 
-    public long ClientOrderId { get; set; }
+    public uint? AdapterOrderId { get; set; }
 
-    public IMutableString? VenueClientOrderId { get; set; }
+    public long?     OrderBookingId { get; set; }
 
-    public IOrderId?       ParentOrderId { get; set; }
-    public IMutableString? TrackingId    { get; set; }
+    public IOrderId? ParentOrderId  { get; set; }
+
 
     public override void StateReset()
     {
-        AdapterOrderId = 0;
         ClientOrderId  = 0;
-        TrackingId?.DecrementRefCount();
-        TrackingId = null;
-        VenueAdapterOrderId?.DecrementRefCount();
-        VenueAdapterOrderId = null;
-        VenueClientOrderId?.DecrementRefCount();
-        VenueClientOrderId = null;
+        TrackingId     = null;
+        AdapterOrderId = null;
+        OrderBookingId = null;
         ParentOrderId?.DecrementRefCount();
         ParentOrderId = null;
         base.StateReset();
     }
-
-
-    public override IOrderId CopyFrom(IOrderId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        AdapterOrderId = source.AdapterOrderId;
-
-        VenueAdapterOrderId = source.VenueAdapterOrderId?.SyncOrRecycle(VenueAdapterOrderId as MutableString);
-
-        ClientOrderId      = source.ClientOrderId;
-        VenueClientOrderId = source.VenueClientOrderId?.SyncOrRecycle(VenueClientOrderId as MutableString);
-
-        ParentOrderId = source.ParentOrderId?.SyncOrRecycle(ParentOrderId as OrderId);
-        TrackingId    = source.TrackingId?.SyncOrRecycle(VenueAdapterOrderId as MutableString);
-        return this;
-    }
+    
 
     object ICloneable.Clone() => Clone();
 
     public override IOrderId Clone() => Recycler?.Borrow<OrderId>().CopyFrom(this) ?? new OrderId(this);
 
+
+    public override IOrderId CopyFrom(IOrderId source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        ClientOrderId  = source.ClientOrderId;
+        TrackingId     = source.TrackingId;
+        AdapterOrderId = source.AdapterOrderId;
+        OrderBookingId = source.OrderBookingId;
+        ParentOrderId  = source.ParentOrderId?.SyncOrRecycle(ParentOrderId as OrderId);
+        return this;
+    }
+
+    public bool AreEquivalent(IOrderId? other, bool exactTypes = false)
+    {
+        if(other == null) return false;
+        var clientOrderIdSame = ClientOrderId == other.ClientOrderId;
+        var parentIdSame      = ParentOrderId?.AreEquivalent(other.ParentOrderId, exactTypes) ?? other.ParentOrderId == null;
+
+        var trackingIdSame = true;
+        var adapterIdSame = true;
+        var orderBookingIdSame = true;
+        if (exactTypes)
+        {
+            trackingIdSame = TrackingId == other.TrackingId;
+            adapterIdSame  = AdapterOrderId == other.AdapterOrderId;
+            trackingIdSame = OrderBookingId == other.OrderBookingId;
+        }
+
+        var allAreSame = clientOrderIdSame && parentIdSame && trackingIdSame && adapterIdSame && orderBookingIdSame;
+
+        return allAreSame;
+    }
+
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IOrderId, true);
+
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            var hashCode = (int)ClientOrderId;
+            hashCode = (hashCode * 397) ^ TrackingId.GetHashCode();
+            hashCode = (hashCode * 397) ^ AdapterOrderId.GetHashCode();
+            hashCode = (hashCode * 397) ^ OrderBookingId.GetHashCode();
+            hashCode = (hashCode * 397) ^ (ParentOrderId != null ? ParentOrderId.GetHashCode() : 0);
+            return hashCode;
+        }
+    }
+
     public override string ToString()
     {
         var sb = new StringBuilder();
-        sb.Append("OrderId(");
-        if (ClientOrderId != 0) sb.Append("ClientOrderId: ").Append(ClientOrderId).Append(", ");
-        if (AdapterOrderId != 0) sb.Append("AdapterOrderId: ").Append(AdapterOrderId).Append(", ");
-        if (TrackingId != null && TrackingId.Length > 0) sb.Append("TrackingId: ").Append(TrackingId).Append(", ");
-        if (VenueClientOrderId != null && VenueClientOrderId.Length > 0) sb.Append("VenueClientOrderId: ").Append(VenueClientOrderId).Append(", ");
-        if (VenueAdapterOrderId != null && VenueAdapterOrderId.Length > 0)
-            sb.Append("VenueAdapterOrderId: ").Append(VenueAdapterOrderId).Append(", ");
-        if (ParentOrderId != null) sb.Append("ParentOrderId: ").Append(ParentOrderId).Append(", ");
+        sb.Append(nameof(OrderId)).Append("{");
+        if (ClientOrderId != 0) sb.Append(nameof(ClientOrderId)).Append(": ").Append(ClientOrderId).Append(", ");
+        if (ClientOrderId != 0) sb.Append(nameof(TrackingId)).Append(": ").Append(TrackingId).Append(", ");
+        if (AdapterOrderId != 0) sb.Append(nameof(AdapterOrderId)).Append(": ").Append(AdapterOrderId).Append(", ");
+        if (AdapterOrderId != 0) sb.Append(nameof(OrderBookingId)).Append(": ").Append(OrderBookingId).Append(", ");
+        if (ParentOrderId != null) sb.Append(nameof(ParentOrderId)).Append(": ").Append(ParentOrderId).Append(", ");
         if (sb[^2] == ',')
         {
-            sb[^2]    =  ')';
-            sb.Length -= 1;
+            sb.Length -= 2;
         }
+        sb.Append("}");
 
         return sb.ToString();
     }

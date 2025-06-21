@@ -20,10 +20,7 @@ public class OrxGetTradeBookMessage : OrxTradingMessage
 
     public OrxGetTradeBookMessage(OrxAccountEntry orxAccount) => OrxAccount = orxAccount;
 
-    public OrxGetTradeBookMessage(string account)
-        : this((MutableString)account) { }
-
-    public OrxGetTradeBookMessage(MutableString account) => OrxAccount = new OrxAccountEntry(account);
+    public OrxGetTradeBookMessage(uint account) => OrxAccount = new OrxAccountEntry(account);
 
     private OrxGetTradeBookMessage(OrxGetTradeBookMessage toClone)
     {

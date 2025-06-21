@@ -2,11 +2,8 @@
 
 using System.Text;
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
-using FortitudeMarkets.Trading.Orders;
-using FortitudeMarkets.Trading.Orders.Server;
 using FortitudeMarkets.Trading.ORX.Session;
 
 #endregion
@@ -41,7 +38,7 @@ public class OrderUpdate : TradingMessage, IOrderUpdate
         get => order;
         set
         {
-            if (value == order) return;
+            if (ReferenceEquals(value, order)) return;
             value?.IncrementRefCount();
             order?.DecrementRefCount();
             order = value;
@@ -68,7 +65,13 @@ public class OrderUpdate : TradingMessage, IOrderUpdate
         base.CopyFrom(source, copyMergeFlags);
         if (source is IOrderUpdate orderUpdate)
         {
-            Order = orderUpdate.Order.SyncOrRecycle(Order as Order);
+            if (Order == null)
+            {
+                Order = orderUpdate.Order?.AsDomainOrder().Clone();
+            } else if (orderUpdate.Order != null)
+            {
+                Order.CopyFrom(orderUpdate.Order, copyMergeFlags);
+            }
             OrderUpdateType = orderUpdate.OrderUpdateType;
             AdapterUpdateTime = orderUpdate.AdapterUpdateTime;
             ClientReceivedTime = orderUpdate.ClientReceivedTime;

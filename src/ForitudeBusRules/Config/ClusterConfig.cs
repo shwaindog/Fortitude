@@ -1,6 +1,6 @@
 ﻿#region
 
-using FortitudeCommon.Configuration;
+using FortitudeCommon.Config;
 using FortitudeCommon.DataStructures.Lists;
 using Microsoft.Extensions.Configuration;
 
@@ -48,10 +48,10 @@ public class ClusterConfig : ConfigSection, IClusterConfig
 
     public IClusterInstance ClusterConnectivityEndpoint
     {
-        get => clusterConnectivityEndpoint ??= new ClusterInstance(ConfigRoot, Path + ":" + nameof(ClusterConnectivityEndpoint));
+        get => clusterConnectivityEndpoint ??= new ClusterInstance(ConfigRoot, $"{Path}{Split}{nameof(ClusterConnectivityEndpoint)}");
         set =>
             clusterConnectivityEndpoint
-                = value != null ? new ClusterInstance(value, ConfigRoot, Path + ":" + nameof(ClusterConnectivityEndpoint)) : null;
+                = value != null ? new ClusterInstance(value, ConfigRoot, $"{Path}{Split}{nameof(ClusterConnectivityEndpoint)}") : null;
     }
 
     public IEnumerable<IRemoteServiceConfig> RemoteServiceConfigs
@@ -71,11 +71,11 @@ public class ClusterConfig : ConfigSection, IClusterConfig
             foreach (var remoteServiceConfig in value)
             {
                 ignoreSuppressWarnings
-                    = new RemoteServiceConfig(remoteServiceConfig, ConfigRoot, Path + ":" + nameof(RemoteServiceConfigs) + $":{i}");
+                    = new RemoteServiceConfig(remoteServiceConfig, ConfigRoot, $"{Path}{Split}{nameof(RemoteServiceConfigs)}{Split}{i}");
                 i++;
             }
 
-            for (var j = i; j < oldCount; j++) RemoteServiceConfig.ClearValues(ConfigRoot, Path + ":" + nameof(RemoteServiceConfigs) + $":{i}");
+            for (var j = i; j < oldCount; j++) RemoteServiceConfig.ClearValues(ConfigRoot, $"{Path}{Split}{nameof(RemoteServiceConfigs)}{Split}{i}");
         }
     }
 
@@ -93,7 +93,7 @@ public class ClusterConfig : ConfigSection, IClusterConfig
             var i = 0;
             foreach (var remoteServiceConfig in value)
             {
-                ignoreSuppressWarnings = new LocalServiceConfig(remoteServiceConfig, ConfigRoot, Path + ":" + nameof(LocalServiceConfigs) + $":{i}");
+                ignoreSuppressWarnings = new LocalServiceConfig(remoteServiceConfig, ConfigRoot, $"{Path}{Split}{nameof(LocalServiceConfigs)}{Split}{i}");
                 i++;
             }
         }

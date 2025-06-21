@@ -38,8 +38,7 @@ public class OrxOrderIdTests
     public void NewOrxClient_Serialize_DeserializesProperly()
     {
         var orxOrxOrderIdSerializer = new OrxByteSerializer<OrxOrderId>();
-        var originalOrderId = new OrxOrderId(123, "Testing 123", 234, "Test234", new OrxOrderId(345, "Testing 345")
-            , "TrackingId1234");
+        var originalOrderId = new OrxOrderId(123, 123, 234, 234, new OrxOrderId(345, 345, 345));
 
         var messageSize = orxOrxOrderIdSerializer.Serialize(originalOrderId,
             socketBufferReadContext.EncodedBuffer!, OrxMessageHeader.HeaderSize);

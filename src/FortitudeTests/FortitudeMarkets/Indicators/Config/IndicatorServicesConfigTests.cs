@@ -3,11 +3,11 @@
 
 #region
 
-using FortitudeIO.TimeSeries.FileSystem.Config;
+using FortitudeIO.Storage.TimeSeries.FileSystem.Config;
 using FortitudeMarkets.Indicators.Config;
 using FortitudeMarkets.Pricing.FeedEvents.LastTraded;
 using FortitudeMarkets.Pricing.FeedEvents.Quotes.LayeredBook;
-using FortitudeMarkets.Pricing.PQ.TimeSeries.FileSystem.DirectoryStructure;
+using FortitudeMarkets.Pricing.PQ.Storage.TimeSeries.FileSystem.DirectoryStructure;
 using FortitudeTests.FortitudeMarkets.Pricing.PQ;
 
 #endregion

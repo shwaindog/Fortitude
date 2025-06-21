@@ -8,8 +8,10 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.ORX.Serdes;
+using FortitudeMarkets.Config;
 using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Client;
+using FortitudeMarkets.Trading.ORX.Orders.SpotOrders;
 using FortitudeMarkets.Trading.ORX.Session;
 
 #endregion
@@ -22,7 +24,7 @@ public class OrxOrderSubmitRequest : OrxTradingMessage, IOrderSubmitRequest
 
     public OrxOrderSubmitRequest(IOrderSubmitRequest toClone)
     {
-        OrderDetails        = toClone.OrderDetails != null ? new OrxOrder(toClone.OrderDetails) : null;
+        OrderDetails        = toClone.OrderDetails?.AsOrxOrder();
         AttemptNumber       = toClone.AttemptNumber;
         CurrentAttemptTime  = toClone.CurrentAttemptTime;
         OriginalAttemptTime = toClone.OriginalAttemptTime;
@@ -45,7 +47,21 @@ public class OrxOrderSubmitRequest : OrxTradingMessage, IOrderSubmitRequest
         Tag                 = tag;
     }
 
-    [OrxMandatoryField(10)] public OrxOrder? OrderDetails { get; set; }
+    [OrxMandatoryField(10, new[]
+    {
+        (ushort)ProductType.Spot
+        /*            (ushort)ProductType.Forward,
+        (ushort)ProductType.Swap,
+        (ushort)ProductType.Future,
+        (ushort)ProductType.MultiLegForward,*/
+    }, new[]
+    {
+        typeof(OrxSpotOrder)
+        /*            typeof(OrxSpotOrder), //todo OrxForwardOrder
+        typeof(OrxSpotOrder), //todo OrxSwapOrder
+        typeof(OrxSpotOrder), //todo OrxFutureOrder
+        typeof(OrxSpotOrder)  //todo OrxMultiLegForwardOrder*/
+    })] public OrxOrder? OrderDetails { get; set; }
 
     [OrxOptionalField(14)] public MutableString? Tag { get; set; }
 
@@ -76,7 +92,13 @@ public class OrxOrderSubmitRequest : OrxTradingMessage, IOrderSubmitRequest
         base.CopyFrom(source, copyMergeFlags);
         if (source is IOrderSubmitRequest orderSubmitRequest)
         {
-            OrderDetails        = orderSubmitRequest.OrderDetails.SyncOrRecycle(OrderDetails);
+            if (OrderDetails == null)
+            {
+                OrderDetails = orderSubmitRequest.OrderDetails?.AsOrxOrder();
+            } else if (orderSubmitRequest.OrderDetails != null)
+            {
+                OrderDetails.CopyFrom(orderSubmitRequest.OrderDetails, copyMergeFlags);
+            }
             Tag                 = orderSubmitRequest.Tag.SyncOrRecycle(Tag);
             AttemptNumber       = orderSubmitRequest.AttemptNumber;
             CurrentAttemptTime  = orderSubmitRequest.CurrentAttemptTime;

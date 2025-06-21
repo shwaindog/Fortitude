@@ -3,7 +3,7 @@
 
 #region
 
-using FortitudeCommon.Configuration;
+using FortitudeCommon.Config;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
@@ -140,7 +140,7 @@ public class WeeklyTimesConfig : ConfigSection, IWeeklyTimesConfig
                 foreach (var remoteServiceConfig in value)
                 {
                     _ = new WeeklyTimesConfig(remoteServiceConfig, ConfigRoot
-                                            , Path + ":" + nameof(OverrideWeeklyTimes) + $":{i}");
+                                            , $"{Path}{Split}{nameof(OverrideWeeklyTimes)}{Split}{i}");
                     if (remoteServiceConfig is WeeklyTimesConfig valueWeeklyTimesConfig)
                     {
                         valueWeeklyTimesConfig.ParentDaysOfWeek = OverrideDaysOfWeek;
@@ -149,7 +149,7 @@ public class WeeklyTimesConfig : ConfigSection, IWeeklyTimesConfig
                     i++;
                 }
 
-            for (var j = i; j < oldCount; j++) ClearValues(ConfigRoot, Path + ":" + nameof(OverrideWeeklyTimes) + $":{i}");
+            for (var j = i; j < oldCount; j++) ClearValues(ConfigRoot, $"{Path}{Split}{nameof(OverrideWeeklyTimes)}{Split}{i}");
         }
     }
 
@@ -166,9 +166,9 @@ public class WeeklyTimesConfig : ConfigSection, IWeeklyTimesConfig
 
     public static void ClearValues(IConfigurationRoot root, string path)
     {
-        root[path + ":" + nameof(OverrideTimeZone)]   = null;
-        root[path + ":" + nameof(TimeOfDay)]          = null;
-        root[path + ":" + nameof(OverrideDaysOfWeek)] = null;
+        root[$"{path}{Split}{nameof(OverrideTimeZone)}"]   = null;
+        root[$"{path}{Split}{nameof(TimeOfDay)}"]          = null;
+        root[$"{path}{Split}{nameof(OverrideDaysOfWeek)}"] = null;
     }
 
     public ReusableList<TimeZonedWeekDayTime> TimeZonedWeekDayTimes()
