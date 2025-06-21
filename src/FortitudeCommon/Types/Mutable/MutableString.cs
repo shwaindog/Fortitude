@@ -459,6 +459,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     IMutableString ICloneable<IMutableString>.Clone() => Clone();
 
+    // ReSharper disable once OptionalParameterHierarchyMismatch
     public override IMutableString CopyFrom(IMutableString source, CopyMergeFlags copyMergeFlags)
     {
         if (source is MutableString mutableStringSource)
@@ -889,15 +890,11 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public static bool operator !=(MutableString? lhs, MutableString? rhs) => !(lhs == rhs);
 
-    private class StringBuilderEnumerator : IEnumerator<char>
+    private class StringBuilderEnumerator(IPooledFactory<StringBuilderEnumerator> enumeratorPool) : IEnumerator<char>
     {
-        private readonly IPooledFactory<StringBuilderEnumerator> enumeratorPool;
-
         private int currentPosition = -1;
 
         private StringBuilder? sb;
-
-        public StringBuilderEnumerator(IPooledFactory<StringBuilderEnumerator> enumeratorPool) => this.enumeratorPool = enumeratorPool;
 
         public StringBuilder StringBuilder
         {
@@ -921,5 +918,66 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         public char Current => sb![currentPosition];
 
         object IEnumerator.Current => Current;
+    }
+}
+
+public static class MutableStringExtensions
+{
+    public static IMutableString? TransferOrCreate(this IMutableString? possibleExisting, string? possibleNew)
+    {
+        var result = possibleExisting;
+        if (result != null)
+        {
+            result.Clear();
+            if (possibleNew != null) result.Append(possibleNew);
+        }
+        {
+            result = (MutableString?)possibleNew;
+        }
+        return result;
+    }
+
+    public static MutableString? TransferOrCreate(this MutableString? possibleExisting, string? possibleNew)
+    {
+        var result = possibleExisting;
+        if (result != null)
+        {
+            result.Clear();
+            if (possibleNew != null) result.Append(possibleNew);
+        }
+        {
+            result = possibleNew;
+        }
+        return result;
+    }
+
+    public static IMutableString? TransferOrReplace(this IMutableString? possibleExisting, IMutableString? possibleNew)
+    {
+        if (ReferenceEquals(possibleExisting, possibleNew)) return possibleExisting;
+        var result = possibleExisting;
+        if (result != null)
+        {
+            result.Clear();
+            if (possibleNew != null) result.Append(possibleNew);
+        }
+        {
+            result = possibleNew;
+        }
+        return result;
+    }
+
+    public static MutableString? TransferOrReplace(this MutableString? possibleExisting, IMutableString? possibleNew)
+    {
+        if (ReferenceEquals(possibleExisting, possibleNew)) return possibleExisting;
+        var result = possibleExisting;
+        if (result != null)
+        {
+            result.Clear();
+            if (possibleNew != null) result.Append(possibleNew);
+        }
+        {
+            result = (MutableString?)possibleNew;
+        }
+        return result;
     }
 }

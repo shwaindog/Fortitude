@@ -27,9 +27,9 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, ITransferState<Or
         CopyFrom(toClone);
     }
 
-    public OrxOrderUpdate(IOrder order, OrderUpdateEventType reason, DateTime adapterUpdateTime)
+    public OrxOrderUpdate(ITransmittableOrder order, OrderUpdateEventType reason, DateTime adapterUpdateTime)
     {
-        Order             = order.AsOrxOrder();
+        Order             = order.AsOrxOrder;
         OrderUpdateType   = reason;
         AdapterUpdateTime = adapterUpdateTime;
     }
@@ -49,7 +49,7 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, ITransferState<Or
 
     public override uint MessageId => (ushort)TradingMessageIds.OrderUpdate;
 
-    IOrder? IOrderUpdate.Order
+    ITransmittableOrder? IOrderUpdate.Order
     {
         get => Order;
         set => Order = value as OrxOrder;
@@ -78,7 +78,7 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, ITransferState<Or
         {
             if (Order == null)
             {
-                Order = orderUpdate.Order?.AsOrxOrder().Clone();
+                Order = orderUpdate.Order?.AsOrxOrder.Clone();
             } else if (orderUpdate.Order != null)
             {
                 Order.CopyFrom(orderUpdate.Order, copyMergeFlags);
@@ -95,7 +95,7 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, ITransferState<Or
         base.CopyFrom(source, copyMergeFlags);
         if (Order == null)
         {
-            Order = source.Order?.AsOrxOrder().Clone();
+            Order = source.Order?.AsOrxOrder.Clone();
         } else if (source.Order != null)
         {
             Order.CopyFrom(source.Order, copyMergeFlags);
@@ -113,7 +113,7 @@ public class OrxOrderUpdate : OrxTradingMessage, IOrderUpdate, ITransferState<Or
         base.CopyFrom(source, copyMergeFlags);
         if (Order == null)
         {
-            Order = source.Order?.AsOrxOrder().Clone();
+            Order = source.Order?.AsOrxOrder.Clone();
         } else if (source.Order != null)
         {
             Order.CopyFrom(source.Order, copyMergeFlags);

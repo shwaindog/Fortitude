@@ -11,7 +11,7 @@ public class TradingFeedWatchdog : ITradingFeedWatchdog
 {
     public bool Enabled { get; set; }
 
-    public bool IsOrderValid(IOrder actualOrder, out string? reason)
+    public bool IsOrderValid(ITransmittableOrder actualOrder, out string? reason)
     {
         reason = null;
         return true;
@@ -22,7 +22,7 @@ public class TradingFeedWatchdog : ITradingFeedWatchdog
         throw new NotImplementedException();
     }
 
-    public void OnOrderUpdate(string feedName, IOrder order)
+    public void OnOrderUpdate(string feedName, ITransmittableOrder order)
     {
         throw new NotImplementedException();
     }

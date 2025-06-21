@@ -4,11 +4,8 @@ using System.Text;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Trading.Counterparties;
 using FortitudeMarkets.Trading.Executions;
-using FortitudeMarkets.Trading.Orders.Client;
 using FortitudeMarkets.Trading.Orders.Products;
 using FortitudeMarkets.Trading.Orders.Venues;
-using FortitudeMarkets.Trading.ORX.Orders;
-using FortitudeMarkets.Trading.ORX.Orders.SpotOrders;
 
 #endregion
 
@@ -43,11 +40,11 @@ public class SpotOrder : Order, ISpotOrder
       , decimal allowedPriceSlippage = 0m, decimal allowedVolumeSlippage = 0m, decimal executedPrice = 0m, decimal executedSize = 0m
       , decimal sizeAtRisk = 0m, FillExpectation fillExpectation = FillExpectation.Complete, IVenuePriceQuoteId? quoteInformation = null
       , DateTime? submitTime = null, DateTime? doneTime = null, IVenueOrders? venueOrders = null, IExecutions? executions = null
-      , string? tickerName = null, IMutableString? message = null, bool isError = false, bool isComplete = false)
+      , bool isError = false, bool isComplete = false, string? tickerName = null, string? message = null)
         : this(orderId, tickerId, new Parties(accountId), side, price, size, type, creationTime, status, timeInForce
              , venueSelectionCriteria, displaySize, allowedPriceSlippage, allowedVolumeSlippage, executedPrice, executedSize
-             , sizeAtRisk, fillExpectation, quoteInformation, submitTime, doneTime, venueOrders, executions, (MutableString?)tickerName
-             , message, isError, isComplete) { }
+             , sizeAtRisk, fillExpectation, quoteInformation, submitTime, doneTime, venueOrders, executions, isError, isComplete
+             , tickerName , message) { }
 
     public SpotOrder
     (IOrderId orderId, ushort tickerId, IParties parties, OrderSide side, decimal price, decimal size, OrderType type
@@ -56,10 +53,10 @@ public class SpotOrder : Order, ISpotOrder
       , decimal allowedVolumeSlippage = 0m, decimal executedPrice = 0m, decimal executedSize = 0m
       , decimal sizeAtRisk = 0m, FillExpectation fillExpectation = FillExpectation.Complete
       , IVenuePriceQuoteId? quoteInformation = null, DateTime? submitTime = null, DateTime? doneTime = null
-      , IVenueOrders? venueOrders = null, IExecutions? executions = null, IMutableString? tickerName = null, IMutableString? message = null
-      , bool isError = false, bool isComplete = false)
+      , IVenueOrders? venueOrders = null, IExecutions? executions = null, bool isError = false, bool isComplete = false
+      , string? tickerName = null, string? message = null)
         : base(orderId, tickerId, parties, creationTime, status, timeInForce, venueSelectionCriteria, submitTime, doneTime
-             , venueOrders, executions, tickerName, message, isError, isComplete)
+             , venueOrders, executions, isError, isComplete, tickerName, message)
     {
         Side   = side;
         Price  = price;
@@ -95,30 +92,6 @@ public class SpotOrder : Order, ISpotOrder
     public FillExpectation     FillExpectation  { get; set; }
     public IVenuePriceQuoteId? QuoteInformation { get; set; }
 
-    public override IOrder AsDomainOrder() => this;
-
-    public override OrxOrder AsOrxOrder() => new OrxSpotOrder(this);
-
-    public override void RegisterExecution(IExecution execution)
-    {
-        ExecutedPrice = (ExecutedPrice * ExecutedSize + execution.Price * execution.Quantity) /
-                        (ExecutedSize + execution.Quantity);
-        ExecutedSize += execution.Quantity;
-    }
-
-    public override void ApplyAmendment(IOrderAmend amendment)
-    {
-        Price = amendment.NewPrice;
-        Size  = amendment.NewQuantity;
-        Side  = amendment.NewSide;
-    }
-
-    public override bool RequiresAmendment(IOrderAmend amendment) =>
-        amendment.NewPrice != Price ||
-        amendment.NewQuantity != Size ||
-        amendment.NewSide != Side;
-
-
     public override SpotOrder Clone() => new(this);
 
     public override SpotOrder CopyFrom(IOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
@@ -143,24 +116,12 @@ public class SpotOrder : Order, ISpotOrder
         return this;
     }
 
-    public void SetError(string msg, long sizeAtRisk)
-    {
-        SetError((MutableString)msg!, sizeAtRisk);
-    }
-
-    public void SetError(IMutableString msg, long sizeAtRisk)
-    {
-        Message    = msg;
-        SizeAtRisk = sizeAtRisk;
-        Status     = OrderStatus.Dead;
-    }
-
-    protected string SpotOrderToStringMembers
+    public override string OrderToStringMembers
     {
         get
         {
             var sb = new StringBuilder();
-            sb.Append(OrderToStringMembers);
+            sb.Append(base.OrderToStringMembers);
             sb.Append(", ").Append(nameof(Side)).Append(": ").Append(Side);
             sb.Append(", ").Append(nameof(Price)).Append(": ").Append(Price);
             sb.Append(", ").Append(nameof(Size)).Append(": ").Append(Size);
@@ -171,12 +132,12 @@ public class SpotOrder : Order, ISpotOrder
             if (SizeAtRisk != 0m) sb.Append(", ").Append(nameof(SizeAtRisk)).Append(": ").Append(SizeAtRisk);
             if (AllowedPriceSlippage != 0m) sb.Append(", ").Append(nameof(AllowedPriceSlippage)).Append(": ").Append(AllowedPriceSlippage);
             if (AllowedVolumeSlippage != 0m) sb.Append(", ").Append(nameof(AllowedVolumeSlippage)).Append(": ").Append(AllowedVolumeSlippage);
+            if (QuoteInformation != null) sb.Append(", ").Append(nameof(QuoteInformation)).Append(": ").Append(QuoteInformation);
             sb.Append(", ").Append(nameof(FillExpectation)).Append(": ").Append(FillExpectation);
-            sb.Append(", ").Append(nameof(QuoteInformation)).Append(": ").Append(QuoteInformation);
 
             return sb.ToString();
         }
     }
 
-    public override string ToString() => $"{nameof(OrxSpotOrder)}{{{SpotOrderToStringMembers}}}";
+    public override string ToString() => $"{nameof(SpotOrder)}{{{OrderToStringMembers}}}";
 }

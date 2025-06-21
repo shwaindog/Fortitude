@@ -43,7 +43,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
 {
     private new static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(OrxTradingClient));
 
-    protected readonly Dictionary<string, IOrder> ActiveOrders = new();
+    protected readonly Dictionary<string, ITransmittableOrder> ActiveOrders = new();
 
     private readonly IAlertManager? alertMgr;
 
@@ -174,7 +174,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
 
     #endregion
 
-    public event Action<IOrder>? OrderAmend;
+    public event Action<ITransmittableOrder>? OrderAmend;
 
     private void CancelAfterAmendReject(IOrderId orderId)
     {
@@ -216,7 +216,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         }
     }
 
-    public void AmendOrderRequest(IOrder order, IOrderAmend amendOrderRequest)
+    public void AmendOrderRequest(ITransmittableOrder order, IOrderAmend amendOrderRequest)
     {
         if (order.Status == OrderStatus.PendingNew)
         {
@@ -260,8 +260,8 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
                     Logger.Info(new AmendOrderLog(order, amendOrderRequest));
                     var orxOrder = order switch
                                    {
-                                       ISpotOrder spotOrder => new OrxSpotOrder(spotOrder)
-                                     , _ => new OrxSpotOrder((ISpotOrder)order)
+                                       ISpotTransmittableOrder spotOrder => new OrxSpotOrder(spotOrder)
+                                     , _ => new OrxSpotOrder((ISpotTransmittableOrder)order)
                                    };
 
 
@@ -300,12 +300,12 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         }
     }
 
-    private void RaiseOrderError(IOrder order, string errorMsg)
+    private void RaiseOrderError(ITransmittableOrder order, string errorMsg)
     {
         RaiseOrderError(order, (MutableString)errorMsg);
     }
 
-    private void RaiseOrderError(IOrder order, IMutableString _)
+    private void RaiseOrderError(ITransmittableOrder order, IMutableString _)
     {
         Logger.Warn(new AbortedOrderLog((ISpotOrder)order));
         OnOrderUpdate(new OrderUpdate(order, OrderUpdateEventType.Error, TimeContext.UtcNow));
@@ -335,7 +335,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         Logger.Info("Disconnection detected, will try to cancel sent orders.");
         for (var disconnectionAttempt = 0; ActiveOrders.Count > 0 && disconnectionAttempt < 5; disconnectionAttempt++)
         {
-            IEnumerable<IOrder> activeOrdersOnDisconnect;
+            IEnumerable<ITransmittableOrder> activeOrdersOnDisconnect;
             lock (ActiveOrders)
             {
                 activeOrdersOnDisconnect = ActiveOrders.Values.ToList();
@@ -436,7 +436,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         OrderUpdate?.Invoke(orderUpdate);
     }
 
-    protected void OnOrderAmend(IOrder order)
+    protected void OnOrderAmend(ITransmittableOrder order)
     {
         OrderAmend?.Invoke(order);
     }
@@ -453,7 +453,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         Execution?.Invoke(executionUpdate);
     }
 
-    public void CancelOrder(IOrder order)
+    public void CancelOrder(ITransmittableOrder order)
     {
         if (IsAvailable)
         {
@@ -462,9 +462,9 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         }
     }
 
-    public void SuspendOrder(IOrder order) { }
+    public void SuspendOrder(ITransmittableOrder order) { }
 
-    public void ResumeOrder(IOrder order) { }
+    public void ResumeOrder(ITransmittableOrder order) { }
 
     #endregion
 
@@ -683,15 +683,15 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
             if (order.IsComplete)
                 order.Status = OrderStatus.Dead;
             else if (order.IsError)
-                order.Message = (MutableString)("Overfill on order (Id=" + update.Execution.ExecutionId +
+                order.MutableMessage = (MutableString)("Overfill on order (Id=" + update.Execution.ExecutionId +
                                                 "). Please check with the exchange");
             HandleOrderEol(new OrderUpdate(order, OrderUpdateEventType.Execution, TimeContext.UtcNow));
         }
     }
 
-    private IOrder? GetActiveOrder(string clientOrderId)
+    private ITransmittableOrder? GetActiveOrder(string clientOrderId)
     {
-        IOrder? order;
+        ITransmittableOrder? order;
         lock (ActiveOrders)
         {
             ActiveOrders.TryGetValue(clientOrderId, out order);

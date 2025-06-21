@@ -11,121 +11,99 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Trading.Counterparties;
 using FortitudeMarkets.Trading.Executions;
-using FortitudeMarkets.Trading.Orders.Client;
 using FortitudeMarkets.Trading.Orders.Products;
 using FortitudeMarkets.Trading.Orders.Venues;
-using FortitudeMarkets.Trading.ORX.Orders;
 
 #endregion
 
 namespace FortitudeMarkets.Trading.Orders;
 
-public abstract class Order : ReusableObject<IOrder>, IOrder
+public class Order : ReusableObject<IOrder>, IOrder
 {
     private static IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(Order));
 
-    private IOrderPublisher? orderPublisher;
-    private OrderStatus      status;
+    private OrderStatus status;
+    private string?     ticker;
+    private string?     message;
 
-    protected Order()
+    public Order()
     {
         status  = OrderStatus.New;
         OrderId = null!;
-    }
-
-    protected Order(IOrderId orderId, ushort tickerId, uint accountId, TimeInForce timeInForce, DateTime creationTime)
-    {
-        OrderId        = orderId;
-        TickerId       = tickerId;
-        TimeInForce    = timeInForce;
-        CreationTime   = creationTime;
-        Parties        = new Parties(accountId);
-        OrderPublisher = null;
-        VenueOrders    = new VenueOrders();
-    }
-
-    protected Order(IOrderId orderId, ushort tickerId, IParties parties, TimeInForce timeInForce, DateTime creationTime)
-    {
-        OrderId        = orderId;
-        TickerId       = tickerId;
-        TimeInForce    = timeInForce;
-        CreationTime   = creationTime;
-        Parties        = new Parties(parties);
-        OrderPublisher = null;
-        VenueOrders    = new VenueOrders();
+        Parties = null!;
     }
 
     protected Order(IOrder toClone)
     {
         OrderId      = toClone.OrderId.Clone();
         TickerId     = toClone.TickerId;
-        Ticker       = toClone.Ticker?.Clone();
         TimeInForce  = toClone.TimeInForce;
         CreationTime = toClone.CreationTime;
         SubmitTime   = toClone.SubmitTime;
         DoneTime     = toClone.DoneTime;
-        Parties      = toClone.Parties?.Clone();
+        Parties      = toClone.Parties.Clone();
         Status       = toClone.Status;
-        Message      = toClone.Message;
         IsComplete   = toClone.IsComplete;
         IsError      = toClone.IsError;
-
-        OrderPublisher = toClone.OrderPublisher;
 
         VenueSelectionCriteria = toClone.VenueSelectionCriteria?.Clone();
 
         VenueOrders = toClone.VenueOrders?.Clone();
         Executions  = toClone.Executions?.Clone();
+
+        CopyStrings(this, toClone, CopyMergeFlags.Default);
     }
 
     protected Order
-    (IOrderId orderId, ushort tickerId, uint accountId, DateTime creationTime, OrderStatus status = OrderStatus.PendingNew, 
+    (IOrderId orderId, ushort tickerId, uint accountId, DateTime creationTime, OrderStatus status = OrderStatus.PendingNew,
         TimeInForce timeInForce = TimeInForce.ImmediateOrCancel
       , IVenueCriteria? venueSelectionCriteria = null, DateTime? submitTime = null, DateTime? doneTime = null
-      , IVenueOrders? venueOrders = null, IExecutions? executions = null, IMutableString? tickerName = null, IMutableString? message = null
-      , bool isError = false, bool isComplete = false)
+      , IVenueOrders? venueOrders = null, IExecutions? executions = null, bool isError = false, bool isComplete = false
+      , string? tickerName = null, string? message = null)
     {
-        OrderId        = orderId;
-        TickerId       = tickerId;
-        TimeInForce    = timeInForce;
-        CreationTime   = creationTime;
-        Parties        = new Parties(accountId);
-        DoneTime       = doneTime;
-        Status         = status;
-        Ticker         = tickerName;
-        SubmitTime     = submitTime;
-        VenueOrders    = venueOrders;
-        Executions     = executions;
-        IsError        = isError;
-        Message        = message;
-        IsComplete     = isComplete;
-
         VenueSelectionCriteria = venueSelectionCriteria;
+
+        OrderId      = orderId;
+        TickerId     = tickerId;
+        TimeInForce  = timeInForce;
+        CreationTime = creationTime;
+        Parties      = new Parties(accountId);
+        DoneTime     = doneTime;
+        Status       = status;
+        SubmitTime   = submitTime;
+        VenueOrders  = venueOrders;
+        Executions   = executions;
+        IsError      = isError;
+        IsComplete   = isComplete;
+
+        Ticker  = tickerName;
+        Message = message;
     }
 
     protected Order
     (IOrderId orderId, ushort tickerId, IParties parties, DateTime? creationTime = null, OrderStatus status = OrderStatus.PendingNew
       , TimeInForce timeInForce = TimeInForce.ImmediateOrCancel
       , IVenueCriteria? venueSelectionCriteria = null, DateTime? submitTime = null, DateTime? doneTime = null
-      , IVenueOrders? venueOrders = null, IExecutions? executions = null, IMutableString? tickerName = null, IMutableString? message = null
-      , bool isError = false, bool isComplete = false)
+      , IVenueOrders? venueOrders = null, IExecutions? executions = null, bool isError = false, bool isComplete = false
+      , string? tickerName = null, string? message = null)
     {
-        OrderId        = orderId;
-        TickerId       = tickerId;
-        TimeInForce    = timeInForce;
-        CreationTime   = creationTime ?? TimeContext.UtcNow;
-        Parties        = parties;
-        DoneTime       = doneTime;
-        Status         = status;
-        Ticker         = tickerName;
-        SubmitTime     = submitTime;
-        VenueOrders    = venueOrders;
-        Executions     = executions;
-        IsError        = isError;
-        Message        = message;
-        IsComplete     = isComplete;
-
         VenueSelectionCriteria = venueSelectionCriteria;
+
+        OrderId      = orderId;
+        TickerId     = tickerId;
+        TimeInForce  = timeInForce;
+        CreationTime = creationTime ?? TimeContext.UtcNow;
+        Parties      = parties;
+        DoneTime     = doneTime;
+        Status       = status;
+        SubmitTime   = submitTime;
+        VenueOrders  = venueOrders;
+        Executions   = executions;
+        IsError      = isError;
+        IsComplete   = isComplete;
+
+        Ticker  = tickerName;
+        Message = message;
     }
 
     public decimal PendingExecutedSize  { get; set; }
@@ -134,21 +112,21 @@ public abstract class Order : ReusableObject<IOrder>, IOrder
     public IOrderId  OrderId      { get; set; }
     public ushort    TickerId     { get; set; }
     public DateTime  CreationTime { get; set; }
-    public DateTime?  SubmitTime   { get; set; }
-    public DateTime?  DoneTime     { get; set; }
-    public IParties? Parties      { get; set; }
+    public DateTime? SubmitTime   { get; set; }
+    public DateTime? DoneTime     { get; set; }
+    public IParties  Parties      { get; set; }
     public bool      IsComplete   { get; set; }
     public bool      IsError      { get; set; }
 
-    public IMutableString? Ticker      { get; set; }
-    public TimeInForce     TimeInForce { get; set; }
+    public virtual string? Ticker
+    {
+        get => ticker;
+        set => ticker = value;
+    }
 
-    public abstract ProductType ProductType { get; }
+    public TimeInForce TimeInForce { get; set; }
 
-    public abstract void ApplyAmendment(IOrderAmend amendment);
-    public abstract bool RequiresAmendment(IOrderAmend amendment);
-
-    public abstract void RegisterExecution(IExecution execution);
+    public virtual ProductType ProductType { get; init; } = ProductType.Unknown;
 
     public OrderStatus Status
     {
@@ -163,68 +141,77 @@ public abstract class Order : ReusableObject<IOrder>, IOrder
         }
     }
 
-    public IOrderPublisher? OrderPublisher
-    {
-        get => orderPublisher;
-        set
-        {
-            if (value == orderPublisher) return;
-            if (value != null) value.IncrementRefCount();
-            orderPublisher = value;
-        }
-    }
 
     public IVenueCriteria? VenueSelectionCriteria { get; set; }
-    public IVenueOrders?   VenueOrders { get; set; }
-    public IExecutions?    Executions  { get; set; }
-    public IMutableString? Message     { get; set; }
 
-    public abstract IOrder AsDomainOrder();
-    public abstract OrxOrder AsOrxOrder();
+    public IVenueOrders? VenueOrders { get; set; }
+
+    public IExecutions? Executions { get; set; }
+
+    public virtual string? Message
+    {
+        get => message;
+        set => message = value;
+    }
 
     public override void StateReset()
     {
         PendingExecutedSize = 0;
         OrderId.DecrementRefCount();
         TickerId = 0;
-        Ticker?.DecrementRefCount();
-        Ticker = null;
         Parties?.DecrementRefCount();
-        Parties        = null;
-        OrderPublisher = null;
+        Parties = null!;
         VenueSelectionCriteria?.DecrementRefCount();
         VenueSelectionCriteria = null;
         VenueOrders?.DecrementRefCount();
         VenueOrders = null;
         Executions?.DecrementRefCount();
         Executions = null;
-        Message?.Clear();
-        IsError = false;
+        IsError    = false;
         IsComplete = false;
+
+        status  = OrderStatus.New;
+        ticker  = null;
+        message = null;
+
+        CopyStrings             = DefaultCopyStrings;
+        OrderStringMemberFields = DefaultOrderStringMemberFields;
 
         base.StateReset();
     }
 
     object ICloneable.Clone() => Clone();
 
-    public override IOrder CopyFrom(IOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IOrder Clone() => Recycler?.Borrow<Order>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new Order(this);
+
+    public override Order CopyFrom(IOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        OrderId        = source.OrderId;
-        TickerId       = source.TickerId;
-        Ticker         = source.Ticker;
-        TimeInForce    = source.TimeInForce;
-        CreationTime   = source.CreationTime;
-        SubmitTime     = source.SubmitTime;
-        DoneTime       = source.DoneTime;
-        Parties        = source.Parties;
-        Status         = source.Status;
-        OrderPublisher = source.OrderPublisher;
-        VenueOrders    = source.VenueOrders;
-        Executions     = source.Executions;
-        Message        = source.Message;
-        IsError        = source.IsError;
-        IsComplete     = source.IsComplete;
+        OrderId      = source.OrderId;
+        TickerId     = source.TickerId;
+        TimeInForce  = source.TimeInForce;
+        CreationTime = source.CreationTime;
+        SubmitTime   = source.SubmitTime;
+        DoneTime     = source.DoneTime;
+        Status       = source.Status;
+        VenueOrders  = source.VenueOrders;
+        Executions   = source.Executions;
+        IsError      = source.IsError;
+        IsComplete   = source.IsComplete;
+
+        Parties ??= new Parties();
+        Parties.CopyFrom(source.Parties, copyMergeFlags);
+
+        CopyStrings(this, source, copyMergeFlags);
+
         return this;
+    }
+
+    internal Action<IOrder, IOrder, CopyMergeFlags> CopyStrings { get; set; } = DefaultCopyStrings;
+
+    internal static void DefaultCopyStrings(IOrder destination, IOrder source, CopyMergeFlags copyMergeFlags)
+    {
+        destination.Ticker  = source.Ticker;
+        destination.Message = source.Message;
     }
 
     public bool AreEquivalent(IOrder? source, bool exactTypes = false)
@@ -249,15 +236,25 @@ public abstract class Order : ReusableObject<IOrder>, IOrder
         var isCompleteSame  = IsComplete == source.IsComplete;
 
         return orderIdsSame && tickerIdSame && timeInForceSame && creationTimeSame && statusSame && submitTimeSame
-            && doneTimeSame && partiesSame && venueCriteriaSame && venueOrdersSame && executionsSame && messageSame 
+            && doneTimeSame && partiesSame && venueCriteriaSame && venueOrdersSame && executionsSame && messageSame
             && tickerSame && isErrorSame && isCompleteSame;
     }
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IOrder, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ITransmittableOrder, true);
 
     public override int GetHashCode() => OrderId.GetHashCode();
 
-    protected string OrderToStringMembers 
+    internal Func<IOrder, StringBuilder?, StringBuilder> OrderStringMemberFields { get; set; } = DefaultOrderStringMemberFields;
+
+    internal static StringBuilder DefaultOrderStringMemberFields(IOrder order, StringBuilder? sb)
+    {
+        sb ??= new StringBuilder();
+        if (order.Ticker != null) sb.Append(", ").Append(nameof(order.Ticker)).Append(": ").Append(order.Ticker);
+        if (order.Message != null) sb.Append(", ").Append(nameof(order.Message)).Append(": ").Append(order.Message);
+        return sb;
+    }
+
+    public virtual string OrderToStringMembers
     {
         get
         {
@@ -265,15 +262,14 @@ public abstract class Order : ReusableObject<IOrder>, IOrder
             sb.Append(nameof(InstanceNum)).Append(": ").Append(InstanceNum);
             sb.Append(", ").Append(nameof(OrderId)).Append(": ").Append(OrderId);
             sb.Append(", ").Append(nameof(TickerId)).Append(": ").Append(TickerId);
+            sb.Append(", ").Append(nameof(Parties)).Append(", ").Append(": ").Append(Parties);
             sb.Append(", ").Append(nameof(ProductType)).Append(": ").Append(ProductType);
-            if (Ticker != null) sb.Append(", ").Append(nameof(Ticker)).Append(": ").Append(Ticker);
+            OrderStringMemberFields(this, sb);
             if (TimeInForce != TimeInForce.None) sb.Append(", ").Append(nameof(TimeInForce)).Append(": ").Append(TimeInForce);
             if (CreationTime.IsNotUnixEpochOrDefault()) sb.Append(", ").Append(nameof(CreationTime)).Append(": ").Append(CreationTime);
             if (Status != OrderStatus.Unknown) sb.Append(", ").Append(nameof(Status)).Append(": ").Append(Status);
             if (SubmitTime.IsNotNullOrUnixEpochOrDefault()) sb.Append(", ").Append(nameof(SubmitTime)).Append(": ").Append(SubmitTime);
             if (DoneTime.IsNotNullOrUnixEpochOrDefault()) sb.Append(", ").Append(nameof(DoneTime)).Append(": ").Append(DoneTime);
-            if (Parties != null) sb.Append(", ").Append(nameof(Parties)).Append(", ").Append(": ").Append(Parties);
-            if (OrderPublisher != null) sb.Append(", ").Append(nameof(OrderPublisher)).Append(": ").Append(OrderPublisher);
             if (VenueSelectionCriteria != null) sb.Append(", ").Append(nameof(VenueSelectionCriteria)).Append(": ").Append(VenueSelectionCriteria);
             if (VenueOrders != null) sb.Append(", ").Append(nameof(VenueOrders)).Append(": ").Append(VenueOrders);
             if (Executions != null) sb.Append(", ").Append(nameof(Executions)).Append(": ").Append(Executions);

@@ -11,7 +11,7 @@ public class OrderAmendRequest : OrderSubmitRequest, IOrderAmendRequest
 {
     public OrderAmendRequest(IOrderAmendRequest toClone) : base(toClone) => Amendment = toClone.Amendment;
 
-    public OrderAmendRequest(IOrder orderDetails,
+    public OrderAmendRequest(ITransmittableOrder orderDetails,
         DateTime originalAttemptNumber, DateTime currentAttempt, int attemptNumber, string tag,
         IOrderAmend orderAmendment) :
         base(orderDetails, attemptNumber, currentAttempt, originalAttemptNumber, tag) =>

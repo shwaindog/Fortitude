@@ -7,18 +7,11 @@ using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeIO.Protocols.ORX.Serdes.Deserialization;
 using FortitudeIO.Protocols.ORX.Serdes.Serialization;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeMarkets.Trading.Orders;
-using FortitudeMarkets.Trading.Orders.Products;
-using FortitudeMarkets.Trading.Orders.Venues;
 using FortitudeMarkets.Trading;
 using FortitudeMarkets.Trading.Orders.SpotOrders;
-using FortitudeMarkets.Trading.ORX.CounterParties;
-using FortitudeMarkets.Trading.ORX.Executions;
 using FortitudeMarkets.Trading.ORX.Orders;
 using FortitudeMarkets.Trading.ORX.Orders.Client;
 using FortitudeMarkets.Trading.ORX.Orders.SpotOrders;
-using FortitudeMarkets.Trading.ORX.Orders.Venues;
-using FortitudeMarkets.Trading.ORX.Publication;
 
 #endregion
 
@@ -27,8 +20,9 @@ namespace FortitudeTests.FortitudeMarkets.Trading.ORX.Orders.Client;
 [TestClass]
 public class OrxOrderSubmitRequestTests
 {
-    private const int BufferSize = 2048;
-    private byte[] byteBuffer = null!;
+    private const int    BufferSize = 2048;
+    private       byte[] byteBuffer = null!;
+
     private SocketBufferReadContext socketBufferReadContext = null!;
 
     [TestInitialize]
@@ -38,9 +32,9 @@ public class OrxOrderSubmitRequestTests
 
         socketBufferReadContext = new SocketBufferReadContext
         {
-            EncodedBuffer = new CircularReadWriteBuffer(byteBuffer)
-            , DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, "")
-            , MessageHeader = new MessageHeader(TradingVersionInfo.CurrentVersion, 0, 0, 1)
+            EncodedBuffer         = new CircularReadWriteBuffer(byteBuffer)
+          , DispatchLatencyLogger = new PerfLogger("", TimeSpan.MaxValue, "")
+          , MessageHeader         = new MessageHeader(TradingVersionInfo.CurrentVersion, 0, 0, 1)
         };
     }
 
@@ -51,17 +45,17 @@ public class OrxOrderSubmitRequestTests
         var originalClientOrderId = new OrderSubmitRequests
         {
             FirstRequest = BuildSubmitRequest(), SecondRequest = BuildSubmitRequest()
-            , ThirdRequest = BuildSubmitRequest(), FourthRequest = BuildSubmitRequest()
+          , ThirdRequest = BuildSubmitRequest(), FourthRequest = BuildSubmitRequest()
         };
 
         var messageSize = orxOrxClientOrderIdSerializer.Serialize(originalClientOrderId,
-            socketBufferReadContext.EncodedBuffer, OrxMessageHeader.HeaderSize);
+                                                                  socketBufferReadContext.EncodedBuffer, OrxMessageHeader.HeaderSize);
         socketBufferReadContext.MessageHeader
             = new MessageHeader(TradingVersionInfo.CurrentVersion, 0, 0, (uint)messageSize + MessageHeader.SerializationSize);
         socketBufferReadContext.EncodedBuffer.ReadCursor = MessageHeader.SerializationSize;
 
         var orderSubmitRequestsDeserializer = new OrxByteDeserializer<OrderSubmitRequests>(new OrxDeserializerLookup(
-            new Recycler()));
+                                                                                            new Recycler()));
 
         var deserializedOrxClientOrderId = orderSubmitRequestsDeserializer.Deserialize(socketBufferReadContext);
 
@@ -72,8 +66,10 @@ public class OrxOrderSubmitRequestTests
     }
 
     private OrxOrderSubmitRequest BuildSubmitRequest() =>
-        new(new OrxSpotOrder("TestTicker", OrderSide.Bid, 1.23456m, 300_000L, OrderType.Limit, 100_000,
-                    0.00025m, 10_000m), 1,
+        new(new OrxSpotOrder
+                (new OrxOrderId(2), 1234, 3456u, OrderSide.Bid, 1.23456m, 300_000L,
+                 OrderType.Limit, displaySize: 100_000, allowedPriceSlippage: 0.00025m, allowedVolumeSlippage: 10_000m, tickerName: "TestTicker"
+                ), 1,
             new DateTime(2018, 3, 30, 2, 18, 2),
             new DateTime(2018, 3, 30, 2, 18, 2), "Tag")
         {

@@ -98,3 +98,9 @@ public class OrxVenuePriceQuoteId : ReusableObject<IVenuePriceQuoteId>, IVenuePr
         }
     }
 }
+
+public static class OrxVenuePriceQuoteIdExtensions
+{
+    public static OrxVenuePriceQuoteId? ToOrxPriceQuoteId(this IVenuePriceQuoteId? toConvert) =>
+        toConvert != null ? new OrxVenuePriceQuoteId(toConvert) : null;
+}

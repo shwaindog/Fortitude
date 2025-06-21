@@ -135,7 +135,7 @@ public sealed class OrxTradingServer : OrxAuthenticationServer
             feed.SubmitOrderRequest(orderSubmitRequest);
             if (!orderSubmitRequest.OrderDetails.IsInError())
             {
-                var orxOrder = orderSubmitRequest.OrderDetails.AsOrxOrder().Clone();
+                var orxOrder = orderSubmitRequest.OrderDetails.AsOrxOrder.Clone();
                 orderSessionTracker.RegisterOrderIdWithSession(orxOrder, conversation);
             }
 
