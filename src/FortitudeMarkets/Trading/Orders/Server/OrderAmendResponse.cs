@@ -16,7 +16,7 @@ public class OrderAmendResponse : OrderUpdate, IOrderAmendResponse
         OldOrderId = new OrderId(toClone.OldOrderId!);
     }
 
-    public OrderAmendResponse(IOrder order, OrderUpdateEventType orderUpdateType, DateTime adapterUpdateTime,
+    public OrderAmendResponse(ITransmittableOrder order, OrderUpdateEventType orderUpdateType, DateTime adapterUpdateTime,
         AmendType amendType, IOrderId newOrderId) : base(order, orderUpdateType, adapterUpdateTime)
     {
         AmendType = amendType;

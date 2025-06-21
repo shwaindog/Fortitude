@@ -51,13 +51,9 @@ public class OrxOrderIdTests
 
         var deserializedOrxClientOrderId = orxOrderIdDeserializer.Deserialize(socketBufferReadContext);
 
-        Assert.AreEqual(originalOrderId.ClientOrderId,
-            deserializedOrxClientOrderId.ClientOrderId);
-        Assert.AreEqual(originalOrderId.TrackingId,
-            deserializedOrxClientOrderId.TrackingId);
-        Assert.AreEqual(originalOrderId.ParentOrderId,
-            deserializedOrxClientOrderId.ParentOrderId);
-        Assert.AreEqual(originalOrderId.AdapterOrderId,
-            deserializedOrxClientOrderId.AdapterOrderId);
+        Assert.AreEqual(originalOrderId.ClientOrderId, deserializedOrxClientOrderId.ClientOrderId);
+        Assert.AreEqual(originalOrderId.TrackingId, deserializedOrxClientOrderId.TrackingId);
+        Assert.AreEqual(originalOrderId.ParentOrderId, deserializedOrxClientOrderId.ParentOrderId);
+        Assert.AreEqual(originalOrderId.AdapterOrderId, deserializedOrxClientOrderId.AdapterOrderId);
     }
 }

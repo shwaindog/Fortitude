@@ -9,7 +9,6 @@ using FortitudeCommon.Monitoring.Logging;
 using FortitudeMarkets.Trading.Executions;
 using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Client;
-using FortitudeMarkets.Trading.Orders.Products;
 using FortitudeMarkets.Trading.Orders.Server;
 using FortitudeMarkets.Trading.Orders.SpotOrders;
 using FortitudeMarkets.Trading.Orders.Venues;
@@ -26,7 +25,7 @@ public class TradingFeedHandle : ITradingFeed
     private static IFLogger logger = FLoggerFactory.Instance.GetLogger(typeof(TradingFeedHandle));
 
     private IRecycler? recycler;
-    public  IOrder?    LastReceivedOrder { get; private set; }
+    public  ITransmittableOrder?    LastReceivedOrder { get; private set; }
 
     public string? User { get; set; }
 
@@ -41,21 +40,21 @@ public class TradingFeedHandle : ITradingFeed
         Closed?.Invoke();
     }
 
-    public void CancelOrder(IOrder order)
+    public void CancelOrder(ITransmittableOrder order)
     {
         var updatedOrder = order.Clone();
         updatedOrder.Status = OrderStatus.Dead;
         OrderUpdate?.Invoke(new OrderUpdate(updatedOrder, OrderUpdateEventType.OrderCancelled, TimeContext.UtcNow));
     }
 
-    public void SuspendOrder(IOrder order)
+    public void SuspendOrder(ITransmittableOrder order)
     {
         var updatedOrder = order.Clone();
         updatedOrder.Status = OrderStatus.Frozen;
         OrderUpdate?.Invoke(new OrderUpdate(updatedOrder, OrderUpdateEventType.OrderPaused, TimeContext.UtcNow));
     }
 
-    public void ResumeOrder(IOrder order)
+    public void ResumeOrder(ITransmittableOrder order)
     {
         var updatedOrder = order.Clone();
         updatedOrder.Status = OrderStatus.Active;
@@ -85,7 +84,7 @@ public class TradingFeedHandle : ITradingFeed
         LastReceivedOrder = submitRequest.OrderDetails.Clone();
     }
 
-    public void AmendOrderRequest(IOrder order, IOrderAmend amendOrderRequest)
+    public void AmendOrderRequest(ITransmittableOrder order, IOrderAmend amendOrderRequest)
     {
         order.ApplyAmendment(amendOrderRequest);
         var amendResponse = Recycler.Borrow<OrxOrderAmendResponse>();

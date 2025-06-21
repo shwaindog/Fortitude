@@ -54,3 +54,10 @@ public class Executions : ReusableObject<IExecutions>, IExecutions
         return this;
     }
 }
+
+
+public static class ExecutionsExtensions
+{
+    public static Executions? ToExecutions(this IExecutions? toConvert) =>
+        toConvert != null ? new Executions(toConvert) : null;
+}

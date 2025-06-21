@@ -151,7 +151,7 @@ public class CancelOrderLog
 {
     private readonly string id;
 
-    public CancelOrderLog(IOrder order) => id = order.OrderId.ToString()!;
+    public CancelOrderLog(ITransmittableOrder order) => id = order.OrderId.ToString()!;
 
     public override string ToString() =>
         new StringBuilder(128)
@@ -163,7 +163,7 @@ public class SuspendOrderLog
 {
     private readonly string id;
 
-    public SuspendOrderLog(IOrder order) => id = order.OrderId.ToString()!;
+    public SuspendOrderLog(ITransmittableOrder order) => id = order.OrderId.ToString()!;
 
     public override string ToString() =>
         new StringBuilder(128)
@@ -175,7 +175,7 @@ public class ResumeOrderLog
 {
     private readonly string id;
 
-    public ResumeOrderLog(IOrder order) => id = order.OrderId.ToString()!;
+    public ResumeOrderLog(ITransmittableOrder order) => id = order.OrderId.ToString()!;
 
     public override string ToString() =>
         new StringBuilder(128)
@@ -185,10 +185,10 @@ public class ResumeOrderLog
 
 public class AmendOrderLog
 {
-    private readonly IOrder order;
+    private readonly ITransmittableOrder order;
     private readonly IOrderAmend orderRequest;
 
-    public AmendOrderLog(IOrder order, IOrderAmend orderRequest)
+    public AmendOrderLog(ITransmittableOrder order, IOrderAmend orderRequest)
     {
         this.order = order;
         this.orderRequest = orderRequest;

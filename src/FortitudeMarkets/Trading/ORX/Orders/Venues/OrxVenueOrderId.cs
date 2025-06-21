@@ -86,3 +86,10 @@ public class OrxVenueOrderId : ReusableObject<IVenueOrderId>, IVenueOrderId
         }
     }
 }
+
+
+public static class OrxVenueOrderIdExtensions
+{
+    public static OrxVenueOrderId? ToOrxVenueOrderId(this IVenueOrderId? toConvert) =>
+        toConvert != null ? new OrxVenueOrderId(toConvert) : null;
+}

@@ -51,7 +51,7 @@ public class AdapterOrderSessionTracker
         }
     }
 
-    public void UnregisterOrderWithSession(IOrder order)
+    public void UnregisterOrderWithSession(ITransmittableOrder order)
     {
         var orderKeyToRemove = order.OrderId.AdapterOrderId!.Value;
         lock (orderFromSessionCache)
@@ -84,7 +84,7 @@ public class AdapterOrderSessionTracker
         }
     }
 
-    public IEnumerable<IOrder> ReturnAllOrdersForSession(IConversation repositorySession)
+    public IEnumerable<ITransmittableOrder> ReturnAllOrdersForSession(IConversation repositorySession)
     {
         lock (repositorySession)
         {
@@ -133,7 +133,7 @@ public class AdapterOrderSessionTracker
         }
     }
 
-    public IOrder? FindOrderFromSessionId(uint adapterId, IConversation repositorySession)
+    public ITransmittableOrder? FindOrderFromSessionId(uint adapterId, IConversation repositorySession)
     {
         OrxOrder? order = null;
         lock (orderFromSessionCache)

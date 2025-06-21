@@ -6,8 +6,6 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeMarkets.Trading.Orders.Venues;
 
-public interface IVenueOrders : IEnumerable<IVenueOrder>, IReusableObject<IVenueOrders>
+public interface IVenueOrders : IList<IVenueOrder>, IReusableObject<IVenueOrders>
 {
-    int Count { get; }
-    IVenueOrder? this[int index] { get; set; }
 }

@@ -39,7 +39,7 @@ namespace FortitudeMarkets.Trading.ORX.Orders;
     typeof(OrxSpotOrder), //todo OrxFutureOrder
     typeof(OrxSpotOrder)  //todo OrxMultiLegForwardOrder*/
 ])]
-public abstract class OrxOrder : ReusableObject<IOrder>, IOrder, ITransferState<OrxOrder>, ICloneable<OrxOrder>
+public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmittableOrder, ITransferState<OrxOrder>, ICloneable<OrxOrder>
 {
     private static IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(OrxOrder));
 
@@ -47,21 +47,20 @@ public abstract class OrxOrder : ReusableObject<IOrder>, IOrder, ITransferState<
 
     protected OrxOrder()
     {
-        OrderId = new OrxOrderId();
+        OrderId = null!;
+        Parties = null!;
     }
 
-    protected OrxOrder(IOrder toClone)
+    protected OrxOrder(ITransmittableOrder toClone)
     {
         OrderId      = new OrxOrderId(toClone.OrderId);
         TickerId     = toClone.TickerId;
-        Ticker       = toClone.Ticker != null ? new MutableString(toClone.Ticker) : null;
+        Parties      = new OrxParties(toClone.Parties);
         TimeInForce  = toClone.TimeInForce;
         CreationTime = toClone.CreationTime;
         Status       = toClone.Status;
         SubmitTime   = toClone.SubmitTime;
         DoneTime     = toClone.DoneTime;
-        Parties      = toClone.Parties != null ? new OrxParties(toClone.Parties) : null;
-        Message      = toClone.Message != null ? new MutableString(toClone.Message) : null;
         IsComplete   = toClone.IsComplete;
         IsError      = toClone.IsError;
 
@@ -71,38 +70,42 @@ public abstract class OrxOrder : ReusableObject<IOrder>, IOrder, ITransferState<
 
         VenueOrders = toClone.VenueOrders != null ? new OrxVenueOrders(toClone.VenueOrders) : null;
         Executions  = toClone.Executions != null ? new OrxExecutions(toClone.Executions) : null;
+
+        MutableTicker  = (MutableString?)toClone.MutableTicker;
+        MutableMessage = (MutableString?)toClone.MutableMessage;
     }
 
     protected OrxOrder
-    (OrxOrderId orderId, ushort tickerId, TimeInForce timeInForce, DateTime creationTime, OrderStatus status
-      , DateTime submitTime, OrxParties parties, DateTime doneTime
-      , OrxVenueCriteria venueSelectionCriteria, OrxVenueOrders venueOrders, OrxExecutions executions
-      , IOrderPublisher orderPublisher, MutableString? message = null, bool isError = false
-      , MutableString? tickerName = null, bool isComplete = false)
+    (OrxOrderId orderId, ushort tickerId, OrxParties parties, DateTime? creationTime = null, OrderStatus status = OrderStatus.New
+      , TimeInForce timeInForce = TimeInForce.ImmediateOrCancel
+      , OrxVenueCriteria? venueSelectionCriteria = null, DateTime? submitTime = null, DateTime? doneTime = null
+      , OrxVenueOrders? venueOrders = null, OrxExecutions? executions = null, bool isComplete = false
+      , MutableString? tickerName = null, MutableString? message = null)
     {
-        OrderId      = orderId;
-        TickerId     = tickerId;
-        Ticker       = tickerName;
-        TimeInForce  = timeInForce;
-        CreationTime = creationTime;
-        Status       = status;
-        SubmitTime   = submitTime;
-        DoneTime     = doneTime;
-        Parties      = parties;
-        VenueOrders  = venueOrders;
-        Executions   = executions;
-        IsError      = isError;
-        Message      = message;
-        IsComplete   = isComplete;
+        OrderId        = orderId;
+        TickerId       = tickerId;
+        MutableTicker  = tickerName;
+        TimeInForce    = timeInForce;
+        CreationTime   = creationTime ?? TimeContext.UtcNow;
+        Status         = status;
+        SubmitTime     = submitTime;
+        DoneTime       = doneTime;
+        Parties        = parties;
+        VenueOrders    = venueOrders;
+        Executions     = executions;
+        MutableMessage = message;
+        IsComplete     = isComplete;
 
         OrderPublisher = orderPublisher;
 
         VenueSelectionCriteria = venueSelectionCriteria;
     }
 
-    [OrxMandatoryField(0)] public OrxOrderId OrderId { get; set; }
+    public abstract ProductType ProductType { get; }
 
-    [OrxMandatoryField(1)] public ushort TickerId { get; set; }
+    public abstract IOrder AsOrder { get; }
+
+    [OrxMandatoryField(0)] public OrxOrderId OrderId { get; set; }
 
     IOrderId IOrder.OrderId
     {
@@ -110,46 +113,80 @@ public abstract class OrxOrder : ReusableObject<IOrder>, IOrder, ITransferState<
         set => OrderId = (OrxOrderId)value;
     }
 
-    [OrxMandatoryField(2)] public TimeInForce TimeInForce { get; set; }
+    [OrxMandatoryField(1)] public ushort TickerId { get; set; }
 
-    [OrxMandatoryField(3)] public DateTime CreationTime { get; set; }
+    [OrxMandatoryField(2)] public OrxParties Parties { get; set; }
 
-    [OrxMandatoryField(4)] public OrderStatus Status { get; set; }
+    IParties IOrder.Parties
+    {
+        get => Parties;
+        set => Parties = (OrxParties)value;
+    }
+
+    [OrxMandatoryField(3)] public TimeInForce TimeInForce { get; set; }
+
+    [OrxMandatoryField(4)] public DateTime CreationTime { get; set; }
+
+    [OrxMandatoryField(5)] public OrderStatus Status { get; set; }
 
     [OrxOptionalField(6)] public DateTime? SubmitTime { get; set; }
 
     [OrxOptionalField(7)] public DateTime? DoneTime { get; set; }
 
-    [OrxOptionalField(8)] public OrxParties? Parties { get; set; }
+    [OrxOptionalField(8)] public OrxVenueCriteria? VenueSelectionCriteria { get; set; }
 
-    [OrxOptionalField(9)] public OrxVenueCriteria? VenueSelectionCriteria { get; set; }
-
-    [OrxOptionalField(10)] public OrxVenueOrders? VenueOrders { get; set; }
-
-    [OrxOptionalField(11)] public OrxExecutions? Executions { get; set; }
-
-    [OrxOptionalField(12)] public MutableString? Message { get; set; } = new();
-
-    IMutableString? IOrder.Ticker
+    IVenueCriteria? IOrder.VenueSelectionCriteria
     {
-        get => Ticker;
-        set => Ticker = value as MutableString;
+        get => VenueSelectionCriteria;
+        set => VenueSelectionCriteria = value as OrxVenueCriteria;
     }
 
-    [OrxOptionalField(13)] public MutableString? Ticker { get; set; }
+    [OrxOptionalField(9)] public OrxVenueOrders? VenueOrders { get; set; }
 
-    [OrxOptionalField(14)] public bool IsError { get; set; }
-
-    [OrxOptionalField(15)] public bool IsComplete { get; set; }
-
-    public abstract ProductType ProductType { get; }
-
-    public bool AutoRecycledByProducer { get; set; }
-
-    IParties? IOrder.Parties
+    IVenueOrders? IOrder.VenueOrders
     {
-        get => Parties;
-        set => Parties = value as OrxParties;
+        get => VenueOrders;
+        set => VenueOrders = value as OrxVenueOrders;
+    }
+
+    [OrxOptionalField(10)] public OrxExecutions? Executions { get; set; }
+
+    IExecutions? IOrder.Executions
+    {
+        get => Executions;
+        set => Executions = value as OrxExecutions;
+    }
+
+    [OrxOptionalField(11)] public bool IsError { get; set; }
+
+    [OrxOptionalField(12)] public bool IsComplete { get; set; }
+
+    [OrxOptionalField(13)] public MutableString? MutableMessage { get; set; }
+
+    string? IOrder.Message
+    {
+        get => MutableMessage?.ToString();
+        set => MutableMessage = MutableMessage.TransferOrCreate(value);
+    }
+
+    IMutableString? ITransmittableOrder.MutableMessage
+    {
+        get => MutableMessage;
+        set => MutableMessage = MutableMessage.TransferOrReplace(value);
+    }
+
+    [OrxOptionalField(14)] public MutableString? MutableTicker { get; set; }
+
+    string? IOrder.Ticker
+    {
+        get => MutableTicker?.ToString();
+        set => MutableTicker = value;
+    }
+
+    IMutableString? ITransmittableOrder.MutableTicker
+    {
+        get => MutableTicker;
+        set => MutableTicker = MutableTicker.TransferOrReplace(value);
     }
 
     public IOrderPublisher? OrderPublisher
@@ -161,30 +198,6 @@ public abstract class OrxOrder : ReusableObject<IOrder>, IOrder, ITransferState<
             if (value != null) value.IncrementRefCount();
             orderPublisher = value;
         }
-    }
-
-    IVenueCriteria? IOrder.VenueSelectionCriteria
-    {
-        get => VenueSelectionCriteria;
-        set => VenueSelectionCriteria = value as OrxVenueCriteria;
-    }
-
-    IVenueOrders? IOrder.VenueOrders
-    {
-        get => VenueOrders;
-        set => VenueOrders = value as OrxVenueOrders;
-    }
-
-    IExecutions? IOrder.Executions
-    {
-        get => Executions;
-        set => Executions = value as OrxExecutions;
-    }
-
-    IMutableString? IOrder.Message
-    {
-        get => Message;
-        set => Message = value as MutableString ?? Recycler?.Borrow<MutableString>() ?? new MutableString();
     }
 
     public abstract void RegisterExecution(IExecution execution);
@@ -201,7 +214,7 @@ public abstract class OrxOrder : ReusableObject<IOrder>, IOrder, ITransferState<
         SubmitTime   = DateTimeConstants.UnixEpoch;
         DoneTime     = DateTimeConstants.UnixEpoch;
         Parties?.DecrementRefCount();
-        Parties = null;
+        Parties = null!;
         OrderPublisher?.DecrementRefCount();
         OrderPublisher = null;
         VenueSelectionCriteria?.DecrementRefCount();
@@ -215,15 +228,28 @@ public abstract class OrxOrder : ReusableObject<IOrder>, IOrder, ITransferState<
         base.StateReset();
     }
 
-    public abstract IOrder AsDomainOrder();
-    public abstract OrxOrder AsOrxOrder();
+    public abstract ITransmittableOrder AsTransmittableOrder { get; }
 
-    public override OrxOrder Clone() => throw new NotImplementedException("Derived classes must override this");
+    public abstract OrxOrder AsOrxOrder { get; }
 
-    OrxOrder ITransferState<OrxOrder>.CopyFrom(OrxOrder source, CopyMergeFlags copyMergeFlags) =>
+    IOrder ICloneable<IOrder>.Clone() => Clone();
+
+    IReusableObject<IOrder> ITransferState<IReusableObject<IOrder>>.CopyFrom
+        (IReusableObject<IOrder> source, CopyMergeFlags copyMergeFlags) =>
+        CopyFrom((IOrder)source, copyMergeFlags);
+
+
+    public abstract override OrxOrder Clone();
+
+
+    OrxOrder ITransferState<OrxOrder>.CopyFrom(OrxOrder source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
+
+    IOrder ITransferState<IOrder>.CopyFrom(IOrder source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
+
+    public override OrxOrder CopyFrom(ITransmittableOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) =>
         CopyFrom(source, copyMergeFlags);
 
-    public override OrxOrder CopyFrom(IOrder order, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public virtual OrxOrder CopyFrom(IOrder order, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         OrderId      = order.OrderId.SyncOrRecycle(OrderId)!;
         TimeInForce  = order.TimeInForce;
@@ -231,20 +257,36 @@ public abstract class OrxOrder : ReusableObject<IOrder>, IOrder, ITransferState<
         Status       = order.Status;
         SubmitTime   = order.SubmitTime;
         DoneTime     = order.DoneTime;
-        Parties      = order.Parties.SyncOrRecycle(Parties);
 
-        OrderPublisher = order.OrderPublisher;
+        Parties ??= new OrxParties();
+        Parties.CopyFrom(order.Parties, copyMergeFlags);
+
 
         VenueSelectionCriteria = order.VenueSelectionCriteria.SyncOrRecycle(VenueSelectionCriteria);
 
         VenueOrders = order.VenueOrders.SyncOrRecycle(VenueOrders);
         Executions  = order.Executions.SyncOrRecycle(Executions);
-        Message     = order.Message.SyncOrRecycle(Message);
+
+        if (order is ITransmittableOrder transmittableOrder)
+        {
+            MutableMessage = transmittableOrder.MutableMessage.SyncOrRecycle(MutableMessage);
+            MutableTicker  = transmittableOrder.MutableMessage.SyncOrRecycle(MutableMessage);
+            OrderPublisher = transmittableOrder.OrderPublisher;
+        }
+        else
+        {
+            ((IOrder)this).Ticker  = order.Ticker;
+            ((IOrder)this).Message = order.Message;
+
+            OrderPublisher = null;
+        }
 
         return this;
     }
 
-    public bool AreEquivalent(IOrder? source, bool exactTypes = false)
+    public bool AreEquivalent(IOrder? other, bool exactTypes = false) => AreEquivalent(other as ITransmittableOrder, exactTypes);
+
+    public virtual bool AreEquivalent(ITransmittableOrder? source, bool exactTypes = false)
     {
         if (source == null) return false;
         var orderIdsSame     = OrderId.AreEquivalent(source.OrderId, exactTypes);
@@ -260,8 +302,8 @@ public abstract class OrxOrder : ReusableObject<IOrder>, IOrder, ITransferState<
 
         var venueOrdersSame = Equals(VenueOrders, source.VenueOrders);
         var executionsSame  = Equals(Executions, source.Executions);
-        var messageSame     = Equals(Message, source.Message);
-        var tickerSame      = Equals(Ticker, source.Ticker);
+        var messageSame     = Equals(MutableMessage, source.MutableMessage);
+        var tickerSame      = Equals(MutableTicker, source.MutableTicker);
         var isErrorSame     = IsError == source.IsError;
         var isCompleteSame  = IsComplete == source.IsComplete;
 
@@ -270,7 +312,7 @@ public abstract class OrxOrder : ReusableObject<IOrder>, IOrder, ITransferState<
             && tickerSame && isErrorSame && isCompleteSame;
     }
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IOrder, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ITransmittableOrder, true);
 
     public override int GetHashCode()
     {
@@ -278,25 +320,25 @@ public abstract class OrxOrder : ReusableObject<IOrder>, IOrder, ITransferState<
         {
             var hashCode = OrderId.GetHashCode();
             hashCode = (hashCode * 397) ^ TickerId;
-            hashCode = (hashCode * 397) ^ (Ticker?.GetHashCode() ?? 0);
+            hashCode = (hashCode * 397) ^ (MutableTicker?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ TimeInForce.GetHashCode();
             hashCode = (hashCode * 397) ^ CreationTime.GetHashCode();
             hashCode = (hashCode * 397) ^ (int)Status;
             hashCode = (hashCode * 397) ^ SubmitTime.GetHashCode();
             hashCode = (hashCode * 397) ^ DoneTime.GetHashCode();
-            hashCode = (hashCode * 397) ^ (Parties != null ? Parties.GetHashCode() : 0);
+            hashCode = (hashCode * 397) ^ Parties.GetHashCode();
             hashCode = (hashCode * 397) ^ (OrderPublisher != null ? OrderPublisher.GetHashCode() : 0);
             hashCode = (hashCode * 397) ^ (VenueSelectionCriteria != null ? VenueSelectionCriteria.GetHashCode() : 0);
             hashCode = (hashCode * 397) ^ (VenueOrders != null ? VenueOrders.GetHashCode() : 0);
             hashCode = (hashCode * 397) ^ (Executions != null ? Executions.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ (Message?.GetHashCode() ?? 0);
+            hashCode = (hashCode * 397) ^ (MutableMessage?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ IsError.GetHashCode();
             hashCode = (hashCode * 397) ^ IsComplete.GetHashCode();
             return hashCode;
         }
     }
-    
-    protected string OrderToStringMembers 
+
+    public virtual string OrderToStringMembers
     {
         get
         {
@@ -304,14 +346,15 @@ public abstract class OrxOrder : ReusableObject<IOrder>, IOrder, ITransferState<
             sb.Append(nameof(InstanceNum)).Append(": ").Append(InstanceNum);
             sb.Append(", ").Append(nameof(OrderId)).Append(": ").Append(OrderId);
             sb.Append(", ").Append(nameof(TickerId)).Append(": ").Append(TickerId);
+            sb.Append(", ").Append(nameof(Parties)).Append(", ").Append(": ").Append(Parties);
             sb.Append(", ").Append(nameof(ProductType)).Append(": ").Append(ProductType);
-            if (Ticker != null) sb.Append(", ").Append(nameof(Ticker)).Append(": ").Append(Ticker);
+            if (MutableTicker != null) sb.Append(", ").Append(nameof(IOrder.Ticker)).Append(": ").Append(MutableTicker);
+            if (MutableMessage != null) sb.Append(", ").Append(nameof(IOrder.Message)).Append(": ").Append(MutableMessage);
             if (TimeInForce != TimeInForce.None) sb.Append(", ").Append(nameof(TimeInForce)).Append(": ").Append(TimeInForce);
             if (CreationTime.IsNotUnixEpochOrDefault()) sb.Append(", ").Append(nameof(CreationTime)).Append(": ").Append(CreationTime);
             if (Status != OrderStatus.Unknown) sb.Append(", ").Append(nameof(Status)).Append(": ").Append(Status);
             if (SubmitTime.IsNotNullOrUnixEpochOrDefault()) sb.Append(", ").Append(nameof(SubmitTime)).Append(": ").Append(SubmitTime);
             if (DoneTime.IsNotNullOrUnixEpochOrDefault()) sb.Append(", ").Append(nameof(DoneTime)).Append(": ").Append(DoneTime);
-            if (Parties != null) sb.Append(", ").Append(nameof(Parties)).Append(", ").Append(": ").Append(Parties);
             if (OrderPublisher != null) sb.Append(", ").Append(nameof(OrderPublisher)).Append(": ").Append(OrderPublisher);
             if (VenueSelectionCriteria != null) sb.Append(", ").Append(nameof(VenueSelectionCriteria)).Append(": ").Append(VenueSelectionCriteria);
             if (VenueOrders != null) sb.Append(", ").Append(nameof(VenueOrders)).Append(": ").Append(VenueOrders);

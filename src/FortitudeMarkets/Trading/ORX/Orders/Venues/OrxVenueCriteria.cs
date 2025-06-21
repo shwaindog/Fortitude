@@ -90,3 +90,9 @@ public class OrxVenueCriteria : ReusableObject<IVenueCriteria>, IVenueCriteria
         }
     }
 }
+
+public static class OrxVenueCriteriaExtensions
+{
+    public static OrxVenueCriteria? ToOrxVenueCriteria(this IVenueCriteria? toConvert) =>
+        toConvert != null ? new OrxVenueCriteria(toConvert) : null;
+}

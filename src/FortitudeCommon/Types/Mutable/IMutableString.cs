@@ -41,3 +41,5 @@ public interface IMutableString : IMutableStringBuilder<IMutableString>, IEnumer
     string[] Split(char[] delimiters);
     void Split(char[] delimiters, IList<IMutableString> results, Func<IMutableString> mutableStringSupplier);
 }
+
+

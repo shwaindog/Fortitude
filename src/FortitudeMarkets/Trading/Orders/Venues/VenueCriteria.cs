@@ -62,3 +62,10 @@ public class VenueCriteria : ReusableObject<IVenueCriteria>, IVenueCriteria
         return this;
     }
 }
+
+
+public static class VenueCriteriaExtensions
+{
+    public static VenueCriteria? ToVenueCriteria(this IVenueCriteria? toConvert) =>
+        toConvert != null ? new VenueCriteria(toConvert) : null;
+}
