@@ -12,7 +12,10 @@ namespace FortitudeMarkets.Trading.ORX.Orders.Venues;
 
 public class OrxVenueOrders : ReusableObject<IVenueOrders>, IVenueOrders
 {
-    public OrxVenueOrders() { }
+    public OrxVenueOrders()
+    {
+        VenueOrdersList = [];
+    }
 
     public OrxVenueOrders(IVenueOrders toClone)
     {
@@ -24,19 +27,76 @@ public class OrxVenueOrders : ReusableObject<IVenueOrders>, IVenueOrders
         VenueOrdersList = venueOrders.Select(vo => new OrxVenueOrder(vo)).ToList();
     }
 
-    [OrxMandatoryField(0)] public List<OrxVenueOrder>? VenueOrdersList { get; set; }
+    [OrxMandatoryField(0)] public List<OrxVenueOrder> VenueOrdersList { get; set; }
 
-    public int Count => VenueOrdersList?.Count ?? 0;
+    public int Count => VenueOrdersList.Count;
 
-    public IVenueOrder? this[int index]
+    public IVenueOrder this[int index]
     {
-        get => VenueOrdersList?[index];
-        set => VenueOrdersList![index] = (OrxVenueOrder)value!;
+        get => VenueOrdersList[index];
+        set => VenueOrdersList[index] = (OrxVenueOrder)value;
+    }
+
+    public void Add(IVenueOrder item)
+    {
+        if (item is OrxVenueOrder orxVenueOrder)
+        {
+            VenueOrdersList.Add(orxVenueOrder);
+        }
+        else
+        {
+            VenueOrdersList.Add(new OrxVenueOrder(item));
+        }
+    }
+
+    public void Clear()
+    {
+        VenueOrdersList.Clear();
+    }
+
+    public bool Contains(IVenueOrder item) => VenueOrdersList.Contains(item);
+
+    public void CopyTo(IVenueOrder[] array, int arrayIndex)
+    {
+        int myIndex = 0;
+        for (int i = arrayIndex; i < array.Length && myIndex < VenueOrdersList.Count; i++)
+        {
+            array[i] = VenueOrdersList[myIndex++];
+        }
+    }
+
+    public int  IndexOf(IVenueOrder item) => VenueOrdersList.IndexOf((OrxVenueOrder)item);
+
+    public void Insert(int index, IVenueOrder item)
+    {
+        if (item is OrxVenueOrder orxVenueOrder)
+        {
+            VenueOrdersList.Insert(index, orxVenueOrder);
+        }
+        else
+        {
+            VenueOrdersList.Insert(index, new OrxVenueOrder(item));
+        }
+    }
+
+    public bool IsReadOnly => false;
+
+    public bool Remove(IVenueOrder item) => VenueOrdersList.Remove((OrxVenueOrder)item);
+
+    public void RemoveAt(int index)
+    {
+        VenueOrdersList.RemoveAt(index);
+    }
+
+    public override void StateReset()
+    {
+        base.StateReset();
+        VenueOrdersList.Clear();
     }
 
     public override IVenueOrders Clone() => Recycler?.Borrow<OrxVenueOrders>().CopyFrom(this) ?? new OrxVenueOrders(this);
 
-    public IEnumerator<IVenueOrder> GetEnumerator() => VenueOrdersList?.GetEnumerator() ?? Enumerable.Empty<IVenueOrder>().GetEnumerator();
+    public IEnumerator<IVenueOrder> GetEnumerator() => VenueOrdersList.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -51,7 +111,7 @@ public class OrxVenueOrders : ReusableObject<IVenueOrders>, IVenueOrders
             for (var i = 0; i < venueOrderCount; i++)
             {
                 var orxVenueOrder = Recycler!.Borrow<OrxVenueOrder>();
-                orxVenueOrder.CopyFrom(venueOrders[i]!, copyMergeFlags);
+                orxVenueOrder.CopyFrom(venueOrders[i], copyMergeFlags);
                 orxVenueList.Add(orxVenueOrder);
             }
 
@@ -61,7 +121,7 @@ public class OrxVenueOrders : ReusableObject<IVenueOrders>, IVenueOrders
         return this;
     }
 
-    protected bool Equals(OrxVenueOrders other) => VenueOrdersList?.SequenceEqual(other.VenueOrdersList!) ?? other.VenueOrdersList == null;
+    protected bool Equals(OrxVenueOrders other) => VenueOrdersList.SequenceEqual(other.VenueOrdersList);
 
     public override bool Equals(object? obj)
     {
@@ -71,5 +131,12 @@ public class OrxVenueOrders : ReusableObject<IVenueOrders>, IVenueOrders
         return Equals((OrxVenueOrders)obj);
     }
 
-    public override int GetHashCode() => VenueOrdersList != null ? VenueOrdersList.GetHashCode() : 0;
+    public override int GetHashCode() => VenueOrdersList.GetHashCode();
+}
+
+
+public static class OrxVenueOrdersExtensions
+{
+    public static OrxVenueOrders? ToOrxVenueOrders(this IVenueOrders? toConvert) =>
+        toConvert != null ? new OrxVenueOrders(toConvert) : null;
 }

@@ -11,7 +11,7 @@ namespace PublishingRecordingAndReplaying.Step_1;
 
 public class StartingBootstrapRule(CommandLineOptions cmdLineOptions) : Rule
 {
-    private readonly bool   isPublisher = cmdLineOptions.RuntAs == DistributionType.Publisher;
+    private readonly bool   isPublisher = cmdLineOptions.RunAs == DistributionType.Publisher;
     private readonly Venues venue       = cmdLineOptions.Source;
 
     public override async ValueTask StartAsync() { }

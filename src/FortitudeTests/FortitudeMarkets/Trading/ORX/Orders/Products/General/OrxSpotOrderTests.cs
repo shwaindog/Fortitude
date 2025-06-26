@@ -7,11 +7,10 @@ using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeIO.Protocols.ORX.Serdes.Deserialization;
 using FortitudeIO.Protocols.ORX.Serdes.Serialization;
 using FortitudeIO.Protocols.Serdes.Binary.Sockets;
-using FortitudeMarkets.Trading.Orders.Products;
 using FortitudeMarkets.Trading;
 using FortitudeMarkets.Trading.Orders.SpotOrders;
+using FortitudeMarkets.Trading.ORX.Orders;
 using FortitudeMarkets.Trading.ORX.Orders.SpotOrders;
-using FortitudeMarkets.Trading.ORX.Orders.Venues;
 
 #endregion
 
@@ -65,10 +64,8 @@ public class OrxSpotOrderTests
     }
 
     private OrxSpotOrder BuildSpotOrder() =>
-        new("TestTicker", OrderSide.Bid, 1.234567m, 988_765_123,
-            OrderType.Limit, 100_000m, 0.0001m, 1000m,
-            FillExpectation.Complete, new OrxVenuePriceQuoteId(123, 234, 1234567u, 123456u,
-                new DateTime(2018, 4, 1, 19, 11, 21)), 1.23456m, 100_000m);
+        new(new OrxOrderId(2), 1234, 3456u,OrderSide.Bid, 1.23456m, 300_000L,
+            OrderType.Limit, displaySize: 100_000,  allowedPriceSlippage:0.00025m, allowedVolumeSlippage: 10_000m, tickerName:  "TestTicker");
 
     public class SpotOrders
     {

@@ -8,17 +8,20 @@ public class CommandLineOptions(DistributionType distributionType, Venues source
     private const string PublisherCmdLnOption                = "--publisher";
     private const string SubscriberCmdLnOption               = "--subscriber";
     private const string VenueCmdLnOption                    = "--venue=";
+
     private const string PublisherDistinctQuotesCmdLnOption  = "--numDistinctQuotes=";
     private const string PublisherRepeatCmdLnOption          = "--repeat=";
     private const string PublisherQuoteIntervalMsCmdLnOption = "--publishIntervalMs=";
 
-    public Venues           Source                 { get; private set; }
-    public DistributionType RuntAs                 { get; private set; }
-    public uint             DistinctQuotes         { get; private set; } = 10;
-    public uint             AverageQuoteIntervalMs { get; private set; } = 2_000;
-    public uint             RepeatTimes            { get; private set; } = 10_000_000;
+    public DistributionType RunAs { get; private set; }
 
-    public bool ShouldExit => Source == Venues.NotSet || RuntAs == DistributionType.NotSet;
+    public uint AverageQuoteIntervalMs { get; private set; } = 2_000;
+
+    public Venues Source         { get; private set; }
+    public uint   DistinctQuotes { get; private set; } = 10;
+    public uint   RepeatTimes    { get; private set; } = 10_000_000;
+
+    public bool ShouldExit => Source == Venues.NotSet || RunAs == DistributionType.NotSet;
 
     public static CommandLineOptions ParseCommandLine(string[] args)
     {
@@ -29,8 +32,8 @@ public class CommandLineOptions(DistributionType distributionType, Venues source
             {
                 switch (cla)
                 {
-                    case PublisherCmdLnOption:  cmdLineOpts.RuntAs = DistributionType.Publisher; break;
-                    case SubscriberCmdLnOption: cmdLineOpts.RuntAs = DistributionType.Subscriber; break;
+                    case PublisherCmdLnOption:  cmdLineOpts.RunAs = DistributionType.Publisher; break;
+                    case SubscriberCmdLnOption: cmdLineOpts.RunAs = DistributionType.Subscriber; break;
                     default:
                         if (cla.Contains(VenueCmdLnOption))
                         {

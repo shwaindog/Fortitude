@@ -6,14 +6,12 @@ using System.Threading.Tasks;
 
 namespace FortitudeMarkets.Accounts;
 
-
-
-
-public interface IOrderBlotter
+public interface IAccountBlotter
 {
+
 }
 
 
-public class OrderBlotter
+public class AccountBlotter
 {
 }

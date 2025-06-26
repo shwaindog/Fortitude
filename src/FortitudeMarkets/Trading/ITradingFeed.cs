@@ -16,9 +16,9 @@ public interface ITradingFeed : ITradingFeedListener
     bool IsAvailable { get; }
     TimeInForce SupportedTimeInForce { get; }
     VenueFeatures SupportedVenueFeatures { get; }
-    void CancelOrder(IOrder order);
-    void SuspendOrder(IOrder order);
-    void ResumeOrder(IOrder order);
+    void CancelOrder(ITransmittableOrder order);
+    void SuspendOrder(ITransmittableOrder order);
+    void ResumeOrder(ITransmittableOrder order);
     void SubmitOrderRequest(IOrderSubmitRequest submitRequest);
-    void AmendOrderRequest(IOrder order, IOrderAmend amendOrderRequest);
+    void AmendOrderRequest(ITransmittableOrder order, IOrderAmend amendOrderRequest);
 }

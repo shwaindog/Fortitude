@@ -27,12 +27,12 @@ public class OrderSubmitRequest : TradingMessage, IOrderSubmitRequest
     }
 
     public OrderSubmitRequest
-    (IOrder orderDetails, int attemptNumber, DateTime currentAttemptTime,
+    (ITransmittableOrder orderDetails, int attemptNumber, DateTime currentAttemptTime,
         DateTime originalAttemptTime, string tag)
         : this(orderDetails, attemptNumber, currentAttemptTime, originalAttemptTime, (MutableString)tag) { }
 
     public OrderSubmitRequest
-    (IOrder orderDetails,
+    (ITransmittableOrder orderDetails,
         int attemptNumber, DateTime currentAttemptTime, DateTime originalAttemptTime, IMutableString tag)
     {
         OrderDetails        = orderDetails;
@@ -44,7 +44,7 @@ public class OrderSubmitRequest : TradingMessage, IOrderSubmitRequest
 
     public override uint MessageId => (uint)TradingMessageIds.SubmitRequest;
 
-    public IOrder?  OrderDetails        { get; set; }
+    public ITransmittableOrder?  OrderDetails        { get; set; }
     public DateTime OriginalAttemptTime { get; set; }
     public DateTime CurrentAttemptTime  { get; set; }
     public int      AttemptNumber       { get; set; }
@@ -72,7 +72,7 @@ public class OrderSubmitRequest : TradingMessage, IOrderSubmitRequest
         {
             if (OrderDetails == null)
             {
-                OrderDetails = orderSubmitRequest.OrderDetails?.AsDomainOrder().Clone();
+                OrderDetails = orderSubmitRequest.OrderDetails?.AsTransmittableOrder.Clone();
             } else if (orderSubmitRequest.OrderDetails != null)
             {
                 OrderDetails.CopyFrom(orderSubmitRequest.OrderDetails, copyMergeFlags);

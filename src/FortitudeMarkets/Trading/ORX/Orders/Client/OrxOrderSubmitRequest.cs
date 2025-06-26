@@ -24,7 +24,7 @@ public class OrxOrderSubmitRequest : OrxTradingMessage, IOrderSubmitRequest
 
     public OrxOrderSubmitRequest(IOrderSubmitRequest toClone)
     {
-        OrderDetails        = toClone.OrderDetails?.AsOrxOrder();
+        OrderDetails        = toClone.OrderDetails?.AsOrxOrder;
         AttemptNumber       = toClone.AttemptNumber;
         CurrentAttemptTime  = toClone.CurrentAttemptTime;
         OriginalAttemptTime = toClone.OriginalAttemptTime;
@@ -67,7 +67,7 @@ public class OrxOrderSubmitRequest : OrxTradingMessage, IOrderSubmitRequest
 
     public override uint MessageId => (uint)TradingMessageIds.SubmitRequest;
 
-    IOrder? IOrderSubmitRequest.OrderDetails
+    ITransmittableOrder? IOrderSubmitRequest.OrderDetails
     {
         get => OrderDetails;
         set => OrderDetails = value as OrxOrder;
@@ -94,7 +94,7 @@ public class OrxOrderSubmitRequest : OrxTradingMessage, IOrderSubmitRequest
         {
             if (OrderDetails == null)
             {
-                OrderDetails = orderSubmitRequest.OrderDetails?.AsOrxOrder();
+                OrderDetails = orderSubmitRequest.OrderDetails?.AsOrxOrder;
             } else if (orderSubmitRequest.OrderDetails != null)
             {
                 OrderDetails.CopyFrom(orderSubmitRequest.OrderDetails, copyMergeFlags);

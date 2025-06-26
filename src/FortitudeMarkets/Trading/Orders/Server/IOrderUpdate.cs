@@ -11,7 +11,7 @@ namespace FortitudeMarkets.Trading.Orders.Server;
 
 public interface IOrderUpdate : ITradingMessage, ITransferState<IOrderUpdate>
 {
-    IOrder? Order { get; set; }
+    ITransmittableOrder? Order { get; set; }
 
     OrderUpdateEventType OrderUpdateType { get; set; }
 

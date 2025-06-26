@@ -62,3 +62,10 @@ public class VenuePriceQuoteId : ReusableObject<IVenuePriceQuoteId>, IVenuePrice
     public override IVenuePriceQuoteId Clone() =>
         Recycler?.Borrow<VenuePriceQuoteId>().CopyFrom(this) ?? new VenuePriceQuoteId(this);
 }
+
+
+public static class VenuePriceQuoteIdExtensions
+{
+    public static VenuePriceQuoteId? ToVenuePriceQuoteId(this IVenuePriceQuoteId? toConvert) =>
+        toConvert != null ? new VenuePriceQuoteId(toConvert) : null;
+}

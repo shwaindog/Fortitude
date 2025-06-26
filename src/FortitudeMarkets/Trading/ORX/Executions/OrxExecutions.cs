@@ -103,3 +103,11 @@ public class OrxExecutions : ReusableObject<IExecutions>, IExecutions
     public override string ToString() => 
         $"{nameof(OrxExecutions)}{{{nameof(Count)}: {Count}, {nameof(ExecutionsList)}: {EachExecutionOnNewLine()}}}";
 }
+
+
+
+public static class OrxExecutionsExtensions
+{
+    public static OrxExecutions? ToOrxExecutions(this IExecutions? toConvert) =>
+        toConvert != null ? new OrxExecutions(toConvert) : null;
+}

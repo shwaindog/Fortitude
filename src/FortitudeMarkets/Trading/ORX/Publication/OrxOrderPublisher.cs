@@ -42,7 +42,7 @@ public class OrxOrderPublisher : RecyclableObject, IOrderPublisher
         OrxServerMessaging = orxServerMessaging;
     }
 
-    private OrxOrderEvent ToOrxOrderStatus(IOrder order)
+    private OrxOrderEvent ToOrxOrderStatus(ITransmittableOrder order)
     {
         switch (order.Status)
         {
