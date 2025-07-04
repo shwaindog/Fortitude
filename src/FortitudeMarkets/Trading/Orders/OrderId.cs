@@ -73,23 +73,16 @@ public class OrderId : ReusableObject<IOrderId>, IOrderId
         return this;
     }
 
+
     public bool AreEquivalent(IOrderId? other, bool exactTypes = false)
     {
-        if(other == null) return false;
+        if (other == null) return false;
         var clientOrderIdSame = ClientOrderId == other.ClientOrderId;
-        var parentIdSame      = ParentOrderId?.AreEquivalent(other.ParentOrderId, exactTypes) ?? other.ParentOrderId == null;
 
-        var trackingIdSame = true;
-        var adapterIdSame = true;
-        var orderBookingIdSame = true;
-        if (exactTypes)
-        {
-            trackingIdSame = TrackingId == other.TrackingId;
-            adapterIdSame  = AdapterOrderId == other.AdapterOrderId;
-            trackingIdSame = OrderBookingId == other.OrderBookingId;
-        }
+        var adapterIdSame      = AdapterOrderId == 0 || other.AdapterOrderId == 0 || AdapterOrderId == other.AdapterOrderId;
+        var orderBookingIdSame = OrderBookingId == 0 || other.OrderBookingId == 0 || OrderBookingId == other.OrderBookingId ;
 
-        var allAreSame = clientOrderIdSame && parentIdSame && trackingIdSame && adapterIdSame && orderBookingIdSame;
+        var allAreSame = clientOrderIdSame && adapterIdSame && orderBookingIdSame;
 
         return allAreSame;
     }
@@ -101,10 +94,6 @@ public class OrderId : ReusableObject<IOrderId>, IOrderId
         unchecked
         {
             var hashCode = (int)ClientOrderId;
-            hashCode = (hashCode * 397) ^ TrackingId.GetHashCode();
-            hashCode = (hashCode * 397) ^ AdapterOrderId.GetHashCode();
-            hashCode = (hashCode * 397) ^ OrderBookingId.GetHashCode();
-            hashCode = (hashCode * 397) ^ (ParentOrderId != null ? ParentOrderId.GetHashCode() : 0);
             return hashCode;
         }
     }

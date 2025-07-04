@@ -10,8 +10,8 @@ namespace FortitudeMarkets.Trading.Orders;
 
 public static class OrderHelpers
 {
-    public static bool IsBid(this ISpotOrder order) => order.Side == OrderSide.Bid;
-    public static bool IsOffer(this ISpotOrder order) => order.Side == OrderSide.Offer;
+    public static bool IsBid(this IMutableSpotOrder order) => order.Side == OrderSide.Bid;
+    public static bool IsOffer(this IMutableSpotOrder order) => order.Side == OrderSide.Offer;
     public static bool IsInError(this ITransmittableOrder order) => !MutableString.IsNullOrEmpty(order.MutableMessage);
     public static bool IsPending(this ITransmittableOrder order) => order.Status != OrderStatus.Dead;
 

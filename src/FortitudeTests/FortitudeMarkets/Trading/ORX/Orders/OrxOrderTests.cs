@@ -67,7 +67,7 @@ public class OrxOrderTests
 
     private OrxOrder BuildVenueOrders() =>
         new OrxSpotOrder(new OrxOrderId(2), 1234, 3456u,OrderSide.Bid, 1.23456m, 300_000L,
-                         OrderType.Limit, displaySize: 100_000,  allowedPriceSlippage:0.00025m, allowedVolumeSlippage: 10_000m, tickerName:  "TestTicker");
+                         OrderType.PassiveLimit, displaySize: 100_000,  allowedPriceSlippage:0.00025m, allowedVolumeSlippage: 10_000m, tickerName:  "TestTicker");
 
     public class Orders
     {

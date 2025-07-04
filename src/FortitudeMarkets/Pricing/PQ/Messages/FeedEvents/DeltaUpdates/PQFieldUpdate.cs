@@ -4,7 +4,7 @@
 #region
 
 using FortitudeCommon.DataStructures.Memory;
-using static FortitudeCommon.Extensions.NumberFormattingExtensions;
+using static FortitudeCommon.Extensions.NumberExtensions;
 
 #endregion
 

@@ -1,0 +1,79 @@
+{
+  "SampleAccountsConfigs": {
+    "SingleSourceTradingAccountConfig": {
+      "UsingTradingAccountSize": 1000000,
+      "MaxTotalOpenPositionPercentage": 5,
+      "MaxTickerOpenPositionPercentage": 1,
+      "MaxTickerOpeningOrderSizePercentage": 0.2,
+      "MaxTickerReducingOrderSizePercentage": 1,
+      "SourceAccount": {
+        "SourceMarginCollateral": 10000,
+        "SourceMarginCollateralCurrency": "AUD",
+        "MarginReserveMultiple": 8,
+        "NewOrderConsumePips": 20,
+        "AdapterThroughputLimits": {
+          "DefaultPeriod": "TenSeconds",
+          "TotalAllOrdersSubmitCount": {
+            "AllOrdersSubmitCount": {
+              "AlertFixedLimit": 16,
+              "BreachFixedLimit": 20
+            },
+            "OpeningPositionOrdersSubmitCount": {
+              "AlertFixedLimit": 8,
+              "BreachFixedLimit": 10
+            },
+            "ReducingPositionOrdersSubmitCount": {
+              "AlertFixedLimit": 16,
+              "BreachFixedLimit": 20
+            }
+          },
+          "TotalAllOrdersVolume": {
+            "AllOrdersVolume": {
+              "AlertAccountSizePercentageLimit": 0.8,
+              "BreachAccountSizePercentageLimit": 1
+            },
+            "OpeningPositionVolume": {
+              "AlertAccountSizePercentageLimit": 0.4,
+              "BreachAccountSizePercentageLimit": 0.5
+            },
+            "ReducingPositionVolume": {
+              "AlertAccountSizePercentageLimit": 0.8,
+              "BreachAccountSizePercentageLimit": 1
+            }
+          },
+          "TickerOrdersSubmitCount": {
+            "AllOrdersSubmitCount": {
+              "AlertFixedLimit": 4,
+              "BreachFixedLimit": 7
+            },
+            "OpeningPositionOrdersSubmitCount": {
+              "AlertFixedLimit": 3,
+              "BreachFixedLimit": 4
+            },
+            "ReducingPositionOrdersSubmitCount": {
+              "AlertFixedLimit": 4,
+              "BreachFixedLimit": 7
+            }
+          },
+          "TickerOrdersVolume": {
+            "AllOrdersVolume": {
+              "AlertAccountSizePercentageLimit": 0.4,
+              "BreachAccountSizePercentageLimit": 0.5
+            },
+            "OpeningPositionVolume": {
+              "AlertAccountSizePercentageLimit": 0.2,
+              "BreachAccountSizePercentageLimit": 0.25
+            },
+            "ReducingPositionVolume": {
+              "AlertAccountSizePercentageLimit": 0.4,
+              "BreachAccountSizePercentageLimit": 0.5
+            }
+          }
+        },
+        "SourceTickers": {
+
+        }
+      }
+    }
+  }
+}

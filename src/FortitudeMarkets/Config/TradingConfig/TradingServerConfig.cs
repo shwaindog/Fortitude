@@ -32,7 +32,7 @@ public class TradingServerConfig : ConfigSection, ITradingServerConfig
     public TradingServerConfig() { }
 
     public TradingServerConfig(INetworkTopicConnectionConfig tradingServerConnectionConfig,
-        OrderType supportedOrderTypes = OrderType.Unset,
+        OrderType supportedOrderTypes = OrderType.Unknown,
         TimeInForce supportedTimeInForce = TimeInForce.None,
         VenueFeatures supportedVenueFeatures = VenueFeatures.None)
     {
