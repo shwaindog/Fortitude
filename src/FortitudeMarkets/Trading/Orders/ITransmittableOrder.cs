@@ -10,9 +10,9 @@ using FortitudeMarkets.Trading.ORX.Orders;
 
 namespace FortitudeMarkets.Trading.Orders;
 
-public interface ITransmittableOrder : IOrder, ICloneable<ITransmittableOrder>
+public interface ITransmittableOrder : IMutableOrder, ICloneable<ITransmittableOrder>
 {
-    IOrder AsOrder { get; }
+    IMutableOrder AsOrder { get; }
     
     IOrderPublisher? OrderPublisher { get; set; }
     IMutableString?  MutableTicker  { get; set; }

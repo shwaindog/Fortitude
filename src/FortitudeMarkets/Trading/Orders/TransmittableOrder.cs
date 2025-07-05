@@ -24,7 +24,7 @@ public abstract class TransmittableOrder : ReusableObject<ITransmittableOrder>, 
 {
     private static IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(TransmittableOrder));
 
-    protected readonly IOrder WrappedOrder;
+    protected readonly IMutableOrder WrappedOrder;
 
     private IOrderPublisher? orderPublisher;
     private IMutableString?  mutableMessage;
@@ -41,20 +41,20 @@ public abstract class TransmittableOrder : ReusableObject<ITransmittableOrder>, 
     }
 
     protected TransmittableOrder
-    (IOrder toWrap, IOrderId orderId, ushort tickerId, uint accountId, DateTime creationTime, OrderStatus status = OrderStatus.New,
+    (IMutableOrder toWrap, IOrderId orderId, ushort tickerId, uint accountId, DateTime creationTime, OrderStatus status = OrderStatus.New,
         TimeInForce timeInForce = TimeInForce.ImmediateOrCancel
       , IVenueCriteria? venueSelectionCriteria = null, DateTime? submitTime = null, DateTime? doneTime = null
       , IVenueOrders? venueOrders = null, IExecutions? executions = null, bool isComplete = false
-      , string? tickerName = null, string? message = null)
+      , string? tickerName = null, string? message = null, DateTime? lastUpdateTime = null)
         : this(toWrap, orderId, tickerId, new Parties(accountId), creationTime, status, timeInForce, venueSelectionCriteria, submitTime, doneTime
-             , venueOrders, executions, isComplete, (MutableString?)tickerName, (MutableString?)message) { }
+             , venueOrders, executions, isComplete, (MutableString?)tickerName, (MutableString?)message, lastUpdateTime) { }
 
     protected TransmittableOrder
-    (IOrder toWrap, IOrderId orderId, ushort tickerId, IParties parties, DateTime? creationTime = null, OrderStatus status = OrderStatus.New
+    (IMutableOrder toWrap, IOrderId orderId, ushort tickerId, IParties parties, DateTime? creationTime = null, OrderStatus status = OrderStatus.New
       , TimeInForce timeInForce = TimeInForce.ImmediateOrCancel
       , IVenueCriteria? venueSelectionCriteria = null, DateTime? submitTime = null, DateTime? doneTime = null
       , IVenueOrders? venueOrders = null, IExecutions? executions = null, bool isComplete = false
-      , IMutableString? tickerName = null, IMutableString? message = null)
+      , IMutableString? tickerName = null, IMutableString? message = null, DateTime? lastUpdateTime = null)
     {
         WrappedOrder = toWrap;
         if (WrappedOrder is Order order)
@@ -69,6 +69,7 @@ public abstract class TransmittableOrder : ReusableObject<ITransmittableOrder>, 
         WrappedOrder.TickerId     = tickerId;
         WrappedOrder.TimeInForce  = timeInForce;
         WrappedOrder.CreationTime = creationTime ?? TimeContext.UtcNow;
+        LastUpdateTime            = lastUpdateTime ?? CreationTime;
         WrappedOrder.Parties      = parties;
         WrappedOrder.DoneTime     = doneTime;
         WrappedOrder.Status       = status;
@@ -87,7 +88,7 @@ public abstract class TransmittableOrder : ReusableObject<ITransmittableOrder>, 
     public abstract bool RequiresAmendment(IOrderAmend amendment);
     public abstract void RegisterExecution(IExecution execution);
 
-    public IOrder AsOrder => WrappedOrder;
+    public IMutableOrder AsOrder => WrappedOrder;
 
     public IOrderId OrderId
     {
@@ -114,6 +115,12 @@ public abstract class TransmittableOrder : ReusableObject<ITransmittableOrder>, 
     }
 
     public DateTime CreationTime
+    {
+        get => WrappedOrder.CreationTime;
+        set => WrappedOrder.CreationTime = value;
+    }
+
+    public DateTime LastUpdateTime
     {
         get => WrappedOrder.CreationTime;
         set => WrappedOrder.CreationTime = value;
@@ -217,6 +224,10 @@ public abstract class TransmittableOrder : ReusableObject<ITransmittableOrder>, 
 
     IOrder ICloneable<IOrder>.Clone() => Clone();
 
+    IMutableOrder ICloneable<IMutableOrder>.Clone() => Clone();
+
+    IMutableOrder IMutableOrder.            Clone() => Clone();
+
     public abstract override ITransmittableOrder Clone();
 
     IReusableObject<IOrder> ITransferState<IReusableObject<IOrder>>.CopyFrom
@@ -258,7 +269,11 @@ public abstract class TransmittableOrder : ReusableObject<ITransmittableOrder>, 
         return allAreSame;
     }
 
-    protected void CopyStrings(IOrder destination, IOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IOrder, true);
+
+    public override int GetHashCode() => OrderId.GetHashCode();
+
+    protected void CopyStrings(IMutableOrder destination, IOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source is ITransmittableOrder transmittable)
         {

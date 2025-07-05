@@ -1,5 +1,6 @@
 ﻿#region
 
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Trading.Counterparties;
 using FortitudeMarkets.Trading.Executions;
@@ -42,11 +43,11 @@ public class SpotTransmittableOrder : TransmittableOrder, ISpotTransmittableOrde
       , decimal allowedPriceSlippage = 0m, decimal allowedVolumeSlippage = 0m, decimal executedPrice = 0m, decimal executedSize = 0m
       , decimal sizeAtRisk = 0m, FillExpectation fillExpectation = FillExpectation.Complete, IVenuePriceQuoteId? quoteInformation = null
       , DateTime? submitTime = null, DateTime? doneTime = null, IVenueOrders? venueOrders = null, IExecutions? executions = null
-      , bool isComplete = false , string? tickerName = null, IMutableString? message = null)
+      , bool isComplete = false, string? tickerName = null, IMutableString? message = null, DateTime? lastUpdateTime = null)
         : this(orderId, tickerId, new Parties(accountId), side, price, size, type, creationTime, status, timeInForce
              , venueSelectionCriteria, displaySize, allowedPriceSlippage, allowedVolumeSlippage, executedPrice, executedSize
              , sizeAtRisk, fillExpectation, quoteInformation, submitTime, doneTime, venueOrders, executions, isComplete
-             , (MutableString?)tickerName , (MutableString?)message) { }
+             , (MutableString?)tickerName, (MutableString?)message, lastUpdateTime) { }
 
     public SpotTransmittableOrder
     (IOrderId orderId, ushort tickerId, IParties parties, OrderSide side, decimal price, decimal size, OrderType type
@@ -56,14 +57,14 @@ public class SpotTransmittableOrder : TransmittableOrder, ISpotTransmittableOrde
       , decimal sizeAtRisk = 0m, FillExpectation fillExpectation = FillExpectation.Complete
       , IVenuePriceQuoteId? quoteInformation = null, DateTime? submitTime = null, DateTime? doneTime = null
       , IVenueOrders? venueOrders = null, IExecutions? executions = null
-      , bool isComplete = false, IMutableString? tickerName = null, IMutableString? message = null)
+      , bool isComplete = false, IMutableString? tickerName = null, IMutableString? message = null, DateTime? lastUpdateTime = null)
         : base(new SpotOrder(), orderId, tickerId, parties, creationTime, status, timeInForce, venueSelectionCriteria, submitTime, doneTime
-             , venueOrders, executions, isComplete, tickerName, message)
+             , venueOrders, executions, isComplete, tickerName, message, lastUpdateTime)
     {
-        Side   = side;
-        Price  = price;
-        Size   = size;
-        Type   = type;
+        Side  = side;
+        Price = price;
+        Size  = size;
+        Type  = type;
 
         DisplaySize   = displaySize;
         ExecutedPrice = executedPrice;
@@ -76,7 +77,7 @@ public class SpotTransmittableOrder : TransmittableOrder, ISpotTransmittableOrde
         QuoteInformation      = quoteInformation;
     }
 
-    public ISpotOrder AsSpotOrder => (ISpotOrder)WrappedOrder;
+    public IMutableSpotOrder AsSpotOrder => (IMutableSpotOrder)WrappedOrder;
 
     public override ProductType ProductType => ProductType.Spot;
 
@@ -86,13 +87,13 @@ public class SpotTransmittableOrder : TransmittableOrder, ISpotTransmittableOrde
         set => AsSpotOrder.Side = value;
     }
 
-    public decimal   Price
+    public decimal Price
     {
         get => AsSpotOrder.Price;
         set => AsSpotOrder.Price = value;
     }
 
-    public decimal   Size
+    public decimal Size
     {
         get => AsSpotOrder.Size;
         set => AsSpotOrder.Size = value;
@@ -140,7 +141,7 @@ public class SpotTransmittableOrder : TransmittableOrder, ISpotTransmittableOrde
         set => AsSpotOrder.AllowedVolumeSlippage = value;
     }
 
-    public FillExpectation     FillExpectation
+    public FillExpectation FillExpectation
     {
         get => AsSpotOrder.FillExpectation;
         set => AsSpotOrder.FillExpectation = value;
@@ -175,6 +176,18 @@ public class SpotTransmittableOrder : TransmittableOrder, ISpotTransmittableOrde
         amendment.NewQuantity != Size ||
         amendment.NewSide != Side;
 
+    ISpotOrder ICloneable<ISpotOrder>.Clone() => Clone();
+
+    ISpotOrder ISpotOrder.Clone() => Clone();
+
+    IMutableSpotOrder ICloneable<IMutableSpotOrder>.Clone() => Clone();
+
+    IMutableSpotOrder IMutableSpotOrder.Clone() => Clone();
+
+    ISpotTransmittableOrder ICloneable<ISpotTransmittableOrder>.Clone() => Clone();
+
+    ISpotTransmittableOrder ISpotTransmittableOrder.Clone() => Clone();
+
     public override SpotTransmittableOrder Clone() => new(this);
 
     public override SpotTransmittableOrder CopyFrom(ITransmittableOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
@@ -191,11 +204,11 @@ public class SpotTransmittableOrder : TransmittableOrder, ISpotTransmittableOrde
 
     public void SetError(IMutableString msg, long sizeAtRisk)
     {
-        MutableMessage    = msg;
-        SizeAtRisk = sizeAtRisk;
-        Status     = OrderStatus.Dead;
+        MutableMessage = msg;
+        SizeAtRisk     = sizeAtRisk;
+        Status         = OrderStatus.Dead;
     }
-    
+
     public override string OrderToStringMembers => AsSpotOrder.OrderToStringMembers;
 
     public override string ToString() => $"{nameof(SpotTransmittableOrder)}{{{OrderToStringMembers}}}";

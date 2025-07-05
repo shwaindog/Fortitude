@@ -37,7 +37,7 @@ public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T
         backingList = new List<T>(size);
     }
 
-    protected ReusableList(ReusableList<T> toClone)
+    public ReusableList(ReusableList<T> toClone)
     {
         backingList = new List<T>(toClone.Count);
         // ReSharper disable once VirtualMemberCallInConstructor
@@ -212,4 +212,19 @@ public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T
     protected string ReusableListItemsOnNewLineToString => $"[\n\t{backingList.JoinToString(",\n\t")}]";
 
     public override string ToString() => $"ReusableList<{typeof(T).Name}>[{ReusableListItemsToString}]";
+}
+
+
+public static class ReusableListExtensions
+{
+    public static ReusableList<T> ToReusableList<T>(this IEnumerable<T> toConvert, IRecycler? optionalRecycler)
+    {
+        if (toConvert is ReusableList<T> reusableList)
+        {
+            return reusableList;
+        }
+        reusableList = optionalRecycler?.Borrow<ReusableList<T>>() ?? new ReusableList<T>();
+        reusableList.AddRange(toConvert);
+        return reusableList;
+    }
 }

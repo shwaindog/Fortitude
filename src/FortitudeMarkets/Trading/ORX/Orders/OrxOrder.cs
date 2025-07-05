@@ -53,16 +53,17 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
 
     protected OrxOrder(ITransmittableOrder toClone)
     {
-        OrderId      = new OrxOrderId(toClone.OrderId);
-        TickerId     = toClone.TickerId;
-        Parties      = new OrxParties(toClone.Parties);
-        TimeInForce  = toClone.TimeInForce;
-        CreationTime = toClone.CreationTime;
-        Status       = toClone.Status;
-        SubmitTime   = toClone.SubmitTime;
-        DoneTime     = toClone.DoneTime;
-        IsComplete   = toClone.IsComplete;
-        IsError      = toClone.IsError;
+        OrderId        = new OrxOrderId(toClone.OrderId);
+        TickerId       = toClone.TickerId;
+        Parties        = new OrxParties(toClone.Parties);
+        TimeInForce    = toClone.TimeInForce;
+        CreationTime   = toClone.CreationTime;
+        LastUpdateTime = toClone.LastUpdateTime;
+        Status         = toClone.Status;
+        SubmitTime     = toClone.SubmitTime;
+        DoneTime       = toClone.DoneTime;
+        IsComplete     = toClone.IsComplete;
+        IsError        = toClone.IsError;
 
         OrderPublisher = toClone.OrderPublisher;
 
@@ -80,13 +81,14 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
       , TimeInForce timeInForce = TimeInForce.ImmediateOrCancel
       , OrxVenueCriteria? venueSelectionCriteria = null, DateTime? submitTime = null, DateTime? doneTime = null
       , OrxVenueOrders? venueOrders = null, OrxExecutions? executions = null, bool isComplete = false
-      , MutableString? tickerName = null, MutableString? message = null)
+      , MutableString? tickerName = null, MutableString? message = null, DateTime? lastUpdateTime = null)
     {
         OrderId        = orderId;
         TickerId       = tickerId;
         MutableTicker  = tickerName;
         TimeInForce    = timeInForce;
         CreationTime   = creationTime ?? TimeContext.UtcNow;
+        LastUpdateTime = lastUpdateTime ?? CreationTime;
         Status         = status;
         SubmitTime     = submitTime;
         DoneTime       = doneTime;
@@ -103,11 +105,13 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
 
     public abstract ProductType ProductType { get; }
 
-    public abstract IOrder AsOrder { get; }
+    public abstract IMutableOrder AsOrder { get; }
 
     [OrxMandatoryField(0)] public OrxOrderId OrderId { get; set; }
 
-    IOrderId IOrder.OrderId
+    IOrderId IOrder.OrderId => OrderId;
+
+    IOrderId IMutableOrder.OrderId
     {
         get => OrderId;
         set => OrderId = (OrxOrderId)value;
@@ -117,7 +121,9 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
 
     [OrxMandatoryField(2)] public OrxParties Parties { get; set; }
 
-    IParties IOrder.Parties
+    IParties IOrder.Parties => Parties;
+
+    IParties IMutableOrder.Parties
     {
         get => Parties;
         set => Parties = (OrxParties)value;
@@ -125,9 +131,11 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
 
     [OrxMandatoryField(3)] public TimeInForce TimeInForce { get; set; }
 
-    [OrxMandatoryField(4)] public DateTime CreationTime { get; set; }
+    [OrxMandatoryField(4)] public DateTime CreationTime   { get; set; }
 
-    [OrxMandatoryField(5)] public OrderStatus Status { get; set; }
+    [OrxMandatoryField(5)] public DateTime LastUpdateTime { get; set; }
+
+    [OrxMandatoryField(6)] public OrderStatus Status { get; set; }
 
     [OrxOptionalField(6)] public DateTime? SubmitTime { get; set; }
 
@@ -135,7 +143,9 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
 
     [OrxOptionalField(8)] public OrxVenueCriteria? VenueSelectionCriteria { get; set; }
 
-    IVenueCriteria? IOrder.VenueSelectionCriteria
+    IVenueCriteria? IOrder.VenueSelectionCriteria => VenueSelectionCriteria;
+
+    IVenueCriteria? IMutableOrder.VenueSelectionCriteria
     {
         get => VenueSelectionCriteria;
         set => VenueSelectionCriteria = value as OrxVenueCriteria;
@@ -143,7 +153,9 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
 
     [OrxOptionalField(9)] public OrxVenueOrders? VenueOrders { get; set; }
 
-    IVenueOrders? IOrder.VenueOrders
+    IVenueOrders? IOrder.VenueOrders => VenueOrders;
+
+    IVenueOrders? IMutableOrder.VenueOrders
     {
         get => VenueOrders;
         set => VenueOrders = value as OrxVenueOrders;
@@ -151,7 +163,9 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
 
     [OrxOptionalField(10)] public OrxExecutions? Executions { get; set; }
 
-    IExecutions? IOrder.Executions
+    IExecutions? IOrder.Executions => Executions;  
+
+    IExecutions? IMutableOrder.Executions
     {
         get => Executions;
         set => Executions = value as OrxExecutions;
@@ -163,7 +177,9 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
 
     [OrxOptionalField(13)] public MutableString? MutableMessage { get; set; }
 
-    string? IOrder.Message
+    public string? Message => MutableMessage?.ToString();
+
+    string? IMutableOrder.Message
     {
         get => MutableMessage?.ToString();
         set => MutableMessage = MutableMessage.TransferOrCreate(value);
@@ -177,7 +193,9 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
 
     [OrxOptionalField(14)] public MutableString? MutableTicker { get; set; }
 
-    string? IOrder.Ticker
+    public string? Ticker => MutableTicker?.ToString();
+
+    string? IMutableOrder.Ticker
     {
         get => MutableTicker?.ToString();
         set => MutableTicker = value;
@@ -209,11 +227,12 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
     public override void StateReset()
     {
         TimeInForce  = TimeInForce.None;
-        CreationTime = DateTimeConstants.UnixEpoch;
+        CreationTime = default;
+        LastUpdateTime = default;
         Status       = OrderStatus.Unknown;
-        SubmitTime   = DateTimeConstants.UnixEpoch;
-        DoneTime     = DateTimeConstants.UnixEpoch;
-        Parties?.DecrementRefCount();
+        SubmitTime   = null;
+        DoneTime     = null;
+        Parties.DecrementRefCount();
         Parties = null!;
         OrderPublisher?.DecrementRefCount();
         OrderPublisher = null;
@@ -232,14 +251,18 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
 
     public abstract OrxOrder AsOrxOrder { get; }
 
-    IOrder ICloneable<IOrder>.Clone() => Clone();
+    IMutableOrder ICloneable<IMutableOrder>.Clone() => Clone();
+
+    IOrder ICloneable<IOrder>.  Clone() => Clone();
+
+    IMutableOrder IMutableOrder.Clone() => Clone();
+
+
+    public abstract override OrxOrder Clone();
 
     IReusableObject<IOrder> ITransferState<IReusableObject<IOrder>>.CopyFrom
         (IReusableObject<IOrder> source, CopyMergeFlags copyMergeFlags) =>
         CopyFrom((IOrder)source, copyMergeFlags);
-
-
-    public abstract override OrxOrder Clone();
 
 
     OrxOrder ITransferState<OrxOrder>.CopyFrom(OrxOrder source, CopyMergeFlags copyMergeFlags) => CopyFrom(source, copyMergeFlags);
@@ -251,13 +274,15 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
 
     public virtual OrxOrder CopyFrom(IOrder order, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        OrderId      = order.OrderId.SyncOrRecycle(OrderId)!;
-        TimeInForce  = order.TimeInForce;
-        CreationTime = order.CreationTime;
-        Status       = order.Status;
-        SubmitTime   = order.SubmitTime;
-        DoneTime     = order.DoneTime;
+        OrderId        = order.OrderId.SyncOrRecycle(OrderId)!;
+        TimeInForce    = order.TimeInForce;
+        CreationTime   = order.CreationTime;
+        LastUpdateTime = order.LastUpdateTime;
+        Status         = order.Status;
+        SubmitTime     = order.SubmitTime;
+        DoneTime       = order.DoneTime;
 
+        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
         Parties ??= new OrxParties();
         Parties.CopyFrom(order.Parties, copyMergeFlags);
 
@@ -275,8 +300,8 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
         }
         else
         {
-            ((IOrder)this).Ticker  = order.Ticker;
-            ((IOrder)this).Message = order.Message;
+            ((IMutableOrder)this).Ticker  = order.Ticker;
+            ((IMutableOrder)this).Message = order.Message;
 
             OrderPublisher = null;
         }
@@ -293,6 +318,7 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
         var tickerIdSame     = TickerId == source.TickerId;
         var timeInForceSame  = TimeInForce == source.TimeInForce;
         var creationTimeSame = CreationTime == source.CreationTime;
+        var updateTimeSame   = LastUpdateTime == source.LastUpdateTime;
         var statusSame       = Status == source.Status;
         var submitTimeSame   = SubmitTime == source.SubmitTime;
         var doneTimeSame     = DoneTime == source.DoneTime;
@@ -307,36 +333,14 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
         var isErrorSame     = IsError == source.IsError;
         var isCompleteSame  = IsComplete == source.IsComplete;
 
-        return orderIdsSame && tickerIdSame && timeInForceSame && creationTimeSame && statusSame && submitTimeSame
+        return orderIdsSame && tickerIdSame && timeInForceSame && creationTimeSame && updateTimeSame && statusSame && submitTimeSame
             && doneTimeSame && partiesSame && venueCriteriaSame && venueOrdersSame && executionsSame && messageSame
             && tickerSame && isErrorSame && isCompleteSame;
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as ITransmittableOrder, true);
 
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            var hashCode = OrderId.GetHashCode();
-            hashCode = (hashCode * 397) ^ TickerId;
-            hashCode = (hashCode * 397) ^ (MutableTicker?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ TimeInForce.GetHashCode();
-            hashCode = (hashCode * 397) ^ CreationTime.GetHashCode();
-            hashCode = (hashCode * 397) ^ (int)Status;
-            hashCode = (hashCode * 397) ^ SubmitTime.GetHashCode();
-            hashCode = (hashCode * 397) ^ DoneTime.GetHashCode();
-            hashCode = (hashCode * 397) ^ Parties.GetHashCode();
-            hashCode = (hashCode * 397) ^ (OrderPublisher != null ? OrderPublisher.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ (VenueSelectionCriteria != null ? VenueSelectionCriteria.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ (VenueOrders != null ? VenueOrders.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ (Executions != null ? Executions.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ (MutableMessage?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ IsError.GetHashCode();
-            hashCode = (hashCode * 397) ^ IsComplete.GetHashCode();
-            return hashCode;
-        }
-    }
+    public override int GetHashCode() => OrderId.GetHashCode();
 
     public virtual string OrderToStringMembers
     {
@@ -348,10 +352,11 @@ public abstract class OrxOrder : ReusableObject<ITransmittableOrder>, ITransmitt
             sb.Append(", ").Append(nameof(TickerId)).Append(": ").Append(TickerId);
             sb.Append(", ").Append(nameof(Parties)).Append(", ").Append(": ").Append(Parties);
             sb.Append(", ").Append(nameof(ProductType)).Append(": ").Append(ProductType);
-            if (MutableTicker != null) sb.Append(", ").Append(nameof(IOrder.Ticker)).Append(": ").Append(MutableTicker);
-            if (MutableMessage != null) sb.Append(", ").Append(nameof(IOrder.Message)).Append(": ").Append(MutableMessage);
+            sb.Append(", ").Append(nameof(CreationTime)).Append(": ").Append(CreationTime);
+            sb.Append(", ").Append(nameof(LastUpdateTime)).Append(": ").Append(LastUpdateTime);
+            if (MutableTicker != null) sb.Append(", ").Append(nameof(IMutableOrder.Ticker)).Append(": ").Append(MutableTicker);
+            if (MutableMessage != null) sb.Append(", ").Append(nameof(IMutableOrder.Message)).Append(": ").Append(MutableMessage);
             if (TimeInForce != TimeInForce.None) sb.Append(", ").Append(nameof(TimeInForce)).Append(": ").Append(TimeInForce);
-            if (CreationTime.IsNotUnixEpochOrDefault()) sb.Append(", ").Append(nameof(CreationTime)).Append(": ").Append(CreationTime);
             if (Status != OrderStatus.Unknown) sb.Append(", ").Append(nameof(Status)).Append(": ").Append(Status);
             if (SubmitTime.IsNotNullOrUnixEpochOrDefault()) sb.Append(", ").Append(nameof(SubmitTime)).Append(": ").Append(SubmitTime);
             if (DoneTime.IsNotNullOrUnixEpochOrDefault()) sb.Append(", ").Append(nameof(DoneTime)).Append(": ").Append(DoneTime);

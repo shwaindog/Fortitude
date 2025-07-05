@@ -42,7 +42,7 @@ Expect updates to follow to increase testing and add inter-BusRules instance com
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
   </ItemGroup>
 
   <ItemGroup>

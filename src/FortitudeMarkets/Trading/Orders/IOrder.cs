@@ -12,23 +12,46 @@ namespace FortitudeMarkets.Trading.Orders;
 
 public interface IOrder : IReusableObject<IOrder>, IInterfacesComparable<IOrder>
 {
-    IVenueCriteria? VenueSelectionCriteria { get; set; } // if null adapter defaults
+    IVenueCriteria? VenueSelectionCriteria { get; } // if null adapter defaults
 
-    IOrderId         OrderId        { get; set; }
-    ushort           TickerId       { get; set; }
-    string?  Ticker                 { get; set; }
-    TimeInForce      TimeInForce    { get; set; }
-    DateTime         CreationTime   { get; set; }
-    DateTime?        SubmitTime     { get; set; }
-    DateTime?        DoneTime       { get; set; }
-    IParties        Parties        { get; set; }
-    OrderStatus      Status         { get; set; }
-    IVenueOrders?    VenueOrders    { get; set; }
-    IExecutions?     Executions     { get; set; }
-    string?  Message        { get; set; }
-    bool             IsComplete     { get; set; }
-    bool             IsError        { get; }
-    ProductType      ProductType    { get; }
+    IOrderId      OrderId        { get; }
+    ushort        TickerId       { get; }
+    string?       Ticker         { get; }
+    TimeInForce   TimeInForce    { get; }
+    DateTime      CreationTime   { get; }
+    DateTime      LastUpdateTime { get; }
+    DateTime?     SubmitTime     { get; }
+    DateTime?     DoneTime       { get; }
+    IParties      Parties        { get; }
+    OrderStatus   Status         { get; }
+    IVenueOrders? VenueOrders    { get; }
+    IExecutions?  Executions     { get; }
+    string?       Message        { get; }
+    bool          IsComplete     { get; }
+    bool          IsError        { get; }
+    ProductType   ProductType    { get; }
 
     string OrderToStringMembers { get; }
+}
+
+public interface IMutableOrder : IOrder, ICloneable<IMutableOrder>
+{
+    new IVenueCriteria? VenueSelectionCriteria { get; set; } // if null adapter defaults
+
+    new IOrderId      OrderId        { get; set; }
+    new ushort        TickerId       { get; set; }
+    new string?       Ticker         { get; set; }
+    new TimeInForce   TimeInForce    { get; set; }
+    new DateTime      CreationTime   { get; set; }
+    new DateTime      LastUpdateTime { get; set; }
+    new DateTime?     SubmitTime     { get; set; }
+    new DateTime?     DoneTime       { get; set; }
+    new IParties      Parties        { get; set; }
+    new OrderStatus   Status         { get; set; }
+    new IVenueOrders? VenueOrders    { get; set; }
+    new IExecutions?  Executions     { get; set; }
+    new string?       Message        { get; set; }
+    new bool          IsComplete     { get; set; }
+
+    new IMutableOrder Clone();
 }

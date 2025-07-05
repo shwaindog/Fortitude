@@ -15,11 +15,11 @@ namespace FortitudeMarkets.Monitoring.Logging;
 public class NewOrderLog
 {
     private readonly decimal displaySize;
-    private readonly ISpotOrder order;
+    private readonly IMutableSpotOrder order;
     private readonly decimal price;
     private readonly decimal size;
 
-    public NewOrderLog(ISpotOrder order)
+    public NewOrderLog(IMutableSpotOrder order)
     {
         this.order = order;
         displaySize = order.DisplaySize;
@@ -45,9 +45,9 @@ public class NewOrderLog
 
 public class AbortedOrderLog
 {
-    private readonly ISpotOrder order;
+    private readonly IMutableSpotOrder order;
 
-    public AbortedOrderLog(ISpotOrder order) => this.order = order;
+    public AbortedOrderLog(IMutableSpotOrder order) => this.order = order;
 
     public override string ToString() =>
         new StringBuilder(256)
@@ -72,7 +72,7 @@ public class OrderUpdateLog
     private readonly OrderStatus status;
     private readonly IVenueCriteria? venueCriteria;
 
-    public OrderUpdateLog(ISpotOrder order)
+    public OrderUpdateLog(IMutableSpotOrder order)
     {
         id = order.OrderId.ClientOrderId.ToString();
         venueCriteria = order.VenueSelectionCriteria;
@@ -105,7 +105,7 @@ public class OrderAmendLog
     private readonly decimal size;
     private readonly OrderStatus status;
 
-    public OrderAmendLog(ISpotOrder order)
+    public OrderAmendLog(IMutableSpotOrder order)
     {
         id = order.OrderId.ClientOrderId.ToString();
         exchangeId = order.VenueSelectionCriteria;
