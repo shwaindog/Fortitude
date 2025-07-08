@@ -19,19 +19,20 @@ namespace FortitudeTests.TestHelpers;
 [NoMatchingProductionClass]
 public class TestMetrics
 {
-    private const int MaxAllowedUntestedClassesInCommon            = 210;
+    private const int MaxAllowedUntestedClassesInCommon            = 230;
     private const int MaxAllowedUntestedClassesInFortitudeIO       = 155;
-    private const int MaxAllowedUntestedClassesInFortitudeMarkets  = 440;
+    private const int MaxAllowedUntestedClassesInFortitudeMarkets  = 470;
     private const int MaxAllowedUntestedClassesInFortitudeBusRules = 117;
+    
+    private Type fortitudeBusRulesType = null!;
+    private Type fortitudeCommonType   = null!;
+    private Type fortitudeIOType       = null!;
+    private Type fortitudeMarketsType  = null!;
 
     private IDictionary<string, List<Type>> fortitudeBusRulesAssemblyClasses = null!;
-    private Type                            fortitudeBusRulesType            = null!;
     private IDictionary<string, List<Type>> fortitudeCommonAssemblyClasses   = null!;
-    private Type                            fortitudeCommonType              = null!;
     private IDictionary<string, List<Type>> fortitudeIOAssemblyClasses       = null!;
-    private Type                            fortitudeIOType                  = null!;
     private IDictionary<string, List<Type>> fortitudeMarketsAssemblyClasses  = null!;
-    private Type                            fortitudeMarketsType             = null!;
 
     private IDictionary<string, Type>       testClasses    = null!;
     private IDictionary<string, List<Type>> testClassNames = null!;

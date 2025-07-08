@@ -2,6 +2,7 @@
 
 using System.Text;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarkets.Trading.Counterparties;
@@ -49,11 +50,11 @@ public class OrxSpotOrder : OrxOrder, ISpotTransmittableOrder
       , decimal allowedPriceSlippage = 0m, decimal allowedVolumeSlippage = 0m, decimal executedPrice = 0m, decimal executedSize = 0m
       , decimal sizeAtRisk = 0m, FillExpectation fillExpectation = FillExpectation.Complete, IVenuePriceQuoteId? quoteInformation = null
       , DateTime? submitTime = null, DateTime? doneTime = null, IVenueOrders? venueOrders = null, IExecutions? executions = null
-      , bool isComplete = false, string? tickerName = null, string? message = null)
+      , bool isComplete = false, string? tickerName = null, string? message = null, DateTime? lastUpdateTime = null)
         : this(new OrxOrderId(orderId), tickerId, new OrxParties(accountId), side, price, size, type, creationTime, status, timeInForce
              , venueSelectionCriteria.ToOrxVenueCriteria(), displaySize, allowedPriceSlippage, allowedVolumeSlippage, executedPrice, executedSize
              , sizeAtRisk, fillExpectation, quoteInformation.ToOrxPriceQuoteId(), submitTime, doneTime, venueOrders.ToOrxVenueOrders()
-             , executions.ToOrxExecutions(), isComplete, tickerName, message) { }
+             , executions.ToOrxExecutions(), isComplete, tickerName, message, lastUpdateTime) { }
 
     public OrxSpotOrder
     (OrxOrderId orderId, ushort tickerId, OrxParties parties, OrderSide side, decimal price, decimal size, OrderType type
@@ -63,9 +64,9 @@ public class OrxSpotOrder : OrxOrder, ISpotTransmittableOrder
       , decimal sizeAtRisk = 0m, FillExpectation fillExpectation = FillExpectation.Complete
       , OrxVenuePriceQuoteId? quoteInformation = null, DateTime? submitTime = null, DateTime? doneTime = null
       , OrxVenueOrders? venueOrders = null, OrxExecutions? executions = null
-      , bool isComplete = false, MutableString? tickerName = null, MutableString? message = null)
+      , bool isComplete = false, MutableString? tickerName = null, MutableString? message = null, DateTime? lastUpdateTime = null)
         : base(orderId, tickerId, parties, creationTime, status, timeInForce, venueSelectionCriteria, submitTime, doneTime
-             , venueOrders, executions, isComplete, tickerName, message)
+             , venueOrders, executions, isComplete, tickerName, message, lastUpdateTime)
     {
         Side  = side;
         Price = price;
@@ -86,11 +87,12 @@ public class OrxSpotOrder : OrxOrder, ISpotTransmittableOrder
 
     public override ProductType ProductType => ProductType.Spot;
 
-    public override IOrder AsOrder =>
+    public override IMutableOrder AsOrder =>
         new SpotOrder(new OrderId(OrderId), TickerId, new Parties(Parties), Side, Price, Size, Type, CreationTime, Status, TimeInForce
                     , VenueSelectionCriteria.ToVenueCriteria(), DisplaySize, AllowedPriceSlippage, AllowedVolumeSlippage, ExecutedPrice
                     , ExecutedSize, SizeAtRisk, FillExpectation, QuoteInformation.ToVenuePriceQuoteId(), SubmitTime, DoneTime,
-                      VenueOrders.ToVenueOrders(), Executions.ToExecutions(), IsError, IsComplete, ((IOrder)this).Ticker, ((IOrder)this).Message);
+                      VenueOrders.ToVenueOrders(), Executions.ToExecutions(), IsError, IsComplete, ((IMutableOrder)this).Ticker
+                    , ((IMutableOrder)this).Message);
 
     [OrxMandatoryField(20)] public OrderSide Side { get; set; }
 
@@ -116,7 +118,9 @@ public class OrxSpotOrder : OrxOrder, ISpotTransmittableOrder
 
     [OrxOptionalField(27)] public OrxVenuePriceQuoteId? QuoteInformation { get; set; }
 
-    IVenuePriceQuoteId? ISpotOrder.QuoteInformation
+    IVenuePriceQuoteId? ISpotOrder.QuoteInformation => QuoteInformation;
+
+    IVenuePriceQuoteId? IMutableSpotOrder.QuoteInformation
     {
         get => QuoteInformation;
         set => QuoteInformation = value as OrxVenuePriceQuoteId;
@@ -141,18 +145,31 @@ public class OrxSpotOrder : OrxOrder, ISpotTransmittableOrder
         ExecutedSize += execution.Quantity;
     }
 
-    public ISpotOrder AsSpotOrder => new SpotOrder(this);
+    public IMutableSpotOrder AsSpotOrder => new SpotOrder(this);
 
     public override ISpotTransmittableOrder AsTransmittableOrder => new SpotTransmittableOrder(this);
 
     public override OrxSpotOrder AsOrxOrder => this;
+
+    ISpotOrder ICloneable<ISpotOrder>.Clone() => Clone();
+
+    ISpotOrder ISpotOrder.Clone() => Clone();
+
+    IMutableSpotOrder ICloneable<IMutableSpotOrder>.Clone() => Clone();
+
+    IMutableSpotOrder IMutableSpotOrder.Clone() => Clone();
+
+    ISpotTransmittableOrder ICloneable<ISpotTransmittableOrder>.Clone() => Clone();
+
+    ISpotTransmittableOrder ISpotTransmittableOrder.Clone() => Clone();
+
 
     public override OrxSpotOrder Clone() => Recycler?.Borrow<OrxSpotOrder>().CopyFrom(this) ?? new OrxSpotOrder(this);
 
     public override OrxSpotOrder CopyFrom(IOrder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         base.CopyFrom(source, copyMergeFlags);
-        if (source is ISpotOrder spotOrder)
+        if (source is IMutableSpotOrder spotOrder)
         {
             Side  = spotOrder.Side;
             Price = spotOrder.Price;
@@ -175,7 +192,7 @@ public class OrxSpotOrder : OrxOrder, ISpotTransmittableOrder
 
     public override bool AreEquivalent(ITransmittableOrder? source, bool exactTypes = false)
     {
-        if (source is not ISpotOrder spotOrder) return false;
+        if (source is not IMutableSpotOrder spotOrder) return false;
 
         var baseSame = base.AreEquivalent(source, exactTypes);
 

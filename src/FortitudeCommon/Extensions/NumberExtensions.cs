@@ -9,8 +9,79 @@ using System.Text;
 
 namespace FortitudeCommon.Extensions;
 
-public static class NumberFormattingExtensions
+public class ByteComparer : IComparer<byte>
 {
+    public int Compare(byte x, byte y)
+    {
+        return unchecked((x - y));
+    }
+}
+
+public class UShortComparer : IComparer<ushort>
+{
+    public int Compare(ushort x, ushort y)
+    {
+        return unchecked((x - y));
+    }
+}
+
+public class ShortComparer : IComparer<short>
+{
+    public int Compare(short x, short y)
+    {
+        return unchecked((x - y));
+    }
+}
+
+public class IntComparer : IComparer<int>
+{
+    public int Compare(int x, int y)
+    {
+        return unchecked((x - y));
+    }
+}
+
+public class UIntComparer : IComparer<uint>
+{
+    public int Compare(uint x, uint y)
+    {
+        return (int)unchecked((x - y));
+    }
+}
+
+public class LongComparer : IComparer<long>
+{
+    public int Compare(long x, long y)
+    {
+        var totalCompare = unchecked((x - y));
+        var topHalf      = (int)(totalCompare / int.MaxValue);
+        if (topHalf != 0) return topHalf;
+        return (int)totalCompare;
+    }
+}
+
+public class ULongComparer : IComparer<ulong>
+{
+    public int Compare(ulong x, ulong y)
+    {
+        var totalCompare = unchecked(((long)x - (long)y));
+        var topHalf      = (int)(totalCompare / int.MaxValue);
+        if (topHalf != 0) return topHalf;
+        return (int)totalCompare;
+    }
+}
+
+
+public static class NumberExtensions
+{
+    public static ByteComparer   ByteComparer   = new ();
+    public static UShortComparer UShortComparer = new ();
+    public static ShortComparer  ShortComparer  = new ();
+    public static IntComparer    IntComparer    = new ();
+    public static UIntComparer   UIntComparer   = new ();
+    public static LongComparer   LongComparer   = new ();
+    public static ULongComparer  ULongComparer  = new ();
+
     public static string ToHex2(this ulong toConvert, bool isUpperCaseHex = true)
     {
         var sb                 = new StringBuilder();

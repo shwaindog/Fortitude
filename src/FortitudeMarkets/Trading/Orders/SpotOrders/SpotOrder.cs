@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Text;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeMarkets.Trading.Counterparties;
 using FortitudeMarkets.Trading.Executions;
@@ -11,11 +12,11 @@ using FortitudeMarkets.Trading.Orders.Venues;
 
 namespace FortitudeMarkets.Trading.Orders.SpotOrders;
 
-public class SpotOrder : Order, ISpotOrder
+public class SpotOrder : Order, IMutableSpotOrder
 {
     public SpotOrder() { }
 
-    public SpotOrder(ISpotOrder toClone) : base(toClone)
+    public SpotOrder(IMutableSpotOrder toClone) : base(toClone)
     {
         Side  = toClone.Side;
         Price = toClone.Price;
@@ -40,11 +41,11 @@ public class SpotOrder : Order, ISpotOrder
       , decimal allowedPriceSlippage = 0m, decimal allowedVolumeSlippage = 0m, decimal executedPrice = 0m, decimal executedSize = 0m
       , decimal sizeAtRisk = 0m, FillExpectation fillExpectation = FillExpectation.Complete, IVenuePriceQuoteId? quoteInformation = null
       , DateTime? submitTime = null, DateTime? doneTime = null, IVenueOrders? venueOrders = null, IExecutions? executions = null
-      , bool isError = false, bool isComplete = false, string? tickerName = null, string? message = null)
+      , bool isError = false, bool isComplete = false, string? tickerName = null, string? message = null, DateTime? lastUpdateTime = null)
         : this(orderId, tickerId, new Parties(accountId), side, price, size, type, creationTime, status, timeInForce
              , venueSelectionCriteria, displaySize, allowedPriceSlippage, allowedVolumeSlippage, executedPrice, executedSize
              , sizeAtRisk, fillExpectation, quoteInformation, submitTime, doneTime, venueOrders, executions, isError, isComplete
-             , tickerName , message) { }
+             , tickerName, message, lastUpdateTime) { }
 
     public SpotOrder
     (IOrderId orderId, ushort tickerId, IParties parties, OrderSide side, decimal price, decimal size, OrderType type
@@ -54,14 +55,14 @@ public class SpotOrder : Order, ISpotOrder
       , decimal sizeAtRisk = 0m, FillExpectation fillExpectation = FillExpectation.Complete
       , IVenuePriceQuoteId? quoteInformation = null, DateTime? submitTime = null, DateTime? doneTime = null
       , IVenueOrders? venueOrders = null, IExecutions? executions = null, bool isError = false, bool isComplete = false
-      , string? tickerName = null, string? message = null)
+      , string? tickerName = null, string? message = null, DateTime? lastUpdateTime = null)
         : base(orderId, tickerId, parties, creationTime, status, timeInForce, venueSelectionCriteria, submitTime, doneTime
-             , venueOrders, executions, isError, isComplete, tickerName, message)
+             , venueOrders, executions, isError, isComplete, tickerName, message, lastUpdateTime)
     {
-        Side   = side;
-        Price  = price;
-        Size   = size;
-        Type   = type;
+        Side  = side;
+        Price = price;
+        Size  = size;
+        Type  = type;
 
         DisplaySize   = displaySize;
         ExecutedPrice = executedPrice;
@@ -91,6 +92,14 @@ public class SpotOrder : Order, ISpotOrder
 
     public FillExpectation     FillExpectation  { get; set; }
     public IVenuePriceQuoteId? QuoteInformation { get; set; }
+
+    ISpotOrder ICloneable<ISpotOrder>.Clone() => Clone();
+
+    ISpotOrder ISpotOrder.Clone() => Clone();
+
+    IMutableSpotOrder ICloneable<IMutableSpotOrder>.Clone() => Clone();
+
+    IMutableSpotOrder IMutableSpotOrder.Clone() => Clone();
 
     public override SpotOrder Clone() => new(this);
 

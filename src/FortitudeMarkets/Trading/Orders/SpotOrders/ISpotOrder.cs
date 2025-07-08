@@ -1,45 +1,67 @@
 ﻿#region
 
-using FortitudeMarkets.Trading.Orders.Products;
+using FortitudeCommon.Types;
 using FortitudeMarkets.Trading.Orders.Venues;
 
 #endregion
 
 namespace FortitudeMarkets.Trading.Orders.SpotOrders;
 
-public interface ISpotOrder : IOrder
+public interface ISpotOrder : IOrder, ICloneable<ISpotOrder>
 {
-    OrderSide Side { get; set; }
-    decimal Price { get; set; }
-    decimal Size { get; set; }
-    decimal DisplaySize { get; set; }
-    OrderType Type { get; set; }
-    decimal ExecutedPrice { get; set; }
-    decimal ExecutedSize { get; set; }
-    decimal SizeAtRisk { get; set; }
-    decimal AllowedPriceSlippage { get; set; }
-    decimal AllowedVolumeSlippage { get; set; }
-    FillExpectation FillExpectation { get; set; }
-    IVenuePriceQuoteId? QuoteInformation { get; set; }
+    OrderSide Side { get; }
+    decimal Price { get; }
+    decimal Size { get; }
+    decimal DisplaySize { get; }
+    OrderType Type { get; }
+    decimal ExecutedPrice { get; }
+    decimal ExecutedSize { get; }
+    decimal SizeAtRisk { get; }
+    decimal AllowedPriceSlippage { get; }
+    decimal AllowedVolumeSlippage { get; }
+    FillExpectation FillExpectation { get; }
+    IVenuePriceQuoteId? QuoteInformation { get; }
+
+    new ISpotOrder Clone();
 }
 
-public interface IOptionalSpotOrderFields
+public interface IMutableSpotOrder : IMutableOrder, ISpotOrder, ICloneable<IMutableSpotOrder>
 {
-    OrderSide? Side { get; set; }
-    decimal? Price { get; set; }
-    decimal? Size { get; set; }
-    decimal? DisplaySize { get; set; }
-    OrderType? Type { get; set; }
-    decimal? ExecutedPrice { get; set; }
-    decimal? ExecutedSize { get; set; }
-    decimal? SizeAtRisk { get; set; }
-    decimal? AllowedPriceSlippage { get; set; }
-    decimal? AllowedVolumeSlippage { get; set; }
-    FillExpectation? FillExpectation { get; set; }
-    IVenuePriceQuoteId? QuoteInformation { get; set; }
+    new OrderSide Side { get; set; }
+    new decimal Price { get; set; }
+    new decimal Size { get; set; }
+    new decimal DisplaySize { get; set; }
+    new OrderType Type { get; set; }
+    new decimal ExecutedPrice { get; set; }
+    new decimal ExecutedSize { get; set; }
+    new decimal SizeAtRisk { get; set; }
+    new decimal AllowedPriceSlippage { get; set; }
+    new decimal AllowedVolumeSlippage { get; set; }
+    new FillExpectation FillExpectation { get; set; }
+    new IVenuePriceQuoteId? QuoteInformation { get; set; }
+
+    new IMutableSpotOrder Clone();
 }
 
-public interface ISpotTransmittableOrder : ITransmittableOrder, ISpotOrder
+public interface IAdditionalSpotOrderFields
 {
-    ISpotOrder AsSpotOrder { get; }
+    OrderSide? Side { get; }
+    decimal? Price { get; }
+    decimal? Size { get; }
+    decimal? DisplaySize { get; }
+    OrderType? Type { get; }
+    decimal? ExecutedPrice { get; }
+    decimal? ExecutedSize { get; }
+    decimal? SizeAtRisk { get; }
+    decimal? AllowedPriceSlippage { get; }
+    decimal? AllowedVolumeSlippage { get; }
+    FillExpectation? FillExpectation { get; }
+    IVenuePriceQuoteId? QuoteInformation { get; }
+}
+
+public interface ISpotTransmittableOrder : ITransmittableOrder, IMutableSpotOrder, ICloneable<ISpotTransmittableOrder>
+{
+    IMutableSpotOrder AsSpotOrder { get; }
+
+    new ISpotTransmittableOrder Clone();
 }

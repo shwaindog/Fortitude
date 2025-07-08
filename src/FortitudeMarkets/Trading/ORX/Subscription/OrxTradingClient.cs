@@ -199,7 +199,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         }
         else
         {
-            Logger.Info(new NewOrderLog((ISpotOrder)order));
+            Logger.Info(new NewOrderLog((IMutableSpotOrder)order));
             lock (ActiveOrders)
             {
                 order.IncrementRefCount();
@@ -273,7 +273,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
                 {
                     Logger.Info("No need to amend order " + order.OrderId.ClientOrderId +
                                 " on the exchange as nothing changes.");
-                    Logger.Info(new OrderAmendLog((ISpotOrder)order));
+                    Logger.Info(new OrderAmendLog((IMutableSpotOrder)order));
                     lock (AmendingOrders)
                     {
                         if (AmendingOrders.TryGetValue(orderKey, out var amendOrder))
@@ -295,7 +295,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         else
         {
             RaiseOrderError(order, "Cannot amend order: " + ServerName + " not available");
-            Logger.Warn(new AbortedOrderLog((ISpotOrder)order));
+            Logger.Warn(new AbortedOrderLog((IMutableSpotOrder)order));
             OnOrderUpdate(new OrderUpdate(order, OrderUpdateEventType.OrderAmended, TimeContext.UtcNow));
         }
     }
@@ -307,7 +307,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
 
     private void RaiseOrderError(ITransmittableOrder order, IMutableString _)
     {
-        Logger.Warn(new AbortedOrderLog((ISpotOrder)order));
+        Logger.Warn(new AbortedOrderLog((IMutableSpotOrder)order));
         OnOrderUpdate(new OrderUpdate(order, OrderUpdateEventType.Error, TimeContext.UtcNow));
     }
 
@@ -423,7 +423,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         {
             foreach (var order in ActiveOrders.Values)
             {
-                Logger.Info(new OrderUpdateLog((ISpotOrder)order));
+                Logger.Info(new OrderUpdateLog((IMutableSpotOrder)order));
                 OnOrderUpdate(new OrderUpdate(order, OrderUpdateEventType.Error, TimeContext.UtcNow));
             }
 
@@ -501,7 +501,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
         var order    = GetActiveOrder(orderKey);
         RemoveActiveOrder(orderKey);
 
-        Logger.Info(new OrderUpdateLog((ISpotOrder)order!));
+        Logger.Info(new OrderUpdateLog((IMutableSpotOrder)order!));
         OnOrderUpdate(new OrderUpdate(order!, OrderUpdateEventType.OrderRejected, TimeContext.UtcNow));
     }
 
@@ -612,13 +612,13 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
 
         if (oldStatus != order.Status)
         {
-            Logger.Info(new OrderUpdateLog((ISpotOrder)order));
+            Logger.Info(new OrderUpdateLog((IMutableSpotOrder)order));
             OnOrderUpdate(update);
         }
         else if (amend != null)
         {
             order.ApplyAmendment(amend);
-            Logger.Info(new OrderAmendLog((ISpotOrder)order));
+            Logger.Info(new OrderAmendLog((IMutableSpotOrder)order));
             OnOrderAmend(order.Clone());
         }
 
@@ -704,7 +704,7 @@ public class OrxTradingClient : OrxHistoricalTradesClient, ITradingFeedListener
     {
         if (!orderUpdate.Order!.IsPending() && !orderUpdate.Order!.HasPendingExecutions())
         {
-            Logger.Info(new OrderUpdateLog((ISpotOrder)orderUpdate.Order!));
+            Logger.Info(new OrderUpdateLog((IMutableSpotOrder)orderUpdate.Order!));
             RemoveActiveOrder(orderUpdate.Order!.OrderId.ClientOrderId.ToString());
         }
     }

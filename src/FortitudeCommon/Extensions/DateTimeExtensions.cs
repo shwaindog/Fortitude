@@ -3,6 +3,18 @@
 
 namespace FortitudeCommon.Extensions;
 
+
+public class UtcDateTimeComparer : IComparer<DateTime>
+{
+    public int Compare(DateTime x, DateTime y)
+    {
+        var totalTicks  =  x.ToUniversalTime().Ticks - y.ToUniversalTime().Ticks;
+        var minuteTicks = (int)(totalTicks / TimeSpan.FromMinutes(1).Ticks);
+        if (minuteTicks != 0) return minuteTicks;
+        return (int)totalTicks;
+    }
+}
+
 public static class DateTimeExtensions
 {
     private const long FiveSecondsTicks    = TimeSpan.TicksPerSecond * 5;
@@ -18,6 +30,8 @@ public static class DateTimeExtensions
 
     public static readonly long MinTicks = DateTime.MinValue.Ticks;
     public static readonly long MaxTicks = DateTime.MaxValue.Ticks;
+
+    public static readonly UtcDateTimeComparer UtcComparer = new ();
 
     public static bool IsUnixEpochOrDefault(this DateTime checkDateTime) =>
         checkDateTime == DateTime.MinValue || checkDateTime == DateTime.UnixEpoch;

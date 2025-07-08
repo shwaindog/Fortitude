@@ -113,7 +113,7 @@ public class TradingClientServerTests
         var orderSubmitRequest =
             new OrderSubmitRequest
                 (new SpotTransmittableOrder (orderId, (ushort)1234, accountId: 9876u, OrderSide.Bid, 1.23456m, 300_000m
-                         , OrderType.Limit, creationTime, OrderStatus.PendingNew, timeInForce, null, 100_000m
+                         , OrderType.PassiveLimit, creationTime, OrderStatus.PendingNew, timeInForce, null, 100_000m
                          , 0.00025m, 10_000m, tickerName:  "TestTicker"),
                  1, new DateTime(2018, 3, 30, 2, 18, 2)
                , new DateTime(2018, 3, 30, 2, 18, 2), "Tag")
@@ -224,7 +224,7 @@ public class TradingClientServerTests
         clientOrderUpdatedResetEvent.WaitOne(2_000);
 
         Assert.IsNotNull(clientLastOrderReceived);
-        Assert.AreEqual(1_000_000, ((ISpotOrder)clientLastOrderReceived!).Size);
+        Assert.AreEqual(1_000_000, ((IMutableSpotOrder)clientLastOrderReceived!).Size);
 
         clientEditOrder         = clientLastOrderReceived;
         clientLastOrderReceived = null;
