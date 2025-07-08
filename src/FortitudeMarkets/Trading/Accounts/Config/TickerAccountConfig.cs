@@ -13,7 +13,7 @@ public interface ITickerAccountConfig : IRelativeTickerTradingLimitsConfig, IClo
 
     string? InstrumentName { get; set; }
 
-    PositionsDirectionFlags AllowedTradingDirection { get; set; }
+    PositionsDirectionFlags AllowedPositionDirection { get; set; }
 
     decimal? DefaultAutoStopLossPips { get; set; }
 
@@ -46,7 +46,7 @@ public class TickerAccountConfig : RelativeTickerTradingLimitsConfig, ITickerAcc
     {
         InstrumentId                        = instrumentId;
         InstrumentName                      = instrumentName;
-        AllowedTradingDirection             = allowedTradingDirection;
+        AllowedPositionDirection             = allowedTradingDirection;
         DefaultAutoStopLossPips             = defaultAutoStopLoss;
         AlwaysSubmitWithStopLoss            = alwaysSubmitWithStopLoss;
         AutoTrailingAdjustStopLossEveryPips = autoTrailingAdjustStopLossEveryPips;
@@ -57,7 +57,7 @@ public class TickerAccountConfig : RelativeTickerTradingLimitsConfig, ITickerAcc
     {
         InstrumentId                        = toClone.InstrumentId;
         InstrumentName                      = toClone.InstrumentName;
-        AllowedTradingDirection             = toClone.AllowedTradingDirection;
+        AllowedPositionDirection             = toClone.AllowedPositionDirection;
         DefaultAutoStopLossPips             = toClone.DefaultAutoStopLossPips;
         AlwaysSubmitWithStopLoss            = toClone.AlwaysSubmitWithStopLoss;
         AutoTrailingAdjustStopLossEveryPips = toClone.AutoTrailingAdjustStopLossEveryPips;
@@ -78,13 +78,13 @@ public class TickerAccountConfig : RelativeTickerTradingLimitsConfig, ITickerAcc
         set => this[nameof(AdjustTradingAccountSizePercentage)] = value;
     }
 
-    public PositionsDirectionFlags AllowedTradingDirection
+    public PositionsDirectionFlags AllowedPositionDirection
     {
         get =>
-            Enum.TryParse<PositionsDirectionFlags>(this[nameof(AllowedTradingDirection)], out var allowedTradingDirection)
+            Enum.TryParse<PositionsDirectionFlags>(this[nameof(AllowedPositionDirection)], out var allowedTradingDirection)
                 ? allowedTradingDirection
                 : PositionsDirectionFlags.Default;
-        set => this[nameof(AllowedTradingDirection)] = value.ToString();
+        set => this[nameof(AllowedPositionDirection)] = value.ToString();
     }
 
     public decimal? DefaultAutoStopLossPips
@@ -132,7 +132,7 @@ public class TickerAccountConfig : RelativeTickerTradingLimitsConfig, ITickerAcc
 
         var instrumentIdSame             = InstrumentId == tickerAccountConfig.InstrumentId;
         var instrumentNameSame           = InstrumentName == tickerAccountConfig.InstrumentName;
-        var tradingDirSame               = AllowedTradingDirection == tickerAccountConfig.AllowedTradingDirection;
+        var tradingDirSame               = AllowedPositionDirection == tickerAccountConfig.AllowedPositionDirection;
         var defaultAutoSLPipsSame        = DefaultAutoStopLossPips == tickerAccountConfig.DefaultAutoStopLossPips;
         var alwaysSubmitWithSLSame       = AlwaysSubmitWithStopLoss == tickerAccountConfig.AlwaysSubmitWithStopLoss;
         var autoTrailingSLEveryPipsSame  = AutoTrailingAdjustStopLossEveryPips == tickerAccountConfig.AutoTrailingAdjustStopLossEveryPips;
@@ -150,7 +150,7 @@ public class TickerAccountConfig : RelativeTickerTradingLimitsConfig, ITickerAcc
     {
         root[$"{path}{Split}{nameof(InstrumentId)}"]                        = null;
         root[$"{path}{Split}{nameof(InstrumentName)}"]                      = null;
-        root[$"{path}{Split}{nameof(AllowedTradingDirection)}"]             = null;
+        root[$"{path}{Split}{nameof(AllowedPositionDirection)}"]             = null;
         root[$"{path}{Split}{nameof(DefaultAutoStopLossPips)}"]             = null;
         root[$"{path}{Split}{nameof(AlwaysSubmitWithStopLoss)}"]            = null;
         root[$"{path}{Split}{nameof(AutoTrailingAdjustStopLossEveryPips)}"] = null;
@@ -169,7 +169,7 @@ public class TickerAccountConfig : RelativeTickerTradingLimitsConfig, ITickerAcc
             var hashCode = base.GetHashCode();
             hashCode = (hashCode * 397) ^ InstrumentId.GetHashCode();
             hashCode = (hashCode * 397) ^ (InstrumentName?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ AllowedTradingDirection.GetHashCode();
+            hashCode = (hashCode * 397) ^ AllowedPositionDirection.GetHashCode();
             hashCode = (hashCode * 397) ^ (DefaultAutoStopLossPips?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ AlwaysSubmitWithStopLoss.GetHashCode();
             hashCode = (hashCode * 397) ^ (AutoTrailingAdjustStopLossEveryPips?.GetHashCode() ?? 0);
@@ -180,7 +180,7 @@ public class TickerAccountConfig : RelativeTickerTradingLimitsConfig, ITickerAcc
 
     public string RelativeAccountSizingToStringMembers =>
         $"{nameof(InstrumentId)}: {InstrumentId}, {nameof(InstrumentName)}: {InstrumentName}, " +
-        $"{nameof(AllowedTradingDirection)}: {AllowedTradingDirection}, {nameof(DefaultAutoStopLossPips)}: {DefaultAutoStopLossPips}, " +
+        $"{nameof(AllowedPositionDirection)}: {AllowedPositionDirection}, {nameof(DefaultAutoStopLossPips)}: {DefaultAutoStopLossPips}, " +
         $"{nameof(AlwaysSubmitWithStopLoss)}: {AlwaysSubmitWithStopLoss}, {nameof(AutoTrailingAdjustStopLossEveryPips)}: {AutoTrailingAdjustStopLossEveryPips}, " +
         $"{nameof(TickerThroughputLimits)}: {TickerThroughputLimits}, {RelativeTickerLimitsToStringMembers}";
 

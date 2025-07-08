@@ -1,9 +1,11 @@
 ﻿#region
 
 using System.Net;
+using FortitudeCommon.Config;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Config;
 using FortitudeIO.Conversations;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
@@ -24,7 +26,7 @@ public class SocketConnectionTests
     private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
     private Mock<IEndpointConfig> moqSocketConnectionConfig = null!;
     private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
-    private Mock<ISocketReconnectConfig> moqSocketReconnectConfig = null!;
+    private Mock<IRetryConfig> moqSocketReconnectConfig = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
 
     private SocketConnection socketConnection = null!;
@@ -37,7 +39,7 @@ public class SocketConnectionTests
         moqParallelControler = new Mock<IOSParallelController>();
         moqParallelControllerFactory = new Mock<IOSParallelControllerFactory>();
         moqSocketConnectionConfig = new Mock<IEndpointConfig>();
-        moqSocketReconnectConfig = new Mock<ISocketReconnectConfig>();
+        moqSocketReconnectConfig = new Mock<IRetryConfig>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
             .Returns(moqParallelControler.Object);
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;

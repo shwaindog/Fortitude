@@ -2,7 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Configuration;
-using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using Microsoft.Extensions.Configuration;
@@ -17,7 +16,7 @@ public interface IAccountTradingConfig : IAccountTradingLimitsConfig, ICloneable
 
     PositionsDirectionFlags AllowedTradingDirection { get; set; }
 
-    IDictionary<string, ITickerAccountConfig> Tickers { get; set; }
+    IReadOnlyDictionary<string, ITickerAccountConfig> Tickers { get; set; }
 
     IReadOnlyList<uint> AllowedOnBehalfOfAccountIds { get; set; }
 
@@ -235,7 +234,7 @@ public class AccountTradingConfig : AccountTradingLimitsConfig, IAccountTradingC
         }
     }
 
-    public IDictionary<string, ITickerAccountConfig> Tickers
+    public IReadOnlyDictionary<string, ITickerAccountConfig> Tickers
     {
         get
         {
@@ -303,11 +302,10 @@ public class AccountTradingConfig : AccountTradingLimitsConfig, IAccountTradingC
         var defaultBookingActsSame      = DefaultBookingAccounts.Values.SequenceEqual(accountTradingConfig.DefaultBookingAccounts.Values);
         var dailyLimitsSame      = DailyLimits?.AreEquivalent(accountTradingConfig.DailyLimits) ?? accountTradingConfig.DailyLimits == null;
         var throughputLimitsSame      = DefaultAccountThroughputLimitsConfig.AreEquivalent(accountTradingConfig.DefaultAccountThroughputLimitsConfig);
-        var tickerConfigsSame        = Tickers?.Values.SequenceEqual(accountTradingConfig.Tickers?.Values ?? Array.Empty<ITickerAccountConfig>()) 
-                                    ?? accountTradingConfig.Tickers.IsNullOrNone();
+        var tickerConfigsSame        = Tickers.Values.SequenceEqual(accountTradingConfig.Tickers.Values);
 
-        var allAreSame = baseSame && acctIdSame && acctNameSame && onBehalfOfAllowedSame && tradingDirectionSame && availableActsSame && defaultBookingActsSame 
-                      && dailyLimitsSame && throughputLimitsSame && tickerConfigsSame;
+        var allAreSame = baseSame && acctIdSame && acctNameSame && onBehalfOfAllowedSame && tradingDirectionSame && availableActsSame 
+                      && defaultBookingActsSame && dailyLimitsSame && throughputLimitsSame && tickerConfigsSame;
 
         return allAreSame;
     }

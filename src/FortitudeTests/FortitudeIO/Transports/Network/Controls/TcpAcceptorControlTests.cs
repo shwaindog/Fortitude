@@ -1,10 +1,12 @@
 ﻿#region
 
 using System.Net;
+using FortitudeCommon.Config;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
 using FortitudeCommon.Types;
+using FortitudeIO.Config;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Protocols.Serdes.Binary;
@@ -24,36 +26,37 @@ namespace FortitudeTests.FortitudeIO.Transports.Network.Controls;
 [TestClass]
 public class TcpAcceptorControlsTests
 {
-    private Action? capturedOnCxAcceptCallback;
-    private IPEndPoint connectedIpEndPoint = null!;
-    private IConversationRequester lastCapturedClientConversation = null!;
-    private Mock<IOSSocket> moqAcceptorOsSocket = null!;
-    private Mock<Action<SocketSessionState>> moqCapturedClientSessionStateChanged = null!;
-    private Mock<INetworkTopicConnectionConfig> moqClientNetworkTopicConnectionConfig = null!;
-    private Mock<IOSSocket> moqClientOsSocket = null!;
-    private Mock<ISocketDispatcher> moqDispatcher = null!;
-    private Mock<IEnumerator<IEndpointConfig>> moqEndpointEnumerator = null!;
-    private Mock<IFLogger> moqFlogger = null!;
-    private Mock<IFLoggerFactory> moqFloggerFactory = null!;
-    private Mock<INetworkTopicConnectionConfig> moqNetworkTopicConnectionConfig = null!;
-    private Mock<IOSParallelController> moqParallelControler = null!;
-    private Mock<IOSParallelControllerFactory> moqParallelControllerFactory = null!;
-    private Mock<IMessageSerdesRepositoryFactory> moqSerdesFactory = null!;
-    private Mock<ISocketConnection> moqSocketConnection = null!;
-    private Mock<IEndpointConfig> moqSocketConnectionConfig = null!;
-    private Mock<ISocketConnectivityChanged> moqSocketConnectivityChanged = null!;
-    private Mock<ISocketDispatcherResolver> moqSocketDispatcherResolver = null!;
-    private Mock<ISocketDispatcherListener> moqSocketDispatchListener = null!;
-    private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
-    private Mock<ISocketFactory> moqSocketFactory = null!;
-    private Mock<ISocketReceiver> moqSocketReceiver = null!;
-    private Mock<ISocketReceiverFactory> moqSocketReceiverFactory = null!;
-    private Mock<ISocketReconnectConfig> moqSocketReconnectConfig = null!;
-    private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
-    private Mock<IVersionedMessage> moqVersionedMessage = null!;
-    private TcpAcceptorControls tcpAcceptorControls = null!;
-    private string testHostName = null!;
-    private ushort testHostPort;
+    private Action?                               capturedOnCxAcceptCallback;
+    private IPEndPoint                            connectedIpEndPoint                   = null!;
+    private IConversationRequester                lastCapturedClientConversation        = null!;
+    private Mock<IOSSocket>                       moqAcceptorOsSocket                   = null!;
+    private Mock<Action<SocketSessionState>>      moqCapturedClientSessionStateChanged  = null!;
+    private Mock<INetworkTopicConnectionConfig>   moqClientNetworkTopicConnectionConfig = null!;
+    private Mock<IOSSocket>                       moqClientOsSocket                     = null!;
+    private Mock<ISocketDispatcher>               moqDispatcher                         = null!;
+    private Mock<IEnumerator<IEndpointConfig>>    moqEndpointEnumerator                 = null!;
+    private Mock<IFLogger>                        moqFlogger                            = null!;
+    private Mock<IFLoggerFactory>                 moqFloggerFactory                     = null!;
+    private Mock<INetworkTopicConnectionConfig>   moqNetworkTopicConnectionConfig       = null!;
+    private Mock<IOSParallelController>           moqParallelControler                  = null!;
+    private Mock<IOSParallelControllerFactory>    moqParallelControllerFactory          = null!;
+    private Mock<IMessageSerdesRepositoryFactory> moqSerdesFactory                      = null!;
+    private Mock<ISocketConnection>               moqSocketConnection                   = null!;
+    private Mock<IEndpointConfig>                 moqSocketConnectionConfig             = null!;
+    private Mock<ISocketConnectivityChanged>      moqSocketConnectivityChanged          = null!;
+    private Mock<ISocketDispatcherResolver>       moqSocketDispatcherResolver           = null!;
+    private Mock<ISocketDispatcherListener>       moqSocketDispatchListener             = null!;
+    private Mock<ISocketFactoryResolver>          moqSocketFactories                    = null!;
+    private Mock<ISocketFactory>                  moqSocketFactory                      = null!;
+    private Mock<ISocketReceiver>                 moqSocketReceiver                     = null!;
+    private Mock<ISocketReceiverFactory>          moqSocketReceiverFactory              = null!;
+    private Mock<IRetryConfig>                    moqSocketReconnectConfig              = null!;
+    private Mock<ISocketSessionContext>           moqSocketSessionContext               = null!;
+    private Mock<IVersionedMessage>               moqVersionedMessage                   = null!;
+    private TcpAcceptorControls                   tcpAcceptorControls                   = null!;
+
+    private string                                testHostName                          = null!;
+    private ushort                                testHostPort;
 
     [TestInitialize]
     public void SetUp()
@@ -69,7 +72,7 @@ public class TcpAcceptorControlsTests
         moqEndpointEnumerator = new Mock<IEnumerator<IEndpointConfig>>();
         moqClientNetworkTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
         moqSocketConnectionConfig = new Mock<IEndpointConfig>();
-        moqSocketReconnectConfig = new Mock<ISocketReconnectConfig>();
+        moqSocketReconnectConfig = new Mock<IRetryConfig>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
             .Returns(moqParallelControler.Object);
 
@@ -89,7 +92,7 @@ public class TcpAcceptorControlsTests
         moqCapturedClientSessionStateChanged = new Mock<Action<SocketSessionState>>();
         moqVersionedMessage = new Mock<IVersionedMessage>();
 
-        moqSocketReconnectConfig.SetupGet(scc => scc.NextReconnectIntervalMs).Returns(5u);
+        moqSocketReconnectConfig.Setup(scc => scc.GetIntervalForAttempt(It.IsAny<int>())).Returns(TimeSpan.FromMilliseconds(5));
         moqSocketConnectionConfig = new Mock<IEndpointConfig>();
         moqSocketConnectionConfig.SetupGet(scc => scc.InstanceName).Returns("InitiateControlsTests");
         moqSocketConnectionConfig.SetupGet(scc => scc.Hostname).Returns(testHostName);

@@ -1,9 +1,11 @@
 ﻿#region
 
 using System.Net;
+using FortitudeCommon.Config;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Config;
 using FortitudeIO.Protocols;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
@@ -34,7 +36,7 @@ public class InitiateControlsTests
     private Mock<IEndpointConfig> moqSocketConnectionConfig = null!;
     private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
     private Mock<ISocketFactory> moqSocketFactory = null!;
-    private Mock<ISocketReconnectConfig> moqSocketReconnectConfig = null!;
+    private Mock<IRetryConfig> moqSocketReconnectConfig = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
     private Mock<INetworkTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
     private string testHostName = null!;
@@ -54,7 +56,7 @@ public class InitiateControlsTests
         moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
         moqEndpointEnumerator = new Mock<IEnumerator<IEndpointConfig>>();
         moqSocketConnectionConfig = new Mock<IEndpointConfig>();
-        moqSocketReconnectConfig = new Mock<ISocketReconnectConfig>();
+        moqSocketReconnectConfig = new Mock<IRetryConfig>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
             .Returns(moqParallelControler.Object);
 
@@ -65,7 +67,7 @@ public class InitiateControlsTests
         connectedIpEndPoint = new IPEndPoint(new IPAddress(new byte[] { 127, 0, 0, 1 }), testHostPort);
         moqSocketConnection = new Mock<ISocketConnection>();
 
-        moqSocketReconnectConfig.SetupGet(scc => scc.NextReconnectIntervalMs).Returns(5u);
+        moqSocketReconnectConfig.Setup(scc => scc.GetIntervalForAttempt(It.IsAny<int>())).Returns(TimeSpan.FromMilliseconds(5));
         moqSocketConnectionConfig = new Mock<IEndpointConfig>();
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactoryResolver).Returns(moqSocketFactories.Object);
         moqSocketFactories.SetupGet(ssc => ssc.ParallelController).Returns(moqParallelControler.Object);
@@ -219,7 +221,7 @@ public class InitiateControlsTests
             .Returns(null as ISocketConnection) // schedule reconnect
             .Returns(null as ISocketConnection) // connect check is connected
             .Returns(moqSocketConnection.Object);
-        moqSocketReconnectConfig.SetupSequence(src => src.NextReconnectIntervalMs).Returns(0).Returns(1);
+        moqSocketReconnectConfig.SetupSequence(src => src.GetIntervalForAttempt(It.IsAny<int>())).Returns(TimeSpan.Zero).Returns(TimeSpan.FromMilliseconds(1));
 
         initiateControls.Connect();
 
@@ -243,7 +245,6 @@ public class InitiateControlsTests
         moqOsSocket.Setup(os => os.RemoteEndPoint).Returns(connectedIpEndPoint);
         moqOsSocket.Setup(os => os.LocalEndPoint).Returns(connectedIpEndPoint);
         moqSocketConnection.SetupGet(sc => sc.IsConnected).Returns(true).Verifiable();
-        moqSocketReconnectConfig.SetupSet(src => src.NextReconnectIntervalMs = It.IsAny<uint>()).Verifiable();
 
         moqFlogger.Setup(fl => fl.Info("Connection {0} was accepted by host {1}:{2}", It.IsAny<object[]>())).Verifiable();
         moqSocketSessionContext.Setup(ssc => ssc.OnConnected(It.IsAny<SocketConnection>())).Verifiable();

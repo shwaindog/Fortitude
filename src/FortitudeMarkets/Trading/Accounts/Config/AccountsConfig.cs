@@ -23,9 +23,9 @@ public interface IAccountsConfig : IInterfacesComparable<IAccountsConfig>, IClon
 
     ISourceAccountTradingConfig SourceAccount { get; set; }
 
-    IAccountThroughputLimitsConfig AdapterThroughputLimitsConfig { get; set; }
+    IAccountThroughputLimitsConfig AdapterThroughputLimits { get; set; }
 
-    IReadOnlyDictionary<string, ITickerAccountConfig> AllAccountsTickers { get; set; }
+    IReadOnlyDictionary<string, ITickerAccountConfig> Tickers { get; set; }
 
     IReadOnlyDictionary<uint, IAccountTradingConfig> TradingAccounts { get; set; }
 
@@ -66,9 +66,9 @@ public class AccountsConfig : ConfigSection, IAccountsConfig
         MaxTickerOpeningOrderSizePercentage  = maxTickerOpeningOrderSizePercentage;
         SourceAccount                        = sourceTradingAccount;
         TradingAccounts                      = tradingAccounts;
-        AdapterThroughputLimitsConfig        = adapterThroughputLimits;
+        AdapterThroughputLimits        = adapterThroughputLimits;
         DefaultDailyLimits                   = defaultDailyLimits;
-        AllAccountsTickers                   = allAccountsTickers ?? new Dictionary<string, ITickerAccountConfig>();
+        Tickers                   = allAccountsTickers ?? new Dictionary<string, ITickerAccountConfig>();
         MaxTickerReducingOrderSizePercentage = maxTickerReducingOrderSizePercentage;
     }
 
@@ -81,9 +81,9 @@ public class AccountsConfig : ConfigSection, IAccountsConfig
         MaxTickerOpeningOrderSizePercentage  = toClone.MaxTickerOpeningOrderSizePercentage;
         SourceAccount                        = toClone.SourceAccount;
         TradingAccounts                      = toClone.TradingAccounts;
-        AdapterThroughputLimitsConfig        = toClone.AdapterThroughputLimitsConfig;
+        AdapterThroughputLimits        = toClone.AdapterThroughputLimits;
         DefaultDailyLimits                   = toClone.DefaultDailyLimits;
-        AllAccountsTickers                   = toClone.AllAccountsTickers;
+        Tickers                   = toClone.Tickers;
         MaxTickerReducingOrderSizePercentage = toClone.MaxTickerReducingOrderSizePercentage;
     }
 
@@ -140,28 +140,28 @@ public class AccountsConfig : ConfigSection, IAccountsConfig
         set => this[nameof(MaxTickerReducingOrderSizePercentage)] = value.ToString();
     }
 
-    public IAccountThroughputLimitsConfig AdapterThroughputLimitsConfig
+    public IAccountThroughputLimitsConfig AdapterThroughputLimits
     {
         get
         {
-            if (GetSection(nameof(AdapterThroughputLimitsConfig)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
+            if (GetSection(nameof(AdapterThroughputLimits)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
             {
-                return new AccountThroughputLimitsConfig(ConfigRoot, $"{Path}{Split}{nameof(AdapterThroughputLimitsConfig)}");
+                return new AccountThroughputLimitsConfig(ConfigRoot, $"{Path}{Split}{nameof(AdapterThroughputLimits)}");
             }
-            throw new ConfigurationErrorsException($"Expected {nameof(AdapterThroughputLimitsConfig)} to be configured");
+            throw new ConfigurationErrorsException($"Expected {nameof(AdapterThroughputLimits)} to be configured");
         }
-        set => _ = new AccountThroughputLimitsConfig(value, ConfigRoot, $"{Path}{Split}{nameof(AdapterThroughputLimitsConfig)}");
+        set => _ = new AccountThroughputLimitsConfig(value, ConfigRoot, $"{Path}{Split}{nameof(AdapterThroughputLimits)}");
     }
 
-    public IReadOnlyDictionary<string, ITickerAccountConfig> AllAccountsTickers
+    public IReadOnlyDictionary<string, ITickerAccountConfig> Tickers
     {
         get
         {
             if (!allAccountTickers.Any())
             {
-                if (GetSection(nameof(AllAccountsTickers)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
+                if (GetSection(nameof(Tickers)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
                 {
-                    foreach (var configurationSection in GetSection(nameof(AllAccountsTickers)).GetChildren())
+                    foreach (var configurationSection in GetSection(nameof(Tickers)).GetChildren())
                     {
                         var tickerConfig = new TickerAccountConfig(ConfigRoot, configurationSection.Path);
                         if (tickerConfig.InstrumentName.IsNotNullOrEmpty() && configurationSection.Key != tickerConfig.InstrumentName)
@@ -184,7 +184,7 @@ public class AccountsConfig : ConfigSection, IAccountsConfig
             foreach (var tickerConfigKvp in value)
             {
                 var checkTickerConfig = new TickerAccountConfig(tickerConfigKvp.Value, ConfigRoot
-                                                              , $"{Path}{Split}{nameof(AllAccountsTickers)}:{tickerConfigKvp.Key}");
+                                                              , $"{Path}{Split}{nameof(Tickers)}:{tickerConfigKvp.Key}");
                 if (tickerConfigKvp.Value.InstrumentName.IsNotNullOrEmpty() && tickerConfigKvp.Key != tickerConfigKvp.Value.InstrumentName)
                     throw new
                         ArgumentException($"The key name '{tickerConfigKvp.Key}' for a ticker config does not match the configured ticker Value {tickerConfigKvp.Value.InstrumentName}");
@@ -194,7 +194,7 @@ public class AccountsConfig : ConfigSection, IAccountsConfig
 
             var deletedKeys = oldKeys.Except(value.Keys.ToHashSet());
             foreach (var deletedKey in deletedKeys)
-                TickerAccountConfig.ClearValues(ConfigRoot, $"{Path}{Split}{nameof(AllAccountsTickers)}{Split}{deletedKey}");
+                TickerAccountConfig.ClearValues(ConfigRoot, $"{Path}{Split}{nameof(Tickers)}{Split}{deletedKey}");
         }
     }
 
@@ -282,8 +282,8 @@ public class AccountsConfig : ConfigSection, IAccountsConfig
         var maxTickerOpenPosPctSame       = MaxTickerOpenPositionPercentage == other.MaxTickerOpenPositionPercentage;
         var maxTickerOpenOrderSzPctSame   = MaxTickerOpeningOrderSizePercentage == other.MaxTickerOpeningOrderSizePercentage;
         var maxTickerReduceOrderSzPctSame = MaxTickerReducingOrderSizePercentage == other.MaxTickerReducingOrderSizePercentage;
-        var adapterThroughputLimitsSame   = AdapterThroughputLimitsConfig.AreEquivalent(other.AdapterThroughputLimitsConfig);
-        var tickerConfigsSame             = AllAccountsTickers.Values.SequenceEqual(other.AllAccountsTickers.Values);
+        var adapterThroughputLimitsSame   = AdapterThroughputLimits.AreEquivalent(other.AdapterThroughputLimits);
+        var tickerConfigsSame             = Tickers.Values.SequenceEqual(other.Tickers.Values);
         var sourceAcctSame                = SourceAccount.AreEquivalent(other.SourceAccount);
         var tradingAcctSame               = TradingAccounts.Values.SequenceEqual(other.TradingAccounts.Values);
         var defaultDailyLimitsSame               = DefaultDailyLimits.AreEquivalent(other.DefaultDailyLimits);
@@ -304,8 +304,8 @@ public class AccountsConfig : ConfigSection, IAccountsConfig
         root[$"{path}{Split}{nameof(MaxTickerOpenPositionPercentage)}"]      = null;
         root[$"{path}{Split}{nameof(MaxTickerOpeningOrderSizePercentage)}"]  = null;
         root[$"{path}{Split}{nameof(MaxTickerReducingOrderSizePercentage)}"] = null;
-        root[$"{path}{Split}{nameof(AdapterThroughputLimitsConfig)}"]        = null;
-        root[$"{path}{Split}{nameof(AllAccountsTickers)}"]                   = null;
+        root[$"{path}{Split}{nameof(AdapterThroughputLimits)}"]        = null;
+        root[$"{path}{Split}{nameof(Tickers)}"]                   = null;
         root[$"{path}{Split}{nameof(SourceAccount)}"]                        = null;
         root[$"{path}{Split}{nameof(TradingAccounts)}"]                      = null;
         root[$"{path}{Split}{nameof(DefaultDailyLimits)}"]                   = null;
@@ -324,8 +324,8 @@ public class AccountsConfig : ConfigSection, IAccountsConfig
             hashCode = (hashCode * 397) ^ MaxTickerOpenPositionPercentage.GetHashCode();
             hashCode = (hashCode * 397) ^ MaxTickerOpeningOrderSizePercentage.GetHashCode();
             hashCode = (hashCode * 397) ^ MaxTickerReducingOrderSizePercentage.GetHashCode();
-            hashCode = (hashCode * 397) ^ AdapterThroughputLimitsConfig.GetHashCode();
-            hashCode = (hashCode * 397) ^ AllAccountsTickers.GetHashCode();
+            hashCode = (hashCode * 397) ^ AdapterThroughputLimits.GetHashCode();
+            hashCode = (hashCode * 397) ^ Tickers.GetHashCode();
             hashCode = (hashCode * 397) ^ SourceAccount.GetHashCode();
             hashCode = (hashCode * 397) ^ TradingAccounts.GetHashCode();
             hashCode = (hashCode * 397) ^ DefaultDailyLimits.GetHashCode();
@@ -337,8 +337,8 @@ public class AccountsConfig : ConfigSection, IAccountsConfig
         $"{nameof(TradingEnabled)}: {TradingEnabled}, {nameof(SourceAccount)}: {SourceAccount}, {nameof(UsingTradingAccountSize)}: {UsingTradingAccountSize}, " +
         $"{nameof(MaxTotalOpenPositionPercentage)}: {MaxTotalOpenPositionPercentage}, {nameof(MaxTickerOpenPositionPercentage)}: {MaxTickerOpenPositionPercentage}, " +
         $"{nameof(MaxTickerOpeningOrderSizePercentage)}: {MaxTickerOpeningOrderSizePercentage}, " +
-        $"{nameof(TradingAccounts)}: {TradingAccounts}, {nameof(AdapterThroughputLimitsConfig)}: {AdapterThroughputLimitsConfig}, " +
-        $"{nameof(DefaultDailyLimits)}: {DefaultDailyLimits}, {nameof(AllAccountsTickers)}: {AllAccountsTickers}, " +
+        $"{nameof(TradingAccounts)}: {TradingAccounts}, {nameof(AdapterThroughputLimits)}: {AdapterThroughputLimits}, " +
+        $"{nameof(DefaultDailyLimits)}: {DefaultDailyLimits}, {nameof(Tickers)}: {Tickers}, " +
         $"{nameof(MaxTickerReducingOrderSizePercentage)}: {MaxTickerReducingOrderSizePercentage}";
 
     public override string ToString() => $"{nameof(AccountTradingLimitsConfig)}{{{AccountTradingLimitsConfigToStringMembers}}}";

@@ -40,7 +40,33 @@ public enum DbType
   , Snowflake
 }
 
-public interface IDbConnectionConfig : IRemoteCredentialsConfig, IAlternativeConfigLocationLookup<IDbConnectionConfig>
+public enum MultiSelectionExpectations
+{
+    Default    = 0
+  , OnlyOne    = 0x00_01
+  , AtLeastOne = 0x00_02
+  , All        = 0x00_04
+}
+
+[Flags]
+public enum DbConnectionExpectation : uint
+{
+    Default                        = 0
+  , MustExistAndConnect            = 0x00_01
+  , OptionalConnectOk              = 0x00_02
+  , IsFallbackCacheDb              = 0x00_04
+  , ShouldCreateMissingFileDb      = 0x00_08
+  , HasReadOnlyPermissions         = 0x00_10
+  , CanCreateSchemaDefinitions     = 0x00_20
+  , OnConnectAttemptCodeMigrations = 0x00_40
+  , CanUpdateItemsRetrieved        = 0x00_80
+  , IsTemporalDateTimeFileDb       = 0x01_00
+  , IsRemoteLocationDb             = 0x02_00
+  , DisableReattempts              = 0x04_00
+}
+
+public interface IDbConnectionConfig<T> : IRemoteCredentialsConfig, IAlternativeConfigLocationLookup<T>
+where T : IDbConnectionConfig<T>
 {
     string? HostName         { get; set; }
     string? DatabaseName     { get; set; }
@@ -51,20 +77,33 @@ public interface IDbConnectionConfig : IRemoteCredentialsConfig, IAlternativeCon
 
     string ResolvedConnectionString { get; }
 
-    Func<IDbConnectionConfig, string> ConnectionStringBuilder { get; set; }
+    Func<IDbConnectionConfig<T>, string> ConnectionStringBuilder { get; set; }
 }
 
-public class DbConnectionConfig : RemoteCredentialsConfig, IDbConnectionConfig
+public interface IDbConnectionConfig : IDbConnectionConfig<IDbConnectionConfig>
 {
-    private DbConnectionConfig? lookupDbConfig;
+}
 
-    public DbConnectionConfig(IConfigurationRoot root, string path) : base(root, path) { }
+public abstract class DbConnectionConfig<T> : RemoteCredentialsConfig, IDbConnectionConfig<T>
+    where T : IDbConnectionConfig<T>
+{
+    protected T? LookupDbConfig;
 
-    public DbConnectionConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
+    protected DbConnectionConfig(IConfigurationRoot root, string path) : base(root, path) { }
 
-    public DbConnectionConfig
+    protected DbConnectionConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
+
+    protected DbConnectionConfig
     (string hostName, bool enabled, string remoteAddress, string? username = null
       , string? password = null, string? apiToken = null, string? certificatePath = null)
+    : this(InMemoryConfigRoot, InMemoryPath, hostName, enabled, remoteAddress, username, password, apiToken, certificatePath)
+    {
+    }
+
+    protected DbConnectionConfig
+    (IConfigurationRoot root, string path, string hostName, bool enabled, string remoteAddress, string? username = null
+      , string? password = null, string? apiToken = null, string? certificatePath = null)
+    : base(root, path)
     {
         HostName           = hostName;
         Enabled            = enabled;
@@ -76,7 +115,7 @@ public class DbConnectionConfig : RemoteCredentialsConfig, IDbConnectionConfig
         CertificatePayload = CertificatePayload;
     }
 
-    public DbConnectionConfig(IDbConnectionConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path)
+    protected DbConnectionConfig(IDbConnectionConfig<T> toClone, IConfigurationRoot root, string path) : base(toClone, root, path)
     {
         ConfigLookupReferencePath = toClone.ConfigLookupReferencePath;
 
@@ -91,7 +130,7 @@ public class DbConnectionConfig : RemoteCredentialsConfig, IDbConnectionConfig
         CertificatePayload = toClone.CertificatePayload;
     }
 
-    public DbConnectionConfig(IDbConnectionConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
+    protected DbConnectionConfig(IDbConnectionConfig<T> toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
     public override RemoteCredentialsFieldFlags DefaultObscureFieldFlags =>
         base.DefaultObscureFieldFlags
@@ -111,17 +150,7 @@ public class DbConnectionConfig : RemoteCredentialsConfig, IDbConnectionConfig
 
     public bool HasFoundConfigLookup => ConfigLookupReferencePath.IsNotNullOrEmpty();
 
-    public IDbConnectionConfig? LookupValue
-    {
-        get
-        {
-            if (HasFoundConfigLookup && lookupDbConfig == null)
-            {
-                lookupDbConfig = new DbConnectionConfig(ConfigRoot, ConfigLookupReferencePath!);
-            }
-            return lookupDbConfig;
-        }
-    }
+    public abstract T? LookupValue { get; }
 
     public string? DatabaseName
     {
@@ -163,16 +192,11 @@ public class DbConnectionConfig : RemoteCredentialsConfig, IDbConnectionConfig
 
     public string ResolvedConnectionString => ConnectionString ?? LookupValue?.ResolvedConnectionString ?? ConnectionStringBuilder(this);
 
-    public Func<IDbConnectionConfig, string> ConnectionStringBuilder { get; set; } = _ => string.Empty;
+    public Func<IDbConnectionConfig<T>, string> ConnectionStringBuilder { get; set; } = _ => string.Empty;
 
     public override bool Enabled
     {
-        get
-        {
-            var checkValue = this[nameof(Enabled)]!;
-            return checkValue.IsNullOrEmpty() || LookupValue?.Enabled == true || bool.Parse(checkValue);
-        }
-
+        get => bool.TryParse(this[nameof(Enabled)]!, out var result)? result : (LookupValue?.Enabled ?? true);
         set => this[nameof(Enabled)] = value.ToString();
     }
 
@@ -232,19 +256,19 @@ public class DbConnectionConfig : RemoteCredentialsConfig, IDbConnectionConfig
 
     object ICloneable.Clone() => Clone();
 
-    public override DbConnectionConfig Clone() => new (this);
+    public override DbConnectionConfig<T> Clone() => throw new NotImplementedException("Derived classes must override");
 
     public override bool AreEquivalent(IRemoteCredentialsConfig? other, bool exactTypes = false)
     {
         var baseSame = base.AreEquivalent(other, exactTypes);
         if (other is not IDbConnectionConfig dbConnConfig) return baseSame;
 
-        var hostNameSame    = HostName == dbConnConfig.HostName;
-        var dbNameSame      = DatabaseName == dbConnConfig.DatabaseName;
-        var dbTypeSame      = DatabaseType == dbConnConfig.DatabaseType;
-        var schemaSame      = Schema == dbConnConfig.Schema;
-        var dbPathSame      = DatabasePath == dbConnConfig.DatabasePath;
-        var connStringSame  = ConnectionString == dbConnConfig.ConnectionString;
+        var hostNameSame   = HostName == dbConnConfig.HostName;
+        var dbNameSame     = DatabaseName == dbConnConfig.DatabaseName;
+        var dbTypeSame     = DatabaseType == dbConnConfig.DatabaseType;
+        var schemaSame     = Schema == dbConnConfig.Schema;
+        var dbPathSame     = DatabasePath == dbConnConfig.DatabasePath;
+        var connStringSame = ConnectionString == dbConnConfig.ConnectionString;
 
 
         var allAreSame = baseSame && hostNameSame && dbNameSame && dbTypeSame && schemaSame && dbPathSame && connStringSame;
@@ -288,12 +312,59 @@ public class DbConnectionConfig : RemoteCredentialsConfig, IDbConnectionConfig
             sb.Append(nameof(ConnectionString)).Append(": ");
             sb.Append(secureSensitive && secureFlags.IsSecureConnectionString() ? Obscure(ConnectionString) : ConnectionString).Append(", ");
         }
-        sb.Append(nameof(ResolvedConnectionString)).Append(": ").Append(secureSensitive && secureFlags.IsSecureResolvedConnectionString() ? Obscure(ResolvedConnectionString) : ResolvedConnectionString);
+        sb.Append(nameof(ResolvedConnectionString)).Append(": ").Append(secureSensitive && secureFlags.IsSecureResolvedConnectionString()
+                                                                            ? Obscure(ResolvedConnectionString)
+                                                                            : ResolvedConnectionString);
 
         return sb.ToString();
     }
 
     protected string DbConnectionConfigToStringMembers => $"{BuildToString(ObscureToString)}";
+
+    public override string ToString() => $"{nameof(DbConnectionConfig<T>)}{{{DbConnectionConfigToStringMembers}}}";
+}
+
+public class DbConnectionConfig : DbConnectionConfig<IDbConnectionConfig>, IDbConnectionConfig
+{
+    public DbConnectionConfig(IConfigurationRoot root, string path) : base(root, path) { }
+
+    public DbConnectionConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
+    
+    public DbConnectionConfig
+    (string hostName, bool enabled, string remoteAddress, string? username = null
+      , string? password = null, string? apiToken = null, string? certificatePath = null)
+        : this(InMemoryConfigRoot, InMemoryPath, hostName, enabled, remoteAddress, username, password, apiToken, certificatePath)
+    {
+    }
+
+    public DbConnectionConfig
+    (IConfigurationRoot root, string path, string hostName, bool enabled, string remoteAddress, string? username = null
+      , string? password = null, string? apiToken = null, string? certificatePath = null)
+        : base(root, path, hostName, enabled, remoteAddress, username, password, apiToken, certificatePath)
+    {
+    }
+
+    public DbConnectionConfig(IDbConnectionConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path)
+    {
+    }
+
+    public DbConnectionConfig(IDbConnectionConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
+
+    public override IDbConnectionConfig? LookupValue
+    {
+        get
+        {
+            if (HasFoundConfigLookup && LookupDbConfig == null)
+            {
+                LookupDbConfig = new DbConnectionConfig(ConfigRoot, ConfigLookupReferencePath!);
+            }
+            return LookupDbConfig;
+        }
+    }
+
+    object ICloneable.Clone() => Clone();
+
+    public override DbConnectionConfig Clone() => new(this);
 
     public override string ToString() => $"{nameof(DbConnectionConfig)}{{{DbConnectionConfigToStringMembers}}}";
 }
