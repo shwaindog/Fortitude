@@ -82,6 +82,15 @@ public static class NumberExtensions
     public static LongComparer   LongComparer   = new ();
     public static ULongComparer  ULongComparer  = new ();
 
+    public static int NextPowerOfTwo(this int value)
+    {
+        var ceiling = 2;
+
+        while (ceiling < value) ceiling *= 2;
+
+        return ceiling;
+    }
+
     public static string ToHex2(this ulong toConvert, bool isUpperCaseHex = true)
     {
         var sb                 = new StringBuilder();

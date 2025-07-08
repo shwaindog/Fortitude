@@ -2,7 +2,9 @@
 
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.Chronometry;
+using FortitudeCommon.Config;
 using FortitudeCommon.Monitoring.Logging;
+using FortitudeIO.Config;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols;
 using FortitudeIO.Transports.Network.Config;
@@ -23,7 +25,7 @@ public interface IStreamControls : IConversationInitiator
 public abstract class SocketStreamControls : IStreamControls
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(SocketStreamControls));
-    protected readonly ISocketReconnectConfig ReconnectConfig;
+    protected readonly IRetryConfig ReconnectConfig;
     protected bool HaveStartedMessaging;
     protected ISocketSessionContext SocketSessionContext;
 
@@ -103,11 +105,12 @@ public abstract class SocketStreamControls : IStreamControls
 
     private async ValueTask<bool> ImmediateConnectAsync(TimeSpan timeoutTimeSpan)
     {
-        var startTime = TimeContext.UtcNow;
+        var startTime  = TimeContext.UtcNow;
+        int retryCount = 0;
         while (startTime + timeoutTimeSpan > TimeContext.UtcNow)
         {
             if (ConnectAttemptSucceeded()) return true;
-            var scheduleConnectWaitMs = ReconnectConfig.NextReconnectIntervalMs;
+            var scheduleConnectWaitMs = (uint)ReconnectConfig.GetIntervalForAttempt(retryCount++).TotalMilliseconds;
             Logger.Warn("Failed to connect to {0} {1} id {2} will attempt reconnect in {3}ms",
                 SocketSessionContext.Name, SocketSessionContext.Id,
                 SocketSessionContext.NetworkTopicConnectionConfig, scheduleConnectWaitMs);

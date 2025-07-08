@@ -23,9 +23,16 @@
     "ConnectionTimeoutMs": 1000,
     "ResponseTimeoutMs": 9000,
     "ReconnectConfig": {
-      "StartReconnectIntervalMs": 5000,
-      "MaxReconnectIntervalMs": 20000,
-      "IncrementReconnectIntervalMs": 1000
+      "FirstInterval": {
+        "Seconds": 5
+      },
+      "MaxIntervalCap": {
+        "Seconds": 20
+      },
+      "IntervalIncrement": {
+        "Seconds": 1
+      },
+      "IntervalExpansionType": "Linear"
     }
   }
 }

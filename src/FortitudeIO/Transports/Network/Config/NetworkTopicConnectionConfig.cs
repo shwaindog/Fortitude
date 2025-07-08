@@ -8,6 +8,7 @@ using FortitudeCommon.Config;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeIO.Config;
 using FortitudeIO.Topics.Config.ConnectionConfig;
 using Microsoft.Extensions.Configuration;
 
@@ -27,8 +28,14 @@ public enum ConnectionSelectionOrder
 }
 
 public interface INetworkTopicConnectionConfig : ITopicConnectionConfig, IConnection, IEnumerable<IEndpointConfig>
-  , ICloneable<INetworkTopicConnectionConfig>
+  , ICloneable<INetworkTopicConnectionConfig>, IInterfacesComparable<INetworkTopicConnectionConfig>
 {
+    static readonly uint DefaultRetryAttempts = 3u;
+    static readonly TimeSpanConfig DefaultFirstRetryInterval = new (seconds: 1);
+    static readonly TimeSpanConfig DefaultRetryIntervalIncrement = new (seconds: 10);
+    static readonly TimeSpanConfig DefaultMaxRetryIntervalCap = new (minutes: 1);
+
+
     const int  DefaultReceiveBufferSize       = 1024 * 1024 * 4;
     const int  DefaultSendBufferSize          = 1024 * 1024 * 4;
     const int  DefaultNumberOfReceivesPerPoll = 50;
@@ -52,7 +59,7 @@ public interface INetworkTopicConnectionConfig : ITopicConnectionConfig, IConnec
     uint ConnectionTimeoutMs     { get; set; }
     uint ResponseTimeoutMs       { get; set; }
 
-    ISocketReconnectConfig        ReconnectConfig { get; set; }
+    IRetryConfig                  ReconnectConfig { get; set; }
     INetworkTopicConnectionConfig ShiftPortsBy(ushort deltaPorts);
     INetworkTopicConnectionConfig ToggleProtocolDirection();
 }
@@ -86,7 +93,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
       , ConnectionSelectionOrder connectionSelectionOrder = INetworkTopicConnectionConfig.DefaultConnectionSelectionOrder
       , uint connectionTimeoutMs = INetworkTopicConnectionConfig.DefaultConnectionTimeoutMs
       , uint responseTimeoutMs = INetworkTopicConnectionConfig.DefaultResponseTimeoutMs
-      , ISocketReconnectConfig? reconnectConfig = null)
+      , IRetryConfig? reconnectConfig = null)
         : this(topicName, conversationProtocol, availableConnections, topicDescription, receiveBufferSize, sendBufferSize, numberOfReceivesPerPoll,
                connectionAttributes, connectionSelectionOrder, connectionTimeoutMs, responseTimeoutMs, reconnectConfig) =>
         ConnectionName = connectionName;
@@ -102,7 +109,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
       , ConnectionSelectionOrder connectionSelectionOrder = INetworkTopicConnectionConfig.DefaultConnectionSelectionOrder
       , uint connectionTimeoutMs = INetworkTopicConnectionConfig.DefaultConnectionTimeoutMs
       , uint responseTimeoutMs = INetworkTopicConnectionConfig.DefaultResponseTimeoutMs
-      , ISocketReconnectConfig? reconnectConfig = null)
+      , IRetryConfig? reconnectConfig = null)
     {
         TopicName                = topicName;
         ConversationProtocol     = conversationProtocol;
@@ -115,7 +122,12 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         NumberOfReceivesPerPoll  = numberOfReceivesPerPoll;
         ConnectionTimeoutMs      = connectionTimeoutMs;
         ResponseTimeoutMs        = responseTimeoutMs;
-        ReconnectConfig          = reconnectConfig ?? new SocketReconnectConfig();
+        ReconnectConfig =
+            reconnectConfig
+         ?? new RetryConfig(ConfigRoot, $"{Path}{Split}{nameof(ReconnectConfig)}", INetworkTopicConnectionConfig.DefaultRetryAttempts,
+                            INetworkTopicConnectionConfig.DefaultFirstRetryInterval, INetworkTopicConnectionConfig.DefaultRetryIntervalIncrement
+                          ,INetworkTopicConnectionConfig.DefaultMaxRetryIntervalCap);
+        ;
     }
 
     public NetworkTopicConnectionConfig(INetworkTopicConnectionConfig toClone, IConfigurationRoot configRoot, string path)
@@ -160,7 +172,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         set => this[nameof(ConnectionName)] = value;
     }
 
-    public string? ParentConnectionName { get ; set ; }
+    public string? ParentConnectionName { get; set; }
 
     public string TopicName
     {
@@ -195,7 +207,8 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
                 }
                 else if (ConversationProtocol is not (SocketConversationProtocol.UdpPublisher or SocketConversationProtocol.UdpSubscriber))
                 {
-                    throw new ArgumentException("Expected ConversationProtocol to be UdpPublisher or UdpSubscriber when setting ConnectionAttributes to Multicast");
+                    throw new
+                        ArgumentException("Expected ConversationProtocol to be UdpPublisher or UdpSubscriber when setting ConnectionAttributes to Multicast");
                 }
             }
             this[nameof(ConnectionAttributes)] = value.ToString();
@@ -207,7 +220,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         get
         {
             var autoRecycleList = Recycler.Borrow<AutoRecycledEnumerable<IEndpointConfig>>();
-            int i      = 0;
+            int i               = 0;
             foreach (var configurationSection in GetSection(nameof(AvailableConnections)).GetChildren())
             {
                 if (configurationSection["HostName"] != null)
@@ -237,7 +250,8 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
 
     private void UpdateEndpointConnectionName(EndpointConfig endpointConfig, int i)
     {
-        if (ConnectionName.IsNotNullOrEmpty() && (endpointConfig.InstanceName.IsNullOrEmpty() || !endpointConfig.InstanceName.Contains(ConnectionName!)))
+        if (ConnectionName.IsNotNullOrEmpty() &&
+            (endpointConfig.InstanceName.IsNullOrEmpty() || !endpointConfig.InstanceName.Contains(ConnectionName!)))
         {
             if (endpointConfig.InstanceName.IsNotNullOrEmpty())
             {
@@ -319,10 +333,19 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         set => this[nameof(ResponseTimeoutMs)] = value.ToString();
     }
 
-    public ISocketReconnectConfig ReconnectConfig
+    public IRetryConfig ReconnectConfig
     {
-        get => new SocketReconnectConfig(ConfigRoot, $"{Path}{Split}{nameof(ReconnectConfig)}");
-        set => _ = new SocketReconnectConfig(value, ConfigRoot, $"{Path}{Split}{nameof(ReconnectConfig)}");
+        get
+        {
+            if (GetSection(nameof(ReconnectConfig)).GetChildren().SelectMany(cs => cs.GetChildren()).Any(cs => cs.Value.IsNotNullOrEmpty()))
+            {
+                return new RetryConfig(ConfigRoot, $"{Path}{Split}{nameof(ReconnectConfig)}");
+            }
+            return new RetryConfig(ConfigRoot, $"{Path}{Split}{nameof(ReconnectConfig)}", INetworkTopicConnectionConfig.DefaultRetryAttempts,
+                                   INetworkTopicConnectionConfig.DefaultFirstRetryInterval, INetworkTopicConnectionConfig.DefaultRetryIntervalIncrement
+                                  ,INetworkTopicConnectionConfig.DefaultMaxRetryIntervalCap);
+        }
+        set => _ = new RetryConfig(value, ConfigRoot, $"{Path}{Split}{nameof(ReconnectConfig)}");
     }
 
     public IConnectedEndpoint? ConnectedEndpoint { get; set; }
@@ -377,8 +400,10 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         root[$"{path}{Split}{nameof(ReconnectConfig)}"]         = null;
     }
 
-    protected bool Equals(INetworkTopicConnectionConfig other)
+    public bool AreEquivalent(INetworkTopicConnectionConfig? other, bool exactTypes = false)
     {
+        if (other == null) return false;
+
         var connectionNameSame        = ConnectionName == other.ConnectionName;
         var topicNameSame             = TopicName == other.TopicName;
         var conversationProtocolSame  = ConversationProtocol == other.ConversationProtocol;
@@ -387,25 +412,21 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         var receivedBufferSizeSame    = ReceiveBufferSize == other.ReceiveBufferSize;
         var sendBufferSizeSame        = SendBufferSize == other.SendBufferSize;
         var numReceivesPerPollSame    = NumberOfReceivesPerPoll == other.NumberOfReceivesPerPoll;
-        var connectionAttribsSame        = ConnectionAttributes == other.ConnectionAttributes;
+        var connectionAttribsSame     = ConnectionAttributes == other.ConnectionAttributes;
         var connectionSelectOrderSame = ConnectionSelectionOrder == other.ConnectionSelectionOrder;
         var connTimeoutMsSame         = ConnectionTimeoutMs == other.ConnectionTimeoutMs;
         var responseTimeoutMsSame     = ResponseTimeoutMs == other.ResponseTimeoutMs;
-        var reconnectConfigSame       = ReconnectConfig.Equals(other.ReconnectConfig);
+        var reconnectConfigSame       = ReconnectConfig.AreEquivalent(other.ReconnectConfig, exactTypes);
 
-        return connectionNameSame && topicNameSame && conversationProtocolSame && availableConnectionsSame
+        var allAreSame = connectionNameSame && topicNameSame && conversationProtocolSame && availableConnectionsSame
             && topicDescriptionSame && receivedBufferSizeSame
             && sendBufferSizeSame && numReceivesPerPollSame && connectionAttribsSame && connectionSelectOrderSame
             && connTimeoutMsSame && responseTimeoutMsSame && reconnectConfigSame;
+
+        return allAreSame;
     }
 
-    public override bool Equals(object? obj)
-    {
-        if (ReferenceEquals(null, obj)) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != GetType()) return false;
-        return Equals((INetworkTopicConnectionConfig)obj);
-    }
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as INetworkTopicConnectionConfig, true);
 
     public override int GetHashCode()
     {

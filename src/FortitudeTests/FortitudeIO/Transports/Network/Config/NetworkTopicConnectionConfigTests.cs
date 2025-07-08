@@ -1,5 +1,7 @@
 ﻿#region
 
+using FortitudeCommon.Config;
+using FortitudeIO.Config;
 using FortitudeIO.Transports.Network.Config;
 using Microsoft.Extensions.Configuration;
 
@@ -43,9 +45,10 @@ public class NetworkTopicConnectionConfigTests
         Assert.AreEqual(1_000U, networkTopicConnectionConfig.ConnectionTimeoutMs);
         Assert.AreEqual(9_000U, networkTopicConnectionConfig.ResponseTimeoutMs);
         Assert.IsNotNull(networkTopicConnectionConfig.ReconnectConfig);
-        Assert.AreEqual(5_000U, networkTopicConnectionConfig.ReconnectConfig.StartReconnectIntervalMs);
-        Assert.AreEqual(20_000U, networkTopicConnectionConfig.ReconnectConfig.MaxReconnectIntervalMs);
-        Assert.AreEqual(1_000U, networkTopicConnectionConfig.ReconnectConfig.IncrementReconnectIntervalMs);
+        Assert.AreEqual(5_000, networkTopicConnectionConfig.ReconnectConfig.FirstInterval.ToTimeSpan().TotalMilliseconds);
+        Assert.AreEqual(20_000, networkTopicConnectionConfig.ReconnectConfig.MaxIntervalCap.ToTimeSpan().TotalMilliseconds);
+        Assert.AreEqual(1_000, networkTopicConnectionConfig.ReconnectConfig.IntervalIncrement.ToTimeSpan().TotalMilliseconds);
+        Assert.AreEqual(IntervalExpansionType.Linear, networkTopicConnectionConfig.ReconnectConfig.IntervalExpansionType);
 
         var newEndPoints = new List<IEndpointConfig>
         {
@@ -57,14 +60,6 @@ public class NetworkTopicConnectionConfigTests
         Assert.AreEqual("MyFirstChangedHostname", networkTopicConnectionConfig.AvailableConnections.ElementAt(0).Hostname);
         Assert.AreEqual("192.168.1.1", networkTopicConnectionConfig.AvailableConnections.ElementAt(0).SubnetMask);
     }
-
-    public static NetworkTopicConnectionConfig ServerConnectionConfigWithValues(string connectionName, string hostname,
-        ushort port, CountryCityCodes hostLocation,  string networkSubAddress, uint reconnectInterval,
-        IObservable<IConnectionUpdate>? updateStream = null) =>
-        new(connectionName, SocketConversationProtocol.TcpClient
-            , new List<IEndpointConfig>
-                { new EndpointConfig(hostname, port, hostLocation, subnetMask: networkSubAddress) },
-            connectionName, reconnectConfig: new SocketReconnectConfig(reconnectInterval));
 
     public static void AssertIsExpected(INetworkTopicConnectionConfig subjectToBeVerified, string name
         , string description

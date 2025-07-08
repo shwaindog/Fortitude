@@ -1,8 +1,10 @@
 ﻿#region
 
+using FortitudeCommon.Config;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;
+using FortitudeIO.Config;
 using FortitudeIO.Protocols;
 using FortitudeIO.Transports.Network.Config;
 using FortitudeIO.Transports.Network.Construction;
@@ -30,7 +32,7 @@ public class TcpAcceptedClientControlsTests
     private Mock<IEndpointConfig> moqSocketConnectionConfig = null!;
     private Mock<ISocketFactoryResolver> moqSocketFactories = null!;
     private Mock<ISocketFactory> moqSocketFactory = null!;
-    private Mock<ISocketReconnectConfig> moqSocketReconnectConfig = null!;
+    private Mock<IRetryConfig> moqSocketReconnectConfig = null!;
     private Mock<ISocketSessionContext> moqSocketSessionContext = null!;
     private Mock<INetworkTopicConnectionConfig> moqSocketTopicConnectionConfig = null!;
     private TcpAcceptedClientControls tcpAcceptedClientControls = null!;
@@ -50,7 +52,7 @@ public class TcpAcceptedClientControlsTests
         moqSocketTopicConnectionConfig = new Mock<INetworkTopicConnectionConfig>();
         moqEndpointEnumerator = new Mock<IEnumerator<IEndpointConfig>>();
         moqSocketConnectionConfig = new Mock<IEndpointConfig>();
-        moqSocketReconnectConfig = new Mock<ISocketReconnectConfig>();
+        moqSocketReconnectConfig = new Mock<IRetryConfig>();
         moqParallelControllerFactory.SetupGet(pcf => pcf.GetOSParallelController)
             .Returns(moqParallelControler.Object);
 
@@ -60,7 +62,7 @@ public class TcpAcceptedClientControlsTests
         moqSocketFactory = new Mock<ISocketFactory>();
         moqSocketConnection = new Mock<ISocketConnection>();
 
-        moqSocketReconnectConfig.SetupGet(scc => scc.NextReconnectIntervalMs).Returns(5u);
+        moqSocketReconnectConfig.Setup(scc => scc.GetIntervalForAttempt(It.IsAny<int>())).Returns(TimeSpan.FromMilliseconds(5));
         moqSocketConnectionConfig = new Mock<IEndpointConfig>();
         moqSocketSessionContext.SetupGet(ssc => ssc.SocketFactoryResolver).Returns(moqSocketFactories.Object);
         moqSocketFactories.SetupGet(ssc => ssc.ParallelController).Returns(moqParallelControler.Object);

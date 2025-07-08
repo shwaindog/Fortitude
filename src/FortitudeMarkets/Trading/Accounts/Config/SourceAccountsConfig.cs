@@ -21,7 +21,7 @@ public interface ISourceAccountTradingConfig : IAccountTradingLimitsConfig, IClo
 
     decimal? NewOrderConsumePips { get; set; }
 
-    IReadOnlyDictionary<string, ITickerAccountConfig> SourceTradeableTickers { get; set; }
+    IReadOnlyDictionary<string, ITickerAccountConfig> OverrideTickers { get; set; }
 
     IDailyAccountLimitsConfig? DailyLimits { get; set; }
 
@@ -66,7 +66,7 @@ public class SourceAccountTradingConfig : AccountTradingLimitsConfig, ISourceAcc
     {
         AccountId                      = accountId;
         AccountName                    = accountName;
-        SourceTradeableTickers         = sourceTradeableTickers;
+        OverrideTickers         = sourceTradeableTickers;
         DailyLimits                    = sourceDailyLimits;
         SourceMarginCollateral         = sourceMarginCollateral;
         SourceMarginCollateralCurrency = sourceMarginCollateralCurrency;
@@ -131,15 +131,15 @@ public class SourceAccountTradingConfig : AccountTradingLimitsConfig, ISourceAcc
         set => _ = value != null ? new DailyAccountLimitsConfig(value, ConfigRoot, $"{Path}{Split}{nameof(DailyLimits)}") : null;
     }
 
-    public IReadOnlyDictionary<string, ITickerAccountConfig> SourceTradeableTickers
+    public IReadOnlyDictionary<string, ITickerAccountConfig> OverrideTickers
     {
         get
         {
             if (!tickers.Any())
             {
-                if (GetSection(nameof(SourceTradeableTickers)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
+                if (GetSection(nameof(OverrideTickers)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
                 {
-                    foreach (var configurationSection in GetSection(nameof(SourceTradeableTickers)).GetChildren())
+                    foreach (var configurationSection in GetSection(nameof(OverrideTickers)).GetChildren())
                     {
                         var tickerConfig = new TickerAccountConfig(ConfigRoot, configurationSection.Path);
                         if (tickerConfig.InstrumentName.IsNotNullOrEmpty() && configurationSection.Key != tickerConfig.InstrumentName)
@@ -162,7 +162,7 @@ public class SourceAccountTradingConfig : AccountTradingLimitsConfig, ISourceAcc
             foreach (var tickerConfigKvp in value)
             {
                 var checkTickerConfig = new TickerAccountConfig(tickerConfigKvp.Value, ConfigRoot
-                                                              , $"{Path}{Split}{nameof(SourceTradeableTickers)}:{tickerConfigKvp.Key}");
+                                                              , $"{Path}{Split}{nameof(OverrideTickers)}:{tickerConfigKvp.Key}");
                 if (tickerConfigKvp.Value.InstrumentName.IsNotNullOrEmpty() && tickerConfigKvp.Key != tickerConfigKvp.Value.InstrumentName)
                     throw new
                         ArgumentException($"The key name '{tickerConfigKvp.Key}' for a ticker config does not match the configured ticker Value {tickerConfigKvp.Value.InstrumentName}");
@@ -172,7 +172,7 @@ public class SourceAccountTradingConfig : AccountTradingLimitsConfig, ISourceAcc
 
             var deletedKeys = oldKeys.Except(value.Keys.ToHashSet());
             foreach (var deletedKey in deletedKeys)
-                TickerAccountConfig.ClearValues(ConfigRoot, $"{Path}{Split}{nameof(SourceTradeableTickers)}{Split}{deletedKey}");
+                TickerAccountConfig.ClearValues(ConfigRoot, $"{Path}{Split}{nameof(OverrideTickers)}{Split}{deletedKey}");
         }
     }
 
@@ -199,7 +199,7 @@ public class SourceAccountTradingConfig : AccountTradingLimitsConfig, ISourceAcc
         var marginReserveSame       = MarginReserveMultiple == srcAcctTradingConfig.MarginReserveMultiple;
         var newOrderConsumePipsSame = NewOrderConsumePips == srcAcctTradingConfig.NewOrderConsumePips;
         var dailyLimitsSame         = DailyLimits?.AreEquivalent(srcAcctTradingConfig.DailyLimits) ?? srcAcctTradingConfig.DailyLimits == null;
-        var tickerConfigsSame       = SourceTradeableTickers.Values.SequenceEqual(srcAcctTradingConfig.SourceTradeableTickers.Values);
+        var tickerConfigsSame       = OverrideTickers.Values.SequenceEqual(srcAcctTradingConfig.OverrideTickers.Values);
 
         var allAreSame = baseSame && acctIdSame && acctNameSame && srcMarginColSame && srcMarginColCcySame && marginReserveSame &&
                          newOrderConsumePipsSame
@@ -217,7 +217,7 @@ public class SourceAccountTradingConfig : AccountTradingLimitsConfig, ISourceAcc
         root[$"{path}{Split}{nameof(MarginReserveMultiple)}"]          = null;
         root[$"{path}{Split}{nameof(NewOrderConsumePips)}"]            = null;
         root[$"{path}{Split}{nameof(DailyLimits)}"]                    = null;
-        root[$"{path}{Split}{nameof(SourceTradeableTickers)}"]         = null;
+        root[$"{path}{Split}{nameof(OverrideTickers)}"]         = null;
         RelativeTickerTradingLimitsConfig.ClearValues(root, path);
     }
 
@@ -235,7 +235,7 @@ public class SourceAccountTradingConfig : AccountTradingLimitsConfig, ISourceAcc
             hashCode = (hashCode * 397) ^ (MarginReserveMultiple?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (NewOrderConsumePips?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (DailyLimits?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ SourceTradeableTickers.GetHashCode();
+            hashCode = (hashCode * 397) ^ OverrideTickers.GetHashCode();
             return hashCode;
         }
     }
@@ -244,7 +244,7 @@ public class SourceAccountTradingConfig : AccountTradingLimitsConfig, ISourceAcc
         $"{nameof(AccountId)}: {AccountId}, {nameof(AccountName)}: {AccountName}, {nameof(SourceMarginCollateral)}: {SourceMarginCollateral}, " +
         $"{nameof(SourceMarginCollateralCurrency)}: {SourceMarginCollateralCurrency}, {nameof(MarginReserveMultiple)}: {MarginReserveMultiple}, " +
         $"{nameof(NewOrderConsumePips)}: {NewOrderConsumePips},{nameof(DailyLimits)}: {DailyLimits}, " +
-        $"{nameof(SourceTradeableTickers)}: {SourceTradeableTickers}, {AccountTradingLimitsConfigToStringMembers}";
+        $"{nameof(OverrideTickers)}: {OverrideTickers}, {AccountTradingLimitsConfigToStringMembers}";
 
     public override string ToString() => $"{nameof(SourceAccountTradingConfig)}{{{AccountTradingConfigToStringMembers}}}";
 }

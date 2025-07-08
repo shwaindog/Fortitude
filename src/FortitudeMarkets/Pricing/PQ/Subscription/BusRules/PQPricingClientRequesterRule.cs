@@ -45,6 +45,8 @@ public class PQPricingClientRequesterRule
 
     private PQPricingClientSnapshotConversationRequester? snapshotClient;
 
+    private int reconnectionAttempt = 0;
+
     public override async ValueTask StartAsync()
     {
         connectionTimeout = (int)snapshotClientTopicConnectionConfig.ConnectionTimeoutMs;
@@ -93,21 +95,24 @@ public class PQPricingClientRequesterRule
             if (startedSuccessfully)
             {
                 await this.RegisterListenerAsync<FeedSourceTickerInfoUpdate>(feedName.FeedTickersSnapshotRequestAddress(), SnapshotIdsRequestHandler);
+                reconnectionAttempt = 0;
                 await AttemptGetFeedAvailableTickersLaunchTopicAmender();
+                reconnectionAttempt = 0;
                 return;
             }
 
-            var nextAttemptTime = snapshotClientTopicConnectionConfig.ReconnectConfig.NextReconnectIntervalMs;
-            logger.Warn("Warning did not connect to PQSnapshot Client will wait {0}ms before trying again", nextAttemptTime);
-            Timer.RunIn((int)nextAttemptTime, AttemptSnapshotClientStart);
+            var nextAttemptTime = snapshotClientTopicConnectionConfig.ReconnectConfig.GetIntervalForAttempt(reconnectionAttempt);
+            logger.Warn("Warning did not connect to PQSnapshot Client will wait {0}ms before trying again", nextAttemptTime.TotalMilliseconds);
+            Timer.RunIn(nextAttemptTime, AttemptSnapshotClientStart);
         }
         catch (Exception ex)
         {
-            var nextAttemptTime = snapshotClientTopicConnectionConfig.ReconnectConfig.NextReconnectIntervalMs;
+            var nextAttemptTime = snapshotClientTopicConnectionConfig.ReconnectConfig.GetIntervalForAttempt(reconnectionAttempt);
             logger.Warn("Warning caught exception and did not connect to PQSnapshot Client will wait {0}ms before trying again. Got {1}"
-                      , nextAttemptTime, ex);
-            Timer.RunIn((int)nextAttemptTime, AttemptSnapshotClientStart);
+                      , nextAttemptTime.TotalMilliseconds, ex);
+            Timer.RunIn(nextAttemptTime, AttemptSnapshotClientStart);
         }
+        reconnectionAttempt++;
     }
 
     private async ValueTask AttemptGetFeedAvailableTickersLaunchTopicAmender()
@@ -132,10 +137,10 @@ public class PQPricingClientRequesterRule
             return;
         }
 
-        var nextRequestAttemptTime = snapshotClientTopicConnectionConfig.ReconnectConfig.NextReconnectIntervalMs;
+        var nextRequestAttemptTime = snapshotClientTopicConnectionConfig.ReconnectConfig.GetIntervalForAttempt(reconnectionAttempt);
         logger.Warn("Warning did not retrieve any SourceTickerInfos for {0} will wait {1}ms before trying again", feedName
-                  , nextRequestAttemptTime);
-        Timer.RunIn((int)nextRequestAttemptTime, AttemptGetFeedAvailableTickersLaunchTopicAmender);
+                  , nextRequestAttemptTime.TotalMilliseconds);
+        Timer.RunIn(nextRequestAttemptTime, AttemptGetFeedAvailableTickersLaunchTopicAmender);
     }
 
     private async ValueTask CheckAndPublishChangedFeedTickersHandler(IBusMessage<string> feedTickersMessage)

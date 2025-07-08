@@ -20,9 +20,10 @@ public class InitiateControls : SocketStreamControls
     private readonly IOSParallelController parallelController;
     private bool shouldAttemptReconnect = true;
     private IIntraOSThreadSignal? triggerConnectNowSignal;
+    private int retryAttempt;
 
     public InitiateControls(ISocketSessionContext socketSessionContext) : base(socketSessionContext) =>
-        parallelController = socketSessionContext.SocketFactoryResolver.ParallelController!;
+        parallelController = socketSessionContext.SocketFactoryResolver.ParallelController;
 
     public override bool Connect()
     {
@@ -38,14 +39,13 @@ public class InitiateControls : SocketStreamControls
         Disconnect(CloseReason.StartConnectionFailed, reason);
         if (!shouldAttemptReconnect || SocketSessionContext.SocketReceiver?.ExpectSessionCloseMessage is
                 { CloseReason: CloseReason.Completed }) return;
-        var scheduleConnectWaitMs = ReconnectConfig.NextReconnectIntervalMs;
+        var scheduleConnectWaitMs = (uint)ReconnectConfig.GetIntervalForAttempt(retryAttempt++).TotalMilliseconds;
         logger.Info("Will attempt reconnecting to {0} {1} id {2} reason {3} in {4}ms",
             SocketSessionContext.Name, SocketSessionContext.Id,
             SocketSessionContext.NetworkTopicConnectionConfig, reason, scheduleConnectWaitMs);
         SocketSessionContext.OnReconnecting();
         ScheduleConnect(scheduleConnectWaitMs);
     }
-
 
     protected override bool ConnectAttemptSucceeded()
     {
@@ -57,7 +57,7 @@ public class InitiateControls : SocketStreamControls
                 SocketSessionContext.SocketSessionState == SocketSessionState.Disconnecting) return true;
             SocketSessionContext.OnSocketStateChanged(SocketSessionState.Connecting);
             var connConfig = SocketSessionContext.NetworkTopicConnectionConfig;
-            var socketFactory = SocketSessionContext.SocketFactoryResolver.SocketFactory!;
+            var socketFactory = SocketSessionContext.SocketFactoryResolver.SocketFactory;
             foreach (var socketConConfig in SocketSessionContext.NetworkTopicConnectionConfig)
             {
                 try
@@ -79,7 +79,7 @@ public class InitiateControls : SocketStreamControls
 
                 if (SocketSessionContext.SocketConnection?.IsConnected ?? false)
                 {
-                    ReconnectConfig.NextReconnectIntervalMs = ReconnectConfig.StartReconnectIntervalMs;
+                    retryAttempt = 0;
                     logger.Info("Connection {0} was accepted by host {1}:{2}",
                         SocketSessionContext.Name, socketConConfig.Hostname, socketConConfig.Port);
                     SocketSessionContext.NetworkTopicConnectionConfig.ConnectedEndpoint = new ConnectedEndpoint(TimeContext.UtcNow, socketConConfig);
@@ -101,7 +101,7 @@ public class InitiateControls : SocketStreamControls
                 triggerConnectNowSignal != null) return;
             if (spanMs > 0)
                 triggerConnectNowSignal = parallelController.ScheduleWithEarlyTrigger(
-                    (state, timeout) => Connect(), spanMs);
+                    (_, _) => Connect(), spanMs);
             else parallelController.CallFromThreadPool(state => Connect());
         }
     }

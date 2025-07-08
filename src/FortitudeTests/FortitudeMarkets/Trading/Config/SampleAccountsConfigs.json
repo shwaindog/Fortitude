@@ -1,16 +1,28 @@
 {
   "SampleAccountsConfigs": {
     "SingleSourceTradingAccountConfig": {
+      "TradingEnabled": true,
       "UsingTradingAccountSize": 1000000,
-      "MaxTotalOpenPositionPercentage": 5,
-      "MaxTickerOpenPositionPercentage": 1,
+      "MaxTotalOpenPositionPercentage": 5.0,
+      "MaxTickerOpenPositionPercentage": 1.0,
       "MaxTickerOpeningOrderSizePercentage": 0.2,
-      "MaxTickerReducingOrderSizePercentage": 1,
+      "MaxTickerReducingOrderSizePercentage": 1.0,
       "SourceAccount": {
+        "AccountId": 100,
+        "AccountName": "MySampleBroker",
         "SourceMarginCollateral": 10000,
         "SourceMarginCollateralCurrency": "AUD",
         "MarginReserveMultiple": 8,
-        "NewOrderConsumePips": 20,
+        "NewOrderConsumePips": 200,
+        "OverrideTickers": {
+          "AUDUSD": {
+            "InstrumentId": 25,
+            "InstrumentName": "AUD/USD",
+            "AllowedPositionDirection": "Both",
+            "MaxTickerOpenPositionPercentage": 2.0,
+            "MaxTickerOpeningOrderSizePercentage": 0.5
+          }
+        },
         "AdapterThroughputLimits": {
           "DefaultPeriod": "TenSeconds",
           "TotalAllOrdersSubmitCount": {
@@ -69,11 +81,9 @@
               "BreachAccountSizePercentageLimit": 0.5
             }
           }
-        },
-        "SourceTickers": {
-
         }
       }
+
     }
   }
 }

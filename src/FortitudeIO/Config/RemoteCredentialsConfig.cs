@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using Microsoft.Extensions.Configuration;
@@ -57,7 +58,14 @@ public static class RemoteCredentialsFieldFlagsExtensions
 public interface IRemoteCredentialsConfig : ISensitiveSecurableConfig<RemoteCredentialsFieldFlags>
   , IInterfacesComparable<IRemoteCredentialsConfig>, ICloneable<IRemoteCredentialsConfig>
 {
-    string Name { get; set; }
+    static readonly uint           DefaultRetryAttempts          = 3u;
+    static readonly TimeSpanConfig DefaultFirstRetryInterval     = new (seconds: 1);
+    static readonly TimeSpanConfig DefaultRetryIntervalIncrement = new (seconds: 2);
+    static readonly TimeSpanConfig DefaultMaxRetryIntervalCap    = new (minutes: 5);
+
+    const IntervalExpansionType DefaultIntervalExpansionType = IntervalExpansionType.Quadratic;
+
+    string                         Name { get; set; }
 
     bool Enabled { get; set; }
 
@@ -74,6 +82,8 @@ public interface IRemoteCredentialsConfig : ISensitiveSecurableConfig<RemoteCred
     string? Username { get; set; }
 
     string? Password { get; set; }
+
+    IRetryConfig ReconnectConfig { get; set; }
 }
 
 public class RemoteCredentialsConfig : SensitiveSecurableConfig<RemoteCredentialsFieldFlags>, IRemoteCredentialsConfig
@@ -178,6 +188,22 @@ public class RemoteCredentialsConfig : SensitiveSecurableConfig<RemoteCredential
         get => this[nameof(CertificatePayload)];
         set => this[nameof(CertificatePayload)] = value;
     }
+    
+    public IRetryConfig? ReconnectConfig
+    {
+        get
+        {
+            if (GetSection(nameof(ReconnectConfig)).GetChildren().SelectMany(cs => cs.GetChildren()).Any(cs => cs.Value.IsNotNullOrEmpty()))
+            {
+                return new RetryConfig(ConfigRoot, $"{Path}{Split}{nameof(ReconnectConfig)}");
+            }
+            return new RetryConfig(ConfigRoot, $"{Path}{Split}{nameof(ReconnectConfig)}", IRemoteCredentialsConfig.DefaultRetryAttempts,
+                                   IRemoteCredentialsConfig.DefaultFirstRetryInterval, IRemoteCredentialsConfig.DefaultRetryIntervalIncrement
+                                  ,IRemoteCredentialsConfig.DefaultMaxRetryIntervalCap, IRemoteCredentialsConfig.DefaultIntervalExpansionType);
+        }
+        set => _ = value != null ? new RetryConfig(value, ConfigRoot, $"{Path}{Split}{nameof(ReconnectConfig)}") : null;
+    }
+
 
     object ICloneable.Clone() => Clone();
 
