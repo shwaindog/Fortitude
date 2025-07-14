@@ -2,17 +2,16 @@
 
 namespace FortitudeCommon.EventProcessing.Disruption.Waiting
 {
-    internal class IndependentRingBarrier : IRingBarrier
+    internal class IndependentRingBarrier(IWaitStrategyInt waitStrategy, Sequence cursor) : IRingBarrier
     {
-        private readonly Sequence cursor;
-        private readonly IWaitStrategy waitStrategy;
-
-        public IndependentRingBarrier(IWaitStrategy waitStrategy, Sequence cursor)
+        public int WaitFor(int sequence)
         {
-            this.waitStrategy = waitStrategy;
-            this.cursor = cursor;
+            return waitStrategy.WaitFor(cursor, sequence);
         }
+    }
 
+    internal class IndependentRingBarrierLong(IWaitStrategyLong waitStrategy, SequenceLong cursor) : IRingBarrierLong
+    {
         public long WaitFor(long sequence)
         {
             return waitStrategy.WaitFor(cursor, sequence);

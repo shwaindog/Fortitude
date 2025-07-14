@@ -1,7 +1,15 @@
-﻿using System.Text;
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+#region
+
+using System.Text;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
-using static FortitudeCommon.Types.StyledTypeStringAppender;
+using static FortitudeCommon.Types.WrappingStyledTypeStringAppender;
+
+#endregion
 
 namespace FortitudeCommon.Types;
 
@@ -9,17 +17,21 @@ public enum StringBuildingStyle
 {
     None = 0
   , Default
-  , Log
+  , LogCompact
+  , LogPretty
   , JsonCompact
   , JsonPretty
 }
 
 public static class StringBuildingStyleExtensions
-{
-    // ReSharper disable UnusedMember.Global
+{ // ReSharper disable UnusedMember.Global
     public static bool IsDefault(this StringBuildingStyle style) => style == StringBuildingStyle.Default;
 
-    public static bool IsDefaultOrLog(this StringBuildingStyle style) => style is StringBuildingStyle.Default or StringBuildingStyle.Log;
+    public static bool IsDefaultOrLogCompact
+        (this StringBuildingStyle style) =>
+        style is StringBuildingStyle.Default or StringBuildingStyle.LogCompact;
+
+    public static bool IsDefaultOrLogPretty(this StringBuildingStyle style) => style is StringBuildingStyle.Default or StringBuildingStyle.LogPretty;
 
     public static bool IsDefaultOrJsonCompact(this StringBuildingStyle style) =>
         style is StringBuildingStyle.Default or StringBuildingStyle.JsonCompact;
@@ -27,19 +39,30 @@ public static class StringBuildingStyleExtensions
     public static bool IsDefaultOrJsonPretty(this StringBuildingStyle style) =>
         style is StringBuildingStyle.Default or StringBuildingStyle.JsonPretty;
 
-    public static bool IsLog(this StringBuildingStyle style) => style == StringBuildingStyle.Log;
+    public static bool IsLogCompact(this StringBuildingStyle style) => style == StringBuildingStyle.LogPretty;
+
+    public static bool IsLogPretty(this StringBuildingStyle style) => style == StringBuildingStyle.LogPretty;
 
     public static bool IsJsonCompact(this StringBuildingStyle style) => style == StringBuildingStyle.JsonCompact;
 
     public static bool IsJsonPretty(this StringBuildingStyle style) => style == StringBuildingStyle.JsonPretty;
+
+    public static bool IsJson(this StringBuildingStyle style) => style is StringBuildingStyle.JsonPretty or StringBuildingStyle.JsonCompact;
+
+    public static bool IsPretty(this StringBuildingStyle style) => style is StringBuildingStyle.JsonPretty or StringBuildingStyle.LogPretty;
+
+    public static bool IsCompact(this StringBuildingStyle style) => style is StringBuildingStyle.JsonCompact or StringBuildingStyle.LogCompact;
 }
 
 public interface IStyledTypeStringAppender : IReusableObject<IStyledTypeStringAppender>
 {
+    const string DefaultIndentString = "  ";
     // ReSharper disable UnusedMemberInSuper.Global
     StringBuildingStyle Style { get; }
 
     int IndentLevel { get; }
+
+    string Indent { get; set; }
 
     void ClearSetStyle(StringBuildingStyle stringStyle, int indentLevel = 0);
 
@@ -51,6 +74,33 @@ public interface IStyledTypeStringAppender : IReusableObject<IStyledTypeStringAp
     #region Add Single Fields
 
     #region Single Fields Always Add
+
+    IStyledTypeStringAppender IncrementIndent();
+    IStyledTypeStringAppender DecrementIndent();
+
+    IStyledTypeStringAppender AddValue(IMutableString value);
+    IStyledTypeStringAppender AddValue(IStyledToStringObject value);
+    IStyledTypeStringAppender AddValue(bool? value);
+    IStyledTypeStringAppender AddValue(sbyte? value);
+    IStyledTypeStringAppender AddValue(byte? value);
+    IStyledTypeStringAppender AddValue(char? value);
+    IStyledTypeStringAppender AddValue(short? value);
+    IStyledTypeStringAppender AddValue(ushort? value);
+    IStyledTypeStringAppender AddValue(int? value);
+    IStyledTypeStringAppender AddValue(uint? value);
+    IStyledTypeStringAppender AddValue(float? value);
+    IStyledTypeStringAppender AddValue(ulong? value);
+    IStyledTypeStringAppender AddValue(long? value);
+    IStyledTypeStringAppender AddValue(double? value);
+    IStyledTypeStringAppender AddValue(decimal? value);
+
+    IStyledTypeStringAppender AddValue<T>(T? value, Action<T, IStyledTypeStringAppender> structToString) where T : struct;
+
+    IStyledTypeStringAppender AddValue(string? value);
+    IStyledTypeStringAppender AddValue(string? value, int startIndex, int length);
+
+    [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
+    IStyledTypeStringAppender AddValue(object? value);
 
     IStyledTypeStringAppender AddField(string fieldName, IMutableString value);
     IStyledTypeStringAppender AddField(string fieldName, IStyledToStringObject value);
@@ -164,7 +214,7 @@ public interface IStyledTypeStringAppender : IReusableObject<IStyledTypeStringAp
     IStyledTypeStringAppender AddCollectionField(string fieldName, string[]? value);
     IStyledTypeStringAppender AddCollectionField(string fieldName, IStyledToStringObject[]? value);
     IStyledTypeStringAppender AddCollectionField(string fieldName, IMutableString[]? value);
-    
+
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
     IStyledTypeStringAppender AddCollectionField(string fieldName, object?[]? value);
 
@@ -206,6 +256,12 @@ public interface IStyledTypeStringAppender : IReusableObject<IStyledTypeStringAp
     IStyledTypeStringAppender AddCollectionField(string fieldName, IReadOnlyList<IStyledToStringObject?>? value);
     IStyledTypeStringAppender AddCollectionField(string fieldName, IReadOnlyList<IMutableString?>? value);
     IStyledTypeStringAppender AddCollectionField(string fieldName, IEnumerable<IStyledToStringObject?>? value);
+
+    IStyledTypeStringAppender AddCollectionField<TKey, TValue>(string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value);
+
+    IStyledTypeStringAppender AddCollectionField<TKey, TValue>
+        (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value, Action<TValue, IStyledTypeStringAppender> structToString)
+        where TValue : struct;
 
 
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
@@ -252,7 +308,13 @@ public interface IStyledTypeStringAppender : IReusableObject<IStyledTypeStringAp
     IStyledTypeStringAppender AddNonNullCollectionField(string fieldName, string[]? value);
     IStyledTypeStringAppender AddNonNullCollectionField(string fieldName, IStyledToStringObject[]? value);
     IStyledTypeStringAppender AddNonNullCollectionField(string fieldName, IMutableString[]? value);
-    
+
+    IStyledTypeStringAppender AddNonNullCollectionField<TKey, TValue>(string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value);
+
+    IStyledTypeStringAppender AddNonNullCollectionField<TKey, TValue>
+        (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value, Action<TValue, IStyledTypeStringAppender> structToString)
+        where TValue : struct;
+
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
     IStyledTypeStringAppender AddNonNullCollectionField(string fieldName, object?[]? value);
 
@@ -294,7 +356,7 @@ public interface IStyledTypeStringAppender : IReusableObject<IStyledTypeStringAp
     IStyledTypeStringAppender AddNonNullCollectionField(string fieldName, IReadOnlyList<IStyledToStringObject>? value);
     IStyledTypeStringAppender AddNonNullCollectionField(string fieldName, IReadOnlyList<IMutableString>? value);
     IStyledTypeStringAppender AddNonNullCollectionField(string fieldName, IEnumerable<IStyledToStringObject>? value);
-    
+
 
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
     IStyledTypeStringAppender AddNonNullCollectionField(string fieldName, IReadOnlyList<object?> value);
@@ -339,7 +401,13 @@ public interface IStyledTypeStringAppender : IReusableObject<IStyledTypeStringAp
     IStyledTypeStringAppender AddPopulatedCollectionField(string fieldName, string[] value);
     IStyledTypeStringAppender AddPopulatedCollectionField(string fieldName, IStyledToStringObject[] value);
     IStyledTypeStringAppender AddPopulatedCollectionField(string fieldName, IMutableString[] value);
-    
+
+    IStyledTypeStringAppender AddPopulatedCollectionField<TKey, TValue>(string fieldName, IEnumerable<KeyValuePair<TKey, TValue>> value);
+
+    IStyledTypeStringAppender AddPopulatedCollectionField<TKey, TValue>
+        (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>> value, Action<TValue, IStyledTypeStringAppender> structToString)
+        where TValue : struct;
+
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
     IStyledTypeStringAppender AddPopulatedCollectionField(string fieldName, object?[] value);
 
@@ -381,7 +449,7 @@ public interface IStyledTypeStringAppender : IReusableObject<IStyledTypeStringAp
     IStyledTypeStringAppender AddPopulatedCollectionField(string fieldName, IReadOnlyList<IStyledToStringObject> value);
     IStyledTypeStringAppender AddPopulatedCollectionField(string fieldName, IReadOnlyList<IMutableString> value);
     IStyledTypeStringAppender AddPopulatedCollectionField(string fieldName, IEnumerable<IStyledToStringObject> value);
-    
+
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
     IStyledTypeStringAppender AddPopulatedCollectionField(string fieldName, IReadOnlyList<object?> value);
 
@@ -425,7 +493,13 @@ public interface IStyledTypeStringAppender : IReusableObject<IStyledTypeStringAp
     IStyledTypeStringAppender AddNonNullAndPopulatedCollectionField(string fieldName, string[]? value);
     IStyledTypeStringAppender AddNonNullAndPopulatedCollectionField(string fieldName, IStyledToStringObject[]? value);
     IStyledTypeStringAppender AddNonNullAndPopulatedCollectionField(string fieldName, IMutableString[]? value);
-    
+
+    IStyledTypeStringAppender AddNonNullAndPopulatedCollectionField<TKey, TValue>(string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value);
+
+    IStyledTypeStringAppender AddNonNullAndPopulatedCollectionField<TKey, TValue>
+        (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value, Action<TValue, IStyledTypeStringAppender> structToString)
+        where TValue : struct;
+
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
     IStyledTypeStringAppender AddNonNullAndPopulatedCollectionField(string fieldName, object?[]? value);
 
@@ -466,7 +540,7 @@ public interface IStyledTypeStringAppender : IReusableObject<IStyledTypeStringAp
     IStyledTypeStringAppender AddNonNullAndPopulatedCollectionField(string fieldName, IReadOnlyList<IStyledToStringObject>? value);
     IStyledTypeStringAppender AddNonNullAndPopulatedCollectionField(string fieldName, IReadOnlyList<IMutableString>? value);
     IStyledTypeStringAppender AddNonNullAndPopulatedCollectionField(string fieldName, IEnumerable<IStyledToStringObject>? value);
-    
+
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
     IStyledTypeStringAppender AddNonNullAndPopulatedCollectionField(string fieldName, IReadOnlyList<object?> value);
 
@@ -475,7 +549,7 @@ public interface IStyledTypeStringAppender : IReusableObject<IStyledTypeStringAp
     #endregion Add Collection Fields
 
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
-    IStyledTypeStringAppender AddNonNullField(string fieldName, object? value);
+    IStyledTypeStringAppender AddNonNullObjectField(string fieldName, object? value);
 
     StringBuilder BackingStringBuilder { get; }
 
@@ -483,124 +557,287 @@ public interface IStyledTypeStringAppender : IReusableObject<IStyledTypeStringAp
     // ReSharper restore UnusedMember.Global
 }
 
-public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender>, IStyledTypeStringAppender
+public class WrappingStyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender>, IStyledTypeStringAppender
 {
-    internal const string Indent = "  ";
-    internal const string Null   = "null";
+    internal const string Null = "null";
 
-    private readonly StringBuilder sb = new();
+    protected StringBuildingStyle BuildStyle;
 
-    private StringBuildingStyle style;
+    protected int IndentLvl;
 
-    private int indent;
+    protected StringBuilder Sb = null!;
 
-    public StyledTypeStringAppender() => style = StringBuildingStyle.Default;
-
-    public StyledTypeStringAppender(StyledTypeStringAppender toClone)
+    public WrappingStyledTypeStringAppender()
     {
-        indent = toClone.IndentLevel;
-        style  = toClone.Style;
+        BuildStyle = StringBuildingStyle.Default;
+        Sb         = SourceStringBuilder()!;
     }
 
-    public int IndentLevel => indent;
+    public WrappingStyledTypeStringAppender(StringBuildingStyle withStyle) => BuildStyle = withStyle;
 
-    public StringBuildingStyle Style => style;
+    public int IndentLevel => IndentLvl;
 
-    public StringBuilder BackingStringBuilder => sb;
+    public string Indent { get; set; } = IStyledTypeStringAppender.DefaultIndentString;
+
+    public StringBuildingStyle Style => BuildStyle;
+
+    public StringBuilder BackingStringBuilder => Sb;
 
     public void ClearSetStyle(StringBuildingStyle stringStyle, int indentLevel = 0)
     {
-        style  = stringStyle;
-        indent = indentLevel;
-        sb.Clear();
+        BuildStyle = stringStyle;
+        IndentLvl  = indentLevel;
+        Sb.Clear();
+    }
+
+    public IStyledTypeStringAppender DecrementIndent()
+    {
+        IndentLvl--;
+        return this;
+    }
+
+    public IStyledTypeStringAppender IncrementIndent()
+    {
+        IndentLvl++;
+        return this;
     }
 
     public IStyledTypeStringAppender AddTypeName(string value)
     {
-        if (style.IsLog())
-        {
-            sb.Append(value);
-        }
+        if (BuildStyle.IsLogCompact()) Sb.Append(value);
         return this;
     }
 
     public IStyledTypeStringAppender AddTypeStart()
     {
-        sb.Append("{");
-        indent++;
+        Sb.Append("{");
+        IndentLvl++;
         return this;
     }
 
     public IStyledTypeStringAppender AddTypeEnd()
     {
-        for (var i = sb.Length - 1; i > 0 && sb[i] is ' ' or '\r' or '\n' or ','; i--)
-        {
-            if (sb[i] == ',')
+        for (var i = Sb.Length - 1; i > 0 && Sb[i] is ' ' or '\r' or '\n' or ','; i--)
+            if (Sb[i] == ',')
             {
-                sb.Remove(i, 1);
+                Sb.Remove(i, 1);
                 break;
             }
-        }
-        sb.Append("}");
-        indent--;
-        if (indent > 0 && style.IsJsonPretty())
+        Sb.Append("}");
+        IndentLvl--;
+        if (IndentLvl > 0 && BuildStyle.IsPretty())
         {
-            sb.Append(",\n");
+            Sb.Append(",\n");
             AddToTypeLevelIndents();
         }
         return this;
     }
 
+    public override void StateReset()
+    {
+        ClearStringBuilder();
+
+        base.StateReset();
+    }
+
+    public WrappingStyledTypeStringAppender Initialize(StringBuilder usingStringBuilder, StringBuildingStyle buildStyle = StringBuildingStyle.Default)
+    {
+        Sb         = usingStringBuilder;
+        BuildStyle = buildStyle;
+
+        return this;
+    }
+
+    protected virtual StringBuilder? SourceStringBuilder() => null;
+
+    protected virtual void ClearStringBuilder() => Sb = null!;
+
+    public override WrappingStyledTypeStringAppender Clone() =>
+        Recycler?.Borrow<StyledTypeStringAppender>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new StyledTypeStringAppender(this);
+
+    public override WrappingStyledTypeStringAppender CopyFrom
+        (IStyledTypeStringAppender source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        ClearSetStyle(source.Style, IndentLevel);
+        Sb.AppendRange(source.BackingStringBuilder);
+
+        return this;
+    }
+
+    protected StringBuilder FieldNameJoin(string fieldName)
+    {
+        if (BuildStyle.IsPretty()) Sb.Append(Indent);
+
+        if (BuildStyle.IsJson())
+            Sb.Append("\"").Append(fieldName).Append("\"").Append(": ");
+        else
+            Sb.Append(fieldName).Append(": ");
+
+        return Sb;
+    }
+
+    protected StringBuilder RemoveLastWhiteSpacedCommaIfFound()
+    {
+        if (Sb[^2] == ',' && Sb[^1] == ' ')
+        {
+            Sb.Length -= 2;
+            Sb.Append(" ");
+            return Sb;
+        }
+        for (var i = Sb.Length - 1; i > 0 && Sb[i] is ' ' or '\r' or '\n' or ','; i--)
+            if (Sb[i] == ',')
+            {
+                Sb.Remove(i, 1);
+                break;
+            }
+        return Sb;
+    }
+
+    internal IStyledTypeStringAppender AddToTypeLevelIndents()
+    {
+        Sb.AddIndents(Indent, IndentLvl - 1);
+        return this;
+    }
+
+    internal void StartCollection(string fieldName)
+    {
+        FieldNameJoin(fieldName).Append("[");
+        if (BuildStyle.IsPretty())
+        {
+            IndentLvl++;
+            Sb.Append("\n").AddIndents(Indent, IndentLvl);
+        }
+    }
+
+    internal void StartDictionary(string fieldName)
+    {
+        FieldNameJoin(fieldName).Append("{");
+        if (BuildStyle.IsPretty())
+        {
+            IndentLvl++;
+            Sb.Append("\n").AddIndents(Indent, IndentLvl);
+        }
+    }
+
+    internal void GoToNextCollectionItemStart()
+    {
+        if (BuildStyle.IsPretty())
+            Sb.Append(",\n").AddIndents(Indent, IndentLvl);
+        else
+            Sb.Append(", ");
+    }
+
+    internal IStyledTypeStringAppender EndDictionary()
+    {
+        RemoveLastWhiteSpacedCommaIfFound();
+        Sb.Append("]");
+        return Sb.AddGoToNext(this);
+    }
+
+    internal IStyledTypeStringAppender EndCollection()
+    {
+        RemoveLastWhiteSpacedCommaIfFound();
+        Sb.Append("]");
+        return Sb.AddGoToNext(this);
+    }
+
+    public override string ToString() => Sb.ToString();
+
     #region Single Fields
+
+    #region Single Values
+
+    public IStyledTypeStringAppender AddFieldName(string value) => FieldNameJoin(value).Next(this);
+
+    public IStyledTypeStringAppender AddValue(bool? value) => Sb.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(byte? value) => Sb.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(sbyte? value) => Sb.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(char? value) => Sb.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(short? value) => Sb.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(ushort? value) => Sb.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(int? value) => Sb.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(uint? value) => Sb.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(float? value) => Sb.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(long? value) => Sb.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(ulong? value) => Sb.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(double? value) => Sb.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(decimal? value) => Sb.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue<T>(T? value, Action<T, IStyledTypeStringAppender> structToString) where T : struct =>
+        this.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(string? value, int startIndex, int length) => this.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(string? value) => this.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(IStyledToStringObject value) => this.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(IMutableString value) => this.AppendOrNull(value).AddGoToNext(this);
+
+    public IStyledTypeStringAppender AddValue(object? value) => this.AppendOrNull(value).AddGoToNext(this);
+
+    #endregion Single Values
 
     #region Always Add Single Fields
 
-    public IStyledTypeStringAppender AddField(string fieldName, byte? value) => AddFieldName(fieldName).AppendOrNull(value).AddGoToNext(this);
+    public IStyledTypeStringAppender AddField(string fieldName, byte? value) => FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(this);
 
-    public IStyledTypeStringAppender AddField(string fieldName, sbyte? value) => AddFieldName(fieldName).AppendOrNull(value).AddGoToNext(this);
+    public IStyledTypeStringAppender AddField(string fieldName, sbyte? value) => FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(this);
 
-    public IStyledTypeStringAppender AddField(string fieldName, bool? value) => AddFieldName(fieldName).AppendOrNull(value).AddGoToNext(this);
+    public IStyledTypeStringAppender AddField(string fieldName, bool? value) => FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(this);
 
-    public IStyledTypeStringAppender AddField(string fieldName, char? value) => AddFieldName(fieldName).AppendOrNull(value).AddGoToNext(this);
+    public IStyledTypeStringAppender AddField(string fieldName, char? value) => FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(this);
 
-    public IStyledTypeStringAppender AddField(string fieldName, short? value) => AddFieldName(fieldName).AppendOrNull(value).AddGoToNext(this);
+    public IStyledTypeStringAppender AddField(string fieldName, short? value) => FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(this);
 
-    public IStyledTypeStringAppender AddField(string fieldName, ushort? value) => AddFieldName(fieldName).AppendOrNull(value).AddGoToNext(this);
+    public IStyledTypeStringAppender AddField(string fieldName, ushort? value) => FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(this);
 
-    public IStyledTypeStringAppender AddField(string fieldName, int? value) => AddFieldName(fieldName).AppendOrNull(value).AddGoToNext(this);
+    public IStyledTypeStringAppender AddField(string fieldName, int? value) => FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(this);
 
-    public IStyledTypeStringAppender AddField(string fieldName, uint? value) => AddFieldName(fieldName).AppendOrNull(value).AddGoToNext(this);
+    public IStyledTypeStringAppender AddField(string fieldName, uint? value) => FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(this);
 
-    public IStyledTypeStringAppender AddField(string fieldName, float? value) => AddFieldName(fieldName).AppendOrNull(value).AddGoToNext(this);
+    public IStyledTypeStringAppender AddField(string fieldName, float? value) => FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(this);
 
-    public IStyledTypeStringAppender AddField(string fieldName, long? value) => AddFieldName(fieldName).AppendOrNull(value).AddGoToNext(this);
+    public IStyledTypeStringAppender AddField(string fieldName, long? value) => FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(this);
 
-    public IStyledTypeStringAppender AddField(string fieldName, ulong? value) => AddFieldName(fieldName).AppendOrNull(value).AddGoToNext(this);
+    public IStyledTypeStringAppender AddField(string fieldName, ulong? value) => FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(this);
 
-    public IStyledTypeStringAppender AddField(string fieldName, double? value) => AddFieldName(fieldName).AppendOrNull(value).AddGoToNext(this);
+    public IStyledTypeStringAppender AddField(string fieldName, double? value) => FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(this);
 
-    public IStyledTypeStringAppender AddField(string fieldName, decimal? value) => AddFieldName(fieldName).AppendOrNull(value).AddGoToNext(this);
+    public IStyledTypeStringAppender AddField(string fieldName, decimal? value) => FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(this);
 
     public IStyledTypeStringAppender AddField<T>
         (string fieldName, T? value, Action<T, IStyledTypeStringAppender> structToString) where T : struct
     {
-        AddFieldName(fieldName);
+        FieldNameJoin(fieldName);
         this.AppendOrNull(value, structToString);
-        return sb.AddGoToNext(this);
+        return Sb.AddGoToNext(this);
     }
 
-    public IStyledTypeStringAppender AddField(string fieldName, IStyledToStringObject? value) => AddFieldName(fieldName).AddNullOrValue(value, this);
+    public IStyledTypeStringAppender AddField(string fieldName, IStyledToStringObject? value) => FieldNameJoin(fieldName).AddNullOrValue(value, this);
 
-    public IStyledTypeStringAppender AddField(string fieldName, IMutableString? value) => AddFieldName(fieldName).AddNullOrValue(value, this);
+    public IStyledTypeStringAppender AddField(string fieldName, IMutableString? value) => FieldNameJoin(fieldName).AddNullOrValue(value, this);
 
-    public IStyledTypeStringAppender AddField(string fieldName, string? value) => AddFieldName(fieldName).Append(value ?? "null").AddGoToNext(this);
+    public IStyledTypeStringAppender AddField(string fieldName, string? value) => FieldNameJoin(fieldName).Append(value ?? "null").AddGoToNext(this);
 
     public IStyledTypeStringAppender AddField(string fieldName, string? value, int startIndex, int length) =>
-        AddFieldName(fieldName).AddNullOrValue(value, startIndex, length, this);
+        FieldNameJoin(fieldName).AddNullOrValue(value, startIndex, length, this);
 
 
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
-    public IStyledTypeStringAppender AddField(string fieldName, object? value) => AddFieldName(fieldName).AddNullOrValue(value, this);
+    public IStyledTypeStringAppender AddField(string fieldName, object? value) => FieldNameJoin(fieldName).AddNullOrValue(value, this);
 
     #endregion Always Add Single Fields
 
@@ -685,7 +922,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
 
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
-    public IStyledTypeStringAppender AddNonNullField(string fieldName, object? value) => value != null ? AddField(fieldName, value) : this;
+    public IStyledTypeStringAppender AddNonNullObjectField(string fieldName, object? value) => value != null ? AddField(fieldName, value) : this;
 
     #endregion Conditional Add Non Null Single Fields
 
@@ -701,17 +938,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -719,17 +952,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -737,17 +966,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -755,17 +980,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -773,17 +994,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -791,17 +1008,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -809,17 +1022,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -827,17 +1036,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -845,17 +1050,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -863,17 +1064,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -881,17 +1078,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -899,17 +1092,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -917,17 +1106,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -935,17 +1120,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -953,17 +1134,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -971,17 +1148,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -989,17 +1162,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1007,17 +1176,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1025,17 +1190,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1043,17 +1204,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1061,17 +1218,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1079,17 +1232,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1097,17 +1246,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1115,17 +1260,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1133,17 +1274,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1151,17 +1288,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1170,17 +1303,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
                 structToString(value[i], this);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1189,17 +1318,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
                 this.AppendOrNull(value[i], structToString);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1207,17 +1332,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.Append(value[i] ?? Null);
+                Sb.Append(value[i] ?? Null);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1225,17 +1346,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.AppendOrNull(value[i]);
+                this.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1243,36 +1360,60 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
                 this.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
-    
+
+    public IStyledTypeStringAppender AddCollectionField<TKey, TValue>(string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value)
+    {
+        StartDictionary(fieldName);
+        if (value != null)
+            foreach (var kvp in value)
+            {
+                Sb.AddNullOrValue(kvp.Key, this, true).AppendOrNull(": ");
+                Sb.AddNullOrValue(kvp.Value, this);
+                GoToNextCollectionItemStart();
+            }
+        else
+            Sb.Append(Null);
+        return EndDictionary();
+    }
+
+    public IStyledTypeStringAppender AddCollectionField<TKey, TValue>
+        (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value, Action<TValue, IStyledTypeStringAppender> structToString)
+        where TValue : struct
+    {
+        StartDictionary(fieldName);
+        if (value != null)
+            foreach (var kvp in value)
+            {
+                Sb.AddNullOrValue(kvp.Key, this, true).AppendOrNull(": ");
+                this.AppendOrNull(kvp.Value, structToString);
+                GoToNextCollectionItemStart();
+            }
+        else
+            Sb.Append(Null);
+        return EndDictionary();
+    }
+
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
     public IStyledTypeStringAppender AddCollectionField(string fieldName, object?[]? value)
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Length; i++)
             {
-                sb.AppendOrNull(value[i]);
+                this.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1284,17 +1425,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1302,17 +1439,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1320,17 +1453,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1338,17 +1467,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1356,17 +1481,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1374,17 +1495,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1392,17 +1509,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1410,17 +1523,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1428,17 +1537,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1446,17 +1551,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1464,17 +1565,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1482,17 +1579,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1500,17 +1593,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1518,17 +1607,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1536,17 +1621,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1554,17 +1635,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1572,17 +1649,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1590,17 +1663,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1608,17 +1677,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1626,17 +1691,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1644,17 +1705,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1662,17 +1719,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1680,17 +1733,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1698,17 +1747,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1716,17 +1761,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1734,17 +1775,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.AppendOrNull(value[i]);
+                Sb.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1753,17 +1790,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
                 structToString(value[i], this);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1772,17 +1805,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
                 this.AppendOrNull(value[i], structToString);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1790,17 +1819,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.Append(value[i]);
+                Sb.Append(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1808,17 +1833,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.Append(value[i] ?? Null);
+                Sb.Append(value[i] ?? Null);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1826,17 +1847,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.AppendOrNull(value[i]);
+                this.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1844,17 +1861,13 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
                 this.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1862,36 +1875,28 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             foreach (var stso in value)
             {
                 this.AppendOrNull(stso);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
-    
+
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
     public IStyledTypeStringAppender AddCollectionField(string fieldName, IReadOnlyList<object?>? value)
     {
         StartCollection(fieldName);
         if (value != null)
-        {
             for (var i = 0; i < value.Count; i++)
             {
-                sb.AppendOrNull(value[i]);
+                this.AppendOrNull(value[i]);
                 GoToNextCollectionItemStart();
             }
-        }
         else
-        {
-            sb.Append(Null);
-        }
+            Sb.Append(Null);
         return EndCollection();
     }
 
@@ -1997,7 +2002,16 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
     public IStyledTypeStringAppender AddNonNullCollectionField(string fieldName, IStyledToStringObject[]? value) =>
         value != null ? AddCollectionField(fieldName, value) : this;
-    
+
+    public IStyledTypeStringAppender AddNonNullCollectionField<TKey, TValue>
+        (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value) =>
+        value != null ? AddCollectionField(fieldName, value) : this;
+
+    public IStyledTypeStringAppender AddNonNullCollectionField<TKey, TValue>
+        (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value, Action<TValue, IStyledTypeStringAppender> structToString)
+        where TValue : struct =>
+        value != null ? AddCollectionField(fieldName, value) : this;
+
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
     public IStyledTypeStringAppender AddNonNullCollectionField(string fieldName, object?[]? value) =>
         value != null ? AddCollectionField(fieldName, value) : this;
@@ -2100,7 +2114,16 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
     public IStyledTypeStringAppender AddPopulatedCollectionField(string fieldName, IStyledToStringObject[] value) =>
         value.Any() ? AddCollectionField(fieldName, value) : this;
-    
+
+    public IStyledTypeStringAppender AddPopulatedCollectionField<TKey, TValue>
+        (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>> value) =>
+        value.Any() ? AddCollectionField(fieldName, value) : this;
+
+    public IStyledTypeStringAppender AddPopulatedCollectionField<TKey, TValue>
+        (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>> value, Action<TValue, IStyledTypeStringAppender> structToString)
+        where TValue : struct =>
+        value.Any() ? AddCollectionField(fieldName, value) : this;
+
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
     public IStyledTypeStringAppender AddPopulatedCollectionField(string fieldName, object?[] value) =>
         value.Any() ? AddPopulatedCollectionField(fieldName, value) : this;
@@ -2203,7 +2226,16 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
     public IStyledTypeStringAppender AddNonNullAndPopulatedCollectionField(string fieldName, IMutableString[]? value) =>
         value != null ? AddPopulatedCollectionField(fieldName, value) : this;
-    
+
+    public IStyledTypeStringAppender AddNonNullAndPopulatedCollectionField<TKey, TValue>
+        (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value) =>
+        value != null ? AddPopulatedCollectionField(fieldName, value) : this;
+
+    public IStyledTypeStringAppender AddNonNullAndPopulatedCollectionField<TKey, TValue>
+        (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value, Action<TValue, IStyledTypeStringAppender> structToString)
+        where TValue : struct =>
+        value != null ? AddPopulatedCollectionField(fieldName, value) : this;
+
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
     public IStyledTypeStringAppender AddNonNullAndPopulatedCollectionField(string fieldName, object?[]? value) =>
         value != null ? AddPopulatedCollectionField(fieldName, value) : this;
@@ -2317,7 +2349,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
     public IStyledTypeStringAppender AddNonNullCollectionField(string fieldName, IEnumerable<IStyledToStringObject>? value) =>
         value != null ? AddCollectionField(fieldName, value) : this;
-    
+
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
     public IStyledTypeStringAppender AddNonNullCollectionField(string fieldName, IReadOnlyList<object?>? value) =>
         value != null ? AddCollectionField(fieldName, value) : this;
@@ -2426,7 +2458,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
     public IStyledTypeStringAppender AddPopulatedCollectionField(string fieldName, IEnumerable<IStyledToStringObject> value) =>
         value.Any() ? AddCollectionField(fieldName, value) : this;
-    
+
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
     public IStyledTypeStringAppender AddPopulatedCollectionField(string fieldName, IReadOnlyList<object?> value) =>
         value.Any() ? AddCollectionField(fieldName, value) : this;
@@ -2532,7 +2564,7 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
     public IStyledTypeStringAppender AddNonNullAndPopulatedCollectionField(string fieldName, IEnumerable<IStyledToStringObject>? value) =>
         value != null ? AddPopulatedCollectionField(fieldName, value) : this;
-    
+
     [Obsolete("Warning that the type does not support IStyledToStringObject for efficient conversion")]
     public IStyledTypeStringAppender AddNonNullAndPopulatedCollectionField(string fieldName, IReadOnlyList<object?>? value) =>
         value != null ? AddCollectionField(fieldName, value) : this;
@@ -2542,106 +2574,54 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     #endregion Condition List Fields
 
     #endregion Collection Fields
-
-    public override StyledTypeStringAppender Clone() =>
-        Recycler?.Borrow<StyledTypeStringAppender>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new StyledTypeStringAppender(this);
-
-    public override StyledTypeStringAppender CopyFrom(IStyledTypeStringAppender source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        ClearSetStyle(source.Style, IndentLevel);
-
-        return this;
-    }
-
-    protected StringBuilder AddFieldName(string fieldName)
-    {
-        if (style.IsJsonPretty() || style.IsJsonCompact())
-        {
-            sb.Append(Indent).Append("\"").Append(fieldName).Append("\"").Append(": ");
-        }
-        else if (style.IsJsonCompact())
-        {
-            sb.Append("\"").Append(fieldName).Append("\"").Append(": ");
-        }
-        else
-        {
-            sb.Append(fieldName).Append(": ");
-        }
-
-        return sb;
-    }
-
-    protected StringBuilder RemoveLastWhiteSpacedCommaIfFound()
-    {
-        if (sb[^2] == ',' && sb[^1] == ' ')
-        {
-            sb.Length -= 2;
-            sb.Append(" ");
-            return sb;
-        }
-        for (var i = sb.Length - 1; i > 0 && sb[i] is ' ' or '\r' or '\n' or ','; i--)
-        {
-            if (sb[i] == ',')
-            {
-                sb.Remove(i, 1);
-                break;
-            }
-        }
-        return sb;
-    }
-
-    internal IStyledTypeStringAppender AddToTypeLevelIndents()
-    {
-        sb.AddIndents(indent - 1);
-        return this;
-    }
-
-    internal void StartCollection(string fieldName)
-    {
-        AddFieldName(fieldName).Append("[");
-        if (style.IsJsonPretty())
-        {
-            indent++;
-            sb.Append("\n").AddIndents(indent);
-        }
-    }
-
-    internal void GoToNextCollectionItemStart()
-    {
-        if (style.IsJsonPretty())
-        {
-            sb.Append(",\n").AddIndents(indent);
-        }
-        else
-        {
-            sb.Append(", ");
-        }
-    }
-
-    internal IStyledTypeStringAppender EndCollection()
-    {
-        RemoveLastWhiteSpacedCommaIfFound();
-        sb.Append("]");
-        return sb.AddGoToNext(this);
-    }
-
-    public override string ToString() => sb.ToString();
 }
 
-public static class StyledTypeStringAppenderExtensions
+public class StyledTypeStringAppender : WrappingStyledTypeStringAppender
 {
-    public static StringBuilder AddIndents(this StringBuilder sb, int indentLevel)
+    public StyledTypeStringAppender() => Sb = SourceStringBuilder();
+
+    public StyledTypeStringAppender(StringBuildingStyle withStyle) : base(withStyle) => Sb = SourceStringBuilder();
+
+    public StyledTypeStringAppender(IStyledTypeStringAppender toClone)
     {
-        for (int i = 0; i < indentLevel; i++)
-        {
-            sb.Append(Indent);
-        }
+        Sb = SourceStringBuilder();
+
+        IndentLvl  = toClone.IndentLevel;
+        BuildStyle = toClone.Style;
+    }
+
+    public StyledTypeStringAppender Initialize(StringBuildingStyle buildStyle = StringBuildingStyle.Default)
+    {
+        Sb = SourceStringBuilder();
+
+        BuildStyle = buildStyle;
+
+        return this;
+    }
+
+    protected override StringBuilder SourceStringBuilder() => Sb;
+
+    protected override void ClearStringBuilder()
+    {
+        Sb.Clear();
+    }
+}
+
+public static class WrappingStyledTypeStringAppenderExtensions
+{
+    public static StringBuilder AddIndents(this StringBuilder sb, string indentString, int indentLevel)
+    {
+        for (var i = 0; i < indentLevel; i++) sb.Append(indentString);
         return sb;
     }
 
-    public static StyledTypeStringAppender AddGoToNext(this StringBuilder sb, StyledTypeStringAppender returnStyledAppender)
+    public static WrappingStyledTypeStringAppender Next
+        (this StringBuilder sb, WrappingStyledTypeStringAppender returnStyledAppender) =>
+        returnStyledAppender;
+
+    public static WrappingStyledTypeStringAppender AddGoToNext(this StringBuilder sb, WrappingStyledTypeStringAppender returnStyledAppender)
     {
-        if (returnStyledAppender.Style.IsJsonPretty())
+        if (returnStyledAppender.Style.IsPretty())
         {
             sb.Append(",\n");
             returnStyledAppender.AddToTypeLevelIndents();
@@ -2653,96 +2633,186 @@ public static class StyledTypeStringAppenderExtensions
         return returnStyledAppender;
     }
 
-    public static StringBuilder AppendOrNull(this StringBuilder sb, bool? value) => value != null ? sb.Append(value.Value) : sb.Append(Null);
-    public static StringBuilder AppendOrNull(this StringBuilder sb, sbyte? value) => value != null ? sb.Append(value.Value) : sb.Append(Null);
-    public static StringBuilder AppendOrNull(this StringBuilder sb, byte? value) => value != null ? sb.Append(value.Value) : sb.Append(Null);
-    public static StringBuilder AppendOrNull(this StringBuilder sb, char? value) => value != null ? sb.Append(value.Value) : sb.Append(Null);
-    public static StringBuilder AppendOrNull(this StringBuilder sb, short? value) => value != null ? sb.Append(value.Value) : sb.Append(Null);
-    public static StringBuilder AppendOrNull(this StringBuilder sb, ushort? value) => value != null ? sb.Append(value.Value) : sb.Append(Null);
-    public static StringBuilder AppendOrNull(this StringBuilder sb, int? value) => value != null ? sb.Append(value.Value) : sb.Append(Null);
-    public static StringBuilder AppendOrNull(this StringBuilder sb, uint? value) => value != null ? sb.Append(value.Value) : sb.Append(Null);
-    public static StringBuilder AppendOrNull(this StringBuilder sb, float? value) => value != null ? sb.Append(value.Value) : sb.Append(Null);
-    public static StringBuilder AppendOrNull(this StringBuilder sb, long? value) => value != null ? sb.Append(value.Value) : sb.Append(Null);
-    public static StringBuilder AppendOrNull(this StringBuilder sb, ulong? value) => value != null ? sb.Append(value.Value) : sb.Append(Null);
-    public static StringBuilder AppendOrNull(this StringBuilder sb, double? value) => value != null ? sb.Append(value.Value) : sb.Append(Null);
-    public static StringBuilder AppendOrNull(this StringBuilder sb, decimal? value) => value != null ? sb.Append(value.Value) : sb.Append(Null);
-    public static StringBuilder AppendOrNull(this StringBuilder sb, IMutableString? value) => value != null ? sb.Append(value) : sb.Append(Null);
-    public static StringBuilder AppendOrNull(this StringBuilder sb, object? value) => value != null ? sb.Append(value) : sb.Append(Null);
+    public static StringBuilder AppendOrNull(this StringBuilder sb, bool? value, bool inQuotes = false) =>
+        value != null ? sb.Qt(inQuotes).Append(value.Value).Qt(inQuotes) : sb.Append(Null);
 
-    public static void AppendOrNull(this StyledTypeStringAppender stsa, IStyledToStringObject? value)
+    public static StringBuilder AppendOrNull(this StringBuilder sb, sbyte? value, bool inQuotes = false) =>
+        value != null ? sb.Qt(inQuotes).Append(value.Value).Qt(inQuotes) : sb.Append(Null);
+
+    public static StringBuilder AppendOrNull
+        (this StringBuilder sb, byte? value, bool inQuotes = false) =>
+        value != null ? sb.Append(value.Value) : sb.Append(Null);
+
+    public static StringBuilder AppendOrNull
+        (this StringBuilder sb, char? value, bool inQuotes = false) =>
+        value != null ? sb.Append(value.Value) : sb.Append(Null);
+
+    public static StringBuilder AppendOrNull
+        (this StringBuilder sb, short? value, bool inQuotes = false) =>
+        value != null ? sb.Append(value.Value) : sb.Append(Null);
+
+    public static StringBuilder AppendOrNull
+        (this StringBuilder sb, ushort? value, bool inQuotes = false) =>
+        value != null ? sb.Append(value.Value) : sb.Append(Null);
+
+    public static StringBuilder AppendOrNull
+        (this StringBuilder sb, int? value, bool inQuotes = false) =>
+        value != null ? sb.Append(value.Value) : sb.Append(Null);
+
+    public static StringBuilder AppendOrNull
+        (this StringBuilder sb, uint? value, bool inQuotes = false) =>
+        value != null ? sb.Append(value.Value) : sb.Append(Null);
+
+    public static StringBuilder AppendOrNull
+        (this StringBuilder sb, float? value, bool inQuotes = false) =>
+        value != null ? sb.Append(value.Value) : sb.Append(Null);
+
+    public static StringBuilder AppendOrNull
+        (this StringBuilder sb, long? value, bool inQuotes = false) =>
+        value != null ? sb.Append(value.Value) : sb.Append(Null);
+
+    public static StringBuilder AppendOrNull
+        (this StringBuilder sb, ulong? value, bool inQuotes = false) =>
+        value != null ? sb.Append(value.Value) : sb.Append(Null);
+
+    public static StringBuilder AppendOrNull
+        (this StringBuilder sb, double? value, bool inQuotes = false) =>
+        value != null ? sb.Append(value.Value) : sb.Append(Null);
+
+    public static StringBuilder AppendOrNull
+        (this StringBuilder sb, decimal? value, bool inQuotes = false) =>
+        value != null ? sb.Append(value.Value) : sb.Append(Null);
+
+    public static StringBuilder Qt(this StringBuilder sb, bool writeQuote) => writeQuote ? sb.Append("\"") : sb;
+
+    public static StringBuilder AppendOrNull(this WrappingStyledTypeStringAppender stsa, IMutableString? value, bool inQuotes = false)
     {
+        var sb = stsa.BackingStringBuilder;
+        inQuotes |= stsa.Style.IsJson();
         if (value != null)
-            value.ToString(stsa);
+            sb.Qt(inQuotes).Append(value).Qt(inQuotes);
         else
-            stsa.BackingStringBuilder.Append(Null);
+            sb.Append(Null);
+        return sb;
     }
 
-    public static StyledTypeStringAppender AppendOrNull<T>
-        (this StyledTypeStringAppender returnStyledAppender, T? value, Action<T, IStyledTypeStringAppender> styledToStringAction)
+    public static StringBuilder AppendOrNull(this WrappingStyledTypeStringAppender stsa, object? value, bool inQuotes = false)
+    {
+        var sb = stsa.BackingStringBuilder;
+        inQuotes |= stsa.Style.IsJson();
+        if (value != null)
+            sb.Qt(inQuotes).Append(value).Qt(inQuotes);
+        else
+            sb.Append(Null);
+        return sb;
+    }
+
+    public static StringBuilder AppendOrNull(this WrappingStyledTypeStringAppender stsa, IStyledToStringObject? value, bool inQuotes = false)
+    {
+        var sb = stsa.BackingStringBuilder;
+        inQuotes |= stsa.Style.IsJson();
+        if (value != null)
+        {
+            if (inQuotes) sb.Append("\"");
+            value.ToString(stsa);
+            if (inQuotes) sb.Append("\"");
+        }
+        else
+        {
+            sb.Append(Null);
+        }
+        return sb;
+    }
+
+    public static WrappingStyledTypeStringAppender AppendOrNull<T>
+        (this WrappingStyledTypeStringAppender stsa, T? value, Action<T, IStyledTypeStringAppender> styledToStringAction, bool inQuotes = false)
         where T : struct
     {
+        var sb = stsa.BackingStringBuilder;
+        inQuotes |= stsa.Style.IsJson();
         if (value != null)
         {
-            styledToStringAction(value.Value, returnStyledAppender);
+            if (inQuotes) sb.Append("\"");
+            styledToStringAction(value.Value, stsa);
+            if (inQuotes) sb.Append("\"");
         }
         else
         {
-            returnStyledAppender.BackingStringBuilder.Append("null");
+            sb.Append(Null);
         }
-        return returnStyledAppender;
+        return stsa;
     }
 
-    public static StyledTypeStringAppender AddNullOrValue
-        (this StringBuilder sb, IStyledToStringObject? value, StyledTypeStringAppender returnStyledAppender)
+    public static WrappingStyledTypeStringAppender AddNullOrValue
+        (this StringBuilder sb, IStyledToStringObject? value, WrappingStyledTypeStringAppender stsa, bool inQuotes = false)
     {
-        if (value == null)
+        inQuotes |= stsa.Style.IsJson();
+        if (value != null)
         {
-            sb.Append("null");
+            if (inQuotes) sb.Append("\"");
+            value.ToString(stsa);
+            if (inQuotes) sb.Append("\"");
         }
         else
         {
-            value.ToString(returnStyledAppender);
+            sb.Append(Null);
         }
-        return sb.AddGoToNext(returnStyledAppender);
+        return sb.AddGoToNext(stsa);
     }
 
-    public static StyledTypeStringAppender AddNullOrValue(this StringBuilder sb, IMutableString? value, StyledTypeStringAppender returnStyledAppender)
+    public static WrappingStyledTypeStringAppender AddNullOrValue
+        (this StringBuilder sb, IMutableString? value, WrappingStyledTypeStringAppender stsa, bool inQuotes = false)
     {
-        if (value == null)
-        {
-            sb.Append("null");
-        }
+        inQuotes |= stsa.Style.IsJson();
+        if (value != null)
+            sb.Qt(inQuotes).Append(value).Qt(inQuotes);
         else
-        {
-            sb.Append(value);
-        }
-        return sb.AddGoToNext(returnStyledAppender);
+            sb.Append(Null);
+        return sb.AddGoToNext(stsa);
     }
 
-    public static StyledTypeStringAppender AddNullOrValue
-        (this StringBuilder sb, string? value, int startIndex, int length, StyledTypeStringAppender returnStyledAppender)
+    public static WrappingStyledTypeStringAppender AddNullOrValue
+        (this StringBuilder sb, string? value, int startIndex, int length, WrappingStyledTypeStringAppender stsa, bool inQuotes = false)
     {
-        if (value == null)
-        {
-            sb.Append("null");
-        }
+        inQuotes |= stsa.Style.IsJson();
+        if (value != null)
+            sb.Qt(inQuotes).Append(value, startIndex, length).Qt(inQuotes);
         else
-        {
-            sb.Append(value, startIndex, length);
-        }
-        return sb.AddGoToNext(returnStyledAppender);
+            sb.Append(Null);
+        return sb.AddGoToNext(stsa);
     }
 
-    public static StyledTypeStringAppender AddNullOrValue(this StringBuilder sb, object? value, StyledTypeStringAppender returnStyledAppender)
+    public static WrappingStyledTypeStringAppender AddNullOrValue
+        (this StringBuilder sb, object? value, WrappingStyledTypeStringAppender stsa, bool inQuotes = false)
     {
-        if (value == null)
-        {
-            sb.Append("null");
-        }
+        if (value != null)
+            switch (value)
+            {
+                case bool valueBool:        sb.AddNullOrValue(valueBool, stsa, inQuotes); break;
+                case byte valueByte:        sb.AddNullOrValue(valueByte, stsa, inQuotes); break;
+                case sbyte valueSByte:      sb.AddNullOrValue(valueSByte, stsa, inQuotes); break;
+                case char valueChar:        sb.AddNullOrValue(valueChar, stsa, inQuotes); break;
+                case short valueShort:      sb.AddNullOrValue(valueShort, stsa, inQuotes); break;
+                case ushort valueUShort:    sb.AddNullOrValue(valueUShort, stsa, inQuotes); break;
+                case int valueInt:          sb.AddNullOrValue(valueInt, stsa, inQuotes); break;
+                case uint valueUInt:        sb.AddNullOrValue(valueUInt, stsa, inQuotes); break;
+                case float valueFloat:      sb.AddNullOrValue(valueFloat, stsa, inQuotes); break;
+                case long valueLong:        sb.AddNullOrValue(valueLong, stsa, inQuotes); break;
+                case ulong valueULong:      sb.AddNullOrValue(valueULong, stsa, inQuotes); break;
+                case double valueDouble:    sb.AddNullOrValue(valueDouble, stsa, inQuotes); break;
+                case decimal valueDecimal:  sb.AddNullOrValue(valueDecimal, stsa, inQuotes); break;
+                case char[] valueCharArray: sb.AddNullOrValue(valueCharArray, stsa, inQuotes); break;
+                case string valueString:    sb.AddNullOrValue(valueString, stsa, inQuotes); break;
+
+                case IFrozenString valueFrozenString:         sb.AddNullOrValue(valueFrozenString, stsa, inQuotes); break;
+                case IStyledToStringObject valueFrozenString: sb.AddNullOrValue(valueFrozenString, stsa, inQuotes); break;
+                default:
+                    inQuotes |= stsa.Style.IsJson();
+                    sb.Qt(inQuotes).Append(value).Qt(inQuotes);
+                    break;
+            }
         else
-        {
-            sb.Append(value);
-        }
-        return sb.AddGoToNext(returnStyledAppender);
+            sb.Append(Null);
+        return sb.AddGoToNext(stsa);
     }
 }

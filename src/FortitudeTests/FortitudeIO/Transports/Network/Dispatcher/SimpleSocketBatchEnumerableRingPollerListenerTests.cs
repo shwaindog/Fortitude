@@ -84,9 +84,9 @@ public class SimpleSocketBatchEnumerableRingPollerListenerTests
         OSParallelControllerFactory.Instance = moqParallelControllerFactory.Object;
 
         moqPollingRing.Setup(pr => pr.Name).Returns("SimpleSocketRingPollerSenderTests");
-        moqPollingRing.Setup(pr => pr[0L]).Returns(firstReceiverPayload);
-        moqPollingRing.Setup(pr => pr[1L]).Returns(secondReceiverPayload);
-        moqPollingRing.Setup(pr => pr[2L]).Returns(thirdRecieverPayload);
+        moqPollingRing.Setup(pr => pr[0]).Returns(firstReceiverPayload);
+        moqPollingRing.Setup(pr => pr[1]).Returns(secondReceiverPayload);
+        moqPollingRing.Setup(pr => pr[2]).Returns(thirdRecieverPayload);
         moqPollingRing.SetupSequence(pr => pr.Claim()).Returns(0).Returns(1).Returns(2);
         moqPollingRing.SetupGet(pr => pr.CurrentBatchSize).Returns(3);
         moqPollingRing.SetupSequence(pr => pr.StartOfBatch).Returns(true).Returns(false).Returns(false);

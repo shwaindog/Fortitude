@@ -4,9 +4,18 @@ namespace FortitudeCommon.EventProcessing.Disruption.Waiting
 {
     internal interface IWaitStrategy
     {
-        long WaitFor(Sequence cursor, long sequence);
         void NotifyAll();
         void InterruptAll();
         void ClearInterrupt();
+    }
+
+    internal interface IWaitStrategyInt : IWaitStrategy
+    {
+        int WaitFor(Sequence cursor, int sequence);
+    }
+
+    internal interface IWaitStrategyLong : IWaitStrategy
+    {
+        long WaitFor(SequenceLong cursor, long sequence);
     }
 }

@@ -32,6 +32,8 @@ public class Recycler : IRecycler
 
     private readonly ConcurrentDictionary<Type, IPooledFactory> poolFactoryMap = new();
 
+    private readonly ConcurrentDictionary<Type, Delegate> newItemFactory = new();
+
     private readonly bool shouldAutoRecycleOnRefCountZero;
     private readonly bool throwWhenAttemptToRecycleRefCountNoZero;
 
@@ -46,6 +48,14 @@ public class Recycler : IRecycler
         this.throwWhenAttemptToRecycleRefCountNoZero = throwWhenAttemptToRecycleRefCountNoZero;
     }
 
+    public Recycler RegisterFactory<T>(Func<T> constructionFactory)
+    {
+        var forType = typeof(T);
+        newItemFactory.AddOrUpdate(forType, _ => constructionFactory, (_, _) => constructionFactory);
+
+        return this;
+    }
+
     public static IRecycler ThreadStaticRecycler
     {
         get => threadStaticRecycler ??= new Recycler();
@@ -56,7 +66,12 @@ public class Recycler : IRecycler
     {
         if (!poolFactoryMap.TryGetValue(typeof(T), out var poolFactoryContainer))
         {
-            poolFactoryContainer = new GarbageAndLockFreePooledFactory<T>(() => new T());
+            Func<T>? buildFunc = null;
+            if (newItemFactory.TryGetValue(typeof(T), out var constructFunc))
+            {
+                buildFunc = constructFunc as Func<T>;
+            }
+            poolFactoryContainer = new GarbageAndLockFreePooledFactory<T>(buildFunc ?? (() => new T()));
             poolFactoryMap.TryAdd(typeof(T), poolFactoryContainer);
         }
 
@@ -80,7 +95,12 @@ public class Recycler : IRecycler
     {
         if (!poolFactoryMap.TryGetValue(type, out var poolFactoryContainer))
         {
-            var newInstanceFunc = ReflectionHelper.CreateEmptyConstructorFactoryAsFuncType(type);
+            Delegate? buildFunc = null;
+            if (newItemFactory.TryGetValue(type, out var constructFunc))
+            {
+                buildFunc = constructFunc;
+            }
+            var newInstanceFunc = buildFunc ?? ReflectionHelper.CreateEmptyConstructorFactoryAsFuncType(type);
             poolFactoryContainer = (IPooledFactory)ReflectionHelper.InstantiateGenericType
                 (typeof(GarbageAndLockFreePooledFactory<>), new[] { type }, newInstanceFunc, 4);
             poolFactoryMap.TryAdd(type, poolFactoryContainer);

@@ -23,6 +23,7 @@ public enum FullQueueHandling
 {
     Default
   , Block
+  , TryAgain
   , DropNewest
   , DropOldest
   , DropNewestForwardToFailAppender

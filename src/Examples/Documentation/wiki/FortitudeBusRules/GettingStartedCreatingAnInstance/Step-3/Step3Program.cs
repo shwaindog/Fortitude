@@ -37,7 +37,7 @@ public class Step3Program
                     (EventQueueSize, DefaultQueueSize, maxEventQueues: 1, maxWorkerQueues: 1
                    , requiredCustomQueues: 1, emptyEventQueueSleepMs: 0, defaultEmptyQueueSleepMs: 0));
         var busRules   = new BusRules();
-        var messageBus = busRules.CreateMessageBus(busRulesConfig);
+        var messageBus = busRules.GetOrCreateMessageBus(busRulesConfig);
         Console.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - Finished creating message bus");
 
         messageBus.Start();

@@ -36,6 +36,7 @@ public class Payload<T> : ReusableObject<Payload<T>>, IPayload<T>
 
     public Payload() => body = default!;
 
+    // ReSharper disable once ConvertToPrimaryConstructor
     public Payload(T body) => this.body = body;
 
     public Payload(Payload<T> toClone)
@@ -109,13 +110,15 @@ public class Payload<T> : ReusableObject<Payload<T>>, IPayload<T>
 
     public override Payload<T> Clone() => Recycler?.Borrow<Payload<T>>().CopyFrom(this) ?? new Payload<T>(this);
 
-    public override string ToString() => $"{nameof(Payload<T>)}[{typeof(T).Name}]({nameof(Body)}: {Body})";
+    public override string ToString() => $"{nameof(Payload<T>)}[{typeof(T).Name}]({nameof(Body)}: {body})";
 }
 
 public delegate bool RuleFilter(IRule appliesToRule);
 
 public interface IBusMessage : IRecyclableObject, ITransferState<IBusMessage>, ICanCarrySocketSenderPayload, ICanCarrySocketReceiverPayload
 {
+    // ReSharper disable UnusedMember.Global
+    // ReSharper disable UnusedMemberInSuper.Global
     MessageType Type       { get; }
     IRule?      Sender     { get; }
     DateTime?   SentTime   { get; }
@@ -135,32 +138,22 @@ public interface IBusMessage : IRecyclableObject, ITransferState<IBusMessage>, I
     IBusMessage<TAsPayload> BorrowCopy<TAsPayload>(IQueueContext messageContext);
 
     IBusRespondingMessage<TAsPayload, TAsResponse> BorrowCopy<TAsPayload, TAsResponse>(IQueueContext messageContext);
+    
+    // ReSharper restore UnusedMemberInSuper.Global
+    // ReSharper restore UnusedMember.Global
 }
 
-public readonly struct BusMessageValue
+public readonly struct BusMessageValue(IBusMessage toClone)
 {
-    public BusMessageValue(IBusMessage toClone)
-    {
-        Type     = toClone.Type;
-        Sender   = toClone.Sender;
-        SentTime = toClone.SentTime;
-        Payload  = toClone.Payload;
-        Response = toClone.Response;
+    public MessageType Type       { get; } = toClone.Type;
+    public IRule?      Sender     { get; } = toClone.Sender;
+    public DateTime?   SentTime   { get; } = toClone.SentTime;
+    public IPayload    Payload    { get; } = toClone.Payload;
+    public RuleFilter  RuleFilter { get; } = toClone.RuleFilter;
 
-        RuleFilter = toClone.RuleFilter;
+    public string? DestinationAddress { get; } = toClone.DestinationAddress;
 
-        DestinationAddress = toClone.DestinationAddress;
-    }
-
-    public MessageType Type       { get; }
-    public IRule?      Sender     { get; }
-    public DateTime?   SentTime   { get; }
-    public IPayload    Payload    { get; }
-    public RuleFilter  RuleFilter { get; }
-
-    public string? DestinationAddress { get; }
-
-    public IAsyncResponseSource? Response          { get; }
+    public IAsyncResponseSource? Response          { get; } = toClone.Response;
     public IProcessorRegistry?   ProcessorRegistry => Response as IProcessorRegistry;
 }
 
@@ -168,18 +161,19 @@ public static class BusMessageValueExtensions
 {
     public static BusMessageValue ToBusMessageValue(this IBusMessage toClone) => new(toClone);
 
+    // ReSharper disable once UnusedMember.Global
     public static void IncrementCargoRefCounts(this BusMessageValue busMessageValue)
     {
         busMessageValue.Payload.IncrementRefCount();
         busMessageValue.Response?.IncrementRefCount();
-        // Never increment or decrement Response it must survive the message and is decremented on get result or a optional timer
+        // Never increment or decrement Response it must survive the message and is decremented on get result or an optional timer
     }
 
     public static void DecrementCargoRefCounts(this BusMessageValue busMessageValue)
     {
         busMessageValue.Payload.DecrementRefCount();
         busMessageValue.Response?.DecrementRefCount();
-        // Never increment or decrement Response it must survive the message and is decremented on get result or a optional timer
+        // Never increment or decrement Response it must survive the message and is decremented on get result or an optional timer
     }
 
     public static IBusRespondingMessage<TPayload, TResponse> BorrowCopy<TPayload, TResponse>
@@ -194,6 +188,7 @@ public static class BusMessageValueExtensions
     public static IBusMessage<TPayload> BorrowCopy<TPayload>(this BusMessageValue busMessageValue, IQueueContext messageContext) =>
         busMessageValue.BorrowCopy<TPayload, IDispatchResult>(messageContext);
 
+    // ReSharper disable once UnusedMember.Global
     public static IBusMessage BorrowCopy(this BusMessageValue busMessageValue, IQueueContext messageContext)
     {
         var clone = messageContext.PooledRecycler.Borrow<BusMessage>();
@@ -234,7 +229,7 @@ public interface IBusRespondingMessage<out TPayload, in TResponse> : IBusMessage
     new IReusableAsyncResponse<TResponse> Response { get; }
 }
 
-public class BusMessage : RecyclableObject, IBusMessage
+public class BusMessage : ReusableObject<IBusMessage>, IBusMessage, ITransferState<BusMessage>
 {
     public static readonly Payload<object> ResetStatePayload = new()
     {
@@ -242,8 +237,24 @@ public class BusMessage : RecyclableObject, IBusMessage
     };
 
     public static readonly RuleFilter AppliesToAll = _ => true;
+    private                IPayload   payload        = ResetStatePayload;
 
     static BusMessage() => ResetStatePayload.AutoRecycleAtRefCountZero = false;
+
+    public BusMessage() { }
+
+    public BusMessage(IBusMessage toClone)
+    {
+        Type       = toClone.Type;
+        Payload    = toClone.Payload;
+        Response   = toClone.Response;
+        Sender     = toClone.Sender;
+        SentTime   = toClone.SentTime;
+        RuleFilter = toClone.RuleFilter;
+
+        ProcessorRegistry  = toClone.ProcessorRegistry;
+        DestinationAddress = toClone.DestinationAddress;
+    }
 
     public MessageType Type   { get; set; }
     public IRule?      Sender { get; set; }
@@ -251,7 +262,19 @@ public class BusMessage : RecyclableObject, IBusMessage
     public string? DestinationAddress { get; set; }
 
     public DateTime? SentTime { get; set; }
-    public IPayload  Payload  { get; set; } = ResetStatePayload;
+    public IPayload Payload
+    {
+        get => payload;
+        set
+        {
+            if (ReferenceEquals(payload, value)) return;
+            if (ReferenceEquals(payload, ResetStatePayload) && payload is IRecyclableObject recyclableObject)
+            {
+                recyclableObject.DecrementRefCount();
+            }
+            payload = value;
+        }
+    }
 
     public IAsyncResponseSource? Response { get; set; }
 
@@ -267,14 +290,14 @@ public class BusMessage : RecyclableObject, IBusMessage
     {
         Payload.IncrementRefCount();
         Response?.IncrementRefCount();
-        // Never increment or decrement Response it must survive the message and is decremented on get result or a optional timer
+        // Never increment or decrement Response it must survive the message and is decremented on get result or an optional timer
     }
 
     public void DecrementCargoRefCounts()
     {
         Payload.DecrementRefCount();
         Response?.DecrementRefCount();
-        // Never increment or decrement Response it must survive the message and is decremented on get result or a optional timer
+        // Never increment or decrement Response it must survive the message and is decremented on get result or an optional timer
     }
 
     public void TaskPostProcessingCleanup()
@@ -298,26 +321,6 @@ public class BusMessage : RecyclableObject, IBusMessage
         clone.CopyFrom(this);
         clone.IncrementCargoRefCounts();
         return clone;
-    }
-
-    public IBusMessage CopyFrom(IBusMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        Type     = source.Type;
-        Sender   = source.Sender;
-        SentTime = source.SentTime;
-        Payload  = source.Payload;
-        Response = source.Response;
-
-        RuleFilter = source.RuleFilter;
-
-        DestinationAddress = source.DestinationAddress;
-        return this;
-    }
-
-    public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
-    {
-        CopyFrom((IBusMessage)source, copyMergeFlags);
-        return this;
     }
 
     public bool IsTaskCallbackItem => Type == MessageType.ValueTaskCallback;
@@ -378,7 +381,7 @@ public class BusMessage : RecyclableObject, IBusMessage
         Sender     = null;
         SentTime   = DateTimeConstants.UnixEpoch;
 
-        Payload  = ResetStatePayload;
+        payload  = ResetStatePayload;
         Response = null;
 
         DestinationAddress = null;
@@ -401,7 +404,28 @@ public class BusMessage : RecyclableObject, IBusMessage
         ProcessorRegistry  = null;
     }
 
-    public IBusMessage CopyFrom(BusMessageValue source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override BusMessage Clone() => 
+        Recycler?.Borrow<BusMessage>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new BusMessage(this);
+
+    public BusMessage CopyFrom(BusMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => 
+        CopyFrom((IBusMessage)source, copyMergeFlags);
+
+    public override BusMessage CopyFrom(IBusMessage source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        Type       = source.Type;
+        Payload    = source.Payload;
+        Response   = source.Response;
+        Sender     = source.Sender;
+        SentTime   = source.SentTime;
+        RuleFilter = source.RuleFilter;
+
+        ProcessorRegistry  = source.ProcessorRegistry;
+        DestinationAddress = source.DestinationAddress;
+
+        return this;
+    }
+
+    public BusMessage CopyFrom(BusMessageValue source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         Type     = source.Type;
         Sender   = source.Sender;

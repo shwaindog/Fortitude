@@ -62,6 +62,8 @@ public class SocketAsyncValueTaskEventQueueSender : SocketAsyncValueTaskRingPoll
         set => QueueMessageRing.QueueContext = value;
     }
 
+    IEnqueueAsyncValueTaskPollingRing<BusMessage> IEnqueueAsyncValueTaskRingPoller<BusMessage>.Ring => (IQueueMessageRing)Ring;
+
     public IQueueMessageRing QueueMessageRing => (QueueMessageRing)Ring;
 
     public bool IsListeningOn(string address) => QueueMessageRing.IsListeningOn(address);

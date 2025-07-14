@@ -5,6 +5,7 @@ namespace FortitudeCommon.Types.Mutable
     public interface IMutableStringBuilder<out T> where T : IMutableString, IMutableStringBuilder<T>
     {
         T Append(IMutableString value);
+        T Append(StringBuilder value);
         T Append(bool value);
         T Append(byte value);
         T Append(char value);
@@ -25,6 +26,7 @@ namespace FortitudeCommon.Types.Mutable
         T AppendLine();
         T AppendLine(string value);
         T AppendLine(IMutableString value);
+        T AppendLine(StringBuilder value);
         T Clear();
         T Insert(int atIndex, bool value);
         T Insert(int atIndex, byte value);
@@ -43,12 +45,18 @@ namespace FortitudeCommon.Types.Mutable
         T Insert(int atIndex, ushort value);
         T Insert(int atIndex, uint value);
         T Insert(int atIndex, ulong value);
+        T Insert(int atIndex, IMutableString value);
+        T Insert(int atIndex, StringBuilder value);
+
         T Replace(char find, char replace);
         T Replace(char find, char replace, int startIndex, int length);
         T Replace(string find, string replace);
         T Replace(string find, string replace, int startIndex, int length);
         T Replace(IMutableString find, IMutableString replace);
+        T Replace(StringBuilder find, StringBuilder replace);
         T Replace(IMutableString find, IMutableString replace, int startIndex, int length);
-        StringBuilder GetBackingStringBuilder();
+        T Replace(StringBuilder find, StringBuilder replace, int startIndex, int length);
+
+        StringBuilder BackingStringBuilder { get; }
     }
 }

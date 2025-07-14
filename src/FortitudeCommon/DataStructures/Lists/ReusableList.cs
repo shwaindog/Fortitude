@@ -37,6 +37,11 @@ public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T
         backingList = new List<T>(size);
     }
 
+    public ReusableList(int size = 16)
+    {
+        backingList = new List<T>(size);
+    }
+
     public ReusableList(ReusableList<T> toClone)
     {
         backingList = new List<T>(toClone.Count);

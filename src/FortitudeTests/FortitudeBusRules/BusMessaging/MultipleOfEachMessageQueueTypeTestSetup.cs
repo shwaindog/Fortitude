@@ -113,7 +113,7 @@ public class MultipleOfEachMessageQueueTypeTestSetup
                , cstBus => new MessageQueueTypeGroup(evtBus, MessageQueueType.Custom, defaultQueuesConfig)
                      { CustomQueue1, CustomQueue2, CustomQueue3 });
             return eventGroupContainer;
-        });
+        }, "MultipleOfEachMessageQueueTypeTestSetup", null, "MultipleOfEachMessageQueueTypeTestSetup description");
 
 
         EventQueue1SelectionResult  = new RouteSelectionResult(EventQueue1, "OneOfEachMessageQueueTypeTestSetup", RoutingFlags.DefaultDeploy);

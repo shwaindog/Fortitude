@@ -1,5 +1,5 @@
 ﻿// Licensed under the MIT license.
-// Copyright Alexis Sawenko 2024 all rights reserved
+// Copyright Alexis Sawenko 2025 all rights reserved
 
 #region
 
@@ -22,9 +22,13 @@ namespace FortitudeBusRules.BusMessaging.Pipelines;
 
 public interface IMessageQueue : IComparable<IMessageQueue>
 {
-    string Name      { get; }
-    int    Id        { get; }
-    bool   IsRunning { get; }
+    // ReSharper disable UnusedMember.Global
+    // ReSharper disable UnusedMemberInSuper.Global
+    string Name { get; }
+
+    int Id { get; }
+
+    bool IsRunning { get; }
 
     MessageQueueType QueueType { get; }
     IQueueContext    Context   { get; }
@@ -84,19 +88,24 @@ public interface IMessageQueue : IComparable<IMessageQueue>
     IEnumerable<IRule> RulesMatching(Func<IRule, bool> predicate);
 
     void Shutdown();
+    
+    // ReSharper restore UnusedMemberInSuper.Global
+    // ReSharper restore UnusedMember.Global
 }
 
 public class MessageQueue : IMessageQueue
 {
-    public const int MessageCountHistoryEntries = 60;
-
+    // ReSharper disable once UnusedMember.Local
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(MessageQueue));
 
-    private readonly string       name;
-    private readonly QueueContext queueContext;
-    private readonly uint[]       recentMessageCountReceived = new uint[MessageCountHistoryEntries];
+    public const int MessageCountHistoryEntries = 60;
 
-    private readonly IPollingRing<BusMessage> ring;
+    private readonly QueueContext queueContext;
+
+    private readonly string name;
+    private readonly uint[] recentMessageCountReceived = new uint[MessageCountHistoryEntries];
+
+    private readonly IEnqueueTaskCallbackPollingRing<BusMessage> ring;
 
     private DateTime lastUpDateTime = DateTime.Now;
 
@@ -132,25 +141,14 @@ public class MessageQueue : IMessageQueue
     public bool IsRunning => MessagePump.IsRunning;
 
     public QueueEventTime LatestMessageStartProcessing    { get; private set; }
+
     public QueueEventTime LatestMessageFinishedProcessing { get; private set; }
 
     public void EnqueueMessage(BusMessage msg)
     {
         // Logger.Debug("Sending {0} on {1}", msg, Name);
         IncrementRecentMessageReceived();
-        var seqId = ring.Claim();
-        var evt   = ring[seqId];
-
-        evt.Type       = msg.Type;
-        evt.Payload    = msg.Payload;
-        evt.Response   = msg.Response;
-        evt.Sender     = msg.Sender;
-        evt.SentTime   = msg.SentTime;
-        evt.RuleFilter = msg.RuleFilter;
-
-        evt.ProcessorRegistry  = msg.ProcessorRegistry;
-        evt.DestinationAddress = msg.DestinationAddress;
-        ring.Publish(seqId);
+        ring.Enqueue(msg);
         MessagePump.WakeIfAsleep();
     }
 

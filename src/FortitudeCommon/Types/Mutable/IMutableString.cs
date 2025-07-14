@@ -6,40 +6,20 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeCommon.Types.Mutable;
 
-public interface IMutableString : IMutableStringBuilder<IMutableString>, IEnumerable<char>
-    , IReusableObject<IMutableString>
+public interface IMutableString : IReusableObject<IMutableString>, IMutableStringBuilder<IMutableString>, ITransferState<IFrozenString>, 
+    IFrozenString, IFreezable<IFrozenString>
 {
-    int Length { get; }
-    char this[int index] { get; set; }
-    void CopyFrom(IMutableString source);
-    void CopyFrom(string source);
-    bool EquivalentTo(string other);
-    int CompareTo(string other);
-    int CompareTo(IMutableString other);
-    bool Contains(string subStr);
-    bool Contains(IMutableString subStr);
-    int IndexOf(string subStr);
-    int IndexOf(IMutableString subStr);
-    int IndexOf(string subStr, int fromThisPos);
-    int IndexOf(IMutableString subStr, int fromThisPos);
-    int LastIndexOf(string subStr);
-    int LastIndexOf(IMutableString subStr);
-    int LastIndexOf(string subStr, int fromThisPos);
-    int LastIndexOf(IMutableString subStr, int fromThisPos);
+    new int Length { get; set; }
+    new char this[int index] { get; set; }
+
+    IMutableString Substring(int startIndex);
+    IMutableString Substring(int startIndex, int length);
+    IMutableString Trim();
+    IMutableString ToLower();
     IMutableString Remove(int startIndex);
     IMutableString ToUpper();
-    void ToUpper(IMutableString destMutableString);
-    IMutableString ToLower();
-    void ToLower(IMutableString destMutableString);
-    IMutableString Trim();
-    void Trim(IMutableString destMutableString);
-    IMutableString Substring(int startIndex);
-    void Substring(int startIndex, IMutableString destMutableString);
-    IMutableString Substring(int startIndex, int length);
-    void Substring(int startIndex, int length, IMutableString destMutableString);
-    void Replace(string find, string replace, IMutableString destMutableString);
-    string[] Split(char[] delimiters);
-    void Split(char[] delimiters, IList<IMutableString> results, Func<IMutableString> mutableStringSupplier);
+
+    IMutableString CopyFrom(string source);
+
+    new IMutableString Clone();
 }
-
-

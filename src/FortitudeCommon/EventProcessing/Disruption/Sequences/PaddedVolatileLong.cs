@@ -11,12 +11,10 @@ using FortitudeCommon.DataStructures.Memory;
 namespace FortitudeCommon.EventProcessing.Disruption.Sequences;
 
 [StructLayout(LayoutKind.Explicit, Size = 2 * MemoryUtils.CacheLineSize)]
-public struct PaddedVolatileLong
+public struct PaddedVolatileLong(long value)
 {
     [FieldOffset(MemoryUtils.CacheLineSize)]
-    private long lvalue;
-
-    public PaddedVolatileLong(long value) => lvalue = value;
+    internal long lvalue = value;
 
     public long Value
     {

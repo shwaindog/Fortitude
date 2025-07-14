@@ -13,7 +13,7 @@ using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 
 namespace FortitudeBusRules.BusMessaging.Pipelines;
 
-public interface IMessagePump : IAsyncValueTaskRingPoller<BusMessage>
+public interface IMessagePump : IEnqueueAsyncValueTaskRingPoller<BusMessage>
 {
     QueueContext QueueContext { get; set; }
 
@@ -26,10 +26,10 @@ public interface IMessagePump : IAsyncValueTaskRingPoller<BusMessage>
     IEnumerable<IMessageListenerRegistration> ListeningSubscriptionsOn(string address);
 }
 
-public class MessagePump : AsyncValueTaskRingPoller<BusMessage>, IMessagePump
+public class MessagePump : EnqueueAsyncValueTaskRingPoller<BusMessage>, IMessagePump
 {
     public MessagePump
-        (IQueueMessageRing queueMessageRing, uint emptyQueueMaxSleepMs) : base(queueMessageRing, emptyQueueMaxSleepMs) =>
+        (IEnqueueAsyncValueTaskPollingRing<BusMessage> queueMessageRing, uint emptyQueueMaxSleepMs) : base(queueMessageRing, emptyQueueMaxSleepMs) =>
         ThreadStartInitialization = QueueMessageRing.InitializeInPollingThread;
 
     public MessagePump

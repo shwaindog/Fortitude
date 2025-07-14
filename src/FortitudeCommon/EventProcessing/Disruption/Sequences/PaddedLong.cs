@@ -11,10 +11,15 @@ using FortitudeCommon.DataStructures.Memory;
 namespace FortitudeCommon.EventProcessing.Disruption.Sequences;
 
 [StructLayout(LayoutKind.Explicit, Size = 2 * MemoryUtils.CacheLineSize)]
-public struct PaddedLong
+public struct PaddedLong(long value)
 {
     [FieldOffset(MemoryUtils.CacheLineSize)]
-    public long Value;
+    public long Value = value;
 
-    public PaddedLong(long value) => Value = value;
+    public static class Extensions
+    {
+        public static long IncrementAndGet(ref PaddedLong paddedLong) => IncrementAndGet(ref paddedLong.Value);
+        
+        private static long IncrementAndGet(ref long value) => ++value;
+    }
 }

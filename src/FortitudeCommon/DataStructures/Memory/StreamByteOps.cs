@@ -287,7 +287,7 @@ public static unsafe class StreamByteOps
         {
             var temporaryBuffer = pooledCharBuffer.Borrow();
 
-            var sb = value.GetBackingStringBuilder();
+            var sb = value.BackingStringBuilder;
             var i = 0;
             var bytesConsumed = 0;
             do
@@ -634,7 +634,7 @@ public static unsafe class StreamByteOps
     {
         var charBuffer = pooledCharBuffer.Borrow();
 
-        var backingStringBuilder = destination.GetBackingStringBuilder();
+        var backingStringBuilder = destination.BackingStringBuilder;
         backingStringBuilder.Clear();
         var bytesReadSoFar = 0;
         while (bytesReadSoFar < readBytes - 1)

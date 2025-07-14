@@ -5,12 +5,12 @@ namespace FortitudeCommon.AsyncProcessing
 {
     public class Sequencer : ISequencer
     {
-        private PaddedAtomicLong sequence = new PaddedAtomicLong(-1);
-        private PaddedVolatileLong cursor = new PaddedVolatileLong(-1);
+        private PaddedAtomicLong sequence = new (-1);
+        private PaddedVolatileLong cursor = new (-1);
 
         public long Claim()
         {
-            return sequence.IncrementAndGet();
+            return PaddedAtomicLong.Extensions.IncrementAndGet(ref sequence);
         }
 
         public void Serialize(long waitFor)

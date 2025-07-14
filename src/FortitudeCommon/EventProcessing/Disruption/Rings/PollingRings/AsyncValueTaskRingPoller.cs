@@ -21,7 +21,18 @@ public interface IAsyncValueTaskRingPoller<T> : IRingPoller<T> where T : class, 
     IRecycler Recycler { get; set; }
 }
 
-public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T : class, ICanCarryTaskCallbackPayload
+public interface IAsyncValueTaskRingPollerLong<T> : IRingPollerLong<T> where T : class, ICanCarryTaskCallbackPayload
+{
+    SyncContextTaskScheduler RingPollerTaskScheduler { get; }
+
+    new IAsyncValueTaskPollingRingLong<T> Ring { get; }
+
+    IRecycler Recycler { get; set; }
+}
+
+public class AsyncValueTaskRingPollerBase<T, TRingPoller>
+    where T : class, ICanCarryTaskCallbackPayload
+    where TRingPoller : class, IAsyncValueTaskRing<T>
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(AsyncValueTaskRingPoller<T>));
 
@@ -40,8 +51,8 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
     protected Action?    ThreadStartInitialization;
 
     // ReSharper disable once ConvertToPrimaryConstructor
-    public AsyncValueTaskRingPoller
-    (IAsyncValueTaskPollingRing<T> ring, uint emptyQueueMaxSleepMs, Action? threadStartInitialization = null,
+    public AsyncValueTaskRingPollerBase
+    (TRingPoller ring, uint emptyQueueMaxSleepMs, Action? threadStartInitialization = null,
         IOSParallelController? parallelController = null)
     {
         Ring      = ring;
@@ -63,9 +74,7 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
 
     public IOSThread? ExecutingThread { get; private set; }
 
-    public IAsyncValueTaskPollingRing<T> Ring { get; }
-
-    IPollingRing<T> IRingPoller<T>.Ring => Ring;
+    public virtual TRingPoller Ring { get; }
 
     public SyncContextTaskScheduler RingPollerTaskScheduler { get; } = new();
 
@@ -214,4 +223,30 @@ public class AsyncValueTaskRingPoller<T> : IAsyncValueTaskRingPoller<T> where T 
         Logger.Warn("You should override this method to process the event");
         return ValueTask.CompletedTask;
     }
+}
+
+
+public class AsyncValueTaskRingPoller<T> : AsyncValueTaskRingPollerBase<T, IAsyncValueTaskPollingRing<T>>, IAsyncValueTaskRingPoller<T>  where T : class, ICanCarryTaskCallbackPayload
+{
+    // ReSharper disable once ConvertToPrimaryConstructor
+    public AsyncValueTaskRingPoller
+    (IAsyncValueTaskPollingRing<T> ring, uint emptyQueueMaxSleepMs, Action? threadStartInitialization = null,
+        IOSParallelController? parallelController = null) : base(ring, emptyQueueMaxSleepMs, threadStartInitialization, parallelController)
+    {
+    }
+
+    IPollingRing<T> IRingPoller<T>.Ring => Ring;
+}
+
+
+public class AsyncValueTaskRingPollerLong<T> : AsyncValueTaskRingPollerBase<T, IAsyncValueTaskPollingRingLong<T>>, IAsyncValueTaskRingPollerLong<T>  where T : class, ICanCarryTaskCallbackPayload
+{
+    // ReSharper disable once ConvertToPrimaryConstructor
+    public AsyncValueTaskRingPollerLong
+    (IAsyncValueTaskPollingRingLong<T> ring, uint emptyQueueMaxSleepMs, Action? threadStartInitialization = null,
+        IOSParallelController? parallelController = null) : base(ring, emptyQueueMaxSleepMs, threadStartInitialization, parallelController)
+    {
+    }
+
+    IPollingRingLong<T> IRingPollerLong<T>.Ring => Ring;
 }

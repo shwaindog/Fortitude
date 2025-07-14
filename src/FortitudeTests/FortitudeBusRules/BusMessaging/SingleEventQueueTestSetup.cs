@@ -43,7 +43,7 @@ public class SingleEventQueueTestSetup
             var eventGroupContainer = new MessageQueueGroupContainer
                 (evtBus, evBus => new MessageQueueTypeGroup(evtBus, MessageQueueType.Event, defaultQueuesConfig) { EventQueue });
             return eventGroupContainer;
-        });
+        }, "SingleEventQueueTestSetup", null, "SingleEventQueueTestSetup Description");
         EventQueueSelectionResult = new RouteSelectionResult(EventQueue, "SingleEventQueueTestSetup", RoutingFlags.DefaultDeploy);
         MessageBus.Start();
     }

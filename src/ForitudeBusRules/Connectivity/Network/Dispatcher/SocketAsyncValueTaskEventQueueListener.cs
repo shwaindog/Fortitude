@@ -14,6 +14,7 @@ using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.OSWrapper.AsyncWrappers;
 using FortitudeIO.Transports.Network.Dispatcher;
 using FortitudeIO.Transports.Network.Receiving;
+using JetBrains.Annotations;
 
 #endregion
 
@@ -50,13 +51,15 @@ public class SocketAsyncValueTaskEventQueueListener : SocketAsyncValueTaskRingPo
 
     public IEnumerableBatchPollSink<BusMessage>? PollSink { get; set; }
 
+    IEnqueueAsyncValueTaskPollingRing<BusMessage> IEnqueueAsyncValueTaskRingPoller<BusMessage>.Ring => (IQueueMessageRing)Ring;
+
     public QueueContext QueueContext
     {
         get => QueueMessageRing.QueueContext;
         set => QueueMessageRing.QueueContext = value;
     }
 
-    public IQueueMessageRing QueueMessageRing => (QueueMessageRing)Ring;
+    public IQueueMessageRing QueueMessageRing => (IQueueMessageRing)base.Ring;
 
     public bool IsListeningOn(string address) => QueueMessageRing.IsListeningOn(address);
 
