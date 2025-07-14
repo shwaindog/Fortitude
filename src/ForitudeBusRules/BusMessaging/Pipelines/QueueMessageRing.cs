@@ -19,7 +19,7 @@ using FortitudeCommon.Monitoring.Logging;
 
 namespace FortitudeBusRules.BusMessaging.Pipelines;
 
-public interface IQueueMessageRing : IAsyncValueTaskPollingRing<BusMessage>
+public interface IQueueMessageRing : IEnqueueAsyncValueTaskPollingRing<BusMessage>
 {
     QueueContext QueueContext { get; set; }
     bool         IsListeningOn(string address);
@@ -42,7 +42,9 @@ public struct DaemonRuleStart
     public ValueTask      StartTask { get; }
 }
 
-public class QueueMessageRing : AsyncValueTaskPollingRing<BusMessage>, IQueueMessageRing
+public class QueueMessageRing
+    (string name, int size) : EnqueueAsyncValueTaskPollingRing<BusMessage>(name, size, () => new BusMessage(), ClaimStrategyType.MultiProducers)
+  , IQueueMessageRing
 {
     private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(QueueMessageRing));
 
@@ -51,9 +53,6 @@ public class QueueMessageRing : AsyncValueTaskPollingRing<BusMessage>, IQueueMes
 
     internal ListenerRegistry ListenerRegistry = null!;
     private  QueueContext     queueContext     = null!;
-
-    public QueueMessageRing(string name, int size)
-        : base(name, size, () => new BusMessage(), ClaimStrategyType.MultiProducers) { }
 
     public SyncContextTaskScheduler RingPollerScheduler { get; private set; } = null!;
 

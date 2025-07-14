@@ -14,7 +14,7 @@ public interface IQueuesConfig
 {
     int  MinEventQueues                { get; set; }
     int  MaxEventQueues                { get; set; }
-    int  RequiredDataAccessQueues      { get; set; }
+    int  RequiredStorageIOQueues      { get; set; }
     int  RequiredCustomQueues          { get; set; }
     int  RequiredNetworkInboundQueues  { get; set; }
     int  RequiredNetworkOutboundQueues { get; set; }
@@ -31,7 +31,7 @@ public class QueuesConfig : ConfigSection, IQueuesConfig
 {
     private static readonly Dictionary<string, string?> Defaults = new()
     {
-        { nameof(MinEventQueues), "1" }, { nameof(MaxEventQueues), "10" }, { nameof(RequiredDataAccessQueues), "0" }
+        { nameof(MinEventQueues), "1" }, { nameof(MaxEventQueues), "10" }, { nameof(RequiredStorageIOQueues), "0" }
       , { nameof(RequiredCustomQueues), "0" }
       , { nameof(RequiredNetworkInboundQueues), "0" }, { nameof(RequiredNetworkOutboundQueues), "0" }, { nameof(MaxWorkerQueues), "10" }
       , { nameof(MinWorkerQueues), "1" }
@@ -54,7 +54,7 @@ public class QueuesConfig : ConfigSection, IQueuesConfig
         MinEventQueues                = minEventQueues;
         MaxEventQueues                = maxEventQueues;
         EmptyEventQueueSleepMs        = emptyEventQueueSleepMs;
-        RequiredDataAccessQueues      = requiredDataAccessQueues;
+        RequiredStorageIOQueues      = requiredDataAccessQueues;
         RequiredCustomQueues          = requiredCustomQueues;
         RequiredNetworkInboundQueues  = requiredNetworkInboundQueues;
         RequiredNetworkOutboundQueues = requiredNetworkOutboundQueues;
@@ -72,7 +72,7 @@ public class QueuesConfig : ConfigSection, IQueuesConfig
         MinEventQueues                = toClone.MinEventQueues;
         MaxEventQueues                = toClone.MaxEventQueues;
         EmptyEventQueueSleepMs        = toClone.EmptyEventQueueSleepMs;
-        RequiredDataAccessQueues      = toClone.RequiredDataAccessQueues;
+        RequiredStorageIOQueues      = toClone.RequiredStorageIOQueues;
         RequiredCustomQueues          = toClone.RequiredCustomQueues;
         RequiredNetworkInboundQueues  = toClone.RequiredNetworkInboundQueues;
         RequiredNetworkOutboundQueues = toClone.RequiredNetworkOutboundQueues;
@@ -97,10 +97,10 @@ public class QueuesConfig : ConfigSection, IQueuesConfig
         set => this[nameof(MaxEventQueues)] = value.ToString();
     }
 
-    public int RequiredDataAccessQueues
+    public int RequiredStorageIOQueues
     {
-        get => int.Parse(this[nameof(RequiredDataAccessQueues)]!);
-        set => this[nameof(RequiredDataAccessQueues)] = value.ToString();
+        get => int.Parse(this[nameof(RequiredStorageIOQueues)]!);
+        set => this[nameof(RequiredStorageIOQueues)] = value.ToString();
     }
 
     public int RequiredCustomQueues

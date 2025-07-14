@@ -43,14 +43,14 @@ public class BlockingStaticRing<T> : IBlockingQueue<T> where T : class, new()
         set => Cells[index & RingMask] = value;
     }
 
-    public long Count => pubCursor.Value - conCursor.Value;
+    public int Count => pubCursor.Value - conCursor.Value;
 
-    public long Capacity => Cells.Length;
+    public int Capacity => Cells.Length;
 
     public void Add(T item)
     {
         var publishIndex = Claim();
-        var cell = this[(int)publishIndex];
+        var cell = this[publishIndex];
         cell.Value = item;
         Publish(publishIndex);
     }
@@ -66,10 +66,35 @@ public class BlockingStaticRing<T> : IBlockingQueue<T> where T : class, new()
         return false;
     }
 
+    public int NextPeekIndex() => conCursor.Value + 1;
+
+    public T? PeekAt(int index)
+    {
+        if (pubCursor.Value - index < 0) return null;
+        var entry = Cells[index & RingMask];
+        return entry.Value;
+    }
+
+    public int RemovalAll()
+    {
+        var oldConsumer = conCursor.Value;
+        var pubValue = pubCursor.Value;
+        for (var i = oldConsumer; i < pubValue; i++)
+        {
+            var checkItem = this[i];
+            if (checkItem.Value is IRecyclableObject recyclableObject)
+            {
+                recyclableObject.DecrementRefCount();
+            }
+        }
+        conCursor.Value = pubValue;
+        return pubValue - oldConsumer;
+    }
+
     public T Take()
     {
         var nextConsumerEntryIndex = conCursor.Value + 1;
-        while (pubCursor.Value < nextConsumerEntryIndex) publishItemSignal.WaitOne(50);
+        while (pubCursor.Value < nextConsumerEntryIndex) publishItemSignal.WaitOne(10);
         conCursor.Value++;
         var entry = Cells[nextConsumerEntryIndex & RingMask];
         return entry.Value!;
@@ -78,19 +103,19 @@ public class BlockingStaticRing<T> : IBlockingQueue<T> where T : class, new()
     public bool TryTake(out T item)
     {
         item = null!;
-        if (pubCursor.Value - conCursor.Value >= RingMask) return false;
+        if (pubCursor.Value - conCursor.Value <= 0) return false;
         item = Take();
         return true;
     }
 
-    public long Claim()
+    public int Claim()
     {
         var sequence = claimStrategy.Claim();
         claimStrategy.WaitFor(sequence, conCursors);
         return sequence;
     }
 
-    public void Publish(long sequence)
+    public void Publish(int sequence)
     {
         claimStrategy.Serialize(pubCursor, sequence);
         pubCursor.Value = sequence;

@@ -91,7 +91,7 @@ public class OneOfEachMessageQueueTypeTestSetup
                      { CustomQueue1 }
                 );
             return eventGroupContainer;
-        });
+        }, "OneOfEachMessageQueueTypeTestSetup", null, "OneOfEachMessageQueueTypeTestSetup Description");
         EventQueue1SelectionResult  = new RouteSelectionResult(EventQueue1, "OneOfEachMessageQueueTypeTestSetup", RoutingFlags.DefaultDeploy);
         WorkerQueue1SelectionResult = new RouteSelectionResult(WorkerQueue1, "OneOfEachMessageQueueTypeTestSetup", RoutingFlags.DefaultDeploy);
         CustomQueue1SelectionResult = new RouteSelectionResult(CustomQueue1, "OneOfEachMessageQueueTypeTestSetup", RoutingFlags.DefaultDeploy);

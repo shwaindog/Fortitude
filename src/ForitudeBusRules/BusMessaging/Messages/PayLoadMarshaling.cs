@@ -22,10 +22,12 @@ public enum PayloadRequestType
   , CalleeRetrieve // perform marshalling when read by any rule.
 }
 
+// If type supports Freezable the Frozen version is sent
 public enum MarshallerType
 {
     DefaultForType        // will look at the sender payload instance and pick the most appropriate marshaller for the type
   , PassThrough           // this should not create a Marshaller so the original sender instance is passed around
+  , Freezable             // if the type supports IFreezable then send the Frozen item. If frozen supports RefCount then it is also ref counted
   , RefCountIncrementer   // increment recyclable.RefCount at the marshall point
   , NonDecrementingCloner // will not decrement even if is recyclable
   , CloneRecyclable       // clone and decrement at end of each queue or dispatch
@@ -105,7 +107,7 @@ public interface IPayloadMarshaller<T> : IReusableObject<IPayloadMarshaller<T>>,
     void PayloadRefCountIncrement(T? payload);
 }
 
-public class PayloadMarshaller<T> : ReusableObject<IPayloadMarshaller<T>>, IPayloadMarshaller<T>, IPayloadMarshaller
+public class PayloadMarshaller<T> : ReusableObject<IPayloadMarshaller<T>>, IPayloadMarshaller<T>
 {
     private static readonly Type GenericIReusableOfT = typeof(IReusableObject<>).MakeGenericType(typeof(T));
 
@@ -138,6 +140,7 @@ public class PayloadMarshaller<T> : ReusableObject<IPayloadMarshaller<T>>, IPayl
     }
 
     public IRecycler  SenderRecycler   { get; set; } = null!;
+
     public IRecycler? ReceiverRecycler { get; set; }
 
     public bool CloneMarshallerOnEachQueue =>
@@ -172,7 +175,9 @@ public class PayloadMarshaller<T> : ReusableObject<IPayloadMarshaller<T>>, IPayl
         SenderRecycler = senderRecycler ?? Recycler ?? SingletonRecycler.Instance;
         if (MarshallerType == DefaultForType)
         {
-            if (typeof(T).GetInterfaces().Any(t => t == GenericIReusableOfT))
+            if (senderInstance is IFreezable)
+                payloadMarshalOptions = new PayloadMarshalOptions(payloadMarshalOpts.MarshalOn, Freezable);
+            else if (typeof(T).GetInterfaces().Any(t => t == GenericIReusableOfT))
                 payloadMarshalOptions = new PayloadMarshalOptions(payloadMarshalOpts.MarshalOn, BorrowReusable);
             else if (senderInstance is IRecyclableObject and ICloneable)
                 payloadMarshalOptions = new PayloadMarshalOptions(payloadMarshalOpts.MarshalOn, CloneRecyclable);
@@ -313,6 +318,13 @@ public class PayloadMarshaller<T> : ReusableObject<IPayloadMarshaller<T>>, IPayl
         {
             case RefCountIncrementer:
                 if (input is IRecyclableObject recyclableObject) recyclableObject.IncrementRefCount();
+                break;
+            case Freezable:
+                if (input is IFreezable freezableT)
+                {
+                    result = (T)freezableT.Freeze;
+                    if (result is IRecyclableObject recyclableFrozen) recyclableFrozen.IncrementRefCount();
+                }
                 break;
             case NonDecrementingCloner:
                 if (input is ICloneable cloneable) result = (T)cloneable.Clone();

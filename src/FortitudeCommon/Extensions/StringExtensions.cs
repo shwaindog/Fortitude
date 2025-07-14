@@ -42,6 +42,7 @@ public static class StringExtensions
         return false;
     }
 
+
     public static bool IsNullOrEmpty([NotNullWhen(false)] this string? value)   => string.IsNullOrEmpty(value);
     public static bool IsNotNullOrEmpty([NotNullWhen(true)] this string? value) => !string.IsNullOrEmpty(value);
     public static bool IsEmpty(this string value)                               => string.IsNullOrEmpty(value);

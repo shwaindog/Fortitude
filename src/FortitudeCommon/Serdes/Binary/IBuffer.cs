@@ -28,15 +28,9 @@ public unsafe interface IBuffer : IStream
     void  DestroyBuffer();
 }
 
-public readonly struct MessageBufferEntry(nint messageStartAt, int messageSize, long bufferRelativeOffset = 0)
+public readonly record struct MessageBufferEntry(nint MessageStartFromBufferOrigin, int MessageSize, long BufferRelativeOffset = 0)
 {
-    public readonly nint MessageStartFromBufferOrigin = messageStartAt;
-
-    public readonly int MessageSize = messageSize;
-
-    public readonly long BufferRelativeOffset = bufferRelativeOffset;
-
-    public nint BufferAdjustedMessageStart => (nint)(messageStartAt + bufferRelativeOffset);
+    public readonly nint BufferAdjustedMessageStart = (nint)(MessageStartFromBufferOrigin + BufferRelativeOffset);
 }
 
 public interface IMessageQueueBuffer : IBuffer

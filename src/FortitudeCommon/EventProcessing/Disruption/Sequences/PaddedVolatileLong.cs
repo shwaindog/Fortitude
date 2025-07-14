@@ -14,7 +14,7 @@ namespace FortitudeCommon.EventProcessing.Disruption.Sequences;
 public struct PaddedVolatileLong
 {
     [FieldOffset(MemoryUtils.CacheLineSize)]
-    private long lvalue;
+    internal long lvalue;
 
     public PaddedVolatileLong(long value) => lvalue = value;
 

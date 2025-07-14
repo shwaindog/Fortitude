@@ -34,7 +34,7 @@ public enum AsyncAppenderType
 
 public interface IAsyncForwardingAppendersConfig : IBufferingAppenderConfig
 {
-    AsyncAppenderType AppenderType { get; }
+    AsyncAppenderType AsyncType { get; }
 
     bool Broadcast { get; }
 

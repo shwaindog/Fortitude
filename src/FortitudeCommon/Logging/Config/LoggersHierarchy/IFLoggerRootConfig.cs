@@ -5,16 +5,14 @@ namespace FortitudeCommon.Logging.Config.LoggersHierarchy;
 
 public interface IFLoggerRootConfig : IFLoggerTreeCommonConfig
 {
-    INamedChildLoggersLookupConfig Loggers { get; }
-
     INamedChildLoggersLookupConfig AllLoggers();
 
     IFLoggerDescendantConfig ResolveLoggerConfig(string loggerFullName);
+
+    ExplicitRootConfigNode CrystallisedDeclaredConfigTree();
 }
 
-public interface IMutableFLoggerRootConfig : IFLoggerRootConfig, IMutableFLoggerMatchedAppenders
+public interface IMutableFLoggerRootConfig : IFLoggerRootConfig, IMutableFLoggerTreeCommonConfig
 {
-    new IMutableNamedChildLoggersLookupConfig Loggers { get; set; }
-
     new FLogLevel LogLevel { get; set; }
 }

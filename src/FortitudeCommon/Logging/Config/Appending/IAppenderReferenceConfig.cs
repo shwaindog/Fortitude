@@ -7,7 +7,7 @@ public interface IAppenderReferenceConfig
 {
     string?  AppenderName       { get; }
 
-    string? AppenderConfigPath { get; }
+    string? AppenderConfigRef { get; }
 
     bool DisableHere { get; }
 
@@ -18,7 +18,7 @@ public interface IMutableAppenderReferenceConfig : IAppenderReferenceConfig
 {
     new string?  AppenderName       { get; set; }
 
-    new string? AppenderConfigPath { get; set; }
+    new string? AppenderConfigRef { get; set; }
 
     new bool DisableHere { get; set; }
 

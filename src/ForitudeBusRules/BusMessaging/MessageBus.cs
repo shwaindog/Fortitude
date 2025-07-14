@@ -19,6 +19,12 @@ namespace FortitudeBusRules.BusMessaging;
 
 public interface IMessageBus
 {
+    string Name { get; }
+
+    string Description { get; }
+
+    bool IsRunning { get; }
+
     IDependencyResolver DependencyResolver { get; set; }
 
     IBusNetworkResolver BusNetworkResolver { get; }
@@ -110,23 +116,36 @@ public interface IConfigureMessageBus : IMessageBus
 
 public class MessageBus : IConfigureMessageBus
 {
+    private const string NoDescription = "No Description Provided";
+
     private IBusNetworkResolver? busIOResolver;
 
     public MessageBus(BusRulesConfig config)
     {
+        Name               = config.Name;
+        Description        = config.Description ?? NoDescription;
         DependencyResolver = config.Resolver ?? new BasicDependencyResolver();
         AllMessageQueues   = new MessageQueueGroupContainer(this, config);
     }
 
     internal MessageBus
-    (Func<IConfigureMessageBus, IMessageQueueGroupContainer> createGroupContainerFunc
-      , IDependencyResolver? dependencyResolver = null)
+    (Func<IConfigureMessageBus, IMessageQueueGroupContainer> createGroupContainerFunc, string name
+      , IDependencyResolver? dependencyResolver = null
+      , string description = NoDescription)
     {
+        Name               = null!;
+        Description        = null!;
         DependencyResolver = dependencyResolver ?? new BasicDependencyResolver();
         AllMessageQueues   = createGroupContainerFunc(this);
     }
 
     public IMessageQueueGroupContainer AllMessageQueues { get; }
+
+    public string Description { get; } 
+
+    public string Name { get; }
+
+    public bool IsRunning => AllMessageQueues.HasStarted;
 
     public IBusNetworkResolver BusNetworkResolver => busIOResolver ??= new BusNetworkResolver(this);
 

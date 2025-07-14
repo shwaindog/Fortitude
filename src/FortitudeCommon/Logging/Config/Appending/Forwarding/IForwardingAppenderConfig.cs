@@ -6,5 +6,5 @@ namespace FortitudeCommon.Logging.Config.Appending.Forwarding;
 
 public interface IForwardingAppenderConfig : IAppenderDefinitionConfig
 {
-    IForwardingAppendersLookupConfig ForwardTo { get; }
+    IForwardingAppendersLookupConfig ForwardToAppenders { get; }
 }

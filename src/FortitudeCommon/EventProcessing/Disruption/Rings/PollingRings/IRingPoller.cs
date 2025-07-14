@@ -23,3 +23,8 @@ public interface IRingPoller<out T> : IRingPoller where T : class
 {
     IPollingRing<T> Ring { get; }
 }
+
+public interface IRingPollerLong<out T> : IRingPoller where T : class
+{
+    IPollingRingLong<T> Ring { get; }
+}

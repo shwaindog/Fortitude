@@ -11,12 +11,13 @@ using FortitudeCommon.DataStructures.Memory;
 namespace FortitudeCommon.EventProcessing.Disruption.Sequences;
 
 [StructLayout(LayoutKind.Explicit, Size = 2 * MemoryUtils.CacheLineSize)]
-public struct PaddedAtomicLong
+public struct PaddedAtomicLong(long value)
 {
     [FieldOffset(MemoryUtils.CacheLineSize)]
-    private long lvalue;
+    internal long lValue = value;
 
-    public PaddedAtomicLong(long value) => lvalue = value;
-
-    public long IncrementAndGet() => Interlocked.Increment(ref lvalue);
+    public static class Extensions
+    {
+        public static long IncrementAndGet(ref long value) => Interlocked.Increment(ref value);
+    }
 }

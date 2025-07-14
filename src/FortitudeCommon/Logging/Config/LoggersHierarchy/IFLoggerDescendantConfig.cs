@@ -9,22 +9,14 @@ public interface IFLoggerDescendantConfig : IFLoggerTreeCommonConfig
 {
     IFLoggerTreeCommonConfig ParentLoggerConfig { get; }
 
-    string ParentName { get; }
-
-    string FullName { get; }
-
     bool Inherits { get; }
 
-    new INamedChildLoggersLookupConfig ChildLoggers { get; }
-
-    IFLoggerDescendantConfig ResolveChildConfig(string childRelativeLoggerName);
+    string ResolveFullName();
 }
 
-public interface IMutableFLoggerDescendantConfig : IFLoggerDescendantConfig, IMutableFLoggerMatchedAppenders
+public interface IMutableFLoggerDescendantConfig : IFLoggerDescendantConfig, IMutableFLoggerTreeCommonConfig
 {
-    new string Name { get; set; }
+    new IFLoggerTreeCommonConfig ParentLoggerConfig { get; set; }
 
     new bool Inherits { get; set; }
-
-    new IMutableNamedChildLoggersLookupConfig ChildLoggers { get; set; }
 }

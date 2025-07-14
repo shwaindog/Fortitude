@@ -27,6 +27,15 @@ public static class MemoryUtils
         return ceiling;
     }
 
+    public static bool IsPowerOfTwo(int value)
+    {
+        var ceiling = 2;
+
+        while (ceiling < value) ceiling *= 2;
+
+        return ceiling == value;
+    }
+
     public static unsafe void* MemCpy(void* dest, void* src, long count) => OsDirectMemoryAccess.memcpy(dest, src, (ulong)count);
 
     public static unsafe DisposableVirtualMemoryRange AllocVirtualMemory(long size)

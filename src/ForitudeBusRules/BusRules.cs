@@ -14,20 +14,41 @@ namespace FortitudeBusRules;
 
 public class BusRules
 {
+    private readonly Dictionary<string, IConfigureMessageBus> messageBusRegistry = new();
+
+    private readonly object syncLock = new ();
+
     public IConfigureMessageBus? MessageBus;
 
-    public IConfigureMessageBus CreateMessageBus(BusRulesConfig busRulesConfig)
+    public IConfigureMessageBus GetOrCreateMessageBus(BusRulesConfig busRulesConfig)
     {
-        MessageBus = new MessageBus(busRulesConfig);
-        return MessageBus;
+        // ReSharper disable once InconsistentlySynchronizedField
+        if (!messageBusRegistry.TryGetValue(busRulesConfig.Name, out var messageBus))
+        {
+            lock (syncLock)
+            {
+                if (!messageBusRegistry.TryGetValue(busRulesConfig.Name, out messageBus))
+                {
+                    messageBus = new MessageBus(busRulesConfig);
+                    messageBusRegistry.Add(messageBus.Name, messageBus);
+                }
+            }
+        }
+        return messageBus;
     }
 
-    public IMessageBus CreateAndStartMessageBus
-        (BusRulesConfig busRulesConfig, IRule bootstrapRule, MessageQueueType launchOnQueueType = MessageQueueType.Worker)
+    public IMessageBus GetOrCreateStartedMessageBus
+        (BusRulesConfig busRulesConfig, IRule? bootstrapRule = null, MessageQueueType launchOnQueueType = MessageQueueType.Worker)
     {
-        var messageBus = CreateMessageBus(busRulesConfig);
-        messageBus.Start();
-        messageBus.DeployDaemonRule(bootstrapRule, new DeploymentOptions(messageGroupType: launchOnQueueType));
+        var messageBus = GetOrCreateMessageBus(busRulesConfig);
+        if (!messageBus.IsRunning)
+        {
+            messageBus.Start();
+            if (bootstrapRule != null)
+            {
+                messageBus.DeployDaemonRule(bootstrapRule, new DeploymentOptions(messageGroupType: launchOnQueueType));
+            }
+        }
         return messageBus;
     }
 }

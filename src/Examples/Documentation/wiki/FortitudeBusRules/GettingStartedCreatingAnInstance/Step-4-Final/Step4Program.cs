@@ -52,7 +52,7 @@ public class Step4Program
                     (EventQueueSize, DefaultQueueSize, maxEventQueues: 1, emptyEventQueueSleepMs: 0
                    , requiredCustomQueues: 1, defaultEmptyQueueSleepMs: 0, maxWorkerQueues: 1));
         var busRules   = new BusRules();
-        var messageBus = busRules.CreateMessageBus(busRulesConfig);
+        var messageBus = busRules.GetOrCreateMessageBus(busRulesConfig);
         Console.WriteLine($"{DateTime.Now:hh:mm:ss.ffffff} - Finished creating message bus");
 
         messageBus.Start();

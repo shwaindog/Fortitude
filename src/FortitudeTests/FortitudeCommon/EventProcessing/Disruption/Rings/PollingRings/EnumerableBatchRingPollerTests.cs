@@ -58,9 +58,9 @@ public class EnumerableBatchRingPollerTests
             .Returns(moqOsThread.Object).Verifiable();
 
         moqPollingRing.Setup(pr => pr.Name).Returns("EnumerableBatchRingPollerTests");
-        moqPollingRing.Setup(pr => pr[0L]).Returns(firstStringContainer);
-        moqPollingRing.Setup(pr => pr[1L]).Returns(secondStringContainer);
-        moqPollingRing.Setup(pr => pr[2L]).Returns(thirdStringContainer);
+        moqPollingRing.Setup(pr => pr[0]).Returns(firstStringContainer);
+        moqPollingRing.Setup(pr => pr[1]).Returns(secondStringContainer);
+        moqPollingRing.Setup(pr => pr[2]).Returns(thirdStringContainer);
         moqPollingRing.SetupSequence(pr => pr.GetEnumerator()).Returns(batchedEnumerable.GetEnumerator()).Returns(emptyEnumerable.GetEnumerator());
         moqPollingRing.SetupGet(pr => pr.CurrentBatchSize).Returns(3);
         moqPollingRing.SetupSequence(pr => pr.StartOfBatch).Returns(true).Returns(false).Returns(false);

@@ -10,7 +10,7 @@ using FortitudeCommon.OSWrapper.AsyncWrappers;
 
 namespace FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 
-public interface IEnumerableBatchRingPoller<T> : IRingPoller<T> where T : class
+public interface IEnumerableBatchRingPoller<out T> : IRingPoller<T> where T : class
 {
     IRecycler Recycler { get; set; }
     new IEnumerableBatchPollingRing<T> Ring { get; }

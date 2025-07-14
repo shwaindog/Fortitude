@@ -2,12 +2,24 @@
 {
     public enum FLogLevel
     {
-        None = 0,
-        Trace,
-        Debug,
-        Info,
-        Warn,
-        Error
+        None = 0
+      , Trace
+      , Debug
+      , Info
+      , Warn
+      , Error
+    }
+
+    public enum FLogLevelMatch
+    {
+        None = 0
+      , Any
+      , ConfigDefined
+      , Trace
+      , Debug
+      , Info
+      , Warn
+      , Error
     }
 
     public static class FLogLevelExtensions

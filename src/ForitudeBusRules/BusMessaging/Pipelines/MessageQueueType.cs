@@ -7,13 +7,13 @@ namespace FortitudeBusRules.BusMessaging.Pipelines;
 public enum MessageQueueType
 {
     None            = 0
-  , NetworkOutbound = 1  // socket sending
-  , NetworkInbound  = 2  // socket listening
-  , WebServer       = 4  // reserved for future integration with ASP.NET core
+  , NetworkOutbound = 1  // tcp, udp socket sending
+  , NetworkInbound  = 2  // tcp udp socket listening
+  , WebServer       = 4  // reserved for future integration with ASP.NET core or another web server api
   , AllNetwork      = 7  // NetworkOutbound, NetworkInbound and future WebServer
   , Event           = 8  // fast executing non I/O rules and events, actions (eventual to be monitored by watch dog to report long running operations)
   , Worker          = 16 // un-monitored (won't have watchdog) for long running I/O rules e.g. web requests, gpu operations
-  , DataAccess      = 32 // any data access requests to either a database or file
+  , StorageIO       = 32 // any db connections, logging, file reading
   , Custom          = 64 // application custom pool separate to allow applications to target Rules separate to worker or data access queues
   , AllNonNetwork   = 120
   , All             = 127
@@ -29,7 +29,7 @@ public static class MessageQueueTypeExtensions
     public static bool IsNetworkInbound(this MessageQueueType messageQueueType) => (messageQueueType & MessageQueueType.NetworkInbound) != 0;
 
     public static bool IsCustom(this MessageQueueType messageQueueType)     => (messageQueueType & MessageQueueType.Custom) != 0;
-    public static bool IsDataAccess(this MessageQueueType messageQueueType) => (messageQueueType & MessageQueueType.DataAccess) != 0;
+    public static bool IsStorageIO(this MessageQueueType messageQueueType) => (messageQueueType & MessageQueueType.StorageIO) != 0;
     public static bool IsAll(this MessageQueueType messageQueueType)        => messageQueueType == MessageQueueType.All;
     public static bool IsNone(this MessageQueueType messageQueueType)       => messageQueueType == MessageQueueType.None;
 }

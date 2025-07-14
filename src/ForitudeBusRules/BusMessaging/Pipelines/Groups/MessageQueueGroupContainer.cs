@@ -105,9 +105,9 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         var customNum = Math.Max(0, Math.Min(config.QueuesConfig.RequiredCustomQueues, MaximumAuxiliaryQueues));
         CustomMessageQueueGroup = new MessageQueueTypeGroup(owningMessageBus, Custom, config.QueuesConfig);
         CustomMessageQueueGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, Custom, (uint)customNum));
-        var dataAccessNum = Math.Max(0, Math.Min(config.QueuesConfig.RequiredDataAccessQueues, MaximumAuxiliaryQueues));
-        DataAccessMessageQueueGroup = new MessageQueueTypeGroup(owningMessageBus, DataAccess, config.QueuesConfig);
-        CustomMessageQueueGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, DataAccess, (uint)dataAccessNum));
+        var dataAccessNum = Math.Max(0, Math.Min(config.QueuesConfig.RequiredStorageIOQueues, MaximumAuxiliaryQueues));
+        DataAccessMessageQueueGroup = new MessageQueueTypeGroup(owningMessageBus, StorageIO, config.QueuesConfig);
+        CustomMessageQueueGroup.AddNewQueues(new DeploymentOptions(RoutingFlags.None, StorageIO, (uint)dataAccessNum));
     }
 
     internal MessageQueueGroupContainer
@@ -131,7 +131,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         CustomMessageQueueGroup = createCustomGroup?.Invoke(owningMessageBus) ??
                                   new MessageQueueTypeGroup(owningMessageBus, Custom, defaultQueuesConfig);
         DataAccessMessageQueueGroup = createCustomGroup?.Invoke(owningMessageBus) ??
-                                      new MessageQueueTypeGroup(owningMessageBus, DataAccess, defaultQueuesConfig);
+                                      new MessageQueueTypeGroup(owningMessageBus, StorageIO, defaultQueuesConfig);
     }
 
     internal MessageQueueGroupContainer(IConfigureMessageBus owningMessageBus, IEnumerable<IMessageQueue> queuesToAdd)
@@ -142,7 +142,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         EventMessageQueueGroup           = new MessageQueueTypeGroup(owningMessageBus, Event, defaultQueuesConfig)!;
         WorkerMessageQueueGroup          = new MessageQueueTypeGroup(owningMessageBus, Worker, defaultQueuesConfig)!;
         CustomMessageQueueGroup          = new MessageQueueTypeGroup(owningMessageBus, Custom, defaultQueuesConfig)!;
-        DataAccessMessageQueueGroup      = new MessageQueueTypeGroup(owningMessageBus, DataAccess, defaultQueuesConfig)!;
+        DataAccessMessageQueueGroup      = new MessageQueueTypeGroup(owningMessageBus, StorageIO, defaultQueuesConfig)!;
         this.owningMessageBus            = owningMessageBus;
         foreach (var eventQueue in queuesToAdd) Add(eventQueue);
     }
@@ -350,7 +350,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             case Custom:
                 CustomMessageQueueGroup.Add(item);
                 break;
-            case DataAccess:
+            case StorageIO:
                 DataAccessMessageQueueGroup.Add(item);
                 break;
             default:
@@ -374,7 +374,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
               , Event           => EventMessageQueueGroup.Contains(item)
               , Worker          => WorkerMessageQueueGroup.Contains(item)
               , Custom          => CustomMessageQueueGroup.Contains(item)
-              , DataAccess      => DataAccessMessageQueueGroup.Contains(item)
+              , StorageIO      => DataAccessMessageQueueGroup.Contains(item)
               , _               => false
             };
         return hasResult;
@@ -390,7 +390,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
             case Event:           return EventMessageQueueGroup.StopRemoveEventQueue(item);
             case Worker:          return WorkerMessageQueueGroup.StopRemoveEventQueue(item);
             case Custom:          return CustomMessageQueueGroup.StopRemoveEventQueue(item);
-            case DataAccess:      return DataAccessMessageQueueGroup.StopRemoveEventQueue(item);
+            case StorageIO:      return DataAccessMessageQueueGroup.StopRemoveEventQueue(item);
             default:
                 var message = $"Can not add queue of type {queueGroup} to EventBus ";
                 Logger.Warn(message);
@@ -431,7 +431,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
                  , Event           => EventMessageQueueGroup
                  , Worker          => WorkerMessageQueueGroup
                  , Custom          => CustomMessageQueueGroup
-                 , DataAccess      => DataAccessMessageQueueGroup
+                 , StorageIO      => DataAccessMessageQueueGroup
                  , _ => throw new ArgumentException
                        ($"Unexpected selector EventQueueType selector value '{selector}' when selecting a specific event group type")
                };
@@ -445,7 +445,7 @@ public class MessageQueueGroupContainer : IMessageQueueGroupContainer
         if (selector.IsEvent()) result.AddRange(EventMessageQueueGroup);
         if (selector.IsWorker()) result.AddRange(WorkerMessageQueueGroup);
         if (selector.IsCustom()) result.AddRange(CustomMessageQueueGroup);
-        if (selector.IsDataAccess()) result.AddRange(DataAccessMessageQueueGroup);
+        if (selector.IsStorageIO()) result.AddRange(DataAccessMessageQueueGroup);
 
         return result;
     }
