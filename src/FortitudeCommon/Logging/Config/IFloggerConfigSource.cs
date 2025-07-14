@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.DataStructures.Maps;
+using FortitudeCommon.Types;
 
 namespace FortitudeCommon.Logging.Config;
 
@@ -13,9 +14,12 @@ public enum FLoggerConfigSourceType
   , Database
 }
 
-public interface IFloggerConfigSource
+public interface IFloggerConfigSource : ICollection<IFloggerConfigSource>, IInterfacesComparable<IFloggerConfigSource>
+  , IStyledToStringObject
 {
-    string ConfigSourceName { get; }
+    uint   ConfigPriorityOrder { get; set; } // high Priority overrides lower priority
+
+    string ConfigSourceName    { get; }
 
     string SourceLocation { get; }
 

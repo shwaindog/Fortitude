@@ -415,7 +415,7 @@ public class FLogFirstFormatterParameterEntry : ReusableObject<IFLogFirstFormatt
     {
         if (formatTokens.Any()) return this;
         warnings.Append(memberName).Append("(").Append(typeof(T).Name).Append(" ")
-                .Append(param).Append(") at [").AppendOrNull(loggingLocation)
+                .Append(param).Append(") at [").Append(loggingLocation)
                 .Append("] no formatting tokens remaining");
         return null;
     }
@@ -476,7 +476,7 @@ public class FLogFirstFormatterParameterEntry : ReusableObject<IFLogFirstFormatt
         if (!formatTokens.Any())
         {
             warnings.Append(callMemberName).Append("(").Append(typeof(T).Name).Append(" ")
-                    .Append(paramValue).Append(") at [").AppendOrNull(loggingLocation)
+                    .Append(paramValue).Append(") at [").Append(loggingLocation)
                     .Append("] has no more remaining tokens after replacing with the first parameter")
                     .Append(0)
                     .Append("}");
@@ -495,7 +495,7 @@ public class FLogFirstFormatterParameterEntry : ReusableObject<IFLogFirstFormatt
         if (formatTokens.Any())
         {
             warnings.Append(callMemberName).Append("(").Append(typeof(T).Name).Append(" ")
-                    .Append(paramValue).Append(") at [").AppendOrNull(loggingLocation)
+                    .Append(paramValue).Append(") at [").Append(loggingLocation)
                     .Append("] has remaining tokens after with the first parameter {")
                     .Append(0)
                     .Append("} and converting to StringAppender");
@@ -524,7 +524,7 @@ public class FLogFirstFormatterParameterEntry : ReusableObject<IFLogFirstFormatt
         if (formatTokens.Any())
         {
             warnings.Append(callMemberName).Append("(").Append(typeof(T).Name).Append(" ")
-                    .Append(paramValue).Append(") at [").AppendOrNull(loggingLocation)
+                    .Append(paramValue).Append(") at [").Append(loggingLocation)
                     .Append("] still has more tokens after replacing with the first parameter");
             CallOnComplete();
             return;

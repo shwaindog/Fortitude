@@ -14,21 +14,26 @@ public class BlockingStaticRing<T> : IBlockingQueue<T> where T : class, new()
 {
     internal readonly RingCell<T>[] Cells;
     private readonly IClaimStrategy claimStrategy;
-    private readonly Sequence conCursor = new(Sequence.InitialValue);
+    private readonly Sequence conCursor;
     private readonly Sequence[] conCursors;
 
     private readonly IIntraOSThreadSignal consumerReturnedItemSignal;
-    private readonly Sequence pubCursor = new(Sequence.InitialValue);
+    private readonly Sequence pubCursor;
     private readonly IIntraOSThreadSignal publishItemSignal;
     internal readonly int RingMask;
     internal readonly int RingSize;
 
     public BlockingStaticRing(string name, int size, ClaimStrategyType claimStrategyType)
     {
-        RingSize = MemoryUtils.CeilingNextPowerOfTwo(size);
-        RingMask = RingSize - 1;
-        Cells = new RingCell<T>[RingSize];
+        RingSize   = MemoryUtils.CeilingNextPowerOfTwo(size);
+        RingMask   = RingSize - 1;
+        Cells      = new RingCell<T>[RingSize];
+
+        pubCursor  = new(Sequence.InitialValue, RingMask);
+        conCursor  = new(Sequence.InitialValue, RingMask);
         conCursors = new[] { conCursor };
+
+
         var osParallelController = OSParallelControllerFactory.Instance.GetOSParallelController;
         consumerReturnedItemSignal = osParallelController.SingleOSThreadActivateSignal(false);
         publishItemSignal = osParallelController.SingleOSThreadActivateSignal(false);
@@ -93,18 +98,25 @@ public class BlockingStaticRing<T> : IBlockingQueue<T> where T : class, new()
 
     public T Take()
     {
-        var nextConsumerEntryIndex = conCursor.Value + 1;
-        while (pubCursor.Value < nextConsumerEntryIndex) publishItemSignal.WaitOne(10);
-        conCursor.Value++;
+        var currentConsumer = conCursor.Value;
+        return Take(currentConsumer);
+    }
+
+    private T Take(int currentConsumer)
+    {
+        var nextConsumerEntryIndex = currentConsumer + 1;
+        while (pubCursor.Value != currentConsumer) publishItemSignal.WaitOne(10);
         var entry = Cells[nextConsumerEntryIndex & RingMask];
+        conCursor.Value++;
         return entry.Value!;
     }
 
     public bool TryTake(out T item)
     {
         item = null!;
-        if (pubCursor.Value - conCursor.Value <= 0) return false;
-        item = Take();
+        var currentConsumer        = conCursor.Value;
+        if (pubCursor.Value != conCursor.Value) return false;
+        item = Take(currentConsumer);
         return true;
     }
 

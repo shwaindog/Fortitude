@@ -9,10 +9,7 @@ public class Sequence(int initialValue, int wrapMask = int.MaxValue)
     public int Value
     {
         get => sequence.Value & wrapMask;
-        set
-        {
-            sequence.Value = value & wrapMask;
-        }
+        set => sequence.Value = value & wrapMask;
     }
 }
 

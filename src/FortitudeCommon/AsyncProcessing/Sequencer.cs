@@ -10,7 +10,7 @@ namespace FortitudeCommon.AsyncProcessing
 
         public long Claim()
         {
-            return PaddedAtomicLong.Extensions.IncrementAndGet(ref sequence.lValue);
+            return PaddedAtomicLong.Extensions.IncrementAndGet(ref sequence);
         }
 
         public void Serialize(long waitFor)

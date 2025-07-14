@@ -18,6 +18,16 @@ public class ConfigNodeVisitor<T> where T : ConfigNodeVisitor<T>
         return (T)this;
     }
 
+    public virtual T Accept(ExplicitConfigLoggerNode node)
+    {
+        switch (node)
+        {
+            case DescendantConfigTreeNode descendantConfig: Accept(descendantConfig); break;
+            case ExplicitRootConfigNode rootConfig:         Accept(rootConfig); break;
+        }
+        return (T)this;
+    }
+
     public virtual T Accept(ExplicitRootConfigNode node)
     {
         return VisitAllExisting(node);
@@ -28,9 +38,9 @@ public class ConfigNodeVisitor<T> where T : ConfigNodeVisitor<T>
         return VisitAllExisting(node);
     }
 
-    protected T VisitAllExisting(ExplicitConfigTreeNode node)
+    protected T VisitAllExisting(ExplicitConfigLoggerNode node)
     {
-        foreach (var descendantConfigTreeNode in node.ChildNodes)
+        foreach (var descendantConfigTreeNode in node.ChildLoggers)
         {
             descendantConfigTreeNode.Visit(this);
         }
@@ -89,7 +99,7 @@ public class AddConfigNodeVisitor(IFLoggerRootConfig rootConfig) : ConfigNodeVis
         return this;
     }
 
-    protected void WalkDownTree(ExplicitConfigTreeNode parent, IFLoggerDescendantConfig addingConfig)
+    protected void WalkDownTree(ExplicitConfigLoggerNode parent, IFLoggerDescendantConfig addingConfig)
     {
         var ancestorName  = parent.FullName.IsNotNullOrEmpty() ? parent.FullName + "." : "";
         var remainingPath = addingConfig.Name.Replace(ancestorName, "");
@@ -140,7 +150,7 @@ public class ResolveLastExplicitConfig(string loggerFullName) : ConfigNodeVisito
         return this;
     }
 
-    protected void WalkDownTree(ExplicitConfigTreeNode parent, IFLoggerDescendantConfig addingConfig)
+    protected void WalkDownTree(ExplicitConfigLoggerNode parent, IFLoggerDescendantConfig addingConfig)
     {
         var ancestorName  = parent.FullName.IsNotNullOrEmpty() ? parent.FullName + "." : "";
         var remainingPath = addingConfig.Name.Replace(ancestorName, "");

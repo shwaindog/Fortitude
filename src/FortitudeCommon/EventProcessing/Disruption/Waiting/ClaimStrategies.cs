@@ -47,7 +47,7 @@ internal static class ClaimStrategies
 
         private PaddedAtomicInt sequence = new(Sequence.InitialValue);
 
-        public int Claim() => PaddedAtomicInt.Extensions.IncrementAndGet(ref sequence.iValue);
+        public int Claim() => PaddedAtomicInt.Extensions.IncrementAndGet(ref sequence);
 
         public void WaitFor(int sequenceValue, Sequence[] cursors)
         {
@@ -103,7 +103,7 @@ internal static class ClaimStrategies
 
         private PaddedAtomicLong sequence = new(SequenceLong.InitialValue);
 
-        public long Claim() => PaddedAtomicLong.Extensions.IncrementAndGet(ref sequence.lValue);
+        public long Claim() => PaddedAtomicLong.Extensions.IncrementAndGet(ref sequence);
 
         public void WaitFor(long sequenceValue, SequenceLong[] cursors)
         {
@@ -148,7 +148,7 @@ internal static class ClaimStrategies
 
         private PaddedInt sequence = new(Sequence.InitialValue);
 
-        public int Claim() => PaddedInt.Extensions.IncrementAndGet(ref sequence.Value);
+        public int Claim() => PaddedInt.Extensions.IncrementAndGet(ref sequence);
 
         public void WaitFor(int sequenceValue, Sequence[] cursors)
         {
@@ -200,7 +200,7 @@ internal static class ClaimStrategies
 
         private PaddedLong sequence = new(SequenceLong.InitialValue);
 
-        public long Claim() => PaddedLong.Extensions.IncrementAndGet(ref sequence.Value);
+        public long Claim() => PaddedLong.Extensions.IncrementAndGet(ref sequence);
 
         public void WaitFor(long sequenceValue, SequenceLong[] cursors)
         {

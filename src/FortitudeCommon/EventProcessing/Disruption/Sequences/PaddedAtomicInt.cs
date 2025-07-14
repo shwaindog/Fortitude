@@ -14,6 +14,8 @@ public struct PaddedAtomicInt(int value)
 
     public static class Extensions
     {
-        public static int IncrementAndGet(ref int value) => Interlocked.Increment(ref value);
+        public static int IncrementAndGet(ref PaddedAtomicInt atomicInt) => IncrementAndGet(ref atomicInt.iValue);
+        
+        private static int IncrementAndGet(ref int value) => Interlocked.Increment(ref value);
     }
 }

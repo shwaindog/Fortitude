@@ -15,7 +15,7 @@ public interface IStickyKeyValueDictionary<TKey, TValue> : IReadOnlyDictionary<T
 public interface IAppendableDictionary<TKey, TValue> : IStickyKeyValueDictionary<TKey, TValue>
 where TValue : notnull
 {
-    new TValue this[TKey key] { get; set; }
+    new TValue this[TKey loggerName] { get; set; }
 
     void Add(TKey key, TValue value);
 

@@ -18,6 +18,8 @@ public struct PaddedAtomicLong(long value)
 
     public static class Extensions
     {
-        public static long IncrementAndGet(ref long value) => Interlocked.Increment(ref value);
+        public static long IncrementAndGet(ref PaddedAtomicLong atomicLong) => IncrementAndGet(ref atomicLong.lValue);
+        
+        private static long IncrementAndGet(ref long value) => Interlocked.Increment(ref value);
     }
 }

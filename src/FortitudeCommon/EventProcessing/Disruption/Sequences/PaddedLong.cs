@@ -18,6 +18,8 @@ public struct PaddedLong(long value)
 
     public static class Extensions
     {
-        public static long IncrementAndGet(ref long value) => ++value;
+        public static long IncrementAndGet(ref PaddedLong paddedLong) => IncrementAndGet(ref paddedLong.Value);
+        
+        private static long IncrementAndGet(ref long value) => ++value;
     }
 }

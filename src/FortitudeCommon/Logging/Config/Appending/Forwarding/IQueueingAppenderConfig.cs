@@ -14,5 +14,5 @@ public interface IQueueingAppenderConfig : IForwardingAppenderConfig
 
     int MaxDownstreamBatchSize    { get; }
 
-    ISizeableItemPoolConfig LogEntryPool { get; }
+    IFLogEntryPoolConfig IfLogEntryPool { get; }
 }

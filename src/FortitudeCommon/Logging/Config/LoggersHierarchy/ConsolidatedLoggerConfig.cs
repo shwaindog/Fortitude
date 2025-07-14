@@ -1,10 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Xml;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Logging.Core;
-using FortitudeCommon.Logging.Core.Appending;
 using IFLoggerAppender = FortitudeCommon.Logging.Core.Appending.IFLoggerAppender;
 
 namespace FortitudeCommon.Logging.Config.LoggersHierarchy;
@@ -27,7 +24,7 @@ public class ConsolidatedLoggerConfigBuilder
 
     public ExplicitLogEntryPoolDefinition LogEntryPool { get; set; }
 
-    public List<ExplicitConfigTreeNode> DeclaredConfigNodes { get; } = new();
+    public List<ExplicitConfigLoggerNode> DeclaredConfigNodes { get; } = new();
 
     public ConsolidatedLoggerConfig Build()
     {
@@ -44,7 +41,7 @@ public record ConsolidatedLoggerConfig
   , FLogLevel LogLevel
   , IReadOnlyList<IFLoggerAppender> Appenders
   , ExplicitLogEntryPoolDefinition LogEntryPool
-  , IList<ExplicitConfigTreeNode> DeclaredConfigNodes
+  , IList<ExplicitConfigLoggerNode> DeclaredConfigNodes
 )
 {
     // public static ConsolidatedLoggerConfigBuilder Builder(string loggerFullName, ExplicitRootConfigNode rootConfigNode)

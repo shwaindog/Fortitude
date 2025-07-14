@@ -14,6 +14,8 @@ public struct PaddedInt(int value)
 
     public static class Extensions
     {
-        public static int IncrementAndGet(ref int value) => ++value;
+        public static int IncrementAndGet(ref PaddedInt paddedInt) => IncrementAndGet(ref paddedInt.Value);
+        
+        private static int IncrementAndGet(ref int value) => ++value;
     }
 }

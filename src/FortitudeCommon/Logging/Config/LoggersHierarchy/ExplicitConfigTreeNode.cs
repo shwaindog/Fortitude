@@ -4,37 +4,62 @@
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Pooling;
-using FortitudeCommon.Logging.Core.Appending;
 using FortitudeCommon.Logging.Core.Hub;
-using static FortitudeCommon.Logging.Config.Pooling.ISizeableItemPoolConfig;
+using static FortitudeCommon.Logging.Config.Pooling.IFLogEntryPoolConfig;
 
 namespace FortitudeCommon.Logging.Config.LoggersHierarchy;
 
 public record ExplicitLogEntryPoolDefinition(PoolScope PoolScope, string PoolName, int NewItemCapacity, int ItemBatchSize)
 {
-    public ExplicitLogEntryPoolDefinition(ISizeableItemPoolConfig logEntryPoolCfg)
-        : this(logEntryPoolCfg.PoolScope, logEntryPoolCfg.PoolName, logEntryPoolCfg.NewItemCapacity, logEntryPoolCfg.ItemBatchSize) { }
-};
+    public ExplicitLogEntryPoolDefinition(IFLogEntryPoolConfig ifLogEntryPoolCfg)
+        : this(ifLogEntryPoolCfg.PoolScope, ifLogEntryPoolCfg.PoolName, ifLogEntryPoolCfg.NewItemCapacity, ifLogEntryPoolCfg.ItemBatchSize) { }
+}
 
-public abstract record ExplicitConfigTreeNode
-(
-    string Name
-  , FLogLevel? DeclareLogLevel
-  , INamedAppendersLookupConfig? DeclaredAppendersConfig
-  , ExplicitLogEntryPoolDefinition? LogPoolDefinition = null)
+public enum NodeConfigType
 {
-    protected List<DescendantConfigTreeNode> Children = new();
+    ConfigRoot
+    , LoggerRoot
+    , LoggerDescendant
+    , AppenderRoot
+    , AppenderReference
+    , AppenderDefinition
+}
 
+public abstract record ExplicitConfigTreeNode(string Name , INamedAppendersLookupConfig? ChildAppenders)
+{
     public virtual T Visit<T>(ConfigNodeVisitor<T> visitor) where T : ConfigNodeVisitor<T>
     {
         return visitor.Accept(this);
     }
 
-    public virtual string FullName { get; } = "";
-
-    public IReadOnlyList<DescendantConfigTreeNode> ChildNodes => Children;
-
     public abstract IAppenderRegistry AppenderRegistry { get; }
+
+    // public IReadOnlyList<IFLoggerAppender> ResolvedAppenders =>
+    //     DeclaredAppendersConfig
+    //         .Select(ac => AppenderRegistry.AppenderFLogEntryPoolRegistry())
+}
+
+public abstract record ExplicitConfigRoot(string Name , INamedAppendersLookupConfig? ChildAppenders)
+{
+
+
+    // public IReadOnlyList<IFLoggerAppender> ResolvedAppenders =>
+    //     DeclaredAppendersConfig
+    //         .Select(ac => AppenderRegistry.AppenderFLogEntryPoolRegistry())
+}
+
+
+
+public abstract record ExplicitConfigLoggerNode 
+(
+    string Name
+  , FLogLevel? DeclareLogLevel
+  , INamedAppendersLookupConfig? ChildAppenders
+  , ExplicitLogEntryPoolDefinition? LogPoolDefinition = null) : ExplicitConfigTreeNode(Name, ChildAppenders)
+{
+    internal List<DescendantConfigTreeNode> ChildLoggers = new();
+
+    public virtual string FullName { get; } = "";
 
     // public IReadOnlyList<IFLoggerAppender> ResolvedAppenders =>
     //     DeclaredAppendersConfig
@@ -42,22 +67,22 @@ public abstract record ExplicitConfigTreeNode
 
     internal DescendantConfigTreeNode AddDirectChild(DescendantConfigTreeNode newChild)
     {
-        if (Children.Any(dctn => dctn.Name == newChild.Name))
+        if (ChildLoggers.Any(dctn => dctn.Name == newChild.Name))
         {
             throw new ArgumentException("Error same attempted to be added to the same parent in the hierarchy");
         }
-        Children.Add(newChild);
+        ChildLoggers.Add(newChild);
         return newChild;
     }
 
     public bool TryGetValue(string immediateChildName, [NotNullWhen(true)] out DescendantConfigTreeNode? value)
     {
-        value = ChildNodes.FirstOrDefault(dctn => dctn.Name == immediateChildName);
+        value = ChildLoggers.FirstOrDefault(dctn => dctn.Name == immediateChildName);
         return value != null;
     }
 }
 
-public record ExplicitRootConfigNode : ExplicitConfigTreeNode
+public record ExplicitRootConfigNode : ExplicitConfigLoggerNode
 {
     public ExplicitRootConfigNode(string Name, IFLoggerRootConfig DeclaredRootConfig, IAppenderRegistry AppenderRegistry)
         : base(Name
@@ -65,7 +90,7 @@ public record ExplicitRootConfigNode : ExplicitConfigTreeNode
              , DeclaredRootConfig?.Appenders
              , DeclaredRootConfig.LogEntryPool != null
                    ? new ExplicitLogEntryPoolDefinition(DeclaredRootConfig.LogEntryPool)
-                   : new ExplicitLogEntryPoolDefinition(PoolScope.LoggersGlobal, LoggersGlobal, LogEntryDefaultStringCapacity, LogEntryBatchSize))
+                   : new ExplicitLogEntryPoolDefinition(PoolScope.LoggersGlobal, LoggersGlobal, DefaultLogEntryStringCapacity, DefaultLogEntryBatchSize))
     {
         this.DeclaredRootConfig = DeclaredRootConfig;
         this.AppenderRegistry   = AppenderRegistry;
@@ -98,12 +123,12 @@ public record DescendantConfigTreeNode
   , bool? Inherits = null
   , IFLoggerDescendantConfig? DeclaredConfig = null
   , ExplicitLogEntryPoolDefinition? LogPoolDefinition = null)
-    : ExplicitConfigTreeNode(Name
-                           , DeclaredConfig?.LogLevel
-                           , DeclaredConfig?.Appenders
-                           , DeclaredConfig?.LogEntryPool != null
-                                 ? new ExplicitLogEntryPoolDefinition(DeclaredConfig.LogEntryPool)
-                                 : LogPoolDefinition)
+    : ExplicitConfigLoggerNode(Name
+                             , DeclaredConfig?.LogLevel
+                             , DeclaredConfig?.Appenders
+                             , DeclaredConfig?.LogEntryPool != null
+                                   ? new ExplicitLogEntryPoolDefinition(DeclaredConfig.LogEntryPool)
+                                   : LogPoolDefinition)
 {
     private IAppenderRegistry? appenderRegistry;
 

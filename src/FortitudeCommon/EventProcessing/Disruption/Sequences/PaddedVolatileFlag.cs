@@ -9,12 +9,10 @@ using FortitudeCommon.DataStructures.Memory;
 namespace FortitudeCommon.EventProcessing.Disruption.Sequences;
 
 [StructLayout(LayoutKind.Explicit, Size = 2 * MemoryUtils.CacheLineSize)]
-public struct PaddedVolatileFlag
+public struct PaddedVolatileFlag(bool value)
 {
     [FieldOffset(MemoryUtils.CacheLineSize)]
-    private volatile byte bvalue;
-
-    public PaddedVolatileFlag(bool value) => bvalue = (byte)(value ? 1 : 0);
+    private volatile byte bvalue = (byte)(value ? 1 : 0);
 
     public bool IsSet() => bvalue == 1;
 
