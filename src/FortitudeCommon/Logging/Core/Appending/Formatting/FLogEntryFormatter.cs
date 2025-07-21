@@ -1,6 +1,7 @@
 ﻿using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending;
+using FortitudeCommon.Logging.Config.Appending.Formatting;
 using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Types.Mutable;
 
@@ -28,7 +29,7 @@ public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableF
 
     private string formattingTemplate = "";
 
-    public static FLogEntryFormatter NewDefaultInstance => new (IAppenderDefinitionConfig.DefaultStringFormattingTemplate);
+    public static FLogEntryFormatter NewDefaultInstance => new (IFormattingAppenderConfig.DefaultStringFormattingTemplate);
 
     public FLogEntryFormatter() { }
 
@@ -46,7 +47,7 @@ public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableF
     {
         if (templateParts.Count == 0)
         {
-            FormattingTemplate = IAppenderDefinitionConfig.DefaultStringFormattingTemplate;
+            FormattingTemplate = IFormattingAppenderConfig.DefaultStringFormattingTemplate;
         }
         var mutableString = Recycler?.Borrow<MutableString>().Clear() ?? new MutableString();
 

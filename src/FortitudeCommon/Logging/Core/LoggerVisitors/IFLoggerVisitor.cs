@@ -5,6 +5,7 @@ using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
+using FortitudeCommon.Logging.Config.Visitor;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types.Mutable;
 
@@ -127,7 +128,7 @@ public class LeafToBaseCollectVisitor : LoggerVisitor<LeafToBaseCollectVisitor>
     public IReadOnlyList<IFLoggerDescendant> NodeSequence => nodes.AsReadOnly();
 }
 
-public class SourceOrCreateLoggerVisitor(string loggerFullName,  ExplicitRootConfigNode loggerExplicitConfigTree, IFLoggerRegistry fLoggerRegistry) : LoggerVisitor<SourceOrCreateLoggerVisitor>
+public class SourceOrCreateLoggerVisitor(string loggerFullName,  IFLoggerLoggerRegistry fLoggerRegistry) : LoggerVisitor<SourceOrCreateLoggerVisitor>
 {
     private IFLogger?     foundLogger = null;
 

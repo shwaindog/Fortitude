@@ -71,16 +71,15 @@ public class ULongComparer : IComparer<ulong>
     }
 }
 
-
 public static class NumberExtensions
 {
-    public static ByteComparer   ByteComparer   = new ();
-    public static UShortComparer UShortComparer = new ();
-    public static ShortComparer  ShortComparer  = new ();
-    public static IntComparer    IntComparer    = new ();
-    public static UIntComparer   UIntComparer   = new ();
-    public static LongComparer   LongComparer   = new ();
-    public static ULongComparer  ULongComparer  = new ();
+    public static ByteComparer   ByteComparer   = new();
+    public static UShortComparer UShortComparer = new();
+    public static ShortComparer  ShortComparer  = new();
+    public static IntComparer    IntComparer    = new();
+    public static UIntComparer   UIntComparer   = new();
+    public static LongComparer   LongComparer   = new();
+    public static ULongComparer  ULongComparer  = new();
 
     public static int NextPowerOfTwo(this int value)
     {
@@ -224,5 +223,58 @@ public static class NumberExtensions
             --currentShiftAmount;
         }
         return sb.ToString();
+    }
+
+
+    private static readonly ulong KiloByte  = 1024;
+    private static readonly ulong MegaByte  = KiloByte * KiloByte;
+    private static readonly ulong GigaByte  = KiloByte * MegaByte;
+    private static readonly ulong TeraByte  = KiloByte * GigaByte;
+    private static readonly ulong PetaByte  = KiloByte * TeraByte;
+    private static readonly ulong ExaByte   = KiloByte * PetaByte;
+    private static readonly ulong ZettaByte = KiloByte * ExaByte;
+    private static readonly ulong YottaByte = KiloByte * ZettaByte;
+
+    public static ulong AsKiloBytes(this ulong change) => change * KiloByte;
+    public static ulong AsMegaBytes(this ulong change) => change * MegaByte;
+    public static ulong AsGigaBytes(this ulong change) => change * GigaByte;
+    public static ulong AsTeraBytes(this ulong change) => change * TeraByte;
+    public static ulong AsPetaBytes(this ulong change) => change * PetaByte;
+    public static ulong AsExaBytes(this ulong change) => change * ExaByte;
+    public static ulong AsZettaBytes(this ulong change) => change * ZettaByte;
+    public static ulong AsYottaBytes(this ulong change) => change * YottaByte;
+
+
+    private static readonly (string, ulong)[] byteSuffixesAndSizes =
+    [
+        ("b|byte", 1)
+      , ("kb,kilobyte", KiloByte)
+      , ("mb,megabyte", MegaByte)
+      , ("gb,gigabyte", GigaByte)
+      , ("tb,terabyte", TeraByte)
+      , ("pb,petabyte", PetaByte)
+      , ("eb,exabyte", ExaByte)
+      , ("zb,zettabyte", ZettaByte)
+      , ("yb,yottabyte", YottaByte)
+    ];
+
+    public static ulong ToSizeInBytes(this ulong value, string suffixLowerCase)
+    {
+        if (suffixLowerCase[^1] == 's')
+        {
+            suffixLowerCase = suffixLowerCase.Substring(0, suffixLowerCase.Length - 1);
+        }
+        foreach (var (suffix, multiplier) in byteSuffixesAndSizes)
+        {
+            var split = suffix.Split(',');
+            foreach (var suffixType in split)
+            {
+                if (suffixType == suffixLowerCase)
+                {
+                    return value * multiplier;
+                }
+            }
+        }
+        throw new ArgumentException($"Expected suffixLowerCase to be one of {byteSuffixesAndSizes.Select((suffix, _) => suffix)}");
     }
 }

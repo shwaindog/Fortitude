@@ -3,7 +3,6 @@
 
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
-using FortitudeCommon.Logging.Config.AsyncBuffering;
 using FortitudeCommon.Logging.Core.Appending.Forwarding.Queues;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries;
@@ -15,7 +14,7 @@ public interface IFLoggerQueuingAppender : IFLoggerForwardingAppender
 {
     FullQueueHandling InboundQueueFullHandling   { get; }
 
-    int MaxDownstreamBatchSize { get; }
+    int QueueReadBatchSize { get; }
 
     int QueueSize                 { get; }
 
@@ -25,7 +24,7 @@ public interface IMutableFLoggerQueuingAppender : IFLoggerQueuingAppender
 {
     new FullQueueHandling InboundQueueFullHandling   { get; set; }
 
-    new int MaxDownstreamBatchSize { get; set; }
+    new int QueueReadBatchSize { get; set; }
 
     new int QueueSize                 { get; set; }
 
@@ -39,12 +38,12 @@ public abstract class FLoggerQueuingAppender : FLoggerForwardingAppender, IMutab
 
     protected Action<ILogEntryQueue> SwapFilteredBack;
 
-    protected FLoggerQueuingAppender(IQueueingAppenderConfig queuingAppenderConfig, IAppenderRegistry appenderRegistry)
-        : base(queuingAppenderConfig, appenderRegistry)
+    protected FLoggerQueuingAppender(IQueueingAppenderConfig queuingAppenderConfig, IFloggerAppenderRegistry floggerAppenderRegistry)
+        : base(queuingAppenderConfig, floggerAppenderRegistry)
     {
-        InboundQueueFullHandling = queuingAppenderConfig.InboundQueueFullHandling;
-        MaxDownstreamBatchSize   = queuingAppenderConfig.MaxDownstreamBatchSize;
-        QueueSize                = queuingAppenderConfig.QueueSize;
+        InboundQueueFullHandling = queuingAppenderConfig.InboundQueue.QueueFullHandling;
+        QueueReadBatchSize       = queuingAppenderConfig.InboundQueue.QueueReadBatchSize;
+        QueueSize                = queuingAppenderConfig.InboundQueue.QueueSize;
 
         SwapFilteredBack = filtered => AppenderQueue = filtered;
 
@@ -55,7 +54,7 @@ public abstract class FLoggerQueuingAppender : FLoggerForwardingAppender, IMutab
 
     public FullQueueHandling InboundQueueFullHandling   { get; set; }
 
-    public int MaxDownstreamBatchSize { get; set; }
+    public int QueueReadBatchSize { get; set; }
 
     public int QueueSize                 { get; set; }
 

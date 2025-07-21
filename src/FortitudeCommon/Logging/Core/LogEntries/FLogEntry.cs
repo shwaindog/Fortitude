@@ -13,27 +13,24 @@ namespace FortitudeCommon.Logging.Core.LogEntries;
 
 public interface IFLogEntry : IReusableObject<IFLogEntry>, IMaybeFrozen
 {
-    uint IssueSequenceNumber { get; }
-
-    uint InstanceNumber      { get; }
-
-    DateTime LogDateTime { get; }
-
-    LoggingLocation LogLocation { get; }
-
-    IFLogger  Logger   { get; }
-
-    FLogLevel LogLevel { get; }
-
-    Thread Thread { get; }
+    uint IssueSequenceNumber    { get; }
+    uint ReceivedSequenceNumber { get; }
+    uint InstanceNumber         { get; }
 
     StringBuildingStyle Style { get; }
 
-    IFrozenString Message { get; }
+    DateTime        LogDateTime { get; }
+    LoggingLocation LogLocation { get; }
+    IFLogger        Logger      { get; }
+    FLogLevel       LogLevel    { get; }
+    Thread          Thread      { get; }
+    IFrozenString   Message     { get; }
 }
 
 public interface IMutableFLogEntry : IFLogEntry, IFreezable<IFLogEntry>
 {
+    new uint ReceivedSequenceNumber { get; set; }
+
     [MustUseReturnValue("Use WithOnlyParam or AndFinalParam to complete LogEntry")]
     IFLogFirstFormatterParameterEntry? FormatBuilder(string formattedString, StringBuildingStyle style = StringBuildingStyle.Default);
 
@@ -50,7 +47,8 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 {
     internal static readonly LoggingLocation NotSetLocation = new("NotSet", "NotSet", 0);
 
-    private MutableString?         messageBuilder;
+    private MutableString? messageBuilder;
+
     private readonly Action<StringBuilder?> onComplete;
 
     private ForwardLogEntry dispatchHandler = null!;
@@ -76,17 +74,17 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 
         LogDateTime = toClone.LogDateTime;
         LogLocation = NotSetLocation;
-        onComplete = OnComplete;
+        onComplete  = OnComplete;
     }
 
     internal FLogEntry Initialize(LoggerEntryContext loggerEntryContext)
     {
-        messageBuilder  ??= new MutableString();
+        messageBuilder ??= new MutableString();
 
-        dispatchHandler =   loggerEntryContext.OnCompleteHandler;
-        LogLocation     =   loggerEntryContext.LogLocation;
-        Logger          =   loggerEntryContext.Logger;
-        LogLevel        =   loggerEntryContext.LogLevel;
+        dispatchHandler = loggerEntryContext.OnCompleteHandler;
+        LogLocation     = loggerEntryContext.LogLocation;
+        Logger          = loggerEntryContext.Logger;
+        LogLevel        = loggerEntryContext.LogLevel;
 
         return this;
     }
@@ -142,13 +140,15 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 
     public uint IssueSequenceNumber { get; set; }
 
+    public uint ReceivedSequenceNumber { get; set; }
+
     public uint InstanceNumber { get; }
 
     public bool IsFrozen => messageBuilder!.IsFrozen;
 
-    IMaybeFrozen IFreezable.Freeze   => Freeze;
+    IMaybeFrozen IFreezable.Freeze => Freeze;
 
-    public IFLogEntry Freeze 
+    public IFLogEntry Freeze
     {
         get
         {
@@ -159,7 +159,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 
     IFrozenString IFLogEntry.Message => messageBuilder!.Freeze;
 
-    public IMutableString Message  => !IsFrozen ? messageBuilder! :throw new ModifyFrozenObjectAttempt("Attempted to modify a frozen FLogEntry");
+    public IMutableString Message => !IsFrozen ? messageBuilder! : throw new ModifyFrozenObjectAttempt("Attempted to modify a frozen FLogEntry");
 
     public bool ThrowOnMutateAttempt
     {
@@ -167,7 +167,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         set => messageBuilder!.ThrowOnMutateAttempt = value;
     }
 
-    public DateTime        LogDateTime { get; private set; }
+    public DateTime LogDateTime { get; private set; }
 
     public LoggingLocation LogLocation { get; private set; }
 
@@ -181,6 +181,9 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 
     public override void StateReset()
     {
+        ReceivedSequenceNumber = 0;
+        IssueSequenceNumber    = 0;
+
         messageBuilder!.StateReset();
         LogDateTime = DateTime.MinValue;
         Style       = StringBuildingStyle.Default;
@@ -194,12 +197,15 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 
     public override FLogEntry CopyFrom(IFLogEntry source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
+        IssueSequenceNumber    = source.IssueSequenceNumber;
+        ReceivedSequenceNumber = source.ReceivedSequenceNumber;
+
         messageBuilder!.Clear();
         messageBuilder!.Append(source.Message);
 
-        Logger      = source.Logger;
-        Thread      = source.Thread;
-        Style       = source.Style;
+        Logger = source.Logger;
+        Thread = source.Thread;
+        Style  = source.Style;
 
         LogDateTime = source.LogDateTime;
         LogLocation = source.LogLocation;
@@ -211,6 +217,5 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         $"{nameof(messageBuilder)}: {messageBuilder}, {nameof(loggerDispatchedAt)}: {loggerDispatchedAt}, {nameof(IssueSequenceNumber)}: {IssueSequenceNumber}, " +
         $"{nameof(InstanceNumber)}: {InstanceNumber}, {nameof(LogDateTime)}: {LogDateTime}, {nameof(LogLocation)}: {LogLocation}";
 
-    public override string ToString() => 
-        $"{nameof(FLogEntry)}{{{LogEntryToStringMembers}}}";
+    public override string ToString() => $"{nameof(FLogEntry)}{{{LogEntryToStringMembers}}}";
 }

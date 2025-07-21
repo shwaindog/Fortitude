@@ -1,6 +1,6 @@
 ﻿using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Logging.Config.AsyncBuffering;
+using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Types.Mutable;
 

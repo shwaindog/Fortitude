@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <Folder Include="DataStructures\Memory\ManagedHeap\" />
+    <Folder Include="Logging\Config\Appending\Formatting\Console\" />
   </ItemGroup>
 
 </Project>

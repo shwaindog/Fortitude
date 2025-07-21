@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FortitudeCommon.Logging.Config;
+﻿using FortitudeCommon.Logging.Config;
 
 namespace FortitudeCommon.Logging.Core.Hub;
 
@@ -12,7 +7,7 @@ public class FLoggerBootstrap
     private static FLoggerContext?   initialisingContext;
     private static FLoggerBootstrap? singletonInstance;
 
-    private static object syncLock = new ();
+    private static object syncLock = new();
 
     public static FLoggerBootstrap Instance
     {
@@ -32,14 +27,7 @@ public class FLoggerBootstrap
 
     public FLoggerContext DefaultStartup()
     {
-        if (initialisingContext == null)
-        {
-            lock (syncLock)
-            {
-                initialisingContext ??= new FLoggerContext();
-            }
-        }
-
+        var ctx = GetSingletonContextInstance();
 
         // check for FLoggerConfig.json, FLogger-Username-Config.json, FLogger-Machine-Config.json, FLogger-Username-Machine-Config.json, 
 
@@ -52,29 +40,34 @@ public class FLoggerBootstrap
 
     public FLoggerContext Start(string filePath)
     {
-        if (initialisingContext == null)
-        {
-            lock (syncLock)
-            {
-                initialisingContext ??= new FLoggerContext();
-            }
-        }
+        var ctx = GetSingletonContextInstance();
         return null!;
     }
 
-    public FLoggerContext Start(IFLoggerAppConfig config)
+    public FLoggerContext Start(IFLogAppConfig config)
+    {
+        var               ctx            = GetSingletonContextInstance();
+        IFLoggerLoggerRegistry? loggerRegistry = ctx.LoggerRegistry ?? FLoggerImplementationRegistry.CreateLoggerRegistry(config.RootLogger);
+        return Initialize(config, ctx);
+    }
+
+    private static FLoggerContext GetSingletonContextInstance()
     {
         if (initialisingContext == null)
         {
             lock (syncLock)
             {
-                initialisingContext ??= new FLoggerContext();
+                initialisingContext ??=
+                    new FLoggerContext
+                        (FLoggerImplementationRegistry.CreateConfigRegistry()
+                       , FLoggerImplementationRegistry.CreateAppenderRegistry()
+                       , FLoggerImplementationRegistry.CreateAsyncRegistry());
             }
         }
-        return Initialize(config, initialisingContext);
+        return initialisingContext;
     }
 
-    protected virtual FLoggerContext Initialize( IFLoggerAppConfig config, FLoggerContext toBeUpdated)
+    protected virtual FLoggerContext Initialize(IFLogAppConfig config, FLoggerContext toBeUpdated)
     {
         return toBeUpdated;
     }
