@@ -21,7 +21,7 @@ public interface IFLoggerAppender : IFLogEntryBatchForwarder
 
     int RunOnAsyncQueueNumber { get; }
 
-    FloggerAppenderType AppenderType { get; }
+    string AppenderType { get; }
 
     IFLogEntryFormatter Formatter { get; }
 }
@@ -33,8 +33,6 @@ public interface IMutableFLoggerAppender : IFLoggerAppender
     new string? AppenderConfigFilePath { get; set; }
 
     new int RunOnAsyncQueueNumber { get; set; }
-
-    new FloggerAppenderType AppenderType { get; }
 
     new IFLogEntryFormatter Formatter { get; set; }
 
@@ -50,7 +48,6 @@ public abstract class FLoggerAppender : RecyclableObject, IMutableFLoggerAppende
         AppenderConfig = appenderDefinitionConfig;
         AppenderName   = appenderDefinitionConfig.AppenderName;
 
-        AppenderConfigFilePath = appenderDefinitionConfig.AppenderConfigRef;
         RunOnAsyncQueueNumber  = appenderDefinitionConfig.RunOnAsyncQueueNumber;
 
         ForwardToCallback            = ForwardLogEntryTo;
@@ -61,7 +58,7 @@ public abstract class FLoggerAppender : RecyclableObject, IMutableFLoggerAppende
 
     public string? AppenderConfigFilePath { get; set; }
 
-    public FloggerAppenderType AppenderType { get; protected set; }
+    public string AppenderType { get; protected set; }
 
     public IFLogEntryFormatter Formatter { get; set; } = FLogEntryFormatter.NewDefaultInstance;
 
@@ -87,7 +84,6 @@ public abstract class FLoggerAppender : RecyclableObject, IMutableFLoggerAppende
     public virtual void HandleConfigUpdate(IAppenderDefinitionConfig newAppenderConfig)
     {
         AppenderConfig         = newAppenderConfig;
-        AppenderConfigFilePath = newAppenderConfig.AppenderConfigRef;
         RunOnAsyncQueueNumber  = newAppenderConfig.RunOnAsyncQueueNumber;
     }
 

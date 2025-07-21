@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Types.Mutable;
@@ -20,7 +14,7 @@ public class FLogEntryPoolRegistry
 
     private readonly ConcurrentDictionary<PoolScope, ConcurrentDictionary<string, FLogEntryPool>> poolLookup = new();
 
-    public FLogEntryPool ResolveFLogEntryPool(ExplicitLogEntryPoolDefinition logEntryPoolDefinition)
+    public FLogEntryPool ResolveFLogEntryPool(IFLogEntryPoolConfig logEntryPoolDefinition)
     {
         var name       = logEntryPoolDefinition.PoolName;
         var poolScope  = logEntryPoolDefinition.PoolScope;
@@ -38,7 +32,7 @@ public class FLogEntryPool
 {
     private readonly Recycler backingPool = new ();
 
-    public FLogEntryPool(ExplicitLogEntryPoolDefinition logEntryPoolDefinition)
+    public FLogEntryPool(IFLogEntryPoolConfig logEntryPoolDefinition)
     {
         PoolOwnerName = logEntryPoolDefinition.PoolName;
         PoolScope     = logEntryPoolDefinition.PoolScope;

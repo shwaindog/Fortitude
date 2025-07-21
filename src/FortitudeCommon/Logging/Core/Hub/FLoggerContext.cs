@@ -29,11 +29,18 @@ public class FLoggerContext
         }
     }
 
-    public IAppenderRegistry AppenderRegistry { get; }
+    public FLoggerContext(IFLoggerConfigRegistry configRegistry, IFloggerAppenderRegistry appenderRegistry, IFLoggerAsyncRegistry asyncRegistry)
+    {
+        ConfigRegistry          = configRegistry;
+        AppenderRegistry = appenderRegistry;
+        AsyncRegistry   = asyncRegistry;
+    }
 
-    public IFLoggerRegistry LoggerRegistry { get; }
+    public IFloggerAppenderRegistry AppenderRegistry { get; set; }
 
-    public IAsyncRegistry AsyncRegistry { get; }
+    public IFLoggerLoggerRegistry LoggerRegistry { get; set; }
 
-    public IConfigRegistry ConfigRegistry { get; }
+    public IFLoggerAsyncRegistry AsyncRegistry { get; set; }
+
+    public IFLoggerConfigRegistry ConfigRegistry { get; set; }
 }

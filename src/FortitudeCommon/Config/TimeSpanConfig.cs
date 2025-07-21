@@ -2,11 +2,12 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Config;
 
-public interface ITimeSpanConfig:  IInterfacesComparable<ITimeSpanConfig>, ICloneable<ITimeSpanConfig>
+public interface ITimeSpanConfig:  IInterfacesComparable<ITimeSpanConfig>, ICloneable<ITimeSpanConfig>, IStyledToStringObject
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     int Micros { get; set; }
@@ -180,22 +181,18 @@ public class TimeSpanConfig: ConfigSection, ITimeSpanConfig
         }
     }
 
-    public  string BuildToString()
+    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
     {
-        var sb = new StringBuilder();
-        if(Days != 0) sb.Append(nameof(Days)).Append(": ").AppendFormat("{0:N}", Days).Append(", ");
-        if(Hours != 0) sb.Append(nameof(Hours)).Append(": ").AppendFormat("{0:N}", Hours).Append(", ");
-        if(Minutes != 0) sb.Append(nameof(Minutes)).Append(": ").AppendFormat("{0:N}", Minutes).Append(", ");
-        if(Seconds != 0) sb.Append(nameof(Seconds)).Append(": ").AppendFormat("{0:N}", Seconds).Append(", ");
-        if(Millis != 0) sb.Append(nameof(Millis)).Append(": ").AppendFormat("{0:N}", Millis).Append(", ");
-        if(Micros != 0) sb.Append(nameof(Micros)).Append(": ").AppendFormat("{0:N}", Micros).Append(", ");
-        if(Add != null) sb.Append(nameof(Add)).Append(": { ").Append(Add).Append("}, ");
-        if (sb.Length > 3)
-        {
-            sb.Length -= 2;
-        }
-        return sb.ToString();
+        return sbc.AddTypeName(nameof(TimeSpanConfig))
+           .AddTypeStart()
+           .AddField(nameof(Days), Days)
+           .AddField(nameof(Hours), Hours)
+           .AddField(nameof(Minutes), Minutes)
+           .AddField(nameof(Seconds), Seconds)
+           .AddField(nameof(Millis), Millis)
+           .AddField(nameof(Micros), Micros)
+           .AddTypeEnd();
     }
 
-    public override string ToString() => $"{nameof(TimeSpanConfig)}{{{BuildToString()}}}";
+    public override string ToString() => this.DefaultToString();
 }

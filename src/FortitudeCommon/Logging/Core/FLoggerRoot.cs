@@ -3,6 +3,7 @@
 
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
+using FortitudeCommon.Logging.Config.Visitor;
 using FortitudeCommon.Logging.Core.Hub;
 
 namespace FortitudeCommon.Logging.Core;
@@ -16,19 +17,16 @@ public interface IFLoggerRoot : IFLoggerCommon
 
 public class FLoggerRoot : FLoggerBase, IFLoggerRoot
 {
-    private readonly IFLoggerRegistry   loggerRegistry;
+    private readonly IFLoggerLoggerRegistry   loggerRegistry;
     private readonly IFLoggerRootConfig rootConfig;
 
-    private ExplicitRootConfigNode loggerExplicitConfigTree;
-
-    public FLoggerRoot(ConsolidatedLoggerConfig rootLoggerConfig, IFLoggerRegistry loggerRegistry) : base(rootLoggerConfig)
+    public FLoggerRoot(IFLoggerRootConfig rootLoggerConfig, IFLoggerLoggerRegistry loggerRegistry) : base(rootLoggerConfig)
     {
         this.loggerRegistry = loggerRegistry;
 
-        FullName            = Name;
-        rootConfig          = ((ExplicitRootConfigNode)rootLoggerConfig.DeclaredConfigNodes.First()).DeclaredRootConfig;
-
-        loggerExplicitConfigTree = rootConfig.CrystallisedDeclaredConfigTree();
+        rootConfig = rootLoggerConfig;
+        FullName   = Name;
+        // rootConfig          = ((ExplicitRootConfigNode)rootLoggerConfig.DeclaredConfigNodes.First()).DeclaredRootConfig;
     }
 
     public IFLoggerRootConfig ResolveLoggerConfig() => rootConfig;

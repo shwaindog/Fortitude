@@ -4,6 +4,7 @@
 #region
 
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Text;
 
 #endregion
@@ -47,7 +48,77 @@ public static class StringExtensions
     public static bool IsNotNullOrEmpty([NotNullWhen(true)] this string? value) => !string.IsNullOrEmpty(value);
     public static bool IsEmpty(this string value)                               => string.IsNullOrEmpty(value);
     public static bool IsNotEmpty(this string value)                            => !string.IsNullOrEmpty(value);
-    public static bool IsEmptyString([NotNullWhen(true)] this object? value)   => Equals(value, string.Empty);
+    public static bool IsEmptyString([NotNullWhen(true)] this object? value)    => Equals(value, string.Empty);
+
+    public static (int?, string) SplitFormattedIntFromString(this string numberPrefixString)
+    {
+        int? numberFound = null;
+        int  sign        = 1;
+
+        int  i               = 0;
+        bool finishedPreTrim = false;
+        for (; i < numberPrefixString.Length; i++)
+        {
+            var checkChar = numberPrefixString[i];
+            if (!finishedPreTrim && checkChar.IsWhiteSpace()) continue;
+            if (!finishedPreTrim && checkChar.IsMinus())
+            {
+                sign            = -1;
+                finishedPreTrim = true;
+                continue;
+            }
+            finishedPreTrim = true;
+            if (checkChar.IsDigit())
+            {
+                numberFound ??= 0;
+                numberFound *=  10;
+                numberFound +=  checkChar - '0';
+            }
+            else
+            {
+                if (!checkChar.IsThousandsSeparator()
+                 || i + 1 >= numberPrefixString.Length
+                 || !numberPrefixString[i + 1].IsDigit())
+                {
+                    var remainingString = numberPrefixString.Substring(i);
+                    return (numberFound * sign, remainingString);
+                }
+            }
+        }
+        return numberFound != null ? (numberFound * sign, "") : (numberFound * sign, numberPrefixString);
+    }
+
+    public static (ulong?, string) SplitFormattedULongFromString(this string numberPrefixString)
+    {
+        ulong? numberFound = null;
+
+        bool finishedPreTrim = false;
+
+        int i = 0;
+        for (; i < numberPrefixString.Length; i++)
+        {
+            var checkChar = numberPrefixString[i];
+            if (!finishedPreTrim && checkChar.IsWhiteSpace()) continue;
+            finishedPreTrim = true;
+            if (checkChar.IsDigit())
+            {
+                numberFound ??= 0;
+                numberFound *=  10;
+                numberFound +=  (ulong)(checkChar - '0');
+            }
+            else
+            {
+                if (!checkChar.IsThousandsSeparator()
+                 || i + 1 >= numberPrefixString.Length
+                 || !numberPrefixString[i + 1].IsDigit())
+                {
+                    var remainingString = numberPrefixString.Substring(i);
+                    return (numberFound, remainingString);
+                }
+            }
+        }
+        return numberFound != null ? (numberFound, "") : (numberFound, numberPrefixString);
+    }
 
 
     public static int? SafeExtractInt(this string value)

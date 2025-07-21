@@ -22,7 +22,7 @@ public interface IMutableFLoggerForwardingAppender : IFLoggerForwardingAppender
 
 public class FLoggerForwardingAppender : FLoggerAppender, IMutableFLoggerForwardingAppender
 {
-    protected readonly IAppenderRegistry AppenderRegistry;
+    protected readonly IFloggerAppenderRegistry FloggerAppenderRegistry;
 
     private readonly NotifyAppenderHandler receiveDownstreamAppender;
 
@@ -30,23 +30,23 @@ public class FLoggerForwardingAppender : FLoggerAppender, IMutableFLoggerForward
 
     private CountdownEvent? updatesOccuringCountdownEvent;
 
-    public FLoggerForwardingAppender(IForwardingAppenderConfig forwardingAppenderConfig, IAppenderRegistry appenderRegistry)
+    public FLoggerForwardingAppender(IForwardingAppenderConfig forwardingAppenderConfig, IFloggerAppenderRegistry floggerAppenderRegistry)
         : base(forwardingAppenderConfig)
     {
-        AppenderRegistry = appenderRegistry;
-        AppenderType     = FloggerAppenderType.Forwarding;
+        FloggerAppenderRegistry = floggerAppenderRegistry;
+        AppenderType     = $"{nameof(FLoggerBuiltinAppenderType.SyncForwarding)}";
 
         receiveDownstreamAppender = AddAppender;
 
-        ParseAppenderConfig(forwardingAppenderConfig, appenderRegistry);
+        ParseAppenderConfig(forwardingAppenderConfig, floggerAppenderRegistry);
 
         if (GetType() == typeof(FLoggerForwardingAppender))
         {
-            appenderRegistry.RegisterAppenderCallback(this);
+            floggerAppenderRegistry.RegisterAppenderCallback(this);
         }
     }
 
-    protected virtual void ParseAppenderConfig(IForwardingAppenderConfig forwardingAppenderConfig, IAppenderRegistry appenderRegistry)
+    protected virtual void ParseAppenderConfig(IForwardingAppenderConfig forwardingAppenderConfig, IFloggerAppenderRegistry floggerAppenderRegistry)
     {
         var forwardingAppendersLookupConfig = forwardingAppenderConfig.ForwardToAppenders;
         var expectedNumberOfAppenders       = forwardingAppendersLookupConfig.Count;
@@ -55,8 +55,7 @@ public class FLoggerForwardingAppender : FLoggerAppender, IMutableFLoggerForward
         foreach (var downStreamAppenderRef in forwardingAppendersLookupConfig)
         {
             var appenderName      = downStreamAppenderRef.Value.AppenderName ?? "";
-            var appenderConfigRef = downStreamAppenderRef.Value.AppenderConfigRef;
-            appenderRegistry.RegistryAppenderInterest(receiveDownstreamAppender, appenderName, appenderConfigRef);
+            floggerAppenderRegistry.RegistryAppenderInterest(receiveDownstreamAppender, appenderName);
         }
     }
 
@@ -133,6 +132,6 @@ public class FLoggerForwardingAppender : FLoggerAppender, IMutableFLoggerForward
     {
         base.HandleConfigUpdate(newAppenderConfig);
 
-        ParseAppenderConfig(TypeConfig, AppenderRegistry);
+        ParseAppenderConfig(TypeConfig, FloggerAppenderRegistry);
     }
 }

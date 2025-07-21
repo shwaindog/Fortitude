@@ -51,7 +51,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
     private readonly FLogEntryPool   logEntryPool;
     private readonly ForwardLogEntry forwardToCallback;
 
-    public FLogger(ConsolidatedLoggerConfig loggerConsolidatedConfig, IFLoggerCommon myParent, IFLoggerRegistry loggerRegistry) : base(loggerConsolidatedConfig, myParent)
+    public FLogger(IFLoggerDescendantConfig loggerConsolidatedConfig, IFLoggerCommon myParent, IFLoggerLoggerRegistry loggerRegistry) : base(loggerConsolidatedConfig, myParent)
     {
         loggerRegistry.RegisterLoggerCallback(this);
         logEntryPool = loggerRegistry.SourceFLogEntryPool(loggerConsolidatedConfig.LogEntryPool);

@@ -1,4 +1,7 @@
-﻿namespace FortitudeCommon.Logging.Config
+﻿using System.Text;
+using FortitudeCommon.Types;
+
+namespace FortitudeCommon.Logging.Config
 {
     public enum FLogLevel
     {
@@ -24,6 +27,24 @@
 
     public static class FLogLevelExtensions
     {
+        public static Action<FLogLevel, IStyledTypeStringAppender> FLogLevelFormatter = FormatFlogLevelAppender;
+
+        public static void FormatFlogLevelAppender(this FLogLevel flogLevel, IStyledTypeStringAppender sbc)
+        {
+            var sb = sbc.BackingStringBuilder;
+
+            switch (flogLevel)
+            {
+                case FLogLevel.Trace: sb.Append($"{nameof(FLogLevel.Trace)}"); break;
+                case FLogLevel.Debug: sb.Append($"{nameof(FLogLevel.Debug)}"); break;
+                case FLogLevel.Info:  sb.Append($"{nameof(FLogLevel.Info)}"); break;
+                case FLogLevel.Warn:  sb.Append($"{nameof(FLogLevel.Warn)}"); break;
+                case FLogLevel.Error: sb.Append($"{nameof(FLogLevel.Error)}"); break;
+
+                default: sb.Append($"{nameof(FLogLevel.None)}"); break;
+            }
+        }
+
         public static bool IsTraceEnabled(this FLogLevel level) => level >= FLogLevel.Trace;
         public static bool IsDebugEnabled(this FLogLevel level) => level >= FLogLevel.Debug;
         public static bool IsInfoEnabled(this FLogLevel level)  => level >= FLogLevel.Info;

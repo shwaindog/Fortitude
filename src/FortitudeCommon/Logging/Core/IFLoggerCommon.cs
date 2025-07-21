@@ -6,6 +6,7 @@ using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Logging.Core.Appending;
 using FortitudeCommon.Logging.Core.LoggerVisitors;
+using FortitudeCommon.Logging.Core.Pooling;
 
 namespace FortitudeCommon.Logging.Core;
 
@@ -26,7 +27,7 @@ public interface IFLoggerCommon
 
     string FullName { get; }
 
-    ExplicitLogEntryPoolDefinition LogEntryPool { get; }
+    FLogEntryPool LogEntryPool { get; }
 
     T Visit<T>(T visitor) where T : IFLoggerVisitor<T>;
 
@@ -35,19 +36,29 @@ public interface IFLoggerCommon
     IReadOnlyList<Appending.IFLoggerAppender> Appenders { get; }
 }
 
-public abstract class FLoggerBase(ConsolidatedLoggerConfig loggerConfig) : IFLoggerCommon
+public abstract class FLoggerBase(IFLoggerTreeCommonConfig loggerConfig) : IFLoggerCommon
 {
     protected ConcurrentDictionary<string, IFLogger> ImmediateChildrenDict = new();
 
+    protected List<IFLoggerAppender> LoggerAppenders = new();
+
     public string Name { get; protected set; } = loggerConfig.Name;
 
-    public string FullName { get; protected set; } = loggerConfig.LoggerFullName;
+    public string FullName { get; protected set; } = loggerConfig.Name; // ToDo change to Full name
 
     public FLogLevel LogLevel { get; internal set; } = loggerConfig.LogLevel;
 
-    public ExplicitLogEntryPoolDefinition LogEntryPool => loggerConfig.LogEntryPool;
+    public FLogEntryPool LogEntryPool { get; protected set; } = null!;
 
-    public IReadOnlyList<Appending.IFLoggerAppender> Appenders { get; internal set; } = loggerConfig.Appenders;
+    public IReadOnlyList<IFLoggerAppender> Appenders
+    {
+        get => LoggerAppenders.AsReadOnly();
+        internal set
+        {
+            LoggerAppenders.Clear();
+            LoggerAppenders.AddRange(value);
+        }
+    }
 
     public IReadOnlyList<IFLogger> ImmediateEmbodiedChildren => ImmediateChildrenDict.Values.ToList().AsReadOnly();
 

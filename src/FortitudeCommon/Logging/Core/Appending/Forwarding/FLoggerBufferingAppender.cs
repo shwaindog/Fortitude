@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FortitudeCommon.Chronometry;
+﻿using FortitudeCommon.Chronometry;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
-using FortitudeCommon.Logging.Config.AsyncBuffering;
 using FortitudeCommon.Logging.Core.Appending.Forwarding.Queues;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries;
@@ -35,13 +29,9 @@ public class FLoggerBufferingAppender : FLoggerQueuingAppender, IMutableFLoggerB
 {
     private Func<IFLogEntry, bool> queuedHasFlushLogLevel;
 
-    public FLoggerBufferingAppender(IBufferingAppenderConfig bufferingAppenderConfig, IAppenderRegistry appenderRegistry)
-        : base(bufferingAppenderConfig, appenderRegistry)
+    public FLoggerBufferingAppender(IBufferingAppenderConfig bufferingAppenderConfig, IFloggerAppenderRegistry floggerAppenderRegistry)
+        : base(bufferingAppenderConfig, floggerAppenderRegistry)
     {
-        InboundQueueFullHandling = bufferingAppenderConfig.InboundQueueFullHandling;
-        MaxDownstreamBatchSize   = bufferingAppenderConfig.MaxDownstreamBatchSize;
-        QueueSize                = bufferingAppenderConfig.QueueSize;
-
         queuedHasFlushLogLevel = IsAtOrGreaterThanLogLevel;
 
         AppenderQueue = CreateAppenderQueue(this);
@@ -67,10 +57,10 @@ public class FLoggerBufferingAppender : FLoggerQueuingAppender, IMutableFLoggerB
         var syncQueue = AsSynchroniseQueue;
         if (!syncQueue.TryEnqueue(logEntry))
         {
-            while (syncQueue.Count > MaxDownstreamBatchSize)
+            while (syncQueue.Count > QueueReadBatchSize)
             {
-                var batchList = AppenderLogEntryPool.SourceBatchLogEntryContainer(MaxDownstreamBatchSize);
-                syncQueue.PollBatch(MaxDownstreamBatchSize, batchList);
+                var batchList = AppenderLogEntryPool.SourceBatchLogEntryContainer(QueueReadBatchSize);
+                syncQueue.PollBatch(QueueReadBatchSize, batchList);
                 if (batchList.Any())
                 {
                     AppendBatch(batchList);
@@ -86,7 +76,7 @@ public class FLoggerBufferingAppender : FLoggerQueuingAppender, IMutableFLoggerB
     {
         get
         {
-            if (AppenderQueue.Count > MaxDownstreamBatchSize) return true;
+            if (AppenderQueue.Count > QueueReadBatchSize) return true;
             var syncQueue        = AsSynchroniseQueue;
             var oldestQueuedTime = syncQueue.OldestQueued?.LogDateTime;
             if (oldestQueuedTime != null)
