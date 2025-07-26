@@ -2,6 +2,7 @@
 
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeIO.Protocols.Authentication;
 using FortitudeMarkets.Trading;
 

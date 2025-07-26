@@ -3,6 +3,7 @@
 
 #region
 
+using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.OSWrapper.Memory;
 
 #endregion

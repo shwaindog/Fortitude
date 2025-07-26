@@ -43,24 +43,24 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
 
     public NamedChildLoggersLookupConfig(IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public NamedChildLoggersLookupConfig() : this(InMemoryConfigRoot, InMemoryPath) 
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public NamedChildLoggersLookupConfig(params IMutableFLoggerDescendantConfig[] toAdd)
         : this(InMemoryConfigRoot, InMemoryPath, toAdd)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public NamedChildLoggersLookupConfig
         (IConfigurationRoot root, string path, params IMutableFLoggerDescendantConfig[] toAdd) : base(root, path)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
         for (int i = 0; i < toAdd.Length; i++)
         {
             loggersByName.Add(toAdd[i].Name, toAdd[i]);
@@ -69,7 +69,7 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
 
     public NamedChildLoggersLookupConfig(INamedChildLoggersLookupConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
         foreach (var kvp in toClone)
         {
             loggersByName.Add(kvp.Key, (IMutableFLoggerDescendantConfig)kvp.Value);
@@ -78,7 +78,7 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
 
     public NamedChildLoggersLookupConfig(INamedChildLoggersLookupConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public void Add(KeyValuePair<string, IMutableFLoggerDescendantConfig> item)
@@ -108,10 +108,9 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
                 loggersByName.Clear();
                 foreach (var configurationSection in GetSection(Path).GetChildren())
                 {
-                    var descendantConfig = new FLoggerDescendantConfig(ConfigRoot, $"{configurationSection.Path}{Split}{configurationSection.Key}")
-                        {
-                            ParentConfig = this
-                        };
+                    var descendantConfig = 
+                        FLogCreate.MakeDescendantLoggerConfig(ConfigRoot, $"{configurationSection.Path}{Split}{configurationSection.Key}");
+                    descendantConfig.ParentConfig = this;
 
                     loggersByName.TryAdd(configurationSection.Key, descendantConfig);
                 }

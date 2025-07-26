@@ -2,6 +2,7 @@
 
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeMarkets.Trading.Executions;
 using FortitudeMarkets.Trading.Orders.Client;
 using FortitudeMarkets.Trading.ORX.Orders;

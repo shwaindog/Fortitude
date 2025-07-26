@@ -52,24 +52,24 @@ public class OrderedConfigSourcesLookupConfig : FLogConfig, IAppendableOrderedCo
 
     public OrderedConfigSourcesLookupConfig(IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public OrderedConfigSourcesLookupConfig() : this(InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public OrderedConfigSourcesLookupConfig(params IMutableFlogConfigSource[] toAdd)
         : this(InMemoryConfigRoot, InMemoryPath, toAdd)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public OrderedConfigSourcesLookupConfig
         (IConfigurationRoot root, string path, params IMutableFlogConfigSource[] toAdd) : base(root, path)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
         for (int i = 0; i < toAdd.Length; i++)
         {
             priorityConfigSources.Add(toAdd[i].ConfigPriorityOrder, toAdd[i]);
@@ -78,7 +78,7 @@ public class OrderedConfigSourcesLookupConfig : FLogConfig, IAppendableOrderedCo
 
     public OrderedConfigSourcesLookupConfig(IOrderedConfigSourcesLookupConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
         foreach (var kvp in toClone)
         {
             priorityConfigSources.Add(kvp.Key, (IMutableFlogConfigSource)kvp.Value);
@@ -87,7 +87,7 @@ public class OrderedConfigSourcesLookupConfig : FLogConfig, IAppendableOrderedCo
 
     public OrderedConfigSourcesLookupConfig(IOrderedConfigSourcesLookupConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public TimeSpanConfig ExpireConfigCacheIntervalTimeSpan
@@ -130,7 +130,7 @@ public class OrderedConfigSourcesLookupConfig : FLogConfig, IAppendableOrderedCo
                 priorityConfigSources.Clear();
                 foreach (var configurationSection in GetSection(Path).GetChildren())
                 {
-                    var configSource = FLoggerContext.Instance.ConfigRegistry.ConfigPathToConfigSourceConfig
+                    var configSource = FLogContext.Context.ConfigRegistry.ConfigPathToConfigSourceConfig
                         (ConfigRoot, $"{configurationSection.Path}{Split}{configurationSection.Key}");
                     if (configSource != null && ushort.TryParse(configurationSection.Key, out var key))
                     {
@@ -162,7 +162,7 @@ public class OrderedConfigSourcesLookupConfig : FLogConfig, IAppendableOrderedCo
           , Dictionary<ushort, IMutableFlogConfigSource> priorityConfigSources
           , IConfigurationRoot configRoot, string path)
         {
-            if (FLoggerContext.Instance.ConfigRegistry.ConfigPathToConfigSourceConfig(configRoot, path) is { } configSource)
+            if (FLogContext.Context.ConfigRegistry.ConfigPathToConfigSourceConfig(configRoot, path) is { } configSource)
             {
                 priorityConfigSources.Add(configSource.ConfigPriorityOrder, configSource);
                 unorderedConfigSources.Add(new KeyValuePair<ushort, IMutableFlogConfigSource>(configSource.ConfigPriorityOrder, configSource));

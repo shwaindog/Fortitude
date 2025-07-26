@@ -1,7 +1,7 @@
 ﻿using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Pooling;
+using FortitudeCommon.Logging.Config.Visitor.LoggerVisitors;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.LoggersHierarchy;
@@ -46,9 +46,12 @@ public class FLoggerRootConfig: FLoggerTreeCommonConfig, IMutableFLoggerRootConf
 
     public INamedChildLoggersLookupConfig AllLoggers()
     {
-        // vistor vist all loggers collect children
-
-        return null!;
+        var results = new NamedChildLoggersLookupConfig();
+        foreach (var childLoggerConfig in Visit(new AllLoggers()))
+        {
+            results.Add(childLoggerConfig.FullName, childLoggerConfig);
+        }
+        return results;
     }
 
     public IFLoggerDescendantConfig ResolveLoggerConfig(string loggerFullName) => throw new NotImplementedException();
@@ -101,6 +104,4 @@ public class FLoggerRootConfig: FLoggerTreeCommonConfig, IMutableFLoggerRootConf
            .AddNonNullField(nameof(LogEntryPool), LogEntryPool)
            .AddTypeEnd();
     }
-
-    public override string ToString() => this.DefaultToString();
 }

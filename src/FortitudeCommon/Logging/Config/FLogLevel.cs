@@ -29,6 +29,8 @@ namespace FortitudeCommon.Logging.Config
     {
         public static Action<FLogLevel, IStyledTypeStringAppender> FLogLevelFormatter = FormatFlogLevelAppender;
 
+        public static int LoggableRange => (int)(FLogLevel.Error - FLogLevel.None);
+
         public static void FormatFlogLevelAppender(this FLogLevel flogLevel, IStyledTypeStringAppender sbc)
         {
             var sb = sbc.BackingStringBuilder;

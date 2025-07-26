@@ -1,19 +1,46 @@
 ﻿using System.Collections.Concurrent;
-using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.Mutable.Strings;
 
-namespace FortitudeCommon.DataStructures.Memory;
+namespace FortitudeCommon.DataStructures.Memory.Buffers;
 
-public class Base2SizingCharArrayPool
+public static class Base2SizingCharArrayPool
 {
-    private readonly ConcurrentDictionary<int, Recycler> sizedRecycler = new ();
+    private static readonly ConcurrentDictionary<int, Recycler> SizedRecyclerDict = new();
 
-    public RecyclingCharArray Borrow(int atLeastOfSize)
+    public static RecyclingCharArray SourceRecyclingCharArray(this int atLeastOfSize)
     {
         var power2Size = atLeastOfSize.NextPowerOfTwo();
 
-        var recycler = sizedRecycler.GetOrAdd(power2Size, _ => new Recycler());
+        var recycler = SizedRecyclerDict
+            .GetOrAdd
+                (power2Size, size =>
+                    new Recycler().RegisterFactory(() => new RecyclingCharArray(size)));
 
         return recycler.Borrow<RecyclingCharArray>().EnsureIsAtSize(power2Size);
+    }
+
+    public static CharArrayStringBuilder SourceCharArrayStringBuilder(this int atLeastOfSize)
+    {
+        var power2Size = atLeastOfSize.NextPowerOfTwo();
+
+        var recycler = SizedRecyclerDict
+            .GetOrAdd
+                (power2Size, size =>
+                    new Recycler().RegisterFactory(() => new CharArrayStringBuilder(size)));
+
+        return recycler.Borrow<CharArrayStringBuilder>().EnsureIsAtSize(power2Size);
+    }
+
+    public static AsyncReadWriterRecyclingCharArray SourceAsyncReadWriterRecyclingCharArray(this int atLeastOfSize)
+    {
+        var power2Size = atLeastOfSize.NextPowerOfTwo();
+
+        var recycler = SizedRecyclerDict
+            .GetOrAdd
+                (power2Size, size =>
+                    new Recycler().RegisterFactory(() => new AsyncReadWriterRecyclingCharArray(size)));
+
+        return recycler.Borrow<AsyncReadWriterRecyclingCharArray>().EnsureIsAtSize(power2Size);
     }
 }

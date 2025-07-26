@@ -225,6 +225,32 @@ public static class NumberExtensions
         return sb.ToString();
     }
 
+    public static int NumOfDigits(this int findDigits, bool includeMinusSign = true)
+    {
+        if (findDigits is >= 0 and < 10) return 1;
+        if (findDigits is < 0 and > -10) return includeMinusSign ? 2 : 1;
+        return 1 + (findDigits / 10).NumOfDigits();
+    }
+
+    public static int NumOfDigits(this uint findDigits)
+    {
+        if (findDigits is >= 0 and < 10) return 1;
+        return 1 + (findDigits / 10).NumOfDigits();
+    }
+
+    public static int NumOfDigits(this long findDigits, bool includeMinusSign = true)
+    {
+        if (findDigits is >= 0 and < 10) return 1;
+        if (findDigits is < 0 and > -10) return includeMinusSign ? 2 : 1;
+        return 1 + (findDigits / 10).NumOfDigits();
+    }
+
+    public static int NumOfDigits(this ulong findDigits)
+    {
+        if (findDigits is >= 0 and < 10) return 1;
+        return 1 + (findDigits / 10).NumOfDigits();
+    }
+
 
     private static readonly ulong KiloByte  = 1024;
     private static readonly ulong MegaByte  = KiloByte * KiloByte;

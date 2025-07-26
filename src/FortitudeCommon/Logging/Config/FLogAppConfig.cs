@@ -4,8 +4,11 @@
 using System.Configuration;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending;
+using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
 using FortitudeCommon.Logging.Config.ConfigSources;
+using FortitudeCommon.Logging.Config.Initialization;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
+using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using Microsoft.Extensions.Configuration;
@@ -15,7 +18,11 @@ namespace FortitudeCommon.Logging.Config;
 public interface IFLogAppConfig : IFLoggerMatchedAppenders, IInterfacesComparable<IFLogAppConfig>, ICloneable<IFLogAppConfig>
   , IStyledToStringObject, IFLogConfig
 {
+    const string DefaultFLogAppConfigPath = "FLog";
+
     IOrderedConfigSourcesLookupConfig ConfigSourcesLookup { get; }
+
+    IFLogInitializationConfig Initialization { get; }
 
     IFLoggerRootConfig RootLogger { get; }
 }
@@ -24,13 +31,16 @@ public interface IMutableFLogAppConfig : IFLogAppConfig, IMutableFLoggerMatchedA
 {
     new IAppendableOrderedConfigSourcesLookupConfig ConfigSourcesLookup { get; set; }
 
+    new IMutableFLogInitializationConfig Initialization { get; set; }
+
     new IMutableFLoggerRootConfig RootLogger { get; set; }
 }
 
 public class FLogAppConfig : FLoggerMatchedAppenders, IMutableFLogAppConfig
 {
     private IAppendableOrderedConfigSourcesLookupConfig? configSources;
-    private IMutableFLoggerRootConfig?                    rootLoggerConfig;
+    private IMutableFLoggerRootConfig?                   rootLoggerConfig;
+    private IMutableFLogInitializationConfig?            initializationConfig;
     public FLogAppConfig(IConfigurationRoot root, string path) : base(root, path) { }
 
     public FLogAppConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
@@ -56,6 +66,22 @@ public class FLogAppConfig : FLoggerMatchedAppenders, IMutableFLogAppConfig
 
     public FLogAppConfig(IFLogAppConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
+    public static FLogAppConfig BuildDefaultAppConfig()
+    {
+        var appConfig = new FLogAppConfig(InMemoryConfigRoot, IFLogAppConfig.DefaultFLogAppConfigPath);
+        var consoleAppenderConfig = new ConsoleAppenderConfig
+        {
+            AppenderName = ConsoleAppenderConfig.DefaultConsoleAppenderName,
+        };
+        appConfig.Appenders.Add(consoleAppenderConfig.AppenderName, consoleAppenderConfig);
+        var rootLoggerConfig = new FLoggerRootConfig
+        {
+            LogLevel = FLogLevel.Debug
+        };
+        rootLoggerConfig.Appenders.Add(consoleAppenderConfig.GenerateReferenceToThis());
+        return appConfig;
+    }
+
     IOrderedConfigSourcesLookupConfig IFLogAppConfig.ConfigSourcesLookup => ConfigSourcesLookup;
 
     public IAppendableOrderedConfigSourcesLookupConfig ConfigSourcesLookup
@@ -80,6 +106,23 @@ public class FLogAppConfig : FLoggerMatchedAppenders, IMutableFLogAppConfig
         };
     }
 
+    IFLogInitializationConfig IFLogAppConfig.Initialization => Initialization;
+
+    public IMutableFLogInitializationConfig Initialization
+    {
+        get
+        {
+            return initializationConfig ??= new FLogInitializationConfig(ConfigRoot, $"{Path}{Split}{nameof(Initialization)}")
+            {
+                ParentConfig = this
+            };
+        }
+        set => initializationConfig = new FLogInitializationConfig(value, ConfigRoot, $"{Path}{Split}{nameof(Initialization)}")
+        {
+            ParentConfig = this
+        };
+    }
+
     IFLoggerRootConfig IFLogAppConfig.RootLogger => RootLogger;
 
     public IMutableFLoggerRootConfig RootLogger
@@ -90,18 +133,24 @@ public class FLogAppConfig : FLoggerMatchedAppenders, IMutableFLogAppConfig
             {
                 if (GetSection(nameof(RootLogger)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
                 {
-                    return rootLoggerConfig = new FLoggerRootConfig(ConfigRoot, $"{Path}{Split}{nameof(RootLogger)}")
-                    {
-                        ParentConfig = this
-                    };
+                    rootLoggerConfig = FLogCreate.MakeRootLoggerConfig(ConfigRoot, $"{Path}{Split}{nameof(RootLogger)}");
+
+                    rootLoggerConfig.ParentConfig = this;
+
+                    return rootLoggerConfig;
                 }
             }
             return rootLoggerConfig ?? throw new ConfigurationErrorsException($"Expected {nameof(RootLogger)} to be configured");
         }
-        set => rootLoggerConfig = new FLoggerRootConfig(value, ConfigRoot, $"{Path}{Split}{nameof(RootLogger)}");
+        set
+        {
+            rootLoggerConfig = new FLoggerRootConfig(value, ConfigRoot, $"{Path}{Split}{nameof(RootLogger)}");
+
+            value.ParentConfig = this;
+        }
     }
 
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
+    public override T Visit<T>(T visitor)  => visitor.Accept(this);
 
     object ICloneable.Clone() => Clone();
 

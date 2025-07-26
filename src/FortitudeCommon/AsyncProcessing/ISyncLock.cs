@@ -1,8 +1,14 @@
-﻿namespace FortitudeCommon.AsyncProcessing
+﻿using FortitudeCommon.DataStructures.Memory;
+
+namespace FortitudeCommon.AsyncProcessing;
+
+public interface ISyncLock : IRecyclableObject, IDisposable
 {
-    public interface ISyncLock
-    {
-        void Acquire();
-        void Release();
-    }
+    int ReleaseCount { get; }
+
+    bool Acquire(int timeoutMs = int.MaxValue);
+
+    void Reset();
+
+    void Release(bool? forceRelease = null);
 }

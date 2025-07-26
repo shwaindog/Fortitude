@@ -1,6 +1,7 @@
 ﻿#region
 
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeMarkets.Trading.Orders.Client;
 
 #endregion

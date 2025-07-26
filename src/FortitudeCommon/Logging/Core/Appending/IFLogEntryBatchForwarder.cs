@@ -6,7 +6,7 @@ using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.Appending;
 
-public interface IFLogEntryBatchForwarder : Core.IFLogEntryForwarder
+public interface IFLogEntryBatchSink : IFLogEntrySink
 {
     BatchForwardLogEntry AppenderBatchForwardCallBack { get; }
 

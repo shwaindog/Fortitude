@@ -625,8 +625,9 @@ public class PQMessageDeserializerBaseTests
     {
         moqSyncLock       = new Mock<ISyncLock>();
         haveCalledAcquire = false;
-        moqSyncLock.Setup(sl => sl.Acquire()).Callback(() => { haveCalledAcquire = true; });
-        moqSyncLock.Setup(sl => sl.Release()).Callback(() => { haveCalledAcquire = false; });
+        moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()))
+                   .Callback(() => { haveCalledAcquire   = true; }).Returns(true);
+        moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>())).Callback(() => { haveCalledAcquire = false; });
 
         NonPublicInvocator.SetInstanceField
             (dummyTickInstantDeserializer.PublishedQuote, "SyncLock", moqSyncLock.Object);

@@ -1,4 +1,6 @@
-﻿using FortitudeCommon.Types;
+﻿using FortitudeCommon.Logging.Config.Initialization;
+using FortitudeCommon.Logging.Core.Hub;
+using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using Microsoft.Extensions.Configuration;
 
@@ -29,8 +31,10 @@ public interface IFLogEntryPoolConfig : IInterfacesComparable<IFLogEntryPoolConf
 
     const int DefaultLogEntryCharsCapacity = 512;
     const int DefaultLargeLogEntryCharsCapacity = 8000;
-    const int DefaultVeryLargeLogEntryCharsCapacity = 40_000; // Large Object Heap (LOH) ~ 85k / 2 bytes per char
-                                                               // keeps backing buffer out of the LOH
+    const int DefaultVeryLargeLogEntryCharsCapacity = 40_000; 
+
+    // Large Object Heap (LOH) ~ 85k / 2 bytes per char
+    // keeps backing buffer out of the LOH
 
     const int DefaultLogEntryBatchSize = 32;
 
@@ -40,9 +44,9 @@ public interface IFLogEntryPoolConfig : IInterfacesComparable<IFLogEntryPoolConf
 
     PoolScope PoolScope { get; }
 
-    int NewItemCapacity { get; }
+    int LogEntryCharCapacity { get; }
 
-    int ItemBatchSize { get; }
+    int LogEntriesBatchSize { get; }
 }
 
 public interface IMutableFLogEntryPoolConfig : IFLogEntryPoolConfig, IMutableFLogConfig
@@ -51,9 +55,9 @@ public interface IMutableFLogEntryPoolConfig : IFLogEntryPoolConfig, IMutableFLo
 
     new PoolScope PoolScope { get; set; }
 
-    new int NewItemCapacity { get; set; }
+    new int LogEntryCharCapacity { get; set; }
 
-    new int ItemBatchSize { get; set; }
+    new int LogEntriesBatchSize { get; set; }
 }
 
 public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
@@ -64,27 +68,27 @@ public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
 
     public FLogEntryPoolConfig
         (string poolName, PoolScope poolScope = PoolScope.Default
-          , int newItemCapacity = IFLogEntryPoolConfig.DefaultLogEntryCharsCapacity
-          , int itemBatchSize = IFLogEntryPoolConfig.DefaultLogEntryBatchSize)
-        : this(InMemoryConfigRoot, InMemoryPath, poolName, poolScope, newItemCapacity, itemBatchSize) { }
+          , int logEntryCharCapacity = IFLogEntryPoolConfig.DefaultLogEntryCharsCapacity
+          , int logEntriesBatchSize = IFLogEntryPoolConfig.DefaultLogEntryBatchSize)
+        : this(InMemoryConfigRoot, InMemoryPath, poolName, poolScope, logEntryCharCapacity, logEntriesBatchSize) { }
 
     public FLogEntryPoolConfig
     (IConfigurationRoot root, string path, string poolName, PoolScope poolScope = PoolScope.Default
-      , int newItemCapacity = IFLogEntryPoolConfig.DefaultLogEntryCharsCapacity
-      , int itemBatchSize = IFLogEntryPoolConfig.DefaultLogEntryBatchSize) : base(root, path)
+      , int logEntryCharCapacity = IFLogEntryPoolConfig.DefaultLogEntryCharsCapacity
+      , int logEntriesBatchSize = IFLogEntryPoolConfig.DefaultLogEntryBatchSize) : base(root, path)
     {
         PoolName        = poolName;
         PoolScope       = poolScope;
-        NewItemCapacity = newItemCapacity;
-        ItemBatchSize   = itemBatchSize;
+        LogEntryCharCapacity = logEntryCharCapacity;
+        LogEntriesBatchSize   = logEntriesBatchSize;
     }
 
     public FLogEntryPoolConfig(IFLogEntryPoolConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
         PoolName        = toClone.PoolName;
         PoolScope       = toClone.PoolScope;
-        NewItemCapacity = toClone.NewItemCapacity;
-        ItemBatchSize   = toClone.ItemBatchSize;
+        LogEntryCharCapacity = toClone.LogEntryCharCapacity;
+        LogEntriesBatchSize   = toClone.LogEntriesBatchSize;
     }
 
     public FLogEntryPoolConfig(IFLogEntryPoolConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
@@ -104,16 +108,25 @@ public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
         set => this[nameof(PoolScope)] = value.ToString();
     }
 
-    public int ItemBatchSize
+    public int LogEntriesBatchSize
     {
-        get => int.TryParse(this[nameof(ItemBatchSize)], out var timePart) ? timePart : 0;
-        set => this[nameof(ItemBatchSize)] = value.ToString();
+        get => int.TryParse(this[nameof(LogEntriesBatchSize)], out var timePart) ? timePart : SourcePoolsInitConfig().DefaultLogEntryBatchSize;
+        set => this[nameof(LogEntriesBatchSize)] = value.ToString();
     }
 
-    public int NewItemCapacity
+    public int LogEntryCharCapacity
     {
-        get => int.TryParse(this[nameof(NewItemCapacity)], out var timePart) ? timePart : 0;
-        set => this[nameof(NewItemCapacity)] = value.ToString();
+        get => int.TryParse(this[nameof(LogEntryCharCapacity)], out var timePart) ? timePart : SourcePoolsInitConfig().DefaultLogEntryCharCapacity;
+        set => this[nameof(LogEntryCharCapacity)] = value.ToString();
+    }
+
+    protected virtual ILogEntryPoolsInitializationConfig SourcePoolsInitConfig()
+    {
+        if (ParentConfig is IMutableLogEntryPoolsInitializationConfig poolsInitializationConfig)
+        {
+            return poolsInitializationConfig;
+        }
+        return FLogContext.Context.LogEntryPoolRegistry.LogEntryPoolInitConfig;
     }
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
@@ -130,8 +143,8 @@ public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
 
         var nameSame = PoolName == other.PoolName;
         var scopeSame = PoolScope == other.PoolScope;
-        var entrySizeSame = NewItemCapacity == other.NewItemCapacity;
-        var batchSizeSame = ItemBatchSize == other.ItemBatchSize;
+        var entrySizeSame = LogEntryCharCapacity == other.LogEntryCharCapacity;
+        var batchSizeSame = LogEntriesBatchSize == other.LogEntriesBatchSize;
 
         var allAreSame = nameSame && scopeSame && entrySizeSame && batchSizeSame;
 
@@ -146,8 +159,8 @@ public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
         {
             var hashCode = PoolName.GetHashCode();
             hashCode = (hashCode * 397) ^ PoolScope.GetHashCode();
-            hashCode = (hashCode * 397) ^ NewItemCapacity;
-            hashCode = (hashCode * 397) ^ ItemBatchSize;
+            hashCode = (hashCode * 397) ^ LogEntryCharCapacity;
+            hashCode = (hashCode * 397) ^ LogEntriesBatchSize;
             return hashCode;
         }
     }
@@ -159,8 +172,8 @@ public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
            .AddTypeStart()
            .AddField(nameof(PoolName), PoolName)
            .AddField(nameof(PoolScope), PoolScope.ToString())
-           .AddField(nameof(NewItemCapacity), NewItemCapacity)
-           .AddField(nameof(ItemBatchSize), ItemBatchSize)
+           .AddField(nameof(LogEntryCharCapacity), LogEntryCharCapacity)
+           .AddField(nameof(LogEntriesBatchSize), LogEntriesBatchSize)
            .AddTypeEnd();
     }
 

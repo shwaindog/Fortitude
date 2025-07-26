@@ -120,9 +120,9 @@ public class PQServerHeartBeatSenderTests
                           .Returns(baseTime.AddMilliseconds(1003))  //2nd quote check last published
                           .Returns(baseTime.AddMilliseconds(1003)); //2nd quote new last published
 
-            moqSyncLock.Setup(sl => sl.Acquire());
+            moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()));
             moqOsThread.Setup(ot => ot.Join());
-            moqSyncLock.Setup(sl => sl.Release())
+            moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()))
                        .Callback(() => { pqServerHeartBeatSender.StopAndWaitUntilFinished(); });
 
             tickInstant1.LastPublicationTime = baseTime.AddMilliseconds(-2);
@@ -184,9 +184,9 @@ public class PQServerHeartBeatSenderTests
                           .Returns(baseTime.AddMilliseconds(1003))  //2nd quote check last published
                           .Returns(baseTime.AddMilliseconds(1003)); //2nd quote new last published
 
-            moqSyncLock.Setup(sl => sl.Acquire());
+            moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()));
             moqOsThread.Setup(ot => ot.Join());
-            moqSyncLock.Setup(sl => sl.Release())
+            moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()))
                        .Callback(() => { pqServerHeartBeatSender.StopAndWaitUntilFinished(); });
 
             tickInstant1.LastPublicationTime = baseTime.AddMilliseconds(800);
@@ -247,9 +247,9 @@ public class PQServerHeartBeatSenderTests
                           .Returns(baseTime.AddMilliseconds(1003))  //2nd quote check last published
                           .Returns(baseTime.AddMilliseconds(1003)); //2nd quote new last published
 
-            moqSyncLock.Setup(sl => sl.Acquire());
+            moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()));
             moqOsThread.Setup(ot => ot.Join());
-            moqSyncLock.Setup(sl => sl.Release())
+            moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()))
                        .Callback(() => { pqServerHeartBeatSender.StopAndWaitUntilFinished(); });
 
             tickInstant1.LastPublicationTime = baseTime.AddMilliseconds(-5);
@@ -311,8 +311,9 @@ public class PQServerHeartBeatSenderTests
             moqOsThread.Setup(ot => ot.Join());
             var isInHeartBeatSyncLock = false;
 
-            moqSyncLock.Setup(sl => sl.Acquire()).Callback(() => isInHeartBeatSyncLock = true).Verifiable();
-            moqSyncLock.Setup(sl => sl.Release()).Callback(() =>
+            moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()))
+                       .Callback(() => { isInHeartBeatSyncLock = true; }).Returns(true).Verifiable();
+            moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>())).Callback(() =>
             {
                 isInHeartBeatSyncLock = false;
                 pqServerHeartBeatSender.StopAndWaitUntilFinished();
@@ -373,8 +374,9 @@ public class PQServerHeartBeatSenderTests
             moqOsThread.Setup(ot => ot.Join());
             var isInHeartBeatSyncLock = false;
 
-            moqSyncLock.Setup(sl => sl.Acquire()).Callback(() => isInHeartBeatSyncLock = true).Verifiable();
-            moqSyncLock.Setup(sl => sl.Release()).Callback(() =>
+            moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()))
+                       .Callback(() => { isInHeartBeatSyncLock = true; }).Returns(true).Verifiable();
+            moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>())).Callback(() =>
             {
                 isInHeartBeatSyncLock = false;
                 pqServerHeartBeatSender.StopAndWaitUntilFinished();
@@ -437,8 +439,9 @@ public class PQServerHeartBeatSenderTests
             moqOsThread.Setup(ot => ot.Join());
             var isInHeartBeatSyncLock = false;
 
-            moqSyncLock.Setup(sl => sl.Acquire()).Callback(() => isInHeartBeatSyncLock = true).Verifiable();
-            moqSyncLock.Setup(sl => sl.Release()).Callback(() =>
+            moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()))
+                       .Callback(() => { isInHeartBeatSyncLock = true; }).Returns(true).Verifiable();
+            moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>())).Callback(() =>
             {
                 isInHeartBeatSyncLock = false;
                 pqServerHeartBeatSender.StopAndWaitUntilFinished();

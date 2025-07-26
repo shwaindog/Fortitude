@@ -32,39 +32,41 @@ public class FormattingAppenderConfig : AppenderDefinitionConfig, IMutableFormat
 
     public FormattingAppenderConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
-    public FormattingAppenderConfig(string appenderName, string appenderType
+    public FormattingAppenderConfig
+    (string appenderName, string appenderType
       , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate, int runOnAsyncQueueNumber = 0
       , string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false, bool deactivateHere = false)
         : this(InMemoryConfigRoot, InMemoryPath, appenderName, appenderType, logEntryFormatLayout, runOnAsyncQueueNumber
              , inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere) { }
 
-    public FormattingAppenderConfig(string appenderName
+    public FormattingAppenderConfig
+    (string appenderName
       , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate, int runOnAsyncQueueNumber = 0
       , string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false, bool deactivateHere = false)
         : this(InMemoryConfigRoot, InMemoryPath, appenderName, logEntryFormatLayout, runOnAsyncQueueNumber
              , inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere) { }
 
     public FormattingAppenderConfig
-        (IConfigurationRoot root, string path, string appenderName, string appenderType
-          , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
-          , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
-          , bool deactivateHere = false)
+    (IConfigurationRoot root, string path, string appenderName, string appenderType
+      , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
+      , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
+      , bool deactivateHere = false)
         : base(root, path, appenderName, appenderType, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere)
     {
         LogEntryFormatLayout = logEntryFormatLayout;
     }
 
     public FormattingAppenderConfig
-        (IConfigurationRoot root, string path, string appenderName
-          , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
-          , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
-          , bool deactivateHere = false)
+    (IConfigurationRoot root, string path, string appenderName
+      , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
+      , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
+      , bool deactivateHere = false)
         : base(root, path, appenderName, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere)
     {
         LogEntryFormatLayout = logEntryFormatLayout;
     }
 
-    public FormattingAppenderConfig(IFormattingAppenderConfig toClone, IConfigurationRoot root, string path) 
+    public FormattingAppenderConfig(IFormattingAppenderConfig toClone, IConfigurationRoot root, string path)
         : base(toClone, root, path)
     {
         LogEntryFormatLayout = toClone.LogEntryFormatLayout;
@@ -131,7 +133,7 @@ public class FormattingAppenderConfig : AppenderDefinitionConfig, IMutableFormat
         var baseSame = base.AreEquivalent(other, exactTypes);
 
         var formatLayoutSame = LogEntryFormatLayout == formattingAppender.LogEntryFormatLayout;
-        var definesSame   = InheritsFrom?.AreEquivalent(formattingAppender.InheritsFrom, exactTypes) ?? formattingAppender.InheritsFrom == null;
+        var definesSame      = InheritsFrom?.AreEquivalent(formattingAppender.InheritsFrom, exactTypes) ?? formattingAppender.InheritsFrom == null;
 
         var allAreSame = baseSame && formatLayoutSame && definesSame;
 
@@ -142,18 +144,21 @@ public class FormattingAppenderConfig : AppenderDefinitionConfig, IMutableFormat
 
     public override int GetHashCode()
     {
-        var hashCode = LogEntryFormatLayout.GetHashCode();
+        var hashCode = base.GetHashCode();
+        hashCode = (hashCode * 397) ^ LogEntryFormatLayout.GetHashCode();
         hashCode = (hashCode * 397) ^ (InheritsFrom?.GetHashCode() ?? 0);
         return hashCode;
     }
 
     public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
     {
-        return
-            sbc.AddTypeName(nameof(FormattingAppenderConfig))
-               .AddTypeStart()
-               .AddField(nameof(LogEntryFormatLayout), LogEntryFormatLayout)
-               .AddNonNullField(nameof(InheritsFrom), InheritsFrom)
-               .AddTypeEnd();
+        sbc.AddTypeName(nameof(FormattingAppenderConfig))
+           .AddTypeStart()
+           .AddBaseFieldsStart();
+        return base.ToString(sbc)
+                   .AddBaseFieldsEnd()
+                   .AddField(nameof(LogEntryFormatLayout), LogEntryFormatLayout)
+                   .AddNonNullField(nameof(InheritsFrom), InheritsFrom)
+                   .AddTypeEnd();
     }
 }

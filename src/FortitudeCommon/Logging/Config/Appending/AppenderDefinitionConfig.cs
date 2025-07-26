@@ -25,7 +25,9 @@ public interface IMutableAppenderDefinitionConfig : IAppenderDefinitionConfig, I
 
     new string? InheritFromAppenderName { get; set; }
 
-    new int RunOnAsyncQueueNumber { get; set; }
+    new int                  RunOnAsyncQueueNumber { get; set; }
+
+    IMutableAppenderReferenceConfig GenerateReferenceToThis(bool deactivateHere = false);
 }
 
 public abstract class AppenderDefinitionConfig : AppenderReferenceConfig, IMutableAppenderDefinitionConfig
@@ -97,6 +99,12 @@ public abstract class AppenderDefinitionConfig : AppenderReferenceConfig, IMutab
     {
         get => int.TryParse(this[nameof(RunOnAsyncQueueNumber)], out var timePart) ? timePart : 0;
         set => this[nameof(RunOnAsyncQueueNumber)] = value.ToString();
+    }
+
+    public IMutableAppenderReferenceConfig GenerateReferenceToThis(bool deactivateHere = false)
+    {
+        var appenderRef = new AppenderReferenceConfig(AppenderName, AppenderType, deactivateHere);
+        return appenderRef;
     }
 
     public override T Visit<T>(T visitor) => throw new NotImplementedException("Derived classes must override this method");

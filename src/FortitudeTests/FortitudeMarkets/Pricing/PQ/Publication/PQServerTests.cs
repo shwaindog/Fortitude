@@ -279,7 +279,8 @@ public class PQServerTests
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQMessage>();
         var isInQuoteSyncLock           = false;
         var moqSyncLock                 = new Mock<ISyncLock>();
-        moqSyncLock.Setup(sl => sl.Acquire()).Callback(() => { isInQuoteSyncLock = true; }).Verifiable();
+        moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()))
+                   .Callback(() => { isInQuoteSyncLock = true; }).Returns(true).Verifiable();
 
         
         // can't use moq because of property redefinition not handled properly
@@ -295,7 +296,7 @@ public class PQServerTests
         moqTickInstantAsPqMutMessage.Setup(ti => ti.CopyFrom(pubTickInstant, CopyMergeFlags.Default))
                                     .Callback(() => { Assert.IsTrue(isInQuoteSyncLock); }).Returns(moqRegisteredPqTickInstant.Object)
                                     .Verifiable();
-        moqSyncLock.Setup(sl => sl.Release()).Callback(() => { isInQuoteSyncLock = false; }).Verifiable();
+        moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>())).Callback(() => { isInQuoteSyncLock = false; }).Verifiable();
 
         replaceWithPQServerInstance.Add(sourceTickerInfo1.SourceInstrumentId, moqRegisteredPqTickInstant.Object);
         
@@ -322,7 +323,7 @@ public class PQServerTests
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQMessage>();
         var isInHeartBeatSyncLock       = false;
         var moqQuoteSyncLock            = new Mock<ISyncLock>();
-        moqQuoteSyncLock.Setup(sl => sl.Acquire());
+        moqQuoteSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()));
         var ticker1RegisteredPqTickInstant = new PQPublishableTickInstant(sourceTickerInfo1);
 
         // can't use moq because of property hiding/redefinition not handled properly
@@ -330,7 +331,7 @@ public class PQServerTests
         {
             SourceTickerInfo = sourceTickerInfo1, HasUpdates = true
         };
-        moqQuoteSyncLock.Setup(sl => sl.Release());
+        moqQuoteSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()));
 
         replaceWithPQServerInstance.Add(sourceTickerInfo1.SourceInstrumentId, ticker1RegisteredPqTickInstant);
         
@@ -338,9 +339,9 @@ public class PQServerTests
         NonPublicInvocator.SetInstanceField(pqServer, "lastPubEntities", replaceWithPQServerInstance);
         var moqHeartBeatSyncLock = new Mock<ISyncLock>();
 
-        moqHeartBeatSyncLock.Setup(sl => sl.Acquire())
-                            .Callback(() => { isInHeartBeatSyncLock = true; }).Verifiable();
-        moqHeartBeatSyncLock.Setup(sl => sl.Release())
+        moqHeartBeatSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()))
+                            .Callback(() => { isInHeartBeatSyncLock = true; }).Returns(true).Verifiable();
+        moqHeartBeatSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()))
                             .Callback(() => { isInHeartBeatSyncLock = false; }).Verifiable();
         NonPublicInvocator.SetInstanceField(pqServer, "heartBeatSync", moqHeartBeatSyncLock.Object);
 
@@ -372,7 +373,7 @@ public class PQServerTests
 
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQMessage>();
         var moqQuoteSyncLock            = new Mock<ISyncLock>();
-        moqQuoteSyncLock.Setup(sl => sl.Acquire());
+        moqQuoteSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()));
 
 
         // can't use moq because of property hiding/redefinition not handled properly
@@ -386,16 +387,16 @@ public class PQServerTests
         moqTickInstantAsPqMutMessage.SetupGet(l1Q => l1Q.SourceTickerInfo).Returns(sourceTickerInfo1);
 
         moqRegisteredPqTickInstant.Setup(ti => ti.CopyFrom(pubTickInstant, CopyMergeFlags.Default));
-        moqQuoteSyncLock.Setup(sl => sl.Release());
+        moqQuoteSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()));
 
         replaceWithPQServerInstance.Add(sourceTickerInfo1.SourceInstrumentId, moqRegisteredPqTickInstant.Object);
         
         NonPublicInvocator.SetInstanceField(pqServer, "lastPubEntities", replaceWithPQServerInstance);
         var isInHeartBeatSyncLock = false;
         var moqHeartBeatSyncLock  = new Mock<ISyncLock>();
-        moqHeartBeatSyncLock.Setup(sl => sl.Acquire())
-                            .Callback(() => { isInHeartBeatSyncLock = true; }).Verifiable();
-        moqHeartBeatSyncLock.Setup(sl => sl.Release())
+        moqHeartBeatSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()))
+                            .Callback(() => { isInHeartBeatSyncLock = true; }).Returns(true).Verifiable();
+        moqHeartBeatSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()))
                             .Callback(() => { isInHeartBeatSyncLock = false; }).Verifiable();
         moqTickInstantAsPqMutMessage.SetupSet(ti => ti.LastPublicationTime = It.IsAny<DateTime>())
                                     .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();
@@ -454,7 +455,7 @@ public class PQServerTests
 
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQMessage>();
         var moqSyncLock                 = new Mock<ISyncLock>();
-        moqSyncLock.Setup(sl => sl.Acquire());
+        moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()));
 
         // can't use moq because of property redefinition not handled properly
         var pubTickInstant = new PQPublishableTickInstant
@@ -468,7 +469,7 @@ public class PQServerTests
 
         moqRegisteredPqTickInstant.Setup(ti => ti.CopyFrom(pubTickInstant, CopyMergeFlags.Default));
         moqRegisteredPqTickInstant.SetupProperty(ti => ti.HasUpdates, true);
-        moqSyncLock.Setup(sl => sl.Release());
+        moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()));
 
         replaceWithPQServerInstance.Add(sourceTickerInfo1.SourceInstrumentId, moqRegisteredPqTickInstant.Object);
         
@@ -533,7 +534,7 @@ public class PQServerTests
 
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQMessage>();
         var moqSyncLock                 = new Mock<ISyncLock>();
-        moqSyncLock.Setup(sl => sl.Acquire());
+        moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()));
         
         // can't use moq because of property redefinition not handled properly
         var pubL1Quote = new PQPublishableLevel1Quote
@@ -547,7 +548,7 @@ public class PQServerTests
 
         moqRegisteredPqLevel1Quote.Setup(l1Q => l1Q.CopyFrom(pubL1Quote, CopyMergeFlags.Default));
         moqRegisteredPqLevel1Quote.SetupProperty(l1Q => l1Q.HasUpdates, true);
-        moqSyncLock.Setup(sl => sl.Release());
+        moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()));
 
         replaceWithPQServerInstance.Add(sourceTickerInfo1.SourceInstrumentId, moqRegisteredPqLevel1Quote.Object);
         
@@ -574,7 +575,7 @@ public class PQServerTests
         pqServer.StartServices();
 
         var moqSyncLock = new Mock<ISyncLock>();
-        moqSyncLock.Setup(sl => sl.Acquire());
+        moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()));
         
         // can't use moq because of property redefinition not handled properly
         var pubL1Quote = new PQPublishableLevel1Quote
@@ -587,7 +588,7 @@ public class PQServerTests
         moqL1AsPqMutMessage.SetupGet(l1Q => l1Q.SourceTickerInfo).Returns(sourceTickerInfo1);
 
         moqRegisteredPqLevel1Quote.Setup(l1Q => l1Q.CopyFrom(pubL1Quote, CopyMergeFlags.Default));
-        moqSyncLock.Setup(sl => sl.Release());
+        moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()));
 
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQMessage>
         {
@@ -612,7 +613,7 @@ public class PQServerTests
         pqServer.StartServices();
 
         var moqSyncLock = new Mock<ISyncLock>();
-        moqSyncLock.Setup(sl => sl.Acquire());
+        moqSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()));
         
         var pubTickInstant = new PQPublishableTickInstant
         {
@@ -624,7 +625,7 @@ public class PQServerTests
         // can't use moq because of property redefinition not handled properly
         moqRegisteredPqLevel1Quote.Setup(l1Q => l1Q.CopyFrom(pubTickInstant, CopyMergeFlags.Default));
         moqRegisteredPqLevel1Quote.SetupGet(l1Q => l1Q.SourceTickerInfo).Returns(sourceTickerInfo1);
-        moqSyncLock.Setup(sl => sl.Release());
+        moqSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()));
 
         var replaceWithPQServerInstance = new ConcurrentMap<uint, IPQMessage>
         {
@@ -683,9 +684,9 @@ public class PQServerTests
         var isInHeartBeatSyncLock = false;
         var moqHeartBeatSyncLock  = new Mock<ISyncLock>();
         var moqHeartBeatQuotes    = new Mock<IDoublyLinkedList<IPQMessage>>();
-        moqHeartBeatSyncLock.Setup(sl => sl.Acquire())
-                            .Callback(() => { isInHeartBeatSyncLock = true; }).Verifiable();
-        moqHeartBeatSyncLock.Setup(sl => sl.Release())
+        moqHeartBeatSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>()))
+                            .Callback(() => { isInHeartBeatSyncLock = true; }).Returns(true).Verifiable();
+        moqHeartBeatSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>()))
                             .Callback(() => { isInHeartBeatSyncLock = false; }).Verifiable();
         moqHeartBeatQuotes.Setup(pqti => pqti.Clear())
                           .Callback(() => Assert.IsTrue(isInHeartBeatSyncLock)).Verifiable();

@@ -47,24 +47,24 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
 
     public ExtractedMessageKeyValuesConfig(IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public ExtractedMessageKeyValuesConfig() : this(InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public ExtractedMessageKeyValuesConfig(params IMutableExtractKeyExpressionConfig[] toAdd)
         : this(InMemoryConfigRoot, InMemoryPath, toAdd)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public ExtractedMessageKeyValuesConfig
         (IConfigurationRoot root, string path, params IMutableExtractKeyExpressionConfig[] toAdd) : base(root, path)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
         for (int i = 0; i < toAdd.Length; i++)
         {
             extractConfigByKeyName.Add(toAdd[i].KeyName, toAdd[i]);
@@ -73,7 +73,7 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
 
     public ExtractedMessageKeyValuesConfig(IExtractedMessageKeyValuesConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
         foreach (var kvp in toClone)
         {
             extractConfigByKeyName.Add(kvp.Key, (IMutableExtractKeyExpressionConfig)kvp.Value);
@@ -82,7 +82,7 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
 
     public ExtractedMessageKeyValuesConfig(IExtractedMessageKeyValuesConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public void Add(KeyValuePair<string, IMutableExtractKeyExpressionConfig> item)

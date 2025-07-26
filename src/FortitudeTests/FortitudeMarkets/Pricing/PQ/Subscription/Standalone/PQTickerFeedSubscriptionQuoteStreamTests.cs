@@ -192,8 +192,8 @@ public class PQTickerFeedSubscriptionQuoteStreamTests
     public void AddingNewObserver_Subscribe_ProtectsObserverCollectionInQuoteSyncLock()
     {
         var insideSyncLock = false;
-        initializingQuoteSyncLock.Setup(sl => sl.Acquire()).Callback(() => { insideSyncLock = true; });
-        initializingQuoteSyncLock.Setup(sl => sl.Release()).Callback(() => { insideSyncLock = false; });
+        initializingQuoteSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>())).Callback(() => { insideSyncLock = true; });
+        initializingQuoteSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>())).Callback(() => { insideSyncLock = false; });
 
         var hasRunCallback         = false;
         var subscribedObserverMock = new Mock<IObserver<IPQPublishableTickInstant>>();
@@ -218,8 +218,8 @@ public class PQTickerFeedSubscriptionQuoteStreamTests
     public void RemovingSubscriber_SubscriberDispose_ProtectsObserverCollectionInQuoteSyncLock()
     {
         var insideSyncLock = false;
-        initializingQuoteSyncLock.Setup(sl => sl.Acquire()).Callback(() => { insideSyncLock = true; });
-        initializingQuoteSyncLock.Setup(sl => sl.Release()).Callback(() => { insideSyncLock = false; });
+        initializingQuoteSyncLock.Setup(sl => sl.Acquire(It.IsAny<int>())).Callback(() => { insideSyncLock = true; });
+        initializingQuoteSyncLock.Setup(sl => sl.Release(It.IsAny<bool?>())).Callback(() => { insideSyncLock = false; });
 
         var hasRunCallback         = false;
         var subscribedObserverMock = new Mock<IObserver<IPQPublishableTickInstant>>();

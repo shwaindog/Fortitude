@@ -1,25 +1,35 @@
 ﻿#region
 
+using System.Text;
 using FortitudeCommon.DataStructures.Memory;
 
 #endregion
 
-namespace FortitudeCommon.Types.Mutable;
+namespace FortitudeCommon.Types.Mutable.Strings;
 
-public interface IMutableString : IReusableObject<IMutableString>, IMutableStringBuilder<IMutableString>, ITransferState<IFrozenString>, 
-    IFrozenString, IFreezable<IFrozenString>
+public interface IStringBuilder<out T> : ICharSequence, IMutableStringBuilder<T>, ICloneable<IStringBuilder<T>>
+where T : IStringBuilder<T>, IMutableStringBuilder<T>
 {
     new int Length { get; set; }
     new char this[int index] { get; set; }
 
-    IMutableString Substring(int startIndex);
-    IMutableString Substring(int startIndex, int length);
-    IMutableString Trim();
-    IMutableString ToLower();
-    IMutableString Remove(int startIndex);
-    IMutableString ToUpper();
+    T Substring(int startIndex);
+    T Substring(int startIndex, int length);
+    T Trim();
+    T ToLower();
+    T Remove(int startIndex);
+    T ToUpper();
 
-    IMutableString CopyFrom(string source);
+    T CopyFrom(string source);
 
+    new T Clone();
+}
+
+
+public interface IMutableString : IReusableObject<IMutableString>, IStringBuilder<IMutableString>, ITransferState<IFrozenString>, 
+    IFrozenString, IFreezable<IFrozenString>
+{
     new IMutableString Clone();
+
+    StringBuilder BackingStringBuilder { get; }
 }

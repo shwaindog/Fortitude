@@ -46,6 +46,10 @@ public interface IAppendableNamedAppendersLookupConfig<T, TReadOnly> : INamedApp
 
     new int Count { get; }
 
+    IAppendableNamedAppendersLookupConfig<T, TReadOnly> Add(TReadOnly value);
+
+    IAppendableNamedAppendersLookupConfig<T, TReadOnly> Add(T value);
+
     new T this[string loggerName] { get; set; }
 
     new bool ContainsKey(string appenderName);
@@ -72,24 +76,24 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
 
     protected NamedAppendersLookupConfig(IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     protected NamedAppendersLookupConfig() : this(InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     protected NamedAppendersLookupConfig(params T[] toAdd)
         : this(InMemoryConfigRoot, InMemoryPath, toAdd)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     protected NamedAppendersLookupConfig
         (IConfigurationRoot root, string path, params T[] toAdd) : base(root, path)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
         for (int i = 0; i < toAdd.Length; i++)
         {
             AppendersByName.Add(toAdd[i].AppenderName, toAdd[i]);
@@ -98,7 +102,7 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
 
     protected NamedAppendersLookupConfig(INamedAppendersLookupConfig<TReadOnly> toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
         foreach (var kvp in toClone)
         {
             AppendersByName.Add(kvp.Key, (T)kvp.Value);
@@ -107,13 +111,27 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
 
     protected NamedAppendersLookupConfig(INamedAppendersLookupConfig<TReadOnly> toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public virtual void Add(KeyValuePair<string, T> item)
     {
         AppendersByName.Add(item.Key, item.Value);
         PushToConfigStorage(item.Value);
+    }
+
+    public IAppendableNamedAppendersLookupConfig<T, TReadOnly> Add(TReadOnly value)
+    {
+        AppendersByName.Add(value.AppenderName, (T)value);
+
+        return this;
+    }
+
+    public IAppendableNamedAppendersLookupConfig<T, TReadOnly> Add(T value)
+    {
+        AppendersByName.Add(value.AppenderName, value);
+
+        return this;
     }
 
     public virtual void Add(string key, T value)
@@ -137,7 +155,7 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
                 AppendersByName.Clear();
                 foreach (var configurationSection in GetSection(Path).GetChildren())
                 {
-                    if (FLoggerContext.Instance.ConfigRegistry.ConfigPathToAppenderConfig(ConfigRoot, $"{configurationSection.Path}{Split}{configurationSection.Key}") is T appenderConfig)
+                    if (FLogCreate.MakeAppenderConfig(ConfigRoot, $"{configurationSection.Path}{Split}{configurationSection.Key}") is T appenderConfig)
                     {
                         appenderConfig.ParentConfig = this;
                         AppendersByName.TryAdd(configurationSection.Key, appenderConfig);
@@ -171,7 +189,7 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
           , Dictionary<string, T> appendersByName
           , IConfigurationRoot configRoot, string path)
         {
-            if (FLoggerContext.Instance.ConfigRegistry.ConfigPathToAppenderConfig(configRoot, path) is T appenderConfig)
+            if (FLogCreate.MakeAppenderConfig(configRoot, path) is T appenderConfig)
             {
                 appendersByName.Add(appenderConfig.AppenderName, appenderConfig);
                 if (appenderConfig is TEither appenderEitherConfig)

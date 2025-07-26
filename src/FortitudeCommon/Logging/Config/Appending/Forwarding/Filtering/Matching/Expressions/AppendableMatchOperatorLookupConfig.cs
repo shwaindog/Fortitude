@@ -45,24 +45,24 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
 
     public AppendableMatchOperatorLookupConfig(IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public AppendableMatchOperatorLookupConfig() : this(InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public AppendableMatchOperatorLookupConfig(params IMutableMatchOperatorExpressionConfig[] toAdd)
         : this(InMemoryConfigRoot, InMemoryPath, toAdd)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public AppendableMatchOperatorLookupConfig
         (IConfigurationRoot root, string path, params IMutableMatchOperatorExpressionConfig[] toAdd) : base(root, path)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
         for (int i = 0; i < toAdd.Length; i++)
         {
             evalOrderKeyedExpressions.Add(toAdd[i].EvaluateOrder, toAdd[i]);
@@ -71,7 +71,7 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
 
     public AppendableMatchOperatorLookupConfig(IMatchOperatorCollectionConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
         foreach (var kvp in toClone)
         {
             evalOrderKeyedExpressions.Add(kvp.Key, (IMutableMatchOperatorExpressionConfig)kvp.Value);
@@ -80,7 +80,7 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
 
     public AppendableMatchOperatorLookupConfig(IMatchOperatorCollectionConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLoggerContext.Instance.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public void Add(KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig> item)

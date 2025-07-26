@@ -5,6 +5,7 @@ using System.Configuration;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Pooling;
+using FortitudeCommon.Logging.Config.Visitor.LoggerVisitors;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using Microsoft.Extensions.Configuration;
@@ -127,12 +128,11 @@ public class FLoggerTreeCommonConfig: FLoggerMatchedAppenders, IMutableFLoggerTr
 
     public FLogLevel LogLevel
     {
-        get =>
-            Enum.TryParse<FLogLevel>(this[nameof(LogLevel)], out var allowedTradingDirection)
-                ? allowedTradingDirection
-                : FLogLevel.None;
+        get => WasDefinedLogLevel ?? FLogLevel.None;
         set => this[nameof(LogLevel)] = value.ToString();
     }
+
+    protected FLogLevel? WasDefinedLogLevel => Enum.TryParse<FLogLevel>(this[nameof(LogLevel)], out var logLevel) ? logLevel : null;
 
     public virtual string Name
     {
@@ -140,7 +140,7 @@ public class FLoggerTreeCommonConfig: FLoggerMatchedAppenders, IMutableFLoggerTr
         set => this[nameof(Name)] = value;
     }
 
-    public string FullName => throw new NotImplementedException();
+    public string FullName => Visit(new ConfigAncestorsOfLogger()).FullName;
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
