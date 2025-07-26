@@ -1,4 +1,5 @@
 ﻿using FortitudeCommon.Config;
+using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using Microsoft.Extensions.Configuration;
@@ -8,14 +9,14 @@ namespace FortitudeCommon.Logging.Config.Initialization;
 public interface IFLogInitializationConfig : IFLogConfig, IInterfacesComparable<IFLogInitializationConfig>
   , IConfigCloneTo<IFLogInitializationConfig>, IStyledToStringObject
 {
-    IFLogAsyncBufferingInitializationConfig AsyncBufferingInit { get; }
+    IAsyncQueuesInitConfig AsyncBufferingInit { get; }
 
     ILogEntryPoolsInitializationConfig LogEntryPoolsInit { get; }
 }
 
 public interface IMutableFLogInitializationConfig : IFLogInitializationConfig, IMutableFLogConfig
 {
-    new IMutableFLogAsyncBufferingInitializationConfig AsyncBufferingInit { get; set; }
+    new IMutableAsyncQueuesInitConfig AsyncBufferingInit { get; set; }
 
     new IMutableLogEntryPoolsInitializationConfig LogEntryPoolsInit { get; set; }
 }
@@ -27,18 +28,18 @@ public class FLogInitializationConfig : FLogConfig, IMutableFLogInitializationCo
     public FLogInitializationConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
     public FLogInitializationConfig
-    (IMutableFLogAsyncBufferingInitializationConfig? asyncBufferingInit = null
+    (IMutableAsyncQueuesInitConfig? asyncBufferingInit = null
       , IMutableLogEntryPoolsInitializationConfig? logEntryPoolsInit = null)
         : this(InMemoryConfigRoot, InMemoryPath, asyncBufferingInit, logEntryPoolsInit) { }
 
     public FLogInitializationConfig
     (IConfigurationRoot root, string path
-      , IMutableFLogAsyncBufferingInitializationConfig? asyncBufferingInit = null
+      , IMutableAsyncQueuesInitConfig? asyncBufferingInit = null
       , IMutableLogEntryPoolsInitializationConfig? logEntryPoolsInit = null)
         : base(root, path)
     {
         AsyncBufferingInit = asyncBufferingInit ??
-                             new FLogAsyncBufferingInitializationConfig(ConfigRoot, $"{Path}{Split}{nameof(AsyncBufferingInit)}");
+                             new AsyncQueuesInitConfig(ConfigRoot, $"{Path}{Split}{nameof(AsyncBufferingInit)}");
 
         LogEntryPoolsInit = logEntryPoolsInit ??
                             new LogEntryPoolsInitializationConfig(ConfigRoot, $"{Path}{Split}{nameof(LogEntryPoolsInit)}");
@@ -46,24 +47,24 @@ public class FLogInitializationConfig : FLogConfig, IMutableFLogInitializationCo
 
     public FLogInitializationConfig(IFLogInitializationConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        AsyncBufferingInit = (IMutableFLogAsyncBufferingInitializationConfig)toClone.AsyncBufferingInit;
+        AsyncBufferingInit = (IMutableAsyncQueuesInitConfig)toClone.AsyncBufferingInit;
 
         LogEntryPoolsInit = (IMutableLogEntryPoolsInitializationConfig)toClone.LogEntryPoolsInit;
     }
 
     public FLogInitializationConfig(IFLogInitializationConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
-    IFLogAsyncBufferingInitializationConfig IFLogInitializationConfig.AsyncBufferingInit => AsyncBufferingInit;
+    IAsyncQueuesInitConfig IFLogInitializationConfig.AsyncBufferingInit => AsyncBufferingInit;
 
-    public IMutableFLogAsyncBufferingInitializationConfig AsyncBufferingInit
+    public IMutableAsyncQueuesInitConfig AsyncBufferingInit
     {
-        get => new FLogAsyncBufferingInitializationConfig(ConfigRoot, $"{Path}{Split}{nameof(AsyncBufferingInit)}")
+        get => new AsyncQueuesInitConfig(ConfigRoot, $"{Path}{Split}{nameof(AsyncBufferingInit)}")
         {
             ParentConfig = this
         };
         set
         {
-            _ = new FLogAsyncBufferingInitializationConfig(value, ConfigRoot, $"{Path}{Split}{nameof(AsyncBufferingInit)}");
+            _ = new AsyncQueuesInitConfig(value, ConfigRoot, $"{Path}{Split}{nameof(AsyncBufferingInit)}");
 
             value.ParentConfig = this;
         }

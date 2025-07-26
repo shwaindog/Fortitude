@@ -9,7 +9,7 @@ using FortitudeCommon.OSWrapper.Memory;
 
 #endregion
 
-namespace FortitudeCommon.DataStructures.Memory;
+namespace FortitudeCommon.DataStructures.Memory.Buffers;
 
 public static class MemoryUtils
 {

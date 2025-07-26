@@ -12,13 +12,12 @@ using FortitudeCommon.Extensions;
 
 #endregion
 
-namespace FortitudeCommon.Types.Mutable;
+namespace FortitudeCommon.Types.Mutable.Strings;
 
 [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
 public sealed class MutableString : ReusableObject<IMutableString>, IMutableString, ITransferState<MutableString>
 {
-    private static readonly IPooledFactory<StringBuilderEnumerator> EnumeratorPool =
-        new GarbageAndLockFreePooledFactory<StringBuilderEnumerator>(pool => new StringBuilderEnumerator(pool));
+    private static readonly Recycler EnumeratorPool = new();
 
     internal static readonly char[] WhiteSpaceChars = [' ', '\t', '\r', '\n'];
 
@@ -72,13 +71,24 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public bool IsFrozen { get; private set; }
 
+    public int Capacity
+    {
+        get => sb.Capacity;
+        set => sb.Capacity = value;
+    }
+    public int MaxCapacity => sb.MaxCapacity;
+
     private MutableString ShouldThrow() =>
         !ThrowOnMutateAttempt ? this : throw new ModifyFrozenObjectAttempt("Attempted to modify a frozen MutableString");
 
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(IMutableString value) => Append(value);
+    IMutableString IMutableStringBuilder<IMutableString>.Append(IFrozenString? value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(StringBuilder value) => Append(value);
+    IMutableString IMutableStringBuilder<IMutableString>.Append(StringBuilder? value) => Append(value);
+
+    IMutableString IMutableStringBuilder<IMutableString>.Append
+        (StringBuilder? value, int startIndex, int length) =>
+        Append(value, startIndex, length);
 
     IMutableString IMutableStringBuilder<IMutableString>.Append(bool value) => Append(value);
 
@@ -86,7 +96,13 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     IMutableString IMutableStringBuilder<IMutableString>.Append(char value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(char[] value) => Append(value);
+    IMutableString IMutableStringBuilder<IMutableString>.Append(char value, int repeat) => Append(value, repeat);
+
+    IMutableString IMutableStringBuilder<IMutableString>.Append(char[]? value) => Append(value);
+
+    IMutableString IMutableStringBuilder<IMutableString>.Append(char[]? value, int startIndex, int length) => Append(value);
+
+    unsafe IMutableString IMutableStringBuilder<IMutableString>.Append(char* value, int valueCount) => Append(value, valueCount);
 
     IMutableString IMutableStringBuilder<IMutableString>.Append(decimal value) => Append(value);
 
@@ -98,15 +114,19 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     IMutableString IMutableStringBuilder<IMutableString>.Append(long value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(object value) => Append(value);
+    IMutableString IMutableStringBuilder<IMutableString>.Append(object? value) => Append(value);
 
     IMutableString IMutableStringBuilder<IMutableString>.Append(sbyte value) => Append(value);
 
     IMutableString IMutableStringBuilder<IMutableString>.Append(float value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(string value) => Append(value);
+    IMutableString IMutableStringBuilder<IMutableString>.Append(string? value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(string value, int startIndex, int length) => Append(value, startIndex, length);
+    IMutableString IMutableStringBuilder<IMutableString>.Append(string? value, int startIndex, int length) => Append(value, startIndex, length);
+
+    IMutableString IMutableStringBuilder<IMutableString>.Append(ReadOnlySpan<char> value) => Append(value);
+
+    IMutableString IMutableStringBuilder<IMutableString>.Append(ReadOnlyMemory<char> value) => Append(value);
 
     IMutableString IMutableStringBuilder<IMutableString>.Append(ushort value) => Append(value);
 
@@ -114,15 +134,75 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     IMutableString IMutableStringBuilder<IMutableString>.Append(ulong value) => Append(value);
 
+    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0) => AppendFormat(format, arg0);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1) => AppendFormat(format, arg0, arg1);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2) =>
+        AppendFormat(format, arg0, arg1, arg2);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, params object?[] args) => AppendFormat(format, args);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat(IFormatProvider? provider, CompositeFormat format, params object?[] args) =>
+        AppendFormat(provider, format, args);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat(IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0) =>
+        AppendFormat(provider, format, arg0);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat(IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1) =>
+        AppendFormat(provider, format, arg0, arg1);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat
+        (IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2) =>
+        AppendFormat(provider, format, arg0, arg1, arg2);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat(IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, params object?[] args) =>
+        AppendFormat(provider, format, args);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat
+        (IFormatProvider? provider, CompositeFormat format, ReadOnlySpan<object?> args) =>
+        AppendFormat(provider, format, args);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat<TParam>(IFormatProvider? provider, CompositeFormat format, TParam arg0) =>
+        AppendFormat(provider, format, arg0);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat<TParam, TParam1>
+        (IFormatProvider? provider, CompositeFormat format, TParam arg0, TParam1 arg1) =>
+        AppendFormat(provider, format, arg0, arg1);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat<TParam, TParam1, TParam2>
+        (IFormatProvider? provider, CompositeFormat format, TParam arg0, TParam1 arg1, TParam2 arg2) =>
+        AppendFormat(provider, format, arg0, arg1, arg2);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendJoin(string? separator, params object?[] values) => AppendJoin(separator, values);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendJoin(string? separator, params string?[] values) => AppendJoin(separator, values);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendJoin(char separator, params string?[] values) => AppendJoin(separator, values);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendJoin<TParam>(string? separator, IEnumerable<TParam> values) =>
+        AppendJoin(separator, values);
+
+    IMutableString IMutableStringBuilder<IMutableString>.AppendJoin<TParam>(char separator, IEnumerable<TParam> values) =>
+        AppendJoin(separator, values);
+
     IMutableString IMutableStringBuilder<IMutableString>.AppendLine() => AppendLine();
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendLine(string value) => AppendLine(value);
+    IMutableString IMutableStringBuilder<IMutableString>.AppendLine(string? value) => AppendLine(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendLine(IMutableString value) => AppendLine(value);
+    IMutableString IMutableStringBuilder<IMutableString>.AppendLine(IFrozenString value) => AppendLine(value);
 
     IMutableString IMutableStringBuilder<IMutableString>.AppendLine(StringBuilder value) => AppendLine(value);
 
     IMutableString IMutableStringBuilder<IMutableString>.Clear() => Clear();
+
+    IMutableString IMutableStringBuilder<IMutableString>.CopyTo(int sourceIndex, char[] destination, int destinationIndex, int count) =>
+        CopyTo(sourceIndex, destination, destinationIndex, count);
+
+    IMutableString IMutableStringBuilder<IMutableString>.CopyTo(int sourceIndex, Span<char> destination, int count) =>
+        CopyTo(sourceIndex, destination, count);
+
+    int IMutableStringBuilder<IMutableString>.EnsureCapacity(int capacity) => EnsureCapacity(capacity);
 
     IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, bool value) => Insert(atIndex, value);
 
@@ -130,7 +210,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, char value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, char[] value) => Insert(atIndex, value);
+    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, char[]? value) => Insert(atIndex, value);
 
     IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, decimal value) => Insert(atIndex, value);
 
@@ -142,15 +222,21 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, long value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, object value) => Insert(atIndex, value);
+    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, object? value) => Insert(atIndex, value);
 
     IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, sbyte value) => Insert(atIndex, value);
 
     IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, float value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, string value) => Insert(atIndex, value);
+    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, string? value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, char[] value, int startIndex, int length) =>
+    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, IFrozenString? value) => Insert(atIndex, value);
+
+    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, StringBuilder? value) => Insert(atIndex, value);
+
+    IMutableString IMutableStringBuilder<IMutableString>.Remove(int startIndex, int length) => Remove(startIndex, length);
+
+    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, char[]? value, int startIndex, int length) =>
         Insert(atIndex, value, startIndex, length);
 
     IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, ushort value) => Insert(atIndex, value);
@@ -159,32 +245,36 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, ulong value) => Insert(atIndex, value);
 
+    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, string? value, int count) => Insert(atIndex, value, count);
+
+    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, ReadOnlySpan<char> value) => Insert(atIndex, value);
+
     IMutableString IMutableStringBuilder<IMutableString>.Replace(char find, char replace) => Replace(find, replace);
 
     IMutableString IMutableStringBuilder<IMutableString>.Replace(char find, char replace, int startIndex, int length) =>
         Replace(find, replace, startIndex, length);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Replace(string find, string replace) => Replace(find, replace);
+    IMutableString IMutableStringBuilder<IMutableString>.Replace(string find, string? replace) => Replace(find, replace);
 
     IMutableString IMutableStringBuilder<IMutableString>.Replace(string find, string replace, int startIndex, int length) =>
         Replace(find, replace, startIndex, length);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Replace(IMutableString find, IMutableString replace) => Replace(find, replace);
+    IMutableString IMutableStringBuilder<IMutableString>.Replace(IFrozenString find, IFrozenString replace) => Replace(find, replace);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Replace(IMutableString find, IMutableString replace, int startIndex, int length) =>
+    IMutableString IMutableStringBuilder<IMutableString>.Replace(IFrozenString find, IFrozenString replace, int startIndex, int length) =>
         Replace(find, replace, startIndex, Length);
 
-    IMutableString IMutableString.Remove(int startIndex) => Remove(startIndex);
+    IMutableString IStringBuilder<IMutableString>.Remove(int startIndex) => Remove(startIndex);
 
-    IMutableString IMutableString.ToUpper() => ToUpper();
+    IMutableString IStringBuilder<IMutableString>.ToUpper() => ToUpper();
 
-    IMutableString IMutableString.ToLower() => ToLower();
+    IMutableString IStringBuilder<IMutableString>.ToLower() => ToLower();
 
-    IMutableString IMutableString.Trim() => Trim();
+    IMutableString IStringBuilder<IMutableString>.Trim() => Trim();
 
-    IMutableString IMutableString.Substring(int startIndex) => Substring(startIndex);
+    IMutableString IStringBuilder<IMutableString>.Substring(int startIndex) => Substring(startIndex);
 
-    IMutableString IMutableString.Substring(int startIndex, int length) => Substring(startIndex, length);
+    IMutableString IStringBuilder<IMutableString>.Substring(int startIndex, int length) => Substring(startIndex, length);
 
 
     public int Length
@@ -247,11 +337,11 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public bool Contains(string subStr) => IndexOf(subStr) >= 0;
 
-    public bool Contains(IMutableString subStr) => IndexOf(subStr) >= 0;
+    public bool Contains(ICharSequence subStr) => IndexOf(subStr) >= 0;
 
     public int IndexOf(string subStr) => IndexOf(subStr, 0);
 
-    public int IndexOf(IMutableString subStr) => IndexOf(subStr, 0);
+    public int IndexOf(ICharSequence subStr) => IndexOf(subStr, 0);
 
     public int IndexOf(string subStr, int fromThisPos)
     {
@@ -281,7 +371,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return -1;
     }
 
-    public int IndexOf(IMutableString subStr, int fromThisPos)
+    public int IndexOf(ICharSequence subStr, int fromThisPos)
     {
         var thisLen  = Length;
         var otherLen = subStr.Length;
@@ -339,7 +429,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public int LastIndexOf(string subStr) => LastIndexOf(subStr, subStr.Length);
 
-    public int LastIndexOf(IMutableString subStr) => LastIndexOf(subStr, subStr.Length);
+    public int LastIndexOf(ICharSequence subStr) => LastIndexOf(subStr, subStr.Length);
 
     public int LastIndexOf(string subStr, int fromThisPos)
     {
@@ -369,7 +459,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return -1;
     }
 
-    public int LastIndexOf(IMutableString subStr, int fromThisPos)
+    public int LastIndexOf(ICharSequence subStr, int fromThisPos)
     {
         var thisLen  = Length;
         var otherLen = subStr.Length;
@@ -416,7 +506,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return 0;
     }
 
-    public int CompareTo(IMutableString other)
+    public int CompareTo(ICharSequence other)
     {
         var thisLen  = Length;
         var otherLen = other.Length;
@@ -438,8 +528,9 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return 0 == CompareTo(other);
     }
 
-    public MutableString Append(IMutableString value)
+    public MutableString Append(IMutableString? value)
     {
+        if (value == null) return this;
         if (IsFrozen) return ShouldThrow();
         for (var i = 0; i < value.Length; i++) Append(value[i]);
         return this;
@@ -466,10 +557,32 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString Append(char[] value)
+    public MutableString Append(char value, int repeatCount)
     {
         if (IsFrozen) return ShouldThrow();
+        sb.Append(value, repeatCount);
+        return this;
+    }
+
+    public MutableString Append(char[]? value)
+    {
+        if (value == null) return this;
+        if (IsFrozen) return ShouldThrow();
         sb.Append(value);
+        return this;
+    }
+
+    public MutableString Append(char[]? value, int startIndex, int length)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.Append(value, startIndex, length);
+        return this;
+    }
+
+    public unsafe MutableString Append(char* value, int valueCount)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.Append(value, valueCount);
         return this;
     }
 
@@ -508,15 +621,25 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString Append(StringBuilder value)
+    public MutableString Append(StringBuilder? value)
     {
+        if (value == null) return this;
         if (IsFrozen) return ShouldThrow();
-        sb.AppendRange(value);
+        sb.Append(value);
         return this;
     }
 
-    public MutableString Append(IFrozenString value)
+    public MutableString Append(StringBuilder? value, int startIndex, int length)
     {
+        if (value == null) return this;
+        if (IsFrozen) return ShouldThrow();
+        sb.Append(value, startIndex, length);
+        return this;
+    }
+
+    public MutableString Append(IFrozenString? value)
+    {
+        if(value == null) return this;
         if (IsFrozen) return ShouldThrow();
         for (int i = 0; i < value.Length; i++)
         {
@@ -525,7 +648,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString Append(object value)
+    public MutableString Append(object? value)
     {
         if (IsFrozen) return ShouldThrow();
         sb.Append(value);
@@ -546,17 +669,31 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString Append(string value)
+    public MutableString Append(string? value)
     {
         if (IsFrozen) return ShouldThrow();
         sb.Append(value);
         return this;
     }
 
-    public MutableString Append(string value, int startIndex, int length)
+    public MutableString Append(string? value, int startIndex, int length)
     {
         if (IsFrozen) return ShouldThrow();
         sb.Append(value, startIndex, length);
+        return this;
+    }
+
+    public MutableString Append(ReadOnlySpan<char> value)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.Append(value);
+        return this;
+    }
+
+    public MutableString Append(ReadOnlyMemory<char> value)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.Append(value);
         return this;
     }
 
@@ -581,6 +718,133 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
+    public MutableString AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendFormat(format, arg0);
+        return this;
+    }
+
+    public MutableString AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendFormat(format, arg0, arg1);
+        return this;
+    }
+
+    public MutableString AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendFormat(format, arg0, arg1, arg2);
+        return this;
+    }
+
+    public MutableString AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, params object?[] args)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendFormat(format, args);
+        return this;
+    }
+
+    public MutableString AppendFormat(IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendFormat(provider, format, arg0);
+        return this;
+    }
+
+    public MutableString AppendFormat(IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendFormat(provider, format, arg0, arg1);
+        return this;
+    }
+
+    public MutableString AppendFormat(IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendFormat(provider, format, arg0, arg1, arg2);
+        return this;
+    }
+
+    public MutableString AppendFormat(IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, params object?[] args)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendFormat(provider, format, args);
+        return this;
+    }
+
+    public MutableString AppendFormat(IFormatProvider? provider, CompositeFormat format, params object?[] args)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendFormat(provider, format, args);
+        return this;
+    }
+
+    public MutableString AppendFormat(IFormatProvider? provider, CompositeFormat format, ReadOnlySpan<object?> args)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendFormat(provider, format, args);
+        return this;
+    }
+
+    public MutableString AppendFormat<TParam>(IFormatProvider? provider, CompositeFormat format, TParam arg0)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendFormat(provider, format, arg0);
+        return this;
+    }
+
+    public MutableString AppendFormat<TParam, TParam1>(IFormatProvider? provider, CompositeFormat format, TParam arg0, TParam1 arg1)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendFormat(provider, format, arg0, arg1);
+        return this;
+    }
+
+    public MutableString AppendFormat<TParam, TParam1, TParam2>
+        (IFormatProvider? provider, CompositeFormat format, TParam arg0, TParam1 arg1, TParam2 arg2)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendFormat(provider, format, arg0, arg1, arg2);
+        return this;
+    }
+
+    public MutableString AppendJoin(string? separator, params object?[] values)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendJoin(separator, values);
+        return this;
+    }
+
+    public MutableString AppendJoin(string? separator, params string?[] values)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendJoin(separator, values);
+        return this;
+    }
+
+    public MutableString AppendJoin(char separator, params string?[] values)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendJoin(separator, values);
+        return this;
+    }
+
+    public MutableString AppendJoin<TParam>(string? separator, IEnumerable<TParam> values)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendJoin(separator, values);
+        return this;
+    }
+
+    public MutableString AppendJoin<TParam>(char separator, IEnumerable<TParam> values)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendJoin(separator, values);
+        return this;
+    }
+
     public MutableString AppendLine()
     {
         if (IsFrozen) return ShouldThrow();
@@ -588,7 +852,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString AppendLine(string value)
+    public MutableString AppendLine(string? value)
     {
         if (IsFrozen) return ShouldThrow();
         sb.AppendLine(value);
@@ -602,7 +866,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString AppendLine(IMutableString value)
+    public MutableString AppendLine(IFrozenString value)
     {
         if (IsFrozen) return ShouldThrow();
         sb.Append(value).AppendLine();
@@ -614,6 +878,23 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (IsFrozen) return ShouldThrow();
         sb.Clear();
         return this;
+    }
+
+    public MutableString CopyTo(int sourceIndex, char[] destination, int destinationIndex, int count)
+    {
+        sb.CopyTo(sourceIndex, destination, destinationIndex, count);
+        return this;
+    }
+
+    public MutableString CopyTo(int sourceIndex, Span<char> destination, int count)
+    {
+        sb.CopyTo(sourceIndex, destination, count);
+        return this;
+    }
+
+    public int EnsureCapacity(int capacity)
+    {
+        return sb.EnsureCapacity(capacity);
     }
 
     public MutableString Insert(int atIndex, bool value)
@@ -637,7 +918,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString Insert(int atIndex, char[] value)
+    public MutableString Insert(int atIndex, char[]? value)
     {
         if (IsFrozen) return ShouldThrow();
         sb.Insert(atIndex, value);
@@ -679,7 +960,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString Insert(int atIndex, object value)
+    public MutableString Insert(int atIndex, object? value)
     {
         sb.Insert(atIndex, value);
         return this;
@@ -699,14 +980,14 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString Insert(int atIndex, string value)
+    public MutableString Insert(int atIndex, string? value)
     {
         if (IsFrozen) return ShouldThrow();
         sb.Insert(atIndex, value);
         return this;
     }
 
-    public MutableString Insert(int atIndex, char[] value, int startIndex, int length)
+    public MutableString Insert(int atIndex, char[]? value, int startIndex, int length)
     {
         if (IsFrozen) return ShouldThrow();
         sb.Insert(atIndex, value, startIndex, length);
@@ -734,17 +1015,41 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public IMutableString Insert(int atIndex, IMutableString value)
+    public MutableString Insert(int atIndex, IFrozenString? value)
     {
+        if (value == null) return this;
         if (IsFrozen) return ShouldThrow();
         sb.InsertAt(value, atIndex);
         return this;
     }
 
-    public IMutableString Insert(int atIndex, StringBuilder value)
+    public MutableString Insert(int atIndex, StringBuilder? value)
     {
+        if (value == null) return this;
         if (IsFrozen) return ShouldThrow();
         sb.InsertAt(value, atIndex);
+        return this;
+    }
+
+    public MutableString Insert(int index, string? value, int count)
+    {
+        if (value == null) return this;
+        if (IsFrozen) return ShouldThrow();
+        sb.Insert(index, value, count);
+        return this;
+    }
+
+    public MutableString Insert(int atIndex, ReadOnlySpan<char> value)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.Insert(atIndex, value);
+        return this;
+    }
+
+    public MutableString Remove(int startIndex, int length)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.Remove(startIndex, length);
         return this;
     }
 
@@ -762,7 +1067,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString Replace(string find, string replace)
+    public MutableString Replace(string find, string? replace)
     {
         if (IsFrozen) return ShouldThrow();
         sb.Replace(find, replace);
@@ -776,9 +1081,9 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString Replace(IMutableString find, IMutableString replace) => Replace(find, replace, 0, Length);
+    public MutableString Replace(IFrozenString find, IFrozenString replace) => Replace(find, replace, 0, Length);
 
-    public MutableString Replace(IMutableString find, IMutableString replace, int startIndex, int length)
+    public MutableString Replace(IFrozenString find, IFrozenString replace, int startIndex, int length)
     {
         if (IsFrozen) return ShouldThrow();
         var fromIndex = startIndex;
@@ -887,6 +1192,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
+
     public MutableString Substring(int startIndex)
     {
         if (IsFrozen) return ShouldThrow();
@@ -910,12 +1216,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<char> GetEnumerator()
-    {
-        var stringBuilderEnumerator = EnumeratorPool.Borrow();
-        stringBuilderEnumerator.StringBuilder = sb;
-        return stringBuilderEnumerator;
-    }
+    public IEnumerator<char> GetEnumerator() => sb.RecycledEnumerator(EnumeratorPool);
 
     public override void StateReset()
     {
@@ -924,7 +1225,10 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         base.StateReset();
     }
 
+    // ReSharper disable once UnusedMember.Global
     public IFrozenString NewFrozenString => new FrozenMutableStringWrapper((MutableString)(Clone().Freeze));
+
+    IStringBuilder<IMutableString> ICloneable<IStringBuilder<IMutableString>>.Clone() => Clone();
 
     public override MutableString Clone() => Recycler?.Borrow<MutableString>() ?? new MutableString(this);
 
@@ -982,6 +1286,27 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return obj is MutableString s && Equals(s);
     }
 
+    public bool Equals([NotNullWhen(true)] StringBuilder? otherSb)
+    {
+        return sb.Equals(otherSb);
+    }
+
+    public bool Equals(ReadOnlySpan<char> span)
+    {
+        var thisLen  = Length;
+        var otherLen = span.Length;
+        if (thisLen < otherLen) return false;
+        if (thisLen > otherLen) return false;
+        var minLen = Math.Min(thisLen, otherLen);
+        for (var i = 0; i < minLen; i++)
+        {
+            var cmp = sb[i] - span[i];
+            if (cmp != 0) return false;
+        }
+
+        return true;
+    }
+
     public override int GetHashCode()
     {
         var len  = sb.Length;
@@ -993,13 +1318,15 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public override string ToString() => sb.ToString();
 
+    public string ToString(int startIndex, int length) => sb.ToString(startIndex, length);
+
 
     public static implicit operator MutableString(string? initial) => initial != null ? new(initial) : null!;
 
     public static bool operator ==(string lhs, MutableString rhs)
     {
         if (ReferenceEquals(rhs, null)) return ReferenceEquals(lhs, null);
-        return rhs.Equals(lhs);
+        return rhs.Equals((ReadOnlySpan<char>)lhs);
     }
 
     public static bool operator !=(string lhs, MutableString rhs) => !(lhs == rhs);
@@ -1008,7 +1335,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     {
         if (ReferenceEquals(lhs, null)) return ReferenceEquals(rhs, null);
         if (ReferenceEquals(rhs, null)) return ReferenceEquals(lhs, null);
-        return lhs.Equals(rhs);
+        return lhs.Equals((ReadOnlySpan<char>)rhs);
     }
 
     public static bool operator !=(MutableString? lhs, string? rhs) => !(lhs == rhs);
@@ -1021,35 +1348,6 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public static bool operator !=(MutableString? lhs, MutableString? rhs) => !(lhs == rhs);
 
-    private class StringBuilderEnumerator(IPooledFactory<StringBuilderEnumerator> enumeratorPool) : IEnumerator<char>
-    {
-        private int currentPosition = -1;
-
-        private StringBuilder? sb;
-
-        public StringBuilder StringBuilder
-        {
-            set => sb = value;
-        }
-
-        public void Dispose()
-        {
-            Reset();
-            sb = null;
-            enumeratorPool.ReturnBorrowed(this);
-        }
-
-        public bool MoveNext() => ++currentPosition < sb!.Length;
-
-        public void Reset()
-        {
-            currentPosition = -1;
-        }
-
-        public char Current => sb![currentPosition];
-
-        object IEnumerator.Current => Current;
-    }
 
     private class FrozenMutableStringWrapper(MutableString ms) : IFrozenString
     {
@@ -1061,11 +1359,11 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
         public bool IsFrozen => ms.IsFrozen;
 
-        public int CompareTo(IMutableString other) => ms.CompareTo(other);
+        public int CompareTo(ICharSequence other) => ms.CompareTo(other);
 
         public int CompareTo(string other) => ms.CompareTo(other);
 
-        public bool Contains(IMutableString subStr) => ms.Contains(subStr);
+        public bool Contains(ICharSequence subStr) => ms.Contains(subStr);
 
         public bool Contains(string subStr) => ms.Contains(subStr);
 
@@ -1091,11 +1389,11 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
         public int IncrementRefCount() => ms.IncrementRefCount();
 
-        public int IndexOf(IMutableString subStr, int fromThisPos) => ms.IndexOf(subStr, fromThisPos);
+        public int IndexOf(ICharSequence subStr, int fromThisPos) => ms.IndexOf(subStr, fromThisPos);
 
         public int IndexOf(string subStr) => ms.IndexOf(subStr);
 
-        public int IndexOf(IMutableString subStr) => ms.IndexOf(subStr);
+        public int IndexOf(ICharSequence subStr) => ms.IndexOf(subStr);
 
         public int IndexOf(string subStr, int fromThisPos) => ms.IndexOf(subStr, fromThisPos);
 
@@ -1107,11 +1405,11 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
         public char this[int index] => ms[index];
 
-        public int LastIndexOf(IMutableString subStr) => ms.LastIndexOf(subStr);
+        public int LastIndexOf(ICharSequence subStr) => ms.LastIndexOf(subStr);
 
         public int LastIndexOf(string subStr, int fromThisPos) => ms.LastIndexOf(subStr, fromThisPos);
 
-        public int LastIndexOf(IMutableString subStr, int fromThisPos) => ms.LastIndexOf(subStr, fromThisPos);
+        public int LastIndexOf(ICharSequence subStr, int fromThisPos) => ms.LastIndexOf(subStr, fromThisPos);
 
         public int LastIndexOf(string subStr) => ms.LastIndexOf(subStr);
 
@@ -1150,6 +1448,7 @@ public static class MutableStringExtensions
         return result;
     }
 
+    // ReSharper disable once ReturnTypeCanBeNotNullable
     public static MutableString? TransferOrCreate(this MutableString? possibleExisting, string? possibleNew)
     {
         var result = possibleExisting;

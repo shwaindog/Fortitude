@@ -4,6 +4,7 @@ using System.Text;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarkets.Trading.Counterparties;
 using FortitudeMarkets.Trading.Executions;

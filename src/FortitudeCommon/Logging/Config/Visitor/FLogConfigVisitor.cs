@@ -1,80 +1,96 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Appending.Formatting;
+using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.Expressions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
 using FortitudeCommon.Logging.Config.ConfigSources;
 using FortitudeCommon.Logging.Config.Initialization;
+using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Logging.Config.Pooling;
+using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeCommon.Logging.Config.Visitor;
 
-public interface IFLogConfigVisitor<out T> where T : IFLogConfigVisitor<T>
+public interface IFLogConfigVisitor<TBase> : IReusableObject<IFLogConfigVisitor<TBase>>
+    where TBase : IFLogConfigVisitor<TBase>
 {
-    T Accept(IMutableFLogAppConfig appConfig);
+    TBase Accept(IMutableFLogAppConfig appConfig);
 
-    T Accept(IAppendableOrderedConfigSourcesLookupConfig configSourcesLookup);
+    TBase Accept(IAppendableOrderedConfigSourcesLookupConfig configSourcesLookup);
 
-    T Accept(IMutableFLoggerTreeCommonConfig loggerCommonConfig);
+    TBase Accept(IMutableFLoggerTreeCommonConfig loggerCommonConfig);
 
-    T Accept(IMutableFLoggerRootConfig loggerRootConfig);
+    TBase Accept(IMutableFLoggerRootConfig loggerRootConfig);
 
-    T Accept(IMutableFLoggerDescendantConfig loggerDescendantConfig);
+    TBase Accept(IMutableFLoggerDescendantConfig loggerDescendantConfig);
 
-    T Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig);
+    TBase Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig);
 
-    T Accept(IMutableAppenderReferenceConfig appenderConfig);
+    TBase Accept(IMutableAppenderReferenceConfig appenderConfig);
 
-    T Accept(IMutableFLogEntryPoolConfig entryPoolConfig);
+    TBase Accept(IMutableConsoleAppenderConfig consoleAppenderConfig);
 
-    T Accept(IAppendableNamedAppendersLookupConfig appendersCollectionConfig);
+    TBase Accept(IMutableFLogEntryPoolConfig entryPoolConfig);
 
-    T Accept(IAppendableForwardingAppendersLookupConfig forwardToAppendersCollectionConfig);
+    TBase Accept(IAppendableNamedAppendersLookupConfig appendersCollectionConfig);
 
-    T Accept(IMutableForwardingAppenderConfig forwardingAppenderConfig);
+    TBase Accept(IAppendableForwardingAppendersLookupConfig forwardToAppendersCollectionConfig);
 
-    T Accept(IMutableFLogEntryQueueConfig queueConfig);
+    TBase Accept(IMutableForwardingAppenderConfig forwardingAppenderConfig);
 
-    T Accept(IMutableMatchEntryContainsStringConfig containsStringMatchConfig);
+    TBase Accept(IMutableFLogEntryQueueConfig queueConfig);
 
-    T Accept(IMutableMatchLogLevelConfig logLevelMatchConfig);
+    TBase Accept(IMutableMatchEntryContainsStringConfig containsStringMatchConfig);
 
-    T Accept(IMutableMatchSequenceKeysComparisonConfig sequenceKeysComparisonConfig);
+    TBase Accept(IMutableMatchLogLevelConfig logLevelMatchConfig);
 
-    T Accept(IAppendableMatchOperatorLookupConfig matchOperatorLookupConfig);
+    TBase Accept(IMutableMatchSequenceKeysComparisonConfig sequenceKeysComparisonConfig);
 
-    T Accept(IMutableMatchOperatorExpressionConfig matchOperatorExpressionConfig);
+    TBase Accept(IAppendableMatchOperatorLookupConfig matchOperatorLookupConfig);
 
-    T Accept(IMutableExtractKeyExpressionConfig extractKeyExpressionConfig);
+    TBase Accept(IMutableMatchOperatorExpressionConfig matchOperatorExpressionConfig);
 
-    T Accept(IAppendableExtractedMessageKeyValuesConfig extractKeyValuesLookupConfig);
+    TBase Accept(IMutableExtractKeyExpressionConfig extractKeyExpressionConfig);
 
-    T Accept(IMutableMatchSequenceOccurenceConfig sequenceOccurenceConfig);
+    TBase Accept(IAppendableExtractedMessageKeyValuesConfig extractKeyValuesLookupConfig);
 
-    T Accept(IMutableMatchSequenceTriggerConfig matchSeqTriggerConfig);
+    TBase Accept(IMutableMatchSequenceOccurenceConfig sequenceOccurenceConfig);
 
-    T Accept(IMutableLogMessageTemplateConfig messageTemplateConfig);
+    TBase Accept(IMutableMatchSequenceTriggerConfig matchSeqTriggerConfig);
 
-    T Accept(IMutableSequenceHandleActionConfig sequenceHandleActionConfig);
+    TBase Accept(IMutableLogMessageTemplateConfig messageTemplateConfig);
 
-    T Accept(IMutableLogEntryPoolsInitializationConfig logEntryPoolsInitConfig);
+    TBase Accept(IMutableSequenceHandleActionConfig sequenceHandleActionConfig);
 
-    T Accept(IMutableFLogAsyncBufferingInitializationConfig asyncBufferingInitializationConfig);
+    TBase Accept(IMutableLogEntryPoolsInitializationConfig logEntryPoolsInitConfig);
 
-    T Accept(IMutableFLogInitializationConfig initializationConfig);
+    TBase Accept(IMutableAsyncQueuesInitConfig asyncQueuesInitConfig);
 
-    T Accept(IAppendableInheritingAppendersLookupConfig inheritingFormatAppendersConfig);
+    TBase Accept(IAppendableAsyncQueueLookupConfig asyncQueuesLookupConfig);
 
-    T Accept(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig);
+    TBase Accept(IMutableAsyncQueueConfig asyncQueueConfig);
+
+    TBase Accept(IMutableFLogInitializationConfig initializationConfig);
+
+    TBase Accept(IAppendableInheritingAppendersLookupConfig inheritingFormatAppendersConfig);
+
+    TBase Accept(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig);
+
+    TBase Accept(IMutableFlushBufferConfig flushBufferConfig);
 }
 
-public class FLogConfigVisitor<T> : IFLogConfigVisitor<T> where T : FLogConfigVisitor<T>
+public class FLogConfigVisitor<T> : ReusableObject<IFLogConfigVisitor<T>>, IFLogConfigVisitor<T> 
+    where T : FLogConfigVisitor<T>
 {
+    protected T Me => (T)this;
+
     public virtual T Accept(IMutableFLogAppConfig appConfig) => (T)this;
 
     public virtual T Accept(IAppendableOrderedConfigSourcesLookupConfig configSourcesLookup) => (T)this;
@@ -90,6 +106,8 @@ public class FLogConfigVisitor<T> : IFLogConfigVisitor<T> where T : FLogConfigVi
     public virtual T Accept(IMutableFLogEntryPoolConfig entryPoolConfig) => (T)this;
 
     public virtual T Accept(IMutableAppenderReferenceConfig appenderConfig) => (T)this;
+
+    public virtual T Accept(IMutableConsoleAppenderConfig consoleAppenderConfig) => (T)this;
 
     public virtual T Accept(IAppendableNamedAppendersLookupConfig appendersCollectionConfig) => (T)this;
 
@@ -125,11 +143,25 @@ public class FLogConfigVisitor<T> : IFLogConfigVisitor<T> where T : FLogConfigVi
 
     public virtual T Accept(IMutableLogEntryPoolsInitializationConfig logEntryPoolsInitConfig) => (T)this;
 
-    public virtual T Accept(IMutableFLogAsyncBufferingInitializationConfig asyncBufferingInitializationConfig) => (T)this;
+    public virtual T Accept(IMutableAsyncQueuesInitConfig asyncQueuesInitConfig)       => (T)this;
+
+    public virtual T Accept(IAppendableAsyncQueueLookupConfig asyncQueuesLookupConfig) => (T)this;
+    
+    public virtual T Accept(IMutableAsyncQueueConfig asyncQueueConfig) => (T)this;
 
     public virtual T Accept(IMutableFLogInitializationConfig initializationConfig) => (T)this;
 
     public virtual T Accept(IAppendableInheritingAppendersLookupConfig inheritingFormatAppendersConfig) => (T)this;
 
     public virtual T Accept(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig) => (T)this;
+
+    public virtual T Accept(IMutableFlushBufferConfig flushBufferConfig) => (T)this;
+
+    public override IFLogConfigVisitor<T> Clone() => 
+        Recycler?.Borrow<FLogConfigVisitor<T>>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new FLogConfigVisitor<T>();
+
+    public override IFLogConfigVisitor<T> CopyFrom(IFLogConfigVisitor<T> source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        return this;
+    }
 }

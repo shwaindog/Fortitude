@@ -2,7 +2,7 @@
 
 using System.Runtime.InteropServices;
 using FortitudeCommon.DataStructures.Memory;
-
+using FortitudeCommon.DataStructures.Memory.Buffers;
 
 #endregion
 

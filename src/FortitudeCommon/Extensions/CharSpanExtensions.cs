@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Extensions;
 
@@ -20,7 +21,7 @@ public static class CharSpanExtensions
         return toClear;
     }
 
-    public static int IndexOf(this Span<char> subject, int startingAtIndex = 0, char toFind = Terminator)
+    public static int IndexOf(this Span<char> subject, char toFind = Terminator, int startingAtIndex = 0)
     {
         var length = subject.Length;
         int i      = startingAtIndex;
@@ -30,6 +31,67 @@ public static class CharSpanExtensions
             if (checkChar == toFind) return i;
         }
         return -1;
+    }
+
+    public static int IndexOf(this Span<char> subject, IFrozenString toFind, int startingAtIndex = 0)
+    {
+        var length = subject.Length;
+        int i      = startingAtIndex;
+
+        var lastFindIndex    = toFind.Length - 1;
+        for (; i < length; i++)
+        {
+            var checkChar = subject[i];
+            for (var j = 0; j < toFind.Length; j++)
+            {
+                var compareChar = toFind[j];
+                if (checkChar != compareChar) break;
+                if (j == lastFindIndex) return i;
+            }
+        }
+        return -1;
+    }
+
+    public static int IndexOf(this Span<char> subject, StringBuilder toFind, int startingAtIndex = 0)
+    {
+        var length = subject.Length;
+        int i      = startingAtIndex;
+
+        var lastFindIndex    = toFind.Length - 1;
+        for (; i < length; i++)
+        {
+            var checkChar = subject[i];
+            for (var j = 0; j < toFind.Length; j++)
+            {
+                var compareChar = toFind[j];
+                if (checkChar != compareChar) break;
+                if (j == lastFindIndex) return i;
+            }
+        }
+        return -1;
+    }
+
+    public static int CountWhiteSpaceBackwardsFrom(this Span<char> searchSpace, int fromIndex)
+    {
+        var startIndex      = Math.Min(searchSpace.Length, fromIndex);
+        var countWhiteSpace = 0;
+        for (int i = startIndex; i >= 0; i--)
+        {
+            if (!searchSpace[i].IsWhiteSpace()) break;
+        }
+        return countWhiteSpace;
+    }
+
+    public static int CountWhiteSpaceFrom(this Span<char> searchSpace, int searchLength, int fromIndex)
+    {
+        var startIndex      = fromIndex;
+        var stopIndex      = Math.Min(searchSpace.Length, searchLength);
+        var countWhiteSpace = 0;
+        for (int i = startIndex; i < stopIndex; i++)
+        {
+            if (!searchSpace[i].IsWhiteSpace()) break;
+        }
+        return countWhiteSpace;
     }
 
     public static ReadOnlySpan<char> LastSplitFrom(this ReadOnlySpan<char> stringAsSpan, char splitChar)
@@ -48,16 +110,191 @@ public static class CharSpanExtensions
         return stringAsSpan;
     }
 
+    public static int ReplaceCapped(this Span<char> searchSpace, int searchPopLength, string find, string replace, int occurences = int.MaxValue)
+    {
+        var findSpan    = find.AsSpan();
+        var replaceSpan = replace.AsSpan();
+        return ReplaceCapped(searchSpace, searchPopLength, findSpan, replaceSpan, occurences);
+    }
+
+    public static int ReplaceCapped
+        (this Span<char> searchSpace, int searchPopLength, ReadOnlySpan<char> find, ReadOnlySpan<char> replace, int occurences = int.MaxValue)
+    {
+        int lengthChange    = 0;
+        var fromToDeltaSize = find.Length - replace.Length;
+
+        var found = 0;
+
+        int indexOfFind;
+        do
+        {
+            indexOfFind = searchSpace.IndexOf(find);
+            if (indexOfFind >= 0)
+            {
+                if (fromToDeltaSize > 0)
+                {
+                    var startIndex = Math.Min(searchSpace.Length - 1, searchPopLength + fromToDeltaSize);
+                    var stopIndex  = indexOfFind + find.Length;
+                    for (int i = startIndex; i > stopIndex; i--)
+                    {
+                        searchSpace[i] = searchSpace[i - fromToDeltaSize];
+                    }
+                    lengthChange    += fromToDeltaSize;
+                    searchPopLength += fromToDeltaSize;
+                }
+                else if (fromToDeltaSize < 0)
+                {
+                    var startIndex = indexOfFind + find.Length;
+                    var stopIndex  = Math.Min(searchSpace.Length - 1, searchPopLength);
+                    for (int i = startIndex; i < stopIndex; i++)
+                    {
+                        searchSpace[i] = searchSpace[i - fromToDeltaSize];
+                    }
+                    lengthChange    += fromToDeltaSize;
+                    searchPopLength += fromToDeltaSize;
+                }
+                found++;
+                searchSpace.OverWriteAt(indexOfFind, replace);
+                searchSpace = searchSpace.Slice(indexOfFind + replace.Length);
+            }
+        } while (indexOfFind >= 0 && found < occurences);
+        return lengthChange;
+    }
+
+    public static int ReplaceCapped
+        (this Span<char> searchSpace, int searchPopLength, IFrozenString find, IFrozenString replace, int occurences = int.MaxValue)
+    {
+        int lengthChange    = 0;
+        var fromToDeltaSize = find.Length - replace.Length;
+
+        var found = 0;
+
+        int indexOfFind;
+        do
+        {
+            indexOfFind = searchSpace.IndexOf(find);
+            if (indexOfFind >= 0)
+            {
+                if (fromToDeltaSize > 0)
+                {
+                    var startIndex = Math.Min(searchSpace.Length - 1, searchPopLength + fromToDeltaSize);
+                    var stopIndex  = indexOfFind + find.Length;
+                    for (int i = startIndex; i > stopIndex; i--)
+                    {
+                        searchSpace[i] = searchSpace[i - fromToDeltaSize];
+                    }
+                    lengthChange    += fromToDeltaSize;
+                    searchPopLength += fromToDeltaSize;
+                }
+                else if (fromToDeltaSize < 0)
+                {
+                    var startIndex = indexOfFind + find.Length;
+                    var stopIndex  = Math.Min(searchSpace.Length - 1, searchPopLength);
+                    for (int i = startIndex; i < stopIndex; i++)
+                    {
+                        searchSpace[i] = searchSpace[i - fromToDeltaSize];
+                    }
+                    lengthChange    += fromToDeltaSize;
+                    searchPopLength += fromToDeltaSize;
+                }
+                found++;
+                searchSpace.OverWriteAt(indexOfFind, replace);
+                searchSpace = searchSpace.Slice(indexOfFind + replace.Length);
+            }
+        } while (indexOfFind >= 0 && found < occurences);
+        return lengthChange;
+    }
+
+    public static int ReplaceCapped
+        (this Span<char> searchSpace, int searchPopLength, StringBuilder find, StringBuilder replace, int occurences = int.MaxValue)
+    {
+        int lengthChange    = 0;
+        var fromToDeltaSize = find.Length - replace.Length;
+
+        var found = 0;
+
+        int indexOfFind;
+        do
+        {
+            indexOfFind = searchSpace.IndexOf(find);
+            if (indexOfFind >= 0)
+            {
+                if (fromToDeltaSize > 0)
+                {
+                    var startIndex = Math.Min(searchSpace.Length - 1, searchPopLength + fromToDeltaSize);
+                    var stopIndex  = indexOfFind + find.Length;
+                    for (int i = startIndex; i > stopIndex; i--)
+                    {
+                        searchSpace[i] = searchSpace[i - fromToDeltaSize];
+                    }
+                    lengthChange    += fromToDeltaSize;
+                    searchPopLength += fromToDeltaSize;
+                }
+                else if (fromToDeltaSize < 0)
+                {
+                    var startIndex = indexOfFind + find.Length;
+                    var stopIndex  = Math.Min(searchSpace.Length - 1, searchPopLength);
+                    for (int i = startIndex; i < stopIndex; i++)
+                    {
+                        searchSpace[i] = searchSpace[i - fromToDeltaSize];
+                    }
+                    lengthChange    += fromToDeltaSize;
+                    searchPopLength += fromToDeltaSize;
+                }
+                found++;
+                searchSpace.OverWriteAt(indexOfFind, replace);
+                searchSpace = searchSpace.Slice(indexOfFind + replace.Length);
+            }
+        } while (indexOfFind >= 0 && found < occurences);
+        return lengthChange;
+    }
+
     public static int PopulatedLength(this Span<char> subject)
     {
         var terminatingIndex = IndexOf(subject);
         return terminatingIndex >= 0 ? terminatingIndex : subject.Length;
     }
 
-    public static Span<char> InsertAt(this Span<char> toUpdate, int index, char item)
+    public static Span<char> OverWriteAt(this Span<char> toUpdate, int spanIndex, char item)
     {
-        toUpdate[index] = item;
+        toUpdate[spanIndex] = item;
         return toUpdate;
+    }
+
+    public static int OverWriteAt(this Span<char> toUpdate, int spanIndex, ReadOnlySpan<char> toAppend)
+    {
+        var charsWritten = 0;
+        for (int i = 0; i < toAppend.Length && spanIndex < toUpdate.Length; i++)
+        {
+            toUpdate[spanIndex++] = toAppend[i];
+        }
+        return charsWritten;
+    }
+
+    public static int OverWriteAt
+        (this Span<char> toUpdate, int spanIndex, IFrozenString toAppend, int buildIndex = 0, int builderMaxLength = int.MaxValue)
+    {
+        var spanLength = toUpdate.Length;
+        builderMaxLength = Math.Min(builderMaxLength, toAppend.Length - buildIndex);
+        var charsWritten = 0;
+        for (int i = buildIndex; i < builderMaxLength && spanIndex < spanLength; i++)
+        {
+            toUpdate[spanIndex++] = toAppend[i];
+        }
+        return charsWritten;
+    }
+
+    public static int OverWriteAt
+        (this Span<char> toUpdate, int spanIndex, StringBuilder toAppend, int buildIndex = 0, int builderMaxLength = int.MaxValue)
+    {
+        var spanLength = toUpdate.Length;
+        builderMaxLength = Math.Min(builderMaxLength, toAppend.Length - buildIndex);
+        var charsWritten = 0;
+        for (int i = buildIndex; i < builderMaxLength && spanIndex < spanLength; i++)
+        {
+            toUpdate[spanIndex++] = toAppend[i];
+        }
+        return charsWritten;
     }
 
     public static Span<char> Append(this Span<char> toUpdate, char toAppend, ref int populatedLength)
@@ -134,8 +371,28 @@ public static class CharSpanExtensions
 
     public static readonly string[] DefaultTokenStartEndDelimiter = ["{", "}"];
 
+    public static bool ContainsTokens(this ReadOnlySpan<char> maybeTokenFormatting, string[]? tokenDelimiter = null)
+    {
+        tokenDelimiter ??= DefaultTokenStartEndDelimiter;
+        var foundOpening = false;
+        var foundClosing = false;
+        for (int i = 0; i < maybeTokenFormatting.Length; i++)
+        {
+            var delimiterMatchIndex = maybeTokenFormatting.SequenceIndexOfAnyOf(tokenDelimiter, i);
+            if (delimiterMatchIndex == 0)
+            {
+                foundOpening = true;
+            }
+            if (delimiterMatchIndex == 1 && foundOpening)
+            {
+                foundClosing = true;
+            }
+        }
+        return foundOpening && foundClosing;
+    }
+
     public static List<string> TokenSplit
-        (this ReadOnlySpan<char> tokenisedFormatting, string[]? tokenDelimiter = null, string[]? replaceDelimiter = null, bool ignoreDouble = true)
+        (this ReadOnlySpan<char> tokenisedFormatting, string[]? tokenDelimiter = null, string[]? replaceDelimiter = null)
     {
         tokenDelimiter ??= DefaultTokenStartEndDelimiter;
         if (replaceDelimiter != null && replaceDelimiter.Length < tokenDelimiter.Length)
@@ -144,8 +401,8 @@ public static class CharSpanExtensions
         }
         var result = new List<string>();
 
-        int  currentRangeStart = 0;
-        bool isInToken         = false;
+        int currentRangeStart = 0;
+        int tokenLevel        = 0;
 
         int i = 0;
         for (; i < tokenisedFormatting.Length; i++)
@@ -154,39 +411,48 @@ public static class CharSpanExtensions
             if (delimiterMatchIndex >= 0)
             {
                 var matchString = tokenDelimiter[delimiterMatchIndex];
-                if (isInToken)
+                if (delimiterMatchIndex == 0) // token opening
                 {
-                    var startMatchIndex      = tokenisedFormatting.SequenceIndexOfAnyOf(tokenDelimiter, currentRangeStart);
-                    var startDelimiter       = tokenDelimiter[startMatchIndex];
-                    var startDelimiterLength = startDelimiter.Length;
-                    if (i > currentRangeStart + startDelimiterLength)
+                    tokenLevel++;
+                    if (tokenLevel == 1)
                     {
-                        if (replaceDelimiter != null)
+                        var startMatchIndex      = tokenisedFormatting.SequenceIndexOfAnyOf(tokenDelimiter, currentRangeStart);
+                        var startDelimiter       = tokenDelimiter[startMatchIndex];
+                        var startDelimiterLength = startDelimiter.Length;
+                        if (i > currentRangeStart + startDelimiterLength)
                         {
-                            var replaceWithStart = replaceDelimiter[startMatchIndex];
-                            var replaceWithEnd   = replaceDelimiter[delimiterMatchIndex];
+                            if (replaceDelimiter != null)
+                            {
+                                var replaceWithStart = replaceDelimiter[startMatchIndex];
+                                var replaceWithEnd   = replaceDelimiter[delimiterMatchIndex];
 
-                            var bodyRange = tokenisedFormatting.Slice(currentRangeStart + startDelimiterLength, i + 1);
+                                var bodyRange = tokenisedFormatting.Slice(currentRangeStart + startDelimiterLength, i + 1);
 
-                            var stringPart = WrapToString(replaceWithStart, bodyRange, replaceWithEnd);
-                            result.Add(stringPart);
+                                var stringPart = WrapToString(replaceWithStart, bodyRange, replaceWithEnd);
+                                result.Add(stringPart);
+                            }
+                            else
+                            {
+                                var stringPart = new String(tokenisedFormatting.Slice(currentRangeStart, i + 1));
+                                result.Add(stringPart);
+                            }
                         }
-                        else
-                        {
-                            var stringPart = new String(tokenisedFormatting.Slice(currentRangeStart, i + 1));
-                            result.Add(stringPart);
-                        }
+                        currentRangeStart = i + matchString.Length;
                     }
                 }
                 else
                 {
-                    if (i > currentRangeStart)
+                    tokenLevel--;
+                    if (tokenLevel == 0)
                     {
-                        var stringPart = new String(tokenisedFormatting.Slice(currentRangeStart, i));
-                        result.Add(stringPart);
+                        if (i > currentRangeStart)
+                        {
+                            var stringPart = new String(tokenisedFormatting.Slice(currentRangeStart, i));
+                            result.Add(stringPart);
+                        }
+                        currentRangeStart = i + matchString.Length;
                     }
                 }
-                currentRangeStart = i + matchString.Length;
             }
         }
         if (i > currentRangeStart + 1)
@@ -221,10 +487,10 @@ public static class CharSpanExtensions
     }
 
     public static int ExtractStringFormatStages
-    (this ReadOnlySpan<char> toCheck, out ReadOnlySpan<char> param, out ReadOnlySpan<char> padding, out ReadOnlySpan<char> formatting
+    (this ReadOnlySpan<char> toCheck, out ReadOnlySpan<char> identifier, out ReadOnlySpan<char> padding, out ReadOnlySpan<char> formatting
       , int fromIndex = 0)
     {
-        param      = toCheck.Slice(0, 0);
+        identifier = toCheck.Slice(0, 0);
         padding    = toCheck.Slice(0, 0);
         formatting = toCheck.Slice(0, 0);
         var i = fromIndex;
@@ -241,8 +507,8 @@ public static class CharSpanExtensions
                     switch (stage)
                     {
                         case 0:
-                            stage = 1;
-                            param = toCheck.Slice(stageStartIndex, i);
+                            stage      = 1;
+                            identifier = toCheck.Slice(stageStartIndex, i);
 
                             stageStartIndex = i + 1;
                             continue;
@@ -252,8 +518,8 @@ public static class CharSpanExtensions
                     switch (stage)
                     {
                         case 0:
-                            stage = 2;
-                            param = toCheck.Slice(stageStartIndex, i);
+                            stage      = 2;
+                            identifier = toCheck.Slice(stageStartIndex, i);
 
                             stageStartIndex = i + 1;
                             continue;
@@ -269,8 +535,8 @@ public static class CharSpanExtensions
                     switch (stage)
                     {
                         case 0:
-                            stage = 3;
-                            param = toCheck.Slice(stageStartIndex, i);
+                            stage      = 3;
+                            identifier = toCheck.Slice(stageStartIndex, i);
 
                             stageStartIndex = i + 1;
                             break;
@@ -292,7 +558,7 @@ public static class CharSpanExtensions
             }
             if (stage >= 3) break;
         }
-        var paramCount = param.Length > 0 ? 1 : 0;
+        var paramCount = identifier.Length > 0 ? 1 : 0;
         paramCount += padding.Length > 0 ? 1 : 0;
         paramCount += padding.Length > 0 ? 1 : 0;
 
@@ -339,5 +605,30 @@ public static class CharSpanExtensions
             if (checkChar is < '0' or > '9') return maybeDigitsSpan.Slice(startingFrom, i);
         }
         return maybeDigitsSpan.Slice(startingFrom);
+    }
+
+    public static int? ExtractInt(this ReadOnlySpan<char> maybeDigitsSpan, int startingFrom = 0)
+    {
+        var  sign  = 1;
+        int? value = null;
+
+        var foundNonWhiteSpace = false;
+        for (var i = startingFrom; i < maybeDigitsSpan.Length; i++)
+        {
+            var checkChar = maybeDigitsSpan[i];
+            if (!foundNonWhiteSpace && checkChar.IsWhiteSpace()) continue;
+            if (checkChar.IsMinus()) sign = -1;
+            if (checkChar is < '0' or > '9')
+            {
+                value ??= 0;
+                value *=  10;
+                value +=  checkChar - '0';
+            }
+            else
+            {
+                break;
+            }
+        }
+        return value * sign;
     }
 }

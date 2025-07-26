@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config;
 
-public interface IFLogConfig 
+public interface IFLogConfig
 {
     T Visit<T>(T visitor) where T : IFLogConfigVisitor<T>;
 

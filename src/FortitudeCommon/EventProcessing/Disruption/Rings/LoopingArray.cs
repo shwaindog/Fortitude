@@ -2,7 +2,7 @@
 
 using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
-
+using FortitudeCommon.DataStructures.Memory.Buffers;
 
 #endregion
 

@@ -6,9 +6,9 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
 
-namespace FortitudeCommon.Types.Mutable;
+namespace FortitudeCommon.Types.Mutable.Strings;
 
-public interface IFrozenString : IRecyclableObject, ICanSourceThawed<IMutableString>, IEnumerable<char>
+public interface ICharSequence : IRecyclableObject, IEnumerable<char>
 {
     int Length { get; }
     char this[int index] { get; }
@@ -19,19 +19,23 @@ public interface IFrozenString : IRecyclableObject, ICanSourceThawed<IMutableStr
 
     bool EquivalentTo(string other);
     int  CompareTo(string other);
-    int  CompareTo(IMutableString other);
+    int  CompareTo(ICharSequence other);
     bool Contains(string subStr);
-    bool Contains(IMutableString subStr);
+    bool Contains(ICharSequence subStr);
     int  IndexOf(string subStr);
-    int  IndexOf(IMutableString subStr);
+    int  IndexOf(ICharSequence subStr);
     int  IndexOf(string subStr, int fromThisPos);
-    int  IndexOf(IMutableString subStr, int fromThisPos);
+    int  IndexOf(ICharSequence subStr, int fromThisPos);
     int  LastIndexOf(string subStr);
-    int  LastIndexOf(IMutableString subStr);
+    int  LastIndexOf(ICharSequence subStr);
     int  LastIndexOf(string subStr, int fromThisPos);
-    int  LastIndexOf(IMutableString subStr, int fromThisPos);
+    int  LastIndexOf(ICharSequence subStr, int fromThisPos);
 
     string ToString();
+}
+
+public interface IFrozenString : ICharSequence, ICanSourceThawed<IMutableString>
+{
 }
 
 
@@ -171,6 +175,8 @@ public static class FrozenStringExtensions
         }
         return results;
     }
+
+
 
     public static string SplitFirstAsString(this IFrozenString source, char[] delimiters)
     {

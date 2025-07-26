@@ -6,7 +6,12 @@ using FortitudeCommon.Extensions;
 
 namespace FortitudeCommon.Logging.Core.LogEntries;
 
-public record struct LoggingLocation(string MemberName, string SourceFilePath, int SourceLineNumber);
+public record struct LoggingLocation(string MemberName, string SourceFilePath, int SourceLineNumber)
+{
+    public const string PerfLogging = "NonePerfLogging";
+
+    public static readonly LoggingLocation NonePerfLoggingUsed = new (PerfLogging, PerfLogging, 0);
+}
 
 public static class LoggingLocationExtensions
 {

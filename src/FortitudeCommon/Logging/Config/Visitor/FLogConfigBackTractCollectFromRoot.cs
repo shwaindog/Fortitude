@@ -1,20 +1,22 @@
 ﻿using System.Collections;
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Appending.Formatting;
+using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.Expressions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
 using FortitudeCommon.Logging.Config.ConfigSources;
 using FortitudeCommon.Logging.Config.Initialization;
+using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Logging.Config.Pooling;
 
 namespace FortitudeCommon.Logging.Config.Visitor;
 
 public class FLogConfigBackTractCollectFromRoot<T, TCollect>(List<TCollect> found, Predicate<TCollect>? meetsCondition = null) 
-    : FLogConfigVisitor<FLogConfigBackTractCollectFromRoot<T, TCollect>>, IEnumerable<TCollect> 
-    where T : FLogConfigVisitor<T>
+    : FLogConfigVisitor<T>, IEnumerable<TCollect> 
+    where T : FLogConfigBackTractCollectFromRoot<T, TCollect>
 {
     private static readonly Predicate<TCollect> Always = _ => true;
 
@@ -24,206 +26,234 @@ public class FLogConfigBackTractCollectFromRoot<T, TCollect>(List<TCollect> foun
 
     public FLogConfigBackTractCollectFromRoot() : this(new List<TCollect>(), Always) { }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableFLogAppConfig appConfig)
+    public override T Accept(IMutableFLogAppConfig appConfig)
     {
         if(appConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IAppendableOrderedConfigSourcesLookupConfig configSourcesLookup)
+    public override T Accept(IAppendableOrderedConfigSourcesLookupConfig configSourcesLookup)
     {
-        configSourcesLookup.ParentConfig?.Visit(this);
+        configSourcesLookup.ParentConfig?.Visit(Me);
         if(configSourcesLookup is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableFLoggerTreeCommonConfig loggerCommonConfig)
+    public override T Accept(IMutableFLoggerTreeCommonConfig loggerCommonConfig)
     {
-        loggerCommonConfig.ParentConfig?.Visit(this);
+        loggerCommonConfig.ParentConfig?.Visit(Me);
         if(loggerCommonConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableFLoggerRootConfig loggerRootConfig)
+    public override T Accept(IMutableFLoggerRootConfig loggerRootConfig)
     {
-        loggerRootConfig.ParentConfig?.Visit(this);
+        loggerRootConfig.ParentConfig?.Visit(Me);
         if(loggerRootConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableFLoggerDescendantConfig loggerDescendantConfig)
+    public override T Accept(IMutableFLoggerDescendantConfig loggerDescendantConfig)
     {
-        loggerDescendantConfig.ParentConfig?.Visit(this);
+        loggerDescendantConfig.ParentConfig?.Visit(Me);
         if(loggerDescendantConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig) 
+    public override T Accept(IMutableNamedChildLoggersLookupConfig childLoggersConfig) 
     {
-        childLoggersConfig.ParentConfig?.Visit(this);
+        childLoggersConfig.ParentConfig?.Visit(Me);
         if(childLoggersConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableFLogEntryPoolConfig entryPoolConfig)
+    public override T Accept(IMutableFLogEntryPoolConfig entryPoolConfig)
     {
-        entryPoolConfig.ParentConfig?.Visit(this);
+        entryPoolConfig.ParentConfig?.Visit(Me);
         if(entryPoolConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableAppenderReferenceConfig appenderConfig)
+    public override T Accept(IMutableAppenderReferenceConfig appenderConfig)
     {
-        appenderConfig.ParentConfig?.Visit(this);
+        appenderConfig.ParentConfig?.Visit(Me);
         if(appenderConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IAppendableNamedAppendersLookupConfig appendersCollectionConfig)
+    public override T Accept(IMutableConsoleAppenderConfig consoleAppenderConfig) 
     {
-        appendersCollectionConfig.ParentConfig?.Visit(this);
+        consoleAppenderConfig.ParentConfig?.Visit(Me);
+        if(consoleAppenderConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
+        return Me;
+    }
+
+    public override T Accept(IAppendableNamedAppendersLookupConfig appendersCollectionConfig)
+    {
+        appendersCollectionConfig.ParentConfig?.Visit(Me);
         if(appendersCollectionConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IAppendableForwardingAppendersLookupConfig forwardToAppendersCollectionConfig) 
+    public override T Accept(IAppendableForwardingAppendersLookupConfig forwardToAppendersCollectionConfig) 
     {
-        forwardToAppendersCollectionConfig.ParentConfig?.Visit(this);
+        forwardToAppendersCollectionConfig.ParentConfig?.Visit(Me);
         if(forwardToAppendersCollectionConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableForwardingAppenderConfig forwardingAppenderConfig)
+    public override T Accept(IMutableForwardingAppenderConfig forwardingAppenderConfig)
     {
-        forwardingAppenderConfig.ParentConfig?.Visit(this);
+        forwardingAppenderConfig.ParentConfig?.Visit(Me);
         if(forwardingAppenderConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableBufferingAppenderConfig bufferingAppenderConfig)
+    public override T Accept(IMutableBufferingAppenderConfig bufferingAppenderConfig)
     {
-        bufferingAppenderConfig.ParentConfig?.Visit(this);
+        bufferingAppenderConfig.ParentConfig?.Visit(Me);
         if(bufferingAppenderConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableFLogEntryQueueConfig queueConfig)
+    public override T Accept(IMutableFLogEntryQueueConfig queueConfig)
     {
-        queueConfig.ParentConfig?.Visit(this);
+        queueConfig.ParentConfig?.Visit(Me);
         if(queueConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableMatchEntryContainsStringConfig containsStringMatchConfig)
+    public override T Accept(IMutableMatchEntryContainsStringConfig containsStringMatchConfig)
     {
-        containsStringMatchConfig.ParentConfig?.Visit(this);
+        containsStringMatchConfig.ParentConfig?.Visit(Me);
         if(containsStringMatchConfig is TCollect toAdd) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableMatchLogLevelConfig logLevelMatchConfig)
+    public override T Accept(IMutableMatchLogLevelConfig logLevelMatchConfig)
     {
-        logLevelMatchConfig.ParentConfig?.Visit(this);
+        logLevelMatchConfig.ParentConfig?.Visit(Me);
         if(logLevelMatchConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableMatchSequenceKeysComparisonConfig sequenceKeysComparisonConfig)
+    public override T Accept(IMutableMatchSequenceKeysComparisonConfig sequenceKeysComparisonConfig)
     {
-        sequenceKeysComparisonConfig.ParentConfig?.Visit(this);
+        sequenceKeysComparisonConfig.ParentConfig?.Visit(Me);
         if(sequenceKeysComparisonConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IAppendableMatchOperatorLookupConfig matchOperatorLookupConfig)
+    public override T Accept(IAppendableMatchOperatorLookupConfig matchOperatorLookupConfig)
     {
-        matchOperatorLookupConfig.ParentConfig?.Visit(this);
+        matchOperatorLookupConfig.ParentConfig?.Visit(Me);
         if(matchOperatorLookupConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableMatchOperatorExpressionConfig matchOperatorExpressionConfig)
+    public override T Accept(IMutableMatchOperatorExpressionConfig matchOperatorExpressionConfig)
     {
-        matchOperatorExpressionConfig.ParentConfig?.Visit(this);
+        matchOperatorExpressionConfig.ParentConfig?.Visit(Me);
         if(matchOperatorExpressionConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableExtractKeyExpressionConfig extractKeyExpressionConfig)
+    public override T Accept(IMutableExtractKeyExpressionConfig extractKeyExpressionConfig)
     {
-        extractKeyExpressionConfig.ParentConfig?.Visit(this);
+        extractKeyExpressionConfig.ParentConfig?.Visit(Me);
         if(extractKeyExpressionConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IAppendableExtractedMessageKeyValuesConfig extractKeyValuesLookupConfig)
+    public override T Accept(IAppendableExtractedMessageKeyValuesConfig extractKeyValuesLookupConfig)
     {
-        extractKeyValuesLookupConfig.ParentConfig?.Visit(this);
+        extractKeyValuesLookupConfig.ParentConfig?.Visit(Me);
         if(extractKeyValuesLookupConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableMatchSequenceOccurenceConfig matchSequenceOccurenceConfig)
+    public override T Accept(IMutableMatchSequenceOccurenceConfig matchSequenceOccurenceConfig)
     {
-        matchSequenceOccurenceConfig.ParentConfig?.Visit(this);
+        matchSequenceOccurenceConfig.ParentConfig?.Visit(Me);
         if(matchSequenceOccurenceConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableMatchSequenceTriggerConfig matchSeqTriggerConfig)
+    public override T Accept(IMutableMatchSequenceTriggerConfig matchSeqTriggerConfig)
     {
-        matchSeqTriggerConfig.ParentConfig?.Visit(this);
+        matchSeqTriggerConfig.ParentConfig?.Visit(Me);
         if(matchSeqTriggerConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableLogMessageTemplateConfig messageTemplateConfig)
+    public override T Accept(IMutableLogMessageTemplateConfig messageTemplateConfig)
     {
-        messageTemplateConfig.ParentConfig?.Visit(this);
+        messageTemplateConfig.ParentConfig?.Visit(Me);
         if(messageTemplateConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableSequenceHandleActionConfig sequenceHandleActionConfig)
+    public override T Accept(IMutableSequenceHandleActionConfig sequenceHandleActionConfig)
     {
-        sequenceHandleActionConfig.ParentConfig?.Visit(this);
+        sequenceHandleActionConfig.ParentConfig?.Visit(Me);
         if(sequenceHandleActionConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableLogEntryPoolsInitializationConfig logEntryPoolsInitConfig)
+    public override T Accept(IMutableLogEntryPoolsInitializationConfig logEntryPoolsInitConfig)
     {
-        logEntryPoolsInitConfig.ParentConfig?.Visit(this);
+        logEntryPoolsInitConfig.ParentConfig?.Visit(Me);
         if(logEntryPoolsInitConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableFLogAsyncBufferingInitializationConfig asyncBufferingInitializationConfig)
+    public override T Accept(IMutableAsyncQueuesInitConfig asyncQueuesInitConfig)
     {
-        asyncBufferingInitializationConfig.ParentConfig?.Visit(this);
-        if(asyncBufferingInitializationConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        asyncQueuesInitConfig.ParentConfig?.Visit(Me);
+        if(asyncQueuesInitConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableFLogInitializationConfig initializationConfig)
+    public override T Accept(IAppendableAsyncQueueLookupConfig asyncQueuesLookupConfig)
     {
-        initializationConfig.ParentConfig?.Visit(this);
+        asyncQueuesLookupConfig.ParentConfig?.Visit(Me);
+        if(asyncQueuesLookupConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
+        return Me;
+    }
+
+    public override T Accept(IMutableAsyncQueueConfig asyncQueueConfig)
+    {
+        asyncQueueConfig.ParentConfig?.Visit(Me);
+        if(asyncQueueConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
+        return Me;
+    }
+
+    public override T Accept(IMutableFLogInitializationConfig initializationConfig)
+    {
+        initializationConfig.ParentConfig?.Visit(Me);
         if(initializationConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IAppendableInheritingAppendersLookupConfig inheritingFormatAppendersConfig)
+    public override T Accept(IAppendableInheritingAppendersLookupConfig inheritingFormatAppendersConfig)
     {
-        inheritingFormatAppendersConfig.ParentConfig?.Visit(this);
+        inheritingFormatAppendersConfig.ParentConfig?.Visit(Me);
         if(inheritingFormatAppendersConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
     }
 
-    public override FLogConfigBackTractCollectFromRoot<T, TCollect> Accept(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig)
+    public override T Accept(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig)
     {
-        fileConfigSourceConfig.ParentConfig?.Visit(this);
+        fileConfigSourceConfig.ParentConfig?.Visit(Me);
         if(fileConfigSourceConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return this;
+        return Me;
+    }
+
+    public override T Accept(IMutableFlushBufferConfig flushBufferConfig)
+    {
+        flushBufferConfig.ParentConfig?.Visit(Me);
+        if(flushBufferConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
+        return Me;
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

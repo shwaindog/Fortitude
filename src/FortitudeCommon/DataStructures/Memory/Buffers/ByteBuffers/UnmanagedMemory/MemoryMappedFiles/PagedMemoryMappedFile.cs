@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
+using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.Memory;
 using FortitudeCommon.Serdes.Binary;

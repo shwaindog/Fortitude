@@ -4,6 +4,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging.Diagnostics.Performance;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeIO.Protocols.ORX.Serdes.Deserialization;
 using FortitudeIO.Protocols.ORX.Serdes.Serialization;

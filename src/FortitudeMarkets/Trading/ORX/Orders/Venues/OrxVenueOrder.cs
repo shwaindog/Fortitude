@@ -3,6 +3,7 @@
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeIO.Protocols.ORX.Serdes;
 using FortitudeMarkets.Trading.Orders;
 using FortitudeMarkets.Trading.Orders.Venues;

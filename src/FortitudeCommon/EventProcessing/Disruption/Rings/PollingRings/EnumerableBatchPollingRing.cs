@@ -2,6 +2,7 @@
 
 using System.Collections;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.EventProcessing.Disruption.Sequences;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 
@@ -76,6 +77,16 @@ public class EnumerableBatchPollingRing<T> : IEnumerableBatchPollingRing<T> wher
     {
         get => currentSequence;
         private set => currentSequence = value & ringMask;
+    }
+
+    public int Queued
+    {
+        get
+        {
+            var snapConCursor = conCursor.Value;
+            var snapPubCursor = pubCursor.Value;
+            return snapPubCursor > snapConCursor ? (snapPubCursor & ringMask) - (snapConCursor & ringMask) : (snapPubCursor & ringMask) + (snapConCursor % cells.Length);
+        }
     }
 
     public int CurrentBatchSize { get; private set; }
@@ -167,6 +178,18 @@ public class EnumerableBatchPollingRingLong<T> : IEnumerableBatchPollingRingLong
     public string Name { get; }
 
     public T this[long sequence] => cells[(int)sequence & ringMask];
+
+    public long Queued
+    {
+        get
+        {
+            var snapConCursor = conCursor.Value;
+            var snapPubCursor = pubCursor.Value;
+            return snapPubCursor > snapConCursor 
+                ? (snapPubCursor & ringMask) - (snapConCursor & ringMask) 
+                : (snapPubCursor & ringMask) + (snapConCursor % cells.Length);
+        }
+    }
 
     public long CurrentSequence { get; private set; }
     public int CurrentBatchSize { get; private set; }

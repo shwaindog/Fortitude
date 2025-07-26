@@ -3,8 +3,12 @@
 
 #region
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics;
 using System.Text;
 
 #endregion
@@ -130,38 +134,28 @@ public static class StringExtensions
         return int.TryParse(sb.ToString(), out var result) ? result : null;
     }
 
-    public static string CharIndexPosListedSizeString(this int size)
-    {
-        var sb = new StringBuilder();
-        sb.Append("0");
-        int i;
-        if (size < 1000)
-        {
-            i = 4;
-            for (; i < size + 4; i += 4) sb.AppendFormat("_{0:000}", i);
-        }
-        else if (size < 10_000)
-        {
-            i = 5;
-            for (; i < size + 5; i += 5) sb.AppendFormat("_{0:0000}", i);
-        }
-        else if (size < 100_000)
-        {
-            i = 6;
-            for (; i < size + 6; i += 6) sb.AppendFormat("_{0:00000}", i);
-        }
-        else
-        {
-            i = 7;
-            for (; i < size + 7; i += 7) sb.AppendFormat("_{0:000000}", i);
-        }
 
-        return sb.ToString(0, size);
+    public static bool ContainsTokens(this string maybeTokenFormatting, string[]? tokenDelimiter = null)
+    {
+        var formattingSpan = maybeTokenFormatting.AsSpan();
+        var containsTokens = formattingSpan.ContainsTokens(tokenDelimiter);
+        return containsTokens;
     }
 
-    public static int?     ToInt(this string? parse)     => parse.IsNotNullOrEmpty() ? int.Parse(parse!) : null;
-    public static uint?    ToUInt(this string? parse)    => parse.IsNotNullOrEmpty() ? uint.Parse(parse!) : null;
-    public static float?   ToFloat(this string? parse)   => parse.IsNotNullOrEmpty() ? float.Parse(parse!) : null;
-    public static decimal? ToDecimal(this string? parse) => parse.IsNotNullOrEmpty() ? decimal.Parse(parse!) : null;
-    public static double?  ToDouble(this string? parse)  => parse.IsNotNullOrEmpty() ? double.Parse(parse!) : null;
+    public static List<string> TokenSplit
+        (this string tokenisedFormatting, string[]? tokenDelimiter = null, string[]? replaceDelimiter = null)
+    {
+        var formattingSpan = tokenisedFormatting.AsSpan();
+        var stringParts    = formattingSpan.TokenSplit(tokenDelimiter, replaceDelimiter);
+        return stringParts;
+    }
+
+    public static string Format(this string formatString, params object?[] args) => string.Format(formatString, args);
+
+    public static string Format(this string formatString, object? arg0)                        => string.Format(formatString, arg0);
+
+    public static string Format(this string formatString, object? arg0, object? arg1)          => string.Format(formatString, arg0, arg1);
+
+    public static string Format(this string formatString, object? arg0, object? arg1, object? arg2) => string.Format(formatString, arg0, arg1, arg2);
+
 }

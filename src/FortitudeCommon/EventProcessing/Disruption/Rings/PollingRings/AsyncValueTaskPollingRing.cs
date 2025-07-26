@@ -5,6 +5,7 @@
 
 using FortitudeCommon.AsyncProcessing.Tasks;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.EventProcessing.Disruption.Sequences;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Monitoring.Logging;

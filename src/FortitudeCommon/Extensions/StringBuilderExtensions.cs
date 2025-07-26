@@ -1,5 +1,8 @@
-﻿using System.Text;
+﻿using System.Collections;
+using System.Text;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Extensions;
 
@@ -108,6 +111,83 @@ public static class StringBuilderExtensions
             toMutate.Length += updatedSizeDelta;
         }
         return toMutate;
+    }
+
+    public static string BuildStringBuilderFormatting(this int param, int padding = 0, string formatting = "")
+    {
+        var stringLength = param.NumOfDigits() + 2;
+        stringLength += padding > 0 ? padding.NumOfDigits() + 1 : 0;
+        stringLength += formatting.Length > 0 ? formatting.Length + 1 : 0;
+        var buildChars = stackalloc char[stringLength].ResetMemory();
+        var index      = 0;
+        buildChars[index++] = '{';
+        for (int i = 0; i < 1 || param > 0; i++)
+        {
+            var lowestDigit = param % 10;
+            var digitToAdd  = (char)('0' + lowestDigit); 
+            buildChars[index++] = digitToAdd;
+            param /= 10;
+        }
+        if (padding > 0)
+        {
+            buildChars[index++] = ',';
+            for (int i = 0; i < padding.NumOfDigits(); i++)
+            {
+                var lowestDigit = padding % 10;
+                var digitToAdd  = (char)('0' + lowestDigit); 
+                buildChars[index++] = digitToAdd;
+                padding /= 10;
+            }
+        }
+        if (formatting.Length > 0)
+        {
+            buildChars[index++] = ',';
+            for (int i = 0; i < formatting.Length; i++)
+            {
+                buildChars[index++] = formatting[i];
+            }
+        }
+        buildChars[index++] = '}';
+        return buildChars.ToString();
+    }
+
+    public static IEnumerator<char> RecycledEnumerator(this StringBuilder sb, IRecycler recycler) =>
+        recycler.Borrow<RecyclingStringBuilderEnumerator>().Initialize(sb);
+
+
+    
+    private class RecyclingStringBuilderEnumerator : RecyclableObject, IEnumerator<char>
+    {
+        private StringBuilder? sb;
+
+        private int currentPosition = -1;
+
+        public RecyclingStringBuilderEnumerator Initialize(StringBuilder sBuilder)
+        {
+            sb = sBuilder;
+
+            currentPosition = -1;
+
+            return this;
+        }
+
+        public void Dispose()
+        {
+            Reset();
+            sb = null;
+            DecrementRefCount();
+        }
+
+        public bool MoveNext() => ++currentPosition < sb!.Length;
+
+        public void Reset()
+        {
+            currentPosition = -1;
+        }
+
+        public char Current => sb![currentPosition];
+
+        object IEnumerator.Current => Current;
     }
 
 }

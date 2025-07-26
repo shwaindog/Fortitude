@@ -6,6 +6,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeIO.Conversations;
 using FortitudeIO.Protocols.ORX.Authentication;
 using FortitudeIO.Protocols.ORX.Serdes.Deserialization;
