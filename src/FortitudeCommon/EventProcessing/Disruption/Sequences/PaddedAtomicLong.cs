@@ -4,7 +4,6 @@
 #region
 
 using System.Runtime.InteropServices;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 
 #endregion
@@ -22,5 +21,9 @@ public struct PaddedAtomicLong(long value)
         public static long IncrementAndGet(ref PaddedAtomicLong atomicLong) => IncrementAndGet(ref atomicLong.lValue);
         
         private static long IncrementAndGet(ref long value) => Interlocked.Increment(ref value);
+        
+        public static long DecrementAndGet(ref PaddedAtomicLong atomicLong) => DecrementAndGet(ref atomicLong.lValue);
+        
+        private static long DecrementAndGet(ref long value) => Interlocked.Decrement(ref value);
     }
 }

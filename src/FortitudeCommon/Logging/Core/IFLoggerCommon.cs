@@ -38,7 +38,7 @@ public interface IFLoggerCommon
 
     IReadOnlyList<IFLogger> ImmediateEmbodiedChildren { get; }
 
-    IReadOnlyList<Appending.IFLogAppender> Appenders { get; }
+    IReadOnlyList<IAppenderClient> Appenders { get; }
 }
 
 public interface IMutableFLoggerCommon : IFLoggerCommon
@@ -55,7 +55,7 @@ public abstract class FLoggerBase : IMutableFLoggerCommon
 
     protected ConcurrentDictionary<string, IFLogger> ImmediateChildrenDict = new();
 
-    protected List<IFLogAppender> LoggerAppenders = new();
+    protected List<IAppenderClient> LoggerAppenders = new();
 
     protected FLoggerBase(IFLoggerTreeCommonConfig loggerConfig, IFLogLoggerRegistry loggerRegistry)
     {
@@ -94,7 +94,8 @@ public abstract class FLoggerBase : IMutableFLoggerCommon
         {
             if (Appenders.All(a => a.AppenderName != appenderConfig.Key))
             {
-                appenderRegistry.RegistryAppenderInterest((toAdd) => LoggerAppenders.Add(toAdd), appenderConfig.Key);
+                var appenderClient = appenderRegistry.GetAppenderClient(appenderConfig.Key, this);
+                LoggerAppenders.Add(appenderClient);
             }
         }
         for (var i = 0; i < Appenders.Count; i++)
@@ -109,7 +110,7 @@ public abstract class FLoggerBase : IMutableFLoggerCommon
         ResolvedConfig = newLoggerState;
     }
 
-    public IReadOnlyList<IFLogAppender> Appenders
+    public IReadOnlyList<IAppenderClient> Appenders
     {
         get => LoggerAppenders.AsReadOnly();
         internal set

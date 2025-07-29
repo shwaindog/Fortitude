@@ -6,6 +6,16 @@ public class Sequence(int initialValue, int wrapMask = int.MaxValue)
 
     private PaddedVolatileInt sequence = new(initialValue);
 
+    public int Increment()
+    {
+        return Value = PaddedVolatileInt.Extensions.IncrementAndGet(ref sequence);
+    }
+
+    public int Decrement()
+    {
+        return Value = PaddedVolatileInt.Extensions.DecrementAndGet(ref sequence);
+    }
+
     public int Value
     {
         get => sequence.Value & wrapMask;
@@ -18,6 +28,16 @@ public class SequenceLong(long initialValue)
     public const long InitialValue = -1L;
 
     private PaddedVolatileLong sequence = new(initialValue);
+
+    public long Increment()
+    {
+        return Value = PaddedVolatileLong.Extensions.IncrementAndGet(ref sequence);
+    }
+
+    public long Decrement()
+    {
+        return Value = PaddedVolatileLong.Extensions.DecrementAndGet(ref sequence);
+    }
 
     public long Value
     {

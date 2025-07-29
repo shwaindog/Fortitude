@@ -10,6 +10,8 @@ public enum FullQueueHandling
     Default
   , Block
   , TryAgain
+  , TimeoutDropNewest
+  , TimeoutDropNewestForwardToFailedAppender
   , DropNewest
   , DropOldest
   , DropNewestForwardToFailAppender
@@ -18,7 +20,9 @@ public enum FullQueueHandling
   , DropNewestTwoAddDroppedLog
   , DropAllDebugLevelInQueue
   , DropAllDebugInfoLevelInQueue
-  , DropAllAndBounceConsumer
+  , DropAll
+  , DropAllAddDroppedLog
+  , DropAllAddDroppedLogToFailAppender
   , DropEveryQueueInterval
   , DropDebugQueueInterval
   , DropDebugAndInfoQueueInterval
@@ -42,11 +46,13 @@ public static class FullQueueHandlingExtensions
 
             case FullQueueHandling.DropNewestForwardToFailAppender: sb.Append($"{nameof(FullQueueHandling.DropNewestForwardToFailAppender)}"); break;
             case FullQueueHandling.DropOldestForwardToFailAppender: sb.Append($"{nameof(FullQueueHandling.DropOldestForwardToFailAppender)}"); break;
-            case FullQueueHandling.DropOldestTwoAddDroppedLog:      sb.Append($"{nameof(FullQueueHandling.DropOldestTwoAddDroppedLog)}"); break;
-            case FullQueueHandling.DropNewestTwoAddDroppedLog:      sb.Append($"{nameof(FullQueueHandling.DropNewestTwoAddDroppedLog)}"); break;
-            case FullQueueHandling.DropAllDebugLevelInQueue:        sb.Append($"{nameof(FullQueueHandling.DropAllDebugLevelInQueue)}"); break;
-            case FullQueueHandling.DropAllDebugInfoLevelInQueue:    sb.Append($"{nameof(FullQueueHandling.DropAllDebugInfoLevelInQueue)}"); break;
-            case FullQueueHandling.DropAllAndBounceConsumer:        sb.Append($"{nameof(FullQueueHandling.DropAllAndBounceConsumer)}"); break;
+
+            case FullQueueHandling.DropOldestTwoAddDroppedLog:   sb.Append($"{nameof(FullQueueHandling.DropOldestTwoAddDroppedLog)}"); break;
+            case FullQueueHandling.DropNewestTwoAddDroppedLog:   sb.Append($"{nameof(FullQueueHandling.DropNewestTwoAddDroppedLog)}"); break;
+            case FullQueueHandling.DropAllDebugLevelInQueue:     sb.Append($"{nameof(FullQueueHandling.DropAllDebugLevelInQueue)}"); break;
+            case FullQueueHandling.DropAllDebugInfoLevelInQueue: sb.Append($"{nameof(FullQueueHandling.DropAllDebugInfoLevelInQueue)}"); break;
+
+            case FullQueueHandling.DropAll: sb.Append($"{nameof(FullQueueHandling.DropAll)}"); break;
 
             case FullQueueHandling.DropEveryQueueInterval: sb.Append($"{nameof(FullQueueHandling.DropEveryQueueInterval)}"); break;
             case FullQueueHandling.DropDebugQueueInterval: sb.Append($"{nameof(FullQueueHandling.DropDebugQueueInterval)}"); break;

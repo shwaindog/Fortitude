@@ -26,8 +26,6 @@
 
   <ItemGroup>
     <Folder Include="DataStructures\Memory\ManagedHeap\" />
-    <Folder Include="Logging\AsyncProcessing\CustomThreads\" />
-    <Folder Include="Logging\AsyncProcessing\ThreadPool\" />
     <Folder Include="Logging\Core\AsyncDispatch\" />
   </ItemGroup>
 

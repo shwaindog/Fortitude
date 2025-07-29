@@ -6,6 +6,8 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Framework.Fillers;
 using FortitudeCommon.Logging.Config;
+using FortitudeCommon.Logging.Core.Appending;
+using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
@@ -21,6 +23,8 @@ public interface IFLogEntry : IReusableObject<IFLogEntry>, IMaybeFrozen
     uint ReceivedSequenceNumber { get; }
     uint InstanceNumber         { get; }
     long CorrelationId { get; }
+
+
 
     object? CallerContextObject { get; }
 
@@ -65,7 +69,7 @@ public interface IMutableFLogEntry : IFLogEntry, IFreezable<IFLogEntry>
     new IMutableString Message { get; }
 }
 
-public record struct LoggerEntryContext(IFLogger Logger, ForwardLogEntry OnCompleteHandler, LoggingLocation LogLocation, FLogLevel LogLevel);
+public record struct LoggerEntryContext(IFLogger Logger, IFLogEntrySink OnCompleteHandler, LoggingLocation LogLocation, FLogLevel LogLevel);
 
 public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 {
@@ -75,7 +79,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 
     public event Action<IFLogEntry> MessageComplete;
 
-    private ForwardLogEntry dispatchHandler = null!;
+    private IFLogEntrySink dispatchHandler = null!;
 
     private static uint totalInstanceCount;
 
@@ -115,7 +119,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 
     protected virtual void SendToDispatchHandler(IFLogEntry me)
     {
-        dispatchHandler.Invoke(Freeze);
+        dispatchHandler.InBoundListener(new LogEntryPublishEvent(me), Logger.PublishEndpoint);
     }
 
     public void OnMessageComplete(StringBuilder? warningToPrefix)

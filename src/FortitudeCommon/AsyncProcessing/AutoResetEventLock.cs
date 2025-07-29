@@ -6,7 +6,8 @@ public class AutoResetEventLock(bool defaultAcquired = false) : RecyclableObject
 {
     private readonly AutoResetEvent resetEvent = new(!defaultAcquired);
 
-    [ThreadStatic] private static bool wasAcquired;
+    private bool wasAcquired;
+
     public AutoResetEventLock() : this(false) { }
 
     public int ReleaseCount { get; private set; }

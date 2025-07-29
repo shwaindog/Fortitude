@@ -17,7 +17,7 @@ public interface IAsyncQueueLookupConfig : IFLogConfig, IStickyKeyValueDictionar
   , IInterfacesComparable<IAsyncQueueLookupConfig>, ICloneable<IAsyncQueueLookupConfig>
   , IStyledToStringObject
 {
-    IAsyncQueuesInitConfig ParentDefaultQueuesInitConfig { get; }
+    IAsyncQueuesInitConfig? ParentDefaultQueuesInitConfig { get; }
 }
 
 public interface IAppendableAsyncQueueLookupConfig : IMutableFLogConfig, IAsyncQueueLookupConfig
@@ -35,7 +35,7 @@ public interface IAppendableAsyncQueueLookupConfig : IMutableFLogConfig, IAsyncQ
 
     new IEnumerator<KeyValuePair<byte, IMutableAsyncQueueConfig>> GetEnumerator();
 
-    new IMutableAsyncQueuesInitConfig ParentDefaultQueuesInitConfig { get; }
+    new IMutableAsyncQueuesInitConfig? ParentDefaultQueuesInitConfig { get; }
 }
 
 public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupConfig

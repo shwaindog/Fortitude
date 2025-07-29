@@ -6,6 +6,8 @@ namespace FortitudeCommon.Logging.Core.Appending.Formatting;
 
 public interface IBufferedFormatWriter : IFormatWriter
 {
+    int BufferNum { get; }
+
     int BufferCharCapacity { get; }
 
     int BufferRemainingCapacity { get; }
@@ -21,12 +23,15 @@ internal class BufferedFormatWriter : FormatWriter<IBufferedFormatWriter>, IBuff
 {
     private RecyclingCharArray Buffer { get; set; }
 
-    public BufferedFormatWriter(IMutableFLogBufferingFormatAppender owningAppender,
+    public BufferedFormatWriter(IMutableFLogBufferingFormatAppender owningAppender, int bufferNum,
         FormatWriterReceivedHandler<IBufferedFormatWriter> onWriteCompleteCallback) 
         : base(owningAppender, onWriteCompleteCallback)
     {
-        Buffer = owningAppender.CharBufferSize.SourceRecyclingCharArray();
+        BufferNum = bufferNum;
+        Buffer    = owningAppender.CharBufferSize.SourceRecyclingCharArray();
     }
+
+    public int BufferNum { get; }
 
     public override bool IsIOSynchronous => false;
 

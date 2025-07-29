@@ -1,9 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Configuration;
-using FortitudeCommon.Chronometry.Timers;
-
 namespace FortitudeCommon.Logging.Core.Hub;
 
 public interface IFLogContext
@@ -17,15 +14,21 @@ public interface IFLogContext
     IFLoggerAsyncRegistry  AsyncRegistry        { get; }
     IFLogConfigRegistry    ConfigRegistry       { get; }
     IFLogEntryPoolRegistry LogEntryPoolRegistry { get; }
-    IUpdateableTimer       LoggerTimers         { get; }
-} 
-
+}
 
 public class FLogContext : IFLogContext
 {
     private static IFLogContext? singletonInstance;
 
-    private static readonly object SyncLock = new ();
+    private static readonly object SyncLock = new();
+
+    private IFLogAppenderRegistry  appenderRegistry     = null!;
+    private IFLogLoggerRegistry    loggerRegistry       = null!;
+    private IFLoggerAsyncRegistry  asyncRegistry        = null!;
+    private IFLogConfigRegistry    configRegistry       = null!;
+    private IFLogEntryPoolRegistry logEntryPoolRegistry = null!;
+
+    private FLogContext() { }
 
     public static IFLogContext UninitializedInstance
     {
@@ -35,12 +38,10 @@ public class FLogContext : IFLogContext
             {
                 lock (SyncLock)
                 {
-                    if (singletonInstance == null)
-                    {
-                        singletonInstance = new FLogContext();
-                    }
+                    singletonInstance ??= new FLogContext();
                 }
             }
+            // ReSharper disable once InconsistentlySynchronizedField
             return singletonInstance;
         }
         set
@@ -83,24 +84,167 @@ public class FLogContext : IFLogContext
         }
     }
 
-    public FLogContext(string flogTimersName = "FLog Timers")
-    {
-        LoggerTimers     = new UpdateableTimer(flogTimersName);
-    }
-
     public bool HasStarted { get; internal set; }
 
     public bool IsInitialized { get; internal set; }
 
-    public IFLogAppenderRegistry AppenderRegistry { get; set; }
+    public IFLogAppenderRegistry AppenderRegistry
+    {
+        get => appenderRegistry;
+        set
+        {
+            if (appenderRegistry != null && HasStarted)
+            {
+                Console.Out.WriteLine($"Can not replace {typeof(FLogContext).FullName}.{nameof(AppenderRegistry)} once it has been initialized and started");
+                throw new
+                    InvalidOperationException($"Can not replace {typeof(FLogContext).FullName}.{nameof(AppenderRegistry)} once it has been initialized or started");
+            }
+            appenderRegistry = value;
+        }
+    }
 
-    public IFLogLoggerRegistry LoggerRegistry { get; set; }
+    public IFLogLoggerRegistry LoggerRegistry
+    {
+        get => loggerRegistry;
+        set
+        {
+            if (loggerRegistry != null && (HasStarted || loggerRegistry.Root.ImmediateEmbodiedChildren.Count > 0))
+            {
+                Console.Out.WriteLine($"Can not replace {typeof(FLogContext).FullName}.{nameof(LoggerRegistry)} once it has been started or has created loggers");
+                throw new
+                    InvalidOperationException($"Can not replace {typeof(FLogContext).FullName}.{nameof(LoggerRegistry)} once it has been started or created loggers");
+            }
+            loggerRegistry = value;
+        }
+    }
 
-    public IFLoggerAsyncRegistry AsyncRegistry { get; set; }
+    public IFLoggerAsyncRegistry AsyncRegistry
+    {
+        get => asyncRegistry;
+        set
+        {
+            if (asyncRegistry != null && HasStarted)
+            {
+                Console.Out.WriteLine($"Can not replace {typeof(FLogContext).FullName}.{nameof(AsyncRegistry)} once it has been initialized and started");
+                throw new
+                    InvalidOperationException($"Can not replace {typeof(FLogContext).FullName}.{nameof(AsyncRegistry)} once it has been initialized or started");
+            }
+            asyncRegistry = value;
+        }
+    }
 
-    public IFLogConfigRegistry    ConfigRegistry       { get; set; }
+    public IFLogConfigRegistry ConfigRegistry
+    {
+        get => configRegistry;
+        set
+        {
+            if (configRegistry != null && HasStarted)
+            {
+                Console.Out.WriteLine($"Can not replace {typeof(FLogContext).FullName}.{nameof(ConfigRegistry)} once it has been initialized and started");
+                throw new
+                    InvalidOperationException($"Can not replace {typeof(FLogContext).FullName}.{nameof(ConfigRegistry)} once it has been initialized or started");
+            }
+            configRegistry = value;
+        }
+    }
 
-    public IFLogEntryPoolRegistry LogEntryPoolRegistry { get; set; }
+    public IFLogEntryPoolRegistry LogEntryPoolRegistry
+    {
+        get => logEntryPoolRegistry;
+        set
+        {
+            if (logEntryPoolRegistry != null && HasStarted)
+            {
+                Console.Out.WriteLine($"Can not replace {typeof(FLogContext).FullName}.{nameof(LogEntryPoolRegistry)} once it has been initialized and started");
+                throw new
+                    InvalidOperationException($"Can not replace {typeof(FLogContext).FullName}.{nameof(LogEntryPoolRegistry)} once it has been initialized or started");
+            }
+            logEntryPoolRegistry = value;
+        }
+    }
 
-    public IUpdateableTimer LoggerTimers { get; }
+    internal static class TestFLogContextInternalsAccessor
+    {
+        public static IFLogContext? TestContext
+        {
+            // ReSharper disable once InconsistentlySynchronizedField
+            get => singletonInstance!;
+            set =>
+                // ReSharper disable once InconsistentlySynchronizedField
+                singletonInstance = value;
+        }
+
+        public static void SetAppenderRegistry(FLogContext context, IFLogAppenderRegistry appenderRegistry)
+        {
+            context.appenderRegistry = appenderRegistry;
+        }
+
+        public static void SetLoggerRegistry(FLogContext context, IFLogLoggerRegistry loggerRegistry)
+        {
+            context.loggerRegistry = loggerRegistry;
+        }
+
+        public static void SetAsyncRegistry(FLogContext context, IFLoggerAsyncRegistry asyncRegistry)
+        {
+            context.asyncRegistry = asyncRegistry;
+        }
+
+        public static void SetConfigRegistry(FLogContext context, IFLogConfigRegistry configRegistry)
+        {
+            context.configRegistry = configRegistry;
+        }
+
+        public static void SetLogEntryPoolRegistry(FLogContext context, IFLogEntryPoolRegistry logEntryPoolRegistry)
+        {
+            context.logEntryPoolRegistry = logEntryPoolRegistry;
+        }
+    }
+}
+
+internal static class TestFLogContextExtensions
+{
+    public static void SetAsContext(this IFLogContext context)
+    {
+        FLogContext.TestFLogContextInternalsAccessor.TestContext = context;
+    }
+
+    public static IFLogContext? GetContextField()
+    {
+        return FLogContext.TestFLogContextInternalsAccessor.TestContext;
+    }
+
+    public static void SetHasStarted(this FLogContext context, bool hasStarted)
+    {
+        context.HasStarted = hasStarted;
+    }
+
+    public static void SetIsInitialized(this FLogContext context, bool hasStarted)
+    {
+        context.IsInitialized = hasStarted;
+    }
+
+    public static void SetAppenderRegistry(this FLogContext context, IFLogAppenderRegistry appenderRegistry)
+    {
+        FLogContext.TestFLogContextInternalsAccessor.SetAppenderRegistry(context, appenderRegistry);
+    }
+
+    public static void SetLoggerRegistry(this FLogContext context, IFLogLoggerRegistry loggerRegistry)
+    {
+        FLogContext.TestFLogContextInternalsAccessor.SetLoggerRegistry(context, loggerRegistry);
+    }
+
+    public static void SetAsyncRegistry(FLogContext context, IFLoggerAsyncRegistry asyncRegistry)
+    {
+        FLogContext.TestFLogContextInternalsAccessor.SetAsyncRegistry(context, asyncRegistry);
+    }
+
+    public static void SetConfigRegistry(FLogContext context, IFLogConfigRegistry configRegistry)
+    {
+        FLogContext.TestFLogContextInternalsAccessor.SetConfigRegistry(context, configRegistry);
+    }
+
+    public static void SetLogEntryPoolRegistry(FLogContext context, IFLogEntryPoolRegistry logEntryPoolRegistry)
+    {
+        FLogContext.TestFLogContextInternalsAccessor.SetLogEntryPoolRegistry(context, logEntryPoolRegistry);
+    }
 }

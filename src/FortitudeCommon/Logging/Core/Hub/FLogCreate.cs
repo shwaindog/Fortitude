@@ -46,8 +46,6 @@ public static class FLogCreate
 
     public static Func<IMutableAsyncQueuesInitConfig, IMutableFLoggerAsyncRegistry> MakeAsyncRegistry { get; set; }
 
-    public static Action<IAsyncQueuesInitConfig, IMutableFLoggerAsyncRegistry> InitializeAsyncServices { get; set; }
-
     public static Func<IMutableAppenderDefinitionConfig, IFLogContext, IMutableFLogAppender?> MakeAppender { get; set; }
 
     public static Func<IConfigurationRoot, string, IMutableAppenderReferenceConfig?> MakeAppenderConfig { get; set; }

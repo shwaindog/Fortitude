@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.Logging.AsyncProcessing;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 
@@ -14,8 +15,11 @@ public interface IFLoggerAsyncRegistry
 
     IAsyncQueueLocator AsyncQueueLocator { get; }
 
+    IUpdateableTimer   LoggerTimers      { get; }
+
     void StartAsyncQueues();
 }
+
 public interface IMutableFLoggerAsyncRegistry : IFLoggerAsyncRegistry
 {
     new IAsyncQueuesInitConfig AsyncBufferingConfig { get; set; }
@@ -25,28 +29,21 @@ public interface IMutableFLoggerAsyncRegistry : IFLoggerAsyncRegistry
     new IAsyncQueueLocator AsyncQueueLocator { get; set; }
 }
 
-public class FLogAsyncRegistry : IMutableFLoggerAsyncRegistry
+public class FLogAsyncRegistry(IMutableAsyncQueuesInitConfig asyncInitConfig) : IMutableFLoggerAsyncRegistry
 {
-    private IAsyncQueuesInitConfig asyncBufferingConfig;
-
-    public FLogAsyncRegistry(IMutableAsyncQueuesInitConfig asyncInitConfig)
-    {
-        asyncBufferingConfig = asyncInitConfig;
-        AsyncQueueLocator    = FLogCreate.MakeAsyncQueueLocator(asyncInitConfig);
-        AsyncProcessingType  = asyncInitConfig.AsyncProcessingType;
-
-        FLogCreate.InitializeAsyncServices(asyncBufferingConfig, this);
-    }
+    private IMutableAsyncQueuesInitConfig asyncBufferingConfig = asyncInitConfig;
 
     public IAsyncQueuesInitConfig AsyncBufferingConfig
     {
         get => asyncBufferingConfig;
-        set => asyncBufferingConfig = value;
+        set => asyncBufferingConfig = (IMutableAsyncQueuesInitConfig)value;
     }
 
-    public AsyncProcessingType AsyncProcessingType { get; set; }
+    public IUpdateableTimer LoggerTimers { get; } = new UpdateableTimer("FLog Timers");
 
-    public IAsyncQueueLocator AsyncQueueLocator { get; set; }
+    public AsyncProcessingType AsyncProcessingType { get; set; } = asyncInitConfig.AsyncProcessingType;
+
+    public IAsyncQueueLocator AsyncQueueLocator { get; set; } = FLogCreate.MakeAsyncQueueLocator(asyncInitConfig);
 
     public void StartAsyncQueues()
     {
@@ -66,6 +63,3 @@ public static class FLogAsyncRegistryExtensions
         return mutableMaybe;
     }
 }
-
-
-

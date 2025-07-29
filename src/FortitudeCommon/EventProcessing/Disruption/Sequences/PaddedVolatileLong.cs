@@ -4,7 +4,6 @@
 #region
 
 using System.Runtime.InteropServices;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 
 #endregion
@@ -21,5 +20,16 @@ public struct PaddedVolatileLong(long value)
     {
         get => Thread.VolatileRead(ref lvalue);
         set => Thread.VolatileWrite(ref lvalue, value);
+    }
+
+    public static class Extensions
+    {
+        public static long IncrementAndGet(ref PaddedVolatileLong atomicLong) => IncrementAndGet(ref atomicLong.lvalue);
+        
+        private static long IncrementAndGet(ref long value) => Interlocked.Increment(ref value);
+        
+        public static long DecrementAndGet(ref PaddedVolatileLong atomicLong) => DecrementAndGet(ref atomicLong.lvalue);
+        
+        private static long DecrementAndGet(ref long value) => Interlocked.Decrement(ref value);
     }
 }

@@ -6,10 +6,9 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
 using FortitudeCommon.DataStructures.Lists.LinkedLists;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Appending.Formatting;
-using FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 using FortitudeCommon.Logging.Core.Hub;
-using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting;
 
@@ -45,10 +44,6 @@ public interface IMutableFLogBufferingFormatAppender : IFLogBufferingFormatAppen
 
 public interface IFLogAsyncTargetFlushBufferAppender : IMutableFLogBufferingFormatAppender
 {
-    IBufferedFormatWriter? ReadyForSwap { get; set; }
-
-    IBufferedFormatWriter? ToFlushBuffer { get; set; }
-
     void FlushBufferToAppender(IBufferedFormatWriter toFlush);
 }
 
@@ -56,114 +51,132 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLo
 {
     [ThreadStatic] private static IRecycler? requesterThreadRecycler;
 
-    protected IBufferedFormatWriter? CurrentBufferedWriter;
-    protected IBufferedFormatWriter? ReadyForToggle;
-    protected IBufferedFormatWriter? ToFlush;
+    private IBufferedFormatWriter? onCreateBuffer1Instance;
+    private IBufferedFormatWriter? onCreateBuffer2Instance;
+
+    private int currentBufferCounter;
+    private int maxBuffers;
+
+    private IBufferedFormatWriter? buffer1;
+    private IBufferedFormatWriter? buffer2;
+    // protected IBufferedFormatWriter? ToFlush;
 
     protected IFormatWriter? DirectFormatWriter;
-
-    private int outStandingRequestsCount;
-
-    private int charBufferSize;
 
     private TimeSpan autoFlushIntervalTimeSpan;
 
     protected ITimerUpdate? AutoFlushTimer;
 
-    protected ManualResetEvent AllWritersEvent = new(true);
+    protected ManualResetEvent AllBuffersFlushedEvent = new(true);
 
     private bool bufferingEnabled;
 
-    private ISyncLock currentFormatWriterAvailableSyncLock = new AutoResetEventLock(false);
-
     protected readonly FormatWriterReceivedHandler<IBufferedFormatWriter> OnReturningFormatWriter;
 
-    private DoublyLinkedList<BlockingFormatWriterResolverHandle> queuedRequests = new();
+    private readonly DoublyLinkedList<BlockingFormatWriterResolverHandle> queuedRequests = new();
 
+    private readonly ISyncLock queueProtectLock = new SpinLockLight();
 
     protected Action<IBlockingFormatWriterResolverHandle> RequestHandleDisposed;
+
+    protected Action CheckWaitingFormatWriterRequests;
+    protected Action TimerCheckWaitingFormatWriterRequests;
 
     protected FLogBufferingFormatAppender(IBufferingFormatAppenderConfig bufferingFormatAppenderConfig, IFLogContext context)
         : base(bufferingFormatAppenderConfig, context)
     {
-        BufferingEnabled        = !bufferingFormatAppenderConfig.DisableBuffering;
+        BufferingEnabled = !bufferingFormatAppenderConfig.DisableBuffering;
+
+        FlushWhenBufferLength = (int)(bufferingFormatAppenderConfig.FlushConfig.WriteTriggeredAtBufferPercentage *
+                                      bufferingFormatAppenderConfig.CharBufferSize);
+        AutoFlushIntervalTimeSpan           = bufferingFormatAppenderConfig.FlushConfig.AutoTriggeredAfterTimeSpan.ToTimeSpan();
+        WriteTriggeredFlushIntervalTimeSpan = bufferingFormatAppenderConfig.FlushConfig.WriteTriggeredAfterTimeSpan.ToTimeSpan();
+
+
         OnReturningFormatWriter = WriterFinishedWithBuffer;
         RequestHandleDisposed   = WriterHandleDispose;
+
+        CheckWaitingFormatWriterRequests      = CheckHasFormatWriterRequests;
+        TimerCheckWaitingFormatWriterRequests = TimerTriggeredCheckFormatWriterRequests;
+
+        CreateFormatWriters(bufferingFormatAppenderConfig);
     }
 
-    protected virtual void CreateBufferedFormatWriters(IBufferingFormatAppenderConfig bufferingFormatAppenderConfig)
-    {
-        CharBufferSize = bufferingFormatAppenderConfig.CharBufferSize;
-        if (bufferingFormatAppenderConfig.EnableDoubleBufferToggling)
-        {
-            if (ReadyForToggle == null || ReadyForToggle.Buffered < CharBufferSize)
-            {
-                if (ReadyForToggle == null)
-                {
-                    ReadyForToggle = new BufferedFormatWriter(this, OnReturningFormatWriter);
-                }
-                else
-                {
-                    if (CharBufferSize > ReadyForToggle.Buffered)
-                    {
-                        ReadyForToggle.EnsureCapacity(charBufferSize);
-                    }
-                }
-            }
-        }
-    }
+    public int CharBufferSize { get; set; }
 
-    protected abstract IFormatWriter CreatedImmediateFormatWriter(IBufferingFormatAppenderConfig bufferingFormatAppenderConfig);
+    public bool UsingDoubleBuffering { get; set; }
 
-    public int CharBufferSize
+    public int FlushWhenBufferLength { get; set; }
+
+    public DateTime LastFlushAt { get; set; }
+
+    private bool HasUnflushedBufferedWriters => buffer1?.Buffered > 0 || buffer2?.Buffered > 0;
+
+    public TimeSpan WriteTriggeredFlushIntervalTimeSpan { get; set; }
+
+    public TimeSpan AutoFlushIntervalTimeSpan
     {
-        get => charBufferSize;
+        get => autoFlushIntervalTimeSpan;
         set
         {
-            charBufferSize = value;
-            if (CurrentBufferedWriter == null || CurrentBufferedWriter.Buffered < charBufferSize)
+            if (autoFlushIntervalTimeSpan == value) return;
+            autoFlushIntervalTimeSpan = value;
+            if (autoFlushIntervalTimeSpan > TimeSpan.Zero)
             {
-                if (CurrentBufferedWriter == null)
+                AutoFlushTimer?.Cancel();
+                AutoFlushTimer = FLogContext.Context.AsyncRegistry.LoggerTimers.RunEvery(autoFlushIntervalTimeSpan, AutoFlushTimerHandler);
+            }
+        }
+    }
+
+    protected bool HasRequests => queuedRequests.Head != null;
+
+    public override int FormatWriterRequestQueue => queuedRequests.Count;
+
+    protected IRecycler RequesterRecycler => requesterThreadRecycler ??= new Recycler();
+
+    protected IBufferFlushAppenderAsyncClient BufferFlushingAsyncClient => (IBufferFlushAppenderAsyncClient)AsyncClient;
+    
+    public bool BufferingEnabled
+    {
+        get => bufferingEnabled;
+        set
+        {
+            var wasEnabled = bufferingEnabled;
+            bufferingEnabled = value;
+
+            if (BufferingEnabled)
+            {
+                if (AutoFlushIntervalTimeSpan > TimeSpan.Zero && AutoFlushTimer == null)
                 {
-                    CurrentBufferedWriter = new BufferedFormatWriter(this, OnReturningFormatWriter);
+                    AutoFlushTimer = FLogContext.Context.AsyncRegistry.LoggerTimers.RunEvery(autoFlushIntervalTimeSpan, AutoFlushTimerHandler);
                 }
-                else
+                CreateFormatWriters(GetAppenderConfig());
+            }
+            else
+            {
+                if (wasEnabled)
                 {
-                    if (charBufferSize > CurrentBufferedWriter.Buffered)
-                    {
-                        CurrentBufferedWriter.EnsureCapacity(charBufferSize);
-                    }
+                    AllBuffersFlushedEvent.Reset();
+                    DrainCurrentBufferAndRetire();
                 }
             }
         }
     }
 
-    protected void WriterHandleDispose(IBlockingFormatWriterResolverHandle actualHandle)
+    private IFormatWriter? TrgGetFormatWriter
     {
-        // to do schedule this check
-        if (actualHandle is { IsAvailable: true, WasTaken: false }) { }
-    }
-
-    protected void WriterFinishedWithBuffer(IBufferedFormatWriter setReadyOrFlush)
-    {
-        if (setReadyOrFlush.Buffered > FlushWhenBufferLength && ToFlushBuffer == null)
+        get
         {
-            if (ToFlushBuffer == null)
+            if (BufferingEnabled)
             {
-                ToFlushBuffer = setReadyOrFlush;
-
-                var nextBuffer = Interlocked.CompareExchange(ref ReadyForToggle, null, ReadyForToggle);
-                if (nextBuffer != null)
-                {
-                    SendFormatWriteToNextIfAny(nextBuffer);
-                    return;
-                }
+                return TryGetSpecificBufferedWriter(currentBufferCounter);
             }
-            // To DO Flush then replace
-        }
-        else
-        {
-            SendFormatWriteToNextIfAny(setReadyOrFlush);
+            if (HasUnflushedBufferedWriters)
+            {
+                AllBuffersFlushedEvent.WaitOne(); // draining the previous buffered setting first
+            }
+            return Interlocked.CompareExchange(ref DirectFormatWriter, null, DirectFormatWriter);
         }
     }
 
@@ -171,24 +184,8 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLo
     {
         get
         {
-            Interlocked.Increment(ref outStandingRequestsCount);
-            IFormatWriter? useFormatWriter;
-            if (BufferingEnabled)
-            {
-                useFormatWriter =
-                    Interlocked.CompareExchange(ref CurrentBufferedWriter, null, CurrentWriteBuffer);
-            }
-            else
-            {
-                useFormatWriter = CurrentBufferedWriter;
-                if (useFormatWriter != null)
-                {
-                    AllWritersEvent.WaitOne(); // draining the previous buffered setting first
-                }
+            IFormatWriter? useFormatWriter = TrgGetFormatWriter;
 
-                useFormatWriter =
-                    Interlocked.CompareExchange(ref DirectFormatWriter, null, DirectFormatWriter);
-            }
             var requesterSync = GetFormatWriterRequesterWaitStrategy();
 
             var requestHandle = RequesterRecycler.Borrow<BlockingFormatWriterResolverHandle>()
@@ -203,7 +200,96 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLo
         }
     }
 
-    private readonly ISyncLock queueProtectLock = new SpinLockLight();
+    protected override IBufferFlushAppenderAsyncClient CreateAppenderAsyncClient
+        (IAppenderDefinitionConfig appenderDefinitionConfig, IFLoggerAsyncRegistry asyncRegistry)
+    {
+        var processAsync = appenderDefinitionConfig.RunOnAsyncQueueNumber;
+
+        var bufferConfig = (IBufferingFormatAppenderConfig)appenderDefinitionConfig;
+
+        var bufferAsync = bufferConfig.FlushAsyncQueueNumber;
+
+        var bufferFlushingAsyncClient =
+            new BufferFlushAppenderAsyncClient(this, processAsync, asyncRegistry, bufferAsync);
+        return bufferFlushingAsyncClient;
+    }
+
+    protected virtual void CreateFormatWriters(IBufferingFormatAppenderConfig bufferingFormatAppenderConfig)
+    {
+        CharBufferSize       = bufferingFormatAppenderConfig.CharBufferSize;
+        UsingDoubleBuffering = bufferingFormatAppenderConfig.EnableDoubleBufferToggling;
+        if (BufferingEnabled)
+        {
+            if (HasUnflushedBufferedWriters)
+            {
+                BufferingEnabled = false;
+                DrainCurrentBufferAndRetire();
+                BufferingEnabled = true;
+            }
+            currentBufferCounter = 1;
+            maxBuffers           = 1;
+
+            buffer1 = onCreateBuffer1Instance = new BufferedFormatWriter(this, 1, OnReturningFormatWriter);
+            if (bufferingFormatAppenderConfig.EnableDoubleBufferToggling)
+            {
+                maxBuffers = 2;
+
+                buffer2 = onCreateBuffer2Instance = new BufferedFormatWriter(this, 2, OnReturningFormatWriter);
+            }
+        }
+        else
+        {
+            DirectFormatWriter = CreatedImmediateFormatWriter(bufferingFormatAppenderConfig);
+        }
+    }
+
+    protected void WriterHandleDispose(IBlockingFormatWriterResolverHandle actualHandle)
+    {
+        // to do schedule this check
+        if (actualHandle is { IsAvailable: true, WasTaken: false }) { }
+
+        actualHandle.DecrementRefCount();
+    }
+
+    protected void WriterFinishedWithBuffer(IBufferedFormatWriter setReadyOrFlush)
+    {
+        if (ShouldFlushBuffer(setReadyOrFlush))
+        {
+            FlushAndCheckNextBufferAvailable(setReadyOrFlush);
+        }
+        else
+        {
+            TrySendFormatWriteToNextIfAny(setReadyOrFlush);
+        }
+    }
+
+    protected virtual bool ShouldFlushBuffer(IBufferedFormatWriter setReadyOrFlush)
+    {
+        return setReadyOrFlush.Buffered > FlushWhenBufferLength
+            || (LastFlushAt + WriteTriggeredFlushIntervalTimeSpan) < TimeContext.UtcNow
+            || !BufferingEnabled;
+    }
+
+    private IBufferedFormatWriter? TryGetSpecificBufferedWriter(int bufferNumber)
+    {
+        var bufferSlot = UsingDoubleBuffering ? bufferNumber % maxBuffers : 1;
+        switch (bufferSlot)
+        {
+            case 0: return Interlocked.CompareExchange(ref buffer2, null, buffer2);
+            case 1: return Interlocked.CompareExchange(ref buffer1, null, buffer1);
+        }
+        return null;
+    }
+    
+    private void ReturnBufferedWriter(IBufferedFormatWriter returnBufferedFormatWriter)
+    {
+        var bufferSlot = returnBufferedFormatWriter.BufferNum;
+        switch (bufferSlot)
+        {
+            case 0: buffer2 = returnBufferedFormatWriter; break;
+            case 1: buffer1 = returnBufferedFormatWriter; break;
+        }
+    }
 
     protected BlockingFormatWriterResolverHandle AddToQueue(BlockingFormatWriterResolverHandle newRequest)
     {
@@ -215,7 +301,7 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLo
         return newRequest;
     }
 
-    protected BlockingFormatWriterResolverHandle? SendFormatWriteToNextIfAny(IFormatWriter toSend)
+    protected BlockingFormatWriterResolverHandle? TrySendFormatWriteToNextIfAny(IFormatWriter toSend)
     {
         BlockingFormatWriterResolverHandle? removedFirst = null;
         using (queueProtectLock)
@@ -225,104 +311,126 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLo
             if (queuedRequests.Head != null)
             {
                 removedFirst = queuedRequests.Remove(queuedRequests.Head);
-
-                removedFirst.ReceiveFormatWriterHandler(toSend);
             }
         }
-        if (removedFirst == null && Interlocked.Decrement(ref outStandingRequestsCount) > 0)
+        if (removedFirst == null)
         {
-            // To do schedule check again
+            TryToReturnUsedFormatWriter(toSend);
+            return null;
         }
-
+        removedFirst.ReceiveFormatWriterHandler(toSend);
         return removedFirst;
     }
 
-    public override int FormatWriterRequestQueue => queuedRequests.Count;
-
-    protected ISyncLock GetFormatWriterRequesterWaitStrategy() => RequesterRecycler.Borrow<ManualResetEventLock>();
-
-    protected IRecycler RequesterRecycler => requesterThreadRecycler ??= new Recycler();
-
-    protected void ScheduleImmediateDrain(IBufferedFormatWriter setReadyOrFlush) { }
-
-
-    public bool BufferingEnabled
+    protected void TimerTriggeredCheckFormatWriterRequests()
     {
-        get => bufferingEnabled;
-        set
-        {
-            var wasEnabled = bufferingEnabled;
-            bufferingEnabled = value;
+        AsyncClient.RunJobOnAppenderQueue(CheckWaitingFormatWriterRequests);
+    }
 
-            if (BufferingEnabled)
+    protected void CheckHasFormatWriterRequests()
+    {
+        if (HasRequests)
+        {
+            var useFormatWriter = TrgGetFormatWriter;
+            if (useFormatWriter != null)
             {
-                CreateBufferedFormatWriters(GetAppenderConfig());
+                TrySendFormatWriteToNextIfAny(useFormatWriter);
             }
-            else
+        }
+    }
+
+    protected void TryToReturnUsedFormatWriter(IFormatWriter toReturn)
+    {
+        if (toReturn is IBufferedFormatWriter returnBufferedFormatWriter)
+        {
+            ReturnBufferedWriter(returnBufferedFormatWriter);
+        }
+        else
+        {
+            DirectFormatWriter = toReturn;
+        }
+    }
+
+    private void CheckAnyQueuedRequesterOrReturnWriter(IBufferedFormatWriter toReturn)
+    {
+        if (BufferingEnabled && TrySendFormatWriteToNextIfAny(toReturn) != null) return;
+        TryToReturnUsedFormatWriter(toReturn);
+    }
+
+    protected void FlushAndCheckNextBufferAvailable(IBufferedFormatWriter toFlush)
+    {
+        Interlocked.Increment(ref currentBufferCounter);
+        BufferFlushingAsyncClient.SendToFlushBufferToAppender(toFlush, this);
+        if (UsingDoubleBuffering)
+        {
+            var nextBuffer = TrgGetFormatWriter;
+            if (nextBuffer != null)
             {
-                if (wasEnabled)
+                if (TrySendFormatWriteToNextIfAny(nextBuffer) == null)
                 {
-                    AllWritersEvent.Reset();
-                    DrainCurrentBufferAndRetire();
+                    TryToReturnUsedFormatWriter(nextBuffer);
                 }
             }
         }
     }
 
+    protected ISyncLock GetFormatWriterRequesterWaitStrategy()
+    {
+        if (BufferingEnabled)
+        {
+            return RequesterRecycler.Borrow<SpinLockLight>();
+        }
+        return RequesterRecycler.Borrow<ManualResetEventLock>();
+    }
+
     protected virtual void DrainCurrentBufferAndRetire()
     {
-        if (CurrentBufferedWriter?.Buffered > 0)
+        for (int i = 0; i < maxBuffers; i++)
         {
-            FlushBufferToAppender(CurrentWriteBuffer!);
-        }
-        CurrentBufferedWriter = null;
-        ReadyForToggle        = null;
-        AllWritersEvent.Set();
-    }
-
-    public IBufferedFormatWriter? CurrentWriteBuffer => CurrentBufferedWriter;
-
-    public IBufferedFormatWriter? ToFlushBuffer
-    {
-        get => ToFlush;
-        set => ToFlush = value;
-    }
-
-    public IBufferedFormatWriter? ReadyForSwap
-    {
-        get => ReadyForToggle;
-        set => ReadyForToggle = value;
-    }
-
-    public TimeSpan AutoFlushIntervalTimeSpan
-    {
-        get => autoFlushIntervalTimeSpan;
-        set
-        {
-            if (autoFlushIntervalTimeSpan == value) return;
-            autoFlushIntervalTimeSpan = value;
-            if (autoFlushIntervalTimeSpan > TimeSpan.Zero)
+            IBufferedFormatWriter? bufferedWriter;
+            while ((bufferedWriter = TryGetSpecificBufferedWriter(i)) == null)
             {
-                AutoFlushTimer = FLogContext.Context.LoggerTimers.RunEvery(autoFlushIntervalTimeSpan, AutoFlushTimerHandler);
+                Thread.Sleep(10);
+            }
+            if (bufferedWriter.Buffered > 0)
+            {
+                BufferFlushingAsyncClient.SendToFlushBufferToAppender(bufferedWriter, this);
+                while (TryGetSpecificBufferedWriter(i) == null) // wait for buffer to return flushed
+                {
+                    Thread.Sleep(10);
+                }
             }
         }
+        AllBuffersFlushedEvent.Set();
     }
 
     public void AutoFlushTimerHandler(IScheduleActualTime? scheduleActualTime)
     {
+        if (!BufferingEnabled)
+        {
+            AutoFlushTimer?.Cancel();
+            AutoFlushTimer = null;
+        }
         if (LastFlushAt + AutoFlushIntervalTimeSpan < (scheduleActualTime?.ScheduleTime ?? TimeContext.UtcNow))
         {
-            LastFlushAt = DateTime.UtcNow;
+            var currentBuffer = TryGetSpecificBufferedWriter(currentBufferCounter);
+            if (currentBuffer is { Buffered: > 0 })
+            {
+                FlushAndCheckNextBufferAvailable(currentBuffer);
+            }
         }
     }
 
-    public int FlushWhenBufferLength { get; set; }
+    public void FlushBufferToAppender(IBufferedFormatWriter toFlush)
+    {
+        LastFlushAt = TimeContext.UtcNow;
+        FlushBuffer(toFlush);
+        CheckAnyQueuedRequesterOrReturnWriter(toFlush);
+    }
 
-    public DateTime LastFlushAt { get; set; }
+    public abstract void FlushBuffer(IBufferedFormatWriter toFlush);
 
-    public TimeSpan WriteTriggeredFlushIntervalTimeSpan { get; set; }
-
-    public abstract void FlushBufferToAppender(IBufferedFormatWriter toFlush);
+    protected abstract IFormatWriter CreatedImmediateFormatWriter(IBufferingFormatAppenderConfig bufferingFormatAppenderConfig);
 
     public override IBufferingFormatAppenderConfig GetAppenderConfig() => (IBufferingFormatAppenderConfig)AppenderConfig;
 }

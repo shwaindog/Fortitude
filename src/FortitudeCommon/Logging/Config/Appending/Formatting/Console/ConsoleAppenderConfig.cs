@@ -55,6 +55,8 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
 
     public ConsoleAppenderConfig(IConsoleAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
+    public static readonly ConsoleAppenderConfig DefaultConsoleAppenderConfig = new (){ AppenderName = DefaultConsoleAppenderName };
+
     public bool DisableColoredConsole
     {
         get => bool.TryParse(this[nameof(DisableColoredConsole)], out var charBufferSize) && charBufferSize;

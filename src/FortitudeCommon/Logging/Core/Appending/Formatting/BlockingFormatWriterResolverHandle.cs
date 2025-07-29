@@ -7,7 +7,7 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting;
 
-public interface IBlockingFormatWriterResolverHandle : IDisposable
+public interface IBlockingFormatWriterResolverHandle : IDisposable, IRecyclableObject
 {
     bool IsDisposed { get; }
 

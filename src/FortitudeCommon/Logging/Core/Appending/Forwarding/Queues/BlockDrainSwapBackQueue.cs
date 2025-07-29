@@ -6,29 +6,6 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeCommon.Logging.Core.Appending.Forwarding.Queues;
 
-public interface ILogEntryQueue
-{
-    int Capacity { get; }
-
-    int Count { get; }
-
-    FullQueueHandling InboundQueueFullHandling { get; }
-
-    bool TryEnqueue(IFLogEntry logEntry);
-
-    int Enqueue(IFLogEntry logEntry);
-
-    bool QueuedItemsAny(Func<IFLogEntry, bool> predicate);
-
-    int DropAll();
-
-    IFLogEntry Poll();
-
-    IFLogEntry? TryPoll();
-
-    IReusableList<IFLogEntry> PollBatch(int maxBatchSize, IReusableList<IFLogEntry> toPopulate);
-}
-
 public class BlockDrainSwapBackQueue : ReusableObject<ILogEntryQueue>, ILogEntryQueue
 {
     private readonly ReusableList<IFLogEntry> drainedEntries  = new();
@@ -40,7 +17,6 @@ public class BlockDrainSwapBackQueue : ReusableObject<ILogEntryQueue>, ILogEntry
     private int filteredItemsCount;
 
     private ILogEntryQueue         originalQueue    = null!;
-    private Func<IFLogEntry, bool> removeMatching   = null!;
     private Action<ILogEntryQueue> onCompleteAction = null!;
 
     public BlockDrainSwapBackQueue() { }
@@ -50,11 +26,8 @@ public class BlockDrainSwapBackQueue : ReusableObject<ILogEntryQueue>, ILogEntry
         drainedEntries.AddRange(toClone.drainedEntries);
     }
 
-    public BlockDrainSwapBackQueue Initialize
-        (ILogEntryQueue toFilter, Func<IFLogEntry, bool> removePredicate, Action<ILogEntryQueue> swapBackAction)
+    public BlockDrainSwapBackQueue Initialize (Action<ILogEntryQueue> swapBackAction)
     {
-        originalQueue    = toFilter;
-        removeMatching   = removePredicate;
         onCompleteAction = swapBackAction;
 
         drainedEntries.Clear();
@@ -68,18 +41,18 @@ public class BlockDrainSwapBackQueue : ReusableObject<ILogEntryQueue>, ILogEntry
         return this;
     }
 
-    public void RunFilter(IFLogEntry blockedLogEntry)
+    public int RunRemoveFilter(IFLogEntry blockedLogEntry, Predicate<IFLogEntry> removePredicate)
     {
         var fullQueueSize = originalQueue.Count;
         drainedEntries.Capacity = Math.Max(drainedEntries.Capacity, fullQueueSize);
         originalQueue!.PollBatch(fullQueueSize, drainedEntries);
-        RunDrainToFiltered();
+        RunDrainToFiltered(removePredicate);
         Thread.Yield();
-        RunDrainToFiltered();
+        RunDrainToFiltered(removePredicate);
         Thread.Yield();
         for (var i = 0; originalQueue.Count > 0 && i < 10; i++)
         {
-            RunDrainToFiltered();
+            RunDrainToFiltered(removePredicate);
             Thread.Sleep(i * 10);
         }
         // consider drained;
@@ -97,6 +70,7 @@ public class BlockDrainSwapBackQueue : ReusableObject<ILogEntryQueue>, ILogEntry
         onCompleteAction(originalQueue);
         blockInboundOutboundEvent.Set();
         DecrementRefCount();
+        return filteredItemsCount;
     }
     //
     // private FLogEntry BuildFilteredWarningLogEntry()
@@ -105,13 +79,13 @@ public class BlockDrainSwapBackQueue : ReusableObject<ILogEntryQueue>, ILogEntry
     //     logEntry.Initialize(new LoggerEntryContext())
     // }
 
-    private void RunDrainToFiltered()
+    private void RunDrainToFiltered(Predicate<IFLogEntry> removePredicate)
     {
         var drainedCount = drainedEntries.Count;
         for (var index = filteredToIndex; index < drainedCount; index++)
         {
             var drainedEntry = drainedEntries[index];
-            if (removeMatching(drainedEntry))
+            if (removePredicate(drainedEntry))
             {
                 drainedEntry.DecrementRefCount();
                 filteredItemsCount++;
@@ -122,6 +96,16 @@ public class BlockDrainSwapBackQueue : ReusableObject<ILogEntryQueue>, ILogEntry
             }
         }
         filteredToIndex = drainedCount;
+    }
+
+    public IFLogEntry? ReplaceNewestQueued(IFLogEntry flogEntry)
+    {
+        return originalQueue.ReplaceNewestQueued(flogEntry);
+    }
+
+    public (IFLogEntry?, IFLogEntry?) ReplaceNewestQueued(IFLogEntry lastFlogEntry, IFLogEntry secondLastFlogEntry)
+    {
+        return originalQueue.ReplaceNewestQueued(lastFlogEntry, secondLastFlogEntry);
     }
 
     public int Capacity
@@ -159,6 +143,11 @@ public class BlockDrainSwapBackQueue : ReusableObject<ILogEntryQueue>, ILogEntry
         return originalQueue.Enqueue(logEntry);
     }
 
+    public IFLogEntry? ForceEnqueue(IFLogEntry logEntry)
+    {
+        return originalQueue.ForceEnqueue(logEntry);
+    }
+
     public FullQueueHandling InboundQueueFullHandling
     {
         get
@@ -180,7 +169,7 @@ public class BlockDrainSwapBackQueue : ReusableObject<ILogEntryQueue>, ILogEntry
         return originalQueue.PollBatch(maxBatchSize, toPopulate);
     }
 
-    public bool QueuedItemsAny(Func<IFLogEntry, bool> predicate)
+    public bool QueuedItemsAny(Predicate<IFLogEntry> predicate)
     {
         blockInboundOutboundEvent.WaitOne();
         return originalQueue.QueuedItemsAny(predicate);
