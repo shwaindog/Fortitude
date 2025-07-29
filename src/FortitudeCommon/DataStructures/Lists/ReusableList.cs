@@ -12,7 +12,12 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeCommon.DataStructures.Lists;
 
-public interface IReusableList<T> : IReusableObject<IReusableList<T>>, IMutableCapacityList<T>
+public interface IReadOnlyReusableList<out T> : IRecyclableObject, ICapacityList<T>
+{
+}
+
+
+public interface IReusableList<T> : IReusableObject<IReusableList<T>>, IReadOnlyReusableList<T>, IMutableCapacityList<T>
 {
     new T this[int index] { get; set; }
 
@@ -83,8 +88,9 @@ public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T
 
     public void Clear()
     {
-        foreach (var item in backingList)
+        for (var i = 0; i < backingList.Count; i++)
         {
+            var item = backingList[i];
             if (item is IRecyclableObject recyclableObj)
             {
                 recyclableObj.DecrementRefCount();
@@ -186,9 +192,10 @@ public class ReusableList<T> : ReusableObject<IReusableList<T>>, IReusableList<T
       , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         Clear();
-        
-        foreach (var item in source)
+
+        for (var i = 0; i < source.Count; i++)
         {
+            var item = source[i];
             if (item is IRecyclableObject recyclableObj)
             {
                 recyclableObj.IncrementRefCount();

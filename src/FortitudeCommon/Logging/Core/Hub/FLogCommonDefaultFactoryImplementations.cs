@@ -18,7 +18,7 @@ public static class FLogCommonDefaultFactoryImplementations
 
     public static IFLogAsyncQueue DefaultAsyncProxyQueue (int queueNumber, IFLogAsyncQueue backingQueue)
     {
-        return new FLogAsyncProxyQueue(queueNumber, backingQueue);
+        return new FLogAsyncUncheckedProxyQueue(queueNumber, backingQueue);
     }
 
     public static IFLogAsyncQueue DefaultSynchroniseQueue (int queueNumber)

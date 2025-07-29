@@ -28,17 +28,20 @@ public class FLogEntryAsyncReceiveConfig : FLogEntryQueueConfig, IMutableFLogEnt
       , FullQueueHandling inboundQueueFullHandling = IFLogEntryQueueConfig.DefaultQueueFullHandling
       , int queueReadBatchSize = IFLogEntryQueueConfig.DefaultQueueReadBatchSize
       , int confirmSequenceNumberInterval = IFLogEntryAsyncReceiveConfig.DefaultConfirmSequenceNumberInterval
+      , int queueDropInterval = IFLogEntryQueueConfig.DefaultQueueDropInterval
       , IMutableFLogEntryPoolConfig? logEntryPool = null)
         : this(InMemoryConfigRoot, InMemoryPath, queueSize, inboundQueueFullHandling, queueReadBatchSize
-             , confirmSequenceNumberInterval, logEntryPool) { }
+             , confirmSequenceNumberInterval, queueDropInterval, logEntryPool) { }
 
     public FLogEntryAsyncReceiveConfig
     (IConfigurationRoot root, string path
       , int queueSize = IFLogEntryQueueConfig.DefaultQueueSize
       , FullQueueHandling inboundQueueFullHandling = IFLogEntryQueueConfig.DefaultQueueFullHandling
       , int confirmSequenceNumberInterval = IFLogEntryAsyncReceiveConfig.DefaultConfirmSequenceNumberInterval
-      , int queueReadBatchSize = IFLogEntryQueueConfig.DefaultQueueReadBatchSize, IMutableFLogEntryPoolConfig? logEntryPool = null)
-        : base(root, path, queueSize, inboundQueueFullHandling, queueReadBatchSize, logEntryPool)
+      , int queueReadBatchSize = IFLogEntryQueueConfig.DefaultQueueReadBatchSize
+      , int queueDropInterval = IFLogEntryQueueConfig.DefaultQueueDropInterval
+      , IMutableFLogEntryPoolConfig? logEntryPool = null)
+        : base(root, path, queueSize, inboundQueueFullHandling, queueReadBatchSize, queueDropInterval, logEntryPool)
     {
         ConfirmSequenceNumberInterval = confirmSequenceNumberInterval;
     }

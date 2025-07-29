@@ -2,7 +2,6 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Logging.Core.LogEntries;
-using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.Pooling;
@@ -16,17 +15,22 @@ public class FLogEntryPool
         PoolOwnerName = logEntryPoolDefinition.PoolName;
         PoolScope     = logEntryPoolDefinition.PoolScope;
 
-        var initialLogEntryBuilderSize = logEntryPoolDefinition.LogEntryCharCapacity;
+        NewLogEntryCharCapacity  = logEntryPoolDefinition.LogEntryCharCapacity;
+        NewBatchLogEntryListSize = logEntryPoolDefinition.LogEntriesBatchSize;
+
         backingPool.RegisterFactory(() =>
         {
-            var mutString = new MutableString(initialLogEntryBuilderSize);
+            var mutString = new MutableString(NewLogEntryCharCapacity);
             return new FLogEntry(mutString);
         });
-        var batchProcessingSize = logEntryPoolDefinition.LogEntriesBatchSize;
-        backingPool.RegisterFactory(() => new ReusableList<IFLogEntry>(batchProcessingSize));
+        backingPool.RegisterFactory(() => new ReusableList<IFLogEntry>(NewBatchLogEntryListSize));
     }
 
     public string PoolOwnerName { get; }
+
+    public int NewLogEntryCharCapacity { get; set; }
+
+    public int NewBatchLogEntryListSize { get; set; }
 
     public PoolScope PoolScope { get; }
 

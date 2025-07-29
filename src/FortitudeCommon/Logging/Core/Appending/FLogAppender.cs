@@ -5,53 +5,43 @@
 
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.Logging.AsyncProcessing;
 using FortitudeCommon.Logging.Config.Appending;
-using FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
+using FortitudeCommon.Logging.Core.Appending.Forwarding;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries;
+using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 #endregion
 
 namespace FortitudeCommon.Logging.Core.Appending;
 
-public interface IFLogAppender : IFLogEntryBatchSink
+public interface IFLogAppender : IAppenderClient
 {
-    string AppenderName { get; }
+    IAppenderClient CreateAppenderClientFor(IFLoggerCommon logger);
 
-    string? AppenderConfigFilePath { get; }
-
-    int RunOnAsyncQueueNumber { get; }
-
-    string AppenderType { get; }
-
-
-    void Append(IReusableList<IFLogEntry> batchLogEntries);
-    void Append(IFLogEntry flogEntry);
-    
-    IAppenderDefinitionConfig GetAppenderConfig();
+    IAppenderClient CreateAppenderClientFor(IFLogForwardingAppender appender);
 }
 
 public interface IMutableFLogAppender : IFLogAppender
 {
-    new string AppenderName { get; set; }
+    new string           AppenderName { get; set; }
 
-    new string? AppenderConfigFilePath { get; set; }
+    IAppenderAsyncClient AsyncClient  { get; set; }
 
     void HandleConfigUpdate(IAppenderDefinitionConfig newLoggerState);
+
+    void ReceiveOldAppenderTypeClients(List<IMutableAppenderClient> issuedAppenders);
 }
 
-public interface IFLogAsyncTargetReceiveQueueAppender : IMutableFLogAppender
-{
-    IAppenderAsyncClient AsyncClient { get; set; }
 
-    void ProcessReceivedLogEntry(IFLogEntry logEntry);
-
-    void ProcessReceiveBatchLogEntries(IReusableList<IFLogEntry> batchLogEntries);
-}
-
-public abstract class FLogAppender : RecyclableObject, IFLogAsyncTargetReceiveQueueAppender
+public abstract class FLogAppender : FLogEntrySinkBase, IMutableFLogAppender
 {
     protected IAppenderDefinitionConfig AppenderConfig;
+
+    protected        List<IMutableAppenderClient> IssuedAppenderClients = new ();
+
+    private readonly IFLogEntryPipelineEndpoint   receiveEndpoint;
 
     protected FLogAppender(IAppenderDefinitionConfig appenderDefinitionConfig, IFLogContext context)
     {
@@ -61,9 +51,8 @@ public abstract class FLogAppender : RecyclableObject, IFLogAsyncTargetReceiveQu
 
         AsyncClient = CreateAppenderAsyncClient(appenderDefinitionConfig, context.AsyncRegistry);
 
-        ForwardToCallback            = ForwardLogEntryTo;
-        AppenderBatchForwardCallBack = BatchForwardTo;
-        
+        receiveEndpoint = new FLogEntryPipelineEndpoint(AppenderName, this);
+
         context.AppenderRegistry.RegisterAppenderCallback(this);
     }
 
@@ -72,46 +61,36 @@ public abstract class FLogAppender : RecyclableObject, IFLogAsyncTargetReceiveQu
     {
         var processAsync = appenderDefinitionConfig.RunOnAsyncQueueNumber;
 
-        var appenderAsyncClient = new AppenderAsyncClient(this, processAsync, asyncRegistry);
+        var appenderAsyncClient = new ReceiveAsyncClient(this, processAsync, asyncRegistry);
         return appenderAsyncClient;
     }
 
-    public string AppenderName { get; set; }
+    public          string AppenderName { get; set; }
 
-    public string? AppenderConfigFilePath { get; set; }
+    public override string Name
+    {
+        get => AppenderName;
+        protected set => AppenderName = value;
+    }
+
+    public override FLogEntrySourceSinkType LogEntryLinkType => FLogEntrySourceSinkType.Sink;
+
+    public override FLogEntryProcessChainState LogEntryProcessState { get; protected set; } 
+        = FLogEntryProcessChainState.Terminating;
+
 
     public string AppenderType { get; protected set; }
 
     public IAppenderAsyncClient AsyncClient { get; set; }
 
-    public virtual void ForwardLogEntryTo(IFLogEntry logEntry)
+    public abstract void ProcessReceivedLogEntryEvent(LogEntryPublishEvent logEntryEvent);
+
+    public void ExecuteJob(Action job)
     {
-        logEntry.IncrementRefCount();
-        AsyncClient.ProcessLogEntryWithValidAsyncSettings(logEntry);
+        job();
     }
 
-    public void ProcessReceivedLogEntry(IFLogEntry logEntry)
-    {
-        Append(logEntry);
-    }
-
-    public ForwardLogEntry ForwardToCallback { get; }
-
-    public BatchForwardLogEntry AppenderBatchForwardCallBack { get; }
-
-    public virtual void BatchForwardTo(IReusableList<IFLogEntry> batchLogEntries)
-    {
-        batchLogEntries.IncrementRefCount();
-        AsyncClient.ProcessBatchLogEntriesWithValidAsyncSettings(batchLogEntries);
-    }
-
-    public virtual void ProcessReceiveBatchLogEntries(IReusableList<IFLogEntry> batchLogEntries)
-    {
-        foreach (var logEntry in batchLogEntries) ForwardLogEntryTo(logEntry);
-        batchLogEntries.DecrementRefCount();
-    }
-
-    public int RunOnAsyncQueueNumber => AsyncClient.AppenderReceiveQueueNum;
+    public int ReceiveOnAsyncQueueNumber => AsyncClient.AppenderReceiveQueueNum;
 
     public virtual void HandleConfigUpdate(IAppenderDefinitionConfig newAppenderConfig)
     {
@@ -120,11 +99,78 @@ public abstract class FLogAppender : RecyclableObject, IFLogAsyncTargetReceiveQu
         AsyncClient.AppenderReceiveQueueNum = newAppenderConfig.RunOnAsyncQueueNumber;
     }
 
-    protected void HandleMoveAppenderQueue(int from, int to) { }
-    
-    public abstract void Append(IReusableList<IFLogEntry> batchFLogEntries);
+    public virtual IAppenderClient CreateAppenderClientFor(IFLoggerCommon logger)
+    {
+        // ReSharper disable once InconsistentlySynchronizedField
+        var alreadyIssued =
+            IssuedAppenderClients
+                .FirstOrDefault(ac => ac is LoggerAppenderClient loggerAppender
+                                   && loggerAppender.IssuedTo.FullName == logger.FullName);
+        if (alreadyIssued != null) return alreadyIssued;
+        lock (IssuedAppenderClients)
+        {
+            alreadyIssued =
+                IssuedAppenderClients
+                    .FirstOrDefault(ac => ac is LoggerAppenderClient loggerAppender
+                                       && loggerAppender.IssuedTo.FullName == logger.FullName);
+            if (alreadyIssued != null) return alreadyIssued;
 
-    public abstract void Append(IFLogEntry logEntry);
+            var newLoggerClient = new LoggerAppenderClient(this, logger);
+            IssuedAppenderClients.Add(newLoggerClient);
+            return newLoggerClient;
+        }
+    }
+
+    public virtual IAppenderClient CreateAppenderClientFor(IFLogForwardingAppender appender)
+    {
+        // ReSharper disable once InconsistentlySynchronizedField
+        var alreadyIssued =
+            IssuedAppenderClients
+                .FirstOrDefault(ac => ac is ForwardingAppenderClient loggerAppender
+                                   && loggerAppender.IssuedTo.AppenderName == appender.AppenderName);
+        if (alreadyIssued != null) return alreadyIssued;
+        lock (IssuedAppenderClients)
+        {
+            alreadyIssued =
+                IssuedAppenderClients
+                    .FirstOrDefault(ac => ac is ForwardingAppenderClient loggerAppender
+                                       && loggerAppender.IssuedTo.AppenderName == appender.AppenderName);
+            if (alreadyIssued != null) return alreadyIssued;
+
+            var newLoggerClient = new ForwardingAppenderClient(this, appender);
+            IssuedAppenderClients.Add(newLoggerClient);
+            return newLoggerClient;
+        }
+    }
+
+    public virtual void ReceiveOldAppenderTypeClients(List<IMutableAppenderClient> issuedAppenders)
+    {
+        IssuedAppenderClients.AddRange(issuedAppenders);
+        foreach (var mutableAppenderClient in issuedAppenders)
+        {
+            mutableAppenderClient.BackingAppender = this;
+        }
+    }
+
+    protected void HandleMoveAppenderQueue(int from, int to) { }
+
+    public override void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
+    {
+        if (ReceiveOnAsyncQueueNumber == 0 || ReceiveOnAsyncQueueNumber == FLogAsyncQueue.MyCallingQueueNumber)
+        {
+            ProcessReceivedLogEntryEvent(logEntryEvent);
+            return;
+        }
+        AsyncClient.ReceiveLogEntryEventOnConfiguredQueue(logEntryEvent);
+    }
+
+    public IFLogEntryPipelineEndpoint ReceiveEndpoint => receiveEndpoint;
+
+
+    public void RunJobOnAppenderQueue(Action job)
+    {
+        AsyncClient.RunJobOnAppenderQueue(job);
+    }
 
     public abstract IAppenderDefinitionConfig GetAppenderConfig();
 }

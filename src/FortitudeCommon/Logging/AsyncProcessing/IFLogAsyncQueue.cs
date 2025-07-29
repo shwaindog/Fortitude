@@ -2,35 +2,50 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.Logging.Config.Initialization;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Logging.Core.Appending;
 using FortitudeCommon.Logging.Core.Appending.Formatting;
 using FortitudeCommon.Logging.Core.LogEntries;
+using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.AsyncProcessing;
 
-public interface IFLogAsyncQueue
+public interface IFLogAsyncQueuePublisher
 {
     int QueueNumber { get; }
 
     AsyncProcessingType QueueType { get; }
 
-    int QueueCapacity { get; }
+    int  QueueCapacity { get; }
 
+    void Execute(Action job);
+
+    void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogAsyncTargetReceiveQueueAppender> appenders);
+
+    void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IFLogAsyncTargetReceiveQueueAppender appender);
+
+    void FlushBufferToAppender(IBufferedFormatWriter toFlush, IFLogAsyncTargetFlushBufferAppender fromAppender);
+}
+
+public interface IReleaseBlockingDisposable : IDisposable
+{
+    bool IsBlocking { get; }
+}
+
+public interface IFLogAsyncSwitchableQueueClient : IFLogAsyncQueuePublisher
+{
+    bool IsBlocking { get; }
+
+    IReleaseBlockingDisposable StartSwitchQueue(IFLogAsyncQueue switchToQueue);
+}
+
+public interface IFLogAsyncQueue : IFLogAsyncQueuePublisher
+{
     void StartQueueReceiver();
 
     void StopQueueReceiver();
 
     int QueueBackLogSize { get; }
-
-    void Execute(Action job);
-
-    void SendLogEntryTo(IFLogEntry logEntry, IFLogAppender appender);
-
-    void SendLogEntriesTo(IReusableList<IFLogEntry> batchLogEntries, IFLogAppender appender);
-
-    void FlushBufferToAppender(IBufferedFormatWriter toFlush, IFLogAsyncTargetFlushBufferAppender fromAppender);
 
     int EmptyQueueSleepMs { get; set; }
 }
@@ -40,11 +55,8 @@ public abstract class FLogAsyncQueue(int queueNumber, AsyncProcessingType queueT
     [ThreadStatic] private static int currentThreadsQueue;
 
     public static int MyCallingQueueNumber => currentThreadsQueue;
-
-    public static void SetCurrentThreadToQueueNumber(int queueNumber)
-    {
-        currentThreadsQueue = queueNumber;
-    }
+    
+    public bool ThreadIsOnQueue => MyCallingQueueNumber == QueueNumber;
 
     public int EmptyQueueSleepMs { get; set; }
 
@@ -54,38 +66,22 @@ public abstract class FLogAsyncQueue(int queueNumber, AsyncProcessingType queueT
 
     public int QueueCapacity { get; protected set; } = queueCapacity;
 
-    public virtual void Execute(Action job)
-    {
-        ExecuteImmediately(job);
-    }
-
-    public bool ThreadIsOnQueue => MyCallingQueueNumber == QueueNumber;
-
-    protected void ExecuteImmediately(Action job) => job();
+    public abstract void Execute(Action job);
 
     public abstract void FlushBufferToAppender(IBufferedFormatWriter toFlush, IFLogAsyncTargetFlushBufferAppender fromAppender);
 
-    protected void FlushBufferToAppenderImmediately(IBufferedFormatWriter toFlush, IFLogAsyncTargetFlushBufferAppender fromAppender)
-    {
-        fromAppender.FlushBufferToAppender(toFlush);
-    }
-
     public abstract int QueueBackLogSize { get; }
 
-    public abstract void SendLogEntriesTo(IReusableList<IFLogEntry> batchLogEntries, IFLogAppender appender);
+    public abstract void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogAsyncTargetReceiveQueueAppender> appenders);
 
-    protected void SendLogEntriesToImmediately(IReusableList<IFLogEntry> batchLogEntries, IFLogAppender appender)
-    {
-        appender.Append(batchLogEntries);
-    }
-
-    public abstract void SendLogEntryTo(IFLogEntry logEntry, IFLogAppender appender);
-
-    protected void SendLogEntryToImmediately(IFLogEntry logEntry, IFLogAppender appender)
-    {
-        appender.Append(logEntry);
-    }
+    public abstract void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IFLogAsyncTargetReceiveQueueAppender appender);
 
     public abstract void StartQueueReceiver();
+
     public abstract void StopQueueReceiver();
+    
+    public static void SetCurrentThreadToQueueNumber(int queueNumber)
+    {
+        currentThreadsQueue = queueNumber;
+    }
 }

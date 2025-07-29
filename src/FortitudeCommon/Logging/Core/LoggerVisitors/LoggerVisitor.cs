@@ -6,9 +6,8 @@ using FortitudeCommon.DataStructures.Memory;
 namespace FortitudeCommon.Logging.Core.LoggerVisitors;
 
 
-public interface IFLoggerVisitor { }
 
-public interface IFLoggerVisitor<out T> : IFLoggerVisitor where T : IFLoggerVisitor<T>
+public interface IFLoggerVisitor<out T> where T : IFLoggerVisitor<T>
 {
     T Accept(IMutableFLoggerCommon logger);
     T Accept(IMutableFLoggerRoot logger);

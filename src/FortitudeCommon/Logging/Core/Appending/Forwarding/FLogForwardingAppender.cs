@@ -3,32 +3,29 @@ using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries;
+using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.Core.Appending.Forwarding;
 
-public interface IFLoggerForwardingAppender
+public interface IFLogForwardingAppender : IFLogAppender
 {
-    IReadOnlyList<IFLogAppender> ForwardToAppenders { get; }
+    IReadOnlyList<KeyValuePair<int, List<IAppenderClient>>> ForwardToAppenders { get; }
 }
 
-public interface IMutableFLoggerForwardingAppender : IFLoggerForwardingAppender
+public interface IMutableFLogForwardingAppender : IFLogForwardingAppender, IMutableFLogAppender
 {
-    new IReadOnlyList<IFLogAppender> ForwardToAppenders { get; set; }
+    new IReadOnlyList<KeyValuePair<int, List<IAppenderClient>>> ForwardToAppenders { get; set; }
 
-    void AddAppender(IFLogAppender newAppender);
+    void AddAppender(IAppenderClient newAppender);
 
-    void RemoveAppenderName(string removeAppenderName);
+    bool RemoveAppenderName(string removeAppenderName);
 }
 
-public class FLogForwardingAppender : FLogAppender, IMutableFLoggerForwardingAppender
+public class FLogForwardingAppender : FLogAppender, IMutableFLogForwardingAppender
 {
     protected readonly IFLogAppenderRegistry AppenderRegistry;
 
-    private readonly NotifyAppenderHandler receiveDownstreamAppender;
-
-    private List<IFLogAppender> forwardToAppender = new();
-
-    private CountdownEvent? updatesOccuringCountdownEvent;
+    private List<KeyValuePair<int, List<IAppenderClient>>> allForwardToAppendersCache = new();
 
     public FLogForwardingAppender(IForwardingAppenderConfig forwardingAppenderConfig, IFLogContext context)
         : base(forwardingAppenderConfig, context)
@@ -36,89 +33,90 @@ public class FLogForwardingAppender : FLogAppender, IMutableFLoggerForwardingApp
         AppenderRegistry = context.AppenderRegistry;
         AppenderType     = $"{nameof(FLoggerBuiltinAppenderType.SyncForwarding)}";
 
-        receiveDownstreamAppender = AddAppender;
-
         ParseAppenderConfig(forwardingAppenderConfig, AppenderRegistry);
     }
 
     protected virtual void ParseAppenderConfig(IForwardingAppenderConfig forwardingAppenderConfig, IFLogAppenderRegistry fLogAppenderRegistry)
     {
         var forwardingAppendersLookupConfig = forwardingAppenderConfig.ForwardToAppenders;
-        var expectedNumberOfAppenders       = forwardingAppendersLookupConfig.Count;
-        updatesOccuringCountdownEvent = new CountdownEvent(expectedNumberOfAppenders);
-        forwardToAppender.Clear();
+        var newAppenderForwardToList = new List<KeyValuePair<int, List<IAppenderClient>>>();
         foreach (var downStreamAppenderRef in forwardingAppendersLookupConfig)
         {
-            var appenderName      = downStreamAppenderRef.Value.AppenderName ?? "";
-            fLogAppenderRegistry.RegistryAppenderInterest(receiveDownstreamAppender, appenderName);
+            var appenderName   = downStreamAppenderRef.Value.AppenderName;
+            var appenderClient = fLogAppenderRegistry.GetAppenderClient(appenderName, this);
+            AddAppender(appenderClient);
         }
+        allForwardToAppendersCache = newAppenderForwardToList;
     }
 
-    public override void Append(IFLogEntry logEntry)
+    protected override IAppenderForwardingAsyncClient CreateAppenderAsyncClient
+        (IAppenderDefinitionConfig appenderDefinitionConfig, IFLoggerAsyncRegistry asyncRegistry)
     {
-        updatesOccuringCountdownEvent?.Wait();
-        for (var i = 0; i < ForwardToAppenders.Count; i++)
-        {
-            var appender = ForwardToAppenders[i];
-            appender.ForwardLogEntryTo(logEntry);
-        }
-        logEntry.DecrementRefCount();
+        var processAsync = appenderDefinitionConfig.RunOnAsyncQueueNumber;
+
+        var appenderAsyncClient = new ForwardingAsyncClient(this, processAsync, asyncRegistry);
+        return appenderAsyncClient;
     }
 
-    public override void Append(IReusableList<IFLogEntry> logEntryBatch)
+    protected IAppenderForwardingAsyncClient ForwardingAsyncClient => (IAppenderForwardingAsyncClient)AsyncClient;
+
+    public override void ProcessReceivedLogEntryEvent(LogEntryPublishEvent logEntryEvent)
     {
-        updatesOccuringCountdownEvent?.Wait();
-        for (var i = 0; i < ForwardToAppenders.Count; i++)
+        var forwardToList = ForwardToAppenders;
+        for (var i = 0; i < forwardToList.Count; i++)
         {
-            var appender = ForwardToAppenders[i];
-            appender.BatchForwardTo(logEntryBatch);
+            var appendersByQueueNum = forwardToList[i];
+            for (var j = 0; j < appendersByQueueNum.Value.Count; j++)
+            {
+                var appender = appendersByQueueNum.Value[j];
+                appender.ReceiveEndpoint.PublishLogEntryEvent(logEntryEvent);
+            }
         }
-        for (var i = 0; i < logEntryBatch.Count; i++)
-        {
-            var logEntry = logEntryBatch[i];
-            logEntry.DecrementRefCount();
-        }
-        logEntryBatch.Clear();
-        logEntryBatch.DecrementRefCount();
     }
 
     protected IForwardingAppenderConfig TypeConfig => (IForwardingAppenderConfig)AppenderConfig;
 
-    public override void BatchForwardTo(IReusableList<IFLogEntry> batchLogEntries)
+    public IReadOnlyList<KeyValuePair<int, List<IAppenderClient>>> ForwardToAppenders
     {
-        batchLogEntries.IncrementRefCount();
-        updatesOccuringCountdownEvent?.Wait();
-        for (var i = 0; i < ForwardToAppenders.Count; i++)
+        get => allForwardToAppendersCache;
+        set => allForwardToAppendersCache = (List<KeyValuePair<int, List<IAppenderClient>>>)value;
+    }
+
+    public void AddAppender(IAppenderClient newAppender)
+    {
+        var forwardToList = allForwardToAppendersCache;
+        var onQueue       = newAppender.ReceiveOnAsyncQueueNumber;
+        var foundQueueNumList =
+            forwardToList
+                .FirstOrDefault(kvp => kvp.Key == onQueue);
+        if (Equals(foundQueueNumList, null))
         {
-            var appender = ForwardToAppenders[i];
-            appender.BatchForwardTo(batchLogEntries);
+            forwardToList.Add(new KeyValuePair<int, List<IAppenderClient>>(onQueue, [newAppender]));
         }
-        batchLogEntries.DecrementRefCount();
-    }
-
-    public IReadOnlyList<IFLogAppender> ForwardToAppenders
-    {
-        get => forwardToAppender;
-        set => forwardToAppender = (List<IFLogAppender>)value;
-    }
-
-    public void AddAppender(IFLogAppender newAppender)
-    {
-        updatesOccuringCountdownEvent?.Signal();
-        forwardToAppender.Add(newAppender);
-    }
-
-    public void RemoveAppenderName(string removeAppenderName)
-    {
-        for (var i = 0; i < forwardToAppender.Count; i++)
+        else
         {
-            var appender = forwardToAppender[i];
-            if (appender.AppenderName == removeAppenderName)
+            foundQueueNumList.Value.Add(newAppender);
+        }
+    }
+
+    public bool RemoveAppenderName(string removeAppenderName)
+    {
+        var forwardToList = ForwardToAppenders;
+        for (var i = 0; i < forwardToList.Count; i++)
+        {
+            var appendersByQueueNum = forwardToList[i];
+            var appendersOnQueue    = appendersByQueueNum.Value;
+            for (var j = 0; j < appendersOnQueue.Count; j++)
             {
-                forwardToAppender.RemoveAt(i);
-                return;
+                var appender = appendersByQueueNum.Value[j];
+                if (appender.AppenderName == removeAppenderName)
+                {
+                    appendersOnQueue[i] = NullAppenderClient.NullClientInstance;
+                    return true;
+                }
             }
         }
+        return false;
     }
 
     public override void HandleConfigUpdate(IAppenderDefinitionConfig newAppenderConfig)

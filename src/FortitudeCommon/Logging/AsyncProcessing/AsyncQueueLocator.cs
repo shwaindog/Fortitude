@@ -1,27 +1,25 @@
 ﻿using FortitudeCommon.DataStructures.Lists;
+using FortitudeCommon.Logging.AsyncProcessing.ProxyQueue;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Logging.Core.Appending;
 using FortitudeCommon.Logging.Core.Appending.Formatting;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries;
+using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.AsyncProcessing;
 
 public interface IAsyncQueueLocator
 {
-    void Execute(int queueNumber, Action job);
-
-    void SendLogEntryTo(int queueNumber, IFLogEntry logEntry, IFLogAppender appender);
-
-    void SendLogEntriesTo(int queueNumber, IReusableList<IFLogEntry> batchLogEntries, IFLogAppender appender);
-
-    void FlushBufferToAppender(int queueNumber, IBufferedFormatWriter toFlush, IFLogAsyncTargetFlushBufferAppender fromAppender);
-
     IReadOnlyCollection<IFLogAsyncQueue> AsyncQueues { get; }
+
+    IReadOnlyCollection<IFLogAsyncQueuePublisher> ClientPublisherQueues { get; }
 
     int MaxAvailableQueues { get; }
 
     IFLogAsyncQueue GetOrCreateQueue(int queueNumber);
+
+    IFLogAsyncQueuePublisher GetClientPublisherQueue(int queueNumber);
 
     int QueueBackLogSize(int queueNumber);
 
@@ -34,12 +32,23 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
 
     private readonly AsyncProcessingType defaultAsyncProcessing = asyncInitConfig.AsyncProcessingType;
 
-    private readonly Dictionary<int, IFLogAsyncQueue> runningQueues = new();
+    private readonly Dictionary<int, IFLogAsyncQueue>                 runningQueues       = new();
+    private readonly Dictionary<int, IFLogAsyncSwitchableQueueClient> clientProxiesQueues = new();
 
-    public IReadOnlyCollection<IFLogAsyncQueue> AsyncQueues => runningQueues.Values;
+    public IReadOnlyCollection<IFLogAsyncQueue>          AsyncQueues           => runningQueues.Values;
+
+    public IReadOnlyCollection<IFLogAsyncQueuePublisher> ClientPublisherQueues => clientProxiesQueues.Values;
 
     public void StartAsyncQueues()
     {
+        foreach (var asyncQueueConfig in asyncInitConfig.AsyncQueues)
+        {
+            if (asyncQueueConfig.Value.LaunchAtFlogStart)
+            {
+                var queue = GetOrCreateQueue(asyncQueueConfig.Key);
+                queue.StartQueueReceiver();
+            }
+        }
     }
 
     public IFLogAsyncQueue GetOrCreateQueue(int queueNumber)
@@ -120,6 +129,21 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
                                   , defaultQueueFullDropInterval);
     }
 
+    public IFLogAsyncQueuePublisher GetClientPublisherQueue(int queueNumber)
+    {
+        if (clientProxiesQueues.TryGetValue(queueNumber, out var foundExisting)) return foundExisting;
+        lock (SyncLock)
+        {
+            if (clientProxiesQueues.TryGetValue(queueNumber, out foundExisting)) return foundExisting;
+
+            var actualQueue = GetOrCreateQueue(queueNumber);
+
+            var proxyQueue = new FLogAsyncSwitchableProxyQueue(queueNumber, actualQueue);
+            clientProxiesQueues.Add(queueNumber, proxyQueue);
+            return proxyQueue;
+        }
+    }
+
     public int MaxAvailableQueues { get; } = asyncInitConfig.MaxAsyncProcessing;
 
     public int QueueBackLogSize(int queueNumber) => GetOrCreateQueue(queueNumber).QueueBackLogSize;
@@ -136,15 +160,15 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
         queue.FlushBufferToAppender(toFlush, fromAppender);
     }
 
-    public void SendLogEntriesTo(int queueNumber, IReusableList<IFLogEntry> batchLogEntries, IFLogAppender appender)
+    public void SendLogEntryEventTo(int queueNumber, LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogAsyncTargetReceiveQueueAppender> appenders)
     {
         var queue = GetOrCreateQueue(queueNumber);
-        queue.SendLogEntriesTo(batchLogEntries, appender);
+        queue.SendLogEntryEventTo(logEntryEvent, appenders);
     }
 
-    public void SendLogEntryTo(int queueNumber, IFLogEntry logEntry, IFLogAppender appender)
+    public void SendLogEntryEventTo(int queueNumber, LogEntryPublishEvent logEntryEvent, IFLogAsyncTargetReceiveQueueAppender appender)
     {
         var queue = GetOrCreateQueue(queueNumber);
-        queue.SendLogEntryTo(logEntry, appender);
+        queue.SendLogEntryEventTo(logEntryEvent, appender);
     }
 }

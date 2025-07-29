@@ -1,10 +1,9 @@
 ﻿using System.Text;
-using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Logging.Config.Appending.Formatting;
 using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
 using FortitudeCommon.Logging.Core.Hub;
-using FortitudeCommon.Logging.Core.LogEntries;
+using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.ConsoleOut;
 
@@ -19,17 +18,19 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
 
     public bool ConsoleColorEnabled { get; set; }
 
-    public override void Append(IFLogEntry logEntry)
+    public override void ProcessReceivedLogEntryEvent(LogEntryPublishEvent logEntryEvent)
     {
-        Formatter.ApplyFormatting(logEntry);
-    }
-
-    public override void Append(IReusableList<IFLogEntry> batchLogEntries)
-    {
-        for (var i = 0; i < batchLogEntries.Count; i++)
+        if (logEntryEvent.LogEntryEventType == LogEntryEventType.SingleEntry)
         {
-            var logEntry = batchLogEntries[i];
-            Append(logEntry);
+            Formatter.ApplyFormatting(logEntryEvent.LogEntry!);
+        }
+        else
+        {
+            for (var i = 0; i < logEntryEvent.LogEntriesBatch!.Count; i++)
+            {
+                var flogEntry = logEntryEvent.LogEntriesBatch![i];
+                Formatter.ApplyFormatting(flogEntry);
+            }
         }
     }
 
@@ -39,7 +40,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
         return DirectFormatWriter;
     }
 
-    public override void FlushBufferToAppender(IBufferedFormatWriter toFlush)
+    public override void FlushBuffer(IBufferedFormatWriter toFlush)
     {
         var bufferAndRange  = toFlush.FlushRange();
         var charBufferLength = bufferAndRange.Length;
@@ -47,7 +48,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
     }
 
     public override FormattingAppenderSinkType FormatAppenderType { get; protected set; }
-
+    
     public override IConsoleAppenderConfig GetAppenderConfig() => (IConsoleAppenderConfig)AppenderConfig;
 
     private class ConsoleFormatWriter(FLogConsoleAppender owningAppender, FormatWriterReceivedHandler<IBufferedFormatWriter> onWriteCompleteCallback)

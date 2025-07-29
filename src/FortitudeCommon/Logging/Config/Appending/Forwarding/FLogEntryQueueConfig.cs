@@ -14,12 +14,15 @@ public interface IFLogEntryQueueConfig : IInterfacesComparable<IFLogEntryQueueCo
 {
     const int DefaultQueueSize          = 1024;
     const int DefaultQueueReadBatchSize = 32;
+    const int DefaultQueueDropInterval  = 2;
 
     const FullQueueHandling DefaultQueueFullHandling = FullQueueHandling.Block;
 
     int QueueSize { get; }
 
     FullQueueHandling QueueFullHandling { get; }
+
+    int QueueDropInterval { get; }
 
     int QueueReadBatchSize { get; }
 
@@ -47,18 +50,22 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
     (int queueSize = IFLogEntryQueueConfig.DefaultQueueSize
       , FullQueueHandling inboundQueueFullHandling = IFLogEntryQueueConfig.DefaultQueueFullHandling
       , int queueReadBatchSize = IFLogEntryQueueConfig.DefaultQueueReadBatchSize
+      , int queueDropInterval = IFLogEntryQueueConfig.DefaultQueueDropInterval
       , IMutableFLogEntryPoolConfig? logEntryPool = null)
-        : this(InMemoryConfigRoot, InMemoryPath, queueSize, inboundQueueFullHandling, queueReadBatchSize, logEntryPool) { }
+        : this(InMemoryConfigRoot, InMemoryPath, queueSize, inboundQueueFullHandling, queueReadBatchSize, queueDropInterval, logEntryPool) { }
 
     public FLogEntryQueueConfig
     (IConfigurationRoot root, string path, int queueSize = IFLogEntryQueueConfig.DefaultQueueSize
       , FullQueueHandling inboundQueueFullHandling = IFLogEntryQueueConfig.DefaultQueueFullHandling
-      , int queueReadBatchSize = IFLogEntryQueueConfig.DefaultQueueReadBatchSize, IMutableFLogEntryPoolConfig? logEntryPool = null)
+      , int queueReadBatchSize = IFLogEntryQueueConfig.DefaultQueueReadBatchSize
+      , int queueDropInterval = IFLogEntryQueueConfig.DefaultQueueDropInterval
+      , IMutableFLogEntryPoolConfig? logEntryPool = null)
         : base(root, path)
     {
         QueueSize    = queueSize;
         LogEntryPool = logEntryPool;
 
+        QueueDropInterval  = queueDropInterval;
         QueueFullHandling  = inboundQueueFullHandling;
         QueueReadBatchSize = queueReadBatchSize;
     }
@@ -67,7 +74,8 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
     {
         QueueSize    = toClone.QueueSize;
         LogEntryPool = toClone.LogEntryPool as IMutableFLogEntryPoolConfig;
-
+        
+        QueueDropInterval  = toClone.QueueDropInterval;
         QueueFullHandling  = toClone.QueueFullHandling;
         QueueReadBatchSize = toClone.QueueReadBatchSize;
     }
@@ -117,15 +125,27 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
         set => this[nameof(QueueFullHandling)] = value.ToString();
     }
 
+    public int QueueDropInterval
+    {
+        get => int.TryParse(this[nameof(QueueDropInterval)], out var dropInterval) 
+            ? dropInterval 
+            : IFLogEntryQueueConfig.DefaultQueueDropInterval;
+        set => this[nameof(QueueDropInterval)] = value.ToString();
+    }
+
     public int QueueReadBatchSize
     {
-        get => int.TryParse(this[nameof(QueueReadBatchSize)], out var timePart) ? timePart : 0;
+        get => int.TryParse(this[nameof(QueueReadBatchSize)], out var readBatchSize) 
+            ? readBatchSize 
+            : IFLogEntryQueueConfig.DefaultQueueReadBatchSize;
         set => this[nameof(QueueReadBatchSize)] = value.ToString();
     }
 
     public int QueueSize
     {
-        get => int.TryParse(this[nameof(QueueSize)], out var timePart) ? timePart : 0;
+        get => int.TryParse(this[nameof(QueueSize)], out var queueSize) 
+            ? queueSize 
+            : IFLogEntryQueueConfig.DefaultQueueSize;
         set => this[nameof(QueueSize)] = value.ToString();
     }
 
@@ -136,10 +156,11 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
         var queueSizeSame         = QueueSize == other.QueueSize;
         var queueFullHandlingSame = QueueFullHandling == other.QueueFullHandling;
         var readBatchSizeSame     = QueueReadBatchSize == other.QueueReadBatchSize;
+        var dropIntervalSame     = QueueDropInterval == other.QueueDropInterval;
         var logEntryPoolSame = LogEntryPool?.AreEquivalent(other.LogEntryPool, exactTypes)
                             ?? other.LogEntryPool == null;
 
-        var allAreSame = queueSizeSame && queueFullHandlingSame && readBatchSizeSame && logEntryPoolSame;
+        var allAreSame = queueSizeSame && queueFullHandlingSame && readBatchSizeSame && dropIntervalSame && logEntryPoolSame;
 
         return allAreSame;
     }
@@ -151,6 +172,7 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
         var hashCode = QueueSize;
         hashCode = (hashCode * 397) ^ QueueFullHandling.GetHashCode();
         hashCode = (hashCode * 397) ^ QueueReadBatchSize;
+        hashCode = (hashCode * 397) ^ QueueDropInterval;
         hashCode = (hashCode * 397) ^ (LogEntryPool?.GetHashCode() ?? 0);
         return hashCode;
     }
@@ -163,6 +185,7 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
                .AddField(nameof(QueueSize), QueueSize)
                .AddField(nameof(QueueFullHandling), QueueFullHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
                .AddField(nameof(QueueReadBatchSize), QueueReadBatchSize)
+               .AddField(nameof(QueueDropInterval), QueueDropInterval)
                .AddNonNullField(nameof(LogEntryPool), LogEntryPool)
                .AddTypeEnd();
     }

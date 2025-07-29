@@ -1,5 +1,6 @@
 ﻿using FortitudeCommon.Logging.AsyncProcessing.ProxyQueue;
 using FortitudeCommon.Logging.AsyncProcessing.SingleBackground;
+using FortitudeCommon.Logging.AsyncProcessing.ThreadPoolQueue;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 
 namespace FortitudeCommon.Logging.AsyncProcessing;
@@ -17,6 +18,8 @@ public static class FLogAsyncQueueFactoryMethods
             case AsyncProcessingType.Synchronise:
             case AsyncProcessingType.AllAsyncDisabled:
                 return new FlogSynchroniseExecutionQueue(queueConfig.QueueNumber);
+            case AsyncProcessingType.AsyncUsesThreadPool:
+                return new ThreadPoolAsyncQueue(queueConfig.QueueNumber, queueConfig.QueueCapacity);
             default: return null;
         }
     }
