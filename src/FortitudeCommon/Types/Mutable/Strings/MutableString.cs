@@ -325,7 +325,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         }
     }
 
-    public void CopyTo(char[] array, int arrayIndex, int fromMyIndex = 0, int myLength = int.MaxValue)
+    public void CopyTo(char[] array, int arrayIndex, int myLength = int.MaxValue, int fromMyIndex = 0)
     {
         var myIndex = fromMyIndex;
         var myEnd   = myLength != int.MaxValue ? fromMyIndex + myLength : myLength;
@@ -335,7 +335,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         }
     }
 
-    public void CopyTo(RecyclingCharArray array, int? arrayIndex = null, int fromMyIndex = 0, int myLength = int.MaxValue)
+    public void CopyTo(RecyclingCharArray array, int? arrayIndex = null, int myLength = int.MaxValue, int fromMyIndex = 0)
     {
         var myIndex = fromMyIndex;
         var myEnd   = myLength != int.MaxValue ? fromMyIndex + myLength : myLength;
@@ -345,7 +345,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         }
     }
 
-    public void CopyTo(Span<char> charSpan, int spanIndex, int fromMyIndex = 0, int myLength = int.MaxValue)
+    public void CopyTo(Span<char> charSpan, int spanIndex, int myLength = int.MaxValue, int fromMyIndex = 0)
     {
         var myIndex = fromMyIndex;
         var myEnd   = myLength != int.MaxValue ? fromMyIndex + myLength : myLength;
@@ -1426,16 +1426,16 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         public bool Contains(string subStr) => ms.Contains(subStr);
 
         public void CopyTo
-            (Span<char> charSpan, int spanIndex, int fromMyIndex = 0, int myLength = Int32.MaxValue) =>
-            ms.CopyTo(charSpan, spanIndex, fromMyIndex, myLength);
+            (Span<char> charSpan, int spanIndex, int myLength = int.MaxValue, int fromMyIndex = 0) =>
+            ms.CopyTo(charSpan, spanIndex, myLength: myLength, fromMyIndex: fromMyIndex);
 
         public void CopyTo
-            (RecyclingCharArray array, int? arrayIndex = null, int fromMyIndex = 0, int myLength = Int32.MaxValue) =>
-            ms.CopyTo(array, arrayIndex, fromMyIndex, myLength);
+            (RecyclingCharArray array, int? arrayIndex = null, int myLength = int.MaxValue, int fromMyIndex = 0) =>
+            ms.CopyTo(array, arrayIndex, myLength: myLength, fromMyIndex: fromMyIndex);
 
         public void CopyTo
-            (char[] array, int arrayIndex, int fromMyIndex = 0, int myLength = Int32.MaxValue) =>
-            ms.CopyTo(array, arrayIndex, fromMyIndex, myLength);
+            (char[] array, int arrayIndex, int myLength = int.MaxValue, int fromMyIndex = 0) =>
+            ms.CopyTo(array, arrayIndex, myLength: myLength, fromMyIndex: fromMyIndex);
 
         public int DecrementRefCount() => ms.DecrementRefCount();
 

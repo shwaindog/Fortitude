@@ -2,10 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Runtime.CompilerServices;
-using System.Text;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Extensions;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
@@ -20,7 +17,7 @@ public interface IFLogFirstFormatterParameterEntry : IReusableObject<IFLogFirstF
 
     IStyledTypeStringAppender BackingStyledTypeStringAppender { get; }
 
-    StringBuilder BackingStringBuilder { get; }
+    IStringBuilder BackingStringBuilder { get; }
 
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
@@ -165,11 +162,11 @@ public class FLogFirstFormatterParameterEntry : ReusableObject<IFLogFirstFormatt
 {
     private IStyledTypeStringAppender? stsa;
 
-    private StringBuilder sb = null!;
+    private IStringBuilder sb = null!;
 
-    private readonly StringBuilder warnings = new();
+    private readonly IStringBuilder warnings = new MutableString();
 
-    private Action<StringBuilder?> onComplete = null!;
+    private Action<IStringBuilder?> onComplete = null!;
     private LoggingLocation        loggingLocation;
 
     private FormatBuilder                 formatBuilder = null!;
@@ -196,7 +193,7 @@ public class FLogFirstFormatterParameterEntry : ReusableObject<IFLogFirstFormatt
     public FLogFirstFormatterParameterEntry Initialize
     (FormatBuilder stringFormatBuilder
       , LoggingLocation logLocation
-      , Action<StringBuilder?> onCompleteHandler
+      , Action<IStringBuilder?> onCompleteHandler
       , StringBuildingStyle style = StringBuildingStyle.Default)
     {
         stsa = (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender()).Initialize(style);
@@ -214,7 +211,7 @@ public class FLogFirstFormatterParameterEntry : ReusableObject<IFLogFirstFormatt
 
     public int RemainingArguments => formatTokens.Count;
 
-    public StringBuilder BackingStringBuilder => sb;
+    public IStringBuilder BackingStringBuilder => sb;
 
     public IStyledTypeStringAppender BackingStyledTypeStringAppender => stsa!;
     

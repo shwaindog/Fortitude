@@ -4,6 +4,7 @@
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using static FortitudeCommon.Logging.Config.Appending.Forwarding.AsyncForwarding.FLogAsyncAppenderDispatchType;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.AsyncForwarding;
@@ -19,7 +20,7 @@ public enum FLogAsyncAppenderDispatchType
 
 public static class FLogAsyncAppenderDispatchTypeExtensions
 {
-    public static Action<FLogAsyncAppenderDispatchType, IStyledTypeStringAppender> FLogAsyncAppenderDispatchTypeFormatter
+    public static StructStyler<FLogAsyncAppenderDispatchType> FLogAsyncAppenderDispatchTypeFormatter
         = FormatFullQueueHandlingAppender;
 
     public static void FormatFullQueueHandlingAppender(this FLogAsyncAppenderDispatchType queueFull, IStyledTypeStringAppender sbc)

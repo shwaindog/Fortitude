@@ -5,6 +5,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting.Files;
@@ -191,18 +192,16 @@ public class RollingFileAppenderConfig : FileAppenderConfig, IMutableRollingFile
         return hashCode;
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        sbc.AddTypeName(nameof(RollingFileAppenderConfig))
-               .AddTypeStart()
-               .AddField(nameof(RollAtSize), RollAtSize)
-               .AddField(nameof(RollFileNameFormat), RollFileNameFormat)
-               .AddField(nameof(StartRollDelayMs), StartRollDelayMs)
+        using var tb = 
+            sbc.StartComplexType(nameof(RollingFileAppenderConfig))
+               .Field.AddAlways(nameof(RollAtSize), RollAtSize)
+               .Field.AddAlways(nameof(RollFileNameFormat), RollFileNameFormat)
+               .Field.AddAlways(nameof(StartRollDelayMs), StartRollDelayMs)
                .AddBaseFieldsStart();
-        return
-            base.ToString(sbc)
-                .AddBaseFieldsEnd()
-                .AddTypeEnd();
+        base.ToString(sbc);
+        return tb;
     }
 }
 

@@ -5,6 +5,7 @@ using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
@@ -18,13 +19,12 @@ public class StringConstantTemplatePart(string toAppend) : ITemplatePart, IStyle
         return toAppend.Length;
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-        sbc.AddTypeName(nameof(StringConstantTemplatePart))
-           .AddTypeStart()
-           .AddField(nameof(toAppend), toAppend)
-           .AddTypeEnd();
+        sbc.StartComplexType(nameof(StringConstantTemplatePart))
+           .Field.AddAlways(nameof(toAppend), toAppend)
+           .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

@@ -4,6 +4,7 @@ using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Initialization;
@@ -301,18 +302,17 @@ public class LogEntryPoolsInitializationConfig : FLogConfig, IMutableLogEntryPoo
         return hashCode;
     }
 
-    public virtual IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(LogEntryPoolsInitializationConfig))
-               .AddTypeStart()
-               .AddField(nameof(DefaultLogEntryCharCapacity), DefaultLogEntryCharCapacity)
-               .AddField(nameof(DefaultLogEntryBatchSize), DefaultLogEntryBatchSize)
-               .AddField(nameof(GlobalLogEntryPool), GlobalLogEntryPool)
-               .AddField(nameof(LargeMessageLogEntryPool), LargeMessageLogEntryPool)
-               .AddField(nameof(VeryLargeMessageLogEntryPool), VeryLargeMessageLogEntryPool)
-               .AddField(nameof(LoggersGlobalLogEntryPool), LoggersGlobalLogEntryPool)
-               .AddField(nameof(AppendersGlobalLogEntryPool), AppendersGlobalLogEntryPool)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(LogEntryPoolsInitializationConfig))
+               .Field.AddAlways(nameof(DefaultLogEntryCharCapacity), DefaultLogEntryCharCapacity)
+               .Field.AddAlways(nameof(DefaultLogEntryBatchSize), DefaultLogEntryBatchSize)
+               .Field.AddAlways(nameof(GlobalLogEntryPool), GlobalLogEntryPool)
+               .Field.AddAlways(nameof(LargeMessageLogEntryPool), LargeMessageLogEntryPool)
+               .Field.AddAlways(nameof(VeryLargeMessageLogEntryPool), VeryLargeMessageLogEntryPool)
+               .Field.AddAlways(nameof(LoggersGlobalLogEntryPool), LoggersGlobalLogEntryPool)
+               .Field.AddAlways(nameof(AppendersGlobalLogEntryPool), AppendersGlobalLogEntryPool)
+               .Complete();
     }
 }

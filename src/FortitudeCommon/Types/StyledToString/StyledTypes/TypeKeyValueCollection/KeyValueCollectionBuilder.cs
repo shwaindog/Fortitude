@@ -49,6 +49,6 @@ public class KeyValueCollectionBuilder : MultiValueTypeBuilder<KeyValueCollectio
         addSelectKeys?.DecrementRefCount();
         addSelectKeys = null;
 
-        base.StateReset();
+        base.InheritedStateReset();
     }
 }

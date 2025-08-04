@@ -4,6 +4,7 @@
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting.Files;
@@ -175,17 +176,15 @@ public class FileAppenderConfig : FormattingAppenderConfig, IMutableFileAppender
         return hashCode;
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        sbc.AddTypeName(nameof(FileAppenderConfig))
-           .AddTypeStart()
-           .AddField(nameof(FileAppenderType), FileAppenderType, FileAppenderTypeExtensions.FileAppenderTypeFormatter)
-           .AddField(nameof(FileName), FileName)
-           .AddField(nameof(FilePath), FilePath)
-           .AddBaseFieldsStart();
-        return
-            base.ToString(sbc)
-                .AddBaseFieldsEnd()
-                .AddTypeEnd();
+        using var tb =
+            sbc.StartComplexType(nameof(FileAppenderConfig))
+               .Field.AddAlways(nameof(FileAppenderType), FileAppenderType, FileAppenderTypeExtensions.FileAppenderTypeFormatter)
+               .Field.AddAlways(nameof(FileName), FileName)
+               .Field.AddAlways(nameof(FilePath), FilePath)
+               .AddBaseFieldsStart();
+        base.ToString(sbc);
+        return tb.Complete();
     }
 }

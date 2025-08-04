@@ -438,6 +438,18 @@ public static class StyledTypeBuilderExtensions
         return stb.AddGoToNext();
     }
 
+    public static TExt AddNullOrValue<TExt>(this IStringBuilder sb, char[]? value, int startIndex, int length
+      , IStyleTypeBuilderComponentAccess<TExt> stb, bool? inQuotes = null)
+        where TExt : StyledTypeBuilder
+    {
+        var addQuotes = inQuotes ?? stb.Style.IsJson();
+        if (value != null)
+            sb.Qt(addQuotes).Append(value, startIndex, length).Qt(addQuotes);
+        else
+            sb.Append(Null);
+        return stb.AddGoToNext();
+    }
+
     public static TExt AddNullOrValue<TValue, TExt>(this IStringBuilder sb, TValue value
       , IStyleTypeBuilderComponentAccess<TExt> stb, bool? inQuotes = null)
         where TExt : StyledTypeBuilder

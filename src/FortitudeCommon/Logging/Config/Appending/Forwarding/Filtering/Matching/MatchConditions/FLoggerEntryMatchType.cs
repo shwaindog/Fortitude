@@ -5,6 +5,7 @@ using System.Configuration;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 using static FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.FLoggerEntryMatchType;
 
@@ -22,7 +23,7 @@ public enum FLoggerEntryMatchType
 
 public static class FLoggerEntryMatchTypeExtensions
 {
-    public static Action<FLoggerEntryMatchType, IStyledTypeStringAppender> FLoggerEntryMatchTypeFormatter
+    public static StructStyler<FLoggerEntryMatchType> FLoggerEntryMatchTypeFormatter
         = FormatEntryMatchTypeAppender;
 
     public static void FormatEntryMatchTypeAppender(this FLoggerEntryMatchType entryMatchType, IStyledTypeStringAppender sbc)

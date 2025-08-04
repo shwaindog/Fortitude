@@ -3,6 +3,7 @@ using FortitudeCommon.Config;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting.Console;
@@ -28,7 +29,7 @@ public interface IMutableConsoleAppenderConfig : IConsoleAppenderConfig, IMutabl
 public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableConsoleAppenderConfig
 {
     public const string DefaultConsoleAppenderName = $"DefaultColoredConsoleAppender";
-    public const string ConsoleAppenderType = $"{nameof(FLoggerBuiltinAppenderType.ConsoleOut)}";
+    public const string ConsoleAppenderType        = $"{nameof(FLoggerBuiltinAppenderType.ConsoleOut)}";
 
     public ConsoleAppenderConfig(IConfigurationRoot root, string path) : base(root, path)
     {
@@ -36,7 +37,7 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
     }
 
     public ConsoleAppenderConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
-    
+
     public ConsoleAppenderConfig
     (IConfigurationRoot root, string path, string appenderName
       , int charBufferSize = IBufferingFormatAppenderConfig.DefaultCharBufferSize
@@ -46,10 +47,11 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
       , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
       , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)
-        : base(root, path, appenderName,  ConsoleAppenderType, charBufferSize, flushBufferConfig, disableBuffering, logEntryFormatLayout, runOnAsyncQueueNumber
+        : base(root, path, appenderName, ConsoleAppenderType, charBufferSize, flushBufferConfig, disableBuffering, logEntryFormatLayout
+             , runOnAsyncQueueNumber
              , inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere)
     {
-        DisableColoredConsole    = disableColoredConsole;
+        DisableColoredConsole = disableColoredConsole;
     }
 
     public ConsoleAppenderConfig(IConsoleAppenderConfig toClone, IConfigurationRoot root, string path)
@@ -60,7 +62,7 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
 
     public ConsoleAppenderConfig(IConsoleAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
-    public static readonly ConsoleAppenderConfig DefaultConsoleAppenderConfig = new (){ AppenderName = DefaultConsoleAppenderName };
+    public static readonly ConsoleAppenderConfig DefaultConsoleAppenderConfig = new() { AppenderName = DefaultConsoleAppenderName };
 
     public bool DisableColoredConsole
     {
@@ -122,14 +124,13 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
         return hashCode;
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        sbc.AddTypeName(nameof(ConsoleAppenderConfig))
-           .AddTypeStart()
-           .AddBaseFieldsStart();
-        return base.ToString(sbc)
-                   .AddBaseFieldsEnd()
-                   .AddField(nameof(DisableColoredConsole), DisableColoredConsole)
-                   .AddTypeEnd();
+        using var tb =
+            sbc.StartComplexType(nameof(ConsoleAppenderConfig))
+               .AddBaseFieldsStart();
+        base.ToString(sbc);
+        return tb.Field.AddAlways(nameof(DisableColoredConsole), DisableColoredConsole)
+                 .Complete();
     }
 }

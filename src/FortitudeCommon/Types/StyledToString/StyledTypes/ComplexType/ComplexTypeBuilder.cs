@@ -22,19 +22,19 @@ public class ComplexTypeBuilder : MultiValueTypeBuilder<ComplexTypeBuilder>
         return this;
     }
 
-    public SelectTypeKeyValueCollectionField<ComplexTypeBuilder> AddKeyedCollectionField
+    public SelectTypeKeyValueCollectionField<ComplexTypeBuilder> KeyedCollectionField
     {
         get => addKeyCollectionField ??= CompAccess.Recycler.Borrow<SelectTypeKeyValueCollectionField<ComplexTypeBuilder>>().Initialize(CompAccess);
         protected set => addKeyCollectionField = value;
     }
 
-    public SelectTypeCollectionField<ComplexTypeBuilder> AddCollectionField
+    public SelectTypeCollectionField<ComplexTypeBuilder> CollectionField
     {
         get => addCollectionField ??= CompAccess.Recycler.Borrow<SelectTypeCollectionField<ComplexTypeBuilder>>().Initialize(CompAccess);
         protected set => addCollectionField = value;
     }
 
-    public SelectTypeField<ComplexTypeBuilder> AddField
+    public SelectTypeField<ComplexTypeBuilder> Field
     {
         get => addField ??= CompAccess.Recycler.Borrow<SelectTypeField<ComplexTypeBuilder>>().Initialize(CompAccess);
         protected set => addField = value;

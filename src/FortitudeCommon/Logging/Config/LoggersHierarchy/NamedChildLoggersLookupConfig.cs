@@ -10,6 +10,7 @@ using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.LoggersHierarchy;
@@ -222,13 +223,12 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
         return hashCode;
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(NamedChildLoggersLookupConfig))
-               .AddTypeStart()
-               .AddKeyValues(loggersByName)
-               .AddTypeEnd();
+            sbc.StartKeyedCollectionType(nameof(NamedChildLoggersLookupConfig))
+               .AddAll.From(loggersByName)
+               .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

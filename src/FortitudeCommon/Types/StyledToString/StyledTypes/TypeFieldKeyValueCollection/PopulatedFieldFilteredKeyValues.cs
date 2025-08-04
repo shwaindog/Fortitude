@@ -1,175 +1,12 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldKeyValueCollection;
 
-public interface IPopulatedFieldIncludeFilteredKeyValues<out T> : IRecyclableObject 
-    where T : StyledTypeBuilder
+public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : StyledTypeBuilder
 {
-    T WithName<TKey, TValue>(string fieldName, ConcurrentDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull;
-
-    T WithName<TKey, TValue>(string fieldName, Dictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull;
-
-    T WithName<TKey, TValue>(string fieldName, IDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    T WithName<TKey, TValue>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    T WithName<TKey, TValue>(string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    T WithName<TKey, TValue>(string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    T WithName<TKey, TValue>(string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    T WithName<TKey, TValue>(string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    T WithName<TKey, TValue>(string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    T WithName<TKey, TValue>
-    (string fieldName, ConcurrentDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, Dictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, ConcurrentDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, Dictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct;
-}
-
-public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IPopulatedFieldIncludeFilteredKeyValues<TExt> 
-    where TExt : StyledTypeBuilder
-{
-    private IStyleTypeBuilderComponentAccess<TExt> stb = null!;
-
-    public PopulatedFieldIncludeFilteredKeyValues<TExt> Initialize(IStyleTypeBuilderComponentAccess<TExt> styledComplexTypeBuilder)
-    {
-        stb   = styledComplexTypeBuilder;
-
-        return this;
-    }
-    
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, ConcurrentDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -206,7 +43,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, Dictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -243,7 +80,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, IDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -279,7 +116,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -315,7 +152,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -351,7 +188,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -387,7 +224,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -423,7 +260,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -459,7 +296,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -499,7 +336,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, ConcurrentDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -535,7 +372,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, Dictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -571,7 +408,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, IDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -606,7 +443,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -641,7 +478,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -676,7 +513,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -711,7 +548,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -746,7 +583,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -781,7 +618,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -820,7 +657,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, ConcurrentDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -854,7 +691,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, Dictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -888,7 +725,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, IDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -922,7 +759,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -956,7 +793,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -990,7 +827,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -1024,7 +861,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -1058,7 +895,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -1092,7 +929,7 @@ public class PopulatedFieldIncludeFilteredKeyValues<TExt> : RecyclableObject, IP
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddFilteredWhenAny<TKey, TValue>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler

@@ -10,6 +10,7 @@ using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending;
@@ -345,7 +346,7 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
         return hashCode;
     }
 
-    public abstract IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc);
+    public abstract StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc);
 
     public override string ToString() => this.DefaultToString();
 }
@@ -363,12 +364,11 @@ public class NamedAppendersLookupConfig : NamedAppendersLookupConfig<IMutableApp
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(NamedAppendersLookupConfig))
-               .AddTypeStart()
-               .AddCollectionField(nameof(AppendersByName), AppendersByName)
-               .AddTypeEnd();
+            sbc.StartKeyedCollectionType(nameof(NamedAppendersLookupConfig))
+               .AddAll.From(AppendersByName)
+               .Complete();
     }
 }

@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Text;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable.Strings;
 
@@ -12,170 +11,9 @@ using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldCollection;
 
-public interface IAlwaysFieldIncludeAllCollection<out T> where T : StyledTypeBuilder
+public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuilder
 {
-    T WithName(string fieldName, bool[]? value);
-
-    T WithName(string fieldName, bool?[]? value);
-
-    T WithName<TNum>(string fieldName, TNum[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TNum : struct, INumber<TNum>;
-
-    T WithName<TNum>(string fieldName, TNum?[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TNum : struct, INumber<TNum>;
-
-    T WithName<TStruct>
-        (string fieldName, TStruct[]? value, StructStyler<TStruct> structToString) where TStruct : struct;
-
-    T WithName<TStruct>
-        (string fieldName, TStruct?[]? value, StructStyler<TStruct> structToString) where TStruct : struct;
-
-    T WithName(string fieldName, string?[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    T WithName(string fieldName, IStyledToStringObject?[]? value);
-
-    T WithName(string fieldName, IFrozenString?[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    T WithName(string fieldName, IStringBuilder?[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    T WithName(string fieldName, StringBuilder?[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    [CallsObjectToString]
-    T WithName(string fieldName, object?[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    
-    T WithName(string fieldName, IReadOnlyList<bool>? value);
-
-    T WithName(string fieldName, IReadOnlyList<bool?>? value);
-
-    T WithName<TNum>(string fieldName, IReadOnlyList<TNum>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TNum : struct, INumber<TNum>;
-
-    T WithName<TNum>(string fieldName, IReadOnlyList<TNum?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TNum : struct, INumber<TNum>;
-
-    T WithName<TStruct>
-        (string fieldName, IReadOnlyList<TStruct>? value, StructStyler<TStruct> structToString) where TStruct : struct;
-
-    T WithName<TStruct>
-        (string fieldName, IReadOnlyList<TStruct?>? value, StructStyler<TStruct> structToString) where TStruct : struct;
-
-    T WithName(string fieldName, IReadOnlyList<string?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    T WithName(string fieldName, IReadOnlyList<IStyledToStringObject?>? value);
-
-    T WithName(string fieldName, IReadOnlyList<IFrozenString?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    T WithName(string fieldName, IReadOnlyList<IStringBuilder?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    T WithName(string fieldName, IReadOnlyList<StringBuilder?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-
-    [CallsObjectToString]
-    T WithName(string fieldName, IReadOnlyList<object?> value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    
-    T WithName(string fieldName, IEnumerable<bool>? value);
-
-    T WithName(string fieldName, IEnumerable<bool?>? value);
-
-    T WithName<TNum>(string fieldName, IEnumerable<TNum>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TNum : struct, INumber<TNum>;
-
-    T WithName<TNum>(string fieldName, IEnumerable<TNum?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TNum : struct, INumber<TNum>;
-
-    T WithName<TStruct>
-        (string fieldName, IEnumerable<TStruct>? value, StructStyler<TStruct> structToString) where TStruct : struct;
-
-    T WithName<TStruct>
-        (string fieldName, IEnumerable<TStruct?>? value, StructStyler<TStruct> structToString) where TStruct : struct;
-
-    T WithName(string fieldName, IEnumerable<string?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    T WithName(string fieldName, IEnumerable<IStyledToStringObject?>? value);
-
-    T WithName(string fieldName, IEnumerable<IFrozenString?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    T WithName(string fieldName, IEnumerable<IStringBuilder?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    T WithName(string fieldName, IEnumerable<StringBuilder?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    [CallsObjectToString]
-    T WithName(string fieldName, IEnumerable<object?> value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    
-    T WithName(string fieldName, IEnumerator<bool>? value);
-
-    T WithName(string fieldName, IEnumerator<bool?>? value);
-
-    T WithName<TNum>(string fieldName, IEnumerator<TNum>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TNum : struct, INumber<TNum>;
-
-    T WithName<TNum>(string fieldName, IEnumerator<TNum?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-        where TNum : struct, INumber<TNum>;
-
-    T WithName<TStruct>
-        (string fieldName, IEnumerator<TStruct>? value, StructStyler<TStruct> structToString) where TStruct : struct;
-
-    T WithName<TStruct>
-        (string fieldName, IEnumerator<TStruct?>? value, StructStyler<TStruct> structToString) where TStruct : struct;
-
-    T WithName(string fieldName, IEnumerator<string?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    T WithName(string fieldName, IEnumerator<IStyledToStringObject?>? value);
-
-    T WithName(string fieldName, IEnumerator<IFrozenString?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    T WithName(string fieldName, IEnumerator<IStringBuilder?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    T WithName(string fieldName, IEnumerator<StringBuilder?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-
-    [CallsObjectToString]
-    T WithName(string fieldName, IEnumerator<object?> value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null);
-}
-
-public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFieldIncludeAllCollection<TExt>
-    where TExt : StyledTypeBuilder
-{
-    private IStyleTypeBuilderComponentAccess<TExt> stb = null!;
-
-    public AlwaysFieldIncludeAllCollection<TExt> Initialize(IStyleTypeBuilderComponentAccess<TExt> styledComplexTypeBuilder)
-    {
-        stb = styledComplexTypeBuilder;
-
-        return this;
-    }
-
-    public TExt WithName(string fieldName, bool[]? value)
+    public TExt AddAlways(string fieldName, bool[]? value)
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -193,7 +31,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, bool?[]? value)
+    public TExt AddAlways(string fieldName, bool?[]? value)
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -219,7 +57,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TNum>(string fieldName, TNum[]? value
+    public TExt AddAlways<TNum>(string fieldName, TNum[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
         where TNum : struct, INumber<TNum>
     {
@@ -241,7 +79,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TNum>(string fieldName, TNum?[]? value
+    public TExt AddAlways<TNum>(string fieldName, TNum?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
         where TNum : struct, INumber<TNum>
     {
@@ -263,7 +101,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TStruct>
+    public TExt AddAlways<TStruct>
         (string fieldName, TStruct[]? value, StructStyler<TStruct> structToString) where TStruct : struct
     {
         stb.FieldNameJoin(fieldName);
@@ -282,7 +120,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TStruct>
+    public TExt AddAlways<TStruct>
         (string fieldName, TStruct?[]? value, StructStyler<TStruct> structToString) where TStruct : struct
     {
         stb.FieldNameJoin(fieldName);
@@ -301,7 +139,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, string?[]? value
+    public TExt AddAlways(string fieldName, string?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -322,7 +160,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IStyledToStringObject?[]? value)
+    public TExt AddAlways(string fieldName, IStyledToStringObject?[]? value)
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -340,7 +178,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IFrozenString?[]? value
+    public TExt AddAlways(string fieldName, IFrozenString?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -361,7 +199,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IStringBuilder?[]? value
+    public TExt AddAlways(string fieldName, IStringBuilder?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -382,7 +220,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, StringBuilder?[]? value
+    public TExt AddAlways(string fieldName, StringBuilder?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -404,7 +242,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
     }
     
     [CallsObjectToString]
-    public TExt WithName(string fieldName, object?[]? value
+    public TExt AddAlways(string fieldName, object?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -425,7 +263,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IReadOnlyList<bool>? value) 
+    public TExt AddAlways(string fieldName, IReadOnlyList<bool>? value) 
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -443,7 +281,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IReadOnlyList<bool?>? value) 
+    public TExt AddAlways(string fieldName, IReadOnlyList<bool?>? value) 
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -461,7 +299,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TNum>(string fieldName, IReadOnlyList<TNum>? value
+    public TExt AddAlways<TNum>(string fieldName, IReadOnlyList<TNum>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
         where TNum : struct, INumber<TNum>
     {
@@ -483,7 +321,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TNum>(string fieldName, IReadOnlyList<TNum?>? value
+    public TExt AddAlways<TNum>(string fieldName, IReadOnlyList<TNum?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
         where TNum : struct, INumber<TNum>
     {
@@ -506,7 +344,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
     }
     
 
-    public TExt WithName<TStruct>
+    public TExt AddAlways<TStruct>
         (string fieldName, IReadOnlyList<TStruct>? value, StructStyler<TStruct> structToString) 
         where TStruct : struct
     {
@@ -526,7 +364,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TStruct>
+    public TExt AddAlways<TStruct>
         (string fieldName, IReadOnlyList<TStruct?>? value, StructStyler<TStruct> structToString) 
         where TStruct : struct
     {
@@ -547,7 +385,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
     }
 
 
-    public TExt WithName(string fieldName, IReadOnlyList<string?>? value
+    public TExt AddAlways(string fieldName, IReadOnlyList<string?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -568,7 +406,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IReadOnlyList<IFrozenString?>? value
+    public TExt AddAlways(string fieldName, IReadOnlyList<IFrozenString?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -589,7 +427,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IReadOnlyList<IStringBuilder?>? value
+    public TExt AddAlways(string fieldName, IReadOnlyList<IStringBuilder?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -610,7 +448,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IReadOnlyList<StringBuilder?>? value
+    public TExt AddAlways(string fieldName, IReadOnlyList<StringBuilder?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -632,7 +470,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
     }
     
     [CallsObjectToString]
-    public TExt WithName(string fieldName, IReadOnlyList<object?>? value
+    public TExt AddAlways(string fieldName, IReadOnlyList<object?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -653,7 +491,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IReadOnlyList<IStyledToStringObject?>? value)
+    public TExt AddAlways(string fieldName, IReadOnlyList<IStyledToStringObject?>? value)
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -671,7 +509,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IEnumerable<bool>? value) 
+    public TExt AddAlways(string fieldName, IEnumerable<bool>? value) 
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -689,7 +527,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IEnumerable<bool?>? value) 
+    public TExt AddAlways(string fieldName, IEnumerable<bool?>? value) 
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -707,7 +545,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TNum>(string fieldName, IEnumerable<TNum>? value
+    public TExt AddAlways<TNum>(string fieldName, IEnumerable<TNum>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
         where TNum : struct, INumber<TNum>
     {
@@ -729,7 +567,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TNum>(string fieldName, IEnumerable<TNum?>? value
+    public TExt AddAlways<TNum>(string fieldName, IEnumerable<TNum?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
         where TNum : struct, INumber<TNum>
     {
@@ -752,7 +590,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
     }
     
 
-    public TExt WithName<TStruct>
+    public TExt AddAlways<TStruct>
         (string fieldName, IEnumerable<TStruct>? value, StructStyler<TStruct> structToString) 
         where TStruct : struct
     {
@@ -772,7 +610,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TStruct>
+    public TExt AddAlways<TStruct>
         (string fieldName, IEnumerable<TStruct?>? value, StructStyler<TStruct> structToString) 
         where TStruct : struct
     {
@@ -793,7 +631,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
     }
 
 
-    public TExt WithName(string fieldName, IEnumerable<string?>? value
+    public TExt AddAlways(string fieldName, IEnumerable<string?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -814,7 +652,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IEnumerable<IFrozenString?>? value
+    public TExt AddAlways(string fieldName, IEnumerable<IFrozenString?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -835,7 +673,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IEnumerable<IStringBuilder?>? value
+    public TExt AddAlways(string fieldName, IEnumerable<IStringBuilder?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -856,7 +694,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IEnumerable<StringBuilder?>? value
+    public TExt AddAlways(string fieldName, IEnumerable<StringBuilder?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -877,7 +715,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IEnumerable<IStyledToStringObject?>? value)
+    public TExt AddAlways(string fieldName, IEnumerable<IStyledToStringObject?>? value)
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -896,7 +734,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
     }
 
     [CallsObjectToString]
-    public TExt WithName(string fieldName, IEnumerable<object?>? value
+    public TExt AddAlways(string fieldName, IEnumerable<object?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -917,7 +755,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IEnumerator<bool>? value) 
+    public TExt AddAlways(string fieldName, IEnumerator<bool>? value) 
     {
         stb.FieldNameJoin(fieldName);
         var hasValue = value?.MoveNext() ?? false;
@@ -937,7 +775,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IEnumerator<bool?>? value) 
+    public TExt AddAlways(string fieldName, IEnumerator<bool?>? value) 
     {
         stb.FieldNameJoin(fieldName);
         var hasValue = value?.MoveNext() ?? false;
@@ -957,7 +795,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TNum>(string fieldName, IEnumerator<TNum>? value
+    public TExt AddAlways<TNum>(string fieldName, IEnumerator<TNum>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
         where TNum : struct, INumber<TNum>
     {
@@ -981,7 +819,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TNum>(string fieldName, IEnumerator<TNum?>? value
+    public TExt AddAlways<TNum>(string fieldName, IEnumerator<TNum?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
         where TNum : struct, INumber<TNum>
     {
@@ -1006,7 +844,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
     }
     
 
-    public TExt WithName<TStruct>
+    public TExt AddAlways<TStruct>
         (string fieldName, IEnumerator<TStruct>? value, StructStyler<TStruct> structToString) 
         where TStruct : struct
     {
@@ -1028,7 +866,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TStruct>
+    public TExt AddAlways<TStruct>
         (string fieldName, IEnumerator<TStruct?>? value, StructStyler<TStruct> structToString) 
         where TStruct : struct
     {
@@ -1051,7 +889,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
     }
 
 
-    public TExt WithName(string fieldName, IEnumerator<string?>? value
+    public TExt AddAlways(string fieldName, IEnumerator<string?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -1074,7 +912,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IEnumerator<IFrozenString?>? value
+    public TExt AddAlways(string fieldName, IEnumerator<IFrozenString?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -1097,7 +935,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IEnumerator<IStringBuilder?>? value
+    public TExt AddAlways(string fieldName, IEnumerator<IStringBuilder?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -1120,7 +958,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IEnumerator<StringBuilder?>? value
+    public TExt AddAlways(string fieldName, IEnumerator<StringBuilder?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -1143,7 +981,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName(string fieldName, IEnumerator<IStyledToStringObject?>? value)
+    public TExt AddAlways(string fieldName, IEnumerator<IStyledToStringObject?>? value)
     {
         stb.FieldNameJoin(fieldName);
         var hasValue = value?.MoveNext() ?? false;
@@ -1164,7 +1002,7 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
     }
 
     [CallsObjectToString]
-    public TExt WithName(string fieldName, IEnumerator<object?>? value
+    public TExt AddAlways(string fieldName, IEnumerator<object?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -1185,12 +1023,5 @@ public class AlwaysFieldIncludeAllCollection<TExt> : RecyclableObject, IAlwaysFi
         else
             stb.Sb.Append(stb.OwningAppender.NullStyle);
         return stb.Sb.AddGoToNext(stb);
-    }
-
-
-    public override void StateReset()
-    {
-        stb = null!;
-        base.StateReset();
     }
 }

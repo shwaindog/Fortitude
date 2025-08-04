@@ -111,3 +111,4 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     bool Equals([NotNullWhen(true)] StringBuilder? sb);
     bool Equals(ReadOnlySpan<char> span);
 }
+

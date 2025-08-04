@@ -57,6 +57,7 @@ public abstract class FLogEntryPublishChainTreeNode : RecyclableObject, IFLogEnt
 
     public abstract FLogEntrySourceSinkType    LogEntryLinkType     { get; }
     public abstract FLogEntryProcessChainState LogEntryProcessState { get; protected set; }
+
     public override IRecycler Recycler
     {
         get => base.Recycler ?? LogEntryPublishRecycler;

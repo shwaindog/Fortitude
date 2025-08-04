@@ -79,7 +79,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         set => ca[index] = value;
     }
 
-    public void CopyTo(char[] array, int arrayIndex, int fromMyIndex = 0, int myLength = int.MaxValue)
+    public void CopyTo(char[] array, int arrayIndex, int myLength = int.MaxValue, int fromMyIndex = 0)
     {
         var myIndex = fromMyIndex;
         var myEnd   = myLength != int.MaxValue ? fromMyIndex + myLength : myLength;
@@ -89,7 +89,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         }
     }
 
-    public void CopyTo(RecyclingCharArray array, int? arrayIndex = null, int fromMyIndex = 0, int myLength = int.MaxValue)
+    public void CopyTo(RecyclingCharArray array, int? arrayIndex = null, int myLength = int.MaxValue, int fromMyIndex = 0)
     {
         var myIndex = fromMyIndex;
         var myEnd   = myLength != int.MaxValue ? fromMyIndex + myLength : myLength;
@@ -99,7 +99,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         }
     }
 
-    public void CopyTo(Span<char> charSpan, int spanIndex, int fromMyIndex = 0, int myLength = int.MaxValue)
+    public void CopyTo(Span<char> charSpan, int spanIndex, int myLength = int.MaxValue, int fromMyIndex = 0)
     {
         var myIndex = fromMyIndex;
         var myEnd   = myLength != int.MaxValue ? fromMyIndex + myLength : myLength;

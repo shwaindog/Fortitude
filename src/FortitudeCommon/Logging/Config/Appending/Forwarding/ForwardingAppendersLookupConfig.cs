@@ -4,6 +4,7 @@
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding;
@@ -39,12 +40,11 @@ public class ForwardingAppendersLookupConfig
 
     public override ForwardingAppendersLookupConfig Clone() => new(this);
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(ForwardingAppendersLookupConfig))
-               .AddTypeStart()
-               .AddKeyValues(AppendersByName)
-               .AddTypeEnd();
+            sbc.StartKeyedCollectionType(nameof(ForwardingAppendersLookupConfig))
+               .AddAll.From(AppendersByName)
+               .Complete();
     }
 }

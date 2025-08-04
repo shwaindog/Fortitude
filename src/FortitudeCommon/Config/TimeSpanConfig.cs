@@ -4,6 +4,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Config;
@@ -182,17 +183,16 @@ public class TimeSpanConfig: ConfigSection, ITimeSpanConfig
         }
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        return sbc.AddTypeName(nameof(TimeSpanConfig))
-           .AddTypeStart()
-           .AddField(nameof(Days), Days)
-           .AddField(nameof(Hours), Hours)
-           .AddField(nameof(Minutes), Minutes)
-           .AddField(nameof(Seconds), Seconds)
-           .AddField(nameof(Millis), Millis)
-           .AddField(nameof(Micros), Micros)
-           .AddTypeEnd();
+        return sbc.StartComplexType(nameof(TimeSpanConfig))
+           .Field.AddAlways(nameof(Days), Days)
+           .Field.AddAlways(nameof(Hours), Hours)
+           .Field.AddAlways(nameof(Minutes), Minutes)
+           .Field.AddAlways(nameof(Seconds), Seconds)
+           .Field.AddAlways(nameof(Millis), Millis)
+           .Field.AddAlways(nameof(Micros), Micros)
+           .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

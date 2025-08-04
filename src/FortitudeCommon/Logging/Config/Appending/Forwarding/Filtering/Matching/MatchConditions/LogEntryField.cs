@@ -4,6 +4,7 @@
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using static FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.LogEntryField;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions;
@@ -21,7 +22,7 @@ public enum LogEntryField : byte
 
 public static class LogEntryFieldExtensions
 {
-    public static Action<LogEntryField, IStyledTypeStringAppender> FormatMatchOnLogEntryFieldFormatter
+    public static StructStyler<LogEntryField> FormatMatchOnLogEntryFieldFormatter
         = FormatMatchOnLogEntryFieldAppender;
 
     public static void FormatMatchOnLogEntryFieldAppender(this LogEntryField matchOnField, IStyledTypeStringAppender sbc)

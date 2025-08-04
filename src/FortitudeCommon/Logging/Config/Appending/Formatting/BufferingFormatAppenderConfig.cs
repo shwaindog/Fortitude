@@ -3,6 +3,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting;
@@ -10,7 +11,7 @@ namespace FortitudeCommon.Logging.Config.Appending.Formatting;
 public interface IBufferingFormatAppenderConfig : IFormattingAppenderConfig, ICloneable<IBufferingFormatAppenderConfig>
 {
     const int MinimumCharBufferSize = 1000;
-    const int MaximumCharBufferSize =(int)NumberExtensions.GigaByte;
+    const int MaximumCharBufferSize = (int)NumberExtensions.GigaByte;
     const int DefaultCharBufferSize = 8000;
 
     static readonly IMutableFlushBufferConfig DefaultFlushBufferConfig =
@@ -33,11 +34,11 @@ public interface IBufferingFormatAppenderConfig : IFormattingAppenderConfig, ICl
 
 public interface IMutableBufferingFormatAppenderConfig : IBufferingFormatAppenderConfig, IMutableFormattingAppenderConfig
 {
-    new bool    DisableBuffering { get; set; }
+    new bool DisableBuffering { get; set; }
 
-    new int CharBufferSize   { get; set; }
+    new int CharBufferSize { get; set; }
 
-    new bool    EnableDoubleBufferToggling { get; set; }
+    new bool EnableDoubleBufferToggling { get; set; }
 
     new FlushMechanism BufferFlushMechanism { get; set; }
 
@@ -112,8 +113,8 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
         : base(toClone, root, path)
     {
         DisableBuffering = toClone.DisableBuffering;
-        CharBufferSize = toClone.CharBufferSize;
-        FlushConfig    = (IMutableFlushBufferConfig)toClone.FlushConfig;
+        CharBufferSize   = toClone.CharBufferSize;
+        FlushConfig      = (IMutableFlushBufferConfig)toClone.FlushConfig;
     }
 
     public BufferingFormatAppenderConfig(IBufferingFormatAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
@@ -126,11 +127,12 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
 
     public int CharBufferSize
     {
-        get => int.TryParse(this[nameof(CharBufferSize)], out var charBufferSize) 
-            ? Math.Clamp(charBufferSize
-                       , IBufferingFormatAppenderConfig.MinimumCharBufferSize
-                       , IBufferingFormatAppenderConfig.MaximumCharBufferSize) 
-            : IBufferingFormatAppenderConfig.DefaultCharBufferSize;
+        get =>
+            int.TryParse(this[nameof(CharBufferSize)], out var charBufferSize)
+                ? Math.Clamp(charBufferSize
+                           , IBufferingFormatAppenderConfig.MinimumCharBufferSize
+                           , IBufferingFormatAppenderConfig.MaximumCharBufferSize)
+                : IBufferingFormatAppenderConfig.DefaultCharBufferSize;
         set => this[nameof(CharBufferSize)] = value.ToString(CultureInfo.InvariantCulture);
     }
 
@@ -198,7 +200,7 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
     }
 
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as IFormattingAppenderConfig, true);
-    
+
     public override int GetHashCode()
     {
         var hashCode = base.GetHashCode();
@@ -207,15 +209,13 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
         return hashCode;
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        sbc.AddTypeName(nameof(FormattingAppenderConfig))
-           .AddTypeStart()
-           .AddBaseFieldsStart();
-        return base.ToString(sbc)
-                   .AddBaseFieldsEnd()
-                   .AddField(nameof(CharBufferSize), CharBufferSize)
-                   .AddField(nameof(FlushConfig), FlushConfig)
-                   .AddTypeEnd();
+        using var tb = sbc.StartComplexType(nameof(FormattingAppenderConfig))
+                          .AddBaseFieldsStart();
+        base.ToString(sbc);
+        return tb.Field.AddAlways(nameof(CharBufferSize), CharBufferSize)
+                 .Field.AddAlways(nameof(FlushConfig), FlushConfig)
+                 .Complete();
     }
 }

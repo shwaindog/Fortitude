@@ -1,26 +1,24 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
-using System.Text;
-using FortitudeCommon.Config;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 namespace FortitudeCommon.Extensions;
 
 public static class TimeSpanExtensions
 {
-    public static Action<TimeSpan, IStyledTypeStringAppender> TimeSpanStructFormatter = FormatTimeSpanAsStructAppender;
+    public static StructStyler<TimeSpan> TimeSpanStructFormatter = FormatTimeSpanAsStructAppender;
 
-    public static Action<TimeSpan, IStyledTypeStringAppender> TimeSpanFormatter = FormatTimeSpanAsStringAppender;
+    public static StructStyler<TimeSpan> TimeSpanFormatter = FormatTimeSpanAsStringAppender;
 
     public static void FormatTimeSpanAsStringAppender(this TimeSpan timeSpan, IStyledTypeStringAppender sbc)
     {
         var sb = sbc.WriteBuffer;
 
-        StringBuilder? setSb = null;
-
+        IStringBuilder? setSb = null;
+        sb.Append("\"");
         if (timeSpan.Days != 0) setSb = sb.AppendFormat("{0:N0}", timeSpan.Days).Append(":");
 
         if (timeSpan.Hours != 0 || setSb != null) setSb   = sb.AppendFormat("{0:00}", timeSpan.Hours).Append(":");
@@ -29,19 +27,19 @@ public static class TimeSpanExtensions
 
         if (timeSpan.Milliseconds != 0 || setSb != null) setSb = sb.AppendFormat("{0:000}", timeSpan.Milliseconds);
         if (timeSpan.Milliseconds != 0 || setSb != null) setSb = sb.AppendFormat("{0:000}", timeSpan.Microseconds).Append(":");
+        sb.Append("\"");
     }
 
     public static void FormatTimeSpanAsStructAppender(this TimeSpan timeSpan, IStyledTypeStringAppender sbc)
     {
-        sbc.AddTypeName(nameof(TimeSpan))
-           .AddTypeStart()
-           .AddNonDefaultField(nameof(TimeSpan.Days), timeSpan.Days)
-           .AddNonDefaultField(nameof(TimeSpan.Hours), timeSpan.Hours)
-           .AddNonDefaultField(nameof(TimeSpan.Minutes), timeSpan.Minutes)
-           .AddNonDefaultField(nameof(TimeSpan.Seconds), timeSpan.Seconds)
-           .AddNonDefaultField(nameof(TimeSpan.Milliseconds), timeSpan.Milliseconds)
-           .AddNonDefaultField(nameof(TimeSpan.Microseconds), timeSpan.Microseconds)
-           .AddTypeEnd();
+        sbc.StartComplexType(nameof(TimeSpan))
+           .Field.AddWhenNonDefault(nameof(TimeSpan.Days), timeSpan.Days)
+           .Field.AddWhenNonDefault(nameof(TimeSpan.Hours), timeSpan.Hours)
+           .Field.AddWhenNonDefault(nameof(TimeSpan.Minutes), timeSpan.Minutes)
+           .Field.AddWhenNonDefault(nameof(TimeSpan.Seconds), timeSpan.Seconds)
+           .Field.AddWhenNonDefault(nameof(TimeSpan.Milliseconds), timeSpan.Milliseconds)
+           .Field.AddWhenNonDefault(nameof(TimeSpan.Microseconds), timeSpan.Microseconds)
+           .Complete();
     }
 
     public static TimeSpan Min(this TimeSpan first, TimeSpan? optionalSecond)

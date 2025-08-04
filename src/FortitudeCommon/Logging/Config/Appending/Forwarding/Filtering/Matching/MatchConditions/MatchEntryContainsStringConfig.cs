@@ -4,6 +4,7 @@
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions;
@@ -117,15 +118,14 @@ public class MatchEntryContainsStringConfig : MatchConditionConfig, IMutableMatc
         return hashCode;
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(MatchEntryContainsStringConfig))
-               .AddTypeStart()
-               .AddField(nameof(CheckConditionType), CheckConditionType, FLoggerEntryMatchTypeExtensions.FLoggerEntryMatchTypeFormatter)
-               .AddField(nameof(MatchOn), MatchOn, LogEntryFieldExtensions.FormatMatchOnLogEntryFieldFormatter)
-               .AddField(nameof(EntryContains), EntryContains)
-               .AddNonDefaultField(nameof(IsRegEx), IsRegEx)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(MatchEntryContainsStringConfig))
+               .Field.AddAlways(nameof(CheckConditionType), CheckConditionType, FLoggerEntryMatchTypeExtensions.FLoggerEntryMatchTypeFormatter)
+               .Field.AddAlways(nameof(MatchOn), MatchOn, LogEntryFieldExtensions.FormatMatchOnLogEntryFieldFormatter)
+               .Field.AddAlways(nameof(EntryContains), EntryContains)
+               .Field.AddWhenNonDefault(nameof(IsRegEx), IsRegEx)
+               .Complete();
     }
 }

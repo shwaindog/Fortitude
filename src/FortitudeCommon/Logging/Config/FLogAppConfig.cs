@@ -12,6 +12,7 @@ using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config;
@@ -186,15 +187,14 @@ public class FLogAppConfig : FLoggerMatchedAppenders, IMutableFLogAppConfig
         }
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-        sbc.AddTypeName(nameof(FLogAppConfig))
-           .AddTypeStart()
-           .AddField(nameof(ConfigSourcesLookup), ConfigSourcesLookup)
-           .AddField(nameof(Appenders), Appenders)
-           .AddField(nameof(RootLogger), RootLogger)
-           .AddTypeEnd();
+        sbc.StartComplexType(nameof(FLogAppConfig))
+           .Field.AddAlways(nameof(ConfigSourcesLookup), ConfigSourcesLookup)
+           .Field.AddAlways(nameof(Appenders), Appenders)
+           .Field.AddAlways(nameof(RootLogger), RootLogger)
+           .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

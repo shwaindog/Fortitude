@@ -108,6 +108,12 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
         nextTypeAppendSettings = toClone.nextTypeAppendSettings;
     }
 
+    public StyledTypeStringAppender(IStyledTypeStringAppender toClone)
+    {
+        Sb = BufferFactory();
+        Sb.Append(toClone.WriteBuffer);
+    }
+
     public int IndentLevel => AppendSettings.IndentLvl;
 
     public IgnoreWriteFlags IgnoreWriteFlags => AppendSettings.IgnoreWriteFlags;
@@ -293,30 +299,32 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
 
     protected IStringBuilder RemoveLastWhiteSpacedCommaIfFound()
     {
-        if (Sb[^2] == ',' && Sb[^1] == ' ')
+        var sb = WriteBuffer;
+        if (sb[^2] == ',' && sb[^1] == ' ')
         {
-            Sb.Length -= 2;
-            Sb.Append(" ");
-            return Sb;
+            sb.Length -= 2;
+            sb.Append(" ");
+            return sb;
         }
-        for (var i = Sb.Length - 1; i > 0 && Sb[i] is ' ' or '\r' or '\n' or ','; i--)
-            if (Sb[i] == ',')
+        for (var i = sb.Length - 1; i > 0 && sb[i] is ' ' or '\r' or '\n' or ','; i--)
+            if (sb[i] == ',')
             {
-                Sb.Remove(i, 1);
+                sb.Remove(i, 1);
                 break;
             }
-        return Sb;
+        return sb;
     }
 
-    public override string ToString() => Sb.ToString();
+    public override string ToString() => WriteBuffer.ToString();
 
     public bool Equals(string? toCompare)
     {
+        var sb = WriteBuffer;
         if (toCompare == null) return false;
-        if (Sb.Length != toCompare.Length) return false;
-        for (int i = 0; i < Sb.Length; i++)
+        if (sb.Length != toCompare.Length) return false;
+        for (var i = 0; i < sb.Length; i++)
         {
-            if (Sb[i] != toCompare[i]) return false;
+            if (sb[i] != toCompare[i]) return false;
         }
         return true;
     }

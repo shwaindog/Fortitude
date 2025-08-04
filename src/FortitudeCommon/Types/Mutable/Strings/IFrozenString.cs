@@ -13,9 +13,9 @@ public interface ICharSequence : IRecyclableObject, IEnumerable<char>
     int Length { get; }
     char this[int index] { get; }
 
-    void CopyTo(char[] array, int arrayIndex, int fromMyIndex = 0, int myLength = int.MaxValue);
-    void CopyTo(RecyclingCharArray array, int? arrayIndex = null, int fromMyIndex = 0, int myLength = int.MaxValue);
-    void CopyTo(Span<char> charSpan, int spanIndex, int fromMyIndex = 0, int myLength = int.MaxValue);
+    void CopyTo(char[] array, int arrayIndex, int myLength = int.MaxValue, int fromMyIndex = 0);
+    void CopyTo(RecyclingCharArray array, int? arrayIndex = null, int myLength = int.MaxValue, int fromMyIndex = 0);
+    void CopyTo(Span<char> charSpan, int spanIndex, int myLength = int.MaxValue, int fromMyIndex = 0);
 
     bool EquivalentTo(string other);
     int  CompareTo(string other);

@@ -4,6 +4,7 @@
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting.Files;
 
@@ -16,7 +17,7 @@ public enum FileAppenderType
 
 public static class FileAppenderTypeExtensions
 {
-    public static Action<FileAppenderType, IStyledTypeStringAppender> FileAppenderTypeFormatter
+    public static StructStyler<FileAppenderType> FileAppenderTypeFormatter
         = FormatFileAppenderTypeAppender;
 
     public static void FormatFileAppenderTypeAppender(this FileAppenderType asyncProcessingType, IStyledTypeStringAppender sbc)

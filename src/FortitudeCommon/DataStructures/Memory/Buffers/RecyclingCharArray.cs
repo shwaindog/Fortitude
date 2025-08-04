@@ -2,7 +2,6 @@
 using System.Text;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
@@ -12,7 +11,7 @@ namespace FortitudeCommon.DataStructures.Memory.Buffers;
 
 public record struct CharArrayRange(char[] CharBuffer, int FromIndex, int Length);
 
-public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityList<char>, IStyledToStringObject
+public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityList<char>, IStyledToStringObject, ICharSequence
 {
     private char[]? backingArray;
 
@@ -714,7 +713,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
             var newRecyclingArray = (Capacity * 2).SourceRecyclingCharArray();
             var myCa              = backingArray!;
             var newCa             = newRecyclingArray.BackingArray;
-            for (int i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
             {
                 newCa[i] = myCa[i];
             }
@@ -732,7 +731,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
             var newRecyclingArray = newMaxCapacity.SourceRecyclingCharArray();
             var myCa              = backingArray!;
             var newCa             = newRecyclingArray.BackingArray;
-            for (int i = 0; i < Count && i < newCa.Length; i++)
+            for (var i = 0; i < Count && i < newCa.Length; i++)
             {
                 newCa[i] = myCa[i];
             }
@@ -741,6 +740,193 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
             return newRecyclingArray;
         }
         return this;
+    }
+
+    public int  CompareTo(string other)
+    {
+        var otherLen = other.Length;
+        var maxLen  = Math.Max(length, otherLen);
+        for (var i = 0; i < maxLen; i++)
+        {
+            if (i >= length) return 1;
+            if (i >= otherLen) return -1;
+            var charDiff = backingArray![i] - other[i];
+            if (charDiff != 0) return charDiff;
+        }
+        return 0;
+    }
+
+    public int  CompareTo(ICharSequence other)
+    {
+        var otherLen = other.Length;
+        var maxLen   = Math.Max(length, otherLen);
+        for (var i = 0; i < maxLen; i++)
+        {
+            if (i >= length) return 1;
+            if (i >= otherLen) return -1;
+            var charDiff = backingArray![i] - other[i];
+            if (charDiff != 0) return charDiff;
+        }
+        return 0;
+    }
+
+    public bool Contains(ICharSequence subStr)
+    {
+        for (var i = 0; i < length - subStr.Length; i++)
+        {
+            for (var j = 0; j < subStr.Length; j++)
+            {
+                var myChar      = backingArray![i + j];
+                var compareChar = subStr[j];
+                if (myChar != compareChar) break;
+                if (j == subStr.Length - 1) return true;
+            }
+        }
+        return false;
+    }
+
+    public bool Contains(string subStr)
+    {
+        for (var i = 0; i < length - subStr.Length; i++)
+        {
+            for (var j = 0; j < subStr.Length; j++)
+            {
+                var myChar      = backingArray![i + j];
+                var compareChar = subStr[j];
+                if (myChar != compareChar) break;
+                if (j == subStr.Length - 1) return true;
+            }
+        }
+        return false;
+    }
+
+    public void CopyTo(char[] array, int arrayIndex, int myLength, int fromMyIndex = 0)
+    {
+        var myIndex   = fromMyIndex;
+        var maxLength = Math.Min(array.Length, Math.Min(length - myIndex, myLength));
+        for (var i = arrayIndex; i < maxLength; i++)
+        {
+            array[i] = backingArray![myIndex++];
+        }
+    }
+
+    public void CopyTo(RecyclingCharArray array, int? arrayIndex = null, int myLength = int.MaxValue, int fromMyIndex = 0)
+    {
+        var myIndex   = fromMyIndex;
+        var maxLength = Math.Min(array.Length, Math.Min(length - myIndex, myLength));
+        for (var i = arrayIndex ?? 0; i < maxLength; i++)
+        {
+            array[i] = backingArray![myIndex++];
+        }
+    }
+
+    public void CopyTo(Span<char> charSpan, int spanIndex, int myLength = int.MaxValue, int fromMyIndex = 0)
+    {
+        var myIndex   = fromMyIndex;
+        var maxLength = Math.Min(charSpan.Length, Math.Min(length - myIndex, myLength));
+        for (var i = spanIndex; i < maxLength; i++)
+        {
+            charSpan[i] = backingArray![myIndex++];
+        }
+    }
+
+    public bool Equals(string? toCompare)
+    {
+        if (toCompare == null) return false;
+        return CompareTo(toCompare) == 0;
+    }
+
+    public bool EquivalentTo(string other)
+    {
+        return CompareTo(other) == 0;
+    }
+
+    public int IndexOf(string subStr)
+    {
+        return IndexOf(subStr, 0);
+    }
+
+    public int IndexOf(ICharSequence subStr)
+    {
+        return IndexOf(subStr, 0);
+    }
+
+    public int IndexOf(string subStr, int fromThisPos)
+    {
+        for (var i = fromThisPos; i < length - subStr.Length; i++)
+        {
+            for (var j = 0; j < subStr.Length; j++)
+            {
+                var myChar      = backingArray![i + j];
+                var compareChar = subStr[j];
+                if (myChar != compareChar) break;
+                if (j == subStr.Length - 1) return i;
+            }
+        }
+        return -1;
+    }
+
+    public int IndexOf(ICharSequence subStr, int fromThisPos)
+    {
+        for (var i = fromThisPos; i < length - subStr.Length; i++)
+        {
+            for (var j = 0; j < subStr.Length; j++)
+            {
+                var myChar      = backingArray![i + j];
+                var compareChar = subStr[j];
+                if (myChar != compareChar) break;
+                if (j == subStr.Length - 1) return i;
+            }
+        }
+        return -1;
+    }
+
+    public int LastIndexOf(ICharSequence subStr, int fromThisPos)
+    {
+        var startAt = Math.Min(fromThisPos, length - subStr.Length);
+        for (var i = startAt; i >= 0; i--)
+        {
+            for (var j = 0; j < subStr.Length; j++)
+            {
+                var myChar      = backingArray![i + j];
+                var compareChar = subStr[j];
+                if (myChar != compareChar) break;
+                if (j == subStr.Length - 1) return i;
+            }
+        }
+        return -1;
+    }
+
+    public int LastIndexOf(string subStr)
+    {
+        return LastIndexOf(subStr, length - subStr.Length);
+    }
+
+    public int LastIndexOf(ICharSequence subStr)
+    {
+        return LastIndexOf(subStr, length - subStr.Length);
+    }
+
+    public int LastIndexOf(string subStr, int fromThisPos)
+    {
+        var startAt = Math.Min(fromThisPos, length - subStr.Length);
+        for (var i = startAt; i >= 0; i--)
+        {
+            for (var j = 0; j < subStr.Length; j++)
+            {
+                var myChar      = backingArray![i + j];
+                var compareChar = subStr[j];
+                if (myChar != compareChar) break;
+                if (j == subStr.Length - 1) return i;
+            }
+        }
+        return -1;
+    }
+
+    public int Length
+    {
+        get => length;
+        set => length = Math.Max(0, Math.Min(backingArray?.Length ?? 0, value));
     }
 
     public override RecyclingCharArray Clone() =>
@@ -761,11 +947,9 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
 
     public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        for (int i = 0; i < length; i++)
-        {
-            sbc.WriteBuffer.Append(backingArray![i]);
-        }
-        return sbc;
+        return
+            sbc.StartSimpleValueType(nameof(RecyclingCharArray))
+               .String(nameof(backingArray), backingArray, 0, length).Complete();
     }
 
     public override string ToString() => this.DefaultToString(Recycler);

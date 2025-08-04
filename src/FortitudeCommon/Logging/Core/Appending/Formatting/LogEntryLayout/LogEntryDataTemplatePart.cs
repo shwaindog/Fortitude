@@ -5,9 +5,8 @@ using System.Globalization;
 using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Core.LogEntries;
-using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using static FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout.FLogEntryLayoutTokens;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
@@ -140,15 +139,14 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
         }
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(LogEntryDataTemplatePart))
-               .AddTypeStart()
-               .AddField(nameof(TokenName), TokenName)
-               .AddField(nameof(Formatting), Formatting)
-               .AddNonDefaultField(nameof(MaxLength), MaxLength)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(LogEntryDataTemplatePart))
+               .Field.AddAlways(nameof(TokenName), TokenName)
+               .Field.AddAlways(nameof(Formatting), Formatting)
+               .Field.AddWhenNonDefault(nameof(MaxLength), MaxLength, int.MaxValue)
+               .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

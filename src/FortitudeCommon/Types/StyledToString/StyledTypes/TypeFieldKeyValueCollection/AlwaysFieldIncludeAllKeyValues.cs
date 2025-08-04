@@ -3,167 +3,13 @@
 
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldKeyValueCollection;
 
-public interface IAlwaysFieldIncludeAllKeyValues<out T> : IRecyclableObject where T : StyledTypeBuilder
+public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : StyledTypeBuilder
 {
-    T WithName<TKey, TValue>(string fieldName, ConcurrentDictionary<TKey, TValue>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull;
-
-    T WithName<TKey, TValue>(string fieldName, Dictionary<TKey, TValue>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull;
-
-    T WithName<TKey, TValue>(string fieldName, IDictionary<TKey, TValue>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    T WithName<TKey, TValue>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    T WithName<TKey, TValue>(string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    T WithName<TKey, TValue>(string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    T WithName<TKey, TValue>(string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    T WithName<TKey, TValue>(string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    T WithName<TKey, TValue>(string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    T WithName<TKey, TValue>
-    (string fieldName, ConcurrentDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, Dictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, KeyValuePair<TKey, TValue>[]? value, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, ConcurrentDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)
-        where TKey : struct
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, Dictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)
-        where TKey : struct
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)
-        where TKey : struct
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)
-        where TKey : struct
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, KeyValuePair<TKey, TValue>[]? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)
-        where TKey : struct
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)
-        where TKey : struct
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)
-        where TKey : struct
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)
-        where TKey : struct
-        where TValue : struct;
-
-    T WithName<TKey, TValue>
-    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)
-        where TKey : struct
-        where TValue : struct;
-}
-
-public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFieldIncludeAllKeyValues<TExt> 
-    where TExt : StyledTypeBuilder
-    
-{
-    private IStyleTypeBuilderComponentAccess<TExt> stb = null!;
-
-    public AlwaysFieldIncludeAllKeyValues<TExt> Initialize(IStyleTypeBuilderComponentAccess<TExt> styledComplexTypeBuilder)
-    {
-        stb  = styledComplexTypeBuilder;
-
-        return this;
-    }
-
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
     (string fieldName, ConcurrentDictionary<TKey, TValue>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -190,7 +36,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
     (string fieldName, Dictionary<TKey, TValue>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -217,7 +63,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
     (string fieldName, IDictionary<TKey, TValue>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -243,7 +89,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -269,7 +115,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
         (string fieldName, KeyValuePair<TKey, TValue>[]? value
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -296,7 +142,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
         (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -323,7 +169,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
         (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -349,7 +195,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
         (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -375,7 +221,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
         (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -404,7 +250,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>(string fieldName, ConcurrentDictionary<TKey, TValue>? value
+    public TExt AddAlways<TKey, TValue>(string fieldName, ConcurrentDictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : notnull
@@ -429,7 +275,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>(string fieldName, Dictionary<TKey, TValue>? value
+    public TExt AddAlways<TKey, TValue>(string fieldName, Dictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : notnull
@@ -454,7 +300,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
     (string fieldName, IDictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -479,7 +325,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -504,7 +350,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>(string fieldName, KeyValuePair<TKey, TValue>[]? value
+    public TExt AddAlways<TKey, TValue>(string fieldName, KeyValuePair<TKey, TValue>[]? value
           , StructStyler<TValue> valueStructStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct
@@ -529,7 +375,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>(string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+    public TExt AddAlways<TKey, TValue>(string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct
@@ -554,7 +400,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>(string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
+    public TExt AddAlways<TKey, TValue>(string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct
     {
@@ -577,7 +423,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
         (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -602,7 +448,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
         (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -630,7 +476,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>(string fieldName, ConcurrentDictionary<TKey, TValue>? value
+    public TExt AddAlways<TKey, TValue>(string fieldName, ConcurrentDictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler
       , StructStyler<TKey> keyStructStyler)
         where TKey : struct
@@ -653,7 +499,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>(string fieldName, Dictionary<TKey, TValue>? value
+    public TExt AddAlways<TKey, TValue>(string fieldName, Dictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler
       , StructStyler<TKey> keyStructStyler)
         where TKey : struct
@@ -676,7 +522,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
     (string fieldName, IDictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler
       , StructStyler<TKey> keyStructStyler)
@@ -700,7 +546,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler
       , StructStyler<TKey> keyStructStyler)
@@ -724,7 +570,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
         (string fieldName, KeyValuePair<TKey, TValue>[]? value
           , StructStyler<TValue> valueStructStyler
           , StructStyler<TKey> keyStructStyler)
@@ -749,7 +595,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>
+    public TExt AddAlways<TKey, TValue>
         (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler
           , StructStyler<TKey> keyStructStyler)
@@ -774,7 +620,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>(string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
+    public TExt AddAlways<TKey, TValue>(string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler , StructStyler<TKey> keyStructStyler)
         where TKey : struct
         where TValue : struct
@@ -796,7 +642,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue> (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
+    public TExt AddAlways<TKey, TValue> (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
         where TKey : struct where TValue : struct
     {
@@ -817,7 +663,7 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt WithName<TKey, TValue>(string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
+    public TExt AddAlways<TKey, TValue>(string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
         where TKey : struct where TValue : struct
     {
@@ -839,11 +685,5 @@ public class AlwaysFieldIncludeAllKeyValues<TExt> : RecyclableObject, IAlwaysFie
         else
             stb.Sb.Append(stb.OwningAppender.NullStyle);
         return stb.Sb.AddGoToNext(stb);
-    }
-
-    public override void StateReset()
-    {
-        stb = null!;
-        base.StateReset();
     }
 }

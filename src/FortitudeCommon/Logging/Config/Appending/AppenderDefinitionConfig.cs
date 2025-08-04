@@ -152,9 +152,9 @@ public abstract class AppenderDefinitionConfig : AppenderReferenceConfig, IMutab
         using var typeBuilder = sbc.StartComplexType(nameof(AppenderDefinitionConfig))
            .AddBaseFieldsStart();
         base.ToString(sbc);
-            typeBuilder.AddField.WhenNonDefault.WithName(nameof(RunOnAsyncQueueNumber), RunOnAsyncQueueNumber)
-                       .AddField.WhenNonNullOrDefault.WithName(nameof(InheritFromAppenderName), InheritFromAppenderName)
-                       .AddField.WhenNonDefault.WithName(nameof(IsTemplateOnlyDefinition), IsTemplateOnlyDefinition);
+            typeBuilder.Field.AddWhenNonDefault(nameof(RunOnAsyncQueueNumber), RunOnAsyncQueueNumber)
+                       .Field.AddWhenNonNullOrDefault(nameof(InheritFromAppenderName), InheritFromAppenderName)
+                       .Field.AddWhenNonDefault(nameof(IsTemplateOnlyDefinition), IsTemplateOnlyDefinition);
         return typeBuilder;
     }
 }

@@ -8,6 +8,7 @@ using FortitudeCommon.Logging.Config.Visitor.LoggerVisitors;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.LoggersHierarchy;
@@ -185,17 +186,16 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
         }
     }
 
-    public virtual IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(FLoggerTreeCommonConfig))
-               .AddTypeStart()
-               .AddField(nameof(Name), Name)
-               .AddField(nameof(LogLevel), LogLevel.ToString())
-               .AddField(nameof(DescendantLoggers), DescendantLoggers)
-               .AddNonNullField(nameof(Appenders), Appenders)
-               .AddNonNullField(nameof(LogEntryPool), LogEntryPool)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
+               .Field.AddAlways(nameof(Name), Name)
+               .Field.AddAlways(nameof(LogLevel), LogLevel.ToString())
+               .Field.AddAlways(nameof(DescendantLoggers), DescendantLoggers)
+               .Field.AddWhenNonNull(nameof(Appenders), Appenders)
+               .Field.AddWhenNonNull(nameof(LogEntryPool), LogEntryPool)
+               .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

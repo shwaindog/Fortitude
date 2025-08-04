@@ -65,7 +65,7 @@ public interface IMutableFLogEntry : IFLogEntry, IFreezable<IFLogEntry>
 
     IMutableFLogEntry AddException(Exception exception);
 
-    void OnMessageComplete(StringBuilder? warningToPrefix);
+    void OnMessageComplete(IStringBuilder? warningToPrefix);
 
     new IMutableString Message { get; }
 }
@@ -123,7 +123,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         dispatchHandler.PublishLogEntryEvent(new LogEntryPublishEvent(me));
     }
 
-    public void OnMessageComplete(StringBuilder? warningToPrefix)
+    public void OnMessageComplete(IStringBuilder? warningToPrefix)
     {
         if (DispatchedAt == null)
         {
@@ -149,7 +149,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         Style       = style;
 
         var styleTypeStringAppender = (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender(style))
-            .Initialize(messageBuilder!.BackingStringBuilder, style);
+            .Initialize(messageBuilder!, style);
         var stringAppender = (Recycler?.Borrow<FLogStringAppender>() ?? new FLogStringAppender())
             .Initialize(styleTypeStringAppender, OnMessageComplete);
 
@@ -163,7 +163,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         Style       = style;
 
         var formatterBuilder = (Recycler?.Borrow<FormatBuilder>() ?? new FormatBuilder())
-            .Initialize(formattedString, messageBuilder!.BackingStringBuilder);
+            .Initialize(formattedString, messageBuilder!);
 
 
         var formatAppender = (Recycler?.Borrow<FLogFirstFormatterParameterEntry>() ?? new FLogFirstFormatterParameterEntry())

@@ -36,9 +36,9 @@ public static class FLog
             StackTrace stackTrace = new StackTrace(1, false);
             
             var method = stackTrace.GetFrame(0)!.GetMethod();
-            var type   = method!.DeclaringType;
-            Console.Out.WriteLine($"Frame[{0}] = {type.FullName}:{method.Name}");
-            if (type?.FullName.StartsWith("System.") ?? true)
+            var type   = method?.DeclaringType ?? typeof(string);
+            Console.Out.WriteLine($"Frame[{0}] = type-{type.FullName}:method-{method?.Name}");
+            if (type.FullName?.StartsWith("System.") ?? true)
             {
                 StackTrace fullStackTrace = new StackTrace(0, false);
                 

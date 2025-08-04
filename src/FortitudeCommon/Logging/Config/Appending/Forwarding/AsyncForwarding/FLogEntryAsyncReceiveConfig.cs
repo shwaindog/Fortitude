@@ -2,6 +2,7 @@
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.AsyncForwarding;
@@ -91,16 +92,15 @@ public class FLogEntryAsyncReceiveConfig : FLogEntryQueueConfig, IMutableFLogEnt
         return hashCode;
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(FLogEntryAsyncReceiveConfig))
-               .AddTypeStart()
-               .AddField(nameof(QueueSize), QueueSize)
-               .AddField(nameof(QueueFullHandling), QueueFullHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
-               .AddField(nameof(ConfirmSequenceNumberInterval), ConfirmSequenceNumberInterval)
-               .AddField(nameof(QueueReadBatchSize), QueueReadBatchSize)
-               .AddNonNullField(nameof(LogEntryPool), LogEntryPool)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(FLogEntryAsyncReceiveConfig))
+               .Field.AddAlways(nameof(QueueSize), QueueSize)
+               .Field.AddAlways(nameof(QueueFullHandling), QueueFullHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
+               .Field.AddAlways(nameof(ConfirmSequenceNumberInterval), ConfirmSequenceNumberInterval)
+               .Field.AddAlways(nameof(QueueReadBatchSize), QueueReadBatchSize)
+               .Field.AddWhenNonNull(nameof(LogEntryPool), LogEntryPool)
+               .Complete();
     }
 }

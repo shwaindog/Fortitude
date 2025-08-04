@@ -7,6 +7,7 @@ using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding;
@@ -185,16 +186,15 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
         return hashCode;
     }
 
-    public virtual IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(FLogEntryQueueConfig))
-               .AddTypeStart()
-               .AddField(nameof(QueueSize), QueueSize)
-               .AddField(nameof(QueueFullHandling), QueueFullHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
-               .AddField(nameof(QueueReadBatchSize), QueueReadBatchSize)
-               .AddField(nameof(QueueDropInterval), QueueDropInterval)
-               .AddNonNullField(nameof(LogEntryPool), LogEntryPool)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(FLogEntryQueueConfig))
+               .Field.AddAlways(nameof(QueueSize), QueueSize)
+               .Field.AddAlways(nameof(QueueFullHandling), QueueFullHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
+               .Field.AddAlways(nameof(QueueReadBatchSize), QueueReadBatchSize)
+               .Field.AddAlways(nameof(QueueDropInterval), QueueDropInterval)
+               .Field.AddWhenNonNull(nameof(LogEntryPool), LogEntryPool)
+               .Complete();
     }
 }

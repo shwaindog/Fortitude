@@ -4,6 +4,7 @@
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using static FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.ComparisonOperatorType;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching;
@@ -26,7 +27,7 @@ public enum ComparisonOperatorType
 
 public static class ComparisonOperatorTypedExtensions
 {
-    public static Action<ComparisonOperatorType, IStyledTypeStringAppender> ComparisonOperatorTypeFormatter
+    public static StructStyler<ComparisonOperatorType> ComparisonOperatorTypeFormatter
         = FormatComparisonOperatorTypeAppender;
 
     public static void FormatComparisonOperatorTypeAppender(this ComparisonOperatorType matchOnField, IStyledTypeStringAppender sbc)

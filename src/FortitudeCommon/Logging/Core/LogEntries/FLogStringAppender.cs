@@ -1,10 +1,8 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Text;
+using System.Numerics;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Extensions;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
@@ -19,7 +17,7 @@ public interface IFLogStringAppender : IReusableObject<IFLogStringAppender>
 
     IStyledTypeStringAppender BackingStyledTypeStringAppender { get; }
 
-    StringBuilder BackingStringBuilder { get; }
+    IStringBuilder WriteBuffer { get; }
 
     string Indent { get; set; }
 
@@ -37,43 +35,10 @@ public interface IFLogStringAppender : IReusableObject<IFLogStringAppender>
     IFLogStringAppender Append(IStyledToStringObject? value);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(bool? value);
+    IFLogStringAppender Append<TNum>(TNum? value) where TNum : struct, INumber<TNum>;
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(sbyte? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(byte? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(char? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(short? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(ushort? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(int? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(uint? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(float? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(long? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(ulong? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(double? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(decimal? value);
+    IFLogStringAppender Append<TNum>(TNum value) where TNum : struct, INumber<TNum>;
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     IFLogStringAppender Append(object? value);
@@ -174,24 +139,24 @@ public class FLogStringAppender : ReusableObject<IFLogStringAppender>, IFLogStri
 {
     private IStyledTypeStringAppender? stsa;
 
-    private StringBuilder sb = null!;
+    private IStringBuilder sb = null!;
 
-    private Action<StringBuilder?> onComplete = null!;
+    private Action<IStringBuilder?> onComplete = null!;
 
     public FLogStringAppender() { }
 
-    public FLogStringAppender(IStyledTypeStringAppender useStyleTypeStringBuilder, Action<StringBuilder?> callWhenComplete)
+    public FLogStringAppender(IStyledTypeStringAppender useStyleTypeStringBuilder, Action<IStringBuilder?> callWhenComplete)
     {
         Initialize(useStyleTypeStringBuilder, callWhenComplete);
     }
 
     public FLogStringAppender(IFLogStringAppender toClone)
     {
-        sb = new StringBuilder();
-        sb.AppendRange(toClone.BackingStringBuilder);
+        sb = new MutableString();
+        sb.AppendRange(toClone.WriteBuffer);
     }
 
-    public FLogStringAppender Initialize(IStyledTypeStringAppender useStyleTypeStringBuilder, Action<StringBuilder?> callWhenComplete)
+    public FLogStringAppender Initialize(IStyledTypeStringAppender useStyleTypeStringBuilder, Action<IStringBuilder?> callWhenComplete)
     {
         onComplete = callWhenComplete;
 
@@ -207,22 +172,22 @@ public class FLogStringAppender : ReusableObject<IFLogStringAppender>, IFLogStri
         set => stsa!.Indent = value;
     }
 
-    public int    IndentLevel => stsa!.IndentLevel;
+    public int IndentLevel { get; protected set; }
 
     public IStyledTypeStringAppender BackingStyledTypeStringAppender =>
         stsa ?? throw new NullReferenceException("This should never be the case if Initialize is called");
 
-    public StringBuilder BackingStringBuilder => sb;
+    public IStringBuilder WriteBuffer => sb;
 
     public IFLogStringAppender DecrementIndent()
     {
-        stsa!.DecrementIndent();
+        IndentLevel++;
         return this;
     }
 
     public IFLogStringAppender IncrementIndent()
     {
-        stsa!.IncrementIndent();
+        IndentLevel--;
         return this;
     }
     
@@ -239,43 +204,10 @@ public class FLogStringAppender : ReusableObject<IFLogStringAppender>, IFLogStri
     public IFLogStringAppender Append(object? value)  => sb.Append(value).ToAppender(this);
     
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(decimal? value) => sb.Append(value).ToAppender(this);
+    public IFLogStringAppender Append<TNum>(TNum? value) where TNum: struct, INumber<TNum> => sb.Append(value).ToAppender(this);
     
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(double? value)  => sb.Append(value).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(long? value)    => sb.Append(value).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(float? value)   => sb.Append(value).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(uint? value)    => sb.Append(value).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(ulong? value)   => sb.Append(value).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(ushort? value)  => sb.Append(value).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(int? value)     => sb.Append(value).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(bool? value)    => sb.Append(value).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(sbyte? value)   => sb.Append(value).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(char? value)    => sb.Append(value).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(short? value)   => sb.Append(value).ToAppender(this);
-    
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(byte? value)    => sb.Append(value).ToAppender(this);
+    public IFLogStringAppender Append<TNum>(TNum value) where TNum: struct, INumber<TNum> => sb.Append(value).ToAppender(this);
     
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     public IFLogStringAppender Append(IMutableString? value) => sb.Append(value).ToAppender(this);
@@ -412,13 +344,13 @@ public class FLogStringAppender : ReusableObject<IFLogStringAppender>, IFLogStri
 
         if (stsa.Style != source.BackingStyledTypeStringAppender.Style)
         {
-            stsa.ClearSetStyle(source.BackingStyledTypeStringAppender.Style);
+            stsa.ClearAndReinitialize(source.BackingStyledTypeStringAppender.Style);
         }
         else if (copyMergeFlags == CopyMergeFlags.FullReplace)
         {
             sb.Clear();
         }
-        sb.AppendRange(source.BackingStringBuilder);
+        sb.AppendRange(source.WriteBuffer);
 
         return this;
     }
@@ -426,7 +358,7 @@ public class FLogStringAppender : ReusableObject<IFLogStringAppender>, IFLogStri
 
 public static class FLogStringAppenderExtensions
 {
-    public static FLogStringAppender AppendLine(this StringBuilder sb, FLogStringAppender toReturn)
+    public static FLogStringAppender AppendLine(this IStringBuilder sb, FLogStringAppender toReturn)
     {
         var style = toReturn.BackingStyledTypeStringAppender.Style;
         if (style.IsCompact())
@@ -446,5 +378,5 @@ public static class FLogStringAppenderExtensions
         return toReturn;
     }
 
-    public static FLogStringAppender ToAppender(this StringBuilder _, FLogStringAppender toReturn) => toReturn;
+    public static FLogStringAppender ToAppender(this IStringBuilder _, FLogStringAppender toReturn) => toReturn;
 }

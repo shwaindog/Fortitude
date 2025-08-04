@@ -5,6 +5,7 @@ using FortitudeCommon.Config;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding;
@@ -128,16 +129,13 @@ public class BufferingAppenderConfig : QueueingAppenderConfig, IMutableBuffering
         return hashCode;
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        sbc.AddTypeName(nameof(BufferingAppenderConfig))
-           .AddTypeStart()
+        using var tb = sbc.StartComplexType(nameof(BufferingAppenderConfig))
            .AddBaseFieldsStart();
-        base.ToString(sbc)
-            .AddBaseFieldsEnd()
-            .AddField(nameof(MaxBufferTimeMs), MaxBufferTimeMs)
-            .AddField(nameof(FlushLogLevel), FlushLogLevel, FLogLevelExtensions.FLogLevelFormatter)
-            .AddTypeEnd();
-        return sbc;
+        base.ToString(sbc);
+        return tb.Field.AddAlways(nameof(MaxBufferTimeMs), MaxBufferTimeMs)
+            .Field.AddAlways(nameof(FlushLogLevel), FlushLogLevel, FLogLevelExtensions.FLogLevelFormatter)
+            .Complete();
     }
 }

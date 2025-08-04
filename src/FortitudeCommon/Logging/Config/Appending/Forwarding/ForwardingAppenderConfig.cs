@@ -7,6 +7,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding;
@@ -129,15 +130,12 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
         return hashCode;
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        sbc.AddTypeName(nameof(ForwardingAppenderConfig))
-           .AddTypeStart()
+        using var tb = sbc.StartComplexType(nameof(ForwardingAppenderConfig))
            .AddBaseFieldsStart();
-        base.ToString(sbc)
-            .AddBaseFieldsEnd()
-            .AddField(nameof(ForwardToAppenders), ForwardToAppenders)
-            .AddTypeEnd();
-        return sbc;
+        base.ToString(sbc);
+        tb.Field.AddAlways(nameof(ForwardToAppenders), ForwardToAppenders);
+        return tb;
     }
 }

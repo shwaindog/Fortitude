@@ -4,6 +4,7 @@
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using static FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences.TriggeringLogEntries;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
@@ -19,7 +20,7 @@ public enum TriggeringLogEntries
 
 public static class TriggeringLogEntriesExtensions
 {
-    public static Action<TriggeringLogEntries, IStyledTypeStringAppender> TriggeringLogEntriesFormatter
+    public static StructStyler<TriggeringLogEntries> TriggeringLogEntriesFormatter
         = FormatTriggeringLogEntriesAppender;
 
     public static void FormatTriggeringLogEntriesAppender(this TriggeringLogEntries triggeringLogEntries, IStyledTypeStringAppender sbc)

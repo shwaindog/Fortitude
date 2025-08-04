@@ -1,10 +1,10 @@
 ﻿using System.Collections;
 using System.Text;
 using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 namespace FortitudeCommon.DataStructures.Memory.Buffers;
 
@@ -480,10 +480,12 @@ public class AsyncReadWriterRecyclingCharArray : ReusableObject<AsyncReadWriterR
         return this;
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        protectedCharArray!.ToString(sbc);
-        return sbc;
+        return
+         sbc.StartSimpleValueType(nameof(AsyncReadWriterRecyclingCharArray))
+           .String(nameof(protectedCharArray), (ICharSequence?)protectedCharArray, "")
+           .Complete();
     }
 
     public override string ToString() => this.DefaultToString(Recycler);

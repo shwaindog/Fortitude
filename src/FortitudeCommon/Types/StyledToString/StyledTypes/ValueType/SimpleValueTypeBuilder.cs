@@ -74,6 +74,9 @@ public class SimpleValueTypeBuilder : TypedStyledTypeBuilder<SimpleValueTypeBuil
     public SimpleValueTypeBuilder String(string nonJsonfieldName, string? value, int startIndex, int length, string defaultValue = "") =>
         Stb.FieldStringNext(nonJsonfieldName, value, startIndex, length, defaultValue);
     
+    public SimpleValueTypeBuilder String(string nonJsonfieldName, char[]? value, int startIndex, int length, string defaultValue = "") =>
+        Stb.FieldStringNext(nonJsonfieldName, value, startIndex, length, defaultValue);
+    
     public SimpleValueTypeBuilder String(string nonJsonfieldName, IStyledToStringObject? value, string defaultValue = "") =>
         Stb.FieldStringNext(nonJsonfieldName, value, defaultValue);
     

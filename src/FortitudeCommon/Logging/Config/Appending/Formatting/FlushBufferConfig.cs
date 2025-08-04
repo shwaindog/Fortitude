@@ -7,6 +7,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting;
@@ -151,14 +152,13 @@ public class FlushBufferConfig : FLogConfig, IMutableFlushBufferConfig
         return hashCode;
     }
 
-    public virtual IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(FlushBufferConfig))
-               .AddTypeStart()
-               .AddField(nameof(WriteTriggeredAtBufferPercentage), WriteTriggeredAtBufferPercentage)
-               .AddField(nameof(WriteTriggeredAfterTimeSpan), WriteTriggeredAfterTimeSpan)
-               .AddField(nameof(AutoTriggeredAfterTimeSpan), AutoTriggeredAfterTimeSpan)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(FlushBufferConfig))
+               .Field.AddAlways(nameof(WriteTriggeredAtBufferPercentage), WriteTriggeredAtBufferPercentage)
+               .Field.AddAlways(nameof(WriteTriggeredAfterTimeSpan), WriteTriggeredAfterTimeSpan)
+               .Field.AddAlways(nameof(AutoTriggeredAfterTimeSpan), AutoTriggeredAfterTimeSpan)
+               .Complete();
     }
 }

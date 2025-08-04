@@ -123,6 +123,18 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
         return ConditionalCollectionSuffix();
     }
 
+    public TExt FieldValueNext(string nonJsonfieldName, char[]? value, int startIndex, int length, string defaultValue)
+    {
+        if (NotJson) this.FieldNameJoin(nonJsonfieldName);
+        if (value != null)
+        {
+            var capStart = Math.Clamp(startIndex, 0, value.Length);
+            var capEnd = Math.Clamp(length, 0, value.Length);
+            Sb.Append(value, capStart, capEnd);
+        }
+        return ConditionalCollectionSuffix();
+    }
+
     public TExt FieldStringNext(string nonJsonfieldName, ICharSequence? value, string defaultValue)
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
@@ -210,6 +222,22 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
     }
 
     public TExt FieldStringNext(string nonJsonfieldName, string? value, int startIndex, int length, string defaultValue = "")
+    {
+        if (NotJson) this.FieldNameJoin(nonJsonfieldName);
+        Sb.Append("\"");
+        if (value != null)
+        {
+            Sb.Append(value, startIndex, length);
+        }
+        else
+        {
+            Sb.Append(defaultValue);
+        }
+        Sb.Append("\"");
+        return ConditionalCollectionSuffix();
+    }
+
+    public TExt FieldStringNext(string nonJsonfieldName, char[]? value, int startIndex, int length, string defaultValue = "")
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         Sb.Append("\"");

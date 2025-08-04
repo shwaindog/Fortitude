@@ -12,6 +12,7 @@ using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
@@ -224,13 +225,12 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
         return hashCode;
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(NamedChildLoggersLookupConfig))
-               .AddTypeStart()
-               .AddKeyValues(extractConfigByKeyName)
-               .AddTypeEnd();
+            sbc.StartKeyedCollectionType(nameof(NamedChildLoggersLookupConfig))
+               .AddAll.From(extractConfigByKeyName)
+               .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

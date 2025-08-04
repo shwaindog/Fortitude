@@ -92,6 +92,9 @@ public class ComplexValueTypeBuilder : MultiValueTypeBuilder<ComplexValueTypeBui
     public ComplexValueTypeBuilder ValueFromString(string nonJsonfieldName, string? value, int startIndex = 0, int length = int.MaxValue)  =>
         Stb.FieldValueNext(nonJsonfieldName, value, startIndex, length);
 
+    public ComplexValueTypeBuilder ValueFromString(string nonJsonfieldName, char[] value, int fromIndex = 0, int length = int.MaxValue)  =>
+        Stb.FieldValueNext(nonJsonfieldName, value, fromIndex, length, "");
+
     public ComplexValueTypeBuilder ValueFromString(string nonJsonfieldName, ICharSequence value, int fromIndex = 0, int length = int.MaxValue)  =>
         Stb.FieldValueNext(nonJsonfieldName, value, fromIndex, length);
 

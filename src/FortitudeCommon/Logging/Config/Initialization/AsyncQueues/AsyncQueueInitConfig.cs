@@ -3,6 +3,7 @@ using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
@@ -235,21 +236,20 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
         }
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(AsyncQueuesInitConfig))
-               .AddTypeStart()
-               .AddField(nameof(AsyncProcessingType), AsyncProcessingType, AsyncProcessingTypesExtensions.AsyncProcessingTypeFormatter)
-               .AddField(nameof(DefaultBufferQueueSize), DefaultBufferQueueSize)
-               .AddField(nameof(DefaultFullQueueHandling), DefaultFullQueueHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
-               .AddField(nameof(DefaultDropInterval), DefaultDropInterval)
-               .AddField(nameof(InitialAsyncProcessing), InitialAsyncProcessing)
-               .AddField(nameof(MaxAsyncProcessing), MaxAsyncProcessing)
-               .AddField(nameof(DefaultAppenderAsyncQueueNumber), DefaultAppenderAsyncQueueNumber)
-               .AddField(nameof(DefaultAppenderFlushQueueNumber), DefaultAppenderFlushQueueNumber)
-               .AddNonNullAndPopulatedCollectionField(nameof(AsyncQueues), (IEnumerable<KeyValuePair<byte, IMutableAsyncQueueConfig>>)AsyncQueues)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(AsyncQueuesInitConfig))
+               .Field.AddAlways(nameof(AsyncProcessingType), AsyncProcessingType, AsyncProcessingTypesExtensions.AsyncProcessingTypeFormatter)
+               .Field.AddAlways(nameof(DefaultBufferQueueSize), DefaultBufferQueueSize)
+               .Field.AddAlways(nameof(DefaultFullQueueHandling), DefaultFullQueueHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
+               .Field.AddAlways(nameof(DefaultDropInterval), DefaultDropInterval)
+               .Field.AddAlways(nameof(InitialAsyncProcessing), InitialAsyncProcessing)
+               .Field.AddAlways(nameof(MaxAsyncProcessing), MaxAsyncProcessing)
+               .Field.AddAlways(nameof(DefaultAppenderAsyncQueueNumber), DefaultAppenderAsyncQueueNumber)
+               .Field.AddAlways(nameof(DefaultAppenderFlushQueueNumber), DefaultAppenderFlushQueueNumber)
+               .KeyedCollectionField.AddAllWhenPopulated(nameof(AsyncQueues), (IEnumerable<KeyValuePair<byte, IMutableAsyncQueueConfig>>)AsyncQueues)
+               .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

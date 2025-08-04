@@ -5,8 +5,8 @@ using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.Expressions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
@@ -313,17 +313,16 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
         return hashCode;
     }
 
-    public virtual IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(MatchSequenceTriggerConfig))
-               .AddTypeStart()
-               .AddNonNullField(nameof(TriggeredWhenEntry), TriggeredWhenEntry)
-               .AddNonNullField(nameof(NextTriggerStep), NextTriggerStep)
-               .AddNonNullField(nameof(OnTriggerExtract), OnTriggerExtract)
-               .AddNonNullField(nameof(CompletedWhenEntry), CompletedWhenEntry)
-               .AddNonNullField(nameof(AbortWhenEntry), AbortWhenEntry)
-               .AddNonNullField(nameof(TimeOut), TimeOut)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(MatchSequenceTriggerConfig))
+               .Field.AddWhenNonNull(nameof(TriggeredWhenEntry), TriggeredWhenEntry)
+               .Field.AddWhenNonNull(nameof(NextTriggerStep), NextTriggerStep)
+               .Field.AddWhenNonNull(nameof(OnTriggerExtract), OnTriggerExtract)
+               .Field.AddWhenNonNull(nameof(CompletedWhenEntry), CompletedWhenEntry)
+               .Field.AddWhenNonNull(nameof(AbortWhenEntry), AbortWhenEntry)
+               .Field.AddWhenNonNull(nameof(TimeOut), TimeOut)
+               .Complete();
     }
 }

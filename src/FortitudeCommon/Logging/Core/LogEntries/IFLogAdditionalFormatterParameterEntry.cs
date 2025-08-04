@@ -2,10 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Runtime.CompilerServices;
-using System.Text;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Extensions;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
@@ -20,7 +17,7 @@ public interface IFLogAdditionalFormatterParameterEntry : IReusableObject<IFLogA
 
     IStyledTypeStringAppender BackingStyledTypeStringAppender { get; }
 
-    StringBuilder BackingStringBuilder { get; }
+    IStringBuilder BackingStringBuilder { get; }
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
     IFLogAdditionalFormatterParameterEntry? And(IMutableString? value);
@@ -164,11 +161,11 @@ public class FLogAdditionalFormatterParameterEntry : ReusableObject<IFLogAdditio
 {
     private IStyledTypeStringAppender? stsa;
 
-    private StringBuilder sb = null!;
+    private IStringBuilder sb = null!;
 
-    private readonly StringBuilder warnings = new();
+    private readonly IStringBuilder warnings = new MutableString();
 
-    private Action<StringBuilder?> onComplete = null!;
+    private Action<IStringBuilder?> onComplete = null!;
 
     private LoggingLocation loggingLocation;
 
@@ -199,7 +196,7 @@ public class FLogAdditionalFormatterParameterEntry : ReusableObject<IFLogAdditio
     (FormatBuilder stringFormatBuilder
       , List<StringFormatTokenParams> remainingTokens
       , LoggingLocation logLocation
-      , Action<StringBuilder?> onCompleteHandler
+      , Action<IStringBuilder?> onCompleteHandler
       , IStyledTypeStringAppender styledTypeStringAppender)
     {
         stsa = styledTypeStringAppender;
@@ -218,7 +215,7 @@ public class FLogAdditionalFormatterParameterEntry : ReusableObject<IFLogAdditio
 
     public int RemainingArguments => formatTokens.Count;
 
-    public StringBuilder BackingStringBuilder => sb;
+    public IStringBuilder BackingStringBuilder => sb;
 
     public IStyledTypeStringAppender BackingStyledTypeStringAppender => stsa!;
     

@@ -10,6 +10,7 @@ using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
@@ -285,13 +286,12 @@ public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupCon
         return hashCode;
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(AsyncQueueLookupConfig))
-               .AddTypeStart()
-               .AddKeyValues(queueConfigByQueueNumber)
-               .AddTypeEnd();
+            sbc.StartKeyedCollectionType(nameof(AsyncQueueLookupConfig))
+               .AddAll.From(queueConfigByQueueNumber)
+               .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

@@ -12,6 +12,7 @@ using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.ConfigSources;
@@ -311,13 +312,12 @@ public class OrderedConfigSourcesLookupConfig : FLogConfig, IAppendableOrderedCo
         return hashCode;
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(OrderedConfigSourcesLookupConfig))
-               .AddTypeStart()
-               .AddKeyValues(priorityConfigSources)
-               .AddTypeEnd();
+            sbc.StartKeyedCollectionType(nameof(OrderedConfigSourcesLookupConfig))
+               .AddAll.From(priorityConfigSources)
+               .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

@@ -7,6 +7,7 @@ using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.Mat
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.Expressions;
@@ -292,18 +293,17 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
         return hashCode;
     }
 
-    public virtual IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(FLogEntryQueueConfig))
-               .AddTypeStart()
-               .AddField(nameof(EvaluateOrder), EvaluateOrder)
-               .AddNonNullField(nameof(All), All)
-               .AddNonNullField(nameof(Any), Any)
-               .AddNonNullField(nameof(And), And)
-               .AddNonNullField(nameof(Or), Or)
-               .AddNonNullField(nameof(IsTrue), IsTrue)
-               .AddNonNullField(nameof(IsFalse), IsFalse)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(FLogEntryQueueConfig))
+               .Field.AddAlways(nameof(EvaluateOrder), EvaluateOrder)
+               .Field.AddWhenNonNull(nameof(All), All)
+               .Field.AddWhenNonNull(nameof(Any), Any)
+               .Field.AddWhenNonNull(nameof(And), And)
+               .Field.AddWhenNonNull(nameof(Or), Or)
+               .Field.AddWhenNonNull(nameof(IsTrue), IsTrue)
+               .Field.AddWhenNonNull(nameof(IsFalse), IsFalse)
+               .Complete();
     }
 }
