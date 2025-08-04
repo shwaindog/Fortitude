@@ -1,7 +1,4 @@
-﻿using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.Logging.Core.Appending;
-using FortitudeCommon.Logging.Core.Appending.Formatting;
-using FortitudeCommon.Logging.Core.LogEntries;
+﻿using FortitudeCommon.Logging.Core.Appending.Formatting;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.AsyncProcessing.ProxyQueue;
@@ -9,7 +6,7 @@ namespace FortitudeCommon.Logging.AsyncProcessing.ProxyQueue;
 public class FLogAsyncSwitchableProxyQueue(int queueNumber, IFLogAsyncQueue backingQueue)
     : FLogAsyncQueue(queueNumber, backingQueue.QueueType, backingQueue.QueueCapacity), IReleaseBlockingDisposable, IFLogAsyncSwitchableQueueClient
 {
-    private ManualResetEvent blockPublishing = new (true);
+    private readonly ManualResetEvent blockPublishing = new (true);
 
     public bool IsBlocking { get; private set; }
 
@@ -34,22 +31,22 @@ public class FLogAsyncSwitchableProxyQueue(int queueNumber, IFLogAsyncQueue back
         ActualQueue.Execute(job);
     }
 
-    public override void FlushBufferToAppender(IBufferedFormatWriter toFlush, IFLogAsyncTargetFlushBufferAppender fromAppender)
+    public override void FlushBufferToAppender(IBufferedFormatWriter toFlush, IFLogBufferingFormatAppender fromAppender)
     {
         blockPublishing.WaitOne();
         ActualQueue.FlushBufferToAppender(toFlush, fromAppender);
     }
 
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogAsyncTargetReceiveQueueAppender> appenders)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
     {
         blockPublishing.WaitOne();
-        ActualQueue.SendLogEntryEventTo(logEntryEvent, appenders);
+        ActualQueue.SendLogEntryEventTo(logEntryEvent, logEntrySinks, publishSource);
     }
 
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IFLogAsyncTargetReceiveQueueAppender appender)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IFLogEntrySink logEntrySink, ITargetingFLogEntrySource publishSource)
     {
         blockPublishing.WaitOne();
-        ActualQueue.SendLogEntryEventTo(logEntryEvent, appender);
+        ActualQueue.SendLogEntryEventTo(logEntryEvent, logEntrySink, publishSource);
     }
 
     public override void StartQueueReceiver()

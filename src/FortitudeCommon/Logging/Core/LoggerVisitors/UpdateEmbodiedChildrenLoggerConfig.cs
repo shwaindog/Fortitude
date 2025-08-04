@@ -3,10 +3,10 @@ using FortitudeCommon.Logging.Core.Hub;
 
 namespace FortitudeCommon.Logging.Core.LoggerVisitors;
 
-internal class UpdateEmbodiedChildrenLoggerConfig(INamedChildLoggersLookupConfig explicitDefinedConfig, IFLogAppenderRegistry appenderRegistry) 
+internal class UpdateEmbodiedChildrenLoggerConfig(IMutableNamedChildLoggersLookupConfig explicitDefinedConfig, IFLogAppenderRegistry appenderRegistry) 
     : LoggerVisitor<UpdateEmbodiedChildrenLoggerConfig>
 {
-    private IFLoggerTreeCommonConfig? parentConfig;
+    private IMutableFLoggerTreeCommonConfig? parentConfig;
 
     public override UpdateEmbodiedChildrenLoggerConfig Accept(IMutableFLoggerRoot node)
     {

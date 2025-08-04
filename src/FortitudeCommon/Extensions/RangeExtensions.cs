@@ -24,7 +24,7 @@ public static class RangeExtensions
     public static int Length(this Range toShift)
     {
         var start = toShift.Start.Value;
-        var end = toShift.Start.Value;
+        var end = toShift.End.Value;
         return end - start;
     }
 }

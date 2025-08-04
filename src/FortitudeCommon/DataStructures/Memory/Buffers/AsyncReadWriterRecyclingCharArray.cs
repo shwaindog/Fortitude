@@ -4,6 +4,7 @@ using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 
 namespace FortitudeCommon.DataStructures.Memory.Buffers;
 

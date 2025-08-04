@@ -1,8 +1,6 @@
 ﻿using FortitudeCommon.Chronometry.Timers;
-using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.Logging.AsyncProcessing;
 using FortitudeCommon.Logging.Core.Hub;
-using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.Core.Appending;
@@ -11,7 +9,7 @@ public interface IAppenderAsyncClient
 {
     int AppenderReceiveQueueNum { get; set; }
 
-    void ReceiveLogEntryEventOnConfiguredQueue(LogEntryPublishEvent logEntryEvent);
+    void ReceiveLogEntryEventOnConfiguredQueue(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource publishSource);
 
     void RunJobOnAppenderQueue(Action job);
 
@@ -20,7 +18,7 @@ public interface IAppenderAsyncClient
 
 public class ReceiveAsyncClient : IAppenderAsyncClient
 {
-    private readonly IFLogAsyncTargetReceiveQueueAppender asyncAppender;
+    protected readonly IFLogAppender DestinationAppender;
 
     protected readonly IFLoggerAsyncRegistry AsyncRegistry;
 
@@ -42,23 +40,29 @@ public class ReceiveAsyncClient : IAppenderAsyncClient
         }
     }
 
-    public ReceiveAsyncClient(IFLogAsyncTargetReceiveQueueAppender asyncAppender, int appenderReceiveQueueNum
+    public ReceiveAsyncClient(IFLogAppender destinationAppender, int appenderReceiveQueueNum
       , IFLoggerAsyncRegistry asyncRegistry)
     {
-        this.asyncAppender  = asyncAppender;
+        DestinationAppender  = destinationAppender;
         AsyncRegistry  = asyncRegistry;
 
         AppenderReceiveQueueNum = appenderReceiveQueueNum;
     }
 
-    public void ReceiveLogEntryEventOnConfiguredQueue(LogEntryPublishEvent logEntryEvent)
+    public void ReceiveLogEntryEventOnConfiguredQueue(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource publishSource)
     {
         if (AppenderReceiveQueueNum == 0 || AppenderReceiveQueueNum == FLogAsyncQueue.MyCallingQueueNumber)
         {
-            asyncAppender.ProcessReceivedLogEntryEvent(logEntryEvent);
+            if (DestinationAppender.ReceiveEndpoint == publishSource)
+            {
+                publishSource.FinalTarget!.InBoundListener(logEntryEvent, publishSource);
+            }
+            {
+                DestinationAppender.ReceiveEndpoint.PublishLogEntryEvent(logEntryEvent, publishSource);
+            }
             return;
         }
-        appenderReceiveQueuePublisher.SendLogEntryEventTo(logEntryEvent, asyncAppender);
+        appenderReceiveQueuePublisher.SendLogEntryEventTo(logEntryEvent, DestinationAppender.ReceiveEndpoint, publishSource);
     }
 
 
@@ -66,7 +70,7 @@ public class ReceiveAsyncClient : IAppenderAsyncClient
     {
         if (AppenderReceiveQueueNum == 0 || AppenderReceiveQueueNum == FLogAsyncQueue.MyCallingQueueNumber)
         {
-            asyncAppender.ExecuteJob(job);
+            DestinationAppender.ExecuteJob(job);
             return;
         }
         appenderReceiveQueuePublisher.Execute(job);
@@ -76,4 +80,25 @@ public class ReceiveAsyncClient : IAppenderAsyncClient
     {
         return AsyncRegistry.LoggerTimers.RunIn(waitMs, job);
     }
+}
+
+public class NullAsyncClient : IAppenderAsyncClient
+{
+    public static NullAsyncClient NullAsyncClientInstance = new ();
+
+    public int AppenderReceiveQueueNum
+    {
+        get => 0;
+        set => _ = value;
+    }
+
+    public void ReceiveLogEntryEventOnConfiguredQueue(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource publishSource)
+    {
+    }
+
+    public void RunJobOnAppenderQueue(Action job)
+    {
+    }
+
+    public ITimerUpdate RunJobOnFromTimer(Action job, int waitMs) => null!;
 }

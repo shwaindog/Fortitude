@@ -3,45 +3,52 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.AsyncProcessing;
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Core.Appending.Forwarding;
 using FortitudeCommon.Logging.Core.Hub;
-using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 #endregion
 
 namespace FortitudeCommon.Logging.Core.Appending;
 
-public interface IFLogAppender : IAppenderClient
+public interface IFLogAppender
 {
+    string AppenderName { get; }
+    string AppenderType { get; }
+
+    int ReceiveOnAsyncQueueNumber { get; }
+
+    IFLogEntryPipelineEndpoint ReceiveEndpoint { get; }
+
     IAppenderClient CreateAppenderClientFor(IFLoggerCommon logger);
 
     IAppenderClient CreateAppenderClientFor(IFLogForwardingAppender appender);
+
+    void RunJobOnAppenderQueue(Action job);
+
+    void ExecuteJob(Action job);
+
+    IAppenderDefinitionConfig GetAppenderConfig();
 }
 
 public interface IMutableFLogAppender : IFLogAppender
 {
-    new string           AppenderName { get; set; }
+    new string AppenderName { get; set; }
 
-    IAppenderAsyncClient AsyncClient  { get; set; }
+    IAppenderAsyncClient AsyncClient { get; set; }
 
     void HandleConfigUpdate(IAppenderDefinitionConfig newLoggerState);
 
     void ReceiveOldAppenderTypeClients(List<IMutableAppenderClient> issuedAppenders);
 }
 
-
 public abstract class FLogAppender : FLogEntrySinkBase, IMutableFLogAppender
 {
     protected IAppenderDefinitionConfig AppenderConfig;
 
-    protected        List<IMutableAppenderClient> IssuedAppenderClients = new ();
-
-    private readonly IFLogEntryPipelineEndpoint   receiveEndpoint;
+    protected List<IMutableAppenderClient> IssuedAppenderClients = new();
 
     protected FLogAppender(IAppenderDefinitionConfig appenderDefinitionConfig, IFLogContext context)
     {
@@ -51,7 +58,7 @@ public abstract class FLogAppender : FLogEntrySinkBase, IMutableFLogAppender
 
         AsyncClient = CreateAppenderAsyncClient(appenderDefinitionConfig, context.AsyncRegistry);
 
-        receiveEndpoint = new FLogEntryPipelineEndpoint(AppenderName, this);
+        ReceiveEndpoint = new FLogEntryPipelineEndpoint(AppenderName, this);
 
         context.AppenderRegistry.RegisterAppenderCallback(this);
     }
@@ -65,7 +72,7 @@ public abstract class FLogAppender : FLogEntrySinkBase, IMutableFLogAppender
         return appenderAsyncClient;
     }
 
-    public          string AppenderName { get; set; }
+    public string AppenderName { get; set; }
 
     public override string Name
     {
@@ -75,9 +82,8 @@ public abstract class FLogAppender : FLogEntrySinkBase, IMutableFLogAppender
 
     public override FLogEntrySourceSinkType LogEntryLinkType => FLogEntrySourceSinkType.Sink;
 
-    public override FLogEntryProcessChainState LogEntryProcessState { get; protected set; } 
+    public override FLogEntryProcessChainState LogEntryProcessState { get; protected set; }
         = FLogEntryProcessChainState.Terminating;
-
 
     public string AppenderType { get; protected set; }
 
@@ -152,8 +158,6 @@ public abstract class FLogAppender : FLogEntrySinkBase, IMutableFLogAppender
         }
     }
 
-    protected void HandleMoveAppenderQueue(int from, int to) { }
-
     public override void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
         if (ReceiveOnAsyncQueueNumber == 0 || ReceiveOnAsyncQueueNumber == FLogAsyncQueue.MyCallingQueueNumber)
@@ -161,11 +165,10 @@ public abstract class FLogAppender : FLogEntrySinkBase, IMutableFLogAppender
             ProcessReceivedLogEntryEvent(logEntryEvent);
             return;
         }
-        AsyncClient.ReceiveLogEntryEventOnConfiguredQueue(logEntryEvent);
+        AsyncClient.ReceiveLogEntryEventOnConfiguredQueue(logEntryEvent, ReceiveEndpoint);
     }
 
-    public IFLogEntryPipelineEndpoint ReceiveEndpoint => receiveEndpoint;
-
+    public IFLogEntryPipelineEndpoint ReceiveEndpoint { get; }
 
     public void RunJobOnAppenderQueue(Action job)
     {

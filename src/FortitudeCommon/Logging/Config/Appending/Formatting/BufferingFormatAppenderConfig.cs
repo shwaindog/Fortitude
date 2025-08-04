@@ -1,12 +1,16 @@
 ﻿using System.Globalization;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting;
 
 public interface IBufferingFormatAppenderConfig : IFormattingAppenderConfig, ICloneable<IBufferingFormatAppenderConfig>
 {
+    const int MinimumCharBufferSize = 1000;
+    const int MaximumCharBufferSize =(int)NumberExtensions.GigaByte;
     const int DefaultCharBufferSize = 8000;
 
     static readonly IMutableFlushBufferConfig DefaultFlushBufferConfig =
@@ -114,7 +118,7 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
 
     public BufferingFormatAppenderConfig(IBufferingFormatAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
-    public bool DisableBuffering
+    public virtual bool DisableBuffering
     {
         get => bool.TryParse(this[nameof(DisableBuffering)], out var enableDoubleBuffering) && enableDoubleBuffering;
         set => this[nameof(DisableBuffering)] = value.ToString();
@@ -122,7 +126,11 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
 
     public int CharBufferSize
     {
-        get => int.TryParse(this[nameof(CharBufferSize)], out var charBufferSize) ? charBufferSize : 0;
+        get => int.TryParse(this[nameof(CharBufferSize)], out var charBufferSize) 
+            ? Math.Clamp(charBufferSize
+                       , IBufferingFormatAppenderConfig.MinimumCharBufferSize
+                       , IBufferingFormatAppenderConfig.MaximumCharBufferSize) 
+            : IBufferingFormatAppenderConfig.DefaultCharBufferSize;
         set => this[nameof(CharBufferSize)] = value.ToString(CultureInfo.InvariantCulture);
     }
 

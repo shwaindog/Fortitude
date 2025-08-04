@@ -1,4 +1,6 @@
 ﻿using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using static FortitudeCommon.Logging.Config.Appending.Formatting.Files.FLogFilePathPart;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting.Files;
@@ -39,7 +41,7 @@ public static class FLogFilePathPartExtensions
 
     public static void FormatFLogFilePathPartAppender(this FLogFilePathPart filePathPart, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.BackingStringBuilder;
+        var sb = sbc.WriteBuffer;
 
         switch (filePathPart)
         {

@@ -34,8 +34,21 @@ public static class FLog
         get
         {
             StackTrace stackTrace = new StackTrace(1, false);
+            
+            var method = stackTrace.GetFrame(0)!.GetMethod();
+            var type   = method!.DeclaringType;
+            Console.Out.WriteLine($"Frame[{0}] = {type.FullName}:{method.Name}");
+            if (type?.FullName.StartsWith("System.") ?? true)
+            {
+                StackTrace fullStackTrace = new StackTrace(0, false);
+                
+                for (int i = 0; i < fullStackTrace.FrameCount; i++)
+                {
+                    var frame = fullStackTrace.GetFrame(1);
+                    Console.Out.WriteLine($"Frame[{i}] = {frame}");
+                }
+            }
 
-            var type = stackTrace.GetFrame(1)!.GetMethod()!.DeclaringType;
             return FLogger(type!);
         }
     }

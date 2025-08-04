@@ -1,10 +1,8 @@
-﻿using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.Logging.AsyncProcessing.ProxyQueue;
+﻿using FortitudeCommon.Logging.AsyncProcessing.ProxyQueue;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Logging.Core.Appending;
 using FortitudeCommon.Logging.Core.Appending.Formatting;
 using FortitudeCommon.Logging.Core.Hub;
-using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.AsyncProcessing;
@@ -94,7 +92,7 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
                 return syncExecuteQueue;
             }
         }
-        var modQueueNumber = (byte)(queueNumber % MaxAvailableQueues);
+        var modQueueNumber = (byte)(queueNumber % Math.Max(MaxAvailableQueues, 1));
         foundExisting = runningQueues.Values.FirstOrDefault(aq => aq.QueueNumber == modQueueNumber && aq.QueueType == queueType);
         if (foundExisting != null) return foundExisting;
         lock (SyncLock)
@@ -154,21 +152,21 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
         queue.Execute(job);
     }
 
-    public void FlushBufferToAppender(int queueNumber, IBufferedFormatWriter toFlush, IFLogAsyncTargetFlushBufferAppender fromAppender)
+    public void FlushBufferToAppender(int queueNumber, IBufferedFormatWriter toFlush, IFLogBufferingFormatAppender fromAppender)
     {
         var queue = GetOrCreateQueue(queueNumber);
         queue.FlushBufferToAppender(toFlush, fromAppender);
     }
 
-    public void SendLogEntryEventTo(int queueNumber, LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogAsyncTargetReceiveQueueAppender> appenders)
+    public void SendLogEntryEventTo(int queueNumber, LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogEntrySink> logEntrySinks, IFLogEntrySource publishSource)
     {
         var queue = GetOrCreateQueue(queueNumber);
-        queue.SendLogEntryEventTo(logEntryEvent, appenders);
+        queue.SendLogEntryEventTo(logEntryEvent, logEntrySinks, publishSource);
     }
 
-    public void SendLogEntryEventTo(int queueNumber, LogEntryPublishEvent logEntryEvent, IFLogAsyncTargetReceiveQueueAppender appender)
+    public void SendLogEntryEventTo(int queueNumber, LogEntryPublishEvent logEntryEvent, IFLogEntrySink logEntrySink, IFLogEntrySource publishSource)
     {
         var queue = GetOrCreateQueue(queueNumber);
-        queue.SendLogEntryEventTo(logEntryEvent, appender);
+        queue.SendLogEntryEventTo(logEntryEvent, logEntrySink,publishSource);
     }
 }

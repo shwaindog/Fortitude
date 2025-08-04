@@ -7,6 +7,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core.LogEntries;
@@ -195,7 +196,7 @@ public class FLogStringAppender : ReusableObject<IFLogStringAppender>, IFLogStri
         onComplete = callWhenComplete;
 
         stsa = useStyleTypeStringBuilder;
-        sb   = stsa.BackingStringBuilder;
+        sb   = stsa.WriteBuffer;
 
         return this;
     }
@@ -407,7 +408,7 @@ public class FLogStringAppender : ReusableObject<IFLogStringAppender>, IFLogStri
         (IFLogStringAppender source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         stsa ??= Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender(source.BackingStyledTypeStringAppender);
-        sb   =   stsa.BackingStringBuilder;
+        sb   =   stsa.WriteBuffer;
 
         if (stsa.Style != source.BackingStyledTypeStringAppender.Style)
         {

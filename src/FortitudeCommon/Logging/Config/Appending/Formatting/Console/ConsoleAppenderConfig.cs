@@ -1,6 +1,8 @@
 ﻿using System.Globalization;
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting.Console;
@@ -28,7 +30,10 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
     public const string DefaultConsoleAppenderName = $"DefaultColoredConsoleAppender";
     public const string ConsoleAppenderType = $"{nameof(FLoggerBuiltinAppenderType.ConsoleOut)}";
 
-    public ConsoleAppenderConfig(IConfigurationRoot root, string path) : base(root, path) { }
+    public ConsoleAppenderConfig(IConfigurationRoot root, string path) : base(root, path)
+    {
+        AppenderType = ConsoleAppenderType;
+    }
 
     public ConsoleAppenderConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
     
@@ -61,6 +66,12 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
     {
         get => bool.TryParse(this[nameof(DisableColoredConsole)], out var charBufferSize) && charBufferSize;
         set => this[nameof(DisableColoredConsole)] = value.ToString(CultureInfo.InvariantCulture);
+    }
+
+    public override bool DisableBuffering
+    {
+        get => !bool.TryParse(this[nameof(DisableBuffering)], out var enableDoubleBuffering) || enableDoubleBuffering;
+        set => this[nameof(DisableBuffering)] = value.ToString();
     }
 
     public override string AppenderType

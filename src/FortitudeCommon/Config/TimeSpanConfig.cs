@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Config;

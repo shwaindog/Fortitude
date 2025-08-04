@@ -1,12 +1,14 @@
 ﻿using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting;
 
 public interface IFormattingAppenderConfig : IAppenderDefinitionConfig, ICloneable<IFormattingAppenderConfig>
 {
-    const string DefaultStringFormattingTemplate = "%TS:yyyy-MM-dd HH:mm:SS.fff% %LVL,5% %THREADID,4% %THREADNAME,10[..10]% %LGR% %MSG%";
+    const string DefaultStringFormattingTemplate = "'%TS:yyyy-MM-dd HH:mm:SS.fff%' '%LVL,5%' '%THREADID,4%' '%THREADNAME,10[..10]%' '%LGR%' '%MSG%''%NL%'";
 
     string LogEntryFormatLayout { get; }
 

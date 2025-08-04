@@ -6,7 +6,7 @@ using FortitudeCommon.OSWrapper.AsyncWrappers;
 
 #endregion
 
-namespace FortitudeCommon.Logging.AsyncProcessing.SingleBackground;
+namespace FortitudeCommon.Logging.AsyncProcessing.Threaded;
 
 internal class FLogEventPoller : IEnumerableBatchPollSink<FLogAsyncPayload>, IRingPoller
 {

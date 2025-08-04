@@ -11,6 +11,7 @@ using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
@@ -47,24 +48,24 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
 
     public ExtractedMessageKeyValuesConfig(IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public ExtractedMessageKeyValuesConfig() : this(InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public ExtractedMessageKeyValuesConfig(params IMutableExtractKeyExpressionConfig[] toAdd)
         : this(InMemoryConfigRoot, InMemoryPath, toAdd)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public ExtractedMessageKeyValuesConfig
         (IConfigurationRoot root, string path, params IMutableExtractKeyExpressionConfig[] toAdd) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
         for (int i = 0; i < toAdd.Length; i++)
         {
             extractConfigByKeyName.Add(toAdd[i].KeyName, toAdd[i]);
@@ -73,7 +74,7 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
 
     public ExtractedMessageKeyValuesConfig(IExtractedMessageKeyValuesConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
         foreach (var kvp in toClone)
         {
             extractConfigByKeyName.Add(kvp.Key, (IMutableExtractKeyExpressionConfig)kvp.Value);
@@ -82,7 +83,7 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
 
     public ExtractedMessageKeyValuesConfig(IExtractedMessageKeyValuesConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public void Add(KeyValuePair<string, IMutableExtractKeyExpressionConfig> item)
@@ -109,6 +110,7 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
         {
             if (!extractConfigByKeyName.Any() || nextConfigReadTime < TimeContext.UtcNow)
             {
+                recheckTimeSpanInterval = FLogContext.NullOnUnstartedContext?.ConfigRegistry?.ExpireConfigCacheIntervalTimeSpan  ?? TimeSpan.FromMinutes(1);
                 extractConfigByKeyName.Clear();
                 foreach (var configurationSection in GetSection(Path).GetChildren())
                 {

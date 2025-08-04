@@ -42,6 +42,7 @@ public static class FloggerBuiltinAppenderTypeExtensions
         var appenderTypeConfig = GetAppenderType(configRoot, configPath);
         switch (appenderTypeConfig)
         {
+            case null :
             case nameof(Ref) :                  
                 return new AppenderReferenceConfig(configRoot, configPath);
             case nameof(Null) :                    return new NullAppenderConfig(configRoot, configPath);

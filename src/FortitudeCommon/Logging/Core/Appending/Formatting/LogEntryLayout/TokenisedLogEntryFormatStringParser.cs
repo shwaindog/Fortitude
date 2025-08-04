@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config;
+using FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout;
 using FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout.ConditionalFormattingCommands;
 using FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout.ConsoleCommands;
 using static FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout.FLogEntryLayoutTokens;
@@ -20,7 +21,7 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
 {
     private static ITokenisedLogEntryFormatStringParser? singletonInstance;
 
-    private static readonly object SyncLock = new ();
+    private static readonly object SyncLock = new();
 
     public static ITokenisedLogEntryFormatStringParser Instance
     {
@@ -40,22 +41,62 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
         }
     }
 
-    static readonly string[] TokenReplaceDelimiters = ["{", "}"];
+    static readonly (string Open, string Close) TokenReplaceDelimiters = ("{", "}");
+
+    private const string NewLine    = $"{{{nameof(NEWLINE)}}}";
+    private const string Nl         = $"{{{nameof(NL)}}}";
+    private const string UnixNewLine = $"{{{nameof(UNIXNEWLINE)}}}";
+    private const string UnixNl     = $"{{{nameof(UNIXNL)}}}";
+    private const string WindowsNewLine = $"{{{nameof(WINDOWSNEWLINE)}}}";
+    private const string WindowsNl     = $"{{{nameof(WINDOWSNL)}}}";
+    private const string WinNewLine = $"{{{nameof(WINNEWLINE)}}}";
+    private const string WinNl     = $"{{{nameof(WINNL)}}}";
+    private const string Comma      = $"{{{nameof(COMMA)}}}";
+    private const string C          = $"{{{nameof(C)}}}";
+    private const string CommaSpace = $"{{{nameof(COMMASPACE)}}}";
+    private const string Cs         = $"{{{nameof(CS)}}}";
 
     public List<ITemplatePart> BuildTemplateParts(string tokenisedFormatString, List<ITemplatePart>? toPopulate = null)
     {
         toPopulate ??= new List<ITemplatePart>();
 
-        var stringParts    = tokenisedFormatString.TokenSplit(IFLogEntryFormatter.TokenDelimiters, TokenReplaceDelimiters);
+        var stringParts = tokenisedFormatString.TokenSplit(IFLogEntryFormatter.TokenDelimiters, TokenReplaceDelimiters);
         foreach (var part in stringParts)
         {
-            if (part[0] == '{' && part[^1] == '}')
+            switch (part)
             {
-                toPopulate.Add(new LogEntryDataTemplatePart(part));
-            }
-            else
-            {
-                toPopulate.Add(new StringConstantTemplatePart(part));
+                case Nl:
+                case NewLine:
+                    toPopulate.Add(new StringConstantTemplatePart(Environment.NewLine));
+                    break;
+                case UnixNewLine:
+                case UnixNl:
+                    toPopulate.Add(new StringConstantTemplatePart("\n"));
+                    break;
+                case WindowsNewLine:
+                case WinNewLine:
+                case WindowsNl:
+                case WinNl:
+                    toPopulate.Add(new StringConstantTemplatePart("\n\r"));
+                    break;
+                case C:
+                case Comma:
+                    toPopulate.Add(new StringConstantTemplatePart(","));
+                    break;
+                case Cs:
+                case CommaSpace:
+                    toPopulate.Add(new StringConstantTemplatePart(", "));
+                    break;
+                default:
+                    if (part[0] == '{' && part[^1] == '}')
+                    {
+                        toPopulate.Add(new LogEntryDataTemplatePart(part));
+                    }
+                    else
+                    {
+                        toPopulate.Add(new StringConstantTemplatePart(part));
+                    }
+                    break;
             }
         }
         return toPopulate;
@@ -70,7 +111,7 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
         var identifierName = new String(upperParam);
 
         var capStringLength = int.MaxValue;
-        var paddingInt = 0;
+        var paddingInt      = 0;
         if (padding.Length > 0)
         {
             var foundCapStringLength = padding.IndexOf("[..");
@@ -85,8 +126,8 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
             }
             paddingInt = padding.ExtractInt() ?? 0;
         }
-        var commandOrFormatting     =  new String(subTokenFormatting);
-        var templateParams =  new String(padding);
+        var commandOrFormatting = new String(subTokenFormatting);
+        var templateParams      = new String(padding);
         if (IsLogEntryDataToken(identifierName))
         {
             yield return new LogEntryDataTemplatePart(identifierName, paddingInt, capStringLength, commandOrFormatting);
@@ -102,10 +143,10 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
             {
                 switch (scopedTemplatePart)
                 {
-                    case ConsoleBackgroundColorTemplatePart :
-                    case ConsoleTextColorTemplatePart :
-                    case ConsoleLogLevelTextColorMatchTemplatePart :
-                    case ConsoleLogLevelBackgroundColorMatchTemplatePart :
+                    case ConsoleBackgroundColorTemplatePart:
+                    case ConsoleTextColorTemplatePart:
+                    case ConsoleLogLevelTextColorMatchTemplatePart:
+                    case ConsoleLogLevelBackgroundColorMatchTemplatePart:
                         foreach (var scopedPart in BuildTemplateParts(commandOrFormatting))
                         {
                             yield return scopedPart;
@@ -124,15 +165,13 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
         {
             switch (templatePart)
             {
-                case ConsoleBackgroundColorTemplatePart :
-                case ConsoleTextColorTemplatePart :
-                case ConsoleLogLevelTextColorMatchTemplatePart :
-                case ConsoleLogLevelBackgroundColorMatchTemplatePart :
+                case ConsoleBackgroundColorTemplatePart:
+                case ConsoleTextColorTemplatePart:
+                case ConsoleLogLevelTextColorMatchTemplatePart:
+                case ConsoleLogLevelBackgroundColorMatchTemplatePart:
                     isDefaultColors = false;
                     break;
-                case ConsoleColorResetTemplatePart :
-                    isDefaultColors = true;
-                    break;
+                case ConsoleColorResetTemplatePart: isDefaultColors = true; break;
             }
         }
         if (!isDefaultColors)
@@ -244,9 +283,8 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
             case $"{nameof(BACKCOLOR_MATCH)}":
             case $"{nameof(BCOLOR_MATCH)}":
                 return new ConsoleLogLevelBackgroundColorMatchTemplatePart(templateParams);
-            case $"{nameof(RESETCOLOR)}":
-                return new ConsoleColorResetTemplatePart(templateParams);
-                default: return null;
+            case $"{nameof(RESETCOLOR)}": return new ConsoleColorResetTemplatePart(templateParams);
+            default:                      return null;
         }
     }
 }

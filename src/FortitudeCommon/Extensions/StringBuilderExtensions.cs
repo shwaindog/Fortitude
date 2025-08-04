@@ -17,9 +17,19 @@ public static class StringBuilderExtensions
         return toAppendTo;
     }
 
-    public static StringBuilder AppendRange(this StringBuilder toAppendTo, IFrozenString source)
+    public static StringBuilder AppendRange(this StringBuilder toAppendTo, ICharSequence source)
     {
         for (var i = 0; i < source.Length; i++)
+        {
+            toAppendTo.Append(source[i]);
+        }
+        return toAppendTo;
+    }
+
+    public static StringBuilder AppendRange(this StringBuilder toAppendTo, ICharSequence source, int startAt, int length)
+    {
+        var endAt = startAt + length;
+        for (var i = startAt; i < source.Length & i < endAt; i++)
         {
             toAppendTo.Append(source[i]);
         }
@@ -33,7 +43,7 @@ public static class StringBuilderExtensions
         return toExtend;
     }
 
-    public static StringBuilder InsertAt(this StringBuilder toExtend, IFrozenString source, int insertIndex = 0)
+    public static StringBuilder InsertAt(this StringBuilder toExtend, ICharSequence source, int insertIndex = 0)
     {
         toExtend.ShiftRightAt(insertIndex, source.Length);
         toExtend.OverwriteAt(insertIndex, source);
@@ -54,7 +64,7 @@ public static class StringBuilderExtensions
         return toWriteTo;
     }
 
-    public static StringBuilder OverwriteAt(this StringBuilder toWriteTo, int insertIndex, IFrozenString source)
+    public static StringBuilder OverwriteAt(this StringBuilder toWriteTo, int insertIndex, ICharSequence source)
     {
         var endSizeDiff = source.Length - (toWriteTo.Length - insertIndex);
         if (endSizeDiff > 0)

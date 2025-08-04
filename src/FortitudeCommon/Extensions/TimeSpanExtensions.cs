@@ -4,6 +4,8 @@
 using System.Text;
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 
 namespace FortitudeCommon.Extensions;
 
@@ -15,7 +17,7 @@ public static class TimeSpanExtensions
 
     public static void FormatTimeSpanAsStringAppender(this TimeSpan timeSpan, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.BackingStringBuilder;
+        var sb = sbc.WriteBuffer;
 
         StringBuilder? setSb = null;
 

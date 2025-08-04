@@ -1,5 +1,7 @@
 ﻿using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.AsyncForwarding;

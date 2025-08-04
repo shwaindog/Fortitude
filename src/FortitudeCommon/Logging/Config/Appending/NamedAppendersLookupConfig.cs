@@ -9,12 +9,13 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending;
 
 public interface INamedAppendersLookupConfig<TReadOnly> :IInterfacesComparable<INamedAppendersLookupConfig<TReadOnly>>
-  , ICloneable<INamedAppendersLookupConfig<TReadOnly>>, IStyledToStringObject, IFLogConfig
+  , ICloneable< INamedAppendersLookupConfig<TReadOnly>>, IStyledToStringObject, IFLogConfig
 where TReadOnly : class, IAppenderReferenceConfig
 {
     bool ContainsKey(string key);
@@ -76,42 +77,43 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
 
     protected NamedAppendersLookupConfig(IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     protected NamedAppendersLookupConfig() : this(InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     protected NamedAppendersLookupConfig(params T[] toAdd)
         : this(InMemoryConfigRoot, InMemoryPath, toAdd)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     protected NamedAppendersLookupConfig
         (IConfigurationRoot root, string path, params T[] toAdd) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
         for (int i = 0; i < toAdd.Length; i++)
         {
             AppendersByName.Add(toAdd[i].AppenderName, toAdd[i]);
+            PushToConfigStorage(toAdd[i]);
         }
     }
 
     protected NamedAppendersLookupConfig(INamedAppendersLookupConfig<TReadOnly> toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
         foreach (var kvp in toClone)
         {
             AppendersByName.Add(kvp.Key, (T)kvp.Value);
+            PushToConfigStorage(kvp.Value);
         }
     }
 
     protected NamedAppendersLookupConfig(INamedAppendersLookupConfig<TReadOnly> toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
     }
 
     public virtual void Add(KeyValuePair<string, T> item)
@@ -123,6 +125,7 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
     public IAppendableNamedAppendersLookupConfig<T, TReadOnly> Add(TReadOnly value)
     {
         AppendersByName.Add(value.AppenderName, (T)value);
+        PushToConfigStorage(value);
 
         return this;
     }
@@ -130,6 +133,7 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
     public IAppendableNamedAppendersLookupConfig<T, TReadOnly> Add(T value)
     {
         AppendersByName.Add(value.AppenderName, value);
+        PushToConfigStorage(value);
 
         return this;
     }
@@ -140,7 +144,7 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
         PushToConfigStorage(value);
     }
 
-    protected void PushToConfigStorage(T value)
+    protected void PushToConfigStorage(TReadOnly value)
     {
         value.CloneConfigTo(ConfigRoot, $"{Path}{Split}{value.AppenderName}");
     }
@@ -152,10 +156,11 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
         {
             if (!AppendersByName.Any() || nextConfigReadTime < TimeContext.UtcNow)
             {
+                recheckTimeSpanInterval = FLogContext.NullOnUnstartedContext?.ConfigRegistry?.ExpireConfigCacheIntervalTimeSpan ?? TimeSpan.FromMinutes(1);
                 AppendersByName.Clear();
-                foreach (var configurationSection in GetSection(Path).GetChildren())
+                foreach (var configurationSection in GetChildren())
                 {
-                    if (FLogCreate.MakeAppenderConfig(ConfigRoot, $"{configurationSection.Path}{Split}{configurationSection.Key}") is T appenderConfig)
+                    if (FLogCreate.MakeAppenderConfig(ConfigRoot, $"{configurationSection.Path}") is T appenderConfig)
                     {
                         appenderConfig.ParentConfig = this;
                         AppendersByName.TryAdd(configurationSection.Key, appenderConfig);
@@ -257,7 +262,8 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
 
     IEnumerator<KeyValuePair<string, TReadOnly>> INamedAppendersLookupConfig<TReadOnly>.GetEnumerator() =>
         CheckConfigGetAppendersDict
-            .Select(arcKvp => new KeyValuePair<string, TReadOnly>())
+            .Select(abnKvp => 
+                        new KeyValuePair<string, TReadOnly>(abnKvp.Key, abnKvp.Value))
             .GetEnumerator();
 
     public IEnumerator<KeyValuePair<string, T>> GetEnumerator() => CheckConfigGetAppendersDict.GetEnumerator();

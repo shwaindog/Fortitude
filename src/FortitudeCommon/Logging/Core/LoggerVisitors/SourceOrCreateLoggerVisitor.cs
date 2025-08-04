@@ -1,15 +1,18 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Logging.Config;
+using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.LoggerVisitors;
 
-public class SourceOrCreateLoggerVisitor(string loggerFullName,  IFLogContext flogContext) : LoggerVisitor<SourceOrCreateLoggerVisitor>
+public class SourceOrCreateLoggerVisitor(string loggerFullName, IFLogContext flogContext) : LoggerVisitor<SourceOrCreateLoggerVisitor>
 {
-    private readonly MutableString loggerNameScratch  = new();
+    private readonly MutableString loggerNameScratch = new();
 
     private static readonly char[] NamePartDelimiter = ['.'];
 
@@ -19,13 +22,13 @@ public class SourceOrCreateLoggerVisitor(string loggerFullName,  IFLogContext fl
     {
         foreach (var childLogger in node.ImmediateEmbodiedChildren)
         {
-            if (WalkDownTree((IMutableFLoggerCommon)childLogger)) return this;
+            if (WalkDownTree(childLogger)) return this;
         }
         WalkDownTree(node);
         return this;
     }
 
-    protected bool WalkDownTree(IFLoggerCommon ancestorLogger)
+    protected bool WalkDownTree(IMutableFLoggerCommon ancestorLogger)
     {
         var ancestorFullName = ancestorLogger.FullName;
         if (!loggerFullName.StartsWith(ancestorFullName))
@@ -33,23 +36,43 @@ public class SourceOrCreateLoggerVisitor(string loggerFullName,  IFLogContext fl
             return false;
         }
         loggerNameScratch.Clear();
-        loggerNameScratch.Append(loggerFullName).Replace(ancestorFullName, "");
+        loggerNameScratch.Append(loggerFullName);
         if (ancestorFullName.IsNotNullOrEmpty())
         {
+            loggerNameScratch.Replace(ancestorFullName, "");
             loggerNameScratch.Remove(0);
         }
         var firstNamePart = loggerNameScratch.SplitFirstAsString(NamePartDelimiter);
         var isPathPart    = firstNamePart.Length < loggerNameScratch.Length;
-    
+
         var foundChild = ancestorLogger.ImmediateEmbodiedChildren.FirstOrDefault(fld => fld.Name == firstNamePart);
-        
+
         if (foundChild == null)
         {
-            var subLoggerName  = loggerNameScratch.Clear().Append(ancestorLogger.FullName).Append(".").Append(firstNamePart).ToString();
-            var explicitConfig = flogContext.ConfigRegistry.FindLoggerConfigIfGiven(subLoggerName) ?? 
-                                 FLogCreate.MakeClonedDescendantLoggerConfig(ancestorLogger.ResolvedConfig);
-            var subLogger       = FLogCreate.MakeLogger(explicitConfig, ancestorLogger, flogContext.LoggerRegistry);
-            ((IMutableFLoggerCommon)ancestorLogger).AddDirectChild(subLogger);
+            var subLoggerName =
+                loggerNameScratch
+                    .Clear().Append(ancestorLogger.FullName)
+                    .Append(ancestorLogger.FullName.IsNotNullOrEmpty() ? "." : "").Append(firstNamePart).ToString();
+            var configPathBuilder =
+                loggerNameScratch
+                    .Clear().Append(IFLogAppConfig.DefaultFLogAppConfigPath).Append(ConfigSection.KeySeparator)
+                    .Append(nameof(FLogAppConfig.RootLogger)).Append(ConfigSection.KeySeparator)
+                    .Append(nameof(FLoggerTreeCommonConfig.DescendantLoggers)).Append(ConfigSection.KeySeparator);
+            foreach (var ancestorGeneration in ancestorFullName.Split(".").Where(s => s.IsNotEmpty()))
+            {
+                configPathBuilder
+                    .Append(ancestorGeneration).Append(ConfigSection.KeySeparator)
+                    .Append(nameof(FLoggerTreeCommonConfig.DescendantLoggers)).Append(ConfigSection.KeySeparator);
+            }
+            var configPath = configPathBuilder.Append(firstNamePart).ToString();
+
+            var definedConfig   = flogContext.ConfigRegistry.FindLoggerConfigIfGiven(subLoggerName);
+            var explicitConfig  = definedConfig ?? ancestorLogger.ResolvedConfig;
+            var subLoggerConfig = FLogCreate.MakeClonedDescendantLoggerConfig(explicitConfig, configPath);
+            subLoggerConfig.Name = firstNamePart;
+            ancestorLogger.ResolvedConfig.DescendantLoggers.Add(subLoggerConfig);
+            var subLogger = FLogCreate.MakeLogger(subLoggerConfig, ancestorLogger, flogContext.LoggerRegistry);
+            ancestorLogger.AddDirectChild(subLogger);
             if (isPathPart)
             {
                 return WalkDownTree(subLogger);
@@ -68,6 +91,6 @@ public class SourceOrCreateLoggerVisitor(string loggerFullName,  IFLogContext fl
         }
         return false;
     }
-           
+
     public override SourceOrCreateLoggerVisitor Accept(IMutableFLoggerDescendant node) => this;
 }

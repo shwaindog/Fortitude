@@ -8,6 +8,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core.LogEntries;
@@ -182,7 +183,7 @@ public class FLogAdditionalFormatterParameterEntry : ReusableObject<IFLogAdditio
     {
         stsa ??= (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender());
         stsa.CopyFrom(toClone.BackingStyledTypeStringAppender);
-        sb = stsa.BackingStringBuilder;
+        sb = stsa.WriteBuffer;
         if (toClone is FLogAdditionalFormatterParameterEntry addFormatterParameter)
         {
             warnings.Clear();
@@ -202,7 +203,7 @@ public class FLogAdditionalFormatterParameterEntry : ReusableObject<IFLogAdditio
       , IStyledTypeStringAppender styledTypeStringAppender)
     {
         stsa = styledTypeStringAppender;
-        sb   = stsa.BackingStringBuilder;
+        sb   = stsa.WriteBuffer;
 
         currentParamNum = 1;
 
@@ -526,7 +527,7 @@ public class FLogAdditionalFormatterParameterEntry : ReusableObject<IFLogAdditio
             formattedStringSoFar.InsertAt(warnings);
         }
 
-        var styleTypeStringAppender = (Recycler?.Borrow<WrappingStyledTypeStringAppender>()  ?? new WrappingStyledTypeStringAppender(stsa!.Style))
+        var styleTypeStringAppender = (Recycler?.Borrow<StyledTypeStringAppender>()  ?? new StyledTypeStringAppender(stsa!.Style))
             .Initialize(formattedStringSoFar, stsa!.Style);
 
         var addParamsBuilder = (Recycler?.Borrow<FLogStringAppender>() ?? new FLogStringAppender())
@@ -581,7 +582,7 @@ public class FLogAdditionalFormatterParameterEntry : ReusableObject<IFLogAdditio
     {
         stsa ??= (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender());
         stsa.CopyFrom(source.BackingStyledTypeStringAppender);
-        sb = stsa.BackingStringBuilder;
+        sb = stsa.WriteBuffer;
         if (source is FLogAdditionalFormatterParameterEntry addFormatterParameter)
         {
             warnings.Clear();

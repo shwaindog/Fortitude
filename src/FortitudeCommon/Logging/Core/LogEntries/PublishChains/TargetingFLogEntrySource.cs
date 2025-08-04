@@ -15,7 +15,7 @@ public interface ITargetingFLogEntrySource : IFLogEntryPublishChainTreeNode
 
     int RemoveAllToOutBoundTarget();
 
-    void PublishLogEntryEvent(LogEntryPublishEvent logEntryEvent);
+    void PublishLogEntryEvent(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource? fromSource = null);
 
     ITargetingFLogEntrySource Last();
 
@@ -174,9 +174,9 @@ public abstract class TargetingFLogEntrySource : FLogEntryPublishChainTreeNode, 
 
     protected event FLogEntryPublishHandler? PublishedLogEntryEvent;
 
-    public virtual void PublishLogEntryEvent(LogEntryPublishEvent logEntryEvent)
+    public virtual void PublishLogEntryEvent(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource? fromSource = null)
     {
-        if (StopProcessing)
+        if (ShouldCheckLock)
         {
             while (true)
             {
@@ -194,8 +194,8 @@ public abstract class TargetingFLogEntrySource : FLogEntryPublishChainTreeNode, 
         }
     }
 
-    protected virtual void SafeOnPublishLogEntryEvent(LogEntryPublishEvent logEntryEvent)
+    protected virtual void SafeOnPublishLogEntryEvent(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource? fromSource = null)
     {
-        PublishedLogEntryEvent?.Invoke(logEntryEvent, this);
+        PublishedLogEntryEvent?.Invoke(logEntryEvent, fromSource ?? this);
     }
 }

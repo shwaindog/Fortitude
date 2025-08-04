@@ -2,6 +2,9 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using static FortitudeCommon.Logging.Config.Initialization.AsyncQueues.AsyncProcessingType;
 
 namespace FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
@@ -19,12 +22,12 @@ public enum AsyncProcessingType
 
 public static class AsyncProcessingTypesExtensions
 {
-    public static Action<AsyncProcessingType, IStyledTypeStringAppender> AsyncProcessingTypeFormatter
+    public static StructStyler<AsyncProcessingType> AsyncProcessingTypeFormatter
         = FormatAsyncProcessingTypeAppender;
 
     public static void FormatAsyncProcessingTypeAppender(this AsyncProcessingType asyncProcessingType, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.BackingStringBuilder;
+        var sb = sbc.WriteBuffer;
 
         switch (asyncProcessingType)
         {

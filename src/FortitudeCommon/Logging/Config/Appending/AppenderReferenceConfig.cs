@@ -4,6 +4,8 @@
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending;
@@ -108,7 +110,7 @@ public class AppenderReferenceConfig : FLogConfig, IMutableAppenderReferenceConf
 
     public virtual IAppenderReferenceConfig CloneConfigTo(IConfigurationRoot configRoot, string path)
     {
-        return new AppenderReferenceConfig(configRoot, path);
+        return new AppenderReferenceConfig(this, configRoot, path);
     }
 
     public virtual bool AreEquivalent(IAppenderReferenceConfig? other, bool exactTypes = false)
@@ -137,15 +139,14 @@ public class AppenderReferenceConfig : FLogConfig, IMutableAppenderReferenceConf
         }
     }
 
-    public virtual IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(AppenderReferenceConfig))
-               .AddTypeStart()
-               .AddNonNullOrEmptyField(nameof(AppenderName), AppenderName)
-               .AddNonNullOrEmptyField(nameof(AppenderType), AppenderType)
-               .AddNonDefaultField(nameof(DeactivateHere), DeactivateHere)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(AppenderReferenceConfig))
+               .AddField.WhenNonNullOrDefault.WithName(nameof(AppenderName), AppenderName)
+               .AddField.WhenNonNullOrDefault.WithName(nameof(AppenderType), AppenderType)
+               .AddField.WhenNonDefault.WithName(nameof(DeactivateHere), DeactivateHere)
+               .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

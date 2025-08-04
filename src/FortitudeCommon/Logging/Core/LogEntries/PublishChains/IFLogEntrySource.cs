@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.DataStructures.Lists;
+using FortitudeCommon.Logging.Core.Hub;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
@@ -13,30 +14,27 @@ public interface IFLogEntrySource : ITargetingFLogEntrySource
 
     bool ReplaceOptionalChild(IFLogEntrySink oldChild, IFLogEntrySink newChild);
 
-    void PublishLogEntryEvent(LogEntryPublishEvent logEntryEvent, Predicate<IFLogEntrySink> selectChildrenPublish);
+    void PublishLogEntryEvent(LogEntryPublishEvent logEntryEvent, Predicate<IFLogEntrySink> selectChildrenPublish, ITargetingFLogEntrySource? fromSource = null);
 
     IReadOnlyList<IFLogEntrySink> ChildLogEntryReceivers { get; }
 }
 
 public abstract class FLogEntrySource : TargetingFLogEntrySource, IFLogEntrySource
 {
-    protected FLogEntrySource()
-    {
-        currentChildReceivers = Recycler.Borrow<ReusableList<IFLogEntrySink>>();
-    }
-
-    private ReusableList<IFLogEntrySink>  currentChildReceivers;
-    private ReusableList<IFLogEntrySink>? oldChildReceivers;
+    // created on demand to keep overhead of publishers low (~two per logger and appenders)
+    private ReusableList<IFLogEntrySink>?  currentChildReceivers;
 
     protected event FLogEntryPublishHandler? AllChildrenPublishedLogEntryEvent;
 
     public bool AddOptionalChild(IFLogEntrySink toAdd)
     {
-        if (currentChildReceivers.Contains(toAdd))
+        if (currentChildReceivers?.Contains(toAdd) ?? false)
         {
             return false;
         }
-        toAdd.InBound = this;
+        currentChildReceivers ??= Recycler.Borrow<ReusableList<IFLogEntrySink>>();
+
+        toAdd.InBound         =   this;
 
         while (true)
         {
@@ -57,11 +55,10 @@ public abstract class FLogEntrySource : TargetingFLogEntrySource, IFLogEntrySour
         {
             toRemove.InBound = null;
         }
-        if (!currentChildReceivers.Contains(toRemove))
+        if (!(currentChildReceivers?.Contains(toRemove) ?? false))
         {
             return false;
         }
-        oldChildReceivers?.DecrementRefCount();
         var replaceAllButChildList = Recycler.Borrow<ReusableList<IFLogEntrySink>>();
         while (true)
         {
@@ -83,7 +80,7 @@ public abstract class FLogEntrySource : TargetingFLogEntrySource, IFLogEntrySour
                         AllChildrenPublishedLogEntryEvent -= toRemove.InBoundListener;
                     }
                 }
-                oldChildReceivers     = currentChildReceivers;
+                FLogContext.Context.AsyncRegistry.ScheduleRecycleDecrement(currentChildReceivers);
                 currentChildReceivers = replaceAllButChildList;
                 break;
             }
@@ -91,49 +88,56 @@ public abstract class FLogEntrySource : TargetingFLogEntrySource, IFLogEntrySour
         return true;
     }
 
-    public IReadOnlyList<IFLogEntrySink> ChildLogEntryReceivers => currentChildReceivers;
+    public IReadOnlyList<IFLogEntrySink> ChildLogEntryReceivers => 
+        currentChildReceivers ??= Recycler.Borrow<ReusableList<IFLogEntrySink>>();
 
-    public override void PublishLogEntryEvent(LogEntryPublishEvent logEntryEvent)
+    public override void PublishLogEntryEvent(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource? fromSource = null)
     {
-        if (StopProcessing)
+        if (ShouldCheckLock)
         {
             while (true)
             {
                 using var readLock = AcquireReadTreeLock(50);
                 if (readLock != null)
                 {
-                    SafeOnPublishLogEntryEvent(logEntryEvent);
-                    AllChildrenPublishedLogEntryEvent?.Invoke(logEntryEvent, this);
+                    SafeOnPublishLogEntryEvent(logEntryEvent, fromSource);
+                    AllChildrenPublishedLogEntryEvent?.Invoke(logEntryEvent, fromSource ?? this);
                     break;
                 }
             }
         }
         else
         {
-            SafeOnPublishLogEntryEvent(logEntryEvent);
-            AllChildrenPublishedLogEntryEvent?.Invoke(logEntryEvent, this);
+            SafeOnPublishLogEntryEvent(logEntryEvent, fromSource);
+            AllChildrenPublishedLogEntryEvent?.Invoke(logEntryEvent, fromSource ?? this);
         }
     }
 
-    public void PublishLogEntryEvent(LogEntryPublishEvent logEntryEvent, Predicate<IFLogEntrySink> selectChildrenPublish)
+    public virtual void PublishLogEntryEvent(LogEntryPublishEvent logEntryEvent
+      , Predicate<IFLogEntrySink> selectChildrenPublish
+      , ITargetingFLogEntrySource? fromSource = null)
     {
+        if (FinalTarget != null && selectChildrenPublish(FinalTarget))
+        {
+            SafeOnPublishLogEntryEvent(logEntryEvent, fromSource);
+        }
+        if (currentChildReceivers == null) return;
         for (int i = 0; i < currentChildReceivers.Count; i++)
         {
             var checkChild = currentChildReceivers[i];
             if (selectChildrenPublish(checkChild))
             {
-                checkChild.InBoundListener(logEntryEvent, this);
+                checkChild.InBoundListener(logEntryEvent, fromSource ?? this);
             }
         }
     }
 
     public bool ReplaceOptionalChild(IFLogEntrySink oldChild, IFLogEntrySink newChild)
     {
-        if (!currentChildReceivers.Contains(oldChild))
+        if (!(currentChildReceivers?.Contains(oldChild) ?? false))
         {
             return AddOptionalChild(newChild);
         }
-        oldChildReceivers?.DecrementRefCount();
         while (true)
         {
             using var myLock = AcquireUpdateTreeLock(100);

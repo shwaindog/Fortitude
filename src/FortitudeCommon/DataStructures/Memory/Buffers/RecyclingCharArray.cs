@@ -5,6 +5,8 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 namespace FortitudeCommon.DataStructures.Memory.Buffers;
 
@@ -205,7 +207,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         }
     }
 
-    public void Add(IFrozenString item)
+    public void Add(ICharSequence item)
     {
         if (RemainingCapacity < item.Length)
             throw new
@@ -220,7 +222,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         }
     }
 
-    public void Add(IFrozenString item, int startIndex, int lengthToAdd)
+    public void Add(ICharSequence item, int startIndex, int lengthToAdd)
     {
         var amountToAdd = Math.Min(item.Length - startIndex, lengthToAdd);
         if (RemainingCapacity < amountToAdd)
@@ -649,17 +651,17 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         }
     }
 
-    public void Replace(IFrozenString find, IFrozenString replace)
+    public void Replace(ICharSequence find, ICharSequence replace)
     {
         Replace(find, replace, 0, length);
     }
 
-    public void Replace(IFrozenString find, IFrozenString replace, int startIndex)
+    public void Replace(ICharSequence find, ICharSequence replace, int startIndex)
     {
         Replace(find, replace, startIndex, length - startIndex);
     }
 
-    public void Replace(IFrozenString find, IFrozenString replace, int startIndex, int searchLength)
+    public void Replace(ICharSequence find, ICharSequence replace, int startIndex, int searchLength)
     {
         if (startIndex  >= 0 && startIndex < length )
         {
@@ -757,11 +759,11 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         return this;
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         for (int i = 0; i < length; i++)
         {
-            sbc.BackingStringBuilder.Append(backingArray![i]);
+            sbc.WriteBuffer.Append(backingArray![i]);
         }
         return sbc;
     }

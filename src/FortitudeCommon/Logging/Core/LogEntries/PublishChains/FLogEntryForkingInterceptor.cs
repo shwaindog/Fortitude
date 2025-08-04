@@ -57,7 +57,7 @@ public abstract class FLogEntryForkingInterceptor : FLogEntrySource, IFLogEntryF
 
     public virtual void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
-        if (StopProcessing)
+        if (ShouldCheckLock)
         {
             while (true)
             {

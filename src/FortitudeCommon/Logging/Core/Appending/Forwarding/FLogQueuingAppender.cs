@@ -3,7 +3,6 @@
 
 using System.Text;
 using FortitudeCommon.Chronometry;
-using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.EventProcessing.Disruption.Sequences;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config;
@@ -275,7 +274,6 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
         }
     }
 
-
     public int QueueReadBatchSize { get; set; }
 
     public int QueueSize { get; set; }
@@ -353,8 +351,7 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
         sb.Clear().Append("Queue full event caused queue to drop '").Append(amountDropped).Append("' entries for '").Append(AppenderName)
           .Append("':");
         dropMessage.Message.Insert(0, sb);
-        AppenderRegistry.FailAppender.ReceiveEndpoint.InBoundListener
-            (new LogEntryPublishEvent(dropMessage.Freeze), AppenderRegistry.FailAppender.ReceiveEndpoint);
+        AppenderRegistry.FailAppender.PublishLogEntryEvent(new LogEntryPublishEvent(dropMessage.Freeze), ReceiveEndpoint);
         queue.Enqueue(flogEntry);
         return amountDropped;
     }
@@ -382,8 +379,8 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
         toAppend.DecrementRefCount();
         sb.Clear().Append("Dropped at '").Append(AppenderName).Append("':");
         dropNewestMessage.Message.Insert(0, sb);
-        AppenderRegistry.FailAppender.ReceiveEndpoint.InBoundListener
-            (new LogEntryPublishEvent(dropNewestMessage.Freeze), AppenderRegistry.FailAppender.ReceiveEndpoint);
+        AppenderRegistry.FailAppender.PublishLogEntryEvent
+            (new LogEntryPublishEvent(dropNewestMessage.Freeze), ReceiveEndpoint);
         return 1;
     }
 
@@ -404,8 +401,8 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
             droppedMessage.DecrementRefCount();
             sb.Clear().Append("Dropped at '").Append(AppenderName).Append("':");
             droppedMessage.Message.Insert(0, sb);
-            AppenderRegistry.FailAppender.ReceiveEndpoint.InBoundListener
-                (new LogEntryPublishEvent(droppedMessage.Freeze), AppenderRegistry.FailAppender.ReceiveEndpoint);
+            AppenderRegistry.FailAppender.PublishLogEntryEvent
+                (new LogEntryPublishEvent(droppedMessage.Freeze), ReceiveEndpoint);
         }
         return droppedEntry != null ? 1 : 0;
     }
@@ -496,8 +493,8 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
         flogEntry.DecrementRefCount();
         sb.Clear().Append("Failed to handle queue full and dropped at '").Append(AppenderName).Append("':");
         dropNewestMessage.Message.Insert(0, sb);
-        AppenderRegistry.FailAppender.ReceiveEndpoint.InBoundListener
-            (new LogEntryPublishEvent(dropNewestMessage.Freeze), AppenderRegistry.FailAppender.ReceiveEndpoint);
+        AppenderRegistry.FailAppender.PublishLogEntryEvent
+            (new LogEntryPublishEvent(dropNewestMessage.Freeze), ReceiveEndpoint);
         return 1;
     }
 
@@ -532,23 +529,17 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
         return 1;
     }
 
-    private class NoOpFLogEntrySink : FLogEntrySinkBase
+    private class NoOpFLogEntrySink() : FLogEntryPipelineEndpoint("NoOpFLogEntrySink", null!)
     {
-        public void Append(IFLogEntry flogEntry) { }
-
         public override FLogEntrySourceSinkType LogEntryLinkType => FLogEntrySourceSinkType.Sink;
+
         public override FLogEntryProcessChainState LogEntryProcessState
         {
             get => FLogEntryProcessChainState.Terminating;
             protected set => _ = value;
         }
-        public override string Name
-        {
-            get => "NoOpFLogEntrySink";
-            protected set => _ = value;
-        }
 
-        public override void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher) { }
+        public override string Name { get; } = "NoOpFLogEntrySink";
     }
 
     protected static Predicate<IFLogEntry> MatchDebugOrLower = static logEntry => logEntry.LogLevel <= FLogLevel.Debug;

@@ -1,15 +1,17 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding;
 
-public interface IFLogEntryQueueConfig : IInterfacesComparable<IFLogEntryQueueConfig>, ICloneable<IFLogEntryQueueConfig>
+public interface IFLogEntryQueueConfig : IInterfacesComparable<IFLogEntryQueueConfig>, IConfigCloneTo<IFLogEntryQueueConfig>
   , IStyledToStringObject, IFLogConfig
 {
     const int DefaultQueueSize          = 1024;
@@ -89,6 +91,12 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
     IFLogEntryQueueConfig ICloneable<IFLogEntryQueueConfig>.Clone() => Clone();
 
     public virtual FLogEntryQueueConfig Clone() => new(this);
+
+    IFLogEntryQueueConfig IConfigCloneTo<IFLogEntryQueueConfig>.
+        CloneConfigTo(IConfigurationRoot configRoot, string path) => CloneConfigTo(configRoot, path);
+
+    public virtual FLogEntryQueueConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => 
+        new(this, configRoot, path);
 
     IFLogEntryPoolConfig? IFLogEntryQueueConfig.LogEntryPool => LogEntryPool;
 

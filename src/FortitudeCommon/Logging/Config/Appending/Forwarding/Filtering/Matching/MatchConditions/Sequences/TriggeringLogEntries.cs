@@ -2,6 +2,8 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using static FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences.TriggeringLogEntries;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
@@ -22,7 +24,7 @@ public static class TriggeringLogEntriesExtensions
 
     public static void FormatTriggeringLogEntriesAppender(this TriggeringLogEntries triggeringLogEntries, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.BackingStringBuilder;
+        var sb = sbc.WriteBuffer;
 
         switch (triggeringLogEntries)
         {

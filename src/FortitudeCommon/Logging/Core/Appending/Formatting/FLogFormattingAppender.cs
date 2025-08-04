@@ -34,7 +34,7 @@ public abstract class FLogFormattingAppender : FLogAppender, IMutableFLogFormatt
     protected FLogFormattingAppender(IFormattingAppenderConfig formattingAppenderConfig, IFLogContext context)
         : base(formattingAppenderConfig, context)
     {
-        Formatter = new FLogEntryFormatter(formattingAppenderConfig.LogEntryFormatLayout);
+        Formatter = new FLogEntryFormatter(formattingAppenderConfig.LogEntryFormatLayout, this);
     }
 
     public IFLogEntryFormatter Formatter { get; set; }

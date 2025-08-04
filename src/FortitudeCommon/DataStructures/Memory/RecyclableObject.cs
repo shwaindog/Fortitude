@@ -19,6 +19,11 @@ public class UsesRecycler : IUsesRecycler
     [JsonIgnore] public virtual IRecycler? Recycler { get; set; }
 }
 
+public class ExplicitUsesRecycler : IUsesRecycler
+{
+    [JsonIgnore] IRecycler? IUsesRecycler.Recycler { get; set; }
+}
+
 public interface IResetable
 {
     void StateReset();
@@ -93,6 +98,66 @@ public class RecyclableObject : UsesRecycler, IRecyclableObject
     // {
     //     Console.Out.WriteLine($"GC {GetType().Name}");
     // }
+}
+
+public class ExplicitRecyclableObject : ExplicitUsesRecycler, IRecyclableObject
+{
+    private const int NumRecentRecycleTimes = 5;
+
+    private int isInRecycler;
+    #if DEBUG
+    protected DateTime[] LastRecycleTimes = new DateTime[NumRecentRecycleTimes];
+    #endif
+    protected int RecycleCount;
+
+    // ReSharper disable once InconsistentNaming
+    protected int refCount = 1;
+
+    [JsonIgnore] int IRecyclableObject.RefCount => refCount;
+
+    [JsonIgnore] bool IRecyclableObject.AutoRecycleAtRefCountZero { get; set; }
+
+    [JsonIgnore]
+    bool IRecyclableObject.IsInRecycler
+    {
+        get => isInRecycler != 0;
+        set => isInRecycler = value ? 1 : 0;
+    }
+
+    protected IRecyclableObject MeRecyclable => this;
+
+    int IRecyclableObject.DecrementRefCount()
+    {
+        if (!MeRecyclable.IsInRecycler && Interlocked.Decrement(ref refCount) <= 0 && MeRecyclable.AutoRecycleAtRefCountZero) MeRecyclable.Recycle();
+        return refCount;
+    }
+
+    int IRecyclableObject.IncrementRefCount() => Interlocked.Increment(ref refCount);
+
+    bool IRecyclableObject.Recycle()
+    {
+        if (MeRecyclable.IsInRecycler) return true;
+        if (MeRecyclable.Recycler == null) return false;
+        if (Interlocked.CompareExchange(ref isInRecycler, 1, 0) != 0) return false;
+
+        #if DEBUG
+        LastRecycleTimes[RecycleCount % NumRecentRecycleTimes] = DateTime.UtcNow;
+        #endif
+        Interlocked.Increment(ref RecycleCount);
+        MeRecyclable.Recycler.Recycle(this);
+
+        return true;
+    }
+
+    void IResetable.StateReset()
+    {
+        InheritedStateReset();
+        refCount = 1;
+    }
+
+    protected virtual void InheritedStateReset()
+    {
+    }
 }
 
 public interface IAutoRecycledObject : IRecyclableObject

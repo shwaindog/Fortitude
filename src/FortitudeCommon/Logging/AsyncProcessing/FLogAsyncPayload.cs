@@ -1,8 +1,5 @@
-﻿using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.Logging.Core.Appending;
+﻿using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Core.Appending.Formatting;
-using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 using FortitudeCommon.Types.Mutable;
 
@@ -11,14 +8,14 @@ namespace FortitudeCommon.Logging.AsyncProcessing;
 public enum AsyncJobRequestType : byte
 {
     None
-   , RunClosureJob
-   , ForwardLogEntryEventToAppender
-   , FlushCharBufferToAppender
+  , RunClosureJob
+  , ForwardLogEntryEventToAppender
+  , FlushCharBufferToAppender
 }
 
 public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableReset<FLogAsyncPayload>
 {
-    private readonly List<IFLogAsyncTargetReceiveQueueAppender> appenders = new ();
+    private readonly List<IFLogEntrySink> logEntrySinks = new();
     public FLogAsyncPayload() { }
 
     public FLogAsyncPayload(FLogAsyncPayload toClone)
@@ -26,10 +23,12 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
         QueueRequestNumber = toClone.QueueRequestNumber;
         AsyncRequestType   = toClone.AsyncRequestType;
         ClosureJob         = toClone.ClosureJob;
-        FlogEntryEvent    = toClone.FlogEntryEvent;
-        BatchFLogEntries   = toClone.BatchFLogEntries;
-        Appenders          = toClone.Appenders;
+        FlogEntryEvent     = toClone.FlogEntryEvent;
+        PublishSource      = toClone.PublishSource;
+        LogEntrySinks      = toClone.LogEntrySinks;
         BufferToFlush      = toClone.BufferToFlush;
+
+        BufferingFormatAppender = toClone.BufferingFormatAppender;
     }
 
     public uint QueueRequestNumber { get; set; }
@@ -40,19 +39,19 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
 
     public LogEntryPublishEvent? FlogEntryEvent { get; set; }
 
-    public IReusableList<IFLogEntry>? BatchFLogEntries { get; set; }
+    public ITargetingFLogEntrySource? PublishSource { get; set; }
 
-    public IReadOnlyList<IFLogAsyncTargetReceiveQueueAppender> Appenders
+    public IReadOnlyList<IFLogEntrySink> LogEntrySinks
     {
-        get => appenders;
+        get => logEntrySinks;
         set
         {
-            appenders.Clear();
-            appenders.AddRange(value);
+            logEntrySinks.Clear();
+            logEntrySinks.AddRange(value);
         }
     }
 
-    public IFLogAsyncTargetFlushBufferAppender? BufferingFormatAppender  => Appenders[0] as IFLogAsyncTargetFlushBufferAppender;
+    public IFLogBufferingFormatAppender? BufferingFormatAppender { get; set; }
 
     public IBufferedFormatWriter? BufferToFlush { get; set; }
 
@@ -60,9 +59,7 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
     {
         switch (AsyncRequestType)
         {
-            case AsyncJobRequestType.RunClosureJob:
-                ClosureJob?.Invoke();
-                break;
+            case AsyncJobRequestType.RunClosureJob: ClosureJob?.Invoke(); break;
         }
     }
 
@@ -71,10 +68,13 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
         QueueRequestNumber = 0;
         AsyncRequestType   = AsyncJobRequestType.None;
         ClosureJob         = null;
-        FlogEntryEvent    = null;
-        BatchFLogEntries   = null;
-        appenders.Clear();;
-        BufferToFlush      = null;
+        FlogEntryEvent     = null;
+        PublishSource      = null;
+        logEntrySinks.Clear();
+
+        BufferToFlush = null;
+
+        BufferingFormatAppender = null;
 
         return this;
     }
@@ -86,67 +86,67 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
         ClosureJob       = closureJob;
     }
 
-    public void SetAsSendLogEntryEvent(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogAsyncTargetReceiveQueueAppender> appenders)
+    public void SetAsSendLogEntryEvent
+        (LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogEntrySink> appenders, ITargetingFLogEntrySource publishSource)
     {
         ResetWithTracking();
         AsyncRequestType = AsyncJobRequestType.ForwardLogEntryEventToAppender;
         FlogEntryEvent   = logEntryEvent;
-        Appenders        = appenders;
+        PublishSource    = publishSource;
+        LogEntrySinks    = appenders;
     }
 
-    public void SetAsSendLogEntryEvent(LogEntryPublishEvent logEntryEvent, IFLogAsyncTargetReceiveQueueAppender appender)
+    public void SetAsSendLogEntryEvent(LogEntryPublishEvent logEntryEvent, IFLogEntrySink appender, ITargetingFLogEntrySource publishSource)
     {
         ResetWithTracking();
         AsyncRequestType = AsyncJobRequestType.ForwardLogEntryEventToAppender;
         FlogEntryEvent   = logEntryEvent;
-        appenders.Clear();
-        appenders.Add(appender);
+        PublishSource    = publishSource;
+        logEntrySinks.Clear();
+        logEntrySinks.Add(appender);
     }
 
-    public void SetAsFlushAppenderBuffer(IBufferedFormatWriter bufferToFlush, IFLogAsyncTargetFlushBufferAppender destinationAppender)
+    public void SetAsFlushAppenderBuffer(IBufferedFormatWriter bufferToFlush, IFLogBufferingFormatAppender destinationAppender)
     {
         ResetWithTracking();
-        AsyncRequestType = AsyncJobRequestType.FlushCharBufferToAppender;
-        BufferToFlush    = bufferToFlush;
-        appenders.Clear();
-        appenders.Add(destinationAppender);
+        AsyncRequestType        = AsyncJobRequestType.FlushCharBufferToAppender;
+        BufferToFlush           = bufferToFlush;
+        BufferingFormatAppender = destinationAppender;
     }
 
     public void ReceiverExecuteRequest()
     {
         switch (AsyncRequestType)
         {
-            case AsyncJobRequestType.RunClosureJob: 
-                ClosureJob?.Invoke(); 
-                break;
+            case AsyncJobRequestType.RunClosureJob: ClosureJob?.Invoke(); break;
             case AsyncJobRequestType.ForwardLogEntryEventToAppender:
                 var flogEntryEvent = FlogEntryEvent!.Value;
 
-                for (int i = 0; i < Appenders.Count; i++)
+                for (int i = 0; i < LogEntrySinks.Count; i++)
                 {
-                    var appender = Appenders[i];
-                    appender!.ProcessReceivedLogEntryEvent(flogEntryEvent);   
+                    var logEntrySink = LogEntrySinks[i];
+                    logEntrySink.InBoundListener(flogEntryEvent, PublishSource!);
                 }
                 break;
-            case AsyncJobRequestType.FlushCharBufferToAppender: 
-                BufferingFormatAppender!.FlushBufferToAppender(BufferToFlush!);
-                break;
+            case AsyncJobRequestType.FlushCharBufferToAppender: BufferingFormatAppender!.FlushBufferToAppender(BufferToFlush!); break;
         }
     }
 
 
-    public override FLogAsyncPayload Clone() => 
-        Recycler?.Borrow<FLogAsyncPayload>().CopyFrom(this, CopyMergeFlags.FullReplace ) ?? new FLogAsyncPayload(this);
+    public override FLogAsyncPayload Clone() =>
+        Recycler?.Borrow<FLogAsyncPayload>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new FLogAsyncPayload(this);
 
     public override FLogAsyncPayload CopyFrom(FLogAsyncPayload source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         QueueRequestNumber = source.QueueRequestNumber;
         AsyncRequestType   = source.AsyncRequestType;
         ClosureJob         = source.ClosureJob;
-        FlogEntryEvent    = source.FlogEntryEvent;
-        BatchFLogEntries   = source.BatchFLogEntries;
-        Appenders           = source.Appenders;
+        FlogEntryEvent     = source.FlogEntryEvent;
+        PublishSource      = source.PublishSource;
+        LogEntrySinks      = source.LogEntrySinks;
         BufferToFlush      = source.BufferToFlush;
+
+        BufferingFormatAppender = source.BufferingFormatAppender;
 
         return this;
     }

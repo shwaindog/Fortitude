@@ -32,6 +32,8 @@ public interface ICharSequence : IRecyclableObject, IEnumerable<char>
     int  LastIndexOf(ICharSequence subStr, int fromThisPos);
 
     string ToString();
+
+    bool Equals(string? toCompare);
 }
 
 public interface IFrozenString : ICharSequence, ICanSourceThawed<IMutableString>
@@ -184,7 +186,7 @@ public static class FrozenStringExtensions
         for (var i = 0; i < source.Length; i++)
         {
             var checkChar = source[i];
-            if (Array.IndexOf(delimiters, checkChar) > 0)
+            if (Array.IndexOf(delimiters, checkChar) >= 0)
             {
                 var subStringSlice = includedChars.Slice(0, i);
                 return new String(subStringSlice);

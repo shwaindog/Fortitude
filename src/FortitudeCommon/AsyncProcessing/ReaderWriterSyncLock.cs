@@ -7,6 +7,9 @@ public interface IReadWriterSyncLock : ISyncLock
     int TryAcquireLockTimeOutMs { get; set; }
     int AcquireLockTimeOutMs    { get; set; }
 
+    bool HasOutstandingLocksHeld       { get; }
+    bool HasOutstandingWriteLock       { get; }
+
     IDisposable AcquireReaderLock(int? timeoutMs = null);
 
     bool TryAcquireReaderLock(int? timeoutMs = null);
@@ -30,21 +33,27 @@ internal class ReaderWriterSyncLock : RecyclableObject, IReadWriterSyncLock
 {
     ReaderWriterLockSlim  rwl = new();
 
-    protected Action? WriteLockReleasedCallback;
+    protected Action<IReadWriterSyncLock>? WriteLockReleasedCallback;
+    protected Action<IReadWriterSyncLock>? NoReaderLocksRemainingCallback;
 
     public ReaderWriterSyncLock()
     {
         lastRequest.Push(new LastLockAcquiredState(LastLockAcquired.None, false));
     }
 
-    public ReaderWriterSyncLock(Action writeLockReleasedCallback) : this()
+    public ReaderWriterSyncLock(Action<IReadWriterSyncLock> writeLockReleasedCallback, Action<IReadWriterSyncLock> noReaderLocksRemainingCallback) : this()
     {
-        WriteLockReleasedCallback = writeLockReleasedCallback;
+        WriteLockReleasedCallback      = writeLockReleasedCallback;
+        NoReaderLocksRemainingCallback = noReaderLocksRemainingCallback;
     }
 
-    public ReaderWriterSyncLock Initialize(Action? writeLockReleaseCallback = null)
+    public ReaderWriterSyncLock Initialize(
+        Action<IReadWriterSyncLock>? writeLockReleaseCallback = null
+       ,Action<IReadWriterSyncLock>? noReaderLocksRemainingCallback = null
+        )
     {
-        WriteLockReleasedCallback = writeLockReleaseCallback;
+        WriteLockReleasedCallback      = writeLockReleaseCallback;
+        NoReaderLocksRemainingCallback = noReaderLocksRemainingCallback;
         if (rwl != null!)
         {
             rwl =   new();
@@ -90,7 +99,12 @@ internal class ReaderWriterSyncLock : RecyclableObject, IReadWriterSyncLock
     public void ReleaseReaderLock()
     {
         if (!rwl.IsReadLockHeld) return;
+        var readLocksRemaining = rwl.WaitingReadCount + rwl.WaitingUpgradeCount;
         rwl.ExitReadLock();
+        if (readLocksRemaining == 1)
+        {
+            NoReaderLocksRemainingCallback?.Invoke(this);
+        }
     }
 
     public IDisposable AcquireUpgradeableReaderLock(int? timeoutMs = null)
@@ -111,6 +125,11 @@ internal class ReaderWriterSyncLock : RecyclableObject, IReadWriterSyncLock
     {
         if (!rwl.IsUpgradeableReadLockHeld) return;
         rwl.ExitUpgradeableReadLock();
+        var readLocksRemaining = rwl.WaitingReadCount + rwl.WaitingUpgradeCount;
+        if (readLocksRemaining == 1)
+        {
+            NoReaderLocksRemainingCallback?.Invoke(this);
+        }
     }
 
     public IDisposable AcquireWriterLock(int? timeoutMs = null)
@@ -131,7 +150,7 @@ internal class ReaderWriterSyncLock : RecyclableObject, IReadWriterSyncLock
     {
         if (!rwl.IsWriteLockHeld) return;
         rwl.ExitWriteLock();
-        WriteLockReleasedCallback?.Invoke();
+        WriteLockReleasedCallback?.Invoke(this);
     }
 
     public bool Acquire(int timeoutMs = int.MaxValue)
@@ -166,10 +185,14 @@ internal class ReaderWriterSyncLock : RecyclableObject, IReadWriterSyncLock
         }
     }
 
+    public bool HasOutstandingLocksHeld => rwl.WaitingReadCount != 0 || rwl.WaitingUpgradeCount != 0 || rwl.WaitingWriteCount != 0;
+
+    public bool HasOutstandingWriteLock       => rwl.WaitingWriteCount != 0 || rwl.IsWriteLockHeld || rwl.WaitingUpgradeCount != 0;
+
     public void Reset()
     {
         ReleaseCount = 0;
-        if (rwl.WaitingReadCount != 0 || rwl.WaitingUpgradeCount != 0 || rwl.WaitingWriteCount != 0)
+        if (HasOutstandingLocksHeld)
         {
             rwl.Dispose();
             rwl = null!;

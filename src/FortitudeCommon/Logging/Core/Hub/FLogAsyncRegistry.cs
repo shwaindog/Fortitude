@@ -1,7 +1,9 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
+using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.AsyncProcessing;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 
@@ -15,7 +17,9 @@ public interface IFLoggerAsyncRegistry
 
     IAsyncQueueLocator AsyncQueueLocator { get; }
 
-    IUpdateableTimer   LoggerTimers      { get; }
+    IUpdateableTimer LoggerTimers { get; }
+
+    void ScheduleRecycleDecrement(IRecyclableObject toDecrementRecyclableObject);
 
     void StartAsyncQueues();
 }
@@ -29,9 +33,20 @@ public interface IMutableFLoggerAsyncRegistry : IFLoggerAsyncRegistry
     new IAsyncQueueLocator AsyncQueueLocator { get; set; }
 }
 
-public class FLogAsyncRegistry(IMutableAsyncQueuesInitConfig asyncInitConfig) : IMutableFLoggerAsyncRegistry
+internal record struct RecyclableObjectRequestTime(IRecyclableObject ToDecrementRefCount, DateTime DecrementAt);
+
+public class FLogAsyncRegistry : IMutableFLoggerAsyncRegistry
 {
-    private IMutableAsyncQueuesInitConfig asyncBufferingConfig = asyncInitConfig;
+    private static readonly TimeSpan WaitTimeBeforeDecrement = TimeSpan.FromSeconds(4);
+    
+    private readonly Action checkItemsForDecrement;
+
+    private readonly List<RecyclableObjectRequestTime> queuedToDecrementRefCounts = new();
+
+    private ITimerUpdate? decrementRecyclableTimerUpdate;
+
+
+    private IMutableAsyncQueuesInitConfig asyncBufferingConfig;
 
     public IAsyncQueuesInitConfig AsyncBufferingConfig
     {
@@ -39,11 +54,58 @@ public class FLogAsyncRegistry(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
         set => asyncBufferingConfig = (IMutableAsyncQueuesInitConfig)value;
     }
 
+    public FLogAsyncRegistry(IMutableAsyncQueuesInitConfig asyncInitConfig)
+    {
+        asyncBufferingConfig = asyncInitConfig;
+        AsyncProcessingType  = asyncInitConfig.AsyncProcessingType;
+        AsyncQueueLocator    = FLogCreate.MakeAsyncQueueLocator(asyncInitConfig);
+
+        checkItemsForDecrement = CheckQueuedToDecrementObjectsAndRescheduleTimerIfTimeNotReached;
+    }
+
+    public void ScheduleRecycleDecrement(IRecyclableObject toDecrementRecyclableObject)
+    {
+        queuedToDecrementRefCounts.Add
+            (new RecyclableObjectRequestTime
+                (toDecrementRecyclableObject
+               , TimeContext.UtcNow.Add(WaitTimeBeforeDecrement)));
+
+        decrementRecyclableTimerUpdate ??= LoggerTimers.RunIn(WaitTimeBeforeDecrement, checkItemsForDecrement);
+    }
+
     public IUpdateableTimer LoggerTimers { get; } = new UpdateableTimer("FLog Timers");
 
-    public AsyncProcessingType AsyncProcessingType { get; set; } = asyncInitConfig.AsyncProcessingType;
+    public AsyncProcessingType AsyncProcessingType { get; set; }
 
-    public IAsyncQueueLocator AsyncQueueLocator { get; set; } = FLogCreate.MakeAsyncQueueLocator(asyncInitConfig);
+    public IAsyncQueueLocator AsyncQueueLocator { get; set; }
+
+    private void CheckQueuedToDecrementObjectsAndRescheduleTimerIfTimeNotReached()
+    {
+        decrementRecyclableTimerUpdate = null;
+        var queuedCount = queuedToDecrementRefCounts.Count;
+        if (queuedCount > 0)
+        {
+            var currentTime = TimeContext.UtcNow;
+            for (int i = 0; i < queuedCount; i++)
+            {
+                var recyclableDecrementTime = queuedToDecrementRefCounts[i];
+                if (recyclableDecrementTime.DecrementAt < currentTime)
+                {
+                    queuedToDecrementRefCounts.RemoveAt(i);
+                    recyclableDecrementTime.ToDecrementRefCount.DecrementRefCount();
+                }
+                else
+                {
+                    break;
+                }
+            }
+            queuedCount = queuedToDecrementRefCounts.Count;
+            if (queuedCount > 0)
+            {
+                decrementRecyclableTimerUpdate = LoggerTimers.RunIn(WaitTimeBeforeDecrement, checkItemsForDecrement);
+            }
+        }
+    }
 
     public void StartAsyncQueues()
     {

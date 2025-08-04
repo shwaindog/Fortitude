@@ -3,6 +3,8 @@
 
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending;
@@ -29,7 +31,7 @@ public class NullAppenderConfig : AppenderDefinitionConfig, INullAppenderConfig
     {
     }
 
-    public NullAppenderConfig(INullAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
+    public NullAppenderConfig(INullAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, toClone.ConfigSubPath) { }
 
     public override string AppenderType
     {

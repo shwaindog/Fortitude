@@ -84,7 +84,7 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
     {
         var flogEntry        = wrappingLogger.LogEntryPool.SourceLogEntry();
         var logEntryLocation = new LoggingLocation(memberName, sourceFilePath, sourceLineNumber);
-        flogEntry.Initialize(new LoggerEntryContext(wrappingLogger, wrappingLogger.ForwardToCallback, logEntryLocation, logLevel));
+        flogEntry.Initialize(new LoggerEntryContext(wrappingLogger, wrappingLogger.PublishEndpoint, logEntryLocation, logLevel));
         var startedAt        = new ExecutionTimingStart(wrappingLogger, wrappingLogger.GetNextTimingDurationSequenceEvent(), DateTime.UtcNow);
         var timeTraceExePath = new TimingTraceExecutionPath(startedAt, flogEntry);
         return timeTraceExePath;

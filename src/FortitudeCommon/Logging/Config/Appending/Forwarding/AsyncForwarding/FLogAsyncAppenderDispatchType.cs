@@ -2,6 +2,8 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using static FortitudeCommon.Logging.Config.Appending.Forwarding.AsyncForwarding.FLogAsyncAppenderDispatchType;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.AsyncForwarding;
@@ -22,7 +24,7 @@ public static class FLogAsyncAppenderDispatchTypeExtensions
 
     public static void FormatFullQueueHandlingAppender(this FLogAsyncAppenderDispatchType queueFull, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.BackingStringBuilder;
+        var sb = sbc.WriteBuffer;
 
         switch (queueFull)
         {

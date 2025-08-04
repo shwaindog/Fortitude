@@ -18,11 +18,11 @@ public static class AppenderBuiltinFactoryMethods
         var appenderTypeConfig = appenderConfig.AppenderType;
         switch (appenderTypeConfig)
         {
-            case nameof(Null) :                    return new NullAppender((NullAppenderConfig)appenderConfig, context);
-            case nameof(SyncForwarding) :          return new FLogForwardingAppender((IForwardingAppenderConfig)appenderConfig, context);
-            case nameof(BufferedForwarding) :      return new FLogBufferingAppender((IBufferingAppenderConfig)appenderConfig, context);
-            case nameof(ConsoleOut) :              return new FLogConsoleAppender((IConsoleAppenderConfig)appenderConfig, context);
-            default :
+            case nameof(Null):               return new NullAppender((NullAppenderConfig)appenderConfig);
+            case nameof(SyncForwarding):     return new FLogForwardingAppender((IForwardingAppenderConfig)appenderConfig, context);
+            case nameof(BufferedForwarding): return new FLogBufferingAppender((IBufferingAppenderConfig)appenderConfig, context);
+            case nameof(ConsoleOut):         return new FLogConsoleAppender((IConsoleAppenderConfig)appenderConfig, context);
+            default:
                 string[] assemblyAndTypeFullName;
                 if (appenderTypeConfig.IsNotNullOrEmpty() && (assemblyAndTypeFullName = appenderTypeConfig.Split(',', 2)).Length == 2)
                 {

@@ -11,6 +11,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.ConfigSources;
@@ -52,24 +53,24 @@ public class OrderedConfigSourcesLookupConfig : FLogConfig, IAppendableOrderedCo
 
     public OrderedConfigSourcesLookupConfig(IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public OrderedConfigSourcesLookupConfig() : this(InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public OrderedConfigSourcesLookupConfig(params IMutableFlogConfigSource[] toAdd)
         : this(InMemoryConfigRoot, InMemoryPath, toAdd)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public OrderedConfigSourcesLookupConfig
         (IConfigurationRoot root, string path, params IMutableFlogConfigSource[] toAdd) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
         for (int i = 0; i < toAdd.Length; i++)
         {
             priorityConfigSources.Add(toAdd[i].ConfigPriorityOrder, toAdd[i]);
@@ -78,7 +79,7 @@ public class OrderedConfigSourcesLookupConfig : FLogConfig, IAppendableOrderedCo
 
     public OrderedConfigSourcesLookupConfig(IOrderedConfigSourcesLookupConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
         foreach (var kvp in toClone)
         {
             priorityConfigSources.Add(kvp.Key, (IMutableFlogConfigSource)kvp.Value);
@@ -87,7 +88,7 @@ public class OrderedConfigSourcesLookupConfig : FLogConfig, IAppendableOrderedCo
 
     public OrderedConfigSourcesLookupConfig(IOrderedConfigSourcesLookupConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public TimeSpanConfig ExpireConfigCacheIntervalTimeSpan
@@ -127,6 +128,7 @@ public class OrderedConfigSourcesLookupConfig : FLogConfig, IAppendableOrderedCo
         {
             if (!priorityConfigSources.Any() || nextConfigReadTime < TimeContext.UtcNow)
             {
+                recheckTimeSpanInterval = FLogContext.NullOnUnstartedContext?.ConfigRegistry?.ExpireConfigCacheIntervalTimeSpan ?? TimeSpan.FromMinutes(1);
                 priorityConfigSources.Clear();
                 foreach (var configurationSection in GetSection(Path).GetChildren())
                 {

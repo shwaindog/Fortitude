@@ -7,26 +7,26 @@ using FortitudeCommon.DataStructures.Memory;
 
 namespace FortitudeCommon.Types.Mutable.Strings;
 
-public interface IStringBuilder<out T> : ICharSequence, IMutableStringBuilder<T>, ICloneable<IStringBuilder<T>>
-where T : IStringBuilder<T>, IMutableStringBuilder<T>
+public interface IStringBuilder : ICharSequence, IMutableStringBuilder<IStringBuilder>, ICloneable<IStringBuilder>
 {
     new int Length { get; set; }
     new char this[int index] { get; set; }
 
-    T Substring(int startIndex);
-    T Substring(int startIndex, int length);
-    T Trim();
-    T ToLower();
-    T Remove(int startIndex);
-    T ToUpper();
+    IStringBuilder Substring(int startIndex);
+    IStringBuilder Substring(int startIndex, int length);
+    IStringBuilder Trim();
+    IStringBuilder ToLower();
+    IStringBuilder Remove(int startIndex);
+    IStringBuilder ToUpper();
 
-    T CopyFrom(string source);
+    IStringBuilder CopyFrom(string source);
 
-    new T Clone();
+    new IStringBuilder Clone();
 }
 
 
-public interface IMutableString : IReusableObject<IMutableString>, IStringBuilder<IMutableString>, ITransferState<IFrozenString>, 
+
+public interface IMutableString : IReusableObject<IMutableString>, IStringBuilder, ITransferState<IFrozenString>, 
     IFrozenString, IFreezable<IFrozenString>
 {
     new IMutableString Clone();

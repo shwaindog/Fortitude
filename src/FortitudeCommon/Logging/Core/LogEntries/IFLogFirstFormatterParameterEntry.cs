@@ -8,6 +8,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core.LogEntries;
@@ -180,7 +181,7 @@ public class FLogFirstFormatterParameterEntry : ReusableObject<IFLogFirstFormatt
     {
         stsa ??= (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender());
         stsa.CopyFrom(toClone.BackingStyledTypeStringAppender);
-        sb = stsa.BackingStringBuilder;
+        sb = stsa.WriteBuffer;
         if (toClone is FLogFirstFormatterParameterEntry firstFormatterParameter)
         {
             warnings.Clear();
@@ -199,7 +200,7 @@ public class FLogFirstFormatterParameterEntry : ReusableObject<IFLogFirstFormatt
       , StringBuildingStyle style = StringBuildingStyle.Default)
     {
         stsa = (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender()).Initialize(style);
-        sb   = stsa.BackingStringBuilder;
+        sb   = stsa.WriteBuffer;
 
         onComplete              = onCompleteHandler;
 
@@ -509,7 +510,7 @@ public class FLogFirstFormatterParameterEntry : ReusableObject<IFLogFirstFormatt
             formattedStringSoFar.InsertAt(warnings);
         }
 
-        var styleTypeStringAppender = (Recycler?.Borrow<WrappingStyledTypeStringAppender>()  ?? new WrappingStyledTypeStringAppender(stsa!.Style))
+        var styleTypeStringAppender = (Recycler?.Borrow<StyledTypeStringAppender>()  ?? new StyledTypeStringAppender(stsa!.Style))
             .Initialize(formattedStringSoFar, stsa!.Style);
 
         var addParamsBuilder = (Recycler?.Borrow<FLogStringAppender>() ?? new FLogStringAppender())
@@ -563,7 +564,7 @@ public class FLogFirstFormatterParameterEntry : ReusableObject<IFLogFirstFormatt
     {
         stsa ??= (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender());
         stsa.CopyFrom(source.BackingStyledTypeStringAppender);
-        sb = stsa.BackingStringBuilder;
+        sb = stsa.WriteBuffer;
         if (source is FLogFirstFormatterParameterEntry firstFormatterParameter)
         {
             warnings.Clear();

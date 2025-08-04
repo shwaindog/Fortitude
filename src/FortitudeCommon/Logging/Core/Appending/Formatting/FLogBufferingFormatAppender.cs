@@ -25,6 +25,8 @@ public interface IFLogBufferingFormatAppender : IFLogFormattingAppender
     TimeSpan AutoFlushIntervalTimeSpan { get; }
 
     DateTime LastFlushAt { get; }
+
+    void FlushBufferToAppender(IBufferedFormatWriter toFlush);
 }
 
 public interface IMutableFLogBufferingFormatAppender : IFLogBufferingFormatAppender, IMutableFLogFormattingAppender
@@ -42,12 +44,7 @@ public interface IMutableFLogBufferingFormatAppender : IFLogBufferingFormatAppen
     new DateTime LastFlushAt { get; set; }
 }
 
-public interface IFLogAsyncTargetFlushBufferAppender : IMutableFLogBufferingFormatAppender
-{
-    void FlushBufferToAppender(IBufferedFormatWriter toFlush);
-}
-
-public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLogAsyncTargetFlushBufferAppender
+public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMutableFLogBufferingFormatAppender
 {
     [ThreadStatic] private static IRecycler? requesterThreadRecycler;
 
@@ -89,7 +86,14 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLo
 
         FlushWhenBufferLength = (int)(bufferingFormatAppenderConfig.FlushConfig.WriteTriggeredAtBufferPercentage *
                                       bufferingFormatAppenderConfig.CharBufferSize);
-        AutoFlushIntervalTimeSpan           = bufferingFormatAppenderConfig.FlushConfig.AutoTriggeredAfterTimeSpan.ToTimeSpan();
+        AutoFlushIntervalTimeSpan = bufferingFormatAppenderConfig.FlushConfig.AutoTriggeredAfterTimeSpan.ToTimeSpan();
+
+        if (autoFlushIntervalTimeSpan > TimeSpan.Zero)
+        {
+            AutoFlushTimer?.Cancel();
+            AutoFlushTimer = context.AsyncRegistry.LoggerTimers.RunEvery(autoFlushIntervalTimeSpan, AutoFlushTimerHandler);
+        }
+
         WriteTriggeredFlushIntervalTimeSpan = bufferingFormatAppenderConfig.FlushConfig.WriteTriggeredAfterTimeSpan.ToTimeSpan();
 
 
@@ -124,7 +128,8 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLo
             if (autoFlushIntervalTimeSpan > TimeSpan.Zero)
             {
                 AutoFlushTimer?.Cancel();
-                AutoFlushTimer = FLogContext.Context.AsyncRegistry.LoggerTimers.RunEvery(autoFlushIntervalTimeSpan, AutoFlushTimerHandler);
+                AutoFlushTimer
+                    = FLogContext.NullOnUnstartedContext?.AsyncRegistry?.LoggerTimers?.RunEvery(autoFlushIntervalTimeSpan, AutoFlushTimerHandler);
             }
         }
     }
@@ -136,7 +141,7 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLo
     protected IRecycler RequesterRecycler => requesterThreadRecycler ??= new Recycler();
 
     protected IBufferFlushAppenderAsyncClient BufferFlushingAsyncClient => (IBufferFlushAppenderAsyncClient)AsyncClient;
-    
+
     public bool BufferingEnabled
     {
         get => bufferingEnabled;
@@ -280,7 +285,7 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLo
         }
         return null;
     }
-    
+
     private void ReturnBufferedWriter(IBufferedFormatWriter returnBufferedFormatWriter)
     {
         var bufferSlot = returnBufferedFormatWriter.BufferNum;

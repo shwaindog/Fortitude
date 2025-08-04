@@ -2,17 +2,16 @@
 using FortitudeCommon.Logging.Config.Appending.Formatting;
 using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
 public interface IFLogEntryFormatter : IReusableObject<IFLogEntryFormatter>
 {
-    static readonly string[] TokenDelimiters = ["\"%", "%\""];
+    static readonly (string Open, string Close) TokenDelimiters = ("'%", "%'");
 
     string FormattingTemplate { get; }
 
-    IMutableString ApplyFormatting(IFLogEntry logEntry);
+    int ApplyFormatting(IFLogEntry logEntry);
 }
 
 public interface IMutableFLogEntryFormatter : IFLogEntryFormatter
@@ -22,41 +21,51 @@ public interface IMutableFLogEntryFormatter : IFLogEntryFormatter
 
 public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableFLogEntryFormatter
 {
-    private readonly List<ITemplatePart> templateParts = new();
+    private readonly IFLogFormattingAppender formattingAppender;
+    private readonly List<ITemplatePart>     templateParts = new();
 
     private string formattingTemplate = "";
 
-    public static FLogEntryFormatter NewDefaultInstance => new (IFormattingAppenderConfig.DefaultStringFormattingTemplate);
-
-    public FLogEntryFormatter() { }
-
-    public FLogEntryFormatter(string formattingTemplate)
+    public FLogEntryFormatter(string formattingTemplate, IFLogFormattingAppender formattingAppender)
     {
-        FormattingTemplate = formattingTemplate;
+        this.formattingAppender = formattingAppender;
+        FormattingTemplate      = formattingTemplate;
     }
 
     public FLogEntryFormatter(FLogEntryFormatter toClone)
     {
+        formattingAppender = toClone.formattingAppender;
         FormattingTemplate = toClone.FormattingTemplate;
     }
 
-    public IMutableString ApplyFormatting(IFLogEntry logEntry)
+    public int ApplyFormatting(IFLogEntry logEntry)
     {
         if (templateParts.Count == 0)
         {
             FormattingTemplate = IFormattingAppenderConfig.DefaultStringFormattingTemplate;
         }
-        var mutableString = Recycler?.Borrow<MutableString>().Clear() ?? new MutableString();
+        using var formatWriterResolver = formattingAppender.FormatWriterResolver;
 
-        // var sb = mutableString.BackingStringBuilder;
-        //
-        // fr (var i = 0; i < templateParts.Count; i++)
-        // {
-        //     var part = templateParts[i];
-        //     part.Apply(sb, logEntry);
-        // }
-        // logEntry.DecrementRefCount();
-        return mutableString;
+        var  formatWriterRequestTimeouts = 0;
+        var gotFormatWriter = false;
+        do
+        {
+            using var formatWriter = formatWriterResolver.GetOrWaitForFormatWriter();
+
+            if (formatWriter != null)
+            {
+                gotFormatWriter = true;
+                foreach (var part in templateParts)
+                {
+                    part.Apply(formatWriter, logEntry);
+                }
+            }
+            else
+            {
+                formatWriterRequestTimeouts++;
+            }
+        } while (!gotFormatWriter);
+        return formatWriterRequestTimeouts;
     }
 
     public string FormattingTemplate
@@ -79,8 +88,7 @@ public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableF
         TokenisedLogEntryFormatStringParser.Instance.EnsureConsoleColorsReset(templateParts);
     }
 
-    public override FLogEntryFormatter Clone() =>
-        Recycler?.Borrow<FLogEntryFormatter>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new FLogEntryFormatter(this);
+    public override FLogEntryFormatter Clone() => new (this);
 
     public override FLogEntryFormatter CopyFrom
         (IFLogEntryFormatter source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

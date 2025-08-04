@@ -1,4 +1,5 @@
-﻿using FortitudeCommon.Extensions;
+﻿using FortitudeCommon.DataStructures.Collections;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.Visitor.AppenderVisitors;
 using Microsoft.Extensions.Configuration;
@@ -102,7 +103,10 @@ public class FLogBootstrap
             var config = configBuilder.Build();
             if (config.GetChildren().All(cs => cs.Key != IFLogAppConfig.DefaultFLogAppConfigPath))
             {
-                Console.Out.WriteLine($"Did not find default {IFLogAppConfig.DefaultFLogAppConfigPath} in default config files will use default console logging");
+                Console.Out.WriteLine
+                    ($"Found FLog config files \n[{existsMandatory.Concat(existsOptional).JoinToString(",\n")}\n] but did not find " +
+                     $"any FLog config at {{ \"{IFLogAppConfig.DefaultFLogAppConfigPath}\": ... }} in default config files " +
+                     $"will use default console logging");
                 fLogAppConfig = FLogAppConfig.BuildDefaultAppConfig();
             }
             else
@@ -112,7 +116,7 @@ public class FLogBootstrap
         }
         else
         {
-            Console.Out.WriteLine("Did not find default {} file will default to console logging");
+            Console.Out.WriteLine($"Did not find FLog config files '{mustFindOneOfFiles.JoinToString(",")}' file will default to console logging");
             fLogAppConfig = FLogAppConfig.BuildDefaultAppConfig();
         }
         return fLogAppConfig;
@@ -142,31 +146,30 @@ public class FLogBootstrap
 
     protected virtual FLogContext Initialize(IMutableFLogAppConfig config, FLogContext toBeUpdated)
     {
+        toBeUpdated.ConfigRegistry = toBeUpdated.ConfigRegistry?.UpdateConfig(config) ?? FLogCreate.MakeConfigRegistry(config);
         var initConfig = config.Initialization;
 
         var logEntryPoolInitConfig = initConfig.LogEntryPoolsInit;
         var logEntryRegistry =
             toBeUpdated.LogEntryPoolRegistry.UpdateConfig(logEntryPoolInitConfig) ?? FLogCreate.MakeLogEntryPoolRegistry(logEntryPoolInitConfig);
 
+        var asyncConfig   = initConfig.AsyncBufferingInit;
+        var asyncRegistry = toBeUpdated.AsyncRegistry.UpdateConfig(asyncConfig) ?? FLogCreate.MakeAsyncRegistry(asyncConfig);
+        toBeUpdated.AsyncRegistry = asyncRegistry;
+
         var allAppenderDefinitions = config.Visit(new AllAppenderDefinitions()).Appenders;
         var appendersConfigsDict =
             allAppenderDefinitions.ToDictionary(a => a.AppenderName, a => a);
-        var appenderReg = toBeUpdated.AppenderRegistry?.UpdateConfig(appendersConfigsDict)
-                       ?? FLogCreate.MakeAppenderRegistry(appendersConfigsDict);
+        var appenderReg = toBeUpdated.AppenderRegistry?.UpdateConfig(toBeUpdated, appendersConfigsDict)
+                       ?? FLogCreate.MakeAppenderRegistry(toBeUpdated, appendersConfigsDict);
         toBeUpdated.AppenderRegistry ??= appenderReg;
 
         var rootLoggerConfig = config.RootLogger;
         var loggerReg = (toBeUpdated.LoggerRegistry?.UpdateConfig(rootLoggerConfig, appenderReg) ??
-                         FLogCreate.MakeLoggerRegistry(rootLoggerConfig, logEntryRegistry));
+                         FLogCreate.MakeLoggerRegistry(rootLoggerConfig, appenderReg, logEntryRegistry));
 
         toBeUpdated.LoggerRegistry ??= loggerReg;
-        var rootLogger = loggerReg.Root ?? FLogCreate.MakeRootLogger(rootLoggerConfig, loggerReg);
-        loggerReg.Root = rootLogger;
-        var asyncConfig = initConfig.AsyncBufferingInit;
-
-        var asyncRegistry = toBeUpdated.AsyncRegistry.UpdateConfig(asyncConfig) ?? FLogCreate.MakeAsyncRegistry(asyncConfig);
-        toBeUpdated.AsyncRegistry = asyncRegistry;
-        toBeUpdated.IsInitialized = true;
+        toBeUpdated.IsInitialized  =   true;
 
         return toBeUpdated;
     }

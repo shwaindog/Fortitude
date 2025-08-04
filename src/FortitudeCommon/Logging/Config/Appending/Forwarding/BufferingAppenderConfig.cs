@@ -1,12 +1,16 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Config;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding;
 
 public interface IBufferingAppenderConfig : IQueueingAppenderConfig
+  , IConfigCloneTo<IBufferingAppenderConfig>
 {
     const int DefaultBufferTimeMs = 2_000;
 
@@ -15,6 +19,10 @@ public interface IBufferingAppenderConfig : IQueueingAppenderConfig
     int MaxBufferTimeMs { get; }
 
     FLogLevel FlushLogLevel { get; }
+
+    new IBufferingAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path);
+
+    new IBufferingAppenderConfig Clone();
 }
 
 public interface IMutableBufferingAppenderConfig : IBufferingAppenderConfig, IMutableQueueingAppenderConfig
@@ -83,13 +91,26 @@ public class BufferingAppenderConfig : QueueingAppenderConfig, IMutableBuffering
 
     public override BufferingAppenderConfig Clone() => new(this);
 
+    IBufferingAppenderConfig ICloneable<IBufferingAppenderConfig>.Clone() => Clone();
+
+    IBufferingAppenderConfig IBufferingAppenderConfig.Clone() => Clone();
+
+    IBufferingAppenderConfig IConfigCloneTo<IBufferingAppenderConfig>.CloneConfigTo(IConfigurationRoot configRoot, string path) =>
+        CloneConfigTo(configRoot, path);
+
+    IBufferingAppenderConfig IBufferingAppenderConfig.CloneConfigTo
+        (IConfigurationRoot configRoot, string path) => CloneConfigTo(configRoot, path);
+
+    public override BufferingAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => 
+        new(this, configRoot, path);
+
     public override bool AreEquivalent(IAppenderReferenceConfig? other, bool exactTypes = false)
     {
         if (other is not IBufferingAppenderConfig bufferingAppenderConfig) return false;
 
         var baseSame = base.AreEquivalent(other, exactTypes);
 
-        var bufferTimeSame         = MaxBufferTimeMs == bufferingAppenderConfig.MaxBufferTimeMs;
+        var bufferTimeSame = MaxBufferTimeMs == bufferingAppenderConfig.MaxBufferTimeMs;
         var flushLevelSame = FlushLogLevel == bufferingAppenderConfig.FlushLogLevel;
 
         var allAreSame = baseSame && bufferTimeSame && flushLevelSame;

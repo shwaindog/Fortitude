@@ -11,6 +11,7 @@ using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core.LogEntries;
@@ -69,7 +70,7 @@ public interface IMutableFLogEntry : IFLogEntry, IFreezable<IFLogEntry>
     new IMutableString Message { get; }
 }
 
-public record struct LoggerEntryContext(IFLogger Logger, IFLogEntrySink OnCompleteHandler, LoggingLocation LogLocation, FLogLevel LogLevel);
+public record struct LoggerEntryContext(IFLogger Logger, ITargetingFLogEntrySource OnCompleteHandler, LoggingLocation LogLocation, FLogLevel LogLevel);
 
 public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 {
@@ -79,7 +80,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 
     public event Action<IFLogEntry> MessageComplete;
 
-    private IFLogEntrySink dispatchHandler = null!;
+    private ITargetingFLogEntrySource dispatchHandler = null!;
 
     private static uint totalInstanceCount;
 
@@ -119,7 +120,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 
     protected virtual void SendToDispatchHandler(IFLogEntry me)
     {
-        dispatchHandler.InBoundListener(new LogEntryPublishEvent(me), Logger.PublishEndpoint);
+        dispatchHandler.PublishLogEntryEvent(new LogEntryPublishEvent(me));
     }
 
     public void OnMessageComplete(StringBuilder? warningToPrefix)
@@ -147,7 +148,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         LogDateTime = TimeContext.UtcNow;
         Style       = style;
 
-        var styleTypeStringAppender = (Recycler?.Borrow<WrappingStyledTypeStringAppender>() ?? new WrappingStyledTypeStringAppender(style))
+        var styleTypeStringAppender = (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender(style))
             .Initialize(messageBuilder!.BackingStringBuilder, style);
         var stringAppender = (Recycler?.Borrow<FLogStringAppender>() ?? new FLogStringAppender())
             .Initialize(styleTypeStringAppender, OnMessageComplete);

@@ -39,9 +39,9 @@ public delegate void NotifyLogEntryDispatched(IFLogEntry logEntry);
 
 public interface IFLogger : IFLoggerDescendant
 {
-    FLoggerDebugBuild?         DebugBuildOnlyLogger { get; }
+    FLoggerDebugBuild? DebugBuildOnlyLogger { get; }
 
-    IFLogEntryPipelineEndpoint PublishEndpoint      { get; }
+    IFLogEntryRootPublisher PublishEndpoint { get; }
 
     IFLoggerExecutionDuration FLoggerExecutionDuration { get; }
 
@@ -142,7 +142,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
     private IFLoggerExecutionDuration? executionDurationFLogger = null;
 
-    private IFLogEntryPipelineEndpoint logEntryPublishEndpoint;
+    private readonly IFLogEntryRootPublisher logEntryPublishEndpoint;
 
     public FLoggerDebugBuild? DebugBuildOnlyLogger => debugBuildOnlyLogger;
 
@@ -150,7 +150,7 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
     public IFLoggerExecutionDuration FLoggerExecutionDuration => executionDurationFLogger ??= new FLoggerExecutionDuration(this);
 
-    public IFLogEntryPipelineEndpoint PublishEndpoint => logEntryPublishEndpoint;
+    public IFLogEntryRootPublisher PublishEndpoint => logEntryPublishEndpoint;
 
 
     [Conditional("DEBUG")]
@@ -164,12 +164,12 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
         LogEntryDispatched?.Invoke(fLogEntry);
     }
 
-    public FLogger(IFLoggerDescendantConfig loggerConsolidatedConfig, IFLoggerCommon myParent, IFLogLoggerRegistry loggerRegistry)
+    public FLogger(IMutableFLoggerDescendantConfig loggerConsolidatedConfig, IFLoggerCommon myParent, IFLogLoggerRegistry loggerRegistry)
         : base(loggerConsolidatedConfig, myParent, loggerRegistry)
     {
         loggerRegistry.RegisterLoggerCallback(this);
-        ForwardToCallback       = new ForwardToAppendersSink(this);
-        logEntryPublishEndpoint = 
+        ForwardToCallback = new ForwardToAppendersSink(this);
+        logEntryPublishEndpoint =
             new FLogEntryPipelineEndpoint(FullName, ForwardToCallback, FLogEntrySourceSinkType.Source, FLogEntryProcessChainState.Active);
     }
 
@@ -442,8 +442,10 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
     public ISystemTraceBuilder GlobalTraceBuilder() => throw new NotImplementedException();
 
-    private class ForwardToAppendersSink(IFLogger logger) : FLogEntrySinkBase
+    private class ForwardToAppendersSink(FLogger logger) : FLogEntrySinkBase
     {
+        private IReadOnlyList<IAppenderClient>? appenderCache;
+
         public override FLogEntrySourceSinkType LogEntryLinkType => FLogEntrySourceSinkType.Sink;
         public override FLogEntryProcessChainState LogEntryProcessState
         {
@@ -458,9 +460,28 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
         public override void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
         {
-            foreach (var appender in logger.Appenders)
+            var appendersCount = logger.Appenders.Count;
+            if (appenderCache == null || logger.AppendersUpdatedFlag || appenderCache.Count != appendersCount)
             {
-                appender.ReceiveEndpoint.PublishLogEntryEvent(logEntryEvent);
+                lock (logger.Appenders)
+                {
+                    if (appenderCache == null || logger.AppendersUpdatedFlag || appenderCache.Count != appendersCount)
+                    {
+                        var buildCache = new List<IAppenderClient>(appendersCount);
+                        for (int i = 0; i < appendersCount; i++)
+                        {
+                            buildCache.Add(logger.Appenders[i]);
+                        }
+                        logger.AppendersUpdatedFlag = false;
+
+                        appenderCache = buildCache;
+                    }
+                }
+            }
+            for (var i = 0; i < appendersCount; i++)
+            {
+                var appender = appenderCache[i];
+                appender.PublishLogEntryEvent(logEntryEvent);
             }
         }
     }

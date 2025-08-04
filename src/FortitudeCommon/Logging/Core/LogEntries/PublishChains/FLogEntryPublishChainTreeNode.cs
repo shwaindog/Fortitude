@@ -27,23 +27,36 @@ public abstract class FLogEntryPublishChainTreeNode : RecyclableObject, IFLogEnt
 {
     private static readonly Recycler LogEntryPublishRecycler = new();
 
-    private PaddedLong writeToken = new(0);
+    private IReadWriterSyncLock? updateTreeLock;
 
-    private readonly Action releaseWriteToken;
+    // not using PaddedStructs to minimise memory usage as it is expected to have a few hundred-thousand clients per application
+    private int writeToken;
+
+    private readonly Action<IReadWriterSyncLock> checkReaderWriterLocksAndFree;
 
     protected FLogEntryPublishChainTreeNode()
     {
-        releaseWriteToken = () =>
-        {
-            Thread.VolatileWrite(ref writeToken.Value, 0);
-        };
+        checkReaderWriterLocksAndFree = CheckFreeReaderWriterLocks;
     }
 
-    protected bool StopProcessing => Thread.VolatileRead(ref writeToken.Value) == 0;
+    private void CheckFreeReaderWriterLocks(IReadWriterSyncLock rwl)
+    {
+        if (rwl.HasOutstandingWriteLock)
+        {
+            Thread.VolatileWrite(ref writeToken, 0);
+        }
+        if (rwl is { HasOutstandingLocksHeld: false })
+        {
+            rwl.DecrementRefCount();
+            if (rwl.RefCount == 0) { }
+            updateTreeLock = rwl?.RefCount == 0 ? null : rwl;
+        }
+    }
 
-    private readonly IReadWriterSyncLock        updateTreeLock = new ReaderWriterSyncLock();
-    public abstract  FLogEntrySourceSinkType    LogEntryLinkType     { get; }
-    public abstract  FLogEntryProcessChainState LogEntryProcessState { get; protected set; }
+    protected bool ShouldCheckLock => Thread.VolatileRead(ref writeToken) == 0;
+
+    public abstract FLogEntrySourceSinkType    LogEntryLinkType     { get; }
+    public abstract FLogEntryProcessChainState LogEntryProcessState { get; protected set; }
     public override IRecycler Recycler
     {
         get => base.Recycler ?? LogEntryPublishRecycler;
@@ -58,19 +71,27 @@ public abstract class FLogEntryPublishChainTreeNode : RecyclableObject, IFLogEnt
 
     public virtual IReadWriterSyncLock? AcquireUpdateTreeLock(int timeoutMs)
     {
-        if (updateTreeLock.TryAcquireWriterLock(timeoutMs))
+        lock (checkReaderWriterLocksAndFree)  // not using object SyncLock to minimise object allocations as each dispatch point allocates this object
         {
-            Thread.VolatileWrite(ref writeToken.Value, 1);
-            return updateTreeLock;
+            updateTreeLock ??= LogEntryPublishRecycler.Borrow<ReaderWriterSyncLock>().Initialize(checkReaderWriterLocksAndFree, checkReaderWriterLocksAndFree);
+            if (updateTreeLock.TryAcquireWriterLock(timeoutMs))
+            {
+                Thread.VolatileWrite(ref writeToken, 1);
+                return updateTreeLock;
+            }
         }
         return null;
     }
 
     public virtual IReadWriterSyncLock? AcquireReadTreeLock(int timeoutMs)
     {
-        if (updateTreeLock.TryAcquireUpgradeableReaderLock(timeoutMs))
+        lock (checkReaderWriterLocksAndFree) // not using object SyncLock to minimise object allocations as each dispatch point allocates this object
         {
-            return updateTreeLock;
+            updateTreeLock ??= LogEntryPublishRecycler.Borrow<ReaderWriterSyncLock>().Initialize(checkReaderWriterLocksAndFree, checkReaderWriterLocksAndFree);
+            if (updateTreeLock.TryAcquireUpgradeableReaderLock(timeoutMs))
+            {
+                return updateTreeLock;
+            }
         }
         return null;
     }

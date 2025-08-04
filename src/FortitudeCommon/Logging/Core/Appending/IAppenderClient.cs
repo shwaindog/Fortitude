@@ -1,47 +1,12 @@
-﻿using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.Logging.Config.Appending;
+﻿using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Core.Appending.Forwarding;
-using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.Core.Appending;
 
-// public interface IFLogEntrySink
-// {
-//     void Append(IFLogEntry flogEntry);
-// }
-//
-// public interface IBulkFLogEntrySink : IFLogEntrySink
-// {
-//     void Append(IReusableList<IFLogEntry> batchLogEntries);
-// }
-//
-// public interface IFLogAsyncTargetReceiveQueueAppender : IBulkFLogEntrySink
-// {
-//     void ProcessReceivedLogEntry(IFLogEntry logEntry);
-//
-//     void ProcessReceiveBatchLogEntries(IReusableList<IFLogEntry> batchLogEntries);
-//
-//     void RunJobOnAppenderQueue(Action job);
-//
-//     void ExecuteJob(Action job);
-// }
-
-public interface IFLogAsyncTargetReceiveQueueAppender
+public interface IAppenderClient : IFLogEntryPipelineEndpoint
 {
-    IFLogEntryPipelineEndpoint ReceiveEndpoint { get; }
-
-    void ProcessReceivedLogEntryEvent(LogEntryPublishEvent logEntryEvent);
-
-    void RunJobOnAppenderQueue(Action job);
-
-    void ExecuteJob(Action job);
-}
-
-public interface IAppenderClient : IFLogAsyncTargetReceiveQueueAppender
-{
-    string AppenderName { get; }
-    string AppenderType { get; }
+    IFLogAppender BackingAppender { get; }
 
     int ReceiveOnAsyncQueueNumber { get; }
 
@@ -50,22 +15,20 @@ public interface IAppenderClient : IFLogAsyncTargetReceiveQueueAppender
 
 public interface IMutableAppenderClient : IAppenderClient
 {
-    IFLogAppender BackingAppender { get; set; }
+    new IFLogAppender BackingAppender { get; set; }
 }
 
-public class AppenderClient(IFLogAppender originalAppender) : IMutableAppenderClient
+public class AppenderClient : FLogEntryPipelineEndpoint, IMutableAppenderClient
 {
-    public IFLogAppender BackingAppender { get; set; } = originalAppender;
+    // ReSharper disable once ConvertToPrimaryConstructor
+    public AppenderClient(IFLogAppender originalAppender, string name) : base(name, originalAppender.ReceiveEndpoint)
+    {
+        BackingAppender = originalAppender;
+    }
 
-    public string AppenderName => BackingAppender.AppenderName;
-    public string AppenderType => BackingAppender.AppenderType;
+    public IFLogAppender BackingAppender { get; set; }
 
     public int ReceiveOnAsyncQueueNumber => BackingAppender.ReceiveOnAsyncQueueNumber;
-
-    public void ProcessReceivedLogEntryEvent(LogEntryPublishEvent logEntryEvent)
-    {
-        BackingAppender.ProcessReceivedLogEntryEvent(logEntryEvent);
-    }
 
     public IFLogEntryPipelineEndpoint ReceiveEndpoint => BackingAppender.ReceiveEndpoint;
 
@@ -82,7 +45,7 @@ public class AppenderClient(IFLogAppender originalAppender) : IMutableAppenderCl
     }
 }
 
-public class NullAppenderClient : IMutableAppenderClient
+public class NullAppenderClient() : FLogEntryPipelineEndpoint("NullAppenderClient", null!), IMutableAppenderClient
 {
     public static readonly NullAppenderClient NullClientInstance = new();
 
@@ -97,24 +60,19 @@ public class NullAppenderClient : IMutableAppenderClient
 
     public IFLogEntryPipelineEndpoint ReceiveEndpoint => BackingAppender.ReceiveEndpoint;
 
-    public void ProcessReceivedLogEntryEvent(LogEntryPublishEvent logEntryEvent)
-    {
-        BackingAppender.ProcessReceivedLogEntryEvent(logEntryEvent);
-    }
-
     public void RunJobOnAppenderQueue(Action job) { }
 
     public void ExecuteJob(Action job) { }
 }
 
 public class LoggerAppenderClient(IFLogAppender originalAppender, IFLoggerCommon issuedTo)
-    : AppenderClient(originalAppender)
+    : AppenderClient(originalAppender, $"{issuedTo.FullName} - To - {originalAppender.AppenderName}")
 {
     public IFLoggerCommon IssuedTo { get; } = issuedTo;
 }
 
 public class ForwardingAppenderClient(IFLogAppender originalAppender, IFLogForwardingAppender issuedTo)
-    : AppenderClient(originalAppender)
+    : AppenderClient(originalAppender, $"{issuedTo.AppenderName} - To - {originalAppender.AppenderName}")
 {
     public IFLogForwardingAppender IssuedTo { get; } = issuedTo;
 }

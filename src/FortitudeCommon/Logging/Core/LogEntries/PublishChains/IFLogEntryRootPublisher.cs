@@ -16,3 +16,37 @@ public abstract class FLogEntryRootPublisherBase : FLogEntrySource, IFLogEntryRo
     public override T LogEntryChainVisit<T>(T visitor) => visitor.Accept(this);
 }
 
+public class FLogEntryPublishSource : FLogEntryRootPublisherBase, IFLogEntryRootPublisher
+{
+    public FLogEntryPublishSource
+    (
+        string name
+      , IFLogEntrySink finalTarget
+      , FLogEntrySourceSinkType logEntryLinkType = FLogEntrySourceSinkType.InterceptionPoint
+      , FLogEntryProcessChainState logEntryProcessState = FLogEntryProcessChainState.Terminating
+    )
+    {
+        Name = name;
+
+        LogEntryLinkType     = logEntryLinkType;
+        LogEntryProcessState = logEntryProcessState;
+
+        FinalTarget = finalTarget;
+    }
+
+    public FLogEntryPublishSource Initialize
+    (
+        string name
+      , FLogEntrySourceSinkType logEntryLinkType = FLogEntrySourceSinkType.InterceptionPoint
+      , FLogEntryProcessChainState logEntryProcessState = FLogEntryProcessChainState.Terminating
+    )
+    {
+        return this;
+    }
+
+    public override string Name { get; }
+
+    public override FLogEntrySourceSinkType LogEntryLinkType { get; }
+
+    public override FLogEntryProcessChainState LogEntryProcessState { get; protected set; }
+}

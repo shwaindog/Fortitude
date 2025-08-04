@@ -4,6 +4,8 @@
 using System.Configuration;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending;
@@ -103,7 +105,7 @@ public abstract class AppenderDefinitionConfig : AppenderReferenceConfig, IMutab
 
     public IMutableAppenderReferenceConfig GenerateReferenceToThis(bool deactivateHere = false)
     {
-        var appenderRef = new AppenderReferenceConfig(AppenderName, AppenderType, deactivateHere);
+        var appenderRef = new AppenderReferenceConfig(AppenderName, $"{nameof(FLoggerBuiltinAppenderType.Ref)}", deactivateHere);
         return appenderRef;
     }
 
@@ -145,16 +147,14 @@ public abstract class AppenderDefinitionConfig : AppenderReferenceConfig, IMutab
 
     public override string ToString() => this.DefaultToString();
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        sbc.AddTypeName(nameof(AppenderDefinitionConfig))
-           .AddTypeStart()
+        using var typeBuilder = sbc.StartComplexType(nameof(AppenderDefinitionConfig))
            .AddBaseFieldsStart();
-        base.ToString(sbc)
-            .AddBaseFieldsEnd()
-            .AddNonDefaultField(nameof(RunOnAsyncQueueNumber), RunOnAsyncQueueNumber)
-            .AddNonNullOrEmptyField(nameof(InheritFromAppenderName), InheritFromAppenderName)
-            .AddNonDefaultField(nameof(IsTemplateOnlyDefinition), IsTemplateOnlyDefinition);
-        return sbc;
+        base.ToString(sbc);
+            typeBuilder.AddField.WhenNonDefault.WithName(nameof(RunOnAsyncQueueNumber), RunOnAsyncQueueNumber)
+                       .AddField.WhenNonNullOrDefault.WithName(nameof(InheritFromAppenderName), InheritFromAppenderName)
+                       .AddField.WhenNonDefault.WithName(nameof(IsTemplateOnlyDefinition), IsTemplateOnlyDefinition);
+        return typeBuilder;
     }
 }

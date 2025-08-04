@@ -76,4 +76,24 @@ public enum FLogEntryLayoutTokens
     // Console Reset to Color Console Defaults
   , RESETCOLOR
     // ReSharper restore InconsistentNaming
+
+
+    // Add an environment aware newline (optional carriage return ) 
+  , NEWLINE
+  , NL
+    // Always add unix new lines even on windows
+  , UNIXNEWLINE
+  , UNIXNL
+    // Always add windows new lines even on unix/linux
+  , WINDOWSNEWLINE
+  , WINDOWSNL
+  , WINNEWLINE
+  , WINNL
+
+    // Could also do the string literal but is her incase find/replace replacement is required
+  , COMMA
+  , C
+  , COMMASPACE
+  , CS
+
 }

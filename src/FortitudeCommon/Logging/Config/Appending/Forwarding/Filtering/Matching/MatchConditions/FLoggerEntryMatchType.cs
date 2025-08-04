@@ -3,6 +3,8 @@
 
 using System.Configuration;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using Microsoft.Extensions.Configuration;
 using static FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.FLoggerEntryMatchType;
 
@@ -25,7 +27,7 @@ public static class FLoggerEntryMatchTypeExtensions
 
     public static void FormatEntryMatchTypeAppender(this FLoggerEntryMatchType entryMatchType, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.BackingStringBuilder;
+        var sb = sbc.WriteBuffer;
 
         switch (entryMatchType)
         {

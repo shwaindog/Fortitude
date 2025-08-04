@@ -1,5 +1,7 @@
 ﻿using System.Text;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 
 namespace FortitudeCommon.Logging.Config
 {
@@ -33,7 +35,7 @@ namespace FortitudeCommon.Logging.Config
 
         public static void FormatFlogLevelAppender(this FLogLevel flogLevel, IStyledTypeStringAppender sbc)
         {
-            var sb = sbc.BackingStringBuilder;
+            var sb = sbc.WriteBuffer;
 
             switch (flogLevel)
             {
