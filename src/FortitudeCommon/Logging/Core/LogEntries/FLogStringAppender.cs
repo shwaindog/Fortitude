@@ -2,10 +2,12 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Numerics;
+using System.Text;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core.LogEntries;
@@ -29,109 +31,154 @@ public interface IFLogStringAppender : IReusableObject<IFLogStringAppender>
 
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(IMutableString? value);
+    IFLogStringAppender Append(bool value);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(IStyledToStringObject? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append<TNum>(TNum? value) where TNum : struct, INumber<TNum>;
+    IFLogStringAppender Append(bool? value);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     IFLogStringAppender Append<TNum>(TNum value) where TNum : struct, INumber<TNum>;
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(object? value);
+    IFLogStringAppender Append<TNum>(TNum? value) where TNum : struct, INumber<TNum>;
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(char[]? value);
+    IFLogStringAppender Append<TStruct>(TStruct value, StructStyler<TStruct> structStyler) where TStruct : struct;
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender Append<TStruct>(TStruct? value, StructStyler<TStruct> structStyler) where TStruct : struct;
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender Append(Span<char> value);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender Append(Span<char> value, int startIndex, int count = int.MaxValue);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender Append(ReadOnlySpan<char> value);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender Append(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     IFLogStringAppender Append(string? value);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender Append(string? value, int startIndex, int length);
+    IFLogStringAppender Append(string? value, int startIndex, int count = int.MaxValue);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine();
+    IFLogStringAppender Append(char[]? value);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(IMutableString? value);
+    IFLogStringAppender Append(char[]? value, int startIndex, int count = int.MaxValue);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(IStyledToStringObject? value);
+    IFLogStringAppender Append(ICharSequence? value);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender Append(ICharSequence? value, int startIndex, int count = int.MaxValue);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender Append(StringBuilder? value);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender Append(StringBuilder? value, int startIndex, int count = int.MaxValue);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender Append(IStyledToStringObject? value);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender Append(object? value);
+
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender AppendFormatted<TNum>(TNum value, string formatString) where TNum : struct, INumber<TNum>;
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender AppendFormatted<TNum>(TNum? value, string formatString) where TNum : struct, INumber<TNum>;
+
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender AppendLine(bool value);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     IFLogStringAppender AppendLine(bool? value);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(sbyte? value);
+    IFLogStringAppender AppendLine<TNum>(TNum value) where TNum : struct, INumber<TNum>;
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(byte? value);
+    IFLogStringAppender AppendLine<TNum>(TNum? value) where TNum : struct, INumber<TNum>;
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(char? value);
+    IFLogStringAppender AppendLine<TStruct>(TStruct value, StructStyler<TStruct> structStyler) where TStruct : struct;
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(short? value);
+    IFLogStringAppender AppendLine<TStruct>(TStruct? value, StructStyler<TStruct> structStyler) where TStruct : struct;
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(ushort? value);
+    IFLogStringAppender AppendLine(Span<char> value);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(int? value);
+    IFLogStringAppender AppendLine(Span<char> value, int startIndex, int count = int.MaxValue);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(uint? value);
+    IFLogStringAppender AppendLine(ReadOnlySpan<char> value);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(float? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(long? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(ulong? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(double? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(decimal? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(object? value);
-
-    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(char[]? value);
+    IFLogStringAppender AppendLine(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     IFLogStringAppender AppendLine(string? value);
 
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    IFLogStringAppender AppendLine(string? value, int startIndex, int length);
+    IFLogStringAppender AppendLine(string? value, int startIndex, int count = int.MaxValue);
 
-    void FinalAppend(IMutableString? value);
-    void FinalAppend(IStyledToStringObject? value);
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender AppendLine(char[]? value);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender AppendLine(char[]? value, int startIndex, int count = int.MaxValue);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender AppendLine(ICharSequence? value);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender AppendLine(ICharSequence? value, int startIndex, int count = int.MaxValue);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender AppendLine(StringBuilder? value);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender AppendLine(StringBuilder? value, int startIndex, int count = int.MaxValue);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender AppendLine(IStyledToStringObject? value);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    IFLogStringAppender AppendLine(object? value);
+
+    void FinalAppend(bool value);
     void FinalAppend(bool? value);
-    void FinalAppend(sbyte? value);
-    void FinalAppend(byte? value);
-    void FinalAppend(char? value);
-    void FinalAppend(short? value);
-    void FinalAppend(ushort? value);
-    void FinalAppend(int? value);
-    void FinalAppend(uint? value);
-    void FinalAppend(float? value);
-    void FinalAppend(long? value);
-    void FinalAppend(ulong? value);
-    void FinalAppend(double? value);
-    void FinalAppend(decimal? value);
-    void FinalAppend(object? value);
-    void FinalAppend(char[]? value);
+    void FinalAppend<TNum>(TNum value) where TNum : struct, INumber<TNum>;
+    void FinalAppend<TNum>(TNum? value) where TNum : struct, INumber<TNum>;
+    void FinalAppend<TStruct>(TStruct value, StructStyler<TStruct> structStyler) where TStruct : struct;
+    void FinalAppend<TStruct>(TStruct? value, StructStyler<TStruct> structStyler) where TStruct : struct;
+    void FinalAppend(Span<char> value);
+    void FinalAppend(Span<char> value, int startIndex, int count = int.MaxValue);
+    void FinalAppend(ReadOnlySpan<char> value);
+    void FinalAppend(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue);
     void FinalAppend(string? value);
-    void FinalAppend(string? value, int startIndex, int length);
-    
+    void FinalAppend(string? value, int startIndex, int count = int.MaxValue);
+    void FinalAppend(char[]? value);
+    void FinalAppend(char[]? value, int startIndex, int count = int.MaxValue);
+    void FinalAppend(ICharSequence? value);
+    void FinalAppend(ICharSequence? value, int startIndex, int count = int.MaxValue);
+    void FinalAppend(StringBuilder? value);
+    void FinalAppend(StringBuilder? value, int startIndex, int count = int.MaxValue);
+    void FinalAppend(IStyledToStringObject? value);
+    void FinalAppend(object? value);
+
     // ReSharper restore UnusedMember.Global
 }
 
@@ -172,6 +219,8 @@ public class FLogStringAppender : ReusableObject<IFLogStringAppender>, IFLogStri
         set => stsa!.Indent = value;
     }
 
+    public int Count => sb.Length;
+
     public int IndentLevel { get; protected set; }
 
     public IStyledTypeStringAppender BackingStyledTypeStringAppender =>
@@ -190,97 +239,167 @@ public class FLogStringAppender : ReusableObject<IFLogStringAppender>, IFLogStri
         IndentLevel--;
         return this;
     }
-    
+
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(string? value, int startIndex, int length) => sb.Append(value, startIndex, length).ToAppender(this);
-    
+    public IFLogStringAppender Append(bool? value) => sb.Append(value).ToAppender(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(string? value)  => sb.Append(value).ToAppender(this);
-    
+    public IFLogStringAppender Append(bool value) => sb.Append(value).ToAppender(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(char[]? value)  => sb.Append(value).ToAppender(this);
-    
+    public IFLogStringAppender Append<TNum>(TNum value) where TNum : struct, INumber<TNum> => sb.Append(value).ToAppender(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(object? value)  => sb.Append(value).ToAppender(this);
-    
+    public IFLogStringAppender Append<TNum>(TNum? value) where TNum : struct, INumber<TNum> => sb.Append(value).ToAppender(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append<TNum>(TNum? value) where TNum: struct, INumber<TNum> => sb.Append(value).ToAppender(this);
-    
+    public IFLogStringAppender Append<TStruct>(TStruct value, StructStyler<TStruct> structStyler)
+        where TStruct : struct
+    {
+        structStyler(value, stsa!);
+        return this;
+    }
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append<TNum>(TNum value) where TNum: struct, INumber<TNum> => sb.Append(value).ToAppender(this);
-    
+    public IFLogStringAppender Append<TStruct>(TStruct? value, StructStyler<TStruct> structStyler)
+        where TStruct : struct
+    {
+        if (value != null) structStyler(value.Value, stsa!);
+        return this;
+    }
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender Append(IMutableString? value) => sb.Append(value).ToAppender(this);
-    
+    public IFLogStringAppender Append(Span<char> value) => sb.Append(value).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    public IFLogStringAppender Append(Span<char> value, int startIndex, int count = int.MaxValue) =>
+        sb.Append(value[startIndex..(startIndex + count)]).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    public IFLogStringAppender Append(ReadOnlySpan<char> value) => sb.Append(value).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    public IFLogStringAppender Append(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue) =>
+        sb.Append(value[startIndex..(startIndex + count)]).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    public IFLogStringAppender Append(string? value) => sb.Append(value).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    public IFLogStringAppender Append(string? value, int startIndex, int count = int.MaxValue) =>
+        sb.Append(value, startIndex, count).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    public IFLogStringAppender Append(char[]? value) => sb.Append(value).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    public IFLogStringAppender Append(char[]? value, int startIndex, int count = int.MaxValue) => sb.Append(value).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    public IFLogStringAppender Append(ICharSequence? value) => sb.Append(value).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    public IFLogStringAppender Append(ICharSequence? value, int startIndex, int count = int.MaxValue) => sb.Append(value).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    public IFLogStringAppender Append(StringBuilder? value) => sb.Append(value).ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    public IFLogStringAppender Append(StringBuilder? value, int startIndex, int count = int.MaxValue) => sb.Append(value).ToAppender(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     public IFLogStringAppender Append(IStyledToStringObject? value)
     {
         value?.ToString(stsa!);
         return this;
     }
-    
-    
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(string? value, int startIndex, int length) =>
-        sb.Append(value, startIndex, length).AppendLine(this);
-    
-    
+    public IFLogStringAppender Append(object? value) => sb.Append(value).ToAppender(this);
+
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(object? value)  => sb.Append(value).AppendLine(this);
-    
+    public IFLogStringAppender AppendFormatted<TNum>(TNum value, string formatString) where TNum : struct, INumber<TNum> =>
+        sb.AppendFormat(formatString, value).ToAppender(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(decimal? value) => sb.Append(value).AppendLine(this);
-    
+    public IFLogStringAppender AppendFormatted<TNum>(TNum? value, string formatString) where TNum : struct, INumber<TNum> =>
+        sb.AppendFormat(formatString, value).ToAppender(this);
+
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(double? value)  => sb.Append(value).AppendLine(this);
-    
+    public IFLogStringAppender AppendLine() => sb.AppendLine().ToAppender(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(ulong? value)   => sb.Append(value).AppendLine(this);
-    
+    public IFLogStringAppender AppendLine(bool value) => sb.Append(value).AppendLine(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(long? value)    => sb.Append(value).AppendLine(this);
-    
+    public IFLogStringAppender AppendLine(bool? value) => sb.Append(value).AppendLine(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(float? value)   => sb.Append(value).AppendLine(this);
-    
+    public IFLogStringAppender AppendLine<TNum>(TNum value) where TNum : struct, INumber<TNum> => sb.Append(value).AppendLine(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(uint? value)    => sb.Append(value).AppendLine(this);
-    
+    public IFLogStringAppender AppendLine<TNum>(TNum? value) where TNum : struct, INumber<TNum> => sb.Append(value).AppendLine(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(ushort? value)  => sb.Append(value).AppendLine(this);
-    
+    public IFLogStringAppender AppendLine<TStruct>(TStruct value, StructStyler<TStruct> structStyler)
+        where TStruct : struct
+    {
+        structStyler(value, stsa!);
+        return sb.AppendLine(this);
+    }
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(int? value)     => sb.Append(value).AppendLine(this);
-    
+    public IFLogStringAppender AppendLine<TStruct>(TStruct? value, StructStyler<TStruct> structStyler)
+        where TStruct : struct
+    {
+        if (value != null) structStyler(value.Value, stsa!);
+        return sb.AppendLine(this);
+    }
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(char? value)    => sb.Append(value).AppendLine(this);
-    
+    public IFLogStringAppender AppendLine(Span<char> value) => sb.Append(value).AppendLine(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(byte? value)    => sb.Append(value).AppendLine(this);
-    
+    public IFLogStringAppender AppendLine(Span<char> value, int startIndex, int count = int.MaxValue) =>
+        sb.Append(value[startIndex..(startIndex + count)]).AppendLine(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(sbyte? value)   => sb.Append(value).AppendLine(this);
-    
+    public IFLogStringAppender AppendLine(ReadOnlySpan<char> value) => sb.Append(value).AppendLine(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(bool? value)    => sb.Append(value).AppendLine(this);
-    
+    public IFLogStringAppender AppendLine(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue) =>
+        sb.Append(value[startIndex..(startIndex + count)]).AppendLine(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(char[]? value)  => sb.Append(value).AppendLine(this);
-    
+    public IFLogStringAppender AppendLine(string? value) => sb.Append(value).AppendLine(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(short? value)   => sb.Append(value).AppendLine(this);
-    
+    public IFLogStringAppender AppendLine(string? value, int startIndex, int count = int.MaxValue) =>
+        sb.Append(value, startIndex, count).AppendLine(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(string? value)  => sb.Append(value).AppendLine(this);
-    
+    public IFLogStringAppender AppendLine(char[]? value) => sb.Append(value).AppendLine(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine()               => sb.AppendLine().ToAppender(this);
-    
-    
+    public IFLogStringAppender AppendLine(char[]? value, int startIndex, int count = int.MaxValue) => sb.Append(value).AppendLine(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
-    public IFLogStringAppender AppendLine(IMutableString? value) => sb.Append(value).AppendLine().ToAppender(this);
-    
-    
+    public IFLogStringAppender AppendLine(ICharSequence? value) => sb.Append(value).AppendLine().ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    public IFLogStringAppender AppendLine(ICharSequence? value, int startIndex, int count = int.MaxValue) =>
+        sb.Append(value).AppendLine().ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    public IFLogStringAppender AppendLine(StringBuilder? value) => sb.Append(value).AppendLine().ToAppender(this);
+
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    public IFLogStringAppender AppendLine(StringBuilder? value, int startIndex, int count = int.MaxValue) =>
+        sb.Append(value).AppendLine().ToAppender(this);
+
     [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
     public IFLogStringAppender AppendLine(IStyledToStringObject? value)
     {
@@ -288,26 +407,52 @@ public class FLogStringAppender : ReusableObject<IFLogStringAppender>, IFLogStri
         return this;
     }
 
-    public int Count => sb.Length;
+    [MustUseReturnValue("Use FinalAppend to finish LogEntry")]
+    public IFLogStringAppender AppendLine(object? value) => sb.Append(value).AppendLine(this);
 
-    public void FinalAppend(char[]? value)  => sb.Append(value).ToAppender(this).CallOnComplete();
-    public void FinalAppend(object? value)  => sb.Append(value).ToAppender(this).CallOnComplete();
-    public void FinalAppend(decimal? value) => sb.Append(value).ToAppender(this).CallOnComplete();
-    public void FinalAppend(double? value)  => sb.Append(value).ToAppender(this).CallOnComplete();
-    public void FinalAppend(ulong? value)   => sb.Append(value).ToAppender(this).CallOnComplete();
-    public void FinalAppend(long? value)    => sb.Append(value).ToAppender(this).CallOnComplete();
-    public void FinalAppend(float? value)   => sb.Append(value).ToAppender(this).CallOnComplete();
-    public void FinalAppend(string? value)  => sb.Append(value).ToAppender(this).CallOnComplete();
-    public void FinalAppend(uint? value)    => sb.Append(value).ToAppender(this).CallOnComplete();
-    public void FinalAppend(ushort? value)  => sb.Append(value).ToAppender(this).CallOnComplete();
-    public void FinalAppend(short? value)   => sb.Append(value).ToAppender(this).CallOnComplete();
-    public void FinalAppend(char? value)    => sb.Append(value).ToAppender(this).CallOnComplete();
-    public void FinalAppend(byte? value)    => sb.Append(value).ToAppender(this).CallOnComplete();
-    public void FinalAppend(sbyte? value)   => sb.Append(value).ToAppender(this).CallOnComplete();
-    public void FinalAppend(bool? value)    => sb.Append(value).ToAppender(this).CallOnComplete();
-    public void FinalAppend(int? value)     => sb.Append(value).ToAppender(this).CallOnComplete();
 
-    public void FinalAppend(IMutableString? value) => sb.Append(value).ToAppender(this).CallOnComplete();
+    public void FinalAppend(bool value)  => sb.Append(value).ToAppender(this).CallOnComplete();
+    public void FinalAppend(bool? value) => sb.Append(value).ToAppender(this).CallOnComplete();
+
+    public void FinalAppend<TNum>(TNum value) where TNum : struct, INumber<TNum> => sb.Append(value).ToAppender(this).CallOnComplete();
+
+    public void FinalAppend<TNum>(TNum? value) where TNum : struct, INumber<TNum> => sb.Append(value).ToAppender(this).CallOnComplete();
+
+    public void FinalAppend<TStruct>(TStruct value, StructStyler<TStruct> structStyler) where TStruct : struct =>
+        sb.Append(value).ToAppender(this).CallOnComplete();
+
+    public void FinalAppend<TStruct>(TStruct? value, StructStyler<TStruct> structStyler) where TStruct : struct =>
+        sb.Append(value).ToAppender(this).CallOnComplete();
+
+    public void FinalAppend(Span<char> value) => sb.Append(value).ToAppender(this).CallOnComplete();
+
+    public void FinalAppend(Span<char> value, int startIndex, int count = int.MaxValue) =>
+        sb.Append(value[startIndex..(startIndex + count)]).ToAppender(this).CallOnComplete();
+
+    public void FinalAppend(ReadOnlySpan<char> value) => sb.Append(value).ToAppender(this).CallOnComplete();
+
+    public void FinalAppend(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue) =>
+        sb.Append(value[startIndex..(startIndex + count)]).ToAppender(this).CallOnComplete();
+
+    public void FinalAppend(string? value) => sb.Append(value).ToAppender(this).CallOnComplete();
+
+    public void FinalAppend(string? value, int startIndex, int count = int.MaxValue) =>
+        sb.Append(value, startIndex, count).ToAppender(this).CallOnComplete();
+
+    public void FinalAppend(char[]? value) => sb.Append(value).ToAppender(this).CallOnComplete();
+
+    public void FinalAppend(char[]? value, int startIndex, int count = int.MaxValue) => 
+        sb.Append(value, startIndex, count).ToAppender(this).CallOnComplete();
+
+    public void FinalAppend(ICharSequence? value) => sb.Append(value).ToAppender(this).CallOnComplete();
+
+    public void FinalAppend(ICharSequence? value, int startIndex, int count = int.MaxValue) => 
+        sb.Append(value, startIndex, count).ToAppender(this).CallOnComplete();
+
+    public void FinalAppend(StringBuilder? value) => sb.Append(value).ToAppender(this).CallOnComplete();
+
+    public void FinalAppend(StringBuilder? value, int startIndex, int count = int.MaxValue) => 
+        sb.Append(value, startIndex, count).ToAppender(this).CallOnComplete();
 
     public void FinalAppend(IStyledToStringObject? value)
     {
@@ -315,7 +460,7 @@ public class FLogStringAppender : ReusableObject<IFLogStringAppender>, IFLogStri
         CallOnComplete();
     }
 
-    public void FinalAppend(string? value, int startIndex, int length) => sb.Append(value, startIndex, length).ToAppender(this).CallOnComplete();
+    public void FinalAppend(object? value) => sb.Append(value).ToAppender(this).CallOnComplete();
 
     protected void CallOnComplete()
     {

@@ -192,7 +192,7 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
         return this;
     }
 
-    public Range? ReplaceTokenWith(StringFormatTokenParams tokenToReplace, IStringBuilder withStringBuilderChars)
+    public Range? ReplaceTokenWith(StringFormatTokenParams tokenToReplace, ICharSequence withStringBuilderChars)
     {
         if (!stringFormatParams.Remove(tokenToReplace))
         {

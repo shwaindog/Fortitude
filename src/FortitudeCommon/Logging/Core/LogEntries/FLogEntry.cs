@@ -167,7 +167,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 
 
         var formatAppender = (Recycler?.Borrow<FLogFirstFormatterParameterEntry>() ?? new FLogFirstFormatterParameterEntry())
-            .Initialize(formatterBuilder, LogLocation, OnMessageComplete, style);
+            .Initialize(formatterBuilder, 0, LogLocation, OnMessageComplete, style);
 
         return formatAppender;
     }
