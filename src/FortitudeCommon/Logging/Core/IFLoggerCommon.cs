@@ -43,9 +43,13 @@ public interface IFLoggerCommon
 
 public interface IMutableFLoggerCommon : IFLoggerCommon
 {
-    void HandleConfigUpdate(IFLoggerTreeCommonConfig newLoggerState, IFLogAppenderRegistry appenderRegistry);
+    new IMutableFLoggerTreeCommonConfig ResolvedConfig { get; set;  }
 
-    IFLogger AddDirectChild(IFLogger newChild);
+    new IReadOnlyList<IMutableFLogger> ImmediateEmbodiedChildren { get; }
+
+    void HandleConfigUpdate(IMutableFLoggerTreeCommonConfig newLoggerState, IFLogAppenderRegistry appenderRegistry);
+
+    IMutableFLogger AddDirectChild(IMutableFLogger newChild);
 }
 
 public abstract class FLoggerBase : IMutableFLoggerCommon
@@ -53,17 +57,22 @@ public abstract class FLoggerBase : IMutableFLoggerCommon
     protected static readonly FLogEntryPoolConfig DefaultLoggerEntryPoolConfig
         = new(IFLogEntryPoolConfig.LoggersGlobal, PoolScope.LoggersGlobal);
 
-    protected ConcurrentDictionary<string, IFLogger> ImmediateChildrenDict = new();
+    protected ConcurrentDictionary<string, IMutableFLogger> ImmediateChildrenDict = new();
 
-    protected List<IAppenderClient> LoggerAppenders = new();
+    protected List<IAppenderClient> LoggerAppenders = [];
 
-    protected FLoggerBase(IFLoggerTreeCommonConfig loggerConfig, IFLogLoggerRegistry loggerRegistry)
+    protected bool AppendersUpdatedFlag = true;
+
+    protected IMutableFLoggerTreeCommonConfig Config = null!;
+
+    protected FLoggerBase(IMutableFLoggerTreeCommonConfig loggerConfig, IFLogLoggerRegistry loggerRegistry)
     {
-        ResolvedConfig = loggerConfig;
-
         Name     = loggerConfig.Name;
         FullName = loggerConfig.FullName;
+        HandleConfigUpdate(loggerConfig, loggerRegistry.AppenderRegistry);
+
         LogLevel = loggerConfig.LogLevel;
+
 
         LogEntryPool = loggerRegistry.SourceFLogEntryPool(loggerConfig.LogEntryPool ?? DefaultLoggerEntryPoolConfig);
     }
@@ -76,9 +85,15 @@ public abstract class FLoggerBase : IMutableFLoggerCommon
 
     public FLogEntryPool LogEntryPool { get; private set; }
 
-    public IFLoggerTreeCommonConfig ResolvedConfig { get; protected set; }
+    IMutableFLoggerTreeCommonConfig IMutableFLoggerCommon.ResolvedConfig
+    {
+        get => Config;
+        set => Config = value;
+    }
 
-    public void HandleConfigUpdate(IFLoggerTreeCommonConfig newLoggerState, IFLogAppenderRegistry appenderRegistry)
+    public virtual IFLoggerTreeCommonConfig ResolvedConfig => Config;
+
+    public void HandleConfigUpdate(IMutableFLoggerTreeCommonConfig newLoggerState, IFLogAppenderRegistry appenderRegistry)
     {
         if (FullName != newLoggerState.FullName)
         {
@@ -87,44 +102,55 @@ public abstract class FLoggerBase : IMutableFLoggerCommon
             #endif
             return;
         }
-        if (ResolvedConfig.AreEquivalent(newLoggerState)) return;
+        if (newLoggerState.AreEquivalent(ResolvedConfig)) return;
         LogLevel = newLoggerState.LogLevel;
 
-        foreach (var appenderConfig in newLoggerState.Appenders)
+        lock (Appenders)
         {
-            if (Appenders.All(a => a.AppenderName != appenderConfig.Key))
+            foreach (var appenderConfig in newLoggerState.Appenders)
             {
-                var appenderClient = appenderRegistry.GetAppenderClient(appenderConfig.Key, this);
-                LoggerAppenders.Add(appenderClient);
+                if (Appenders.All(a => a.BackingAppender.AppenderName != appenderConfig.Key))
+                {
+                    AppendersUpdatedFlag = true;
+                    var appenderClient = appenderRegistry.GetAppenderClient(appenderConfig.Key, this);
+                    LoggerAppenders.Add(appenderClient);
+                }
+            }
+            for (var i = 0; i < Appenders.Count; i++)
+            {
+                var existingAppender = Appenders[i];
+                if (!newLoggerState.Appenders.ContainsKey(existingAppender.BackingAppender.AppenderName))
+                {
+                    AppendersUpdatedFlag = true;
+                    LoggerAppenders.RemoveAt(i);
+                    i--;
+                }
             }
         }
-        for (var i = 0; i < Appenders.Count; i++)
-        {
-            var existingAppender = Appenders[i];
-            if (!newLoggerState.Appenders.ContainsKey(existingAppender.AppenderName))
-            {
-                LoggerAppenders.RemoveAt(i);
-                i--;
-            }
-        }
-        ResolvedConfig = newLoggerState;
+        Config = newLoggerState;
     }
 
     public IReadOnlyList<IAppenderClient> Appenders
     {
-        get => LoggerAppenders.AsReadOnly();
+        get => LoggerAppenders;
         internal set
         {
-            LoggerAppenders.Clear();
-            LoggerAppenders.AddRange(value);
+            lock (Appenders)
+            {
+                AppendersUpdatedFlag = true;
+                LoggerAppenders.Clear();
+                LoggerAppenders.AddRange(value);
+            }
         }
     }
 
-    public IReadOnlyList<IFLogger> ImmediateEmbodiedChildren => ImmediateChildrenDict.Values.ToList().AsReadOnly();
+    IReadOnlyList<IMutableFLogger> IMutableFLoggerCommon.ImmediateEmbodiedChildren => ImmediateChildrenDict.Values.ToList().AsReadOnly();
+
+    public IReadOnlyList<IFLogger> ImmediateEmbodiedChildren => ((IMutableFLoggerCommon)this).ImmediateEmbodiedChildren;
 
     public abstract LoggerTreeType TreeType { get; }
 
-    IFLogger IMutableFLoggerCommon.AddDirectChild(IFLogger newChild)
+    IMutableFLogger IMutableFLoggerCommon.AddDirectChild(IMutableFLogger newChild)
     {
         if (!ImmediateChildrenDict.TryAdd(newChild.Name, newChild))
         {

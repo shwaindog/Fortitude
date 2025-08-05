@@ -252,14 +252,12 @@ public static class NumberExtensions
     }
 
 
-    private static readonly ulong KiloByte  = 1024;
-    private static readonly ulong MegaByte  = KiloByte * KiloByte;
-    private static readonly ulong GigaByte  = KiloByte * MegaByte;
-    private static readonly ulong TeraByte  = KiloByte * GigaByte;
-    private static readonly ulong PetaByte  = KiloByte * TeraByte;
-    private static readonly ulong ExaByte   = KiloByte * PetaByte;
-    private static readonly ulong ZettaByte = KiloByte * ExaByte;
-    private static readonly ulong YottaByte = KiloByte * ZettaByte;
+    public const ulong KiloByte  = 1024;
+    public const ulong MegaByte  = KiloByte * KiloByte;
+    public const ulong GigaByte  = KiloByte * MegaByte;
+    public const ulong TeraByte  = KiloByte * GigaByte;
+    public const ulong PetaByte  = KiloByte * TeraByte;
+    public const ulong ExaByte   = KiloByte * PetaByte;
 
     public static ulong AsKiloBytes(this ulong change) => change * KiloByte;
     public static ulong AsMegaBytes(this ulong change) => change * MegaByte;
@@ -267,8 +265,6 @@ public static class NumberExtensions
     public static ulong AsTeraBytes(this ulong change) => change * TeraByte;
     public static ulong AsPetaBytes(this ulong change) => change * PetaByte;
     public static ulong AsExaBytes(this ulong change) => change * ExaByte;
-    public static ulong AsZettaBytes(this ulong change) => change * ZettaByte;
-    public static ulong AsYottaBytes(this ulong change) => change * YottaByte;
 
 
     private static readonly (string, ulong)[] byteSuffixesAndSizes =
@@ -280,8 +276,6 @@ public static class NumberExtensions
       , ("tb,terabyte", TeraByte)
       , ("pb,petabyte", PetaByte)
       , ("eb,exabyte", ExaByte)
-      , ("zb,zettabyte", ZettaByte)
-      , ("yb,yottabyte", YottaByte)
     ];
 
     public static ulong ToSizeInBytes(this ulong value, string suffixLowerCase)

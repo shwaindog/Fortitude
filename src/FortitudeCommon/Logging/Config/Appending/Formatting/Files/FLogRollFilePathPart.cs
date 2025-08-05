@@ -2,6 +2,8 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
 using static FortitudeCommon.Logging.Config.Appending.Formatting.Files.FLogRollFilePathPart;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting.Files;
@@ -26,7 +28,7 @@ public static class FLogRollFilePathPartExtensions
 
     public static void FormatFLogRollFilePathPartAppender(this FLogRollFilePathPart rollFilePathPart, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.BackingStringBuilder;
+        var sb = sbc.WriteBuffer;
 
         switch (rollFilePathPart)
         {

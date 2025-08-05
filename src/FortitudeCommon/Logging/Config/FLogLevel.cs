@@ -1,5 +1,8 @@
 ﻿using System.Text;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 namespace FortitudeCommon.Logging.Config
 {
@@ -27,13 +30,13 @@ namespace FortitudeCommon.Logging.Config
 
     public static class FLogLevelExtensions
     {
-        public static Action<FLogLevel, IStyledTypeStringAppender> FLogLevelFormatter = FormatFlogLevelAppender;
+        public static StructStyler<FLogLevel> FLogLevelFormatter = FormatFlogLevelAppender;
 
         public static int LoggableRange => (int)(FLogLevel.Error - FLogLevel.None);
 
         public static void FormatFlogLevelAppender(this FLogLevel flogLevel, IStyledTypeStringAppender sbc)
         {
-            var sb = sbc.BackingStringBuilder;
+            var sb = sbc.WriteBuffer;
 
             switch (flogLevel)
             {

@@ -64,7 +64,7 @@ public abstract class FLogEntryPipelineInterceptor : TargetingFLogEntrySource, I
 
     public void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
-        if (StopProcessing)
+        if (ShouldCheckLock)
         {
             while (true)
             {

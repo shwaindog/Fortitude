@@ -14,33 +14,35 @@ public interface IFLogConfigRegistry
 {
     IFLogAppConfig AppConfig { get; }
 
-    IFLoggerDescendantConfig? FindLoggerConfigIfGiven(string loggerFullName);
+    IMutableFLoggerDescendantConfig? FindLoggerConfigIfGiven(string loggerFullName);
 
-    Func<IConfigurationRoot, string, IMutableAppenderReferenceConfig?>  ConfigPathToAppenderConfig       { get; }
-    Func<IConfigurationRoot, string, IMutableFlogConfigSource?>         ConfigPathToConfigSourceConfig   { get; }
-    Func<IConfigurationRoot, string, IMutableMatchConditionConfig?> ConfigPathToMatchConditionConfig { get; }
+    Func<IConfigurationRoot, string, IMutableAppenderReferenceConfig?> ConfigPathToAppenderConfig       { get; }
+    Func<IConfigurationRoot, string, IMutableFlogConfigSource?>        ConfigPathToConfigSourceConfig   { get; }
+    Func<IConfigurationRoot, string, IMutableMatchConditionConfig?>    ConfigPathToMatchConditionConfig { get; }
 
     TimeSpan ExpireConfigCacheIntervalTimeSpan { get; }
 }
 
 public interface IMutableFLogConfigRegistry : IFLogConfigRegistry
 {
-    new IFLogAppConfig AppConfig { get; set; }
+    new IMutableFLogAppConfig AppConfig { get; set; }
 
-    new Func<IConfigurationRoot, string, IMutableAppenderReferenceConfig?> ConfigPathToAppenderConfig     { get; set; }
-    new Func<IConfigurationRoot, string, IMutableFlogConfigSource?>        ConfigPathToConfigSourceConfig { get; set; }
+    new Func<IConfigurationRoot, string, IMutableAppenderReferenceConfig?> ConfigPathToAppenderConfig       { get; set; }
+    new Func<IConfigurationRoot, string, IMutableFlogConfigSource?>        ConfigPathToConfigSourceConfig   { get; set; }
     new Func<IConfigurationRoot, string, IMutableMatchConditionConfig?>    ConfigPathToMatchConditionConfig { get; set; }
 
     new TimeSpan ExpireConfigCacheIntervalTimeSpan { get; set; }
 }
 
-public class FLogConfigRegistry : IMutableFLogConfigRegistry
+public class FLogConfigRegistry(IMutableFLogAppConfig newAppConfig) : IMutableFLogConfigRegistry
 {
-    private IFLogAppConfig appConfig = null!;
+    private IMutableFLogAppConfig appConfig = newAppConfig;
 
-    private INamedChildLoggersLookupConfig? allConfigDefinedLoggers;
+    private IMutableNamedChildLoggersLookupConfig? allConfigDefinedLoggers;
 
-    public IFLogAppConfig AppConfig
+    IFLogAppConfig IFLogConfigRegistry.AppConfig => AppConfig;
+
+    public IMutableFLogAppConfig AppConfig
     {
         get => appConfig;
         set
@@ -49,23 +51,37 @@ public class FLogConfigRegistry : IMutableFLogConfigRegistry
 
             ExpireConfigCacheIntervalTimeSpan = appConfig.ConfigSourcesLookup.ExpireConfigCacheIntervalTimeSpan.ToTimeSpan();
 
-            allConfigDefinedLoggers           = appConfig.RootLogger.AllLoggers();
+            allConfigDefinedLoggers = appConfig.RootLogger.AllLoggers();
         }
     }
 
-    public IFLoggerDescendantConfig? FindLoggerConfigIfGiven(string loggerFullName)
+    public IMutableFLoggerDescendantConfig? FindLoggerConfigIfGiven(string loggerFullName)
     {
-        return allConfigDefinedLoggers?[loggerFullName]?.Clone();
+        return allConfigDefinedLoggers?[loggerFullName];
     }
 
     public Func<IConfigurationRoot, string, IMutableAppenderReferenceConfig?> ConfigPathToAppenderConfig { get; set; }
         = FloggerBuiltinAppenderTypeExtensions.GetBuiltAppenderReferenceConfig;
 
-    public Func<IConfigurationRoot, string, IMutableFlogConfigSource?>     ConfigPathToConfigSourceConfig { get; set; }
+    public Func<IConfigurationRoot, string, IMutableFlogConfigSource?> ConfigPathToConfigSourceConfig { get; set; }
         = FLoggerConfigSourceTypeExtensions.GetBuiltConfigSourceConfig;
 
-    public Func<IConfigurationRoot, string, IMutableMatchConditionConfig?>     ConfigPathToMatchConditionConfig { get; set; }
+    public Func<IConfigurationRoot, string, IMutableMatchConditionConfig?> ConfigPathToMatchConditionConfig { get; set; }
         = FLoggerEntryMatchTypeExtensions.GetMatchConditionConfigNoParent;
 
     public TimeSpan ExpireConfigCacheIntervalTimeSpan { get; set; }
+}
+
+public static class FLogConfigRegistryExtensions
+{
+    public static IMutableFLogConfigRegistry? UpdateConfig
+        (this IFLogConfigRegistry? maybeCreated, IMutableFLogAppConfig flogAppConfig)
+    {
+        if (maybeCreated is IMutableFLogConfigRegistry maybeMutable)
+        {
+            maybeMutable.AppConfig = flogAppConfig;
+            return maybeMutable;
+        }
+        return null;
+    }
 }

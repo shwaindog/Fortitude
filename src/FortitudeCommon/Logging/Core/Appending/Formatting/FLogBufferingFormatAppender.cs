@@ -25,6 +25,8 @@ public interface IFLogBufferingFormatAppender : IFLogFormattingAppender
     TimeSpan AutoFlushIntervalTimeSpan { get; }
 
     DateTime LastFlushAt { get; }
+
+    void FlushBufferToAppender(IBufferedFormatWriter toFlush);
 }
 
 public interface IMutableFLogBufferingFormatAppender : IFLogBufferingFormatAppender, IMutableFLogFormattingAppender
@@ -42,12 +44,7 @@ public interface IMutableFLogBufferingFormatAppender : IFLogBufferingFormatAppen
     new DateTime LastFlushAt { get; set; }
 }
 
-public interface IFLogAsyncTargetFlushBufferAppender : IMutableFLogBufferingFormatAppender
-{
-    void FlushBufferToAppender(IBufferedFormatWriter toFlush);
-}
-
-public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLogAsyncTargetFlushBufferAppender
+public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMutableFLogBufferingFormatAppender
 {
     [ThreadStatic] private static IRecycler? requesterThreadRecycler;
 
@@ -71,7 +68,7 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLo
 
     private bool bufferingEnabled;
 
-    protected readonly FormatWriterReceivedHandler<IBufferedFormatWriter> OnReturningFormatWriter;
+    protected readonly FormatWriterReceivedHandler<IFormatWriter> OnReturningFormatWriter;
 
     private readonly DoublyLinkedList<BlockingFormatWriterResolverHandle> queuedRequests = new();
 
@@ -89,7 +86,14 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLo
 
         FlushWhenBufferLength = (int)(bufferingFormatAppenderConfig.FlushConfig.WriteTriggeredAtBufferPercentage *
                                       bufferingFormatAppenderConfig.CharBufferSize);
-        AutoFlushIntervalTimeSpan           = bufferingFormatAppenderConfig.FlushConfig.AutoTriggeredAfterTimeSpan.ToTimeSpan();
+        AutoFlushIntervalTimeSpan = bufferingFormatAppenderConfig.FlushConfig.AutoTriggeredAfterTimeSpan.ToTimeSpan();
+
+        if (autoFlushIntervalTimeSpan > TimeSpan.Zero)
+        {
+            AutoFlushTimer?.Cancel();
+            AutoFlushTimer = context.AsyncRegistry.LoggerTimers.RunEvery(autoFlushIntervalTimeSpan, AutoFlushTimerHandler);
+        }
+
         WriteTriggeredFlushIntervalTimeSpan = bufferingFormatAppenderConfig.FlushConfig.WriteTriggeredAfterTimeSpan.ToTimeSpan();
 
 
@@ -124,7 +128,8 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLo
             if (autoFlushIntervalTimeSpan > TimeSpan.Zero)
             {
                 AutoFlushTimer?.Cancel();
-                AutoFlushTimer = FLogContext.Context.AsyncRegistry.LoggerTimers.RunEvery(autoFlushIntervalTimeSpan, AutoFlushTimerHandler);
+                AutoFlushTimer
+                    = FLogContext.NullOnUnstartedContext?.AsyncRegistry?.LoggerTimers?.RunEvery(autoFlushIntervalTimeSpan, AutoFlushTimerHandler);
             }
         }
     }
@@ -136,7 +141,7 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLo
     protected IRecycler RequesterRecycler => requesterThreadRecycler ??= new Recycler();
 
     protected IBufferFlushAppenderAsyncClient BufferFlushingAsyncClient => (IBufferFlushAppenderAsyncClient)AsyncClient;
-    
+
     public bool BufferingEnabled
     {
         get => bufferingEnabled;
@@ -251,11 +256,18 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLo
         actualHandle.DecrementRefCount();
     }
 
-    protected void WriterFinishedWithBuffer(IBufferedFormatWriter setReadyOrFlush)
+    protected void WriterFinishedWithBuffer(IFormatWriter setReadyOrFlush)
     {
-        if (ShouldFlushBuffer(setReadyOrFlush))
+        if (setReadyOrFlush is IBufferedFormatWriter bufferedFormatWriter)
         {
-            FlushAndCheckNextBufferAvailable(setReadyOrFlush);
+            if (ShouldFlushBuffer(bufferedFormatWriter))
+            {
+                FlushAndCheckNextBufferAvailable(bufferedFormatWriter);
+            }
+            else
+            {
+                TrySendFormatWriteToNextIfAny(bufferedFormatWriter);
+            }
         }
         else
         {
@@ -280,7 +292,7 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLo
         }
         return null;
     }
-    
+
     private void ReturnBufferedWriter(IBufferedFormatWriter returnBufferedFormatWriter)
     {
         var bufferSlot = returnBufferedFormatWriter.BufferNum;
@@ -411,7 +423,7 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IFLo
             AutoFlushTimer?.Cancel();
             AutoFlushTimer = null;
         }
-        if (LastFlushAt + AutoFlushIntervalTimeSpan < (scheduleActualTime?.ScheduleTime ?? TimeContext.UtcNow))
+        else if (LastFlushAt + AutoFlushIntervalTimeSpan < (scheduleActualTime?.ScheduleTime ?? TimeContext.UtcNow))
         {
             var currentBuffer = TryGetSpecificBufferedWriter(currentBufferCounter);
             if (currentBuffer is { Buffered: > 0 })

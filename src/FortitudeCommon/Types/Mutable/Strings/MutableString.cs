@@ -82,199 +82,219 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         !ThrowOnMutateAttempt ? this : throw new ModifyFrozenObjectAttempt("Attempted to modify a frozen MutableString");
 
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(IFrozenString? value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ICharSequence? value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(StringBuilder? value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(StringBuilder? value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append
+        (ICharSequence? value, int startIndex, int length) =>
+        Append(value, startIndex, length);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append
         (StringBuilder? value, int startIndex, int length) =>
         Append(value, startIndex, length);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(bool value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(bool value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(byte value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(byte value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(char value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(char value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(char value, int repeat) => Append(value, repeat);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(char value, int repeat) => Append(value, repeat);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(char[]? value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(char[]? value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(char[]? value, int startIndex, int length) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(char[]? value, int startIndex, int length) => Append(value);
 
-    unsafe IMutableString IMutableStringBuilder<IMutableString>.Append(char* value, int valueCount) => Append(value, valueCount);
+    unsafe IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(char* value, int valueCount) => Append(value, valueCount);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(decimal value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(decimal value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(double value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(double value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(short value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(short value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(int value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(int value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(long value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(long value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(object? value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(object? value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(sbyte value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(sbyte value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(float value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(float value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(string? value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(string? value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(string? value, int startIndex, int length) => Append(value, startIndex, length);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(string? value, int startIndex, int length) => Append(value, startIndex, length);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(ReadOnlySpan<char> value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlySpan<char> value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(ReadOnlyMemory<char> value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlyMemory<char> value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(ushort value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ushort value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(uint value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(uint value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Append(ulong value) => Append(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ulong value) => Append(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0) => AppendFormat(format, arg0);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat(string format, string arg0) => AppendFormat(format, arg0);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1) => AppendFormat(format, arg0, arg1);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat
+        ([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, ReadOnlySpan<char> arg0) =>
+        AppendFormat(format, arg0);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2) =>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat
+        ([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0) =>
+        AppendFormat(format, arg0);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat
+        ([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1) =>
+        AppendFormat(format, arg0, arg1);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat
+        ([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2) =>
         AppendFormat(format, arg0, arg1, arg2);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, params object?[] args) => AppendFormat(format, args);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat
+        ([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, params object?[] args) =>
+        AppendFormat(format, args);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat(IFormatProvider? provider, CompositeFormat format, params object?[] args) =>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat(IFormatProvider? provider, CompositeFormat format, params object?[] args) =>
         AppendFormat(provider, format, args);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat(IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0) =>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat
+        (IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0) =>
         AppendFormat(provider, format, arg0);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat(IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1) =>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat
+        (IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1) =>
         AppendFormat(provider, format, arg0, arg1);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat
         (IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2) =>
         AppendFormat(provider, format, arg0, arg1, arg2);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat(IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, params object?[] args) =>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat
+        (IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, params object?[] args) =>
         AppendFormat(provider, format, args);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat
         (IFormatProvider? provider, CompositeFormat format, ReadOnlySpan<object?> args) =>
         AppendFormat(provider, format, args);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat<TParam>(IFormatProvider? provider, CompositeFormat format, TParam arg0) =>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TParam>(IFormatProvider? provider, CompositeFormat format, TParam arg0) =>
         AppendFormat(provider, format, arg0);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat<TParam, TParam1>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TParam, TParam1>
         (IFormatProvider? provider, CompositeFormat format, TParam arg0, TParam1 arg1) =>
         AppendFormat(provider, format, arg0, arg1);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendFormat<TParam, TParam1, TParam2>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TParam, TParam1, TParam2>
         (IFormatProvider? provider, CompositeFormat format, TParam arg0, TParam1 arg1, TParam2 arg2) =>
         AppendFormat(provider, format, arg0, arg1, arg2);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendJoin(string? separator, params object?[] values) => AppendJoin(separator, values);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendJoin(string? separator, params object?[] values) => AppendJoin(separator, values);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendJoin(string? separator, params string?[] values) => AppendJoin(separator, values);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendJoin(string? separator, params string?[] values) => AppendJoin(separator, values);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendJoin(char separator, params string?[] values) => AppendJoin(separator, values);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendJoin(char separator, params string?[] values) => AppendJoin(separator, values);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendJoin<TParam>(string? separator, IEnumerable<TParam> values) =>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendJoin<TParam>(string? separator, IEnumerable<TParam> values) =>
         AppendJoin(separator, values);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendJoin<TParam>(char separator, IEnumerable<TParam> values) =>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendJoin<TParam>(char separator, IEnumerable<TParam> values) =>
         AppendJoin(separator, values);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendLine() => AppendLine();
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendLine() => AppendLine();
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendLine(string? value) => AppendLine(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendLine(string? value) => AppendLine(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendLine(IFrozenString value) => AppendLine(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendLine(ICharSequence value) => AppendLine(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.AppendLine(StringBuilder value) => AppendLine(value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendLine(StringBuilder value) => AppendLine(value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Clear() => Clear();
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Clear() => Clear();
 
-    IMutableString IMutableStringBuilder<IMutableString>.CopyTo(int sourceIndex, char[] destination, int destinationIndex, int count) =>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.CopyTo(int sourceIndex, char[] destination, int destinationIndex, int count) =>
         CopyTo(sourceIndex, destination, destinationIndex, count);
 
-    IMutableString IMutableStringBuilder<IMutableString>.CopyTo(int sourceIndex, Span<char> destination, int count) =>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.CopyTo(int sourceIndex, Span<char> destination, int count) =>
         CopyTo(sourceIndex, destination, count);
 
-    int IMutableStringBuilder<IMutableString>.EnsureCapacity(int capacity) => EnsureCapacity(capacity);
+    int IMutableStringBuilder<IStringBuilder>.EnsureCapacity(int capacity) => EnsureCapacity(capacity);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, bool value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, bool value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, byte value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, byte value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, char value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, char value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, char[]? value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, char[]? value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, decimal value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, decimal value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, double value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, double value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, short value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, short value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, int value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, int value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, long value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, long value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, object? value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, object? value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, sbyte value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, sbyte value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, float value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, float value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, string? value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, string? value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, IFrozenString? value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, ICharSequence? value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, StringBuilder? value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, StringBuilder? value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Remove(int startIndex, int length) => Remove(startIndex, length);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Remove(int startIndex, int length) => Remove(startIndex, length);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, char[]? value, int startIndex, int length) =>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, char[]? value, int startIndex, int length) =>
         Insert(atIndex, value, startIndex, length);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, ushort value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, ushort value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, uint value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, uint value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, ulong value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, ulong value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, string? value, int count) => Insert(atIndex, value, count);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, string? value, int count) => Insert(atIndex, value, count);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Insert(int atIndex, ReadOnlySpan<char> value) => Insert(atIndex, value);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, ReadOnlySpan<char> value) => Insert(atIndex, value);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Replace(char find, char replace) => Replace(find, replace);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(char find, char replace) => Replace(find, replace);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Replace(char find, char replace, int startIndex, int length) =>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(char find, char replace, int startIndex, int length) =>
         Replace(find, replace, startIndex, length);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Replace(string find, string? replace) => Replace(find, replace);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(string find, string? replace) => Replace(find, replace);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Replace(string find, string replace, int startIndex, int length) =>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(string find, string replace, int startIndex, int length) =>
         Replace(find, replace, startIndex, length);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Replace(IFrozenString find, IFrozenString replace) => Replace(find, replace);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(ICharSequence find, ICharSequence replace) => Replace(find, replace);
 
-    IMutableString IMutableStringBuilder<IMutableString>.Replace(IFrozenString find, IFrozenString replace, int startIndex, int length) =>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(ICharSequence find, ICharSequence replace, int startIndex, int length) =>
         Replace(find, replace, startIndex, Length);
 
-    IMutableString IStringBuilder<IMutableString>.Remove(int startIndex) => Remove(startIndex);
+    IStringBuilder IStringBuilder.Remove(int startIndex) => Remove(startIndex);
 
-    IMutableString IStringBuilder<IMutableString>.ToUpper() => ToUpper();
+    IStringBuilder IStringBuilder.ToUpper() => ToUpper();
 
-    IMutableString IStringBuilder<IMutableString>.ToLower() => ToLower();
+    IStringBuilder IStringBuilder.ToLower() => ToLower();
 
-    IMutableString IStringBuilder<IMutableString>.Trim() => Trim();
+    IStringBuilder IStringBuilder.Trim() => Trim();
 
-    IMutableString IStringBuilder<IMutableString>.Substring(int startIndex) => Substring(startIndex);
+    IStringBuilder IStringBuilder.Substring(int startIndex) => Substring(startIndex);
 
-    IMutableString IStringBuilder<IMutableString>.Substring(int startIndex, int length) => Substring(startIndex, length);
+    IStringBuilder IStringBuilder.Substring(int startIndex, int length) => Substring(startIndex, length);
 
 
     public int Length
@@ -305,7 +325,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         }
     }
 
-    public void CopyTo(char[] array, int arrayIndex, int fromMyIndex = 0, int myLength = int.MaxValue)
+    public void CopyTo(char[] array, int arrayIndex, int myLength = int.MaxValue, int fromMyIndex = 0)
     {
         var myIndex = fromMyIndex;
         var myEnd   = myLength != int.MaxValue ? fromMyIndex + myLength : myLength;
@@ -315,7 +335,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         }
     }
 
-    public void CopyTo(RecyclingCharArray array, int? arrayIndex = null, int fromMyIndex = 0, int myLength = int.MaxValue)
+    public void CopyTo(RecyclingCharArray array, int? arrayIndex = null, int myLength = int.MaxValue, int fromMyIndex = 0)
     {
         var myIndex = fromMyIndex;
         var myEnd   = myLength != int.MaxValue ? fromMyIndex + myLength : myLength;
@@ -325,7 +345,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         }
     }
 
-    public void CopyTo(Span<char> charSpan, int spanIndex, int fromMyIndex = 0, int myLength = int.MaxValue)
+    public void CopyTo(Span<char> charSpan, int spanIndex, int myLength = int.MaxValue, int fromMyIndex = 0)
     {
         var myIndex = fromMyIndex;
         var myEnd   = myLength != int.MaxValue ? fromMyIndex + myLength : myLength;
@@ -637,9 +657,17 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
+    public MutableString Append(ICharSequence? value, int startIndex, int length)
+    {
+        if (value == null) return this;
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendRange(value, startIndex, length);
+        return this;
+    }
+
     public MutableString Append(IFrozenString? value)
     {
-        if(value == null) return this;
+        if (value == null) return this;
         if (IsFrozen) return ShouldThrow();
         for (int i = 0; i < value.Length; i++)
         {
@@ -718,6 +746,24 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
+    public MutableString AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, string arg0)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.AppendFormat(format, arg0);
+        return this;
+    }
+
+    public MutableString AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, ReadOnlySpan<char> arg0)
+    {
+        if (IsFrozen) return ShouldThrow();
+        var formatSpan         = format.AsSpan();
+        var nonTokenCharCount  = formatSpan.NonTokenCharCount();
+        var tokenCount         = formatSpan.TokenCount();
+        var interpolatedString = new StringBuilder.AppendInterpolatedStringHandler(nonTokenCharCount, tokenCount, sb);
+        interpolatedString.AppendFormatted(arg0);
+        return this;
+    }
+
     public MutableString AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0)
     {
         if (IsFrozen) return ShouldThrow();
@@ -753,21 +799,24 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString AppendFormat(IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1)
+    public MutableString AppendFormat
+        (IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1)
     {
         if (IsFrozen) return ShouldThrow();
         sb.AppendFormat(provider, format, arg0, arg1);
         return this;
     }
 
-    public MutableString AppendFormat(IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2)
+    public MutableString AppendFormat
+        (IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2)
     {
         if (IsFrozen) return ShouldThrow();
         sb.AppendFormat(provider, format, arg0, arg1, arg2);
         return this;
     }
 
-    public MutableString AppendFormat(IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, params object?[] args)
+    public MutableString AppendFormat
+        (IFormatProvider? provider, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, params object?[] args)
     {
         if (IsFrozen) return ShouldThrow();
         sb.AppendFormat(provider, format, args);
@@ -866,7 +915,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString AppendLine(IFrozenString value)
+    public MutableString AppendLine(ICharSequence value)
     {
         if (IsFrozen) return ShouldThrow();
         sb.Append(value).AppendLine();
@@ -1015,7 +1064,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString Insert(int atIndex, IFrozenString? value)
+    public MutableString Insert(int atIndex, ICharSequence? value)
     {
         if (value == null) return this;
         if (IsFrozen) return ShouldThrow();
@@ -1081,9 +1130,9 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString Replace(IFrozenString find, IFrozenString replace) => Replace(find, replace, 0, Length);
+    public MutableString Replace(ICharSequence find, ICharSequence replace) => Replace(find, replace, 0, Length);
 
-    public MutableString Replace(IFrozenString find, IFrozenString replace, int startIndex, int length)
+    public MutableString Replace(ICharSequence find, ICharSequence replace, int startIndex, int length)
     {
         if (IsFrozen) return ShouldThrow();
         var fromIndex = startIndex;
@@ -1110,9 +1159,9 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public IMutableString Replace(StringBuilder find, StringBuilder replace) => Replace(find, replace, 0, Length);
+    public IStringBuilder Replace(StringBuilder find, StringBuilder replace) => Replace(find, replace, 0, Length);
 
-    public IMutableString Replace(StringBuilder find, StringBuilder replace, int startIndex, int length)
+    public IStringBuilder Replace(StringBuilder find, StringBuilder replace, int startIndex, int length)
     {
         if (IsFrozen) return ShouldThrow();
         var fromIndex = startIndex;
@@ -1228,7 +1277,9 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     // ReSharper disable once UnusedMember.Global
     public IFrozenString NewFrozenString => new FrozenMutableStringWrapper((MutableString)(Clone().Freeze));
 
-    IStringBuilder<IMutableString> ICloneable<IStringBuilder<IMutableString>>.Clone() => Clone();
+    IStringBuilder ICloneable<IStringBuilder>.Clone() => Clone();
+
+    IStringBuilder IStringBuilder.Clone() => Clone();
 
     public override MutableString Clone() => Recycler?.Borrow<MutableString>() ?? new MutableString(this);
 
@@ -1265,7 +1316,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public IMutableString CopyFrom(string source)
+    public IStringBuilder CopyFrom(string source)
     {
         Clear(); // does FrozenCheck
         Append(source);
@@ -1277,6 +1328,13 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     {
         if (ReferenceEquals(null, other)) return false;
         return 0 == CompareTo(other);
+    }
+
+    public bool Equals(string? toCompare)
+    {
+        if (toCompare == null) return false;
+        var compareSpan = toCompare.AsSpan();
+        return Equals(compareSpan);
     }
 
     public override bool Equals(object? obj)
@@ -1368,16 +1426,16 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         public bool Contains(string subStr) => ms.Contains(subStr);
 
         public void CopyTo
-            (Span<char> charSpan, int spanIndex, int fromMyIndex = 0, int myLength = Int32.MaxValue) =>
-            ms.CopyTo(charSpan, spanIndex, fromMyIndex, myLength);
+            (Span<char> charSpan, int spanIndex, int myLength = int.MaxValue, int fromMyIndex = 0) =>
+            ms.CopyTo(charSpan, spanIndex, myLength: myLength, fromMyIndex: fromMyIndex);
 
         public void CopyTo
-            (RecyclingCharArray array, int? arrayIndex = null, int fromMyIndex = 0, int myLength = Int32.MaxValue) =>
-            ms.CopyTo(array, arrayIndex, fromMyIndex, myLength);
+            (RecyclingCharArray array, int? arrayIndex = null, int myLength = int.MaxValue, int fromMyIndex = 0) =>
+            ms.CopyTo(array, arrayIndex, myLength: myLength, fromMyIndex: fromMyIndex);
 
         public void CopyTo
-            (char[] array, int arrayIndex, int fromMyIndex = 0, int myLength = Int32.MaxValue) =>
-            ms.CopyTo(array, arrayIndex, fromMyIndex, myLength);
+            (char[] array, int arrayIndex, int myLength = int.MaxValue, int fromMyIndex = 0) =>
+            ms.CopyTo(array, arrayIndex, myLength: myLength, fromMyIndex: fromMyIndex);
 
         public int DecrementRefCount() => ms.DecrementRefCount();
 
@@ -1427,6 +1485,8 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         public IMutableString SourceThawed => ms.SourceThawed;
 
         public void StateReset() { }
+
+        public bool Equals(string? toCompare) => ms.Equals(toCompare);
 
         public override string ToString() => ms.ToString();
     }

@@ -1,0 +1,37 @@
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeOrderedCollection;
+
+public class CollectionBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAccess<TExt> where TExt : StyledTypeBuilder
+{
+    public bool CollectionInComplexType { get; private set; }
+
+    public CollectionBuilderCompAccess<TExt> InitializeOrderCollectionComponentAccess
+        (TExt externalTypeBuilder, StyledTypeBuilder.StyleTypeBuilderPortableState typeBuilderPortableState, bool isComplex)
+    {
+        Initialize(externalTypeBuilder, typeBuilderPortableState);
+
+        CollectionInComplexType = isComplex && typeBuilderPortableState.OwningAppender.Style.AllowsUnstructured();
+        
+        return this;
+    }
+    
+    public void ConditionalCollectionPrefix()
+    {
+        if (CollectionInComplexType)
+        {
+            Sb.Append("_original: [");
+        }
+    }
+
+    public bool ConditionalCollectionSuffix()
+    {
+        if (CollectionInComplexType)
+        {
+            Sb.Append("]");
+            return true;
+        }
+        return false;
+    }
+}

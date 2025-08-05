@@ -1,5 +1,4 @@
 ﻿using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
-using FortitudeCommon.Logging.Core.Appending;
 using FortitudeCommon.Logging.Core.Appending.Formatting;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
@@ -15,26 +14,24 @@ internal class FlogSynchroniseExecutionQueue(int queueNumber)
         job();
     }
 
-    public override void FlushBufferToAppender(IBufferedFormatWriter toFlush, IFLogAsyncTargetFlushBufferAppender fromAppender)
+    public override void FlushBufferToAppender(IBufferedFormatWriter toFlush, IFLogBufferingFormatAppender fromAppender)
     {
         fromAppender.FlushBufferToAppender(toFlush);
     }
 
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogAsyncTargetReceiveQueueAppender> appenders)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
     {
-        for (var i = 0; i < appenders.Count; i++)
+        for (var i = 0; i < logEntrySinks.Count; i++)
         {
-            var appender = appenders[i];
-            appender.ProcessReceivedLogEntryEvent(logEntryEvent);
+            var logEntrySink = logEntrySinks[i];
+            logEntrySink.InBoundListener(logEntryEvent, publishSource);
         }
     }
 
-
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IFLogAsyncTargetReceiveQueueAppender appender)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IFLogEntrySink logEntrySink, ITargetingFLogEntrySource publishSource)
     {
-        appender.ProcessReceivedLogEntryEvent(logEntryEvent);
+        logEntrySink.InBoundListener(logEntryEvent, publishSource);
     }
-
 
     public override void StartQueueReceiver()
     {

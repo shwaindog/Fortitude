@@ -2,6 +2,9 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions;
@@ -97,14 +100,13 @@ public class MatchLogLevelConfigConfig : MatchConditionConfig, IMutableMatchLogL
         return hashCode;
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(MatchEntryContainsStringConfig))
-               .AddTypeStart()
-               .AddField(nameof(CheckConditionType), CheckConditionType, FLoggerEntryMatchTypeExtensions.FLoggerEntryMatchTypeFormatter)
-               .AddField(nameof(CheckLogLevel), CheckLogLevel, FLogLevelExtensions.FLogLevelFormatter)
-               .AddField(nameof(Is), Is, ComparisonOperatorTypedExtensions.ComparisonOperatorTypeFormatter)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(MatchEntryContainsStringConfig))
+               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType, FLoggerEntryMatchTypeExtensions.FLoggerEntryMatchTypeFormatter)
+               .Field.AlwaysAdd(nameof(CheckLogLevel), CheckLogLevel, FLogLevelExtensions.FLogLevelFormatter)
+               .Field.AlwaysAdd(nameof(Is), Is, ComparisonOperatorTypedExtensions.ComparisonOperatorTypeFormatter)
+               .Complete();
     }
 }

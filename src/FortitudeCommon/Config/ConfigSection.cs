@@ -17,6 +17,8 @@ public abstract class ConfigSection(IConfigurationRoot root, string path) : Conf
     private IRecycler? recycler;
 
     protected static string Split = ConfigurationPath.KeyDelimiter;
+    
+    public static string KeySeparator = ConfigurationPath.KeyDelimiter;
 
     protected ConfigSection() : this(InMemoryConfigRoot, InMemoryPath) { }
 

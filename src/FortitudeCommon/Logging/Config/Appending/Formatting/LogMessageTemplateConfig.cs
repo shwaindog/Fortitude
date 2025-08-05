@@ -2,6 +2,8 @@
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting;
@@ -112,14 +114,13 @@ public class LogMessageTemplateConfig : FLogConfig, IMutableLogMessageTemplateCo
         return hashCode;
     }
 
-    public virtual IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(ExtractKeyExpressionConfig))
-               .AddTypeStart()
-               .AddField(nameof(LogLevel), LogLevel, FLogLevelExtensions.FLogLevelFormatter)
-               .AddField(nameof(MessageTemplate), MessageTemplate)
-               .AddField(nameof(TemplateLoggerName), TemplateLoggerName)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(ExtractKeyExpressionConfig))
+               .Field.AlwaysAdd(nameof(LogLevel), LogLevel, FLogLevelExtensions.FLogLevelFormatter)
+               .Field.AlwaysAdd(nameof(MessageTemplate), MessageTemplate)
+               .Field.AlwaysAdd(nameof(TemplateLoggerName), TemplateLoggerName)
+               .Complete();
     }
 }

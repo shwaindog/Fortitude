@@ -2,6 +2,9 @@
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Logging.Config.Visitor.LoggerVisitors;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.LoggersHierarchy;
@@ -15,36 +18,37 @@ public interface IFLoggerRootConfig : IFLoggerTreeCommonConfig, ICloneable<IFLog
     new IFLoggerRootConfig Clone();
 }
 
-public interface IMutableFLoggerRootConfig : IFLoggerRootConfig, IMutableFLoggerTreeCommonConfig
+public interface IMutableFLoggerRootConfig : IFLoggerRootConfig, IMutableFLoggerTreeCommonConfig, ICloneable<IMutableFLoggerRootConfig>
 {
+    new IMutableNamedChildLoggersLookupConfig AllLoggers();
+
+    new IMutableFLoggerRootConfig Clone();
 }
 
-public class FLoggerRootConfig: FLoggerTreeCommonConfig, IMutableFLoggerRootConfig
+public class FLoggerRootConfig : FLoggerTreeCommonConfig, IMutableFLoggerRootConfig
 {
     public FLoggerRootConfig(IConfigurationRoot root, string path) : base(root, path) { }
 
     public FLoggerRootConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
-    public FLoggerRootConfig(string name, FLogLevel logLevel
-       ,IMutableNamedChildLoggersLookupConfig? loggersCfg = null, IAppendableNamedAppendersLookupConfig? appendersCfg = null
-      , IMutableFLogEntryPoolConfig? logEntryPool = null )
-        : this(InMemoryConfigRoot, InMemoryPath, name, logLevel, loggersCfg, appendersCfg, logEntryPool)
-    {
-    }
+    public FLoggerRootConfig
+    (string name, FLogLevel logLevel
+      , IMutableNamedChildLoggersLookupConfig? loggersCfg = null, IAppendableNamedAppendersLookupConfig? appendersCfg = null
+      , IMutableFLogEntryPoolConfig? logEntryPool = null)
+        : this(InMemoryConfigRoot, InMemoryPath, name, logLevel, loggersCfg, appendersCfg, logEntryPool) { }
 
-    public FLoggerRootConfig(IConfigurationRoot root, string path, string name, FLogLevel logLevel
-      ,IMutableNamedChildLoggersLookupConfig? loggersCfg = null, IAppendableNamedAppendersLookupConfig? appendersCfg = null
-      , IMutableFLogEntryPoolConfig? logEntryPool = null ) : base(root, path, name, logLevel, loggersCfg, appendersCfg, logEntryPool)
-    {
-    }
+    public FLoggerRootConfig
+    (IConfigurationRoot root, string path, string name, FLogLevel logLevel
+      , IMutableNamedChildLoggersLookupConfig? loggersCfg = null, IAppendableNamedAppendersLookupConfig? appendersCfg = null
+      , IMutableFLogEntryPoolConfig? logEntryPool = null) : base(root, path, name, logLevel, loggersCfg, appendersCfg, logEntryPool) { }
 
-    public FLoggerRootConfig(IFLoggerRootConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path)
-    {
-    }
+    public FLoggerRootConfig(IFLoggerRootConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path) { }
 
-    public FLoggerRootConfig(IFLoggerRootConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
+    public FLoggerRootConfig(IFLoggerRootConfig toClone) : this(toClone, InMemoryConfigRoot, toClone.ConfigSubPath) { }
 
-    public INamedChildLoggersLookupConfig AllLoggers()
+    public INamedChildLoggersLookupConfig AllLoggers() => ((IMutableFLoggerRootConfig)this).AllLoggers();
+
+    IMutableNamedChildLoggersLookupConfig IMutableFLoggerRootConfig.AllLoggers()
     {
         var results = new NamedChildLoggersLookupConfig();
         foreach (var childLoggerConfig in Visit(new AllLoggers()))
@@ -58,13 +62,17 @@ public class FLoggerRootConfig: FLoggerTreeCommonConfig, IMutableFLoggerRootConf
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
-    object ICloneable.     Clone() => Clone();
+    object ICloneable.Clone() => Clone();
 
     IFLoggerRootConfig ICloneable<IFLoggerRootConfig>.Clone() => Clone();
 
     IFLoggerRootConfig IFLoggerRootConfig.Clone() => Clone();
 
-    public override FLoggerRootConfig Clone() => new (this);
+    IMutableFLoggerRootConfig ICloneable<IMutableFLoggerRootConfig>.Clone() => Clone();
+
+    IMutableFLoggerRootConfig IMutableFLoggerRootConfig.Clone() => Clone();
+
+    public override FLoggerRootConfig Clone() => new(this);
 
     public override bool AreEquivalent(IFLoggerMatchedAppenders? other, bool exactTypes = false)
     {
@@ -92,16 +100,15 @@ public class FLoggerRootConfig: FLoggerTreeCommonConfig, IMutableFLoggerRootConf
         }
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-        sbc.AddTypeName(nameof(FLoggerTreeCommonConfig))
-           .AddTypeStart()
-           .AddField(nameof(Name), Name)
-           .AddField(nameof(LogLevel), LogLevel.ToString())
-           .AddField(nameof(DescendantLoggers), DescendantLoggers)
-           .AddNonNullField(nameof(Appenders), Appenders)
-           .AddNonNullField(nameof(LogEntryPool), LogEntryPool)
-           .AddTypeEnd();
+            sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
+               .Field.AlwaysAdd(nameof(Name), Name)
+               .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())
+               .Field.AlwaysAdd(nameof(DescendantLoggers), DescendantLoggers)
+               .Field.WhenNonNullAdd(nameof(Appenders), Appenders)
+               .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool)
+               .Complete();
     }
 }

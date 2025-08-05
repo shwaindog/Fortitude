@@ -1,4 +1,5 @@
 ﻿using FortitudeCommon.Logging.AsyncProcessing;
+using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Initialization;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
@@ -38,11 +39,13 @@ public static class FLogCreate
 
     public static Func<IMutableLogEntryPoolsInitializationConfig, IMutableFLogEntryPoolRegistry> MakeLogEntryPoolRegistry { get; set; }
 
-    public static Func<IFLogConfigRegistry> MakeConfigRegistry { get; set; }
+    public static Func<IMutableFLogAppConfig, IFLogConfigRegistry> MakeConfigRegistry { get; set; }
 
-    public static Func<Dictionary<string, IMutableAppenderDefinitionConfig>, IFLogAppenderRegistry> MakeAppenderRegistry { get; set; }
+    public static Func<IFLogContext, Dictionary<string, IMutableAppenderDefinitionConfig>, IFLogAppenderRegistry> MakeAppenderRegistry { get; set; }
 
-    public static Func<IFLoggerRootConfig, IFLogEntryPoolRegistry, IMutableFLogLoggerRegistry> MakeLoggerRegistry { get; set; }
+    public static 
+        Func< IMutableFLoggerRootConfig , IFLogAppenderRegistry , IFLogEntryPoolRegistry , IMutableFLogLoggerRegistry> 
+        MakeLoggerRegistry { get; set; }
 
     public static Func<IMutableAsyncQueuesInitConfig, IMutableFLoggerAsyncRegistry> MakeAsyncRegistry { get; set; }
 
@@ -50,13 +53,13 @@ public static class FLogCreate
 
     public static Func<IConfigurationRoot, string, IMutableAppenderReferenceConfig?> MakeAppenderConfig { get; set; }
 
-    public static Func<IFLoggerDescendantConfig, IFLoggerCommon, IFLogLoggerRegistry, IMutableFLogger> MakeLogger { get; set; }
+    public static Func<IMutableFLoggerDescendantConfig, IFLoggerCommon, IFLogLoggerRegistry, IMutableFLogger> MakeLogger { get; set; }
 
     public static Func<IConfigurationRoot, string, IMutableFLoggerDescendantConfig> MakeDescendantLoggerConfig { get; set; }
 
-    public static Func<IFLoggerTreeCommonConfig, IMutableFLoggerDescendantConfig> MakeClonedDescendantLoggerConfig { get; set; }
+    public static Func<IFLoggerTreeCommonConfig, string, IMutableFLoggerDescendantConfig> MakeClonedDescendantLoggerConfig { get; set; }
 
-    public static Func<IFLoggerRootConfig, IFLogLoggerRegistry, IMutableFLoggerRoot> MakeRootLogger { get; set; }
+    public static Func<IMutableFLoggerRootConfig, IFLogLoggerRegistry, IMutableFLoggerRoot> MakeRootLogger { get; set; }
 
     public static Func<IConfigurationRoot, string, IMutableFLoggerRootConfig> MakeRootLoggerConfig { get; set; }
 

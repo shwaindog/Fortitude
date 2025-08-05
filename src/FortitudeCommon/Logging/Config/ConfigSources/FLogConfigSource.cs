@@ -6,6 +6,8 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.ConfigSources;
@@ -157,17 +159,16 @@ public abstract class FLogConfigSource : FLogConfig, IMutableFlogConfigSource
         }
     }
 
-    public virtual IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-        sbc.AddTypeName(nameof(FLoggerTreeCommonConfig))
-           .AddTypeStart()
-           .AddField(nameof(ConfigPriorityOrder), ConfigPriorityOrder)
-           .AddField(nameof(ConfigSourceName), ConfigSourceName)
-           .AddField(nameof(Optional), Optional)
-           .AddField(nameof(SourceType), SourceType.ToString())
-           .AddField(nameof(RecheckConfigIntervalTimeSpan), RecheckConfigIntervalTimeSpan)
-           .AddTypeEnd();
+        sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
+           .Field.AlwaysAdd(nameof(ConfigPriorityOrder), ConfigPriorityOrder)
+           .Field.AlwaysAdd(nameof(ConfigSourceName), ConfigSourceName)
+           .Field.AlwaysAdd(nameof(Optional), Optional)
+           .Field.AlwaysAdd(nameof(SourceType), SourceType.ToString())
+           .Field.AlwaysAdd(nameof(RecheckConfigIntervalTimeSpan), RecheckConfigIntervalTimeSpan)
+           .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

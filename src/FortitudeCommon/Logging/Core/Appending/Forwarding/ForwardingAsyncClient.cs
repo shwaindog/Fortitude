@@ -6,25 +6,25 @@ namespace FortitudeCommon.Logging.Core.Appending.Forwarding;
 
 public interface IAppenderForwardingAsyncClient : IAppenderAsyncClient
 {
-    void ForwardLogEntryEventToAppenders(int onQueue, LogEntryPublishEvent logEntryEvent, List<IAppenderClient> appendersOnQueue);
+    void ForwardLogEntryEventToAppenders(int onQueue, LogEntryPublishEvent logEntryEvent, IReadOnlyList<IAppenderClient> appendersOnQueue);
 }
 
 public class ForwardingAsyncClient : ReceiveAsyncClient, IAppenderForwardingAsyncClient
 {
     private readonly List<IFLogAsyncQueuePublisher?> publisherByQueueNumber = new ();
 
-    public ForwardingAsyncClient(IFLogAsyncTargetReceiveQueueAppender asyncAppender, int appenderReceiveQueueNum
+    public ForwardingAsyncClient(FLogForwardingAppender destinationAppender, int appenderReceiveQueueNum
           , IFLoggerAsyncRegistry asyncRegistry) 
-        : base(asyncAppender, appenderReceiveQueueNum, asyncRegistry) { }
+        : base(destinationAppender, appenderReceiveQueueNum, asyncRegistry) { }
 
 
-    public void ForwardLogEntryEventToAppenders(int onQueue, LogEntryPublishEvent logEntryEvent, List<IAppenderClient> appendersOnQueue)
+    public void ForwardLogEntryEventToAppenders(int onQueue, LogEntryPublishEvent logEntryEvent, IReadOnlyList<IAppenderClient> appendersOnQueue)
     {
         if (onQueue == 0 || onQueue == FLogAsyncQueue.MyCallingQueueNumber)
         {
             foreach (var appender in appendersOnQueue)
             {
-                appender.ProcessReceivedLogEntryEvent(logEntryEvent);    
+                appender.PublishLogEntryEvent(logEntryEvent);
             }
             return;
         }
@@ -46,6 +46,6 @@ public class ForwardingAsyncClient : ReceiveAsyncClient, IAppenderForwardingAsyn
             publisherByQueueNumber[onQueue] = checkHasPublisher;
         }
         
-        checkHasPublisher.SendLogEntryEventTo(logEntryEvent, appendersOnQueue);
+        checkHasPublisher.SendLogEntryEventTo(logEntryEvent, appendersOnQueue, DestinationAppender.ReceiveEndpoint);
     }
 }

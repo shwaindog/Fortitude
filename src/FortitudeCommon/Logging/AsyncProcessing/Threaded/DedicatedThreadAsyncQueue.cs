@@ -1,13 +1,10 @@
-﻿using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
+﻿using FortitudeCommon.EventProcessing.Disruption.Rings.PollingRings;
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
-using FortitudeCommon.Logging.Core.Appending;
 using FortitudeCommon.Logging.Core.Appending.Formatting;
-using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
-namespace FortitudeCommon.Logging.AsyncProcessing.SingleBackground;
+namespace FortitudeCommon.Logging.AsyncProcessing.Threaded;
 
 public class DedicatedThreadAsyncQueue : FLogAsyncQueue
 {
@@ -40,7 +37,7 @@ public class DedicatedThreadAsyncQueue : FLogAsyncQueue
         ring.Publish(slot);
     }
 
-    public override void FlushBufferToAppender(IBufferedFormatWriter toFlush, IFLogAsyncTargetFlushBufferAppender fromAppender)
+    public override void FlushBufferToAppender(IBufferedFormatWriter toFlush, IFLogBufferingFormatAppender fromAppender)
     {
         var slot = ring.Claim();
 
@@ -49,21 +46,21 @@ public class DedicatedThreadAsyncQueue : FLogAsyncQueue
         ring.Publish(slot);
     }
 
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogAsyncTargetReceiveQueueAppender> appenders)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
     {
         var slot = ring.Claim();
 
         var flogAsyncPayload = ring[slot];
-        flogAsyncPayload.SetAsSendLogEntryEvent(logEntryEvent, appenders);
+        flogAsyncPayload.SetAsSendLogEntryEvent(logEntryEvent, logEntrySinks, publishSource);
         ring.Publish(slot);
     }
 
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IFLogAsyncTargetReceiveQueueAppender appender)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IFLogEntrySink logEntrySink, ITargetingFLogEntrySource publishSource)
     {
         var slot = ring.Claim();
         
         var flogAsyncPayload = ring[slot];
-        flogAsyncPayload.SetAsSendLogEntryEvent(logEntryEvent, appender);
+        flogAsyncPayload.SetAsSendLogEntryEvent(logEntryEvent, logEntrySink, publishSource);
         ring.Publish(slot);
     }
 

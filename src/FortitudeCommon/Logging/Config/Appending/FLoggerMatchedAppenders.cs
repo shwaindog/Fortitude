@@ -2,7 +2,9 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Configuration;
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending;
@@ -19,24 +21,24 @@ public interface IMutableFLoggerMatchedAppenders : IFLoggerMatchedAppenders
 
 public abstract class FLoggerMatchedAppenders : FLogConfig, IMutableFLoggerMatchedAppenders
 {
-    private IAppendableNamedAppendersLookupConfig?  appendersConfig;
+    private IAppendableNamedAppendersLookupConfig? appendersConfig;
     protected FLoggerMatchedAppenders(IConfigurationRoot root, string path) : base(root, path) { }
 
     protected FLoggerMatchedAppenders() : this(InMemoryConfigRoot, InMemoryPath) { }
 
     protected FLoggerMatchedAppenders
-    (IAppendableNamedAppendersLookupConfig? appendersCfg)
+        (IAppendableNamedAppendersLookupConfig? appendersCfg)
         : this(InMemoryConfigRoot, InMemoryPath, appendersCfg) { }
 
     protected FLoggerMatchedAppenders
-    (IConfigurationRoot root, string path,IAppendableNamedAppendersLookupConfig? appendersCfg = null) : base(root, path)
+        (IConfigurationRoot root, string path, IAppendableNamedAppendersLookupConfig? appendersCfg = null) : base(root, path)
     {
-        Appenders     = appendersCfg ?? new NamedAppendersLookupConfig();
+        Appenders = appendersCfg ?? new NamedAppendersLookupConfig();
     }
 
     protected FLoggerMatchedAppenders(IFLoggerMatchedAppenders toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        Appenders     = (IAppendableNamedAppendersLookupConfig)toClone.Appenders;
+        Appenders = (IAppendableNamedAppendersLookupConfig)toClone.Appenders;
     }
 
     protected FLoggerMatchedAppenders(IFLoggerMatchedAppenders toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
@@ -51,13 +53,16 @@ public abstract class FLoggerMatchedAppenders : FLogConfig, IMutableFLoggerMatch
             {
                 if (GetSection(nameof(Appenders)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
                 {
-                    return appendersConfig = new NamedAppendersLookupConfig(ConfigRoot, $"{Path}{Split}{nameof(Appenders)}")
+                    return appendersConfig ??= new NamedAppendersLookupConfig(ConfigRoot, $"{Path}{Split}{nameof(Appenders)}")
                     {
                         ParentConfig = this
                     };
                 }
             }
-            return appendersConfig ?? throw new ConfigurationErrorsException($"Expected {nameof(Appenders)} to be configured");
+            return appendersConfig ??= new NamedAppendersLookupConfig(ConfigRoot, $"{Path}{Split}{nameof(Appenders)}")
+            {
+                ParentConfig = this
+            };
         }
         set
         {
@@ -71,7 +76,7 @@ public abstract class FLoggerMatchedAppenders : FLogConfig, IMutableFLoggerMatch
     {
         if (other == null) return false;
 
-        var appendersSame  = Appenders.AreEquivalent(other.Appenders, exactTypes);
+        var appendersSame = Appenders.AreEquivalent(other.Appenders, exactTypes);
 
         var allAreSame = appendersSame;
 

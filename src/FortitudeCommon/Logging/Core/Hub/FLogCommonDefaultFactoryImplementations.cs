@@ -1,5 +1,6 @@
 ﻿using FortitudeCommon.Logging.AsyncProcessing;
 using FortitudeCommon.Logging.AsyncProcessing.ProxyQueue;
+using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Initialization;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
@@ -32,7 +33,7 @@ public static class FLogCommonDefaultFactoryImplementations
     }
 
     public static IMutableFLoggerRoot DefaultCreateRootLogger
-        (IFLoggerRootConfig rootLoggerConfig, IFLogLoggerRegistry loggerRegistry)
+        (IMutableFLoggerRootConfig rootLoggerConfig, IFLogLoggerRegistry loggerRegistry)
     {
         return new FLoggerRoot(rootLoggerConfig, loggerRegistry);
     }
@@ -43,14 +44,14 @@ public static class FLogCommonDefaultFactoryImplementations
     }
 
     public static IMutableFLogger DefaultCreateLogger
-        (IFLoggerDescendantConfig loggerConsolidatedConfig, IFLoggerCommon myParent, IFLogLoggerRegistry loggerRegistry)
+        (IMutableFLoggerDescendantConfig loggerConsolidatedConfig, IFLoggerCommon myParent, IFLogLoggerRegistry loggerRegistry)
     {
         return new FLogger(loggerConsolidatedConfig, myParent, loggerRegistry);
     }
 
-    public static IMutableFLoggerDescendantConfig DefaultClonedDescendantLoggerConfig(IFLoggerTreeCommonConfig toClone)
+    public static IMutableFLoggerDescendantConfig DefaultClonedDescendantLoggerConfig(IFLoggerTreeCommonConfig toClone, string configPath)
     {
-        return new FLoggerDescendantConfig(toClone);
+        return new FLoggerDescendantConfig(toClone, configPath);
     }
 
     public static IMutableFLoggerDescendantConfig DefaultCreateDescendantLoggerConfig(IConfigurationRoot configRoot, string configPath)
@@ -73,20 +74,24 @@ public static class FLogCommonDefaultFactoryImplementations
         return new FLogEntryPoolRegistry(poolInitConfig);
     }
 
-    public static IMutableFLogConfigRegistry DefaultConfigRegistry()
+    public static IMutableFLogConfigRegistry DefaultConfigRegistry(IMutableFLogAppConfig appConfig)
     {
-        return new FLogConfigRegistry();
+        return new FLogConfigRegistry(appConfig);
     }
 
     public static IMutableFLogAppenderRegistry DefaultAppenderRegistry
-    (Dictionary<string, IMutableAppenderDefinitionConfig> foundAppenderDefinitions)
+    (IFLogContext context, Dictionary<string, IMutableAppenderDefinitionConfig> foundAppenderDefinitions)
     {
-        return new FLogAppenderRegistry(foundAppenderDefinitions);
+        return new FLogAppenderRegistry(context, foundAppenderDefinitions);
     }
 
-    public static IMutableFLogLoggerRegistry DefaultLoggerRegistry(IFLoggerRootConfig rootLogger, IFLogEntryPoolRegistry fLogEntryPoolRegistry)
+    public static IMutableFLogLoggerRegistry DefaultLoggerRegistry
+        (
+            IMutableFLoggerRootConfig rootLogger
+          , IFLogAppenderRegistry appenderRegistry
+          , IFLogEntryPoolRegistry fLogEntryPoolRegistry)
     {
-        return new FLogLoggerRegistry(rootLogger, fLogEntryPoolRegistry);
+        return new FLogLoggerRegistry(rootLogger, appenderRegistry, fLogEntryPoolRegistry);
     }
 
     public static IMutableFLoggerAsyncRegistry DefaultAsyncRegistry(IMutableAsyncQueuesInitConfig asyncConfig)

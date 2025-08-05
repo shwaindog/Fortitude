@@ -2,6 +2,8 @@
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Initialization;
@@ -122,13 +124,12 @@ public class FLogInitializationConfig : FLogConfig, IMutableFLogInitializationCo
         return hashCode;
     }
 
-    public virtual IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(FLogInitializationConfig))
-               .AddTypeStart()
-               .AddField(nameof(AsyncBufferingInit), AsyncBufferingInit)
-               .AddField(nameof(LogEntryPoolsInit), LogEntryPoolsInit)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(FLogInitializationConfig))
+               .Field.AlwaysAdd(nameof(AsyncBufferingInit), AsyncBufferingInit)
+               .Field.AlwaysAdd(nameof(LogEntryPoolsInit), LogEntryPoolsInit)
+               .Complete();
     }
 }

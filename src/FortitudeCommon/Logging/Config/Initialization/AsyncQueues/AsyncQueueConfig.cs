@@ -3,6 +3,8 @@ using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
@@ -189,18 +191,17 @@ public class AsyncQueueConfig : FLogConfig, IMutableAsyncQueueConfig
         }
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(AsyncQueueConfig))
-               .AddTypeStart()
-               .AddField(nameof(QueueNumber), QueueNumber)
-               .AddField(nameof(QueueType), QueueType, AsyncProcessingTypesExtensions.AsyncProcessingTypeFormatter)
-               .AddField(nameof(QueueCapacity), QueueCapacity)
-               .AddField(nameof(LaunchAtFlogStart), LaunchAtFlogStart)
-               .AddField(nameof(QueueFullHandling), QueueFullHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
-               .AddField(nameof(QueueFullDropInterval), QueueFullDropInterval)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(AsyncQueueConfig))
+               .Field.AlwaysAdd(nameof(QueueNumber), QueueNumber)
+               .Field.AlwaysAdd(nameof(QueueType), QueueType, AsyncProcessingTypesExtensions.AsyncProcessingTypeFormatter)
+               .Field.AlwaysAdd(nameof(QueueCapacity), QueueCapacity)
+               .Field.AlwaysAdd(nameof(LaunchAtFlogStart), LaunchAtFlogStart)
+               .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
+               .Field.AlwaysAdd(nameof(QueueFullDropInterval), QueueFullDropInterval)
+               .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

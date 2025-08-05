@@ -11,6 +11,8 @@ using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config;
@@ -74,11 +76,8 @@ public class FLogAppConfig : FLoggerMatchedAppenders, IMutableFLogAppConfig
             AppenderName = ConsoleAppenderConfig.DefaultConsoleAppenderName,
         };
         appConfig.Appenders.Add(consoleAppenderConfig.AppenderName, consoleAppenderConfig);
-        var rootLoggerConfig = new FLoggerRootConfig
-        {
-            LogLevel = FLogLevel.Debug
-        };
-        rootLoggerConfig.Appenders.Add(consoleAppenderConfig.GenerateReferenceToThis());
+        appConfig.RootLogger.LogLevel = FLogLevel.Debug;
+        appConfig.RootLogger.Appenders.Add(consoleAppenderConfig.GenerateReferenceToThis());
         return appConfig;
     }
 
@@ -140,7 +139,7 @@ public class FLogAppConfig : FLoggerMatchedAppenders, IMutableFLogAppConfig
                     return rootLoggerConfig;
                 }
             }
-            return rootLoggerConfig ?? throw new ConfigurationErrorsException($"Expected {nameof(RootLogger)} to be configured");
+            return rootLoggerConfig ??= FLogCreate.MakeRootLoggerConfig(ConfigRoot, $"{Path}{Split}{nameof(RootLogger)}");
         }
         set
         {
@@ -188,15 +187,14 @@ public class FLogAppConfig : FLoggerMatchedAppenders, IMutableFLogAppConfig
         }
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-        sbc.AddTypeName(nameof(FLogAppConfig))
-           .AddTypeStart()
-           .AddField(nameof(ConfigSourcesLookup), ConfigSourcesLookup)
-           .AddField(nameof(Appenders), Appenders)
-           .AddField(nameof(RootLogger), RootLogger)
-           .AddTypeEnd();
+        sbc.StartComplexType(nameof(FLogAppConfig))
+           .Field.AlwaysAdd(nameof(ConfigSourcesLookup), ConfigSourcesLookup)
+           .Field.AlwaysAdd(nameof(Appenders), Appenders)
+           .Field.AlwaysAdd(nameof(RootLogger), RootLogger)
+           .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

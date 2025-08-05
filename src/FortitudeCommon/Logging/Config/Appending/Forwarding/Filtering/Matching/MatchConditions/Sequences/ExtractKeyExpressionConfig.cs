@@ -4,6 +4,8 @@
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
@@ -109,14 +111,13 @@ public class ExtractKeyExpressionConfig : FLogConfig, IMutableExtractKeyExpressi
         return hashCode;
     }
 
-    public virtual IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(ExtractKeyExpressionConfig))
-               .AddTypeStart()
-               .AddField(nameof(KeyName), KeyName)
-               .AddField(nameof(ExtractRegEx), ExtractRegEx)
-               .AddField(nameof(ExtractGroupNumber), ExtractGroupNumber)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(ExtractKeyExpressionConfig))
+               .Field.AlwaysAdd(nameof(KeyName), KeyName)
+               .Field.AlwaysAdd(nameof(ExtractRegEx), ExtractRegEx)
+               .Field.AlwaysAdd(nameof(ExtractGroupNumber), ExtractGroupNumber)
+               .Complete();
     }
 }

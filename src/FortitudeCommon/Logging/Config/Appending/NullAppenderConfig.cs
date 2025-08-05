@@ -2,7 +2,8 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending;
@@ -18,8 +19,6 @@ public class NullAppenderConfig : AppenderDefinitionConfig, INullAppenderConfig
 {
     private const string SyncForwardingAppenderType = $"{nameof(FLoggerBuiltinAppenderType.SyncForwarding)}";
 
-    private IAppendableForwardingAppendersLookupConfig?  appendersConfig;
-
     public NullAppenderConfig(IConfigurationRoot root, string path) 
         : base(root, path, INullAppenderConfig.NullAppenderName, INullAppenderConfig.NullAppenderType ) { }
 
@@ -29,7 +28,7 @@ public class NullAppenderConfig : AppenderDefinitionConfig, INullAppenderConfig
     {
     }
 
-    public NullAppenderConfig(INullAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
+    public NullAppenderConfig(INullAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, toClone.ConfigSubPath) { }
 
     public override string AppenderType
     {
@@ -55,14 +54,12 @@ public class NullAppenderConfig : AppenderDefinitionConfig, INullAppenderConfig
         return hashCode;
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        sbc.AddTypeName(nameof(NullAppenderConfig))
-           .AddTypeStart()
+        using var tb = 
+            sbc.StartComplexType(nameof(NullAppenderConfig))
            .AddBaseFieldsStart();
-        base.ToString(sbc)
-            .AddBaseFieldsEnd()
-            .AddTypeEnd();
-        return sbc;
+        base.ToString(sbc);
+        return tb.Complete();
     }
 }

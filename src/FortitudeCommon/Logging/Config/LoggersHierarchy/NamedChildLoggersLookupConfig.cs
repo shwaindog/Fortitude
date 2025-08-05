@@ -9,6 +9,8 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.LoggersHierarchy;
@@ -30,6 +32,10 @@ public interface IMutableNamedChildLoggersLookupConfig : INamedChildLoggersLooku
 
     new bool ContainsKey(string key);
 
+    void Add(IMutableFLoggerDescendantConfig toAdd);
+
+    new bool TryGetValue(string appenderName, [MaybeNullWhen(false)] out IMutableFLoggerDescendantConfig value);
+
     new IEnumerator<KeyValuePair<string, IMutableFLoggerDescendantConfig>> GetEnumerator();
 }
 
@@ -43,24 +49,24 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
 
     public NamedChildLoggersLookupConfig(IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public NamedChildLoggersLookupConfig() : this(InMemoryConfigRoot, InMemoryPath) 
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public NamedChildLoggersLookupConfig(params IMutableFLoggerDescendantConfig[] toAdd)
         : this(InMemoryConfigRoot, InMemoryPath, toAdd)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public NamedChildLoggersLookupConfig
         (IConfigurationRoot root, string path, params IMutableFLoggerDescendantConfig[] toAdd) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
         for (int i = 0; i < toAdd.Length; i++)
         {
             loggersByName.Add(toAdd[i].Name, toAdd[i]);
@@ -69,16 +75,16 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
 
     public NamedChildLoggersLookupConfig(INamedChildLoggersLookupConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
         foreach (var kvp in toClone)
         {
             loggersByName.Add(kvp.Key, (IMutableFLoggerDescendantConfig)kvp.Value);
         }
     }
 
-    public NamedChildLoggersLookupConfig(INamedChildLoggersLookupConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath)
+    public NamedChildLoggersLookupConfig(INamedChildLoggersLookupConfig toClone) : this(toClone, InMemoryConfigRoot, toClone.ConfigSubPath)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public void Add(KeyValuePair<string, IMutableFLoggerDescendantConfig> item)
@@ -93,6 +99,12 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
         PushToConfigStorage(value);
     }
 
+    public void Add(IMutableFLoggerDescendantConfig toAdd)
+    {
+        loggersByName.Add(toAdd.Name, toAdd);
+        PushToConfigStorage(toAdd);
+    }
+
     protected void PushToConfigStorage(IMutableFLoggerDescendantConfig value)
     {
         value.CloneConfigTo(ConfigRoot, $"{Path}{Split}{value.Name}");
@@ -105,6 +117,7 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
         {
             if (!loggersByName.Any() || nextConfigReadTime < TimeContext.UtcNow)
             {
+                recheckTimeSpanInterval = FLogContext.NullOnUnstartedContext?.ConfigRegistry?.ExpireConfigCacheIntervalTimeSpan ?? TimeSpan.FromMinutes(1);
                 loggersByName.Clear();
                 foreach (var configurationSection in GetSection(Path).GetChildren())
                 {
@@ -143,7 +156,8 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
     public bool TryGetValue(string appenderName, [MaybeNullWhen(false)] out IMutableFLoggerDescendantConfig value) =>
         CheckConfigGetLoggersDict.TryGetValue(appenderName, out value);
 
-    public bool TryGetValue(string appenderName, [MaybeNullWhen(false)] out IFLoggerDescendantConfig value)
+    bool IReadOnlyDictionary<string, IFLoggerDescendantConfig>.TryGetValue
+        (string appenderName, [MaybeNullWhen(false)] out IFLoggerDescendantConfig value)
     {
         value = null;
         if (CheckConfigGetLoggersDict.TryGetValue(appenderName, out var config))
@@ -209,13 +223,12 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
         return hashCode;
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(NamedChildLoggersLookupConfig))
-               .AddTypeStart()
-               .AddKeyValues(loggersByName)
-               .AddTypeEnd();
+            sbc.StartKeyedCollectionType(nameof(NamedChildLoggersLookupConfig))
+               .AddAll(loggersByName)
+               .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

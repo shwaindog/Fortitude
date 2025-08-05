@@ -2,6 +2,8 @@
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Pooling;
@@ -165,16 +167,15 @@ public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
         }
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-        sbc.AddTypeName(nameof(FLogEntryPoolConfig))
-           .AddTypeStart()
-           .AddField(nameof(PoolName), PoolName)
-           .AddField(nameof(PoolScope), PoolScope.ToString())
-           .AddField(nameof(LogEntryCharCapacity), LogEntryCharCapacity)
-           .AddField(nameof(LogEntriesBatchSize), LogEntriesBatchSize)
-           .AddTypeEnd();
+        sbc.StartComplexType(nameof(FLogEntryPoolConfig))
+           .Field.AlwaysAdd(nameof(PoolName), PoolName)
+           .Field.AlwaysAdd(nameof(PoolScope), PoolScope.ToString())
+           .Field.AlwaysAdd(nameof(LogEntryCharCapacity), LogEntryCharCapacity)
+           .Field.AlwaysAdd(nameof(LogEntriesBatchSize), LogEntriesBatchSize)
+           .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

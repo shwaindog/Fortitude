@@ -57,22 +57,27 @@ public interface IMutableFLogAppenderRegistry : IFLogAppenderRegistry
 
 public class FLogAppenderRegistry : IMutableFLogAppenderRegistry
 {
-    private static readonly object SyncLock = new ();
+    private static readonly object SyncLock = new();
 
-    private Lazy<IFLogAppender?> failAppender       = 
-        new ( ()=> new FLogConsoleAppender(ConsoleAppenderConfig.DefaultConsoleAppenderConfig, FLogContext.Context));
+    private readonly Lazy<IFLogAppender?> failAppender;
 
-    private IAppenderClient?     failAppenderClient;
+    private IAppenderClient? failAppenderClient;
 
     private readonly ConcurrentDictionary<string, IFLogAppender> embodiedAppenders = new();
 
+    private readonly IFLogContext flogContext;
+
     private Dictionary<string, IMutableAppenderDefinitionConfig> definedAppenderConfigs;
 
-    public FLogAppenderRegistry(Dictionary<string, IMutableAppenderDefinitionConfig> appenderConfigs)
+    public FLogAppenderRegistry(IFLogContext flogContext, Dictionary<string, IMutableAppenderDefinitionConfig> appenderConfigs)
     {
+        this.flogContext       = flogContext;
         definedAppenderConfigs = appenderConfigs;
 
         RegisterAppenderCallback = AddAppenderCreated;
+
+        failAppender =
+            new(() => new FLogConsoleAppender(ConsoleAppenderConfig.DefaultConsoleAppenderConfig, flogContext));
     }
 
     Dictionary<string, IMutableAppenderDefinitionConfig> IMutableFLogAppenderRegistry.DefinedAppenderConfigs
@@ -85,7 +90,7 @@ public class FLogAppenderRegistry : IMutableFLogAppenderRegistry
 
     public IAppenderClient FailAppender
     {
-        get => failAppenderClient ??= failAppender.Value!.CreateAppenderClientFor(FLogContext.Context.LoggerRegistry.Root);
+        get => failAppenderClient ??= failAppender.Value!.CreateAppenderClientFor(flogContext.LoggerRegistry.Root);
         set => failAppenderClient = value;
     }
 
@@ -125,24 +130,19 @@ public class FLogAppenderRegistry : IMutableFLogAppenderRegistry
                 {
                     return tryAgainExistingAppender;
                 }
-                else
+                var newAppender = FLogCreate.MakeAppender(requestedAppenderConfig, flogContext);
+                if (newAppender != null)
                 {
-                    var newAppender = FLogCreate.MakeAppender(requestedAppenderConfig, FLogContext.Context);
-                    if (newAppender != null)
-                    {
-                        embodiedAppenders.TryAdd(newAppender.AppenderName, newAppender);
-                    }
-                    else
-                    {
-                        Console.Out.WriteLine($"Returning NullAppender for Appender.Name {appenderName} and config {requestedAppenderConfig}");
-                        newAppender = new NullAppender(new NullAppenderConfig(), FLogContext.Context);
-                        return newAppender;
-                    }
+                    embodiedAppenders.TryAdd(newAppender.AppenderName, newAppender);
+                    return newAppender;
                 }
+                Console.Out.WriteLine($"Returning NullAppender for Appender.Name {appenderName} and config {requestedAppenderConfig}");
+                newAppender = new NullAppender(new NullAppenderConfig());
+                return newAppender;
             }
         }
         Console.Out.WriteLine($"Returning NullAppender for Appender.Name {appenderName} no config definition found");
-        var nullAppender = new NullAppender(new NullAppenderConfig(), FLogContext.Context);
+        var nullAppender = new NullAppender(new NullAppenderConfig());
         return nullAppender;
     }
 }
@@ -151,7 +151,7 @@ public static class FLogAppenderRegistryExtensions
 {
     public static IMutableFLogAppenderRegistry? UpdateConfig
     (
-        this IFLogAppenderRegistry? maybeCreated
+        this IFLogAppenderRegistry? maybeCreated, IFLogContext flogContext
       , Dictionary<string, IMutableAppenderDefinitionConfig> appenderConfig)
     {
         if (maybeCreated is IMutableFLogAppenderRegistry maybeMutable)

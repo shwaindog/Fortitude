@@ -3,6 +3,9 @@
 
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.AsyncForwarding;
@@ -185,19 +188,17 @@ public class AsyncForwardingAppendersConfig : QueueingAppenderConfig, IMutableAs
         return hashCode;
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        sbc.AddTypeName(nameof(AsyncForwardingAppendersConfig))
-           .AddTypeStart()
-           .AddField(nameof(AsyncType), AsyncType, FLogAsyncAppenderDispatchTypeExtensions.FLogAsyncAppenderDispatchTypeFormatter)
+        using var tb = sbc.StartComplexType(nameof(AsyncForwardingAppendersConfig))
+           .Field.AlwaysAdd(nameof(AsyncType), AsyncType, FLogAsyncAppenderDispatchTypeExtensions.FLogAsyncAppenderDispatchTypeFormatter)
            .AddBaseFieldsStart();
-        base.ToString(sbc)
-            .AddBaseFieldsEnd()
-            .AddField(nameof(AsyncQueueFullHandling), AsyncQueueFullHandling
+        base.ToString(sbc);
+            tb.Field.AlwaysAdd(nameof(AsyncQueueFullHandling), AsyncQueueFullHandling
                     , AsyncReceiveQueueFullHandlingExtensions.AsyncReceiveQueueFullHandlingFormatter)
-            .AddField(nameof(Broadcast), Broadcast)
-            .AddField(nameof(MaxDispatchUnconfirmed), MaxDispatchUnconfirmed)
-            .AddField(nameof(AsyncReceiveQueue), AsyncReceiveQueue);
-        return sbc;
+            .Field.AlwaysAdd(nameof(Broadcast), Broadcast)
+            .Field.AlwaysAdd(nameof(MaxDispatchUnconfirmed), MaxDispatchUnconfirmed)
+            .Field.AlwaysAdd(nameof(AsyncReceiveQueue), AsyncReceiveQueue);
+        return tb;
     }
 }

@@ -6,7 +6,7 @@ using FortitudeCommon.Logging.Core.Pooling;
 
 namespace FortitudeCommon.Logging.Core.Hub;
 
-public delegate void HandleConfigUpdate(IFLoggerDescendantConfig potentialUpdate, IFLogAppenderRegistry appenderRegistry);
+public delegate void HandleConfigUpdate(IMutableFLoggerDescendantConfig potentialUpdate, IFLogAppenderRegistry appenderRegistry);
 
 public delegate void NotifyFLoggerHandler(IFLogger logger);
 
@@ -30,7 +30,7 @@ public record LoggerContainer
 
     public IFLogger Logger { get; init; }
 
-    public void OnUpdated(IFLoggerDescendantConfig potentialUpdate, IFLogAppenderRegistry appenderRegistry)
+    public void OnUpdated(IMutableFLoggerDescendantConfig potentialUpdate, IFLogAppenderRegistry appenderRegistry)
     {
         Updated?.Invoke(potentialUpdate, appenderRegistry);
     }
@@ -47,6 +47,8 @@ public interface IFLogLoggerRegistry
 
     IReadOnlyDictionary<string, LoggerContainer> EmbodiedLoggers { get; }
 
+    IFLogAppenderRegistry AppenderRegistry { get; }
+
     NotifyNewFLoggerHandler RegisterLoggerCallback { get; }
 
     FLogEntryPool SourceFLogEntryPool(IFLogEntryPoolConfig logEntryPoolDefinition);
@@ -56,7 +58,9 @@ public interface IMutableFLogLoggerRegistry : IFLogLoggerRegistry
 {
     new IMutableFLoggerRoot? Root { get; set; }
 
-    void NotifyLoggerConfigUpdate(IFLoggerDescendantConfig potentialUpdate);
+    void NotifyLoggerConfigUpdate(IMutableFLoggerDescendantConfig potentialUpdate);
+
+    void HandleRootLoggerConfigUpdate(IMutableFLoggerRootConfig newRootLoggerState, IFLogAppenderRegistry appenderRegistry);
 }
 
 public class FLogLoggerRegistry : IMutableFLogLoggerRegistry
@@ -67,18 +71,20 @@ public class FLogLoggerRegistry : IMutableFLogLoggerRegistry
 
     private IMutableFLoggerRoot root;
 
-    public FLogLoggerRegistry(IFLoggerRootConfig rootConfig, IFLogEntryPoolRegistry entryPoolReg)
+    public FLogLoggerRegistry(IMutableFLoggerRootConfig rootConfig, IFLogAppenderRegistry appenderRegistry, IFLogEntryPoolRegistry entryPoolReg)
     {
+        AppenderRegistry = appenderRegistry;
+
         logEntryPoolRegistry = entryPoolReg;
 
-        root = new FLoggerRoot(rootConfig, this);
+        root = new FLoggerRoot(rootConfig.Clone(), this);
 
         RegisterLoggerCallback = RegisterLogger;
     }
 
     public IReadOnlyDictionary<string, LoggerContainer> EmbodiedLoggers => embodiedLoggers.AsReadOnly();
 
-    public void NotifyLoggerConfigUpdate(IFLoggerDescendantConfig potentialUpdate)
+    public void NotifyLoggerConfigUpdate(IMutableFLoggerDescendantConfig potentialUpdate)
     {
         if (embodiedLoggers.TryGetValue(potentialUpdate.FullName, out var loggerContainer))
         {
@@ -88,11 +94,20 @@ public class FLogLoggerRegistry : IMutableFLogLoggerRegistry
 
     public NotifyNewFLoggerHandler RegisterLoggerCallback { get; }
 
+    public IFLogAppenderRegistry AppenderRegistry { get; internal set; }
+
+    public void HandleRootLoggerConfigUpdate(IMutableFLoggerRootConfig newRootLoggerState, IFLogAppenderRegistry appenderRegistry)
+    {
+        AppenderRegistry = appenderRegistry;
+        root.HandleRootLoggerConfigUpdate(newRootLoggerState);
+    }
+
     IMutableFLoggerRoot? IMutableFLogLoggerRegistry.Root
     {
         get => root;
         set
         {
+            if (root == value) return;
             if (root != null)
             {
                 throw new ApplicationException("You can not update a root logger once created");
@@ -121,11 +136,11 @@ public class FLogLoggerRegistry : IMutableFLogLoggerRegistry
 public static class FLogLoggerRegistryExtensions
 {
     public static IMutableFLogLoggerRegistry? UpdateConfig
-        (this IFLogLoggerRegistry? maybeCreated, IFLoggerRootConfig rootLoggerConfig, IFLogAppenderRegistry appenderRegistry)
+        (this IFLogLoggerRegistry? maybeCreated, IMutableFLoggerRootConfig rootLoggerConfig, IFLogAppenderRegistry appenderRegistry)
     {
         if (maybeCreated is IMutableFLogLoggerRegistry maybeMutable)
         {
-            maybeMutable.Root!.HandleRootLoggerConfigUpdate(rootLoggerConfig, appenderRegistry);
+            maybeMutable.HandleRootLoggerConfigUpdate(rootLoggerConfig, appenderRegistry);
             return maybeMutable;
         }
         return null;

@@ -2,6 +2,9 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding;
 
@@ -30,11 +33,11 @@ public enum FullQueueHandling
 
 public static class FullQueueHandlingExtensions
 {
-    public static Action<FullQueueHandling, IStyledTypeStringAppender> FullQueueHandlingFormatter = FormatFullQueueHandlingAppender;
+    public static StructStyler<FullQueueHandling> FullQueueHandlingFormatter = FormatFullQueueHandlingAppender;
 
     public static void FormatFullQueueHandlingAppender(this FullQueueHandling queueFull, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.BackingStringBuilder;
+        var sb = sbc.WriteBuffer;
 
         switch (queueFull)
         {

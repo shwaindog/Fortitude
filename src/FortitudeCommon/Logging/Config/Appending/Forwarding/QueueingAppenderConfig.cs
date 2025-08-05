@@ -3,6 +3,9 @@
 
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding;
@@ -106,13 +109,11 @@ public class QueueingAppenderConfig : ForwardingAppenderConfig, IMutableQueueing
         return hashCode;
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        sbc.AddTypeName(nameof(QueueingAppenderConfig))
-           .AddTypeStart()
+        using var tb = sbc.StartComplexType(nameof(QueueingAppenderConfig))
            .AddBaseFieldsStart();
-        return base.ToString(sbc)
-            .AddBaseFieldsEnd()
-            .AddTypeEnd();;
+        base.ToString(sbc);
+        return tb;
     }
 }

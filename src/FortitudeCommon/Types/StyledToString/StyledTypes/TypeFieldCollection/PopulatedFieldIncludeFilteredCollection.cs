@@ -1,0 +1,693 @@
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
+using System.Text;
+using FortitudeCommon.Types.Mutable.Strings;
+
+namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldCollection;
+
+#pragma warning disable CS0618 // Type or member is obsolete
+public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuilder
+{
+    public TExt WhenPopulatedWithFilter(string fieldName, bool[]? value, OrderedCollectionPredicate<bool> filterPredicate)
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate)
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter<TNum>
+    (string fieldName, TNum[]? value, OrderedCollectionPredicate<TNum> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where TNum : struct, INumber<TNum>
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter<TNum>
+    (string fieldName, TNum?[]? value, OrderedCollectionPredicate<TNum?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where TNum : struct, INumber<TNum>
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter<TStruct>
+    (string fieldName, TStruct[]? value, OrderedCollectionPredicate<TStruct> filterPredicate
+      , StructStyler<TStruct> structToString) where TStruct : struct
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter<TStruct>
+    (string fieldName, TStruct?[]? value, OrderedCollectionPredicate<TStruct?> filterPredicate
+      , StructStyler<TStruct> structToString) where TStruct : struct
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter
+    (string fieldName, string?[]? value, OrderedCollectionPredicate<string?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter(string fieldName, IStyledToStringObject?[]? value, OrderedCollectionPredicate<IStyledToStringObject?> filterPredicate)
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter
+    (string fieldName, IFrozenString?[]? value, OrderedCollectionPredicate<IFrozenString?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter
+    (string fieldName, IStringBuilder?[]? value, OrderedCollectionPredicate<IStringBuilder?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    [CallsObjectToString]
+    public TExt WhenPopulatedWithFilter(string fieldName, object?[]? value, OrderedCollectionPredicate<object?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder; 
+    }
+
+    
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate)
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate)
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter<TNum>(string fieldName, IReadOnlyList<TNum>? value, OrderedCollectionPredicate<TNum> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where TNum : struct, INumber<TNum>
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter<TNum>(string fieldName, IReadOnlyList<TNum?>? value, OrderedCollectionPredicate<TNum?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where TNum : struct, INumber<TNum>
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter<TStruct>
+        (string fieldName, IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> filterPredicate
+          , StructStyler<TStruct> structToString) where TStruct : struct
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter<TStruct>
+        (string fieldName, IReadOnlyList<TStruct?>? value, OrderedCollectionPredicate<TStruct?> filterPredicate
+          , StructStyler<TStruct> structToString) where TStruct : struct
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<IStyledToStringObject?>? value, OrderedCollectionPredicate<IStyledToStringObject?> filterPredicate)
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<IFrozenString?>? value, OrderedCollectionPredicate<IFrozenString?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<IStringBuilder?>? value, OrderedCollectionPredicate<IStringBuilder?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+
+    [CallsObjectToString]
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<object?>? value, OrderedCollectionPredicate<object?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    {
+        var found = false;
+        if (value != null)
+        {
+            for (var i = 0; i < value.Count; i++)
+            {
+                var item = value[i];
+                if(!filterPredicate(i, item)) continue;
+                if (!found)
+                {
+                    stb.FieldNameJoin(fieldName);
+                    stb.StartCollection();
+                    found = true;
+                }
+                stb.Sb.Append(item);
+                stb.GoToNextCollectionItemStart();
+            }
+        }
+        if (found)
+        {
+            stb.EndCollection();
+            return stb.Sb.AddGoToNext(stb);
+        }
+        return stb.StyleTypeBuilder;
+    }
+}

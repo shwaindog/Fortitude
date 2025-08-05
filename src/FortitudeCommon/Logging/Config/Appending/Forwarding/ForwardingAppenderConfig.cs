@@ -2,16 +2,24 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Configuration;
+using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding;
 
 
-public interface IForwardingAppenderConfig : IAppenderDefinitionConfig
+public interface IForwardingAppenderConfig : IAppenderDefinitionConfig, IConfigCloneTo<IForwardingAppenderConfig>
 {
     IForwardingAppendersLookupConfig ForwardToAppenders { get; }
+
+    new IForwardingAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path);
+
+    new IForwardingAppenderConfig Clone();
 }
 
 public interface IMutableForwardingAppenderConfig : IForwardingAppenderConfig, IMutableAppenderDefinitionConfig
@@ -58,7 +66,21 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
+    IForwardingAppenderConfig IForwardingAppenderConfig.Clone() => Clone();
+
+    IForwardingAppenderConfig IForwardingAppenderConfig.CloneConfigTo(IConfigurationRoot configRoot, string path) => 
+        CloneConfigTo(configRoot, path);
+
     public override ForwardingAppenderConfig Clone() => new (this);
+
+    IForwardingAppenderConfig ICloneable<IForwardingAppenderConfig>.Clone() => Clone();
+
+    IForwardingAppenderConfig IConfigCloneTo<IForwardingAppenderConfig>.
+        CloneConfigTo(IConfigurationRoot configRoot, string path) => 
+        CloneConfigTo(configRoot, path);
+
+    public override ForwardingAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => 
+        new (this, configRoot, path);
 
     IForwardingAppendersLookupConfig IForwardingAppenderConfig.ForwardToAppenders => ForwardToAppenders;
 
@@ -108,15 +130,12 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
         return hashCode;
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        sbc.AddTypeName(nameof(ForwardingAppenderConfig))
-           .AddTypeStart()
+        using var tb = sbc.StartComplexType(nameof(ForwardingAppenderConfig))
            .AddBaseFieldsStart();
-        base.ToString(sbc)
-            .AddBaseFieldsEnd()
-            .AddField(nameof(ForwardToAppenders), ForwardToAppenders)
-            .AddTypeEnd();
-        return sbc;
+        base.ToString(sbc);
+        tb.Field.AlwaysAdd(nameof(ForwardToAppenders), ForwardToAppenders);
+        return tb;
     }
 }

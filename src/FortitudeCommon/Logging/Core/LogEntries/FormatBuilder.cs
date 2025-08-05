@@ -2,6 +2,7 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.LogEntries;
 
@@ -47,7 +48,7 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
 {
     private const int ScratchCharBufferSize = 256;
 
-    private StringBuilder sb = null!;
+    private IStringBuilder sb = null!;
 
     private readonly List<StringFormatTokenParams> stringFormatParams = new();
     private readonly List<ReplacedAt>              deltasApplied      = new();
@@ -181,9 +182,9 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
         public string? FormatStringEquivalent = null;
     }
 
-    public StringBuilder BackingStringBuilder => sb;
+    public IStringBuilder BackingStringBuilder => sb;
 
-    public FormatBuilder Initialize(string formattingString, StringBuilder sbToFormat)
+    public FormatBuilder Initialize(string formattingString, IStringBuilder sbToFormat)
     {
         sb = sbToFormat;
         sb.Append(formattingString);
@@ -191,7 +192,7 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
         return this;
     }
 
-    public Range? ReplaceTokenWith(StringFormatTokenParams tokenToReplace, StringBuilder withStringBuilderChars)
+    public Range? ReplaceTokenWith(StringFormatTokenParams tokenToReplace, ICharSequence withStringBuilderChars)
     {
         if (!stringFormatParams.Remove(tokenToReplace))
         {

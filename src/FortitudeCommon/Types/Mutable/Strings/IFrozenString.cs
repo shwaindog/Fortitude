@@ -13,9 +13,9 @@ public interface ICharSequence : IRecyclableObject, IEnumerable<char>
     int Length { get; }
     char this[int index] { get; }
 
-    void CopyTo(char[] array, int arrayIndex, int fromMyIndex = 0, int myLength = int.MaxValue);
-    void CopyTo(RecyclingCharArray array, int? arrayIndex = null, int fromMyIndex = 0, int myLength = int.MaxValue);
-    void CopyTo(Span<char> charSpan, int spanIndex, int fromMyIndex = 0, int myLength = int.MaxValue);
+    void CopyTo(char[] array, int arrayIndex, int myLength = int.MaxValue, int fromMyIndex = 0);
+    void CopyTo(RecyclingCharArray array, int? arrayIndex = null, int myLength = int.MaxValue, int fromMyIndex = 0);
+    void CopyTo(Span<char> charSpan, int spanIndex, int myLength = int.MaxValue, int fromMyIndex = 0);
 
     bool EquivalentTo(string other);
     int  CompareTo(string other);
@@ -32,6 +32,8 @@ public interface ICharSequence : IRecyclableObject, IEnumerable<char>
     int  LastIndexOf(ICharSequence subStr, int fromThisPos);
 
     string ToString();
+
+    bool Equals(string? toCompare);
 }
 
 public interface IFrozenString : ICharSequence, ICanSourceThawed<IMutableString>
@@ -184,7 +186,7 @@ public static class FrozenStringExtensions
         for (var i = 0; i < source.Length; i++)
         {
             var checkChar = source[i];
-            if (Array.IndexOf(delimiters, checkChar) > 0)
+            if (Array.IndexOf(delimiters, checkChar) >= 0)
             {
                 var subStringSlice = includedChars.Slice(0, i);
                 return new String(subStringSlice);

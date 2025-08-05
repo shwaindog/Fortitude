@@ -9,6 +9,8 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
@@ -50,24 +52,24 @@ public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupCon
 
     public AsyncQueueLookupConfig(IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public AsyncQueueLookupConfig() : this(InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public AsyncQueueLookupConfig(params IMutableAsyncQueueConfig[] toAdd)
         : this(InMemoryConfigRoot, InMemoryPath, toAdd)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public AsyncQueueLookupConfig
         (IConfigurationRoot root, string path, params IMutableAsyncQueueConfig[] toAdd) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
         for (int i = 0; i < toAdd.Length; i++)
         {
             queueConfigByQueueNumber.Add(toAdd[i].QueueNumber, toAdd[i]);
@@ -76,6 +78,7 @@ public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupCon
 
     public AsyncQueueLookupConfig(IAsyncQueueLookupConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
         foreach (var kvp in toClone)
         {
             queueConfigByQueueNumber.Add(kvp.Key, (IMutableAsyncQueueConfig)kvp.Value);
@@ -84,7 +87,7 @@ public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupCon
 
     public AsyncQueueLookupConfig(IAsyncQueueLookupConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     IAsyncQueuesInitConfig? IAsyncQueueLookupConfig.ParentDefaultQueuesInitConfig => ParentDefaultQueuesInitConfig;
@@ -116,6 +119,7 @@ public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupCon
         {
             if (!queueConfigByQueueNumber.Any() || nextConfigReadTime < TimeContext.UtcNow)
             {
+                recheckTimeSpanInterval = FLogContext.NullOnUnstartedContext?.ConfigRegistry?.ExpireConfigCacheIntervalTimeSpan ?? TimeSpan.FromMinutes(1);
                 queueConfigByQueueNumber.Clear();
                 foreach (var configurationSection in GetSection(Path).GetChildren())
                 {
@@ -282,13 +286,12 @@ public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupCon
         return hashCode;
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(AsyncQueueLookupConfig))
-               .AddTypeStart()
-               .AddKeyValues(queueConfigByQueueNumber)
-               .AddTypeEnd();
+            sbc.StartKeyedCollectionType(nameof(AsyncQueueLookupConfig))
+               .AddAll(queueConfigByQueueNumber)
+               .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

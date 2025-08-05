@@ -1,5 +1,5 @@
 ﻿using FortitudeCommon.Logging.AsyncProcessing.ProxyQueue;
-using FortitudeCommon.Logging.AsyncProcessing.SingleBackground;
+using FortitudeCommon.Logging.AsyncProcessing.Threaded;
 using FortitudeCommon.Logging.AsyncProcessing.ThreadPoolQueue;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 

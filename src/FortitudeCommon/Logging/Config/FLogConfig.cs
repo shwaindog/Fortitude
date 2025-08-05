@@ -8,6 +8,8 @@ public interface IFLogConfig
 {
     T Visit<T>(T visitor) where T : IFLogConfigVisitor<T>;
 
+    string ConfigSubPath { get; }
+
     IFLogConfig? ParentConfig { get; } 
 }
 
@@ -23,6 +25,8 @@ public abstract class FLogConfig : ConfigSection, IMutableFLogConfig
     protected FLogConfig(IConfigurationRoot root, string path) : base(root, path) { }
 
     public IFLogConfig? ParentConfig { get; set; }
+
+    public string ConfigSubPath => Path;
 
     public abstract T Visit<T>(T visitor) where T : IFLogConfigVisitor<T>;
 }

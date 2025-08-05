@@ -1,8 +1,6 @@
-﻿using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.Logging.Config.Appending;
+﻿using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Core.Hub;
-using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.Core.Appending.Forwarding;
@@ -69,7 +67,7 @@ public class FLogForwardingAppender : FLogAppender, IMutableFLogForwardingAppend
             for (var j = 0; j < appendersByQueueNum.Value.Count; j++)
             {
                 var appender = appendersByQueueNum.Value[j];
-                appender.ReceiveEndpoint.PublishLogEntryEvent(logEntryEvent);
+                appender.PublishLogEntryEvent(logEntryEvent);
             }
         }
     }
@@ -109,7 +107,7 @@ public class FLogForwardingAppender : FLogAppender, IMutableFLogForwardingAppend
             for (var j = 0; j < appendersOnQueue.Count; j++)
             {
                 var appender = appendersByQueueNum.Value[j];
-                if (appender.AppenderName == removeAppenderName)
+                if (appender.BackingAppender.AppenderName == removeAppenderName)
                 {
                     appendersOnQueue[i] = NullAppenderClient.NullClientInstance;
                     return true;

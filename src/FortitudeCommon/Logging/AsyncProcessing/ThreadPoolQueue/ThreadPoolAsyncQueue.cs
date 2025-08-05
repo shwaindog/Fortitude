@@ -1,9 +1,6 @@
-﻿using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.EventProcessing.Disruption.Sequences;
+﻿using FortitudeCommon.EventProcessing.Disruption.Sequences;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
-using FortitudeCommon.Logging.Core.Appending;
 using FortitudeCommon.Logging.Core.Appending.Formatting;
-using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.AsyncProcessing.ThreadPoolQueue;
@@ -29,6 +26,7 @@ public class ThreadPoolAsyncQueue : FLogAsyncQueue
         {
             if (stateMySelf is ThreadPoolAsyncQueue tpaQ)
             {
+                SetCurrentThreadToQueueNumber(tpaQ.QueueNumber);
                 while (tpaQ.threadPoolRequestQueue.TryPoll() is { } asyncPayload)
                 {
                     asyncPayload.RunAsyncRequest();
@@ -37,6 +35,7 @@ public class ThreadPoolAsyncQueue : FLogAsyncQueue
         }
         finally
         {
+            SetCurrentThreadToQueueNumber(0);
             Thread.VolatileWrite(ref runningReceiverToken.Value, 0);
         }
     }
@@ -59,7 +58,7 @@ public class ThreadPoolAsyncQueue : FLogAsyncQueue
         TryLaunchThreadPoolReceiver();
     }
 
-    public override void FlushBufferToAppender(IBufferedFormatWriter toFlush, IFLogAsyncTargetFlushBufferAppender fromAppender)
+    public override void FlushBufferToAppender(IBufferedFormatWriter toFlush, IFLogBufferingFormatAppender fromAppender)
     {
         var slot = threadPoolRequestQueue.Claim();
 
@@ -69,22 +68,22 @@ public class ThreadPoolAsyncQueue : FLogAsyncQueue
         TryLaunchThreadPoolReceiver();
     }
 
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogAsyncTargetReceiveQueueAppender> appenders)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
     {
         var slot = threadPoolRequestQueue.Claim();
 
         var flogAsyncPayload = threadPoolRequestQueue[slot];
-        flogAsyncPayload.SetAsSendLogEntryEvent(logEntryEvent, appenders);
+        flogAsyncPayload.SetAsSendLogEntryEvent(logEntryEvent, logEntrySinks, publishSource);
         threadPoolRequestQueue.Publish(slot);
         TryLaunchThreadPoolReceiver();
     }
 
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IFLogAsyncTargetReceiveQueueAppender appender)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IFLogEntrySink logEntrySink, ITargetingFLogEntrySource publishSource)
     {
         var slot = threadPoolRequestQueue.Claim();
 
         var flogAsyncPayload = threadPoolRequestQueue[slot];
-        flogAsyncPayload.SetAsSendLogEntryEvent(logEntryEvent, appender);
+        flogAsyncPayload.SetAsSendLogEntryEvent(logEntryEvent, logEntrySink, publishSource);
         threadPoolRequestQueue.Publish(slot);
         TryLaunchThreadPoolReceiver();
     }

@@ -4,6 +4,9 @@
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.Expressions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering;
@@ -46,7 +49,8 @@ public class FilteringForwardingAppenderConfig : ForwardingAppenderConfig, IMuta
         When = whenCondition;
     }
 
-    public FilteringForwardingAppenderConfig(IFilteringForwardingAppenderConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path)
+    public FilteringForwardingAppenderConfig(IFilteringForwardingAppenderConfig toClone, IConfigurationRoot root, string path) :
+        base(toClone, root, path)
     {
         When = (IMutableMatchOperatorExpressionConfig)toClone.When;
     }
@@ -110,14 +114,13 @@ public class FilteringForwardingAppenderConfig : ForwardingAppenderConfig, IMuta
         return hashCode;
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        sbc.AddTypeName(nameof(FilteringForwardingAppenderConfig))
-           .AddTypeStart()
-           .AddBaseFieldsStart();
-        return base.ToString(sbc)
-                   .AddBaseFieldsEnd()
-                   .AddField(nameof(When), When)
-                   .AddTypeEnd();
+        using var tb =
+            sbc.StartComplexType(nameof(FilteringForwardingAppenderConfig))
+               .AddBaseFieldsStart();
+        base.ToString(sbc);
+        return tb.Field.AlwaysAdd(nameof(When), When)
+                 .Complete();
     }
 }

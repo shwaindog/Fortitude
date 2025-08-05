@@ -3,6 +3,9 @@
 
 using FortitudeCommon.Config;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.ConfigSources;
@@ -122,17 +125,15 @@ public class FLogFileConfigSourceConfig : FLogConfigSource, IMutableFLogFileConf
         }
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        sbc.AddTypeName(nameof(FLogFileConfigSourceConfig))
-           .AddTypeStart()
+        using var tb = 
+            sbc.StartComplexType(nameof(FLogFileConfigSourceConfig))
            .AddBaseFieldsStart();
-        return
-        base.ToString(sbc)
-            .AddBaseFieldsEnd()
-           .AddField(nameof(FilePath), FilePath)
-           .AddField(nameof(FileSystemMonitored), FileSystemMonitored)
-           .AddField(nameof(PollInterval), PollInterval)
-           .AddTypeEnd();
+        base.ToString(sbc);
+        return tb.Field.AlwaysAdd(nameof(FilePath), FilePath)
+           .Field.AlwaysAdd(nameof(FileSystemMonitored), FileSystemMonitored)
+           .Field.AlwaysAdd(nameof(PollInterval), PollInterval)
+           .Complete();
     }
 }

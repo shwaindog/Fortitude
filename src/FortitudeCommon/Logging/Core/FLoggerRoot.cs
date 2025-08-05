@@ -17,32 +17,32 @@ public interface IFLoggerRoot : IFLoggerCommon
 
 public interface IMutableFLoggerRoot : IFLoggerRoot, IMutableFLoggerCommon
 {
-    void HandleRootLoggerConfigUpdate(IFLoggerRootConfig newRootLoggerState, IFLogAppenderRegistry appenderRegistry);
+    void HandleRootLoggerConfigUpdate(IMutableFLoggerRootConfig newRootLoggerState);
+    
+    new IMutableFLoggerRootConfig ResolvedConfig { get; }
 }
 
 public class FLoggerRoot : FLoggerBase, IMutableFLoggerRoot
 {
     private readonly IFLogLoggerRegistry   loggerRegistry;
 
-    public FLoggerRoot(IFLoggerRootConfig rootLoggerConfig, IFLogLoggerRegistry loggerRegistry) 
+    public FLoggerRoot(IMutableFLoggerRootConfig rootLoggerConfig, IFLogLoggerRegistry loggerRegistry) 
         : base(rootLoggerConfig, loggerRegistry)
     {
-        ResolvedConfig = rootLoggerConfig;
-
         this.loggerRegistry = loggerRegistry;
-
-        ResolvedConfig = rootLoggerConfig;
         FullName       = Name;
         Name           = "";
 
         // rootConfig          = ((ExplicitRootConfigNode)rootLoggerConfig.DeclaredConfigNodes.First()).DeclaredRootConfig;
     }
 
-    public new IFLoggerRootConfig ResolvedConfig { get; protected set; }
+    public override IFLoggerRootConfig ResolvedConfig => (IFLoggerRootConfig)Config;
+
+    IMutableFLoggerRootConfig IMutableFLoggerRoot.ResolvedConfig => (IMutableFLoggerRootConfig)Config;
 
     public override LoggerTreeType TreeType => LoggerTreeType.Root;
 
-    public void HandleRootLoggerConfigUpdate(IFLoggerRootConfig newRootLoggerState, IFLogAppenderRegistry appenderRegistry)
+    public void HandleRootLoggerConfigUpdate(IMutableFLoggerRootConfig newRootLoggerState)
     {
         if (FullName != newRootLoggerState.FullName)
         {
@@ -51,9 +51,10 @@ public class FLoggerRoot : FLoggerBase, IMutableFLoggerRoot
             #endif
             return;
         }
+        var appenderRegistry = loggerRegistry.AppenderRegistry;
         if (ResolvedConfig.AreEquivalent(newRootLoggerState)) return;
         HandleConfigUpdate(newRootLoggerState, appenderRegistry);
-        ResolvedConfig = newRootLoggerState;
+        Config = newRootLoggerState;
         Visit(new UpdateEmbodiedChildrenLoggerConfig(newRootLoggerState.AllLoggers(), appenderRegistry));
     }
     

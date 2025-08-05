@@ -5,7 +5,6 @@ using System.Text;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Core.LogEntries;
-using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.ConditionalLogging;
@@ -17,7 +16,7 @@ public class TimingTraceExecutionPath : RecyclableObject
 
     public ExecutionDuration? ExecutionDuration { get; protected set; }
 
-    private static readonly StringBuilder IncompleteTraceEntry = new ();
+    private static readonly IStringBuilder IncompleteTraceEntry = new MutableString();
 
     static TimingTraceExecutionPath()
     {
@@ -44,7 +43,7 @@ public class TimingTraceExecutionPath : RecyclableObject
         return ExecutionDuration.Value;
     }
 
-    internal void Dispatch(StringBuilder? warningToPrefix = null)
+    internal void Dispatch(IStringBuilder? warningToPrefix = null)
     {
         if (traceLogEntry.HasPartial)
         {

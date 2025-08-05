@@ -1,7 +1,8 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using FortitudeCommon.Types;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting;
@@ -40,12 +41,11 @@ public class InheritingAppendersLookupConfig : NamedAppendersLookupConfig<IMutab
 
     public override InheritingAppendersLookupConfig Clone() => new(this);
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(InheritingAppendersLookupConfig))
-               .AddTypeStart()
-               .AddKeyValues(AppendersByName)
-               .AddTypeEnd();
+            sbc.StartKeyedCollectionType(nameof(InheritingAppendersLookupConfig))
+               .AddAll(AppendersByName)
+               .Complete();
     }
 }

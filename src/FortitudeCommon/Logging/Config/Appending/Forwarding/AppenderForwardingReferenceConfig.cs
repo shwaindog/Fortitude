@@ -2,6 +2,9 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding;
@@ -84,15 +87,14 @@ public class AppenderForwardingReferenceConfig : AppenderReferenceConfig, IMutab
         }
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(AppenderForwardingReferenceConfig))
-               .AddTypeStart()
-               .AddNonNullOrEmptyField(nameof(AppenderName), AppenderName)
-               .AddNonNullOrEmptyField(nameof(AppenderType), AppenderType)
-               .AddField(nameof(DeactivateHere), DeactivateHere)
-               .AddField(nameof(AppendProcessingOrder), AppendProcessingOrder)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(AppenderForwardingReferenceConfig))
+               .Field.WhenNonNullOrDefaultAdd(nameof(AppenderName), AppenderName)
+               .Field.WhenNonNullOrDefaultAdd(nameof(AppenderType), AppenderType)
+               .Field.WhenNonDefaultAdd(nameof(DeactivateHere), DeactivateHere)
+               .Field.AlwaysAdd(nameof(AppendProcessingOrder), AppendProcessingOrder)
+               .Complete();
     }
 }

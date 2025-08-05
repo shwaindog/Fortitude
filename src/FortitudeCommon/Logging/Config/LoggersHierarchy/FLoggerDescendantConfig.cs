@@ -6,6 +6,8 @@ using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Pooling;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.LoggersHierarchy;
@@ -14,9 +16,7 @@ public interface IFLoggerDescendantConfig : IFLoggerTreeCommonConfig, ICloneable
 {
     IFLoggerTreeCommonConfig ParentLoggerConfig { get; }
 
-    bool                            Inherits { get; }
-
-    IMutableFLoggerDescendantConfig CreateInheritedDescendantConfig(IFLoggerTreeCommonConfig ancestorConfig);
+    bool Inherits { get; }
 
     new IFLoggerDescendantConfig Clone();
 }
@@ -27,6 +27,8 @@ public interface IMutableFLoggerDescendantConfig : IFLoggerDescendantConfig, IMu
     new IFLoggerTreeCommonConfig ParentLoggerConfig { get; set; }
 
     new bool Inherits { get; set; }
+    
+    IMutableFLoggerDescendantConfig CreateInheritedDescendantConfig(IFLoggerTreeCommonConfig ancestorConfig);
 
     new IMutableFLoggerDescendantConfig Clone();
 }
@@ -56,7 +58,14 @@ public class FLoggerDescendantConfig : FLoggerTreeCommonConfig, IMutableFLoggerD
 
     public FLoggerDescendantConfig(IFLoggerDescendantConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
-    public FLoggerDescendantConfig(IFLoggerTreeCommonConfig toClone) : base(toClone, InMemoryConfigRoot, InMemoryPath) { }
+    public FLoggerDescendantConfig(IFLoggerTreeCommonConfig toClone, string? configPath = null)
+        : base(toClone, InMemoryConfigRoot, configPath ?? toClone.ConfigSubPath)
+    {
+        if (toClone is IFLoggerDescendantConfig descendantConfig)
+        {
+            Inherits = descendantConfig.Inherits;
+        }
+    }
 
     public bool Inherits
     {
@@ -130,17 +139,15 @@ public class FLoggerDescendantConfig : FLoggerTreeCommonConfig, IMutableFLoggerD
         }
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(FLoggerTreeCommonConfig))
-               .AddTypeStart()
-               .AddField(nameof(Name), Name)
-               .AddField(nameof(LogLevel), LogLevel.ToString())
-               .AddField(nameof(Inherits), Inherits)
-               .AddField(nameof(DescendantLoggers), DescendantLoggers)
-               .AddNonNullField(nameof(LogEntryPool), LogEntryPool)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
+               .Field.AlwaysAdd(nameof(Name), Name)
+               .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())
+               .Field.AlwaysAdd(nameof(Inherits), Inherits)
+               .Field.AlwaysAdd(nameof(DescendantLoggers), DescendantLoggers)
+               .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool).Complete();
     }
 
     public override string ToString() => this.DefaultToString();

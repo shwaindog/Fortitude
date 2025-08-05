@@ -4,6 +4,9 @@
 using FortitudeCommon.Config;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
@@ -201,15 +204,14 @@ public class MatchSequenceOccurenceConfig : MatchConditionConfig, IMutableMatchS
         return hashCode;
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(MatchSequenceOccurenceConfig))
-               .AddTypeStart()
-               .AddField(nameof(CheckConditionType), CheckConditionType, FLoggerEntryMatchTypeExtensions.FLoggerEntryMatchTypeFormatter)
-               .AddField(nameof(OnSequenceAbort), OnSequenceAbort)
-               .AddField(nameof(OnSequenceTimeout), OnSequenceTimeout)
-               .AddField(nameof(StartSequence), StartSequence)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(MatchSequenceOccurenceConfig))
+               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType, FLoggerEntryMatchTypeExtensions.FLoggerEntryMatchTypeFormatter)
+               .Field.AlwaysAdd(nameof(OnSequenceAbort), OnSequenceAbort)
+               .Field.AlwaysAdd(nameof(OnSequenceTimeout), OnSequenceTimeout)
+               .Field.AlwaysAdd(nameof(StartSequence), StartSequence)
+               .Complete();
     }
 }

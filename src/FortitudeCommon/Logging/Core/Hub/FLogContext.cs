@@ -30,6 +30,17 @@ public class FLogContext : IFLogContext
 
     private FLogContext() { }
 
+    public static IFLogContext? NullOnUnstartedContext
+    {
+        get
+        {
+            if (singletonInstance == null) return null;
+            if (!singletonInstance.IsInitialized) return null;
+            if (!singletonInstance.HasStarted) return null;
+            return Context;
+        }
+    }
+
     public static IFLogContext UninitializedInstance
     {
         get
@@ -75,7 +86,7 @@ public class FLogContext : IFLogContext
     {
         get
         {
-            var instance = UninitializedInstance;
+            var instance = UnstartedInstance;
             if (!instance.HasStarted)
             {
                 return FLogBootstrap.Instance.StartFlog((FLogContext)instance);
@@ -173,6 +184,9 @@ public class FLogContext : IFLogContext
                 // ReSharper disable once InconsistentlySynchronizedField
                 singletonInstance = value;
         }
+        public static IFLogContext NewEmptyContext => new FLogContext();
+
+        public static IFLogContext NewDefaultConfigContext => new FLogContext().DefaultInitializeContext();
 
         public static void SetAppenderRegistry(FLogContext context, IFLogAppenderRegistry appenderRegistry)
         {
@@ -203,9 +217,24 @@ public class FLogContext : IFLogContext
 
 internal static class TestFLogContextExtensions
 {
-    public static void SetAsContext(this IFLogContext context)
+    public static IFLogContext? SetAsContext(this IFLogContext? context, IFLogContext? newContext)
     {
-        FLogContext.TestFLogContextInternalsAccessor.TestContext = context;
+        FLogContext.TestFLogContextInternalsAccessor.TestContext = newContext;
+        return newContext;
+    }
+
+    public static IFLogContext? SetAsNewEmptyContext(this IFLogContext? context)
+    {
+        var emptyContext = FLogContext.TestFLogContextInternalsAccessor.NewEmptyContext;
+        FLogContext.TestFLogContextInternalsAccessor.TestContext = emptyContext;
+        return emptyContext;
+    }
+
+    public static IFLogContext? SetAsNewNewDefaultConfigContext(this IFLogContext? context)
+    {
+        var defaultContext = FLogContext.TestFLogContextInternalsAccessor.NewDefaultConfigContext;
+        FLogContext.TestFLogContextInternalsAccessor.TestContext = defaultContext;
+        return defaultContext;
     }
 
     public static IFLogContext? GetContextField()

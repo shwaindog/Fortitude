@@ -30,7 +30,7 @@ public abstract class FLogEntryEventSafeReceiverBase : FLogEntryEventReceiverBas
 {
     public override void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
-        if (StopProcessing)
+        if (ShouldCheckLock)
         {
             while (true)
             {
@@ -50,7 +50,6 @@ public abstract class FLogEntryEventSafeReceiverBase : FLogEntryEventReceiverBas
 
     protected abstract void SafeOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher);
 }
-
 
 public class FLogEntryEventReceiverContainer : FLogEntryPublishChainTreeNode, IFLogEntryEventReceiver
 {
@@ -79,7 +78,6 @@ public class FLogEntryEventReceiverContainer : FLogEntryPublishChainTreeNode, IF
 
     public string Name { get; protected set; }
 
-
     public override T LogEntryChainVisit<T>(T visitor)
     {
         throw new ApplicationException("This should never be called by containing now");
@@ -87,7 +85,7 @@ public class FLogEntryEventReceiverContainer : FLogEntryPublishChainTreeNode, IF
 
     public void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
-        if (StopProcessing)
+        if (ShouldCheckLock)
         {
             while (true)
             {

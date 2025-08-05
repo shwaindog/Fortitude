@@ -33,12 +33,12 @@ public static class CharSpanExtensions
         return -1;
     }
 
-    public static int IndexOf(this Span<char> subject, IFrozenString toFind, int startingAtIndex = 0)
+    public static int IndexOf(this Span<char> subject, ICharSequence toFind, int startingAtIndex = 0)
     {
         var length = subject.Length;
         int i      = startingAtIndex;
 
-        var lastFindIndex    = toFind.Length - 1;
+        var lastFindIndex = toFind.Length - 1;
         for (; i < length; i++)
         {
             var checkChar = subject[i];
@@ -57,7 +57,7 @@ public static class CharSpanExtensions
         var length = subject.Length;
         int i      = startingAtIndex;
 
-        var lastFindIndex    = toFind.Length - 1;
+        var lastFindIndex = toFind.Length - 1;
         for (; i < length; i++)
         {
             var checkChar = subject[i];
@@ -85,7 +85,7 @@ public static class CharSpanExtensions
     public static int CountWhiteSpaceFrom(this Span<char> searchSpace, int searchLength, int fromIndex)
     {
         var startIndex      = fromIndex;
-        var stopIndex      = Math.Min(searchSpace.Length, searchLength);
+        var stopIndex       = Math.Min(searchSpace.Length, searchLength);
         var countWhiteSpace = 0;
         for (int i = startIndex; i < stopIndex; i++)
         {
@@ -162,7 +162,7 @@ public static class CharSpanExtensions
     }
 
     public static int ReplaceCapped
-        (this Span<char> searchSpace, int searchPopLength, IFrozenString find, IFrozenString replace, int occurences = int.MaxValue)
+        (this Span<char> searchSpace, int searchPopLength, ICharSequence find, ICharSequence replace, int occurences = int.MaxValue)
     {
         int lengthChange    = 0;
         var fromToDeltaSize = find.Length - replace.Length;
@@ -272,7 +272,7 @@ public static class CharSpanExtensions
     }
 
     public static int OverWriteAt
-        (this Span<char> toUpdate, int spanIndex, IFrozenString toAppend, int buildIndex = 0, int builderMaxLength = int.MaxValue)
+        (this Span<char> toUpdate, int spanIndex, ICharSequence toAppend, int buildIndex = 0, int builderMaxLength = int.MaxValue)
     {
         var spanLength = toUpdate.Length;
         builderMaxLength = Math.Min(builderMaxLength, toAppend.Length - buildIndex);
@@ -369,21 +369,29 @@ public static class CharSpanExtensions
         return -1;
     }
 
-    public static readonly string[] DefaultTokenStartEndDelimiter = ["{", "}"];
+    public static string? SequenceIndexOfAnyOf(this ReadOnlySpan<char> toCheck, (string Open, string Close) matchCandidates, int fromIndex = 0)
+    {
+        if (toCheck.SequenceMatches(matchCandidates.Open, fromIndex)) return matchCandidates.Open;
+        if (toCheck.SequenceMatches(matchCandidates.Close, fromIndex)) return matchCandidates.Close;
+        return null;
+    }
 
-    public static bool ContainsTokens(this ReadOnlySpan<char> maybeTokenFormatting, string[]? tokenDelimiter = null)
+    public static readonly (string Open, string Close) DefaultTokenStartEndDelimiter = ("{", "}");
+
+    public static bool ContainsTokens(this ReadOnlySpan<char> maybeTokenFormatting, (string Open, string Close)? tokenDelimiter = null)
     {
         tokenDelimiter ??= DefaultTokenStartEndDelimiter;
+        var openClose    = tokenDelimiter ?? DefaultTokenStartEndDelimiter;
         var foundOpening = false;
         var foundClosing = false;
         for (int i = 0; i < maybeTokenFormatting.Length; i++)
         {
-            var delimiterMatchIndex = maybeTokenFormatting.SequenceIndexOfAnyOf(tokenDelimiter, i);
-            if (delimiterMatchIndex == 0)
+            var delimiterMatch = maybeTokenFormatting.SequenceIndexOfAnyOf(openClose, i);
+            if (delimiterMatch == openClose.Open)
             {
                 foundOpening = true;
             }
-            if (delimiterMatchIndex == 1 && foundOpening)
+            if (delimiterMatch == openClose.Close && foundOpening)
             {
                 foundClosing = true;
             }
@@ -391,77 +399,183 @@ public static class CharSpanExtensions
         return foundOpening && foundClosing;
     }
 
-    public static List<string> TokenSplit
-        (this ReadOnlySpan<char> tokenisedFormatting, string[]? tokenDelimiter = null, string[]? replaceDelimiter = null)
+
+    public static Range TokenNextTokenOpenMatchingEnd(this ReadOnlySpan<char> tokenisedFormatting, (string Open, string Close) openClose)
     {
-        tokenDelimiter ??= DefaultTokenStartEndDelimiter;
-        if (replaceDelimiter != null && replaceDelimiter.Length < tokenDelimiter.Length)
+        var atIndex       = tokenisedFormatting.Length;
+        var nextTokenOpen = tokenisedFormatting.IndexOf(openClose.Open);
+        if (nextTokenOpen >= 0)
         {
-            throw new ArgumentException("replaceDelimiter should have a corresponding position with tokenDelimiter");
+            atIndex = nextTokenOpen + openClose.Open.Length;
+            var remainingString        = tokenisedFormatting[atIndex..];
+            var tokenOpenRange         = new Range(Index.FromStart(nextTokenOpen), Index.FromStart(atIndex));
+            var subTokenPlusCloseRange = TokenNextTokenOpenMatchingEnd(remainingString, 1, openClose);
+            var totalRange             = tokenOpenRange.ConcatLength(subTokenPlusCloseRange);
+            return totalRange;
         }
-        var result = new List<string>();
+        return new Range(tokenisedFormatting.Length, 0);
+    }
 
-        int currentRangeStart = 0;
-        int tokenLevel        = 0;
-
-        int i = 0;
-        for (; i < tokenisedFormatting.Length; i++)
+    public static Range TokenNextTokenOpenMatchingEnd
+        (this ReadOnlySpan<char> tokenisedFormatting, int currentDepth, (string Open, string Close) openClose)
+    {
+        var nextTokenOpen  = tokenisedFormatting.IndexOf(openClose.Open);
+        var nextTokenClose = tokenisedFormatting.IndexOf(openClose.Close);
+        if (nextTokenOpen >= 0 && nextTokenClose > nextTokenOpen)
         {
-            var delimiterMatchIndex = tokenisedFormatting.SequenceIndexOfAnyOf(tokenDelimiter, i);
-            if (delimiterMatchIndex >= 0)
+            var subTokenPostOpenStart = nextTokenClose + openClose.Close.Length;
+
+            currentDepth++;
+            var addOpenRange = new Range(Index.FromStart(0),Index.FromStart(subTokenPostOpenStart));
+            return addOpenRange.ConcatLength(TokenNextTokenOpenMatchingEnd(tokenisedFormatting[subTokenPostOpenStart..], currentDepth, openClose));
+        }
+        if (nextTokenClose < 0)
+        {
+            return new Range(Index.FromStart(0), Index.FromStart(tokenisedFormatting.Length));
+        }
+        var subTokenPostCloseStart = nextTokenClose + openClose.Close.Length;
+
+        currentDepth--;
+        var addCloseRange = new Range(Index.FromStart(0), Index.FromStart(subTokenPostCloseStart));
+        if (currentDepth == 0)
+        {
+            return addCloseRange;
+        }
+        return addCloseRange.ConcatLength(TokenNextTokenOpenMatchingEnd(tokenisedFormatting[subTokenPostCloseStart..], currentDepth, openClose));
+    }
+
+    private static Range ConcatLength(this Range keepStart, Range addLength)
+    {
+        var sumStartIndex = new Index(keepStart.Start.Value);
+        var sumEndIndex   = new Index(keepStart.End.Value + (addLength.End.Value - addLength.Start.Value));
+        return new Range(sumStartIndex, sumEndIndex);
+    }
+
+    public static List<string> TokenSplit
+    (this ReadOnlySpan<char> tokenisedFormatting
+      , (string Open, string Close)? tokenDelimiter = null
+      , (string ReplaceOpen, string ReplaceClose)? replaceDelimiter = null)
+    {
+        var openClose = tokenDelimiter ?? DefaultTokenStartEndDelimiter;
+        var result    = new List<string>();
+
+        var openTokenLength  = openClose.Open.Length;
+        var closeTokenLength = openClose.Close.Length;
+
+        bool hasReplace = replaceDelimiter != null;
+
+        var remainingTokenString = tokenisedFormatting;
+        var scratchSpace         = stackalloc char[256].ResetMemory();
+
+        while (remainingTokenString.Length > 0)
+        {
+            scratchSpace.ResetMemory();
+            var nextTokenStartRange = TokenNextTokenOpenMatchingEnd(remainingTokenString, openClose);
+
+            if (nextTokenStartRange.Start.Value > 0)
             {
-                var matchString = tokenDelimiter[delimiterMatchIndex];
-                if (delimiterMatchIndex == 0) // token opening
+                var stringPart    = new String(remainingTokenString[..nextTokenStartRange.Start]);
+                result.Add(stringPart);
+            }
+            if (nextTokenStartRange.Start.Value < remainingTokenString.Length && nextTokenStartRange.Length() > 0)
+            {
+                if (hasReplace)
                 {
-                    tokenLevel++;
-                    if (tokenLevel == 1)
-                    {
-                        var startMatchIndex      = tokenisedFormatting.SequenceIndexOfAnyOf(tokenDelimiter, currentRangeStart);
-                        var startDelimiter       = tokenDelimiter[startMatchIndex];
-                        var startDelimiterLength = startDelimiter.Length;
-                        if (i > currentRangeStart + startDelimiterLength)
-                        {
-                            if (replaceDelimiter != null)
-                            {
-                                var replaceWithStart = replaceDelimiter[startMatchIndex];
-                                var replaceWithEnd   = replaceDelimiter[delimiterMatchIndex];
-
-                                var bodyRange = tokenisedFormatting.Slice(currentRangeStart + startDelimiterLength, i + 1);
-
-                                var stringPart = WrapToString(replaceWithStart, bodyRange, replaceWithEnd);
-                                result.Add(stringPart);
-                            }
-                            else
-                            {
-                                var stringPart = new String(tokenisedFormatting.Slice(currentRangeStart, i + 1));
-                                result.Add(stringPart);
-                            }
-                        }
-                        currentRangeStart = i + matchString.Length;
-                    }
+                    var subTokenString = remainingTokenString[nextTokenStartRange][openTokenLength..^closeTokenLength];
+                    var replaceOc = replaceDelimiter!.Value;
+                    scratchSpace.Append(replaceOc.ReplaceOpen);
+                    scratchSpace.Append(subTokenString);
+                    scratchSpace.Append(replaceOc.ReplaceClose);
+                    var stringPart = new String(scratchSpace[..scratchSpace.PopulatedLength()]);
+                    result.Add(stringPart);
                 }
                 else
                 {
-                    tokenLevel--;
-                    if (tokenLevel == 0)
-                    {
-                        if (i > currentRangeStart)
-                        {
-                            var stringPart = new String(tokenisedFormatting.Slice(currentRangeStart, i));
-                            result.Add(stringPart);
-                        }
-                        currentRangeStart = i + matchString.Length;
-                    }
+                    var stringPart = new String(remainingTokenString[nextTokenStartRange]);
+                    result.Add(stringPart);
                 }
             }
-        }
-        if (i > currentRangeStart + 1)
-        {
-            var stringPart = new String(tokenisedFormatting.Slice(currentRangeStart, i));
-            result.Add(stringPart);
+            var nextSliceStart = nextTokenStartRange.Start.Value + nextTokenStartRange.Length();
+            if (nextSliceStart < remainingTokenString.Length)
+            {
+                remainingTokenString = remainingTokenString[nextSliceStart..];
+            }
+            else
+            {
+                break;
+            }
         }
 
         return result;
+    }
+
+    public static int NonTokenCharCount
+    (this ReadOnlySpan<char> tokenisedFormatting
+      , (string Open, string Close)? tokenDelimiter = null
+      , (string ReplaceOpen, string ReplaceClose)? replaceDelimiter = null)
+    {
+        var openClose = tokenDelimiter ?? DefaultTokenStartEndDelimiter;
+
+        int nonTokenCharLength = 0;
+
+        var remainingTokenString = tokenisedFormatting;
+        var scratchSpace         = stackalloc char[256].ResetMemory();
+
+        while (remainingTokenString.Length > 0)
+        {
+            scratchSpace.ResetMemory();
+            var nextTokenStartRange = TokenNextTokenOpenMatchingEnd(remainingTokenString, openClose);
+
+            if (nextTokenStartRange.Start.Value > 0)
+            {
+                nonTokenCharLength += nextTokenStartRange.Start.Value;
+            }
+            var nextSliceStart = nextTokenStartRange.Start.Value + nextTokenStartRange.Length();
+            if (nextSliceStart < remainingTokenString.Length)
+            {
+                remainingTokenString = remainingTokenString[nextSliceStart..];
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return nonTokenCharLength;
+    }
+
+    public static int TokenCount(this ReadOnlySpan<char> tokenisedFormatting
+      , (string Open, string Close)? tokenDelimiter = null
+      , (string ReplaceOpen, string ReplaceClose)? replaceDelimiter = null)
+    {
+        var openClose = tokenDelimiter ?? DefaultTokenStartEndDelimiter;
+
+        int tokenCount = 0;
+
+        var remainingTokenString = tokenisedFormatting;
+        var scratchSpace         = stackalloc char[256].ResetMemory();
+
+        while (remainingTokenString.Length > 0)
+        {
+            scratchSpace.ResetMemory();
+            var nextTokenStartRange = TokenNextTokenOpenMatchingEnd(remainingTokenString, openClose);
+
+            if (nextTokenStartRange.Start.Value < remainingTokenString.Length && nextTokenStartRange.Length() > 0)
+            {
+                tokenCount += nextTokenStartRange.Start.Value;
+            }
+            var nextSliceStart = nextTokenStartRange.Start.Value + nextTokenStartRange.Length();
+            if (nextSliceStart < remainingTokenString.Length)
+            {
+                remainingTokenString = remainingTokenString[nextSliceStart..];
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return tokenCount;
     }
 
     private static string WrapToString(string wrapPrefix, ReadOnlySpan<char> bodyRange, string wrapPostfix)
@@ -493,75 +607,65 @@ public static class CharSpanExtensions
         identifier = toCheck.Slice(0, 0);
         padding    = toCheck.Slice(0, 0);
         formatting = toCheck.Slice(0, 0);
-        var i = fromIndex;
-        if (toCheck[i] != '{') throw new ArgumentException($"toCheck {toCheck} at {i} was expected to be '{{");
-        i++;
-        int stage           = 0;
-        int stageStartIndex = 1;
-        for (; i < toCheck.Length; i++)
+
+        var paramCount = 0;
+
+        var remainingSpan = toCheck[fromIndex..];
+        if (toCheck[0] != '{') throw new ArgumentException($"toCheck {toCheck} at {fromIndex} was expected to be '{{");
+        remainingSpan = toCheck[1..^1];
+        int stage         = 0;
+        while (remainingSpan.Length > 0)
         {
-            var checkChar = toCheck[i];
-            switch (checkChar)
+            switch (stage)
             {
-                case ',':
-                    switch (stage)
+                case 0:
+                    var stageEnd = remainingSpan.Length;
+                    stage = 3;
+                    var colonIndex = remainingSpan.IndexOf(":");
+                    if (colonIndex > 0)
                     {
-                        case 0:
-                            stage      = 1;
-                            identifier = toCheck.Slice(stageStartIndex, i);
-
-                            stageStartIndex = i + 1;
-                            continue;
-                        default: throw new ArgumentException($"toCheck {toCheck} at {i} at stage {stage} did not expect to have a ','");
+                        stage    = 2;
+                        stageEnd = colonIndex;
                     }
-                case ':':
-                    switch (stage)
+                    var commaIndex = remainingSpan.IndexOf(",");
+                    if (commaIndex > 0 && (commaIndex < colonIndex || colonIndex < 0))
                     {
-                        case 0:
-                            stage      = 2;
-                            identifier = toCheck.Slice(stageStartIndex, i);
-
-                            stageStartIndex = i + 1;
-                            continue;
-                        case 1:
-                            stage   = 2;
-                            padding = toCheck.Slice(stageStartIndex, i);
-
-                            stageStartIndex = i + 1;
-                            continue;
-                        default: throw new ArgumentException($"toCheck {toCheck} at {i} at stage {stage} did not expect to have a comma");
+                        stage    = 1;
+                        stageEnd = commaIndex;
                     }
-                case '}':
-                    switch (stage)
+                    identifier = remainingSpan[..stageEnd];
+                    paramCount++;
+                    var startNext = stageEnd + 1;
+                    if (startNext < remainingSpan.Length)
                     {
-                        case 0:
-                            stage      = 3;
-                            identifier = toCheck.Slice(stageStartIndex, i);
-
-                            stageStartIndex = i + 1;
-                            break;
-                        case 1:
-                            stage   = 3;
-                            padding = toCheck.Slice(stageStartIndex, i);
-
-                            stageStartIndex = i + 1;
-                            break;
-                        case 2:
-                            stage      = 3;
-                            formatting = toCheck.Slice(stageStartIndex, i);
-
-                            stageStartIndex = i + 1;
-                            break;
-                        default: throw new ArgumentException($"toCheck {toCheck} at {i} was at an invalid stage");
+                        remainingSpan = remainingSpan[startNext..];
                     }
                     break;
+                case 1:
+                    stageEnd   = remainingSpan.Length;
+                    stage      = 3;
+                    colonIndex = remainingSpan.IndexOf(":");
+                    if (colonIndex > 0)
+                    {
+                        stage    = 2;
+                        stageEnd = colonIndex;
+                    }
+                    padding = remainingSpan[..stageEnd];
+                    paramCount++;
+                    startNext = stageEnd + 1;
+                    if (startNext < remainingSpan.Length)
+                    {
+                        remainingSpan = remainingSpan[startNext..];
+                    }
+                    break;
+                case 2:
+                    stage      = 3;
+                    formatting = remainingSpan;
+                    paramCount++;
+                    break;
+                default: return paramCount;
             }
-            if (stage >= 3) break;
         }
-        var paramCount = identifier.Length > 0 ? 1 : 0;
-        paramCount += padding.Length > 0 ? 1 : 0;
-        paramCount += padding.Length > 0 ? 1 : 0;
-
         return paramCount;
     }
 
@@ -587,14 +691,14 @@ public static class CharSpanExtensions
         }
         if (formatting.Length > 0)
         {
-            buildChars[index++] = ',';
+            buildChars[index++] = ':';
             for (int i = 0; i < formatting.Length; i++)
             {
                 buildChars[index++] = formatting[i];
             }
         }
         buildChars[index++] = '}';
-        return buildChars.ToString();
+        return buildChars[..buildChars.PopulatedLength()].ToString();
     }
 
     public static ReadOnlySpan<char> ExtractDigitsSlice(this ReadOnlySpan<char> maybeDigitsSpan, int startingFrom)
@@ -602,9 +706,9 @@ public static class CharSpanExtensions
         for (var i = startingFrom; i < maybeDigitsSpan.Length; i++)
         {
             var checkChar = maybeDigitsSpan[i];
-            if (checkChar is < '0' or > '9') return maybeDigitsSpan.Slice(startingFrom, i);
+            if (checkChar is < '0' or > '9') return maybeDigitsSpan[startingFrom..i];
         }
-        return maybeDigitsSpan.Slice(startingFrom);
+        return maybeDigitsSpan[startingFrom..];
     }
 
     public static int? ExtractInt(this ReadOnlySpan<char> maybeDigitsSpan, int startingFrom = 0)

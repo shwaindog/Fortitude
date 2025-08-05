@@ -135,7 +135,7 @@ public static class StringExtensions
     }
 
 
-    public static bool ContainsTokens(this string maybeTokenFormatting, string[]? tokenDelimiter = null)
+    public static bool ContainsTokens(this string maybeTokenFormatting, (string Open, string Close)? tokenDelimiter = null)
     {
         var formattingSpan = maybeTokenFormatting.AsSpan();
         var containsTokens = formattingSpan.ContainsTokens(tokenDelimiter);
@@ -143,7 +143,7 @@ public static class StringExtensions
     }
 
     public static List<string> TokenSplit
-        (this string tokenisedFormatting, string[]? tokenDelimiter = null, string[]? replaceDelimiter = null)
+        (this string tokenisedFormatting, (string Open, string Close)? tokenDelimiter = null, (string Open, string Close)? replaceDelimiter = null)
     {
         var formattingSpan = tokenisedFormatting.AsSpan();
         var stringParts    = formattingSpan.TokenSplit(tokenDelimiter, replaceDelimiter);

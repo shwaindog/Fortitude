@@ -7,7 +7,7 @@ public interface IBufferFlushAppenderAsyncClient : IAppenderAsyncClient
 {
     int BufferFlushQueueNum { get; set; }
 
-    public void SendToFlushBufferToAppender(IBufferedFormatWriter bufferToFlush, IFLogAsyncTargetFlushBufferAppender formatAppender);
+    public void SendToFlushBufferToAppender(IBufferedFormatWriter bufferToFlush, IFLogBufferingFormatAppender formatAppender);
 }
 
 public class BufferFlushAppenderAsyncClient : ReceiveAsyncClient, IBufferFlushAppenderAsyncClient
@@ -31,14 +31,14 @@ public class BufferFlushAppenderAsyncClient : ReceiveAsyncClient, IBufferFlushAp
     }
 
     public BufferFlushAppenderAsyncClient
-    (IFLogAsyncTargetReceiveQueueAppender asyncAppender, int appenderReceiveQueueNum
+    (IFLogBufferingFormatAppender destinationAppender, int appenderReceiveQueueNum
       , IFLoggerAsyncRegistry asyncRegistry, int bufferFlushQueueNum)
-        : base(asyncAppender, appenderReceiveQueueNum, asyncRegistry)
+        : base(destinationAppender, appenderReceiveQueueNum, asyncRegistry)
     {
         BufferFlushQueueNum = bufferFlushQueueNum;
     }
 
-    public void SendToFlushBufferToAppender(IBufferedFormatWriter bufferToFlush, IFLogAsyncTargetFlushBufferAppender formatAppender)
+    public void SendToFlushBufferToAppender(IBufferedFormatWriter bufferToFlush, IFLogBufferingFormatAppender formatAppender)
     {
         if (BufferFlushQueueNum == AppenderReceiveQueueNum || BufferFlushQueueNum == FLogAsyncQueue.MyCallingQueueNumber)
         {

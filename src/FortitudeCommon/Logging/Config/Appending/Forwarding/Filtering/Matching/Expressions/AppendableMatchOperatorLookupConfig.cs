@@ -9,13 +9,14 @@ using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.Expressions;
 
-public interface IMatchOperatorCollectionConfig : IFLogConfig, IStickyKeyValueDictionary<ushort, IMatchOperatorExpressionConfig> 
-, ICloneable<IMatchOperatorCollectionConfig>, IStyledToStringObject, IInterfacesComparable<IMatchOperatorCollectionConfig>
-{ }
+public interface IMatchOperatorCollectionConfig : IFLogConfig, IStickyKeyValueDictionary<ushort, IMatchOperatorExpressionConfig>
+  , ICloneable<IMatchOperatorCollectionConfig>, IStyledToStringObject, IInterfacesComparable<IMatchOperatorCollectionConfig> { }
 
 public interface IAppendableMatchOperatorLookupConfig : IMutableFLogConfig, IMatchOperatorCollectionConfig
   , IAppendableDictionary<ushort, IMutableMatchOperatorExpressionConfig>
@@ -45,24 +46,24 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
 
     public AppendableMatchOperatorLookupConfig(IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public AppendableMatchOperatorLookupConfig() : this(InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public AppendableMatchOperatorLookupConfig(params IMutableMatchOperatorExpressionConfig[] toAdd)
         : this(InMemoryConfigRoot, InMemoryPath, toAdd)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public AppendableMatchOperatorLookupConfig
         (IConfigurationRoot root, string path, params IMutableMatchOperatorExpressionConfig[] toAdd) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
         for (int i = 0; i < toAdd.Length; i++)
         {
             evalOrderKeyedExpressions.Add(toAdd[i].EvaluateOrder, toAdd[i]);
@@ -71,7 +72,7 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
 
     public AppendableMatchOperatorLookupConfig(IMatchOperatorCollectionConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
         foreach (var kvp in toClone)
         {
             evalOrderKeyedExpressions.Add(kvp.Key, (IMutableMatchOperatorExpressionConfig)kvp.Value);
@@ -80,7 +81,7 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
 
     public AppendableMatchOperatorLookupConfig(IMatchOperatorCollectionConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath)
     {
-        recheckTimeSpanInterval = FLogContext.Context.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan;
+        recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
     public void Add(KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig> item)
@@ -107,10 +108,12 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
         {
             if (!evalOrderKeyedExpressions.Any() || nextConfigReadTime < TimeContext.UtcNow)
             {
+                recheckTimeSpanInterval = FLogContext.NullOnUnstartedContext?.ConfigRegistry?.ExpireConfigCacheIntervalTimeSpan ??
+                                          TimeSpan.FromMinutes(1);
                 evalOrderKeyedExpressions.Clear();
                 foreach (var configurationSection in GetSection(Path).GetChildren())
                 {
-                    IMutableMatchOperatorExpressionConfig configSource = 
+                    IMutableMatchOperatorExpressionConfig configSource =
                         new MatchOperatorExpressionConfig(ConfigRoot, $"{Path}{Split}{configurationSection.Key}")
                         {
                             ParentConfig = this
@@ -146,7 +149,8 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
         {
             var compareExpression = new MatchOperatorExpressionConfig(configRoot, path);
             priorityConfigSources.Add(compareExpression.EvaluateOrder, compareExpression);
-            unorderedConfigSources.Add(new KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>(compareExpression.EvaluateOrder, compareExpression));
+            unorderedConfigSources.Add(new KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>(compareExpression.EvaluateOrder
+                                      , compareExpression));
             return compareExpression;
         }
 
@@ -189,16 +193,16 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
 
     IEnumerator IEnumerable.GetEnumerator() => OrderedConfigSources.GetEnumerator();
 
-    IEnumerator<KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>> IAppendableMatchOperatorLookupConfig.GetEnumerator() => 
+    IEnumerator<KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>> IAppendableMatchOperatorLookupConfig.GetEnumerator() =>
         OrderedConfigSources.GetEnumerator();
 
-    IEnumerator<KeyValuePair<ushort, IMatchOperatorExpressionConfig>> IEnumerable<KeyValuePair<ushort, IMatchOperatorExpressionConfig>>.GetEnumerator() =>
+    IEnumerator<KeyValuePair<ushort, IMatchOperatorExpressionConfig>> IEnumerable<KeyValuePair<ushort, IMatchOperatorExpressionConfig>>.
+        GetEnumerator() =>
         OrderedConfigSources
             .Select(arcKvp => new KeyValuePair<ushort, IMatchOperatorExpressionConfig>(arcKvp.Key, arcKvp.Value))
             .GetEnumerator();
 
-    public IEnumerator<KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>> GetEnumerator() => 
-        OrderedConfigSources.GetEnumerator();
+    public IEnumerator<KeyValuePair<ushort, IMutableMatchOperatorExpressionConfig>> GetEnumerator() => OrderedConfigSources.GetEnumerator();
 
     public IMutableMatchOperatorExpressionConfig this[ushort priorityOrder]
     {
@@ -210,7 +214,8 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
 
     public IEnumerable<ushort> Keys => OrderedConfigSources.Select(kvp => kvp.Key);
 
-    ICollection<ushort> IAppendableDictionary<ushort, IMutableMatchOperatorExpressionConfig>.Keys => OrderedConfigSources.Select(kvp => kvp.Key).ToList();
+    ICollection<ushort> IAppendableDictionary<ushort, IMutableMatchOperatorExpressionConfig>.Keys =>
+        OrderedConfigSources.Select(kvp => kvp.Key).ToList();
 
     public bool TryGetValue(ushort priorityOrder, [MaybeNullWhen(false)] out IMutableMatchOperatorExpressionConfig value) =>
         CheckConfigGetConfigSourcesDict.TryGetValue(priorityOrder, out value);
@@ -228,10 +233,10 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
 
     public IEnumerable<IMutableMatchOperatorExpressionConfig> Values => OrderedConfigSources.Select(kvp => kvp.Value);
 
-    IEnumerable<IMatchOperatorExpressionConfig> IReadOnlyDictionary<ushort, IMatchOperatorExpressionConfig>.Values => 
+    IEnumerable<IMatchOperatorExpressionConfig> IReadOnlyDictionary<ushort, IMatchOperatorExpressionConfig>.Values =>
         OrderedConfigSources.Select(kvp => kvp.Value);
 
-    ICollection<IMutableMatchOperatorExpressionConfig> IAppendableDictionary<ushort, IMutableMatchOperatorExpressionConfig>.Values => 
+    ICollection<IMutableMatchOperatorExpressionConfig> IAppendableDictionary<ushort, IMutableMatchOperatorExpressionConfig>.Values =>
         OrderedConfigSources.Select(kvp => kvp.Value).ToList();
 
     public override T Visit<T>(T visitor) => visitor.Accept(this);
@@ -271,13 +276,12 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
         return hashCode;
     }
 
-    public IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(AppendableMatchOperatorLookupConfig))
-               .AddTypeStart()
-               .AddKeyValues(evalOrderKeyedExpressions)
-               .AddTypeEnd();
+            sbc.StartKeyedCollectionType(nameof(AppendableMatchOperatorLookupConfig))
+               .AddAll(evalOrderKeyedExpressions)
+               .Complete();
     }
 
     public override string ToString() => this.DefaultToString();

@@ -1,0 +1,61 @@
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldCollection;
+using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFields;
+using FortitudeCommon.Types.StyledToString.StyledTypes.ValueType;
+
+namespace FortitudeCommon.Types.StyledToString.StyledTypes.SimpleType;
+
+public class ComplexValueTypeBuilder : ValueTypeBuilder<ComplexValueTypeBuilder>
+{
+    private SelectTypeCollectionField<ComplexValueTypeBuilder>? logOnlyInternalCollectionField;
+    private SelectTypeField<ComplexValueTypeBuilder>?           logOnlyInternalField;
+
+    public ComplexValueTypeBuilder InitializeComplexValueTypeBuilder
+        (IStyleTypeAppenderBuilderAccess owningAppender, TypeAppendSettings typeSettings, string typeName)
+    {
+        InitializeValueTypeBuilder(owningAppender, typeSettings, typeName);
+
+        return this;
+    }
+    
+    protected override string TypeOpeningDelimiter => Stb.ValueInComplexType ? "{" : "";
+    protected override string TypeClosingDelimiter => Stb.ValueInComplexType ? "}" : "";
+
+    protected override void SourceBuilderComponentAccess()
+    {
+        var recycler = MeRecyclable.Recycler ?? PortableState.OwningAppender.Recycler;
+        CompAccess = recycler.Borrow<ValueBuilderCompAccess<ComplexValueTypeBuilder>>()
+                             .InitializeValueBuilderCompAccess(this, PortableState, true);
+    }
+    
+
+    public SelectTypeField<ComplexValueTypeBuilder>? LogOnlyField =>
+        logOnlyInternalField ??= Style.AllowsUnstructured()
+            ? PortableState.OwningAppender.Recycler.Borrow<SelectTypeField<ComplexValueTypeBuilder>>().Initialize(CompAccess)
+            : null;
+
+    public SelectTypeCollectionField<ComplexValueTypeBuilder>? LogOnlyCollectionField =>
+        logOnlyInternalCollectionField ??= Style.AllowsUnstructured()
+            ? PortableState.OwningAppender.Recycler.Borrow<SelectTypeCollectionField<ComplexValueTypeBuilder>>().Initialize(CompAccess)
+            : null;
+
+    protected override void InheritedStateReset()
+    {
+        logOnlyInternalCollectionField?.DecrementRefCount();
+        logOnlyInternalCollectionField = null!;
+        logOnlyInternalField?.DecrementRefCount();
+        logOnlyInternalField = null!;
+
+        CompAccess?.DecrementIndent();
+        CompAccess = null!;
+    }
+
+    public ComplexValueTypeBuilder AddBaseFieldsStart()
+    {
+        CompAccess.OwningAppender.AddBaseFieldsStart();
+
+        return Me;
+    }
+}

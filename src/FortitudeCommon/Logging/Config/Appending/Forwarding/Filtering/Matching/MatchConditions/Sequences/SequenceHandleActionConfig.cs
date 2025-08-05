@@ -3,6 +3,8 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.Appending.Formatting;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Forwarding.Filtering.Matching.MatchConditions.Sequences;
@@ -143,14 +145,13 @@ public class SequenceHandleActionConfig : FLogConfig, IMutableSequenceHandleActi
         return hashCode;
     }
 
-    public virtual IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
         return
-            sbc.AddTypeName(nameof(ExtractKeyExpressionConfig))
-               .AddTypeStart()
-               .AddNonNullField(nameof(SendMessage), SendMessage)
-               .AddNonNullField(nameof(SendToAppender), SendToAppender)
-               .AddField(nameof(SendTriggeringLogEntries), SendTriggeringLogEntries, TriggeringLogEntriesExtensions.TriggeringLogEntriesFormatter)
-               .AddTypeEnd();
+            sbc.StartComplexType(nameof(ExtractKeyExpressionConfig))
+               .Field.WhenNonNullAdd(nameof(SendMessage), SendMessage)
+               .Field.WhenNonNullAdd(nameof(SendToAppender), SendToAppender)
+               .Field.AlwaysAdd(nameof(SendTriggeringLogEntries), SendTriggeringLogEntries, TriggeringLogEntriesExtensions.TriggeringLogEntriesFormatter)
+               .Complete();
     }
 }

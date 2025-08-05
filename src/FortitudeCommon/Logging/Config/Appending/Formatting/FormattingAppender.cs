@@ -1,12 +1,16 @@
 ﻿using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
+using FortitudeCommon.Types.Mutable.Strings;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting;
 
 public interface IFormattingAppenderConfig : IAppenderDefinitionConfig, ICloneable<IFormattingAppenderConfig>
 {
-    const string DefaultStringFormattingTemplate = "%TS:yyyy-MM-dd HH:mm:SS.fff% %LVL,5% %THREADID,4% %THREADNAME,10[..10]% %LGR% %MSG%";
+    const string DefaultStringFormattingTemplate
+        = "'%TS:yyyy-MM-dd HH:mm:SS.fff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%' '%MSG%''%NL%'";
 
     string LogEntryFormatLayout { get; }
 
@@ -150,15 +154,13 @@ public class FormattingAppenderConfig : AppenderDefinitionConfig, IMutableFormat
         return hashCode;
     }
 
-    public override IStyledTypeStringAppender ToString(IStyledTypeStringAppender sbc)
+    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        sbc.AddTypeName(nameof(FormattingAppenderConfig))
-           .AddTypeStart()
-           .AddBaseFieldsStart();
-        return base.ToString(sbc)
-                   .AddBaseFieldsEnd()
-                   .AddField(nameof(LogEntryFormatLayout), LogEntryFormatLayout)
-                   .AddNonNullField(nameof(InheritsFrom), InheritsFrom)
-                   .AddTypeEnd();
+        using var tb = sbc.StartComplexType(nameof(FormattingAppenderConfig))
+                          .AddBaseFieldsStart();
+        base.ToString(sbc);
+        return tb.Field.AlwaysAdd(nameof(LogEntryFormatLayout), LogEntryFormatLayout)
+                 .Field.WhenNonNullOrDefaultAdd(nameof(InheritsFrom), InheritsFrom)
+                 .Complete();
     }
 }

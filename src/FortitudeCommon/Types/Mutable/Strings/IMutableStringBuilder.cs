@@ -3,7 +3,7 @@ using System.Text;
 
 namespace FortitudeCommon.Types.Mutable.Strings;
 
-public interface IMutableStringBuilder<out T> where T : IStringBuilder<T>, IMutableStringBuilder<T>
+public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutableStringBuilder<T>
 {
     int Capacity    { get; set; }
     int MaxCapacity { get; }
@@ -11,8 +11,9 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder<T>, IMuta
 
     char this[int index] { get; set; }
 
-    T Append(IFrozenString? value);
+    T Append(ICharSequence? value);
     T Append(StringBuilder? value);
+    T Append(ICharSequence? value, int startIndex, int length);
     T Append(StringBuilder? value, int startIndex, int length);
     T Append(bool value);
     T Append(byte value);
@@ -38,6 +39,8 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder<T>, IMuta
 
     unsafe T Append(char* value, int valueCount);
 
+    T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, string arg0);
+    T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, ReadOnlySpan<char> arg0);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2);
@@ -63,7 +66,7 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder<T>, IMuta
     T   AppendJoin(char separator, params string?[] values);
     T   AppendLine();
     T   AppendLine(string? value);
-    T   AppendLine(IFrozenString value);
+    T   AppendLine(ICharSequence value);
     T   AppendLine(StringBuilder value);
     T   Clear();
     T   CopyTo(int sourceIndex, char[] destination, int destinationIndex, int count);
@@ -87,7 +90,7 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder<T>, IMuta
     T   Insert(int atIndex, ushort value);
     T   Insert(int atIndex, uint value);
     T   Insert(int atIndex, ulong value);
-    T   Insert(int atIndex, IFrozenString? value);
+    T   Insert(int atIndex, ICharSequence? value);
     T   Insert(int atIndex, StringBuilder? value);
 
     T Insert(int index, string? value, int count);
@@ -98,9 +101,9 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder<T>, IMuta
     T Replace(char find, char replace, int startIndex, int length);
     T Replace(string find, string? replace);
     T Replace(string find, string replace, int startIndex, int length);
-    T Replace(IFrozenString find, IFrozenString replace);
+    T Replace(ICharSequence find, ICharSequence replace);
     T Replace(StringBuilder find, StringBuilder replace);
-    T Replace(IFrozenString find, IFrozenString replace, int startIndex, int length);
+    T Replace(ICharSequence find, ICharSequence replace, int startIndex, int length);
     T Replace(StringBuilder find, StringBuilder replace, int startIndex, int length);
 
     string ToString(int startIndex, int length);
@@ -108,3 +111,4 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder<T>, IMuta
     bool Equals([NotNullWhen(true)] StringBuilder? sb);
     bool Equals(ReadOnlySpan<char> span);
 }
+
