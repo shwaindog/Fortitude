@@ -297,13 +297,13 @@ public class MatchOperatorExpressionConfig : FLogConfig, IMutableMatchOperatorEx
     {
         return
             sbc.StartComplexType(nameof(FLogEntryQueueConfig))
-               .Field.AddAlways(nameof(EvaluateOrder), EvaluateOrder)
-               .Field.AddWhenNonNull(nameof(All), All)
-               .Field.AddWhenNonNull(nameof(Any), Any)
-               .Field.AddWhenNonNull(nameof(And), And)
-               .Field.AddWhenNonNull(nameof(Or), Or)
-               .Field.AddWhenNonNull(nameof(IsTrue), IsTrue)
-               .Field.AddWhenNonNull(nameof(IsFalse), IsFalse)
+               .Field.AlwaysAdd(nameof(EvaluateOrder), EvaluateOrder)
+               .Field.WhenNonNullAdd(nameof(All), All)
+               .Field.WhenNonNullAdd(nameof(Any), Any)
+               .Field.WhenNonNullAdd(nameof(And), And)
+               .Field.WhenNonNullAdd(nameof(Or), Or)
+               .Field.WhenNonNullAdd(nameof(IsTrue), IsTrue)
+               .Field.WhenNonNullAdd(nameof(IsFalse), IsFalse)
                .Complete();
     }
 }

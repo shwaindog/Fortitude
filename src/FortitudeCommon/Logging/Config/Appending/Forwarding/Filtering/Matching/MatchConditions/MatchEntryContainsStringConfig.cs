@@ -122,10 +122,10 @@ public class MatchEntryContainsStringConfig : MatchConditionConfig, IMutableMatc
     {
         return
             sbc.StartComplexType(nameof(MatchEntryContainsStringConfig))
-               .Field.AddAlways(nameof(CheckConditionType), CheckConditionType, FLoggerEntryMatchTypeExtensions.FLoggerEntryMatchTypeFormatter)
-               .Field.AddAlways(nameof(MatchOn), MatchOn, LogEntryFieldExtensions.FormatMatchOnLogEntryFieldFormatter)
-               .Field.AddAlways(nameof(EntryContains), EntryContains)
-               .Field.AddWhenNonDefault(nameof(IsRegEx), IsRegEx)
+               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType, FLoggerEntryMatchTypeExtensions.FLoggerEntryMatchTypeFormatter)
+               .Field.AlwaysAdd(nameof(MatchOn), MatchOn, LogEntryFieldExtensions.FormatMatchOnLogEntryFieldFormatter)
+               .Field.AlwaysAdd(nameof(EntryContains), EntryContains)
+               .Field.WhenNonDefaultAdd(nameof(IsRegEx), IsRegEx)
                .Complete();
     }
 }

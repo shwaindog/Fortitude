@@ -143,11 +143,11 @@ public class FLoggerDescendantConfig : FLoggerTreeCommonConfig, IMutableFLoggerD
     {
         return
             sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
-               .Field.AddAlways(nameof(Name), Name)
-               .Field.AddAlways(nameof(LogLevel), LogLevel.ToString())
-               .Field.AddAlways(nameof(Inherits), Inherits)
-               .Field.AddAlways(nameof(DescendantLoggers), DescendantLoggers)
-               .Field.AddWhenNonNull(nameof(LogEntryPool), LogEntryPool).Complete();
+               .Field.AlwaysAdd(nameof(Name), Name)
+               .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())
+               .Field.AlwaysAdd(nameof(Inherits), Inherits)
+               .Field.AlwaysAdd(nameof(DescendantLoggers), DescendantLoggers)
+               .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool).Complete();
     }
 
     public override string ToString() => this.DefaultToString();

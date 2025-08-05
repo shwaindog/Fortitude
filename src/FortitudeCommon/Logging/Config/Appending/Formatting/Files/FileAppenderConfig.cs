@@ -180,9 +180,9 @@ public class FileAppenderConfig : FormattingAppenderConfig, IMutableFileAppender
     {
         using var tb =
             sbc.StartComplexType(nameof(FileAppenderConfig))
-               .Field.AddAlways(nameof(FileAppenderType), FileAppenderType, FileAppenderTypeExtensions.FileAppenderTypeFormatter)
-               .Field.AddAlways(nameof(FileName), FileName)
-               .Field.AddAlways(nameof(FilePath), FilePath)
+               .Field.AlwaysAdd(nameof(FileAppenderType), FileAppenderType, FileAppenderTypeExtensions.FileAppenderTypeFormatter)
+               .Field.AlwaysAdd(nameof(FileName), FileName)
+               .Field.AlwaysAdd(nameof(FilePath), FilePath)
                .AddBaseFieldsStart();
         base.ToString(sbc);
         return tb.Complete();

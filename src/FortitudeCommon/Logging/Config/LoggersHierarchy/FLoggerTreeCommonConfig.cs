@@ -190,11 +190,11 @@ public class FLoggerTreeCommonConfig : FLoggerMatchedAppenders, IMutableFLoggerT
     {
         return
             sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
-               .Field.AddAlways(nameof(Name), Name)
-               .Field.AddAlways(nameof(LogLevel), LogLevel.ToString())
-               .Field.AddAlways(nameof(DescendantLoggers), DescendantLoggers)
-               .Field.AddWhenNonNull(nameof(Appenders), Appenders)
-               .Field.AddWhenNonNull(nameof(LogEntryPool), LogEntryPool)
+               .Field.AlwaysAdd(nameof(Name), Name)
+               .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())
+               .Field.AlwaysAdd(nameof(DescendantLoggers), DescendantLoggers)
+               .Field.WhenNonNullAdd(nameof(Appenders), Appenders)
+               .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool)
                .Complete();
     }
 

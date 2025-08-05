@@ -115,9 +115,9 @@ public class ExtractKeyExpressionConfig : FLogConfig, IMutableExtractKeyExpressi
     {
         return
             sbc.StartComplexType(nameof(ExtractKeyExpressionConfig))
-               .Field.AddAlways(nameof(KeyName), KeyName)
-               .Field.AddAlways(nameof(ExtractRegEx), ExtractRegEx)
-               .Field.AddAlways(nameof(ExtractGroupNumber), ExtractGroupNumber)
+               .Field.AlwaysAdd(nameof(KeyName), KeyName)
+               .Field.AlwaysAdd(nameof(ExtractRegEx), ExtractRegEx)
+               .Field.AlwaysAdd(nameof(ExtractGroupNumber), ExtractGroupNumber)
                .Complete();
     }
 }

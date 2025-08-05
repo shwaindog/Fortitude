@@ -316,7 +316,7 @@ public class OrderedConfigSourcesLookupConfig : FLogConfig, IAppendableOrderedCo
     {
         return
             sbc.StartKeyedCollectionType(nameof(OrderedConfigSourcesLookupConfig))
-               .AddAll.From(priorityConfigSources)
+               .AddAll(priorityConfigSources)
                .Complete();
     }
 

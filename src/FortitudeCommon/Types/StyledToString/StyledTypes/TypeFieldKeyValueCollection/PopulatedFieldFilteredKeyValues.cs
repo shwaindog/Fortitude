@@ -6,7 +6,7 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldKeyValueColl
 
 public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : StyledTypeBuilder
 {
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, ConcurrentDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -43,7 +43,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, Dictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -80,7 +80,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, IDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -116,7 +116,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -152,7 +152,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -188,7 +188,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -224,7 +224,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -260,7 +260,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -296,7 +296,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -336,7 +336,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, ConcurrentDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -372,7 +372,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, Dictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -408,7 +408,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, IDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -443,7 +443,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -478,7 +478,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -513,7 +513,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -548,7 +548,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -583,7 +583,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -618,7 +618,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -657,7 +657,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, ConcurrentDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -691,7 +691,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, Dictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -725,7 +725,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, IDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -759,7 +759,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -793,7 +793,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -827,7 +827,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -861,7 +861,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -895,7 +895,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -929,7 +929,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredWhenAny<TKey, TValue>
+    public TExt WhenPopulatedWithFilter<TKey, TValue>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler

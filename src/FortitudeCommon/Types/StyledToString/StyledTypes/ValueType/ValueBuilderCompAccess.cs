@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Numerics;
 using System.Text;
 using FortitudeCommon.Types.Mutable.Strings;
 
@@ -30,13 +31,19 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
 
     public bool NotJson => Style.IsNotJson();
 
-    public TExt FieldValueNext<TValue>(string nonJsonfieldName, TValue value)
+    public TExt FieldValueNext(string nonJsonfieldName, bool value)
     {
         (NotJson ? this.FieldNameJoin(nonJsonfieldName) : Sb).AppendOrNull(value, this, false);
         return ConditionalCollectionSuffix();
     }
 
-    public TExt FieldValueNext<TValue>(string nonJsonfieldName, TValue value, string? formatString = null)
+    public TExt FieldValueNext<TNum>(string nonJsonfieldName, TNum value) where TNum : struct, INumber<TNum>
+    {
+        (NotJson ? this.FieldNameJoin(nonJsonfieldName) : Sb).AppendOrNull(value, this, false);
+        return ConditionalCollectionSuffix();
+    }
+
+    public TExt FieldValueNext<TNum>(string nonJsonfieldName, TNum value, string? formatString) where TNum : struct, INumber<TNum>
     {
         if (NotJson) this.FieldNameJoin(nonJsonfieldName);
         if (formatString != null) this.AppendFormattedOrNull(value, formatString);
@@ -261,16 +268,5 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
             return StyleTypeBuilder;
         }
         return StyleTypeBuilder;
-    }
-}
-
-public static class ValueBuilderCompAccessExtensions
-{
-    public static TExt MaybeFieldValueToMaybeNext<TValue, TExt>(this IStringBuilder sb, string nonJsonfieldName, TValue value
-      , ValueBuilderCompAccess<TExt> stb) where TExt : StyledTypeBuilder
-    {
-        if(stb.NotJson) stb.FieldNameJoin(nonJsonfieldName, stb);
-        stb.AppendOrNull(value, false);
-        return stb.ConditionalCollectionSuffix();
     }
 }

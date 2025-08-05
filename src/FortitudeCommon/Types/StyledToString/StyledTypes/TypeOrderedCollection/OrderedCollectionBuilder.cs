@@ -1,36 +1,37 @@
-﻿namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeOrderedCollection;
+﻿using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldCollection;
+using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFields;
 
-public class SimpleOrderedCollectionBuilder : TypedStyledTypeBuilder<SimpleOrderedCollectionBuilder>
+namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeOrderedCollection;
+
+public partial class OrderedCollectionBuilder<TExt> : TypedStyledTypeBuilder<TExt>
+    where TExt : StyledTypeBuilder
 {
-    private IAddAllTypeIsOrderedCollection<SimpleOrderedCollectionBuilder>?      addAll;
-    private IAddFilteredTypeIsOrderedCollection<SimpleOrderedCollectionBuilder>? addFiltered;
+    private CollectionBuilderCompAccess<TExt> stb = null!;
 
-    public SimpleOrderedCollectionBuilder InitializeSimpleOrderedCollectionBuilder(IStyleTypeAppenderBuilderAccess owningAppender
+    public OrderedCollectionBuilder<TExt> InitializeOrderedCollectionBuilder(IStyleTypeAppenderBuilderAccess owningAppender
       , TypeAppendSettings typeSettings, string typeName)
     {
         InitializeTypedStyledTypeBuilder(owningAppender, typeSettings, typeName);
 
+        stb = CompAsOrderedCollection;
+
         return this;
     }
 
-    protected CollectionBuilderCompAccess<SimpleOrderedCollectionBuilder> CompAsSimpleBuilder =>
-        (CollectionBuilderCompAccess<SimpleOrderedCollectionBuilder>)CompAccess;
+    protected CollectionBuilderCompAccess<TExt> CompAsOrderedCollection => (CollectionBuilderCompAccess<TExt>)CompAccess;
 
     protected override string TypeOpeningDelimiter => "[";
     protected override string TypeClosingDelimiter => "]";
+}
 
-    private IAddAllTypeIsOrderedCollection<SimpleOrderedCollectionBuilder> AddAll
+public class SimpleOrderedCollectionBuilder : OrderedCollectionBuilder<SimpleOrderedCollectionBuilder>
+{
+    public SimpleOrderedCollectionBuilder InitializeSimpleOrderedCollectionBuilder(IStyleTypeAppenderBuilderAccess owningAppender
+      , TypeAppendSettings typeSettings, string typeName)
     {
-        get => addAll ?? CompAccess.Recycler.Borrow<AddAllTypeIsOrderedCollection<SimpleOrderedCollectionBuilder>>().Initialize(CompAsSimpleBuilder);
-        set => addAll = value;
-    }
+        InitializeOrderedCollectionBuilder(owningAppender, typeSettings, typeName);
 
-    public IAddFilteredTypeIsOrderedCollection<SimpleOrderedCollectionBuilder> AddFiltered
-    {
-        get =>
-            addFiltered ?? CompAccess.Recycler.Borrow<AddFilteredTypeIsOrderedCollection<SimpleOrderedCollectionBuilder>>()
-                                     .Initialize(CompAsSimpleBuilder);
-        set => addFiltered = value;
+        return this;
     }
 
     protected override void SourceBuilderComponentAccess()
@@ -41,41 +42,20 @@ public class SimpleOrderedCollectionBuilder : TypedStyledTypeBuilder<SimpleOrder
     }
 }
 
-public class ComplexOrderedCollectionBuilder : MultiValueTypeBuilder<ComplexOrderedCollectionBuilder>
+public class ComplexOrderedCollectionBuilder : OrderedCollectionBuilder<ComplexOrderedCollectionBuilder>
 {
-    private AddAllTypeIsOrderedCollection<ComplexOrderedCollectionBuilder>?      addAll;
-    private AddFilteredTypeIsOrderedCollection<ComplexOrderedCollectionBuilder>? addFiltered;
+    private SelectTypeCollectionField<ComplexOrderedCollectionBuilder>? logOnlyInternalCollectionField;
+    private SelectTypeField<ComplexOrderedCollectionBuilder>?           logOnlyInternalField;
 
-    protected override string TypeOpeningDelimiter => CompAsComplexBuilder.CollectionInComplexType ? "{" : "[";
-    protected override string TypeClosingDelimiter => CompAsComplexBuilder.CollectionInComplexType ? "}" : "]";
+    protected override string TypeOpeningDelimiter => CompAsOrderedCollection.CollectionInComplexType ? "{" : "[";
+    protected override string TypeClosingDelimiter => CompAsOrderedCollection.CollectionInComplexType ? "}" : "]";
 
     public ComplexOrderedCollectionBuilder InitializeComplexOrderedCollectionBuilder
         (IStyleTypeAppenderBuilderAccess owningAppender, TypeAppendSettings typeSettings, string typeName)
     {
-        InitializeMultiValueTypeBuilder(owningAppender, typeSettings, typeName);
+        InitializeOrderedCollectionBuilder(owningAppender, typeSettings, typeName);
 
         return this;
-    }
-
-    protected CollectionBuilderCompAccess<ComplexOrderedCollectionBuilder> CompAsComplexBuilder =>
-        (CollectionBuilderCompAccess<ComplexOrderedCollectionBuilder>)CompAccess;
-
-    private AddAllTypeIsOrderedCollection<ComplexOrderedCollectionBuilder> AddAll
-    {
-        get =>
-            addAll ?? CompAccess.Recycler
-                                .Borrow<AddAllTypeIsOrderedCollection<ComplexOrderedCollectionBuilder>>()
-                                .Initialize(CompAsComplexBuilder);
-        set => addAll = value;
-    }
-
-    public AddFilteredTypeIsOrderedCollection<ComplexOrderedCollectionBuilder> AddFiltered
-    {
-        get =>
-            addFiltered ?? CompAccess.Recycler
-                                     .Borrow<AddFilteredTypeIsOrderedCollection<ComplexOrderedCollectionBuilder>>()
-                                     .Initialize(CompAsComplexBuilder);
-        set => addFiltered = value;
     }
 
     protected override void SourceBuilderComponentAccess()
@@ -85,12 +65,31 @@ public class ComplexOrderedCollectionBuilder : MultiValueTypeBuilder<ComplexOrde
                              .InitializeOrderCollectionComponentAccess(this, PortableState, true);
     }
 
+    public SelectTypeField<ComplexOrderedCollectionBuilder>? LogOnlyField =>
+        logOnlyInternalField ??= Style.AllowsUnstructured()
+            ? PortableState.OwningAppender.Recycler.Borrow<SelectTypeField<ComplexOrderedCollectionBuilder>>().Initialize(CompAccess)
+            : null;
+
+    public SelectTypeCollectionField<ComplexOrderedCollectionBuilder>? LogOnlyCollectionField =>
+        logOnlyInternalCollectionField ??= Style.AllowsUnstructured()
+            ? PortableState.OwningAppender.Recycler.Borrow<SelectTypeCollectionField<ComplexOrderedCollectionBuilder>>().Initialize(CompAccess)
+            : null;
+
     protected override void InheritedStateReset()
     {
-        addAll?.DecrementRefCount();
-        addAll = null!;
-        addFiltered?.DecrementRefCount();
-        addFiltered = null!;
-        base.InheritedStateReset();
+        logOnlyInternalCollectionField?.DecrementRefCount();
+        logOnlyInternalCollectionField = null!;
+        logOnlyInternalField?.DecrementRefCount();
+        logOnlyInternalField = null!;
+
+        CompAccess?.DecrementIndent();
+        CompAccess = null!;
+    }
+
+    public ComplexOrderedCollectionBuilder AddBaseFieldsStart()
+    {
+        CompAccess.OwningAppender.AddBaseFieldsStart();
+
+        return Me;
     }
 }

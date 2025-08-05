@@ -189,7 +189,7 @@ public class RemoteCredentialsConfig : SensitiveSecurableConfig<RemoteCredential
         set => this[nameof(CertificatePayload)] = value;
     }
     
-    public IRetryConfig? ReconnectConfig
+    public IRetryConfig ReconnectConfig
     {
         get
         {

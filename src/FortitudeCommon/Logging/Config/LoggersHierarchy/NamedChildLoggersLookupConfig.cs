@@ -227,7 +227,7 @@ public class NamedChildLoggersLookupConfig : FLogConfig, IMutableNamedChildLogge
     {
         return
             sbc.StartKeyedCollectionType(nameof(NamedChildLoggersLookupConfig))
-               .AddAll.From(loggersByName)
+               .AddAll(loggersByName)
                .Complete();
     }
 

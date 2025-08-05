@@ -15,7 +15,5 @@ public class FLogContextTests
         var logger = FLog.FLoggerForType;
 
         logger.Info()?.StringAppender().FinalAppend("Testing 1 2 3, testing");
-
-        Thread.Sleep(5_000);
     }
 }

@@ -290,7 +290,7 @@ public class AsyncQueueLookupConfig : FLogConfig, IAppendableAsyncQueueLookupCon
     {
         return
             sbc.StartKeyedCollectionType(nameof(AsyncQueueLookupConfig))
-               .AddAll.From(queueConfigByQueueNumber)
+               .AddAll(queueConfigByQueueNumber)
                .Complete();
     }
 

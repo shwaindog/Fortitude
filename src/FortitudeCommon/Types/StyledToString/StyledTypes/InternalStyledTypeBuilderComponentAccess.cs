@@ -10,17 +10,17 @@ public interface IStyleTypeBuilderComponentAccess
 {
     StyledTypeBuilder StyleTypeBuilder { get; }
 
-    IStyleTypeAppenderBuilderAccess OwningAppender   { get; }
+    IStyleTypeAppenderBuilderAccess OwningAppender { get; }
 
     TypeAppendSettings AppendSettings { get; set; }
 
     string Indent { get; }
 
-    ushort                 IndentLevel { get; }
+    ushort IndentLevel { get; }
 
     bool IsComplete { get; }
 
-    StringBuildingStyle Style       { get; }
+    StringBuildingStyle Style { get; }
 
     IStringBuilder Sb { get; }
 
@@ -99,7 +99,7 @@ public class InternalStyledTypeBuilderComponentAccess<TExt> : RecyclableObject, 
     {
         if (!typeBuilderState.IsComplete)
         {
-            typeBuilderState.CompleteResult =  StyleTypeBuilder.Complete();
+            typeBuilderState.CompleteResult = StyleTypeBuilder.Complete();
             //OwningAppender.AddTypeEnd(StyleTypeBuilder);
         }
         return OwningAppender;

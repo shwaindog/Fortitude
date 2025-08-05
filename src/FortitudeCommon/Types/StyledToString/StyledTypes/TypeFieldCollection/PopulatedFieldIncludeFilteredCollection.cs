@@ -8,7 +8,7 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldCollection;
 #pragma warning disable CS0618 // Type or member is obsolete
 public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuilder
 {
-    public TExt AddWhenPopulatedApplyFilter(string fieldName, bool[]? value, OrderedCollectionPredicate<bool> filterPredicate)
+    public TExt WhenPopulatedWithFilter(string fieldName, bool[]? value, OrderedCollectionPredicate<bool> filterPredicate)
     {
         var found = false;
         if (value != null)
@@ -35,7 +35,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate)
+    public TExt WhenPopulatedWithFilter(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate)
     {
         var found = false;
         if (value != null)
@@ -62,7 +62,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter<TNum>
+    public TExt WhenPopulatedWithFilter<TNum>
     (string fieldName, TNum[]? value, OrderedCollectionPredicate<TNum> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TNum : struct, INumber<TNum>
@@ -92,7 +92,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter<TNum>
+    public TExt WhenPopulatedWithFilter<TNum>
     (string fieldName, TNum?[]? value, OrderedCollectionPredicate<TNum?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TNum : struct, INumber<TNum>
@@ -122,7 +122,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter<TStruct>
+    public TExt WhenPopulatedWithFilter<TStruct>
     (string fieldName, TStruct[]? value, OrderedCollectionPredicate<TStruct> filterPredicate
       , StructStyler<TStruct> structToString) where TStruct : struct
     {
@@ -151,7 +151,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter<TStruct>
+    public TExt WhenPopulatedWithFilter<TStruct>
     (string fieldName, TStruct?[]? value, OrderedCollectionPredicate<TStruct?> filterPredicate
       , StructStyler<TStruct> structToString) where TStruct : struct
     {
@@ -180,7 +180,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter
+    public TExt WhenPopulatedWithFilter
     (string fieldName, string?[]? value, OrderedCollectionPredicate<string?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
@@ -209,7 +209,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter(string fieldName, IStyledToStringObject?[]? value, OrderedCollectionPredicate<IStyledToStringObject?> filterPredicate)
+    public TExt WhenPopulatedWithFilter(string fieldName, IStyledToStringObject?[]? value, OrderedCollectionPredicate<IStyledToStringObject?> filterPredicate)
     {
         var found = false;
         if (value != null)
@@ -236,7 +236,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter
+    public TExt WhenPopulatedWithFilter
     (string fieldName, IFrozenString?[]? value, OrderedCollectionPredicate<IFrozenString?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
@@ -265,7 +265,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter
+    public TExt WhenPopulatedWithFilter
     (string fieldName, IStringBuilder?[]? value, OrderedCollectionPredicate<IStringBuilder?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
@@ -294,7 +294,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate
+    public TExt WhenPopulatedWithFilter(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var found = false;
@@ -323,7 +323,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
     [CallsObjectToString]
-    public TExt AddWhenPopulatedApplyFilter(string fieldName, object?[]? value, OrderedCollectionPredicate<object?> filterPredicate
+    public TExt WhenPopulatedWithFilter(string fieldName, object?[]? value, OrderedCollectionPredicate<object?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var found = false;
@@ -352,7 +352,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
     
-    public TExt AddWhenPopulatedApplyFilter(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate)
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate)
     {
         var found = false;
         if (value != null)
@@ -379,7 +379,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate)
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate)
     {
         var found = false;
         if (value != null)
@@ -406,7 +406,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter<TNum>(string fieldName, IReadOnlyList<TNum>? value, OrderedCollectionPredicate<TNum> filterPredicate
+    public TExt WhenPopulatedWithFilter<TNum>(string fieldName, IReadOnlyList<TNum>? value, OrderedCollectionPredicate<TNum> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TNum : struct, INumber<TNum>
     {
@@ -435,7 +435,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter<TNum>(string fieldName, IReadOnlyList<TNum?>? value, OrderedCollectionPredicate<TNum?> filterPredicate
+    public TExt WhenPopulatedWithFilter<TNum>(string fieldName, IReadOnlyList<TNum?>? value, OrderedCollectionPredicate<TNum?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TNum : struct, INumber<TNum>
     {
@@ -464,7 +464,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter<TStruct>
+    public TExt WhenPopulatedWithFilter<TStruct>
         (string fieldName, IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> filterPredicate
           , StructStyler<TStruct> structToString) where TStruct : struct
     {
@@ -493,7 +493,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter<TStruct>
+    public TExt WhenPopulatedWithFilter<TStruct>
         (string fieldName, IReadOnlyList<TStruct?>? value, OrderedCollectionPredicate<TStruct?> filterPredicate
           , StructStyler<TStruct> structToString) where TStruct : struct
     {
@@ -522,7 +522,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter(string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string?> filterPredicate
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var found = false;
@@ -550,7 +550,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter(string fieldName, IReadOnlyList<IStyledToStringObject?>? value, OrderedCollectionPredicate<IStyledToStringObject?> filterPredicate)
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<IStyledToStringObject?>? value, OrderedCollectionPredicate<IStyledToStringObject?> filterPredicate)
     {
         var found = false;
         if (value != null)
@@ -577,7 +577,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter(string fieldName, IReadOnlyList<IFrozenString?>? value, OrderedCollectionPredicate<IFrozenString?> filterPredicate
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<IFrozenString?>? value, OrderedCollectionPredicate<IFrozenString?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var found = false;
@@ -605,7 +605,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter(string fieldName, IReadOnlyList<IStringBuilder?>? value, OrderedCollectionPredicate<IStringBuilder?> filterPredicate
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<IStringBuilder?>? value, OrderedCollectionPredicate<IStringBuilder?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var found = false;
@@ -633,7 +633,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt AddWhenPopulatedApplyFilter(string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var found = false;
@@ -663,7 +663,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
 
     [CallsObjectToString]
-    public TExt AddWhenPopulatedApplyFilter(string fieldName, IReadOnlyList<object?>? value, OrderedCollectionPredicate<object?> filterPredicate
+    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<object?>? value, OrderedCollectionPredicate<object?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var found = false;

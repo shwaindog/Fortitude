@@ -134,8 +134,8 @@ public class BufferingAppenderConfig : QueueingAppenderConfig, IMutableBuffering
         using var tb = sbc.StartComplexType(nameof(BufferingAppenderConfig))
            .AddBaseFieldsStart();
         base.ToString(sbc);
-        return tb.Field.AddAlways(nameof(MaxBufferTimeMs), MaxBufferTimeMs)
-            .Field.AddAlways(nameof(FlushLogLevel), FlushLogLevel, FLogLevelExtensions.FLogLevelFormatter)
+        return tb.Field.AlwaysAdd(nameof(MaxBufferTimeMs), MaxBufferTimeMs)
+            .Field.AlwaysAdd(nameof(FlushLogLevel), FlushLogLevel, FLogLevelExtensions.FLogLevelFormatter)
             .Complete();
     }
 }

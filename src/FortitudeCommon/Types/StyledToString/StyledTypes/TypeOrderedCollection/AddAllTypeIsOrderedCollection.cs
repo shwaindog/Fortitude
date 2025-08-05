@@ -4,128 +4,16 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Text;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable.Strings;
 #pragma warning disable CS0618 // Type or member is obsolete
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeOrderedCollection;
 
-public interface IAddAllTypeIsOrderedCollection<out T> where T : StyledTypeBuilder
-{
-    T From(bool[]? value);
-    T From(bool?[]? value);
-    T From(ReadOnlySpan<bool> value);
-    T From(ReadOnlySpan<bool?> value);
-    T From(IReadOnlyList<bool>? value);
-    T From(IReadOnlyList<bool?>? value);
-    T From(ICollection<bool>? value);
-    T From(ICollection<bool?>? value);
-    T From(IEnumerable<bool>? value);
-    T From(IEnumerable<bool?>? value);
-    T From(IEnumerator<bool>? value);
-    T From(IEnumerator<bool?>? value);
-
-    T From<TNum> (TNum[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>;
-
-    T From<TNum>(TNum?[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>;
-
-    T From<TNum>(ReadOnlySpan<TNum> value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>;
-
-    T From<TNum>(ReadOnlySpan<TNum?> value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>;
-
-    T From<TNum>(IReadOnlyList<TNum>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>;
-
-    T From<TNum>(IReadOnlyList<TNum?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>;
-
-    T From<TNum>(ICollection<TNum>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>;
-
-    T From<TNum>(ICollection<TNum?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>;
-
-    T From<TNum>(IEnumerable<TNum>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>;
-
-    T From<TNum>(IEnumerable<TNum?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>;
-
-    T From<TNum>(IEnumerator<TNum>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>;
-
-    T From<TNum>(IEnumerator<TNum?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>;
-
-    T From<TStruct>(TStruct[]? value, StructStyler<TStruct> structStyler) where TStruct : struct;
-    T From<TStruct>(TStruct?[]? value, StructStyler<TStruct> structStyler) where TStruct : struct;
-
-    T From<TStruct>(ReadOnlySpan<TStruct> value, StructStyler<TStruct> structStyler) where TStruct : struct;
-    T From<TStruct>(ReadOnlySpan<TStruct?> value, StructStyler<TStruct> structStyler) where TStruct : struct;
-    T From<TStruct>(IReadOnlyList<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct;
-    T From<TStruct>(IReadOnlyList<TStruct?>? value, StructStyler<TStruct> structStyler) where TStruct : struct;
-    T From<TStruct>(ICollection<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct;
-    T From<TStruct>(ICollection<TStruct?>? value, StructStyler<TStruct> structStyler) where TStruct : struct;
-    T From<TStruct>(IEnumerable<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct;
-    T From<TStruct>(IEnumerable<TStruct?>? value, StructStyler<TStruct> structStyler) where TStruct : struct;
-    T From<TStruct>(IEnumerator<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct;
-    T From<TStruct>(IEnumerator<TStruct?>? value, StructStyler<TStruct> structStyler) where TStruct : struct;
-
-    T From (string?[]? value);
-    T From(ReadOnlySpan<string?> value);
-    T From(IReadOnlyList<string?>? value);
-    T From(ICollection<string?>? value);
-    T From(IEnumerable<string?>? value);
-    T From(IEnumerator<string?>? value);
-
-    T From(IStyledToStringObject?[]? value);
-    T From(ReadOnlySpan<IStyledToStringObject?> value);
-    T From(IReadOnlyList<IStyledToStringObject?>? value);
-    T From(ICollection<IStyledToStringObject?>? value);
-    T From(IEnumerable<IStyledToStringObject?>? value);
-    T From(IEnumerator<IStyledToStringObject?>? value);
-
-    T From(ICharSequence?[]? value);
-    T From(ReadOnlySpan<ICharSequence?> value);
-    T From(IReadOnlyList<ICharSequence?>? value);
-    T From(ICollection<ICharSequence?>? value);
-    T From(IEnumerable<ICharSequence?>? value);
-    T From(IEnumerator<ICharSequence?>? value);
-
-
-    T From(StringBuilder?[]? value);
-    T From(ReadOnlySpan<StringBuilder?> value);
-    T From(IReadOnlyList<StringBuilder?>? value);
-    T From(ICollection<StringBuilder?>? value);
-    T From(IEnumerable<StringBuilder?>? value);
-    T From(IEnumerator<StringBuilder?>? value);
-    
-    [CallsObjectToString] T From(object?[]? value);
-    [CallsObjectToString] T From(ReadOnlySpan<object?> value);
-    [CallsObjectToString] T From(IReadOnlyList<object?>? value);
-    [CallsObjectToString] T From(ICollection<object?>? value);
-    [CallsObjectToString] T From(IEnumerable<object?>? value);
-    [CallsObjectToString] T From(IEnumerator<object?>? value);
-}
-
-public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllTypeIsOrderedCollection<TExt>
+public partial class OrderedCollectionBuilder<TExt> 
     where TExt : StyledTypeBuilder
 {
-    private CollectionBuilderCompAccess<TExt> stb = null!;
-
-    public AddAllTypeIsOrderedCollection<TExt> Initialize(CollectionBuilderCompAccess<TExt> styledComplexTypeBuilder)
-    {
-        stb = styledComplexTypeBuilder;
-
-        return this;
-    }
-    
-    public TExt From(bool[]? value)
+    public TExt AddAll(bool[]? value)
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -144,7 +32,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(bool?[]? value)
+    public TExt AddAll(bool?[]? value)
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -170,7 +58,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(ReadOnlySpan<bool> value)
+    public TExt AddAll(ReadOnlySpan<bool> value)
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -189,7 +77,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(ReadOnlySpan<bool?> value)
+    public TExt AddAll(ReadOnlySpan<bool?> value)
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -215,7 +103,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(IReadOnlyList<bool>? value)
+    public TExt AddAll(IReadOnlyList<bool>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -234,7 +122,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(IReadOnlyList<bool?>? value)
+    public TExt AddAll(IReadOnlyList<bool?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -260,10 +148,10 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(ICollection<bool>? value)  => From((IEnumerable<bool>?)value);
-    public TExt From(ICollection<bool?>? value) => From((IEnumerable<bool?>?)value);
+    public TExt AddAll(ICollection<bool>? value)  => AddAll((IEnumerable<bool>?)value);
+    public TExt AddAll(ICollection<bool?>? value) => AddAll((IEnumerable<bool?>?)value);
 
-    public TExt From(IEnumerable<bool>? value)
+    public TExt AddAll(IEnumerable<bool>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -281,7 +169,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(IEnumerable<bool?>? value)
+    public TExt AddAll(IEnumerable<bool?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any = false;
@@ -299,7 +187,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(IEnumerator<bool>? value)
+    public TExt AddAll(IEnumerator<bool>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -320,7 +208,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(IEnumerator<bool?>? value)
+    public TExt AddAll(IEnumerator<bool?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -348,7 +236,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From<TNum>(TNum[]? value
+    public TExt AddAll<TNum>(TNum[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>
     {
         stb.ConditionalCollectionPrefix();
@@ -370,7 +258,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
     
-    public TExt From<TNum>(TNum?[]? value 
+    public TExt AddAll<TNum>(TNum?[]? value 
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>
     {
         stb.ConditionalCollectionPrefix();
@@ -392,7 +280,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
     
-    public TExt From<TNum>(ReadOnlySpan<TNum> value
+    public TExt AddAll<TNum>(ReadOnlySpan<TNum> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>
     {
         stb.ConditionalCollectionPrefix();
@@ -414,7 +302,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
     
-    public TExt From<TNum>(ReadOnlySpan<TNum?> value
+    public TExt AddAll<TNum>(ReadOnlySpan<TNum?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>
     {
         stb.ConditionalCollectionPrefix();
@@ -436,7 +324,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
     
-    public TExt From<TNum>(IReadOnlyList<TNum>? value
+    public TExt AddAll<TNum>(IReadOnlyList<TNum>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>
     {
         stb.ConditionalCollectionPrefix();
@@ -458,7 +346,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
     
-    public TExt From<TNum>(IReadOnlyList<TNum?>? value
+    public TExt AddAll<TNum>(IReadOnlyList<TNum?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>
     {
         stb.ConditionalCollectionPrefix();
@@ -480,15 +368,15 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From<TNum>(ICollection<TNum>? value
+    public TExt AddAll<TNum>(ICollection<TNum>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum> =>
-        From((IEnumerable<TNum>?)value, formatString);
+        AddAll((IEnumerable<TNum>?)value, formatString);
     
-    public TExt From<TNum>(ICollection<TNum?>? value
+    public TExt AddAll<TNum>(ICollection<TNum?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum> =>
-        From((IEnumerable<TNum?>?)value, formatString);
+        AddAll((IEnumerable<TNum?>?)value, formatString);
 
-    public TExt From<TNum>(IEnumerable<TNum>? value
+    public TExt AddAll<TNum>(IEnumerable<TNum>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>
     {
         stb.ConditionalCollectionPrefix();
@@ -508,7 +396,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From<TNum>(IEnumerable<TNum?>? value
+    public TExt AddAll<TNum>(IEnumerable<TNum?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>
     {
         stb.ConditionalCollectionPrefix();
@@ -528,7 +416,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From<TNum>(IEnumerator<TNum>? value
+    public TExt AddAll<TNum>(IEnumerator<TNum>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>
     {
         stb.ConditionalCollectionPrefix();
@@ -548,7 +436,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From<TNum>(IEnumerator<TNum?>? value
+    public TExt AddAll<TNum>(IEnumerator<TNum?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum>
     {
         stb.ConditionalCollectionPrefix();
@@ -568,7 +456,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From<TStruct>(TStruct[]? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAll<TStruct>(TStruct[]? value, StructStyler<TStruct> structStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -587,7 +475,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From<TStruct>(TStruct?[]? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAll<TStruct>(TStruct?[]? value, StructStyler<TStruct> structStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -606,7 +494,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From<TStruct>(ReadOnlySpan<TStruct> value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAll<TStruct>(ReadOnlySpan<TStruct> value, StructStyler<TStruct> structStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -625,7 +513,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From<TStruct>(ReadOnlySpan<TStruct?> value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAll<TStruct>(ReadOnlySpan<TStruct?> value, StructStyler<TStruct> structStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -644,7 +532,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From<TStruct>(IReadOnlyList<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAll<TStruct>(IReadOnlyList<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -663,7 +551,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From<TStruct>(IReadOnlyList<TStruct?>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAll<TStruct>(IReadOnlyList<TStruct?>? value, StructStyler<TStruct> structStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -682,13 +570,13 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From<TStruct>(ICollection<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct =>
-        From((IEnumerable<TStruct>?)value, structStyler);
+    public TExt AddAll<TStruct>(ICollection<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct =>
+        AddAll((IEnumerable<TStruct>?)value, structStyler);
 
-    public TExt From<TStruct>(ICollection<TStruct?>? value, StructStyler<TStruct> structStyler) where TStruct : struct =>
-        From((IEnumerable<TStruct?>?)value, structStyler);
+    public TExt AddAll<TStruct>(ICollection<TStruct?>? value, StructStyler<TStruct> structStyler) where TStruct : struct =>
+        AddAll((IEnumerable<TStruct?>?)value, structStyler);
 
-    public TExt From<TStruct>(IEnumerable<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAll<TStruct>(IEnumerable<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -705,7 +593,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From<TStruct>(IEnumerable<TStruct?>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAll<TStruct>(IEnumerable<TStruct?>? value, StructStyler<TStruct> structStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -722,7 +610,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From<TStruct>(IEnumerator<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAll<TStruct>(IEnumerator<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -743,7 +631,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From<TStruct>(IEnumerator<TStruct?>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAll<TStruct>(IEnumerator<TStruct?>? value, StructStyler<TStruct> structStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -765,7 +653,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
     }
 
 
-    public TExt From(string?[]? value)
+    public TExt AddAll(string?[]? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -784,7 +672,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(ReadOnlySpan<string?> value)
+    public TExt AddAll(ReadOnlySpan<string?> value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -803,7 +691,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(IReadOnlyList<string?>? value)
+    public TExt AddAll(IReadOnlyList<string?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -822,9 +710,9 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(ICollection<string?>? value) => From((IEnumerable<string>?)value);
+    public TExt AddAll(ICollection<string?>? value) => AddAll((IEnumerable<string>?)value);
 
-    public TExt From(IEnumerable<string?>? value)
+    public TExt AddAll(IEnumerable<string?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -841,7 +729,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(IEnumerator<string?>? value)
+    public TExt AddAll(IEnumerator<string?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -863,7 +751,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
     }
 
 
-    public TExt From(IStyledToStringObject?[]? value)
+    public TExt AddAll(IStyledToStringObject?[]? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -882,7 +770,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(ReadOnlySpan<IStyledToStringObject?> value)
+    public TExt AddAll(ReadOnlySpan<IStyledToStringObject?> value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -901,7 +789,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(IReadOnlyList<IStyledToStringObject?>? value)
+    public TExt AddAll(IReadOnlyList<IStyledToStringObject?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -920,9 +808,9 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(ICollection<IStyledToStringObject?>? value) => From((IEnumerable<IStyledToStringObject>?)value);
+    public TExt AddAll(ICollection<IStyledToStringObject?>? value) => AddAll((IEnumerable<IStyledToStringObject>?)value);
 
-    public TExt From(IEnumerable<IStyledToStringObject?>? value)
+    public TExt AddAll(IEnumerable<IStyledToStringObject?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -939,7 +827,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(IEnumerator<IStyledToStringObject?>? value)
+    public TExt AddAll(IEnumerator<IStyledToStringObject?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -960,7 +848,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(ICharSequence?[]? value)
+    public TExt AddAll(ICharSequence?[]? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -979,7 +867,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(ReadOnlySpan<ICharSequence?> value)
+    public TExt AddAll(ReadOnlySpan<ICharSequence?> value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -998,7 +886,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(IReadOnlyList<ICharSequence?>? value)
+    public TExt AddAll(IReadOnlyList<ICharSequence?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -1017,9 +905,9 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(ICollection<ICharSequence?>? value) => From((IEnumerable<ICharSequence>?)value);
+    public TExt AddAll(ICollection<ICharSequence?>? value) => AddAll((IEnumerable<ICharSequence>?)value);
 
-    public TExt From(IEnumerable<ICharSequence?>? value)
+    public TExt AddAll(IEnumerable<ICharSequence?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -1036,7 +924,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(IEnumerator<ICharSequence?>? value)
+    public TExt AddAll(IEnumerator<ICharSequence?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -1057,7 +945,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(StringBuilder?[]? value)
+    public TExt AddAll(StringBuilder?[]? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -1076,7 +964,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(ReadOnlySpan<StringBuilder?> value)
+    public TExt AddAll(ReadOnlySpan<StringBuilder?> value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -1095,7 +983,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(IReadOnlyList<StringBuilder?>? value)
+    public TExt AddAll(IReadOnlyList<StringBuilder?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -1114,9 +1002,9 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(ICollection<StringBuilder?>? value) => From((IEnumerable<StringBuilder>?)value);
+    public TExt AddAll(ICollection<StringBuilder?>? value) => AddAll((IEnumerable<StringBuilder>?)value);
 
-    public TExt From(IEnumerable<StringBuilder?>? value)
+    public TExt AddAll(IEnumerable<StringBuilder?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -1133,7 +1021,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt From(IEnumerator<StringBuilder?>? value)
+    public TExt AddAll(IEnumerator<StringBuilder?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -1155,7 +1043,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
     }
 
     [CallsObjectToString] 
-    public TExt From(object?[]? value)
+    public TExt AddAll(object?[]? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -1175,7 +1063,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
     }
 
     [CallsObjectToString] 
-    public TExt From(ReadOnlySpan<object?> value)
+    public TExt AddAll(ReadOnlySpan<object?> value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -1195,7 +1083,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
     }
 
     [CallsObjectToString] 
-    public TExt From(IReadOnlyList<object?>? value)
+    public TExt AddAll(IReadOnlyList<object?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -1215,10 +1103,10 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
     }
 
     [CallsObjectToString] 
-    public TExt From(ICollection<object?>? value) => From((IEnumerable<object>?)value);
+    public TExt AddAll(ICollection<object?>? value) => AddAll((IEnumerable<object>?)value);
 
     [CallsObjectToString] 
-    public TExt From(IEnumerable<object?>? value)
+    public TExt AddAll(IEnumerable<object?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -1236,7 +1124,7 @@ public class AddAllTypeIsOrderedCollection<TExt> : RecyclableObject, IAddAllType
     }
 
     [CallsObjectToString] 
-    public TExt From(IEnumerator<object?>? value)
+    public TExt AddAll(IEnumerator<object?>? value)
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;

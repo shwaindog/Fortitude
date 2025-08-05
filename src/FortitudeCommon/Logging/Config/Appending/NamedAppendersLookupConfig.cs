@@ -368,7 +368,7 @@ public class NamedAppendersLookupConfig : NamedAppendersLookupConfig<IMutableApp
     {
         return
             sbc.StartKeyedCollectionType(nameof(NamedAppendersLookupConfig))
-               .AddAll.From(AppendersByName)
+               .AddAll(AppendersByName)
                .Complete();
     }
 }

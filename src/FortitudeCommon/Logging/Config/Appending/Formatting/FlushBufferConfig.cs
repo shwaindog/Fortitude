@@ -156,9 +156,9 @@ public class FlushBufferConfig : FLogConfig, IMutableFlushBufferConfig
     {
         return
             sbc.StartComplexType(nameof(FlushBufferConfig))
-               .Field.AddAlways(nameof(WriteTriggeredAtBufferPercentage), WriteTriggeredAtBufferPercentage)
-               .Field.AddAlways(nameof(WriteTriggeredAfterTimeSpan), WriteTriggeredAfterTimeSpan)
-               .Field.AddAlways(nameof(AutoTriggeredAfterTimeSpan), AutoTriggeredAfterTimeSpan)
+               .Field.AlwaysAdd(nameof(WriteTriggeredAtBufferPercentage), WriteTriggeredAtBufferPercentage)
+               .Field.AlwaysAdd(nameof(WriteTriggeredAfterTimeSpan), WriteTriggeredAfterTimeSpan)
+               .Field.AlwaysAdd(nameof(AutoTriggeredAfterTimeSpan), AutoTriggeredAfterTimeSpan)
                .Complete();
     }
 }

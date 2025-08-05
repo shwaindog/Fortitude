@@ -135,7 +135,7 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
         using var tb = sbc.StartComplexType(nameof(ForwardingAppenderConfig))
            .AddBaseFieldsStart();
         base.ToString(sbc);
-        tb.Field.AddAlways(nameof(ForwardToAppenders), ForwardToAppenders);
+        tb.Field.AlwaysAdd(nameof(ForwardToAppenders), ForwardToAppenders);
         return tb;
     }
 }

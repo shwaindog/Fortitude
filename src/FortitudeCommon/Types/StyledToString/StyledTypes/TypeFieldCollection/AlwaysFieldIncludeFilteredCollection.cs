@@ -9,7 +9,7 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldCollection;
 
 public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuilder
 {
-    public TExt AddAlwaysApplyFilter(string fieldName, bool[]? value, OrderedCollectionPredicate<bool> filterPredicate)
+    public TExt AlwaysAddFiltered(string fieldName, bool[]? value, OrderedCollectionPredicate<bool> filterPredicate)
     {
         var found = false;
         stb.FieldNameJoin(fieldName);
@@ -36,7 +36,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate)
+    public TExt AlwaysAddFiltered(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate)
     {
         var found = false;
         stb.FieldNameJoin(fieldName);
@@ -63,7 +63,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TNum>
+    public TExt AlwaysAddFiltered<TNum>
     (string fieldName, TNum[]? value, OrderedCollectionPredicate<TNum> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TNum : struct, INumber<TNum>
@@ -93,7 +93,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TNum>
+    public TExt AlwaysAddFiltered<TNum>
     (string fieldName, TNum?[]? value, OrderedCollectionPredicate<TNum?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TNum : struct, INumber<TNum>
@@ -123,7 +123,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TStruct>
+    public TExt AlwaysAddFiltered<TStruct>
     (string fieldName, TStruct[]? value, OrderedCollectionPredicate<TStruct> filterPredicate
       , StructStyler<TStruct> structToString) where TStruct : struct
     {
@@ -152,7 +152,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TStruct>
+    public TExt AlwaysAddFiltered<TStruct>
     (string fieldName, TStruct?[]? value, OrderedCollectionPredicate<TStruct?> filterPredicate
       , StructStyler<TStruct> structToString) where TStruct : struct
     {
@@ -181,7 +181,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter
+    public TExt AlwaysAddFiltered
     (string fieldName, string?[]? value, OrderedCollectionPredicate<string?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
@@ -210,7 +210,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter(string fieldName, IStyledToStringObject?[]? value, OrderedCollectionPredicate<IStyledToStringObject?> filterPredicate)
+    public TExt AlwaysAddFiltered(string fieldName, IStyledToStringObject?[]? value, OrderedCollectionPredicate<IStyledToStringObject?> filterPredicate)
     {
         var found = false;
         stb.FieldNameJoin(fieldName);
@@ -237,7 +237,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter
+    public TExt AlwaysAddFiltered
     (string fieldName, IFrozenString?[]? value, OrderedCollectionPredicate<IFrozenString?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
@@ -266,7 +266,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter
+    public TExt AlwaysAddFiltered
     (string fieldName, IStringBuilder?[]? value, OrderedCollectionPredicate<IStringBuilder?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
@@ -295,7 +295,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate
+    public TExt AlwaysAddFiltered(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var found = false;
@@ -324,7 +324,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
     [CallsObjectToString]
-    public TExt AddAlwaysApplyFilter(string fieldName, object?[]? value, OrderedCollectionPredicate<object?> filterPredicate
+    public TExt AlwaysAddFiltered(string fieldName, object?[]? value, OrderedCollectionPredicate<object?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var found = false;
@@ -353,7 +353,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
     
-    public TExt AddAlwaysApplyFilter(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate)
+    public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate)
     {
         var found = false;
         stb.FieldNameJoin(fieldName);
@@ -380,7 +380,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate)
+    public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate)
     {
         var found = false;
         stb.FieldNameJoin(fieldName);
@@ -407,7 +407,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TNum>(string fieldName, IReadOnlyList<TNum>? value, OrderedCollectionPredicate<TNum> filterPredicate
+    public TExt AlwaysAddFiltered<TNum>(string fieldName, IReadOnlyList<TNum>? value, OrderedCollectionPredicate<TNum> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TNum : struct, INumber<TNum>
     {
@@ -436,7 +436,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TNum>(string fieldName, IReadOnlyList<TNum?>? value, OrderedCollectionPredicate<TNum?> filterPredicate
+    public TExt AlwaysAddFiltered<TNum>(string fieldName, IReadOnlyList<TNum?>? value, OrderedCollectionPredicate<TNum?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
         where TNum : struct, INumber<TNum>
     {
@@ -465,7 +465,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TStruct>
+    public TExt AlwaysAddFiltered<TStruct>
         (string fieldName, IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> filterPredicate
           , StructStyler<TStruct> structToString) where TStruct : struct
     {
@@ -494,7 +494,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TStruct>
+    public TExt AlwaysAddFiltered<TStruct>
         (string fieldName, IReadOnlyList<TStruct?>? value, OrderedCollectionPredicate<TStruct?> filterPredicate
           , StructStyler<TStruct> structToString) where TStruct : struct
     {
@@ -523,7 +523,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter(string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string?> filterPredicate
+    public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var found = false;
@@ -551,7 +551,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter(string fieldName, IReadOnlyList<IStyledToStringObject?>? value, OrderedCollectionPredicate<IStyledToStringObject?> filterPredicate)
+    public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<IStyledToStringObject?>? value, OrderedCollectionPredicate<IStyledToStringObject?> filterPredicate)
     {
         var found = false;
         stb.FieldNameJoin(fieldName);
@@ -578,7 +578,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter(string fieldName, IReadOnlyList<IFrozenString?>? value, OrderedCollectionPredicate<IFrozenString?> filterPredicate
+    public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<IFrozenString?>? value, OrderedCollectionPredicate<IFrozenString?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var found = false;
@@ -606,7 +606,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter(string fieldName, IReadOnlyList<IStringBuilder?>? value, OrderedCollectionPredicate<IStringBuilder?> filterPredicate
+    public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<IStringBuilder?>? value, OrderedCollectionPredicate<IStringBuilder?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var found = false;
@@ -634,7 +634,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.Append(stb.OwningAppender.NullStyle).AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter(string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate
+    public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var found = false;
@@ -664,7 +664,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
 
     [CallsObjectToString]
-    public TExt AddAlwaysApplyFilter(string fieldName, IReadOnlyList<object?>? value, OrderedCollectionPredicate<object?> filterPredicate
+    public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<object?>? value, OrderedCollectionPredicate<object?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var found = false;

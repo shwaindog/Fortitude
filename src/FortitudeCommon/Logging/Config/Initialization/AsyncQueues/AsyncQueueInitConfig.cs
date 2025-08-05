@@ -240,15 +240,15 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
     {
         return
             sbc.StartComplexType(nameof(AsyncQueuesInitConfig))
-               .Field.AddAlways(nameof(AsyncProcessingType), AsyncProcessingType, AsyncProcessingTypesExtensions.AsyncProcessingTypeFormatter)
-               .Field.AddAlways(nameof(DefaultBufferQueueSize), DefaultBufferQueueSize)
-               .Field.AddAlways(nameof(DefaultFullQueueHandling), DefaultFullQueueHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
-               .Field.AddAlways(nameof(DefaultDropInterval), DefaultDropInterval)
-               .Field.AddAlways(nameof(InitialAsyncProcessing), InitialAsyncProcessing)
-               .Field.AddAlways(nameof(MaxAsyncProcessing), MaxAsyncProcessing)
-               .Field.AddAlways(nameof(DefaultAppenderAsyncQueueNumber), DefaultAppenderAsyncQueueNumber)
-               .Field.AddAlways(nameof(DefaultAppenderFlushQueueNumber), DefaultAppenderFlushQueueNumber)
-               .KeyedCollectionField.AddAllWhenPopulated(nameof(AsyncQueues), (IEnumerable<KeyValuePair<byte, IMutableAsyncQueueConfig>>)AsyncQueues)
+               .Field.AlwaysAdd(nameof(AsyncProcessingType), AsyncProcessingType, AsyncProcessingTypesExtensions.AsyncProcessingTypeFormatter)
+               .Field.AlwaysAdd(nameof(DefaultBufferQueueSize), DefaultBufferQueueSize)
+               .Field.AlwaysAdd(nameof(DefaultFullQueueHandling), DefaultFullQueueHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
+               .Field.AlwaysAdd(nameof(DefaultDropInterval), DefaultDropInterval)
+               .Field.AlwaysAdd(nameof(InitialAsyncProcessing), InitialAsyncProcessing)
+               .Field.AlwaysAdd(nameof(MaxAsyncProcessing), MaxAsyncProcessing)
+               .Field.AlwaysAdd(nameof(DefaultAppenderAsyncQueueNumber), DefaultAppenderAsyncQueueNumber)
+               .Field.AlwaysAdd(nameof(DefaultAppenderFlushQueueNumber), DefaultAppenderFlushQueueNumber)
+               .KeyedCollectionField.WhenPopulatedAddAll(nameof(AsyncQueues), (IEnumerable<KeyValuePair<byte, IMutableAsyncQueueConfig>>)AsyncQueues)
                .Complete();
     }
 

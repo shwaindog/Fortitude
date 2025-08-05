@@ -68,7 +68,7 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
 
     private bool bufferingEnabled;
 
-    protected readonly FormatWriterReceivedHandler<IBufferedFormatWriter> OnReturningFormatWriter;
+    protected readonly FormatWriterReceivedHandler<IFormatWriter> OnReturningFormatWriter;
 
     private readonly DoublyLinkedList<BlockingFormatWriterResolverHandle> queuedRequests = new();
 
@@ -256,11 +256,18 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
         actualHandle.DecrementRefCount();
     }
 
-    protected void WriterFinishedWithBuffer(IBufferedFormatWriter setReadyOrFlush)
+    protected void WriterFinishedWithBuffer(IFormatWriter setReadyOrFlush)
     {
-        if (ShouldFlushBuffer(setReadyOrFlush))
+        if (setReadyOrFlush is IBufferedFormatWriter bufferedFormatWriter)
         {
-            FlushAndCheckNextBufferAvailable(setReadyOrFlush);
+            if (ShouldFlushBuffer(bufferedFormatWriter))
+            {
+                FlushAndCheckNextBufferAvailable(bufferedFormatWriter);
+            }
+            else
+            {
+                TrySendFormatWriteToNextIfAny(bufferedFormatWriter);
+            }
         }
         else
         {
@@ -416,7 +423,7 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
             AutoFlushTimer?.Cancel();
             AutoFlushTimer = null;
         }
-        if (LastFlushAt + AutoFlushIntervalTimeSpan < (scheduleActualTime?.ScheduleTime ?? TimeContext.UtcNow))
+        else if (LastFlushAt + AutoFlushIntervalTimeSpan < (scheduleActualTime?.ScheduleTime ?? TimeContext.UtcNow))
         {
             var currentBuffer = TryGetSpecificBufferedWriter(currentBufferCounter);
             if (currentBuffer is { Buffered: > 0 })

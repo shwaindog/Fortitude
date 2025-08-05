@@ -91,10 +91,10 @@ public class AppenderForwardingReferenceConfig : AppenderReferenceConfig, IMutab
     {
         return
             sbc.StartComplexType(nameof(AppenderForwardingReferenceConfig))
-               .Field.AddWhenNonNullOrDefault(nameof(AppenderName), AppenderName)
-               .Field.AddWhenNonNullOrDefault(nameof(AppenderType), AppenderType)
-               .Field.AddWhenNonDefault(nameof(DeactivateHere), DeactivateHere)
-               .Field.AddAlways(nameof(AppendProcessingOrder), AppendProcessingOrder)
+               .Field.WhenNonNullOrDefaultAdd(nameof(AppenderName), AppenderName)
+               .Field.WhenNonNullOrDefaultAdd(nameof(AppenderType), AppenderType)
+               .Field.WhenNonDefaultAdd(nameof(DeactivateHere), DeactivateHere)
+               .Field.AlwaysAdd(nameof(AppendProcessingOrder), AppendProcessingOrder)
                .Complete();
     }
 }

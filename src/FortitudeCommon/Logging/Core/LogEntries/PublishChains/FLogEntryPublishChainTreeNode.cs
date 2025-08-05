@@ -3,7 +3,6 @@
 
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.EventProcessing.Disruption.Sequences;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains.Visitors;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.PublishChains;
@@ -19,8 +18,6 @@ public interface IFLogEntryPublishChainTreeNode : IRecyclableObject
     FLogEntryProcessChainState LogEntryProcessState { get; }
 
     T LogEntryChainVisit<T>(T visitor) where T : IFLogEntryPublishChainVisitor<T>;
-
-    new IRecycler Recycler { get; set; }
 }
 
 public abstract class FLogEntryPublishChainTreeNode : RecyclableObject, IFLogEntryPublishChainTreeNode
@@ -49,24 +46,20 @@ public abstract class FLogEntryPublishChainTreeNode : RecyclableObject, IFLogEnt
         {
             rwl.DecrementRefCount();
             if (rwl.RefCount == 0) { }
-            updateTreeLock = rwl?.RefCount == 0 ? null : rwl;
+            updateTreeLock = rwl.RefCount == 0 ? null : rwl;
         }
     }
 
     protected bool ShouldCheckLock => Thread.VolatileRead(ref writeToken) == 0;
 
-    public abstract FLogEntrySourceSinkType    LogEntryLinkType     { get; }
-    public abstract FLogEntryProcessChainState LogEntryProcessState { get; protected set; }
-
-    public override IRecycler Recycler
+    public override IRecycler? Recycler
     {
         get => base.Recycler ?? LogEntryPublishRecycler;
-        #pragma warning disable CS8765 // Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
-        #pragma warning disable CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
         set => base.Recycler = value;
-        #pragma warning restore CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
-        #pragma warning restore CS8765 // Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
     }
+
+    public abstract FLogEntrySourceSinkType    LogEntryLinkType     { get; }
+    public abstract FLogEntryProcessChainState LogEntryProcessState { get; protected set; }
 
     public abstract T LogEntryChainVisit<T>(T visitor) where T : IFLogEntryPublishChainVisitor<T>;
 

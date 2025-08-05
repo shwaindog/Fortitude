@@ -229,7 +229,7 @@ public class ExtractedMessageKeyValuesConfig : FLogConfig, IAppendableExtractedM
     {
         return
             sbc.StartKeyedCollectionType(nameof(NamedChildLoggersLookupConfig))
-               .AddAll.From(extractConfigByKeyName)
+               .AddAll(extractConfigByKeyName)
                .Complete();
     }
 

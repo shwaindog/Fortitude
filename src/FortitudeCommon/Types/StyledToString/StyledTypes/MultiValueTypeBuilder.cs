@@ -37,8 +37,6 @@ public abstract class MultiValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt>
 
         CompAccess?.DecrementIndent();
         CompAccess = null!;
-
-        MeRecyclable.StateReset();
     }
 
     public TExt AddBaseFieldsStart()

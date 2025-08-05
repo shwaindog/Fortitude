@@ -628,7 +628,7 @@ public static class CharSpanExtensions
                         stageEnd = colonIndex;
                     }
                     var commaIndex = remainingSpan.IndexOf(",");
-                    if (commaIndex > 0 && commaIndex < colonIndex)
+                    if (commaIndex > 0 && (commaIndex < colonIndex || colonIndex < 0))
                     {
                         stage    = 1;
                         stageEnd = commaIndex;
@@ -706,9 +706,9 @@ public static class CharSpanExtensions
         for (var i = startingFrom; i < maybeDigitsSpan.Length; i++)
         {
             var checkChar = maybeDigitsSpan[i];
-            if (checkChar is < '0' or > '9') return maybeDigitsSpan.Slice(startingFrom, i);
+            if (checkChar is < '0' or > '9') return maybeDigitsSpan[startingFrom..i];
         }
-        return maybeDigitsSpan.Slice(startingFrom);
+        return maybeDigitsSpan[startingFrom..];
     }
 
     public static int? ExtractInt(this ReadOnlySpan<char> maybeDigitsSpan, int startingFrom = 0)

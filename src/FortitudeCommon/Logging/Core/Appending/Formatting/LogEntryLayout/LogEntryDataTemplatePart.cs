@@ -143,9 +143,9 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
     {
         return
             sbc.StartComplexType(nameof(LogEntryDataTemplatePart))
-               .Field.AddAlways(nameof(TokenName), TokenName)
-               .Field.AddAlways(nameof(Formatting), Formatting)
-               .Field.AddWhenNonDefault(nameof(MaxLength), MaxLength, int.MaxValue)
+               .Field.AlwaysAdd(nameof(TokenName), TokenName)
+               .Field.AlwaysAdd(nameof(Formatting), Formatting)
+               .Field.WhenNonDefaultAdd(nameof(MaxLength), MaxLength, int.MaxValue)
                .Complete();
     }
 

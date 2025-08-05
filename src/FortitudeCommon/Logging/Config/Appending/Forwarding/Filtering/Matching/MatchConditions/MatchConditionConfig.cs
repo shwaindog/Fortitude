@@ -84,7 +84,7 @@ public abstract class MatchConditionConfig : FLogConfig, IMutableMatchConditionC
     {
         return
             sbc.StartComplexType(nameof(MatchConditionConfig))
-               .Field.AddAlways(nameof(CheckConditionType), CheckConditionType, FLoggerEntryMatchTypeExtensions.FLoggerEntryMatchTypeFormatter)
+               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType, FLoggerEntryMatchTypeExtensions.FLoggerEntryMatchTypeFormatter)
                .Complete();
     }
 }

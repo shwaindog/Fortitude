@@ -171,10 +171,10 @@ public class FLogEntryPoolConfig : FLogConfig, IMutableFLogEntryPoolConfig
     {
         return
         sbc.StartComplexType(nameof(FLogEntryPoolConfig))
-           .Field.AddAlways(nameof(PoolName), PoolName)
-           .Field.AddAlways(nameof(PoolScope), PoolScope.ToString())
-           .Field.AddAlways(nameof(LogEntryCharCapacity), LogEntryCharCapacity)
-           .Field.AddAlways(nameof(LogEntriesBatchSize), LogEntriesBatchSize)
+           .Field.AlwaysAdd(nameof(PoolName), PoolName)
+           .Field.AlwaysAdd(nameof(PoolScope), PoolScope.ToString())
+           .Field.AlwaysAdd(nameof(LogEntryCharCapacity), LogEntryCharCapacity)
+           .Field.AlwaysAdd(nameof(LogEntriesBatchSize), LogEntriesBatchSize)
            .Complete();
     }
 

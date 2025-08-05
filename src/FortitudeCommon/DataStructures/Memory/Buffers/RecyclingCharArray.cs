@@ -929,6 +929,16 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         set => length = Math.Max(0, Math.Min(backingArray?.Length ?? 0, value));
     }
 
+    public override void StateReset()
+    {
+        for (var i = length -1; i >= 0; i--)
+        {
+            backingArray![i] = '\0';
+        }
+        length = 0;
+        base.StateReset();
+    }
+
     public override RecyclingCharArray Clone() =>
         Recycler?.Borrow<RecyclingCharArray>().EnsureIsAtSize(Capacity).CopyFrom(this, CopyMergeFlags.FullReplace) ??
         new RecyclingCharArray(this);

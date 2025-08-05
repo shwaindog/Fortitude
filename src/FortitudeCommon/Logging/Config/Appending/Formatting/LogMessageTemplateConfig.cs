@@ -118,9 +118,9 @@ public class LogMessageTemplateConfig : FLogConfig, IMutableLogMessageTemplateCo
     {
         return
             sbc.StartComplexType(nameof(ExtractKeyExpressionConfig))
-               .Field.AddAlways(nameof(LogLevel), LogLevel, FLogLevelExtensions.FLogLevelFormatter)
-               .Field.AddAlways(nameof(MessageTemplate), MessageTemplate)
-               .Field.AddAlways(nameof(TemplateLoggerName), TemplateLoggerName)
+               .Field.AlwaysAdd(nameof(LogLevel), LogLevel, FLogLevelExtensions.FLogLevelFormatter)
+               .Field.AlwaysAdd(nameof(MessageTemplate), MessageTemplate)
+               .Field.AlwaysAdd(nameof(TemplateLoggerName), TemplateLoggerName)
                .Complete();
     }
 }

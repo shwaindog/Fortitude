@@ -214,8 +214,8 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
         using var tb = sbc.StartComplexType(nameof(FormattingAppenderConfig))
                           .AddBaseFieldsStart();
         base.ToString(sbc);
-        return tb.Field.AddAlways(nameof(CharBufferSize), CharBufferSize)
-                 .Field.AddAlways(nameof(FlushConfig), FlushConfig)
+        return tb.Field.AlwaysAdd(nameof(CharBufferSize), CharBufferSize)
+                 .Field.AlwaysAdd(nameof(FlushConfig), FlushConfig)
                  .Complete();
     }
 }

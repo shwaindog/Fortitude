@@ -6,7 +6,7 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldKeyValueColl
 
 public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : StyledTypeBuilder
 {
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, ConcurrentDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -46,7 +46,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, Dictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -86,7 +86,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, IDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -125,7 +125,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -164,7 +164,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -203,7 +203,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -242,7 +242,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -281,7 +281,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -320,7 +320,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -363,7 +363,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, ConcurrentDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -402,7 +402,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, Dictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -441,7 +441,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, IDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -479,7 +479,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -517,7 +517,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -555,7 +555,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -593,7 +593,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -631,7 +631,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -669,7 +669,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -711,7 +711,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, ConcurrentDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -748,7 +748,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, Dictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -785,7 +785,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, IDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -822,7 +822,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -859,7 +859,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -896,7 +896,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -933,7 +933,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -970,7 +970,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler
@@ -1007,7 +1007,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddAlwaysApplyFilter<TKey, TValue>
+    public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
       , StructStyler<TValue> valueStructStyler

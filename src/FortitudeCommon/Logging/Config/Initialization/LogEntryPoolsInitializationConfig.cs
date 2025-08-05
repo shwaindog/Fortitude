@@ -306,13 +306,13 @@ public class LogEntryPoolsInitializationConfig : FLogConfig, IMutableLogEntryPoo
     {
         return
             sbc.StartComplexType(nameof(LogEntryPoolsInitializationConfig))
-               .Field.AddAlways(nameof(DefaultLogEntryCharCapacity), DefaultLogEntryCharCapacity)
-               .Field.AddAlways(nameof(DefaultLogEntryBatchSize), DefaultLogEntryBatchSize)
-               .Field.AddAlways(nameof(GlobalLogEntryPool), GlobalLogEntryPool)
-               .Field.AddAlways(nameof(LargeMessageLogEntryPool), LargeMessageLogEntryPool)
-               .Field.AddAlways(nameof(VeryLargeMessageLogEntryPool), VeryLargeMessageLogEntryPool)
-               .Field.AddAlways(nameof(LoggersGlobalLogEntryPool), LoggersGlobalLogEntryPool)
-               .Field.AddAlways(nameof(AppendersGlobalLogEntryPool), AppendersGlobalLogEntryPool)
+               .Field.AlwaysAdd(nameof(DefaultLogEntryCharCapacity), DefaultLogEntryCharCapacity)
+               .Field.AlwaysAdd(nameof(DefaultLogEntryBatchSize), DefaultLogEntryBatchSize)
+               .Field.AlwaysAdd(nameof(GlobalLogEntryPool), GlobalLogEntryPool)
+               .Field.AlwaysAdd(nameof(LargeMessageLogEntryPool), LargeMessageLogEntryPool)
+               .Field.AlwaysAdd(nameof(VeryLargeMessageLogEntryPool), VeryLargeMessageLogEntryPool)
+               .Field.AlwaysAdd(nameof(LoggersGlobalLogEntryPool), LoggersGlobalLogEntryPool)
+               .Field.AlwaysAdd(nameof(AppendersGlobalLogEntryPool), AppendersGlobalLogEntryPool)
                .Complete();
     }
 }

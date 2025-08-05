@@ -45,7 +45,7 @@ public class InheritingAppendersLookupConfig : NamedAppendersLookupConfig<IMutab
     {
         return
             sbc.StartKeyedCollectionType(nameof(InheritingAppendersLookupConfig))
-               .AddAll.From(AppendersByName)
+               .AddAll(AppendersByName)
                .Complete();
     }
 }

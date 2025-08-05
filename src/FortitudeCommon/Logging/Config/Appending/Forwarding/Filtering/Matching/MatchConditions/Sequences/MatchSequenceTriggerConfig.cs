@@ -317,12 +317,12 @@ public class MatchSequenceTriggerConfig : FLogConfig, IMutableMatchSequenceTrigg
     {
         return
             sbc.StartComplexType(nameof(MatchSequenceTriggerConfig))
-               .Field.AddWhenNonNull(nameof(TriggeredWhenEntry), TriggeredWhenEntry)
-               .Field.AddWhenNonNull(nameof(NextTriggerStep), NextTriggerStep)
-               .Field.AddWhenNonNull(nameof(OnTriggerExtract), OnTriggerExtract)
-               .Field.AddWhenNonNull(nameof(CompletedWhenEntry), CompletedWhenEntry)
-               .Field.AddWhenNonNull(nameof(AbortWhenEntry), AbortWhenEntry)
-               .Field.AddWhenNonNull(nameof(TimeOut), TimeOut)
+               .Field.WhenNonNullAdd(nameof(TriggeredWhenEntry), TriggeredWhenEntry)
+               .Field.WhenNonNullAdd(nameof(NextTriggerStep), NextTriggerStep)
+               .Field.WhenNonNullAdd(nameof(OnTriggerExtract), OnTriggerExtract)
+               .Field.WhenNonNullAdd(nameof(CompletedWhenEntry), CompletedWhenEntry)
+               .Field.WhenNonNullAdd(nameof(AbortWhenEntry), AbortWhenEntry)
+               .Field.WhenNonNullAdd(nameof(TimeOut), TimeOut)
                .Complete();
     }
 }

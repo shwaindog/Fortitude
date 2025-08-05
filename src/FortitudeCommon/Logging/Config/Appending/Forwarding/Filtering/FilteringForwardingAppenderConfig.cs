@@ -120,7 +120,7 @@ public class FilteringForwardingAppenderConfig : ForwardingAppenderConfig, IMuta
             sbc.StartComplexType(nameof(FilteringForwardingAppenderConfig))
                .AddBaseFieldsStart();
         base.ToString(sbc);
-        return tb.Field.AddAlways(nameof(When), When)
+        return tb.Field.AlwaysAdd(nameof(When), When)
                  .Complete();
     }
 }

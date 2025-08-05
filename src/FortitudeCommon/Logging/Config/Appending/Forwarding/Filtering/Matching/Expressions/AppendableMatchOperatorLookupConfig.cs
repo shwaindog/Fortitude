@@ -280,8 +280,7 @@ public class AppendableMatchOperatorLookupConfig : FLogConfig, IAppendableMatchO
     {
         return
             sbc.StartKeyedCollectionType(nameof(AppendableMatchOperatorLookupConfig))
-               .AddAll
-               .From(evalOrderKeyedExpressions)
+               .AddAll(evalOrderKeyedExpressions)
                .Complete();
     }
 

@@ -131,9 +131,9 @@ public class FLogFileConfigSourceConfig : FLogConfigSource, IMutableFLogFileConf
             sbc.StartComplexType(nameof(FLogFileConfigSourceConfig))
            .AddBaseFieldsStart();
         base.ToString(sbc);
-        return tb.Field.AddAlways(nameof(FilePath), FilePath)
-           .Field.AddAlways(nameof(FileSystemMonitored), FileSystemMonitored)
-           .Field.AddAlways(nameof(PollInterval), PollInterval)
+        return tb.Field.AlwaysAdd(nameof(FilePath), FilePath)
+           .Field.AlwaysAdd(nameof(FileSystemMonitored), FileSystemMonitored)
+           .Field.AlwaysAdd(nameof(PollInterval), PollInterval)
            .Complete();
     }
 }

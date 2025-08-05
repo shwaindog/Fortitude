@@ -51,8 +51,8 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
     
     public override IConsoleAppenderConfig GetAppenderConfig() => (IConsoleAppenderConfig)AppenderConfig;
 
-    private class ConsoleFormatWriter(FLogConsoleAppender owningAppender, FormatWriterReceivedHandler<IBufferedFormatWriter> onWriteCompleteCallback)
-        : FormatWriter<IBufferedFormatWriter>(owningAppender, onWriteCompleteCallback)
+    private class ConsoleFormatWriter(FLogConsoleAppender owningAppender, FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback)
+        : FormatWriter<IFormatWriter>(owningAppender, onWriteCompleteCallback)
     {
         public override void Append(string toWrite)
         {

@@ -130,7 +130,7 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
             sbc.StartComplexType(nameof(ConsoleAppenderConfig))
                .AddBaseFieldsStart();
         base.ToString(sbc);
-        return tb.Field.AddAlways(nameof(DisableColoredConsole), DisableColoredConsole)
+        return tb.Field.AlwaysAdd(nameof(DisableColoredConsole), DisableColoredConsole)
                  .Complete();
     }
 }

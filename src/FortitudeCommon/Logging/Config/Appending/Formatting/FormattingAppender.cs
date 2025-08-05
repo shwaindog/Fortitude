@@ -10,7 +10,7 @@ namespace FortitudeCommon.Logging.Config.Appending.Formatting;
 public interface IFormattingAppenderConfig : IAppenderDefinitionConfig, ICloneable<IFormattingAppenderConfig>
 {
     const string DefaultStringFormattingTemplate
-        = "'%TS:yyyy-MM-dd HH:mm:SS.fff%' '%LVL,5%' '%THREADID,4%' '%THREADNAME,10[..10]%' '%LGR%' '%MSG%''%NL%'";
+        = "'%TS:yyyy-MM-dd HH:mm:SS.fff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%' '%MSG%''%NL%'";
 
     string LogEntryFormatLayout { get; }
 
@@ -159,8 +159,8 @@ public class FormattingAppenderConfig : AppenderDefinitionConfig, IMutableFormat
         using var tb = sbc.StartComplexType(nameof(FormattingAppenderConfig))
                           .AddBaseFieldsStart();
         base.ToString(sbc);
-        return tb.Field.AddAlways(nameof(LogEntryFormatLayout), LogEntryFormatLayout)
-                 .Field.AddWhenNonNullOrDefault(nameof(InheritsFrom), InheritsFrom)
+        return tb.Field.AlwaysAdd(nameof(LogEntryFormatLayout), LogEntryFormatLayout)
+                 .Field.WhenNonNullOrDefaultAdd(nameof(InheritsFrom), InheritsFrom)
                  .Complete();
     }
 }

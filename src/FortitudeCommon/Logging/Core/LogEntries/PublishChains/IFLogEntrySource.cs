@@ -32,7 +32,7 @@ public abstract class FLogEntrySource : TargetingFLogEntrySource, IFLogEntrySour
         {
             return false;
         }
-        currentChildReceivers ??= Recycler.Borrow<ReusableList<IFLogEntrySink>>();
+        currentChildReceivers ??= Recycler!.Borrow<ReusableList<IFLogEntrySink>>();
 
         toAdd.InBound         =   this;
 
@@ -59,7 +59,7 @@ public abstract class FLogEntrySource : TargetingFLogEntrySource, IFLogEntrySour
         {
             return false;
         }
-        var replaceAllButChildList = Recycler.Borrow<ReusableList<IFLogEntrySink>>();
+        var replaceAllButChildList = Recycler!.Borrow<ReusableList<IFLogEntrySink>>();
         while (true)
         {
             using var myLock = AcquireUpdateTreeLock(100);
@@ -89,7 +89,7 @@ public abstract class FLogEntrySource : TargetingFLogEntrySource, IFLogEntrySour
     }
 
     public IReadOnlyList<IFLogEntrySink> ChildLogEntryReceivers => 
-        currentChildReceivers ??= Recycler.Borrow<ReusableList<IFLogEntrySink>>();
+        currentChildReceivers ??= Recycler!.Borrow<ReusableList<IFLogEntrySink>>();
 
     public override void PublishLogEntryEvent(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource? fromSource = null)
     {

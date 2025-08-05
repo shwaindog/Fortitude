@@ -96,11 +96,11 @@ public class FLogEntryAsyncReceiveConfig : FLogEntryQueueConfig, IMutableFLogEnt
     {
         return
             sbc.StartComplexType(nameof(FLogEntryAsyncReceiveConfig))
-               .Field.AddAlways(nameof(QueueSize), QueueSize)
-               .Field.AddAlways(nameof(QueueFullHandling), QueueFullHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
-               .Field.AddAlways(nameof(ConfirmSequenceNumberInterval), ConfirmSequenceNumberInterval)
-               .Field.AddAlways(nameof(QueueReadBatchSize), QueueReadBatchSize)
-               .Field.AddWhenNonNull(nameof(LogEntryPool), LogEntryPool)
+               .Field.AlwaysAdd(nameof(QueueSize), QueueSize)
+               .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
+               .Field.AlwaysAdd(nameof(ConfirmSequenceNumberInterval), ConfirmSequenceNumberInterval)
+               .Field.AlwaysAdd(nameof(QueueReadBatchSize), QueueReadBatchSize)
+               .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool)
                .Complete();
     }
 }

@@ -143,9 +143,9 @@ public class AppenderReferenceConfig : FLogConfig, IMutableAppenderReferenceConf
     {
         return
             sbc.StartComplexType(nameof(AppenderReferenceConfig))
-               .Field.AddWhenNonNullOrDefault(nameof(AppenderName), AppenderName)
-               .Field.AddWhenNonNullOrDefault(nameof(AppenderType), AppenderType)
-               .Field.AddWhenNonDefault(nameof(DeactivateHere), DeactivateHere)
+               .Field.WhenNonNullOrDefaultAdd(nameof(AppenderName), AppenderName)
+               .Field.WhenNonNullOrDefaultAdd(nameof(AppenderType), AppenderType)
+               .Field.WhenNonDefaultAdd(nameof(DeactivateHere), DeactivateHere)
                .Complete();
     }
 

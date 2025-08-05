@@ -163,11 +163,11 @@ public abstract class FLogConfigSource : FLogConfig, IMutableFlogConfigSource
     {
         return
         sbc.StartComplexType(nameof(FLoggerTreeCommonConfig))
-           .Field.AddAlways(nameof(ConfigPriorityOrder), ConfigPriorityOrder)
-           .Field.AddAlways(nameof(ConfigSourceName), ConfigSourceName)
-           .Field.AddAlways(nameof(Optional), Optional)
-           .Field.AddAlways(nameof(SourceType), SourceType.ToString())
-           .Field.AddAlways(nameof(RecheckConfigIntervalTimeSpan), RecheckConfigIntervalTimeSpan)
+           .Field.AlwaysAdd(nameof(ConfigPriorityOrder), ConfigPriorityOrder)
+           .Field.AlwaysAdd(nameof(ConfigSourceName), ConfigSourceName)
+           .Field.AlwaysAdd(nameof(Optional), Optional)
+           .Field.AlwaysAdd(nameof(SourceType), SourceType.ToString())
+           .Field.AlwaysAdd(nameof(RecheckConfigIntervalTimeSpan), RecheckConfigIntervalTimeSpan)
            .Complete();
     }
 

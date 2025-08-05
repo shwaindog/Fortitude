@@ -3,155 +3,35 @@
 
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 
 namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeKeyValueCollection;
 
-public interface IAddAllTypeIsKeyValueCollection : IRecyclableObject
+public partial class KeyValueCollectionBuilder
 {
-    KeyValueCollectionBuilder From<TKey, TValue>(ConcurrentDictionary<TKey, TValue>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(Dictionary<TKey, TValue>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(IDictionary<TKey, TValue>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    KeyValueCollectionBuilder From<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    KeyValueCollectionBuilder From<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    KeyValueCollectionBuilder From<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    KeyValueCollectionBuilder From<TKey, TValue>(ICollection<KeyValuePair<TKey, TValue>>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    KeyValueCollectionBuilder From<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    KeyValueCollectionBuilder From<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null);
-
-    KeyValueCollectionBuilder From<TKey, TValue>(ConcurrentDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(Dictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(IDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(KeyValuePair<TKey, TValue>[]? keyValuePairs, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? keyValuePairs, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(ICollection<KeyValuePair<TKey, TValue>>? keyValuePairs, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? keyValuePairs, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? keyValuePairs, StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(ConcurrentDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
-        where TKey : struct where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(Dictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
-        where TKey : struct where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(IDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
-        where TKey : struct where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
-        where TKey : struct where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(KeyValuePair<TKey, TValue>[]? keyValuePairs
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
-        where TKey : struct where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue> (IReadOnlyList<KeyValuePair<TKey, TValue>>? keyValuePairs
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
-        where TKey : struct where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(ICollection<KeyValuePair<TKey, TValue>>? keyValuePairs
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
-        where TKey : struct where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? keyValuePairs
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
-        where TKey : struct where TValue : struct;
-
-    KeyValueCollectionBuilder From<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? keyValuePairs
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
-        where TKey : struct where TValue : struct;
-}
-
-public class AddAllTypeIsKeyValueCollection : RecyclableObject, IAddAllTypeIsKeyValueCollection
-{
-    private IStyleTypeBuilderComponentAccess<KeyValueCollectionBuilder> stb = null!;
-
-    public AddAllTypeIsKeyValueCollection Initialize(IStyleTypeBuilderComponentAccess<KeyValueCollectionBuilder> styledComplexTypeBuilder)
-    {
-        stb  = styledComplexTypeBuilder;
-
-        return this;
-    }
-
-    public KeyValueCollectionBuilder From<TKey, TValue>(ConcurrentDictionary<TKey, TValue>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(ConcurrentDictionary<TKey, TValue>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : notnull =>
-        From((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueFormatString, keyFormatString);
+        AddAll((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueFormatString, keyFormatString);
 
-    public KeyValueCollectionBuilder From<TKey, TValue> (Dictionary<TKey, TValue>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue> (Dictionary<TKey, TValue>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : notnull =>
-        From((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueFormatString, keyFormatString);
+        AddAll((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueFormatString, keyFormatString);
 
-    public KeyValueCollectionBuilder From<TKey, TValue> (IDictionary<TKey, TValue>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue> (IDictionary<TKey, TValue>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
-        From((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueFormatString, keyFormatString);
+        AddAll((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueFormatString, keyFormatString);
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
-        From((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueFormatString, keyFormatString);
+        AddAll((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueFormatString, keyFormatString);
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
     {
@@ -172,12 +52,7 @@ public class AddAllTypeIsKeyValueCollection : RecyclableObject, IAddAllTypeIsKey
         return stb.AddGoToNext();
     }
 
-    public void Dispose()
-    {
-        throw new NotImplementedException();
-    }
-
-    public KeyValueCollectionBuilder From<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
     {
@@ -198,12 +73,12 @@ public class AddAllTypeIsKeyValueCollection : RecyclableObject, IAddAllTypeIsKey
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(ICollection<KeyValuePair<TKey, TValue>>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(ICollection<KeyValuePair<TKey, TValue>>? value
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
-        From((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueFormatString, keyFormatString);
+        AddAll((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueFormatString, keyFormatString);
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
     {
@@ -223,7 +98,7 @@ public class AddAllTypeIsKeyValueCollection : RecyclableObject, IAddAllTypeIsKey
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
     {
@@ -246,31 +121,31 @@ public class AddAllTypeIsKeyValueCollection : RecyclableObject, IAddAllTypeIsKey
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(ConcurrentDictionary<TKey, TValue>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(ConcurrentDictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : notnull where TValue : struct =>
-        From((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyFormatString);
+        AddAll((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyFormatString);
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(Dictionary<TKey, TValue>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(Dictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : notnull where TValue : struct =>
-        From((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyFormatString);
+        AddAll((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyFormatString);
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(IDictionary<TKey, TValue>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(IDictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct =>
-        From((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyFormatString);
+        AddAll((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyFormatString);
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct =>
-        From((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyFormatString);
+        AddAll((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyFormatString);
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
           , StructStyler<TValue> valueStructStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct
@@ -290,7 +165,7 @@ public class AddAllTypeIsKeyValueCollection : RecyclableObject, IAddAllTypeIsKey
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder From<TKey, TValue>
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>
         (IReadOnlyList<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -311,13 +186,13 @@ public class AddAllTypeIsKeyValueCollection : RecyclableObject, IAddAllTypeIsKey
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder From<TKey, TValue> (ICollection<KeyValuePair<TKey, TValue>>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue> (ICollection<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct =>
-        From((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyFormatString);
+        AddAll((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyFormatString);
 
-    public KeyValueCollectionBuilder From<TKey, TValue> (IEnumerable<KeyValuePair<TKey, TValue>>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue> (IEnumerable<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct
@@ -336,7 +211,7 @@ public class AddAllTypeIsKeyValueCollection : RecyclableObject, IAddAllTypeIsKey
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder From<TKey, TValue>
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>
         (IEnumerator<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -359,27 +234,27 @@ public class AddAllTypeIsKeyValueCollection : RecyclableObject, IAddAllTypeIsKey
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(ConcurrentDictionary<TKey, TValue>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(ConcurrentDictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
         where TKey : struct where TValue : struct =>
-        From((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyStructStyler);
+        AddAll((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyStructStyler);
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(Dictionary<TKey, TValue>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(Dictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
         where TKey : struct where TValue : struct =>
-        From((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyStructStyler);
+        AddAll((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyStructStyler);
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(IDictionary<TKey, TValue>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(IDictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
         where TKey : struct where TValue : struct =>
-        From((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyStructStyler);
+        AddAll((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyStructStyler);
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
         where TKey : struct where TValue : struct =>
-        From((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyStructStyler);
+        AddAll((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyStructStyler);
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
           , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
         where TKey : struct where TValue : struct
     {
@@ -396,7 +271,7 @@ public class AddAllTypeIsKeyValueCollection : RecyclableObject, IAddAllTypeIsKey
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
         where TKey : struct where TValue : struct
     {
@@ -413,12 +288,12 @@ public class AddAllTypeIsKeyValueCollection : RecyclableObject, IAddAllTypeIsKey
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(ICollection<KeyValuePair<TKey, TValue>>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(ICollection<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
         where TKey : struct where TValue : struct =>
-        From((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyStructStyler);
+        AddAll((IEnumerable<KeyValuePair<TKey, TValue>>?)value, valueStructStyler, keyStructStyler);
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
         where TKey : struct
         where TValue : struct
@@ -435,7 +310,7 @@ public class AddAllTypeIsKeyValueCollection : RecyclableObject, IAddAllTypeIsKey
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder From<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
+    public KeyValueCollectionBuilder AddAll<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler
           , StructStyler<TKey> keyStructStyler)
         where TKey : struct
@@ -456,10 +331,4 @@ public class AddAllTypeIsKeyValueCollection : RecyclableObject, IAddAllTypeIsKey
         return stb.AddGoToNext();
     }
 
-    public override void StateReset()
-    {
-        stb  = null!;
-
-        base.StateReset();
-    }
 }

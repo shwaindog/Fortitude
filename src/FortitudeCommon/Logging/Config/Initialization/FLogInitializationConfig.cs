@@ -128,8 +128,8 @@ public class FLogInitializationConfig : FLogConfig, IMutableFLogInitializationCo
     {
         return
             sbc.StartComplexType(nameof(FLogInitializationConfig))
-               .Field.AddAlways(nameof(AsyncBufferingInit), AsyncBufferingInit)
-               .Field.AddAlways(nameof(LogEntryPoolsInit), LogEntryPoolsInit)
+               .Field.AlwaysAdd(nameof(AsyncBufferingInit), AsyncBufferingInit)
+               .Field.AlwaysAdd(nameof(LogEntryPoolsInit), LogEntryPoolsInit)
                .Complete();
     }
 }

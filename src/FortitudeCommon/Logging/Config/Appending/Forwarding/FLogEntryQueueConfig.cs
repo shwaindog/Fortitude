@@ -190,11 +190,11 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
     {
         return
             sbc.StartComplexType(nameof(FLogEntryQueueConfig))
-               .Field.AddAlways(nameof(QueueSize), QueueSize)
-               .Field.AddAlways(nameof(QueueFullHandling), QueueFullHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
-               .Field.AddAlways(nameof(QueueReadBatchSize), QueueReadBatchSize)
-               .Field.AddAlways(nameof(QueueDropInterval), QueueDropInterval)
-               .Field.AddWhenNonNull(nameof(LogEntryPool), LogEntryPool)
+               .Field.AlwaysAdd(nameof(QueueSize), QueueSize)
+               .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling, FullQueueHandlingExtensions.FullQueueHandlingFormatter)
+               .Field.AlwaysAdd(nameof(QueueReadBatchSize), QueueReadBatchSize)
+               .Field.AlwaysAdd(nameof(QueueDropInterval), QueueDropInterval)
+               .Field.WhenNonNullAdd(nameof(LogEntryPool), LogEntryPool)
                .Complete();
     }
 }

@@ -196,9 +196,9 @@ public class RollingFileAppenderConfig : FileAppenderConfig, IMutableRollingFile
     {
         using var tb = 
             sbc.StartComplexType(nameof(RollingFileAppenderConfig))
-               .Field.AddAlways(nameof(RollAtSize), RollAtSize)
-               .Field.AddAlways(nameof(RollFileNameFormat), RollFileNameFormat)
-               .Field.AddAlways(nameof(StartRollDelayMs), StartRollDelayMs)
+               .Field.AlwaysAdd(nameof(RollAtSize), RollAtSize)
+               .Field.AlwaysAdd(nameof(RollFileNameFormat), RollFileNameFormat)
+               .Field.AlwaysAdd(nameof(StartRollDelayMs), StartRollDelayMs)
                .AddBaseFieldsStart();
         base.ToString(sbc);
         return tb;

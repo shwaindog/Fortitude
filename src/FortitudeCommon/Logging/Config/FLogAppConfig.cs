@@ -191,9 +191,9 @@ public class FLogAppConfig : FLoggerMatchedAppenders, IMutableFLogAppConfig
     {
         return
         sbc.StartComplexType(nameof(FLogAppConfig))
-           .Field.AddAlways(nameof(ConfigSourcesLookup), ConfigSourcesLookup)
-           .Field.AddAlways(nameof(Appenders), Appenders)
-           .Field.AddAlways(nameof(RootLogger), RootLogger)
+           .Field.AlwaysAdd(nameof(ConfigSourcesLookup), ConfigSourcesLookup)
+           .Field.AlwaysAdd(nameof(Appenders), Appenders)
+           .Field.AlwaysAdd(nameof(RootLogger), RootLogger)
            .Complete();
     }
 

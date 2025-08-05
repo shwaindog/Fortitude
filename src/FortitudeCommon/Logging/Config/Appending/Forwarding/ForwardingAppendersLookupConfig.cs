@@ -44,7 +44,7 @@ public class ForwardingAppendersLookupConfig
     {
         return
             sbc.StartKeyedCollectionType(nameof(ForwardingAppendersLookupConfig))
-               .AddAll.From(AppendersByName)
+               .AddAll(AppendersByName)
                .Complete();
     }
 }

@@ -33,12 +33,12 @@ public static class TimeSpanExtensions
     public static void FormatTimeSpanAsStructAppender(this TimeSpan timeSpan, IStyledTypeStringAppender sbc)
     {
         sbc.StartComplexType(nameof(TimeSpan))
-           .Field.AddWhenNonDefault(nameof(TimeSpan.Days), timeSpan.Days)
-           .Field.AddWhenNonDefault(nameof(TimeSpan.Hours), timeSpan.Hours)
-           .Field.AddWhenNonDefault(nameof(TimeSpan.Minutes), timeSpan.Minutes)
-           .Field.AddWhenNonDefault(nameof(TimeSpan.Seconds), timeSpan.Seconds)
-           .Field.AddWhenNonDefault(nameof(TimeSpan.Milliseconds), timeSpan.Milliseconds)
-           .Field.AddWhenNonDefault(nameof(TimeSpan.Microseconds), timeSpan.Microseconds)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Days), timeSpan.Days)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Hours), timeSpan.Hours)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Minutes), timeSpan.Minutes)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Seconds), timeSpan.Seconds)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Milliseconds), timeSpan.Milliseconds)
+           .Field.WhenNonDefaultAdd(nameof(TimeSpan.Microseconds), timeSpan.Microseconds)
            .Complete();
     }
 

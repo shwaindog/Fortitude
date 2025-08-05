@@ -1,6 +1,8 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.DataStructures.Memory;
+
 namespace FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 public interface ITargetingFLogEntrySource : IFLogEntryPublishChainTreeNode

@@ -114,10 +114,10 @@ public class MatchSequenceKeysComparisonConfig : MatchConditionConfig, IMutableM
     {
         return
             sbc.StartComplexType(nameof(MatchEntryContainsStringConfig))
-               .Field.AddAlways(nameof(CheckConditionType), CheckConditionType, FLoggerEntryMatchTypeExtensions.FLoggerEntryMatchTypeFormatter)
-               .Field.AddAlways(nameof(Lhs), Lhs)
-               .Field.AddAlways(nameof(Is), Is, ComparisonOperatorTypedExtensions.ComparisonOperatorTypeFormatter)
-               .Field.AddAlways(nameof(Rhs), Rhs)
+               .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType, FLoggerEntryMatchTypeExtensions.FLoggerEntryMatchTypeFormatter)
+               .Field.AlwaysAdd(nameof(Lhs), Lhs)
+               .Field.AlwaysAdd(nameof(Is), Is, ComparisonOperatorTypedExtensions.ComparisonOperatorTypeFormatter)
+               .Field.AlwaysAdd(nameof(Rhs), Rhs)
                .Complete();
     }
 }

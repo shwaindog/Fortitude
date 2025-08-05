@@ -23,7 +23,7 @@ public class StringConstantTemplatePart(string toAppend) : ITemplatePart, IStyle
     {
         return
         sbc.StartComplexType(nameof(StringConstantTemplatePart))
-           .Field.AddAlways(nameof(toAppend), toAppend)
+           .Field.AlwaysAdd(nameof(toAppend), toAppend)
            .Complete();
     }
 
