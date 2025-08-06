@@ -81,6 +81,61 @@ public static class NumberExtensions
     public static LongComparer   LongComparer   = new();
     public static ULongComparer  ULongComparer  = new();
 
+    public static Type[] NumberTypes = [
+            typeof(byte)
+          , typeof(sbyte)
+          , typeof(char)
+          , typeof(short)
+          , typeof(ushort)
+          , typeof(int)
+          , typeof(uint)
+          , typeof(nint)
+          , typeof(float)
+          , typeof(long)
+          , typeof(ulong)
+          , typeof(double)
+          , typeof(decimal)
+        ];
+
+    public static Type[] NullableNumberTypes = [
+            typeof(byte?)
+          , typeof(sbyte?)
+          , typeof(char?)
+          , typeof(short?)
+          , typeof(ushort?)
+          , typeof(int?)
+          , typeof(uint?)
+          , typeof(nint?)
+          , typeof(float?)
+          , typeof(long?)
+          , typeof(ulong?)
+          , typeof(double?)
+          , typeof(decimal?)
+        ];
+
+    public static bool IsNumericType(this Type toCheck)
+    {
+        for (int i = 0; i < NumberTypes.Length; i++)
+        {
+            if(toCheck == NumberTypes[i]) return true;
+        }
+        return false;
+    }
+
+    public static bool IsNullableNumericType(this Type toCheck)
+    {
+        for (int i = 0; i < NullableNumberTypes.Length; i++)
+        {
+            if(toCheck == NullableNumberTypes[i]) return true;
+        }
+        return false;
+    }
+
+    public static bool IsNumericOrNullableType(this Type toCheck)
+    {
+        return toCheck.IsNumericType() || toCheck.IsNullableNumericType();
+    }
+
     public static int NextPowerOfTwo(this int value)
     {
         var ceiling = 2;

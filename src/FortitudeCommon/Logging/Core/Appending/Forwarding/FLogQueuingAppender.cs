@@ -333,7 +333,7 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
         var queue         = AppenderLogEntryQueue;
         var amountDropped = AppenderLogEntryQueue.DropAll();
         var dropMessage   = AppenderLogEntryPool.SourceLogEntry();
-        dropMessage.Initialize(new LoggerEntryContext(Logger, new NoOpFLogEntrySink(), LoggingLocation.NoneAppenderAlertMessage, FLogLevel.Warn));
+        dropMessage.Initialize(new LoggerEntryContext(Logger, new NoOpFLogEntrySink(), FLogCallLocation.NoneAppenderAlertMessage, FLogLevel.Warn));
         sb.Clear().Append("The following entry caused the queue to drop '").Append(amountDropped).Append("' entries for '").Append(AppenderName)
           .Append("':");
         dropMessage.Message.Insert(0, sb);
@@ -347,7 +347,7 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
         var queue         = AppenderLogEntryQueue;
         var amountDropped = AppenderLogEntryQueue.DropAll();
         var dropMessage   = AppenderLogEntryPool.SourceLogEntry();
-        dropMessage.Initialize(new LoggerEntryContext(Logger, new NoOpFLogEntrySink(), LoggingLocation.NoneAppenderAlertMessage, FLogLevel.Warn));
+        dropMessage.Initialize(new LoggerEntryContext(Logger, new NoOpFLogEntrySink(), FLogCallLocation.NoneAppenderAlertMessage, FLogLevel.Warn));
         sb.Clear().Append("Queue full event caused queue to drop '").Append(amountDropped).Append("' entries for '").Append(AppenderName)
           .Append("':");
         dropMessage.Message.Insert(0, sb);
@@ -434,7 +434,7 @@ public abstract class FLogQueuingAppender : FLogForwardingAppender, IMutableFLog
 
         var countDropped = 0;
         var dropMessage  = AppenderLogEntryPool.SourceLogEntry();
-        dropMessage.Initialize(new LoggerEntryContext(Logger, new NoOpFLogEntrySink(), LoggingLocation.NoneAppenderAlertMessage, FLogLevel.Warn));
+        dropMessage.Initialize(new LoggerEntryContext(Logger, new NoOpFLogEntrySink(), FLogCallLocation.NoneAppenderAlertMessage, FLogLevel.Warn));
         sb.Clear().Append("The following entry caused two entries before it to be removed to include this message'").Append(AppenderName)
           .Append("':");
         dropMessage.Message.Insert(0, sb);

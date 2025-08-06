@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
@@ -14,89 +9,58 @@ using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 namespace FortitudeCommon.Logging.Core.LogEntries;
 
-
-public interface IFLogFormatterParameterEntry : IReusableObject<IFLogFormatterParameterEntry>
+public interface IFLogFormatterParameterEntry : IFLogMessageBuilder
 {
     // ReSharper disable UnusedMember.Global
     int RemainingArguments { get; }
-
-    IStyledTypeStringAppender BackingStyledTypeStringAppender { get; }
-
-    IStringBuilder BackingStringBuilder { get; }
 }
 
-public class FormatParameterEntry<TFormatEntry> : ReusableObject<IFLogFormatterParameterEntry>, IFLogFormatterParameterEntry
+public class FormatParameterEntry<TFormatEntry> : FLogEntryMessageBuilderBase<TFormatEntry>, IFLogFormatterParameterEntry
 where TFormatEntry : FormatParameterEntry<TFormatEntry>
 {
-    protected IStyledTypeStringAppender? stsa;
+    protected FormatBuilder FormatBuilder = null!;
 
-    protected IStringBuilder sb = null!;
+    protected List<StringFormatTokenParams> FormatTokens = null!;
 
-    protected readonly IStringBuilder warnings = new MutableString();
-
-    protected Action<IStringBuilder?> onComplete = null!;
-
-    protected LoggingLocation loggingLocation;
-
-    protected FormatBuilder formatBuilder = null!;
-
-    protected List<StringFormatTokenParams> formatTokens = null!;
-
-    protected int currentParamNum = 1;
+    protected int CurrentParamNum = 1;
 
     public FormatParameterEntry() { }
 
     public FormatParameterEntry(FormatParameterEntry<TFormatEntry> toClone)
     {
-        stsa ??= (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender());
-        stsa.CopyFrom(toClone.BackingStyledTypeStringAppender);
-        sb = stsa.WriteBuffer;
-        warnings.Clear();
-        warnings.AppendRange(toClone.warnings);
-        onComplete      = toClone.onComplete;
-        loggingLocation = toClone.loggingLocation;
-        formatBuilder   = toClone.formatBuilder;
-        formatTokens    = toClone.formatTokens.ToList();
+        Stsa ??= (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender());
+        Stsa.CopyFrom(toClone.StyledTypeAppender);
+        Sb = Stsa.WriteBuffer;
+        Warnings.Clear();
+        Warnings.AppendRange(toClone.Warnings);
+        OnComplete      = toClone.OnComplete;
+        FormatBuilder   = toClone.FormatBuilder;
+        FormatTokens    = toClone.FormatTokens.ToList();
     }
     
     public TFormatEntry Initialize
-    (FormatBuilder stringFormatBuilder, int paramNum
-      , LoggingLocation logLocation, Action<IStringBuilder?> onCompleteHandler
-      , StringBuildingStyle style, IStyledTypeStringAppender? styledTypeStringAppender = null, List<StringFormatTokenParams>? remainingTokens = null)
+    (FLogEntry fLogEntry, FormatBuilder stringFormatBuilder, int paramNum, Action<IStringBuilder?> onCompleteHandler
+      , IStyledTypeStringAppender? styledTypeStringAppender = null, List<StringFormatTokenParams>? remainingTokens = null)
     {
-        stsa ??= (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender()).Initialize(style);
-        sb   = stsa.WriteBuffer;
+        Initialize(fLogEntry, onCompleteHandler, styledTypeStringAppender);
 
-        currentParamNum = paramNum;
+        CurrentParamNum = paramNum;
 
-        onComplete = onCompleteHandler;
-
-        loggingLocation = logLocation;
-        formatBuilder   = stringFormatBuilder;
-        formatTokens    = formatBuilder.RemainingTokens();
+        FormatBuilder   = stringFormatBuilder;
+        FormatTokens    = FormatBuilder.RemainingTokens();
 
         return (TFormatEntry)this;
     }
-    
-    public IStringBuilder BackingStringBuilder => sb;
-    
-    public IStyledTypeStringAppender BackingStyledTypeStringAppender
-    {
-        get
-        {
-            stsa ??= Recycler?.Borrow<StyledTypeStringAppender>().Initialize() ?? new StyledTypeStringAppender();
-            sb   =   stsa.WriteBuffer;
-            return stsa;
-        }
-    }
 
-    public int RemainingArguments => formatTokens.Count;
+    protected FLogCallLocation FLogCallLocation => LogEntry.LogLocation;
+
+    public int RemainingArguments => FormatTokens.Count;
 
     protected TFormatEntry? PreCheckTokensGetStringBuilder<T>(T param, [CallerMemberName] string memberName = "")
     {
-        if (formatTokens.Any()) return (TFormatEntry)this;
-        warnings.Append(memberName).Append("(").Append(typeof(T).Name).Append(" ")
-                .Append(param).Append(") at [").Append(loggingLocation)
+        if (FormatTokens.Any()) return (TFormatEntry)this;
+        Warnings.Append(memberName).Append("(").Append(typeof(T).Name).Append(" ")
+                .Append(param).Append(") at [").Append(FLogCallLocation)
                 .Append("] no formatting tokens remaining");
         return null;
     }
@@ -104,9 +68,9 @@ where TFormatEntry : FormatParameterEntry<TFormatEntry>
 
     protected TFormatEntry? PreCheckTokensGetStringBuilder(Span<char> param, [CallerMemberName] string memberName = "")
     {
-        if (formatTokens.Any()) return (TFormatEntry)this;
-        warnings.Append(memberName).Append("(").Append(nameof(Span<char>)).Append(" ")
-                .Append(param).Append(") at [").Append(loggingLocation)
+        if (FormatTokens.Any()) return (TFormatEntry)this;
+        Warnings.Append(memberName).Append("(").Append(nameof(Span<char>)).Append(" ")
+                .Append(param).Append(") at [").Append(FLogCallLocation)
                 .Append("] no formatting tokens remaining");
         return null;
     }
@@ -114,23 +78,23 @@ where TFormatEntry : FormatParameterEntry<TFormatEntry>
     protected TFormatEntry? PreCheckTokensGetStringBuilder(ReadOnlySpan<char> param
       , [CallerMemberName] string memberName = "")
     {
-        if (formatTokens.Any()) return (TFormatEntry)this;
-        warnings.Append(memberName).Append("(").Append(nameof(ReadOnlySpan<char>)).Append(" ")
-                .Append(param).Append(") at [").Append(loggingLocation)
+        if (FormatTokens.Any()) return (TFormatEntry)this;
+        Warnings.Append(memberName).Append("(").Append(nameof(ReadOnlySpan<char>)).Append(" ")
+                .Append(param).Append(") at [").Append(FLogCallLocation)
                 .Append("] no formatting tokens remaining");
         return null;
     }
 
     internal TFormatEntry ReplaceTokenNumber(StringBuilder? param)
     {
-        for (var i = 0; i < formatTokens.Count; i++)
+        for (var i = 0; i < FormatTokens.Count; i++)
         {
-            var token = formatTokens[i];
-            if (token.ParameterNumber == currentParamNum)
+            var token = FormatTokens[i];
+            if (token.ParameterNumber == CurrentParamNum)
             {
-                sb.Clear();
-                sb.AppendFormat(token.StringFormat, param);
-                formatBuilder.ReplaceTokenWith(token, sb);
+                Sb.Clear();
+                Sb.AppendFormat(token.StringFormat, param);
+                FormatBuilder.ReplaceTokenWith(token, Sb);
             }
         }
         return (TFormatEntry)this;
@@ -167,16 +131,29 @@ where TFormatEntry : FormatParameterEntry<TFormatEntry>
         return (TFormatEntry)this;
     }
 
+    internal TFormatEntry ReplaceTokenNumber()
+    {
+        for (var i = 0; i < FormatTokens.Count; i++)
+        {
+            var token = FormatTokens[i];
+            if (token.ParameterNumber == CurrentParamNum)
+            {
+                FormatBuilder.ReplaceTokenWith(token, Sb);
+            }
+        }
+        return (TFormatEntry)this;
+    }
+
     internal TFormatEntry ReplaceTokenNumber(ICharSequence? param)
     {
-        for (var i = 0; i < formatTokens.Count; i++)
+        for (var i = 0; i < FormatTokens.Count; i++)
         {
-            var token = formatTokens[i];
-            if (token.ParameterNumber == currentParamNum)
+            var token = FormatTokens[i];
+            if (token.ParameterNumber == CurrentParamNum)
             {
-                sb.Clear();
-                sb.AppendFormat(token.StringFormat, param);
-                formatBuilder.ReplaceTokenWith(token, sb);
+                Sb.Clear();
+                Sb.AppendFormat(token.StringFormat, param);
+                FormatBuilder.ReplaceTokenWith(token, param);
             }
         }
         return (TFormatEntry)this;
@@ -249,14 +226,14 @@ where TFormatEntry : FormatParameterEntry<TFormatEntry>
 
     internal TFormatEntry ReplaceTokenNumber(ReadOnlySpan<char> param)
     {
-        for (var i = 0; i < formatTokens.Count; i++)
+        for (var i = 0; i < FormatTokens.Count; i++)
         {
-            var token = formatTokens[i];
-            if (token.ParameterNumber == currentParamNum)
+            var token = FormatTokens[i];
+            if (token.ParameterNumber == CurrentParamNum)
             {
-                sb.Clear();
-                sb.AppendFormat(token.StringFormat, param);
-                formatBuilder.ReplaceTokenWith(token, sb);
+                Sb.Clear();
+                Sb.AppendFormat(token.StringFormat, param);
+                FormatBuilder.ReplaceTokenWith(token, Sb);
             }
         }
         return (TFormatEntry)this;
@@ -273,14 +250,14 @@ where TFormatEntry : FormatParameterEntry<TFormatEntry>
 
     internal TFormatEntry ReplaceTokenNumber<T>(T? param)
     {
-        for (var i = 0; i < formatTokens.Count; i++)
+        for (var i = 0; i < FormatTokens.Count; i++)
         {
-            var token = formatTokens[i];
-            if (token.ParameterNumber == currentParamNum)
+            var token = FormatTokens[i];
+            if (token.ParameterNumber == CurrentParamNum)
             {
-                sb.Clear();
-                sb.AppendFormat(token.StringFormat, param);
-                formatBuilder.ReplaceTokenWith(token, sb);
+                Sb.Clear();
+                Sb.AppendFormat(token.StringFormat, param);
+                FormatBuilder.ReplaceTokenWith(token, Sb);
             }
         }
         return (TFormatEntry)this;
@@ -293,14 +270,14 @@ where TFormatEntry : FormatParameterEntry<TFormatEntry>
         {
             return ReplaceTokenNumber("");
         }
-        sb.Clear();
-        structStyler(param.Value, stsa!);
-        for (var i = 0; i < formatTokens.Count; i++)
+        Sb.Clear();
+        structStyler(param.Value, Stsa!);
+        for (var i = 0; i < FormatTokens.Count; i++)
         {
-            var token = formatTokens[i];
-            if (token.ParameterNumber == currentParamNum)
+            var token = FormatTokens[i];
+            if (token.ParameterNumber == CurrentParamNum)
             {
-                formatBuilder.ReplaceTokenWith(token, sb);
+                FormatBuilder.ReplaceTokenWith(token, Sb);
             }
         }
         return (TFormatEntry)this;
@@ -308,14 +285,14 @@ where TFormatEntry : FormatParameterEntry<TFormatEntry>
 
     internal TFormatEntry ReplaceTokenNumber(IStyledToStringObject? param)
     {
-        sb.Clear();
-        param?.ToString(stsa!);
-        for (var i = 0; i < formatTokens.Count; i++)
+        Sb.Clear();
+        param?.ToString(Stsa!);
+        for (var i = 0; i < FormatTokens.Count; i++)
         {
-            var token = formatTokens[i];
-            if (token.ParameterNumber == currentParamNum)
+            var token = FormatTokens[i];
+            if (token.ParameterNumber == CurrentParamNum)
             {
-                formatBuilder.ReplaceTokenWith(token, sb);
+                FormatBuilder.ReplaceTokenWith(token, Sb);
             }
         }
         return (TFormatEntry)this;
@@ -332,45 +309,45 @@ where TFormatEntry : FormatParameterEntry<TFormatEntry>
 
     internal TFormatEntry? ExpectContinue<T>(T paramValue, string callMemberName)
     {
-        if (!formatTokens.Any())
+        if (!FormatTokens.Any())
         {
-            warnings
+            Warnings
                 .Append(callMemberName).Append("(").Append(typeof(T).Name).Append(" ")
-                .Append(paramValue).Append(") at [").Append(loggingLocation)
+                .Append(paramValue).Append(") at [").Append(FLogCallLocation)
                 .Append("] has no more remaining tokens after replacing parameter {")
-                .Append(currentParamNum).Append("}");
+                .Append(CurrentParamNum).Append("}");
             CallOnComplete();
             return null;
         }
-        currentParamNum++;
+        CurrentParamNum++;
         return (TFormatEntry)this;
     }
 
     internal FLogStringAppender ToStringAppender<T>(T paramValue, string callMemberName)
     {
-        if (formatTokens.Any())
+        if (FormatTokens.Any())
         {
-            warnings
+            Warnings
                 .Append(callMemberName).Append("(").Append(typeof(T).Name).Append(" ")
-                .Append(paramValue).Append(") at [").Append(loggingLocation)
+                .Append(paramValue).Append(") at [").Append(FLogCallLocation)
                 .Append("] has remaining tokens after replacing parameter {")
-                .Append(currentParamNum).Append("} and converting to StringAppender");
+                .Append(CurrentParamNum).Append("} and converting to StringAppender");
         }
 
-        var formattedStringSoFar = formatBuilder.BackingStringBuilder;
+        var formattedStringSoFar = FormatBuilder.BackingStringBuilder;
 
-        if (warnings.Length > 0)
+        if (Warnings.Length > 0)
         {
-            formattedStringSoFar.InsertAt(warnings);
+            formattedStringSoFar.InsertAt(Warnings);
         }
 
-        var styleTypeStringAppender = (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender(stsa!.Style))
-            .Initialize(formattedStringSoFar, stsa!.Style);
+        var styleTypeStringAppender = (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender(Stsa!.Style))
+            .Initialize(formattedStringSoFar, Stsa!.Style);
 
         var addParamsBuilder = (Recycler?.Borrow<FLogStringAppender>() ?? new FLogStringAppender())
-            .Initialize(styleTypeStringAppender, onComplete);
-        stsa.DecrementRefCount();
-        stsa = null;
+            .Initialize(LogEntry, styleTypeStringAppender, OnComplete);
+        Stsa.DecrementRefCount();
+        Stsa = null;
         DecrementRefCount();
         return addParamsBuilder;
     }
@@ -378,39 +355,39 @@ where TFormatEntry : FormatParameterEntry<TFormatEntry>
 
     internal FLogStringAppender ToStringAppender(ReadOnlySpan<char> paramValue, string callMemberName)
     {
-        if (formatTokens.Any())
+        if (FormatTokens.Any())
         {
-            warnings.Append(callMemberName).Append("(").Append(nameof(ReadOnlySpan<char>)).Append(" ")
-                    .Append(paramValue).Append(") at [").Append(loggingLocation)
+            Warnings.Append(callMemberName).Append("(").Append(nameof(ReadOnlySpan<char>)).Append(" ")
+                    .Append(paramValue).Append(") at [").Append(FLogCallLocation)
                     .Append("] has remaining tokens after replacing parameter {")
-                    .Append(currentParamNum)
+                    .Append(CurrentParamNum)
                     .Append("} and converting to StringAppender");
         }
 
-        var formattedStringSoFar = formatBuilder.BackingStringBuilder;
+        var formattedStringSoFar = FormatBuilder.BackingStringBuilder;
 
-        if (warnings.Length > 0)
+        if (Warnings.Length > 0)
         {
-            formattedStringSoFar.InsertAt(warnings);
+            formattedStringSoFar.InsertAt(Warnings);
         }
 
-        var styleTypeStringAppender = (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender(stsa!.Style))
-            .Initialize(formattedStringSoFar, stsa!.Style);
+        var styleTypeStringAppender = (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender(Stsa!.Style))
+            .Initialize(formattedStringSoFar, Stsa!.Style);
 
         var addParamsBuilder = (Recycler?.Borrow<FLogStringAppender>() ?? new FLogStringAppender())
-            .Initialize(styleTypeStringAppender, onComplete);
-        stsa.DecrementRefCount();
-        stsa = null;
+            .Initialize(LogEntry, styleTypeStringAppender, OnComplete);
+        Stsa.DecrementRefCount();
+        Stsa = null;
         DecrementRefCount();
         return addParamsBuilder;
     }
 
     internal void EnsureNoMoreTokensAndComplete<T>(T paramValue, string callMemberName)
     {
-        if (formatTokens.Any())
+        if (FormatTokens.Any())
         {
-            warnings.Append(callMemberName).Append("(").Append(typeof(T).Name).Append(" ")
-                    .Append(paramValue).Append(") at [").Append(loggingLocation)
+            Warnings.Append(callMemberName).Append("(").Append(typeof(T).Name).Append(" ")
+                    .Append(paramValue).Append(") at [").Append(FLogCallLocation)
                     .Append("] still has more tokens after replacing with the first parameter");
             CallOnComplete();
             return;
@@ -422,20 +399,14 @@ where TFormatEntry : FormatParameterEntry<TFormatEntry>
 
     protected void CallOnComplete()
     {
-        onComplete(warnings.Length > 0 ? warnings : null);
+        OnComplete(Warnings.Length > 0 ? Warnings : null);
         DecrementRefCount();
     }
 
     public override void StateReset()
     {
-        stsa?.DecrementRefCount();
-        stsa = null;
-        sb   = null!;
-        warnings.Clear();
-        onComplete      = null!;
-        loggingLocation = default;
-        formatBuilder   = null!;
-        formatTokens    = null!;
+        FormatBuilder   = null!;
+        FormatTokens    = null!;
 
         base.StateReset();
     }
@@ -443,36 +414,28 @@ where TFormatEntry : FormatParameterEntry<TFormatEntry>
     public override FormatParameterEntry<TFormatEntry> Clone() => 
         Recycler?.Borrow<FormatParameterEntry<TFormatEntry>>().CopyFrom(this, CopyMergeFlags.FullReplace) ?? new FormatParameterEntry<TFormatEntry>(this);
 
-    public override TFormatEntry CopyFrom(IFLogFormatterParameterEntry source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => 
+    public override TFormatEntry CopyFrom(IFLogMessageBuilder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => 
         CopyFrom((TFormatEntry)source, copyMergeFlags);
 
     public TFormatEntry CopyFrom(TFormatEntry source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        stsa ??= (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender());
-        stsa.CopyFrom(source.BackingStyledTypeStringAppender);
-        sb = stsa.WriteBuffer;
-        warnings.Clear();
-        warnings.AppendRange(source.warnings);
-        onComplete      = source.onComplete;
-        loggingLocation = source.loggingLocation;
-        formatBuilder   = source.formatBuilder;
-        formatTokens    = source.formatTokens;
+        Stsa ??= (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender());
+        Stsa.CopyFrom(source.StyledTypeAppender);
+        Sb = Stsa.WriteBuffer;
+        Warnings.Clear();
+        Warnings.AppendRange(source.Warnings);
+        OnComplete      = source.OnComplete;
+        FormatBuilder   = source.FormatBuilder;
+        FormatTokens    = source.FormatTokens;
 
         return (TFormatEntry)this;
     }
 }
 
-
 public static class FLogAdditionalFormatterParameterEntryExtensions
 {
     public static TFormatEntry? ReplaceCharSpanTokens<TFormatEntry>(this TFormatEntry? maybeParam
       , ReadOnlySpan<char> paramValue) where TFormatEntry : FormatParameterEntry<TFormatEntry>
-    {
-        return maybeParam?.ReplaceTokenNumber(paramValue);
-    }
-
-    public static TFormatEntry? ReplaceCharSpanTokens<TFormatEntry>(this TFormatEntry? maybeParam
-      , Span<char> paramValue) where TFormatEntry : FormatParameterEntry<TFormatEntry>
     {
         return maybeParam?.ReplaceTokenNumber(paramValue);
     }

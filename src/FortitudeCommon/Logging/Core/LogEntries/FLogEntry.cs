@@ -1,14 +1,11 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Text;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Framework.Fillers;
 using FortitudeCommon.Logging.Config;
-using FortitudeCommon.Logging.Core.Appending;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
-using FortitudeCommon.Types;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
@@ -25,8 +22,6 @@ public interface IFLogEntry : IReusableObject<IFLogEntry>, IMaybeFrozen
     uint InstanceNumber         { get; }
     long CorrelationId { get; }
 
-
-
     object? CallerContextObject { get; }
 
     Exception? Exception { get; }
@@ -35,7 +30,7 @@ public interface IFLogEntry : IReusableObject<IFLogEntry>, IMaybeFrozen
 
     DateTime        LogDateTime  { get; }
     DateTime?       DispatchedAt { get; }
-    LoggingLocation LogLocation  { get; }
+    FLogCallLocation LogLocation  { get; }
     IFLogger        Logger       { get; }
     FLogLevel       LogLevel     { get; }
     Thread          Thread       { get; }
@@ -70,11 +65,11 @@ public interface IMutableFLogEntry : IFLogEntry, IFreezable<IFLogEntry>
     new IMutableString Message { get; }
 }
 
-public record struct LoggerEntryContext(IFLogger Logger, ITargetingFLogEntrySource OnCompleteHandler, LoggingLocation LogLocation, FLogLevel LogLevel);
+public record struct LoggerEntryContext(IFLogger Logger, ITargetingFLogEntrySource OnCompleteHandler, FLogCallLocation LogLocation, FLogLevel LogLevel);
 
 public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 {
-    internal static readonly LoggingLocation NotSetLocation = new("NotSet", "NotSet", 0);
+    internal static readonly FLogCallLocation NotSetLocation = new("NotSet", "NotSet", 0);
 
     private MutableString? messageBuilder;
 
@@ -151,7 +146,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         var styleTypeStringAppender = (Recycler?.Borrow<StyledTypeStringAppender>() ?? new StyledTypeStringAppender(style))
             .Initialize(messageBuilder!, style);
         var stringAppender = (Recycler?.Borrow<FLogStringAppender>() ?? new FLogStringAppender())
-            .Initialize(styleTypeStringAppender, OnMessageComplete);
+            .Initialize(this, styleTypeStringAppender, OnMessageComplete);
 
         return stringAppender;
     }
@@ -167,7 +162,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 
 
         var formatAppender = (Recycler?.Borrow<FLogFirstFormatterParameterEntry>() ?? new FLogFirstFormatterParameterEntry())
-            .Initialize(formatterBuilder, 0, LogLocation, OnMessageComplete, style);
+            .Initialize(this, formatterBuilder, 0, OnMessageComplete);
 
         return formatAppender;
     }
@@ -208,7 +203,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
 
     public DateTime LogDateTime { get; private set; }
 
-    public LoggingLocation LogLocation { get; private set; }
+    public FLogCallLocation LogLocation { get; private set; }
 
     public IFLogger Logger { get; private set; } = null!;
 
