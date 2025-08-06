@@ -35,7 +35,7 @@ public class TimingTraceExecutionPath : RecyclableObject
 
     public FLogEntry AddTraceEntry => traceLogEntry;
 
-    public LoggingLocation LoggingLocation => finalLogEntry.LogLocation;
+    public FLogCallLocation FLogCallLocation => finalLogEntry.LogLocation;
 
     public ExecutionDuration StopGetDuration()
     {

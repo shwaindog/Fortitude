@@ -33,8 +33,8 @@ public interface IFLoggerExecutionDuration
 public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutionDuration
 {
     // ReSharper disable ExplicitCallerInfoArgument
-    private static readonly ConcurrentDictionary<LoggingLocation, LocationIntervalMetrics>        PerLocationIntervalMetrics        = new();
-    private static readonly ConcurrentDictionary<LoggingLocation, LocationAverageDurationMetrics> PerLocationAverageDurationMetrics = new();
+    private static readonly ConcurrentDictionary<FLogCallLocation, LocationIntervalMetrics>        PerLocationIntervalMetrics        = new();
+    private static readonly ConcurrentDictionary<FLogCallLocation, LocationAverageDurationMetrics> PerLocationAverageDurationMetrics = new();
 
     public ExecutionTimingStart StartTiming()
     {
@@ -49,7 +49,7 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
         var getDuration = startTime.StopClock(wrappingLogger);
         if (getDuration.GetMicros() > logThresholdMicros)
         {
-            var logEntryLocation = new LoggingLocation(memberName, sourceFilePath, sourceLineNumber);
+            var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
             var locationMetrics  = PerLocationIntervalMetrics.GetOrAdd(logEntryLocation, logLoc => new LocationIntervalMetrics(logLoc));
             var occurence        = locationMetrics.IncrementOccurence();
             if (occurence % interval == 0)
@@ -66,7 +66,7 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
         var getDuration      = startTime.StopClock(wrappingLogger);
-        var logEntryLocation = new LoggingLocation(memberName, sourceFilePath, sourceLineNumber);
+        var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         var locationAvgMetrics = PerLocationAverageDurationMetrics
             .GetOrAdd(logEntryLocation, logLoc => new LocationAverageDurationMetrics(logLoc, averageEntryInterval));
         var averageTime = locationAvgMetrics.AddDurationGetMicros(getDuration);
@@ -83,7 +83,7 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
         var flogEntry        = wrappingLogger.LogEntryPool.SourceLogEntry();
-        var logEntryLocation = new LoggingLocation(memberName, sourceFilePath, sourceLineNumber);
+        var logEntryLocation = new FLogCallLocation(memberName, sourceFilePath, sourceLineNumber);
         flogEntry.Initialize(new LoggerEntryContext(wrappingLogger, wrappingLogger.PublishEndpoint, logEntryLocation, logLevel));
         var startedAt        = new ExecutionTimingStart(wrappingLogger, wrappingLogger.GetNextTimingDurationSequenceEvent(), DateTime.UtcNow);
         var timeTraceExePath = new TimingTraceExecutionPath(startedAt, flogEntry);
@@ -97,7 +97,7 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
         var duration = trace.StopGetDuration();
         if (duration.GetMicros() > logThresholdMicros)
         {
-            var locationMetrics = PerLocationIntervalMetrics.GetOrAdd(trace.LoggingLocation, logLoc => new LocationIntervalMetrics(logLoc));
+            var locationMetrics = PerLocationIntervalMetrics.GetOrAdd(trace.FLogCallLocation, logLoc => new LocationIntervalMetrics(logLoc));
             var occurence       = locationMetrics.IncrementOccurence();
             if (occurence % interval == 0)
             {
@@ -112,7 +112,7 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
         if (trace == null) return;
         var duration = trace.StopGetDuration();
         var locationAvgMetrics = PerLocationAverageDurationMetrics
-            .GetOrAdd(trace.LoggingLocation, logLoc => new LocationAverageDurationMetrics(logLoc, averageEntryInterval));
+            .GetOrAdd(trace.FLogCallLocation, logLoc => new LocationAverageDurationMetrics(logLoc, averageEntryInterval));
         var averageTime = locationAvgMetrics.AddDurationGetMicros(duration);
         if (averageTime > logThresholdAverageMicros)
         {
@@ -121,7 +121,7 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
         }
     }
 
-    private class LocationIntervalMetrics(LoggingLocation stopLocation)
+    private class LocationIntervalMetrics(FLogCallLocation stopLocation)
     {
         protected int IntervalCount;
 
@@ -138,7 +138,7 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
         protected readonly int DoubleInterval;
         protected readonly int Interval;
 
-        public LocationAverageDurationMetrics(LoggingLocation stopLocation, int restartInterval) : base(stopLocation)
+        public LocationAverageDurationMetrics(FLogCallLocation stopLocation, int restartInterval) : base(stopLocation)
         {
             restartInterval =  Math.Max(MinPublishAverageSamples * 2, restartInterval * 2);
             DoubleInterval  += restartInterval % 2;

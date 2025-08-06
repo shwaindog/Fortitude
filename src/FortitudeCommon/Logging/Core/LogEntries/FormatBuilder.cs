@@ -1,5 +1,4 @@
-﻿using System.Text;
-using FortitudeCommon.DataStructures.Memory;
+﻿using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
@@ -192,7 +191,7 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
         return this;
     }
 
-    public Range? ReplaceTokenWith(StringFormatTokenParams tokenToReplace, ICharSequence withStringBuilderChars)
+    public Range? ReplaceTokenWith(StringFormatTokenParams tokenToReplace, ICharSequence? withStringBuilderChars)
     {
         if (!stringFormatParams.Remove(tokenToReplace))
         {
@@ -205,7 +204,7 @@ public class FormatBuilder : ReusableObject<FormatBuilder>
         var updatedTokenLocation = tokenToReplace.FormatStringLocation.Shift(shift);
         sb.ReplaceAtRange(updatedTokenLocation, withStringBuilderChars);
         var newLocation      = updatedTokenLocation.Start.Value;
-        var replaceLength    = withStringBuilderChars.Length;
+        var replaceLength    = withStringBuilderChars?.Length ?? 0;
         var updatedSizeDelta = replaceLength - tokenSize;
         deltasApplied.Add(new ReplacedAt(originalLocation, updatedSizeDelta));
         return new Range(newLocation, newLocation + replaceLength);

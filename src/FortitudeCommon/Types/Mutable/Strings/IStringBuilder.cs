@@ -24,11 +24,11 @@ public interface IStringBuilder : ICharSequence, IMutableStringBuilder<IStringBu
 
 public static class IStringBuilderExtensions
 {
-    public static IStringBuilder ReplaceAtRange(this IStringBuilder toMutate, Range rangeToReplace, ICharSequence replaceWith)
+    public static IStringBuilder ReplaceAtRange(this IStringBuilder toMutate, Range rangeToReplace, ICharSequence? replaceWith)
     {
         var replaceStart     = rangeToReplace.Start.Value;
         var toReplaceSize    = rangeToReplace.End.Value - replaceStart;
-        var replaceLength    = replaceWith.Length;
+        var replaceLength    = replaceWith?.Length ?? 0;
         var updatedSizeDelta = replaceLength - toReplaceSize;
         if (updatedSizeDelta > 0)
         {
@@ -43,7 +43,7 @@ public static class IStringBuilderExtensions
         var sbIndex = 0;
         for (var i = replaceStart; i < endAt && sbIndex < replaceLength; i++)
         {
-            toMutate[i] = replaceWith[sbIndex];
+            toMutate[i] = replaceWith![sbIndex];
         }
         if (updatedSizeDelta < 0)
         {

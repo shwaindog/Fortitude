@@ -40,7 +40,7 @@ public class FLoggerDebugBuild(IFLogger wrappingLogger)
 
     [Conditional("DEBUG")]
     public void DebugBuildAtLevelWithStaticFilter<T>
-    (DebugBuildPopulateIfActive? populateIfActive, FLogLevel level, T filterContext, Func<T, IFLogger, LoggingLocation, bool> continuePredicate,
+    (DebugBuildPopulateIfActive? populateIfActive, FLogLevel level, T filterContext, Func<T, IFLogger, FLogCallLocation, bool> continuePredicate,
         [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
         var logEntry = wrappingLogger.AtLevelWithStaticFilter(level, filterContext, continuePredicate, memberName, sourceFilePath, sourceLineNumber);
@@ -56,7 +56,7 @@ public class FLoggerDebugBuild(IFLogger wrappingLogger)
 
     [Conditional("DEBUG")]
     public void DebugBuildAtLevelWithClosureFilter<T>
-    (DebugBuildPopulateIfActive? populateIfActive, FLogLevel level, T filterContext, Func<T, IFLogger, LoggingLocation, bool> continuePredicate
+    (DebugBuildPopulateIfActive? populateIfActive, FLogLevel level, T filterContext, Func<T, IFLogger, FLogCallLocation, bool> continuePredicate
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
         var logEntry = wrappingLogger.AtLevelWithClosureFilter(level, filterContext, continuePredicate, memberName, sourceFilePath, sourceLineNumber);

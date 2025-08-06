@@ -6,18 +6,19 @@ using FortitudeCommon.Extensions;
 
 namespace FortitudeCommon.Logging.Core.LogEntries;
 
-public record struct LoggingLocation(string MemberName, string SourceFilePath, int SourceLineNumber)
+public record struct FLogCallLocation(string MemberName, string SourceFilePath, int SourceLineNumber)
 {
     public const string PerfLogging = "NonePerfLogging";
     public const string AppenderAlertLogging = "AppenderAlert";
 
-    public static readonly LoggingLocation NonePerfLoggingUsed = new (PerfLogging, PerfLogging, 0);
-    public static readonly LoggingLocation NoneAppenderAlertMessage = new (AppenderAlertLogging, AppenderAlertLogging, 0);
+    public static readonly FLogCallLocation NoneInternalCall = new (PerfLogging, PerfLogging, 0);
+    public static readonly FLogCallLocation NonePerfFLogCallUsed = new (PerfLogging, PerfLogging, 0);
+    public static readonly FLogCallLocation NoneAppenderAlertMessage = new (AppenderAlertLogging, AppenderAlertLogging, 0);
 }
 
-public static class LoggingLocationExtensions
+public static class FLogCallLocationExtensions
 {
-    public static StringBuilder ExtractAppendFileName(this StringBuilder sb, LoggingLocation subject)
+    public static StringBuilder ExtractAppendFileName(this StringBuilder sb, FLogCallLocation subject)
     {
         string sourceFilePath      = subject.SourceFilePath;
 
@@ -38,13 +39,13 @@ public static class LoggingLocationExtensions
         return sb;
     }
 
-    public static StringBuilder ExtractAppendLineNumber(this StringBuilder sb, LoggingLocation subject)
+    public static StringBuilder ExtractAppendLineNumber(this StringBuilder sb, FLogCallLocation subject)
     {
         sb.Append(subject.SourceLineNumber);
         return sb;
     }
 
-    public static StringBuilder AppendFileNameLineNumber(this StringBuilder sb, LoggingLocation subject)
+    public static StringBuilder AppendFileNameLineNumber(this StringBuilder sb, FLogCallLocation subject)
     {
         return sb.ExtractAppendFileName(subject).Append(": ").ExtractAppendLineNumber(subject);
     }
