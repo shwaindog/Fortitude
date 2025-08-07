@@ -7,6 +7,7 @@ using FortitudeCommon.Logging.Core.ConditionalLogging;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
+using FortitudeCommon.Logging.Core.LoggerViews;
 using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core;
@@ -37,7 +38,7 @@ public enum LoggerActivationFlags : uint
 
 public delegate void NotifyLogEntryDispatched(IFLogEntry logEntry);
 
-public interface IFLogger : IFLoggerDescendant
+public interface IFLogger : IFLoggerDescendant, ISwitchFLoggerView
 {
     FLoggerDebugBuild? DebugBuildOnlyLogger { get; }
 
@@ -133,6 +134,8 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
     internal readonly IFLogEntrySink ForwardToCallback;
 
+    private List<ILoggerView>? createdViews;
+
     private uint timingDurationSeqNum;
 
     private FLoggerDebugBuild? debugBuildOnlyLogger;
@@ -152,6 +155,20 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
 
     public IFLogEntryRootPublisher PublishEndpoint => logEntryPublishEndpoint;
 
+
+    public T As<T>() where T : ISwitchFLoggerView
+    {
+        if (this is T asFloggerView) return asFloggerView;
+        createdViews ??= new List<ILoggerView>();
+        for (int i = 0; i < createdViews.Count; i++)
+        {
+            if (createdViews[i] is T requestedView) return requestedView;
+        }
+        var view = FLogCreate.MakeFLoggerView(this, typeof(T));
+
+        createdViews.Add((ILoggerView)view);
+        return (T)view;
+    }
 
     [Conditional("DEBUG")]
     public void InitializeDebugLogger()

@@ -26,6 +26,8 @@ public class FLogEntryPool
         backingPool.RegisterFactory(() => new ReusableList<IFLogEntry>(NewBatchLogEntryListSize));
     }
 
+    public IRecycler Recycler => backingPool;
+
     public string PoolOwnerName { get; }
 
     public int NewLogEntryCharCapacity { get; set; }

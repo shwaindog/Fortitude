@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Framework.Fillers;
@@ -47,7 +48,8 @@ public interface IMutableFLogEntry : IFLogEntry, IFreezable<IFLogEntry>
 
 
     [MustUseReturnValue("Use WithOnlyParam or AndFinalParam to complete LogEntry")]
-    IFLogFirstFormatterParameterEntry? FormatBuilder(string formattedString, StringBuildingStyle style = StringBuildingStyle.Default);
+    IFLogFirstFormatterParameterEntry FormatBuilder([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formattedString
+      , StringBuildingStyle style = StringBuildingStyle.Default);
 
 
     [MustUseReturnValue("Use FinalAppend to complete LogEntry")]
@@ -151,7 +153,8 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         return stringAppender;
     }
 
-    public IFLogFirstFormatterParameterEntry FormatBuilder(string formattedString, StringBuildingStyle style = StringBuildingStyle.Default)
+    public IFLogFirstFormatterParameterEntry FormatBuilder([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formattedString
+      , StringBuildingStyle style = StringBuildingStyle.Default)
     {
         Thread      = Thread.CurrentThread;
         LogDateTime = TimeContext.UtcNow;
