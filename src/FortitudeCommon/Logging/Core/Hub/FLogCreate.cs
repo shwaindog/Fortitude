@@ -5,6 +5,7 @@ using FortitudeCommon.Logging.Config.Initialization;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Logging.Core.Appending;
+using FortitudeCommon.Logging.Core.LoggerViews;
 using Microsoft.Extensions.Configuration;
 using static FortitudeCommon.Logging.Core.Hub.FLogCommonDefaultFactoryImplementations;
 
@@ -35,6 +36,8 @@ public static class FLogCreate
         MakeSynchroniseQueue  = DefaultSynchroniseQueue;
         MakeProxyAsyncQueue   = DefaultAsyncProxyQueue;
         MakeAsyncQueue        = DefaultCreateQueueFromConfig;
+
+        MakeFLoggerView = DefaultCreatedFLoggerView;
     }
 
     public static Func<IMutableLogEntryPoolsInitializationConfig, IMutableFLogEntryPoolRegistry> MakeLogEntryPoolRegistry { get; set; }
@@ -69,6 +72,9 @@ public static class FLogCreate
 
     public static Func<int, IFLogAsyncQueue, IFLogAsyncQueue> MakeProxyAsyncQueue { get; set; }
 
-    public static Func<IAsyncQueueConfig, IFLogAsyncQueue?> MakeAsyncQueue { get; set; }
+    public static Func<IAsyncQueueConfig, IFLogAsyncQueue?> MakeAsyncQueue  { get; set; }
+
+    public static Func<IFLogger, Type, ISwitchFLoggerView> MakeFLoggerView { get; set; }
+
 
 }

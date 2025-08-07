@@ -136,7 +136,7 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
 
     
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterOnlyParamMatchToStringAppender(bool? value);
+    IFLogStringAppender AfterOnlyParamMatchToStringAppender<T>(T value);
     
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyParamToStringAppender(bool? value);
@@ -528,7 +528,7 @@ public class FLogFirstFormatterParameterEntry : FormatParameterEntry<FLogFirstFo
 
     public void WithOnlyParam(object? value) => PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
 
-    public IFLogStringAppender AfterOnlyParamMatchToStringAppender(bool? value)
+    public IFLogStringAppender AfterOnlyParamMatchToStringAppender<T>(T value)
     {
         Sb.Clear();
         AppendMatchSelect(value, Stsa!);

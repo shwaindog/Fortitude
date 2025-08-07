@@ -6,6 +6,7 @@ using FortitudeCommon.Logging.Config.Initialization;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Logging.Config.LoggersHierarchy;
 using FortitudeCommon.Logging.Core.Appending;
+using FortitudeCommon.Logging.Core.LoggerViews;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Core.Hub;
@@ -97,5 +98,28 @@ public static class FLogCommonDefaultFactoryImplementations
     public static IMutableFLoggerAsyncRegistry DefaultAsyncRegistry(IMutableAsyncQueuesInitConfig asyncConfig)
     {
         return new FLogAsyncRegistry(asyncConfig);
+    }
+
+    public static ISwitchFLoggerView DefaultCreatedFLoggerView(IFLogger fLogger, Type requestedViewType)
+    {
+        if (requestedViewType == typeof(IFLogger) || requestedViewType == typeof(FLogger)) return fLogger;
+        if (requestedViewType == typeof(SimplifiedFLogger) || requestedViewType == typeof(ISimplifiedFLogger))
+        {
+            return new SimplifiedFLogger(fLogger);
+        }
+        if (requestedViewType == typeof(TerseFLogger) || requestedViewType == typeof(ITerseFLogger))
+        {
+            return new TerseFLogger(fLogger);
+        }
+        if (requestedViewType == typeof(LegacyFLogger) || requestedViewType == typeof(ILegacyFLogger))
+        {
+            return new LegacyFLogger(fLogger);
+        }
+        if (requestedViewType == typeof(VersatileFLogger) || requestedViewType == typeof(IVersatileFLogger))
+        {
+            return new VersatileFLogger(fLogger);
+        }
+
+        throw new ArgumentException($"DefaultCreatedFLoggerView does not create ISwitchFLoggerView of type {requestedViewType.Name}");
     }
 }
