@@ -3,7 +3,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
 
-namespace FortitudeCommon.Logging.Core.LogEntries;
+namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
 
 [Flags]
 public enum FormatTypeFlags

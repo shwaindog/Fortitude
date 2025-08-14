@@ -68,6 +68,8 @@ public class FLogEntryPipelineEndpoint : FLogEntryForkingInterceptor, IFLogEntry
     public override void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
         SafeOnReceiveLogEntry(logEntryEvent, fromPublisher);
+        logEntryEvent.LogEntry?.DecrementRefCount();
+        logEntryEvent.LogEntriesBatch?.DecrementRefCount();
     }
 
     public IReadOnlyList<ITargetingFLogEntrySource> UpstreamSubscriptions => SubscriptionsToReceiver ?? EmptyList;

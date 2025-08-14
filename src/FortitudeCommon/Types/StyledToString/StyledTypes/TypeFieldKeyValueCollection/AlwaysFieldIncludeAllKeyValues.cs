@@ -10,110 +10,10 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldKeyValueColl
 public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : StyledTypeBuilder
 {
     public TExt AlwaysAddAll<TKey, TValue>
-    (string fieldName, ConcurrentDictionary<TKey, TValue>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartDictionary();
-            foreach (var kvp in value)
-            {
-                _ = keyFormatString.IsNotNullOrEmpty() 
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
-                _ = valueFormatString.IsNotNullOrEmpty() 
-                    ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
-                    : stb.AppendOrNull(kvp.Value);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndDictionary();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll<TKey, TValue>
-    (string fieldName, Dictionary<TKey, TValue>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartDictionary();
-            foreach (var kvp in value)
-            {
-                _ = keyFormatString.IsNotNullOrEmpty() 
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
-                _ = valueFormatString.IsNotNullOrEmpty() 
-                    ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
-                    : stb.AppendOrNull(kvp.Value);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndDictionary();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll<TKey, TValue>
-    (string fieldName, IDictionary<TKey, TValue>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartDictionary();
-            foreach (var kvp in value)
-            {
-                _ = keyFormatString.IsNotNullOrEmpty() 
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
-                _ = valueFormatString.IsNotNullOrEmpty() 
-                    ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
-                    : stb.AppendOrNull(kvp.Value);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndDictionary();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartDictionary();
-            foreach (var kvp in value)
-            {
-                _ = keyFormatString.IsNotNullOrEmpty() 
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
-                _ = valueFormatString.IsNotNullOrEmpty() 
-                    ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
-                    : stb.AppendOrNull(kvp.Value);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndDictionary();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
+        AlwaysAddAllEnumerate(fieldName, value, valueFormatString, keyFormatString);
 
     public TExt AlwaysAddAll<TKey, TValue>
         (string fieldName, KeyValuePair<TKey, TValue>[]? value
@@ -169,33 +69,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TKey, TValue>
-        (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartDictionary();
-            foreach (var kvp in value)
-            {
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
-                _ = valueFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(kvp.Value, valueFormatString)
-                    : stb.AppendOrNull(kvp.Value);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndDictionary();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll<TKey, TValue>
+    public TExt AlwaysAddAllEnumerate<TKey, TValue>
         (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -221,7 +95,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TKey, TValue>
+    public TExt AlwaysAddAllEnumerate<TKey, TValue>
         (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -250,105 +124,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TKey, TValue>(string fieldName, ConcurrentDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull
-        where TValue : struct
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartDictionary();
-            foreach (var kvp in value)
-            {
-                _ = keyFormatString.IsNotNullOrEmpty() 
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndDictionary();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll<TKey, TValue>(string fieldName, Dictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull
-        where TValue : struct
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartDictionary();
-            foreach (var kvp in value)
-            {
-                _ = keyFormatString.IsNotNullOrEmpty() 
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndDictionary();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll<TKey, TValue>
-    (string fieldName, IDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartDictionary();
-            foreach (var kvp in value)
-            {
-                _ = keyFormatString.IsNotNullOrEmpty() 
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndDictionary();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
     public TExt AlwaysAddAll<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartDictionary();
-            foreach (var kvp in value)
-            {
-                _ = keyFormatString.IsNotNullOrEmpty() 
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndDictionary();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
+        where TValue : struct =>
+        AlwaysAddAllEnumerate(fieldName, value, valueStructStyler, keyFormatString);
 
     public TExt AlwaysAddAll<TKey, TValue>(string fieldName, KeyValuePair<TKey, TValue>[]? value
           , StructStyler<TValue> valueStructStyler
@@ -400,58 +181,32 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TKey, TValue>(string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
+    public TExt AlwaysAddAllEnumerate<TKey, TValue>(string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
+          , StructStyler<TValue> valueStructStyler
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+        where TValue : struct
+    {
+        stb.FieldNameJoin(fieldName);
+        if (value != null)
+        {
+            stb.StartDictionary();
+            foreach (var kvp in value)
+            {
+                _ = keyFormatString.IsNotNullOrEmpty()
+                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
+                    : stb.AppendOrNull(kvp.Key).Append(": ");
+                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.GoToNextCollectionItemStart();
+            }
+            stb.EndDictionary();
+        }
+        else
+            stb.Sb.Append(stb.OwningAppender.NullStyle);
+        return stb.Sb.AddGoToNext(stb);
+    }
+
+    public TExt AlwaysAddAllEnumerate<TKey, TValue>(string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartDictionary();
-            foreach (var kvp in value)
-            {
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndDictionary();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll<TKey, TValue>
-        (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-          , StructStyler<TValue> valueStructStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartDictionary();
-            foreach (var kvp in value)
-            {
-                _ = keyFormatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
-                    : stb.AppendOrNull(kvp.Key).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndDictionary();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll<TKey, TValue>
-        (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-          , StructStyler<TValue> valueStructStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct
     {
         stb.FieldNameJoin(fieldName);
@@ -476,106 +231,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TKey, TValue>(string fieldName, ConcurrentDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)
-        where TKey : struct
-        where TValue : struct
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartDictionary();
-            foreach (var kvp in value)
-            {
-                stb.AppendOrNull(kvp.Key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndDictionary();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
+    public TExt AlwaysAddAll<TKey, TValue>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
+      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+        where TKey : struct where TValue : struct=>
+        AlwaysAddAllEnumerate(fieldName, value, valueStructStyler, keyStructStyler);
 
-    public TExt AlwaysAddAll<TKey, TValue>(string fieldName, Dictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)
-        where TKey : struct
-        where TValue : struct
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartDictionary();
-            foreach (var kvp in value)
-            {
-                stb.AppendOrNull(kvp.Key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndDictionary();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll<TKey, TValue>
-    (string fieldName, IDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)
-        where TKey : struct
-        where TValue : struct
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartDictionary();
-            foreach (var kvp in value)
-            {
-                stb.AppendOrNull(kvp.Key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndDictionary();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)
-        where TKey : struct
-        where TValue : struct
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartDictionary();
-            foreach (var kvp in value)
-            {
-                stb.AppendOrNull(kvp.Key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndDictionary();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll<TKey, TValue>
-        (string fieldName, KeyValuePair<TKey, TValue>[]? value
-          , StructStyler<TValue> valueStructStyler
-          , StructStyler<TKey> keyStructStyler)
-        where TKey : struct
-        where TValue : struct
+    public TExt AlwaysAddAll<TKey, TValue>(string fieldName, KeyValuePair<TKey, TValue>[]? value
+          , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+        where TKey : struct where TValue : struct
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -595,12 +258,9 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TKey, TValue>
-        (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-          , StructStyler<TValue> valueStructStyler
-          , StructStyler<TKey> keyStructStyler)
-        where TKey : struct
-        where TValue : struct
+    public TExt AlwaysAddAll<TKey, TValue>(string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+          , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+        where TKey : struct where TValue : struct
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -620,29 +280,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TKey, TValue>(string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
-          , StructStyler<TValue> valueStructStyler , StructStyler<TKey> keyStructStyler)
-        where TKey : struct
-        where TValue : struct
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartDictionary();
-            foreach (var kvp in value)
-            {
-                stb.AppendOrNull(kvp.Key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndDictionary();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll<TKey, TValue> (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
+    public TExt AlwaysAddAllEnumerate<TKey, TValue> (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
         where TKey : struct where TValue : struct
     {
@@ -663,7 +301,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : Style
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TKey, TValue>(string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
+    public TExt AlwaysAddAllEnumerate<TKey, TValue>(string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
           , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
         where TKey : struct where TValue : struct
     {

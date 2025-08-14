@@ -9,9 +9,10 @@ public enum FormattingAppenderSinkType : byte
     None     = 0x00
   , File     = 0x01
   , Console  = 0x02
-  , Network  = 0x04
-  , Database = 0x08
-  , Custom   = 0x10
+  , Memory   = 0x04
+  , Network  = 0x08
+  , Database = 0x10
+  , Custom   = 0x20
   , Any      = 0xFF 
 }
 

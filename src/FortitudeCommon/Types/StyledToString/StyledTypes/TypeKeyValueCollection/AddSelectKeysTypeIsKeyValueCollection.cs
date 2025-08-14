@@ -10,98 +10,6 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeKeyValueCollectio
 public partial class KeyValueCollectionBuilder
 {
     public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (ConcurrentDictionary<TKey, TValue>? value, TKey[] selectKeys
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (ConcurrentDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (ConcurrentDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (ConcurrentDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-        (ConcurrentDictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(Dictionary<TKey, TValue>? value, TKey[] selectKeys
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (Dictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (Dictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (Dictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (Dictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(IDictionary<TKey, TValue>? value, TKey[] selectKeys
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (IDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-        (IDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (IDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (IDictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
         (IReadOnlyDictionary<TKey, TValue>? value, TKey[] selectKeys
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull 
@@ -170,7 +78,7 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
+    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue>
     (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull 
@@ -192,7 +100,7 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
+    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue>
         (IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull
@@ -217,92 +125,6 @@ public partial class KeyValueCollectionBuilder
         } 
         return stb.AddGoToNext();
     }
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (ConcurrentDictionary<TKey, TValue>? value, TKey[] selectKeys
-      , StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull where TValue : struct  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-        (ConcurrentDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
-          , StructStyler<TValue> valueStructStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull where TValue : struct   =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (ConcurrentDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull where TValue : struct   =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (ConcurrentDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull where TValue : struct   =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-        (ConcurrentDictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
-          , StructStyler<TValue> valueStructStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull where TValue : struct   =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(Dictionary<TKey, TValue>? value, TKey[] selectKeys
-      , StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull where TValue : struct   =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (Dictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull where TValue : struct   =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-        (Dictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-          , StructStyler<TValue> valueStructStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull where TValue : struct   =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(Dictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler
-     ,  [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull where TValue : struct   =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(Dictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler
-     ,  [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TKey : notnull where TValue : struct   =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(IDictionary<TKey, TValue>? value, TKey[] selectKeys
-      , StructStyler<TValue> valueStructStyler
-     ,  [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct   =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (IDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler
-     ,  [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct   =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-        (IDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-          , StructStyler<TValue> valueStructStyler
-         , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct   =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-        (IDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
-          , StructStyler<TValue> valueStructStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct   =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (IDictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct   =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyFormatString);
 
     public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
     (IReadOnlyDictionary<TKey, TValue>? value, TKey[] selectKeys
@@ -366,7 +188,7 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
+    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue>
     (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys, StructStyler<TValue> valueStructStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
     {
@@ -385,7 +207,7 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
+    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , IEnumerator<TKey> selectKeys, StructStyler<TValue> valueStructStyler 
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
     {
@@ -401,118 +223,6 @@ public partial class KeyValueCollectionBuilder
             _ = keyFormatString.IsNotNullOrEmpty()
                 ? stb.AppendFormattedOrNull(key, keyFormatString).AppendOrNull(": ")
                 : stb.AppendOrNull(key).Append(": ");
-            stb.AppendOrNull(keyValue, valueStructStyler);
-            stb.GoToNextCollectionItemStart();
-            hasValue = selectKeys.MoveNext();
-        } 
-        return stb.AddGoToNext();
-    }
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(ConcurrentDictionary<TKey, TValue>? value
-      , TKey[] selectKeys , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) 
-        where TKey : struct where TValue : struct =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyStructStyler);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-        (ConcurrentDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
-          , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) 
-        where TKey : struct where TValue : struct  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyStructStyler);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (ConcurrentDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) 
-        where TKey : struct where TValue : struct  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyStructStyler);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (ConcurrentDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) 
-        where TKey : struct where TValue : struct  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyStructStyler);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-    (ConcurrentDictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) 
-        where TKey : struct where TValue : struct  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyStructStyler);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(Dictionary<TKey, TValue>? value, TKey[] selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) 
-        where TKey : struct where TValue : struct  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyStructStyler);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(Dictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyStructStyler);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(Dictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyStructStyler);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(Dictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyStructStyler);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(Dictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyStructStyler);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(IDictionary<TKey, TValue>? value, TKey[] selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyStructStyler);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(IDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct  =>
-        AddWithSelectKeys((IReadOnlyDictionary<TKey, TValue>?)value, selectKeys, valueStructStyler, keyStructStyler);
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
-        (IDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-          , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
-    {
-        if (value != null)
-        {
-            for (var i = 0; i < selectKeys.Count; i++)
-            {
-                var key = selectKeys[i];
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendOrNull(key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(keyValue, valueStructStyler);
-                stb.GoToNextCollectionItemStart();
-            }
-        }
-        return stb.AddGoToNext();
-    }
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(IDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
-    {
-        if (value != null)
-        {
-            foreach (var key in selectKeys)
-            {
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendOrNull(key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(keyValue, valueStructStyler);
-                stb.GoToNextCollectionItemStart();
-            }
-        }
-        return stb.AddGoToNext();
-    }
-
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>(IDictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
-    {
-        var hasValue = selectKeys.MoveNext();
-        while(hasValue && value != null) 
-        {
-            var key = selectKeys.Current;
-            if (!value.TryGetValue(key, out var keyValue))
-            {
-                hasValue = selectKeys.MoveNext();
-                continue;
-            }
-            stb.AppendOrNull(key, keyStructStyler).Append(": ");
             stb.AppendOrNull(keyValue, valueStructStyler);
             stb.GoToNextCollectionItemStart();
             hasValue = selectKeys.MoveNext();
@@ -572,7 +282,7 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
+    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue>
         (IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
           , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
     {
@@ -589,7 +299,7 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddWithSelectKeys<TKey, TValue>
+    public KeyValueCollectionBuilder AddWithSelectKeysEnumerate<TKey, TValue>
     (IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
       , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
     {

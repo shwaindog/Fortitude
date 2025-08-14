@@ -30,8 +30,14 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     T Append(float value);
     T Append(string? value);
     T Append(string? value, int startIndex, int length);
+    T Append<TStruct>(TStruct arg0) where TStruct : struct, ISpanFormattable;
+    T Append<TStruct>(TStruct? arg0) where TStruct : struct, ISpanFormattable;
+    T Append(Span<char> value);
+    T Append(Span<char> value, int startIndex, int length);
     T Append(ReadOnlySpan<char> value);
+    T Append(ReadOnlySpan<char> value, int startIndex, int length);
     T Append(ReadOnlyMemory<char> value);
+    T Append(ReadOnlyMemory<char> value, int startIndex, int length);
     T Append(char[]? value, int startIndex, int length);
     T Append(ushort value);
     T Append(uint value);
@@ -39,6 +45,10 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
 
     unsafe T Append(char* value, int valueCount);
 
+    T AppendSpanFormattable<TClass>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TClass? arg0) where TClass : class, ISpanFormattable;
+
+    T AppendFormat<TStruct>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TStruct arg0) where TStruct : struct, ISpanFormattable;
+    T AppendFormat<TStruct>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TStruct? arg0) where TStruct : struct, ISpanFormattable;
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, string arg0);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, ReadOnlySpan<char> arg0);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0);
@@ -85,7 +95,10 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     T   Insert(int atIndex, sbyte value);
     T   Insert(int atIndex, float value);
     T   Insert(int atIndex, string? value);
+    T   Insert(int atIndex, Span<char> value);
+    T   Insert(int atIndex, Span<char> value, int startIndex, int length);
     T   Insert(int atIndex, ReadOnlySpan<char> value);
+    T   Insert(int atIndex, ReadOnlySpan<char> value, int startIndex, int length);
     T   Insert(int atIndex, char[]? value, int startIndex, int length);
     T   Insert(int atIndex, ushort value);
     T   Insert(int atIndex, uint value);

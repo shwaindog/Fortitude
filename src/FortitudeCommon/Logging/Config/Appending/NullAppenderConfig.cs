@@ -30,6 +30,8 @@ public class NullAppenderConfig : AppenderDefinitionConfig, INullAppenderConfig
 
     public NullAppenderConfig(INullAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, toClone.ConfigSubPath) { }
 
+    public static NullAppenderConfig SingletonInstance = new ();
+
     public override string AppenderType
     {
         get => this[nameof(AppenderType)] ?? SyncForwardingAppenderType;

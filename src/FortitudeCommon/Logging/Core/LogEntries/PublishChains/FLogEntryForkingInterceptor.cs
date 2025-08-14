@@ -3,7 +3,7 @@
 
 namespace FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
-public interface IFLogEntryForkingInterceptor : IFLogEntrySource, IFLogEntryPipelineInterceptor
+public interface IFLogEntryForkingInterceptor : IFLogEntrySource, IFLogEntryPipelineInterceptor, IForkingFLogEntrySink
 {
     new string Name { get; }
 }
@@ -13,10 +13,13 @@ public abstract class FLogEntryForkingInterceptor : FLogEntrySource, IFLogEntryF
 {
     protected FLogEntryForkingInterceptor()
     {
-        InBoundListener = OnReceiveLogEntry;
+        InBoundListener        = OnReceiveLogEntry;
+        ForkingInBoundListener = IncrementRefsOnReceiveLogEntry;
     }
 
     public FLogEntryPublishHandler InBoundListener { get; }
+
+    public FLogEntryPublishHandler ForkingInBoundListener { get; set; }
 
 
     private IFLogEntrySource? inBound;
@@ -28,6 +31,7 @@ public abstract class FLogEntryForkingInterceptor : FLogEntrySource, IFLogEntryF
         {
             if (inBound != null)
             {
+                inBound.Remove(this);
                 inBound.RemoveOptionalChild(this);
             }
             inBound = value;
@@ -55,6 +59,13 @@ public abstract class FLogEntryForkingInterceptor : FLogEntrySource, IFLogEntryF
         base.StateReset();
     }
 
+    public void IncrementRefsOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
+    {
+        logEntryEvent.LogEntry?.IncrementRefCount();
+        logEntryEvent.LogEntriesBatch?.IncrementRefCount();
+        OnReceiveLogEntry(logEntryEvent, fromPublisher);
+    }
+
     public virtual void OnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
         if (ShouldCheckLock)
@@ -75,9 +86,11 @@ public abstract class FLogEntryForkingInterceptor : FLogEntrySource, IFLogEntryF
         {
             SafeOnReceiveLogEntry(logEntryEvent, fromPublisher);
         }
+        logEntryEvent.LogEntry?.DecrementRefCount();
+        logEntryEvent.LogEntriesBatch?.DecrementRefCount();
     }
 
-    protected void SafeOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
+    protected virtual void SafeOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
         PublishLogEntryEvent(logEntryEvent);
     }

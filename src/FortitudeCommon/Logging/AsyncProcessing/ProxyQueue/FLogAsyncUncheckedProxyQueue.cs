@@ -20,7 +20,7 @@ public class FLogAsyncUncheckedProxyQueue(int queueNumber, IFLogAsyncQueue backi
         ActualQueue.FlushBufferToAppender(toFlush, fromAppender);
     }
 
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
     {
         ActualQueue.SendLogEntryEventTo(logEntryEvent, logEntrySinks, publishSource);
     }

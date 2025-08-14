@@ -120,12 +120,6 @@ public abstract class TargetingFLogEntrySource : FLogEntryPublishChainTreeNode, 
             }
             return false;
         }
-        var checkCain = toRemove as ITargetingFLogEntrySource;
-        while (checkCain != null)
-        {
-            if (checkCain == this) return false;
-            checkCain = checkCain.OutBound as ITargetingFLogEntrySource;
-        }
         while (true)
         {
             using var myLock = AcquireUpdateTreeLock(100);
@@ -198,6 +192,12 @@ public abstract class TargetingFLogEntrySource : FLogEntryPublishChainTreeNode, 
 
     protected virtual void SafeOnPublishLogEntryEvent(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource? fromSource = null)
     {
-        PublishedLogEntryEvent?.Invoke(logEntryEvent, fromSource ?? this);
+        var publishEntryHandler = PublishedLogEntryEvent;
+        if (publishEntryHandler != null)
+        {
+            logEntryEvent.LogEntry?.IncrementRefCount();
+            logEntryEvent.LogEntriesBatch?.IncrementRefCount();
+            publishEntryHandler(logEntryEvent, fromSource ?? this);
+        }
     }
 }

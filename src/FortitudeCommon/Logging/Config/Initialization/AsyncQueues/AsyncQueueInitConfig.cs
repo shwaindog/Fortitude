@@ -248,7 +248,7 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
                .Field.AlwaysAdd(nameof(MaxAsyncProcessing), MaxAsyncProcessing)
                .Field.AlwaysAdd(nameof(DefaultAppenderAsyncQueueNumber), DefaultAppenderAsyncQueueNumber)
                .Field.AlwaysAdd(nameof(DefaultAppenderFlushQueueNumber), DefaultAppenderFlushQueueNumber)
-               .KeyedCollectionField.WhenPopulatedAddAll(nameof(AsyncQueues), (IEnumerable<KeyValuePair<byte, IMutableAsyncQueueConfig>>)AsyncQueues)
+               .KeyedCollectionField.WhenPopulatedAddAllEnumerate(nameof(AsyncQueues), AsyncQueues.GetEnumerator())
                .Complete();
     }
 

@@ -2,7 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
 using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable.Strings;
@@ -57,9 +56,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TNum>(string fieldName, TNum[]? value
+    public TExt AlwaysAddAll<TFmtStruct>(string fieldName, TFmtStruct[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TNum : struct, INumber<TNum>
+        where TFmtStruct : struct, ISpanFormattable
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -79,9 +78,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TNum>(string fieldName, TNum?[]? value
+    public TExt AlwaysAddAll<TFmtStruct>(string fieldName, TFmtStruct?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TNum : struct, INumber<TNum>
+        where TFmtStruct : struct, ISpanFormattable
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -160,7 +159,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IStyledToStringObject?[]? value)
+    public TExt AlwaysAddAll<TStyledObj>(string fieldName, TStyledObj[]? value)
+        where TStyledObj : class, IStyledToStringObject 
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -178,28 +178,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IFrozenString?[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartCollection();
-            for (var i = 0; i < value.Length; i++)
-            {
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(value[i], formatString)
-                    : stb.AppendOrNull(value[i]);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndCollection();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll(string fieldName, IStringBuilder?[]? value
+    public TExt AlwaysAddAll(string fieldName, ICharSequence?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -242,8 +221,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
     
     [CallsObjectToString]
-    public TExt AlwaysAddAll(string fieldName, object?[]? value
+    public TExt AlwaysAddAllMatch<T>(string fieldName, T[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where T : class
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -299,9 +279,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TNum>(string fieldName, IReadOnlyList<TNum>? value
+    public TExt AlwaysAddAll<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TNum : struct, INumber<TNum>
+        where TFmtStruct : struct, ISpanFormattable
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -321,9 +301,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TNum>(string fieldName, IReadOnlyList<TNum?>? value
+    public TExt AlwaysAddAll<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TNum : struct, INumber<TNum>
+        where TFmtStruct : struct, ISpanFormattable
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -406,28 +386,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IReadOnlyList<IFrozenString?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartCollection();
-            for (var i = 0; i < value.Count; i++)
-            {
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(value[i], formatString)
-                    : stb.AppendOrNull(value[i]);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndCollection();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll(string fieldName, IReadOnlyList<IStringBuilder?>? value
+    public TExt AlwaysAddAll(string fieldName, IReadOnlyList<ICharSequence?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -470,8 +429,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
     
     [CallsObjectToString]
-    public TExt AlwaysAddAll(string fieldName, IReadOnlyList<object?>? value
+    public TExt AlwaysAddAllMatch<T>(string fieldName, IReadOnlyList<T>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where T : class
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -491,7 +451,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IReadOnlyList<IStyledToStringObject?>? value)
+    public TExt AlwaysAddAll<TStyledObj>(string fieldName, IReadOnlyList<TStyledObj>? value)
+        where TStyledObj : class, IStyledToStringObject 
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -509,7 +470,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IEnumerable<bool>? value) 
+    public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerable<bool>? value) 
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -527,7 +488,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IEnumerable<bool?>? value) 
+    public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerable<bool?>? value) 
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -545,9 +506,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TNum>(string fieldName, IEnumerable<TNum>? value
+    public TExt AlwaysAddAllEnumerate<TFmtStruct>(string fieldName, IEnumerable<TFmtStruct>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TNum : struct, INumber<TNum>
+        where TFmtStruct : struct, ISpanFormattable
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -567,9 +528,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TNum>(string fieldName, IEnumerable<TNum?>? value
+    public TExt AlwaysAddAllEnumerate<TFmtStruct>(string fieldName, IEnumerable<TFmtStruct?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TNum : struct, INumber<TNum>
+        where TFmtStruct : struct, ISpanFormattable
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -590,7 +551,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
     
 
-    public TExt AlwaysAddAll<TStruct>
+    public TExt AlwaysAddAllEnumerate<TStruct>
         (string fieldName, IEnumerable<TStruct>? value, StructStyler<TStruct> structToString) 
         where TStruct : struct
     {
@@ -610,7 +571,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TStruct>
+    public TExt AlwaysAddAllEnumerate<TStruct>
         (string fieldName, IEnumerable<TStruct?>? value, StructStyler<TStruct> structToString) 
         where TStruct : struct
     {
@@ -631,7 +592,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
 
-    public TExt AlwaysAddAll(string fieldName, IEnumerable<string?>? value
+    public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerable<string?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -652,7 +613,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IEnumerable<IFrozenString?>? value
+    public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerable<ICharSequence?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -673,7 +634,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IEnumerable<IStringBuilder?>? value
+    public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerable<StringBuilder?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -694,28 +655,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IEnumerable<StringBuilder?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-    {
-        stb.FieldNameJoin(fieldName);
-        if (value != null)
-        {
-            stb.StartCollection();
-            foreach (var item in value)
-            {
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(item, formatString)
-                    : stb.AppendOrNull(item);
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndCollection();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll(string fieldName, IEnumerable<IStyledToStringObject?>? value)
+    public TExt AlwaysAddAllEnumerate<TStyledObj>(string fieldName, IEnumerable<TStyledObj>? value)
+        where TStyledObj : class, IStyledToStringObject 
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -734,8 +675,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
     [CallsObjectToString]
-    public TExt AlwaysAddAll(string fieldName, IEnumerable<object?>? value
+    public TExt AlwaysAddAllMatchEnumerate<T>(string fieldName, IEnumerable<T>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where T : class
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -755,7 +697,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IEnumerator<bool>? value) 
+    public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerator<bool>? value) 
     {
         stb.FieldNameJoin(fieldName);
         var hasValue = value?.MoveNext() ?? false;
@@ -775,7 +717,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IEnumerator<bool?>? value) 
+    public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerator<bool?>? value) 
     {
         stb.FieldNameJoin(fieldName);
         var hasValue = value?.MoveNext() ?? false;
@@ -795,9 +737,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TNum>(string fieldName, IEnumerator<TNum>? value
+    public TExt AlwaysAddAllEnumerate<TFmtStruct>(string fieldName, IEnumerator<TFmtStruct>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TNum : struct, INumber<TNum>
+        where TFmtStruct : struct, ISpanFormattable
     {
         stb.FieldNameJoin(fieldName);
         var hasValue = value?.MoveNext() ?? false;
@@ -819,9 +761,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TNum>(string fieldName, IEnumerator<TNum?>? value
+    public TExt AlwaysAddAllEnumerate<TFmtStruct>(string fieldName, IEnumerator<TFmtStruct?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TNum : struct, INumber<TNum>
+        where TFmtStruct : struct, ISpanFormattable
     {
         stb.FieldNameJoin(fieldName);
         var hasValue = value?.MoveNext() ?? false;
@@ -844,7 +786,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
     
 
-    public TExt AlwaysAddAll<TStruct>
+    public TExt AlwaysAddAllEnumerate<TStruct>
         (string fieldName, IEnumerator<TStruct>? value, StructStyler<TStruct> structToString) 
         where TStruct : struct
     {
@@ -866,7 +808,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll<TStruct>
+    public TExt AlwaysAddAllEnumerate<TStruct>
         (string fieldName, IEnumerator<TStruct?>? value, StructStyler<TStruct> structToString) 
         where TStruct : struct
     {
@@ -889,7 +831,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
 
-    public TExt AlwaysAddAll(string fieldName, IEnumerator<string?>? value
+    public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerator<string?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -912,7 +854,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IEnumerator<IFrozenString?>? value
+    public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerator<ICharSequence?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -935,7 +877,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IEnumerator<IStringBuilder?>? value
+    public TExt AlwaysAddAllEnumerate(string fieldName, IEnumerator<StringBuilder?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);
@@ -958,30 +900,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IEnumerator<StringBuilder?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-    {
-        stb.FieldNameJoin(fieldName);
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
-        {
-            stb.StartCollection();
-            while (hasValue)
-            {
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(value!.Current, formatString)
-                    : stb.AppendOrNull(value!.Current);
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndCollection();
-        }
-        else
-            stb.Sb.Append(stb.OwningAppender.NullStyle);
-        return stb.Sb.AddGoToNext(stb);
-    }
-
-    public TExt AlwaysAddAll(string fieldName, IEnumerator<IStyledToStringObject?>? value)
+    public TExt AlwaysAddAllEnumerate<TStyledObj>(string fieldName, IEnumerator<TStyledObj>? value)
+        where TStyledObj : class, IStyledToStringObject 
     {
         stb.FieldNameJoin(fieldName);
         var hasValue = value?.MoveNext() ?? false;
@@ -1002,7 +922,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
     [CallsObjectToString]
-    public TExt AlwaysAddAll(string fieldName, IEnumerator<object?>? value
+    public TExt AlwaysAddAllMatchEnumerate<T>(string fieldName, IEnumerator<T>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         stb.FieldNameJoin(fieldName);

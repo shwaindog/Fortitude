@@ -68,7 +68,7 @@ public class ThreadPoolAsyncQueue : FLogAsyncQueue
         TryLaunchThreadPoolReceiver();
     }
 
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
     {
         var slot = threadPoolRequestQueue.Claim();
 

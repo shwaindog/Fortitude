@@ -21,14 +21,14 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
     public TExt AlwaysAdd(string fieldName, bool? value) => 
         stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(stb);
 
-    public TExt AlwaysAdd<TNum>(string fieldName, TNum value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum> => 
+    public TExt AlwaysAdd<TFmtStruct>(string fieldName, TFmtStruct value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable => 
         formatString.IsNotNullOrEmpty() 
             ? AlwaysAddWithFormatting(fieldName, value, formatString) 
             : stb.FieldNameJoin(fieldName).Append(value).AddGoToNext(stb);
 
-    public TExt AlwaysAdd<TNum>(string fieldName, TNum? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum> => 
+    public TExt AlwaysAdd<TFmtStruct>(string fieldName, TFmtStruct? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable => 
         formatString.IsNotNullOrEmpty() 
             ? AlwaysAddWithFormatting(fieldName, value, formatString) 
             : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(stb);
@@ -52,29 +52,29 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
     public TExt AlwaysAdd(string fieldName, string? value, int startIndex, int length) =>
         stb.FieldNameJoin(fieldName).AddNullOrValue(value, startIndex, length, stb);
 
+    public TExt AlwaysAdd(string fieldName, char[]? value) =>
+        stb.FieldNameJoin(fieldName).AddNullOrValue(value, stb);
+
     public TExt AlwaysAdd(string fieldName, char[]? value, int startIndex, int length) =>
         stb.FieldNameJoin(fieldName).AddNullOrValue(value, startIndex, length, stb);
 
     public TExt AlwaysAdd(string fieldName, IStyledToStringObject? value) => 
         stb.FieldNameJoin(fieldName).AddNullOrValue(value, stb);
 
-    public TExt AlwaysAdd(string fieldName, IFrozenString? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 
-        formatString.IsNotNullOrEmpty() 
-            ? AlwaysAddWithFormatting(fieldName, value, formatString) 
-            : stb.FieldNameJoin(fieldName).AddNullOrValue(value, stb);
+    public TExt AlwaysAdd(string fieldName, ICharSequence? value) => 
+        stb.FieldNameJoin(fieldName).AddNullOrValue(value, stb);
 
-    public TExt AlwaysAdd(string fieldName, IStringBuilder? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 
-        formatString.IsNotNullOrEmpty() 
-            ? AlwaysAddWithFormatting(fieldName, value, formatString) 
-            : stb.FieldNameJoin(fieldName).AddNullOrValue(value, stb);
+    public TExt AlwaysAdd(string fieldName, ICharSequence? value, int startIndex, int length) => 
+         stb.FieldNameJoin(fieldName)
+            .Append(value, startIndex, Math.Clamp(length, 0, (value?.Length ?? startIndex) - startIndex))
+            .AddGoToNext(stb);
 
-    public TExt AlwaysAdd(string fieldName, StringBuilder? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 
-        formatString.IsNotNullOrEmpty() 
-            ? AlwaysAddWithFormatting(fieldName, value, formatString) 
-            : stb.FieldNameJoin(fieldName).AddNullOrValue(value, stb);
+    public TExt AlwaysAdd(string fieldName, StringBuilder? value) => 
+        stb.FieldNameJoin(fieldName).AddNullOrValue(value, stb);
+
+    public TExt AlwaysAdd(string fieldName, StringBuilder? value, int startIndex, int length) => 
+        stb.FieldNameJoin(fieldName).Append(value, startIndex, Math.Clamp(length, 0, (value?.Length ?? startIndex) - startIndex))
+           .AddGoToNext(stb);
 
     [CallsObjectToString]
     public TExt AlwaysAdd(string fieldName, object? value
@@ -97,18 +97,6 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
 
     public TExt AlwaysAddWithFormatting(string fieldName, string? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) =>
-        stb.FieldNameJoin(fieldName, stb).AppendFormattedOrNull(value, formatString).AddGoToNext(stb);
-
-    public TExt AlwaysAddWithFormatting(string fieldName, IFrozenString? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) =>
-        stb.FieldNameJoin(fieldName, stb).AppendFormattedOrNull(value, formatString).AddGoToNext(stb);
-
-    public TExt AlwaysAddWithFormatting(string fieldName, IStringBuilder? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) => 
-        stb.FieldNameJoin(fieldName, stb).AppendFormattedOrNull(value, formatString).AddGoToNext(stb);
-
-    public TExt AlwaysAddWithFormatting(string fieldName, StringBuilder? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) => 
         stb.FieldNameJoin(fieldName, stb).AppendFormattedOrNull(value, formatString).AddGoToNext(stb);
 
     public TExt AlwaysAddWithFormatting(string fieldName, object? value

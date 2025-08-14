@@ -10,27 +10,19 @@ public interface IFLogEntrySink : IFLogEntryEventReceiver, IDisposable
     IFLogEntrySource? InBound { get; set; }
 }
 
+public interface IForkingFLogEntrySink : IFLogEntrySink
+{
+    FLogEntryPublishHandler ForkingInBoundListener { get; }
+}
+
 public abstract class FLogEntrySinkBase : FLogEntryEventReceiverBase, IFLogEntrySink
 {
-    private IFLogEntrySource? inBound;
-
-    public FLogEntrySinkBase Initialize()
+    public virtual FLogEntrySinkBase Initialize()
     {
         return this;
     }
 
-    public IFLogEntrySource? InBound
-    {
-        get => inBound;
-        set
-        {
-            if (inBound != null)
-            {
-                inBound.RemoveOptionalChild(this);
-            }
-            inBound = value;
-        }
-    }
+    public virtual IFLogEntrySource? InBound { get; set; }
 
     public IFLogEntryRootPublisher? RootInBoundEndpoint =>
         InBound as IFLogEntryRootPublisher ?? (InBound is IFLogEntryForkingInterceptor branch
@@ -39,18 +31,54 @@ public abstract class FLogEntrySinkBase : FLogEntryEventReceiverBase, IFLogEntry
 
     public override T LogEntryChainVisit<T>(T visitor) => visitor.Accept(this);
 
-
     public virtual void Dispose()
     {
-        inBound = null;
+        InBound = null;
         DecrementRefCount();
     }
 
     public override void StateReset()
     {
-        inBound = null;
+        InBound = null;
         base.StateReset();
     }
+}
+
+public abstract class ForkingFLogEntrySinkBase : FLogEntrySinkBase, IForkingFLogEntrySink
+{
+    protected ForkingFLogEntrySinkBase()
+    {
+        ForkingInBoundListener = IncrementRefsOnReceiveLogEntry;
+    }
+
+    public override ForkingFLogEntrySinkBase Initialize()
+    {
+        base.Initialize();
+
+        return this;
+    }
+
+    public override IFLogEntrySource? InBound
+    {
+        get => base.InBound;
+        set
+        {
+            if (base.InBound != null)
+            {
+                base.InBound.RemoveOptionalChild(this);
+            }
+            base.InBound = value;
+        }
+    }
+
+    public void IncrementRefsOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
+    {
+        logEntryEvent.LogEntry?.IncrementRefCount();
+        logEntryEvent.LogEntriesBatch?.IncrementRefCount();
+        OnReceiveLogEntry(logEntryEvent, fromPublisher);
+    }
+
+    public FLogEntryPublishHandler ForkingInBoundListener { get; set; }
 }
 
 public class FLogEntrySinkContainer : FLogEntrySinkBase, IFLogEntrySink

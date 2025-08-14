@@ -23,7 +23,7 @@ public class FLogEntryPool
             var mutString = new MutableString(NewLogEntryCharCapacity);
             return new FLogEntry(mutString);
         });
-        backingPool.RegisterFactory(() => new ReusableList<IFLogEntry>(NewBatchLogEntryListSize));
+        backingPool.RegisterFactory(() => new LogEntriesBatch(NewBatchLogEntryListSize));
     }
 
     public IRecycler Recycler => backingPool;
@@ -41,9 +41,9 @@ public class FLogEntryPool
         return backingPool.Borrow<FLogEntry>();
     }
 
-    public ReusableList<IFLogEntry> SourceBatchLogEntryContainer(int minimumSize)
+    public ILogEntriesBatch SourceBatchLogEntryContainer(int minimumSize)
     {
-        var container = backingPool.Borrow<ReusableList<IFLogEntry>>();
+        var container = backingPool.Borrow<LogEntriesBatch>();
         container.Capacity = Math.Max(container.Capacity,  minimumSize);
         return container;
     }

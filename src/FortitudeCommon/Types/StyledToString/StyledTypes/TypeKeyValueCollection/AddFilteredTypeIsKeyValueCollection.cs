@@ -9,31 +9,11 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeKeyValueCollectio
 
 public partial class KeyValueCollectionBuilder
 {
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(ConcurrentDictionary<TKey, TValue>? value
-        , KeyValuePredicate<TKey, TValue> filterPredicate 
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull =>
-        AddFiltered((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue> (Dictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull =>
-        AddFiltered((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue> (IDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
-        AddFiltered((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueFormatString, keyFormatString);
-
     public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate 
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
-        AddFiltered((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueFormatString, keyFormatString);
+        AddFilteredEnumerate(value, filterPredicate, valueFormatString, keyFormatString);
 
     public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate 
@@ -81,13 +61,7 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(ICollection<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
-        AddFiltered((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueFormatString, keyFormatString);
-
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
+    public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate 
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -110,7 +84,7 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
+    public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate 
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -140,33 +114,12 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(ConcurrentDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
-      , StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull where TValue : struct =>
-        AddFiltered((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(Dictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
-      , StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull where TValue : struct =>
-        AddFiltered((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(IDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
-      , StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct =>
-        AddFiltered((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueStructStyler, keyFormatString);
-
     public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate 
       , StructStyler<TValue> valueStructStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct =>
-        AddFiltered((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueStructStyler, keyFormatString);
+        AddFilteredEnumerate(value, filterPredicate, valueStructStyler, keyFormatString);
 
     public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
@@ -211,14 +164,7 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue> (ICollection<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
-          , StructStyler<TValue> valueStructStyler
-          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : struct =>
-        AddFiltered((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueStructStyler, keyFormatString);
-
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue> (IEnumerable<KeyValuePair<TKey, TValue>>? value
+    public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue> (IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate 
           , StructStyler<TValue> valueStructStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -240,7 +186,7 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
+    public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate,  StructStyler<TValue> valueStructStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct
@@ -268,29 +214,11 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(ConcurrentDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
-        where TKey : struct where TValue : struct =>
-        AddFiltered((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueStructStyler, keyStructStyler);
-
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(Dictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
-        where TKey : struct where TValue : struct =>
-        AddFiltered((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueStructStyler, keyStructStyler);
-
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(IDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
-        where TKey : struct where TValue : struct =>
-        AddFiltered((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueStructStyler, keyStructStyler);
-
     public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate 
       , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
         where TKey : struct where TValue : struct =>
-        AddFiltered((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueStructStyler, keyStructStyler);
+        AddFilteredEnumerate((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueStructStyler, keyStructStyler);
 
     public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
@@ -330,13 +258,7 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(ICollection<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate 
-          , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
-        where TKey : struct where TValue : struct =>
-        AddFiltered((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueStructStyler, keyStructStyler);
-
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
+    public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate 
           , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
         where TKey : struct
@@ -356,7 +278,7 @@ public partial class KeyValueCollectionBuilder
         return stb.AddGoToNext();
     }
 
-    public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
+    public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate 
           , StructStyler<TValue> valueStructStyler
           , StructStyler<TKey> keyStructStyler)

@@ -111,6 +111,37 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         }
     }
 
+    public void Add(Span<char> item)
+    {
+        if (RemainingCapacity < item.Length)
+            throw new
+                IndexOutOfRangeException($"Attempting to add {item.Length} chars to RecyclingCharArray with RemainingCapacity = {RemainingCapacity}");
+        if (length < backingArray!.Length)
+        {
+            var stopIndex = Math.Min(RemainingCapacity, item.Length);
+            for (int i = 0; i < stopIndex; i++)
+            {
+                backingArray[length++] = item[i];
+            }
+        }
+    }
+
+    public void Add(Span<char> item, int startIndex, int lengthToAdd)
+    {
+        var amountToAdd = Math.Min(item.Length - startIndex, lengthToAdd);
+        if (RemainingCapacity < amountToAdd)
+            throw new
+                IndexOutOfRangeException($"Attempting to add {amountToAdd} chars to RecyclingCharArray with RemainingCapacity = {RemainingCapacity}");
+        if (length < backingArray!.Length)
+        {
+            var stopIndex = Math.Min(RemainingCapacity, Math.Min(startIndex + lengthToAdd, item.Length));
+            for (int i = startIndex; i < stopIndex; i++)
+            {
+                backingArray[length++] = item[i];
+            }
+        }
+    }
+
     public void Add(ReadOnlySpan<char> item)
     {
         if (RemainingCapacity < item.Length)
@@ -479,6 +510,25 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         }
     }
 
+    public void Insert(int index, ReadOnlySpan<char> item, int fromIndex, int itemMaxCopy)
+    {
+        var itemLen         = Math.Min(item.Length - fromIndex, itemMaxCopy);
+        var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen);
+        for (int i = cappedLengthEnd; i > index && i > 0; i--)
+        {
+            backingArray[i] = backingArray![i - itemLen];
+        }
+        if (index < backingArray!.Length)
+        {
+            var stopIndex = Math.Min(RemainingCapacity, itemLen);
+            for (int i = fromIndex; i < stopIndex; i++)
+            {
+                backingArray[length++] = item[i];
+            }
+            length += stopIndex;
+        }
+    }
+
     public void Insert(int index, Span<char> item)
     {
         var itemLen         = item.Length;
@@ -491,6 +541,25 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         {
             var stopIndex = Math.Min(RemainingCapacity, item.Length);
             for (int i = 0; i < stopIndex; i++)
+            {
+                backingArray[length++] = item[i];
+            }
+            length += stopIndex;
+        }
+    }
+
+    public void Insert(int index, Span<char> item, int fromIndex, int itemMaxCopy)
+    {
+        var itemLen         = Math.Min(item.Length - fromIndex, itemMaxCopy);
+        var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen);
+        for (int i = cappedLengthEnd; i > index && i > 0; i--)
+        {
+            backingArray[i] = backingArray![i - itemLen];
+        }
+        if (index < backingArray!.Length)
+        {
+            var stopIndex = Math.Min(RemainingCapacity, itemLen);
+            for (int i = fromIndex; i < stopIndex; i++)
             {
                 backingArray[length++] = item[i];
             }

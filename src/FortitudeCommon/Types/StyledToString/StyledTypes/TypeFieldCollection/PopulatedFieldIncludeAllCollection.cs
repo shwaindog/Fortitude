@@ -18,34 +18,31 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt WhenPopulatedAddAll(string fieldName, bool?[]? value) =>
         value?.Any() ?? false ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll<TNum>(string fieldName, TNum[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum> =>
+    public TExt WhenPopulatedAddAll<TFmtStruct>(string fieldName, TFmtStruct[]? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
         value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll<TNum>(string fieldName, TNum?[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum> =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    // public TExt WhenPopulatedAddAll<TFmtStruct>(string fieldName, TFmtStruct?[]? value
+    //   , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    //     value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAll<TStruct>
         (string fieldName, TStruct[]? value, StructStyler<TStruct> structToString) where TStruct : struct =>
         value?.Any() ?? false ? AlwaysAddAll(fieldName, value, structToString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll<TStruct>
-        (string fieldName, TStruct?[]? value, StructStyler<TStruct> structToString) where TStruct : struct =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, structToString) : stb.StyleTypeBuilder;
+    // public TExt WhenPopulatedAddAll<TStruct>
+    //     (string fieldName, TStruct?[]? value, StructStyler<TStruct> structToString) where TStruct : struct =>
+    //     value?.Any() ?? false ? AlwaysAddAll(fieldName, value, structToString) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAll(string fieldName, string?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll(string fieldName, IStyledToStringObject?[]? value) =>
+    public TExt WhenPopulatedAddAll<TStyledObj>(string fieldName, TStyledObj[]? value)
+        where TStyledObj : class, IStyledToStringObject =>
         value?.Any() ?? false ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll(string fieldName, IFrozenString?[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
-
-    public TExt WhenPopulatedAddAll(string fieldName, IStringBuilder?[]? value
+    public TExt WhenPopulatedAddAll(string fieldName, ICharSequence?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
@@ -55,9 +52,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
 
     [CallsObjectToString]
-    public TExt WhenPopulatedAddAll(string fieldName, object?[]? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAllMatch<T>(string fieldName, T[]? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+        where T : class =>
+        value?.Any() ?? false ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
 
     public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<bool>? value) =>
@@ -66,34 +64,31 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<bool?>? value) =>
         value?.Any() ?? false ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll<TNum>(string fieldName, IReadOnlyList<TNum>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum> =>
+    public TExt WhenPopulatedAddAll<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
         value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll<TNum>(string fieldName, IReadOnlyList<TNum?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum> =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    // public TExt WhenPopulatedAddAll<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value
+    //   , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    //     value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAll<TStruct>
         (string fieldName, IReadOnlyList<TStruct>? value, StructStyler<TStruct> structToString) where TStruct : struct =>
         value?.Any() ?? false ? AlwaysAddAll(fieldName, value, structToString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll<TStruct>
-        (string fieldName, IReadOnlyList<TStruct?>? value, StructStyler<TStruct> structToString) where TStruct : struct =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, structToString) : stb.StyleTypeBuilder;
+    // public TExt WhenPopulatedAddAll<TStruct>
+    //     (string fieldName, IReadOnlyList<TStruct?>? value, StructStyler<TStruct> structToString) where TStruct : struct =>
+    //     value?.Any() ?? false ? AlwaysAddAll(fieldName, value, structToString) : stb.StyleTypeBuilder;
 
     public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<string?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<IStyledToStringObject?>? value) =>
+    public TExt WhenPopulatedAddAll<TStyledObj>(string fieldName, IReadOnlyList<TStyledObj>? value)
+        where TStyledObj : class, IStyledToStringObject =>
         value?.Any() ?? false ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<IFrozenString?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
-
-    public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<IStringBuilder?>? value
+    public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<ICharSequence?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
@@ -103,59 +98,58 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
 
     [CallsObjectToString]
-    public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<object?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAllMatch<T>(string fieldName, IReadOnlyList<T>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
+        where T : class =>
+        value?.Any() ?? false ? AlwaysAddAllMatch(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
 
-    public TExt WhenPopulatedAddAll(string fieldName, IEnumerable<bool>? value) =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerable<bool>? value) =>
+        value?.Any() ?? false ? AlwaysAddAllEnumerate(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll(string fieldName, IEnumerable<bool?>? value) =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerable<bool?>? value) =>
+        value?.Any() ?? false ? AlwaysAddAllEnumerate(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll<TNum>(string fieldName, IEnumerable<TNum>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum> =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAllEnumerate<TFmtStruct>(string fieldName, IEnumerable<TFmtStruct>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+        value?.Any() ?? false ? AlwaysAddAllEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll<TNum>(string fieldName, IEnumerable<TNum?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum> =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    // public TExt WhenPopulatedAddAllEnumerate<TFmtStruct>(string fieldName, IEnumerable<TFmtStruct?>? value
+    //   , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
+    //     value?.Any() ?? false ? AlwaysAddAllEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll<TStruct>
+    public TExt WhenPopulatedAddAllEnumerate<TStruct>
         (string fieldName, IEnumerable<TStruct>? value, StructStyler<TStruct> structToString) where TStruct : struct =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, structToString) : stb.StyleTypeBuilder;
+        value?.Any() ?? false ? AlwaysAddAllEnumerate(fieldName, value, structToString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll<TStruct>
-        (string fieldName, IEnumerable<TStruct?>? value, StructStyler<TStruct> structToString) where TStruct : struct =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, structToString) : stb.StyleTypeBuilder;
+    // public TExt WhenPopulatedAddAllEnumerate<TStruct>
+    //     (string fieldName, IEnumerable<TStruct?>? value, StructStyler<TStruct> structToString) where TStruct : struct =>
+    //     value?.Any() ?? false ? AlwaysAddAllEnumerate(fieldName, value, structToString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll(string fieldName, IEnumerable<string?>? value
+    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerable<string?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+        value?.Any() ?? false ? AlwaysAddAllEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll(string fieldName, IEnumerable<IStyledToStringObject?>? value) =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAllEnumerate<TStyledObj>(string fieldName, IEnumerable<TStyledObj>? value)
+        where TStyledObj : class, IStyledToStringObject =>
+        value?.Any() ?? false ? AlwaysAddAllEnumerate(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll(string fieldName, IEnumerable<IFrozenString?>? value
+    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerable<ICharSequence?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+        value?.Any() ?? false ? AlwaysAddAllEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll(string fieldName, IEnumerable<IStringBuilder?>? value
+    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerable<StringBuilder?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
-
-    public TExt WhenPopulatedAddAll(string fieldName, IEnumerable<StringBuilder?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+        value?.Any() ?? false ? AlwaysAddAllEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
 
     [CallsObjectToString]
-    public TExt WhenPopulatedAddAll(string fieldName, IEnumerable<object?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        value?.Any() ?? false ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    public TExt WhenPopulatedAddAllMatchEnumerate<T>(string fieldName, IEnumerable<T>? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
+        where T : class =>
+        value?.Any() ?? false ? AlwaysAddAllMatchEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenPopulatedAddAll(string fieldName, IEnumerator<bool>? value) 
+    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerator<bool>? value) 
     {
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
@@ -174,7 +168,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedAddAll(string fieldName, IEnumerator<bool?>? value) 
+    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerator<bool?>? value) 
     {
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
@@ -193,9 +187,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedAddAll<TNum>(string fieldName, IEnumerator<TNum>? value
+    public TExt WhenPopulatedAddAllEnumerate<TFmtStruct>(string fieldName, IEnumerator<TFmtStruct>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TNum : struct, INumber<TNum>
+        where TFmtStruct : struct, ISpanFormattable
     {
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
@@ -216,53 +210,32 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedAddAll<TNum>(string fieldName, IEnumerator<TNum?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
-        where TNum : struct, INumber<TNum>
-    {
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
-        {   
-            stb.FieldNameJoin(fieldName);
-            stb.StartCollection();
-            while (hasValue)
-            {
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(value!.Current, formatString)
-                    : stb.Sb.AppendOrNull(value!.Current);
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndCollection();
-            return stb.Sb.AddGoToNext(stb);
-        }
-        return stb.StyleTypeBuilder;
-    }
+    // public TExt WhenPopulatedAddAllEnumerate<TFmtStruct>(string fieldName, IEnumerator<TFmtStruct?>? value
+    //   , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) 
+    //     where TFmtStruct : struct, ISpanFormattable
+    // {
+    //     var hasValue = value?.MoveNext() ?? false;
+    //     if (hasValue)
+    //     {   
+    //         stb.FieldNameJoin(fieldName);
+    //         stb.StartCollection();
+    //         while (hasValue)
+    //         {
+    //             _ = formatString.IsNotNullOrEmpty()
+    //                 ? stb.AppendFormattedOrNull(value!.Current, formatString)
+    //                 : stb.Sb.AppendOrNull(value!.Current);
+    //             hasValue = value.MoveNext();
+    //             stb.GoToNextCollectionItemStart();
+    //         }
+    //         stb.EndCollection();
+    //         return stb.Sb.AddGoToNext(stb);
+    //     }
+    //     return stb.StyleTypeBuilder;
+    // }
     
 
-    public TExt WhenPopulatedAddAll<TStruct>
+    public TExt WhenPopulatedAddAllEnumerate<TStruct>
         (string fieldName, IEnumerator<TStruct>? value, StructStyler<TStruct> structToString) 
-        where TStruct : struct
-    {
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
-        {   
-            stb.FieldNameJoin(fieldName);
-            stb.StartCollection();
-            while (hasValue)
-            {
-                structToString(value!.Current, stb.OwningAppender);
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndCollection();
-            return stb.Sb.AddGoToNext(stb);
-        }
-        return stb.StyleTypeBuilder;
-    }
-
-    public TExt WhenPopulatedAddAll<TStruct>
-        (string fieldName, IEnumerator<TStruct?>? value, StructStyler<TStruct> structToString) 
         where TStruct : struct
     {
         var hasValue = value?.MoveNext() ?? false;
@@ -282,8 +255,29 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
+    // public TExt WhenPopulatedAddAllEnumerate<TStruct>
+    //     (string fieldName, IEnumerator<TStruct?>? value, StructStyler<TStruct> structToString) 
+    //     where TStruct : struct
+    // {
+    //     var hasValue = value?.MoveNext() ?? false;
+    //     if (hasValue)
+    //     {   
+    //         stb.FieldNameJoin(fieldName);
+    //         stb.StartCollection();
+    //         while (hasValue)
+    //         {
+    //             stb.AppendOrNull(value!.Current, structToString);
+    //             hasValue = value.MoveNext();
+    //             stb.GoToNextCollectionItemStart();
+    //         }
+    //         stb.EndCollection();
+    //         return stb.Sb.AddGoToNext(stb);
+    //     }
+    //     return stb.StyleTypeBuilder;
+    // }
 
-    public TExt WhenPopulatedAddAll(string fieldName, IEnumerator<string?>? value
+
+    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerator<string?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var hasValue = value?.MoveNext() ?? false;
@@ -305,7 +299,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedAddAll(string fieldName, IEnumerator<IFrozenString?>? value
+    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerator<ICharSequence?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var hasValue = value?.MoveNext() ?? false;
@@ -327,7 +321,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedAddAll(string fieldName, IEnumerator<IStringBuilder?>? value
+    public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerator<StringBuilder?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
     {
         var hasValue = value?.MoveNext() ?? false;
@@ -349,29 +343,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedAddAll(string fieldName, IEnumerator<StringBuilder?>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
-    {
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
-        {   
-            stb.FieldNameJoin(fieldName);
-            stb.StartCollection();
-            while (hasValue)
-            {
-                _ = formatString.IsNotNullOrEmpty()
-                    ? stb.AppendFormattedOrNull(value!.Current, formatString)
-                    : stb.AppendOrNull(value!.Current);
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart();
-            }
-            stb.EndCollection();
-            return stb.Sb.AddGoToNext(stb);
-        }
-        return stb.StyleTypeBuilder;
-    }
-
-    public TExt WhenPopulatedAddAll(string fieldName, IEnumerator<IStyledToStringObject?>? value)
+    public TExt WhenPopulatedAddAllEnumerate<TStyledObj>(string fieldName, IEnumerator<TStyledObj>? value)
+        where TStyledObj : class, IStyledToStringObject
     {
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
@@ -391,8 +364,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
     [CallsObjectToString]
-    public TExt WhenPopulatedAddAll(string fieldName, IEnumerator<object?>? value
+    public TExt WhenPopulatedAddAllMatchEnumerate<T>(string fieldName, IEnumerator<T>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)
+    where T : class
     {
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)

@@ -4,8 +4,6 @@
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.Chronometry.Timers;
-using FortitudeCommon.DataStructures.Lists.LinkedLists;
-using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Config.Appending;
 using FortitudeCommon.Logging.Config.Appending.Formatting;
 using FortitudeCommon.Logging.Core.Hub;
@@ -46,8 +44,6 @@ public interface IMutableFLogBufferingFormatAppender : IFLogBufferingFormatAppen
 
 public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMutableFLogBufferingFormatAppender
 {
-    [ThreadStatic] private static IRecycler? requesterThreadRecycler;
-
     private IBufferedFormatWriter? onCreateBuffer1Instance;
     private IBufferedFormatWriter? onCreateBuffer2Instance;
 
@@ -58,8 +54,6 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
     private IBufferedFormatWriter? buffer2;
     // protected IBufferedFormatWriter? ToFlush;
 
-    protected IFormatWriter? DirectFormatWriter;
-
     private TimeSpan autoFlushIntervalTimeSpan;
 
     protected ITimerUpdate? AutoFlushTimer;
@@ -68,13 +62,6 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
 
     private bool bufferingEnabled;
 
-    protected readonly FormatWriterReceivedHandler<IFormatWriter> OnReturningFormatWriter;
-
-    private readonly DoublyLinkedList<BlockingFormatWriterResolverHandle> queuedRequests = new();
-
-    private readonly ISyncLock queueProtectLock = new SpinLockLight();
-
-    protected Action<IBlockingFormatWriterResolverHandle> RequestHandleDisposed;
 
     protected Action CheckWaitingFormatWriterRequests;
     protected Action TimerCheckWaitingFormatWriterRequests;
@@ -96,9 +83,6 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
 
         WriteTriggeredFlushIntervalTimeSpan = bufferingFormatAppenderConfig.FlushConfig.WriteTriggeredAfterTimeSpan.ToTimeSpan();
 
-
-        OnReturningFormatWriter = WriterFinishedWithBuffer;
-        RequestHandleDisposed   = WriterHandleDispose;
 
         CheckWaitingFormatWriterRequests      = CheckHasFormatWriterRequests;
         TimerCheckWaitingFormatWriterRequests = TimerTriggeredCheckFormatWriterRequests;
@@ -129,16 +113,11 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
             {
                 AutoFlushTimer?.Cancel();
                 AutoFlushTimer
-                    = FLogContext.NullOnUnstartedContext?.AsyncRegistry?.LoggerTimers?.RunEvery(autoFlushIntervalTimeSpan, AutoFlushTimerHandler);
+                    = FLogContext.NullOnUnstartedContext?.AsyncRegistry.LoggerTimers.RunEvery(autoFlushIntervalTimeSpan, AutoFlushTimerHandler);
             }
         }
     }
 
-    protected bool HasRequests => queuedRequests.Head != null;
-
-    public override int FormatWriterRequestQueue => queuedRequests.Count;
-
-    protected IRecycler RequesterRecycler => requesterThreadRecycler ??= new Recycler();
 
     protected IBufferFlushAppenderAsyncClient BufferFlushingAsyncClient => (IBufferFlushAppenderAsyncClient)AsyncClient;
 
@@ -169,7 +148,7 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
         }
     }
 
-    private IFormatWriter? TrgGetFormatWriter
+    protected override IFormatWriter? TrgGetFormatWriter
     {
         get
         {
@@ -181,7 +160,7 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
             {
                 AllBuffersFlushedEvent.WaitOne(); // draining the previous buffered setting first
             }
-            return Interlocked.CompareExchange(ref DirectFormatWriter, null, DirectFormatWriter);
+            return base.TrgGetFormatWriter;
         }
     }
 
@@ -244,19 +223,11 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
         }
         else
         {
-            DirectFormatWriter = CreatedImmediateFormatWriter(bufferingFormatAppenderConfig);
+            DirectFormatWriter = CreatedDirectFormatWriter(bufferingFormatAppenderConfig);
         }
     }
 
-    protected void WriterHandleDispose(IBlockingFormatWriterResolverHandle actualHandle)
-    {
-        // to do schedule this check
-        if (actualHandle is { IsAvailable: true, WasTaken: false }) { }
-
-        actualHandle.DecrementRefCount();
-    }
-
-    protected void WriterFinishedWithBuffer(IFormatWriter setReadyOrFlush)
+    protected override void WriterFinishedWithBuffer(IFormatWriter setReadyOrFlush)
     {
         if (setReadyOrFlush is IBufferedFormatWriter bufferedFormatWriter)
         {
@@ -271,7 +242,7 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
         }
         else
         {
-            TrySendFormatWriteToNextIfAny(setReadyOrFlush);
+            base.WriterFinishedWithBuffer(setReadyOrFlush);
         }
     }
 
@@ -303,37 +274,6 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
         }
     }
 
-    protected BlockingFormatWriterResolverHandle AddToQueue(BlockingFormatWriterResolverHandle newRequest)
-    {
-        using var queueLock = queueProtectLock;
-        queueProtectLock.Acquire();
-
-        queuedRequests.AddLast(newRequest);
-
-        return newRequest;
-    }
-
-    protected BlockingFormatWriterResolverHandle? TrySendFormatWriteToNextIfAny(IFormatWriter toSend)
-    {
-        BlockingFormatWriterResolverHandle? removedFirst = null;
-        using (queueProtectLock)
-        {
-            queueProtectLock.Acquire();
-
-            if (queuedRequests.Head != null)
-            {
-                removedFirst = queuedRequests.Remove(queuedRequests.Head);
-            }
-        }
-        if (removedFirst == null)
-        {
-            TryToReturnUsedFormatWriter(toSend);
-            return null;
-        }
-        removedFirst.ReceiveFormatWriterHandler(toSend);
-        return removedFirst;
-    }
-
     protected void TimerTriggeredCheckFormatWriterRequests()
     {
         AsyncClient.RunJobOnAppenderQueue(CheckWaitingFormatWriterRequests);
@@ -351,7 +291,7 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
         }
     }
 
-    protected void TryToReturnUsedFormatWriter(IFormatWriter toReturn)
+    protected override void TryToReturnUsedFormatWriter(IFormatWriter toReturn)
     {
         if (toReturn is IBufferedFormatWriter returnBufferedFormatWriter)
         {
@@ -359,7 +299,7 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
         }
         else
         {
-            DirectFormatWriter = toReturn;
+            base.TryToReturnUsedFormatWriter(toReturn);
         }
     }
 
@@ -386,7 +326,7 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
         }
     }
 
-    protected ISyncLock GetFormatWriterRequesterWaitStrategy()
+    protected override ISyncLock GetFormatWriterRequesterWaitStrategy()
     {
         if (BufferingEnabled)
         {
@@ -441,8 +381,6 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
     }
 
     public abstract void FlushBuffer(IBufferedFormatWriter toFlush);
-
-    protected abstract IFormatWriter CreatedImmediateFormatWriter(IBufferingFormatAppenderConfig bufferingFormatAppenderConfig);
 
     public override IBufferingFormatAppenderConfig GetAppenderConfig() => (IBufferingFormatAppenderConfig)AppenderConfig;
 }

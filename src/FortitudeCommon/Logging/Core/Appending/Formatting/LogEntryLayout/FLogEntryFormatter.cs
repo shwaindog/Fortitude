@@ -55,10 +55,12 @@ public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableF
             if (formatWriter != null)
             {
                 gotFormatWriter = true;
+                formatWriter.NotifyStartEntryAppend();
                 foreach (var part in templateParts)
                 {
                     part.Apply(formatWriter, logEntry);
                 }
+                formatWriter.NotifyEntryAppendComplete();
             }
             else
             {

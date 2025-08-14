@@ -3,6 +3,8 @@
 
 using System.Text;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 namespace FortitudeCommon.Logging.Core.LogEntries;
 
@@ -18,6 +20,21 @@ public record struct FLogCallLocation(string MemberName, string SourceFilePath, 
 
 public static class FLogCallLocationExtensions
 {
+    public static StructStyler<FLogCallLocation> FLogCallLocationFormatter = FormatFlogLevelAppender;
+
+    public static StructStyler<FLogCallLocation> Styler(this FLogCallLocation callLoc) => FLogCallLocationFormatter;
+
+
+    public static void FormatFlogLevelAppender(this FLogCallLocation callLoc, IStyledTypeStringAppender sbc)
+    {
+        sbc.StartComplexType(nameof(FLogCallLocation))
+           .Field.AlwaysAdd(nameof(callLoc.MemberName), callLoc.MemberName)
+           .Field.AlwaysAdd(nameof(callLoc.SourceLineNumber), callLoc.SourceLineNumber)
+           .Field.AlwaysAdd(nameof(callLoc.SourceFilePath), callLoc.SourceFilePath)
+           .Complete();
+    }
+
+
     public static StringBuilder ExtractAppendFileName(this StringBuilder sb, FLogCallLocation subject)
     {
         string sourceFilePath      = subject.SourceFilePath;

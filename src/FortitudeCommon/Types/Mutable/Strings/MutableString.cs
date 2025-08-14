@@ -128,15 +128,36 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(string? value, int startIndex, int length) => Append(value, startIndex, length);
 
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append<TStruct>(TStruct arg0) => Append(arg0);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append<TStruct>(TStruct? arg0) => Append(arg0);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(Span<char> value) => Append(value);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(Span<char> value, int startIndex, int length) => Append(value, startIndex, length);
+
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlySpan<char> value) => Append(value);
 
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlySpan<char> value, int startIndex, int length) =>
+        Append(value, startIndex, length);
+
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlyMemory<char> value) => Append(value);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlyMemory<char> value, int startIndex, int length) =>
+        Append(value, startIndex, length);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ushort value) => Append(value);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(uint value) => Append(value);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ulong value) => Append(value);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendSpanFormattable<TClass>(string format, TClass? arg0) 
+        where TClass : class => AppendSpanFormattable(format, arg0);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TStruct>(string format, TStruct arg0) => AppendFormat(format, arg0);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TStruct>(string format, TStruct? arg0) => AppendFormat(format, arg0);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat(string format, string arg0) => AppendFormat(format, arg0);
 
@@ -267,7 +288,14 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, string? value, int count) => Insert(atIndex, value, count);
 
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, Span<char> value) => Insert(atIndex, value);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, Span<char> value, int startIndex, int length) => Insert(atIndex, value, startIndex, length);
+
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, ReadOnlySpan<char> value) => Insert(atIndex, value);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, ReadOnlySpan<char> value, int startIndex, int length) =>
+        Insert(atIndex, value, startIndex, length);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(char find, char replace) => Replace(find, replace);
 
@@ -711,6 +739,44 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
+    public MutableString Append<TStruct>(TStruct arg0) 
+        where TStruct : struct, ISpanFormattable
+    {
+        var charSpan     = stackalloc char[256].ResetMemory();
+        if (arg0.TryFormat(charSpan, out var charsWritten, format: default, provider: null))
+        {
+            sb.Append(charSpan[..charsWritten]);
+        }
+
+        return this;
+    }
+
+    public MutableString Append<TStruct>(TStruct? arg0) 
+        where TStruct : struct, ISpanFormattable
+    {
+        if (arg0 == null) return this;
+
+        Append(arg0!.Value);
+        return this;
+    }
+
+    public MutableString Append(Span<char> value)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.Append(value);
+        return this;
+    }
+
+    public MutableString Append(Span<char> value, int startIndex, int length)
+    {
+        if (IsFrozen) return ShouldThrow();
+        for (int i = startIndex; i < value.Length; i++)
+        {
+            sb.Append(value[i]);
+        }
+        return this;
+    }
+
     public MutableString Append(ReadOnlySpan<char> value)
     {
         if (IsFrozen) return ShouldThrow();
@@ -718,10 +784,31 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
+    public MutableString Append(ReadOnlySpan<char> value, int startIndex, int length)
+    {
+        if (IsFrozen) return ShouldThrow();
+        for (int i = startIndex; i < value.Length; i++)
+        {
+            sb.Append(value[i]);
+        }
+        return this;
+    }
+
     public MutableString Append(ReadOnlyMemory<char> value)
     {
         if (IsFrozen) return ShouldThrow();
         sb.Append(value);
+        return this;
+    }
+
+    public MutableString Append(ReadOnlyMemory<char> value, int startIndex, int length)
+    {
+        if (IsFrozen) return ShouldThrow();
+        var asSpan = value.Span;
+        for (int i = startIndex; i < value.Length; i++)
+        {
+            sb.Append(asSpan[i]);
+        }
         return this;
     }
 
@@ -743,6 +830,38 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     {
         if (IsFrozen) return ShouldThrow();
         sb.Append(value);
+        return this;
+    }
+
+    public MutableString AppendSpanFormattable<TClass>(string format, TClass? arg0) where TClass : class, ISpanFormattable
+    {
+        var charSpan     = stackalloc char[2048].ResetMemory();
+        if (arg0.TryFormat(charSpan, out var charsWritten, format: default, provider: null))
+        {
+            sb.Append(charSpan[..charsWritten]);
+        }
+
+        return this;
+    }
+
+    public MutableString AppendFormat<TStruct>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TStruct arg0) 
+        where TStruct : struct, ISpanFormattable
+    {
+        var charSpan     = stackalloc char[256].ResetMemory();
+        if (arg0.TryFormat(charSpan, out var charsWritten, format: default, provider: null))
+        {
+            sb.Append(charSpan[..charsWritten]);
+        }
+
+        return this;
+    }
+
+    public MutableString AppendFormat<TStruct>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TStruct? arg0) 
+        where TStruct : struct, ISpanFormattable
+    {
+        if (arg0 == null) return this;
+
+        AppendFormat(format, arg0!.Value);
         return this;
     }
 
@@ -1088,10 +1207,37 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
+    public MutableString Insert(int atIndex, Span<char> value)
+    {
+        if (IsFrozen) return ShouldThrow();
+        sb.Insert(atIndex, value);
+        return this;
+    }
+
+    public MutableString Insert(int atIndex, Span<char> value, int startIndex, int length)
+    {
+        if (IsFrozen) return ShouldThrow();
+        var cappedFrom = Math.Min(value.Length, startIndex);
+        var cappedEnd  = Math.Min(value.Length, startIndex + length);
+
+        sb.Insert(atIndex, value[cappedFrom..cappedEnd]);
+        return this;
+    }
+
     public MutableString Insert(int atIndex, ReadOnlySpan<char> value)
     {
         if (IsFrozen) return ShouldThrow();
         sb.Insert(atIndex, value);
+        return this;
+    }
+
+    public MutableString Insert(int atIndex, ReadOnlySpan<char> value, int startIndex, int length)
+    {
+        if (IsFrozen) return ShouldThrow();
+        var cappedFrom = Math.Min(value.Length, startIndex);
+        var cappedEnd  = Math.Min(value.Length, startIndex + length);
+
+        sb.Insert(atIndex, value[cappedFrom..cappedEnd]);
         return this;
     }
 

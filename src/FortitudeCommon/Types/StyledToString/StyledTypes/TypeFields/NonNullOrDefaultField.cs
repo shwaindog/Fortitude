@@ -2,7 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
 using System.Text;
 using FortitudeCommon.Types.Mutable.Strings;
 
@@ -22,12 +21,12 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         value != null && value != defaultValue ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
     
-    public TExt WhenNonNullOrDefaultAdd<TNum>(string fieldName, TNum? value, TNum? defaultValue = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  where TNum : struct, INumber<TNum> => 
+    public TExt WhenNonNullOrDefaultAdd<TFmtStruct>(string fieldName, TFmtStruct? value, TFmtStruct? defaultValue = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  where TFmtStruct : struct, ISpanFormattable => 
         value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
     
-    public TExt WhenNonNullOrDefaultAdd<TNum>(string fieldName, TNum value, TNum defaultValue = default
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  where TNum : struct, INumber<TNum> => 
+    public TExt WhenNonNullOrDefaultAdd<TFmtStruct>(string fieldName, TFmtStruct value, TFmtStruct defaultValue = default
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null)  where TFmtStruct : struct, ISpanFormattable => 
         !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd<TStruct>(string fieldName, TStruct? value
@@ -42,26 +41,58 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 
        value != null && value != defaultValue ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd(string fieldName, string? value, int startIndex, int length = 0) => 
-       value != null && length > 0 ? AlwaysAdd(fieldName, value, startIndex, length) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullOrDefaultAdd(string fieldName, char[]? value, int startIndex = 0, int length = 0) => 
-       value != null && length > 0 ? AlwaysAdd(fieldName, value, startIndex, length) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullOrDefaultAdd(string fieldName, char[]? value, string? defaultValue = "") => 
+       value is { Length: > 0 } ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd(string fieldName, IStyledToStringObject? value, IStyledToStringObject? defaultValue = null) => 
         value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd(string fieldName, IFrozenString? value, string? defaultValue = ""
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        value != null && defaultValue != null && value.Equals(defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullOrDefaultAdd(string fieldName, ICharSequence? value, string? defaultValue = "") =>
+        value != null && defaultValue != null && value.Equals(defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd(string fieldName, IStringBuilder? value, string? defaultValue = ""
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        value != null && defaultValue != null && value.Equals(defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullOrDefaultAdd(string fieldName, StringBuilder? value, string? defaultValue = "") =>
+        value != null && defaultValue != null && value.Equals(defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd(string fieldName, StringBuilder? value, string? defaultValue = ""
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        value != null && defaultValue != null && value.Equals(defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullOrDefaultAdd(string fieldName, StringBuilder? value, int startIndex, int length, string? defaultValue)
+    {
+        if (value == null) return stb.StyleTypeBuilder;
+        if (defaultValue != null)
+        {
+            if (value.Equals(defaultValue))
+            {
+                return stb.StyleTypeBuilder;
+            }
+        }
+        return AlwaysAdd(fieldName, value, startIndex, length);
+    }
+
+    public TExt WhenNonNullOrDefaultAdd(string fieldName, ICharSequence? value, int startIndex, int length, string? defaultValue)
+    {
+        if (value == null) return stb.StyleTypeBuilder;
+        if (defaultValue != null)
+        {
+            if (value.Equals(defaultValue))
+            {
+                return stb.StyleTypeBuilder;
+            }
+        }
+        return AlwaysAdd(fieldName, value, startIndex, length);
+    }
+
+    public TExt WhenNonNullOrDefaultAdd(string fieldName, char[]? value, int startIndex, int length, string? defaultValue)
+    {
+        if (value == null) return stb.StyleTypeBuilder;
+        if (defaultValue != null)
+        {
+            var valueSpan   = value.AsSpan();
+            var defaultSpan = defaultValue.AsSpan();
+            if (valueSpan == defaultSpan)
+            {
+                return stb.StyleTypeBuilder;
+            }
+        }
+        return AlwaysAdd(fieldName, value, startIndex, length);
+    }
 
     public TExt WhenNonNullOrDefaultAdd(string fieldName, string? value, int startIndex, int length, string? defaultValue)
     {
