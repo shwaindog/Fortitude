@@ -46,12 +46,15 @@ public interface IFLogAppenderRegistry
     IAppenderClient GetAppenderClient(string appenderName, IFLogForwardingAppender forwardingAppender);
 
     NotifyNewAppenderHandler RegisterAppenderCallback { get; }
+    
+    ICollection<string> AllAppenderNames { get; }
 
     IAppenderClient FailAppender { get; }
 }
 
 public interface IMutableFLogAppenderRegistry : IFLogAppenderRegistry
 {
+    IMutableFLogAppender? GetAppender(string appenderName);
     Dictionary<string, IMutableAppenderDefinitionConfig> DefinedAppenderConfigs { get; set; }
 }
 
@@ -93,6 +96,11 @@ public class FLogAppenderRegistry : IMutableFLogAppenderRegistry
         get => failAppenderClient ??= failAppender.Value!.CreateAppenderClientFor(flogContext.LoggerRegistry.Root);
         set => failAppenderClient = value;
     }
+
+    public ICollection<string> AllAppenderNames => embodiedAppenders.Keys;
+
+    IMutableFLogAppender? IMutableFLogAppenderRegistry.GetAppender(string appenderName) => 
+        embodiedAppenders.TryGetValue(appenderName, out var appender) ? appender as IMutableFLogAppender : null;
 
     public virtual void AddAppenderCreated(IFLogAppender newlyCreatedAppender)
     {

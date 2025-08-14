@@ -208,7 +208,10 @@ public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMess
             case IStyledToStringObject valueStyledObj: AppendStyledObject(valueStyledObj, toAppendTo); break;
             
             default:
-                
+                if (value is ISpanFormattable spanFormattableValue)
+                {
+                    stringBuilder.AppendSpanFormattable("{0}", spanFormattableValue);
+                }
                 BuildCacheCallGenericAppend(value, toAppendTo); break;
         }
     }

@@ -13,8 +13,8 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
 
     T Append(ICharSequence? value);
     T Append(StringBuilder? value);
-    T Append(ICharSequence? value, int startIndex, int length);
-    T Append(StringBuilder? value, int startIndex, int length);
+    T Append(ICharSequence? value, int startIndex, int length = int.MaxValue, string? formatString = null);
+    T Append(StringBuilder? value, int startIndex, int length = int.MaxValue, string? formatString = null);
     T Append(bool value);
     T Append(byte value);
     T Append(char value);
@@ -29,16 +29,16 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     T Append(sbyte value);
     T Append(float value);
     T Append(string? value);
-    T Append(string? value, int startIndex, int length);
+    T Append(string? value, int startIndex, int length =  int.MaxValue, string? formatString = null);
     T Append<TStruct>(TStruct arg0) where TStruct : struct, ISpanFormattable;
     T Append<TStruct>(TStruct? arg0) where TStruct : struct, ISpanFormattable;
     T Append(Span<char> value);
-    T Append(Span<char> value, int startIndex, int length);
+    T Append(Span<char> value, int startIndex, int length =  int.MaxValue, string? formatString = null);
     T Append(ReadOnlySpan<char> value);
-    T Append(ReadOnlySpan<char> value, int startIndex, int length);
+    T Append(ReadOnlySpan<char> value, int startIndex, int length =  int.MaxValue, string? formatString = null);
     T Append(ReadOnlyMemory<char> value);
-    T Append(ReadOnlyMemory<char> value, int startIndex, int length);
-    T Append(char[]? value, int startIndex, int length);
+    T Append(ReadOnlyMemory<char> value, int startIndex, int length =  int.MaxValue, string? formatString = null);
+    T Append(char[]? value, int startIndex, int length, string? formatString = null);
     T Append(ushort value);
     T Append(uint value);
     T Append(ulong value);

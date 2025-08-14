@@ -61,8 +61,7 @@ public abstract class FLogEntryForkingInterceptor : FLogEntrySource, IFLogEntryF
 
     public void IncrementRefsOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
-        logEntryEvent.LogEntry?.IncrementRefCount();
-        logEntryEvent.LogEntriesBatch?.IncrementRefCount();
+        logEntryEvent.IncrementRefCount();
         OnReceiveLogEntry(logEntryEvent, fromPublisher);
     }
 
@@ -86,8 +85,18 @@ public abstract class FLogEntryForkingInterceptor : FLogEntrySource, IFLogEntryF
         {
             SafeOnReceiveLogEntry(logEntryEvent, fromPublisher);
         }
-        logEntryEvent.LogEntry?.DecrementRefCount();
-        logEntryEvent.LogEntriesBatch?.DecrementRefCount();
+        logEntryEvent.DecrementRefCount();
+    }
+    
+    
+    protected override void SafeOnPublishLogEntryEvent(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource? fromSource = null)
+    {
+        if (HasListeners)
+        {    // forwarding so increments sends then decrements
+            logEntryEvent.IncrementRefCount();
+            OnPublishTargetLogEntryEvent(logEntryEvent, fromSource ?? this);
+            logEntryEvent.DecrementRefCount();
+        }
     }
 
     protected virtual void SafeOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)

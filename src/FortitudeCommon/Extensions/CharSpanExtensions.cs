@@ -310,20 +310,84 @@ public static class CharSpanExtensions
         return toUpdate;
     }
 
-    public static Span<char> Append(this Span<char> toUpdate, string toAppend)
+    public static Span<char> Append(this Span<char> toUpdate, string toAppend, int startIndex = 0, int count = int.MaxValue)
     {
-        var updateLength = toUpdate.PopulatedLength();
-        for (int i = 0; i < toAppend.Length; i++)
+        var cappedLength    = Math.Clamp(count, 0, toAppend.Length - startIndex);
+        var startAt = toUpdate.PopulatedLength();
+        cappedLength = Math.Clamp(cappedLength, 0, toUpdate.Length - startAt);
+        var endIndex     = startIndex + cappedLength;
+        var updateLength = startAt;
+        for (int i = startIndex; i < endIndex; i++)
         {
             toUpdate[updateLength++] = toAppend[i];
         }
         return toUpdate;
     }
 
-    public static Span<char> Append(this Span<char> toUpdate, ReadOnlySpan<char> toAppend)
+    public static Span<char> Append(this Span<char> toUpdate, ReadOnlySpan<char> toAppend, int startIndex = 0, int count = int.MaxValue)
     {
-        var updateLength = toUpdate.PopulatedLength();
-        for (int i = 0; i < toAppend.Length; i++)
+        var cappedLength    = Math.Clamp(count, 0, toAppend.Length - startIndex);
+        var startAt = toUpdate.PopulatedLength();
+        cappedLength = Math.Clamp(cappedLength, 0, toUpdate.Length - startAt);
+        var endIndex     = startIndex + cappedLength;
+        var updateLength = startAt;
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            toUpdate[updateLength++] = toAppend[i];
+        }
+        return toUpdate;
+    }
+
+    public static Span<char> Append(this Span<char> toUpdate, Span<char> toAppend, int startIndex = 0, int count = int.MaxValue)
+    {
+        var cappedLength    = Math.Clamp(count, 0, toAppend.Length - startIndex);
+        var startAt = toUpdate.PopulatedLength();
+        cappedLength = Math.Clamp(cappedLength, 0, toUpdate.Length - startAt);
+        var endIndex     = startIndex + cappedLength;
+        var updateLength = startAt;
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            toUpdate[updateLength++] = toAppend[i];
+        }
+        return toUpdate;
+    }
+
+    public static Span<char> Append(this Span<char> toUpdate, char[] toAppend, int startIndex = 0, int count = int.MaxValue)
+    {
+        var cappedLength    = Math.Clamp(count, 0, toAppend.Length - startIndex);
+        var startAt = toUpdate.PopulatedLength();
+        cappedLength = Math.Clamp(cappedLength, 0, toUpdate.Length - startAt);
+        var endIndex = startIndex + cappedLength;
+        var updateLength = startAt;
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            toUpdate[updateLength++] = toAppend[i];
+        }
+        return toUpdate;
+    }
+
+    public static Span<char> Append(this Span<char> toUpdate, ICharSequence toAppend, int startIndex = 0, int count = int.MaxValue)
+    {
+        var cappedLength    = Math.Clamp(count, 0, toAppend.Length - startIndex);
+        var startAt = toUpdate.PopulatedLength();
+        cappedLength = Math.Clamp(cappedLength, 0, toUpdate.Length - startAt);
+        var endIndex = startIndex + cappedLength;
+        var updateLength = startAt;
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            toUpdate[updateLength++] = toAppend[i];
+        }
+        return toUpdate;
+    }
+
+    public static Span<char> Append(this Span<char> toUpdate, StringBuilder toAppend, int startIndex = 0, int count = int.MaxValue)
+    {
+        var cappedLength    = Math.Clamp(count, 0, toAppend.Length - startIndex);
+        var startAt = toUpdate.PopulatedLength();
+        cappedLength = Math.Clamp(cappedLength, 0, toUpdate.Length - startAt);
+        var endIndex = startIndex + cappedLength;
+        var updateLength = startAt;
+        for (int i = startIndex; i < endIndex; i++)
         {
             toUpdate[updateLength++] = toAppend[i];
         }
@@ -398,8 +462,7 @@ public static class CharSpanExtensions
         }
         return foundOpening && foundClosing;
     }
-
-
+    
     public static Range TokenNextTokenOpenMatchingEnd(this ReadOnlySpan<char> tokenisedFormatting, (string Open, string Close) openClose)
     {
         var atIndex       = tokenisedFormatting.Length;
@@ -413,7 +476,7 @@ public static class CharSpanExtensions
             var totalRange             = tokenOpenRange.ConcatLength(subTokenPlusCloseRange);
             return totalRange;
         }
-        return new Range(tokenisedFormatting.Length, 0);
+        return new Range(tokenisedFormatting.Length, tokenisedFormatting.Length);
     }
 
     public static Range TokenNextTokenOpenMatchingEnd
@@ -509,6 +572,105 @@ public static class CharSpanExtensions
         return result;
     }
 
+    public static Range NextTokenSplit
+    (this ReadOnlySpan<char> tokenisedFormatting
+      , int startIndex  
+      , (string Open, string Close)? tokenDelimiter = null
+      , (string ReplaceOpen, string ReplaceClose)? replaceDelimiter = null)
+    {
+        var openClose = tokenDelimiter ?? DefaultTokenStartEndDelimiter;
+
+        var remainingTokenString = tokenisedFormatting[startIndex..];
+        var scratchSpace         = stackalloc char[256].ResetMemory();
+
+        scratchSpace.ResetMemory();
+        var nextTokenStartRange = TokenNextTokenOpenMatchingEnd(remainingTokenString, openClose);
+
+        return new Range(startIndex + nextTokenStartRange.Start.Value, startIndex + nextTokenStartRange.End.Value);
+    }
+    
+    public static int SingleTokenFormatAt
+    (this Span<char> destination, int destStartIndex, ReadOnlySpan<char> tokenisedFormatting, ReadOnlySpan<char> toFormatOver, int startIndex = 0, int count = int.MaxValue)
+    {
+        var cappedFrom          = Math.Clamp(startIndex, 0, toFormatOver.Length);
+        var cappedLength        = Math.Clamp(count, 0, toFormatOver.Length - startIndex);
+        var nextWriteAt         = destStartIndex;
+        var lastRange           = new Range(0, 0);
+        var nextTokenStartRange = tokenisedFormatting.NextTokenSplit(0);
+        while (lastRange.End.Value < nextTokenStartRange.End.Value)
+        {
+            if (nextTokenStartRange.Start.Value > 0)
+            {
+                var charsAdded = nextTokenStartRange.Start.Value - lastRange.End.Value;
+                destination.OverWriteAt(nextWriteAt, tokenisedFormatting[lastRange.End..nextTokenStartRange.Start]);
+                nextWriteAt += charsAdded;
+            }
+            if (nextTokenStartRange.Start.Value < tokenisedFormatting.Length && nextTokenStartRange.Length() > 0)
+            {
+                destination.OverWriteAt(nextWriteAt, toFormatOver[cappedFrom..(cappedFrom+cappedLength)]);
+                nextWriteAt += toFormatOver.Length;
+            }
+            lastRange = nextTokenStartRange;
+            nextTokenStartRange = tokenisedFormatting.NextTokenSplit(lastRange.End.Value);
+        }
+        return nextWriteAt - destStartIndex;
+    }
+    
+    public static int SingleTokenFormatAt
+    (this Span<char> destination, int destStartIndex, ReadOnlySpan<char> tokenisedFormatting, StringBuilder toFormatOver, int startIndex = 0, int count = int.MaxValue)
+    {
+        var cappedFrom          = Math.Clamp(startIndex, 0, toFormatOver.Length);
+        var cappedLength        = Math.Clamp(count, 0, toFormatOver.Length - startIndex);
+        var nextWriteAt         = destStartIndex;
+        var lastRange           = new Range(0, 0);
+        var nextTokenStartRange = tokenisedFormatting.NextTokenSplit(0);
+        while (lastRange.End.Value < nextTokenStartRange.End.Value)
+        {
+            if (nextTokenStartRange.Start.Value > 0)
+            {
+                var charsAdded = nextTokenStartRange.Start.Value - lastRange.End.Value;
+                destination.OverWriteAt(nextWriteAt, tokenisedFormatting[lastRange.End..nextTokenStartRange.Start]);
+                nextWriteAt += charsAdded;
+            }
+            if (nextTokenStartRange.Start.Value < tokenisedFormatting.Length && nextTokenStartRange.Length() > 0)
+            {
+                destination.OverWriteAt(nextWriteAt, toFormatOver, cappedFrom, cappedLength);
+                nextWriteAt += toFormatOver.Length;
+            }
+            lastRange = nextTokenStartRange;
+            nextTokenStartRange = tokenisedFormatting.NextTokenSplit(lastRange.End.Value);
+        }
+        return nextWriteAt - destStartIndex;
+    }
+    
+    public static int SingleTokenFormatAt
+    (this Span<char> destination, int destStartIndex, ReadOnlySpan<char> tokenisedFormatting, ICharSequence toFormatOver, int startIndex = 0, int count = int.MaxValue)
+    {
+        var cappedFrom          = Math.Clamp(startIndex, 0, toFormatOver.Length);
+        var cappedLength        = Math.Clamp(count, 0, toFormatOver.Length - startIndex);
+        var nextWriteAt         = destStartIndex;
+        var lastRange           = new Range(0, 0);
+        var nextTokenStartRange = tokenisedFormatting.NextTokenSplit(0);
+        while (lastRange.End.Value < nextTokenStartRange.End.Value)
+        {
+            if (nextTokenStartRange.Start.Value > 0)
+            {
+                var charsAdded = nextTokenStartRange.Start.Value - lastRange.End.Value;
+                destination.OverWriteAt(nextWriteAt, tokenisedFormatting[lastRange.End..nextTokenStartRange.Start]);
+                nextWriteAt += charsAdded;
+            }
+            if (nextTokenStartRange.Start.Value < tokenisedFormatting.Length && nextTokenStartRange.Length() > 0)
+            {
+                
+                destination.OverWriteAt(nextWriteAt, toFormatOver, cappedFrom, cappedLength);
+                nextWriteAt += toFormatOver.Length;
+            }
+            lastRange = nextTokenStartRange;
+            nextTokenStartRange = tokenisedFormatting.NextTokenSplit(lastRange.End.Value);
+        }
+        return nextWriteAt - destStartIndex;
+    }
+    
     public static int NonTokenCharCount
     (this ReadOnlySpan<char> tokenisedFormatting
       , (string Open, string Close)? tokenDelimiter = null

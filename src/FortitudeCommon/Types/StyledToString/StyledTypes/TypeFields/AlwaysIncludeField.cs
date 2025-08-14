@@ -49,14 +49,14 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
             ? AlwaysAddWithFormatting(fieldName, value, formatString) 
             : stb.FieldNameJoin(fieldName).Append(value ?? "null").AddGoToNext(stb);
 
-    public TExt AlwaysAdd(string fieldName, string? value, int startIndex, int length) =>
-        stb.FieldNameJoin(fieldName).AddNullOrValue(value, startIndex, length, stb);
+    public TExt AlwaysAdd(string fieldName, string? value, int startIndex, int length = int.MaxValue, string? formatString = null) =>
+        stb.FieldNameJoin(fieldName).AddNullOrValue(value, startIndex, length, formatString,  stb);
 
     public TExt AlwaysAdd(string fieldName, char[]? value) =>
         stb.FieldNameJoin(fieldName).AddNullOrValue(value, stb);
 
-    public TExt AlwaysAdd(string fieldName, char[]? value, int startIndex, int length) =>
-        stb.FieldNameJoin(fieldName).AddNullOrValue(value, startIndex, length, stb);
+    public TExt AlwaysAdd(string fieldName, char[]? value, int startIndex, int length = int.MaxValue, string? formatString = null) =>
+        stb.FieldNameJoin(fieldName).AddNullOrValue(value, startIndex, length, formatString, stb);
 
     public TExt AlwaysAdd(string fieldName, IStyledToStringObject? value) => 
         stb.FieldNameJoin(fieldName).AddNullOrValue(value, stb);
@@ -64,16 +64,16 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
     public TExt AlwaysAdd(string fieldName, ICharSequence? value) => 
         stb.FieldNameJoin(fieldName).AddNullOrValue(value, stb);
 
-    public TExt AlwaysAdd(string fieldName, ICharSequence? value, int startIndex, int length) => 
+    public TExt AlwaysAdd(string fieldName, ICharSequence? value, int startIndex, int length = int.MaxValue, string? formatString = null) => 
          stb.FieldNameJoin(fieldName)
-            .Append(value, startIndex, Math.Clamp(length, 0, (value?.Length ?? startIndex) - startIndex))
+            .Append(value, startIndex, Math.Clamp(length, 0, (value?.Length ?? startIndex) - startIndex), formatString)
             .AddGoToNext(stb);
 
     public TExt AlwaysAdd(string fieldName, StringBuilder? value) => 
         stb.FieldNameJoin(fieldName).AddNullOrValue(value, stb);
 
-    public TExt AlwaysAdd(string fieldName, StringBuilder? value, int startIndex, int length) => 
-        stb.FieldNameJoin(fieldName).Append(value, startIndex, Math.Clamp(length, 0, (value?.Length ?? startIndex) - startIndex))
+    public TExt AlwaysAdd(string fieldName, StringBuilder? value, int startIndex, int length = int.MaxValue, string? formatString = null) => 
+        stb.FieldNameJoin(fieldName).Append(value, startIndex, Math.Clamp(length, 0, (value?.Length ?? startIndex) - startIndex), formatString)
            .AddGoToNext(stb);
 
     [CallsObjectToString]
@@ -96,6 +96,18 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
         stb.FieldNameJoin(fieldName).AppendFormatted(value, formatString).AddGoToNext(stb);
 
     public TExt AlwaysAddWithFormatting(string fieldName, string? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) =>
+        stb.FieldNameJoin(fieldName, stb).AppendFormattedOrNull(value, formatString).AddGoToNext(stb);
+
+    public TExt AlwaysAddWithFormatting(string fieldName, char[]? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) =>
+        stb.FieldNameJoin(fieldName, stb).AppendFormattedOrNull(value, formatString).AddGoToNext(stb);
+
+    public TExt AlwaysAddWithFormatting(string fieldName, ICharSequence? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) =>
+        stb.FieldNameJoin(fieldName, stb).AppendFormattedOrNull(value, formatString).AddGoToNext(stb);
+
+    public TExt AlwaysAddWithFormatting(string fieldName, StringBuilder? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString) =>
         stb.FieldNameJoin(fieldName, stb).AppendFormattedOrNull(value, formatString).AddGoToNext(stb);
 

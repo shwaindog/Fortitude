@@ -21,7 +21,7 @@ public abstract class StyledTypeBuilder : ExplicitRecyclableObject, IDisposable
 {
     protected StyleTypeBuilderPortableState PortableState = new();
 
-    protected int StartIndex;
+    protected int  StartIndex;
 
     protected void InitializeStyledTypeBuilder(IStyleTypeAppenderBuilderAccess owningAppender, TypeAppendSettings typeSettings, string typeName)
     {
@@ -33,7 +33,7 @@ public abstract class StyledTypeBuilder : ExplicitRecyclableObject, IDisposable
         StartIndex = owningAppender.WriteBuffer.Length;
     }
 
-    public bool IsComplete => PortableState.IsComplete;
+    public bool IsComplete => PortableState.CompleteResult != null;
 
     public abstract void Start();
 
@@ -425,7 +425,7 @@ public static class StyledTypeBuilderExtensions
         return stb.AddGoToNext();
     }
 
-    public static TExt AddNullOrValue<TExt>(this IStringBuilder sb, string? value, int startIndex, int length
+    public static TExt AddNullOrValue<TExt>(this IStringBuilder sb, string? value, int startIndex, int length, string? formatString
       , IStyleTypeBuilderComponentAccess<TExt> stb, bool? inQuotes = null)
         where TExt : StyledTypeBuilder
     {
@@ -437,13 +437,13 @@ public static class StyledTypeBuilderExtensions
         return stb.AddGoToNext();
     }
 
-    public static TExt AddNullOrValue<TExt>(this IStringBuilder sb, char[]? value, int startIndex, int length
+    public static TExt AddNullOrValue<TExt>(this IStringBuilder sb, char[]? value, int startIndex, int length, string? formatString
       , IStyleTypeBuilderComponentAccess<TExt> stb, bool? inQuotes = null)
         where TExt : StyledTypeBuilder
     {
         var addQuotes = inQuotes ?? stb.Style.IsJson();
         if (value != null)
-            sb.Qt(addQuotes).Append(value, startIndex, length).Qt(addQuotes);
+            sb.Qt(addQuotes).Append(value, startIndex, length, formatString).Qt(addQuotes);
         else
             sb.Append(Null);
         return stb.AddGoToNext();

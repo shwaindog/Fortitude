@@ -694,7 +694,9 @@ public class UpdateableTimer : IUpdateableTimer
     public bool Remove(ITimerCallBackRunInfo callBackRunInfo)
     {
         if (isDead) throw new InvalidAsynchronousStateException("Timer was stopped and should be used again!");
-        foreach (var timerCallBackRunInfo in oneOffCallbacks)
+        for (var i = 0; i < oneOffCallbacks.Count; i++)
+        {
+            var timerCallBackRunInfo = oneOffCallbacks[i];
             if (timerCallBackRunInfo == callBackRunInfo)
             {
                 oneOffCallbacks.Remove(timerCallBackRunInfo);
@@ -702,15 +704,19 @@ public class UpdateableTimer : IUpdateableTimer
                 CheckNextOneOffLaunchTimeStillCorrect(timerCallBackRunInfo);
                 return true;
             }
+        }
 
-        foreach (var timerCallBackRunInfo in intervalCallBacks)
+        for (var i = 0; i < intervalCallBacks.Count; i++)
+        {
+            var timerCallBackRunInfo = intervalCallBacks[i];
             if (timerCallBackRunInfo == callBackRunInfo)
             {
+                intervalCallBacks.RemoveAt(i);
                 timerCallBackRunInfo.RegisteredTimer.Dispose();
-                intervalCallBacks.Remove(timerCallBackRunInfo);
                 timerCallBackRunInfo.DecrementRefCount();
                 return true;
             }
+        }
 
         return false;
     }

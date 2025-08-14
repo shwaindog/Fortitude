@@ -1,8 +1,10 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
 using FortitudeCommon.Logging.Config.Appending.Formatting.Files;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.Hub;
+using FortitudeCommon.Logging.Core.LogEntries.PublishChains.PipelineSpies;
 using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
@@ -19,8 +21,30 @@ public class FLogContextTests
         var startedContext = FLogContext.Context;
 
         var logger = FLog.FLoggerForType.As<IVersatileFLogger>();
+        var appReg = (IMutableFLogAppenderRegistry)startedContext.AppenderRegistry;
 
+        var spyRing = new LogEntrySpyRingInvestigation();
+
+        var loggerSpy = spyRing.TrainNewSpy("Test Logger Spy");
+        logger.Logger.PublishEndpoint.Insert(loggerSpy);
+
+        var consoleAppender = appReg.GetAppender(ConsoleAppenderConfig.DefaultConsoleAppenderName)!;
+        var appenderSpy = spyRing.TrainNewSpy("Test Appender Spy");
+        consoleAppender.ReceiveEndpoint.Insert(appenderSpy);
+        
         logger.Info("Testing 1 2 3, testing");
+        logger.Info("Testing 4,5,6, testing");
+        logger.Info("Testing 7 8 9, testing");
+        logger.Info("Testing 1 2 3, testing");
+        logger.Info("Testing 4 5 6, testing");
+        logger.Info("Testing 7 8 9, testing");
+
+        var logEntries = spyRing.DeadDropLatestIntelToHq();
+
+        foreach (var logEntry in logEntries)
+        {
+            Console.Out.WriteLine("Intercepted " + logEntry);
+        }
     }
 
     [TestMethod]

@@ -10,6 +10,7 @@ using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Framework.System;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace FortitudeCommon.Types.Mutable.Strings;
 
@@ -359,11 +360,23 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         return this;
     }
 
-    public CharArrayStringBuilder Append(char[]? value, int startIndex, int length)
+    public CharArrayStringBuilder Append(char[]? value, int startIndex, int length = int.MaxValue, string? formatString = null)
     {
         if (value == null) return this;
-
-        CharArray(value.Length).Add(value, startIndex, length);
+        var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
+        if (formatString == null)
+        {
+            CharArray(cappedLength).Add(value, startIndex, cappedLength);
+        }
+        else
+        {
+            CharArray(cappedLength + formatString.Length);
+            var charArraySpan = ca.AsSpan();
+            var size          = ca.Length;
+            var endIndex      = startIndex + cappedLength;
+            var toAddSpan     = value[startIndex..endIndex];
+            charArraySpan.SingleTokenFormatAt(size, toAddSpan, formatString);
+        }
         return this;
     }
 
@@ -418,19 +431,49 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         return this;
     }
 
-    public CharArrayStringBuilder Append(StringBuilder? value, int startIndex, int length)
+    public CharArrayStringBuilder Append(StringBuilder? value, int startIndex, int length = int.MaxValue, string? formatString = null)
     {
         if (value == null) return this;
 
-        CharArray(value.Length).Add(value, startIndex, length);
+        var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
+        if (formatString == null)
+        {
+            CharArray(cappedLength).Add(value, startIndex, cappedLength);
+        }
+        else
+        {
+            CharArray(cappedLength + formatString.Length);
+            var charArraySpan   = ca.AsSpan();
+            var size            = ca.Length;
+            var maxTransferSize = Math.Min(cappedLength, 512*1024);
+            var rangeAsSpan     = stackalloc char[maxTransferSize].ResetMemory();
+            rangeAsSpan.Append(value, startIndex, cappedLength);
+            var toFormatAround = rangeAsSpan[..cappedLength];
+            charArraySpan.SingleTokenFormatAt(size, toFormatAround, formatString);
+        }
         return this;
     }
 
-    public CharArrayStringBuilder Append(ICharSequence? value, int startIndex, int length)
+    public CharArrayStringBuilder Append(ICharSequence? value, int startIndex, int length = int.MaxValue, string? formatString = null)
     {
         if (value == null) return this;
 
-        CharArray(value.Length).Add(value, startIndex, length);
+        var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
+        if (formatString == null)
+        {
+            CharArray(cappedLength).Add(value, startIndex, cappedLength);
+        }
+        else
+        {
+            CharArray(cappedLength + formatString.Length);
+            var charArraySpan   = ca.AsSpan();
+            var size            = ca.Length;
+            var maxTransferSize = Math.Min(cappedLength, 512*1024);
+            var rangeAsSpan     = stackalloc char[maxTransferSize].ResetMemory();
+            rangeAsSpan.Append(value, startIndex, cappedLength);
+            var toFormatAround = rangeAsSpan[..cappedLength];
+            charArraySpan.SingleTokenFormatAt(size, toFormatAround, formatString);
+        }
         return this;
     }
 
@@ -472,11 +515,25 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         return this;
     }
 
-    public CharArrayStringBuilder Append(string? value, int startIndex, int length)
+    public CharArrayStringBuilder Append(string? value, int startIndex, int length = int.MaxValue, string? formatString = null)
     {
         if (value == null) return this;
-        var appendLength = Math.Min(value.Length - startIndex, length);
-        CharArray(appendLength).Add(value, startIndex, length);
+        var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
+        if (formatString == null)
+        {
+            CharArray(cappedLength).Add(value, startIndex, cappedLength);
+        }
+        else
+        {
+            CharArray(cappedLength + formatString.Length);
+            var charArraySpan   = ca.AsSpan();
+            var size            = ca.Length;
+            var maxTransferSize = Math.Min(cappedLength, 512*1024);
+            var rangeAsSpan     = stackalloc char[maxTransferSize].ResetMemory();
+            rangeAsSpan.Append(value, startIndex, cappedLength);
+            var toFormatAround = rangeAsSpan[..cappedLength];
+            charArraySpan.SingleTokenFormatAt(size, toFormatAround, formatString);
+        }
         return this;
     }
 
@@ -497,7 +554,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     {
         if (arg0 == null) return this;
 
-        Append(arg0!.Value);
+        Append(arg0.Value);
         return this;
     }
 
@@ -507,9 +564,24 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         return this;
     }
 
-    public CharArrayStringBuilder Append(Span<char> value, int startIndex, int length)
+    public CharArrayStringBuilder Append(Span<char> value, int startIndex, int length = int.MaxValue, string? formatString = null)
     {
-        CharArray(value.Length).Add(value, startIndex, length);
+        var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
+        if (formatString == null)
+        {
+            CharArray(cappedLength).Add(value, startIndex, cappedLength);
+        }
+        else
+        {
+            CharArray(cappedLength + formatString.Length);
+            var charArraySpan   = ca.AsSpan();
+            var size            = ca.Length;
+            var maxTransferSize = Math.Min(cappedLength, 512*1024);
+            var rangeAsSpan     = stackalloc char[maxTransferSize].ResetMemory();
+            rangeAsSpan.Append(value, startIndex, cappedLength);
+            var toFormatAround = rangeAsSpan[..cappedLength];
+            charArraySpan.SingleTokenFormatAt(size, toFormatAround, formatString);
+        }
         return this;
     }
 
@@ -519,9 +591,24 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         return this;
     }
 
-    public CharArrayStringBuilder Append(ReadOnlySpan<char> value, int startIndex, int length)
+    public CharArrayStringBuilder Append(ReadOnlySpan<char> value, int startIndex, int length = int.MaxValue, string? formatString = null)
     {
-        CharArray(value.Length).Add(value, startIndex, length);
+        var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
+        if (formatString == null)
+        {
+            CharArray(value.Length).Add(value, startIndex, length);
+        }
+        else
+        {
+            CharArray(cappedLength + formatString.Length);
+            var charArraySpan   = ca.AsSpan();
+            var size            = ca.Length;
+            var maxTransferSize = Math.Min(cappedLength, 512*1024);
+            var rangeAsSpan     = stackalloc char[maxTransferSize].ResetMemory();
+            rangeAsSpan.Append(value, startIndex, cappedLength);
+            var toFormatAround = rangeAsSpan[..cappedLength];
+            charArraySpan.SingleTokenFormatAt(size, toFormatAround, formatString);
+        }
         return this;
     }
 
@@ -531,9 +618,25 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         return this;
     }
 
-    public CharArrayStringBuilder Append(ReadOnlyMemory<char> value, int startIndex, int length)
+    public CharArrayStringBuilder Append(ReadOnlyMemory<char> value, int startIndex, int length = int.MaxValue, string? formatString = null)
     {
-        CharArray(value.Length).Add(value, startIndex, length);
+        var cappedLength = Math.Clamp(length, 0, value.Length - startIndex);
+        if (formatString == null)
+        {
+            CharArray(value.Length).Add(value, startIndex, length);
+        }
+        else
+        {
+            CharArray(cappedLength + formatString.Length);
+            var charArraySpan   = ca.AsSpan();
+            var size            = ca.Length;
+            var maxTransferSize = Math.Min(cappedLength, 512*1024);
+            var rangeAsSpan     = stackalloc char[maxTransferSize].ResetMemory();
+            var memoryAsSpan = value.Span;
+            rangeAsSpan.Append(memoryAsSpan, startIndex, cappedLength);
+            var toFormatAround = rangeAsSpan[..cappedLength];
+            charArraySpan.SingleTokenFormatAt(size, toFormatAround, formatString);
+        }
         return this;
     }
 
@@ -561,7 +664,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     public CharArrayStringBuilder AppendSpanFormattable<TClass>(string format, TClass? arg0) where TClass : class, ISpanFormattable
     {
         var charSpan     = stackalloc char[2048].ResetMemory();
-        if (arg0.TryFormat(charSpan, out var charsWritten, format: default, provider: null))
+        if (arg0?.TryFormat(charSpan, out var charsWritten, format: format, provider: null) ?? false)
         {
             Append(charSpan[..charsWritten]);
         }
@@ -573,7 +676,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         where TStruct : struct, ISpanFormattable
     {
         var charSpan     = stackalloc char[256].ResetMemory();
-        if (arg0.TryFormat(charSpan, out var charsWritten, format: default, provider: null))
+        if (arg0.TryFormat(charSpan, out var charsWritten, format: format, provider: null))
         {
             Append(charSpan[..charsWritten]);
         }
@@ -593,7 +696,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     public CharArrayStringBuilder AppendFormat
         ([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, string arg0)
     {
-        object? asObjRef = arg0;
+        object asObjRef = arg0;
         return AppendFormatHelper(null, format, new ReadOnlySpan<object?>(in asObjRef));
     }
 
@@ -1085,7 +1188,8 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ushort value) => Append(value);
 
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(char[]? value, int startIndex, int length) => Append(value, startIndex, length);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(char[]? value, int startIndex, int length, string? formatString) => 
+        Append(value, startIndex, length);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append<TStruct>(TStruct arg0) => Append(arg0);
 
@@ -1093,19 +1197,21 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlyMemory<char> value) => Append(value);
 
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlyMemory<char> value, int startIndex, int length) =>
-        Append(value, startIndex, length);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlyMemory<char> value, int startIndex, int length, string? formatString) =>
+        Append(value, startIndex, length, formatString);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(Span<char> value) => Append(value);
 
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(Span<char> value, int startIndex, int length) => Append(value, startIndex, length);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(Span<char> value, int startIndex, int length, string? formatString) => 
+        Append(value, startIndex, length, formatString);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlySpan<char> value) => Append(value);
 
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlySpan<char> value, int startIndex, int length) =>
-        Append(value, startIndex, length);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlySpan<char> value, int startIndex, int length, string? formatString) =>
+        Append(value, startIndex, length, formatString);
 
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(string? value, int startIndex, int length) => Append(value, startIndex, length);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(string? value, int startIndex, int length, string? formatString) => 
+        Append(value, startIndex, length, formatString);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(string? value) => Append(value);
 
@@ -1123,11 +1229,11 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(StringBuilder? value) => Append(value);
 
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(StringBuilder? value, int startIndex, int length) =>
-        Append(value, startIndex, length);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(StringBuilder? value, int startIndex, int length, string? formatString) =>
+        Append(value, startIndex, length, formatString);
 
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ICharSequence? value, int startIndex, int length) =>
-        Append(value, startIndex, length);
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ICharSequence? value, int startIndex, int length, string? formatString) =>
+        Append(value, startIndex, length, formatString);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(byte value) => Append(value);
 

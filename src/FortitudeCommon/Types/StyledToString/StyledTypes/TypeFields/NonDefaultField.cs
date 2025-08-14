@@ -36,31 +36,32 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         value != defaultValue ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultAdd(string fieldName, string value, int startIndex, int length) =>
-        length > 0 ? AlwaysAdd(fieldName, value, startIndex, length) : stb.StyleTypeBuilder;
+    public TExt WhenNonDefaultAdd(string fieldName, string value, int startIndex, int length = int.MaxValue, string? formatString = null) =>
+        length > 0 ? AlwaysAdd(fieldName, value, startIndex, length, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd(string fieldName, char[] value) =>
         value.Length > 0 ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultAdd(string fieldName, char[] value, int startIndex, int length) =>
-        length > 0 ? AlwaysAdd(fieldName, value, startIndex, length) : stb.StyleTypeBuilder;
+    public TExt WhenNonDefaultAdd(string fieldName, char[] value, int startIndex, int length = int.MaxValue, string? formatString = null) =>
+        length > 0 ? AlwaysAdd(fieldName, value, startIndex, length, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd(string fieldName, IStyledToStringObject? value, IStyledToStringObject? defaultValue = null) =>
-        Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+        !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd(string fieldName, ICharSequence value, string defaultValue = "") =>
         !value.Equals(defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonDefaultAdd(string fieldName, ICharSequence value, int startIndex, int count = int.MaxValue, string defaultValue = "") =>
-        !value.Equals(defaultValue) ? AlwaysAdd(fieldName, value, startIndex, count) : stb.StyleTypeBuilder;
+    public TExt WhenNonDefaultAdd(string fieldName, ICharSequence value, int startIndex, int count = int.MaxValue, string? formatString = null
+      , string defaultValue = "") =>
+        !value.Equals(defaultValue) ? AlwaysAdd(fieldName, value, startIndex, count, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd
     (string fieldName, StringBuilder value, string defaultValue = "") =>
         !value.Equals(defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd
-    (string fieldName, StringBuilder value, int startIndex, int count = int.MaxValue, string defaultValue = "") =>
-        !value.Equals(defaultValue) ? AlwaysAdd(fieldName, value, startIndex, count) : stb.StyleTypeBuilder;
+    (string fieldName, StringBuilder value, int startIndex, int count = int.MaxValue, string? formatString = null, string defaultValue = "") =>
+        !value.Equals(defaultValue) ? AlwaysAdd(fieldName, value, startIndex, count, formatString) : stb.StyleTypeBuilder;
 
     [CallsObjectToString]
     public TExt WhenNonDefaultAdd(string fieldName, object? value, object? defaultValue = null, string? formatString = null) =>

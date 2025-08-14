@@ -23,8 +23,7 @@ public abstract class InMemoryLogEntryEventAppender : FLogAppender
 
     public override void ProcessReceivedLogEntryEvent(LogEntryPublishEvent logEntryEvent)
     {
-        logEntryEvent.LogEntry?.IncrementRefCount();
-        logEntryEvent.LogEntriesBatch?.IncrementRefCount();
+        logEntryEvent.IncrementRefCount();
         AppendToMemory(logEntryEvent);
     }
 

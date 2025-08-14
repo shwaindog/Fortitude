@@ -73,8 +73,7 @@ public abstract class ForkingFLogEntrySinkBase : FLogEntrySinkBase, IForkingFLog
 
     public void IncrementRefsOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
-        logEntryEvent.LogEntry?.IncrementRefCount();
-        logEntryEvent.LogEntriesBatch?.IncrementRefCount();
+        logEntryEvent.IncrementRefCount();
         OnReceiveLogEntry(logEntryEvent, fromPublisher);
     }
 

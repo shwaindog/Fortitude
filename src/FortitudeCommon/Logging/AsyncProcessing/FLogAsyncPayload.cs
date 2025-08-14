@@ -94,8 +94,7 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
         ResetWithTracking();
         AsyncRequestType = AsyncJobRequestType.PublishLogEntryEventToAppenders;
 
-        logEntryEvent.LogEntry?.IncrementRefCount();
-        logEntryEvent.LogEntriesBatch?.IncrementRefCount();
+        logEntryEvent.IncrementRefCount();
 
         FlogEntryEvent   = logEntryEvent;
         PublishSource    = publishSource;

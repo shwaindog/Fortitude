@@ -26,16 +26,16 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
 
     public TExt WhenNonNullAdd(string fieldName, string? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
-        value != null ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(string fieldName, string? value, int startIndex, int count = int.MaxValue) =>
-        value != null ? AlwaysAdd(fieldName, value, startIndex, count) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullAdd(string fieldName, string? value, int startIndex, int count = int.MaxValue, string? formatString = null) =>
+        value != null ? AlwaysAdd(fieldName, value, startIndex, count, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAdd(string fieldName, char[]? value) =>
         value != null ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(string fieldName, char[]? value, int startIndex, int count = int.MaxValue) =>
-        value != null ? AlwaysAdd(fieldName, value, startIndex, count) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullAdd(string fieldName, char[]? value, int startIndex, int count = int.MaxValue, string? formatString = null) =>
+        value != null ? AlwaysAdd(fieldName, value, startIndex, count, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAdd(string fieldName, IStyledToStringObject? value) => 
         value != null ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
@@ -43,14 +43,14 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
     public TExt WhenNonNullAdd(string fieldName, ICharSequence? value) =>
         value != null ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(string fieldName, ICharSequence? value, int startIndex, int count = int.MaxValue) =>
-        value != null ? AlwaysAdd(fieldName, value, startIndex, count) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullAdd(string fieldName, ICharSequence? value, int startIndex, int count = int.MaxValue, string? formatString = null) =>
+        value != null ? AlwaysAdd(fieldName, value, startIndex, count, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAdd(string fieldName, StringBuilder? value) => 
         value != null ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(string fieldName, StringBuilder? value, int startIndex, int count = int.MaxValue) => 
-        value != null ? AlwaysAdd(fieldName, value, startIndex, count) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullAdd(string fieldName, StringBuilder? value, int startIndex, int count = int.MaxValue, string? formatString = null) => 
+        value != null ? AlwaysAdd(fieldName, value, startIndex, count, formatString) : stb.StyleTypeBuilder;
 
 
     [CallsObjectToString]

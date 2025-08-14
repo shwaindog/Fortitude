@@ -18,3 +18,18 @@ public record struct LogEntryPublishEvent(LogEntryEventType LogEntryEventType, I
 }
 
 public delegate void FLogEntryPublishHandler(LogEntryPublishEvent @event, ITargetingFLogEntrySource fromPublisher);
+
+public static class LogEntryPublishEventExtensions
+{
+    public static void IncrementRefCount(this LogEntryPublishEvent toIncrement)
+    {
+        toIncrement.LogEntry?.IncrementRefCount();
+        toIncrement.LogEntriesBatch?.IncrementRefCount();
+    }
+    
+    public static void DecrementRefCount(this LogEntryPublishEvent toIncrement)
+    {
+        toIncrement.LogEntry?.DecrementRefCount();
+        toIncrement.LogEntriesBatch?.DecrementRefCount();
+    }
+}
