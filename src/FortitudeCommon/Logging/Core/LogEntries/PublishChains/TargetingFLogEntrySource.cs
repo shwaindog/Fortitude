@@ -39,17 +39,22 @@ public abstract class TargetingFLogEntrySource : FLogEntryPublishChainTreeNode, 
                 if (OutBound == null)
                 {
                     outBound               =  toInsert;
-                    PublishedLogEntryEvent += toInsert.InBoundListener;
+                    PublishedTargetLogEntryEvent += toInsert.InBoundListener;
                     return;
                 }
                 var oldOutBound = OutBound;
                 var oldToInsert = toInsert.Last();
+                if (outBound != null)
+                {
+                    PublishedTargetLogEntryEvent -= outBound.InBoundListener;
+                    outBound.DecrementRefCount();
+                }
 
                 outBound = toInsert;
 
                 oldToInsert.OutBound = oldOutBound;
 
-                PublishedLogEntryEvent += toInsert.InBoundListener;
+                PublishedTargetLogEntryEvent += toInsert.InBoundListener;
             }
             break;
         }
@@ -68,13 +73,13 @@ public abstract class TargetingFLogEntrySource : FLogEntryPublishChainTreeNode, 
                 {
                     if (outBound != null)
                     {
-                        PublishedLogEntryEvent -= outBound.InBoundListener;
+                        PublishedTargetLogEntryEvent -= outBound.InBoundListener;
                         outBound.DecrementRefCount();
                     }
                     outBound = value;
                     if (outBound != null)
                     {
-                        PublishedLogEntryEvent += outBound.InBoundListener;
+                        PublishedTargetLogEntryEvent += outBound.InBoundListener;
                         outBound.IncrementRefCount();
                     }
                     break;
@@ -168,7 +173,14 @@ public abstract class TargetingFLogEntrySource : FLogEntryPublishChainTreeNode, 
         return count;
     }
 
-    protected event FLogEntryPublishHandler? PublishedLogEntryEvent;
+    protected event FLogEntryPublishHandler? PublishedTargetLogEntryEvent;
+
+    protected void OnPublishTargetLogEntryEvent(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromSource)
+    {
+        PublishedTargetLogEntryEvent?.Invoke(logEntryEvent, fromSource );
+    }
+    
+    protected bool HasListeners => PublishedTargetLogEntryEvent != null;
 
     public virtual void PublishLogEntryEvent(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource? fromSource = null)
     {
@@ -192,12 +204,11 @@ public abstract class TargetingFLogEntrySource : FLogEntryPublishChainTreeNode, 
 
     protected virtual void SafeOnPublishLogEntryEvent(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource? fromSource = null)
     {
-        var publishEntryHandler = PublishedLogEntryEvent;
-        if (publishEntryHandler != null)
+        if (HasListeners)
         {
-            logEntryEvent.LogEntry?.IncrementRefCount();
-            logEntryEvent.LogEntriesBatch?.IncrementRefCount();
-            publishEntryHandler(logEntryEvent, fromSource ?? this);
+            // new publish branch end of branch decrements or forwards on
+            logEntryEvent.IncrementRefCount();
+            OnPublishTargetLogEntryEvent(logEntryEvent, fromSource ?? this);
         }
     }
 }

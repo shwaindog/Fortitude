@@ -500,8 +500,9 @@ public class FLogger : FLoggerDescendant, IMutableFLogger
                 var appender = appenderCache[i];
                 appender.PublishLogEntryEvent(logEntryEvent);
             }
-            logEntryEvent.LogEntry?.DecrementRefCount();
-            logEntryEvent.LogEntriesBatch?.DecrementRefCount();
+
+            logEntryEvent.DecrementRefCount();
+            // Console.Out.WriteLine("Post Logger " + logEntryEvent.LogEntry);
         }
     }
 }

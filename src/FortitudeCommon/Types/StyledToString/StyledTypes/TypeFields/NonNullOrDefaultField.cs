@@ -53,7 +53,8 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
     public TExt WhenNonNullOrDefaultAdd(string fieldName, StringBuilder? value, string? defaultValue = "") =>
         value != null && defaultValue != null && value.Equals(defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd(string fieldName, StringBuilder? value, int startIndex, int length, string? defaultValue)
+    public TExt WhenNonNullOrDefaultAdd(string fieldName, StringBuilder? value, int startIndex, int length = int.MaxValue
+      , string? formatString = null, string? defaultValue = null)
     {
         if (value == null) return stb.StyleTypeBuilder;
         if (defaultValue != null)
@@ -63,10 +64,11 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
                 return stb.StyleTypeBuilder;
             }
         }
-        return AlwaysAdd(fieldName, value, startIndex, length);
+        return AlwaysAdd(fieldName, value, startIndex, length, formatString);
     }
 
-    public TExt WhenNonNullOrDefaultAdd(string fieldName, ICharSequence? value, int startIndex, int length, string? defaultValue)
+    public TExt WhenNonNullOrDefaultAdd(string fieldName, ICharSequence? value, int startIndex, int length = int.MaxValue
+      , string? formatString = null, string? defaultValue = null)
     {
         if (value == null) return stb.StyleTypeBuilder;
         if (defaultValue != null)
@@ -76,10 +78,11 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
                 return stb.StyleTypeBuilder;
             }
         }
-        return AlwaysAdd(fieldName, value, startIndex, length);
+        return AlwaysAdd(fieldName, value, startIndex, length, formatString);
     }
 
-    public TExt WhenNonNullOrDefaultAdd(string fieldName, char[]? value, int startIndex, int length, string? defaultValue)
+    public TExt WhenNonNullOrDefaultAdd(string fieldName, char[]? value, int startIndex, int length = int.MaxValue
+      , string? formatString = null, string? defaultValue = null)
     {
         if (value == null) return stb.StyleTypeBuilder;
         if (defaultValue != null)
@@ -91,10 +94,11 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
                 return stb.StyleTypeBuilder;
             }
         }
-        return AlwaysAdd(fieldName, value, startIndex, length);
+        return AlwaysAdd(fieldName, value, startIndex, length, formatString);
     }
 
-    public TExt WhenNonNullOrDefaultAdd(string fieldName, string? value, int startIndex, int length, string? defaultValue)
+    public TExt WhenNonNullOrDefaultAdd(string fieldName, string? value, int startIndex, int length = int.MaxValue
+      , string? formatString = null, string? defaultValue = null)
     {
         if (value == null) return stb.StyleTypeBuilder;
         if (defaultValue != null)
@@ -106,7 +110,7 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
                 return stb.StyleTypeBuilder;
             }
         }
-        return AlwaysAdd(fieldName, value, startIndex, length);
+        return AlwaysAdd(fieldName, value, startIndex, length, formatString);
     }
     
     [CallsObjectToString]

@@ -207,37 +207,37 @@ public class StyledTypeStringAppender : ReusableObject<IStyledTypeStringAppender
     public SimpleOrderedCollectionBuilder StartSimpleCollectionType(string typeName)
     {
         var appendSettings         = AppendSettings;
-        var keyedCollectionBuilder = Recycler.Borrow<SimpleOrderedCollectionBuilder>()
+        var simpleOrderedCollectionBuilder = Recycler.Borrow<SimpleOrderedCollectionBuilder>()
                                              .InitializeSimpleOrderedCollectionBuilder(this, appendSettings, typeName);
-        TypeStart(keyedCollectionBuilder);
-        return keyedCollectionBuilder;
+        TypeStart(simpleOrderedCollectionBuilder);
+        return simpleOrderedCollectionBuilder;
     }
 
     public ComplexOrderedCollectionBuilder StartComplexCollectionType(string typeName)
     {
         var appendSettings         = AppendSettings;
-        var keyedCollectionBuilder = Recycler.Borrow<ComplexOrderedCollectionBuilder>()
+        var complexOrderedCollectionBuilder = Recycler.Borrow<ComplexOrderedCollectionBuilder>()
                                              .InitializeComplexOrderedCollectionBuilder(this, appendSettings, typeName);
-        TypeStart(keyedCollectionBuilder);
-        return keyedCollectionBuilder;
+        TypeStart(complexOrderedCollectionBuilder);
+        return complexOrderedCollectionBuilder;
     }
 
     public ComplexTypeBuilder StartComplexType(string typeName)
     {
         var appendSettings         = AppendSettings;
-        var keyedCollectionBuilder = Recycler.Borrow<ComplexTypeBuilder>()
+        var complexTypeBuilder = Recycler.Borrow<ComplexTypeBuilder>()
                                              .InitializeComplexTypeBuilder(this, appendSettings, typeName);
-        TypeStart(keyedCollectionBuilder);
-        return keyedCollectionBuilder;
+        TypeStart(complexTypeBuilder);
+        return complexTypeBuilder;
     }
 
     public SimpleValueTypeBuilder StartSimpleValueType(string typeName)
     {
         var appendSettings         = AppendSettings;
-        var keyedCollectionBuilder = Recycler.Borrow<SimpleValueTypeBuilder>()
+        var simpleValueBuilder = Recycler.Borrow<SimpleValueTypeBuilder>()
                                              .InitializeSimpleValueTypeBuilder(this, appendSettings, typeName);
-        TypeStart(keyedCollectionBuilder);
-        return keyedCollectionBuilder;
+        TypeStart(simpleValueBuilder);
+        return simpleValueBuilder;
     }
 
     public ComplexValueTypeBuilder StartComplexValueType(string typeName)

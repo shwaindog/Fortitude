@@ -41,8 +41,7 @@ public class LogEntryListInterceptor : FLogEntryForkingInterceptor
 
     protected override void SafeOnReceiveLogEntry(LogEntryPublishEvent logEntryEvent, ITargetingFLogEntrySource fromPublisher)
     {
-        logEntryEvent.LogEntry?.IncrementRefCount();
-        logEntryEvent.LogEntriesBatch?.IncrementRefCount();
+        logEntryEvent.IncrementRefCount();
         
         LogEntries.Add(logEntryEvent);
 

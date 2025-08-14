@@ -163,13 +163,11 @@ public abstract class FLogAppender : FLogEntrySinkBase, IMutableFLogAppender
         if (ReceiveOnAsyncQueueNumber == 0 || ReceiveOnAsyncQueueNumber == FLogAsyncQueue.MyCallingQueueNumber)
         {
             ProcessReceivedLogEntryEvent(logEntryEvent);
-            logEntryEvent.LogEntry?.DecrementRefCount();
-            logEntryEvent.LogEntriesBatch?.DecrementRefCount();
+            logEntryEvent.DecrementRefCount();
             return;
         }
         AsyncClient.ReceiveLogEntryEventOnConfiguredQueue(logEntryEvent, ReceiveEndpoint);
-        logEntryEvent.LogEntry?.DecrementRefCount();
-        logEntryEvent.LogEntriesBatch?.DecrementRefCount();
+        logEntryEvent.DecrementRefCount();
     }
 
     public IFLogEntryPipelineEndpoint ReceiveEndpoint { get; }
