@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Core.LogEntries;
+using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
+using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 using FortitudeCommon.Types.StyledToString;
 using JetBrains.Annotations;
 

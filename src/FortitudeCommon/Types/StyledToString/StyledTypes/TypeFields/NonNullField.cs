@@ -16,8 +16,8 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         value != null ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd<TNum> (string fieldName, TNum? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TNum : struct, INumber<TNum> =>
+    public TExt WhenNonNullAdd<TFmtStruct> (string fieldName, TFmtStruct? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
         value != null ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAdd<TStruct>(string fieldName, TStruct? value, StructStyler<TStruct> structToString)
@@ -28,24 +28,29 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
         value != null ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(string fieldName, string? value, int startIndex, int length) =>
-        value != null ? AlwaysAdd(fieldName, value, startIndex, length) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullAdd(string fieldName, string? value, int startIndex, int count = int.MaxValue) =>
+        value != null ? AlwaysAdd(fieldName, value, startIndex, count) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(string fieldName, char[]? value, int startIndex, int length) =>
-        value != null ? AlwaysAdd(fieldName, value, startIndex, length) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullAdd(string fieldName, char[]? value) =>
+        value != null ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAdd(string fieldName, char[]? value, int startIndex, int count = int.MaxValue) =>
+        value != null ? AlwaysAdd(fieldName, value, startIndex, count) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAdd(string fieldName, IStyledToStringObject? value) => 
         value != null ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(string fieldName, IFrozenString? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>
+    public TExt WhenNonNullAdd(string fieldName, ICharSequence? value) =>
         value != null ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(string fieldName, IStringBuilder? value, string? formatString = null) =>
+    public TExt WhenNonNullAdd(string fieldName, ICharSequence? value, int startIndex, int count = int.MaxValue) =>
+        value != null ? AlwaysAdd(fieldName, value, startIndex, count) : stb.StyleTypeBuilder;
+
+    public TExt WhenNonNullAdd(string fieldName, StringBuilder? value) => 
         value != null ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd(string fieldName, StringBuilder? value, string? formatString = null) => 
-        value != null ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
+    public TExt WhenNonNullAdd(string fieldName, StringBuilder? value, int startIndex, int count = int.MaxValue) => 
+        value != null ? AlwaysAdd(fieldName, value, startIndex, count) : stb.StyleTypeBuilder;
 
 
     [CallsObjectToString]

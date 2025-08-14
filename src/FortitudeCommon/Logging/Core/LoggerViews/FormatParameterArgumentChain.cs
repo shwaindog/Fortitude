@@ -3,6 +3,8 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Core.LogEntries;
+using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
+using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 
 namespace FortitudeCommon.Logging.Core.LoggerViews;
 

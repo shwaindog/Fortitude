@@ -11,10 +11,10 @@ public enum LogEntryEventType
   , BatchEntries
 }
 
-public record struct LogEntryPublishEvent(LogEntryEventType LogEntryEventType, IFLogEntry? LogEntry, IReusableList<IFLogEntry>? LogEntriesBatch)
+public record struct LogEntryPublishEvent(LogEntryEventType LogEntryEventType, IFLogEntry? LogEntry, ILogEntriesBatch? LogEntriesBatch)
 {
     public LogEntryPublishEvent(IFLogEntry logEntry) : this(LogEntryEventType.SingleEntry, logEntry, null) { }
-    public LogEntryPublishEvent(IReusableList<IFLogEntry> logEntriesBatch) : this(LogEntryEventType.BatchEntries, null, logEntriesBatch) { }
+    public LogEntryPublishEvent(ILogEntriesBatch logEntriesBatch) : this(LogEntryEventType.BatchEntries, null, logEntriesBatch) { }
 }
 
 public delegate void FLogEntryPublishHandler(LogEntryPublishEvent @event, ITargetingFLogEntrySource fromPublisher);

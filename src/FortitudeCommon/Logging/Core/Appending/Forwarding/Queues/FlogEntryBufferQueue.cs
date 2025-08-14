@@ -8,8 +8,8 @@ namespace FortitudeCommon.Logging.Core.Appending.Forwarding.Queues;
 
 public class FlogEntryBufferQueue(string appenderName, int capacity, FullQueueHandling queueFullHandling) : ILogEntryQueue
 {
-    private readonly ReusableList<IFLogEntry> drainedEntries  = new();
-    private readonly ReusableList<IFLogEntry> filteredEntries = new();
+    private readonly LogEntriesBatch drainedEntries  = new();
+    private readonly LogEntriesBatch filteredEntries = new();
 
     private int filteredToIndex;
     private int filteredItemsCount;
@@ -139,7 +139,7 @@ public class FlogEntryBufferQueue(string appenderName, int capacity, FullQueueHa
         return queue.Take();
     }
 
-    public IReusableList<IFLogEntry> PollBatch(int maxBatchSize, IReusableList<IFLogEntry> toPopulate)
+    public ILogEntriesBatch PollBatch(int maxBatchSize, ILogEntriesBatch toPopulate)
     {
         for (int i = 0; i < maxBatchSize; i++)
         {

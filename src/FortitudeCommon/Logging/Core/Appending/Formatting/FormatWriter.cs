@@ -11,11 +11,13 @@ public interface IFormatWriter : IDisposable
 
     bool IsIOSynchronous { get; }
     bool InUse           { get; }
-
+    
+    void NotifyStartEntryAppend();
     void Append(string toWrite);
     void Append(StringBuilder toWrite, int fromIndex = 0, int length = int.MaxValue);
     void Append(ReadOnlySpan<char> toWrite, int fromIndex = 0, int length = int.MaxValue);
     void Append(char[] toWrite, int fromIndex = 0, int length = int.MaxValue);
+    void NotifyEntryAppendComplete();
 }
 
 public abstract class FormatWriter<T> : IFormatWriter where T : IFormatWriter
@@ -41,6 +43,10 @@ public abstract class FormatWriter<T> : IFormatWriter where T : IFormatWriter
     public abstract void Append(ReadOnlySpan<char> toWrite, int fromIndex = 0, int length = int.MaxValue);
 
     public abstract void Append(char[] toWrite, int fromIndex = 0, int length = int.MaxValue);
+
+    public virtual void NotifyStartEntryAppend() { }
+
+    public virtual void NotifyEntryAppendComplete()    { }
 
     public virtual void Dispose()
     {

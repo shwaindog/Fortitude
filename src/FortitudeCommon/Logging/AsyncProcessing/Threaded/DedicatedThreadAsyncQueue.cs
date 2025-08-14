@@ -46,7 +46,7 @@ public class DedicatedThreadAsyncQueue : FLogAsyncQueue
         ring.Publish(slot);
     }
 
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
     {
         var slot = ring.Claim();
 

@@ -1,4 +1,5 @@
 ﻿using FortitudeCommon.Logging.Core.LogEntries;
+using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core.LoggerViews;

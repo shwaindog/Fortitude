@@ -33,13 +33,13 @@ public class ValueBuilderCompAccess<TExt> : InternalStyledTypeBuilderComponentAc
 
     public TExt FieldValueNext(string nonJsonfieldName, bool value)
     {
-        (NotJson ? this.FieldNameJoin(nonJsonfieldName) : Sb).AppendOrNull(value, this, false);
+        (NotJson ? this.FieldNameJoin(nonJsonfieldName) : Sb).AddNullOrValue(value, this, false);
         return ConditionalCollectionSuffix();
     }
 
     public TExt FieldValueNext<TNum>(string nonJsonfieldName, TNum value) where TNum : struct, INumber<TNum>
     {
-        (NotJson ? this.FieldNameJoin(nonJsonfieldName) : Sb).AppendOrNull(value, this, false);
+        (NotJson ? this.FieldNameJoin(nonJsonfieldName) : Sb).AddNullOrValue(value, this, false);
         return ConditionalCollectionSuffix();
     }
 

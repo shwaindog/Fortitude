@@ -28,6 +28,8 @@ public enum FLoggerBuiltinAppenderType
   , FileUnbounded
   , FileRolling
   , ConsoleOut
+  , FLogEntryListAppender
+  , FormattedStringListAppender
   , Network
   , Database
 }

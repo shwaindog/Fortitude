@@ -6,15 +6,18 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Framework.Fillers;
 using FortitudeCommon.Logging.Config;
+using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
+using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 using JetBrains.Annotations;
 
 namespace FortitudeCommon.Logging.Core.LogEntries;
 
-public interface IFLogEntry : IReusableObject<IFLogEntry>, IMaybeFrozen
+public interface IFLogEntry : IReusableObject<IFLogEntry>, IMaybeFrozen, IStyledToStringObject
 {
     event Action<IFLogEntry> MessageComplete;
 
@@ -287,6 +290,23 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         DispatchedAt = source.DispatchedAt;
 
         return this;
+    }
+
+    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
+    {
+        using var tb =
+            sbc.StartComplexType(nameof(FLogEntry))
+               .Field.AlwaysAdd(nameof(IssueSequenceNumber), IssueSequenceNumber)
+               .Field.AlwaysAdd(nameof(InstanceNumber), InstanceNumber)
+               .Field.AlwaysAdd(nameof(RefCount), RefCount)
+               .Field.WhenNonDefaultAdd(nameof(CorrelationId), CorrelationId)
+               .Field.AlwaysAdd(nameof(LogDateTime), LogDateTime, "HH:mm:ss.fff")
+               .Field.AlwaysAdd(nameof(LogLevel), LogLevel, LogLevel.Styler())
+               .Field.AlwaysAdd(nameof(LogLocation), LogLocation, LogLocation.Styler())
+               .Field.AlwaysAdd(nameof(Logger), Logger.FullName[^25..])
+               .Field.AlwaysAdd(nameof(Message), Message, 0, 40);
+
+        return tb.Complete();
     }
 
     protected string LogEntryToStringMembers =>

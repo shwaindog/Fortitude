@@ -1,5 +1,4 @@
-﻿using FortitudeCommon.DataStructures.Lists;
-using FortitudeCommon.DataStructures.Memory;
+﻿using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Types.Mutable;
@@ -8,8 +7,8 @@ namespace FortitudeCommon.Logging.Core.Appending.Forwarding.Queues;
 
 public class BlockDrainSwapBackQueue : ReusableObject<ILogEntryQueue>, ILogEntryQueue
 {
-    private readonly ReusableList<IFLogEntry> drainedEntries  = new();
-    private readonly ReusableList<IFLogEntry> filteredEntries = new();
+    private readonly LogEntriesBatch drainedEntries  = new();
+    private readonly LogEntriesBatch filteredEntries = new();
 
     private readonly ManualResetEvent blockInboundOutboundEvent = new(false);
 
@@ -163,7 +162,7 @@ public class BlockDrainSwapBackQueue : ReusableObject<ILogEntryQueue>, ILogEntry
         return originalQueue.Poll();
     }
 
-    public IReusableList<IFLogEntry> PollBatch(int maxBatchSize, IReusableList<IFLogEntry> toPopulate)
+    public ILogEntriesBatch PollBatch(int maxBatchSize, ILogEntriesBatch toPopulate)
     {
         blockInboundOutboundEvent.WaitOne();
         return originalQueue.PollBatch(maxBatchSize, toPopulate);

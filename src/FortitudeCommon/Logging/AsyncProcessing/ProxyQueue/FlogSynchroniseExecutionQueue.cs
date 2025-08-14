@@ -19,7 +19,7 @@ internal class FlogSynchroniseExecutionQueue(int queueNumber)
         fromAppender.FlushBufferToAppender(toFlush);
     }
 
-    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
+    public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)
     {
         for (var i = 0; i < logEntrySinks.Count; i++)
         {

@@ -35,5 +35,5 @@ public interface ILogEntryQueue
 
     IFLogEntry? TryPoll();
 
-    IReusableList<IFLogEntry> PollBatch(int maxBatchSize, IReusableList<IFLogEntry> toPopulate);
+    ILogEntriesBatch PollBatch(int maxBatchSize, ILogEntriesBatch toPopulate);
 }

@@ -9,26 +9,6 @@ namespace FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldKeyValueColl
 public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : StyledTypeBuilder
 {
     public TExt WhenNonNullAddAll<TKey, TValue>
-    (string fieldName, ConcurrentDictionary<TKey, TValue>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull =>
-        value != null ? AlwaysAddAll(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullAddAll<TKey, TValue>
-    (string fieldName, Dictionary<TKey, TValue>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull =>
-        value != null ? AlwaysAddAll(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullAddAll<TKey, TValue>
-    (string fieldName, IDictionary<TKey, TValue>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
-        value != null ? AlwaysAddAll(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
@@ -46,23 +26,17 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
         value != null ? AlwaysAddAll(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddAll<TKey, TValue>
-    (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
-        value != null ? AlwaysAddAll(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullAddAll<TKey, TValue>
+    public TExt WhenNonNullAddAllEnumerate<TKey, TValue>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
-        value != null ? AlwaysAddAll(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAllEnumerate(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddAll<TKey, TValue>
+    public TExt WhenNonNullAddAllEnumerate<TKey, TValue>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
-        value != null ? AlwaysAddAll(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAllEnumerate(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, ConcurrentDictionary<TKey, TValue>? value
@@ -72,20 +46,6 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
-    (string fieldName, Dictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : notnull where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyFormatString) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullAddAll<TKey, TValue>
-    (string fieldName, IDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyFormatString) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
@@ -107,25 +67,18 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
-    (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
-        where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyFormatString) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , StructStyler<TValue> valueStructStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyFormatString) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAllEnumerate(fieldName, value, valueStructStyler, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , StructStyler<TValue> valueStructStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyFormatString) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAllEnumerate(fieldName, value, valueStructStyler, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, ConcurrentDictionary<TKey, TValue>? value
@@ -135,20 +88,6 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyStructStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
-    (string fieldName, Dictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)
-        where TKey : struct where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyStructStyler) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullAddAll<TKey, TValue>
-    (string fieldName, IDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) 
-        where TKey : struct where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyStructStyler) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , StructStyler<TValue> valueStructStyler
       , StructStyler<TKey> keyStructStyler) 
@@ -169,26 +108,19 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
         where TKey : struct where TValue : struct =>
         value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyStructStyler) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddAll<TKey, TValue>
-    (string fieldName, ICollection<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) 
-        where TKey : struct where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyStructStyler) : stb.StyleTypeBuilder;
-
-    public TExt WhenNonNullAddAll<TKey, TValue>
+    public TExt WhenNonNullAddAllEnumerate<TKey, TValue>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , StructStyler<TValue> valueStructStyler
       , StructStyler<TKey> keyStructStyler) 
         where TKey : struct where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyStructStyler) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAllEnumerate(fieldName, value, valueStructStyler, keyStructStyler) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAddAll<TKey, TValue>
+    public TExt WhenNonNullAddAllEnumerate<TKey, TValue>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , StructStyler<TValue> valueStructStyler
       , StructStyler<TKey> keyStructStyler) 
         where TKey : struct where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyStructStyler) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAllEnumerate(fieldName, value, valueStructStyler, keyStructStyler) : stb.StyleTypeBuilder;
 
 
 }

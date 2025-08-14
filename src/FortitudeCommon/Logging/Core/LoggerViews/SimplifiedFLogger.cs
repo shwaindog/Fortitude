@@ -7,6 +7,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Core.LogEntries;
+using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.FormatBuilder;
+using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 using FortitudeCommon.Types.StyledToString;
 using JetBrains.Annotations;
 using static FortitudeCommon.Logging.Core.LoggerActivationFlags;
@@ -171,7 +173,7 @@ public class SimplifiedFLogger(IFLogger logger) : LoggerView(logger), ISimplifie
     public void Debug<T>(T toLog, LoggerActivationFlags activationFlags = Disabled, StringBuildingStyle style = StringBuildingStyle.Default
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
-        var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
+        var logEntry = Logger.Debug(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.StringAppender(style).FinalMatchAppend(toLog);
     }
 
@@ -195,7 +197,7 @@ public class SimplifiedFLogger(IFLogger logger) : LoggerView(logger), ISimplifie
     public void Info<T>(T toLog, LoggerActivationFlags activationFlags = Disabled, StringBuildingStyle style = StringBuildingStyle.Default
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
-        var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
+        var logEntry = Logger.Info(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.StringAppender(style).FinalMatchAppend(toLog);
     }
     
@@ -219,7 +221,7 @@ public class SimplifiedFLogger(IFLogger logger) : LoggerView(logger), ISimplifie
     public void Warn<T>(T toLog, LoggerActivationFlags activationFlags = Disabled, StringBuildingStyle style = StringBuildingStyle.Default
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
-        var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
+        var logEntry = Logger.Warn(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.StringAppender(style).FinalMatchAppend(toLog);
     }
     
@@ -243,7 +245,7 @@ public class SimplifiedFLogger(IFLogger logger) : LoggerView(logger), ISimplifie
     public void  Error<T>(T toLog, LoggerActivationFlags activationFlags = Disabled, StringBuildingStyle style = StringBuildingStyle.Default
       , string memberName = "", string sourceFilePath = "", int sourceLineNumber = 0)
     {
-        var logEntry = Logger.Trace(activationFlags, memberName, sourceFilePath, sourceLineNumber);
+        var logEntry = Logger.Error(activationFlags, memberName, sourceFilePath, sourceLineNumber);
         logEntry?.StringAppender(style).FinalMatchAppend(toLog);
     }
 }

@@ -12,11 +12,13 @@ public class NullAppender(INullAppenderConfig appenderDefinitionConfig)
     public static NullAppender NullInstance = new(new NullAppenderConfig());
 
     public override FLogEntrySourceSinkType LogEntryLinkType => FLogEntrySourceSinkType.Sink;
+
     public override FLogEntryProcessChainState LogEntryProcessState
     {
         get => FLogEntryProcessChainState.Terminating;
         protected set => _ = value;
     }
+
     public override string Name
     {
         get => NullAppenderName;
@@ -28,6 +30,7 @@ public class NullAppender(INullAppenderConfig appenderDefinitionConfig)
         get => NullAppenderName;
         set => _ = value;
     }
+
     public string AppenderType => $"{nameof(FLoggerBuiltinAppenderType.Null)}";
 
     public IAppenderAsyncClient AsyncClient
@@ -35,6 +38,7 @@ public class NullAppender(INullAppenderConfig appenderDefinitionConfig)
         get => NullAsyncClient.NullAsyncClientInstance;
         set => _ = value!;
     }
+
     public int ReceiveOnAsyncQueueNumber => 0;
 
     public IAppenderClient CreateAppenderClientFor(IFLoggerCommon logger) => NullAppenderClient.NullClientInstance;

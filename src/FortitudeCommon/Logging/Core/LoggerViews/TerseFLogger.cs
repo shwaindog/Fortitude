@@ -98,7 +98,6 @@ public interface ITerseFLogger : ILoggerView
     void Err<T>(T toLog, LoggerActivationFlags activationFlags = DefaultLogger
       , StringBuildingStyle style = StringBuildingStyle.Default, [CallerMemberName] string memberName = ""
       , [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0);
-
 }
 
 public class TerseFLogger(IFLogger logger) : LoggerView(logger), ITerseFLogger

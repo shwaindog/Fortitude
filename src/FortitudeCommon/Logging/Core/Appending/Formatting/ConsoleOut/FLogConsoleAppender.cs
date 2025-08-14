@@ -3,7 +3,6 @@ using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Logging.Config.Appending.Formatting;
 using FortitudeCommon.Logging.Config.Appending.Formatting.Console;
 using FortitudeCommon.Logging.Core.Hub;
-using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.ConsoleOut;
 
@@ -11,30 +10,12 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
 {
     public FLogConsoleAppender(IConsoleAppenderConfig consoleAppenderConfig, IFLogContext context) : base(consoleAppenderConfig, context)
     {
-        FormatAppenderType = FormattingAppenderSinkType.Console;
-
         ConsoleColorEnabled = !consoleAppenderConfig.DisableColoredConsole;
     }
 
     public bool ConsoleColorEnabled { get; set; }
 
-    public override void ProcessReceivedLogEntryEvent(LogEntryPublishEvent logEntryEvent)
-    {
-        if (logEntryEvent.LogEntryEventType == LogEntryEventType.SingleEntry)
-        {
-            Formatter.ApplyFormatting(logEntryEvent.LogEntry!);
-        }
-        else
-        {
-            for (var i = 0; i < logEntryEvent.LogEntriesBatch!.Count; i++)
-            {
-                var flogEntry = logEntryEvent.LogEntriesBatch![i];
-                Formatter.ApplyFormatting(flogEntry);
-            }
-        }
-    }
-
-    protected override IFormatWriter CreatedImmediateFormatWriter(IBufferingFormatAppenderConfig bufferingFormatAppenderConfig)
+    protected override IFormatWriter CreatedDirectFormatWriter(IBufferingFormatAppenderConfig bufferingFormatAppenderConfig)
     {
         DirectFormatWriter ??= new ConsoleFormatWriter(this, OnReturningFormatWriter);
         return DirectFormatWriter;
@@ -47,7 +28,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
         Console.Out.Write(bufferAndRange.CharBuffer, 0, charBufferLength);
     }
 
-    public override FormattingAppenderSinkType FormatAppenderType { get; protected set; }
+    public override FormattingAppenderSinkType FormatAppenderType => FormattingAppenderSinkType.Console;
     
     public override IConsoleAppenderConfig GetAppenderConfig() => (IConsoleAppenderConfig)AppenderConfig;
 
@@ -61,7 +42,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
 
         public override void Append(StringBuilder toWrite, int fromIndex = 0, int length = int.MaxValue)
         {
-            var bufferSize = Math.Min(toWrite.Length, length);
+            var bufferSize = Math.Min(toWrite.Length - fromIndex, length);
             var charArray = bufferSize.SourceRecyclingCharArray();
             charArray.Add(toWrite, fromIndex, bufferSize);
             Console.Write(charArray.BackingArray, 0, bufferSize);
@@ -70,7 +51,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
 
         public override void Append(ReadOnlySpan<char> toWrite, int fromIndex = 0, int length = int.MaxValue)
         {
-            var bufferSize = Math.Min(toWrite.Length, length);
+            var bufferSize = Math.Min(toWrite.Length - fromIndex, length);
             var charArray  = bufferSize.SourceRecyclingCharArray();
             charArray.Add(toWrite, fromIndex, bufferSize);
             Console.Write(charArray.BackingArray, 0, bufferSize);
@@ -79,7 +60,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
 
         public override void Append(char[] toWrite, int fromIndex = 0, int length = int.MaxValue)
         {
-            var bufferSize = Math.Min(toWrite.Length, length);
+            var bufferSize = Math.Min(toWrite.Length - fromIndex, length);
             Console.Write(toWrite, 0, bufferSize);
         }
 

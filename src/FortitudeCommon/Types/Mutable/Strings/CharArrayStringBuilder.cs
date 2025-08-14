@@ -480,15 +480,60 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         return this;
     }
 
+    public CharArrayStringBuilder Append<TStruct>(TStruct arg0) 
+        where TStruct : struct, ISpanFormattable
+    {
+        var charSpan     = stackalloc char[256].ResetMemory();
+        if (arg0.TryFormat(charSpan, out var charsWritten, format: default, provider: null))
+        {
+            Append(charSpan[..charsWritten]);
+        }
+
+        return this;
+    }
+
+    public CharArrayStringBuilder Append<TStruct>(TStruct? arg0) 
+        where TStruct : struct, ISpanFormattable
+    {
+        if (arg0 == null) return this;
+
+        Append(arg0!.Value);
+        return this;
+    }
+
+    public CharArrayStringBuilder Append(Span<char> value)
+    {
+        CharArray(value.Length).Add(value);
+        return this;
+    }
+
+    public CharArrayStringBuilder Append(Span<char> value, int startIndex, int length)
+    {
+        CharArray(value.Length).Add(value, startIndex, length);
+        return this;
+    }
+
     public CharArrayStringBuilder Append(ReadOnlySpan<char> value)
     {
         CharArray(value.Length).Add(value);
         return this;
     }
 
+    public CharArrayStringBuilder Append(ReadOnlySpan<char> value, int startIndex, int length)
+    {
+        CharArray(value.Length).Add(value, startIndex, length);
+        return this;
+    }
+
     public CharArrayStringBuilder Append(ReadOnlyMemory<char> value)
     {
         CharArray(value.Length).Add(value);
+        return this;
+    }
+
+    public CharArrayStringBuilder Append(ReadOnlyMemory<char> value, int startIndex, int length)
+    {
+        CharArray(value.Length).Add(value, startIndex, length);
         return this;
     }
 
@@ -510,6 +555,38 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     {
         value.TryFormat(CharArray(20).BackingArray, out var addToCount);
         ca.Count += addToCount;
+        return this;
+    }
+
+    public CharArrayStringBuilder AppendSpanFormattable<TClass>(string format, TClass? arg0) where TClass : class, ISpanFormattable
+    {
+        var charSpan     = stackalloc char[2048].ResetMemory();
+        if (arg0.TryFormat(charSpan, out var charsWritten, format: default, provider: null))
+        {
+            Append(charSpan[..charsWritten]);
+        }
+
+        return this;
+    }
+
+    public CharArrayStringBuilder AppendFormat<TStruct>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TStruct arg0) 
+        where TStruct : struct, ISpanFormattable
+    {
+        var charSpan     = stackalloc char[256].ResetMemory();
+        if (arg0.TryFormat(charSpan, out var charsWritten, format: default, provider: null))
+        {
+            Append(charSpan[..charsWritten]);
+        }
+
+        return this;
+    }
+
+    public CharArrayStringBuilder AppendFormat<TStruct>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TStruct? arg0) 
+        where TStruct : struct, ISpanFormattable
+    {
+        if (arg0 == null) return this;
+
+        AppendFormat(format, arg0.Value);
         return this;
     }
 
@@ -868,9 +945,27 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         return this;
     }
 
+    public CharArrayStringBuilder Insert(int atIndex, Span<char> value)
+    {
+        CharArray(value.Length).Insert(atIndex, value);
+        return this;
+    }
+
+    public CharArrayStringBuilder Insert(int atIndex, Span<char> value, int startIndex, int length)
+    {
+        CharArray(value.Length).Insert(atIndex, value, startIndex, length);
+        return this;
+    }
+
     public CharArrayStringBuilder Insert(int atIndex, ReadOnlySpan<char> value)
     {
         CharArray(value.Length).Insert(atIndex, value);
+        return this;
+    }
+
+    public CharArrayStringBuilder Insert(int atIndex, ReadOnlySpan<char> value, int startIndex, int length)
+    {
+        CharArray(value.Length).Insert(atIndex, value, startIndex, length);
         return this;
     }
 
@@ -992,9 +1087,23 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(char[]? value, int startIndex, int length) => Append(value, startIndex, length);
 
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append<TStruct>(TStruct arg0) => Append(arg0);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append<TStruct>(TStruct? arg0) => Append(arg0);
+
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlyMemory<char> value) => Append(value);
 
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlyMemory<char> value, int startIndex, int length) =>
+        Append(value, startIndex, length);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(Span<char> value) => Append(value);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(Span<char> value, int startIndex, int length) => Append(value, startIndex, length);
+
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlySpan<char> value) => Append(value);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlySpan<char> value, int startIndex, int length) =>
+        Append(value, startIndex, length);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(string? value, int startIndex, int length) => Append(value, startIndex, length);
 
@@ -1036,6 +1145,13 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(char value, int repeatCount) => Append(value, repeatCount);
 
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendSpanFormattable<TClass>(string format, TClass? arg0) 
+        where TClass : class => AppendSpanFormattable(format, arg0);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TStruct>(string format, TStruct arg0) => AppendFormat(format, arg0);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TStruct>(string format, TStruct? arg0) => AppendFormat(format, arg0);
+
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat(string format, string arg0) => AppendFormat(format, arg0);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TParam>
@@ -1055,7 +1171,8 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         AppendFormat(provider, format, arg0, arg1, arg2);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat(IFormatProvider? provider, CompositeFormat format
-      , params object?[] args) => AppendFormat(provider, format, args);
+      , params object?[] args) =>
+        AppendFormat(provider, format, args);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat(string format, ReadOnlySpan<char> arg0) => AppendFormat(format, arg0);
 
@@ -1064,32 +1181,38 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat(string format, object? arg0, object? arg1) => AppendFormat(format, arg0, arg1);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat
-        (string format, object? arg0, object? arg1, object? arg2) => AppendFormat(format, arg0, arg1, arg2);
+        (string format, object? arg0, object? arg1, object? arg2) =>
+        AppendFormat(format, arg0, arg1, arg2);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat(string format, params object?[] args) => AppendFormat(format, args);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat
-        (IFormatProvider? provider, string format, object? arg0) => AppendFormat(provider, format, arg0);
+        (IFormatProvider? provider, string format, object? arg0) =>
+        AppendFormat(provider, format, arg0);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat
-        (IFormatProvider? provider, string format, object? arg0, object? arg1) => AppendFormat(provider, format, arg0, arg1);
+        (IFormatProvider? provider, string format, object? arg0, object? arg1) =>
+        AppendFormat(provider, format, arg0, arg1);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat
         (IFormatProvider? provider, string format, object? arg0, object? arg1, object? arg2) =>
         AppendFormat(provider, format, arg0, arg1, arg2);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat
-        (IFormatProvider? provider, string format, params object?[] args) => AppendFormat(provider, format, args);
+        (IFormatProvider? provider, string format, params object?[] args) =>
+        AppendFormat(provider, format, args);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendJoin(string separator, params object?[] values) => AppendJoin(separator, values);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendJoin<TParam>
-        (string separator, IEnumerable<TParam> values) => AppendJoin(separator, values);
+        (string separator, IEnumerable<TParam> values) =>
+        AppendJoin(separator, values);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendJoin(string separator, params string?[] values) => AppendJoin(separator, values);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendJoin<TParam>
-        (char separator, IEnumerable<TParam> values) => AppendJoin(separator, values);
+        (char separator, IEnumerable<TParam> values) =>
+        AppendJoin(separator, values);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendJoin(char separator, params string?[] values) => AppendJoin(separator, values);
 
@@ -1126,7 +1249,15 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, char[]? value, int startIndex, int length) =>
         Insert(atIndex, value, startIndex, length);
 
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, Span<char> value) => Insert(atIndex, value);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, Span<char> value, int startIndex, int length) =>
+        Insert(atIndex, value, startIndex, length);
+
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, ReadOnlySpan<char> value) => Insert(atIndex, value);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, ReadOnlySpan<char> value, int startIndex, int length) =>
+        Insert(atIndex, value, startIndex, length);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, string? value) => Insert(atIndex, value);
 

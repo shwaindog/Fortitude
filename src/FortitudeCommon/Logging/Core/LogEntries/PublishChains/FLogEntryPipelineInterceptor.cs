@@ -20,7 +20,7 @@ public abstract class FLogEntryPipelineInterceptor : TargetingFLogEntrySource, I
 {
     protected FLogEntryPipelineInterceptor()
     {
-        InBoundListener = OnReceiveLogEntry;
+        InBoundListener        = OnReceiveLogEntry;
     }
 
     public FLogEntryPublishHandler InBoundListener { get; }
@@ -35,7 +35,7 @@ public abstract class FLogEntryPipelineInterceptor : TargetingFLogEntrySource, I
         {
             if (inBound != null)
             {
-                inBound.RemoveOptionalChild(this);
+                inBound.Remove(this);
             }
             inBound = value;
         }

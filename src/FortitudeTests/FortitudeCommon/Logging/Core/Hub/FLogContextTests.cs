@@ -3,6 +3,7 @@ using System.Reflection;
 using FortitudeCommon.Logging.Config.Appending.Formatting.Files;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.Hub;
+using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 
@@ -17,9 +18,9 @@ public class FLogContextTests
         var context        = FLogContext.NullOnUnstartedContext.SetAsNewNewDefaultConfigContext();
         var startedContext = FLogContext.Context;
 
-        var logger = FLog.FLoggerForType;
+        var logger = FLog.FLoggerForType.As<IVersatileFLogger>();
 
-        logger.Info()?.StringAppender().FinalAppend("Testing 1 2 3, testing");
+        logger.Info("Testing 1 2 3, testing");
     }
 
     [TestMethod]
@@ -72,7 +73,6 @@ public class FLogContextTests
         return output;
     }
 
-
     public Func<FLogContextTests, TTuple, string> BuildInvoke<TTuple>(TTuple toConvert)
     {
         var type = toConvert.GetType();
@@ -107,16 +107,20 @@ public class FLogContextTests
                                              throw new InvalidOperationException($"Item2 does not exist on {type.FullName}");
                         var getItem2Expr = Expression.Field(tupleParameter, item2FieldInfo);
 
-                        var invokeMethodDef = myType.GetMethods()
-                                                 .FirstOrDefault(mi =>
-                                                 {
-                                                     var genericParams = mi.GetGenericArguments();
-                                                     var methodParams = mi.GetParameters();
-                                                     return mi.Name == nameof(InvokeStructStyler) && methodParams.Length == 2
-                                                         && genericParams[0] == methodParams[0].ParameterType && 
-                                                         methodParams[1].ParameterType.GetGenericTypeDefinition() == typeof(StructStyler<>);
-                                                 }) ??
-                                           throw new InvalidOperationException("Method does not exist");
+                        var invokeMethodDef =
+                            myType.GetMethods()
+                                  .FirstOrDefault(mi =>
+                                  {
+                                      var genericParams = mi.GetGenericArguments();
+                                      var methodParams  = mi.GetParameters();
+                                      return
+                                          mi.Name == nameof(InvokeStructStyler)
+                                       && methodParams.Length == 2
+                                       && genericParams[0] == methodParams[0].ParameterType &&
+                                          methodParams[1].ParameterType.GetGenericTypeDefinition() ==
+                                          typeof(StructStyler<>);
+                                  }) ??
+                            throw new InvalidOperationException("Method does not exist");
 
                         var invokeMethod = invokeMethodDef.MakeGenericMethod(item1Type);
 

@@ -158,7 +158,7 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
         queue.FlushBufferToAppender(toFlush, fromAppender);
     }
 
-    public void SendLogEntryEventTo(int queueNumber, LogEntryPublishEvent logEntryEvent, IReadOnlyList<IFLogEntrySink> logEntrySinks, IFLogEntrySource publishSource)
+    public void SendLogEntryEventTo(int queueNumber, LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks, IFLogEntrySource publishSource)
     {
         var queue = GetOrCreateQueue(queueNumber);
         queue.SendLogEntryEventTo(logEntryEvent, logEntrySinks, publishSource);
