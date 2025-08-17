@@ -2,17 +2,24 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting.Files;
 
-public interface IFileAppenderConfig : IFormattingAppenderConfig, ICloneable<IFileAppenderConfig>
+public interface IFileAppenderConfig : IBufferingFormatAppenderConfig, ICloneable<IFileAppenderConfig>
 {
-    const string DefaultFileName = "{StartAssemblyName}.log";
+    const string FileUnboundedAppenderType = $"{nameof(FLoggerBuiltinAppenderType.FileUnbounded)}";
+
+    const string DefaultFileName = "'%StartAssemblyName%'.log";
     const string DefaultFilePath = ".";
+
+    const uint DefaultCloseDelayMs = 2_000;
+
+    const FileEncodingTypes DefaultFileEncodingType = FileEncodingTypes.Utf8;
+
+    FileEncodingTypes FileEncoding { get; }
 
     FileAppenderType FileAppenderType { get; }
 
@@ -22,11 +29,15 @@ public interface IFileAppenderConfig : IFormattingAppenderConfig, ICloneable<IFi
 
     string FileName { get; }
 
+    uint CloseDelayMs { get; }
+
     new IFileAppenderConfig Clone();
 }
 
-public interface IMutableFileAppenderConfig : IFileAppenderConfig, IMutableFormattingAppenderConfig
+public interface IMutableFileAppenderConfig : IFileAppenderConfig, IMutableBufferingFormatAppenderConfig
 {
+    new FileEncodingTypes FileEncoding { get; set; }
+
     new FileAppenderType FileAppenderType { get; set; }
 
     new CompressionType CompressionType { get; set; }
@@ -34,9 +45,13 @@ public interface IMutableFileAppenderConfig : IFileAppenderConfig, IMutableForma
     new string FilePath { get; set; }
 
     new string FileName { get; set; }
+
+    new uint CloseDelayMs { get; set; }
+
+    new IMutableFileAppenderConfig Clone();
 }
 
-public class FileAppenderConfig : FormattingAppenderConfig, IMutableFileAppenderConfig
+public class FileAppenderConfig : BufferingFormatAppenderConfig, IMutableFileAppenderConfig
 {
     public FileAppenderConfig(IConfigurationRoot root, string path) : base(root, path) { }
 
@@ -47,19 +62,31 @@ public class FileAppenderConfig : FormattingAppenderConfig, IMutableFileAppender
       , FileAppenderType fileAppenderType = FileAppenderType.Unbounded
       , string filename = IFileAppenderConfig.DefaultFileName
       , string filePath = IFileAppenderConfig.DefaultFilePath
-      , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate, int runOnAsyncQueueNumber = 0
+      , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
+      , int charBufferSize = IBufferingFormatAppenderConfig.DefaultCharBufferSize
+      , IMutableFlushBufferConfig? flushBufferConfig = null
+      , bool disableBuffering = false
+      , uint closeDelayMs = IFileAppenderConfig.DefaultCloseDelayMs
+      , int runOnAsyncQueueNumber = 0
       , string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false, bool deactivateHere = false)
         : this(InMemoryConfigRoot, InMemoryPath, appenderName, appenderType, fileAppenderType, filename, filePath, logEntryFormatLayout
-             , runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere) { }
+             , charBufferSize, flushBufferConfig, disableBuffering, closeDelayMs, runOnAsyncQueueNumber, inheritFromAppenderName
+             , isTemplateOnlyDefinition, deactivateHere) { }
 
     public FileAppenderConfig
     (string appenderName
       , FileAppenderType fileAppenderType = FileAppenderType.Unbounded
       , string filename = IFileAppenderConfig.DefaultFileName
       , string filePath = IFileAppenderConfig.DefaultFilePath
-      , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate, int runOnAsyncQueueNumber = 0
+      , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
+      , int charBufferSize = IBufferingFormatAppenderConfig.DefaultCharBufferSize
+      , IMutableFlushBufferConfig? flushBufferConfig = null
+      , bool disableBuffering = false
+      , uint closeDelayMs = IFileAppenderConfig.DefaultCloseDelayMs
+      , int runOnAsyncQueueNumber = 0
       , string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false, bool deactivateHere = false)
-        : this(InMemoryConfigRoot, InMemoryPath, appenderName, fileAppenderType, filename, filePath, logEntryFormatLayout, runOnAsyncQueueNumber
+        : this(InMemoryConfigRoot, InMemoryPath, appenderName, IFileAppenderConfig.FileUnboundedAppenderType, fileAppenderType
+             , filename, filePath, logEntryFormatLayout, charBufferSize, flushBufferConfig, disableBuffering, closeDelayMs, runOnAsyncQueueNumber
              , inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere) { }
 
     public FileAppenderConfig
@@ -68,15 +95,21 @@ public class FileAppenderConfig : FormattingAppenderConfig, IMutableFileAppender
       , string filename = IFileAppenderConfig.DefaultFileName
       , string filePath = IFileAppenderConfig.DefaultFilePath
       , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
+      , int charBufferSize = IBufferingFormatAppenderConfig.DefaultCharBufferSize
+      , IMutableFlushBufferConfig? flushBufferConfig = null
+      , bool disableBuffering = false
+      , uint closeDelayMs = IFileAppenderConfig.DefaultCloseDelayMs
       , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)
-        : base(root, path, appenderName, logEntryFormatLayout, appenderType, runOnAsyncQueueNumber
-             , inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere)
+        : base(root, path, appenderName, appenderType, logEntryFormatLayout, charBufferSize, flushBufferConfig, disableBuffering
+             , runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere)
     {
         FileAppenderType = fileAppenderType;
 
         FileName = filename;
         FilePath = filePath;
+
+        CloseDelayMs = closeDelayMs;
     }
 
     public FileAppenderConfig
@@ -85,15 +118,21 @@ public class FileAppenderConfig : FormattingAppenderConfig, IMutableFileAppender
       , string filename = IFileAppenderConfig.DefaultFileName
       , string filePath = IFileAppenderConfig.DefaultFilePath
       , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
+      , int charBufferSize = IBufferingFormatAppenderConfig.DefaultCharBufferSize
+      , IMutableFlushBufferConfig? flushBufferConfig = null
+      , bool disableBuffering = false
+      , uint closeDelayMs = IFileAppenderConfig.DefaultCloseDelayMs
       , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)
-        : base(root, path, appenderName, logEntryFormatLayout, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition
-             , deactivateHere)
+        : base(root, path, appenderName, logEntryFormatLayout, charBufferSize, flushBufferConfig, disableBuffering, runOnAsyncQueueNumber
+             , inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere)
     {
         FileAppenderType = fileAppenderType;
 
         FileName = filename;
         FilePath = filePath;
+
+        CloseDelayMs = closeDelayMs;
     }
 
     public FileAppenderConfig(IFileAppenderConfig toClone, IConfigurationRoot root, string path)
@@ -103,25 +142,30 @@ public class FileAppenderConfig : FormattingAppenderConfig, IMutableFileAppender
 
         FileName = toClone.FileName;
         FilePath = toClone.FilePath;
+
+        CloseDelayMs = toClone.CloseDelayMs;
     }
 
     public FileAppenderConfig(IFileAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
 
-    public FileAppenderType FileAppenderType
+    public FileEncodingTypes FileEncoding
     {
         get =>
-            Enum.TryParse<FileAppenderType>(this[nameof(FileAppenderType)], out var poolScope)
-                ? poolScope
-                : FileAppenderType.Unbounded;
+            Enum.TryParse<FileEncodingTypes>(this[nameof(FileAppenderType)], out var poolScope) ?
+                poolScope :
+                IFileAppenderConfig.DefaultFileEncodingType;
+        set => this[nameof(FileAppenderType)] = value.ToString();
+    }
+
+    public FileAppenderType FileAppenderType
+    {
+        get => Enum.TryParse<FileAppenderType>(this[nameof(FileAppenderType)], out var poolScope) ? poolScope : FileAppenderType.Unbounded;
         set => this[nameof(FileAppenderType)] = value.ToString();
     }
 
     public CompressionType CompressionType
     {
-        get =>
-            Enum.TryParse<CompressionType>(this[nameof(CompressionType)], out var poolScope)
-                ? poolScope
-                : CompressionType.Uncompressed;
+        get => Enum.TryParse<CompressionType>(this[nameof(CompressionType)], out var poolScope) ? poolScope : CompressionType.Uncompressed;
         set => this[nameof(CompressionType)] = value.ToString();
     }
 
@@ -137,6 +181,12 @@ public class FileAppenderConfig : FormattingAppenderConfig, IMutableFileAppender
         set => this[nameof(FilePath)] = value;
     }
 
+    public uint CloseDelayMs
+    {
+        get => uint.TryParse(this[nameof(CloseDelayMs)], out var startDelayMs) ? startDelayMs : IFileAppenderConfig.DefaultCloseDelayMs;
+        set => this[nameof(CloseDelayMs)] = value.ToString();
+    }
+
     public override T Visit<T>(T visitor) => visitor.Accept(this);
 
     object ICloneable.Clone() => Clone();
@@ -144,6 +194,8 @@ public class FileAppenderConfig : FormattingAppenderConfig, IMutableFileAppender
     IFileAppenderConfig ICloneable<IFileAppenderConfig>.Clone() => Clone();
 
     IFileAppenderConfig IFileAppenderConfig.Clone() => Clone();
+
+    IMutableFileAppenderConfig IMutableFileAppenderConfig.Clone() => Clone();
 
     public override FileAppenderConfig Clone() => new(this);
 
@@ -157,10 +209,14 @@ public class FileAppenderConfig : FormattingAppenderConfig, IMutableFileAppender
 
         var fileAppendTypeSame = FileAppenderType == fileAppender.FileAppenderType;
 
-        var fileNameSame = FileName == fileAppender.FileName;
-        var filePathSame = FilePath == fileAppender.FilePath;
+        var compressionSame = CompressionType == fileAppender.CompressionType;
+        var encodingSame    = FileEncoding == fileAppender.FileEncoding;
 
-        var allAreSame = baseSame && fileAppendTypeSame && fileNameSame && filePathSame;
+        var fileNameSame   = FileName == fileAppender.FileName;
+        var filePathSame   = FilePath == fileAppender.FilePath;
+        var closeDelaySame = CloseDelayMs == fileAppender.CloseDelayMs;
+
+        var allAreSame = baseSame && fileAppendTypeSame && compressionSame && encodingSame && fileNameSame && filePathSame && closeDelaySame;
 
         return allAreSame;
     }
@@ -171,6 +227,8 @@ public class FileAppenderConfig : FormattingAppenderConfig, IMutableFileAppender
     {
         var hashCode = base.GetHashCode();
         hashCode = (hashCode * 397) ^ (int)FileAppenderType;
+        hashCode = (hashCode * 397) ^ (int)CompressionType;
+        hashCode = (hashCode * 397) ^ (int)FileEncoding;
         hashCode = (hashCode * 397) ^ FileName.GetHashCode();
         hashCode = (hashCode * 397) ^ FilePath.GetHashCode();
         return hashCode;
@@ -181,8 +239,11 @@ public class FileAppenderConfig : FormattingAppenderConfig, IMutableFileAppender
         using var tb =
             sbc.StartComplexType(nameof(FileAppenderConfig))
                .Field.AlwaysAdd(nameof(FileAppenderType), FileAppenderType, FileAppenderTypeExtensions.FileAppenderTypeFormatter)
+               .Field.AlwaysAdd(nameof(CompressionType), CompressionType)
+               .Field.AlwaysAdd(nameof(FileEncoding), FileEncoding)
                .Field.AlwaysAdd(nameof(FileName), FileName)
                .Field.AlwaysAdd(nameof(FilePath), FilePath)
+               .Field.WhenNonDefaultAdd(nameof(CloseDelayMs), CloseDelayMs, 2_000)
                .AddBaseFieldsStart();
         base.ToString(sbc);
         return tb.Complete();

@@ -160,321 +160,321 @@ public partial class FormatParameterEntry<TFormatEntry>
     }
     
     protected IFLogAdditionalFormatterParameterEntry? AddKeyedCollectionParamsEnumerate<TKey, TValue>
-    (IEnumerable<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
+    (IEnumerable<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct 
     {
-        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStructStyler, keyFormatString);
+        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyFormatString);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
     protected void ReplaceTokenWithKeyedCollectionEnumerate<TKey, TValue>
-        (IEnumerable<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler, string? keyFormatString)
+        (IEnumerable<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler, string? keyFormatString)
         where TValue : struct 
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendKeyedCollectionEnumerate(tempStsa, value, valueStructStyler, keyFormatString);
+        tempStsa = AppendKeyedCollectionEnumerate(tempStsa, value, valueStyler, keyFormatString);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
     protected IFLogAdditionalFormatterParameterEntry? AddKeyedCollectionParamsEnumerate<TKey, TValue>
-    (IEnumerator<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
+    (IEnumerator<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct 
     {
-        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStructStyler, keyFormatString);
+        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyFormatString);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
     protected void ReplaceTokenWithKeyedCollectionEnumerate<TKey, TValue>
-        (IEnumerator<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler, string? keyFormatString) where TValue : struct 
+        (IEnumerator<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler, string? keyFormatString) where TValue : struct 
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendKeyedCollectionEnumerate(tempStsa, value, valueStructStyler, keyFormatString);
+        tempStsa = AppendKeyedCollectionEnumerate(tempStsa, value, valueStyler, keyFormatString);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
     protected IFLogAdditionalFormatterParameterEntry? AddFilteredKeyedCollectionParams<TKey, TValue>
     (IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct 
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyFormatString);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
     protected void ReplaceTokenWithFilteredKeyedCollection<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString) where TValue : struct
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString) where TValue : struct
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendFilteredKeyedCollection(tempStsa, value, filterPredicate, valueStructStyler, keyFormatString);
+        tempStsa = AppendFilteredKeyedCollection(tempStsa, value, filterPredicate, valueStyler, keyFormatString);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
     protected IFLogAdditionalFormatterParameterEntry? AddFilteredKeyedCollectionParams<TKey, TValue>
     (KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct 
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyFormatString);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
     protected void ReplaceTokenWithFilteredKeyedCollection<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString) where TValue : struct
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString) where TValue : struct
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendFilteredKeyedCollection(tempStsa, value, filterPredicate, valueStructStyler, keyFormatString);
+        tempStsa = AppendFilteredKeyedCollection(tempStsa, value, filterPredicate, valueStyler, keyFormatString);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
     protected IFLogAdditionalFormatterParameterEntry? AddFilteredKeyedCollectionParams<TKey, TValue>
     (IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct 
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyFormatString);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
     protected void ReplaceTokenWithFilteredKeyedCollection<TKey, TValue>
         (IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString) where TValue : struct
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString) where TValue : struct
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendFilteredKeyedCollection(tempStsa, value, filterPredicate, valueStructStyler, keyFormatString);
+        tempStsa = AppendFilteredKeyedCollection(tempStsa, value, filterPredicate, valueStyler, keyFormatString);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
     public IFLogAdditionalFormatterParameterEntry? AddKeyedCollectionParams<TKey, TValue>
-    (IReadOnlyDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
+    (IReadOnlyDictionary<TKey, TValue>? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct 
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyFormatString);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyFormatString);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
     protected void ReplaceTokenWithKeyedCollection<TKey, TValue>
     (IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString) where TValue : struct
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString) where TValue : struct
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendKeyedCollection(tempStsa, value, valueStructStyler, keyFormatString);
+        tempStsa = AppendKeyedCollection(tempStsa, value, valueStyler, keyFormatString);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
     
     protected IFLogAdditionalFormatterParameterEntry? AddKeyedCollectionParams<TKey, TValue>
-    (KeyValuePair<TKey, TValue>[]? value, StructStyler<TValue> valueStructStyler
+    (KeyValuePair<TKey, TValue>[]? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct 
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyFormatString);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyFormatString);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
-    protected void ReplaceTokenWithKeyedCollection<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value, StructStyler<TValue> valueStructStyler, string? keyFormatString)
+    protected void ReplaceTokenWithKeyedCollection<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value, CustomTypeStyler<TValue> valueStyler, string? keyFormatString)
         where TValue : struct
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendKeyedCollection(tempStsa, value,  valueStructStyler, keyFormatString);
+        tempStsa = AppendKeyedCollection(tempStsa, value,  valueStyler, keyFormatString);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
     protected IFLogAdditionalFormatterParameterEntry? AddKeyedCollectionParams<TKey, TValue>
-    (IReadOnlyList<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
+    (IReadOnlyList<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct 
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyFormatString);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyFormatString);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
     protected void ReplaceTokenWithKeyedCollection<TKey, TValue>
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler, string? keyFormatString)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler, string? keyFormatString)
         where TValue : struct
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendKeyedCollection(tempStsa, value,  valueStructStyler, keyFormatString);
+        tempStsa = AppendKeyedCollection(tempStsa, value,  valueStyler, keyFormatString);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
     protected IFLogAdditionalFormatterParameterEntry? AddKeyedCollectionParams<TKey, TValue>
-    (IReadOnlyDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)  where TKey : struct where TValue : struct  
+    (IReadOnlyDictionary<TKey, TValue>? value, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler)  where TKey : struct where TValue : struct  
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyStyler);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
     protected void ReplaceTokenWithKeyedCollection<TKey, TValue>
-        (IReadOnlyDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+        (IReadOnlyDictionary<TKey, TValue>? value, CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct 
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendKeyedCollection(tempStsa, value,  valueStructStyler, keyStructStyler);
+        tempStsa = AppendKeyedCollection(tempStsa, value,  valueStyler, keyStyler);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
     protected IFLogAdditionalFormatterParameterEntry? AddKeyedCollectionParams<TKey, TValue>
-    (KeyValuePair<TKey, TValue>[]? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)  where TKey : struct where TValue : struct  
+    (KeyValuePair<TKey, TValue>[]? value, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler)  where TKey : struct where TValue : struct  
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyStyler);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
     protected void ReplaceTokenWithKeyedCollection<TKey, TValue>
-        (KeyValuePair<TKey, TValue>[]? value, StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+        (KeyValuePair<TKey, TValue>[]? value, CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct 
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendKeyedCollection(tempStsa, value,  valueStructStyler, keyStructStyler);
+        tempStsa = AppendKeyedCollection(tempStsa, value,  valueStyler, keyStyler);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
     protected IFLogAdditionalFormatterParameterEntry? AddKeyedCollectionParams<TKey, TValue>
-    (IReadOnlyList<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)  where TKey : struct where TValue : struct  
+    (IReadOnlyList<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler)  where TKey : struct where TValue : struct  
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyStyler);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
     protected void ReplaceTokenWithKeyedCollection<TKey, TValue>
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct 
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendKeyedCollection(tempStsa, value,  valueStructStyler, keyStructStyler);
+        tempStsa = AppendKeyedCollection(tempStsa, value,  valueStyler, keyStyler);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
     protected IFLogAdditionalFormatterParameterEntry? AddKeyedCollectionParamsEnumerate<TKey, TValue>
-    (IEnumerable<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)  where TKey : struct where TValue : struct  
+    (IEnumerable<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler)  where TKey : struct where TValue : struct  
     {
-        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyStyler);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
     protected void ReplaceTokenWithKeyedCollectionEnumerate<TKey, TValue>
-        (IEnumerable<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+        (IEnumerable<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct 
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendKeyedCollectionEnumerate(tempStsa, value,  valueStructStyler, keyStructStyler);
+        tempStsa = AppendKeyedCollectionEnumerate(tempStsa, value,  valueStyler, keyStyler);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
     protected IFLogAdditionalFormatterParameterEntry? AddKeyedCollectionParamsEnumerate<TKey, TValue>
-    (IEnumerator<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)  where TKey : struct where TValue : struct  
+    (IEnumerator<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler)  where TKey : struct where TValue : struct  
     {
-        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyStyler);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
     protected void ReplaceTokenWithKeyedCollectionEnumerate<TKey, TValue>
-        (IEnumerator<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+        (IEnumerator<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct 
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendKeyedCollectionEnumerate(tempStsa, value,  valueStructStyler, keyStructStyler);
+        tempStsa = AppendKeyedCollectionEnumerate(tempStsa, value,  valueStyler, keyStyler);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
     protected IFLogAdditionalFormatterParameterEntry? AddFilteredKeyedCollectionParams<TKey, TValue>
-    (IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)  where TKey : struct where TValue : struct  
+    (IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKey, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler)  where TKey : struct where TValue : struct  
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
     protected void ReplaceTokenWithFilteredKeyedCollection<TKey, TValue>
         (IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-          , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct 
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendFilteredKeyedCollection(tempStsa, value, filterPredicate,  valueStructStyler, keyStructStyler);
+        tempStsa = AppendFilteredKeyedCollection(tempStsa, value, filterPredicate,  valueStyler, keyStyler);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
     protected IFLogAdditionalFormatterParameterEntry? AddFilteredKeyedCollectionParams<TKey, TValue>
-    (KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)  where TKey : struct where TValue : struct  
+    (KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKey, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler)  where TKey : struct where TValue : struct  
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
     protected void ReplaceTokenWithFilteredKeyedCollection<TKey, TValue>
         (KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKey, TValue> filterPredicate
-          , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct 
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendFilteredKeyedCollection(tempStsa, value, filterPredicate,  valueStructStyler, keyStructStyler);
+        tempStsa = AppendFilteredKeyedCollection(tempStsa, value, filterPredicate,  valueStyler, keyStyler);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
     protected IFLogAdditionalFormatterParameterEntry? AddFilteredKeyedCollectionParams<TKey, TValue>
-    (IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)  where TKey : struct where TValue : struct  
+    (IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKey, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler)  where TKey : struct where TValue : struct  
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
     protected void ReplaceTokenWithFilteredKeyedCollection<TKey, TValue>
         (IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-          , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct 
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendFilteredKeyedCollection(tempStsa, value, filterPredicate,  valueStructStyler, keyStructStyler);
+        tempStsa = AppendFilteredKeyedCollection(tempStsa, value, filterPredicate,  valueStyler, keyStyler);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }

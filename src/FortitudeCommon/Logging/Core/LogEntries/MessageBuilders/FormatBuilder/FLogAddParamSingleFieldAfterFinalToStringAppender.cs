@@ -28,11 +28,11 @@ public partial class FLogAdditionalFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalParamToStringAppender<TStruct>(TStruct value, StructStyler<TStruct> structStyler) where TStruct : struct =>
+    public IFLogStringAppender AfterFinalParamToStringAppender<TStruct>(TStruct value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    public IFLogStringAppender AfterFinalParamToStringAppender<TStruct>((TStruct, StructStyler<TStruct>) valueTuple) where TStruct : struct
+    public IFLogStringAppender AfterFinalParamToStringAppender<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
     {
         FormatSb.Clear();
         AppendStruct(valueTuple, FormatStsa!);
@@ -40,11 +40,11 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterFinalParamToStringAppender<TStruct>(TStruct? value, StructStyler<TStruct> structStyler) where TStruct : struct =>
+    public IFLogStringAppender AfterFinalParamToStringAppender<TStruct>(TStruct? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    public IFLogStringAppender AfterFinalParamToStringAppender<TStruct>((TStruct?, StructStyler<TStruct>) valueTuple) where TStruct : struct
+    public IFLogStringAppender AfterFinalParamToStringAppender<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
     {
         FormatSb.Clear();
         AppendStruct(valueTuple, FormatStsa!);

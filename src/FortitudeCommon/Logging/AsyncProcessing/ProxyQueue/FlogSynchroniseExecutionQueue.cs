@@ -1,5 +1,6 @@
 ﻿using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Logging.Core.Appending.Formatting;
+using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.AsyncProcessing.ProxyQueue;
@@ -14,9 +15,9 @@ internal class FlogSynchroniseExecutionQueue(int queueNumber)
         job();
     }
 
-    public override void FlushBufferToAppender(IBufferedFormatWriter toFlush, IFLogBufferingFormatAppender fromAppender)
+    public override void FlushBufferToAppender(IBufferedFormatWriter toFlush)
     {
-        fromAppender.FlushBufferToAppender(toFlush);
+        toFlush.Flush();
     }
 
     public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)

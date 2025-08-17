@@ -29,7 +29,7 @@ public class OSNetworkingController : IOSNetworkingController
 
     public static IOSNetworkingController Instance
     {
-        get => instance ?? new OSNetworkingController();
+        get => instance ??= new OSNetworkingController();
         set => instance = value;
     }
 

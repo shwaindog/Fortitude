@@ -4,15 +4,38 @@
 #region
 
 using System.Runtime.InteropServices;
-using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.Memory;
 
 #endregion
 
-namespace FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
+namespace FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory.MemoryMappedFiles;
 
-public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
+public interface IShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
+{
+    long HalfViewSizeBytes { get; }
+    string ViewName { get; set; }
+    string FileName { get; }
+    long FileSize { get; }
+    long HighestFileCursor { get; }
+    int HalfViewPageSize { get; }
+    long LowerViewFileChunkNumber { get; }
+    long UpperViewTriggerChunkShiftTolerance { get; set; }
+    long LowerViewFileCursorOffset { get; }
+    unsafe bool IsUpperViewAvailableForContiguousReadWrite { get; }
+    IShiftableMemoryMappedFileView CreateEphemeralViewThatCanCover(string viewName, long fileCursorOffset, long sizeBytes);
+    IShiftableMemoryMappedFileView ReplaceViewThatCanCover(string viewName, long fileCursorOffset, long sizeBytes);
+
+    unsafe bool ShiftFileUpByHalfOfViewSize(bool shouldGrow = false);
+    unsafe bool AttemptRemapViewOnContiguousVirtualMemoryRegion(int lowerChunkPageNumber, int attemptCountDown = 3);
+    unsafe byte* FixedFileCursorBufferPointer(long fileCursorOffset, long maxUpperChunkTolerance = ushort.MaxValue, bool shouldGrow = false);
+    unsafe byte* FileCursorBufferPointer(long fileCursorOffset, long maxUpperChunkTolerance = ushort.MaxValue, bool shouldGrow = false);
+    unsafe bool EnsureViewCoversFileCursorOffsetAndSize(long fileCursorOffset, long minimumViewSize, bool shouldGrow = false);
+    bool EnsureLowerViewContainsFileCursorOffset(long fileCursorOffset, long maxUpperChunkTolerance = ushort.MaxValue, bool shouldGrow = false);
+    bool FlushCursorDataToDisk(long fileCursorOffset, int sizeToFlush);
+}
+
+public unsafe class ShiftableMemoryMappedFileView : IShiftableMemoryMappedFileView
 {
     private const long MaxViewSizeBytes                = PagedMemoryMappedFile.MaxFileCursorOffset; // 16Gb;
     public const  long DefaultMinimumShiftableViewSize = ushort.MaxValue * 2;
@@ -81,9 +104,9 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
     public long FileSize => pagedMemoryMappedFile.Length;
 
     public long HighestFileCursor =>
-        IsUpperViewAvailableForContiguousReadWrite
-            ? upperViewContiguousChunk!.StartFileCursorOffset + HalfViewSizeBytes
-            : lowerViewContiguousChunk!.StartFileCursorOffset + HalfViewSizeBytes;
+        IsUpperViewAvailableForContiguousReadWrite ?
+            upperViewContiguousChunk!.StartFileCursorOffset + HalfViewSizeBytes :
+            lowerViewContiguousChunk!.StartFileCursorOffset + HalfViewSizeBytes;
 
     public int HalfViewPageSize { get; private set; }
 
@@ -125,9 +148,9 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
     public byte* StartAddress => lowerViewContiguousChunk != null ? lowerViewContiguousChunk.StartAddress : null;
 
     public byte* EndAddress =>
-        IsUpperViewAvailableForContiguousReadWrite
-            ? upperViewContiguousChunk!.StartAddress + HalfViewSizeBytes
-            : lowerViewContiguousChunk!.StartAddress + HalfViewSizeBytes;
+        IsUpperViewAvailableForContiguousReadWrite ?
+            upperViewContiguousChunk!.StartAddress + HalfViewSizeBytes :
+            lowerViewContiguousChunk!.StartAddress + HalfViewSizeBytes;
 
     public long Length => HalfViewSizeBytes + (IsUpperViewAvailableForContiguousReadWrite ? HalfViewSizeBytes : 0);
 
@@ -149,8 +172,14 @@ public unsafe class ShiftableMemoryMappedFileView : IVirtualMemoryAddressRange
             pagedMemoryMappedFile.Flush(upperViewContiguousChunk, upperViewContiguousChunk.StartFileCursorOffset, upperViewContiguousChunk.Length);
     }
 
+    IShiftableMemoryMappedFileView IShiftableMemoryMappedFileView.CreateEphemeralViewThatCanCover
+        (string viewName, long fileCursorOffset, long sizeBytes) => CreateEphemeralViewThatCanCover(viewName, fileCursorOffset, sizeBytes);
+
     public ShiftableMemoryMappedFileView CreateEphemeralViewThatCanCover(string viewName, long fileCursorOffset, long sizeBytes) =>
         pagedMemoryMappedFile.CreateShiftableMemoryMappedFileView(viewName, fileCursorOffset, sizeBytes, 1, false);
+
+    IShiftableMemoryMappedFileView IShiftableMemoryMappedFileView.ReplaceViewThatCanCover(string viewName, long fileCursorOffset, long sizeBytes) => 
+        ReplaceViewThatCanCover(viewName, fileCursorOffset, sizeBytes);
 
     public ShiftableMemoryMappedFileView ReplaceViewThatCanCover(string viewName, long fileCursorOffset, long sizeBytes)
     {

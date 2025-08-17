@@ -7,7 +7,7 @@ using System.Collections;
 
 #endregion
 
-namespace FortitudeCommon.DataStructures.Memory;
+namespace FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
 
 public interface IGrowable<out T> where T : class
 {

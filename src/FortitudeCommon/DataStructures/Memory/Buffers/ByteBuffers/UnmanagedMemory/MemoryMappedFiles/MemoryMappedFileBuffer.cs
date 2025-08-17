@@ -3,13 +3,11 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Monitoring.Logging;
 
 #endregion
 
-namespace FortitudeCommon.Serdes.Binary;
+namespace FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory.MemoryMappedFiles;
 
 public interface IMemoryMappedFileBuffer : IMessageQueueBuffer, IGrowable<IBuffer>
 {
@@ -143,8 +141,8 @@ public class MemoryMappedFileBuffer : IMemoryMappedFileBuffer
         }
     }
 
-    public bool CanRead  => BufferRelativeReadCursor < (mappedFileShiftableView?.HighestFileCursor ?? 0);
-    public bool CanSeek  => true;
+    public bool CanRead => BufferRelativeReadCursor < (mappedFileShiftableView?.HighestFileCursor ?? 0);
+    public bool CanSeek => true;
     public bool CanWrite => BufferRelativeWriteCursor < (mappedFileShiftableView?.HighestFileCursor ?? 0);
 
     public long Position
@@ -179,6 +177,18 @@ public class MemoryMappedFileBuffer : IMemoryMappedFileBuffer
         return (int)cappedSize;
     }
 
+    public unsafe int Read(Span<byte> buffer)
+    {
+        var remainingBytes = BufferRelativeWriteCursor - BufferRelativeReadCursor;
+        var cappedSize     = Math.Min(remainingBytes, buffer.Length);
+
+        var ptr = ReadBuffer + BufferRelativeReadCursor;
+
+        for (var i = 0; i < cappedSize; i++) buffer[i] = *ptr++;
+        ReadCursor = cappedSize;
+        return (int)cappedSize;
+    }
+
     public unsafe int ReadByte()
     {
         var result = ReadCursor >= WriteCursor ? -1 : *(ReadBuffer + BufferRelativeReadCursor);
@@ -191,23 +201,19 @@ public class MemoryMappedFileBuffer : IMemoryMappedFileBuffer
         switch (origin)
         {
             case SeekOrigin.Begin:
-                if (offset > Length)
-                    mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(offset, shouldGrow: true);
-                if (offset < 0)
-                    throw new Exception("Attempted to seek beyond the end of the Buffer");
+                if (offset > Length) mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(offset, shouldGrow: true);
+                if (offset < 0) throw new Exception("Attempted to seek beyond the end of the Buffer");
                 Position = (int)offset;
                 break;
             case SeekOrigin.End:
-                if (offset > Length || offset < 0)
-                    throw new Exception("Attempted to seek beyond the end of the Buffer");
+                if (offset > Length || offset < 0) throw new Exception("Attempted to seek beyond the end of the Buffer");
                 Position = Length - (int)offset;
                 break;
             default:
                 var proposedCursor = Position + (int)offset;
                 if (proposedCursor > Length && proposedCursor < Length + mappedFileShiftableView!.HalfViewPageSize)
                     mappedFileShiftableView?.EnsureLowerViewContainsFileCursorOffset(proposedCursor, shouldGrow: true);
-                if (proposedCursor < 0 || proposedCursor > Length)
-                    throw new Exception("Attempted to seek beyond the end of the Buffer");
+                if (proposedCursor < 0 || proposedCursor > Length) throw new Exception("Attempted to seek beyond the end of the Buffer");
                 Position = proposedCursor;
                 break;
         }
@@ -232,6 +238,17 @@ public class MemoryMappedFileBuffer : IMemoryMappedFileBuffer
         var ptr = WriteBuffer + BufferRelativeWriteCursor;
 
         for (var i = offset; i < offset + cappedSize; i++) *ptr++ = buffer[i];
+        WriteCursor += cappedSize;
+    }
+
+    public unsafe void Write(ReadOnlySpan<byte> buffer)
+    {
+        var remainingBytes = Length - WriteCursor;
+        var cappedSize     = Math.Min(remainingBytes, buffer.Length);
+
+        var ptr = WriteBuffer + BufferRelativeWriteCursor;
+
+        for (var i = 0; i < cappedSize; i++) *ptr++ = buffer[i];
         WriteCursor += cappedSize;
     }
 

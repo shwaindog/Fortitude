@@ -14,7 +14,7 @@ namespace FortitudeCommon.Logging.Config.Appending.Forwarding;
 
 public interface IForwardingAppenderConfig : IAppenderDefinitionConfig, IConfigCloneTo<IForwardingAppenderConfig>
 {
-    IForwardingAppendersLookupConfig ForwardToAppenders { get; }
+    INamedAppendersLookupConfig ForwardToAppenders { get; }
 
     new IForwardingAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path);
 
@@ -23,36 +23,36 @@ public interface IForwardingAppenderConfig : IAppenderDefinitionConfig, IConfigC
 
 public interface IMutableForwardingAppenderConfig : IForwardingAppenderConfig, IMutableAppenderDefinitionConfig
 {
-    new IAppendableForwardingAppendersLookupConfig ForwardToAppenders { get; set; }
+    new IAppendableNamedAppendersLookupConfig ForwardToAppenders { get; set; }
 }
 
 public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwardingAppenderConfig
 {
-    private const string SyncForwardingAppenderType = $"{nameof(FLoggerBuiltinAppenderType.SyncForwarding)}";
+    private const string SyncForwardingAppenderType = $"{nameof(FLoggerBuiltinAppenderType.Forwarding)}";
 
-    private IAppendableForwardingAppendersLookupConfig?  appendersConfig;
+    private IAppendableNamedAppendersLookupConfig?  appendersConfig;
 
     public ForwardingAppenderConfig(IConfigurationRoot root, string path) : base(root, path) { }
 
     public ForwardingAppenderConfig() : this(InMemoryConfigRoot, InMemoryPath) { }
 
-    public ForwardingAppenderConfig (string appenderName, IAppendableForwardingAppendersLookupConfig? forwardToAppendersConfig
+    public ForwardingAppenderConfig (string appenderName, IAppendableNamedAppendersLookupConfig? forwardToAppendersConfig
        , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)
         : this(InMemoryConfigRoot, InMemoryPath, appenderName, forwardToAppendersConfig, runOnAsyncQueueNumber
              , inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere) { }
 
     public ForwardingAppenderConfig(IConfigurationRoot root, string path, string appenderName
-      , IAppendableForwardingAppendersLookupConfig? forwardToAppendersConfig = null, int runOnAsyncQueueNumber = 0
+      , IAppendableNamedAppendersLookupConfig? forwardToAppendersConfig = null, int runOnAsyncQueueNumber = 0
       , string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false, bool deactivateHere = false) 
         : base(root, path, appenderName, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere)
     {
-        ForwardToAppenders     = forwardToAppendersConfig ?? new ForwardingAppendersLookupConfig();
+        ForwardToAppenders     = forwardToAppendersConfig ?? new NamedAppendersLookupConfig();
     }
 
     public ForwardingAppenderConfig(IForwardingAppenderConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path)
     {
-        ForwardToAppenders     = (IAppendableForwardingAppendersLookupConfig)toClone.ForwardToAppenders;
+        ForwardToAppenders     = (IAppendableNamedAppendersLookupConfig)toClone.ForwardToAppenders;
     }
 
     public ForwardingAppenderConfig(IForwardingAppenderConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath) { }
@@ -81,9 +81,9 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
     public override ForwardingAppenderConfig CloneConfigTo(IConfigurationRoot configRoot, string path) => 
         new (this, configRoot, path);
 
-    IForwardingAppendersLookupConfig IForwardingAppenderConfig.ForwardToAppenders => ForwardToAppenders;
+    INamedAppendersLookupConfig IForwardingAppenderConfig.ForwardToAppenders => ForwardToAppenders;
 
-    public IAppendableForwardingAppendersLookupConfig ForwardToAppenders
+    public IAppendableNamedAppendersLookupConfig ForwardToAppenders
     {
         get
         {
@@ -91,7 +91,7 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
             {
                 if (GetSection(nameof(ForwardToAppenders)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
                 {
-                    return appendersConfig = new ForwardingAppendersLookupConfig(ConfigRoot, $"{Path}{Split}{nameof(ForwardToAppenders)}")
+                    return appendersConfig = new NamedAppendersLookupConfig(ConfigRoot, $"{Path}{Split}{nameof(ForwardToAppenders)}")
                     {
                         ParentConfig = this
                     };
@@ -101,7 +101,7 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
         }
         set
         {
-            appendersConfig = new ForwardingAppendersLookupConfig(value, ConfigRoot, $"{Path}{Split}{nameof(ForwardToAppenders)}");
+            appendersConfig = new NamedAppendersLookupConfig(value, ConfigRoot, $"{Path}{Split}{nameof(ForwardToAppenders)}");
 
             appendersConfig.ParentConfig = this;
         }

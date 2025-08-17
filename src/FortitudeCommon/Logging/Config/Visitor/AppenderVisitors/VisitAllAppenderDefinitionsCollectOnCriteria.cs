@@ -130,19 +130,6 @@ public class VisitAllAppenderDefinitionsCollectOnCriteria<T, TAppendConfig>
         return Me;
     }
 
-    public override T Accept(IAppendableForwardingAppendersLookupConfig forwardToAppendersCollectionConfig)
-    {
-        if (FoundRootAppConfig == null)
-        {
-            return forwardToAppendersCollectionConfig.ParentConfig?.Visit(Me) ?? Me;
-        }
-        foreach (var childAppender in forwardToAppendersCollectionConfig)  
-        {
-            return childAppender.Value.Visit(Me);
-        }
-        return Me;
-    }
-
     public override T Accept(IMutableForwardingAppenderConfig forwardingAppenderConfig) 
     {
         if (FoundRootAppConfig == null)

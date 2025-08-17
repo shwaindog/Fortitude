@@ -2,7 +2,7 @@
 // LZMA SDK is placed in the public domain.
 // all credit and thanks to Igor Pavlov, Abraham Lempel and Jacob Ziv and thanks
 
-using FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
+using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
 using FortitudeCommon.OSWrapper.Streams;
 
 namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.ByteStreams;

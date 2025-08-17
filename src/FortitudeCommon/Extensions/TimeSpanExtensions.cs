@@ -9,13 +9,14 @@ namespace FortitudeCommon.Extensions;
 
 public static class TimeSpanExtensions
 {
-    public static StructStyler<TimeSpan> TimeSpanStructFormatter = FormatTimeSpanAsStructAppender;
+    public static CustomTypeStyler<TimeSpan> TimeSpanStyler = FormatTimeSpanAsStructAppender;
 
-    public static StructStyler<TimeSpan> TimeSpanFormatter = FormatTimeSpanAsStringAppender;
+    public static CustomTypeStyler<TimeSpan> TimeSpanFormatter = FormatTimeSpanAsStringAppender;
 
-    public static void FormatTimeSpanAsStringAppender(this TimeSpan timeSpan, IStyledTypeStringAppender sbc)
+    public static StyledTypeBuildResult FormatTimeSpanAsStringAppender(this TimeSpan timeSpan, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.WriteBuffer;
+        var tb = sbc.StartSimpleValueType(nameof(TimeSpan));
+        var sb = tb.StringBuilder("_TimeSpanAsString");
 
         IStringBuilder? setSb = null;
         sb.Append("\"");
@@ -28,10 +29,13 @@ public static class TimeSpanExtensions
         if (timeSpan.Milliseconds != 0 || setSb != null) setSb = sb.AppendFormat("{0:000}", timeSpan.Milliseconds);
         if (timeSpan.Milliseconds != 0 || setSb != null) setSb = sb.AppendFormat("{0:000}", timeSpan.Microseconds).Append(":");
         sb.Append("\"");
+        
+        return tb.Complete();
     }
 
-    public static void FormatTimeSpanAsStructAppender(this TimeSpan timeSpan, IStyledTypeStringAppender sbc)
+    public static StyledTypeBuildResult FormatTimeSpanAsStructAppender(this TimeSpan timeSpan, IStyledTypeStringAppender sbc)
     {
+        return
         sbc.StartComplexType(nameof(TimeSpan))
            .Field.WhenNonDefaultAdd(nameof(TimeSpan.Days), timeSpan.Days)
            .Field.WhenNonDefaultAdd(nameof(TimeSpan.Hours), timeSpan.Hours)

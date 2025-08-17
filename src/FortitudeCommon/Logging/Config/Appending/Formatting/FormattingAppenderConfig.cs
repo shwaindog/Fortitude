@@ -1,6 +1,5 @@
 ﻿using FortitudeCommon.Extensions;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
@@ -10,13 +9,13 @@ namespace FortitudeCommon.Logging.Config.Appending.Formatting;
 public interface IFormattingAppenderConfig : IAppenderDefinitionConfig, ICloneable<IFormattingAppenderConfig>
 {
     const string DefaultStringFormattingTemplate
-        = "'%TS:yyyy-MM-dd HH:mm:SS.fff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%' '%MSG%''%NL%'";
+        = "'%TS:yyyy-MM-dd HH:mm:SS.fff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%':'%LLN:-3%' '%MSG%''%NL%'";
 
     string LogEntryFormatLayout { get; }
 
     IAppenderReferenceConfig? InheritsFrom { get; }
 
-    IInheritingAppendersLookupConfig? Defines { get; }
+    INamedAppendersLookupConfig? Defines { get; }
 
     new IFormattingAppenderConfig Clone();
 }
@@ -27,7 +26,7 @@ public interface IMutableFormattingAppenderConfig : IFormattingAppenderConfig, I
 
     new IMutableFormattingAppenderConfig? InheritsFrom { get; set; }
 
-    new IAppendableInheritingAppendersLookupConfig? Defines { get; set; }
+    new IAppendableNamedAppendersLookupConfig? Defines { get; set; }
 }
 
 public class FormattingAppenderConfig : AppenderDefinitionConfig, IMutableFormattingAppenderConfig
@@ -92,15 +91,15 @@ public class FormattingAppenderConfig : AppenderDefinitionConfig, IMutableFormat
         set => this[nameof(LogEntryFormatLayout)] = value;
     }
 
-    IInheritingAppendersLookupConfig? IFormattingAppenderConfig.Defines => Defines;
+    INamedAppendersLookupConfig? IFormattingAppenderConfig.Defines => Defines;
 
-    public IAppendableInheritingAppendersLookupConfig? Defines
+    public IAppendableNamedAppendersLookupConfig? Defines
     {
         get
         {
             if (GetSection(nameof(Defines)).GetChildren().Any(cs => cs.Value.IsNotNullOrEmpty()))
             {
-                return new InheritingAppendersLookupConfig(ConfigRoot, $"{Path}{Split}{nameof(Defines)}")
+                return new NamedAppendersLookupConfig(ConfigRoot, $"{Path}{Split}{nameof(Defines)}")
                 {
                     ParentConfig = this
                 };
@@ -111,7 +110,7 @@ public class FormattingAppenderConfig : AppenderDefinitionConfig, IMutableFormat
         {
             if (value != null)
             {
-                _ = new InheritingAppendersLookupConfig(value, ConfigRoot, $"{Path}{Split}{nameof(Defines)}");
+                _ = new NamedAppendersLookupConfig(value, ConfigRoot, $"{Path}{Split}{nameof(Defines)}");
 
                 value.ParentConfig = this;
             }

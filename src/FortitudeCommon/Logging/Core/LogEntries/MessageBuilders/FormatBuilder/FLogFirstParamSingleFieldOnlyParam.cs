@@ -16,20 +16,20 @@ public partial class FLogFirstFormatterParameterEntry
     public void WithOnlyParam<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
 
-    public void WithOnlyParam<TStruct>(TStruct value, StructStyler<TStruct> structStyler) where TStruct : struct =>
+    public void WithOnlyParam<TStruct>(TStruct value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
 
-    public void WithOnlyParam<TStruct>((TStruct, StructStyler<TStruct>) valueTuple) where TStruct : struct
+    public void WithOnlyParam<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
     {
         FormatSb.Clear();
         AppendStruct(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void WithOnlyParam<TStruct>(TStruct? value, StructStyler<TStruct> structStyler) where TStruct : struct =>
+    public void WithOnlyParam<TStruct>(TStruct? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).EnsureNoMoreTokensAndComplete(value);
 
-    public void WithOnlyParam<TStruct>((TStruct?, StructStyler<TStruct>) valueTuple) where TStruct : struct
+    public void WithOnlyParam<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
     {
         FormatSb.Clear();
         AppendStruct(valueTuple, FormatStsa!);

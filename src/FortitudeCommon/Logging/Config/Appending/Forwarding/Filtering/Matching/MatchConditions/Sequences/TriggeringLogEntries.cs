@@ -20,13 +20,15 @@ public enum TriggeringLogEntries
 
 public static class TriggeringLogEntriesExtensions
 {
-    public static StructStyler<TriggeringLogEntries> TriggeringLogEntriesFormatter
+    public static CustomTypeStyler<TriggeringLogEntries> TriggeringLogEntriesFormatter
         = FormatTriggeringLogEntriesAppender;
 
-    public static void FormatTriggeringLogEntriesAppender(this TriggeringLogEntries triggeringLogEntries, IStyledTypeStringAppender sbc)
+    public static StyledTypeBuildResult FormatTriggeringLogEntriesAppender(this TriggeringLogEntries triggeringLogEntries, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.WriteBuffer;
+        var tb = sbc.StartSimpleValueType(nameof(TriggeringLogEntries));
+        var sb = tb.StringBuilder("_TriggeringLogEntriesAsString");
 
+        sb.Append("\"");
         switch (triggeringLogEntries)
         {
             case None:       sb.Append($"{nameof(None)}"); break;
@@ -36,5 +38,7 @@ public static class TriggeringLogEntriesExtensions
 
             default: sb.Append($"{nameof(All)}"); break;
         }
+        sb.Append("\"");
+        return tb.Complete();
     }
 }

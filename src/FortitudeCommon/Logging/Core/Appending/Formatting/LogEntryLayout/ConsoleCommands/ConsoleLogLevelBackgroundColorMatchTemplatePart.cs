@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using FortitudeCommon.Logging.Config;
 using FortitudeCommon.Logging.Core.Appending.Formatting;
+using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 using FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout.ConsoleCommands;
 using FortitudeCommon.Logging.Core.LogEntries;

@@ -29,6 +29,61 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         backingArray = new char[toClone.Capacity];
         length       = toClone.Count;
     }
+    
+    public Span<char> WrittenAsSpan() => backingArray.AsSpan()[..length];
+    public Span<char> RemainingAsSpan() => backingArray.AsSpan()[length..];
+
+    public CharArrayRange AsCharArrayRange => new (backingArray!, 0, length);
+
+    public int Count
+    {
+        get => length;
+        set => length = value;
+    }
+
+    public int Length
+    {
+        get => length;
+        set => length = Math.Max(0, Math.Min(backingArray?.Length ?? 0, value));
+    }
+
+    public int Capacity => backingArray!.Length;
+
+    public int RemainingCapacity => Capacity - Count;
+
+    public char[] BackingArray => backingArray!;
+
+    public bool IsReadOnly => false;
+
+    public char this[int index]
+    {
+        get
+        {
+            if (index < backingArray!.Length - 1)
+            {
+                return backingArray[index];
+            }
+            throw new ArgumentException($"Tried to access char array at {index} which beyond end of the array");
+        }
+        set
+        {
+            if (index < backingArray!.Length - 1)
+            {
+                backingArray[index] = value;
+                if (index >= length && value != '\x0')
+                {
+                    length = index + 1;
+                }
+                else if (index == length - 1 && length > 0 && value == '\x0')
+                {
+                    length--;
+                }
+                return;
+            }
+            throw new ArgumentException($"Tried to access char array at {index} which beyond end of the array");
+        }
+    }
+
 
     public RecyclingCharArray EnsureIsAtSize(int size)
     {
@@ -361,58 +416,6 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
             destination[i] = backingArray![myIndex++];
         }
     }
-
-    public Span<char> AsSpan() => backingArray.AsSpan().Slice(length);
-
-    public CharArrayRange AsCharArrayRange => new (backingArray!, 0, length);
-
-    public int Count
-    {
-        get => length;
-        set => length = value;
-    }
-
-    public int Capacity => backingArray!.Length;
-
-    public int RemainingCapacity => Capacity - Count;
-
-    public char[] BackingArray => backingArray!;
-
-    public bool IsReadOnly => false;
-
-    public char this[int index]
-    {
-        get
-        {
-            if (index < backingArray!.Length - 1)
-            {
-                return backingArray[index];
-            }
-            throw new ArgumentException($"Tried to access char array at {index} which beyond end of the array");
-        }
-        set
-        {
-            if (index < backingArray!.Length - 1)
-            {
-                backingArray[index] = value;
-                if (index >= length && value != '\x0')
-                {
-                    length = index + 1;
-                }
-                else if (index == length - 1 && length > 0 && value == '\x0')
-                {
-                    length--;
-                }
-                return;
-            }
-            throw new ArgumentException($"Tried to access char array at {index} which beyond end of the array");
-        }
-    }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public IEnumerator<char> GetEnumerator() => 
-        Recycler != null ? this.RecycledEnumerator(Recycler) : backingArray!.Cast<char>().GetEnumerator();
 
     public bool IsEndOf(string checkSameChars)
     {
@@ -899,12 +902,6 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         }
     }
 
-    public bool Equals(string? toCompare)
-    {
-        if (toCompare == null) return false;
-        return CompareTo(toCompare) == 0;
-    }
-
     public bool EquivalentTo(string other)
     {
         return CompareTo(other) == 0;
@@ -992,12 +989,6 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         return -1;
     }
 
-    public int Length
-    {
-        get => length;
-        set => length = Math.Max(0, Math.Min(backingArray?.Length ?? 0, value));
-    }
-
     public override void StateReset()
     {
         for (var i = length -1; i >= 0; i--)
@@ -1007,6 +998,11 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         length = 0;
         base.StateReset();
     }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<char> GetEnumerator() => 
+        Recycler != null ? this.RecycledEnumerator(Recycler) : backingArray!.Cast<char>().GetEnumerator();
 
     public override RecyclingCharArray Clone() =>
         Recycler?.Borrow<RecyclingCharArray>().EnsureIsAtSize(Capacity).CopyFrom(this, CopyMergeFlags.FullReplace) ??
@@ -1022,6 +1018,12 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         source.CopyTo(backingArray!, 0);
         length = source.Count;
         return this;
+    }
+
+    public bool Equals(string? toCompare)
+    {
+        if (toCompare == null) return false;
+        return CompareTo(toCompare) == 0;
     }
 
     public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
@@ -1045,15 +1047,15 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
 public static class RecyclingCharArrayExtensions
 {
     public static IEnumerator<char> RecycledEnumerator(this RecyclingCharArray rca, IRecycler recycler) =>
-        recycler.Borrow<RecyclingRecyclingCharArrayEnumerator>().Initialize(rca);
+        recycler.Borrow<RecyclingCharArrayEnumerator>().Initialize(rca);
     
-    private class RecyclingRecyclingCharArrayEnumerator : RecyclableObject, IEnumerator<char>
+    private class RecyclingCharArrayEnumerator : RecyclableObject, IEnumerator<char>
     {
         private RecyclingCharArray? rca;
 
         private int currentPosition = -1;
 
-        public RecyclingRecyclingCharArrayEnumerator Initialize(RecyclingCharArray rcArray)
+        public RecyclingCharArrayEnumerator Initialize(RecyclingCharArray rcArray)
         {
             rca = rcArray;
 

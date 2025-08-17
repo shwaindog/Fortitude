@@ -100,13 +100,13 @@ public partial class KeyValueCollectionBuilder
     }
 
     public KeyValueCollectionBuilder AddAll<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct =>
-        AddAllEnumerate(value, valueStructStyler, keyFormatString);
+        AddAllEnumerate(value, valueStyler, keyFormatString);
 
     public KeyValueCollectionBuilder AddAll<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-          , StructStyler<TValue> valueStructStyler
+          , CustomTypeStyler<TValue> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct
     {
@@ -118,7 +118,7 @@ public partial class KeyValueCollectionBuilder
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
                     : stb.AppendOrNull(kvp.Key).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -127,7 +127,7 @@ public partial class KeyValueCollectionBuilder
 
     public KeyValueCollectionBuilder AddAll<TKey, TValue>
         (IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-          , StructStyler<TValue> valueStructStyler
+          , CustomTypeStyler<TValue> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct
     {
@@ -139,7 +139,7 @@ public partial class KeyValueCollectionBuilder
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
                     : stb.AppendOrNull(kvp.Key).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -147,7 +147,7 @@ public partial class KeyValueCollectionBuilder
     }
 
     public KeyValueCollectionBuilder AddAllEnumerate<TKey, TValue> (IEnumerable<KeyValuePair<TKey, TValue>>? value
-          , StructStyler<TValue> valueStructStyler
+          , CustomTypeStyler<TValue> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct
     {
@@ -158,7 +158,7 @@ public partial class KeyValueCollectionBuilder
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
                     : stb.AppendOrNull(kvp.Key).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -167,7 +167,7 @@ public partial class KeyValueCollectionBuilder
 
     public KeyValueCollectionBuilder AddAllEnumerate<TKey, TValue>
         (IEnumerator<KeyValuePair<TKey, TValue>>? value
-          , StructStyler<TValue> valueStructStyler
+          , CustomTypeStyler<TValue> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct
     {
@@ -180,7 +180,7 @@ public partial class KeyValueCollectionBuilder
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
                     : stb.AppendOrNull(kvp.Key).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.AppendOrNull(kvp.Value, valueStyler);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart();
             }
@@ -189,12 +189,12 @@ public partial class KeyValueCollectionBuilder
     }
 
     public KeyValueCollectionBuilder AddAll<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct =>
-        AddAllEnumerate(value, valueStructStyler, keyStructStyler);
+        AddAllEnumerate(value, valueStyler, keyStyler);
 
     public KeyValueCollectionBuilder AddAll<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-          , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct
     {
         if (value != null)
@@ -202,8 +202,8 @@ public partial class KeyValueCollectionBuilder
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
-                stb.AppendOrNull(kvp.Key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.AppendOrNull(kvp.Key, keyStyler).Append(": ");
+                stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -211,7 +211,7 @@ public partial class KeyValueCollectionBuilder
     }
 
     public KeyValueCollectionBuilder AddAll<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-          , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct
     {
         if (value != null)
@@ -219,8 +219,8 @@ public partial class KeyValueCollectionBuilder
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
-                stb.AppendOrNull(kvp.Key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.AppendOrNull(kvp.Key, keyStyler).Append(": ");
+                stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -228,15 +228,15 @@ public partial class KeyValueCollectionBuilder
     }
 
     public KeyValueCollectionBuilder AddAllEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-          , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct
     {
         if (value != null)
         {
             foreach (var kvp in value)
             {
-                stb.AppendOrNull(kvp.Key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.AppendOrNull(kvp.Key, keyStyler).Append(": ");
+                stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -244,7 +244,7 @@ public partial class KeyValueCollectionBuilder
     }
 
     public KeyValueCollectionBuilder AddAllEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-          , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct
     {
         var hasValue = value?.MoveNext() ?? false;
@@ -253,8 +253,8 @@ public partial class KeyValueCollectionBuilder
             while(hasValue)
             {
                 var kvp = value!.Current;
-                stb.AppendOrNull(kvp.Value, valueStructStyler).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.AppendOrNull(kvp.Value, valueStyler).Append(": ");
+                stb.AppendOrNull(kvp.Value, valueStyler);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart();
             }

@@ -34,12 +34,12 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalValueCollection to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(TStruct[]? value, StructStyler<TStruct> structStyler)
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct =>
-        AddValueCollectionParams(value, structStyler);
+        AddValueCollectionParams(value, customTypeStyler);
 
     [MustUseReturnValue("Use AndFinalValueCollection to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>((TStruct[]?, StructStyler<TStruct>) valueTuple)
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct
     {
         FormatSb.Clear();
@@ -48,12 +48,12 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalValueCollection to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(IReadOnlyList<TStruct>? value, StructStyler<TStruct> structStyler)
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct =>
-        AddValueCollectionParams(value, structStyler);
+        AddValueCollectionParams(value, customTypeStyler);
 
     [MustUseReturnValue("Use AndFinalValueCollection to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>((IReadOnlyList<TStruct>?, StructStyler<TStruct>) valueTuple)
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct
     {
         FormatSb.Clear();
@@ -110,12 +110,12 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalValueCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(TStruct[]? value, OrderedCollectionPredicate<TStruct> filter
-      , StructStyler<TStruct> structStyler) where TStruct : struct =>
-        AddFilteredValueCollectionParams(value, filter, structStyler);
+      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+        AddFilteredValueCollectionParams(value, filter, customTypeStyler);
 
     [MustUseReturnValue("Use AndFinalValueCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(
-        (TStruct[]?, OrderedCollectionPredicate<TStruct>, StructStyler<TStruct>) valueTuple) where TStruct : struct
+        (TStruct[]?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
     {
         FormatSb.Clear();
         AppendFilteredValueCollection(valueTuple, FormatStsa!);
@@ -124,12 +124,12 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalValueCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(IReadOnlyList<TStruct>? value
-      , OrderedCollectionPredicate<TStruct> filter, StructStyler<TStruct> structStyler) where TStruct : struct =>
-        AddFilteredValueCollectionParams(value, filter, structStyler);
+      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+        AddFilteredValueCollectionParams(value, filter, customTypeStyler);
 
     [MustUseReturnValue("Use AndFinalValueCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndValueCollection<TStruct>(
-        (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, StructStyler<TStruct>) valueTuple) where TStruct : struct
+        (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
     {
         FormatSb.Clear();
         AppendFilteredValueCollection(valueTuple, FormatStsa!);
@@ -236,11 +236,11 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalValueCollectionEnumerate to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TStruct>(IEnumerable<TStruct>? value
-      , StructStyler<TStruct> structStyler) where TStruct : struct =>
-        AddValueCollectionParamsEnumerate(value, structStyler);
+      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+        AddValueCollectionParamsEnumerate(value, customTypeStyler);
 
     [MustUseReturnValue("Use AndFinalValueCollectionEnumerate to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TStruct>((IEnumerable<TStruct>?, StructStyler<TStruct>) valueTuple)
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TStruct>((IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct
     {
         FormatSb.Clear();
@@ -250,11 +250,11 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalValueCollectionEnumerate to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TStruct>(IEnumerator<TStruct>? value
-      , StructStyler<TStruct> structStyler) where TStruct : struct =>
-        AddValueCollectionParamsEnumerate(value, structStyler);
+      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+        AddValueCollectionParamsEnumerate(value, customTypeStyler);
 
     [MustUseReturnValue("Use AndFinalValueCollectionEnumerate to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TStruct>((IEnumerator<TStruct>?, StructStyler<TStruct>) valueTuple)
+    public IFLogAdditionalFormatterParameterEntry? AndValueCollectionEnumerate<TStruct>((IEnumerator<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct
     {
         FormatSb.Clear();
@@ -504,12 +504,12 @@ public partial class FLogAdditionalFormatterParameterEntry
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct =>
-        AddFilteredKeyedCollectionParams(value, filterPredicate, valueStructStyler, keyFormatString);
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct =>
+        AddFilteredKeyedCollectionParams(value, filterPredicate, valueStyler, keyFormatString);
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -519,7 +519,7 @@ public partial class FLogAdditionalFormatterParameterEntry
     
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -530,12 +530,12 @@ public partial class FLogAdditionalFormatterParameterEntry
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct =>
-        AddFilteredKeyedCollectionParams(value, filterPredicate, valueStructStyler, keyFormatString);
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct =>
+        AddFilteredKeyedCollectionParams(value, filterPredicate, valueStyler, keyFormatString);
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -545,7 +545,7 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -556,12 +556,12 @@ public partial class FLogAdditionalFormatterParameterEntry
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct =>
-        AddFilteredKeyedCollectionParams(value, filterPredicate, valueStructStyler, keyFormatString);
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct =>
+        AddFilteredKeyedCollectionParams(value, filterPredicate, valueStyler, keyFormatString);
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -571,7 +571,7 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -581,13 +581,13 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct =>
-        AddKeyedCollectionParams(value, valueStructStyler, keyFormatString);
+        AddKeyedCollectionParams(value, valueStyler, keyFormatString);
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>, string?) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -597,7 +597,7 @@ public partial class FLogAdditionalFormatterParameterEntry
     
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>) valueTuple) where TValue : struct
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -606,13 +606,13 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct =>
-        AddKeyedCollectionParams(value, valueStructStyler, keyFormatString);
+        AddKeyedCollectionParams(value, valueStyler, keyFormatString);
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>, string?) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -622,13 +622,13 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct =>
-        AddKeyedCollectionParams(value, valueStructStyler, keyFormatString);
+        AddKeyedCollectionParams(value, valueStyler, keyFormatString);
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -638,7 +638,7 @@ public partial class FLogAdditionalFormatterParameterEntry
     
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple) where TValue : struct 
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -647,13 +647,13 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionEnumerate to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollectionEnumerate<TKey, TValue>
-    (IEnumerable<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
+    (IEnumerable<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct =>
-    AddKeyedCollectionParamsEnumerate(value, valueStructStyler, keyFormatString);
+    AddKeyedCollectionParamsEnumerate(value, valueStyler, keyFormatString);
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionEnumerate to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple) where TValue : struct
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple) where TValue : struct
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
@@ -662,7 +662,7 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionEnumerate to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple) where TValue : struct
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
@@ -670,13 +670,13 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollectionEnumerate<TKey, TValue>
-    (IEnumerator<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
+    (IEnumerator<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct =>
-        AddKeyedCollectionParamsEnumerate(value, valueStructStyler, keyFormatString);
+        AddKeyedCollectionParamsEnumerate(value, valueStyler, keyFormatString);
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionEnumerate to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple) where TValue : struct
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple) where TValue : struct
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
@@ -685,7 +685,7 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionEnumerate to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple) where TValue : struct
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
@@ -694,7 +694,7 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>) valueTuple) where TValue : struct 
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -703,13 +703,13 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AddKeyedCollectionParams(value, valueStructStyler, keyStructStyler);
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+        AddKeyedCollectionParams(value, valueStyler, keyStyler);
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct
     {
         FormatSb.Clear();
@@ -719,13 +719,13 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AddKeyedCollectionParams(value, valueStructStyler, keyStructStyler);
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+        AddKeyedCollectionParams(value, valueStyler, keyStyler);
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct
     {
         FormatSb.Clear();
@@ -735,13 +735,13 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AddKeyedCollectionParams(value, valueStructStyler, keyStructStyler);
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+        AddKeyedCollectionParams(value, valueStyler, keyStyler);
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct
     {
         FormatSb.Clear();
@@ -751,13 +751,13 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionEnumerate to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollectionEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AddKeyedCollectionParamsEnumerate(value, valueStructStyler, keyStructStyler);
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+        AddKeyedCollectionParamsEnumerate(value, valueStyler, keyStyler);
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionEnumerate to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct
     {
         FormatSb.Clear();
@@ -767,13 +767,13 @@ public partial class FLogAdditionalFormatterParameterEntry
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionEnumerate to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollectionEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AddKeyedCollectionParamsEnumerate(value, valueStructStyler, keyStructStyler);
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+        AddKeyedCollectionParamsEnumerate(value, valueStyler, keyStyler);
 
     [MustUseReturnValue("Use AndFinalKeyedCollectionEnumerate to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct
     {
         FormatSb.Clear();
@@ -784,12 +784,12 @@ public partial class FLogAdditionalFormatterParameterEntry
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AddFilteredKeyedCollectionParams(value, filterPredicate, valueStructStyler, keyStructStyler);
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+        AddFilteredKeyedCollectionParams(value, filterPredicate, valueStyler, keyStyler);
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct
     {
         FormatSb.Clear();
@@ -800,12 +800,12 @@ public partial class FLogAdditionalFormatterParameterEntry
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AddFilteredKeyedCollectionParams(value, filterPredicate, valueStructStyler, keyStructStyler);
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+        AddFilteredKeyedCollectionParams(value, filterPredicate, valueStyler, keyStyler);
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct
     {
         FormatSb.Clear();
@@ -816,12 +816,12 @@ public partial class FLogAdditionalFormatterParameterEntry
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AddFilteredKeyedCollectionParams(value, filterPredicate, valueStructStyler, keyStructStyler);
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+        AddFilteredKeyedCollectionParams(value, filterPredicate, valueStyler, keyStyler);
 
     [MustUseReturnValue("Use AndFinalKeyedCollection to finish LogEntry")]
     public IFLogAdditionalFormatterParameterEntry? AndKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct
     {
         FormatSb.Clear();

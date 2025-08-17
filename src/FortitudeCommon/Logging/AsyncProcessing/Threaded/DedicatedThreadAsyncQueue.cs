@@ -2,6 +2,7 @@
 using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Logging.Core.Appending.Formatting;
+using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.AsyncProcessing.Threaded;
@@ -37,12 +38,12 @@ public class DedicatedThreadAsyncQueue : FLogAsyncQueue
         ring.Publish(slot);
     }
 
-    public override void FlushBufferToAppender(IBufferedFormatWriter toFlush, IFLogBufferingFormatAppender fromAppender)
+    public override void FlushBufferToAppender(IBufferedFormatWriter toFlush)
     {
         var slot = ring.Claim();
 
         var flogAsyncPayload = ring[slot];
-        flogAsyncPayload.SetAsFlushAppenderBuffer(toFlush, fromAppender);
+        flogAsyncPayload.SetAsFlushAppenderBuffer(toFlush);
         ring.Publish(slot);
     }
 

@@ -25,11 +25,11 @@ public partial class FLogFirstFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithParams<TStruct>(TStruct value, StructStyler<TStruct> structStyler) where TStruct : struct =>
+    public IFLogAdditionalFormatterParameterEntry? WithParams<TStruct>(TStruct value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithParams<TStruct>((TStruct, StructStyler<TStruct>) valueTuple) where TStruct : struct
+    public IFLogAdditionalFormatterParameterEntry? WithParams<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
     {
         FormatSb.Clear();
         AppendStruct(valueTuple, FormatStsa!);
@@ -38,11 +38,11 @@ public partial class FLogFirstFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithParams<TStruct>(TStruct? value, StructStyler<TStruct> structStyler) where TStruct : struct =>
+    public IFLogAdditionalFormatterParameterEntry? WithParams<TStruct>(TStruct? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithParams<TStruct>((TStruct?, StructStyler<TStruct>) valueTuple) where TStruct : struct
+    public IFLogAdditionalFormatterParameterEntry? WithParams<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
     {
         FormatSb.Clear();
         AppendStruct(valueTuple, FormatStsa!);

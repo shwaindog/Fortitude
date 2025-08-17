@@ -64,7 +64,7 @@ namespace FortitudeTests.FortitudeCommon.DataStructures.Maps
             int countCallbackCalled = 0;
 
             var concurrentMap = new ConcurrentMap<string, string>();
-            concurrentMap.OnUpdate += newItems => countCallbackCalled++;
+            concurrentMap.Updated += newItems => countCallbackCalled++;
 
             concurrentMap.Add("firstKey", "firstValue");
             Assert.AreEqual(1, countCallbackCalled);

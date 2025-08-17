@@ -42,36 +42,36 @@ public partial class FormatParameterEntry<TFormatEntry>
         tempStsa.DecrementRefCount();
     }
 
-    protected IFLogAdditionalFormatterParameterEntry? AddValueCollectionParams<TStruct>(TStruct[]? value, StructStyler<TStruct> structStyler)
+    protected IFLogAdditionalFormatterParameterEntry? AddValueCollectionParams<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct
     {
-        ReplaceTokenWithValueCollection(value, structStyler);
+        ReplaceTokenWithValueCollection(value, customTypeStyler);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
-    protected void ReplaceTokenWithValueCollection<TStruct>(TStruct[]? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    protected void ReplaceTokenWithValueCollection<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendValueCollection(tempStsa, value, structStyler);
+        tempStsa = AppendValueCollection(tempStsa, value, customTypeStyler);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
 
     protected IFLogAdditionalFormatterParameterEntry? AddValueCollectionParams<TStruct>
-        (IReadOnlyList<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+        (IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
-        ReplaceTokenWithValueCollection(value, structStyler);
+        ReplaceTokenWithValueCollection(value, customTypeStyler);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
-    protected void ReplaceTokenWithValueCollection<TStruct>(IReadOnlyList<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    protected void ReplaceTokenWithValueCollection<TStruct>(IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendValueCollection(tempStsa, value, structStyler);
+        tempStsa = AppendValueCollection(tempStsa, value, customTypeStyler);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
@@ -116,38 +116,38 @@ public partial class FormatParameterEntry<TFormatEntry>
 
     protected IFLogAdditionalFormatterParameterEntry? AddFilteredValueCollectionParams<TStruct>
     (TStruct[]? value, OrderedCollectionPredicate<TStruct> filter
-      , StructStyler<TStruct> structStyler) where TStruct : struct
+      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
-        ReplaceTokenWithValueCollection(value, filter, structStyler);
+        ReplaceTokenWithValueCollection(value, filter, customTypeStyler);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
-    protected void ReplaceTokenWithValueCollection<TStruct>(TStruct[]? value, OrderedCollectionPredicate<TStruct> filter, StructStyler<TStruct> structStyler)
+    protected void ReplaceTokenWithValueCollection<TStruct>(TStruct[]? value, OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendFilteredValueCollection(tempStsa, value, filter, structStyler);
+        tempStsa = AppendFilteredValueCollection(tempStsa, value, filter, customTypeStyler);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
 
     protected IFLogAdditionalFormatterParameterEntry? AddFilteredValueCollectionParams<TStruct>
     (IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> filter
-      , StructStyler<TStruct> structStyler) where TStruct : struct 
+      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct 
     {
-        ReplaceTokenWithValueCollection(value, filter, structStyler);
+        ReplaceTokenWithValueCollection(value, filter, customTypeStyler);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
-    protected void ReplaceTokenWithValueCollection<TStruct>(IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> filter, StructStyler<TStruct> structStyler)
+    protected void ReplaceTokenWithValueCollection<TStruct>(IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendFilteredValueCollection(tempStsa, value, filter, structStyler);
+        tempStsa = AppendFilteredValueCollection(tempStsa, value, filter, customTypeStyler);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
@@ -257,36 +257,36 @@ public partial class FormatParameterEntry<TFormatEntry>
     }
     
     protected IFLogAdditionalFormatterParameterEntry? AddValueCollectionParamsEnumerate<TStruct>
-        (IEnumerable<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+        (IEnumerable<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
-        ReplaceTokenWithValueCollectionEnumerate(value, structStyler);
+        ReplaceTokenWithValueCollectionEnumerate(value, customTypeStyler);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
     protected void ReplaceTokenWithValueCollectionEnumerate<TStruct>
-        (IEnumerable<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+        (IEnumerable<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendValueCollectionEnumerate(tempStsa, value, structStyler);
+        tempStsa = AppendValueCollectionEnumerate(tempStsa, value, customTypeStyler);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }
     
     protected IFLogAdditionalFormatterParameterEntry? AddValueCollectionParamsEnumerate<TStruct>
-        (IEnumerator<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+        (IEnumerator<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
-        ReplaceTokenWithValueCollectionEnumerate(value, structStyler);
+        ReplaceTokenWithValueCollectionEnumerate(value, customTypeStyler);
         var toReturn = ToAdditionalFormatBuilder(value);
         return toReturn;
     }
 
-    protected void ReplaceTokenWithValueCollectionEnumerate<TStruct>(IEnumerator<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    protected void ReplaceTokenWithValueCollectionEnumerate<TStruct>(IEnumerator<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         var tempStsa = TempStyledTypeAppender;
         tempStsa.ClearAndReinitialize(stringStyle: StringBuildingStyle.Default);
-        tempStsa = AppendValueCollectionEnumerate(tempStsa, value, structStyler);
+        tempStsa = AppendValueCollectionEnumerate(tempStsa, value, customTypeStyler);
         ReplaceTokenNumber(tempStsa.WriteBuffer);
         tempStsa.DecrementRefCount();
     }

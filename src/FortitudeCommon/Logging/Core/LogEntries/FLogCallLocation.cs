@@ -20,13 +20,14 @@ public record struct FLogCallLocation(string MemberName, string SourceFilePath, 
 
 public static class FLogCallLocationExtensions
 {
-    public static StructStyler<FLogCallLocation> FLogCallLocationFormatter = FormatFlogLevelAppender;
+    public static CustomTypeStyler<FLogCallLocation> FLogCallLocationStyler = FormatFlogLevelAppender;
 
-    public static StructStyler<FLogCallLocation> Styler(this FLogCallLocation callLoc) => FLogCallLocationFormatter;
+    public static CustomTypeStyler<FLogCallLocation> Styler(this FLogCallLocation callLoc) => FLogCallLocationStyler;
 
 
-    public static void FormatFlogLevelAppender(this FLogCallLocation callLoc, IStyledTypeStringAppender sbc)
+    public static StyledTypeBuildResult FormatFlogLevelAppender(this FLogCallLocation callLoc, IStyledTypeStringAppender sbc)
     {
+        return
         sbc.StartComplexType(nameof(FLogCallLocation))
            .Field.AlwaysAdd(nameof(callLoc.MemberName), callLoc.MemberName)
            .Field.AlwaysAdd(nameof(callLoc.SourceLineNumber), callLoc.SourceLineNumber)
@@ -35,7 +36,7 @@ public static class FLogCallLocationExtensions
     }
 
 
-    public static StringBuilder ExtractAppendFileName(this StringBuilder sb, FLogCallLocation subject)
+    public static StringBuilder ExtractAppendFileNameWithExtension(this StringBuilder sb, FLogCallLocation subject)
     {
         string sourceFilePath      = subject.SourceFilePath;
 
@@ -56,6 +57,29 @@ public static class FLogCallLocationExtensions
         return sb;
     }
 
+    public static StringBuilder ExtractAppendFileNameNoExt(this StringBuilder sb, FLogCallLocation subject)
+    {
+        string sourceFilePath      = subject.SourceFilePath;
+
+        var sourcePathSpan      = sourceFilePath.AsSpan();
+        var indexOfForwardSlash = sourcePathSpan.LastSplitFrom('/');
+        if (indexOfForwardSlash.Length > 0 && indexOfForwardSlash.Length < sourcePathSpan.Length)
+        {
+            var indexOfdot = sourcePathSpan.LastIndexOf('.');
+            sb.Append(indexOfdot > 0 ? indexOfForwardSlash[..indexOfdot] : indexOfForwardSlash);
+            return sb;
+        }
+        var indexOfBackSlash = sourcePathSpan.LastSplitFrom('\\');
+        if (indexOfBackSlash.Length > 0  && indexOfBackSlash.Length < sourcePathSpan.Length)
+        {
+            var indexOfdot = sourcePathSpan.LastIndexOf('.');
+            sb.Append(indexOfdot > 0 ? indexOfBackSlash[..indexOfdot] : indexOfBackSlash);
+            return sb;
+        }
+        sb.Append(sourceFilePath);
+        return sb;
+    }
+
     public static StringBuilder ExtractAppendLineNumber(this StringBuilder sb, FLogCallLocation subject)
     {
         sb.Append(subject.SourceLineNumber);
@@ -64,6 +88,6 @@ public static class FLogCallLocationExtensions
 
     public static StringBuilder AppendFileNameLineNumber(this StringBuilder sb, FLogCallLocation subject)
     {
-        return sb.ExtractAppendFileName(subject).Append(": ").ExtractAppendLineNumber(subject);
+        return sb.ExtractAppendFileNameWithExtension(subject).Append(": ").ExtractAppendLineNumber(subject);
     }
 }

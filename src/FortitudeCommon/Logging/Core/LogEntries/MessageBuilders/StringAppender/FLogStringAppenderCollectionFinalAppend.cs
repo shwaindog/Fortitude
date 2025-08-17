@@ -28,22 +28,22 @@ public partial class FLogStringAppender
         AppendValueCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
-    public void FinalAppendValueCollection<TStruct>(TStruct[]? value, StructStyler<TStruct> structStyler)
+    public void FinalAppendValueCollection<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct =>
-        AppendValueCollection(MessageStsa, value, structStyler).ToAppender(this).CallOnComplete();
+        AppendValueCollection(MessageStsa, value, customTypeStyler).ToAppender(this).CallOnComplete();
 
 
-    public void FinalAppendValueCollection<TStruct>((TStruct[]?, StructStyler<TStruct>) valueTuple)
+    public void FinalAppendValueCollection<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct =>
         AppendValueCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
-    public void FinalAppendValueCollection<TStruct>(IReadOnlyList<TStruct>? value, StructStyler<TStruct> structStyler)
+    public void FinalAppendValueCollection<TStruct>(IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct =>
-        AppendValueCollection(MessageStsa, value, structStyler).ToAppender(this).CallOnComplete();
+        AppendValueCollection(MessageStsa, value, customTypeStyler).ToAppender(this).CallOnComplete();
 
 
-    public void FinalAppendValueCollection<TStruct>((IReadOnlyList<TStruct>?, StructStyler<TStruct>) valueTuple)
+    public void FinalAppendValueCollection<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct =>
         AppendValueCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
@@ -80,22 +80,22 @@ public partial class FLogStringAppender
 
 
     public void FinalAppendValueCollection<TStruct>(TStruct[]? value, OrderedCollectionPredicate<TStruct> filter
-      , StructStyler<TStruct> structStyler) where TStruct : struct =>
-        AppendFilteredValueCollection(MessageStsa, value, filter, structStyler).ToAppender(this).CallOnComplete();
+      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+        AppendFilteredValueCollection(MessageStsa, value, filter, customTypeStyler).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendValueCollection<TStruct>(
-        (TStruct[]?, OrderedCollectionPredicate<TStruct>, StructStyler<TStruct>) valueTuple) where TStruct : struct =>
+        (TStruct[]?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct =>
         AppendFilteredValueCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendValueCollection<TStruct>(IReadOnlyList<TStruct>? value
-      , OrderedCollectionPredicate<TStruct> filter, StructStyler<TStruct> structStyler) where TStruct : struct =>
-        AppendFilteredValueCollection(MessageStsa, value, filter, structStyler).ToAppender(this).CallOnComplete();
+      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+        AppendFilteredValueCollection(MessageStsa, value, filter, customTypeStyler).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendValueCollection<TStruct>(
-        (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, StructStyler<TStruct>) valueTuple) where TStruct : struct =>
+        (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct =>
         AppendFilteredValueCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
@@ -163,17 +163,17 @@ public partial class FLogStringAppender
         AppendValueCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
-    public void FinalAppendValueCollectionEnumerate<TStruct>((IEnumerable<TStruct>?, StructStyler<TStruct>) valueTuple)
+    public void FinalAppendValueCollectionEnumerate<TStruct>((IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct =>
         AppendValueCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendValueCollectionEnumerate<TStruct>(IEnumerator<TStruct>? value
-      , StructStyler<TStruct> structStyler) where TStruct : struct =>
-        AppendValueCollectionEnumerate(MessageStsa, value, structStyler).ToAppender(this).CallOnComplete();
+      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+        AppendValueCollectionEnumerate(MessageStsa, value, customTypeStyler).ToAppender(this).CallOnComplete();
 
 
-    public void FinalAppendValueCollectionEnumerate<TStruct>((IEnumerator<TStruct>?, StructStyler<TStruct>) valueTuple)
+    public void FinalAppendValueCollectionEnumerate<TStruct>((IEnumerator<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct =>
         AppendValueCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
@@ -325,237 +325,237 @@ public partial class FLogStringAppender
 
     public void FinalAppendKeyedCollection<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct =>
-        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStructStyler, keyFormatString).ToAppender(this).CallOnComplete();
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct =>
+        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyFormatString).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct =>
         AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct =>
         AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct =>
-        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStructStyler, keyFormatString).ToAppender(this).CallOnComplete();
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct =>
+        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyFormatString).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct =>
         AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct =>
         AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct =>
-        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStructStyler, keyFormatString).ToAppender(this).CallOnComplete();
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct =>
+        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyFormatString).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct =>
         AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct =>
         AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct =>
-        AppendKeyedCollection(MessageStsa, value, valueStructStyler, keyFormatString).ToAppender(this).CallOnComplete();
+        AppendKeyedCollection(MessageStsa, value, valueStyler, keyFormatString).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>, string?) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct =>
         AppendKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>) valueTuple) where TValue : struct =>
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct =>
         AppendKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct =>
-        AppendKeyedCollection(MessageStsa, value, valueStructStyler, keyFormatString).ToAppender(this).CallOnComplete();
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct =>
+        AppendKeyedCollection(MessageStsa, value, valueStyler, keyFormatString).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>, string?) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct =>
         AppendKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>) valueTuple) where TValue : struct =>
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct =>
         AppendKeyedCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct =>
-        AppendKeyedCollection(MessageStsa, value, valueStructStyler, keyFormatString).ToAppender(this).CallOnComplete();
+        AppendKeyedCollection(MessageStsa, value, valueStyler, keyFormatString).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct =>
         AppendKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple) where TValue : struct =>
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct =>
         AppendKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollectionEnumerate<TKey, TValue>
-    (IEnumerable<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
+    (IEnumerable<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct =>
-        AppendKeyedCollectionEnumerate(MessageStsa, value, valueStructStyler, keyFormatString).ToAppender(this).CallOnComplete();
+        AppendKeyedCollectionEnumerate(MessageStsa, value, valueStyler, keyFormatString).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple) where TValue : struct =>
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple) where TValue : struct =>
         AppendKeyedCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple) where TValue : struct =>
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct =>
         AppendKeyedCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollectionEnumerate<TKey, TValue>
-    (IEnumerator<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
+    (IEnumerator<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct =>
-        AppendKeyedCollectionEnumerate(MessageStsa, value, valueStructStyler, keyFormatString).ToAppender(this).CallOnComplete();
+        AppendKeyedCollectionEnumerate(MessageStsa, value, valueStyler, keyFormatString).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple) where TValue : struct =>
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple) where TValue : struct =>
         AppendKeyedCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple) where TValue : struct =>
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct =>
         AppendKeyedCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct =>
         AppendKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AppendKeyedCollection(MessageStsa, value, valueStructStyler, keyStructStyler).ToAppender(this).CallOnComplete();
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+        AppendKeyedCollection(MessageStsa, value, valueStyler, keyStyler).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct =>
         AppendKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AppendKeyedCollection(MessageStsa, value, valueStructStyler, keyStructStyler).ToAppender(this).CallOnComplete();
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+        AppendKeyedCollection(MessageStsa, value, valueStyler, keyStyler).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct =>
         AppendKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollectionEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AppendKeyedCollectionEnumerate(MessageStsa, value, valueStructStyler, keyStructStyler).ToAppender(this).CallOnComplete();
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+        AppendKeyedCollectionEnumerate(MessageStsa, value, valueStyler, keyStyler).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct =>
         AppendKeyedCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollectionEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AppendKeyedCollectionEnumerate(MessageStsa, value, valueStructStyler, keyStructStyler).ToAppender(this).CallOnComplete();
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+        AppendKeyedCollectionEnumerate(MessageStsa, value, valueStyler, keyStyler).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollectionEnumerate<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct =>
         AppendKeyedCollectionEnumerate(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStructStyler, keyStructStyler).ToAppender(this).CallOnComplete();
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyStyler).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct =>
         AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStructStyler, keyStructStyler).ToAppender(this).CallOnComplete();
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyStyler).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct =>
         AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStructStyler, keyStructStyler).ToAppender(this).CallOnComplete();
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+        AppendFilteredKeyedCollection(MessageStsa, value, filterPredicate, valueStyler, keyStyler).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct =>
         AppendFilteredKeyedCollection(valueTuple, MessageStsa).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendValueCollectionEnumerate<TStruct>(IEnumerable<TStruct>? value
-      , StructStyler<TStruct> structStyler) where TStruct : struct =>
-        AppendValueCollectionEnumerate(MessageStsa, value, structStyler).ToAppender(this).CallOnComplete();
+      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+        AppendValueCollectionEnumerate(MessageStsa, value, customTypeStyler).ToAppender(this).CallOnComplete();
 
 
     public void FinalAppendKeyedCollection<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
-        AppendKeyedCollection(MessageStsa, value, valueStructStyler, keyStructStyler).ToAppender(this).CallOnComplete();
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
+        AppendKeyedCollection(MessageStsa, value, valueStyler, keyStyler).ToAppender(this).CallOnComplete();
 }

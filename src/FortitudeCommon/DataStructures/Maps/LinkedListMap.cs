@@ -128,7 +128,7 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
                     new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
                         new KeyValuePair<TK, TV>(key, value)));
 
-                OnUpdate?.Invoke(duplicate.Select(wn => wn.Payload));
+                Updated?.Invoke(duplicate.Select(wn => wn.Payload));
                 Chain = duplicate;
             }
 
@@ -160,7 +160,7 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
                     new DoublyLinkedListWrapperNode<KeyValuePair<TK, TV>>(
                         new KeyValuePair<TK, TV>(key, value)));
 
-                OnUpdate?.Invoke(duplicate.Select(wn => wn.Payload));
+                Updated?.Invoke(duplicate.Select(wn => wn.Payload));
                 Chain = duplicate;
                 return true;
             }
@@ -183,7 +183,7 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
                 else
                     foundKey = true;
 
-            OnUpdate?.Invoke(duplicate.Select(wn => wn.Payload));
+            Updated?.Invoke(duplicate.Select(wn => wn.Payload));
             Chain = duplicate;
         }
 
@@ -197,7 +197,7 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
             Chain =
                 new DoublyLinkedList<DoublyLinkedListWrapperNode<
                     KeyValuePair<TK, TV>>>();
-            OnUpdate?.Invoke(Chain.Select(wn => wn.Payload));
+            Updated?.Invoke(Chain.Select(wn => wn.Payload));
         }
     }
 
@@ -208,7 +208,7 @@ public class LinkedListMap<TK, TV> : IMap<TK, TV> where TK : notnull
         return TryGetValue(key, out _);
     }
 
-    public event Action<IEnumerable<KeyValuePair<TK, TV>>>? OnUpdate;
+    public event Action<IEnumerable<KeyValuePair<TK, TV>>>? Updated;
 
     object ICloneable.Clone() => Clone();
 

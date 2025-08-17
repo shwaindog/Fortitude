@@ -7,7 +7,7 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using FortitudeCommon.DataStructures.Lists;
 using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
+using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Monitoring.Logging;
 
 #endregion

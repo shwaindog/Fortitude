@@ -6,6 +6,7 @@
 using System.Net.Sockets;
 using FortitudeCommon.AsyncProcessing;
 using FortitudeCommon.DataStructures.Memory;
+using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
 using FortitudeCommon.EventProcessing.Disruption.Rings;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.NetworkingWrappers;

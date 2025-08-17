@@ -17,7 +17,7 @@ public interface INullAppenderConfig : IAppenderDefinitionConfig
 
 public class NullAppenderConfig : AppenderDefinitionConfig, INullAppenderConfig
 {
-    private const string SyncForwardingAppenderType = $"{nameof(FLoggerBuiltinAppenderType.SyncForwarding)}";
+    private const string SyncForwardingAppenderType = $"{nameof(FLoggerBuiltinAppenderType.Forwarding)}";
 
     public NullAppenderConfig(IConfigurationRoot root, string path) 
         : base(root, path, INullAppenderConfig.NullAppenderName, INullAppenderConfig.NullAppenderType ) { }

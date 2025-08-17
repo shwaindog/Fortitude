@@ -2,12 +2,11 @@
 
 using System.Text;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
 
 #endregion
 
-namespace FortitudeCommon.DataStructures.Memory;
+namespace FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
 
 public static unsafe class StreamByteOps
 {

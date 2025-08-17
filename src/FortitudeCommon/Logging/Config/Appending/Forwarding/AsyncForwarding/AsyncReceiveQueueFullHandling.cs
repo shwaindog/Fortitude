@@ -30,13 +30,15 @@ public enum AsyncReceiveQueueFullHandling
 
 public static class AsyncReceiveQueueFullHandlingExtensions
 {
-    public static StructStyler<AsyncReceiveQueueFullHandling> AsyncReceiveQueueFullHandlingFormatter
+    public static CustomTypeStyler<AsyncReceiveQueueFullHandling> AsyncReceiveQueueFullHandlingFormatter
         = FormatFullQueueHandlingAppender;
 
-    public static void FormatFullQueueHandlingAppender(this AsyncReceiveQueueFullHandling queueFull, IStyledTypeStringAppender sbc)
+    public static StyledTypeBuildResult FormatFullQueueHandlingAppender(this AsyncReceiveQueueFullHandling queueFull, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.WriteBuffer;
+        var tb = sbc.StartSimpleValueType(nameof(AsyncReceiveQueueFullHandling));
+        var sb = tb.StringBuilder("_AsyncReceiveQueueFullHandlingAsString");
 
+        sb.Append("\"");
         switch (queueFull)
         {
             case Default:                                         sb.Append($"{nameof(Default)}"); break;
@@ -57,5 +59,7 @@ public static class AsyncReceiveQueueFullHandlingExtensions
 
             default: sb.Append($"{nameof(Default)}"); break;
         }
+        sb.Append("\"");
+        return tb.Complete();
     }
 }

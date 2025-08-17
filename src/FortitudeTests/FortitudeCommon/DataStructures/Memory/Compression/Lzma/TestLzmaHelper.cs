@@ -6,6 +6,7 @@
 
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Buffers;
+using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
 using FortitudeCommon.DataStructures.Memory.Compression.Lzma;
 using FortitudeCommon.DataStructures.Memory.Compression.Lzma.Common;
 using FortitudeCommon.Types;

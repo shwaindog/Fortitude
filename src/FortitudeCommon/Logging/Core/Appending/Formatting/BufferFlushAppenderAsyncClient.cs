@@ -1,4 +1,5 @@
 ﻿using FortitudeCommon.Logging.AsyncProcessing;
+using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.Hub;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting;
@@ -7,7 +8,7 @@ public interface IBufferFlushAppenderAsyncClient : IAppenderAsyncClient
 {
     int BufferFlushQueueNum { get; set; }
 
-    public void SendToFlushBufferToAppender(IBufferedFormatWriter bufferToFlush, IFLogBufferingFormatAppender formatAppender);
+    public void SendToFlushBufferToAppender(IBufferedFormatWriter bufferToFlush);
 }
 
 public class BufferFlushAppenderAsyncClient : ReceiveAsyncClient, IBufferFlushAppenderAsyncClient
@@ -38,14 +39,14 @@ public class BufferFlushAppenderAsyncClient : ReceiveAsyncClient, IBufferFlushAp
         BufferFlushQueueNum = bufferFlushQueueNum;
     }
 
-    public void SendToFlushBufferToAppender(IBufferedFormatWriter bufferToFlush, IFLogBufferingFormatAppender formatAppender)
+    public void SendToFlushBufferToAppender(IBufferedFormatWriter bufferToFlush)
     {
         if (BufferFlushQueueNum == AppenderReceiveQueueNum || BufferFlushQueueNum == FLogAsyncQueue.MyCallingQueueNumber)
         {
-            formatAppender.FlushBufferToAppender(bufferToFlush);
+            bufferToFlush.Flush();
             return;
         }
         
-        bufferToFlushQueuePublisher.FlushBufferToAppender(bufferToFlush, formatAppender);
+        bufferToFlushQueuePublisher.FlushBufferToAppender(bufferToFlush);
     }
 }

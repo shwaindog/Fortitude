@@ -1,7 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
-namespace FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
+namespace FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory;
 
 public unsafe interface IVirtualMemoryAddressRange : IDisposable, IGrowable<IVirtualMemoryAddressRange>
 {

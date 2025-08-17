@@ -7,7 +7,7 @@ using FortitudeCommon.OSWrapper.Streams;
 
 #endregion
 
-namespace FortitudeCommon.DataStructures.Memory;
+namespace FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
 
 public interface IAcceptsByteArrayStream : IStream
 {

@@ -31,7 +31,7 @@ public class FilteringForwardingAppenderConfig : ForwardingAppenderConfig, IMuta
 
     public FilteringForwardingAppenderConfig
     (string appenderName, IMutableMatchOperatorExpressionConfig whenCondition
-      , IAppendableForwardingAppendersLookupConfig? forwardToAppendersConfig = null
+      , IAppendableNamedAppendersLookupConfig? forwardToAppendersConfig = null
       , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)
         : this(InMemoryConfigRoot, InMemoryPath, appenderName, whenCondition, forwardToAppendersConfig
@@ -40,7 +40,7 @@ public class FilteringForwardingAppenderConfig : ForwardingAppenderConfig, IMuta
     public FilteringForwardingAppenderConfig
     (IConfigurationRoot root, string path, string appenderName
       , IMutableMatchOperatorExpressionConfig whenCondition
-      , IAppendableForwardingAppendersLookupConfig? forwardToAppendersConfig = null
+      , IAppendableNamedAppendersLookupConfig? forwardToAppendersConfig = null
       , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)
         : base(root, path, appenderName, forwardToAppendersConfig, runOnAsyncQueueNumber, inheritFromAppenderName

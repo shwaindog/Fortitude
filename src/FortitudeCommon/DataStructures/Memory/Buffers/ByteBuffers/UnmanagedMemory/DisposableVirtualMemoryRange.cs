@@ -3,12 +3,11 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.OSWrapper.Memory;
 
 #endregion
 
-namespace FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
+namespace FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory;
 
 public unsafe class DisposableVirtualMemoryRange : IVirtualMemoryAddressRange
 {

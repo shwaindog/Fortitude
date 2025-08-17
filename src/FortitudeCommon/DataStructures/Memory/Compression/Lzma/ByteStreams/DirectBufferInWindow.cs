@@ -1,7 +1,7 @@
 // Licensed under the MIT license.
 // Copyright Alexis Sawenko 2024 all rights reserved
 
-using FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
+using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
 using FortitudeCommon.OSWrapper.Streams;
 
 namespace FortitudeCommon.DataStructures.Memory.Compression.Lzma.ByteStreams;

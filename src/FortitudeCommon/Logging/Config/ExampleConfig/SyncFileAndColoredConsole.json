@@ -1,0 +1,30 @@
+﻿{
+  "FLog": {
+    "Appenders": {
+      "ForwardingAppender": {
+        "AppenderType": "Forwarding",
+        "ForwardToAppenders": {
+          "AppLogFileAppender": {
+            "AppenderType": "FileUnbounded",
+            "LogEntryFormatLayout": "'%TS:yyyy-MM-dd HH:mm:SS.fff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%':'%LLN:-3%' '%MSG%''%NL%'",
+            "DisableBuffering": true,
+            "FilePath": "Logs/",
+            "FileName": "'%StartAssemblyName%'-'%TS:MMdd%'.log"
+          },
+          "ColoredConsole" : {
+            "AppenderType": "ConsoleOut",
+            "LogEntryFormatLayout": "'%TS:yyyy-MM-dd HH:mm:SS.fff%' '%LVL,5%' ['%THREADNAME,10[..15]%' '%THREADID%'] '%LGR%':'%LLN:-3%' '%MSG%''%NL%'",
+            "DisableBuffering": true,
+            "FilePath": "Logs/",
+            "FileName": "'%StartAssemblyName%'-'%TS:MMdd%'.log"
+          }
+        }
+      }
+    },
+    "RootLogger": {
+      "Appenders" : {
+        "ForwardingAppender" : {}
+      }
+    }
+  }
+}

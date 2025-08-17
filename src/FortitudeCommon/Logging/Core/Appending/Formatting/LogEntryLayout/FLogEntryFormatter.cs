@@ -19,24 +19,49 @@ public interface IMutableFLogEntryFormatter : IFLogEntryFormatter
     new string FormattingTemplate { get; set; }
 }
 
+public interface ITokenFormattingValidator
+{
+    ReadOnlySpan<char> ValidateFormattingToken(string tokenName, ReadOnlySpan<char> tokenValue);
+}
+
 public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableFLogEntryFormatter
 {
-    private readonly IFLogFormattingAppender formattingAppender;
-    private readonly List<ITemplatePart>     templateParts = new();
+    private readonly List<ITemplatePart> templateParts = new();
+
+    private IFormatWriterResolver formatWriterResolver = null!;
 
     private string formattingTemplate = "";
 
-    public FLogEntryFormatter(string formattingTemplate, IFLogFormattingAppender formattingAppender)
+    private ITokenFormattingValidator? tokenFormattingValidator;
+
+    public FLogEntryFormatter() { }
+
+    public FLogEntryFormatter(string template, IFormatWriterResolver writerResolver)
     {
-        this.formattingAppender = formattingAppender;
-        FormattingTemplate      = formattingTemplate;
+        formatWriterResolver = writerResolver;
+        FormattingTemplate   = template;
     }
 
     public FLogEntryFormatter(FLogEntryFormatter toClone)
     {
-        formattingAppender = toClone.formattingAppender;
-        FormattingTemplate = toClone.FormattingTemplate;
+        formatWriterResolver = toClone.formatWriterResolver;
+        FormattingTemplate   = toClone.FormattingTemplate;
     }
+
+    public FLogEntryFormatter Initialize(string template, IFormatWriterResolver writerResolver
+      , ITokenFormattingValidator? tokenFormattingValidator = null)
+    {
+        if (template != FormattingTemplate)
+        {
+            templateParts.Clear();
+            FormattingTemplate = template;
+        }
+        formatWriterResolver = writerResolver;
+
+        return this;
+    }
+
+    public List<ITemplatePart> TemplateParts => templateParts;
 
     public int ApplyFormatting(IFLogEntry logEntry)
     {
@@ -44,29 +69,33 @@ public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableF
         {
             FormattingTemplate = IFormattingAppenderConfig.DefaultStringFormattingTemplate;
         }
-        using var formatWriterResolver = formattingAppender.FormatWriterResolver;
-
-        var  formatWriterRequestTimeouts = 0;
-        var gotFormatWriter = false;
+        
+        var usedFormatWriter             = false;
+        var formatWriterRequestTimeouts = 0;
         do
         {
-            using var formatWriter = formatWriterResolver.GetOrWaitForFormatWriter();
+            if (!formatWriterResolver.IsOpen) break;
+            using var formatWriterWaitHandle = formatWriterResolver.FormatWriterResolver(logEntry);
+            
+            using var formatWriter = formatWriterWaitHandle.GetOrWaitForFormatWriter();
 
             if (formatWriter != null)
             {
-                gotFormatWriter = true;
-                formatWriter.NotifyStartEntryAppend();
-                foreach (var part in templateParts)
+                if (formatWriter.NotifyStartEntryAppend(logEntry))
                 {
-                    part.Apply(formatWriter, logEntry);
+                    foreach (var part in templateParts)
+                    {
+                        part.Apply(formatWriter, logEntry);
+                    }
+                    usedFormatWriter = true;
+                    formatWriter.NotifyEntryAppendComplete();
                 }
-                formatWriter.NotifyEntryAppendComplete();
             }
             else
             {
                 formatWriterRequestTimeouts++;
             }
-        } while (!gotFormatWriter);
+        } while (!usedFormatWriter);
         return formatWriterRequestTimeouts;
     }
 
@@ -86,11 +115,11 @@ public class FLogEntryFormatter : ReusableObject<IFLogEntryFormatter>, IMutableF
     {
         templateParts.Clear();
 
-        TokenisedLogEntryFormatStringParser.Instance.BuildTemplateParts(formattingTemplate, templateParts);
+        TokenisedLogEntryFormatStringParser.Instance.BuildTemplateParts(formattingTemplate, templateParts, tokenFormattingValidator);
         TokenisedLogEntryFormatStringParser.Instance.EnsureConsoleColorsReset(templateParts);
     }
 
-    public override FLogEntryFormatter Clone() => new (this);
+    public override FLogEntryFormatter Clone() => new(this);
 
     public override FLogEntryFormatter CopyFrom
         (IFLogEntryFormatter source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

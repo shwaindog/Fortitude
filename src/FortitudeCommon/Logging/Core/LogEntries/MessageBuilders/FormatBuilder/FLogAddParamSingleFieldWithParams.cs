@@ -26,11 +26,11 @@ public partial class FLogAdditionalFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).ExpectContinue(value);
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? And<TStruct>(TStruct value, StructStyler<TStruct> structStyler) where TStruct : struct =>
+    public IFLogAdditionalFormatterParameterEntry? And<TStruct>(TStruct value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).ExpectContinue(value);
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? And<TStruct>((TStruct, StructStyler<TStruct>) valueTuple) where TStruct : struct
+    public IFLogAdditionalFormatterParameterEntry? And<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
     {
         FormatSb.Clear();
         AppendStruct(valueTuple, FormatStsa!);
@@ -38,11 +38,11 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? And<TStruct>(TStruct? value, StructStyler<TStruct> structStyler) where TStruct : struct =>
+    public IFLogAdditionalFormatterParameterEntry? And<TStruct>(TStruct? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
         PreCheckTokensGetStringBuilder(value).ReplaceTokens(value).ExpectContinue(value);
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? And<TStruct>((TStruct?, StructStyler<TStruct>) valueTuple) where TStruct : struct
+    public IFLogAdditionalFormatterParameterEntry? And<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
     {
         FormatSb.Clear();
         AppendStruct(valueTuple, FormatStsa!);

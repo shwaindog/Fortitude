@@ -1,10 +1,11 @@
 ﻿using System.Collections.Concurrent;
+using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.DataStructures.Memory.Buffers;
 
-public static class Base2SizingCharArrayPool
+public static class Base2SizingArrayPool
 {
     private static readonly ConcurrentDictionary<int, Recycler> SizedRecyclerDict = new();
 
@@ -25,22 +26,19 @@ public static class Base2SizingCharArrayPool
         var power2Size = atLeastOfSize.NextPowerOfTwo();
 
         var recycler = SizedRecyclerDict
-            .GetOrAdd
-                (power2Size, size =>
+            .GetOrAdd(power2Size, size =>
                     new Recycler().RegisterFactory(() => new CharArrayStringBuilder(size)));
 
         return recycler.Borrow<CharArrayStringBuilder>().EnsureIsAtSize(power2Size);
     }
 
-    public static AsyncReadWriterRecyclingCharArray SourceAsyncReadWriterRecyclingCharArray(this int atLeastOfSize)
+    public static RecyclingByteArray SourceRecyclingByteArray(this int atLeastOfSize)
     {
         var power2Size = atLeastOfSize.NextPowerOfTwo();
 
         var recycler = SizedRecyclerDict
-            .GetOrAdd
-                (power2Size, size =>
-                    new Recycler().RegisterFactory(() => new AsyncReadWriterRecyclingCharArray(size)));
+            .GetOrAdd (power2Size, size => new Recycler().RegisterFactory(() => new RecyclingByteArray(size)));
 
-        return recycler.Borrow<AsyncReadWriterRecyclingCharArray>().EnsureIsAtSize(power2Size);
+        return recycler.Borrow<RecyclingByteArray>().EnsureIsAtSize(power2Size);
     }
 }

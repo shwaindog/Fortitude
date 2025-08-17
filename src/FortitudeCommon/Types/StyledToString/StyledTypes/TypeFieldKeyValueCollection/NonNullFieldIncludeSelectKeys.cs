@@ -53,79 +53,79 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKey[] selectKeys
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TValue : struct =>
         value != null 
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStructStyler, keyFormatString) 
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStyler, keyFormatString) 
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct =>
         value != null 
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStructStyler, keyFormatString) 
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStyler, keyFormatString) 
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TValue : struct =>
         value != null 
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStructStyler, keyFormatString) 
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStyler, keyFormatString) 
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys, StructStyler<TValue> valueStructStyler
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys, CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct =>
         value != null 
-            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueStructStyler, keyFormatString) 
+            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueStyler, keyFormatString) 
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , IEnumerator<TKey> selectKeys, StructStyler<TValue> valueStructStyler
+      , IEnumerator<TKey> selectKeys, CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TValue : struct =>
         value != null 
-            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueStructStyler, keyFormatString) 
+            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueStyler, keyFormatString) 
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKey[] selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
         value != null 
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStructStyler, keyStructStyler) 
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStyler, keyStyler) 
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
         value != null 
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStructStyler, keyStructStyler) 
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStyler, keyStyler) 
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
         value != null 
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStructStyler, keyStructStyler) 
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueStyler, keyStyler) 
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
         value != null 
-            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueStructStyler, keyStructStyler) 
+            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueStyler, keyStyler) 
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct =>
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct =>
         value != null 
-            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueStructStyler, keyStructStyler) 
+            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueStyler, keyStyler) 
             : stb.StyleTypeBuilder;
 }

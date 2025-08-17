@@ -4,7 +4,7 @@
 #region
 
 using System.Runtime.InteropServices;
-using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
+using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeIO.Storage.TimeSeries.FileSystem.File.Session;
 
 #endregion

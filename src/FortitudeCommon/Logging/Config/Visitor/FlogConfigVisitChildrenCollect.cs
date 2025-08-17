@@ -112,16 +112,6 @@ public class FlogConfigVisitChildrenCollect<T, TCollect>(List<TCollect> found, P
         return Me;
     }
 
-    public override T Accept(IAppendableForwardingAppendersLookupConfig forwardToAppendersCollectionConfig) 
-    {
-        if(forwardToAppendersCollectionConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        foreach (var fwdToAppender in forwardToAppendersCollectionConfig)
-        {
-            fwdToAppender.Value.Visit(Me);
-        }
-        return Me;
-    }
-
     public override T Accept(IMutableForwardingAppenderConfig forwardingAppenderConfig)
     {
         if(forwardingAppenderConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
@@ -275,16 +265,6 @@ public class FlogConfigVisitChildrenCollect<T, TCollect>(List<TCollect> found, P
         if(initializationConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         initializationConfig.AsyncBufferingInit.Visit(Me);
         initializationConfig.LogEntryPoolsInit.Visit(Me);
-        return Me;
-    }
-
-    public override T Accept(IAppendableInheritingAppendersLookupConfig inheritingFormatAppendersConfig)
-    {
-        if(inheritingFormatAppendersConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        foreach (var formattingAppender in inheritingFormatAppendersConfig)
-        {
-            formattingAppender.Value.Visit(Me);
-        }
         return Me;
     }
 

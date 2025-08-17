@@ -53,7 +53,7 @@ public class AsyncForwardingAppendersConfig : QueueingAppenderConfig, IMutableAs
     public AsyncForwardingAppendersConfig
     (string appenderName
       , FLogAsyncAppenderDispatchType asyncType
-      , IAppendableForwardingAppendersLookupConfig? forwardToAppendersConfig = null
+      , IAppendableNamedAppendersLookupConfig? forwardToAppendersConfig = null
       , IMutableFLogEntryQueueConfig? inboundQueue = null
       , bool broadcast = IAsyncForwardingAppendersConfig.DefaultShouldBroadcast
       , AsyncReceiveQueueFullHandling asyncQueueFullHandling = IAsyncForwardingAppendersConfig.DefaultReceiveQueueFullHandling
@@ -68,7 +68,7 @@ public class AsyncForwardingAppendersConfig : QueueingAppenderConfig, IMutableAs
     public AsyncForwardingAppendersConfig
     (IConfigurationRoot root, string path, string appenderName
       , FLogAsyncAppenderDispatchType asyncType
-      , IAppendableForwardingAppendersLookupConfig? forwardToAppendersConfig = null
+      , IAppendableNamedAppendersLookupConfig? forwardToAppendersConfig = null
       , IMutableFLogEntryQueueConfig? inboundQueue = null
       , bool broadcast = IAsyncForwardingAppendersConfig.DefaultShouldBroadcast
       , AsyncReceiveQueueFullHandling asyncQueueFullHandling = IAsyncForwardingAppendersConfig.DefaultReceiveQueueFullHandling

@@ -1,6 +1,8 @@
 ﻿using System.Text;
 using FortitudeCommon.Logging.Config.Appending.Formatting;
+using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.Hub;
+using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Types.Mutable.Strings;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.FormattedMemory;
@@ -24,22 +26,31 @@ public class FormattedStringListAppender(IFormattingAppenderConfig formattingApp
 
     public override IFormattingAppenderConfig  GetAppenderConfig() => (IFormattingAppenderConfig)AppenderConfig;
 
-    protected override IFormatWriter CreatedDirectFormatWriter(IBufferingFormatAppenderConfig bufferingFormatAppenderConfig)
+    protected override IFormatWriter CreatedAppenderDirectFormatWriter
+        (IFLogContext context, string targetName, FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback)
     {
-        DirectFormatWriter ??= new FormattedStringList(this, OnReturningFormatWriter);
-        return DirectFormatWriter;
+        return new FormattedStringList().Initialize(this, onWriteCompleteCallback);
     }
 
-    private class FormattedStringList(FormattedStringListAppender owningAppender, FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback)
-        : FormatWriter<IFormatWriter>(owningAppender, onWriteCompleteCallback)
+    private class FormattedStringList : FormatWriter<IFormatWriter>
     {
         private readonly MutableString entryBuilder = new();
 
+        public FormattedStringList Initialize(FormattedStringListAppender owningAppender
+          , FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback)
+        {
+            base.Initialize(owningAppender, $"{nameof(FormattedStringList)}", onWriteCompleteCallback);
+            IsIOSynchronous = false;
+            
+            return this;
+        }
+
         private FormattedStringListAppender AsStringListAppender => (FormattedStringListAppender)OwningAppender;
 
-        public override void NotifyStartEntryAppend()
+        public override bool NotifyStartEntryAppend(IFLogEntry forEntry)
         {
             entryBuilder.Clear();
+            return true;
         }
 
         public override void NotifyEntryAppendComplete()
@@ -68,8 +79,5 @@ public class FormattedStringListAppender(IFormattingAppenderConfig formattingApp
         {
             entryBuilder.Append(toWrite, fromIndex, length);
         }
-
-        public override bool IsIOSynchronous => true;
     }
-
 }

@@ -28,7 +28,7 @@ public class QueueingAppenderConfig : ForwardingAppenderConfig, IMutableQueueing
 
     public QueueingAppenderConfig
     (string appenderName
-      , IAppendableForwardingAppendersLookupConfig? forwardToAppendersConfig = null, IMutableFLogEntryQueueConfig? inboundQueue = null
+      , IAppendableNamedAppendersLookupConfig? forwardToAppendersConfig = null, IMutableFLogEntryQueueConfig? inboundQueue = null
       , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)
         : this(InMemoryConfigRoot, InMemoryPath, appenderName, forwardToAppendersConfig, inboundQueue
@@ -36,7 +36,7 @@ public class QueueingAppenderConfig : ForwardingAppenderConfig, IMutableQueueing
 
     public QueueingAppenderConfig
     (IConfigurationRoot root, string path, string appenderName
-      , IAppendableForwardingAppendersLookupConfig? forwardToAppendersConfig = null
+      , IAppendableNamedAppendersLookupConfig? forwardToAppendersConfig = null
       , IMutableFLogEntryQueueConfig? inboundQueue = null
       , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)

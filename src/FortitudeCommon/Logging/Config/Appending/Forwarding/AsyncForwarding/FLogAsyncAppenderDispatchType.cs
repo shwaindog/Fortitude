@@ -20,13 +20,15 @@ public enum FLogAsyncAppenderDispatchType
 
 public static class FLogAsyncAppenderDispatchTypeExtensions
 {
-    public static StructStyler<FLogAsyncAppenderDispatchType> FLogAsyncAppenderDispatchTypeFormatter
+    public static CustomTypeStyler<FLogAsyncAppenderDispatchType> FLogAsyncAppenderDispatchTypeFormatter
         = FormatFullQueueHandlingAppender;
 
-    public static void FormatFullQueueHandlingAppender(this FLogAsyncAppenderDispatchType queueFull, IStyledTypeStringAppender sbc)
+    public static StyledTypeBuildResult FormatFullQueueHandlingAppender(this FLogAsyncAppenderDispatchType queueFull, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.WriteBuffer;
+        var tb = sbc.StartSimpleValueType(nameof(FLogAsyncAppenderDispatchType));
+        var sb = tb.StringBuilder("_FLogAsyncAppenderDispatchTypeAsString");
 
+        sb.Append("\"");
         switch (queueFull)
         {
             case Synchronous: sb.Append($"{nameof(Synchronous)}"); break;
@@ -39,5 +41,8 @@ public static class FLogAsyncAppenderDispatchTypeExtensions
 
             default: sb.Append($"{nameof(SingleBackgroundThread)}"); break;
         }
+        sb.Append("\"");
+        
+        return tb.Complete();
     }
 }

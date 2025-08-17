@@ -26,8 +26,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     //     value != null ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullAddAll<TStruct>
-        (string fieldName, TStruct[]? value, StructStyler<TStruct> structToString) where TStruct : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, structToString) : stb.StyleTypeBuilder;
+        (string fieldName, TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+        value != null ? AlwaysAddAll(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
     // public TExt  WhenNonNullAddAll<TStruct>
     //     (string fieldName, TStruct?[]? value, StructStyler<TStruct> structToString) where TStruct : struct =>
@@ -77,8 +77,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     //     value != null ? AlwaysAddAll(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullAddAll<TStruct>
-        (string fieldName, IReadOnlyList<TStruct>? value, StructStyler<TStruct> structToString) where TStruct : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, structToString) : stb.StyleTypeBuilder;
+        (string fieldName, IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+        value != null ? AlwaysAddAll(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
     // public TExt  WhenNonNullAddAll<TStruct>
     //     (string fieldName, IReadOnlyList<TStruct?>? value, StructStyler<TStruct> structToString) where TStruct : struct =>
@@ -128,8 +128,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     //     value != null ? AlwaysAddAllEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullAddAllEnumerate<TStruct>
-        (string fieldName, IEnumerable<TStruct>? value, StructStyler<TStruct> structToString) where TStruct : struct =>
-        value != null ? AlwaysAddAllEnumerate(fieldName, value, structToString) : stb.StyleTypeBuilder;
+        (string fieldName, IEnumerable<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+        value != null ? AlwaysAddAllEnumerate(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
     // public TExt  WhenNonNullAddAllEnumerate<TStruct>
     //     (string fieldName, IEnumerable<TStruct?>? value, StructStyler<TStruct> structToString) where TStruct : struct =>
@@ -179,8 +179,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     //     value != null ? AlwaysAddAllEnumerate(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullAddAllEnumerate<TStruct>
-        (string fieldName, IEnumerator<TStruct>? value, StructStyler<TStruct> structToString) where TStruct : struct =>
-        value != null ? AlwaysAddAllEnumerate(fieldName, value, structToString) : stb.StyleTypeBuilder;
+        (string fieldName, IEnumerator<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+        value != null ? AlwaysAddAllEnumerate(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
     // public TExt  WhenNonNullAddAllEnumerate<TStruct>
     //     (string fieldName, IEnumerator<TStruct?>? value, StructStyler<TStruct> structToString) where TStruct : struct =>

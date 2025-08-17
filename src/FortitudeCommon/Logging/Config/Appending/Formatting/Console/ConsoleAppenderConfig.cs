@@ -5,11 +5,15 @@ using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
+using static FortitudeCommon.Logging.Config.Appending.Formatting.Console.IConsoleAppenderConfig;
 
 namespace FortitudeCommon.Logging.Config.Appending.Formatting.Console;
 
 public interface IConsoleAppenderConfig : IBufferingFormatAppenderConfig, IConfigCloneTo<IConsoleAppenderConfig>
 {
+    const string DefaultConsoleAppenderName = $"DefaultColoredConsoleAppender";
+    const string ConsoleAppenderType        = $"{nameof(FLoggerBuiltinAppenderType.ConsoleOut)}";
+    
     bool DisableColoredConsole { get; }
 
     new IConsoleAppenderConfig Clone();
@@ -28,8 +32,6 @@ public interface IMutableConsoleAppenderConfig : IConsoleAppenderConfig, IMutabl
 
 public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableConsoleAppenderConfig
 {
-    public const string DefaultConsoleAppenderName = $"DefaultColoredConsoleAppender";
-    public const string ConsoleAppenderType        = $"{nameof(FLoggerBuiltinAppenderType.ConsoleOut)}";
 
     public ConsoleAppenderConfig(IConfigurationRoot root, string path) : base(root, path)
     {
@@ -40,14 +42,14 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
 
     public ConsoleAppenderConfig
     (IConfigurationRoot root, string path, string appenderName
+      , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
       , int charBufferSize = IBufferingFormatAppenderConfig.DefaultCharBufferSize
       , bool disableColoredConsole = false
       , IMutableFlushBufferConfig? flushBufferConfig = null
       , bool disableBuffering = false
-      , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
       , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)
-        : base(root, path, appenderName, ConsoleAppenderType, charBufferSize, flushBufferConfig, disableBuffering, logEntryFormatLayout
+        : base(root, path, appenderName, ConsoleAppenderType, logEntryFormatLayout, charBufferSize, flushBufferConfig, disableBuffering
              , runOnAsyncQueueNumber
              , inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere)
     {

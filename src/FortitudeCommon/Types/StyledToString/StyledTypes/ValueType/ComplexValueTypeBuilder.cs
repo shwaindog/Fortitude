@@ -3,9 +3,8 @@
 
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFieldCollection;
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeFields;
-using FortitudeCommon.Types.StyledToString.StyledTypes.ValueType;
 
-namespace FortitudeCommon.Types.StyledToString.StyledTypes.SimpleType;
+namespace FortitudeCommon.Types.StyledToString.StyledTypes.ValueType;
 
 public class ComplexValueTypeBuilder : ValueTypeBuilder<ComplexValueTypeBuilder>
 {

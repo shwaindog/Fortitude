@@ -156,7 +156,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         newContainer.KeyValuePair = kvPair;
         reusableListOfKeyValuePairs.Clear();
         reusableListOfKeyValuePairs.Add(kvPair);
-        OnUpdate?.Invoke(reusableListOfKeyValuePairs);
+        Updated?.Invoke(reusableListOfKeyValuePairs);
         queueWithElements.ReturnBorrowed(newContainer);
         var foundItemTime = 0;
         foreach (var container in queueWithElements)
@@ -184,7 +184,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         newContainer.KeyValuePair = kvPair;
         reusableListOfKeyValuePairs.Clear();
         reusableListOfKeyValuePairs.Add(kvPair);
-        OnUpdate?.Invoke(reusableListOfKeyValuePairs);
+        Updated?.Invoke(reusableListOfKeyValuePairs);
         queueWithElements.ReturnBorrowed(newContainer);
         var foundItemTime = 0;
         foreach (var container in queueWithElements)
@@ -241,7 +241,7 @@ public class GarbageAndLockFreeMap<TK, TV> : IGarbageFreeMap<TK, TV> where TK : 
         return false;
     }
 
-    public event Action<IEnumerable<KeyValuePair<TK, TV>>>? OnUpdate;
+    public event Action<IEnumerable<KeyValuePair<TK, TV>>>? Updated;
 
     public IDisposableEnumerable<KeyValuePair<TK, TV>> DisposableEnumerableEnumerator() =>
         enumeratorPool.Borrow().SourceEnumerator(queueWithElements.GetEnumerator());

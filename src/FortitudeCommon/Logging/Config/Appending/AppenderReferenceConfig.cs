@@ -19,6 +19,8 @@ public interface IAppenderReferenceConfig : IInterfacesComparable<IAppenderRefer
     string AppenderType { get; }
 
     bool DeactivateHere { get; }
+    
+    ushort AppendOrder { get; }  // If Synchronised will send from lowest to highest order
 
     IAppenderDefinitionConfig? ResolveAppenderDefinition();
 
@@ -31,6 +33,8 @@ public interface IMutableAppenderReferenceConfig : IAppenderReferenceConfig, IMu
 
     // can have the values FLoggerBuiltinAppenderType or a .net fully qualified assembly and type namespace
     new string AppenderType { get; set; }
+    
+    new ushort AppendOrder { get; set; } 
 
     new bool DeactivateHere { get; set; }
 
@@ -89,6 +93,12 @@ public class AppenderReferenceConfig : FLogConfig, IMutableAppenderReferenceConf
     {
         get => bool.TryParse(this[nameof(DeactivateHere)], out var disabled) && disabled;
         set => this[nameof(DeactivateHere)] = value.ToString();
+    }
+    
+    public ushort AppendOrder
+    {
+        get => ushort.TryParse(this[nameof(AppendOrder)], out var procOrder) ? procOrder : (ushort)0;
+        set => this[nameof(AppendOrder)] = value.ToString();
     }
 
     IAppenderDefinitionConfig? IAppenderReferenceConfig.ResolveAppenderDefinition() => ResolveAppenderDefinition();

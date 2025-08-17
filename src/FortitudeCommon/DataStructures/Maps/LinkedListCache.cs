@@ -6,7 +6,7 @@ public class LinkedListCache<TK, TV> : LinkedListMap<TK, TV> where TK : notnull
 
     public LinkedListCache()
     {
-        OnUpdate += v => { values = v.ToArray(); };
+        Updated += v => { values = v.ToArray(); };
     }
 
     public override IEnumerator<KeyValuePair<TK, TV>> GetEnumerator() => values.GetEnumerator();

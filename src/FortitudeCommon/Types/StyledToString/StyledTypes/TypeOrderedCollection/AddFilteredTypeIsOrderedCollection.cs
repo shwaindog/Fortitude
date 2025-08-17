@@ -435,7 +435,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFiltered<TStruct>(TStruct[]? value, OrderedCollectionPredicate<TStruct> itemPredicate, StructStyler<TStruct> structStyler)
+    public TExt AddFiltered<TStruct>(TStruct[]? value, OrderedCollectionPredicate<TStruct> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
@@ -456,7 +456,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddFiltered<TStruct>(TStruct?[]? value, OrderedCollectionPredicate<TStruct?> itemPredicate, StructStyler<TStruct> structStyler)
+    public TExt AddFiltered<TStruct>(TStruct?[]? value, OrderedCollectionPredicate<TStruct?> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
@@ -485,7 +485,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
     }
 
     
-    public TExt AddFiltered<TStruct>(ReadOnlySpan<TStruct> value, OrderedCollectionPredicate<TStruct> itemPredicate, StructStyler<TStruct> structStyler)
+    public TExt AddFiltered<TStruct>(ReadOnlySpan<TStruct> value, OrderedCollectionPredicate<TStruct> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
@@ -506,7 +506,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddFiltered<TStruct>(ReadOnlySpan<TStruct?> value, OrderedCollectionPredicate<TStruct?> itemPredicate, StructStyler<TStruct> structStyler)
+    public TExt AddFiltered<TStruct>(ReadOnlySpan<TStruct?> value, OrderedCollectionPredicate<TStruct?> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
@@ -527,7 +527,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddFiltered<TStruct>(IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> itemPredicate, StructStyler<TStruct> structStyler)
+    public TExt AddFiltered<TStruct>(IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
@@ -548,7 +548,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddFiltered<TStruct>(IReadOnlyList<TStruct?>? value, OrderedCollectionPredicate<TStruct?> itemPredicate, StructStyler<TStruct> structStyler)
+    public TExt AddFiltered<TStruct>(IReadOnlyList<TStruct?>? value, OrderedCollectionPredicate<TStruct?> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
@@ -569,7 +569,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return stb.Sb.AddGoToNext(stb);
     }
 
-    public TExt AddFilteredEnumerate<TStruct>(IEnumerable<TStruct>? value, OrderedCollectionPredicate<TStruct> itemPredicate, StructStyler<TStruct> structStyler)
+    public TExt AddFilteredEnumerate<TStruct>(IEnumerable<TStruct>? value, OrderedCollectionPredicate<TStruct> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
@@ -590,7 +590,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredEnumerate<TStruct>(IEnumerable<TStruct?>? value, OrderedCollectionPredicate<TStruct?> itemPredicate, StructStyler<TStruct> structStyler)
+    public TExt AddFilteredEnumerate<TStruct>(IEnumerable<TStruct?>? value, OrderedCollectionPredicate<TStruct?> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
@@ -611,7 +611,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredEnumerate<TStruct>(IEnumerator<TStruct>? value, OrderedCollectionPredicate<TStruct> itemPredicate, StructStyler<TStruct> structStyler)
+    public TExt AddFilteredEnumerate<TStruct>(IEnumerator<TStruct>? value, OrderedCollectionPredicate<TStruct> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
@@ -639,7 +639,7 @@ public partial class OrderedCollectionBuilder<TExt> where TExt : StyledTypeBuild
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddFilteredEnumerate<TStruct>(IEnumerator<TStruct?>? value, OrderedCollectionPredicate<TStruct?> itemPredicate, StructStyler<TStruct> structStyler)
+    public TExt AddFilteredEnumerate<TStruct>(IEnumerator<TStruct?>? value, OrderedCollectionPredicate<TStruct?> itemPredicate, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();

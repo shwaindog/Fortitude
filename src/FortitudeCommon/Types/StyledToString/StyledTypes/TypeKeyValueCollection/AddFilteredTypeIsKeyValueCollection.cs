@@ -116,13 +116,13 @@ public partial class KeyValueCollectionBuilder
 
     public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate 
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct =>
-        AddFilteredEnumerate(value, filterPredicate, valueStructStyler, keyFormatString);
+        AddFilteredEnumerate(value, filterPredicate, valueStyler, keyFormatString);
 
     public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
+      , KeyValuePredicate<TKey, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct
     {
@@ -135,7 +135,7 @@ public partial class KeyValueCollectionBuilder
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
                     : stb.AppendOrNull(kvp.Key).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -144,7 +144,7 @@ public partial class KeyValueCollectionBuilder
 
     public KeyValueCollectionBuilder AddFiltered<TKey, TValue>
         (IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-          , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
+          , KeyValuePredicate<TKey, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct
     {
@@ -157,7 +157,7 @@ public partial class KeyValueCollectionBuilder
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
                     : stb.AppendOrNull(kvp.Key).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -166,7 +166,7 @@ public partial class KeyValueCollectionBuilder
 
     public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue> (IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate 
-          , StructStyler<TValue> valueStructStyler
+          , CustomTypeStyler<TValue> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct
     {
@@ -179,7 +179,7 @@ public partial class KeyValueCollectionBuilder
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
                     : stb.AppendOrNull(kvp.Key).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -187,7 +187,7 @@ public partial class KeyValueCollectionBuilder
     }
 
     public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate,  StructStyler<TValue> valueStructStyler
+      , KeyValuePredicate<TKey, TValue> filterPredicate,  CustomTypeStyler<TValue> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TValue : struct
     {
@@ -206,7 +206,7 @@ public partial class KeyValueCollectionBuilder
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(kvp.Key, keyFormatString).AppendOrNull(": ")
                     : stb.AppendOrNull(kvp.Key).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.AppendOrNull(kvp.Value, valueStyler);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart();
             }
@@ -216,13 +216,13 @@ public partial class KeyValueCollectionBuilder
 
     public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate 
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct =>
-        AddFilteredEnumerate((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueStructStyler, keyStructStyler);
+        AddFilteredEnumerate((IEnumerable<KeyValuePair<TKey, TValue>>?)value, filterPredicate, valueStyler, keyStyler);
 
     public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct
     {
         if (value != null)
@@ -231,8 +231,8 @@ public partial class KeyValueCollectionBuilder
             {
                 var kvp = value[i];
                 if (!filterPredicate(i, kvp.Key, kvp.Value)) continue;
-                stb.AppendOrNull(kvp.Key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.AppendOrNull(kvp.Key, keyStyler).Append(": ");
+                stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -241,7 +241,7 @@ public partial class KeyValueCollectionBuilder
 
     public KeyValueCollectionBuilder AddFiltered<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate 
-          , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct
     {
         if (value != null)
@@ -250,8 +250,8 @@ public partial class KeyValueCollectionBuilder
             {
                 var kvp = value[i];
                 if (!filterPredicate(i, kvp.Key, kvp.Value)) continue;
-                stb.AppendOrNull(kvp.Key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.AppendOrNull(kvp.Key, keyStyler).Append(": ");
+                stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -260,7 +260,7 @@ public partial class KeyValueCollectionBuilder
 
     public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate 
-          , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TKey : struct
         where TValue : struct
     {
@@ -270,8 +270,8 @@ public partial class KeyValueCollectionBuilder
             foreach (var kvp in value)
             {
                 if (!filterPredicate(count++, kvp.Key, kvp.Value)) continue;
-                stb.AppendOrNull(kvp.Key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.AppendOrNull(kvp.Key, keyStyler).Append(": ");
+                stb.AppendOrNull(kvp.Value, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -280,8 +280,8 @@ public partial class KeyValueCollectionBuilder
 
     public KeyValueCollectionBuilder AddFilteredEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate 
-          , StructStyler<TValue> valueStructStyler
-          , StructStyler<TKey> keyStructStyler)
+          , CustomTypeStyler<TValue> valueStyler
+          , CustomTypeStyler<TKey> keyStyler)
         where TKey : struct
         where TValue : struct
     {
@@ -297,8 +297,8 @@ public partial class KeyValueCollectionBuilder
                     hasValue = value.MoveNext();
                     continue;
                 }
-                stb.AppendOrNull(kvp.Value, valueStructStyler).Append(": ");
-                stb.AppendOrNull(kvp.Value, valueStructStyler);
+                stb.AppendOrNull(kvp.Value, valueStyler).Append(": ");
+                stb.AppendOrNull(kvp.Value, valueStyler);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart();
             }

@@ -445,7 +445,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll<TStruct>(TStruct[]? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAll<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -456,7 +456,7 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                structStyler(item, stb.OwningAppender);
+                customTypeStyler(item, stb.OwningAppender);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -464,7 +464,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll<TStruct>(TStruct?[]? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAll<TStruct>(TStruct?[]? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -475,7 +475,7 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item, structStyler);
+                stb.AppendOrNull(item, customTypeStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -483,7 +483,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll<TStruct>(ReadOnlySpan<TStruct> value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAll<TStruct>(ReadOnlySpan<TStruct> value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -494,7 +494,7 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                structStyler(item, stb.OwningAppender);
+                customTypeStyler(item, stb.OwningAppender);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -502,7 +502,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll<TStruct>(ReadOnlySpan<TStruct?> value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAll<TStruct>(ReadOnlySpan<TStruct?> value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -513,7 +513,7 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item, structStyler);
+                stb.AppendOrNull(item, customTypeStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -521,7 +521,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll<TStruct>(IReadOnlyList<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAll<TStruct>(IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -532,7 +532,7 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                structStyler(item, stb.OwningAppender);
+                customTypeStyler(item, stb.OwningAppender);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -540,7 +540,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAll<TStruct>(IReadOnlyList<TStruct?>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAll<TStruct>(IReadOnlyList<TStruct?>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -551,7 +551,7 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value[i];
                 
                 any = true;
-                stb.AppendOrNull(item, structStyler);
+                stb.AppendOrNull(item, customTypeStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -559,7 +559,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate<TStruct>(IEnumerable<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAllEnumerate<TStruct>(IEnumerable<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -568,7 +568,7 @@ public partial class OrderedCollectionBuilder<TExt>
             foreach (var item in value)
             {
                 any = true;
-                structStyler(item, stb.OwningAppender);
+                customTypeStyler(item, stb.OwningAppender);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -576,7 +576,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate<TStruct>(IEnumerable<TStruct?>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAllEnumerate<TStruct>(IEnumerable<TStruct?>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -585,7 +585,7 @@ public partial class OrderedCollectionBuilder<TExt>
             foreach (var item in value)
             {
                 any = true;
-                stb.AppendOrNull(item, structStyler);
+                stb.AppendOrNull(item, customTypeStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -593,7 +593,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate<TStruct>(IEnumerator<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAllEnumerate<TStruct>(IEnumerator<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -614,7 +614,7 @@ public partial class OrderedCollectionBuilder<TExt>
         return any ? stb.Sb.AddGoToNext(stb) : stb.StyleTypeBuilder;
     }
 
-    public TExt AddAllEnumerate<TStruct>(IEnumerator<TStruct?>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public TExt AddAllEnumerate<TStruct>(IEnumerator<TStruct?>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         stb.ConditionalCollectionPrefix();
         var any      = false;
@@ -626,7 +626,7 @@ public partial class OrderedCollectionBuilder<TExt>
                 var item = value!.Current;
                 
                 any = true;
-                stb.AppendOrNull(item, structStyler);
+                stb.AppendOrNull(item, customTypeStyler);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart();
             }

@@ -63,8 +63,8 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
       , bool disableBuffering = false
       , int runOnAsyncQueueNumber = 0
       , string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false, bool deactivateHere = false)
-        : this(InMemoryConfigRoot, InMemoryPath, appenderName, appenderType, charBufferSize, flushBufferConfig, disableBuffering
-             , logEntryFormatLayout, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere) { }
+        : this(InMemoryConfigRoot, InMemoryPath, appenderName, appenderType, logEntryFormatLayout, charBufferSize, flushBufferConfig, disableBuffering
+             , runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere) { }
 
     public BufferingFormatAppenderConfig
     (string appenderName
@@ -74,15 +74,15 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
       , bool disableBuffering = false
       , int runOnAsyncQueueNumber = 0
       , string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false, bool deactivateHere = false)
-        : this(InMemoryConfigRoot, InMemoryPath, appenderName, charBufferSize, flushBufferConfig, disableBuffering
-             , logEntryFormatLayout, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere) { }
+        : this(InMemoryConfigRoot, InMemoryPath, appenderName, logEntryFormatLayout, charBufferSize, flushBufferConfig, disableBuffering
+             , runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition, deactivateHere) { }
 
     public BufferingFormatAppenderConfig
     (IConfigurationRoot root, string path, string appenderName, string appenderType
+      , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
       , int charBufferSize = IBufferingFormatAppenderConfig.DefaultCharBufferSize
       , IMutableFlushBufferConfig? flushBufferConfig = null
       , bool disableBuffering = false
-      , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
       , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)
         : base(root, path, appenderName, appenderType, logEntryFormatLayout, runOnAsyncQueueNumber, inheritFromAppenderName
@@ -95,10 +95,10 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
 
     public BufferingFormatAppenderConfig
     (IConfigurationRoot root, string path, string appenderName
+      , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
       , int charBufferSize = IBufferingFormatAppenderConfig.DefaultCharBufferSize
       , IMutableFlushBufferConfig? flushBufferConfig = null
       , bool disableBuffering = false
-      , string logEntryFormatLayout = IFormattingAppenderConfig.DefaultStringFormattingTemplate
       , int runOnAsyncQueueNumber = 0, string? inheritFromAppenderName = null, bool isTemplateOnlyDefinition = false
       , bool deactivateHere = false)
         : base(root, path, appenderName, logEntryFormatLayout, runOnAsyncQueueNumber, inheritFromAppenderName, isTemplateOnlyDefinition

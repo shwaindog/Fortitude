@@ -289,16 +289,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected IStyledTypeStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>
-    (IStyledTypeStringAppender toAppendTo, IEnumerable<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
+    (IStyledTypeStringAppender toAppendTo, IEnumerable<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null)  where TValue : struct 
     {
         toAppendTo.StartKeyedCollectionType("")
-                  .AddAllEnumerate(value, valueStructStyler, keyFormatString).Complete();
+                  .AddAllEnumerate(value, valueStyler, keyFormatString).Complete();
         return toAppendTo;
     }
     
     protected static IStyledTypeStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>
-        ((IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple, IStyledTypeStringAppender appender) where TValue : struct
+        ((IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple, IStyledTypeStringAppender appender) where TValue : struct
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
         appender.StartKeyedCollectionType("")
@@ -307,7 +307,7 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected static IStyledTypeStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>
-        ((IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple, IStyledTypeStringAppender appender) where TValue : struct
+        ((IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple, IStyledTypeStringAppender appender) where TValue : struct
     {
         var (value, valueFormatString) = valueTuple;
         appender.StartKeyedCollectionType("")
@@ -316,16 +316,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected IStyledTypeStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>
-    (IStyledTypeStringAppender toAppendTo, IEnumerator<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
+    (IStyledTypeStringAppender toAppendTo, IEnumerator<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct
     {
         toAppendTo.StartKeyedCollectionType("")
-                  .AddAllEnumerate(value, valueStructStyler, keyFormatString).Complete();
+                  .AddAllEnumerate(value, valueStyler, keyFormatString).Complete();
         return toAppendTo;
     }
     
     protected static IStyledTypeStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>
-        ((IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple, IStyledTypeStringAppender appender) where TValue : struct
+        ((IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple, IStyledTypeStringAppender appender) where TValue : struct
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
         appender.StartKeyedCollectionType("")
@@ -334,7 +334,7 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected static IStyledTypeStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>
-        ((IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple, IStyledTypeStringAppender appender) where TValue : struct
+        ((IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple, IStyledTypeStringAppender appender) where TValue : struct
     {
         var (value, valueFormatString) = valueTuple;
         appender.StartKeyedCollectionType("")
@@ -344,15 +344,15 @@ public abstract partial class FLogEntryMessageBuilder
     
     protected IStyledTypeStringAppender AppendFilteredKeyedCollection<TKey, TValue>
     (IStyledTypeStringAppender toAppendTo, IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct 
     {
         toAppendTo.StartKeyedCollectionType("")
-                  .AddFiltered(value, filterPredicate, valueStructStyler, keyFormatString).Complete();
+                  .AddFiltered(value, filterPredicate, valueStyler, keyFormatString).Complete();
         return toAppendTo;
     }
     
     protected static IStyledTypeStringAppender AppendFilteredKeyedCollection<TKey, TValue>
-        ((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple, IStyledTypeStringAppender appender) 
+        ((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple, IStyledTypeStringAppender appender) 
         where TValue : struct 
     {
         var (value, filterPredicate, valueFormatString, keyFormatString) = valueTuple;
@@ -362,7 +362,7 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected static IStyledTypeStringAppender AppendFilteredKeyedCollection<TKey, TValue>
-        ((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple, IStyledTypeStringAppender appender) 
+        ((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple, IStyledTypeStringAppender appender) 
         where TValue : struct 
     {
         var (value, filterPredicate, valueFormatString) = valueTuple;
@@ -373,15 +373,15 @@ public abstract partial class FLogEntryMessageBuilder
     
     protected IStyledTypeStringAppender AppendFilteredKeyedCollection<TKey, TValue>
     (IStyledTypeStringAppender toAppendTo, KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct 
     {
         toAppendTo.StartKeyedCollectionType("")
-                  .AddFiltered(value, filterPredicate, valueStructStyler, keyFormatString).Complete();
+                  .AddFiltered(value, filterPredicate, valueStyler, keyFormatString).Complete();
         return toAppendTo;
     }
     
     protected static IStyledTypeStringAppender AppendFilteredKeyedCollection<TKey, TValue>
-        ((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple, IStyledTypeStringAppender appender) 
+        ((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple, IStyledTypeStringAppender appender) 
         where TValue : struct 
     {
         var (value, filterPredicate, valueFormatString, keyFormatString) = valueTuple;
@@ -391,7 +391,7 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected static IStyledTypeStringAppender AppendFilteredKeyedCollection<TKey, TValue>
-        ((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple, IStyledTypeStringAppender appender) 
+        ((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple, IStyledTypeStringAppender appender) 
         where TValue : struct 
     {
         var (value, filterPredicate, valueFormatString) = valueTuple;
@@ -402,15 +402,15 @@ public abstract partial class FLogEntryMessageBuilder
     
     protected IStyledTypeStringAppender AppendFilteredKeyedCollection<TKey, TValue>
     (IStyledTypeStringAppender toAppendTo, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct 
     {
         toAppendTo.StartKeyedCollectionType("")
-                  .AddFiltered(value, filterPredicate, valueStructStyler, keyFormatString).Complete();
+                  .AddFiltered(value, filterPredicate, valueStyler, keyFormatString).Complete();
         return toAppendTo;
     }
     
     protected static IStyledTypeStringAppender AppendFilteredKeyedCollection<TKey, TValue>
-        ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple, IStyledTypeStringAppender appender) 
+        ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple, IStyledTypeStringAppender appender) 
         where TValue : struct 
     {
         var (value, filterPredicate, valueFormatString, keyFormatString) = valueTuple;
@@ -420,7 +420,7 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected static IStyledTypeStringAppender AppendFilteredKeyedCollection<TKey, TValue>
-        ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple, IStyledTypeStringAppender appender) 
+        ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple, IStyledTypeStringAppender appender) 
         where TValue : struct 
     {
         var (value, filterPredicate, valueFormatString) = valueTuple;
@@ -430,16 +430,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected IStyledTypeStringAppender AppendKeyedCollection<TKey, TValue>
-    (IStyledTypeStringAppender toAppendTo, IReadOnlyDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
+    (IStyledTypeStringAppender toAppendTo, IReadOnlyDictionary<TKey, TValue>? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct 
     {
         toAppendTo.StartKeyedCollectionType("")
-                  .AddAll(value, valueStructStyler, keyFormatString).Complete();
+                  .AddAll(value, valueStyler, keyFormatString).Complete();
         return toAppendTo;
     }
     
     protected static IStyledTypeStringAppender AppendKeyedCollection<TKey, TValue>
-        ((IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>, string?) valueTuple, IStyledTypeStringAppender appender) 
+        ((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, string?) valueTuple, IStyledTypeStringAppender appender) 
         where TValue : struct 
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
@@ -449,7 +449,7 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected static IStyledTypeStringAppender AppendKeyedCollection<TKey, TValue>
-        ((IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>) valueTuple, IStyledTypeStringAppender appender) 
+        ((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>) valueTuple, IStyledTypeStringAppender appender) 
         where TValue : struct 
     {
         var (value, valueFormatString) = valueTuple;
@@ -459,16 +459,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected IStyledTypeStringAppender AppendKeyedCollection<TKey, TValue>
-    (IStyledTypeStringAppender toAppendTo, KeyValuePair<TKey, TValue>[]? value, StructStyler<TValue> valueStructStyler
+    (IStyledTypeStringAppender toAppendTo, KeyValuePair<TKey, TValue>[]? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct 
     {
         toAppendTo.StartKeyedCollectionType("")
-                  .AddAll(value, valueStructStyler, keyFormatString).Complete();
+                  .AddAll(value, valueStyler, keyFormatString).Complete();
         return toAppendTo;
     }
     
     protected static IStyledTypeStringAppender AppendKeyedCollection<TKey, TValue>
-        ((KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>, string?) valueTuple, IStyledTypeStringAppender appender) 
+        ((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, string?) valueTuple, IStyledTypeStringAppender appender) 
         where TValue : struct 
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
@@ -478,7 +478,7 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected static IStyledTypeStringAppender AppendKeyedCollection<TKey, TValue>
-        ((KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>) valueTuple, IStyledTypeStringAppender appender) 
+        ((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>) valueTuple, IStyledTypeStringAppender appender) 
         where TValue : struct 
     {
         var (value, valueFormatString) = valueTuple;
@@ -488,16 +488,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected IStyledTypeStringAppender AppendKeyedCollection<TKey, TValue>
-    (IStyledTypeStringAppender toAppendTo, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
+    (IStyledTypeStringAppender toAppendTo, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct 
     {
         toAppendTo.StartKeyedCollectionType("")
-                  .AddAll(value, valueStructStyler, keyFormatString).Complete();
+                  .AddAll(value, valueStyler, keyFormatString).Complete();
         return toAppendTo;
     }
     
     protected static IStyledTypeStringAppender AppendKeyedCollection<TKey, TValue>
-        ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple, IStyledTypeStringAppender appender) 
+        ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple, IStyledTypeStringAppender appender) 
         where TValue : struct 
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
@@ -507,7 +507,7 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected static IStyledTypeStringAppender AppendKeyedCollection<TKey, TValue>
-        ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple, IStyledTypeStringAppender appender) 
+        ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple, IStyledTypeStringAppender appender) 
         where TValue : struct 
     {
         var (value, valueFormatString) = valueTuple;
@@ -517,16 +517,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected IStyledTypeStringAppender AppendKeyedCollection<TKey, TValue>
-    (IStyledTypeStringAppender toAppendTo, IReadOnlyDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+    (IStyledTypeStringAppender toAppendTo, IReadOnlyDictionary<TKey, TValue>? value, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
         toAppendTo.StartKeyedCollectionType("")
-                  .AddAll(value, valueStructStyler, keyStructStyler).Complete();
+                  .AddAll(value, valueStyler, keyStyler).Complete();
         return toAppendTo;
     }
     
     protected static IStyledTypeStringAppender AppendKeyedCollection<TKey, TValue>
-        ((IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple, IStyledTypeStringAppender appender) 
+        ((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple, IStyledTypeStringAppender appender) 
         where TKey : struct where TValue : struct 
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
@@ -536,16 +536,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected IStyledTypeStringAppender AppendKeyedCollection<TKey, TValue>
-    (IStyledTypeStringAppender toAppendTo, KeyValuePair<TKey, TValue>[]? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+    (IStyledTypeStringAppender toAppendTo, KeyValuePair<TKey, TValue>[]? value, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
         toAppendTo.StartKeyedCollectionType("")
-                  .AddAll(value, valueStructStyler, keyStructStyler).Complete();
+                  .AddAll(value, valueStyler, keyStyler).Complete();
         return toAppendTo;
     }
     
     protected static IStyledTypeStringAppender AppendKeyedCollection<TKey, TValue>
-        ((KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>, StructStyler<TKey>) valueTuple, IStyledTypeStringAppender appender) 
+        ((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple, IStyledTypeStringAppender appender) 
         where TKey : struct where TValue : struct 
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
@@ -555,16 +555,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected IStyledTypeStringAppender AppendKeyedCollection<TKey, TValue>
-    (IStyledTypeStringAppender toAppendTo, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+    (IStyledTypeStringAppender toAppendTo, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
         toAppendTo.StartKeyedCollectionType("")
-                  .AddAll(value, valueStructStyler, keyStructStyler).Complete();
+                  .AddAll(value, valueStyler, keyStyler).Complete();
         return toAppendTo;
     }
     
     protected static IStyledTypeStringAppender AppendKeyedCollection<TKey, TValue>
-        ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple, IStyledTypeStringAppender appender) 
+        ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple, IStyledTypeStringAppender appender) 
         where TKey : struct where TValue : struct 
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
@@ -574,16 +574,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected IStyledTypeStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>
-    (IStyledTypeStringAppender toAppendTo, IEnumerable<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+    (IStyledTypeStringAppender toAppendTo, IEnumerable<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
         toAppendTo.StartKeyedCollectionType("")
-                  .AddAllEnumerate(value, valueStructStyler, keyStructStyler).Complete();
+                  .AddAllEnumerate(value, valueStyler, keyStyler).Complete();
         return toAppendTo;
     }
     
     protected static IStyledTypeStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>
-        ((IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple, IStyledTypeStringAppender appender) 
+        ((IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple, IStyledTypeStringAppender appender) 
         where TKey : struct where TValue : struct 
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
@@ -593,16 +593,16 @@ public abstract partial class FLogEntryMessageBuilder
     }
     
     protected IStyledTypeStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>
-    (IStyledTypeStringAppender toAppendTo, IEnumerator<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+    (IStyledTypeStringAppender toAppendTo, IEnumerator<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
         toAppendTo.StartKeyedCollectionType("")
-                  .AddAllEnumerate(value, valueStructStyler, keyStructStyler).Complete();
+                  .AddAllEnumerate(value, valueStyler, keyStyler).Complete();
         return toAppendTo;
     }
     
     protected static IStyledTypeStringAppender AppendKeyedCollectionEnumerate<TKey, TValue>
-        ((IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple, IStyledTypeStringAppender appender) 
+        ((IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple, IStyledTypeStringAppender appender) 
         where TKey : struct where TValue : struct 
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
@@ -613,15 +613,15 @@ public abstract partial class FLogEntryMessageBuilder
     
     protected IStyledTypeStringAppender AppendFilteredKeyedCollection<TKey, TValue>
     (IStyledTypeStringAppender toAppendTo, IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
         toAppendTo.StartKeyedCollectionType("")
-                  .AddFiltered(value, filterPredicate, valueStructStyler, keyStructStyler).Complete();
+                  .AddFiltered(value, filterPredicate, valueStyler, keyStyler).Complete();
         return toAppendTo;
     }
     
     protected static IStyledTypeStringAppender AppendFilteredKeyedCollection<TKey, TValue>
-        ((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple
+        ((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple
           , IStyledTypeStringAppender appender) 
         where TKey : struct where TValue : struct 
     {
@@ -633,15 +633,15 @@ public abstract partial class FLogEntryMessageBuilder
     
     protected IStyledTypeStringAppender AppendFilteredKeyedCollection<TKey, TValue>
     (IStyledTypeStringAppender toAppendTo, KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
         toAppendTo.StartKeyedCollectionType("")
-                  .AddFiltered(value, filterPredicate, valueStructStyler, keyStructStyler).Complete();
+                  .AddFiltered(value, filterPredicate, valueStyler, keyStyler).Complete();
         return toAppendTo;
     }
     
     protected static IStyledTypeStringAppender AppendFilteredKeyedCollection<TKey, TValue>
-        ((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple
+        ((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple
           , IStyledTypeStringAppender appender) 
         where TKey : struct where TValue : struct 
     {
@@ -653,15 +653,15 @@ public abstract partial class FLogEntryMessageBuilder
     
     protected IStyledTypeStringAppender AppendFilteredKeyedCollection<TKey, TValue>
     (IStyledTypeStringAppender toAppendTo, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct  
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct  
     {
         toAppendTo.StartKeyedCollectionType("")
-                  .AddFiltered(value, filterPredicate, valueStructStyler, keyStructStyler).Complete();
+                  .AddFiltered(value, filterPredicate, valueStyler, keyStyler).Complete();
         return toAppendTo;
     }
     
     protected static IStyledTypeStringAppender AppendFilteredKeyedCollection<TKey, TValue>
-        ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple
+        ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple
           , IStyledTypeStringAppender appender) 
         where TKey : struct where TValue : struct 
     {

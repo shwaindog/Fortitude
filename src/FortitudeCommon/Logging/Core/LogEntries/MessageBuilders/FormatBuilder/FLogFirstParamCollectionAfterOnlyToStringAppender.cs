@@ -44,14 +44,14 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>
-        (TStruct[]? value, StructStyler<TStruct> structStyler) where TStruct : struct 
+        (TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct 
     {
-        ReplaceTokenWithValueCollection(value, structStyler);
+        ReplaceTokenWithValueCollection(value, customTypeStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>((TStruct[]?, StructStyler<TStruct>) valueTuple)
+    public IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct
     {
         FormatSb.Clear();
@@ -61,14 +61,14 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>
-        (IReadOnlyList<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct 
+        (IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct 
     {
-        ReplaceTokenWithValueCollection(value, structStyler);
+        ReplaceTokenWithValueCollection(value, customTypeStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>((IReadOnlyList<TStruct>?, StructStyler<TStruct>) valueTuple)
+    public IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct
     {
         FormatSb.Clear();
@@ -137,15 +137,15 @@ public partial class FLogFirstFormatterParameterEntry
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>
     (TStruct[]? value, OrderedCollectionPredicate<TStruct> filter
-      , StructStyler<TStruct> structStyler) where TStruct : struct 
+      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct 
     {
-        ReplaceTokenWithValueCollection(value, filter, structStyler);
+        ReplaceTokenWithValueCollection(value, filter, customTypeStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>((TStruct[]?
-      , OrderedCollectionPredicate<TStruct>, StructStyler<TStruct>) valueTuple)
+      , OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct 
     {
         FormatSb.Clear();
@@ -156,15 +156,15 @@ public partial class FLogFirstFormatterParameterEntry
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>
     (IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> filter
-      , StructStyler<TStruct> structStyler) where TStruct : struct 
+      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct 
     {
-        ReplaceTokenWithValueCollection(value, filter, structStyler);
+        ReplaceTokenWithValueCollection(value, filter, customTypeStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>((IReadOnlyList<TStruct>?
-      , OrderedCollectionPredicate<TStruct>, StructStyler<TStruct>) valueTuple)
+      , OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct 
     {
         FormatSb.Clear();
@@ -290,15 +290,15 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyValueCollectionParamEnumerateToStringAppender<TStruct>
-        (IEnumerable<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct 
+        (IEnumerable<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct 
     {
-        ReplaceTokenWithValueCollectionEnumerate(value, structStyler);
+        ReplaceTokenWithValueCollectionEnumerate(value, customTypeStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyValueCollectionParamEnumerateToStringAppender<TStruct>
-        ((IEnumerable<TStruct>?, StructStyler<TStruct>) valueTuple) where TStruct : struct 
+        ((IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct 
     {
         FormatSb.Clear();
         AppendValueCollectionEnumerate(valueTuple, FormatStsa!);
@@ -307,15 +307,15 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyValueCollectionParamEnumerateToStringAppender<TStruct>
-        (IEnumerator<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct 
+        (IEnumerator<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct 
     {
-        ReplaceTokenWithValueCollectionEnumerate(value, structStyler);
+        ReplaceTokenWithValueCollectionEnumerate(value, customTypeStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyValueCollectionParamEnumerateToStringAppender<TStruct>
-        ((IEnumerator<TStruct>?, StructStyler<TStruct>) valueTuple) where TStruct : struct 
+        ((IEnumerator<TStruct>?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct 
     {
         FormatSb.Clear();
         AppendValueCollectionEnumerate(valueTuple, FormatStsa!);
@@ -596,15 +596,15 @@ public partial class FLogFirstFormatterParameterEntry
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct 
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyFormatString);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?,KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)  where TValue : struct 
+        (IReadOnlyDictionary<TKey, TValue>?,KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)  where TValue : struct 
     {
         FormatSb.Clear();
         AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
@@ -613,7 +613,7 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?,KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)  where TValue : struct 
+        (IReadOnlyDictionary<TKey, TValue>?,KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)  where TValue : struct 
     {
         FormatSb.Clear();
         AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
@@ -622,15 +622,15 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct 
+      , KeyValuePredicate<TKey, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct 
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyFormatString);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)  where TValue : struct 
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)  where TValue : struct 
     {
         FormatSb.Clear();
         AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
@@ -639,7 +639,7 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)  where TValue : struct 
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)  where TValue : struct 
     {
         FormatSb.Clear();
         AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
@@ -649,15 +649,15 @@ public partial class FLogFirstFormatterParameterEntry
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
         IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct 
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyFormatString);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)  where TValue : struct 
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)  where TValue : struct 
     {
         FormatSb.Clear();
         AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
@@ -666,7 +666,7 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)  where TValue : struct 
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)  where TValue : struct 
     {
         FormatSb.Clear();
         AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
@@ -675,15 +675,15 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct 
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyFormatString);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyFormatString);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>, string?) valueTuple)  where TValue : struct 
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, string?) valueTuple)  where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -692,7 +692,7 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>) valueTuple)  where TValue : struct 
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>) valueTuple)  where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -701,15 +701,15 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct 
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyFormatString);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyFormatString);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>, string?) valueTuple)  where TValue : struct 
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, string?) valueTuple)  where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -718,7 +718,7 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>) valueTuple)  where TValue : struct 
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>) valueTuple)  where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -727,15 +727,15 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct 
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyFormatString);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyFormatString);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple)  where TValue : struct 
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple)  where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -744,7 +744,7 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple)  where TValue : struct 
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple)  where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -753,21 +753,21 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyStyler);
         return this.ToStringAppender(value, this);
     }
 
     public IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString) where TKey : struct where TValue : struct
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString) where TKey : struct where TValue : struct
     {
-        AddKeyedCollectionParamsEnumerate(value, valueStructStyler, keyFormatString);
+        AddKeyedCollectionParamsEnumerate(value, valueStyler, keyFormatString);
         return this.ToStringAppender(value, this);
     }
 
     public IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>((IEnumerable<KeyValuePair<TKey, TValue>>?
-      , StructStyler<TValue>, string?) valueTuple) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue>, string?) valueTuple) where TKey : struct where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
@@ -775,7 +775,7 @@ public partial class FLogFirstFormatterParameterEntry
     }
 
     public IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple) where TKey : struct where TValue : struct 
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TKey : struct where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
@@ -783,14 +783,14 @@ public partial class FLogFirstFormatterParameterEntry
     }
 
     public IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString) where TKey : struct where TValue : struct 
     {
-        AddKeyedCollectionParamsEnumerate(value, valueStructStyler, keyFormatString);
+        AddKeyedCollectionParamsEnumerate(value, valueStyler, keyFormatString);
         return this.ToStringAppender(value, this);
     }
 
     public IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple) where TKey : struct where TValue : struct 
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple) where TKey : struct where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
@@ -798,7 +798,7 @@ public partial class FLogFirstFormatterParameterEntry
     }
 
     public IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple) where TKey : struct where TValue : struct 
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TKey : struct where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
@@ -807,7 +807,7 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -816,16 +816,16 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -834,15 +834,15 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollection(valueTuple, FormatStsa!);
@@ -851,15 +851,15 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
-        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
@@ -868,15 +868,15 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
-        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)  where TKey : struct where TValue : struct 
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
@@ -886,15 +886,15 @@ public partial class FLogFirstFormatterParameterEntry
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
         IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple)  
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)  
         where TKey : struct where TValue : struct 
     {
         FormatSb.Clear();
@@ -904,16 +904,16 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) 
+      , KeyValuePredicate<TKey, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) 
         where TKey : struct where TValue : struct 
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple)  
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)  
         where TKey : struct where TValue : struct 
     {
         FormatSb.Clear();
@@ -923,16 +923,16 @@ public partial class FLogFirstFormatterParameterEntry
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) 
+      , KeyValuePredicate<TKey, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) 
         where TKey : struct where TValue : struct 
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
         return this.ToStringAppender(value, this);
     }
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     public IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple)  
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)  
         where TKey : struct where TValue : struct 
     {
         FormatSb.Clear();
