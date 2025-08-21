@@ -69,6 +69,7 @@ public class FLogForwardingAppender : FLogAppender, IMutableFLogForwardingAppend
                 appender.PublishLogEntryEvent(logEntryEvent);
             }
         }
+        IncrementLogEntriesProcessed(logEntryEvent.EntriesCount());
     }
 
     protected IForwardingAppenderConfig TypeConfig => (IForwardingAppenderConfig)AppenderConfig;

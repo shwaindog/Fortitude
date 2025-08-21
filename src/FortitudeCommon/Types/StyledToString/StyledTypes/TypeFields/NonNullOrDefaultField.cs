@@ -47,7 +47,7 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
     public TExt WhenNonNullOrDefaultAdd(string fieldName, IStyledToStringObject? value, IStyledToStringObject? defaultValue = null) => 
         value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullOrDefaultAdd<T, TBase>(string fieldName, T? value, CustomTypeStyler<TBase> overrideStyler, T? defaultValue = null)
+    public TExt WhenNonNullOrDefaultAdd<T, TBase>(string fieldName, T? value, CustomTypeStyler<TBase?> overrideStyler, T? defaultValue = null)
         where T : class, TBase where TBase : class => 
         value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, overrideStyler) : stb.StyleTypeBuilder;
 

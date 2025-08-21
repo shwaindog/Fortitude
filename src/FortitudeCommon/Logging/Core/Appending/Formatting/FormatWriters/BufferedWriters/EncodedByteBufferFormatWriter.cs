@@ -28,11 +28,11 @@ public class EncodedByteBufferFormatWriter : RecyclableObject, IEncodedByteArray
       , IBufferFlushingFormatWriter bufferFlusherWriter, string targetName, int bufferNum,
         FormatWriterReceivedHandler<EncodedByteBufferFormatWriter> onCompleteCallback)
     {
+        owningAppender = owningEncodingAppender;
         TargetName     = targetName;
         BufferNum      = bufferNum;
         Buffer         = (owningAppender.CharBufferSize * 3).SourceRecyclingByteArray();
         fileEncoder    = owningAppender.FileEncoder;
-        owningAppender = owningEncodingAppender;
         bufferFlusher  = bufferFlusherWriter;
         
         onWriteCompleteCallback = onCompleteCallback;
@@ -49,8 +49,11 @@ public class EncodedByteBufferFormatWriter : RecyclableObject, IEncodedByteArray
 
     public string TargetName { get; private set; } = null!;
 
+    public uint BufferedFormattedLogEntries { get; private set; }
+
     public bool NotifyStartEntryAppend(IFLogEntry forEntry)
     {
+        // Console.Out.WriteLine("About to Format Append logEntry " + forEntry.InstanceNumber);
         return Buffer.RemainingCapacity > forEntry.Message.Length * 4;
     }
 
@@ -81,7 +84,10 @@ public class EncodedByteBufferFormatWriter : RecyclableObject, IEncodedByteArray
         Buffer.Add(fileEncoder, toWrite, fromIndex, charCount);
     }
 
-    public void NotifyEntryAppendComplete() { }
+    public void NotifyEntryAppendComplete()
+    {
+        BufferedFormattedLogEntries++;
+    }
 
     public int BufferNum { get; private set; }
 
@@ -99,6 +105,7 @@ public class EncodedByteBufferFormatWriter : RecyclableObject, IEncodedByteArray
 
     public void Clear()
     {
+        BufferedFormattedLogEntries = 0;
         Buffer.Clear();
         encodedCharCount = 0;
     }

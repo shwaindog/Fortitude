@@ -40,6 +40,8 @@ public class CharArrayBufferedFormatWriter : FormatWriter<IBufferedFormatWriter>
 
     public int BufferRemainingCharCapacity => Buffer?.RemainingCapacity ?? 0;
 
+    public uint BufferedFormattedLogEntries { get; private set; }
+
     public override void Append(string toWrite)
     {
         Buffer!.Add(toWrite);
@@ -60,6 +62,11 @@ public class CharArrayBufferedFormatWriter : FormatWriter<IBufferedFormatWriter>
         Buffer!.Add(toWrite, fromIndex, length);
     }
 
+    public override void NotifyEntryAppendComplete()
+    {
+        BufferedFormattedLogEntries++;
+    }
+
     public override void Dispose()
     {
         if (InUse)
@@ -78,6 +85,7 @@ public class CharArrayBufferedFormatWriter : FormatWriter<IBufferedFormatWriter>
 
     public void Clear()
     {
+        BufferedFormattedLogEntries = 0;
         Buffer?.Clear();
     }
 

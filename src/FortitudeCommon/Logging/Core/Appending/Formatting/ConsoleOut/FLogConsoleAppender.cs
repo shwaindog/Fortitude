@@ -52,7 +52,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
     {
         private readonly object syncLock = new();
 
-        private FLogConsoleAppender owningAppender;
+        private FLogConsoleAppender consoleAppender = null!;
 
         public ConsoleFormatWriter Initialize(FLogConsoleAppender owningAppender
           , FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback)
@@ -60,7 +60,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
             base.Initialize(owningAppender, $"Direct{nameof(ConsoleFormatWriter)}", onWriteCompleteCallback);
 
             IsIOSynchronous = true;
-            this.owningAppender = owningAppender;
+            consoleAppender = owningAppender;
 
             return this;
         }
@@ -94,6 +94,11 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
             Console.Write(toWrite, 0, bufferSize);
         }
 
+        public override void NotifyEntryAppendComplete()
+        {
+            consoleAppender.IncrementLogEntriesProcessed();
+        }
+
         public override void FlushBufferToAppender(ICharArrayFlushedBufferedFormatWriter toFlush)
         {
             lock (syncLock)
@@ -102,7 +107,7 @@ public class FLogConsoleAppender : FLogBufferingFormatAppender
                 Console.Out.Write(bufferAndRange.CharBuffer, 0, bufferAndRange.Length);
             }
             toFlush.Clear();
-            owningAppender.FormatWriterRequestCache.TryToReturnUsedFormatWriter(toFlush);
+            consoleAppender.FormatWriterRequestCache.TryToReturnUsedFormatWriter(toFlush);
         }
     }
 }

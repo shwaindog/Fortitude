@@ -11,6 +11,8 @@ public interface IFLogContext
 
     bool IsInitialized { get; }
     
+    uint ContextInstanceNumber { get; }
+    
     IFileSystemController FLogFileSystemController { get; set; }
 
     IFLogAppenderRegistry  AppenderRegistry     { get; }
@@ -26,6 +28,8 @@ public class FLogContext : IFLogContext
 
     private static readonly object SyncLock = new();
 
+    private static uint contextInstanceCounter;
+    
     private IFileSystemController? flogFileSystemController;
     
     private IFLogAppenderRegistry  appenderRegistry     = null!;
@@ -34,7 +38,10 @@ public class FLogContext : IFLogContext
     private IFLogConfigRegistry    configRegistry       = null!;
     private IFLogEntryPoolRegistry logEntryPoolRegistry = null!;
 
-    private FLogContext() { }
+    private FLogContext()
+    {
+        ContextInstanceNumber = Interlocked.Increment(ref contextInstanceCounter);
+    }
 
     public static IFLogContext? NullOnUnstartedContext => FLoggerRoot.CurrentContext;
 
@@ -92,6 +99,8 @@ public class FLogContext : IFLogContext
     public bool HasStarted { get; internal set; }
 
     public bool IsInitialized { get; internal set; }
+
+    public uint ContextInstanceNumber { get; }
 
     public IFileSystemController FLogFileSystemController
     {
@@ -214,66 +223,3 @@ public class FLogContext : IFLogContext
         }
     }
 }
-//
-// internal static class TestFLogContextExtensions
-// {
-//     public static IFLogContext? SetAsContext(this IFLogContext? context, IFLogContext? newContext)
-//     {
-//         FLogContext.TestFLogContextInternalsAccessor.TestContext = newContext;
-//         return newContext;
-//     }
-//
-//     public static IFLogContext? SetAsNewEmptyContext(this IFLogContext? context)
-//     {
-//         var emptyContext = FLogContext.TestFLogContextInternalsAccessor.NewEmptyContext;
-//         FLogContext.TestFLogContextInternalsAccessor.TestContext = emptyContext;
-//         return emptyContext;
-//     }
-//
-//     public static IFLogContext? SetAsNewNewDefaultConfigContext(this IFLogContext? context)
-//     {
-//         var defaultContext = FLogContext.TestFLogContextInternalsAccessor.NewDefaultConfigContext;
-//         FLogContext.TestFLogContextInternalsAccessor.TestContext = defaultContext;
-//         return defaultContext;
-//     }
-//
-//     public static IFLogContext? GetContextField()
-//     {
-//         return FLogContext.TestFLogContextInternalsAccessor.TestContext;
-//     }
-//
-//     public static void SetHasStarted(this FLogContext context, bool hasStarted)
-//     {
-//         context.HasStarted = hasStarted;
-//     }
-//
-//     public static void SetIsInitialized(this FLogContext context, bool hasStarted)
-//     {
-//         context.IsInitialized = hasStarted;
-//     }
-//
-//     public static void SetAppenderRegistry(this FLogContext context, IFLogAppenderRegistry appenderRegistry)
-//     {
-//         FLogContext.TestFLogContextInternalsAccessor.SetAppenderRegistry(context, appenderRegistry);
-//     }
-//
-//     public static void SetLoggerRegistry(this FLogContext context, IFLogLoggerRegistry loggerRegistry)
-//     {
-//         FLogContext.TestFLogContextInternalsAccessor.SetLoggerRegistry(context, loggerRegistry);
-//     }
-//
-//     public static void SetAsyncRegistry(FLogContext context, IFLoggerAsyncRegistry asyncRegistry)
-//     {
-//         FLogContext.TestFLogContextInternalsAccessor.SetAsyncRegistry(context, asyncRegistry);
-//     }
-//
-//     public static void SetConfigRegistry(FLogContext context, IFLogConfigRegistry configRegistry)
-//     {
-//         FLogContext.TestFLogContextInternalsAccessor.SetConfigRegistry(context, configRegistry);
-//     }
-//
-//     public static void SetLogEntryPoolRegistry(FLogContext context, IFLogEntryPoolRegistry logEntryPoolRegistry)
-//     {
-//         FLogContext.TestFLogContextInternalsAccessor.SetLogEntryPoolRegistry(context, logEntryPoolRegistry);
-//     }
-// }

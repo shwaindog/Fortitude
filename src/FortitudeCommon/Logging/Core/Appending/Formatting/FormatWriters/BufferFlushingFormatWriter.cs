@@ -19,7 +19,7 @@ public interface IByteBufferFlushingFormatWriter : IBufferFlushingFormatWriter
 
 public abstract class CharBufferFlushingFormatWriter<T> : FormatWriter<T>, ICharBufferFlushingFormatWriter  where T : ICharBufferFlushingFormatWriter
 {
-    protected CharBufferFlushingFormatWriter<T> Initialize(IMutableFLogFormattingAppender owningAppender, string targetName
+    protected override CharBufferFlushingFormatWriter<T> Initialize(IMutableFLogFormattingAppender owningAppender, string targetName
       , FormatWriterReceivedHandler<T> onWriteCompleteCallback)
     {
         base.Initialize(owningAppender, targetName, onWriteCompleteCallback);
@@ -37,7 +37,7 @@ public abstract class CharBufferFlushingFormatWriter<T> : FormatWriter<T>, IChar
 
 public abstract class ByteBufferFlushingFormatWriter<T> : FormatWriter<T>, IByteBufferFlushingFormatWriter  where T : IByteBufferFlushingFormatWriter
 {
-    protected ByteBufferFlushingFormatWriter<T> Initialize(IMutableFLogFormattingAppender owningAppender, string targetName
+    protected override ByteBufferFlushingFormatWriter<T> Initialize(IMutableFLogFormattingAppender owningAppender, string targetName
       , FormatWriterReceivedHandler<T> onWriteCompleteCallback)
     {
         base.Initialize(owningAppender, targetName, onWriteCompleteCallback);

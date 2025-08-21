@@ -32,8 +32,6 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
 
     private IBufferedFormatWriter? buffer1;
     private IBufferedFormatWriter? buffer2;
-
-    private bool initializing  = true;
     
     private TimeSpan autoFlushIntervalTimeSpan;
 
@@ -41,6 +39,8 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
 
     private   Action checkWaitingFormatWriterRequests      = null!;
     protected Action TimerCheckWaitingFormatWriterRequests = null!;
+    
+    private readonly object timerSyncLock = new ();
 
     private bool bufferingEnabled;
 
@@ -62,7 +62,6 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
         TimerCheckWaitingFormatWriterRequests = TimerTriggeredCheckFormatWriterRequests;
 
         CreateFormatWriters(targetName, context);
-        initializing = false;
         
         return this;
     }
@@ -93,7 +92,7 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
                 maxBuffers = 2;
 
                 buffer2 = onCreateBuffer2Instance
-                    = OwningTypeAppender.CreateBufferedFormatWriter(bufferFlusherWriter, targetName, 2, OnReturningFormatWriter);;
+                    = OwningTypeAppender.CreateBufferedFormatWriter(bufferFlusherWriter, targetName, 2, OnReturningFormatWriter);
             }
             WriteTriggeredFlushIntervalTimeSpan = OwningTypeAppender.GetAppenderConfig().FlushConfig.WriteTriggeredAfterTimeSpan.ToTimeSpan();
 
@@ -180,32 +179,41 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
     {
         if (toReturn is IBufferedFormatWriter returnBufferedFormatWriter)
         {
+            // Console.Out.WriteLine("TryToReturnUsedFormatWriter " + returnBufferedFormatWriter.BufferNum + " at " + LastFlushAt);
             ReturnBufferedWriter(returnBufferedFormatWriter);
         }
         else
         {
             base.TryToReturnUsedFormatWriter(toReturn);
         }
+        CheckHasFormatWriterRequests();
     }
 
     public IBufferedFormatWriter? TryGetSpecificBufferedWriter(int bufferNumber)
     {
-        var bufferSlot = OwningTypeAppender.UsingDoubleBuffering ? bufferNumber % maxBuffers : 1;
+        var bufferSlot = ActiveBufferNum(bufferNumber);
         switch (bufferSlot)
         {
-            case 0: return Interlocked.CompareExchange(ref buffer2, null, buffer2);
-            case 1: return Interlocked.CompareExchange(ref buffer1, null, buffer1);
+            case 0:
+                // Console.Out.WriteLine("Rereiving buffer 0");
+                return Interlocked.CompareExchange(ref buffer2, null, buffer2);
+            case 1:
+                // Console.Out.WriteLine("Rereiving buffer 1"); 
+                return Interlocked.CompareExchange(ref buffer1, null, buffer1);
         }
         return null;
     }
 
+    private int ActiveBufferNum(int bufferNumber) => OwningTypeAppender.UsingDoubleBuffering ? bufferNumber % maxBuffers : 1;
+
     private void ReturnBufferedWriter(IBufferedFormatWriter returnBufferedFormatWriter)
     {
-        var bufferSlot = returnBufferedFormatWriter.BufferNum;
+        var bufferSlot = returnBufferedFormatWriter.BufferNum  % maxBuffers;
         switch (bufferSlot)
         {
             case 0: buffer2 = returnBufferedFormatWriter; break;
             case 1: buffer1 = returnBufferedFormatWriter; break;
+            default: throw new Exception("Unknown buffer slot");
         }
     }
 
@@ -292,6 +300,7 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
     public void FlushBufferToAppender(IBufferedFormatWriter toFlush)
     {
         LastFlushAt = TimeContext.UtcNow;
+        // Console.Out.WriteLine("Flushing buffer " + toFlush.BufferNum + " at " + LastFlushAt);
         OwningTypeAppender.BufferFlushingAsyncClient.SendToFlushBufferToAppender(toFlush);
         CheckAnyQueuedRequesterOrReturnWriter(toFlush);
     }
@@ -303,17 +312,30 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
     
     public void AutoFlushTimerHandler(IScheduleActualTime? scheduleActualTime)
     {
-        if (!BufferingEnabled)
+        lock (timerSyncLock)
         {
-            autoFlushTimer?.Cancel();
-            autoFlushTimer = null;
-        }
-        else if (LastFlushAt + AutoFlushIntervalTimeSpan < (scheduleActualTime?.ScheduleTime ?? TimeContext.UtcNow))
-        {
-            var currentBuffer = TryGetSpecificBufferedWriter(currentBufferCounter);
-            if (currentBuffer is { BufferedChars: > 0 })
+            if (!BufferingEnabled)
             {
-                FlushAndCheckNextBufferAvailable(currentBuffer);
+                autoFlushTimer?.Cancel();
+                autoFlushTimer = null;
+            }
+            else if (LastFlushAt + AutoFlushIntervalTimeSpan < (scheduleActualTime?.ScheduleTime ?? TimeContext.UtcNow))
+            {
+                var currentBuffer = TryGetSpecificBufferedWriter(currentBufferCounter);
+                if (currentBuffer is { BufferedChars: > 0 })
+                {
+                    // Console.Out.WriteLine("Auto Flushing buffer " + currentBuffer.BufferNum + " at " + LastFlushAt);
+                    FlushAndCheckNextBufferAvailable(currentBuffer);
+                }
+                else
+                {
+                    currentBuffer = TryGetSpecificBufferedWriter(currentBufferCounter + 1);
+                    if (currentBuffer is { BufferedChars: > 0 })
+                    {
+                        // Console.Out.WriteLine("2nd Attempt Auto Flushing buffer " + currentBuffer.BufferNum + " at " + LastFlushAt);
+                        FlushAndCheckNextBufferAvailable(currentBuffer);
+                    }
+                }
             }
         }
     }

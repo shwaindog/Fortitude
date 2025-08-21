@@ -322,6 +322,17 @@ public static class StyledTypeBuilderExtensions
         return sb;
     }
 
+    public static IStringBuilder Append<T, TBase, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, T value
+      , CustomTypeStyler<TBase> styledToStringAction, bool? inQuotes = null) where T : class, TBase where TBase : class  where TExt : StyledTypeBuilder
+    {
+        var sb        = stb.Sb;
+        var addQuotes = inQuotes ?? stb.Style.IsJson();
+        if (addQuotes) sb.Append("\"");
+        styledToStringAction(value, stb.OwningAppender);
+        if (addQuotes) sb.Append("\"");
+        return stb.Sb;
+    }
+
     public static IStringBuilder AppendOrNull<T, TBase, TExt>(this IStyleTypeBuilderComponentAccess<TExt> stb, T? value
       , CustomTypeStyler<TBase?> styledToStringAction, bool? inQuotes = null) where T : class, TBase where TBase : class  where TExt : StyledTypeBuilder
     {

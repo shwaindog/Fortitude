@@ -42,6 +42,12 @@ public record AppenderContainer
 
 public interface IFLogAppenderRegistry
 {
+    bool WhenAppenderReceivedCountRun(string appenderName, uint reaches, Action<uint, IFLogAppender> callback);
+    bool WhenAppenderProcessedCountRun(string appenderName, uint reaches, Action<uint, IFLogAppender> callback);
+    bool WhenAppenderDroppedCountRun(string appenderName, uint reaches, Action<uint, IFLogAppender> callback);
+    
+    
+    
     IAppenderClient GetAppenderClient(string appenderName, IFLoggerCommon logger);
     IAppenderClient GetAppenderClient(string appenderName, IFLogForwardingAppender forwardingAppender);
 
@@ -71,6 +77,30 @@ public class FLogAppenderRegistry : IMutableFLogAppenderRegistry
     private readonly IFLogContext flogContext;
 
     private Dictionary<string, IMutableAppenderDefinitionConfig> definedAppenderConfigs;
+
+    public bool WhenAppenderReceivedCountRun(string appenderName, uint reaches, Action<uint, IFLogAppender> callback)
+    {
+        var foundAppender = ((IMutableFLogAppenderRegistry)this).GetAppender(appenderName);
+        if (foundAppender == null) return false;
+        foundAppender.RegisterCallbackWhenReceivedCount(reaches, callback);
+        return true;
+    }
+
+    public bool WhenAppenderProcessedCountRun(string appenderName, uint reaches, Action<uint, IFLogAppender> callback)
+    {
+        var foundAppender = ((IMutableFLogAppenderRegistry)this).GetAppender(appenderName);
+        if (foundAppender == null) return false;
+        foundAppender.RegisterCallbackWhenProcessedCount(reaches, callback);
+        return true;
+    }
+
+    public bool WhenAppenderDroppedCountRun(string appenderName, uint reaches, Action<uint, IFLogAppender> callback)
+    {
+        var foundAppender = ((IMutableFLogAppenderRegistry)this).GetAppender(appenderName);
+        if (foundAppender == null) return false;
+        foundAppender.RegisterCallbackWhenDroppedCount(reaches, callback);
+        return true;
+    }
 
     public FLogAppenderRegistry(IFLogContext flogContext, Dictionary<string, IMutableAppenderDefinitionConfig> appenderConfigs)
     {

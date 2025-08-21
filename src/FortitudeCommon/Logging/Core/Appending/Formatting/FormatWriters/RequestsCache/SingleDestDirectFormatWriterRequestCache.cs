@@ -24,12 +24,15 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
 
     protected FormatWriterReceivedHandler<IFormatWriter> OnReturningFormatWriter;
 
+    public SingleDestDirectFormatWriterRequestCache()
+    {
+        RequestHandleDisposed   = WriterHandleDispose;
+        OnReturningFormatWriter = WriterFinishedWithBuffer;
+    }
+    
     public SingleDestDirectFormatWriterRequestCache Initialize(IMutableFLogFormattingAppender owningAppender, IFLogContext context, string targetName = SIngleDestinationTarget)
     {
         OwningAppender = owningAppender;
-
-        RequestHandleDisposed   = WriterHandleDispose;
-        OnReturningFormatWriter = WriterFinishedWithBuffer;
 
         if (GetType() == typeof(SingleDestDirectFormatWriterRequestCache))
         {
@@ -71,6 +74,7 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
         {
             requesterSync.Acquire(0);
 
+            // Console.Out.WriteLine("Adding logEntry " + logEntry.InstanceNumber + " to queue.");
             return AddToQueue(requestHandle);
         }
         return requestHandle;
@@ -121,6 +125,7 @@ public class SingleDestDirectFormatWriterRequestCache : RecyclableObject, IForma
             TryToReturnUsedFormatWriter(toSend);
             return null;
         }
+        // Console.Out.WriteLine("Sending format writer to wait handle.");
         removedFirst.ReceiveFormatWriterHandler(toSend);
         return removedFirst;
     }

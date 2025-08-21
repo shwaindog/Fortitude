@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Memory;
@@ -110,6 +111,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
     {
         messageBuilder ??= new MutableString();
 
+        Thread          = Thread.CurrentThread;
         dispatchHandler = loggerEntryContext.OnCompleteHandler;
         LogLocation     = loggerEntryContext.LogLocation;
         Logger          = loggerEntryContext.Logger;
@@ -122,6 +124,16 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
     {
         dispatchHandler.PublishLogEntryEvent(new LogEntryPublishEvent(me));
         DecrementRefCount();
+        // StackTrace stackTrace = new StackTrace(0, true);
+        //
+        // var frames = stackTrace.GetFrames();
+        //
+        // for (var i = 0; i < 3; i++)
+        // {
+        //     var frame = frames[i];
+        //     Console.Out.Write(frame.ToString());
+        // }
+        // Console.Out.WriteLine($"Dec {InstanceNumber} RefCount = {RefCount}");
     }
 
     public void OnMessageComplete(IStringBuilder? warningToPrefix)

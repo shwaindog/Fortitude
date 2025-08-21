@@ -58,6 +58,7 @@ public class FormattedStringListAppender(IFormattingAppenderConfig formattingApp
             var newEntry = entryBuilder.ToString();
             AsStringListAppender.LogEntries.Add(newEntry);
             AsStringListAppender.OnNewEntry(newEntry);
+            AsStringListAppender.IncrementLogEntriesProcessed();
         }
 
         public override void Append(string toWrite)
@@ -79,5 +80,7 @@ public class FormattedStringListAppender(IFormattingAppenderConfig formattingApp
         {
             entryBuilder.Append(toWrite, fromIndex, length);
         }
+        
+        
     }
 }

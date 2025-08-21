@@ -57,7 +57,7 @@ public abstract class FLogBufferingFormatAppender : FLogFormattingAppender, IMut
         (IFormattingAppenderConfig formattingAppenderConfig, IFLogContext context) => 
         new SingleDestBufferedFormatWriterRequestCache().Initialize(this, context);
 
-    public IBufferedFormatWriter CreateBufferedFormatWriter(IBufferFlushingFormatWriter bufferFlushingFormatWriter, string targetName
+    public virtual IBufferedFormatWriter CreateBufferedFormatWriter(IBufferFlushingFormatWriter bufferFlushingFormatWriter, string targetName
       , int bufferNum, FormatWriterReceivedHandler<IFormatWriter> writeCompleteHandler) => 
         new CharArrayBufferedFormatWriter().Initialize(this, bufferFlushingFormatWriter, targetName, bufferNum, writeCompleteHandler);
 

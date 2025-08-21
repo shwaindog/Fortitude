@@ -96,19 +96,18 @@ public class EnumerableBatchPollingRing<T> : IEnumerableBatchPollingRing<T> wher
     public IEnumerator<T> GetEnumerator()
     {
         var maxPublishedSequence = pubCursor.Value;
-        CurrentBatchSize = maxPublishedSequence - conCursor.Value;
-        if (CurrentSequence == maxPublishedSequence)
+        CurrentBatchSize = (maxPublishedSequence - conCursor.Value) & ringMask;
+        if (CurrentBatchSize != 0)
         {
-            yield break;
-        }
-        for (CurrentSequence = conCursor.Value + 1; CurrentSequence != maxPublishedSequence; CurrentSequence++)
-        {
-            StartOfBatch = CurrentSequence == conCursor.Value + 1;
-            EndOfBatch = CurrentSequence == maxPublishedSequence;
-            yield return cells[CurrentSequence & ringMask];
-        }
+            for (CurrentSequence = (conCursor.Value + 1) & ringMask; CurrentSequence != ((maxPublishedSequence + 1) & ringMask); CurrentSequence++)
+            {
+                StartOfBatch = CurrentSequence == conCursor.Value + 1;
+                EndOfBatch   = CurrentSequence == maxPublishedSequence;
+                yield return cells[CurrentSequence & ringMask];
+            }
 
-        conCursor.Value = maxPublishedSequence;
+            conCursor.Value = maxPublishedSequence;
+        }
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

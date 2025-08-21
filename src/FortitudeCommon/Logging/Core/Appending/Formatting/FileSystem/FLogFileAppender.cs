@@ -7,13 +7,13 @@ using FortitudeCommon.Logging.Config.Appending.Formatting.Files;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.RequestsCache;
-using FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.OSWrapper.Streams;
 
-namespace FortitudeCommon.Logging.Core.Appending.Formatting.FileSystem;
+#pragma warning disable SYSLIB0001
 
+namespace FortitudeCommon.Logging.Core.Appending.Formatting.FileSystem;
 
 public interface IFLogFileAppender : IEncodedByteBufferingAppender, IMultiDestinationFormattingAppender
 {
@@ -31,15 +31,15 @@ public interface IMutableFLogFileAppender : IFLogFileAppender, IMutableEncodedBy
 
 public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileAppender
 {
-    private readonly IRecycler FileAppenderRecycler = new Recycler();
+    protected readonly IRecycler FileAppenderRecycler = new Recycler();
 
-    private DateTimePartFlags fullFilePathTimeVariableFlags = DateTimePartFlags.None;
+    protected DateTimePartFlags FullFilePathTimeVariableFlags = DateTimePartFlags.None;
 
     private string combinedFullConfigFilePath;
 
     private Encoding? fileEncoding;
-    private string?   configPath;
-    private string?   configFileName;
+    private string   configPath;
+    private string   configFileName;
 
     public FLogFileAppender(IFileAppenderConfig fileAppenderConfig, IFLogContext context) : base(fileAppenderConfig, context, false)
     {
@@ -80,7 +80,7 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
 
     public TimeSpan ExpiryToCloseDelay { get; private set; }
 
-    public Encoder FileEncoder { get; private set; }
+    public Encoder FileEncoder { get; private set; } = null!;
 
     public Encoding FileEncoding
     {
@@ -118,6 +118,10 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
 
     public SingleDestBufferedFormatWriterRequestCache GetWriterRequestCache(string targetDestination) =>
         new SingleDestBufferedFormatWriterRequestCache().Initialize(this, FLogContext.Context, targetDestination);
+    
+    public override IBufferedFormatWriter CreateBufferedFormatWriter(IBufferFlushingFormatWriter bufferFlushingFormatWriter, string targetName
+      , int bufferNum, FormatWriterReceivedHandler<IFormatWriter> writeCompleteHandler) => 
+        new EncodedByteBufferFormatWriter().Initialize(this, bufferFlushingFormatWriter, targetName, bufferNum, writeCompleteHandler);
 
     protected override IFormatWriter CreatedAppenderDirectFormatWriter
         (IFLogContext context, string targetName, FormatWriterReceivedHandler<IFormatWriter> onWriteCompleteCallback) =>
@@ -125,6 +129,7 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
 
     private class FileFormatWriter : ByteBufferFlushingFormatWriter<FileFormatWriter>
     {
+        private readonly object syncLock = new();
         private FLogFileAppender FileAppender => (FLogFileAppender)OwningAppender;
         private IStream? AppendDestinationStream { get; set; }
 
@@ -199,6 +204,7 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
 
         public override void NotifyEntryAppendComplete()
         {
+            FileAppender.IncrementLogEntriesProcessed();
             directWriteStagingBuffer!.Clear();
             AppendDestinationStream!.Flush();
         }
@@ -206,8 +212,15 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
         public override void FlushBufferToAppender(IEncodedByteArrayBufferedFormatWriter toFlush)
         {
             var bufferAndRange = toFlush.FlushRange();
-            AppendDestinationStream!.Write(bufferAndRange.ByteBuffer, 0, bufferAndRange.Length);
-            AppendDestinationStream.Flush();
+            lock (syncLock)
+            {
+                AppendDestinationStream!.Write(bufferAndRange.ByteBuffer, 0, bufferAndRange.Length);
+                AppendDestinationStream.Flush();   
+            }
+            FileAppender.IncrementLogEntriesProcessed(toFlush.BufferedFormattedLogEntries);
+            toFlush.Clear();
+            // Console.Out.WriteLine("Finished flushing buffer " + toFlush.BufferNum);
+            FileAppender.FormatWriterRequestCache.TryToReturnUsedFormatWriter(toFlush);
         }
 
         public override void StateReset()

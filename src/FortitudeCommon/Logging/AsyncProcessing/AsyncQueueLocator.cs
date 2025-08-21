@@ -40,12 +40,27 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
 
     public void StartAsyncQueues()
     {
-        foreach (var asyncQueueConfig in asyncInitConfig.AsyncQueues)
+        var startQueues = asyncInitConfig.InitialAsyncProcessing;
+        if (startQueues > 0)
         {
-            if (asyncQueueConfig.Value.LaunchAtFlogStart)
+            int launchedCount = 0;
+            foreach (var asyncQueueConfig in asyncInitConfig.AsyncQueues)
             {
-                var queue = GetOrCreateQueue(asyncQueueConfig.Key);
-                queue.StartQueueReceiver();
+                if (asyncQueueConfig.Value.LaunchAtFlogStart)
+                {
+                    GetOrCreateQueue(asyncQueueConfig.Key);
+                    launchedCount++;
+                }
+            }
+            for (int i = launchedCount; i < startQueues; i++)
+            {
+                int queueNum = 0;
+                for (int j = 1; j < 64; j++)
+                {
+                    queueNum = j;
+                    if (!runningQueues.ContainsKey(queueNum)) break;
+                }
+                GetOrCreateQueue(queueNum);
             }
         }
     }
@@ -103,6 +118,7 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
             if (newQueue != null)
             {
                 runningQueues.Add(queueNumber, newQueue);
+                newQueue.StartQueueReceiver();
                 return newQueue;
             }
 
@@ -121,7 +137,7 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
             return explicitQueueConfig;
         }
         var defaultQueueType             = asyncInitConfig.AsyncProcessingType;
-        var defaultQueueCapacity         = asyncInitConfig.DefaultBufferQueueSize;
+        var defaultQueueCapacity         = asyncInitConfig.DefaultQueueCapacity;
         var defaultQueueFullHandling     = asyncInitConfig.DefaultFullQueueHandling;
         var defaultQueueFullDropInterval = asyncInitConfig.DefaultDropInterval;
         return new AsyncQueueConfig(queueNumber, defaultQueueType, defaultQueueCapacity, false, defaultQueueFullHandling

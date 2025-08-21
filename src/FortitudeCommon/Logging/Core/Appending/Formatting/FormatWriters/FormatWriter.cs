@@ -26,9 +26,9 @@ public interface IFormatWriter : IDisposable
 
 public abstract class FormatWriter<T> : RecyclableObject, IFormatWriter where T : IFormatWriter
 {
-    protected FormatWriterReceivedHandler<T> OnWriteCompleteCallback;
+    protected FormatWriterReceivedHandler<T> OnWriteCompleteCallback = null!;
 
-    protected FormatWriter<T> Initialize(IMutableFLogFormattingAppender owningAppender, string targetName
+    protected virtual FormatWriter<T> Initialize(IMutableFLogFormattingAppender owningAppender, string targetName
       , FormatWriterReceivedHandler<T> onWriteCompleteCallback)
     {
         TargetName     = targetName;
@@ -39,9 +39,9 @@ public abstract class FormatWriter<T> : RecyclableObject, IFormatWriter where T 
         return this;
     }
 
-    public IFLogFormattingAppender OwningAppender { get; private set; }
+    public IFLogFormattingAppender OwningAppender { get; private set; } = null!;
 
-    public string TargetName { get; private set; }
+    public string TargetName { get; private set; } = null!;
 
     public bool InUse { get; set; }
 

@@ -20,8 +20,6 @@ public class MultiDestLogEntryNamedFormatWriterRequestCache : IBufferedFormatWri
 
     private IFLogContext createContext = null!;
 
-    private int attemptLogToClosedDestinationCount;
-
     private readonly object createFileDestSyncLock = new();
 
     private bool bufferingEnabled;
@@ -117,7 +115,9 @@ public class MultiDestLogEntryNamedFormatWriterRequestCache : IBufferedFormatWri
                                 .Initialize(logEntry, owningAppender, CloseRequestHandleDisposed, closedDestDummySyncLock);
                     requestHandle.IssueRequestAborted();
                     pathResolver.DecrementRefCount();
-                    attemptLogToClosedDestinationCount++;
+                    
+                    owningAppender.IncrementLogEntriesDropped();
+                    
                     return requestHandle;
                 }
                 if (!targetToCacheMap.TryGetValue(destPath, out cacheEntry))
@@ -130,8 +130,11 @@ public class MultiDestLogEntryNamedFormatWriterRequestCache : IBufferedFormatWri
                     var closeTime     = expiryTime != DateTime.MaxValue ? expiryTime.Add(owningAppender.ExpiryToCloseDelay) : expiryTime;
 
                     cacheEntry = new TargetRequestCacheExpiry(destCache, closeTime);
-                    cacheEntry.CloseDestinationTimerHandle
-                        = createContext.AsyncRegistry.LoggerTimers.RunAt(closeTime, cacheEntry, RunCloseDestinationAfterExpiryAction);
+                    if (closeTime != DateTime.MaxValue)
+                    {
+                        cacheEntry.CloseDestinationTimerHandle
+                            = createContext.AsyncRegistry.LoggerTimers.RunAt(closeTime, cacheEntry, RunCloseDestinationAfterExpiryAction);
+                    }
                     targetToCacheMap.AddOrUpdate(materializedPathName, cacheEntry);
                 }
             }
