@@ -179,7 +179,6 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
     {
         if (toReturn is IBufferedFormatWriter returnBufferedFormatWriter)
         {
-            // Console.Out.WriteLine("TryToReturnUsedFormatWriter " + returnBufferedFormatWriter.BufferNum + " at " + LastFlushAt);
             ReturnBufferedWriter(returnBufferedFormatWriter);
         }
         else
@@ -195,10 +194,8 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
         switch (bufferSlot)
         {
             case 0:
-                // Console.Out.WriteLine("Rereiving buffer 0");
                 return Interlocked.CompareExchange(ref buffer2, null, buffer2);
             case 1:
-                // Console.Out.WriteLine("Rereiving buffer 1"); 
                 return Interlocked.CompareExchange(ref buffer1, null, buffer1);
         }
         return null;
@@ -300,7 +297,6 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
     public void FlushBufferToAppender(IBufferedFormatWriter toFlush)
     {
         LastFlushAt = TimeContext.UtcNow;
-        // Console.Out.WriteLine("Flushing buffer " + toFlush.BufferNum + " at " + LastFlushAt);
         OwningTypeAppender.BufferFlushingAsyncClient.SendToFlushBufferToAppender(toFlush);
         CheckAnyQueuedRequesterOrReturnWriter(toFlush);
     }
@@ -324,7 +320,6 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
                 var currentBuffer = TryGetSpecificBufferedWriter(currentBufferCounter);
                 if (currentBuffer is { BufferedChars: > 0 })
                 {
-                    // Console.Out.WriteLine("Auto Flushing buffer " + currentBuffer.BufferNum + " at " + LastFlushAt);
                     FlushAndCheckNextBufferAvailable(currentBuffer);
                 }
                 else
@@ -332,8 +327,11 @@ public class SingleDestBufferedFormatWriterRequestCache : SingleDestDirectFormat
                     currentBuffer = TryGetSpecificBufferedWriter(currentBufferCounter + 1);
                     if (currentBuffer is { BufferedChars: > 0 })
                     {
-                        // Console.Out.WriteLine("2nd Attempt Auto Flushing buffer " + currentBuffer.BufferNum + " at " + LastFlushAt);
                         FlushAndCheckNextBufferAvailable(currentBuffer);
+                    }
+                    else
+                    {
+                        CheckHasFormatWriterRequests();
                     }
                 }
             }

@@ -102,17 +102,6 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
         AsyncRequestType = AsyncJobRequestType.ForwardLogEntryEventToAppender;
         
         logEntryEvent.IncrementRefCount();
-        
-        // StackTrace stackTrace     = new StackTrace(0, true);
-        //
-        // var frames = stackTrace.GetFrames();
-        //
-        // for (var i = 0; i < 3; i++)
-        // {
-        //     var frame = frames[i];
-        //     Console.Out.Write(frame.ToString());
-        // }
-        // Console.Out.WriteLine($"En Inc {logEntryEvent.LogEntry.InstanceNumber} RefCount = {(logEntryEvent.LogEntry?.RefCount ?? 0)}");
 
         FlogEntryEvent   = logEntryEvent;
         PublishSource    = publishSource;
@@ -144,17 +133,6 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
                 break;
             case AsyncJobRequestType.ForwardLogEntryEventToAppender:
                 var        flogEntryEvent = FlogEntryEvent!.Value;
-                
-                // StackTrace stackTrace     = new StackTrace(0, true);
-                //
-                // var frames = stackTrace.GetFrames();
-                //
-                // for (var i = 0; i < 3; i++)
-                // {
-                //     var frame = frames[i];
-                //     Console.Out.Write(frame.ToString());
-                // }
-                // Console.Out.WriteLine($"De At {flogEntryEvent.LogEntry.InstanceNumber} RefCount = {(flogEntryEvent.LogEntry?.RefCount ?? 0)}");
 
                 if (PublishSource == ForwardToLogEntrySink)
                 {

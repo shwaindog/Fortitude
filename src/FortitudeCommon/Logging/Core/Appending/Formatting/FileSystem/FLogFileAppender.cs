@@ -219,7 +219,6 @@ public class FLogFileAppender : FLogBufferingFormatAppender, IMutableFLogFileApp
             }
             FileAppender.IncrementLogEntriesProcessed(toFlush.BufferedFormattedLogEntries);
             toFlush.Clear();
-            // Console.Out.WriteLine("Finished flushing buffer " + toFlush.BufferNum);
             FileAppender.FormatWriterRequestCache.TryToReturnUsedFormatWriter(toFlush);
         }
 

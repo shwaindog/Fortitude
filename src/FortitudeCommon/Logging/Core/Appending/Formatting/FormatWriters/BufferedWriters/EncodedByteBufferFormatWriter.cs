@@ -2,7 +2,6 @@
 using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
-using FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
@@ -53,7 +52,6 @@ public class EncodedByteBufferFormatWriter : RecyclableObject, IEncodedByteArray
 
     public bool NotifyStartEntryAppend(IFLogEntry forEntry)
     {
-        // Console.Out.WriteLine("About to Format Append logEntry " + forEntry.InstanceNumber);
         return Buffer.RemainingCapacity > forEntry.Message.Length * 4;
     }
 
