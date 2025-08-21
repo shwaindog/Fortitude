@@ -30,12 +30,12 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
         !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd<TStruct>(string fieldName, TStruct? value
-      , StructStyler<TStruct> structToString, TStruct? defaultValue = null) where TStruct : struct =>
-        value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, structToString) : stb.StyleTypeBuilder;
+      , CustomTypeStyler<TStruct> customTypeStyler, TStruct? defaultValue = null) where TStruct : struct =>
+        value != null && !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd<TStruct>(string fieldName, TStruct value
-      , StructStyler<TStruct> structToString, TStruct defaultValue = default) where TStruct : struct =>
-        !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, structToString) : stb.StyleTypeBuilder;
+      , CustomTypeStyler<TStruct> customTypeStyler, TStruct defaultValue = default) where TStruct : struct =>
+        !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullOrDefaultAdd(string fieldName, string? value, string? defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 

@@ -43,14 +43,14 @@ public abstract partial class FLogEntryMessageBuilder : ReusableObject<IFLogMess
         return this;
     }
 
-    protected static void AppendStruct<TStruct>((TStruct, StructStyler<TStruct>) valueTuple, IStyledTypeStringAppender appender)
+    protected static void AppendStruct<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple, IStyledTypeStringAppender appender)
         where TStruct : struct
     {
         var (value, structStyler) = valueTuple;
         structStyler(value, appender);
     }
 
-    protected static void AppendStruct<TStruct>((TStruct?, StructStyler<TStruct>) valueTuple, IStyledTypeStringAppender appender)
+    protected static void AppendStruct<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple, IStyledTypeStringAppender appender)
         where TStruct : struct
     {
         var (value, structStyler) = valueTuple;
@@ -425,7 +425,7 @@ public static class MessageBuilderExtensions
     public static bool IsFormatterType(this Type checkIsFormatterType) =>
         checkIsFormatterType == typeof(string) ||
         (checkIsFormatterType.IsGenericType
-      && checkIsFormatterType.GetGenericTypeDefinition() == typeof(StructStyler<>));
+      && checkIsFormatterType.GetGenericTypeDefinition() == typeof(CustomTypeStyler<>));
     
     public static bool IsOrderedCollectionFilterPredicate(this Type checkIsFormatterType) =>
         (checkIsFormatterType.IsGenericType
@@ -438,7 +438,7 @@ public static class MessageBuilderExtensions
     public static bool IsValidFormatterForType(this Type baseType, Type formatterType) =>
         formatterType == typeof(string) && (!baseType.IsValueType || baseType.GetInterfaces().Any(i => i == typeof(ISpanFormattable))) ||
         baseType.IsValueType && (formatterType.IsGenericType
-                              && formatterType.GetGenericTypeDefinition() == typeof(StructStyler<>)
+                              && formatterType.GetGenericTypeDefinition() == typeof(CustomTypeStyler<>)
                               && formatterType.GenericTypeArguments[0].IsAssignableFrom(baseType));
     
 }

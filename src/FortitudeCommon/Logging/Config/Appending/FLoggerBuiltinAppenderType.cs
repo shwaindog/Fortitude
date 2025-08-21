@@ -17,9 +17,8 @@ public enum FLoggerBuiltinAppenderType
 {
     NotGiven
   , Ref
-  , ForwardToRef
   , Null
-  , SyncForwarding
+  , Forwarding
   , BufferedForwarding
   , FilteredForwarding
   , SwitchChannelForwarding
@@ -47,12 +46,12 @@ public static class FloggerBuiltinAppenderTypeExtensions
             case null :
             case nameof(Ref) :                  
                 return new AppenderReferenceConfig(configRoot, configPath);
-            case nameof(Null) :                    return new NullAppenderConfig(configRoot, configPath);
-            case nameof(SyncForwarding) :          return new AppenderReferenceConfig(configRoot, configPath);
-            case nameof(BufferedForwarding) :      return new BufferingAppenderConfig(configRoot, configPath);
-            case nameof(AsyncBufferedForwarding) : return new AsyncForwardingAppendersConfig(configRoot, configPath);
-            case nameof(FilteredForwarding) :      return new FilteringForwardingAppenderConfig(configRoot, configPath);
-            case nameof(ConsoleOut) :              return new ConsoleAppenderConfig(configRoot, configPath);
+            case nameof(Null) :                                  return new NullAppenderConfig(configRoot, configPath);
+            case nameof(FLoggerBuiltinAppenderType.Forwarding) : return new AppenderReferenceConfig(configRoot, configPath);
+            case nameof(BufferedForwarding) :                    return new BufferingAppenderConfig(configRoot, configPath);
+            case nameof(AsyncBufferedForwarding) :               return new AsyncForwardingAppendersConfig(configRoot, configPath);
+            case nameof(FilteredForwarding) :                    return new FilteringForwardingAppenderConfig(configRoot, configPath);
+            case nameof(ConsoleOut) :                            return new ConsoleAppenderConfig(configRoot, configPath);
             default :
                 string[] assemblyAndTypeFullName;
                 if (appenderTypeConfig.IsNotNullOrEmpty() && (assemblyAndTypeFullName = appenderTypeConfig.Split(',', 2)).Length == 2)

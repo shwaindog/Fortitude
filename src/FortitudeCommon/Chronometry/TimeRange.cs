@@ -4,6 +4,8 @@
 #region
 
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
 
 #endregion
 
@@ -18,7 +20,7 @@ public struct UnboundedTimeRange
     }
 
     public DateTime? FromTime { get; }
-    public DateTime? ToTime   { get; }
+    public DateTime? ToTime { get; }
 
 
     public static explicit operator BoundedTimeRange(UnboundedTimeRange toConvert) => new(toConvert.FromTime!.Value, toConvert.ToTime!.Value);
@@ -52,7 +54,7 @@ public struct BoundedTimeRange
     }
 
     public DateTime FromTime { get; }
-    public DateTime ToTime   { get; }
+    public DateTime ToTime { get; }
 
 
     public static implicit operator UnboundedTimeRange(BoundedTimeRange toConvert) => new(toConvert.FromTime, toConvert.ToTime);
@@ -84,12 +86,53 @@ public struct SubPeriodOffset
         SubPeriodLength = periodLength;
     }
 
-    public TimeSpan StartOffset     { get; }
+    public TimeSpan StartOffset { get; }
     public TimeSpan SubPeriodLength { get; }
 }
 
 public static class TimeRangeExtensions
 {
+    public static CustomTypeStyler<UnboundedTimeRange> UnboundedTimeRangeFormatter
+        = FormatUnboundedTimeRangeAppender;
+
+    public static StyledTypeBuildResult FormatUnboundedTimeRangeAppender(this UnboundedTimeRange timeRange, IStyledTypeStringAppender sbc)
+    {
+        return sbc.StartComplexType(nameof(UnboundedTimeRange))
+           .Field.AlwaysAdd(nameof(timeRange.FromTime), timeRange.FromTime, "{0:yyyy-MM-dd HH:mm:ss}")
+           .Field.AlwaysAdd(nameof(timeRange.ToTime), timeRange.ToTime, "{0:yyyy-MM-dd HH:mm:ss}").Complete();
+    }
+    
+    public static CustomTypeStyler<UnboundedTimeSpanRange> UnboundedTimeSpanRangeFormatter
+        = FormatUnboundedTimeSpanRangeAppender;
+
+    public static StyledTypeBuildResult FormatUnboundedTimeSpanRangeAppender(this UnboundedTimeSpanRange timeRange, IStyledTypeStringAppender sbc)
+    {
+        return sbc.StartComplexType(nameof(UnboundedTimeSpanRange))
+           .Field.AlwaysAdd(nameof(timeRange.LowerLimit), timeRange.LowerLimit, "{0:dd HH:mm:ss}")
+           .Field.AlwaysAdd(nameof(timeRange.UpperLimit), timeRange.UpperLimit, "{0:dd HH:mm:ss}").Complete();
+    }
+    
+    public static CustomTypeStyler<BoundedTimeRange> BoundedTimeRangeFormatter
+        = FormatBoundedTimeRangeAppender;
+
+    public static StyledTypeBuildResult FormatBoundedTimeRangeAppender(this BoundedTimeRange timeRange, IStyledTypeStringAppender sbc)
+    {
+        return sbc.StartComplexType(nameof(BoundedTimeRange))
+           .Field.AlwaysAdd(nameof(timeRange.FromTime), timeRange.FromTime, "{0:yyyy-MM-dd HH:mm:ss}")
+           .Field.AlwaysAdd(nameof(timeRange.ToTime), timeRange.ToTime, "{0:yyyy-MM-dd HH:mm:ss}").Complete();
+    }
+
+    
+    public static CustomTypeStyler<BoundedTimeSpanRange> BoundedTimeSpanRangeFormatter
+        = FormatBoundedTimeSpanRangeAppender;
+
+    public static StyledTypeBuildResult FormatBoundedTimeSpanRangeAppender(this BoundedTimeSpanRange timeRange, IStyledTypeStringAppender sbc)
+    {
+        return sbc.StartComplexType(nameof(BoundedTimeSpanRange))
+           .Field.AlwaysAdd(nameof(timeRange.LowerLimit), timeRange.LowerLimit, "{0:dd HH:mm:ss}")
+           .Field.AlwaysAdd(nameof(timeRange.UpperLimit), timeRange.UpperLimit, "{0:dd HH:mm:ss}").Complete();
+    }
+
     public static bool IntersectsWith(this UnboundedTimeRange lhs, UnboundedTimeRange? rhsOptional)
     {
         if (rhsOptional == null) return true;

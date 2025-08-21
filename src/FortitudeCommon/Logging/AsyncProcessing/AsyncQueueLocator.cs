@@ -2,6 +2,7 @@
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Logging.Core.Appending;
 using FortitudeCommon.Logging.Core.Appending.Formatting;
+using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
@@ -152,10 +153,10 @@ public class AsyncQueueLocator(IMutableAsyncQueuesInitConfig asyncInitConfig) : 
         queue.Execute(job);
     }
 
-    public void FlushBufferToAppender(int queueNumber, IBufferedFormatWriter toFlush, IFLogBufferingFormatAppender fromAppender)
+    public void FlushBufferToAppender(int queueNumber, IBufferedFormatWriter toFlush)
     {
         var queue = GetOrCreateQueue(queueNumber);
-        queue.FlushBufferToAppender(toFlush, fromAppender);
+        queue.FlushBufferToAppender(toFlush);
     }
 
     public void SendLogEntryEventTo(int queueNumber, LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks, IFLogEntrySource publishSource)

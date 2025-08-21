@@ -7,16 +7,16 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
-using FortitudeCommon.DataStructures.Memory.Buffers;
 using FortitudeCommon.Monitoring.Logging;
 using FortitudeCommon.OSWrapper.Memory;
-using FortitudeCommon.Serdes.Binary;
 
 #endregion
 
-namespace FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
+namespace FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory.MemoryMappedFiles;
 
-public unsafe class MappedViewRegion : IVirtualMemoryAddressRange
+public interface IMappedViewRegion : IVirtualMemoryAddressRange { }
+
+public unsafe class MappedViewRegion : IMappedViewRegion
 {
     public int FilePageOrChunkNumber;
 
@@ -41,8 +41,8 @@ public unsafe class MappedViewRegion : IVirtualMemoryAddressRange
     }
 
     public byte* StartAddress { get; }
-    public byte* EndAddress   => StartAddress + Length;
-    public long  Length       => ViewSizeInPages * PagedMemoryMappedFile.PageSize;
+    public byte* EndAddress => StartAddress + Length;
+    public long Length => ViewSizeInPages * PagedMemoryMappedFile.PageSize;
 
     public void Flush()
     {
@@ -82,7 +82,8 @@ public unsafe class MappedViewRegion : IVirtualMemoryAddressRange
 
 public unsafe class EndOfFileEmptyChunk : MappedViewRegion
 {
-    public EndOfFileEmptyChunk() : base(null, null, null, 0, 0, 0) { }
+    public EndOfFileEmptyChunk() : 
+        base(null, null, null, 0, 0, 0) { }
 }
 
 public class UsageCountedMemoryMappedFile
@@ -123,18 +124,43 @@ public class UsageCountedMemoryMappedFile
     }
 }
 
-public sealed unsafe class PagedMemoryMappedFile : IDisposable
+public interface IPagedMemoryMappedFile : IDisposable
+{
+    long Length { get; }
+    bool IsOpen { get; }
+
+    IShiftableMemoryMappedFileView CreateShiftableMemoryMappedFileView
+    (string viewName, long fileStartOffset = 0,
+        long minimumViewSize = ShiftableMemoryMappedFileView.DefaultMinimumShiftableViewSize, int reserveRegionMultiple = 1
+      , bool closePagedMemoryMappedFileOnDispose = true);
+
+    IUnmanagedByteArray CreateUnmanagedByteArray(long fileCursorPosition, int length);
+
+    IMemoryMappedFileBuffer CreateMemoryMappedBuffer
+    (long fileCursorPosition, string viewName,
+        long minimumViewSize = ShiftableMemoryMappedFileView.DefaultMinimumShiftableViewSize, int reserveRegionMultiple = 1,
+        bool closePagedMemoryMappedFileOnDispose = true);
+
+    bool EnsureFileCanContain(string viewName, int pageNumber, int sizeInPages);
+    bool GrowFileToEncompass(int fileChunkNumber, int chunkSizeInPages);
+    bool Flush(MappedViewRegion chunk, long fileCursorFrom, long bytes);
+}
+
+public sealed unsafe class PagedMemoryMappedFile : IPagedMemoryMappedFile
 {
     public const long MaxFileCursorOffset          = (long)uint.MaxValue * 4; // ~ 16GB
     public const int  InvalidVirtualMemoryLocation = 487;
 
-    public static           IOSDirectMemoryApi OSDirectMemoryApi = MemoryUtils.OsDirectMemoryAccess;
-    public static           int                PageSize          = (int)MemoryUtils.OsDirectMemoryAccess.MinimumRequiredPageSize;
-    private static readonly IFLogger           Logger            = FLoggerFactory.Instance.GetLogger(typeof(PagedMemoryMappedFile));
+    public static IOSDirectMemoryApi OSDirectMemoryApi = MemoryUtils.OsDirectMemoryAccess;
+
+    public static int PageSize = (int)MemoryUtils.OsDirectMemoryAccess.MinimumRequiredPageSize;
+
+    private static readonly IFLogger Logger = FLoggerFactory.Instance.GetLogger(typeof(PagedMemoryMappedFile));
 
     private UsageCountedMemoryMappedFile? currentLargestRefCountedMemoryMappedFile;
-    private bool                          deleteOnClose;
-    private FileStream                    fileStream;
+
+    private bool       deleteOnClose;
+    private FileStream fileStream;
 
     private bool isDisposed;
     private int  liveCount;
@@ -216,6 +242,10 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         return pagedMemoryMappedFile.CreateMappedViewRegion("ScratchView", 0, numberOfPages, null)!;
     }
 
+    IShiftableMemoryMappedFileView IPagedMemoryMappedFile.CreateShiftableMemoryMappedFileView
+        (string viewName, long fileStartOffset, long minimumViewSize, int reserveRegionMultiple, bool closePagedMemoryMappedFileOnDispose) =>
+        CreateShiftableMemoryMappedFileView(viewName, fileStartOffset, minimumViewSize, reserveRegionMultiple, closePagedMemoryMappedFileOnDispose);
+
     public ShiftableMemoryMappedFileView CreateShiftableMemoryMappedFileView
     (string viewName, long fileStartOffset = 0,
         long minimumViewSize = ShiftableMemoryMappedFileView.DefaultMinimumShiftableViewSize, int reserveRegionMultiple = 1
@@ -249,6 +279,9 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         return result;
     }
 
+    IUnmanagedByteArray IPagedMemoryMappedFile.CreateUnmanagedByteArray(long fileCursorPosition, int length) => 
+        CreateUnmanagedByteArray(fileCursorPosition, length);
+
     public UnmanagedByteArray CreateUnmanagedByteArray(long fileCursorPosition, int length)
     {
         CheckDisposed();
@@ -263,6 +296,10 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         var viewOffset = fileCursorPosition - viewRegion.StartFileCursorOffset;
         return viewRegion.CreateUnmanagedByteArrayInThisRange(viewOffset, length);
     }
+
+    IMemoryMappedFileBuffer IPagedMemoryMappedFile.CreateMemoryMappedBuffer(long fileCursorPosition, string viewName
+      , long minimumViewSize, int reserveRegionMultiple, bool closePagedMemoryMappedFileOnDispose) =>
+        CreateMemoryMappedBuffer(fileCursorPosition, viewName, minimumViewSize, reserveRegionMultiple, closePagedMemoryMappedFileOnDispose);
 
     public MemoryMappedFileBuffer CreateMemoryMappedBuffer
     (long fileCursorPosition, string viewName,
@@ -330,10 +367,9 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
         CheckDisposed();
         if (!EnsureFileCanContain(viewName, pageStart, sizeInPages)) return null;
 
-        var address = OSDirectMemoryApi.MapPageViewOfFile(currentLargestRefCountedMemoryMappedFile!.MemoryMappedFileHandle
-                                                        , pageStart
-                                                        , sizeInPages
-                                                        , atAddress);
+        var address =
+            OSDirectMemoryApi.MapPageViewOfFile
+                (currentLargestRefCountedMemoryMappedFile!.MemoryMappedFileHandle, pageStart, sizeInPages, atAddress);
         if (address == null)
         {
             if (!LogMappingMessages) return null;
@@ -342,20 +378,23 @@ public sealed unsafe class PagedMemoryMappedFile : IDisposable
             if (memMapFileError != 0)
             {
                 if (memMapFileError == InvalidVirtualMemoryLocation)
-                    Logger.Debug("Got InvalidVirtualMemoryLocation when attempting to map memory mapped file {0}-{1} " +
-                                 "page number {2} to virtual memory location {3:x}.  " +
-                                 "Location probably in use will attempt to remap to a new location. Call stack {4}",
-                                 FileStream.Name, viewName, pageStart, (nint)atAddress, callStack);
+                    Logger.Debug
+                        ("Got InvalidVirtualMemoryLocation when attempting to map memory mapped file {0}-{1} " +
+                         "page number {2} to virtual memory location {3:x}.  " +
+                         "Location probably in use will attempt to remap to a new location. Call stack {4}",
+                         FileStream.Name, viewName, pageStart, (nint)atAddress, callStack);
                 else
-                    Logger.Warn("Got Error code {0} on map memory mapped file {1}-{2} page number {3} to " +
-                                "virtual memory location {4:x} when trying to create Memory Mapped File Mapping.   Call stack {5}",
-                                memMapFileError, FileStream.Name, viewName, pageStart, (nint)atAddress, callStack);
+                    Logger.Warn
+                        ("Got Error code {0} on map memory mapped file {1}-{2} page number {3} to " +
+                         "virtual memory location {4:x} when trying to create Memory Mapped File Mapping.   Call stack {5}",
+                         memMapFileError, FileStream.Name, viewName, pageStart, (nint)atAddress, callStack);
             }
             else
             {
-                Logger.Info("Could not map memory mapped file {0}-{1} page number {2} to virtual memory location {3:x}.  " +
-                            "Location probably in use will attempt to remap to a new location.  Call stack {4}",
-                            FileStream.Name, viewName, pageStart, (nint)atAddress, callStack);
+                Logger.Info
+                    ("Could not map memory mapped file {0}-{1} page number {2} to virtual memory location {3:x}.  " +
+                     "Location probably in use will attempt to remap to a new location.  Call stack {4}",
+                     FileStream.Name, viewName, pageStart, (nint)atAddress, callStack);
             }
 
             return null;

@@ -7,7 +7,7 @@ using FortitudeCommon.OSWrapper.Streams;
 
 #endregion
 
-namespace FortitudeCommon.Serdes.Binary;
+namespace FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
 
 public unsafe interface IBuffer : IStream
 {

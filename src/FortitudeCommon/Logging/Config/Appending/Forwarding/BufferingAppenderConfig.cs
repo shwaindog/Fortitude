@@ -41,7 +41,7 @@ public class BufferingAppenderConfig : QueueingAppenderConfig, IMutableBuffering
 
     public BufferingAppenderConfig
     (string appenderName
-      , IAppendableForwardingAppendersLookupConfig? forwardToAppendersConfig = null
+      , IAppendableNamedAppendersLookupConfig? forwardToAppendersConfig = null
       , IMutableFLogEntryQueueConfig? inboundQueue = null
       , int maxBufferTimeMs = IBufferingAppenderConfig.DefaultBufferTimeMs
       , FLogLevel flushLogLevel = IBufferingAppenderConfig.DefaultFlushLogLevel
@@ -52,7 +52,7 @@ public class BufferingAppenderConfig : QueueingAppenderConfig, IMutableBuffering
 
     public BufferingAppenderConfig
     (IConfigurationRoot root, string path, string appenderName
-      , IAppendableForwardingAppendersLookupConfig? forwardToAppendersConfig = null
+      , IAppendableNamedAppendersLookupConfig? forwardToAppendersConfig = null
       , IMutableFLogEntryQueueConfig? inboundQueue = null
       , int maxBufferTimeMs = IBufferingAppenderConfig.DefaultBufferTimeMs
       , FLogLevel flushLogLevel = IBufferingAppenderConfig.DefaultFlushLogLevel

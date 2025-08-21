@@ -41,8 +41,6 @@ public interface IFLogConfigVisitor<TBase> : IReusableObject<IFLogConfigVisitor<
 
     TBase Accept(IAppendableNamedAppendersLookupConfig appendersCollectionConfig);
 
-    TBase Accept(IAppendableForwardingAppendersLookupConfig forwardToAppendersCollectionConfig);
-
     TBase Accept(IMutableForwardingAppenderConfig forwardingAppenderConfig);
 
     TBase Accept(IMutableFLogEntryQueueConfig queueConfig);
@@ -79,8 +77,6 @@ public interface IFLogConfigVisitor<TBase> : IReusableObject<IFLogConfigVisitor<
 
     TBase Accept(IMutableFLogInitializationConfig initializationConfig);
 
-    TBase Accept(IAppendableInheritingAppendersLookupConfig inheritingFormatAppendersConfig);
-
     TBase Accept(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig);
 
     TBase Accept(IMutableFlushBufferConfig flushBufferConfig);
@@ -110,8 +106,6 @@ public class FLogConfigVisitor<T> : ReusableObject<IFLogConfigVisitor<T>>, IFLog
     public virtual T Accept(IMutableConsoleAppenderConfig consoleAppenderConfig) => (T)this;
 
     public virtual T Accept(IAppendableNamedAppendersLookupConfig appendersCollectionConfig) => (T)this;
-
-    public virtual T Accept(IAppendableForwardingAppendersLookupConfig forwardToAppendersCollectionConfig) => (T)this;
 
     public virtual T Accept(IMutableForwardingAppenderConfig forwardingAppenderConfig) => (T)this;
 
@@ -150,8 +144,6 @@ public class FLogConfigVisitor<T> : ReusableObject<IFLogConfigVisitor<T>>, IFLog
     public virtual T Accept(IMutableAsyncQueueConfig asyncQueueConfig) => (T)this;
 
     public virtual T Accept(IMutableFLogInitializationConfig initializationConfig) => (T)this;
-
-    public virtual T Accept(IAppendableInheritingAppendersLookupConfig inheritingFormatAppendersConfig) => (T)this;
 
     public virtual T Accept(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig) => (T)this;
 

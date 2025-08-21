@@ -34,8 +34,8 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
             : stb.FieldNameJoin(fieldName).AppendOrNull(value).AddGoToNext(stb);
 
     public TExt AlwaysAdd<TStruct>(string fieldName, TStruct? value
-      , StructStyler<TStruct> structToString) where TStruct : struct =>
-        stb.FieldNameJoin(fieldName, stb).AppendOrNull(value, structToString).AddGoToNext(stb);
+      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+        stb.FieldNameJoin(fieldName, stb).AppendOrNull(value, customTypeStyler).AddGoToNext(stb);
 
     public TExt AlwaysAdd(string fieldName, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) => 

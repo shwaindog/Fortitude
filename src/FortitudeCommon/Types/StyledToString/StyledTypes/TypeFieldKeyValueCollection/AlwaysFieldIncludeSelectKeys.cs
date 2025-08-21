@@ -200,7 +200,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
 
     public TExt AlwaysWithSelectKeys<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKey[] selectKeys
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
     {
         var foundValues = false;
@@ -218,7 +218,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(key, keyFormatString).AppendOrNull(": ")
                     : stb.AppendOrNull(key).Append(": ");
-                stb.AppendOrNull(keyValue, valueStructStyler);
+                stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -235,7 +235,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
 
     public TExt AlwaysWithSelectKeys<TKey, TValue>
         (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
-          , StructStyler<TValue> valueStructStyler
+          , CustomTypeStyler<TValue> valueStyler
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
     {
         var foundValues = false;
@@ -254,7 +254,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(key, keyFormatString).AppendOrNull(": ")
                     : stb.AppendOrNull(key).Append(": ");
-                stb.AppendOrNull(keyValue, valueStructStyler);
+                stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -271,7 +271,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
 
     public TExt AlwaysWithSelectKeys<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
     {
         var foundValues = false;
@@ -290,7 +290,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(key, keyFormatString).AppendOrNull(": ")
                     : stb.AppendOrNull(key).Append(": ");
-                stb.AppendOrNull(keyValue, valueStructStyler);
+                stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -306,7 +306,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     }
 
     public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys, StructStyler<TValue> valueStructStyler
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys, CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
     {
         var foundValues = false;
@@ -324,7 +324,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 _ = keyFormatString.IsNotNullOrEmpty()
                     ? stb.AppendFormattedOrNull(key, keyFormatString).AppendOrNull(": ")
                     : stb.AppendOrNull(key).Append(": ");
-                stb.AppendOrNull(keyValue, valueStructStyler);
+                stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -340,7 +340,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     }
 
     public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , IEnumerator<TKey> selectKeys, StructStyler<TValue> valueStructStyler 
+      , IEnumerator<TKey> selectKeys, CustomTypeStyler<TValue> valueStyler 
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) where TValue : struct 
     {
         var foundValues = false;
@@ -362,7 +362,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
             _ = keyFormatString.IsNotNullOrEmpty()
                 ? stb.AppendFormattedOrNull(key, keyFormatString).AppendOrNull(": ")
                 : stb.AppendOrNull(key).Append(": ");
-            stb.AppendOrNull(keyValue, valueStructStyler);
+            stb.AppendOrNull(keyValue, valueStyler);
             stb.GoToNextCollectionItemStart();
             hasValue = selectKeys.MoveNext();
         } 
@@ -379,7 +379,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
 
     public TExt AlwaysWithSelectKeys<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKey[] selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -394,8 +394,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     stb.StartDictionary();
                     foundValues = true;
                 }
-                stb.AppendOrNull(key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(keyValue, valueStructStyler);
+                stb.AppendOrNull(key, keyStyler).Append(": ");
+                stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -411,7 +411,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
     }
 
     public TExt AlwaysWithSelectKeys<TKey, TValue>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -426,8 +426,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     stb.StartDictionary();
                     foundValues = true;
                 }
-                stb.AppendOrNull(key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(keyValue, valueStructStyler);
+                stb.AppendOrNull(key, keyStyler).Append(": ");
+                stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -444,7 +444,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
 
     public TExt AlwaysWithSelectKeys<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -458,8 +458,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     stb.StartDictionary();
                     foundValues = true;
                 }
-                stb.AppendOrNull(key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(keyValue, valueStructStyler);
+                stb.AppendOrNull(key, keyStyler).Append(": ");
+                stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -476,7 +476,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
 
     public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue>
         (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKey> selectKeys
-          , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+          , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -490,8 +490,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                     stb.StartDictionary();
                     foundValues = true;
                 }
-                stb.AppendOrNull(key, keyStructStyler).Append(": ");
-                stb.AppendOrNull(keyValue, valueStructStyler);
+                stb.AppendOrNull(key, keyStyler).Append(": ");
+                stb.AppendOrNull(keyValue, valueStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -508,7 +508,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
 
     public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKey> selectKeys
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct 
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct 
     {
         var foundValues = false;
         stb.FieldNameJoin(fieldName);
@@ -526,8 +526,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
                 stb.StartDictionary();
                 foundValues = true;
             }
-            stb.AppendOrNull(key, keyStructStyler).Append(": ");
-            stb.AppendOrNull(keyValue, valueStructStyler);
+            stb.AppendOrNull(key, keyStyler).Append(": ");
+            stb.AppendOrNull(keyValue, valueStyler);
             stb.GoToNextCollectionItemStart();
             hasValue = selectKeys.MoveNext();
         } 

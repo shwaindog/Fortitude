@@ -33,26 +33,26 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalValueCollectionParam<TStruct>(TStruct[]? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public void AndFinalValueCollectionParam<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
-        ReplaceTokenWithValueCollection(value, structStyler);
+        ReplaceTokenWithValueCollection(value, customTypeStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalValueCollectionParam<TStruct>((TStruct[]?, StructStyler<TStruct>) valueTuple) where TStruct : struct
+    public void AndFinalValueCollectionParam<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
     {
         FormatSb.Clear();
         AppendValueCollection(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalValueCollectionParam<TStruct>(IReadOnlyList<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public void AndFinalValueCollectionParam<TStruct>(IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
-        ReplaceTokenWithValueCollection(value, structStyler);
+        ReplaceTokenWithValueCollection(value, customTypeStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalValueCollectionParam<TStruct>((IReadOnlyList<TStruct>?, StructStyler<TStruct>) valueTuple) where TStruct : struct
+    public void AndFinalValueCollectionParam<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
     {
         FormatSb.Clear();
         AppendValueCollection(valueTuple, FormatStsa!);
@@ -106,14 +106,14 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     public void AndFinalValueCollectionParam<TStruct>(TStruct[]? value, OrderedCollectionPredicate<TStruct> filter
-      , StructStyler<TStruct> structStyler) where TStruct : struct
+      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
-        ReplaceTokenWithValueCollection(value, filter, structStyler);
+        ReplaceTokenWithValueCollection(value, filter, customTypeStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
     public void AndFinalValueCollectionParam<TStruct>((TStruct[]?
-      , OrderedCollectionPredicate<TStruct>, StructStyler<TStruct>) valueTuple) where TStruct : struct
+      , OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
     {
         FormatSb.Clear();
         AppendFilteredValueCollection(valueTuple, FormatStsa!);
@@ -121,14 +121,14 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     public void AndFinalValueCollectionParam<TStruct>(IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> filter
-      , StructStyler<TStruct> structStyler) where TStruct : struct
+      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
-        ReplaceTokenWithValueCollection(value, filter, structStyler);
+        ReplaceTokenWithValueCollection(value, filter, customTypeStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
     public void AndFinalValueCollectionParam<TStruct>(
-        (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, StructStyler<TStruct>) valueTuple) where TStruct : struct
+        (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct
     {
         FormatSb.Clear();
         AppendFilteredValueCollection(valueTuple, FormatStsa!);
@@ -234,13 +234,13 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalValueCollectionParamEnumerate<TStruct>(IEnumerable<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public void AndFinalValueCollectionParamEnumerate<TStruct>(IEnumerable<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
-        ReplaceTokenWithValueCollectionEnumerate(value, structStyler);
+        ReplaceTokenWithValueCollectionEnumerate(value, customTypeStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalValueCollectionParamEnumerate<TStruct>((IEnumerable<TStruct>?, StructStyler<TStruct>) valueTuple)
+    public void AndFinalValueCollectionParamEnumerate<TStruct>((IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct
     {
         FormatSb.Clear();
@@ -248,13 +248,13 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalValueCollectionParamEnumerate<TStruct>(IEnumerator<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct
+    public void AndFinalValueCollectionParamEnumerate<TStruct>(IEnumerator<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
-        ReplaceTokenWithValueCollectionEnumerate(value, structStyler);
+        ReplaceTokenWithValueCollectionEnumerate(value, customTypeStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalValueCollectionParamEnumerate<TStruct>((IEnumerator<TStruct>?, StructStyler<TStruct>) valueTuple)
+    public void AndFinalValueCollectionParamEnumerate<TStruct>((IEnumerator<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct
     {
         FormatSb.Clear();
@@ -482,15 +482,15 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     public void AndFinalKeyedCollectionParam<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyFormatString);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
         this.EnsureNoMoreTokensAndComplete(value);
     }
     
     public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>
-      , StructStyler<TValue>, string?) valueTuple) where TValue : struct
+      , CustomTypeStyler<TValue>, string?) valueTuple) where TValue : struct
     {
         FormatSb.Clear();
         AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
@@ -498,7 +498,7 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
     
     public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>
-      , StructStyler<TValue>) valueTuple) where TValue : struct
+      , CustomTypeStyler<TValue>) valueTuple) where TValue : struct
     {
         FormatSb.Clear();
         AppendFilteredKeyedCollection(valueTuple, FormatStsa!);
@@ -506,15 +506,15 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     public void AndFinalKeyedCollectionParam<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyFormatString);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
     public void AndFinalKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?
-      , KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)
+      , KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -522,7 +522,7 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)
+    public void AndFinalKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -531,14 +531,14 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     public void AndFinalKeyedCollectionParam<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
+      , KeyValuePredicate<TKey, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyFormatString);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyFormatString);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)
+    public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -546,7 +546,7 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)
+    public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -554,14 +554,14 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
+    public void AndFinalKeyedCollectionParam<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyFormatString);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyFormatString);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>, string?) valueTuple)
+    public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -569,7 +569,7 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>) valueTuple)
+    public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -577,14 +577,14 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value, StructStyler<TValue> valueStructStyler
+    public void AndFinalKeyedCollectionParam<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyFormatString);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyFormatString);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>, string?) valueTuple)
+    public void AndFinalKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -592,7 +592,7 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>) valueTuple)
+    public void AndFinalKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -600,14 +600,14 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
+    public void AndFinalKeyedCollectionParam<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
       , string? keyFormatString = null) where TValue : struct
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyFormatString);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyFormatString);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple)
+    public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -615,7 +615,7 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple)
+    public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct
     {
         FormatSb.Clear();
@@ -623,54 +623,54 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
     
-    public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct
+    public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct
     {
-        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStructStyler, keyFormatString);
+        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyFormatString);
         this.EnsureNoMoreTokensAndComplete(value);
     }
     
-    public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple) where TValue : struct
+    public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple) where TValue : struct
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
     
-    public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple) where TValue : struct
+    public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
     
-    public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct
+    public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct
     {
-        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStructStyler, keyFormatString);
+        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyFormatString);
         this.EnsureNoMoreTokensAndComplete(value);
     }
     
-    public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple) where TValue : struct
+    public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple) where TValue : struct
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
     
-    public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple) where TValue : struct
+    public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct
     {
         FormatSb.Clear();
         AppendKeyedCollectionEnumerate(valueTuple, FormatStsa!);
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct
+    public void AndFinalKeyedCollectionParam<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+    public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct
     {
         FormatSb.Clear();
@@ -678,14 +678,14 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct
+    public void AndFinalKeyedCollectionParam<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+    public void AndFinalKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct
     {
         FormatSb.Clear();
@@ -693,14 +693,14 @@ public partial class FLogAdditionalFormatterParameterEntry
         ReplaceTokenNumber().EnsureNoMoreTokensAndComplete(valueTuple);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct
+    public void AndFinalKeyedCollectionParam<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct
     {
-        ReplaceTokenWithKeyedCollection(value, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithKeyedCollection(value, valueStyler, keyStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+    public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct
     {
         FormatSb.Clear();
@@ -709,13 +709,13 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct
     {
-        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+    public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct
     {
         FormatSb.Clear();
@@ -724,13 +724,13 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct
     {
-        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithKeyedCollectionEnumerate(value, valueStyler, keyStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
-    public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+    public void AndFinalKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct
     {
         FormatSb.Clear();
@@ -739,15 +739,15 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     public void AndFinalKeyedCollectionParam<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
     public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>
-      , StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+      , CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct
     {
         FormatSb.Clear();
@@ -756,15 +756,15 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     public void AndFinalKeyedCollectionParam<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
     public void AndFinalKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>
-      , StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+      , CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct
     {
         FormatSb.Clear();
@@ -773,15 +773,15 @@ public partial class FLogAdditionalFormatterParameterEntry
     }
 
     public void AndFinalKeyedCollectionParam<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKey, TValue> filterPredicate, StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) where TKey : struct where TValue : struct
+      , KeyValuePredicate<TKey, TValue> filterPredicate, CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) where TKey : struct where TValue : struct
     {
-        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStructStyler, keyStructStyler);
+        ReplaceTokenWithFilteredKeyedCollection(value, filterPredicate, valueStyler, keyStyler);
         this.EnsureNoMoreTokensAndComplete(value);
     }
 
     public void AndFinalKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>
-      , StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+      , CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TKey : struct where TValue : struct
     {
         FormatSb.Clear();

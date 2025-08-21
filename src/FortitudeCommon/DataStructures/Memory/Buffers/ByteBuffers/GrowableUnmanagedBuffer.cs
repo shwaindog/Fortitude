@@ -3,13 +3,12 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
+using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory;
 using FortitudeCommon.Monitoring.Logging;
 
 #endregion
 
-namespace FortitudeCommon.Serdes.Binary;
+namespace FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
 
 public interface IGrowableUnmanagedBuffer : IFixedByteArrayBuffer, IGrowable<IGrowableUnmanagedBuffer>, IVirtualMemoryAddressRange
 {

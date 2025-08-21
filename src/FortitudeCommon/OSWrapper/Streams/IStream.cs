@@ -13,6 +13,7 @@ public interface IStream : IDisposable
     void Flush();
 
     int Read(byte[] buffer, int offset, int count);
+    int Read(Span<byte> buffer);
 
     int ReadByte();
 
@@ -21,6 +22,7 @@ public interface IStream : IDisposable
     void SetLength(long value);
 
     void Write(byte[] buffer, int offset, int count);
+    void Write(ReadOnlySpan<byte> buffer);
 
     void WriteByte(byte value);
 

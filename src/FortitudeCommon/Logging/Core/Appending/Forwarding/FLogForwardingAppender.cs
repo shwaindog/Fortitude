@@ -29,7 +29,7 @@ public class FLogForwardingAppender : FLogAppender, IMutableFLogForwardingAppend
         : base(forwardingAppenderConfig, context)
     {
         AppenderRegistry = context.AppenderRegistry;
-        AppenderType     = $"{nameof(FLoggerBuiltinAppenderType.SyncForwarding)}";
+        AppenderType     = $"{nameof(FLoggerBuiltinAppenderType.Forwarding)}";
 
         ParseAppenderConfig(forwardingAppenderConfig, AppenderRegistry);
     }

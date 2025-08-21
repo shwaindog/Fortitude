@@ -154,7 +154,7 @@ public partial class FormatParameterEntry<TFormatEntry> : FLogEntryMessageBuilde
         }
         var recyclingCharArray = cappedLength.SourceRecyclingCharArray();
         recyclingCharArray.Add(param, fromIndex, count);
-        var arraySpan = recyclingCharArray.AsSpan();
+        var arraySpan = recyclingCharArray.WrittenAsSpan();
         ReplaceTokenNumber(arraySpan);
         recyclingCharArray.DecrementRefCount();
         return (TFormatEntry)this;
@@ -201,7 +201,7 @@ public partial class FormatParameterEntry<TFormatEntry> : FLogEntryMessageBuilde
         }
         var recyclingCharArray = cappedLength.SourceRecyclingCharArray();
         recyclingCharArray.Add(param, fromIndex, count);
-        var arraySpan = recyclingCharArray.AsSpan();
+        var arraySpan = recyclingCharArray.WrittenAsSpan();
         ReplaceTokenNumber(arraySpan);
         recyclingCharArray.DecrementRefCount();
         return (TFormatEntry)this;
@@ -277,12 +277,12 @@ public partial class FormatParameterEntry<TFormatEntry> : FLogEntryMessageBuilde
         return (TFormatEntry)this;
     }
 
-    internal TFormatEntry ReplaceTokenNumber<TStruct>(TStruct? param, StructStyler<TStruct> structStyler)
+    internal TFormatEntry ReplaceTokenNumber<TStruct>(TStruct? param, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct
     {
         if (param == null) return ReplaceTokenNumber("");
         FormatSb.Clear();
-        structStyler(param.Value, FormatStsa!);
+        customTypeStyler(param.Value, FormatStsa!);
         for (var i = 0; i < FormatTokens.Count; i++)
         {
             var token = FormatTokens[i];
@@ -474,7 +474,7 @@ public static class FLogAdditionalFormatterParameterEntryExtensions
         maybeParam?.ReplaceTokenNumber(paramValue);
 
     public static TFormatEntry? ReplaceTokens<TFormatEntry, TStruct>(this TFormatEntry? maybeParam
-      , TStruct? paramValue, StructStyler<TStruct> structStyler)
+      , TStruct? paramValue, CustomTypeStyler<TStruct> customTypeStyler)
         where TFormatEntry : FormatParameterEntry<TFormatEntry>
         where TStruct : struct =>
         maybeParam?.ReplaceTokenNumber(paramValue);

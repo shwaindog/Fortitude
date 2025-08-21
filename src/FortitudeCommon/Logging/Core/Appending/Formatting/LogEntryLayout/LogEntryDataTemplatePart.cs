@@ -1,9 +1,9 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Globalization;
 using System.Text;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.LogEntries;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
@@ -13,95 +13,99 @@ namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
 public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
 {
-    [ThreadStatic] private static StringBuilder? scratchBuffer;
-
-    protected readonly string Formatting;
-
-    protected readonly int MaxLength = int.MaxValue;
-
+    [ThreadStatic] protected static StringBuilder? scratchBuffer;
+    
+    private TokenFormatting tokenFormatting;
 
     public LogEntryDataTemplatePart(string tokenName, int paddingLength, int maxLength, string formattingString)
     {
-        TokenName       = tokenName;
-        MaxLength = maxLength;
-        Formatting = 0.BuildStringBuilderFormatting(paddingLength, formattingString);
+        tokenFormatting = new TokenFormatting(tokenName, paddingLength, maxLength, formattingString);
     }
 
-    public LogEntryDataTemplatePart(string tokenFormatting)
+    public LogEntryDataTemplatePart(TokenFormatting tokenFormatting) 
+        
     {
-        var tokenSpan = tokenFormatting.AsSpan();
-        tokenSpan.ExtractStringFormatStages(out var param, out var padding, out var formatting);
-        Span<char> upperParam = stackalloc char[param.Length];
-        param.ToUpper(upperParam, CultureInfo.InvariantCulture);
-        TokenName = new String(upperParam);
-
-        if (padding.Length > 0)
-        {
-            var foundCapStringLength = padding.IndexOf("[..");
-            if (foundCapStringLength >= 0)
-            {
-                var digitsSlice = padding.ExtractDigitsSlice(foundCapStringLength + 3);
-                if (digitsSlice.Length > 0)
-                {
-                    MaxLength = int.TryParse(digitsSlice, out var attempt) ? attempt : int.MaxValue;
-                }
-                padding = padding.Slice(0, foundCapStringLength);
-            }
-        }
-        var zeroPosParam = "0".AsSpan();
-        Formatting = zeroPosParam.BuildStringBuilderFormatting(padding, formatting);
+        this.tokenFormatting = tokenFormatting;
     }
-
-    public String TokenName { get; private set; }
-
-    public FormattingAppenderSinkType TargetingAppenderTypes => FormattingAppenderSinkType.Any;
-
+    
+    
     public int Apply(IFormatWriter formatWriter, IFLogEntry logEntry)
     {
         scratchBuffer ??= new();
         scratchBuffer.Clear();
         ApplyTokenToStringBuilder(scratchBuffer, logEntry);
-        if (scratchBuffer.Length > MaxLength)
+        if (scratchBuffer.Length > tokenFormatting.MaxLength)
         {
-            scratchBuffer.Length = MaxLength;
+            scratchBuffer.Length = tokenFormatting.MaxLength;
         }
         formatWriter.Append(scratchBuffer);
         return scratchBuffer.Length;
     }
+    
+    public FormattingAppenderSinkType TargetingAppenderTypes => FormattingAppenderSinkType.Any;
 
     // example toke "%TS:yyyy-MM-dd HH:mm:SS.fff% %LVL,5% %THREADID,4% %THREADNAME,10[..10]% %LGR% %MSG%";
     protected virtual void ApplyTokenToStringBuilder(StringBuilder sb, IFLogEntry logEntry)
     {
-        switch (TokenName)
+        switch (tokenFormatting.TokenName)
         {
             case $"{nameof(DATETIME)}":
             case $"{nameof(DATE)}":
             case $"{nameof(TIME)}":
             case $"{nameof(TS)}":
-                sb.AppendFormat(Formatting, logEntry.LogDateTime);
+                sb.AppendFormat(tokenFormatting.FormatString, logEntry.LogDateTime);
+                break;
+            case $"{nameof(DATEONLY)}":
+            case $"{nameof(DO)}":
+                sb.AppendFormat(tokenFormatting.FormatString, logEntry.LogDateTime.Date);
+                break;
+            case $"{nameof(TIMEONLY)}":
+            case $"{nameof(TO)}":
+                sb.AppendFormat(tokenFormatting.FormatString, logEntry.LogDateTime - logEntry.LogDateTime.Date);
                 break;
             case $"{nameof(LOGLEVEL)}":
             case $"{nameof(LEVEL)}":
             case $"{nameof(LVL)}":
-                sb.AppendFormat(Formatting, logEntry.LogLevel);
+                sb.AppendFormat(tokenFormatting.FormatString, logEntry.LogLevel);
                 break;
             case $"{nameof(CORRELATIONID)}":
             case $"{nameof(CID)}":
-                sb.AppendFormat(Formatting, logEntry.CorrelationId);
+                sb.AppendFormat(tokenFormatting.FormatString, logEntry.CorrelationId);
                 break;
             case $"{nameof(THREADID)}":
             case $"{nameof(TID)}":
-                sb.AppendFormat(Formatting, logEntry.Thread.ManagedThreadId);
+                sb.AppendFormat(tokenFormatting.FormatString, logEntry.Thread.ManagedThreadId);
                 break;
             case $"{nameof(THREADNAME)}":
             case $"{nameof(TNAME)}":
-                sb.AppendFormat(Formatting, logEntry.Thread.Name);
+                sb.AppendFormat(tokenFormatting.FormatString, logEntry.Thread.Name);
                 break;
             case $"{nameof(LOGGERNAME)}":
             case $"{nameof(LOGGER)}":
             case $"{nameof(LGRNAME)}":
             case $"{nameof(LGR)}":
-                sb.AppendFormat(Formatting, logEntry.Logger.FullName);
+                sb.AppendFormat(tokenFormatting.FormatString, logEntry.Logger.FullName);
+                break;
+            case $"{nameof(LOGLINENUMBER)}":
+            case $"{nameof(LOGLINENUM)}":
+            case $"{nameof(LLN)}":
+                sb.AppendFormat(tokenFormatting.FormatString, logEntry.LogLocation.SourceLineNumber);
+                break;
+            case $"{nameof(LOGMEMBERNAME)}":
+            case $"{nameof(LMN)}":
+                sb.AppendFormat(tokenFormatting.FormatString, logEntry.LogLocation.MemberName);
+                break;
+            case $"{nameof(LOGFILENAME_WITHEXT)}":
+            case $"{nameof(LFNE)}":
+                sb.ExtractAppendFileNameWithExtension(logEntry.LogLocation);
+                break;
+            case $"{nameof(LOGFILENAME)}":
+            case $"{nameof(LFN)}":
+                sb.ExtractAppendFileNameNoExt(logEntry.LogLocation);
+                break;
+            case $"{nameof(LOGFULLFILEPATH)}":
+            case $"{nameof(LFFP)}":
+                sb.AppendFormat(tokenFormatting.FormatString, logEntry.LogLocation.SourceFilePath);
                 break;
             case $"{nameof(MESSAGE)}":
             case $"{nameof(MESG)}":
@@ -111,8 +115,7 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
             case $"{nameof(EXCEPTION)}":
             case $"{nameof(EXCEP)}":
             case $"{nameof(EX)}":
-                if(logEntry.Exception is {} ex)
-                    sb.Append(ex);
+                if (logEntry.Exception is { } ex) sb.Append(ex);
                 break;
             case $"{nameof(EXCEPTION_ONELINE)}":
             case $"{nameof(EXCEP_ONELINE)}":
@@ -133,20 +136,17 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStyledToStringObject
             case $"{nameof(CALLERATTACHED)}":
             case $"{nameof(CALLERATTCH)}":
             case $"{nameof(CALLERAT)}":
-                if(logEntry.CallerContextObject is {} obj)
-                    sb.Append(obj);
+                if (logEntry.CallerContextObject is { } obj) sb.Append(obj);
                 break;
         }
     }
 
-    public StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
-        return
+        var tb =
             sbc.StartComplexType(nameof(LogEntryDataTemplatePart))
-               .Field.AlwaysAdd(nameof(TokenName), TokenName)
-               .Field.AlwaysAdd(nameof(Formatting), Formatting)
-               .Field.WhenNonDefaultAdd(nameof(MaxLength), MaxLength, int.MaxValue)
-               .Complete();
+               .AddBaseFieldsStart();
+        return tb.Complete();
     }
 
     public override string ToString() => this.DefaultToString();

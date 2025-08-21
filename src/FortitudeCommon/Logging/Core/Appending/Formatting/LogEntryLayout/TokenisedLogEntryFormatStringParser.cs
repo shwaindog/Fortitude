@@ -10,7 +10,8 @@ namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
 
 public interface ITokenisedLogEntryFormatStringParser
 {
-    List<ITemplatePart> BuildTemplateParts(string tokenisedFormatString, List<ITemplatePart>? toPopulate = null);
+    List<ITemplatePart> BuildTemplateParts(string tokenisedFormatString, List<ITemplatePart>? toPopulate = null
+                                                                        , ITokenFormattingValidator? tokenFormattingValidator = null);
 
     IEnumerable<ITemplatePart> GetAppenderTypeSubTokens(string tokenFormatting);
 
@@ -52,11 +53,12 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
     private const string WinNewLine = $"{{{nameof(WINNEWLINE)}}}";
     private const string WinNl     = $"{{{nameof(WINNL)}}}";
     private const string Comma      = $"{{{nameof(COMMA)}}}";
-    private const string C          = $"{{{nameof(C)}}}";
+    private const string Co          = $"{{{nameof(C)}}}";
     private const string CommaSpace = $"{{{nameof(COMMASPACE)}}}";
     private const string Cs         = $"{{{nameof(CS)}}}";
 
-    public List<ITemplatePart> BuildTemplateParts(string tokenisedFormatString, List<ITemplatePart>? toPopulate = null)
+    public List<ITemplatePart> BuildTemplateParts(string tokenisedFormatString, List<ITemplatePart>? toPopulate = null
+      , ITokenFormattingValidator? tokenFormattingValidator = null)
     {
         toPopulate ??= new List<ITemplatePart>();
 
@@ -79,7 +81,7 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
                 case WinNl:
                     toPopulate.Add(new StringConstantTemplatePart("\n\r"));
                     break;
-                case C:
+                case Co:
                 case Comma:
                     toPopulate.Add(new StringConstantTemplatePart(","));
                     break;
@@ -90,7 +92,10 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
                 default:
                     if (part[0] == '{' && part[^1] == '}')
                     {
-                        toPopulate.Add(new LogEntryDataTemplatePart(part));
+                        var tokenFormattingReplace = new TokenFormatting(part, tokenFormattingValidator);
+                        toPopulate.Add(tokenFormattingReplace.TokenName.IsEnvironmentTokenName()
+                                       ? new EnvironmentDataTemplatePart(tokenFormattingReplace)
+                                       : new LogEntryDataTemplatePart(tokenFormattingReplace));
                     }
                     else
                     {
@@ -128,11 +133,13 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
         }
         var commandOrFormatting = new String(subTokenFormatting);
         var templateParams      = new String(padding);
-        if (IsLogEntryDataToken(identifierName))
+        if (identifierName.IsLogEntryDatumTokenName())
         {
             yield return new LogEntryDataTemplatePart(identifierName, paddingInt, capStringLength, commandOrFormatting);
-        }
-        if (IsScopedFormattingToken(identifierName))
+        } else if (identifierName.IsEnvironmentTokenName())
+        {
+            yield return new EnvironmentDataTemplatePart(identifierName, paddingInt, capStringLength, commandOrFormatting);
+        } else if (identifierName.IsScopedFormattingTokenName())
         {
             var scopedTemplatePart = SourceScopedFormattingTemplatePart(identifierName, templateParams, commandOrFormatting);
             if (scopedTemplatePart != null)
@@ -181,77 +188,6 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
         return checkIsReset;
     }
 
-    protected virtual bool IsLogEntryDataToken(string tokenName)
-    {
-        switch (tokenName)
-        {
-            case $"{nameof(DATETIME)}":
-            case $"{nameof(DATE)}":
-            case $"{nameof(TIME)}":
-            case $"{nameof(TS)}":
-            case $"{nameof(LOGLEVEL)}":
-            case $"{nameof(LEVEL)}":
-            case $"{nameof(LVL)}":
-            case $"{nameof(CORRELATIONID)}":
-            case $"{nameof(CID)}":
-            case $"{nameof(THREADID)}":
-            case $"{nameof(TID)}":
-            case $"{nameof(THREADNAME)}":
-            case $"{nameof(TNAME)}":
-            case $"{nameof(LOGGERNAME)}":
-            case $"{nameof(LOGGER)}":
-            case $"{nameof(LGRNAME)}":
-            case $"{nameof(LGR)}":
-            case $"{nameof(MESSAGE)}":
-            case $"{nameof(MESG)}":
-            case $"{nameof(MSG)}":
-            case $"{nameof(EXCEPTION)}":
-            case $"{nameof(EXCEP)}":
-            case $"{nameof(EX)}":
-            case $"{nameof(EXCEPTION_ONELINE)}":
-            case $"{nameof(EXCEP_ONELINE)}":
-            case $"{nameof(EX_ONELINE)}":
-            case $"{nameof(EXCEPTION_1L)}":
-            case $"{nameof(EXCEP_1L)}":
-            case $"{nameof(EX_1L)}":
-            case $"{nameof(CALLERATTACHED)}":
-            case $"{nameof(CALLERATTCH)}":
-            case $"{nameof(CALLERAT)}":
-                return true;
-        }
-        return false;
-    }
-
-    protected virtual bool IsScopedFormattingToken(string tokenName)
-    {
-        switch (tokenName)
-        {
-            case $"{nameof(LOGLEVEL_COND)}":
-            case $"{nameof(LEVEL_COND)}":
-            case $"{nameof(LVL_COND)}":
-            case $"{nameof(EXCEPTION_COND)}":
-            case $"{nameof(EXCEP_COND)}":
-            case $"{nameof(EX_COND)}":
-            case $"{nameof(COLOR)}":
-            case $"{nameof(FOREGROUNDCOLOR)}":
-            case $"{nameof(FORECOLOR)}":
-            case $"{nameof(FCOLOR)}":
-            case $"{nameof(BACKGROUNDCOLOR)}":
-            case $"{nameof(BACKCOLOR)}":
-            case $"{nameof(BCOLOR)}":
-            case $"{nameof(COLOR_MATCH)}":
-            case $"{nameof(FOREGROUNDCOLOR_MATCH)}":
-            case $"{nameof(FORECOLOR_MATCH)}":
-            case $"{nameof(FCOLOR_MATCH)}":
-            case $"{nameof(BACKGROUNDCOLOR_MATCH)}":
-            case $"{nameof(BACKCOLOR_MATCH)}":
-            case $"{nameof(BCOLOR_MATCH)}":
-            case $"{nameof(RESETCOLOR)}":
-                return true;
-        }
-        return false;
-    }
-
     protected virtual ITemplatePart? SourceScopedFormattingTemplatePart(string tokenName, string templateParams, string command)
     {
         switch (tokenName)
@@ -269,22 +205,29 @@ public class TokenisedLogEntryFormatStringParser : ITokenisedLogEntryFormatStrin
             case $"{nameof(FOREGROUNDCOLOR)}":
             case $"{nameof(FORECOLOR)}":
             case $"{nameof(FCOLOR)}":
+            case $"{nameof(FC)}":
                 return new ConsoleTextColorTemplatePart(templateParams);
             case $"{nameof(BACKGROUNDCOLOR)}":
             case $"{nameof(BACKCOLOR)}":
             case $"{nameof(BCOLOR)}":
+            case $"{nameof(BC)}":
                 return new ConsoleBackgroundColorTemplatePart(templateParams);
             case $"{nameof(COLOR_MATCH)}":
             case $"{nameof(FOREGROUNDCOLOR_MATCH)}":
             case $"{nameof(FORECOLOR_MATCH)}":
             case $"{nameof(FCOLOR_MATCH)}":
+            case $"{nameof(FCM)}":
                 return new ConsoleLogLevelTextColorMatchTemplatePart(templateParams);
             case $"{nameof(BACKGROUNDCOLOR_MATCH)}":
             case $"{nameof(BACKCOLOR_MATCH)}":
             case $"{nameof(BCOLOR_MATCH)}":
+            case $"{nameof(BCM)}":
                 return new ConsoleLogLevelBackgroundColorMatchTemplatePart(templateParams);
-            case $"{nameof(RESETCOLOR)}": return new ConsoleColorResetTemplatePart(templateParams);
-            default:                      return null;
+            case $"{nameof(RESETCOLOR)}": 
+            case $"{nameof(RC)}": 
+                return new ConsoleColorResetTemplatePart(templateParams);
+            
+            default: return null;
         }
     }
 }

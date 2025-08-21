@@ -8,9 +8,9 @@ using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using FortitudeCommon.Types.StyledToString.StyledTypes.ComplexType;
-using FortitudeCommon.Types.StyledToString.StyledTypes.SimpleType;
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeKeyValueCollection;
 using FortitudeCommon.Types.StyledToString.StyledTypes.TypeOrderedCollection;
+using FortitudeCommon.Types.StyledToString.StyledTypes.ValueType;
 
 #endregion
 

@@ -1,0 +1,91 @@
+﻿using System.Text;
+using FortitudeCommon.DataStructures.Memory.Buffers;
+
+namespace FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
+
+public interface ICharArrayFlushedBufferedFormatWriter : IBufferedFormatWriter
+{
+    CharArrayRange FlushRange();
+}
+
+public class CharArrayBufferedFormatWriter : FormatWriter<IBufferedFormatWriter>, ICharArrayFlushedBufferedFormatWriter
+{
+    private IBufferFlushingFormatWriter bufferFlusher = null!;
+    private RecyclingCharArray? Buffer { get; set; }
+
+    public CharArrayBufferedFormatWriter Initialize(IMutableFLogBufferingFormatAppender owningAppender, IBufferFlushingFormatWriter bufferFlusher
+      , string targetName, int bufferNum,
+        FormatWriterReceivedHandler<IBufferedFormatWriter> onWriteCompleteCallback)
+    {
+        base.Initialize(owningAppender, targetName, onWriteCompleteCallback);
+
+        IsIOSynchronous = false;
+        
+        this.bufferFlusher = bufferFlusher;
+        BufferNum          = bufferNum;
+        if (BufferCharCapacity < owningAppender.CharBufferSize)
+        {
+            Buffer?.DecrementRefCount();
+            Buffer = owningAppender.CharBufferSize.SourceRecyclingCharArray();
+        }
+
+        return this;
+    }
+
+    public int BufferNum { get; private set; }
+
+    public int BufferCharCapacity => Buffer?.Capacity ?? 0;
+
+    public int BufferedChars => Buffer?.Count ?? 0;
+
+    public int BufferRemainingCharCapacity => Buffer?.RemainingCapacity ?? 0;
+
+    public override void Append(string toWrite)
+    {
+        Buffer!.Add(toWrite);
+    }
+
+    public override void Append(StringBuilder toWrite, int fromIndex = 0, int length = int.MaxValue)
+    {
+        Buffer!.Add(toWrite, fromIndex, length);
+    }
+
+    public override void Append(ReadOnlySpan<char> toWrite, int fromIndex = 0, int length = int.MaxValue)
+    {
+        Buffer!.Add(toWrite, fromIndex, length);
+    }
+
+    public override void Append(char[] toWrite, int fromIndex = 0, int length = int.MaxValue)
+    {
+        Buffer!.Add(toWrite, fromIndex, length);
+    }
+
+    public override void Dispose()
+    {
+        if (InUse)
+        {
+            InUse = false;
+            OnWriteCompleteCallback(this);
+        }
+    }
+
+    public CharArrayRange FlushRange() => Buffer!.AsCharArrayRange;
+
+    public void Flush()
+    {
+        bufferFlusher.FlushBufferToAppender(this);
+    }
+
+    public void Clear()
+    {
+        Buffer?.Clear();
+    }
+
+    public override void StateReset()
+    {
+        bufferFlusher = null!;
+        BufferNum     = 0;
+        
+        base.StateReset();
+    }
+}

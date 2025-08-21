@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 
 #endregion
 
-namespace FortitudeCommon.Serdes.Binary;
+namespace FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
 
 public unsafe class CircularReadWriteBuffer : IMessageQueueBuffer
 {
@@ -130,6 +130,15 @@ public unsafe class CircularReadWriteBuffer : IMessageQueueBuffer
         return (int)cappedSize;
     }
 
+    public int Read(Span<byte> bufferInto)
+    {
+        var remainingBytes = BufferRelativeWriteCursor - BufferRelativeReadCursor;
+        var cappedSize     = Math.Min(bufferInto.Length, remainingBytes);
+
+        for (var i = 0; i < cappedSize; i++) bufferInto[i] = Buffer[(int)Position++];
+        return (int)cappedSize;
+    }
+
     public int ReadByte()
     {
         var result = ReadCursor >= WriteCursor ? -1 : Buffer[BufferRelativeReadCursor];
@@ -172,6 +181,14 @@ public unsafe class CircularReadWriteBuffer : IMessageQueueBuffer
         var cappedSize     = Math.Min(Math.Min(count, remainingBytes), buffer.Length - offset);
 
         for (var i = offset; i < offset + cappedSize; i++) Buffer[(int)WriteCursor++] = buffer[i];
+    }
+
+    public void Write(ReadOnlySpan<byte> bufferSource)
+    {
+        var remainingBytes = Buffer.Length - BufferRelativeWriteCursor;
+        var cappedSize     = Math.Min(bufferSource.Length, remainingBytes);
+
+        for (var i = 0; i < cappedSize; i++) Buffer[(int)WriteCursor++] = bufferSource[i];
     }
 
     public void WriteByte(byte value)

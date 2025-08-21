@@ -1,4 +1,5 @@
 ﻿using FortitudeCommon.Logging.Core.Appending.Formatting;
+using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.AsyncProcessing.ProxyQueue;
@@ -31,10 +32,10 @@ public class FLogAsyncSwitchableProxyQueue(int queueNumber, IFLogAsyncQueue back
         ActualQueue.Execute(job);
     }
 
-    public override void FlushBufferToAppender(IBufferedFormatWriter toFlush, IFLogBufferingFormatAppender fromAppender)
+    public override void FlushBufferToAppender(IBufferedFormatWriter toFlush)
     {
         blockPublishing.WaitOne();
-        ActualQueue.FlushBufferToAppender(toFlush, fromAppender);
+        ActualQueue.FlushBufferToAppender(toFlush);
     }
 
     public override void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IReadOnlyList<IForkingFLogEntrySink> logEntrySinks, ITargetingFLogEntrySource publishSource)

@@ -27,13 +27,15 @@ public enum ComparisonOperatorType
 
 public static class ComparisonOperatorTypedExtensions
 {
-    public static StructStyler<ComparisonOperatorType> ComparisonOperatorTypeFormatter
+    public static CustomTypeStyler<ComparisonOperatorType> ComparisonOperatorTypeFormatter
         = FormatComparisonOperatorTypeAppender;
 
-    public static void FormatComparisonOperatorTypeAppender(this ComparisonOperatorType matchOnField, IStyledTypeStringAppender sbc)
+    public static StyledTypeBuildResult FormatComparisonOperatorTypeAppender(this ComparisonOperatorType matchOnField, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.WriteBuffer;
+        var tb = sbc.StartSimpleValueType(nameof(ComparisonOperatorType));
+        var sb = tb.StringBuilder("_ComparisonOperatorTypeAsString");
 
+        sb.Append("\"");
         switch (matchOnField)
         {
             case GreaterThanOrEqualTo: sb.Append($"{nameof(GreaterThanOrEqualTo)}"); break;
@@ -47,11 +49,12 @@ public static class ComparisonOperatorTypedExtensions
             case IsNotEmpty:           sb.Append($"{nameof(IsNotEmpty)}"); break;
             case IsNullOrEmpty:        sb.Append($"{nameof(IsNullOrEmpty)}"); break;
             case IsNotNullOrEmpty:     sb.Append($"{nameof(IsNotNullOrEmpty)}"); break;
-
             
             case ComparisonOperatorType.Equals: sb.Append($"{nameof(ComparisonOperatorType.Equals)}"); break;
 
             default: sb.Append($"{nameof(GreaterThanOrEqualTo)}"); break;
         }
+        sb.Append("\"");
+        return tb.Complete();
     }
 }

@@ -763,17 +763,17 @@ public static class CharSpanExtensions
     }
 
     public static int ExtractStringFormatStages
-    (this ReadOnlySpan<char> toCheck, out ReadOnlySpan<char> identifier, out ReadOnlySpan<char> padding, out ReadOnlySpan<char> formatting
+    (this ReadOnlySpan<char> toCheck, out ReadOnlySpan<char> identifier, out ReadOnlySpan<char> layout, out ReadOnlySpan<char> format
       , int fromIndex = 0)
     {
         identifier = toCheck.Slice(0, 0);
-        padding    = toCheck.Slice(0, 0);
-        formatting = toCheck.Slice(0, 0);
+        layout    = toCheck.Slice(0, 0);
+        format = toCheck.Slice(0, 0);
 
         var paramCount = 0;
 
         var remainingSpan = toCheck[fromIndex..];
-        if (toCheck[0] != '{') throw new ArgumentException($"toCheck {toCheck} at {fromIndex} was expected to be '{{");
+        if (remainingSpan[0] != '{') throw new ArgumentException($"toCheck {toCheck} at {fromIndex} was expected to be '{{");
         remainingSpan = toCheck[1..^1];
         int stage         = 0;
         while (remainingSpan.Length > 0)
@@ -812,7 +812,7 @@ public static class CharSpanExtensions
                         stage    = 2;
                         stageEnd = colonIndex;
                     }
-                    padding = remainingSpan[..stageEnd];
+                    layout = remainingSpan[..stageEnd];
                     paramCount++;
                     startNext = stageEnd + 1;
                     if (startNext < remainingSpan.Length)
@@ -822,7 +822,7 @@ public static class CharSpanExtensions
                     break;
                 case 2:
                     stage      = 3;
-                    formatting = remainingSpan;
+                    format = remainingSpan;
                     paramCount++;
                     break;
                 default: return paramCount;
@@ -831,32 +831,42 @@ public static class CharSpanExtensions
         return paramCount;
     }
 
-    public static string BuildStringBuilderFormatting(this ReadOnlySpan<char> param, ReadOnlySpan<char> padding, ReadOnlySpan<char> formatting)
+    public static ReadOnlySpan<char> ExtractStringFormatStageOnly(this ReadOnlySpan<char> toCheck, int fromIndex = 0)
     {
-        var stringLength = param.Length + 2;
-        stringLength += padding.Length > 0 ? padding.Length + 1 : 0;
-        stringLength += formatting.Length > 0 ? formatting.Length + 1 : 0;
+        var remainingSpan = toCheck[fromIndex..];
+        if (remainingSpan[0] != '{') throw new ArgumentException($"toCheck {toCheck} at {fromIndex} was expected to be '{{");
+        remainingSpan = toCheck[1..^1];
+        var indexOfColon = remainingSpan.IndexOf(":");
+        remainingSpan = remainingSpan[(indexOfColon+1)..];
+        return remainingSpan;
+    }
+
+    public static string BuildStringBuilderFormatting(this ReadOnlySpan<char> identifier, ReadOnlySpan<char> layout, ReadOnlySpan<char> format)
+    {
+        var stringLength = identifier.Length + 2;
+        stringLength += layout.Length > 0 ? layout.Length + 1 : 0;
+        stringLength += format.Length > 0 ? format.Length + 1 : 0;
         var buildChars = stackalloc char[stringLength].ResetMemory();
         var index      = 0;
         buildChars[index++] = '{';
-        for (int i = 0; i < param.Length; i++)
+        for (int i = 0; i < identifier.Length; i++)
         {
-            buildChars[index++] = param[i];
+            buildChars[index++] = identifier[i];
         }
-        if (padding.Length > 0)
+        if (layout.Length > 0)
         {
             buildChars[index++] = ',';
-            for (int i = 0; i < padding.Length; i++)
+            for (int i = 0; i < layout.Length; i++)
             {
-                buildChars[index++] = padding[i];
+                buildChars[index++] = layout[i];
             }
         }
-        if (formatting.Length > 0)
+        if (format.Length > 0)
         {
             buildChars[index++] = ':';
-            for (int i = 0; i < formatting.Length; i++)
+            for (int i = 0; i < format.Length; i++)
             {
-                buildChars[index++] = formatting[i];
+                buildChars[index++] = format[i];
             }
         }
         buildChars[index++] = '}';

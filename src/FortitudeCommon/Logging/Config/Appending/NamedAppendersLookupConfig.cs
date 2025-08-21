@@ -8,92 +8,77 @@ using FortitudeCommon.Chronometry;
 using FortitudeCommon.DataStructures.Maps;
 using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Types;
-using FortitudeCommon.Types.Mutable.Strings;
 using FortitudeCommon.Types.StyledToString;
 using FortitudeCommon.Types.StyledToString.StyledTypes;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Appending;
 
-public interface INamedAppendersLookupConfig<TReadOnly> :IInterfacesComparable<INamedAppendersLookupConfig<TReadOnly>>
-  , ICloneable< INamedAppendersLookupConfig<TReadOnly>>, IStyledToStringObject, IFLogConfig
-where TReadOnly : class, IAppenderReferenceConfig
+public interface INamedAppendersLookupConfig :IInterfacesComparable<INamedAppendersLookupConfig>
+  , ICloneable< INamedAppendersLookupConfig>, IStyledToStringObject, IFLogConfig
 {
     bool ContainsKey(string key);
-    bool TryGetValue(string key, [MaybeNullWhen(false)] out TReadOnly value);
+    bool TryGetValue(string key, [MaybeNullWhen(false)] out IAppenderReferenceConfig value);
 
     int Count { get; }
 
-    TReadOnly this[string key] { get; }
+    IAppenderReferenceConfig this[string key] { get; }
     IEnumerable<string>    Keys   { get; }
-    IEnumerable<TReadOnly> Values { get; }
+    IEnumerable<IAppenderReferenceConfig> Values { get; }
 
-    IEnumerator<KeyValuePair<string, TReadOnly>> GetEnumerator();
+    IEnumerator<KeyValuePair<string, IAppenderReferenceConfig>> GetEnumerator();
 
-    List<TReadOnly> ClearAndCopyTo(List<TReadOnly> list);
+    List<IAppenderReferenceConfig> ClearAndCopyTo(List<IAppenderReferenceConfig> list);
 }
 
-public interface INamedAppendersLookupConfig : INamedAppendersLookupConfig<IAppenderReferenceConfig>
-{
-}
-
-public interface IAppendableNamedAppendersLookupConfig<T, TReadOnly> : INamedAppendersLookupConfig<TReadOnly>
-  , IAppendableDictionary<string, T>, IMutableFLogConfig
-    where T : class, IMutableAppenderReferenceConfig, TReadOnly
-    where TReadOnly : class, IAppenderReferenceConfig
+public interface IAppendableNamedAppendersLookupConfig : INamedAppendersLookupConfig
+  , IAppendableDictionary<string, IMutableAppenderReferenceConfig>, IMutableFLogConfig
 {
     new IEnumerable<string> Keys { get; }
 
-    new IEnumerable<T> Values { get; }
+    new IEnumerable<IMutableAppenderReferenceConfig> Values { get; }
 
     new int Count { get; }
 
-    IAppendableNamedAppendersLookupConfig<T, TReadOnly> Add(TReadOnly value);
+    IAppendableNamedAppendersLookupConfig Add(IAppenderReferenceConfig value);
 
-    IAppendableNamedAppendersLookupConfig<T, TReadOnly> Add(T value);
+    IAppendableNamedAppendersLookupConfig Add(IMutableAppenderReferenceConfig value);
 
-    new T this[string loggerName] { get; set; }
+    new IMutableAppenderReferenceConfig this[string loggerName] { get; set; }
 
     new bool ContainsKey(string appenderName);
 
-    new IEnumerator<KeyValuePair<string, T>> GetEnumerator();
+    new IEnumerator<KeyValuePair<string, IMutableAppenderReferenceConfig>> GetEnumerator();
 }
 
-public interface IAppendableNamedAppendersLookupConfig : IAppendableNamedAppendersLookupConfig<IMutableAppenderReferenceConfig, IAppenderReferenceConfig>, INamedAppendersLookupConfig
-{
-}
-
-public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAppendableNamedAppendersLookupConfig<T, TReadOnly>
-    where T : class, IMutableAppenderReferenceConfig, TReadOnly
-    where TReadOnly : class, IAppenderReferenceConfig
-
+public class NamedAppendersLookupConfig : FLogConfig, IAppendableNamedAppendersLookupConfig
 {
     private DateTime nextConfigReadTime = DateTime.MinValue;
 
     private static TimeSpan recheckTimeSpanInterval;
 
-    private readonly List<T> cachedAppenderReferences = new();
+    private readonly List<IMutableAppenderReferenceConfig> cachedAppenderReferences = new();
 
-    protected readonly Dictionary<string, T> AppendersByName = new();
+    protected readonly Dictionary<string, IMutableAppenderReferenceConfig> AppendersByName = new();
 
-    protected NamedAppendersLookupConfig(IConfigurationRoot root, string path) : base(root, path)
+    public NamedAppendersLookupConfig(IConfigurationRoot root, string path) : base(root, path)
     {
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
-    protected NamedAppendersLookupConfig() : this(InMemoryConfigRoot, InMemoryPath)
+    public NamedAppendersLookupConfig() : this(InMemoryConfigRoot, InMemoryPath)
     {
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
-    protected NamedAppendersLookupConfig(params T[] toAdd)
+    public NamedAppendersLookupConfig(params IMutableAppenderReferenceConfig[] toAdd)
         : this(InMemoryConfigRoot, InMemoryPath, toAdd)
     {
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
     }
 
-    protected NamedAppendersLookupConfig
-        (IConfigurationRoot root, string path, params T[] toAdd) : base(root, path)
+    public NamedAppendersLookupConfig
+        (IConfigurationRoot root, string path, params IMutableAppenderReferenceConfig[] toAdd) : base(root, path)
     {
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
         for (int i = 0; i < toAdd.Length; i++)
@@ -103,35 +88,35 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
         }
     }
 
-    protected NamedAppendersLookupConfig(INamedAppendersLookupConfig<TReadOnly> toClone, IConfigurationRoot root, string path) : base(root, path)
+    public NamedAppendersLookupConfig(INamedAppendersLookupConfig toClone, IConfigurationRoot root, string path) : base(root, path)
     {
         recheckTimeSpanInterval = TimeSpan.FromMinutes(1);
         foreach (var kvp in toClone)
         {
-            AppendersByName.Add(kvp.Key, (T)kvp.Value);
+            AppendersByName.Add(kvp.Key, (IMutableAppenderReferenceConfig)kvp.Value);
             PushToConfigStorage(kvp.Value);
         }
     }
 
-    protected NamedAppendersLookupConfig(INamedAppendersLookupConfig<TReadOnly> toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath)
+    public NamedAppendersLookupConfig(INamedAppendersLookupConfig toClone) : this(toClone, InMemoryConfigRoot, InMemoryPath)
     {
     }
 
-    public virtual void Add(KeyValuePair<string, T> item)
+    public virtual void Add(KeyValuePair<string, IMutableAppenderReferenceConfig> item)
     {
         AppendersByName.Add(item.Key, item.Value);
         PushToConfigStorage(item.Value);
     }
 
-    public IAppendableNamedAppendersLookupConfig<T, TReadOnly> Add(TReadOnly value)
+    public IAppendableNamedAppendersLookupConfig Add(IAppenderReferenceConfig value)
     {
-        AppendersByName.Add(value.AppenderName, (T)value);
+        AppendersByName.Add(value.AppenderName, (IMutableAppenderReferenceConfig)value);
         PushToConfigStorage(value);
 
         return this;
     }
 
-    public IAppendableNamedAppendersLookupConfig<T, TReadOnly> Add(T value)
+    public IAppendableNamedAppendersLookupConfig Add(IMutableAppenderReferenceConfig value)
     {
         AppendersByName.Add(value.AppenderName, value);
         PushToConfigStorage(value);
@@ -139,29 +124,29 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
         return this;
     }
 
-    public virtual void Add(string key, T value)
+    public virtual void Add(string key, IMutableAppenderReferenceConfig value)
     {
         AppendersByName.Add(key, value);
         PushToConfigStorage(value);
     }
 
-    protected void PushToConfigStorage(TReadOnly value)
+    protected void PushToConfigStorage(IAppenderReferenceConfig value)
     {
         value.CloneConfigTo(ConfigRoot, $"{Path}{Split}{value.AppenderName}");
     }
 
     [JsonIgnore]
-    protected Dictionary<string, T> CheckConfigGetAppendersDict
+    protected Dictionary<string, IMutableAppenderReferenceConfig> CheckConfigGetAppendersDict
     {
         get
         {
             if (!AppendersByName.Any() || nextConfigReadTime < TimeContext.UtcNow)
             {
-                recheckTimeSpanInterval = FLogContext.NullOnUnstartedContext?.ConfigRegistry?.ExpireConfigCacheIntervalTimeSpan ?? TimeSpan.FromMinutes(1);
+                recheckTimeSpanInterval = FLogContext.NullOnUnstartedContext?.ConfigRegistry.ExpireConfigCacheIntervalTimeSpan ?? TimeSpan.FromMinutes(1);
                 AppendersByName.Clear();
                 foreach (var configurationSection in GetChildren())
                 {
-                    if (FLogCreate.MakeAppenderConfig(ConfigRoot, $"{configurationSection.Path}") is T appenderConfig)
+                    if (FLogCreate.MakeAppenderConfig(ConfigRoot, $"{configurationSection.Path}") is { } appenderConfig)
                     {
                         appenderConfig.ParentConfig = this;
                         AppendersByName.TryAdd(configurationSection.Key, appenderConfig);
@@ -175,27 +160,27 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
 
     public bool ContainsKey(string appenderName) => CheckConfigGetAppendersDict.ContainsKey(appenderName);
 
-    bool INamedAppendersLookupConfig<TReadOnly>.ContainsKey(string appenderName) => CheckConfigGetAppendersDict.ContainsKey(appenderName);
+    bool INamedAppendersLookupConfig.ContainsKey(string appenderName) => CheckConfigGetAppendersDict.ContainsKey(appenderName);
 
-    bool IReadOnlyDictionary<string, T>.ContainsKey(string appenderName) => CheckConfigGetAppendersDict.ContainsKey(appenderName);
+    bool IReadOnlyDictionary<string, IMutableAppenderReferenceConfig>.ContainsKey(string appenderName) => CheckConfigGetAppendersDict.ContainsKey(appenderName);
 
     public int Count => CheckConfigGetAppendersDict.Count;
 
-    public List<TReadOnly> ClearAndCopyTo(List<TReadOnly> list)
+    public List<IAppenderReferenceConfig> ClearAndCopyTo(List<IAppenderReferenceConfig> list)
     {
         return ClearAndCopyEitherTo(list);
     }
 
     protected List<TEither> ClearAndCopyEitherTo<TEither>(List<TEither> list) 
-    where TEither : TReadOnly
+    where TEither : IAppenderReferenceConfig
     {
-        static T? LoadNewConfig
+        static IMutableAppenderReferenceConfig? LoadNewConfig
         (
             List<TEither> cachedAppenderReferences
-          , Dictionary<string, T> appendersByName
+          , Dictionary<string, IMutableAppenderReferenceConfig> appendersByName
           , IConfigurationRoot configRoot, string path)
         {
-            if (FLogCreate.MakeAppenderConfig(configRoot, path) is T appenderConfig)
+            if (FLogCreate.MakeAppenderConfig(configRoot, path) is { } appenderConfig)
             {
                 appendersByName.Add(appenderConfig.AppenderName, appenderConfig);
                 if (appenderConfig is TEither appenderEitherConfig)
@@ -218,7 +203,7 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
                 var appenderType = ConfigRoot.GetAppenderType(appenderRefPath);
                 if (appenderType == appenderRef.AppenderType)
                 {
-                    list.Add((TEither)(TReadOnly)appenderRef);
+                    list.Add((TEither)appenderRef);
                 }
                 else
                 {
@@ -255,21 +240,23 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
             return cachedAppenderReferences;
         }
     }
+    
+    public override T Visit<T>(T visitor) => visitor.Accept(this);
 
     IEnumerator IEnumerable.GetEnumerator() => CheckConfigGetAppendersDict.GetEnumerator();
 
-    IEnumerator<KeyValuePair<string, T>> IAppendableNamedAppendersLookupConfig<T, TReadOnly>.GetEnumerator() =>
+    IEnumerator<KeyValuePair<string, IMutableAppenderReferenceConfig>> IAppendableNamedAppendersLookupConfig.GetEnumerator() =>
         CheckConfigGetAppendersDict.GetEnumerator();
 
-    IEnumerator<KeyValuePair<string, TReadOnly>> INamedAppendersLookupConfig<TReadOnly>.GetEnumerator() =>
+    IEnumerator<KeyValuePair<string, IAppenderReferenceConfig>> INamedAppendersLookupConfig.GetEnumerator() =>
         CheckConfigGetAppendersDict
             .Select(abnKvp => 
-                        new KeyValuePair<string, TReadOnly>(abnKvp.Key, abnKvp.Value))
+                        new KeyValuePair<string, IAppenderReferenceConfig>(abnKvp.Key, abnKvp.Value))
             .GetEnumerator();
 
-    public IEnumerator<KeyValuePair<string, T>> GetEnumerator() => CheckConfigGetAppendersDict.GetEnumerator();
+    public IEnumerator<KeyValuePair<string, IMutableAppenderReferenceConfig>> GetEnumerator() => CheckConfigGetAppendersDict.GetEnumerator();
 
-    public new T this[string loggerName]
+    public new IMutableAppenderReferenceConfig this[string loggerName]
     {
         get => CheckConfigGetAppendersDict[loggerName];
         set => CheckConfigGetAppendersDict[loggerName] = value;
@@ -277,22 +264,22 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
 
     public IAppenderReferenceConfig this[int toCountIndex] => OrderAppenders[toCountIndex];
 
-    TReadOnly INamedAppendersLookupConfig<TReadOnly>.this[string loggerName] => this[loggerName];
+    IAppenderReferenceConfig INamedAppendersLookupConfig.this[string loggerName] => this[loggerName];
 
-    IEnumerable<string> IReadOnlyDictionary<string, T>.Keys => CheckConfigGetAppendersDict.Keys;
+    IEnumerable<string> IReadOnlyDictionary<string, IMutableAppenderReferenceConfig>.Keys => CheckConfigGetAppendersDict.Keys;
 
-    IEnumerable<string> INamedAppendersLookupConfig<TReadOnly>.Keys => CheckConfigGetAppendersDict.Keys;
+    IEnumerable<string> INamedAppendersLookupConfig.Keys => CheckConfigGetAppendersDict.Keys;
 
-    ICollection<string> IAppendableDictionary<string, T>.Keys => CheckConfigGetAppendersDict.Keys;
+    ICollection<string> IAppendableDictionary<string, IMutableAppenderReferenceConfig>.Keys => CheckConfigGetAppendersDict.Keys;
 
-    IEnumerable<string> IAppendableNamedAppendersLookupConfig<T, TReadOnly>.Keys => CheckConfigGetAppendersDict.Keys;
+    IEnumerable<string> IAppendableNamedAppendersLookupConfig.Keys => CheckConfigGetAppendersDict.Keys;
 
     public IEnumerable<string> NameKeys => CheckConfigGetAppendersDict.Keys;
 
-    public bool TryGetValue(string appenderName, [MaybeNullWhen(false)] out T value) =>
+    public bool TryGetValue(string appenderName, [MaybeNullWhen(false)] out IMutableAppenderReferenceConfig value) =>
         CheckConfigGetAppendersDict.TryGetValue(appenderName, out value);
 
-    public bool TryGetValue(string appenderName, [MaybeNullWhen(false)] out TReadOnly value)
+    public bool TryGetValue(string appenderName, [MaybeNullWhen(false)] out IAppenderReferenceConfig value)
     {
         value = null;
         if (CheckConfigGetAppendersDict.TryGetValue(appenderName, out var config))
@@ -303,21 +290,21 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
         return false;
     }
 
-    IEnumerable<T> IAppendableNamedAppendersLookupConfig<T, TReadOnly>.Values => CheckConfigGetAppendersDict.Values;
+    IEnumerable<IMutableAppenderReferenceConfig> IAppendableNamedAppendersLookupConfig.Values => CheckConfigGetAppendersDict.Values;
 
-    IEnumerable<T> IReadOnlyDictionary<string, T>.Values => CheckConfigGetAppendersDict.Values;
+    IEnumerable<IMutableAppenderReferenceConfig> IReadOnlyDictionary<string, IMutableAppenderReferenceConfig>.Values => CheckConfigGetAppendersDict.Values;
 
-    IEnumerable<TReadOnly> INamedAppendersLookupConfig<TReadOnly>.Values => CheckConfigGetAppendersDict.Values;
+    IEnumerable<IAppenderReferenceConfig> INamedAppendersLookupConfig.Values => CheckConfigGetAppendersDict.Values;
 
-    ICollection<T> IAppendableDictionary<string, T>.Values => CheckConfigGetAppendersDict.Values;
+    ICollection<IMutableAppenderReferenceConfig> IAppendableDictionary<string, IMutableAppenderReferenceConfig>.Values => CheckConfigGetAppendersDict.Values;
 
     object ICloneable.Clone() => Clone();
 
-    INamedAppendersLookupConfig<TReadOnly> ICloneable<INamedAppendersLookupConfig<TReadOnly>>.Clone() => Clone();
+    INamedAppendersLookupConfig ICloneable<INamedAppendersLookupConfig>.Clone() => Clone();
 
-    public abstract NamedAppendersLookupConfig<T, TReadOnly> Clone();
+    public virtual NamedAppendersLookupConfig Clone() => new (this);
 
-    public virtual bool AreEquivalent(INamedAppendersLookupConfig<TReadOnly>? other, bool exactTypes = false)
+    public virtual bool AreEquivalent(INamedAppendersLookupConfig? other, bool exactTypes = false)
     {
         if (other == null) return false;
 
@@ -338,7 +325,7 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
         return countSame;
     }
 
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as INamedAppendersLookupConfig<TReadOnly>, true);
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || AreEquivalent(obj as INamedAppendersLookupConfig, true);
 
     public override int GetHashCode()
     {
@@ -346,29 +333,14 @@ public abstract class NamedAppendersLookupConfig<T, TReadOnly> : FLogConfig, IAp
         return hashCode;
     }
 
-    public abstract StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc);
-
-    public override string ToString() => this.DefaultToString();
-}
-
-public class NamedAppendersLookupConfig : NamedAppendersLookupConfig<IMutableAppenderReferenceConfig, IAppenderReferenceConfig>, IAppendableNamedAppendersLookupConfig
-{
-    public NamedAppendersLookupConfig(IConfigurationRoot root, string path) : base(root, path) { }
-    public NamedAppendersLookupConfig() { }
-    public NamedAppendersLookupConfig(params IMutableAppenderReferenceConfig[] toAdd) : base(toAdd) { }
-    public NamedAppendersLookupConfig(IConfigurationRoot root, string path, params IMutableAppenderReferenceConfig[] toAdd) : base(root, path, toAdd) { }
-    public NamedAppendersLookupConfig(INamedAppendersLookupConfig toClone, IConfigurationRoot root, string path) : base(toClone, root, path) { }
-    public NamedAppendersLookupConfig(INamedAppendersLookupConfig toClone) : base(toClone) { }
-
-    public override NamedAppendersLookupConfig Clone() => new (this);
-
-    public override T Visit<T>(T visitor) => visitor.Accept(this);
-
-    public override StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
     {
+        
         return
             sbc.StartKeyedCollectionType(nameof(NamedAppendersLookupConfig))
                .AddAll(AppendersByName)
                .Complete();
     }
+
+    public override string ToString() => this.DefaultToString();
 }

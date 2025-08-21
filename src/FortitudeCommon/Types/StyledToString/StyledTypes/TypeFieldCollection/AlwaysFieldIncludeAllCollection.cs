@@ -101,7 +101,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
     public TExt AlwaysAddAll<TStruct>
-        (string fieldName, TStruct[]? value, StructStyler<TStruct> structToString) where TStruct : struct
+        (string fieldName, TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -109,7 +109,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             stb.StartCollection();
             for (var i = 0; i < value.Length; i++)
             {
-                structToString(value[i], stb.OwningAppender);
+                customTypeStyler(value[i], stb.OwningAppender);
                 stb.GoToNextCollectionItemStart();
             }
             stb.EndCollection();
@@ -120,7 +120,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
     public TExt AlwaysAddAll<TStruct>
-        (string fieldName, TStruct?[]? value, StructStyler<TStruct> structToString) where TStruct : struct
+        (string fieldName, TStruct?[]? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         stb.FieldNameJoin(fieldName);
         if (value != null)
@@ -128,7 +128,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             stb.StartCollection();
             for (var i = 0; i < value.Length; i++)
             {
-                stb.AppendOrNull(value[i], structToString);
+                stb.AppendOrNull(value[i], customTypeStyler);
                 stb.GoToNextCollectionItemStart();
             }
             stb.EndCollection();
@@ -325,7 +325,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     
 
     public TExt AlwaysAddAll<TStruct>
-        (string fieldName, IReadOnlyList<TStruct>? value, StructStyler<TStruct> structToString) 
+        (string fieldName, IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) 
         where TStruct : struct
     {
         stb.FieldNameJoin(fieldName);
@@ -334,7 +334,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             stb.StartCollection();
             for (var i = 0; i < value.Count; i++)
             {
-                structToString(value[i], stb.OwningAppender);
+                customTypeStyler(value[i], stb.OwningAppender);
                 stb.GoToNextCollectionItemStart();
             }
             stb.EndCollection();
@@ -345,7 +345,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
     public TExt AlwaysAddAll<TStruct>
-        (string fieldName, IReadOnlyList<TStruct?>? value, StructStyler<TStruct> structToString) 
+        (string fieldName, IReadOnlyList<TStruct?>? value, CustomTypeStyler<TStruct> customTypeStyler) 
         where TStruct : struct
     {
         stb.FieldNameJoin(fieldName);
@@ -354,7 +354,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             stb.StartCollection();
             for (var i = 0; i < value.Count; i++)
             {
-                stb.AppendOrNull(value[i], structToString);
+                stb.AppendOrNull(value[i], customTypeStyler);
                 stb.GoToNextCollectionItemStart();
             }
             stb.EndCollection();
@@ -552,7 +552,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     
 
     public TExt AlwaysAddAllEnumerate<TStruct>
-        (string fieldName, IEnumerable<TStruct>? value, StructStyler<TStruct> structToString) 
+        (string fieldName, IEnumerable<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) 
         where TStruct : struct
     {
         stb.FieldNameJoin(fieldName);
@@ -561,7 +561,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             stb.StartCollection();
             foreach (var item in value)
             {
-                structToString(item, stb.OwningAppender);
+                customTypeStyler(item, stb.OwningAppender);
                 stb.GoToNextCollectionItemStart();
             }
             stb.EndCollection();
@@ -572,7 +572,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
     public TExt AlwaysAddAllEnumerate<TStruct>
-        (string fieldName, IEnumerable<TStruct?>? value, StructStyler<TStruct> structToString) 
+        (string fieldName, IEnumerable<TStruct?>? value, CustomTypeStyler<TStruct> customTypeStyler) 
         where TStruct : struct
     {
         stb.FieldNameJoin(fieldName);
@@ -581,7 +581,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             stb.StartCollection();
             foreach (var item in value)
             {
-                stb.AppendOrNull(item, structToString);
+                stb.AppendOrNull(item, customTypeStyler);
                 stb.GoToNextCollectionItemStart();
             }
             stb.EndCollection();
@@ -787,7 +787,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     
 
     public TExt AlwaysAddAllEnumerate<TStruct>
-        (string fieldName, IEnumerator<TStruct>? value, StructStyler<TStruct> structToString) 
+        (string fieldName, IEnumerator<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) 
         where TStruct : struct
     {
         stb.FieldNameJoin(fieldName);
@@ -797,7 +797,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             stb.StartCollection();
             while (hasValue)
             {
-                structToString(value!.Current, stb.OwningAppender);
+                customTypeStyler(value!.Current, stb.OwningAppender);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart();
             }
@@ -809,7 +809,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
     }
 
     public TExt AlwaysAddAllEnumerate<TStruct>
-        (string fieldName, IEnumerator<TStruct?>? value, StructStyler<TStruct> structToString) 
+        (string fieldName, IEnumerator<TStruct?>? value, CustomTypeStyler<TStruct> customTypeStyler) 
         where TStruct : struct
     {
         stb.FieldNameJoin(fieldName);
@@ -819,7 +819,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
             stb.StartCollection();
             while (hasValue)
             {
-                stb.AppendOrNull(value!.Current, structToString);
+                stb.AppendOrNull(value!.Current, customTypeStyler);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart();
             }

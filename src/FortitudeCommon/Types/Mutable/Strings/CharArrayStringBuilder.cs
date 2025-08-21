@@ -371,7 +371,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         else
         {
             CharArray(cappedLength + formatString.Length);
-            var charArraySpan = ca.AsSpan();
+            var charArraySpan = ca.WrittenAsSpan();
             var size          = ca.Length;
             var endIndex      = startIndex + cappedLength;
             var toAddSpan     = value[startIndex..endIndex];
@@ -443,7 +443,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         else
         {
             CharArray(cappedLength + formatString.Length);
-            var charArraySpan   = ca.AsSpan();
+            var charArraySpan   = ca.WrittenAsSpan();
             var size            = ca.Length;
             var maxTransferSize = Math.Min(cappedLength, 512*1024);
             var rangeAsSpan     = stackalloc char[maxTransferSize].ResetMemory();
@@ -466,7 +466,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         else
         {
             CharArray(cappedLength + formatString.Length);
-            var charArraySpan   = ca.AsSpan();
+            var charArraySpan   = ca.WrittenAsSpan();
             var size            = ca.Length;
             var maxTransferSize = Math.Min(cappedLength, 512*1024);
             var rangeAsSpan     = stackalloc char[maxTransferSize].ResetMemory();
@@ -526,7 +526,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         else
         {
             CharArray(cappedLength + formatString.Length);
-            var charArraySpan   = ca.AsSpan();
+            var charArraySpan   = ca.WrittenAsSpan();
             var size            = ca.Length;
             var maxTransferSize = Math.Min(cappedLength, 512*1024);
             var rangeAsSpan     = stackalloc char[maxTransferSize].ResetMemory();
@@ -574,7 +574,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         else
         {
             CharArray(cappedLength + formatString.Length);
-            var charArraySpan   = ca.AsSpan();
+            var charArraySpan   = ca.WrittenAsSpan();
             var size            = ca.Length;
             var maxTransferSize = Math.Min(cappedLength, 512*1024);
             var rangeAsSpan     = stackalloc char[maxTransferSize].ResetMemory();
@@ -601,7 +601,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         else
         {
             CharArray(cappedLength + formatString.Length);
-            var charArraySpan   = ca.AsSpan();
+            var charArraySpan   = ca.WrittenAsSpan();
             var size            = ca.Length;
             var maxTransferSize = Math.Min(cappedLength, 512*1024);
             var rangeAsSpan     = stackalloc char[maxTransferSize].ResetMemory();
@@ -628,7 +628,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         else
         {
             CharArray(cappedLength + formatString.Length);
-            var charArraySpan   = ca.AsSpan();
+            var charArraySpan   = ca.WrittenAsSpan();
             var size            = ca.Length;
             var maxTransferSize = Math.Min(cappedLength, 512*1024);
             var rangeAsSpan     = stackalloc char[maxTransferSize].ResetMemory();

@@ -33,12 +33,14 @@ public enum FullQueueHandling
 
 public static class FullQueueHandlingExtensions
 {
-    public static StructStyler<FullQueueHandling> FullQueueHandlingFormatter = FormatFullQueueHandlingAppender;
+    public static CustomTypeStyler<FullQueueHandling> FullQueueHandlingFormatter = FormatFullQueueHandlingAppender;
 
-    public static void FormatFullQueueHandlingAppender(this FullQueueHandling queueFull, IStyledTypeStringAppender sbc)
+    public static StyledTypeBuildResult FormatFullQueueHandlingAppender(this FullQueueHandling queueFull, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.WriteBuffer;
+        var tb = sbc.StartSimpleValueType(nameof(FullQueueHandling));
+        var sb = tb.StringBuilder("_FullQueueHandlingAsString");
 
+        sb.Append("\"");
         switch (queueFull)
         {
             case FullQueueHandling.Default:    sb.Append($"{nameof(FullQueueHandling.Default)}"); break;
@@ -64,5 +66,8 @@ public static class FullQueueHandlingExtensions
 
             default: sb.Append($"{nameof(FullQueueHandling.Default)}"); break;
         }
+        sb.Append("\"");
+        
+        return tb.Complete();
     }
 }

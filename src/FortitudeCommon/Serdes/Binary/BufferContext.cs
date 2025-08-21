@@ -1,4 +1,6 @@
-﻿namespace FortitudeCommon.Serdes.Binary;
+﻿using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
+
+namespace FortitudeCommon.Serdes.Binary;
 
 public interface IBufferContext : ISerdeContext
 {

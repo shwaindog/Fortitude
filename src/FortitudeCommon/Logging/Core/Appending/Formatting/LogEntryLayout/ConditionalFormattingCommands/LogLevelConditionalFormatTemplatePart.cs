@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using FortitudeCommon.DataStructures.Collections;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
 using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout.ConditionalFormattingCommands;

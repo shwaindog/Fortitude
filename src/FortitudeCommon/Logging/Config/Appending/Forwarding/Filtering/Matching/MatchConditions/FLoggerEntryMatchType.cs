@@ -23,13 +23,15 @@ public enum FLoggerEntryMatchType
 
 public static class FLoggerEntryMatchTypeExtensions
 {
-    public static StructStyler<FLoggerEntryMatchType> FLoggerEntryMatchTypeFormatter
+    public static CustomTypeStyler<FLoggerEntryMatchType> FLoggerEntryMatchTypeFormatter
         = FormatEntryMatchTypeAppender;
 
-    public static void FormatEntryMatchTypeAppender(this FLoggerEntryMatchType entryMatchType, IStyledTypeStringAppender sbc)
+    public static StyledTypeBuildResult FormatEntryMatchTypeAppender(this FLoggerEntryMatchType entryMatchType, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.WriteBuffer;
+        var tb = sbc.StartSimpleValueType(nameof(FLoggerEntryMatchType));
+        var sb = tb.StringBuilder("_FLoggerEntryMatchTypeAsString");
 
+        sb.Append("\"");
         switch (entryMatchType)
         {
             case Unknown: sb.Append($"{nameof(Unknown)}"); break;
@@ -42,6 +44,9 @@ public static class FLoggerEntryMatchTypeExtensions
 
             default: sb.Append($"{nameof(Unknown)}"); break;
         }
+        sb.Append("\"");
+        
+        return tb.Complete();
     }
 
     public static string? GetCheckConditionType(this IConfigurationRoot configRoot, string configPath) =>

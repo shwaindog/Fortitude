@@ -40,87 +40,87 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : Styled
 
     public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, ConcurrentDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : notnull where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyFormatString) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAll(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyFormatString) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAll(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyFormatString) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAll(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyFormatString) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAll(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TValue : struct =>
-        value != null ? AlwaysAddAllEnumerate(fieldName, value, valueStructStyler, keyFormatString) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAllEnumerate(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler
+      , CustomTypeStyler<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) 
         where TValue : struct =>
-        value != null ? AlwaysAddAllEnumerate(fieldName, value, valueStructStyler, keyFormatString) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAllEnumerate(fieldName, value, valueStyler, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, ConcurrentDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler)
         where TKey : struct where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyStructStyler) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAll(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) 
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) 
         where TKey : struct where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyStructStyler) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAll(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) 
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) 
         where TKey : struct where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyStructStyler) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAll(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) 
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) 
         where TKey : struct where TValue : struct =>
-        value != null ? AlwaysAddAll(fieldName, value, valueStructStyler, keyStructStyler) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAll(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAllEnumerate<TKey, TValue>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) 
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) 
         where TKey : struct where TValue : struct =>
-        value != null ? AlwaysAddAllEnumerate(fieldName, value, valueStructStyler, keyStructStyler) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAllEnumerate(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAllEnumerate<TKey, TValue>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler
-      , StructStyler<TKey> keyStructStyler) 
+      , CustomTypeStyler<TValue> valueStyler
+      , CustomTypeStyler<TKey> keyStyler) 
         where TKey : struct where TValue : struct =>
-        value != null ? AlwaysAddAllEnumerate(fieldName, value, valueStructStyler, keyStructStyler) : stb.StyleTypeBuilder;
+        value != null ? AlwaysAddAllEnumerate(fieldName, value, valueStyler, keyStyler) : stb.StyleTypeBuilder;
 
 
 }

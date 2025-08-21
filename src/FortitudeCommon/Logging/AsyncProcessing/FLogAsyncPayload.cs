@@ -1,5 +1,6 @@
 ﻿using FortitudeCommon.DataStructures.Memory;
 using FortitudeCommon.Logging.Core.Appending.Formatting;
+using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 using FortitudeCommon.Types.Mutable;
 
@@ -28,8 +29,6 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
         PublishSource      = toClone.PublishSource;
         PublishToLogEntrySinks      = toClone.PublishToLogEntrySinks;
         BufferToFlush      = toClone.BufferToFlush;
-
-        BufferingFormatAppender = toClone.BufferingFormatAppender;
     }
 
     public uint QueueRequestNumber { get; set; }
@@ -53,8 +52,6 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
     }
     public IFLogEntrySink? ForwardToLogEntrySink { get; set; }
 
-    public IFLogBufferingFormatAppender? BufferingFormatAppender { get; set; }
-
     public IBufferedFormatWriter? BufferToFlush { get; set; }
 
     public void RunAsyncRequest()
@@ -75,8 +72,6 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
         publishToLogEntrySinks.Clear();
 
         BufferToFlush = null;
-
-        BufferingFormatAppender = null;
 
         return this;
     }
@@ -114,12 +109,11 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
         ForwardToLogEntrySink = logEntrySink;
     }
 
-    public void SetAsFlushAppenderBuffer(IBufferedFormatWriter bufferToFlush, IFLogBufferingFormatAppender destinationAppender)
+    public void SetAsFlushAppenderBuffer(IBufferedFormatWriter bufferToFlush)
     {
         ResetWithTracking();
         AsyncRequestType        = AsyncJobRequestType.FlushCharBufferToAppender;
         BufferToFlush           = bufferToFlush;
-        BufferingFormatAppender = destinationAppender;
     }
 
     public void ReceiverExecuteRequest()
@@ -147,7 +141,7 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
                     logEntrySink.InBoundListener(flogEntryEvent, PublishSource!);
                 }
                 break;
-            case AsyncJobRequestType.FlushCharBufferToAppender: BufferingFormatAppender!.FlushBufferToAppender(BufferToFlush!); break;
+            case AsyncJobRequestType.FlushCharBufferToAppender: BufferToFlush!.Flush(); break;
         }
     }
 
@@ -163,8 +157,6 @@ public class FLogAsyncPayload : ReusableObject<FLogAsyncPayload>, ITrackableRese
         PublishSource      = source.PublishSource;
         PublishToLogEntrySinks      = source.PublishToLogEntrySinks;
         BufferToFlush      = source.BufferToFlush;
-
-        BufferingFormatAppender = source.BufferingFormatAppender;
 
         return this;
     }

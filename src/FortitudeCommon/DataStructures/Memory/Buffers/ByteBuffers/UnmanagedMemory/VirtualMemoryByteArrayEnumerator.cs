@@ -7,7 +7,7 @@ using System.Collections;
 
 #endregion
 
-namespace FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
+namespace FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory;
 
 public unsafe class VirtualMemoryByteArrayEnumerator : IEnumerator<byte>
 {

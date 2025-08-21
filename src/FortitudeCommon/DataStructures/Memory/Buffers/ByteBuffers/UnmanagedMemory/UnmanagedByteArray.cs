@@ -7,9 +7,20 @@ using System.Collections;
 
 #endregion
 
-namespace FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
+namespace FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory;
 
-public unsafe class UnmanagedByteArray : IByteArray, IVirtualMemoryAddressRange
+public interface IUnmanagedByteArray : IByteArray, IVirtualMemoryAddressRange
+{
+    bool IsReadOnly { get; }
+    void Clear();
+    bool Contains(byte item);
+    new long Length { get; }
+    new void Flush();
+    new long DefaultGrowSize { get; }
+    new IUnmanagedByteArray GrowByDefaultSize();
+}
+
+public unsafe class UnmanagedByteArray : IUnmanagedByteArray
 {
     private readonly long arrayOffset;
     private readonly bool closeMemoryRegionOnDispose;
@@ -79,7 +90,11 @@ public unsafe class UnmanagedByteArray : IByteArray, IVirtualMemoryAddressRange
 
     public long DefaultGrowSize => mappedViewRegion!.DefaultGrowSize;
 
-    public IByteArray GrowByDefaultSize()
+    IUnmanagedByteArray IUnmanagedByteArray.GrowByDefaultSize() => GrowByDefaultSize();
+
+    IByteArray IGrowable<IByteArray>.GrowByDefaultSize() => GrowByDefaultSize();
+
+    public IUnmanagedByteArray GrowByDefaultSize()
     {
         var newRegion = mappedViewRegion!.GrowByDefaultSize();
         if (newRegion != mappedViewRegion)

@@ -22,13 +22,15 @@ public enum LogEntryField : byte
 
 public static class LogEntryFieldExtensions
 {
-    public static StructStyler<LogEntryField> FormatMatchOnLogEntryFieldFormatter
+    public static CustomTypeStyler<LogEntryField> FormatMatchOnLogEntryFieldFormatter
         = FormatMatchOnLogEntryFieldAppender;
 
-    public static void FormatMatchOnLogEntryFieldAppender(this LogEntryField matchOnField, IStyledTypeStringAppender sbc)
+    public static StyledTypeBuildResult FormatMatchOnLogEntryFieldAppender(this LogEntryField matchOnField, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.WriteBuffer;
+        var tb = sbc.StartSimpleValueType(nameof(LogEntryField));
+        var sb = tb.StringBuilder("_LogEntryFieldAsString");
 
+        sb.Append("\"");
         switch (matchOnField)
         {
             case Nothing:     sb.Append($"{nameof(Nothing)}"); break;
@@ -40,5 +42,7 @@ public static class LogEntryFieldExtensions
 
             default: sb.Append($"{nameof(MessageBody)}"); break;
         }
+        sb.Append("\"");
+        return tb.Complete();
     }
 }

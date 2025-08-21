@@ -41,20 +41,20 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
     public TExt Number(string nonJsonfieldName, float value, string? formatString = null) => Stb.FieldValueNext(nonJsonfieldName, value, formatString);
 
     public TExt StructAsValue<T>(string nonJsonfieldName, T value
-      , StructStyler<T> structToString) where T : struct =>
-        Stb.FieldValueNext(nonJsonfieldName, value, structToString);
+      , CustomTypeStyler<T> customTypeStyler) where T : struct =>
+        Stb.FieldValueNext(nonJsonfieldName, value, customTypeStyler);
 
     public TExt StructAsValue<T>(string nonJsonfieldName, T? value
-      , StructStyler<T> structToString, T defaultValue = default) where T : struct =>
-        Stb.FieldValueNext(nonJsonfieldName, value, structToString);
+      , CustomTypeStyler<T> customTypeStyler, T defaultValue = default) where T : struct =>
+        Stb.FieldValueNext(nonJsonfieldName, value, customTypeStyler);
 
     public TExt StructAsString<T>(string nonJsonfieldName, T value
-      , StructStyler<T> structToString) where T : struct  =>
-        Stb.FieldStringNext(nonJsonfieldName, value, structToString);
+      , CustomTypeStyler<T> customTypeStyler) where T : struct  =>
+        Stb.FieldStringNext(nonJsonfieldName, value, customTypeStyler);
 
     public TExt StructAsString<T>(string nonJsonfieldName, T? value
-      , StructStyler<T> structToString, T defaultValue = default) where T : struct =>
-        Stb.FieldStringNext(nonJsonfieldName, value, structToString);
+      , CustomTypeStyler<T> customTypeStyler, T defaultValue = default) where T : struct =>
+        Stb.FieldStringNext(nonJsonfieldName, value, customTypeStyler);
 
     public TExt String(string nonJsonfieldName, ReadOnlySpan<char> value) => 
         Stb.FieldStringNext(nonJsonfieldName, value);
@@ -76,6 +76,8 @@ public class ValueTypeBuilder<TExt> : TypedStyledTypeBuilder<TExt> where TExt : 
 
     public TExt String(string nonJsonfieldName, StringBuilder? value, string defaultValue = "") =>
         Stb.FieldStringNext(nonJsonfieldName, value, defaultValue);
+    
+    public IStringBuilder StringBuilder(string nonJsonFieldName) => Stb.StringBuilder(nonJsonFieldName);
 
     public TExt ValueFromString(string nonJsonfieldName, ReadOnlySpan<char> value)  =>
         Stb.FieldValueNext(nonJsonfieldName, value);

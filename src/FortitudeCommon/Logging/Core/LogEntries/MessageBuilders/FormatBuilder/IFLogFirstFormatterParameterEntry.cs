@@ -28,16 +28,16 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
     IFLogAdditionalFormatterParameterEntry? WithParams<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable;
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? WithParams<TStruct>(TStruct value, StructStyler<TStruct> structStyler) where TStruct : struct;
+    IFLogAdditionalFormatterParameterEntry? WithParams<TStruct>(TStruct value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? WithParams<TStruct>((TStruct, StructStyler<TStruct>) valueTuple) where TStruct : struct;
+    IFLogAdditionalFormatterParameterEntry? WithParams<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? WithParams<TStruct>(TStruct? value, StructStyler<TStruct> structStyler) where TStruct : struct;
+    IFLogAdditionalFormatterParameterEntry? WithParams<TStruct>(TStruct? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? WithParams<TStruct>((TStruct?, StructStyler<TStruct>) valueTuple) where TStruct : struct;
+    IFLogAdditionalFormatterParameterEntry? WithParams<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithParams(ReadOnlySpan<char> value);
@@ -116,19 +116,19 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
         where TFmtStruct : struct, ISpanFormattable;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>(TStruct[]? value, StructStyler<TStruct> structStyler)
+    IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>((TStruct[]?, StructStyler<TStruct>) valueTuple)
+    IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>(IReadOnlyList<TStruct>? value, StructStyler<TStruct> structStyler)
+    IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>(IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>((IReadOnlyList<TStruct>?, StructStyler<TStruct>) valueTuple)
+    IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if only one Parameter is required")]
@@ -157,19 +157,19 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>(TStruct[]? value
-      , OrderedCollectionPredicate<TStruct> filter, StructStyler<TStruct> structStyler) where TStruct : struct;
+      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>(
-        (TStruct[]?, OrderedCollectionPredicate<TStruct>, StructStyler<TStruct>) valueTuple) where TStruct : struct;
+        (TStruct[]?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>(IReadOnlyList<TStruct>? value
-      , OrderedCollectionPredicate<TStruct> filter, StructStyler<TStruct> structStyler) where TStruct : struct;
+      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithValueCollectionParams<TStruct>(
-        (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, StructStyler<TStruct>) valueTuple) where TStruct : struct;
+        (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyObjectCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithObjectCollectionParams<T>(T[]? value, string? formatString = null) where T : class;
@@ -223,16 +223,16 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
         where TFmtStruct : struct, ISpanFormattable;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParamEnumerate if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? WithValueCollectionParamsEnumerate<TStruct>((IEnumerable<TStruct>?, StructStyler<TStruct>) valueTuple)
+    IFLogAdditionalFormatterParameterEntry? WithValueCollectionParamsEnumerate<TStruct>((IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParamEnumerate if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithValueCollectionParamsEnumerate<TStruct>(IEnumerator<TStruct>? value
-      , StructStyler<TStruct> structStyler)
+      , CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParamEnumerate if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? WithValueCollectionParamsEnumerate<TStruct>((IEnumerator<TStruct>? , StructStyler<TStruct>) valueTuple)
+    IFLogAdditionalFormatterParameterEntry? WithValueCollectionParamsEnumerate<TStruct>((IEnumerator<TStruct>? , CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyObjectCollectionParamEnumerate if only one Parameter is required")]
@@ -365,196 +365,196 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]? , KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)
+        (KeyValuePair<TKey, TValue>[]? , KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]? , KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]? , KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>, string?) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>, string?) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
     
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParamsEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct;
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct;
     
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParamsEnumerate<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple) where TValue : struct;
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple) where TValue : struct;
     
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParamsEnumerate<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple) where TValue : struct;
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct;
     
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParamsEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct;
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct;
     
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParamsEnumerate<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple) where TValue : struct;
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple) where TValue : struct;
     
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParamsEnumerate<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple) where TValue : struct;
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParamEnumerate if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParamsEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParamEnumerate if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParamsEnumerate<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParamEnumerate if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParamsEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParamEnumerate if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParamsEnumerate<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithKeyedCollectionParams<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     void WithOnlyMatchParam<T>(T value);
@@ -562,10 +562,10 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
     void WithOnlyParam(bool value);
     void WithOnlyParam<TFmtStruct>(TFmtStruct value) where TFmtStruct : struct, ISpanFormattable;
     void WithOnlyParam<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable;
-    void WithOnlyParam<TStruct>(TStruct value, StructStyler<TStruct> structStyler) where TStruct : struct;
-    void WithOnlyParam<TStruct>((TStruct, StructStyler<TStruct>) valueTuple) where TStruct : struct;
-    void WithOnlyParam<TStruct>(TStruct? value, StructStyler<TStruct> structStyler) where TStruct : struct;
-    void WithOnlyParam<TStruct>((TStruct?, StructStyler<TStruct>) valueTuple) where TStruct : struct;
+    void WithOnlyParam<TStruct>(TStruct value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
+    void WithOnlyParam<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
+    void WithOnlyParam<TStruct>(TStruct? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
+    void WithOnlyParam<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
     void WithOnlyParam(ReadOnlySpan<char> value);
     void WithOnlyParam(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue);
     void WithOnlyParam(string? value);
@@ -596,13 +596,13 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
 
     void WithOnlyValueCollectionParam<TFmtStruct>((IReadOnlyList<TFmtStruct>?, string?) valueTuple) where TFmtStruct : struct, ISpanFormattable;
 
-    void WithOnlyValueCollectionParam<TStruct>(TStruct[]? value, StructStyler<TStruct> structStyler) where TStruct : struct;
+    void WithOnlyValueCollectionParam<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
 
-    void WithOnlyValueCollectionParam<TStruct>((TStruct[]?, StructStyler<TStruct>) valueTuple) where TStruct : struct;
+    void WithOnlyValueCollectionParam<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
 
-    void WithOnlyValueCollectionParam<TStruct>(IReadOnlyList<TStruct>? value, StructStyler<TStruct> structStyler) where TStruct : struct;
+    void WithOnlyValueCollectionParam<TStruct>(IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
 
-    void WithOnlyValueCollectionParam<TStruct>((IReadOnlyList<TStruct>?, StructStyler<TStruct>) valueTuple) where TStruct : struct;
+    void WithOnlyValueCollectionParam<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
 
     void WithOnlyValueCollectionParam<TFmtStruct>(TFmtStruct[]? value
       , OrderedCollectionPredicate<TFmtStruct> filter, string? formatString = null) where TFmtStruct : struct, ISpanFormattable;
@@ -623,16 +623,16 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
       , OrderedCollectionPredicate<TFmtStruct>) valueTuple) where TFmtStruct : struct, ISpanFormattable;
 
     void WithOnlyValueCollectionParam<TStruct>(TStruct[]? value
-      , OrderedCollectionPredicate<TStruct> filter, StructStyler<TStruct> structStyler) where TStruct : struct;
+      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
 
     void WithOnlyValueCollectionParam<TStruct>(
-        (TStruct[]? , OrderedCollectionPredicate<TStruct>, StructStyler<TStruct>) valueTuple) where TStruct : struct;
+        (TStruct[]? , OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
 
     void WithOnlyValueCollectionParam<TStruct>(IReadOnlyList<TStruct>? value
-      , OrderedCollectionPredicate<TStruct> filter, StructStyler<TStruct> structStyler) where TStruct : struct;
+      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
 
     void WithOnlyValueCollectionParam<TStruct>(
-        (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, StructStyler<TStruct>) valueTuple) where TStruct : struct;
+        (IReadOnlyList<TStruct>?, OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
 
     void WithOnlyObjectCollectionParam<T>(T[]? value, string? formatString = null) where T : class;
 
@@ -668,13 +668,13 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
     void WithOnlyValueCollectionParamEnumerate<TFmtStruct>((IEnumerator<TFmtStruct>?, string?) valueTuple)
         where TFmtStruct : struct, ISpanFormattable;
 
-    void WithOnlyValueCollectionParamEnumerate<TStruct>((IEnumerable<TStruct>?, StructStyler<TStruct>) valueTuple)
+    void WithOnlyValueCollectionParamEnumerate<TStruct>((IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct;
 
-    void WithOnlyValueCollectionParamEnumerate<TStruct>(IEnumerator<TStruct>? value, StructStyler<TStruct> structStyler)
+    void WithOnlyValueCollectionParamEnumerate<TStruct>(IEnumerator<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct;
 
-    void WithOnlyValueCollectionParamEnumerate<TStruct>((IEnumerator<TStruct>?, StructStyler<TStruct>) valueTuple)
+    void WithOnlyValueCollectionParamEnumerate<TStruct>((IEnumerator<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct;
 
     void WithOnlyObjectCollectionParamEnumerate<T>(IEnumerable<T>? value, string? formatString = null) where T : class;
@@ -751,149 +751,149 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>
-      , StructStyler<TValue>, string?) valueTuple)
+      , CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>
-      , StructStyler<TValue>) valueTuple)
+      , CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>
-      , StructStyler<TValue>, string?) valueTuple)
+      , CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>
-      , StructStyler<TValue>) valueTuple)
+      , CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?
-      , KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)
+      , KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?
-      , KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)
+      , KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
-    void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>, string?) valueTuple)
+    void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
-    void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>) valueTuple)
+    void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
-    void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>, string?) valueTuple)
+    void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
-    void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>) valueTuple)
+    void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
-    void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple)
+    void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
-    void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple)
+    void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
     
     void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct;
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct;
 
-    void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple) where TValue : struct;
+    void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple) where TValue : struct;
     
-    void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple) where TValue : struct;
+    void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct;
 
     void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null) where TValue : struct;
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null) where TValue : struct;
 
-    void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple) where TValue : struct;
+    void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple) where TValue : struct;
 
-    void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple) where TValue : struct;
+    void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple) where TValue : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
-    void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+    void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
-    void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+    void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
-    void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+    void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerable<KeyValuePair<TKey, TValue>>?
-      , StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+      , CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     void WithOnlyKeyedCollectionParamEnumerate<TKey, TValue>((IEnumerator<KeyValuePair<TKey, TValue>>?
-      , StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+      , CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>
-      , StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+      , CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>
-      , StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+      , CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     void WithOnlyKeyedCollectionParam<TKey, TValue>((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>
-      , StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+      , CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
 
@@ -913,16 +913,16 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
     IFLogStringAppender AfterOnlyParamToStringAppender<TFmtStruct>(TFmtStruct? value) where TFmtStruct : struct, ISpanFormattable;
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterOnlyParamToStringAppender<TStruct>(TStruct value, StructStyler<TStruct> structStyler) where TStruct : struct;
+    IFLogStringAppender AfterOnlyParamToStringAppender<TStruct>(TStruct value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterOnlyParamToStringAppender<TStruct>((TStruct, StructStyler<TStruct>) valueTuple) where TStruct : struct;
+    IFLogStringAppender AfterOnlyParamToStringAppender<TStruct>((TStruct, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterOnlyParamToStringAppender<TStruct>(TStruct? value, StructStyler<TStruct> structStyler) where TStruct : struct;
+    IFLogStringAppender AfterOnlyParamToStringAppender<TStruct>(TStruct? value, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterOnlyParamToStringAppender<TStruct>((TStruct?, StructStyler<TStruct>) valueTuple) where TStruct : struct;
+    IFLogStringAppender AfterOnlyParamToStringAppender<TStruct>((TStruct?, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyParamToStringAppender(ReadOnlySpan<char> value);
@@ -1002,19 +1002,19 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
         where TFmtStruct : struct, ISpanFormattable;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>(TStruct[]? value, StructStyler<TStruct> structStyler)
+    IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>(TStruct[]? value, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>((TStruct[]?, StructStyler<TStruct>) valueTuple)
+    IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>((TStruct[]?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>(IReadOnlyList<TStruct>? value, StructStyler<TStruct> structStyler)
+    IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>(IReadOnlyList<TStruct>? value, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>((IReadOnlyList<TStruct>?, StructStyler<TStruct>) valueTuple)
+    IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>((IReadOnlyList<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
@@ -1043,19 +1043,19 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>(TStruct[]? value
-      , OrderedCollectionPredicate<TStruct> filter, StructStyler<TStruct> structStyler) where TStruct : struct;
+      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>((TStruct[]?
-      , OrderedCollectionPredicate<TStruct>, StructStyler<TStruct>) valueTuple) where TStruct : struct;
+      , OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>(IReadOnlyList<TStruct>? value
-      , OrderedCollectionPredicate<TStruct> filter, StructStyler<TStruct> structStyler) where TStruct : struct;
+      , OrderedCollectionPredicate<TStruct> filter, CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyValueCollectionParamToStringAppender<TStruct>((IReadOnlyList<TStruct>?
-      , OrderedCollectionPredicate<TStruct>, StructStyler<TStruct>) valueTuple) where TStruct : struct;
+      , OrderedCollectionPredicate<TStruct>, CustomTypeStyler<TStruct>) valueTuple) where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyObjectCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyObjectCollectionParamToStringAppender<T>(T[]? value, string? formatString = null) where T : class;
@@ -1110,21 +1110,21 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyValueCollectionParamEnumerateToStringAppender<TStruct>(IEnumerable<TStruct>? value
-      , StructStyler<TStruct> structStyler)
+      , CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AfterOnlyValueCollectionParamEnumerateToStringAppender<TStruct>((IEnumerable<TStruct>?, StructStyler<TStruct>) valueTuple)
+    IFLogStringAppender AfterOnlyValueCollectionParamEnumerateToStringAppender<TStruct>((IEnumerable<TStruct>?, CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyValueCollectionParamEnumerateToStringAppender<TStruct>(IEnumerator<TStruct>? value
-      , StructStyler<TStruct> structStyler)
+      , CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyValueCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyValueCollectionParamEnumerateToStringAppender<TStruct>((IEnumerator<TStruct>?
-      , StructStyler<TStruct>) valueTuple)
+      , CustomTypeStyler<TStruct>) valueTuple)
         where TStruct : struct;
 
     [MustUseReturnValue("Use WithOnlyObjectCollectionParam if you do not plan on using the returned StringAppender")]
@@ -1252,201 +1252,201 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?
-      , KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)
+      , KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>((IReadOnlyDictionary<TKey, TValue>?
-      , KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)
+      , KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, string?) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>, string?) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>, string?) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString = null)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString = null)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct;
 
     [MustUseReturnValue("Use withOnlyKeyedCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use withOnlyKeyedCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple)
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use withOnlyKeyedCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple)
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use withOnlyKeyedCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, string? keyFormatString)
+      , CustomTypeStyler<TValue> valueStyler, string? keyFormatString)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use withOnlyKeyedCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, string?) valueTuple)
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, string?) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use withOnlyKeyedCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>) valueTuple)
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerable<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IEnumerable<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParamEnumerate if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamEnumerateToStringAppender<TKey, TValue>(
-        (IEnumerator<KeyValuePair<TKey, TValue>>?, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IEnumerator<KeyValuePair<TKey, TValue>>?, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKey, TValue> filterPredicate
-      , StructStyler<TValue> valueStructStyler, StructStyler<TKey> keyStructStyler)
+      , CustomTypeStyler<TValue> valueStyler, CustomTypeStyler<TKey> keyStyler)
         where TValue : struct where TKey : struct;
 
     [MustUseReturnValue("Use WithOnlyKeyedCollectionParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AfterOnlyKeyedCollectionParamToStringAppender<TKey, TValue>(
-        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, StructStyler<TValue>, StructStyler<TKey>) valueTuple)
+        (IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKey, TValue>, CustomTypeStyler<TValue>, CustomTypeStyler<TKey>) valueTuple)
         where TValue : struct where TKey : struct;
 
     // ReSharper restore UnusedMember.Global

@@ -30,16 +30,18 @@ namespace FortitudeCommon.Logging.Config
 
     public static class FLogLevelExtensions
     {
-        public static StructStyler<FLogLevel> FLogLevelFormatter = FormatFlogLevelAppender;
+        public static CustomTypeStyler<FLogLevel> FLogLevelFormatter = FlogLevelStyler;
 
-        public static StructStyler<FLogLevel> Styler(this FLogLevel flogLevel) => FLogLevelFormatter;
+        public static CustomTypeStyler<FLogLevel> Styler(this FLogLevel flogLevel) => FLogLevelFormatter;
 
         public static int LoggableRange => (int)(FLogLevel.Error - FLogLevel.None);
 
-        public static void FormatFlogLevelAppender(this FLogLevel flogLevel, IStyledTypeStringAppender sbc)
+        public static StyledTypeBuildResult FlogLevelStyler(this FLogLevel flogLevel, IStyledTypeStringAppender sbc)
         {
-            var sb = sbc.WriteBuffer;
+            var tb = sbc.StartSimpleValueType(nameof(FLogLevel));
+            var sb = tb.StringBuilder("_FLogLevelAsString");
 
+            sb.Append("\"");
             switch (flogLevel)
             {
                 case FLogLevel.Trace: sb.Append($"{nameof(FLogLevel.Trace)}"); break;
@@ -50,6 +52,9 @@ namespace FortitudeCommon.Logging.Config
 
                 default: sb.Append($"{nameof(FLogLevel.None)}"); break;
             }
+            sb.Append("\"");
+        
+            return tb.Complete();
         }
 
         public static bool IsTraceEnabled(this FLogLevel level) => level >= FLogLevel.Trace;

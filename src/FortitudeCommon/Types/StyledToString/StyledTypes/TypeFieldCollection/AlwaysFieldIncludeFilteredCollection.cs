@@ -127,7 +127,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt AlwaysAddFiltered<TStruct>
     (string fieldName, TStruct[]? value, OrderedCollectionPredicate<TStruct> filterPredicate
-      , StructStyler<TStruct> structToString) where TStruct : struct
+      , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         var found = false;
         stb.FieldNameJoin(fieldName);
@@ -142,7 +142,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                     stb.StartCollection();
                     found = true;
                 }
-                stb.AppendOrNull(item, structToString);
+                stb.AppendOrNull(item, customTypeStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }
@@ -446,7 +446,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt AlwaysAddFiltered<TStruct>
         (string fieldName, IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> filterPredicate
-          , StructStyler<TStruct> structToString) where TStruct : struct
+          , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct
     {
         var found = false;
         stb.FieldNameJoin(fieldName);
@@ -461,7 +461,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
                     stb.StartCollection();
                     found = true;
                 }
-                stb.AppendOrNull(item, structToString);
+                stb.AppendOrNull(item, customTypeStyler);
                 stb.GoToNextCollectionItemStart();
             }
         }

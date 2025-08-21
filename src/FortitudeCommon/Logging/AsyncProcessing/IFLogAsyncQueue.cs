@@ -3,6 +3,7 @@
 
 using FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
 using FortitudeCommon.Logging.Core.Appending.Formatting;
+using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters.BufferedWriters;
 using FortitudeCommon.Logging.Core.LogEntries.PublishChains;
 
 namespace FortitudeCommon.Logging.AsyncProcessing;
@@ -21,7 +22,7 @@ public interface IFLogAsyncQueuePublisher
 
     void SendLogEntryEventTo(LogEntryPublishEvent logEntryEvent, IFLogEntrySink logEntrySink, ITargetingFLogEntrySource publishSource);
 
-    void FlushBufferToAppender(IBufferedFormatWriter toFlush, IFLogBufferingFormatAppender fromAppender);
+    void FlushBufferToAppender(IBufferedFormatWriter toFlush);
 }
 
 public interface IReleaseBlockingDisposable : IDisposable
@@ -65,7 +66,7 @@ public abstract class FLogAsyncQueue(int queueNumber, AsyncProcessingType queueT
 
     public abstract void Execute(Action job);
 
-    public abstract void FlushBufferToAppender(IBufferedFormatWriter toFlush, IFLogBufferingFormatAppender fromAppender);
+    public abstract void FlushBufferToAppender(IBufferedFormatWriter toFlush);
 
     public abstract int QueueBackLogSize { get; }
 

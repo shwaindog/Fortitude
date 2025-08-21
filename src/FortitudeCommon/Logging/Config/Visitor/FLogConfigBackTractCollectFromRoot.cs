@@ -95,13 +95,6 @@ public class FLogConfigBackTractCollectFromRoot<T, TCollect>(List<TCollect> foun
         return Me;
     }
 
-    public override T Accept(IAppendableForwardingAppendersLookupConfig forwardToAppendersCollectionConfig) 
-    {
-        forwardToAppendersCollectionConfig.ParentConfig?.Visit(Me);
-        if(forwardToAppendersCollectionConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return Me;
-    }
-
     public override T Accept(IMutableForwardingAppenderConfig forwardingAppenderConfig)
     {
         forwardingAppenderConfig.ParentConfig?.Visit(Me);
@@ -232,13 +225,6 @@ public class FLogConfigBackTractCollectFromRoot<T, TCollect>(List<TCollect> foun
     {
         initializationConfig.ParentConfig?.Visit(Me);
         if(initializationConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
-        return Me;
-    }
-
-    public override T Accept(IAppendableInheritingAppendersLookupConfig inheritingFormatAppendersConfig)
-    {
-        inheritingFormatAppendersConfig.ParentConfig?.Visit(Me);
-        if(inheritingFormatAppendersConfig is TCollect toAdd && meets(toAdd)) found.Add(toAdd);
         return Me;
     }
 

@@ -12,29 +12,29 @@ namespace FortitudeCommon.DataStructures.Maps;
 
 public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
 {
-    private readonly ConcurrentDictionary<TK, TV> concurrentDictionary = new();
+    protected readonly ConcurrentDictionary<TK, TV> ConcurrentDictionary = new();
     private readonly IRecycler personalRecycler = new Recycler();
-    private readonly object sync = new();
+    protected readonly object SyncLock = new();
 
     public ConcurrentMap() { }
 
-    public ConcurrentMap(IMap<TK, TV> toClone) => concurrentDictionary = new ConcurrentDictionary<TK, TV>(toClone);
+    public ConcurrentMap(IMap<TK, TV> toClone) => ConcurrentDictionary = new ConcurrentDictionary<TK, TV>(toClone);
 
     public TV this[TK key]
     {
-        get => concurrentDictionary[key];
+        get => ConcurrentDictionary[key];
         set
         {
-            lock (sync)
+            lock (SyncLock)
             {
-                concurrentDictionary.AddOrUpdate(key, value!, (_, _) => value!);
-                OnUpdate?.Invoke(concurrentDictionary);
+                ConcurrentDictionary.AddOrUpdate(key, value!, (_, _) => value!);
+                OnUpdated();
             }
         }
     }
 
-    public ICollection<TK> Keys => concurrentDictionary.Keys;
-    public ICollection<TV> Values => concurrentDictionary.Values;
+    public ICollection<TK> Keys => ConcurrentDictionary.Keys;
+    public ICollection<TV> Values => ConcurrentDictionary.Values;
 
     public TV? GetValue(TK key)
     {
@@ -42,14 +42,14 @@ public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
         return value;
     }
 
-    public bool TryGetValue(TK key, out TV? value) => concurrentDictionary.TryGetValue(key, out value);
+    public bool TryGetValue(TK key, out TV? value) => ConcurrentDictionary.TryGetValue(key, out value);
 
     public TV GetOrPut(TK key, Func<TK, TV> createFunc)
     {
         if (!TryGetValue(key, out var value))
         {
             value = createFunc(key);
-            concurrentDictionary.TryAdd(key, value);
+            ConcurrentDictionary.TryAdd(key, value);
         }
 
         return value!;
@@ -57,18 +57,18 @@ public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
 
     public TV AddOrUpdate(TK key, TV value)
     {
-        var newValue = concurrentDictionary.AddOrUpdate(key, value!, (_, _) => value!);
-        OnUpdate?.Invoke(concurrentDictionary);
+        var newValue = ConcurrentDictionary.AddOrUpdate(key, value!, (_, _) => value!);
+        OnUpdated();
         return newValue;
     }
 
     public bool Add(TK key, TV value)
     {
-        lock (sync)
+        lock (SyncLock)
         {
-            if (concurrentDictionary.TryAdd(key, value))
+            if (ConcurrentDictionary.TryAdd(key, value))
             {
-                OnUpdate?.Invoke(concurrentDictionary);
+                OnUpdated();
                 return true;
             }
 
@@ -78,11 +78,11 @@ public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
 
     public bool Remove(TK key)
     {
-        lock (sync)
+        lock (SyncLock)
         {
-            if (concurrentDictionary.TryRemove(key, out _))
+            if (ConcurrentDictionary.TryRemove(key, out _))
             {
-                OnUpdate?.Invoke(concurrentDictionary);
+                OnUpdated();
                 return true;
             }
         }
@@ -92,22 +92,22 @@ public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
 
     public void Clear()
     {
-        lock (sync)
+        lock (SyncLock)
         {
-            concurrentDictionary.Clear();
-            OnUpdate?.Invoke(concurrentDictionary);
+            ConcurrentDictionary.Clear();
+            OnUpdated();
         }
     }
 
-    public int Count => concurrentDictionary.Count;
+    public int Count => ConcurrentDictionary.Count;
 
-    public bool ContainsKey(TK key) => concurrentDictionary.ContainsKey(key);
+    public bool ContainsKey(TK key) => ConcurrentDictionary.ContainsKey(key);
 
     public virtual IEnumerator<KeyValuePair<TK, TV>> GetEnumerator()
     {
         var existingOrNew = personalRecycler
             .Borrow<ReusableWrappingEnumerator<KeyValuePair<TK, TV>>>();
-        existingOrNew.ProxiedEnumerator ??= concurrentDictionary.GetEnumerator();
+        existingOrNew.ProxiedEnumerator ??= ConcurrentDictionary.GetEnumerator();
         return existingOrNew;
     }
 
@@ -117,5 +117,10 @@ public class ConcurrentMap<TK, TV> : IMap<TK, TV> where TK : notnull
 
     public IMap<TK, TV> Clone() => new ConcurrentMap<TK, TV>(this);
 
-    public event Action<IEnumerable<KeyValuePair<TK, TV>>>? OnUpdate;
+    public event Action<IEnumerable<KeyValuePair<TK, TV>>>? Updated;
+
+    protected void OnUpdated()
+    {
+        Updated?.Invoke(ConcurrentDictionary);
+    }
 }

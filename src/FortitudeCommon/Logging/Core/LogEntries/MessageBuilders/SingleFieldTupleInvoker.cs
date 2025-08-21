@@ -40,7 +40,7 @@ public abstract partial class FLogEntryMessageBuilder
         if (item2Type.IsGenericType)
         {
             var item2GenericType = item2Type.GetGenericTypeDefinition();
-            if (item1Type.IsValueType && item2GenericType == typeof(StructStyler<>))
+            if (item1Type.IsValueType && item2GenericType == typeof(CustomTypeStyler<>))
             {
                 var structStylerInvoker = TryBuildSingleFieldStructStylerInvoker(tuple, tupleType, item1Type, item2Type);
                 return structStylerInvoker;

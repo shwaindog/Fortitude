@@ -23,5 +23,5 @@ public interface IMap<TK, TV> : IEnumerable<KeyValuePair<TK, TV>>, ICloneable<IM
 
     TV GetOrPut(TK key, Func<TK, TV> createFunc);
 
-    event Action<IEnumerable<KeyValuePair<TK, TV>>> OnUpdate;
+    event Action<IEnumerable<KeyValuePair<TK, TV>>> Updated;
 }

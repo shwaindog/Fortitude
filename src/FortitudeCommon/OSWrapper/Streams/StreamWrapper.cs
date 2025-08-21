@@ -9,31 +9,23 @@ public class StreamWrapper : IStream
 
     public StreamWrapper(Stream backingStream) => this.backingStream = backingStream;
 
-    public void Flush()
-    {
-        backingStream.Flush();
-    }
+    public void Flush() => backingStream.Flush();
 
     public int Read(byte[] buffer, int offset, int count) => backingStream.Read(buffer, offset, count);
+
+    public int Read(Span<byte> buffer) => backingStream.Read(buffer);
 
     public int ReadByte() => backingStream.ReadByte();
 
     public long Seek(long offset, SeekOrigin origin) => backingStream.Seek(offset, origin);
 
-    public void SetLength(long value)
-    {
-        backingStream.SetLength(value);
-    }
+    public void SetLength(long value) => backingStream.SetLength(value);
 
-    public void Write(byte[] buffer, int offset, int count)
-    {
-        backingStream.Write(buffer, offset, count);
-    }
+    public void Write(byte[] buffer, int offset, int count) => backingStream.Write(buffer, offset, count);
 
-    public void WriteByte(byte value)
-    {
-        backingStream.WriteByte(value);
-    }
+    public void Write(ReadOnlySpan<byte> buffer) => backingStream.Write(buffer);
+
+    public void WriteByte(byte value) => backingStream.WriteByte(value);
 
     public bool CanRead  => backingStream.CanRead;
     public bool CanSeek  => backingStream.CanSeek;

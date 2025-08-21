@@ -13,8 +13,7 @@ using FortitudeCommon.Logging.Config.Pooling;
 
 namespace FortitudeCommon.Logging.Config.Visitor;
 
-public class FlogConfigVisitParent<T> : FLogConfigVisitor<T>
-    where T : FlogConfigVisitParent<T>
+public class FlogConfigVisitParent<T> : FLogConfigVisitor<T> where T : FlogConfigVisitParent<T>
 {
     public IMutableFLogAppConfig? FoundAppConfig { get; private set; }
 
@@ -50,9 +49,6 @@ public class FlogConfigVisitParent<T> : FLogConfigVisitor<T>
 
     public override T Accept(IAppendableNamedAppendersLookupConfig appendersCollectionConfig) => 
         appendersCollectionConfig.ParentConfig?.Visit(Me) ?? Me;
-
-    public override T Accept(IAppendableForwardingAppendersLookupConfig forwardToAppendersCollectionConfig) => 
-        forwardToAppendersCollectionConfig.ParentConfig?.Visit(Me) ?? Me;
 
     public override T Accept(IMutableForwardingAppenderConfig forwardingAppenderConfig) => 
         forwardingAppenderConfig.ParentConfig?.Visit(Me) ?? Me;
@@ -110,9 +106,6 @@ public class FlogConfigVisitParent<T> : FLogConfigVisitor<T>
 
     public override T Accept(IMutableFLogInitializationConfig initializationConfig) => 
         initializationConfig.ParentConfig?.Visit(Me) ?? Me;
-
-    public override T Accept(IAppendableInheritingAppendersLookupConfig inheritingFormatAppendersConfig) => 
-        inheritingFormatAppendersConfig.ParentConfig?.Visit(Me) ?? Me;
 
     public override T Accept(IMutableFLogFileConfigSourceConfig fileConfigSourceConfig) => 
         fileConfigSourceConfig.ParentConfig?.Visit(Me) ?? Me;

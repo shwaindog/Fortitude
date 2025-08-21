@@ -1,6 +1,4 @@
-﻿using FortitudeCommon.Types.StyledToString.StyledTypes.ValueType;
-
-namespace FortitudeCommon.Types.StyledToString.StyledTypes.SimpleType;
+﻿namespace FortitudeCommon.Types.StyledToString.StyledTypes.ValueType;
 
 public class SimpleValueTypeBuilder : ValueTypeBuilder<SimpleValueTypeBuilder>
 {

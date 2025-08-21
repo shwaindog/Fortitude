@@ -3,17 +3,16 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory;
-using FortitudeCommon.DataStructures.Memory.UnmanagedMemory;
+using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory;
 using FortitudeCommon.Monitoring.Logging;
 
 #endregion
 
-namespace FortitudeCommon.Serdes.Binary;
+namespace FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
 
 public interface IFixedByteArrayBuffer : IMessageQueueBuffer
 {
-    IByteArray                 BackingByteArray          { get; }
+    IByteArray BackingByteArray { get; }
     IVirtualMemoryAddressRange BackingMemoryAddressRange { get; }
 }
 
@@ -122,8 +121,8 @@ public unsafe class FixedByteArrayBuffer : IFixedByteArrayBuffer
 
     public nint BufferRelativeWriteCursor => (nint)WriteCursor;
 
-    public bool CanRead  => BufferRelativeReadCursor < Length;
-    public bool CanSeek  => true;
+    public bool CanRead => BufferRelativeReadCursor < Length;
+    public bool CanSeek => true;
     public bool CanWrite => BufferRelativeWriteCursor < Length;
 
     public long Position
@@ -154,9 +153,21 @@ public unsafe class FixedByteArrayBuffer : IFixedByteArrayBuffer
         var remainingBytes = BufferRelativeWriteCursor - BufferRelativeReadCursor;
         var cappedSize     = Math.Min(Math.Min(count, remainingBytes), buffer.Length - offset);
 
-        var ptr                                                      = ReadBuffer + BufferRelativeReadCursor;
+        var ptr = ReadBuffer + BufferRelativeReadCursor;
+
         for (var i = offset; i < offset + cappedSize; i++) buffer[i] = *ptr++;
         ReadCursor = cappedSize;
+        return (int)cappedSize;
+    }
+
+    public int Read(Span<byte> buffer)
+    {
+        var remainingBytes = BufferRelativeWriteCursor - BufferRelativeReadCursor;
+        var cappedSize     = Math.Min(remainingBytes, buffer.Length);
+
+        var ptr = ReadBuffer + BufferRelativeReadCursor;
+
+        for (var i = 0; i < cappedSize; i++) buffer[i] = *ptr++;
         return (int)cappedSize;
     }
 
@@ -201,6 +212,17 @@ public unsafe class FixedByteArrayBuffer : IFixedByteArrayBuffer
         var ptr = WriteBuffer + BufferRelativeWriteCursor;
 
         for (var i = offset; i < offset + cappedSize; i++) *ptr++ = buffer[i];
+        WriteCursor += cappedSize;
+    }
+
+    public void Write(ReadOnlySpan<byte> buffer)
+    {
+        var remainingBytes = Length - WriteCursor;
+        var cappedSize     = Math.Min(remainingBytes, buffer.Length);
+
+        var ptr = WriteBuffer + BufferRelativeWriteCursor;
+
+        for (var i = 0; i < cappedSize; i++) *ptr++ = buffer[i];
         WriteCursor += cappedSize;
     }
 

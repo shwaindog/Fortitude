@@ -25,8 +25,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt WhenNonNullAddFiltered<TStruct>
         (string fieldName, TStruct[]? value, OrderedCollectionPredicate<TStruct> filterPredicate
-          , StructStyler<TStruct> structToString) where TStruct : struct =>
-        value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, structToString) : stb.StyleTypeBuilder;
+          , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+        value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, customTypeStyler) : stb.StyleTypeBuilder;
 
     // public TExt WhenNonNullAddFiltered<TStruct>
     //     (string fieldName, TStruct?[]? value, OrderedCollectionPredicate<TStruct?> filterPredicate
@@ -77,8 +77,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : StyledTypeBuil
 
     public TExt WhenNonNullAddFiltered<TStruct>
         (string fieldName, IReadOnlyList<TStruct>? value, OrderedCollectionPredicate<TStruct> filterPredicate
-          , StructStyler<TStruct> structToString) where TStruct : struct =>
-        value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, structToString) : stb.StyleTypeBuilder;
+          , CustomTypeStyler<TStruct> customTypeStyler) where TStruct : struct =>
+        value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, customTypeStyler) : stb.StyleTypeBuilder;
 
     // public TExt WhenNonNullAddFiltered<TStruct>
     //     (string fieldName, IReadOnlyList<TStruct?>? value, OrderedCollectionPredicate<TStruct?> filterPredicate

@@ -20,9 +20,9 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) where TFmtStruct : struct, ISpanFormattable =>
         value != null ? AlwaysAdd(fieldName, value, formatString) : stb.StyleTypeBuilder;
 
-    public TExt WhenNonNullAdd<TStruct>(string fieldName, TStruct? value, StructStyler<TStruct> structToString)
+    public TExt WhenNonNullAdd<TStruct>(string fieldName, TStruct? value, CustomTypeStyler<TStruct> customTypeStyler)
         where TStruct : struct =>
-        !Equals(value, null) ? AlwaysAdd(fieldName, value.Value, structToString) : stb.StyleTypeBuilder;
+        !Equals(value, null) ? AlwaysAdd(fieldName, value.Value, customTypeStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAdd(string fieldName, string? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null) =>

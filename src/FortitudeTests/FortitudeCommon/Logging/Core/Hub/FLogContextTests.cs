@@ -28,7 +28,7 @@ public class FLogContextTests
         var loggerSpy = spyRing.TrainNewSpy("Test Logger Spy");
         logger.Logger.PublishEndpoint.Insert(loggerSpy);
 
-        var consoleAppender = appReg.GetAppender(ConsoleAppenderConfig.DefaultConsoleAppenderName)!;
+        var consoleAppender = appReg.GetAppender(IConsoleAppenderConfig.DefaultConsoleAppenderName)!;
         var appenderSpy = spyRing.TrainNewSpy("Test Appender Spy");
         consoleAppender.ReceiveEndpoint.Insert(appenderSpy);
         
@@ -85,7 +85,7 @@ public class FLogContextTests
         var runResult = invokeMethod(this, value);
     }
 
-    public string InvokeStructStyler<TStruct>(TStruct value, StructStyler<TStruct> styler) where TStruct : struct
+    public string InvokeStructStyler<TStruct>(TStruct value, CustomTypeStyler<TStruct> styler) where TStruct : struct
     {
         var stsa = new StyledTypeStringAppender();
         stsa.Initialize();
@@ -114,7 +114,7 @@ public class FLogContextTests
                 if (item2Type.IsGenericType)
                 {
                     var item2GenericType = item2Type.GetGenericTypeDefinition();
-                    if (item2GenericType == typeof(StructStyler<>))
+                    if (item2GenericType == typeof(CustomTypeStyler<>))
                     {
                         var myType = GetType();
 
@@ -142,7 +142,7 @@ public class FLogContextTests
                                        && methodParams.Length == 2
                                        && genericParams[0] == methodParams[0].ParameterType &&
                                           methodParams[1].ParameterType.GetGenericTypeDefinition() ==
-                                          typeof(StructStyler<>);
+                                          typeof(CustomTypeStyler<>);
                                   }) ??
                             throw new InvalidOperationException("Method does not exist");
 

@@ -23,8 +23,8 @@ public partial class SelectTypeField<TExt> where TExt : StyledTypeBuilder
 
     public TExt WhenNonDefaultAdd<TStruct>
     (string fieldName, TStruct value
-      , StructStyler<TStruct> structToString, TStruct defaultValue = default) where TStruct : struct =>
-        !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, structToString) : stb.StyleTypeBuilder;
+      , CustomTypeStyler<TStruct> customTypeStyler, TStruct defaultValue = default) where TStruct : struct =>
+        !Equals(value, defaultValue) ? AlwaysAdd(fieldName, value, customTypeStyler) : stb.StyleTypeBuilder;
 
     public TExt WhenNonDefaultAdd
     (string fieldName, ReadOnlySpan<char> value

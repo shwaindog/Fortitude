@@ -1,0 +1,107 @@
+﻿using System.Collections;
+using System.Reflection;
+using System.Text;
+using FortitudeCommon.DataStructures.Maps;
+using FortitudeCommon.Extensions;
+using FortitudeCommon.Logging.Config.Appending.Formatting.LogEntryLayout;
+using FortitudeCommon.Logging.Core.Appending.Formatting.FormatWriters;
+using FortitudeCommon.Logging.Core.LogEntries;
+using FortitudeCommon.Types.StyledToString;
+using FortitudeCommon.Types.StyledToString.StyledTypes;
+
+namespace FortitudeCommon.Logging.Core.Appending.Formatting.LogEntryLayout;
+
+public class EnvironmentDataTemplatePart : ITemplatePart, IStyledToStringObject
+{
+    [ThreadStatic] protected static StringBuilder? scratchBuffer;
+
+    private CharSpanAcceptingStringMap<string>? envVariables;
+
+    private TokenFormatting tokenFormatting;
+
+    public EnvironmentDataTemplatePart(string tokenName, int paddingLength, int maxLength, string formattingString)
+    {
+        tokenFormatting = new TokenFormatting(tokenName, paddingLength, maxLength, formattingString);
+    }
+
+    public EnvironmentDataTemplatePart(TokenFormatting tokenFormatting)
+    {
+        this.tokenFormatting = tokenFormatting;
+    }
+
+    public int Apply(IFormatWriter formatWriter, IFLogEntry logEntry)
+    {
+        scratchBuffer ??= new();
+        scratchBuffer.Clear();
+        ApplyTokenToStringBuilder(scratchBuffer, logEntry);
+        if (scratchBuffer.Length > tokenFormatting.MaxLength)
+        {
+            scratchBuffer.Length = tokenFormatting.MaxLength;
+        }
+        formatWriter.Append(scratchBuffer);
+        return scratchBuffer.Length;
+    }
+
+    public FormattingAppenderSinkType TargetingAppenderTypes => FormattingAppenderSinkType.Any;
+
+    protected virtual void ApplyTokenToStringBuilder(StringBuilder sb, IFLogEntry logEntry)
+    {
+        switch (tokenFormatting.TokenName)
+        {
+            case $"{nameof(FLogEntryLayoutTokens.StartAssemblyName)}":
+                sb.Append(Assembly.GetEntryAssembly()?.GetName().Name ?? "UnmanagedLaunched");
+                break;
+            case $"{nameof(FLogEntryLayoutTokens.StartAssemblyDirPath)}": sb.Append(Assembly.GetEntryAssembly()?.Location ?? "."); break;
+            case $"{nameof(FLogEntryLayoutTokens.HostName)}":             sb.Append(Environment.MachineName); break;
+            case $"{nameof(FLogEntryLayoutTokens.LoginDomainName)}":      sb.Append(Environment.UserDomainName); break;
+            case $"{nameof(FLogEntryLayoutTokens.Login)}":                sb.Append(Environment.UserName); break;
+            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg0)}":     AppendCommandLineArg(sb, 0); break;
+            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg1)}":     AppendCommandLineArg(sb, 1); break;
+            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg2)}":     AppendCommandLineArg(sb, 2); break;
+            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg3)}":     AppendCommandLineArg(sb, 3); break;
+            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg4)}":     AppendCommandLineArg(sb, 4); break;
+            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg5)}":     AppendCommandLineArg(sb, 5); break;
+            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg6)}":     AppendCommandLineArg(sb, 6); break;
+            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg7)}":     AppendCommandLineArg(sb, 7); break;
+            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg8)}":     AppendCommandLineArg(sb, 8); break;
+            case $"{nameof(FLogEntryLayoutTokens.StartCommandArg9)}":     AppendCommandLineArg(sb, 9); break;
+            case $"{nameof(FLogEntryLayoutTokens.Env)}":
+                var formatAsSpan = tokenFormatting.FormatString.AsSpan();
+                var envVarName   = formatAsSpan.ExtractStringFormatStageOnly();
+                envVariables ??= BuildExpandedEnvironmentVariables();
+                var envVarValue = envVariables.GetValue(envVarName);
+                sb.Append(envVarValue ?? "");
+                break;
+        }
+    }
+
+    private static string[]? commandLineArgs;
+
+    private void AppendCommandLineArg(StringBuilder sb, int argNum)
+    {
+        commandLineArgs ??= Environment.GetCommandLineArgs();
+        if (argNum >= 0 && commandLineArgs.Length > argNum)
+        {
+            sb.Append(commandLineArgs[argNum]);
+        }
+    }
+
+    private CharSpanAcceptingStringMap<string> BuildExpandedEnvironmentVariables()
+    {
+        var allEnvVariablesExpanded = new CharSpanAcceptingStringMap<string>();
+        foreach (DictionaryEntry envVar in Environment.GetEnvironmentVariables())
+        {
+            allEnvVariablesExpanded.Add(envVar.Key.ToString(), Environment.ExpandEnvironmentVariables(envVar.Value?.ToString() ?? ""));
+        }
+        return allEnvVariablesExpanded;
+    }
+
+    public virtual StyledTypeBuildResult ToString(IStyledTypeStringAppender sbc)
+    {
+        return
+            sbc.StartComplexType(nameof(LogEntryDataTemplatePart))
+               .Field.AlwaysAdd(nameof(tokenFormatting), tokenFormatting).Complete();
+    }
+
+    public override string ToString() => this.DefaultToString();
+}

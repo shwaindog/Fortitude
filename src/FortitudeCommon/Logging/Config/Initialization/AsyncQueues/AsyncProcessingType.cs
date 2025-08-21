@@ -22,13 +22,15 @@ public enum AsyncProcessingType
 
 public static class AsyncProcessingTypesExtensions
 {
-    public static StructStyler<AsyncProcessingType> AsyncProcessingTypeFormatter
+    public static CustomTypeStyler<AsyncProcessingType> AsyncProcessingTypeFormatter
         = FormatAsyncProcessingTypeAppender;
 
-    public static void FormatAsyncProcessingTypeAppender(this AsyncProcessingType asyncProcessingType, IStyledTypeStringAppender sbc)
+    public static StyledTypeBuildResult FormatAsyncProcessingTypeAppender(this AsyncProcessingType asyncProcessingType, IStyledTypeStringAppender sbc)
     {
-        var sb = sbc.WriteBuffer;
+        var tb = sbc.StartSimpleValueType(nameof(AsyncProcessingType));
+        var sb = tb.StringBuilder("_AsyncProcessingTypeAsString");
 
+        sb.Append("\"");
         switch (asyncProcessingType)
         {
             case Default: sb.Append($"{nameof(Default)}"); break;
@@ -41,5 +43,8 @@ public static class AsyncProcessingTypesExtensions
 
             default: sb.Append($"{nameof(Default)}"); break;
         }
+        sb.Append("\"");
+        
+        return tb.Complete();
     }
 }

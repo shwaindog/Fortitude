@@ -1,6 +1,8 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.OSWrapper.FileSystem;
+
 namespace FortitudeCommon.Logging.Core.Hub;
 
 public interface IFLogContext
@@ -8,6 +10,8 @@ public interface IFLogContext
     bool HasStarted { get; }
 
     bool IsInitialized { get; }
+    
+    IFileSystemController FLogFileSystemController { get; set; }
 
     IFLogAppenderRegistry  AppenderRegistry     { get; }
     IFLogLoggerRegistry    LoggerRegistry       { get; }
@@ -22,11 +26,13 @@ public class FLogContext : IFLogContext
 
     private static readonly object SyncLock = new();
 
-    private IFLogAppenderRegistry  appenderRegistry     = null!;
-    private IFLogLoggerRegistry    loggerRegistry       = null!;
-    private IFLoggerAsyncRegistry  asyncRegistry        = null!;
-    private IFLogConfigRegistry    configRegistry       = null!;
-    private IFLogEntryPoolRegistry logEntryPoolRegistry = null!;
+    private IFileSystemController? flogFileSystemController = null!;
+    
+    private IFLogAppenderRegistry  appenderRegistry         = null!;
+    private IFLogLoggerRegistry    loggerRegistry           = null!;
+    private IFLoggerAsyncRegistry  asyncRegistry            = null!;
+    private IFLogConfigRegistry    configRegistry           = null!;
+    private IFLogEntryPoolRegistry logEntryPoolRegistry     = null!;
 
     private FLogContext() { }
 
@@ -98,6 +104,12 @@ public class FLogContext : IFLogContext
     public bool HasStarted { get; internal set; }
 
     public bool IsInitialized { get; internal set; }
+
+    public IFileSystemController FLogFileSystemController
+    {
+        get => flogFileSystemController ??= new FileSystemController();
+        set => flogFileSystemController = value;
+    }
 
     public IFLogAppenderRegistry AppenderRegistry
     {

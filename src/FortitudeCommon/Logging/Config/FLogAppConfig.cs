@@ -73,7 +73,7 @@ public class FLogAppConfig : FLoggerMatchedAppenders, IMutableFLogAppConfig
         var appConfig = new FLogAppConfig(InMemoryConfigRoot, IFLogAppConfig.DefaultFLogAppConfigPath);
         var consoleAppenderConfig = new ConsoleAppenderConfig
         {
-            AppenderName = ConsoleAppenderConfig.DefaultConsoleAppenderName,
+            AppenderName = IConsoleAppenderConfig.DefaultConsoleAppenderName,
         };
         appConfig.Appenders.Add(consoleAppenderConfig.AppenderName, consoleAppenderConfig);
         appConfig.RootLogger.LogLevel = FLogLevel.Debug;

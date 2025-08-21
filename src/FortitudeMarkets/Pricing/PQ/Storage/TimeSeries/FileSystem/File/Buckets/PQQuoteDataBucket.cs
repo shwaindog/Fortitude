@@ -3,7 +3,8 @@
 
 #region
 
-using FortitudeCommon.DataStructures.Memory.UnmanagedMemory.MemoryMappedFiles;
+using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers;
+using FortitudeCommon.DataStructures.Memory.Buffers.ByteBuffers.UnmanagedMemory.MemoryMappedFiles;
 using FortitudeCommon.Serdes.Binary;
 using FortitudeCommon.Types.Mutable;
 using FortitudeIO.Storage.TimeSeries;
